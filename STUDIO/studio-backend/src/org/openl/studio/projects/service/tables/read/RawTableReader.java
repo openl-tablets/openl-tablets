@@ -89,9 +89,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * empty when {@code startRow} is past the last row.
      * <p>
      * A read naming a table theme reports the look the theme gives each cell in its style and its runs, in place of
-     * the formatting of the workbook, the theme named as the source of the style. Such a read is a view only: an edit
-     * is made from a read of the workbook, so it never writes the theme. A cell the theme does not reach keeps the
-     * style the workbook holds.
+     * the formatting of the workbook, the theme named as the source of the style. Nothing of the formatting of the
+     * workbook is reported then but the indent, which sets out the structure of a table: a cell the theme does not
+     * reach has no other style. Such a read is a view only: the workbook is not changed.
      *
      * @param openLTable the table to read
      * @param read       the window of rows to read, and what to report besides the values of the cells
@@ -265,12 +265,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .colspan(cellModel.getColspan())
                 .rowspan(cellModel.getRowspan())
                 .metaInfo(read.withMetaInfo() ? metaInfoOf(cell, metaInfoReader, read.modules()) : null);
-        var themed = Optional.ofNullable(read.theme())
-                .map(theme -> theme.at(cell.getAbsoluteRow(), cell.getAbsoluteColumn()))
-                .orElse(null);
-        if (themed != null) {
-            drawInTheme(builder, cell, styleOf(cellModel), themed);
-        } else if (read.withStyles() || read.theme() != null) {
+        var theme = read.theme();
+        if (theme != null) {
+            drawInTheme(builder, cell, positive(cellModel.getIndent()),
+                    theme.at(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
+        } else if (read.withStyles()) {
             builder.style(styleOf(cellModel)).runs(runsOf(cell));
         }
         return builder.build();
@@ -298,31 +297,32 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * Reports a cell as the table theme draws it: in the style and the pieces of text the theme gives it, in place of
      * the formatting of the workbook.
      *
-     * <p>The style is the cell style with the attributes the theme sets laid over it. The header is drawn in the
-     * pieces of the theme. Any other text formatted in pieces of its own keeps them where the theme names nothing of
-     * the font of its cell, and is drawn in that font otherwise, as writing the theme gives.
+     * <p>The cell keeps the indent the workbook gives it, which sets out the structure of a table, such as the steps
+     * of a TBasic algorithm, and nothing else of its formatting. A cell the theme does not reach has no other style,
+     * and only the header is drawn in pieces, those of the theme.
      *
-     * @param style  the style the cell has in the workbook, or {@code null} when it has none
-     * @param themed how the theme draws the cell
+     * @param indent the indent of the cell in the workbook, or {@code null} for none
+     * @param themed how the theme draws the cell, or {@code null} when the theme does not reach it
      */
-    private static void drawInTheme(RawTableCell.RawTableCellBuilder builder, ICell cell,
-            @Nullable RawTableCellStyle style, ThemedTable.ThemedCell themed) {
+    private static void drawInTheme(RawTableCell.RawTableCellBuilder builder, ICell cell, @Nullable Integer indent,
+            ThemedTable.@Nullable ThemedCell themed) {
+        if (themed == null) {
+            builder.style(indent == null ? null : RawTableCellStyle.builder().indent(indent).build());
+            return;
+        }
         // Only the cell holding the header text is formatted in the pieces of the theme.
         var text = themed.header() == null ? null : cell.getStringValue();
-        var runs = themed.runs(text);
-        builder.style(ThemeStyles.over(style, themed.style()))
-                .runs(themed.keepsOwnRuns(runs) ? runsOf(cell) : runsOf(text, runs, style));
+        builder.style(ThemeStyles.of(themed.style(), indent)).runs(runsOf(text, themed.runs(text)));
     }
 
     /** The pieces of the theme as the Tables API reports them, or {@code null} when the theme formats none. */
-    private static @Nullable List<RawTableTextRun> runsOf(@Nullable String text, List<ThemedTable.ThemedRun> runs,
-            @Nullable RawTableCellStyle style) {
+    private static @Nullable List<RawTableTextRun> runsOf(@Nullable String text, List<ThemedTable.ThemedRun> runs) {
         if (text == null || runs.isEmpty()) {
             return null;
         }
         return runs.stream()
                 .map(run -> new RawTableTextRun(text.substring(run.start(), run.end()),
-                        ThemeStyles.fontOf(style, run.style())))
+                        ThemeStyles.fontOf(run.style())))
                 .toList();
     }
 

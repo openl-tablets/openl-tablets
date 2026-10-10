@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.studio.projects.model.tables.SimpleSpreadsheetView;
-import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 
@@ -34,7 +33,7 @@ class SimpleSpreadsheetTableIOTest {
                 .returnType("String")
                 .build();
 
-        var writer = new TableWritersFactory(new TableThemeService())
+        var writer = new TableWritersFactory()
                 .getNewTableWriter(view, TableTestProjects.sheetGrid(project, "WithProperties"));
         new TableWriterExecutor().executeWrite(writer, view);
 

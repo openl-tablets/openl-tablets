@@ -5,8 +5,7 @@ Content-Type: application/json
 {
   "showHeader": false,
   "showFormulas": true,
-  "tableTheme": "green",
-  "overrideWithStudioTheme": true,
+  "showExcelFormatting": true,
   "testsPerPage": 20,
   "testsFailuresOnly": true,
   "testsFailuresPerTest": -1,

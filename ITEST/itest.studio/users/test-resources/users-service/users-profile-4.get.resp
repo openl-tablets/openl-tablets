@@ -9,7 +9,7 @@ Content-Type: application/json
   "lastName": "Johnson",
   "showHeader": false,
   "showFormulas": false,
-  "overrideWithStudioTheme": false,
+  "showExcelFormatting": false,
   "testsPerPage": 20,
   "testsFailuresOnly": true,
   "testsFailuresPerTest": 20,

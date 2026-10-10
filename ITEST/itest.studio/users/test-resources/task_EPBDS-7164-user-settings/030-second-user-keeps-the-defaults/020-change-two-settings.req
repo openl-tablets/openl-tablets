@@ -3,6 +3,6 @@ Authorization: Basic Ym9iOmJvYi1wYXNz
 Content-Type: application/json
 
 {
-  "tableTheme": "standard",
+  "showExcelFormatting": true,
   "testsPerPage": 1
 }

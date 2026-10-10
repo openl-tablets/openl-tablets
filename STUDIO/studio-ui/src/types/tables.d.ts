@@ -3,20 +3,38 @@ import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
 import type { TraceParameterValue } from './trace'
 
 /**
- * Where a style comes from: the workbook, the default a read leaves out, or the table theme the read named, whose look
- * is a view only that no edit writes.
+ * Where a style comes from: the workbook, the default a read leaves out, or the table theme the read asked for, whose
+ * look is a view only that no edit writes.
  */
 export type RawTableStyleSource = 'workbook' | 'theme'
 
+/** One of the ten theme colours of Excel: the first and the second background and text, and the six accents. */
+export type ExcelThemeColorName = 'lt1' | 'dk1' | 'lt2' | 'dk2'
+    | 'accent1' | 'accent2' | 'accent3' | 'accent4' | 'accent5' | 'accent6'
+
 /**
- * Excel cell style read from the workbook, or the look a table theme draws the cell with where the read named one;
+ * A colour as one of the sixty colours the palette of Excel offers for the theme of the workbook: the theme colour the
+ * workbook writes, or the colour of the palette of Office 2013 - 2022 nearest to a colour of its own.
+ */
+export interface RawTableThemeColor {
+    name: ExcelThemeColorName
+    /** How much lighter, above 0, or darker, below 0, from -1 to 1: 0.6 for Lighter 60%; absent for none */
+    tint?: number
+}
+
+/**
+ * Excel cell style read from the workbook, or the look the table theme draws the cell with where the read asked for it;
  * every field is optional and absent when it is the default.
  */
 export interface RawTableCellStyle {
     /** Background colour as #rrggbb (absent when white) */
     background?: string
+    /** The background as a colour of the palette of Excel, present whenever `background` is */
+    backgroundTheme?: RawTableThemeColor
     /** Font colour as #rrggbb (absent when black) */
     color?: string
+    /** The font colour as a colour of the palette of Excel, present whenever `color` is */
+    colorTheme?: RawTableThemeColor
     /** Horizontal alignment */
     align?: string
     /** Vertical alignment */
@@ -32,16 +50,6 @@ export interface RawTableCellStyle {
     fontFamily?: string
     /** The size of the font in points; set by the table theme only */
     fontSize?: number
-    /**
-     * The key of the table theme file the background colour is set at, such as `spreadsheet.values.background`; set by
-     * the table theme only
-     */
-    backgroundKey?: string
-    /**
-     * The key of the table theme file the font colour is set at, such as `base.header.keyword.color`; set by the table
-     * theme only
-     */
-    colorKey?: string
     /** Where the style comes from: `theme` for the look of a table theme; absent for the style of the workbook */
     source?: RawTableStyleSource
 }
@@ -53,11 +61,8 @@ export interface RawTableCellBorderSide {
     width?: number
     /** Line colour as #rrggbb (absent when black) */
     color?: string
-    /**
-     * The key of the table theme file the line colour is set at, such as `spreadsheet.resultRow.border.top.color`,
-     * which names the side the file sets whichever side the line is drawn on; set by the table theme only
-     */
-    colorKey?: string
+    /** The line colour as a colour of the palette of Excel, present whenever `color` is */
+    colorTheme?: RawTableThemeColor
 }
 
 /** The cell borders, one entry per side. */
@@ -97,14 +102,14 @@ export interface RawTableCell {
     covered?: boolean
     /**
      * Excel cell style, present only when the raw table was requested with `styles=true`; the look of the table theme
-     * instead, with the theme as its `source`, where the read named the theme with `tableTheme=<id>`
+     * instead, with the theme as its `source`, where the read asked for the theme with `tableTheme=true`
      */
     style?: RawTableCellStyle
     /** What the compiler knows about the cell, present only when the read asked with `metaInfo=true` */
     metaInfo?: RawTableCellMetaInfo
     /**
      * Pieces of the text formatted with fonts of their own; read with the styles, absent for the cell font. Where the
-     * read named a table theme, the pieces the theme draws the text in instead
+     * read asked for the table theme, the pieces the theme draws the text in instead
      */
     runs?: RawTableTextRun[]
 }
@@ -143,10 +148,10 @@ interface RawTableCellMetaInfo {
 
 /** The styling to set on cells; an attribute left out is not touched. */
 export interface RawCellStyleInput {
-    /** Background colour as #rrggbb */
-    background?: string
-    /** Font colour as #rrggbb */
-    color?: string
+    /** The background as one of the sixty colours of the palette of Excel, written as the theme colour it is */
+    backgroundTheme?: RawTableThemeColor
+    /** The font colour as one of the sixty colours of the palette of Excel, written as the theme colour it is */
+    colorTheme?: RawTableThemeColor
     /** Horizontal alignment; `left` puts the cells back to the default */
     align?: 'left' | 'center' | 'right' | 'justify'
     bold?: boolean
@@ -179,19 +184,6 @@ export type TableEdit =
             style: RawCellStyleInput
         }
     }
-    /**
-     * Writes a table theme into a table the server offers themes for, as the table was saved. It is sent alone: a
-     * batch holding it and another edit is refused.
-     */
-    | { operation: 'theme', theme: string }
-
-/** A table theme OpenL Studio offers. */
-export interface TableThemeOption {
-    /** What the theme is asked for by: the name of its file */
-    id: string
-    /** What the theme is shown by */
-    name: string
-}
 
 export interface RawTableCellInput {
     value: string | number | boolean | null

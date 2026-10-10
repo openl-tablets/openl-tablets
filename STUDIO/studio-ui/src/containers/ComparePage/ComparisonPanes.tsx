@@ -137,7 +137,7 @@ const Side: React.FC<{ side: ComparisonSide; rows: ReadonlySet<number> | null }>
         }
     }
 
-    return <RawTableGrid decorate={decorate} rows={rows ? keepRows(side.source, rows) : side.source} />
+    return <RawTableGrid asInExcel decorate={decorate} rows={rows ? keepRows(side.source, rows) : side.source} />
 }
 
 /** The sign a row of the combined view is read by. */
@@ -217,7 +217,7 @@ const Combined: React.FC<{ combined: CombinedTable }> = ({ combined }) => {
         return { className: paint, painted: !!paint, muted: differs }
     }
 
-    return <RawTableGrid decorate={decorate} rows={source} testId="compare-combined" />
+    return <RawTableGrid asInExcel decorate={decorate} rows={source} testId="compare-combined" />
 }
 
 export default ComparisonPanes

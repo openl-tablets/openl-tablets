@@ -164,7 +164,8 @@ public final class PoiExcelHelper {
      * @param strikeout  whether the font is struck out
      * @param typeOffset the superscript or subscript, as {@link Font} names it
      * @param charset    the character set of the font
-     * @param color      the colour as {@code 0xRRGGBB}, as it is drawn, or {@code null} for the automatic colour
+     * @param color      the colour as {@code 0xRRGGBB}, as it is drawn, or {@code null} for the automatic colour and for
+     *                   a font of a theme colour
      * @param themed     the colour of the theme the font is coloured by, or {@code null} for a colour of its own
      */
     @Builder(toBuilder = true)
@@ -181,6 +182,16 @@ public final class PoiExcelHelper {
                                  @Nullable ThemedColor themed) {
 
         /**
+         * A font of a theme colour is told apart by the theme colour alone. Its workbook draws it from its own theme, so
+         * the same theme colour is drawn in other colours in workbooks of other themes.
+         */
+        public FontAttributes {
+            if (themed != null) {
+                color = null;
+            }
+        }
+
+        /**
          * The attributes of a font of a workbook.
          *
          * @param font     the font
@@ -188,11 +199,12 @@ public final class PoiExcelHelper {
          * @return the attributes of the font
          */
         public static FontAttributes of(Font font, Workbook workbook) {
+            var themed = font instanceof XSSFFont xssf ? ThemedColor.of(colourOf(xssf, workbook)) : null;
             return uncoloured(font)
-                    .withColor(Optional.ofNullable(getFontColor(font, workbook))
+                    .withThemed(themed)
+                    .withColor(themed != null ? null : Optional.ofNullable(getFontColor(font, workbook))
                             .map(PoiExcelHelper::toRgbValue)
-                            .orElse(null))
-                    .withThemed(font instanceof XSSFFont xssf ? ThemedColor.of(colourOf(xssf, workbook)) : null);
+                            .orElse(null));
         }
 
         /** The attributes of a font but its colour, which is the costly one to read. */
@@ -225,6 +237,10 @@ public final class PoiExcelHelper {
         /** The steps Excel writes a tint in: Lighter 60% as 19660 of them, 0.59999389629810485. */
         private static final int WRITTEN_STEPS = 32767;
 
+        /** The ten theme colours of Office 2013 - 2022 as {@code 0xRRGGBB}, in the order a workbook numbers them. */
+        private static final int[] OFFICE = {
+                0xFFFFFF, 0x000000, 0xE7E6E6, 0x44546A, 0x4472C4, 0xED7D31, 0xA5A5A5, 0xFFC000, 0x5B9BD5, 0x70AD47};
+
         /**
          * The colour of the theme a colour of a workbook is.
          *
@@ -244,6 +260,16 @@ public final class PoiExcelHelper {
          */
         public double writtenTint() {
             return (double) Math.divideExact(tint * WRITTEN_STEPS, Hls.TINT_STEPS) / WRITTEN_STEPS;
+        }
+
+        /**
+         * The colour as Office 2013 - 2022 draws it, the theme of a new workbook of Excel: the colour a workbook
+         * without a theme, such as an {@code .xls} one, is written in.
+         *
+         * @return the red, the green and the blue of the colour; the colour is one of the ten theme colours
+         */
+        public short[] toOfficeRgb() {
+            return applyTint(toRgb(OFFICE[index]), (double) tint / Hls.TINT_STEPS);
         }
 
         /**
@@ -331,8 +357,18 @@ public final class PoiExcelHelper {
      * {@link XSSFFont#setColor(XSSFColor)} takes the red, the green and the blue of a colour alone, so the colour is
      * set as the font writes it.
      */
-    private static void setThemedColor(XSSFFont font, ThemedColor themed, XSSFWorkbook workbook) {
+    static void setThemedColor(XSSFFont font, ThemedColor themed, XSSFWorkbook workbook) {
         font.getCTFont().setColorArray(new CTColor[]{themed.toColor(workbook).getCTColor()});
+    }
+
+    /**
+     * Whether a workbook has a theme to draw a theme colour from: an {@code .xlsx} one with a theme part.
+     *
+     * @param workbook the workbook
+     * @return whether a theme colour written into it takes the colour of its theme
+     */
+    public static boolean hasTheme(Workbook workbook) {
+        return workbook instanceof XSSFWorkbook xssf && xssf.getStylesSource().getTheme() != null;
     }
 
     // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.

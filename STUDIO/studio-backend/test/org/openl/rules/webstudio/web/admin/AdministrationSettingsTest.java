@@ -28,6 +28,21 @@ class AdministrationSettingsTest {
     }
 
     @Test
+    void formatsTheTablesOnSaveWhereTheAdministratorAsks() {
+        var properties = mock(PropertiesHolder.class);
+        when(properties.getProperty(AdministrationSettings.FORMAT_TABLES_ON_SAVE)).thenReturn("true");
+        var settings = new AdministrationSettings();
+
+        settings.load(properties);
+
+        assertTrue(settings.getFormatTablesOnSave());
+
+        settings.setFormatTablesOnSave(false);
+        settings.store(properties);
+        verify(properties).setProperty(AdministrationSettings.FORMAT_TABLES_ON_SAVE, false);
+    }
+
+    @Test
     void disablesProjectDetectionByExcelFilesByDefaultAndRevertsIt() {
         var properties = mock(PropertiesHolder.class);
         var settings = new AdministrationSettings();
@@ -43,6 +58,7 @@ class AdministrationSettingsTest {
                 AdministrationSettings.DATE_PATTERN,
                 AdministrationSettings.TIME_PATTERN,
                 AdministrationSettings.UPDATE_SYSTEM_PROPERTIES,
+                AdministrationSettings.FORMAT_TABLES_ON_SAVE,
                 AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY,
                 org.openl.engine.OpenLSystemProperties.DISPATCHING_VALIDATION,
                 AdministrationSettings.AUTO_COMPILE);

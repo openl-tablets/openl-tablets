@@ -1,20 +1,4 @@
 # A theme that makes its colours of the theme colours of Excel, named as the palette of Excel names them.
-name: Excel Theme Colours
-
-themeColors:
-  name: Office 2013 - 2022
-  background1: "#ffffff"
-  text1: "#000000"
-  background2: "#e7e6e6"
-  text2: "#44546a"
-  accent1: "#4472c4"
-  accent2: "#ed7d31"
-  accent3: "#a5a5a5"
-  accent4: "#ffc000"
-  accent5: "#5b9bd5"
-  accent6: "#70ad47"
-  hyperlink: "#0563c1"
-  followedHyperlink: "#954f72"
 
 colors:
   # As the formatting standard names them, the name Excel gives the colour first.
@@ -36,7 +20,6 @@ datatype:
   name:
     color: ink
     background: blue
-  # A part may name a theme colour itself, and a colour of its own beside it.
+  # A part may name a theme colour itself.
   values:
-    color: "#7f7f7f"
     background: Blue, Accent 5, Lighter 80%

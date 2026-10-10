@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -42,6 +44,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.writers.AXlsCellWriter;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
 import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
@@ -440,14 +443,33 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     @Override
     public void setCellFillColor(int col, int row, short[] color) {
+        setCellFill(col, row, color == null ? null : newStyle -> setCellFillColor(newStyle, color));
+    }
+
+    @Override
+    public void setCellFillColor(int col, int row, ThemedColor color) {
+        var workbook = getSheetToWrite().getWorkbook();
+        if (PoiExcelHelper.hasTheme(workbook)) {
+            setCellFill(col, row, newStyle -> ((XSSFCellStyle) newStyle)
+                    .setFillForegroundColor(color.toColor((XSSFWorkbook) workbook)));
+        } else {
+            setCellFillColor(col, row, color.toOfficeRgb());
+        }
+    }
+
+    /**
+     * Gives a cell a style of its own, alike the one it has but for the fill: solid in the colour set by the given
+     * way, or none.
+     */
+    private void setCellFill(int col, int row, @Nullable Consumer<CellStyle> colour) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite());
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
 
-        if (color != null) {
+        if (colour != null) {
             if (newStyle.getFillPattern() == FillPatternType.NO_FILL) {
                 newStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
             }
-            setCellFillColor(newStyle, color);
+            colour.accept(newStyle);
         } else {
             newStyle.setFillPattern(FillPatternType.NO_FILL);
         }
@@ -472,6 +494,38 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     @Override
     public void setCellFontColor(int col, int row, short[] color) {
+        setCellFont(col, row, newFont -> setFontColor(newFont, color));
+    }
+
+    /** Colours a font with the given colour, or black for none. */
+    private void setFontColor(Font font, short[] rgb) {
+        if (rgb == null) {
+            font.setColor(HSSFColor.HSSFColorPredefined.BLACK.getIndex());
+            // Xlsx
+        } else if (font instanceof XSSFFont xssf) {
+            xssf.setColor(PoiExcelHelper.getColor(rgb, (XSSFWorkbook) getSheetToWrite().getWorkbook()));
+            // Xls
+        } else {
+            var color = findIndexedColor(rgb);
+            if (color != null) {
+                font.setColor(color);
+            }
+        }
+    }
+
+    @Override
+    public void setCellFontColor(int col, int row, ThemedColor color) {
+        var workbook = getSheetToWrite().getWorkbook();
+        if (PoiExcelHelper.hasTheme(workbook)) {
+            setCellFont(col, row,
+                    newFont -> PoiExcelHelper.setThemedColor((XSSFFont) newFont, color, (XSSFWorkbook) workbook));
+        } else {
+            setCellFontColor(col, row, color.toOfficeRgb());
+        }
+    }
+
+    /** Gives a cell a font of its own, alike the one it has but for the colour, which is set by the given way. */
+    private void setCellFont(int col, int row, Consumer<Font> colour) {
         var sheet = getSheetToWrite();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         var workbook = sheet.getWorkbook();
@@ -490,22 +544,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         newFont.setTypeOffset(fromFont.getTypeOffset());
         newFont.setUnderline(fromFont.getUnderline());
         newFont.setCharSet(fromFont.getCharSet());
-
-        if (color != null) {
-            // Xlsx
-            if (newFont instanceof XSSFFont font) {
-                font.setColor(PoiExcelHelper.getColor(color, (XSSFWorkbook) workbook));
-
-                // Xls
-            } else {
-                var color1 = findIndexedColor(color);
-                if (color1 != null) {
-                    newFont.setColor(color1);
-                }
-            }
-        } else {
-            newFont.setColor(HSSFColor.HSSFColorPredefined.BLACK.getIndex());
-        }
+        colour.accept(newFont);
 
         newStyle.setFont(newFont);
         cell.setCellStyle(newStyle);

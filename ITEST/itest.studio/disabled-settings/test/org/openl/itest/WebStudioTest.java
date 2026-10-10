@@ -27,6 +27,7 @@ class WebStudioTest {
                     .withInitParam("data.format.date", "MM/dd/yyyy")
                     .withInitParam("data.format.time", "hh:mm:ss a")
                     .withInitParam("update.system.properties", "true")
+                    .withInitParam("table.format-on-save", "true")
                     .withInitParam("test.run.thread.count", "3")
                     .withInitParam("compile.auto", "false")
                     .withInitParam("dispatching.validation", "false")

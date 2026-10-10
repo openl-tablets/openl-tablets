@@ -1,5 +1,7 @@
 import traceService from 'services/traceService'
 import { buildSimpleOrder, treeFromNodes, useTraceStore } from 'store/traceStore'
+import { useUserStore } from 'store/userStore'
+import type { UserProfile } from 'types/user'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('services/traceService', () => ({
@@ -221,6 +223,21 @@ describe('traceStore race hardening', () => {
         expect(second).toBe(raw)
         expect(getRawTable).toHaveBeenCalledTimes(1) // the second call is served from the cache
         expect(useTraceStore.getState().rawTableCache['tbl']).toBe(raw)
+    })
+
+    it('reads a table in the table theme, or in its Excel formatting where the reader asks for it', async () => {
+        getRawTable.mockResolvedValue({ id: 'tbl', name: 'BaseRate', source: []} as any)
+        await useTraceStore.getState().loadRawTable('tbl')
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 'tbl', expect.any(Number), false)
+
+        const { userProfile } = useUserStore.getState()
+        useUserStore.setState({ userProfile: { ...userProfile, showExcelFormatting: true } as UserProfile })
+        try {
+            await useTraceStore.getState().loadRawTable('other')
+        } finally {
+            useUserStore.setState({ userProfile })
+        }
+        expect(getRawTable).toHaveBeenLastCalledWith('p1', 'other', expect.any(Number), true)
     })
 
     it('clears the raw table cache on reset', async () => {

@@ -5,27 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
-import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableStyleSource;
-import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
+import org.openl.studio.projects.model.tables.RawTableThemeColor;
+import org.openl.studio.projects.model.tables.RawTableThemeColorName;
+import org.openl.studio.projects.service.tables.theme.ThemeBorder;
+import org.openl.studio.projects.service.tables.theme.ThemeBorderLine;
+import org.openl.studio.projects.service.tables.theme.ThemeColour;
 import org.openl.studio.projects.service.tables.theme.ThemeHorizontalAlign;
+import org.openl.studio.projects.service.tables.theme.ThemeLineStyle;
 import org.openl.studio.projects.service.tables.theme.ThemeStyle;
 import org.openl.studio.projects.service.tables.theme.ThemeVerticalAlign;
 
 class ThemeStylesTest {
 
-    /** A cell of a workbook centred, aligned to the top, bold and italic. */
-    private static final RawTableCellStyle WORKBOOK = RawTableCellStyle.builder()
-            .align(RawTableHorizontalAlign.CENTER)
-            .valign(RawTableVerticalAlign.TOP)
-            .bold(true)
-            .italic(true)
-            .underline(true)
-            .strikeout(true)
-            .build();
-
-    /** A look that sets every one of those attributes at its default, as the base style of the Standard theme does. */
+    /** A look that sets the alignment and the font at their defaults, as the base style of the theme does. */
     private static final ThemeStyle DEFAULTS = ThemeStyle.builder()
             .align(ThemeHorizontalAlign.LEFT)
             .valign(ThemeVerticalAlign.BOTTOM)
@@ -36,34 +31,49 @@ class ThemeStylesTest {
             .build();
 
     @Test
-    void takesAwayTheAlignmentAndTheFontOfTheWorkbookWhereTheThemeSetsThemAtTheirDefault() {
-        var drawn = ThemeStyles.over(WORKBOOK, DEFAULTS);
+    void leavesOutWhatTheThemeSetsAtItsDefault() {
+        var drawn = ThemeStyles.of(DEFAULTS, null);
 
         // The defaults are left out of what a read reports, as the style read from the workbook leaves them out.
-        assertNull(drawn.align());
-        assertNull(drawn.valign());
-        assertNull(drawn.bold());
-        assertNull(drawn.italic());
-        assertNull(drawn.underline());
-        assertNull(drawn.strikeout());
+        assertEquals(RawTableCellStyle.builder().source(RawTableStyleSource.THEME).build(), drawn);
     }
 
     @Test
-    void keepsWhatTheWorkbookGivesWhereTheThemeSetsNothing() {
-        var drawn = ThemeStyles.over(WORKBOOK, ThemeStyle.builder().build());
+    void keepsTheIndentOfTheCellAndNothingElseOfTheWorkbook() {
+        var drawn = ThemeStyles.of(ThemeStyle.builder().build(), 2);
 
-        // The style is the theme's all the same: a read reports it in place of the style of the workbook.
-        assertEquals(WORKBOOK.toBuilder().source(RawTableStyleSource.THEME).build(), drawn);
+        // The indent sets out the structure of a table, such as the steps of a TBasic algorithm.
+        assertEquals(RawTableCellStyle.builder().source(RawTableStyleSource.THEME).indent(2).build(), drawn);
     }
 
     @Test
-    void takesTheFontFlagsOfTheCellAwayWhereThePieceTurnsThemOff() {
-        var piece = ThemeStyles.fontOf(WORKBOOK, DEFAULTS);
+    void givesAPieceOfTextTheFontOfTheThemeAlone() {
+        var piece = ThemeStyles.fontOf(ThemeStyle.builder().bold(true).build());
 
         assertEquals(RawTableStyleSource.THEME, piece.source());
-        assertNull(piece.bold());
+        assertEquals(Boolean.TRUE, piece.bold());
         assertNull(piece.italic());
-        assertNull(piece.underline());
-        assertNull(piece.strikeout());
+        assertNull(piece.color(), "A piece of text keeps no colour of the workbook");
+    }
+
+    @Test
+    void reportsEveryColourOfTheLookAsTheThemeColourItIs() {
+        var blue = new ThemeColour(new ThemedColor(4, 600));
+        var orange = new ThemeColour(new ThemedColor(5, -250));
+        var look = ThemeStyle.builder()
+                .background(blue)
+                .color(orange)
+                .border(new ThemeBorder(null, null, new ThemeBorderLine(ThemeLineStyle.THIN, blue), null))
+                .build();
+
+        var drawn = ThemeStyles.of(look, null);
+
+        assertEquals("#b4c6e7", drawn.background());
+        assertEquals(new RawTableThemeColor(RawTableThemeColorName.ACCENT1, 0.6), drawn.backgroundTheme());
+        // Drawn as Office 2013 - 2022 draws Orange, Accent 2, Darker 25%.
+        assertEquals("#c65911", drawn.color());
+        assertEquals(new RawTableThemeColor(RawTableThemeColorName.ACCENT2, -0.25), drawn.colorTheme());
+        assertEquals(new RawTableThemeColor(RawTableThemeColorName.ACCENT1, 0.6), drawn.border().bottom().colorTheme());
+        assertEquals(drawn.colorTheme(), ThemeStyles.fontOf(look).colorTheme());
     }
 }

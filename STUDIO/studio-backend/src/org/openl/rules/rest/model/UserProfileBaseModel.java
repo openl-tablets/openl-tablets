@@ -20,8 +20,7 @@ public class UserProfileBaseModel extends UserInfoModel {
 
     private static final String TABLE_VIEW = "table.view";
     private static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
-    private static final String TABLE_THEME = "table.theme";
-    private static final String TABLE_THEME_OVERRIDE = "table.theme-override";
+    private static final String TABLE_EXCEL_FORMATTING_SHOW = "table.excelFormatting.show";
     private static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
     private static final String TEST_FAILURES_ONLY = "test.failures.only";
     private static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
@@ -37,16 +36,10 @@ public class UserProfileBaseModel extends UserInfoModel {
     private @Nullable Boolean showFormulas;
 
     @Getter
-    @Parameter(description = "Identifier of the table theme every table but a table of the type Other is drawn "
-            + "with on the screen; empty to draw the tables with the formatting of the Excel file. A view only: the "
-            + "workbook is not changed, and applying a theme starts from the primary one whatever this names")
-    private @Nullable String tableTheme;
-
-    @Getter
-    @Parameter(description = "Draw the tables in the look of the OpenL Studio theme in place of the table theme, where "
-            + "the Studio theme has a look of its own for the tables; under any other Studio theme the table theme is "
-            + "drawn. A view only: the workbook is not changed")
-    private @Nullable Boolean overrideWithStudioTheme;
+    @Parameter(description = "Show the tables in the formatting and the colours of their Excel files, as Excel shows "
+            + "them, rather than formatted with the table theme in the colours of the OpenL Studio theme. A view only: "
+            + "the workbook is not changed")
+    private @Nullable Boolean showExcelFormatting;
 
     @Getter
     @Parameter(description = "Test results per page, or -1 for all")
@@ -77,8 +70,7 @@ public class UserProfileBaseModel extends UserInfoModel {
     public void load(UserSettings settings) {
         showHeader = IXlsTableNames.VIEW_DEVELOPER.equals(settings.getString(TABLE_VIEW));
         showFormulas = settings.getBoolean(TABLE_FORMULAS_SHOW);
-        tableTheme = settings.getString(TABLE_THEME);
-        overrideWithStudioTheme = settings.getBoolean(TABLE_THEME_OVERRIDE);
+        showExcelFormatting = settings.getBoolean(TABLE_EXCEL_FORMATTING_SHOW);
         testsPerPage = settings.getInteger(TEST_TESTS_PERPAGE);
         testsFailuresOnly = settings.getBoolean(TEST_FAILURES_ONLY);
         testsFailuresPerTest = settings.getInteger(TEST_FAILURES_PERTEST);
@@ -89,8 +81,7 @@ public class UserProfileBaseModel extends UserInfoModel {
     /**
      * Saves the settings the profile carries, each as the text of its value under its key.
      *
-     * <p>A setting the profile leaves out keeps the value stored for the user. An empty table theme is a value: it
-     * draws the tables with the formatting of the Excel file.
+     * <p>A setting the profile leaves out keeps the value stored for the user.
      *
      * @param settings saves the value of a setting under its key
      */
@@ -99,8 +90,7 @@ public class UserProfileBaseModel extends UserInfoModel {
                 .map(shown -> shown ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS)
                 .ifPresent(view -> settings.accept(TABLE_VIEW, view));
         store(settings, TABLE_FORMULAS_SHOW, showFormulas);
-        store(settings, TABLE_THEME, tableTheme);
-        store(settings, TABLE_THEME_OVERRIDE, overrideWithStudioTheme);
+        store(settings, TABLE_EXCEL_FORMATTING_SHOW, showExcelFormatting);
         store(settings, TEST_TESTS_PERPAGE, testsPerPage);
         store(settings, TEST_FAILURES_ONLY, testsFailuresOnly);
         store(settings, TEST_FAILURES_PERTEST, testsFailuresPerTest);
@@ -142,13 +132,8 @@ public class UserProfileBaseModel extends UserInfoModel {
         return this;
     }
 
-    public UserProfileBaseModel setTableTheme(@Nullable String tableTheme) {
-        this.tableTheme = tableTheme;
-        return this;
-    }
-
-    public UserProfileBaseModel setOverrideWithStudioTheme(@Nullable Boolean overrideWithStudioTheme) {
-        this.overrideWithStudioTheme = overrideWithStudioTheme;
+    public UserProfileBaseModel setShowExcelFormatting(@Nullable Boolean showExcelFormatting) {
+        this.showExcelFormatting = showExcelFormatting;
         return this;
     }
 

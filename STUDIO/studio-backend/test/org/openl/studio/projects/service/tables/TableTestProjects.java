@@ -2,8 +2,11 @@ package org.openl.studio.projects.service.tables;
 
 import static org.mockito.Mockito.mock;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -36,6 +39,46 @@ import org.openl.studio.projects.service.tables.read.RawTableReader;
 public final class TableTestProjects {
 
     private TableTestProjects() {
+    }
+
+    /**
+     * Gives a workbook a theme of Excel of the given theme colours, its fonts those of Trek. The first text and
+     * background are the colours of a window, as Excel writes them.
+     *
+     * @param workbook the workbook
+     * @param colours  the twelve theme colours as {@code RRGGBB}, in the order a workbook numbers them: the first
+     *                 background and text, the second ones, the six accents and the two colours of a hyperlink
+     */
+    public static void useTheme(XSSFWorkbook workbook, String... colours) {
+        String[] slots = {"lt1", "dk1", "lt2", "dk2", "accent1", "accent2", "accent3", "accent4", "accent5",
+                "accent6", "hlink", "folHlink"};
+        var scheme = new StringBuilder("<a:dk1><a:sysClr val=\"windowText\" lastClr=\"%s\"/></a:dk1>"
+                .formatted(colours[1]))
+                .append("<a:lt1><a:sysClr val=\"window\" lastClr=\"%s\"/></a:lt1>".formatted(colours[0]));
+        // A workbook numbers the first background before the first text; its theme holds the text first.
+        for (var at : new int[]{3, 2, 4, 5, 6, 7, 8, 9, 10, 11}) {
+            scheme.append("<a:%1$s><a:srgbClr val=\"%2$s\"/></a:%1$s>".formatted(slots[at], colours[at]));
+        }
+        var theme = """
+                <a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Test">
+                  <a:themeElements>
+                    <a:clrScheme name="Test">%s</a:clrScheme>
+                    <a:fontScheme name="Trek">
+                      <a:majorFont><a:latin typeface="Franklin Gothic Medium"/><a:ea typeface=""/><a:cs typeface=""/>
+                      </a:majorFont>
+                      <a:minorFont><a:latin typeface="Franklin Gothic Book"/><a:ea typeface=""/><a:cs typeface=""/>
+                      </a:minorFont>
+                    </a:fontScheme>
+                  </a:themeElements>
+                </a:theme>
+                """.formatted(scheme).getBytes(StandardCharsets.UTF_8);
+        var styles = workbook.getStylesSource();
+        styles.ensureThemesTable();
+        try {
+            styles.getTheme().readFrom(new ByteArrayInputStream(theme));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /**

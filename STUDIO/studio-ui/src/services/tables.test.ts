@@ -1,16 +1,13 @@
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import type { CopyTableRequest, CreateTableRequest } from 'types/tables'
-import apiCall, { notifyLoadFailure } from './apiCall'
+import apiCall from './apiCall'
 import {
-    applyProjectTableTheme,
     copyTable,
     createTable,
     getDatatype,
     getProjectTables,
     getTableCopyInfo,
-    getTableThemes,
-    getTableThemesOf,
 } from './tables'
 
 vi.mock('./apiCall', () => ({
@@ -22,8 +19,6 @@ vi.mock('./apiCall', () => ({
 vi.mock('../i18n', () => ({
     default: {
         t: (key: string, options?: { table?: string, count?: number }) => ({
-            'project:table_theme.project_applied': `Table theme applied to ${options?.count} tables`,
-            'project:table_theme.project_skipped': `${options?.count} tables were left as they are.`,
             'project:create_table_modal.created': 'Table created',
             'project:create_table_modal.created_description':
                 `The "${options?.table}" table was created successfully.`,
@@ -244,65 +239,5 @@ describe('getDatatype', () => {
         mockApiCall.mockResolvedValueOnce({ type: 'Integer', values: [{ value: 1 }, { value: 2 }, {}]})
 
         await expect(getDatatype('project-id', 'limits-id')).resolves.toEqual({ fields: [], values: ['1', '2']})
-    })
-})
-
-describe('table theme', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-        vi.spyOn(notification, 'success').mockImplementation(() => {})
-    })
-
-    it('asks for the table themes once, and again only after an answer that failed', async () => {
-        mockApiCall.mockRejectedValueOnce(new Error('down'))
-        await expect(getTableThemes()).rejects.toThrow('down')
-
-        mockApiCall.mockResolvedValueOnce([{ id: 'default', name: 'Default' }])
-        await expect(getTableThemes()).resolves.toEqual([{ id: 'default', name: 'Default' }])
-        await expect(getTableThemes()).resolves.toEqual([{ id: 'default', name: 'Default' }])
-
-        expect(mockApiCall).toHaveBeenCalledTimes(2)
-        expect(mockApiCall).toHaveBeenLastCalledWith('/table-themes', undefined,
-            { throwError: true, suppressErrorPages: true })
-    })
-
-    it('asks which table themes style a table, through the module it is read in', async () => {
-        mockApiCall.mockResolvedValueOnce([{ id: 'green', name: 'Green' }])
-
-        await expect(getTableThemesOf('project-id', 'table-id', 'Main'))
-            .resolves.toEqual([{ id: 'green', name: 'Green' }])
-
-        expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/tables/table-id/themes?module=Main', undefined,
-            { throwError: true, suppressErrorPages: true })
-    })
-
-    it('says how many tables of the project were themed and how many were left as they are', async () => {
-        mockApiCall.mockResolvedValueOnce({ themed: ['a', 'b'], skipped: ['c']})
-
-        await expect(applyProjectTableTheme('project-id', 'green'))
-            .resolves.toEqual({ themed: ['a', 'b'], skipped: ['c']})
-
-        expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/theme?theme=green', { method: 'POST' },
-            { throwError: true, suppressErrorPages: true })
-        expect(notification.success).toHaveBeenCalledWith({
-            title: 'Table theme applied to 2 tables',
-            description: '1 tables were left as they are.',
-        })
-    })
-
-    it('reads a list the server left out as an empty one', async () => {
-        mockApiCall.mockResolvedValueOnce({})
-
-        await applyProjectTableTheme('project-id', 'default')
-
-        expect(notification.success).toHaveBeenCalledWith({ title: 'Table theme applied to 0 tables' })
-    })
-
-    it('answers nothing when the theme could not be written into the project', async () => {
-        mockApiCall.mockRejectedValueOnce(new Error('locked'))
-
-        await expect(applyProjectTableTheme('project-id', 'default')).resolves.toBeNull()
-
-        expect(notifyLoadFailure).toHaveBeenCalledWith('project:table_theme.apply_failed', expect.any(Error))
     })
 })

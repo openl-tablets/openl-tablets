@@ -12,7 +12,8 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
-vi.mock('../../services/modules', () => ({
+vi.mock('../../services/modules', async importOriginal => ({
+    ...await importOriginal<typeof import('../../services/modules')>(),
     searchTables: vi.fn(),
     getRawTable: vi.fn(),
     TABLE_PAGE_ROWS: 2000,
@@ -253,8 +254,9 @@ describe('TableSearchModal', () => {
         await userEvent.click(screen.getByTestId('table-search-body-table-9'))
 
         await waitFor(() => expect(screen.getByTestId('table-search-grid-table-9')).toBeInTheDocument())
-        // The body is read where the table is written, not where the search was started.
-        expect(getRawTable).toHaveBeenCalledWith('p1', 'table-9', expect.objectContaining({ module: 'ClaimsTests' }))
+        // The body is read where the table is written, not where the search was started, and in the table theme.
+        expect(getRawTable).toHaveBeenCalledWith('p1', 'table-9',
+            expect.objectContaining({ module: 'ClaimsTests', styles: false, tableTheme: true }))
 
         await userEvent.click(screen.getByTestId('table-search-body-table-9'))
 

@@ -1,0 +1,178 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0e31423acbfea77e07c32c8b334eaee6",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting",
+  "pos": "B27:D29",
+  "source": [
+    [
+      {
+        "cell": "B27",
+        "value": "SimpleRules String Greeting(Integer hour, String name)",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        },
+        "runs": [
+          {
+            "text": "SimpleRules",
+            "style": {
+              "color": "#808080"
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "String",
+            "style": {
+              "color": "#808080"
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "Greeting",
+            "style": {
+              "bold": true
+            }
+          },
+          {
+            "text": "(Integer hour, String name)",
+            "style": {
+              "color": "#808080"
+            }
+          }
+        ]
+      },
+      {
+        "cell": "C27",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D27",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B28",
+        "value": "Hour",
+        "style": {
+          "background": "#bfbfbf",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      },
+      {
+        "cell": "C28",
+        "value": "Name",
+        "style": {
+          "background": "#bfbfbf",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      },
+      {
+        "cell": "D28",
+        "value": "Greeting",
+        "style": {
+          "background": "#b8cce4",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B29",
+        "value": "< 12",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C29",
+        "value": "Bob",
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D29",
+        "value": "Good Morning",
+        "style": {
+          "background": "#daeef3",
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

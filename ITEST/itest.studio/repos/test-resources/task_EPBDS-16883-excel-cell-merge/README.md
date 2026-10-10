@@ -16,6 +16,6 @@ side branch into master.
 | `050-same-cell` | Both branches change one cell differently | conflict, manual resolution |
 | `060-row-inserted` | One branch inserts a row inside a table | conflict, manual resolution |
 | `070-other-file-resolved-manually` | Another file conflicts as well | the file by hand, the workbook automatically |
-| `080-theme-and-values` | One branch applies a table theme, the other changes values of that table | merged automatically |
+| `080-theme-and-values` | One branch saves a table formatted with the table theme, the other changes its values | merged automatically |
 
 A conflict here is the expected result, not a defect.

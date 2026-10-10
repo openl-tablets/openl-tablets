@@ -8,7 +8,7 @@ Content-Type: application/json
   "lastName": "Admin",
   "showHeader": true,
   "showFormulas": false,
-  "overrideWithStudioTheme": false,
+  "showExcelFormatting": false,
   "testsPerPage": 5,
   "testsFailuresOnly": false,
   "testsFailuresPerTest": 5,

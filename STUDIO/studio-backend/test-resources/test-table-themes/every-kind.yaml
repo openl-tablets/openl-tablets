@@ -1,27 +1,7 @@
 # A theme that gives a look of its own to every kind of table the shipped themes leave to the General format, so every
 # layout of such a kind is tested with looks that tell its places apart. The parts the kinds share are written once in
-# the base, and each kind extends it. The Standard theme of OpenL Studio gave these looks before it took the General
+# the base, and each kind extends it. The table theme of OpenL Studio gave these looks before it took the General
 # format of the standard for the kinds the standard describes no look for.
-
-name: Every Kind
-
-# The theme colours of Excel the colours below are made of: Office 2013 - 2022, whose colours the standard names.
-# A workbook of these theme colours is written each colour as its theme colour, so Excel offers it in its palette;
-# any other workbook as #rrggbb, its theme left as it is.
-themeColors:
-  name: Office 2013 - 2022
-  background1: "#ffffff"
-  text1: "#000000"
-  background2: "#e7e6e6"
-  text2: "#44546a"
-  accent1: "#4472c4"
-  accent2: "#ed7d31"
-  accent3: "#a5a5a5"
-  accent4: "#ffc000"
-  accent5: "#5b9bd5"
-  accent6: "#70ad47"
-  hyperlink: "#0563c1"
-  followedHyperlink: "#954f72"
 
 # The colours of the theme, each named once: a part names the colour it takes, so a colour changes in one place. Each
 # is a theme colour, written as the standard and the palette of Excel name it.

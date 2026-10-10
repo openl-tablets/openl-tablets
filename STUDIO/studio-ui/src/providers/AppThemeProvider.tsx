@@ -10,8 +10,10 @@ import {
     storeThemeMode,
     storeThemeName,
 } from '../utils/themeMode'
+import { useExcelFormatting } from '../hooks/useExcelFormatting'
 import { appTheme } from '../styles/appTheme'
 import { paletteOf } from '../styles/listPageTheme'
+import { tableThemeOf } from '../styles/tableColours'
 import type { ThemeName } from '../styles/themes'
 import '../styles/customToken'
 
@@ -78,7 +80,8 @@ const ThemeColorMeta = () => {
  * The provider adds the algorithm of the appearance, dark or default, to the tokens the theme hands over. The
  * palette of the theme and appearance in force is read off the token it works out, and travels down as the `openl`
  * custom token, so a style that needs a real colour reads it from the theme instead of importing a palette of its
- * own.
+ * own. How the tables of the workbooks are drawn travels as the `table` custom token: in the colours of the theme,
+ * or in the colours of their Excel files where the profile of the user asks for those.
  */
 export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
@@ -113,9 +116,14 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
         [compact, themeName]
     )
 
+    // The tables follow the theme unless the reader asks, in My Settings, for the formatting of their Excel files.
+    const excelFormatting = useExcelFormatting()
     const customToken = useCallback(
-        ({ token, isDarkMode }: CustomTokenParams) => ({ openl: paletteOf(token, themeName, isDarkMode) }),
-        [themeName]
+        ({ token, isDarkMode }: CustomTokenParams) => ({
+            openl: paletteOf(token, themeName, isDarkMode),
+            table: tableThemeOf(themeName, isDarkMode, token, excelFormatting),
+        }),
+        [excelFormatting, themeName]
     )
 
     return (

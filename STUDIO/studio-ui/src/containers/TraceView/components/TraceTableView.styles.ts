@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style'
-import { paperToken } from '../../../styles/paper'
+import { tableOf } from '../../../styles/tableColours'
 
 export const useStyles = createStyles(({ css, token }) => ({
     card: css`
@@ -40,20 +40,21 @@ export const useStyles = createStyles(({ css, token }) => ({
     /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend.
        Matches the legacy trace: a matched condition and the returned result are green, an unmatched
        condition is red. The result stands apart from a plain matched condition by a bold green border.
-       The marks lie on the paper of the table ({@link paperToken}), and the legend keys them with these classes. */
+       The marks lie on the paper of the table, in the colours it gives them, and the legend keys them with these
+       classes. */
     current: css`
-        background: ${paperToken().colorWarningBg};
+        background: ${tableOf(token).marks.colorWarningBg};
     `,
     result: css`
-        background: ${paperToken().colorSuccessBg};
-        box-shadow: inset 0 0 0 1px ${paperToken().colorSuccess};
+        background: ${tableOf(token).marks.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${tableOf(token).marks.colorSuccess};
         font-weight: 600;
     `,
     conditionTrue: css`
-        background: ${paperToken().colorSuccessBg};
+        background: ${tableOf(token).marks.colorSuccessBg};
     `,
     conditionFalse: css`
-        background: ${paperToken().colorErrorBg};
+        background: ${tableOf(token).marks.colorErrorBg};
     `,
     // The colour key, shown under the table — but only for the states this table actually paints.
     legend: css`

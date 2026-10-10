@@ -35,9 +35,12 @@ Content-Type: application/json
             "text": "Spreadsheet",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -53,9 +56,12 @@ Content-Type: application/json
             "text": "SpreadsheetResult",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -88,9 +94,12 @@ Content-Type: application/json
             "text": "( Person person )",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.parameters.color",
               "source": "theme"
             }
           }
@@ -109,6 +118,10 @@ Content-Type: application/json
         "value": "properties",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -118,7 +131,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.properties.color",
           "source": "theme"
         }
       },
@@ -127,6 +139,10 @@ Content-Type: application/json
         "value": "description",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -136,7 +152,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.properties.color",
           "source": "theme"
         }
       },
@@ -145,6 +160,10 @@ Content-Type: application/json
         "value": "The premium of a person",
         "style": {
           "color": "#808080",
+          "colorTheme": {
+            "name": "lt1",
+            "tint": -0.5
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -154,7 +173,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "colorKey": "base.properties.color",
           "source": "theme"
         }
       }
@@ -165,12 +183,15 @@ Content-Type: application/json
         "value": "Step",
         "style": {
           "background": "#bfbfbf",
+          "backgroundTheme": {
+            "name": "lt1",
+            "tint": -0.25
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.stepTitle.background",
           "source": "theme"
         }
       },
@@ -179,12 +200,15 @@ Content-Type: application/json
         "value": "Formula",
         "style": {
           "background": "#b4c6e7",
+          "backgroundTheme": {
+            "name": "accent1",
+            "tint": 0.6
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.titles.background",
           "source": "theme"
         }
       },
@@ -192,12 +216,15 @@ Content-Type: application/json
         "cell": "D21",
         "style": {
           "background": "#b4c6e7",
+          "backgroundTheme": {
+            "name": "accent1",
+            "tint": 0.6
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.titles.background",
           "source": "theme"
         }
       }
@@ -225,6 +252,10 @@ Content-Type: application/json
         "value": "= 10",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -234,7 +265,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       },
@@ -242,6 +272,10 @@ Content-Type: application/json
         "cell": "D22",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -251,7 +285,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       }
@@ -263,6 +296,10 @@ Content-Type: application/json
         "colspan": 3,
         "style": {
           "background": "#b4c6e7",
+          "backgroundTheme": {
+            "name": "accent1",
+            "tint": 0.6
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
@@ -275,7 +312,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.sections.background",
           "source": "theme"
         }
       },
@@ -309,6 +345,10 @@ Content-Type: application/json
         "value": "= $Base * 2",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -318,7 +358,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       },
@@ -326,6 +365,10 @@ Content-Type: application/json
         "cell": "D24",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "valign": "center",
           "border": {
             "bottom": {
@@ -335,7 +378,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "spreadsheet.values.background",
           "source": "theme"
         }
       }

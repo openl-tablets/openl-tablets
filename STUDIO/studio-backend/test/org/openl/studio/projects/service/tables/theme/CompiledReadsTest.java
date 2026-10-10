@@ -26,7 +26,6 @@ class CompiledReadsTest {
 
     /** A theme that gives every kind of table a look of its own, so the base tells apart from any look. */
     private static final TableThemeService LOOKS = TestThemes.everyKind();
-    private static final String THEME = TestThemes.EVERY_KIND;
 
     /** The looks that theme gives. */
     private static final String WHITE = "#ffffff";
@@ -109,7 +108,7 @@ class CompiledReadsTest {
     void givesAVocabularyOfATypeThatDoesNotExistTheBaseAlone() {
         var standard = new TableThemeService();
 
-        var layout = standard.layoutOf(tableAt(CODE_ROW), "standard");
+        var layout = standard.layoutOf(tableAt(CODE_ROW));
 
         // The shipped theme centres the values of a Vocabulary; the compiler read none of these.
         assertEquals(ThemeHorizontalAlign.LEFT, layout.at(CODE_ROW + 1, 1).style().align());
@@ -157,7 +156,7 @@ class CompiledReadsTest {
     }
 
     private ThemedTable layoutAt(int row) {
-        return LOOKS.layoutOf(tableAt(row), THEME);
+        return LOOKS.layoutOf(tableAt(row));
     }
 
     /** A table of every kind the compiler reads in a way of its own, or reads none of. */

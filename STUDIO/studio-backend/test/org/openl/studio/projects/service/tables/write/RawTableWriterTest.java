@@ -1,7 +1,6 @@
 package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +41,8 @@ import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableThemeColor;
+import org.openl.studio.projects.model.tables.RawTableThemeColorName;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
@@ -59,7 +60,7 @@ class RawTableWriterTest {
 
     private static final String HEADER = "Datatype Greeting";
 
-    /** The themes a {@code theme} edit is written with. */
+    /** The table theme a table saved is formatted with. */
     private static final TableThemeService THEMES = new TableThemeService();
 
     @TempDir
@@ -157,7 +158,7 @@ class RawTableWriterTest {
 
     @Test
     void setsTheStylingOfEveryCellOfARange() {
-        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", "#ff0000",
+        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", null, "#ff0000", null,
                 RawTableHorizontalAlign.CENTER, true, true, true, 2)));
 
         var source = reloadStyled(mainProject);
@@ -176,23 +177,11 @@ class RawTableWriterTest {
     }
 
     @Test
-    void writesATableThemeIntoTheTable() {
-        apply(new RawTableSourceAction.Theme("standard"));
+    void aTableFormattedAfterAnEditTakesTheThemeOverThePropertiesTheNoteOfTheEditLaidDown() {
+        applyNoted(mainProject, updateCell(1, 2, "alpha"));
+        format(mainProject);
 
-        var source = reloadStyled(mainProject);
-        assertNotNull(styleOf(source, 0, 0).border().bottom(), "The header is closed by a line");
-        assertEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 0, 0).align());
-        assertEquals("#ddebf7", styleOf(source, 1, 1).background(), "The field names take the look of their column");
-        assertNull(styleOf(source, 2, 0).border(), "A row before the last is not closed");
-        assertNotNull(styleOf(source, 3, 0).border().bottom(), "The last row is closed");
-        assertEquals("alpha", value(source, 1, 2), "The theme changes no value");
-    }
-
-    @Test
-    void themesThePropertiesTheNoteOfTheEditLaysDown() {
-        applyNoted(mainProject, new RawTableSourceAction.Theme("standard"));
-
-        // The table had no properties: the note of the edit lays them down after the theme, and they take it too.
+        // The table had no properties: the note of the edit lays them down, and the theme written after it themes them.
         var source = reloadStyled(mainProject);
         assertEquals("modifiedBy", value(source, 1, 1));
         var property = styleOf(source, 1, 2);
@@ -200,17 +189,19 @@ class RawTableWriterTest {
         assertNotNull(property.border().bottom(), "The properties are closed by a line");
         assertNull(styleOf(source, 1, 1).background(), "A property takes no look of the field under it");
         assertEquals("#ddebf7", styleOf(source, 2, 1).background(), "The fields keep their look");
+        assertEquals("alpha", value(source, 2, 2), "The theme changes no value");
     }
 
     @Test
-    void themesThePropertyTheNoteOfTheEditAddsOverThePropertiesOfTheTable() throws IOException {
+    void aTableFormattedAfterAnEditClosesThePropertiesTheNoteAddedToOnce() throws IOException {
         var described = writeProject("described", new String[][]{
                 {HEADER, null, null},
                 {"properties", "description", "Greets"},
                 {"String", "code", "alpha"}
         });
 
-        applyNoted(described, new RawTableSourceAction.Theme("standard"));
+        applyNoted(described, updateCell(2, 2, "alpha"));
+        format(described);
 
         // The note adds its property over the one the table declares: one line still closes the properties.
         var source = reloadStyled(described);
@@ -220,7 +211,7 @@ class RawTableWriterTest {
     }
 
     @Test
-    void themesTheConditionAnEarlierChangeInsertedIntoADecisionTable() throws IOException {
+    void aDecisionTableFormattedAfterAnEditTakesTheThemeForTheConditionTheEditInserted() throws IOException {
         var rules = writeProject("inserted", new String[][]{
                 {"Rules String Greet(String day, Integer hour)", null, null},
                 {"C1", "C2", "RET1"},
@@ -232,8 +223,8 @@ class RawTableWriterTest {
         });
 
         apply(rules, insertColumn(1, row(null, "C3", "hour > from", "Integer from", "After", "0", "0")));
-        // The theme follows in a change of its own, so the table it is laid out by is compiled with the new condition.
-        apply(rules, new RawTableSourceAction.Theme("standard"));
+        // The theme is laid out by the table compiled from the workbook the edit saved, with the new condition in it.
+        format(rules);
 
         var source = reloadStyled(rules);
         assertEquals("#bfbfbf", styleOf(source, 4, 0).background());
@@ -244,60 +235,9 @@ class RawTableWriterTest {
     }
 
     @Test
-    void themesThePropertiesTheNoteOfTheEditLaysDownOverTheCodeOfADecisionTable() throws IOException {
-        var rules = writeProject("noted", new String[][]{
-                {"Rules String Greet(String day, Integer hour)", null, null},
-                {"C1", "C2", "RET1"},
-                {"day == dayName", "hour < limit", "greeting"},
-                {"String dayName", "Integer limit", "String greeting"},
-                {"Day", "Before", "Greeting"},
-                {"Weekday", "12", "Good Morning"}
-        });
-
-        applyNoted(rules, new RawTableSourceAction.Theme("standard"));
-
-        // The note lays the properties down under the header, and the code moves down under them with its look.
-        var source = reloadStyled(rules);
-        assertEquals("modifiedBy", value(source, 1, 1));
-        assertNotEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 1, 0).align(),
-                "The properties are not centred as the code is");
-        assertNotNull(styleOf(source, 1, 2).border().bottom(), "The properties are closed by a line");
-        assertEquals("#808080", styleOf(source, 2, 0).color(), "The first row of the code is muted");
-        assertEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 2, 0).align());
-    }
-
-    @Test
-    void refusesATableThemeForATableOfAKindNoThemeStyles() throws IOException {
-        // A table of no kind OpenL knows.
-        var notes = writeProject("notes", new String[][]{{"Notes on the model"}, {"Written by hand"}});
-
-        var theme = new RawTableSourceAction.Theme("standard");
-        var refused = assertThrows(BadRequestException.class, () -> apply(notes, theme));
-
-        assertEquals("openl.error.400.table.theme.unsupported.message", refused.getErrorCode());
-    }
-
-    @Test
-    void refusesATableThemeStudioDoesNotOffer() {
-        var unknown = new RawTableSourceAction.Theme("purple");
-        var refused = assertThrows(BadRequestException.class, () -> apply(unknown));
-
-        assertEquals("openl.error.400.table.theme.unknown.message", refused.getErrorCode());
-        assertNull(styleOf(reloadStyled(mainProject), 0, 0), "Nothing of the change is written");
-    }
-
-    @Test
-    void refusesATableThemeWhereTheWriterIsGivenNoThemes() {
-        var writer = new RawTableWriter(load(mainProject));
-
-        var theme = new RawTableSourceAction.Theme("standard");
-        assertThrows(IllegalStateException.class, () -> writer.apply(theme));
-    }
-
-    @Test
     void leavesTheAttributesAStyleDoesNotNameAsTheyStand() {
-        apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
-        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, null, null, true, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null, null, null)));
 
         var styled = styleOf(reloadStyled(mainProject), 1, 1);
         assertEquals("#00ff00", styled.background());
@@ -306,13 +246,38 @@ class RawTableWriterTest {
     }
 
     @Test
+    void writesAThemeColourOfExcelAsTheColourOfficeDrawsIntoAWorkbookWithoutATheme() {
+        var lightBlue = new RawTableThemeColor(RawTableThemeColorName.ACCENT1, 0.6);
+        var darkOrange = new RawTableThemeColor(RawTableThemeColorName.ACCENT2, -0.25);
+        apply(style(1, 1, 1, 1,
+                new RawCellStyleInput(null, lightBlue, null, darkOrange, null, null, null, null, null)));
+
+        // A workbook without a theme holds the colours as Office 2013 - 2022 draws them.
+        var styled = styleOf(reloadStyled(mainProject), 1, 1);
+        assertEquals("#b4c6e7", styled.background());
+        assertEquals("#c65911", styled.color());
+    }
+
+    @Test
+    void rejectsAColourGivenBothAsRgbAndAsAThemeColour() {
+        var lightBlue = new RawTableThemeColor(RawTableThemeColorName.ACCENT1, 0.6);
+
+        assertBadRequest(style(1, 0, 1, 1,
+                new RawCellStyleInput("#ffff00", lightBlue, null, null, null, null, null, null, null)));
+        assertBadRequest(style(1, 0, 1, 1,
+                new RawCellStyleInput(null, null, "#ff0000", lightBlue, null, null, null, null, null)));
+    }
+
+    @Test
     void rejectsAStyleThatNamesNoAttribute() {
-        assertBadRequest(style(1, 0, 1, 1, new RawCellStyleInput(null, null, null, null, null, null, null)));
+        assertBadRequest(style(1, 0, 1, 1,
+                new RawCellStyleInput(null, null, null, null, null, null, null, null, null)));
     }
 
     @Test
     void rejectsAStyleRangeReachingOutsideTheTable() {
-        assertBadRequest(style(3, 0, 2, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
+        assertBadRequest(style(3, 0, 2, 1,
+                new RawCellStyleInput(null, null, null, null, null, true, null, null, null)));
     }
 
     @Test
@@ -1345,26 +1310,31 @@ class RawTableWriterTest {
     }
 
     private void apply(RawTableSourceAction action) {
-        new RawTableWriter(load(mainProject), THEMES).apply(action);
+        new RawTableWriter(load(mainProject)).apply(action);
     }
 
     private void apply(List<RawTableSourceAction> actions) {
-        new RawTableWriter(load(mainProject), THEMES).apply(actions);
+        new RawTableWriter(load(mainProject)).apply(actions);
     }
 
     private void apply(Path project, RawTableSourceAction action) {
-        new RawTableWriter(load(project), THEMES).apply(action);
+        new RawTableWriter(load(project)).apply(action);
     }
 
     /** Applies an edit where the installation notes who edits a table, as a save of the table notes it. */
     private void applyNoted(Path project, RawTableSourceAction action) {
-        var writer = new RawTableWriter(load(project), THEMES);
+        var writer = new RawTableWriter(load(project));
         writer.stampEditWith(Map.of("modifiedBy", "admin"));
         writer.apply(action);
     }
 
+    /** Formats the table with the table theme as OpenL Studio does after a save: as the saved workbook compiles it. */
+    private void format(Path project) {
+        THEMES.writer().format(load(project));
+    }
+
     private void apply(Path project, List<RawTableSourceAction> actions) {
-        new RawTableWriter(load(project), THEMES).apply(actions);
+        new RawTableWriter(load(project)).apply(actions);
     }
 
     private void write(Path project, List<List<RawTableCell>> source) {
@@ -1375,7 +1345,7 @@ class RawTableWriterTest {
     private static void create(Path project, String sheetName, List<List<RawTableCell>> source) {
         var view = RawTableView.builder().source(source).build();
         var grid = TableTestProjects.sheetGrid(project, sheetName);
-        var factory = new TableWritersFactory(new TableThemeService());
+        var factory = new TableWritersFactory();
         ((RawTableWriter) factory.getNewTableWriter(view, grid)).write(view);
     }
 

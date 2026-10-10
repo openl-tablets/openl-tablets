@@ -1,101 +1,71 @@
 import React, { useState } from 'react'
-import { Button, ColorPicker, Tooltip } from 'antd'
-import type { AggregationColor } from 'antd/es/color-picker/color'
-import { useTranslation } from 'react-i18next'
+import { Button, Popover, Tooltip } from 'antd'
+import type { RawTableThemeColor } from 'types/tables'
 import { ColourPalette } from './ColourPalette'
 
 interface CellColourPickerProps {
     /** What the button is for, shown as its tooltip. */
     title: string
     icon: React.ReactNode
-    /** The colour the cell carries now, which the picker opens on. */
-    value: string
     disabled: boolean
     /** The colour the reader settled on. */
-    onPick: (colour: string) => void
+    onPick: (colour: RawTableThemeColor) => void
     /** The colour the pointer is over, or null once it has left the palette. */
-    onPreview: (colour: string | null) => void
+    onPreview: (colour: RawTableThemeColor | null) => void
     testId: string
     className: string
 }
 
-/** The colour as the API writes it: #rrggbb, without whatever the picker says about opacity. */
-const colour = (chosen: AggregationColor) => chosen.toHexString().slice(0, 7)
-
 /**
- * A colour for the picked cell, chosen from the palette the Editor offered.
+ * A colour for the picked cell, one of the sixty colours the palette of Excel offers for the theme of a workbook.
  *
- * <p>The palette is what opens, and it shows each colour on the cell itself while the pointer rests on it. A
- * colour outside it is a press away: More Colours puts the full picker in the palette's place, rather than
- * beside it, so only one of the two is ever on screen.
+ * <p>The palette opens under the button, and it shows each colour on the cell itself while the pointer rests on it.
  */
 export const CellColourPicker: React.FC<CellColourPickerProps> = ({
     title,
     icon,
-    value,
     disabled,
     onPick,
     onPreview,
     testId,
     className,
 }) => {
-    const { t } = useTranslation('repository')
     const [open, setOpen] = useState(false)
-    const [more, setMore] = useState(false)
 
     /**
-     * Whether the picker is open, which is the picker's own to say.
+     * Whether the palette is open, which the popover says.
      *
-     * <p>It closes itself when the reader clicks away from it, and is closed here only when a colour is taken
-     * from the palette. Answering its own trigger as well would fight it: a press would close it and reopen it
-     * in the same click.
+     * <p>It closes itself when the reader clicks away from it, and is closed here only when a colour is taken from
+     * the palette. Answering its own trigger as well would fight it: a press would close it and reopen it in the
+     * same click.
      */
     const opened = (isOpen: boolean) => {
         setOpen(isOpen)
         if (!isOpen) {
-            setMore(false)
             onPreview(null)
         }
     }
 
-    /** The palette with the way to the full picker under it, or the full picker once the reader asked for it. */
-    const renderPanel = (panel: React.ReactNode) => (more ? panel : (
-        <>
-            <ColourPalette
-                onPreview={onPreview}
-                onPick={chosen => {
-                    opened(false)
-                    onPick(chosen)
-                }}
-            />
-            <Button
-                block
-                data-testid={`${testId}-more`}
-                onClick={() => setMore(true)}
-                // Pressing must not take the focus off the cell the colour is meant for.
-                onMouseDown={event => event.preventDefault()}
-                size="small"
-                type="link"
-            >
-                {t('browser.module.edit_more_colours')}
-            </Button>
-        </>
-    ))
+    const palette = (
+        <ColourPalette
+            onPreview={onPreview}
+            onPick={chosen => {
+                opened(false)
+                onPick(chosen)
+            }}
+        />
+    )
 
     return (
         <Tooltip title={title}>
             <span>
-                <ColorPicker
-                    disabled={disabled}
-                    format="hex"
+                <Popover
+                    arrow={false}
+                    content={palette}
                     onOpenChange={opened}
-                    open={open}
-                    panelRender={renderPanel}
-                    value={value}
-                    onChangeComplete={chosen => {
-                        onPreview(null)
-                        onPick(colour(chosen))
-                    }}
+                    open={open && !disabled}
+                    placement="bottomLeft"
+                    trigger="click"
                 >
                     <Button
                         className={className}
@@ -105,7 +75,7 @@ export const CellColourPicker: React.FC<CellColourPickerProps> = ({
                         size="small"
                         type="text"
                     />
-                </ColorPicker>
+                </Popover>
             </span>
         </Tooltip>
     )

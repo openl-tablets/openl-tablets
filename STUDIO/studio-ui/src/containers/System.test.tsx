@@ -45,6 +45,7 @@ describe('System', () => {
             datePattern: 'MM/dd/yyyy',
             detectProjectsByExcelFiles: false,
             dispatchingValidationEnabled: true,
+            formatTablesOnSave: false,
             projectHistoryCount: 100,
             testRunThreadCount: 4,
             timeFormat: 'hh:mm:ss a',
@@ -82,6 +83,15 @@ describe('System', () => {
         expect(JSON.parse(threads.closest('label')!.dataset['rules']!)).toEqual([
             { ...THREAD_COUNT_RULE, message: 'system:thread_number_invalid' },
         ])
+    })
+
+    it('offers to format every table saved with the table theme, and says what it costs', async () => {
+        render(<System />)
+
+        const checkbox = await screen.findByRole('checkbox', { name: 'system:format_tables_on_save' })
+        expect(checkbox).toHaveAttribute('name', 'formatTablesOnSave')
+        expect(checkbox).not.toBeChecked()
+        expect(checkbox.closest('label')).toHaveAttribute('title', 'system:format_tables_on_save_info')
     })
 })
 

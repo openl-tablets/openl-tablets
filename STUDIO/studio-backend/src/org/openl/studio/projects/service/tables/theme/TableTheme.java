@@ -6,7 +6,7 @@ import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A table theme as its file describes it: the name it is shown by, and the look it gives each kind of table.
+ * The table theme as its file describes it: the look it gives each kind of table.
  *
  * <p>A theme is one look for every kind of table it styles: a Datatype, a Vocabulary, a Spreadsheet, a TBasic, a
  * Method, a Data, a Test, a Run, a decision table — a Rules, a SimpleRules, a SmartRules, a SimpleLookup or a
@@ -19,14 +19,9 @@ import org.jspecify.annotations.Nullable;
  * every part it writes is laid over the same part of the base, attribute by attribute, and every part it leaves out is
  * the one of the base. A kind the theme writes nothing for takes the base alone.
  *
- * <p>A theme may name the theme colours of Excel it makes its colours of, so a colour it sets is written as the theme
- * colour into a workbook of those theme colours.
+ * <p>Every colour of a theme is a theme colour of Excel, made lighter or darker, so a colour it sets is written as the
+ * theme colour into a workbook of a theme.
  *
- * @param name         the name OpenL Studio shows the theme by
- * @param primary      whether the theme is the primary one: listed before the others, so it is the theme a screen
- *                     selects first when a theme is applied
- * @param themeColors  the theme colours of Excel the theme makes its colours of, or {@code null} for a theme whose
- *                     colours are all its own
  * @param base         the skin every kind of table extends, or {@code null} for a theme whose kinds write everything
  * @param datatype     what a Datatype table changes in the base, or {@code null} for nothing
  * @param vocabulary   what a Vocabulary table, whose header declares the type of its values, changes in the base,
@@ -56,10 +51,7 @@ import org.jspecify.annotations.Nullable;
  *                     the base, or {@code null} for nothing
  * @param constants    what a Constants table changes in the base, or {@code null} for nothing
  */
-public record TableTheme(String name,
-                         boolean primary,
-                         @Nullable ExcelThemeColours themeColors,
-                         @Nullable Look base,
+public record TableTheme(@Nullable Look base,
                          @Nullable Look datatype,
                          @Nullable Look vocabulary,
                          @Nullable Look spreadsheet,

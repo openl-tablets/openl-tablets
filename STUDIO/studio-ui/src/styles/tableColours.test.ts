@@ -1,165 +1,139 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parse } from 'yaml'
-import { contrastRatio, opaque } from './colorMath'
-import { followedTableTheme, inLook, LOOK_THEMES, tableColoursOf, type TableColours } from './tableColours'
-import type { ThemeName } from './themes'
-import type { RawTableCell } from 'types/tables'
+import { contrastRatio, mix } from './colorMath'
+import { paperToken, workbookPaper } from './paper'
+import { colourIn, excelPaletteOf, paintedIn, tableOf, tableThemeOf, type ExcelPalette } from './tableColours'
+import { THEME_ORDER, THEMES, type ThemeName } from './themes'
+import type { RawTableCell, RawTableThemeColor } from 'types/tables'
 import { tokenFor } from '../testing/theme'
 
-/** The colours of the look a theme of the application gives its tables in the dark appearance. */
-const darkColoursOf = (name: ThemeName): TableColours => {
-    const colours = tableColoursOf(name, true, tokenFor(name, true))
-    if (colours === undefined) {
-        throw new Error(`The ${name} theme has no look for the tables`)
-    }
-    return colours
-}
+/** Every theme in both appearances. */
+const LOOKS: [ThemeName, boolean][] = THEME_ORDER.flatMap(name => [[name, false], [name, true]] as [ThemeName, boolean][])
 
-/** The colour the colours give a key, which the test needs to be there. */
-const keyed = (colours: TableColours, key: string): string => {
-    const colour = colours.keyed[key]
-    if (colour === undefined) {
-        throw new Error(`No colour for ${key}`)
-    }
-    return colour
-}
+const paletteOf = (name: ThemeName, isDarkMode: boolean): ExcelPalette =>
+    excelPaletteOf(name, isDarkMode, tokenFor(name, isDarkMode))
 
-/**
- * Every key a table theme file of the server sets a colour at, as the server reads the file: with its aliases and
- * merge keys resolved, and without the colours it names and the theme colours of Excel, which no part takes as they
- * are.
- */
-const colourKeysOf = (tableTheme: string): string[] => {
-    const file = resolve(process.cwd(), '../studio-backend/resources/table-themes', `${tableTheme}.yaml`)
-    const { colors: _named, themeColors: _excel, ...theme } = parse(readFileSync(file, 'utf8'), { merge: true }) as
-        Record<string, unknown>
-    const walk = (node: unknown, prefix: string): string[] => (node !== null && typeof node === 'object'
-        ? Object.entries(node).flatMap(([key, value]) => (key === 'color' || key === 'background'
-            ? [`${prefix}${key}`]
-            : walk(value, `${prefix}${key}.`)))
-        : [])
-    return walk(theme, '').sort()
-}
-
-// The keys of the Standard table theme a text, a fill and a link lie at: the ink and the ground of its base, the
-// muted text, the grey and the blue titles, and the fill of what a table gives.
-const INK = 'base.style.color'
-const MUTED = 'datatype.type.color'
-const GROUND = 'base.style.background'
-const GREY = 'rules.titles.background'
-const BLUE = 'rules.returnTitles.background'
-const LIGHT_BLUE = 'rules.returns.background'
-const FILLS = [GROUND, GREY, BLUE, LIGHT_BLUE]
-const LINK_FILLS = [GROUND, LIGHT_BLUE]
+// The colours the formatting standard of OpenL tables takes, as OpenL Studio writes them into a workbook.
+const GREY_TITLE: RawTableThemeColor = { name: 'lt1', tint: -0.25 }
+const MUTED: RawTableThemeColor = { name: 'lt1', tint: -0.5 }
+const BLUE_TITLE: RawTableThemeColor = { name: 'accent1', tint: 0.6 }
+const VALUES: RawTableThemeColor = { name: 'accent5', tint: 0.8 }
 
 describe('tableColours', () => {
-    it('reads the tables with the table theme of the look of the Studio theme, where the reader asks for it', () => {
-        expect(followedTableTheme(true, 'standard')).toBe('standard')
-        // The table theme of the settings is the fallback: for a reader who does not ask, and under a theme with no
-        // look of its own for the tables.
-        expect(followedTableTheme(false, 'standard')).toBeUndefined()
-        expect(followedTableTheme(true, 'dracula')).toBeUndefined()
-    })
-
-    it.each(LOOK_THEMES)('colours in the dark every key the table theme file of %s sets a colour at', name => {
-        const tableTheme = followedTableTheme(true, name) ?? name
-
-        expect(Object.keys(darkColoursOf(name).keyed).sort()).toEqual(colourKeysOf(tableTheme))
-    })
-
-    it('keeps the colours of the table theme in the light appearance, laid on the ground of the theme', () => {
+    it('gives the ten theme colours of Excel the colours of the theme', () => {
         const token = tokenFor('standard', false)
-        const solid = (colour: string) => opaque(colour, token.colorBgContainer)
+        const palette = excelPaletteOf('standard', false, token)
 
-        expect(tableColoursOf('standard', false, token)).toEqual({
-            keyed: {},
-            paper: {
-                background: solid(token.colorBgContainer),
-                text: solid(token.colorText),
-                grid: solid(token.colorBorderSecondary),
-                link: solid(token.colorLink),
-                linkHover: solid(token.colorLinkHover),
-                note: solid(token.colorError),
-            },
-        })
+        expect(palette.lt1).toBe(token.colorBgContainer)
+        expect(palette.accent1).toBe(token.colorPrimary)
+        // The text of the theme at its full strength, as the ink of Excel is black.
+        expect(palette.dk1).toBe('#000000')
+        expect(palette).toMatchObject(THEMES.standard.light.accents)
+        expect(paletteOf('dracula', true)).toMatchObject({ lt1: '#282a36', ...THEMES.dracula.dark.accents })
     })
 
-    it('colours a key in a solid colour of the dark token, and lays the table on its base style', () => {
-        const token = tokenFor('standard', true)
+    it('makes a theme colour lighter towards the ground of the palette and darker towards its text', () => {
+        const palette = paletteOf('standard', false)
 
-        const colours = darkColoursOf('standard')
-
-        expect(keyed(colours, 'datatype.name.background')).toBe(opaque(token.colorPrimaryBg, token.colorBgContainer))
-        // A translucent fill of the token is given as it shows on the ground of the table.
-        expect(keyed(colours, GREY)).toBe(opaque(token.colorFill, token.colorBgContainer))
-        expect(keyed(colours, GREY)).toMatch(/^#[0-9a-f]{6}$/)
-        // The ground and the ink of the table are the colours of the base style.
-        expect(colours.paper.background).toBe(keyed(colours, GROUND))
-        expect(colours.paper.text).toBe(keyed(colours, INK))
-        // A part an alias repeats in the file takes the colour of the part it repeats.
-        expect(keyed(colours, 'smartRules.returns.background')).toBe(keyed(colours, 'simpleRules.returns.background'))
+        expect(colourIn(palette, { name: 'accent1' })).toBe(palette.accent1)
+        expect(colourIn(palette, BLUE_TITLE)).toBe(mix(palette.accent1, palette.lt1, 0.6))
+        expect(colourIn(palette, { name: 'accent6', tint: -0.25 })).toBe(mix(palette.accent6, palette.dk1, 0.25))
+        // A colour worked out once is handed out the same.
+        expect(colourIn(palette, BLUE_TITLE)).toBe(colourIn(palette, BLUE_TITLE))
     })
 
-    it('keeps the blues as far from the ground as the table theme has them', () => {
-        const colours = darkColoursOf('standard')
-        const fromGround = (key: string) => contrastRatio(keyed(colours, key), colours.paper.background)
+    it('keeps a lighter fill quiet in the dark appearance: closer to the dark ground than its theme colour', () => {
+        const dark = paletteOf('standard', true)
+        const fill = colourIn(dark, VALUES)
 
-        expect(fromGround(BLUE)).toBeGreaterThan(fromGround(LIGHT_BLUE))
-        expect(fromGround(LIGHT_BLUE)).toBeGreaterThan(1)
+        expect(contrastRatio(fill, dark.lt1)).toBeLessThan(contrastRatio(dark.accent5, dark.lt1))
+        expect(contrastRatio(fill, dark.dk1)).toBeGreaterThan(contrastRatio(dark.accent5, dark.dk1))
     })
 
-    it.each(LOOK_THEMES)('keeps every text of a table readable on every fill of %s in the dark', name => {
-        const colours = darkColoursOf(name)
-
-        FILLS.forEach(fill => {
-            expect(contrastRatio(keyed(colours, INK), keyed(colours, fill))).toBeGreaterThanOrEqual(4.5)
-            expect(contrastRatio(keyed(colours, MUTED), keyed(colours, fill))).toBeGreaterThanOrEqual(3)
-        })
-    })
-
-    it.each(LOOK_THEMES)('keeps a link of a table legible on the fills it lies on, in %s in the dark', name => {
-        const colours = darkColoursOf(name)
-
-        LINK_FILLS.forEach(fill => expect(contrastRatio(colours.paper.link, keyed(colours, fill)))
-            .toBeGreaterThanOrEqual(3))
-    })
-
-    it('draws a link of a dark table in the lighter text of the primary colour, under the pointer as well', () => {
-        const token = tokenFor('standard', true)
-
-        const colours = darkColoursOf('standard')
-
-        expect(colours.paper.link).toBe(opaque(token.colorPrimaryTextHover, token.colorBgContainer))
-        // The link of the token darkens under the pointer; the underline alone tells a link under the pointer here.
-        expect(colours.paper.linkHover).toBe(colours.paper.link)
-    })
-
-    it('has no colours for the tables under a theme with no look of its own for them', () => {
-        expect(tableColoursOf('dracula', true, tokenFor('dracula', true))).toBeUndefined()
-        expect(tableColoursOf('dracula', false, tokenFor('dracula', false))).toBeUndefined()
-    })
-
-    it('recolours only what the table theme draws a cell with, and leaves the style of the workbook as it is', () => {
-        const colours = darkColoursOf('standard')
-        const plain: RawTableCell = { cell: 'A1', value: 'Notes', style: { background: '#ffff00' } }
-        const themed: RawTableCell = {
-            cell: 'B1',
-            value: 'name',
-            style: { background: '#ddebf7', backgroundKey: 'datatype.name.background', fontSize: 10, source: 'theme' },
-            runs: [{ text: 'name', style: { color: '#808080', colorKey: 'datatype.type.color', source: 'theme' } }],
+    /** How far the text of a table stands from each fill of the formatting standard, and the muted text from the ground. */
+    const contrastsOf = (name: ThemeName, isDarkMode: boolean) => {
+        const palette = paletteOf(name, isDarkMode)
+        const fills = [{ name: 'lt1' } as RawTableThemeColor, GREY_TITLE, BLUE_TITLE, VALUES]
+        return {
+            text: Math.min(...fills.map(fill => contrastRatio(palette.dk1, colourIn(palette, fill)))),
+            muted: contrastRatio(colourIn(palette, MUTED), palette.lt1),
         }
+    }
 
-        const [drawnPlain, drawnThemed] = inLook([[plain, themed]], colours)[0] ?? []
+    it.each([false, true])('keeps the tables of the standard theme as readable as WCAG AA asks, dark %s', isDarkMode => {
+        const { text, muted } = contrastsOf('standard', isDarkMode)
 
-        expect(drawnPlain).toBe(plain)
-        // The text takes the font of the application.
-        expect(drawnThemed?.style).toEqual({
-            background: keyed(colours, 'datatype.name.background'),
-            backgroundKey: 'datatype.name.background',
-            source: 'theme',
+        expect(text).toBeGreaterThanOrEqual(4.5)
+        expect(muted).toBeGreaterThanOrEqual(3)
+    })
+
+    // A code editor softens its text on its background, Material's dark one down to 7:1, which a fill between them
+    // shares: the text keeps more than the 3:1 WCAG AA asks of large text.
+    it.each(LOOKS)('keeps the text of a table readable on every fill of the formatting standard in %s, dark %s',
+        (name, isDarkMode) => {
+            const { text, muted } = contrastsOf(name, isDarkMode)
+
+            expect(text).toBeGreaterThanOrEqual(3.5)
+            expect(muted).toBeGreaterThanOrEqual(2.3)
         })
-        expect(drawnThemed?.runs?.[0]?.style?.color).toBe(keyed(colours, 'datatype.type.color'))
+
+    it('draws every colour of a cell in the colours of the palette, and a colour it has none for as it is', () => {
+        const table = tableThemeOf('dracula', true, tokenFor('dracula', true), false)
+        const palette = table.palette as ExcelPalette
+        const rows: RawTableCell[][] = [[
+            {
+                cell: 'B2',
+                style: {
+                    background: '#b4c6e7',
+                    backgroundTheme: BLUE_TITLE,
+                    color: '#ff0000',
+                    border: {
+                        top: { style: 'solid', width: 1, color: '#808080', colorTheme: MUTED },
+                        bottom: { style: 'solid', width: 1, color: '#123456' },
+                    },
+                },
+                runs: [{ text: 'Data', style: { color: '#808080', colorTheme: MUTED } }, { text: 'type' }],
+            },
+            { cell: 'C2', value: 'plain' },
+        ]]
+
+        const [painted, plain] = paintedIn(rows, table)[0] ?? []
+
+        expect(painted?.style?.background).toBe(colourIn(palette, BLUE_TITLE))
+        expect(painted?.style?.color, 'A colour the server tells no colour of the palette for').toBe('#ff0000')
+        expect(painted?.style?.border?.top?.color).toBe(colourIn(palette, MUTED))
+        expect(painted?.style?.border?.bottom?.color).toBe('#123456')
+        expect(painted?.runs?.[0]?.style?.color).toBe(colourIn(palette, MUTED))
+        expect(painted?.runs?.[1]).toBe(rows[0]?.[0]?.runs?.[1])
+        expect(plain).toBe(rows[0]?.[1])
+    })
+
+    it('lays the tables on the colours of the theme', () => {
+        const token = tokenFor('nord', true)
+        const table = tableThemeOf('nord', true, token, false)
+
+        expect(table.paper.background).toBe(table.palette?.lt1)
+        expect(table.paper.text).toBe(table.palette?.dk1)
+        expect(table.paper.note).toBe(token.colorError)
+        // The marks a screen lays on the cells are the theme's own.
+        expect(table.marks).toBe(token)
+    })
+
+    it('keeps the colours of the Excel file, on the paper of a workbook, where the reader asks for them', () => {
+        const table = tableThemeOf('dracula', true, tokenFor('dracula', true), true)
+        const rows: RawTableCell[][] = [[{ cell: 'B2', style: { background: '#b4c6e7', backgroundTheme: BLUE_TITLE } }]]
+
+        expect(table.palette).toBeUndefined()
+        expect(table.paper).toEqual(workbookPaper())
+        expect(table.marks).toBe(paperToken())
+        expect(paintedIn(rows, table)).toBe(rows)
+    })
+
+    it('draws the tables of a part drawn without the theme provider in the colours of the standard theme', () => {
+        const token = tokenFor('standard', false)
+        const provided = tableThemeOf('nord', false, tokenFor('nord', false), false)
+
+        expect(tableOf({ ...token, table: provided })).toBe(provided)
+        expect(tableOf(token).palette).toEqual(excelPaletteOf('standard', false, token))
+        expect(tableOf(token), 'Worked out once for a token').toBe(tableOf(token))
     })
 })

@@ -31,6 +31,17 @@ class PoiExcelHelperTest {
     private static final short[] WHITE = {255, 255, 255};
     private static final short[] DARK_BLUE = {31, 78, 120};
 
+    /** The colours Excel shows for the theme colours of Office 2013 - 2022 in its palette. */
+    @ParameterizedTest
+    @CsvSource({
+            "0, 0, FFFFFF", "0, -500, 808080", "1, 500, 808080", "2, -100, D0CECE", "3, 800, D6DCE4",
+            "4, 600, B4C6E7", "4, -250, 305496", "5, -250, C65911", "7, 0, FFC000", "9, -500, 375623"})
+    void drawsAThemeColourAsOfficeDoes(int index, int tint, String rgb) {
+        var drawn = new ThemedColor(index, tint).toOfficeRgb();
+
+        assertEquals(rgb, "%06X".formatted(PoiExcelHelper.toRgbValue(drawn)));
+    }
+
     @Test
     void createsTheCellAndItsRowOnceAndReusesThemAfterwards() throws IOException {
         try (var workbook = new HSSFWorkbook()) {
@@ -272,7 +283,7 @@ class PoiExcelHelperTest {
 
             assertArrayEquals(new short[]{0x80, 0x80, 0x80}, read);
             assertEquals(muted, attributes.themed());
-            assertEquals(0x808080, attributes.color());
+            assertNull(attributes.color(), "A font of a theme colour is told apart by the theme colour alone");
             // POI writes the RGB of a theme colour into the colour it reads, so a saved workbook would keep it.
             assertFalse(written.isSetRgb(), "Reading the colour writes nothing into the font");
             // A font read without its workbook, as the SAX reader reads one, resolves its theme colour itself.

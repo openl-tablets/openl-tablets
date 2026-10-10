@@ -14,7 +14,6 @@ import java.util.function.Function;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -110,8 +109,6 @@ import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
-import org.openl.studio.projects.model.tables.TableThemeResultView;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
@@ -207,6 +204,19 @@ public class ProjectsController {
             getWebStudio().recompileCurrentModule();
         } else {
             getWebStudio().reset();
+        }
+    }
+
+    /**
+     * The same, for a write of a table, which the save formats with the table theme where the administrator asks for
+     * it. Formatting compiles the module from the workbook the write saved, and the theme it writes after that changes
+     * no rule, so the module is not compiled a second time.
+     *
+     * @param intoAModuleOfItsOwn whether the write landed in a module the project already had
+     */
+    private void recompileSavedTable(boolean intoAModuleOfItsOwn) {
+        if (!projectService.formatsOnSave()) {
+            recompileWrittenModule(intoAModuleOfItsOwn);
         }
     }
 
@@ -468,7 +478,7 @@ public class ProjectsController {
         var tableId = projectService.createNewTable(project, request);
         // A table written into a module that did not exist before changes what the project is made of, not just
         // what one module holds, so the session is told to read the project again.
-        recompileWrittenModule(tableId != null);
+        recompileSavedTable(tableId != null);
         var table = (TableView) request.table();
         return projectService.getCreatedTable(project, request.moduleName(), tableId, table.name);
     }
@@ -481,7 +491,7 @@ public class ProjectsController {
                                       @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                       @Valid @RequestBody CopyTableRequest request) throws ProjectException {
         var copyId = projectService.copyTable(project, tableId, request);
-        recompileWrittenModule(copyId != null);
+        recompileSavedTable(copyId != null);
         // Read the copy back by its own id: a copy kept under the source's name cannot be told apart by name.
         return projectService.getCreatedTable(project, request.moduleName(), copyId, request.name());
     }
@@ -558,9 +568,9 @@ public class ProjectsController {
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
-                                      @RequestParam(value = "tableTheme", required = false)
+                                      @RequestParam(value = "tableTheme", defaultValue = "false")
                                       @Parameter(description = "projects.table.get.param.table-theme.desc")
-                                      String tableTheme,
+                                      boolean tableTheme,
                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
                                       @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState) {
         var read = raw
@@ -575,17 +585,6 @@ public class ProjectsController {
             view.runState = projectService.getTableRunState(project, tableId, module);
         }
         return read;
-    }
-
-    @GetMapping("/{projectId}/tables/{tableId}/themes")
-    @Operation(summary = "projects.table.themes.summary", description = "projects.table.themes.desc")
-    public List<TableThemeView> getTableThemes(@ProjectId @PathVariable("projectId") RulesProject project,
-                                               @PathVariable("tableId")
-                                               @Parameter(description = "project.table.id.desc") String tableId,
-                                               @RequestParam(value = "module", required = false)
-                                               @Parameter(description = "projects.table.get.param.module.desc")
-                                               String module) {
-        return projectService.getTableThemes(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/tests")
@@ -744,7 +743,7 @@ public class ProjectsController {
                                                    @Valid @RequestBody EditableTableView editTable,
                                                    @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.updateTable(project, tableId, editTable, module);
-        recompileWrittenModule();
+        recompileSavedTable(true);
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -757,7 +756,7 @@ public class ProjectsController {
                                                    @Valid @RequestBody AppendTableView editTable,
                                                    @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.appendTableLines(project, tableId, editTable, module);
-        recompileWrittenModule();
+        recompileSavedTable(true);
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -770,7 +769,7 @@ public class ProjectsController {
                                                        @Valid @RequestBody RawTableSourceAction action,
                                                        @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.editTableSource(project, tableId, List.of(action), module);
-        recompileWrittenModule();
+        recompileSavedTable(true);
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -783,21 +782,8 @@ public class ProjectsController {
                                                             @Valid @RequestBody RawTableSourceActions actions,
                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.editTableSource(project, tableId, actions.actions(), module);
-        recompileWrittenModule();
+        recompileSavedTable(true);
         return tableWriteResponse(tableId, newTableId);
-    }
-
-    @Operation(summary = "project.theme.apply.summary", description = "project.theme.apply.desc")
-    @ApiResponse(responseCode = "200", description = "project.theme.apply.200.desc")
-    @PostMapping("/{projectId}/theme")
-    public TableThemeResultView applyProjectTableTheme(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                       @RequestParam("theme") @NotBlank
-                                                       @Parameter(description = "project.theme.apply.param.theme.desc")
-                                                       String theme) {
-        var result = projectService.applyProjectTableTheme(project, theme);
-        // The theme reaches every module of the project, so each is built again rather than the open one alone.
-        recompileWrittenModule(false);
-        return result;
     }
 
     @Operation(summary = "project.table.properties.update.summary", description = "project.table.properties.update.desc")
@@ -809,7 +795,7 @@ public class ProjectsController {
                                                              @Valid @RequestBody TablePropertiesUpdate update,
                                                              @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
         var newTableId = projectService.updateTableProperties(project, tableId, update.properties(), module);
-        recompileWrittenModule();
+        recompileSavedTable(true);
         return tableWriteResponse(tableId, newTableId);
     }
 

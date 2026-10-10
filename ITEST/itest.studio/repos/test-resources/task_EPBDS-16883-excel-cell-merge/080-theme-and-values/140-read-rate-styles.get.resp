@@ -47,7 +47,7 @@ Content-Type: application/json
         "cell": "B2",
         "value": "Rate",
         "style": {
-          "background": "#b4c6e7",
+          "background": "#b8cce4",
           "align": "center",
           "valign": "center",
           "bold": true
@@ -73,7 +73,7 @@ Content-Type: application/json
         "cell": "B3",
         "value": 1.5,
         "style": {
-          "background": "#ddebf7",
+          "background": "#daeef3",
           "align": "center",
           "valign": "center",
           "border": {
@@ -104,7 +104,7 @@ Content-Type: application/json
         "cell": "B4",
         "value": 2.25,
         "style": {
-          "background": "#ddebf7",
+          "background": "#daeef3",
           "align": "center",
           "valign": "center",
           "border": {
@@ -135,7 +135,7 @@ Content-Type: application/json
         "cell": "B5",
         "value": 3.5,
         "style": {
-          "background": "#ddebf7",
+          "background": "#daeef3",
           "align": "center",
           "valign": "center",
           "border": {

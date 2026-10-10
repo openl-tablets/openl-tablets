@@ -138,6 +138,7 @@ Described in [Managing System Settings][system].
 | Projects               | Maximum count of saved changes per user     | `project.history.count`         |
 | Projects               | Detect projects by Excel files              | `project.detect-by-excel-files` |
 | Other                  | Update table properties                     | `update.system.properties`   |
+| Other                  | Format tables on save                       | `table.format-on-save`       |
 | Other                  | Date Format                                 | `data.format.date`           |
 | Other                  | Time Format                                 | `data.format.time`           |
 | Database Configuration | Database URL                                | `db.url`                     |

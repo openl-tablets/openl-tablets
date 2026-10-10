@@ -1,7 +1,6 @@
 # A theme that fills the conditions of the steps of a TBasic table, which the shipped themes leave as every cell
 # starts, and writes nothing else.
-name: TBasic Condition
 
 tbasic:
   condition:
-    background: "#fff2cc"
+    background: Gold, Accent 4, Lighter 80%

@@ -4,21 +4,20 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
 import { ApiHttpError, notifyLoadFailure } from '../../services/apiCall'
-import { getRawTable, getTableEditors, NO_EDITORS } from '../../services/modules'
-import { applyTableActions, getTableThemesOf } from '../../services/tables'
+import { getTableEditors, NO_EDITORS } from '../../services/modules'
+import { applyTableActions } from '../../services/tables'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
-import { opaque } from '../../styles/colorMath'
+import { colourIn, tableThemeOf } from '../../styles/tableColours'
 import { paperToken } from '../../styles/paper'
-import { renderInTheme, tokenFor } from '../../testing/theme'
+import { renderInTheme, showExcelFormatting, tokenFor } from '../../testing/theme'
 
-vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn(), getTableThemesOf: vi.fn() }))
+vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
 vi.mock('../../services/apiCall', async importOriginal => ({
     ...await importOriginal<typeof import('../../services/apiCall')>(),
     notifyLoadFailure: vi.fn(),
 }))
 vi.mock('../../services/modules', async importOriginal => ({
     ...await importOriginal<typeof import('../../services/modules')>(),
-    getRawTable: vi.fn(),
     getTableEditors: vi.fn(),
 }))
 
@@ -91,7 +90,6 @@ describe('TableEditor', () => {
     beforeEach(() => {
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
         vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
-        vi.mocked(getTableThemesOf).mockResolvedValue([])
     })
 
     it('asks about the table now on screen even while the one before it is still answering', async () => {
@@ -135,78 +133,18 @@ describe('TableEditor', () => {
         expect(vi.mocked(getTableEditors).mock.calls[1]?.[1]).toBe('table-2')
     })
 
-    describe('a table read with a table theme', () => {
-        const themed: RawTableCell[][] = [[{
-            cell: 'B4',
-            value: 'Datatype Person',
-            style: { background: '#b4c6e7', source: 'theme' },
-        }]]
-        const asHeld: RawTableCell[][] = [[{ cell: 'B4', value: 'Datatype Person', style: { background: '#ffff00' } }]]
-
-        beforeEach(() => {
-            vi.mocked(getRawTable).mockReset().mockResolvedValue({ id: 'table-1', source: asHeld } as never)
-            vi.mocked(notifyLoadFailure).mockClear()
-        })
-
-        it('draws the theme while the table is read, reading nothing more', () => {
-            draw({ editing: false, rows: themed })
-
-            expect(cellOf(0, 0).style.background).toContain('rgb(180, 198, 231)')
-            expect(getRawTable).not.toHaveBeenCalled()
-        })
-
-        it('edits the table read again as the workbook holds it, so the theme reaches no save', async () => {
-            draw({ rows: themed, testId: 'edited-table', maxRows: 2000 })
-
-            await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('repo:Rating', 'table-1',
-                { module: 'Claims', maxRows: 2000, metaInfo: true }))
-            await waitFor(() => expect((screen.getByTestId('edited-table').querySelector('td') as HTMLElement)
-                .style.background).toContain('rgb(255, 255, 0)'))
-        })
-
-        it('offers nothing to style until the table is read as the workbook holds it', async () => {
-            let answer: ((read: unknown) => void) | undefined
-            vi.mocked(getRawTable).mockImplementation(() => new Promise(resolve => {
-                answer = resolve as (read: unknown) => void
-            }) as never)
-            draw({ rows: themed })
-            await waitFor(() => expect(getRawTable).toHaveBeenCalled())
-
-            await userEvent.click(cellOf(0, 0))
-            expect(screen.getByTestId('table-edit-bold')).toBeDisabled()
-
-            await act(async () => {
-                answer?.({ id: 'table-1', source: asHeld })
-                await Promise.resolve()
-            })
-            await userEvent.click(cellOf(0, 0))
-            expect(screen.getByTestId('table-edit-bold')).toBeEnabled()
-        })
-
-        it('stops editing when the table cannot be read as the workbook holds it', async () => {
-            vi.mocked(getRawTable).mockRejectedValue(new Error('down'))
-
-            const { onEditingChange } = draw({ rows: themed })
-
-            await waitFor(() => expect(notifyLoadFailure)
-                .toHaveBeenCalledWith('browser.module.edit_read_failed', expect.any(Error)))
-            expect(onEditingChange).toHaveBeenCalledWith(false)
-        })
-    })
-
     describe('in the colours of the Studio theme', () => {
-        // A field name of a Datatype, which the Standard table theme fills in its light blue.
+        // A field name of a Datatype, which the formatting standard fills in Blue, Accent 5, Lighter 80%.
+        const VALUES = { name: 'accent5', tint: 0.8 } as const
         const named: RawTableCell[][] = [[{
             cell: 'B4',
             value: 'name',
-            style: { background: '#ddebf7', backgroundKey: 'datatype.name.background', source: 'theme' },
+            style: { background: '#ddebf7', backgroundTheme: VALUES },
         }]]
-        // The workspace tells the editor whose look the table is read with.
-        const drawIn = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => renderInTheme(
+        const drawIn = (editing: boolean, excelFormatting = false) => renderInTheme(
             <TableEditor
                 canWrite
-                editing={false}
-                look="standard"
+                editing={editing}
                 moduleName="Claims"
                 onEditingChange={vi.fn()}
                 onSaved={vi.fn()}
@@ -214,45 +152,25 @@ describe('TableEditor', () => {
                 rows={named}
                 tableId="table-1"
                 testId="module-table"
-                {...over}
             />,
-            { theme: 'standard', mode: 'dark' }
+            { theme: 'standard', mode: 'dark', excelFormatting }
         )
-        const dark = tokenFor('standard', true)
 
-        it('draws a table read with the look of the theme in its dark colours, where the reader asks for them', () => {
-            drawIn()
+        it.each([false, true])('draws the table in the colours of the theme, edited %s', async editing => {
+            drawIn(editing)
+            if (editing) {
+                await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+            }
 
-            expect(screen.getByText('name')).toHaveStyle({
-                backgroundColor: opaque(dark.colorPrimaryBg, dark.colorBgContainer),
-            })
-            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: dark.colorBgContainer })
+            const dark = tableThemeOf('standard', true, tokenFor('standard', true), false)
+            expect(screen.getByText('name')).toHaveStyle({ backgroundColor: colourIn(dark.palette!, VALUES) })
+            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: dark.paper.background })
         })
 
-        it('keeps the colours of the table theme for a table drawn in no look', () => {
-            drawIn({ look: undefined })
+        it('draws the table in the colours of its Excel file, where the reader asks for them', () => {
+            drawIn(false, true)
 
             expect(screen.getByText('name')).toHaveStyle({ backgroundColor: '#ddebf7' })
-            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
-        })
-
-        it('keeps the paper of the workbook while the table is edited, since that is what a save writes', async () => {
-            vi.mocked(getRawTable).mockReset().mockResolvedValue({
-                id: 'table-1',
-                source: [[{ cell: 'B4', value: 'name', style: { background: '#ffff00' } }]],
-            } as never)
-            drawIn({ editing: true })
-            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
-
-            await waitFor(() => expect(screen.getByText('name')).toHaveStyle({ backgroundColor: '#ffff00' }))
-            expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
-        })
-
-        it('keeps the paper of the workbook for a table the theme does not style', () => {
-            const plain: RawTableCell[][] = [[{ cell: 'B4', value: 'Other notes', style: { background: '#ffff00' } }]]
-
-            drawIn({ rows: plain })
-
             expect(screen.getByTestId('module-table')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
         })
     })
@@ -412,26 +330,29 @@ describe('TableEditor', () => {
         expect(screen.getByTestId('table-edit-save')).toBeDisabled()
     })
 
-    it('writes a cell on the paper of the table, white whatever the theme', async () => {
-        renderInTheme(
-            <TableEditor
-                canWrite
-                editing
-                moduleName="Claims"
-                onEditingChange={vi.fn()}
-                onSaved={vi.fn()}
-                projectId="repo:Rating"
-                rows={ROWS}
-                tableId="table-1"
-                testId="module-table"
-            />,
-            { theme: 'monokai', mode: 'dark' }
-        )
+    it.each([false, true])('writes a cell on the paper of the table, in the colours of the Excel file %s',
+        async excelFormatting => {
+            renderInTheme(
+                <TableEditor
+                    canWrite
+                    editing
+                    moduleName="Claims"
+                    onEditingChange={vi.fn()}
+                    onSaved={vi.fn()}
+                    projectId="repo:Rating"
+                    rows={ROWS}
+                    tableId="table-1"
+                    testId="module-table"
+                />,
+                { theme: 'monokai', mode: 'dark', excelFormatting }
+            )
 
-        await userEvent.dblClick(await screen.findByText('Good Morning'))
+            await userEvent.dblClick(await screen.findByText('Good Morning'))
 
-        expect(screen.getByTestId('table-cell-input')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
-    })
+            // White on the paper of an Excel file, the ground of the theme otherwise: the paper the cell lies on.
+            const ground = excelFormatting ? paperToken().colorBgContainer : tokenFor('monokai', true).colorBgContainer
+            expect(screen.getByTestId('table-cell-input')).toHaveStyle({ backgroundColor: ground })
+        })
 
     it('opens a cell on a double click and starts editing', async () => {
         const { onEditingChange } = draw({ editing: false })
@@ -1155,6 +1076,7 @@ describe('TableEditor', () => {
     })
 
     it('paints the picked cell while the pointer rests on a colour, and puts it back', async () => {
+        showExcelFormatting()
         draw()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
@@ -1170,6 +1092,21 @@ describe('TableEditor', () => {
 
         await userEvent.unhover(swatch)
         expect(painted()).toBe('')
+    })
+
+    it('lets the cells be formatted only while the tables are shown in their Excel formatting', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+        await userEvent.click(screen.getByText('Good Morning'))
+
+        expect(screen.getByTestId('table-edit-bold')).toBeDisabled()
+        expect(screen.getByTestId('table-edit-fill_colour')).toBeDisabled()
+        expect(screen.getByTestId('table-edit-indent')).toBeEnabled()
+
+        act(() => showExcelFormatting())
+
+        expect(screen.getByTestId('table-edit-bold')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-fill_colour')).toBeEnabled()
     })
 
     it('writes several numbers into an array cell, and lets nothing else in', async () => {
@@ -1638,242 +1575,5 @@ describe('TableEditor', () => {
         draw({ editing: false })
 
         expect(screen.queryByTestId('table-edit-toolbar')).toBeNull()
-    })
-
-    describe('the table theme the reader writes into the table', () => {
-        const THEMES = [{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]
-        /**
-         * The table as the server reads it with a theme: each cell in the look of the theme, the style naming the theme
-         * as its source. The theme fills the header with one colour and the body with another, the same one unless
-         * told.
-         */
-        const readWith = (header: string, body = header) => ({
-            id: 'table-1',
-            name: 'Greeting',
-            source: [
-                [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2,
-                    style: { background: header, source: 'theme' } }, { covered: true }],
-                [{ cell: 'B5', value: 0, style: { background: body, source: 'theme' } },
-                    { cell: 'C5', value: 'Good Morning', style: { background: body, source: 'theme' } }],
-            ],
-        })
-        const READ_WITH_THEME = readWith('#c6e0b4', '#e2efda')
-
-        beforeEach(() => {
-            vi.mocked(getTableThemesOf).mockClear().mockResolvedValue(THEMES)
-            vi.mocked(getRawTable).mockReset().mockResolvedValue(READ_WITH_THEME as never)
-            vi.mocked(applyTableActions).mockClear()
-            vi.mocked(notifyLoadFailure).mockClear()
-        })
-
-        const chooseTheme = async (name: string) => {
-            await userEvent.click(await screen.findByTestId('table-edit-theme'))
-            await userEvent.click(await screen.findByText(name))
-        }
-
-        const drawnCell = (address: string): Element | null => document.querySelector(`[data-cell="${address}"]`)
-
-        it('offers the themes that style the table in the order of the server, the primary one first', async () => {
-            draw()
-
-            await userEvent.click(await screen.findByTestId('table-edit-theme'))
-
-            const offered = await screen.findAllByRole('menuitem')
-            expect(offered.map(item => item.textContent)).toEqual(['Default', 'Green'])
-            expect(getTableThemesOf).toHaveBeenCalledWith('repo:Rating', 'table-1', 'Claims')
-        })
-
-        it('offers no theme for a table no theme styles', async () => {
-            vi.mocked(getTableThemesOf).mockResolvedValue([])
-            draw()
-
-            await waitFor(() => expect(getTableThemesOf).toHaveBeenCalled())
-
-            expect(screen.queryByTestId('table-edit-theme')).toBeNull()
-        })
-
-        it('asks for no theme while the table is only being read', async () => {
-            draw({ editing: false })
-            await act(async () => {
-                await Promise.resolve()
-            })
-
-            expect(getTableThemesOf).not.toHaveBeenCalled()
-        })
-
-        it('draws the theme chosen over the table, and writes it when the reader saves', async () => {
-            draw()
-
-            await chooseTheme('Green')
-
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: '#e2efda' }))
-            expect(getRawTable).toHaveBeenCalledWith('repo:Rating', 'table-1',
-                expect.objectContaining({ module: 'Claims', tableTheme: 'green' }))
-            await userEvent.click(screen.getByTestId('table-edit-save'))
-            await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1',
-                [{ operation: 'theme', theme: 'green' }], 'Claims'))
-        })
-
-        it('reads the theme chosen again once more rows of the table are read, and draws them in it', async () => {
-            const of = (rows: RawTableCell[][], maxRows: number) => (
-                <TableEditor
-                    canWrite
-                    editing
-                    maxRows={maxRows}
-                    moduleName="Claims"
-                    onEditingChange={vi.fn()}
-                    onSaved={vi.fn()}
-                    projectId="repo:Rating"
-                    rows={rows}
-                    tableId="table-1"
-                    testId="module-table"
-                />
-            )
-            const { rerender } = render(of(ROWS, 2))
-            await chooseTheme('Green')
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: '#e2efda' }))
-            vi.mocked(getRawTable).mockResolvedValue({
-                ...READ_WITH_THEME,
-                source: [...READ_WITH_THEME.source, [
-                    { cell: 'B6', value: 12, style: { background: '#e2efda', source: 'theme' } },
-                    { cell: 'C6', value: 'Good Day', style: { background: '#e2efda', source: 'theme' } },
-                ]],
-            } as never)
-
-            rerender(of([...ROWS, [{ cell: 'B6', value: 12 }, { cell: 'C6', value: 'Good Day' }]], 3))
-
-            await waitFor(() => expect(drawnCell('B6')).toHaveStyle({ backgroundColor: '#e2efda' }))
-            expect(getRawTable).toHaveBeenLastCalledWith('repo:Rating', 'table-1',
-                expect.objectContaining({ maxRows: 3, tableTheme: 'green' }))
-        })
-
-        it('takes the theme back with Undo, and draws the table as the workbook holds it again', async () => {
-            draw()
-            await chooseTheme('Green')
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: '#e2efda' }))
-
-            await userEvent.click(screen.getByTestId('table-edit-undo'))
-
-            expect(drawnCell('B5')).not.toHaveStyle({ backgroundColor: '#e2efda' })
-            expect(screen.getByTestId('table-edit-save')).toBeDisabled()
-        })
-
-        it('opens no cell while a theme is chosen, and says why above the table', async () => {
-            draw()
-            await chooseTheme('Green')
-
-            expect(await screen.findByTestId('table-edit-theme-alone'))
-                .toHaveTextContent('browser.module.edit_theme_alone')
-            await userEvent.dblClick(screen.getByText('Good Morning'))
-            expect(screen.queryByTestId('table-cell-input')).toBeNull()
-            expect(screen.getByTestId('table-edit-bold')).toBeDisabled()
-
-            await userEvent.click(screen.getByTestId('table-edit-undo'))
-
-            expect(screen.queryByTestId('table-edit-theme-alone')).toBeNull()
-            await userEvent.dblClick(screen.getByText('Good Morning'))
-            expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
-        })
-
-        it('offers no theme while the module waits for Verify', async () => {
-            draw({ verifyNeeded: true })
-
-            expect(await screen.findByTestId('table-edit-theme')).toBeDisabled()
-        })
-
-        it('saves no theme chosen before the project came to wait for Verify, and says why', async () => {
-            const { redraw } = draw()
-            await chooseTheme('Green')
-            await waitFor(() => expect(screen.getByTestId('table-edit-save')).toBeEnabled())
-
-            // A write from elsewhere leaves the project compiled as it stood before that write.
-            redraw({ verifyNeeded: true })
-
-            expect(screen.getByTestId('table-edit-save')).toBeDisabled()
-            await userEvent.hover(screen.getByTestId('table-edit-save'))
-            expect(await screen.findByText('browser.module.theme_verify_first')).toBeInTheDocument()
-        })
-
-        it('offers no theme once the reader changed the table, until the change is taken back', async () => {
-            draw()
-            await userEvent.click(cellOf(1, 1))
-            await userEvent.click(screen.getByTestId('table-edit-bold'))
-
-            expect(await screen.findByTestId('table-edit-theme')).toBeDisabled()
-
-            await userEvent.click(screen.getByTestId('table-edit-undo'))
-
-            expect(screen.getByTestId('table-edit-theme')).toBeEnabled()
-        })
-
-        it('draws a text the workbook formats in pieces in the one font the theme gives it, as the save writes it',
-            async () => {
-                const greeting: RawTableCell = {
-                    cell: 'C5',
-                    value: 'Good Morning',
-                    runs: [{ text: 'Good', style: { bold: true } }, { text: ' Morning' }],
-                }
-                const rows = [ROWS[0] ?? [], [{ cell: 'B5', value: 0 }, greeting]]
-                draw({ rows })
-                expect(await screen.findByText('Good')).toBeInTheDocument()
-
-                await chooseTheme('Green')
-
-                await waitFor(() => expect(drawnCell('C5')).toHaveStyle({ backgroundColor: '#e2efda' }))
-                expect(screen.getByText('Good Morning')).toBeInTheDocument()
-            })
-
-        const DEFAULT_FILL = '#b4c6e7'
-        const GREEN_FILL = '#c6e0b4'
-
-        it('draws the theme chosen last when the answer for an earlier one comes after it', async () => {
-            const answers = new Map<string, (read: unknown) => void>()
-            vi.mocked(getRawTable).mockImplementation((_project, _table, options) => new Promise(resolve => {
-                answers.set(options?.tableTheme ?? '', resolve as (read: unknown) => void)
-            }) as never)
-            draw()
-
-            await chooseTheme('Default')
-            await chooseTheme('Green')
-            await act(async () => {
-                answers.get('green')?.(readWith(GREEN_FILL))
-                await Promise.resolve()
-            })
-            await act(async () => {
-                answers.get('default')?.(readWith(DEFAULT_FILL))
-                await Promise.resolve()
-            })
-
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: GREEN_FILL }))
-        })
-
-        it('draws again the theme a later choice is taken back to, reading it once', async () => {
-            vi.mocked(getRawTable).mockImplementation((_project, _table, options) =>
-                Promise.resolve(readWith(options?.tableTheme === 'green' ? GREEN_FILL : DEFAULT_FILL)) as never)
-            draw()
-
-            await chooseTheme('Default')
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: DEFAULT_FILL }))
-            await chooseTheme('Green')
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: GREEN_FILL }))
-
-            await userEvent.click(screen.getByTestId('table-edit-undo'))
-
-            await waitFor(() => expect(drawnCell('B5')).toHaveStyle({ backgroundColor: DEFAULT_FILL }))
-            expect(getRawTable).toHaveBeenCalledTimes(2)
-        })
-
-        it('says so when the theme cannot be drawn, and still writes it when the reader saves', async () => {
-            vi.mocked(getRawTable).mockRejectedValue(new Error('down'))
-            draw()
-
-            await chooseTheme('Green')
-
-            await waitFor(() => expect(notifyLoadFailure)
-                .toHaveBeenCalledWith('browser.module.edit_theme_failed', expect.any(Error)))
-            await userEvent.click(screen.getByTestId('table-edit-save'))
-            await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1',
-                [{ operation: 'theme', theme: 'green' }], 'Claims'))
-        })
     })
 })

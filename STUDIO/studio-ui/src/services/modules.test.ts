@@ -65,10 +65,10 @@ describe('modules service', () => {
     })
 
     it('reads the look of a table theme alone, without the styles the workbook has', async () => {
-        await getRawTable('p1', 'table-1', { tableTheme: 'green', styles: false })
+        await getRawTable('p1', 'table-1', { tableTheme: true, styles: false })
 
         const [url] = mockApiCall.mock.calls[0] as [string]
         expect(url).toContain('styles=false')
-        expect(url).toContain('tableTheme=green')
+        expect(url).toContain('tableTheme=true')
     })
 })

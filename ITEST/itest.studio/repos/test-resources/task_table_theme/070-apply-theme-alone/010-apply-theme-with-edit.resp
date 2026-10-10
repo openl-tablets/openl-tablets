@@ -1,7 +1,0 @@
-HTTP/1.1 400
-Content-Type: application/json
-
-{
-  "code": "openl.error.400.table.theme.alone.message",
-  "message": "A table theme is applied on its own, to the table as it was saved: send it as the only edit of its request."
-}

@@ -176,7 +176,8 @@ The build writes two pages (`build.rollupOptions.input`):
   palette is read off the token the provider works out — because many tests mock `antd` whole. A test whose screen
   asks Ant Design for a colour itself keeps the real `theme` export under such a mock (`vi.importActual`): the theme
   switch, which shows Ant Design's own accent beside the standard theme.
-  A table of a workbook does too, since its colours come from `paperToken()`.
+  A table of a workbook does too where the user asks for the colours of the Excel files, which come from
+  `paperToken()`.
   A theme scoped to one area (`ProjectsThemeProvider`) nests another antd-style `ThemeProvider` and passes the
   appearance through. Ant Design lays a nested theme's token over the parent's, so the scoped theme inherits the
   colours of the application and adds only its own shape, drawn in the palette the application's provider carries
@@ -308,35 +309,35 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   application mounts. Outside `<AntApp>`, `App.useApp()` answers with empty objects, so a test of a component
   that pops something up either renders it inside `<AntApp>` or mocks `antd` with
   `App: { useApp: () => ({ notification, modal }) }` (see `staticAntdApp` in `src/testing/`).
-    - **A workbook's table keeps the colours of Excel.** `RawTableGrid` writes its cells in black on white
-      whatever the theme, because an author fills a cell for that paper: the default text of a cell filled in
-      cyan reads only in black. Everything drawn on the cells — the paper and the ink, the rules, the links, and
-      every mark a screen lays on a cell (the picked and changed cells, the trace highlights and their legend)
-      — takes `paperToken()` (`styles/paper.ts`, Ant Design's own light token) rather than the theme's token.
-      The table editor draws its grid inside `PaperTheme`, a `ConfigProvider` that drops the theme in force
-      (`inherit: false`) and keeps the density, so the Ant Design controls written into a cell, and the notes over
-      one, lie on the paper as well. The line numbers beside the table belong to the screen and follow the theme.
-      The one exception is the look a theme of the application gives the tables (`TABLE_LOOKS` in
-      `styles/tableColours.ts`: a table theme, and the token each key of its file takes in the dark appearance), where
-      the user asked for **Override with Studio theme** (My Settings, `overrideWithStudioTheme` of the profile, view
-      only like the table theme of the settings: neither changes a workbook or a project). The table theme then decides
-      every colour of the cells, so no colour of an author is left to need the paper. `ModuleWorkspace` reads the
-      table with the table theme of the look (`followedTableTheme`: `standard` under the Standard theme) whatever
-      table theme the settings name, which stays the fallback under a theme with no look, and tells `TableEditor` the
-      `look` it reads the table with. The server reports the key of the theme file each colour is set at
-      (`backgroundKey`, `colorKey`, such as `spreadsheet.values.background`) in the style of each cell the table theme
-      draws, which names `theme` as its `source` (`inTheme`). `TableEditor` draws those cells as the look
-      recolours them by their keys (`inLook`), on the paper of the look (`TablePaper`), so `RawTableGrid` knows no look:
-      it lays its cells on the paper it is given, the paper of a workbook (`workbookPaper`) by default. The colours of
-      the look (`tableColoursOf`) are the ground and the ink of
-      its base style, the grid of the theme, and a solid colour of the token for each key. A look is written as the
-      table theme file nests its keys, and shares a part where the file repeats one by an alias (`smartRules: SIMPLE`
-      as `smartRules: *simple`); a colour of a key the look does not colour keeps the colour of the table theme. Only
-      the Standard theme has a look today, in the colours of the table theme in the light appearance. A theme joins
-      with a `TableLook` of its own: `tableColours.test.ts` reads the file of its table theme to hold an appearance it
-      colours to every key the file sets a colour at, and every text of it readable on every fill. A table being edited
-      and a table no theme styles keep the paper. A table read with a table theme is read again without it when the
-      user edits it (`TableEditor`), so the edit starts from the style the workbook holds.
+    - **A table is drawn in the table theme, through the theme colours of Excel.** Every read of a table asks for the
+      look of the table theme alone (`tableTheme=true`), or for the formatting of the workbook (`styles=true`) where
+      the user asks for **Show Original Excel Formatting** (My Settings, `showExcelFormatting`, view only):
+      `formattingOf(useExcelFormatting())` in `services/modules.ts`, and the trace reads the same way. The theme read
+      keeps nothing of the workbook but the indent, and reports every colour of the look as one of the sixty colours
+      of an Excel theme besides `#rrggbb` (`backgroundTheme`, `colorTheme`: a theme colour `lt1`, `dk1`, `lt2`, `dk2`,
+      `accent1`-`accent6` and a tint). Every theme gives the ten theme colours a colour of its own (`excelPaletteOf` in `styles/tableColours.ts`):
+      `lt1`/`dk1` its container and its base text, `lt2`/`dk2` its secondary fill and text, `accent1` its primary,
+      and `accent2`-`accent6` the `accents` of its variant in `THEMES` (`styles/themes.ts`) — orange, grey, gold, a
+      second blue and green, the hues of Office's accents, taken from the scheme of its code editor and, where the
+      scheme has no such hue, from Office. A tint mixes the colour towards `lt1` (lighter) or `dk1` (darker)
+      (`colourIn`), so a pale Excel fill is a quiet fill in the dark appearance. How the tables are drawn travels as
+      the **`table` custom token** (`TableTheme`: the `palette`, the `paper`, and the `marks` token every mark on a
+      cell takes), worked out by `AppThemeProvider` (`tableThemeOf`) from the theme, the appearance and the
+      `showExcelFormatting` setting of the profile; a style reads it through `tableOf(token)`, which answers a part drawn
+      without the provider in the colours of the standard theme. `RawTableGrid` paints the rows it is given
+      (`paintedIn`, once per rows and table theme) and hands `decorate` the cell it was given, so a screen keying its
+      marks by cell keeps them. With **Show Original Excel Formatting**, `palette` is absent: the cells keep the
+      formatting of the file on the paper of a workbook (`workbookTable()`, `workbookPaper`), and every mark takes
+      `paperToken()` (`styles/paper.ts`, Ant Design's own light token), since an author fills a cell for black text on
+      white. The comparison of Excel files always draws so (`RawTableGrid asInExcel`), since it compares what the
+      files hold. The table editor formats a cell — its alignment, font and colours — only with
+      **Show Original Excel Formatting** (`TableEditToolbar formattable`), since the theme would hide the change; the
+      indent is always offered, as it sets out the steps of a TBasic algorithm. The table editor draws its grid inside
+      `PaperTheme`, which drops the theme in force for the controls written into a cell (`inherit: false`, the
+      density kept) only on that paper. The line numbers beside the table belong to the screen and follow the theme.
+      `tableColours.test.ts` holds the text of a table to 4.5:1 on every fill of the formatting standard and its muted
+      text to 3:1 in the standard theme, and to 3.5:1 and 2.3:1 in every theme — some code-editor schemes soften their
+      text to 7:1 on their background, which a fill between the two shares.
     - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
       `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.
     - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot

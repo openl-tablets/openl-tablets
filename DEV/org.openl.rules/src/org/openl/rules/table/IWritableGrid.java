@@ -3,6 +3,7 @@ package org.openl.rules.table;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 
 import org.openl.rules.table.ui.ICellStyle;
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 
 /**
  * @author snshor
@@ -41,6 +42,18 @@ public interface IWritableGrid extends IGrid {
 
     void setCellFillColor(int col, int row, short[] color);
 
+    /**
+     * Fills a cell with a theme colour of Excel, made lighter or darker.
+     *
+     * <p>A workbook of a theme takes the theme colour itself, so the cell takes the colours of its theme. A workbook
+     * without a theme, such as an {@code .xls} one, takes the colour Office draws the theme colour in.
+     *
+     * @param col   the column of the cell
+     * @param row   the row of the cell
+     * @param color the theme colour
+     */
+    void setCellFillColor(int col, int row, ThemedColor color);
+
     void setCellFontBold(int col, int row, boolean bold);
 
     void setCellFontItalic(int col, int row, boolean italic);
@@ -48,6 +61,16 @@ public interface IWritableGrid extends IGrid {
     void setCellFontUnderline(int col, int row, boolean underlined);
 
     void setCellFontColor(int col, int row, short[] color);
+
+    /**
+     * Colours the text of a cell with a theme colour of Excel, made lighter or darker, as
+     * {@link #setCellFillColor(int, int, ThemedColor)} fills it.
+     *
+     * @param col   the column of the cell
+     * @param row   the row of the cell
+     * @param color the theme colour
+     */
+    void setCellFontColor(int col, int row, ThemedColor color);
 
     void setCellComment(int col, int row, String comment, String prevCommentAuthor);
 

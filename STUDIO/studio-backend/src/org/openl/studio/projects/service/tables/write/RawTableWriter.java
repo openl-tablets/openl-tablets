@@ -41,12 +41,11 @@ import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableThemeColor;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
-import org.openl.studio.projects.service.tables.theme.TableThemeService;
-import org.openl.studio.projects.service.tables.theme.ThemeExcelWriter;
 
 /**
  * Writes {@link RawTableView} back to the original table preserving the exact 2D matrix structure.
@@ -81,30 +80,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static final String ROW_WIDTH_MESSAGE = "table.action.row.width.message";
     private static final String COLUMN_HEIGHT_MESSAGE = "table.action.column.height.message";
 
-    /** The themes a {@code theme} edit is written with, or {@code null} where this writer is given none. */
-    private final @Nullable TableThemeService themes;
-
-    /** The writer of the theme a {@code theme} edit wrote into the table, or {@code null} before any such edit. */
-    private @Nullable ThemeExcelWriter themed;
-
     public RawTableWriter(IOpenLTable table) {
-        this(table, null);
-    }
-
-    /**
-     * A writer of the raw source of a table that can also write a table theme into it.
-     *
-     * @param table  the table to write
-     * @param themes the themes a {@code theme} edit is written with, or {@code null} to refuse such an edit
-     */
-    public RawTableWriter(IOpenLTable table, @Nullable TableThemeService themes) {
         super(table);
-        this.themes = themes;
     }
 
     public RawTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         super(gridTable, metaInfoWriter);
-        this.themes = null;
     }
 
     /**
@@ -297,10 +278,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * <p>
      * The whole sequence is one change: the workbook is saved once, after the last edit. An edit that is refused
      * ends the sequence, and nothing of it reaches the workbook.
-     * <p>
-     * A theme is laid out by the table as it was compiled, which any other edit of the same change would leave behind:
-     * a column inserted into a decision table is a condition the compiler has not read. So a sequence holding a theme
-     * holds nothing else, and the caller refuses one that does.
      *
      * @param actions the edits to apply, in order
      */
@@ -336,30 +313,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case RawTableSourceAction.Merge(var target) -> merge(target);
             case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
             case RawTableSourceAction.Style(var target) -> style(target);
-            case RawTableSourceAction.Theme(String theme) -> theme(theme);
         }
-    }
-
-    /**
-     * Writes a table theme into the table, as the table was compiled. A table such as a decision table is themed by
-     * where the compiler found its parts.
-     */
-    private void theme(String themeId) {
-        themed = Optional.ofNullable(themes)
-                .orElseThrow(() -> new IllegalStateException("This writer is given no table themes."))
-                .writer(themeId);
-        if (!themed.write(table, developerView())) {
-            throw new BadRequestException("table.theme.unsupported.message");
-        }
-    }
-
-    /**
-     * Notes the edit on the table, as every save does. A property the note adds takes the theme this change wrote.
-     */
-    @Override
-    protected void recordEdit() {
-        Optional.ofNullable(themed).ifPresentOrElse(writer -> writer.noting(table, developerView(), super::recordEdit),
-                super::recordEdit);
     }
 
     private void append(AppendTarget target) {
@@ -612,6 +566,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (style.isEmpty()) {
             throw new BadRequestException("table.action.style.empty.message");
         }
+        if (style.isColourTwice()) {
+            throw new BadRequestException("table.action.style.colour-twice.message");
+        }
         var developerView = developerView();
         var tableRegion = developerView.getRegion();
         requireRangeInBounds(row, column, rowspan, colspan, GridRegionUtils.height(tableRegion), GridRegionUtils.width(tableRegion));
@@ -635,6 +592,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             run(developerView, new SetFillColorAction(col, row, PoiExcelHelper.toRgb(style.background()),
                     metaInfoWriter));
         }
+        if (style.backgroundTheme() instanceof RawTableThemeColor colour) {
+            run(developerView, new SetFillColorAction(col, row, colour.themed(), metaInfoWriter));
+        }
         if (style.align() != null) {
             run(developerView, new SetAlignmentAction(col, row, alignment(style.align()), metaInfoWriter));
         }
@@ -652,6 +612,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         if (style.color() != null) {
             run(developerView, new SetColorAction(col, row, PoiExcelHelper.toRgb(style.color()), metaInfoWriter));
+        }
+        if (style.colorTheme() instanceof RawTableThemeColor colour) {
+            run(developerView, new SetColorAction(col, row, colour.themed(), metaInfoWriter));
         }
     }
 

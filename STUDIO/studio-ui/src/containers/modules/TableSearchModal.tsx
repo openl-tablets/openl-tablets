@@ -6,6 +6,7 @@ import { createStyles } from 'antd-style'
 import type { ModuleTable, ProjectProperty, RawTableView } from 'types/tables'
 import { RawTableGrid } from '../../components/RawTableGrid'
 import {
+    formattingOf,
     getRawTable,
     searchTables,
     TABLE_PAGE_ROWS,
@@ -15,6 +16,7 @@ import {
 import { getProjectProperties } from '../../services/projects'
 import { isApiHttpError } from '../../services/apiCall'
 import { errorMessage } from '../../utils/errorMessage'
+import { useExcelFormatting } from '../../hooks/useExcelFormatting'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import { tableIcon } from './tableIcons'
@@ -204,6 +206,7 @@ const TableSearchForm = ({
     const [failure, setFailure] = useState<string | null>(null)
     /** The body of a result, once the reader asked for it: what was read, or why it could not be. */
     const [bodies, setBodies] = useState<Record<string, ResultBody>>({})
+    const excelFormatting = useExcelFormatting()
 
     // The names a property can be narrowed by are the ones the engine knows, so the list is read rather than
     // written here: a property added to the dictionary appears without a change to this screen. No kind is named —
@@ -269,7 +272,7 @@ const TableSearchForm = ({
         }
         setBodies(previous => ({ ...previous, [key]: { state: 'reading' } }))
         const { projectId: where, module } = at(table)
-        getRawTable(where, table.id, { module, maxRows: TABLE_PAGE_ROWS })
+        getRawTable(where, table.id, { module, maxRows: TABLE_PAGE_ROWS, ...formattingOf(excelFormatting) })
             .then(read => setBodies(previous => ({ ...previous, [key]: { state: 'read', table: read } })))
             .catch((error: unknown) => setBodies(previous => ({
                 ...previous,

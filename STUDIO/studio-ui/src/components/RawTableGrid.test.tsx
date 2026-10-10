@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { paperToken } from 'styles/paper'
-import { inLook, type TableColours } from 'styles/tableColours'
-import { renderInTheme } from 'testing/theme'
+import { colourIn, tableThemeOf } from 'styles/tableColours'
+import { renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
 
 /** A colour as a style writes it back once the browser has read it. */
@@ -23,6 +23,9 @@ const rows: RawTableCell[][] = [
         { cell: 'B2', value: 'name' },
     ],
 ]
+
+/** The ink of a table drawn in the colours of the standard theme: its text at full strength, as Excel writes black. */
+const INK = '#000000'
 
 const computed: RawTableCell[][] = [[{ cell: 'A1', value: 3, formula: '=1+2' }, { cell: 'B1', value: 'plain' }]]
 
@@ -151,14 +154,37 @@ describe('RawTableGrid', () => {
     })
 
     describe('in a dark theme', () => {
-        const drawDark = (table: RawTableCell[][]) => renderInTheme(
+        const drawDark = (table: RawTableCell[][], excelFormatting = false) => renderInTheme(
             <RawTableGrid layout={{ firstDataLine: 1 }} rows={table} testId="grid" />,
-            { theme: 'dracula', mode: 'dark' }
+            { theme: 'dracula', mode: 'dark', excelFormatting }
         )
 
-        it('writes the cells in black on white, as Excel does, so a cell its author filled stays readable', () => {
-            const filled: RawTableCell = { cell: 'B1', value: 'filled', style: { background: '#00ffff' } }
+        it('draws the cells in the colours the theme gives the theme colours of Excel', () => {
+            const values = { name: 'accent5', tint: 0.8 } as const
+            const filled: RawTableCell = {
+                cell: 'B1',
+                value: 'filled',
+                style: { background: '#ddebf7', backgroundTheme: values },
+            }
             drawDark([[{ cell: 'A1', value: 'plain' }, filled]])
+
+            const dracula = tableThemeOf('dracula', true, tokenFor('dracula', true), false)
+            expect(screen.getByTestId('grid'))
+                .toHaveStyle({ backgroundColor: dracula.paper.background, color: dracula.paper.text })
+            // The pale blue of Excel is a quiet blue of Dracula on its dark ground, written in its light text.
+            expect(screen.getByText('filled')).toHaveStyle({
+                backgroundColor: colourIn(dracula.palette!, values),
+                color: dracula.paper.text,
+            })
+        })
+
+        it('writes the cells in black on white, as Excel does, where the reader asks for the colours of the file', () => {
+            const filled: RawTableCell = {
+                cell: 'B1',
+                value: 'filled',
+                style: { background: '#00ffff', backgroundTheme: { name: 'accent5', tint: 0.4 } },
+            }
+            drawDark([[{ cell: 'A1', value: 'plain' }, filled]], true)
 
             const paper = paperToken()
             expect(screen.getByTestId('grid'))
@@ -167,7 +193,22 @@ describe('RawTableGrid', () => {
             expect(screen.getByText('filled')).toHaveStyle({ backgroundColor: '#00ffff', color: paper.colorText })
         })
 
-        it('keeps a font colour the workbook gave a cell', () => {
+        it('draws a table asked for as in Excel in the colours of its file, whatever the reader chose', () => {
+            const filled: RawTableCell = {
+                cell: 'B1',
+                value: 'filled',
+                style: { background: '#00ffff', backgroundTheme: { name: 'accent5', tint: 0.4 } },
+            }
+            renderInTheme(<RawTableGrid asInExcel rows={[[filled]]} testId="grid" />, { theme: 'dracula', mode: 'dark' })
+
+            // A comparison shows what the two Excel files hold, so it is drawn as in Excel in either look.
+            const paper = paperToken()
+            expect(screen.getByTestId('grid'))
+                .toHaveStyle({ backgroundColor: paper.colorBgContainer, color: paper.colorText })
+            expect(screen.getByText('filled')).toHaveStyle({ backgroundColor: '#00ffff', color: paper.colorText })
+        })
+
+        it('keeps a font colour the workbook gave a cell with no colour of the palette of Excel', () => {
             drawDark([[{ cell: 'A1', value: 'red', style: { color: '#ff0000' } }]])
 
             expect(screen.getByText('red')).toHaveStyle({ color: '#ff0000' })
@@ -197,7 +238,7 @@ describe('RawTableGrid', () => {
         expect(cell.style.borderBottom).toBe('2px solid rgb(255, 0, 0)')
         // A side without a colour of its own is drawn in the ink of the paper, as Excel draws it, and not in the
         // white the text of the cell has.
-        expect(cell.style.borderTop).toBe(`1px dashed ${written(paperToken().colorText)}`)
+        expect(cell.style.borderTop).toBe(`1px dashed ${written(INK)}`)
         expect(cell.style.borderLeft).toBe('')
     })
 
@@ -234,8 +275,8 @@ describe('RawTableGrid', () => {
         render(<RawTableGrid decorate={cell => ({ muted: cell.cell === 'B1' })} rows={table} testId="grid" />)
 
         const [filled, muted] = Array.from(screen.getByTestId('grid').querySelectorAll('td')) as HTMLElement[]
-        // The line lies on the paper of the workbook, fill or not, as the text of the table does.
-        expect(filled?.style.borderBottom).toBe(`1px solid ${written(paperToken().colorText)}`)
+        // The line lies on the paper of the table, fill or not, as the text of the table does.
+        expect(filled?.style.borderBottom).toBe(`1px solid ${written(INK)}`)
         // A muted cell leaves the colour out, so its line is drawn in the grey its text is drawn in.
         expect(muted?.style.borderBottom).toBe('1px solid')
     })
@@ -260,7 +301,7 @@ describe('RawTableGrid', () => {
         expect((pieces[0] as HTMLElement).style.color).toBe('rgb(128, 128, 128)')
         // A run with a font of its own names every attribute of it: what it leaves out is at its default.
         expect((pieces[0] as HTMLElement).style.fontWeight).toBe('normal')
-        expect(pieces[2]).toHaveStyle({ color: paperToken().colorText })
+        expect(pieces[2]).toHaveStyle({ color: INK })
         expect((pieces[1] as HTMLElement).style.fontWeight).toBe('')
         expect((pieces[2] as HTMLElement).style.fontWeight).toBe('bold')
         expect((pieces[2] as HTMLElement).style.textDecoration).toBe('line-through')
@@ -284,117 +325,6 @@ describe('RawTableGrid', () => {
         expect(themed.style.fontFamily).toBe('"Franklin Gothic Book", sans-serif')
         expect(themed.style.fontSize).toBe('10pt')
         expect(themed.querySelectorAll('span')).toHaveLength(2)
-    })
-
-    describe('in the colours of the application', () => {
-        const colours: TableColours = {
-            keyed: {
-                'base.style.color': '#dcdcdc',
-                'base.header.keyword.color': '#adadad',
-                'datatype.name.background': '#15325b',
-                'spreadsheet.resultRow.border.top.color': '#424242',
-            },
-            paper: {
-                background: '#141414',
-                text: '#dcdcdc',
-                grid: '#303030',
-                link: '#1668dc',
-                linkHover: '#3c89e8',
-                note: '#dc4446',
-            },
-        }
-        // The table editor draws a table in the look as the look recolours it, on the paper of the look.
-        const drawIn = (table: RawTableCell[][]) => render(
-            <RawTableGrid paper={colours.paper} rows={inLook(table, colours)} testId="grid" />
-        )
-
-        it('lays the table on the ground of the application, written in its text', () => {
-            drawIn(rows)
-
-            expect(screen.getByTestId('grid')).toHaveStyle({ backgroundColor: '#141414', color: '#dcdcdc' })
-            expect(screen.getByTestId('grid').querySelector('td')).toHaveStyle({ borderRightColor: '#303030' })
-        })
-
-        it('draws each colour of the table theme in the colour of the application the key it is set at takes', () => {
-            drawIn([[{
-                cell: 'A1',
-                value: 'name',
-                style: {
-                    background: '#ddebf7',
-                    backgroundKey: 'datatype.name.background',
-                    color: '#000000',
-                    colorKey: 'base.style.color',
-                    bold: true,
-                    fontFamily: 'Franklin Gothic Book',
-                    fontSize: 10,
-                    border: {
-                        bottom: {
-                            style: 'solid',
-                            width: 1,
-                            color: '#d9d9d9',
-                            colorKey: 'spreadsheet.resultRow.border.top.color',
-                        },
-                        top: { style: 'solid', width: 1 },
-                    },
-                    source: 'theme',
-                },
-            }, {
-                cell: 'B1',
-                value: 'own',
-                style: { background: '#ff0000', color: '#00ff00', colorKey: 'corporate.values.color', source: 'theme' },
-            }]])
-
-            const [keyed, own] = Array.from(screen.getByTestId('grid').querySelectorAll('td')) as HTMLElement[]
-            expect(keyed?.style.background).toContain('rgb(21, 50, 91)')
-            expect(keyed?.style.color).toBe('rgb(220, 220, 220)')
-            // A line is coloured by the key of its side in the file, whichever side it is drawn on.
-            expect(keyed?.style.borderBottom).toBe('1px solid rgb(66, 66, 66)')
-            // A line naming no colour is drawn in the text of the application, as Excel draws it in its ink.
-            expect(keyed?.style.borderTop).toBe(`1px solid ${written('#dcdcdc')}`)
-            // The table theme still decides the bold, while the text is set in the font of the application.
-            expect(keyed?.style.fontWeight).toBe('bold')
-            expect(keyed?.style.fontFamily).toBe('')
-            expect(keyed?.style.fontSize).toBe('')
-            // A colour without a key, or of a key the application has no colour for, is the table theme's own.
-            expect(own?.style.background).toContain('rgb(255, 0, 0)')
-            expect(own?.style.color).toBe('rgb(0, 255, 0)')
-        })
-
-        it('leaves a cell the table theme does not draw in the colours of the workbook', () => {
-            drawIn([[{ cell: 'A1', value: 'own', style: { background: '#ffff00', color: '#ff0000' } }]])
-
-            const cell = screen.getByTestId('grid').querySelector('td') as HTMLElement
-            expect(cell.style.background).toContain('rgb(255, 255, 0)')
-            expect(cell.style.color).toBe('rgb(255, 0, 0)')
-        })
-
-        it('draws the pieces of a text in the colours of the application their keys take, in its font', () => {
-            drawIn([[{
-                cell: 'A1',
-                value: 'Datatype Person',
-                style: { fontFamily: 'Franklin Gothic Book', fontSize: 10, source: 'theme' },
-                runs: [
-                    {
-                        text: 'Datatype',
-                        style: {
-                            color: '#808080',
-                            colorKey: 'base.header.keyword.color',
-                            fontFamily: 'Arial',
-                            source: 'theme',
-                        },
-                    },
-                    { text: ' ' },
-                    { text: 'Person', style: { bold: true, fontSize: 10, source: 'theme' } },
-                ],
-            }]])
-
-            const pieces = screen.getByTestId('grid').querySelectorAll('span')
-            expect((pieces[0] as HTMLElement).style.color).toBe('rgb(173, 173, 173)')
-            expect((pieces[0] as HTMLElement).style.fontFamily).toBe('')
-            // A piece naming no colour is drawn in the text of the application.
-            expect((pieces[2] as HTMLElement).style.color).toBe('rgb(220, 220, 220)')
-            expect((pieces[2] as HTMLElement).style.fontSize).toBe('')
-        })
     })
 
     it('leaves out the Excel background of a cell the screen paints itself', () => {

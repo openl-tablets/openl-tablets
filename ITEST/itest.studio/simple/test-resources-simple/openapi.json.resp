@@ -101,10 +101,6 @@ Content-Type: application/json
       "name": "Settings: System"
     },
     {
-      "description": "***",
-      "name": "Table Themes (BETA)"
-    },
-    {
       "name": "Tags"
     },
     {
@@ -12213,7 +12209,8 @@ Content-Type: application/json
             "in": "query",
             "name": "tableTheme",
             "schema": {
-              "type": "string"
+              "type": "boolean",
+              "default": false
             }
           },
           {
@@ -14394,128 +14391,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/tables/{tableId}/themes": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "path",
-            "name": "tableId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "module",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TableThemeView"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      }
-    },
     "/projects/{projectId}/tests/run": {
       "post": {
         "operationId": "***",
@@ -15112,117 +14987,6 @@ Content-Type: application/json
             "description": "***"
           },
           "404": {
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      }
-    },
-    "/projects/{projectId}/theme": {
-      "post": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "theme",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TableThemeResultView"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
             "description": "***"
           },
           "409": {
@@ -19529,102 +19293,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/table-themes": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TableThemeView"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Table Themes (BETA)"
-        ]
-      }
-    },
     "/tags/types": {
       "get": {
         "description": "***",
@@ -20908,6 +20576,10 @@ Content-Type: application/json
             "description": "***"
           },
           "dispatchingValidationEnabled": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "formatTablesOnSave": {
             "type": "boolean",
             "description": "***"
           },
@@ -26448,6 +26120,9 @@ Content-Type: application/json
             "description": "***",
             "pattern": "^#[0-9a-fA-F]{6}$"
           },
+          "backgroundTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
+          },
           "bold": {
             "type": "boolean",
             "description": "***"
@@ -26456,6 +26131,9 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "colorTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
           },
           "indent": {
             "type": "integer",
@@ -26595,9 +26273,8 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "colorKey": {
-            "type": "string",
-            "description": "***"
+          "colorTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
           },
           "style": {
             "type": "string",
@@ -26659,9 +26336,8 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "backgroundKey": {
-            "type": "string",
-            "description": "***"
+          "backgroundTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
           },
           "bold": {
             "type": "boolean",
@@ -26674,9 +26350,8 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "colorKey": {
-            "type": "string",
-            "description": "***"
+          "colorTheme": {
+            "$ref": "#/components/schemas/RawTableThemeColor"
           },
           "fontFamily": {
             "type": "string",
@@ -26785,7 +26460,6 @@ Content-Type: application/json
             "insert": "#/components/schemas/Insert",
             "merge": "#/components/schemas/Merge",
             "style": "#/components/schemas/Style",
-            "theme": "#/components/schemas/Theme",
             "unmerge": "#/components/schemas/Unmerge",
             "update": "#/components/schemas/Update"
           },
@@ -26812,9 +26486,6 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/Style"
-          },
-          {
-            "$ref": "#/components/schemas/Theme"
           }
         ],
         "properties": {
@@ -26854,6 +26525,40 @@ Content-Type: application/json
             "description": "***"
           }
         }
+      },
+      "RawTableThemeColor": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "lt1",
+              "dk1",
+              "lt2",
+              "dk2",
+              "accent1",
+              "accent2",
+              "accent3",
+              "accent4",
+              "accent5",
+              "accent6"
+            ]
+          },
+          "tint": {
+            "type": "number",
+            "format": "double",
+            "description": "***",
+            "exclusiveMaximum": false,
+            "exclusiveMinimum": false,
+            "maximum": 1,
+            "minimum": -1
+          }
+        },
+        "required": [
+          "name"
+        ]
       },
       "RawTableView": {
         "type": "object",
@@ -29056,40 +28761,6 @@ Content-Type: application/json
           }
         }
       },
-      "TableThemeResultView": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "skipped": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
-          "themed": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "TableThemeView": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "***"
-          },
-          "name": {
-            "type": "string",
-            "description": "***"
-          }
-        }
-      },
       "TableVersionsView": {
         "type": "object",
         "properties": {
@@ -29678,28 +29349,6 @@ Content-Type: application/json
           "numberOfElements",
           "pageNumber",
           "pageSize"
-        ]
-      },
-      "Theme": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RawTableSourceAction"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "theme": {
-                "type": "string",
-                "description": "***",
-                "minLength": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "theme"
         ]
       },
       "TreeChildrenView": {
@@ -30337,11 +29986,11 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           },
-          "overrideWithStudioTheme": {
+          "showComplexResult": {
             "type": "boolean",
             "description": "***"
           },
-          "showComplexResult": {
+          "showExcelFormatting": {
             "type": "boolean",
             "description": "***"
           },
@@ -30355,10 +30004,6 @@ Content-Type: application/json
           },
           "showRealNumbers": {
             "type": "boolean",
-            "description": "***"
-          },
-          "tableTheme": {
-            "type": "string",
             "description": "***"
           },
           "testsFailuresOnly": {
@@ -30415,11 +30060,11 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           },
-          "overrideWithStudioTheme": {
+          "showComplexResult": {
             "type": "boolean",
             "description": "***"
           },
-          "showComplexResult": {
+          "showExcelFormatting": {
             "type": "boolean",
             "description": "***"
           },
@@ -30433,10 +30078,6 @@ Content-Type: application/json
           },
           "showRealNumbers": {
             "type": "boolean",
-            "description": "***"
-          },
-          "tableTheme": {
-            "type": "string",
             "description": "***"
           },
           "testsFailuresOnly": {

@@ -1,233 +1,260 @@
 import type { GlobalToken } from 'antd'
-import type { RawTableCell, RawTableCellBorder, RawTableCellStyle } from 'types/tables'
-import { opaque } from './colorMath'
-import type { TablePaper } from './paper'
-import type { ThemeName } from './themes'
-
-/** The colours of the token a table takes. */
-type TableTokenKey = 'colorText' | 'colorTextSecondary' | 'colorBgContainer' | 'colorFill' | 'colorPrimaryBg'
-    | 'colorPrimaryBgHover' | 'colorBorderSecondary' | 'colorLink' | 'colorLinkHover' | 'colorPrimaryTextHover'
-    | 'colorError'
-
-/** The part of the token of the application a table takes its colours from. */
-type TableToken = Pick<GlobalToken, TableTokenKey>
-
-/** The colour each key of a table theme file is drawn in, in place of the colour the table theme sets there. */
-type KeyedColours = Readonly<Partial<Record<string, string>>>
+import type {
+    ExcelThemeColorName,
+    RawTableCell,
+    RawTableCellBorder,
+    RawTableCellStyle,
+    RawTableThemeColor,
+} from 'types/tables'
+import { mix, opaque } from './colorMath'
+import { paperToken, type TablePaper, workbookPaper } from './paper'
+import { variantOf, type ThemeName } from './themes'
 
 /**
- * The colours a table drawn with a table theme takes from the theme of the application, where the reader asks for
- * them (**Override with Studio theme** in My Settings). They are a drawing only: no workbook and no project takes them.
- *
- * A read reports each colour of the table theme with the key of the theme file it is set at, such as
- * `spreadsheet.values.background`. A colour of a key the look of the application colours takes that colour; any other
- * colour keeps the colour of the table theme ({@link inLook}). The table theme still decides the lines, the bold and
- * the alignment, while the text is set in the font of the application.
- *
- * Every colour is solid, as the colours of a workbook are: a translucent colour of the token is given as it shows on
- * the ground of the table.
+ * The ten theme colours of Excel, as a theme of OpenL Studio gives them: the first and the second background and text,
+ * `lt1`, `dk1`, `lt2` and `dk2`, and the six accents.
  */
-export interface TableColours {
-    /** The colour each key of the table theme file is drawn in, in place of the colour the table theme sets there. */
-    keyed: KeyedColours
-    /** The paper the table is laid on: the ground and the ink of its base style, its grid, links and notes. */
+export type ExcelPalette = Readonly<Record<ExcelThemeColorName, string>>
+
+/**
+ * The ten theme colours of Office 2013 - 2022, the theme of a new workbook of Excel. A colour picked for a cell is shown
+ * in them until the table is saved and read again in the colours of its own workbook.
+ */
+export const OFFICE_PALETTE: ExcelPalette = {
+    lt1: '#ffffff',
+    dk1: '#000000',
+    lt2: '#e7e6e6',
+    dk2: '#44546a',
+    accent1: '#4472c4',
+    accent2: '#ed7d31',
+    accent3: '#a5a5a5',
+    accent4: '#ffc000',
+    accent5: '#5b9bd5',
+    accent6: '#70ad47',
+}
+
+/**
+ * How the tables of the workbooks are drawn under the theme in force. It is carried on the antd-style theme as
+ * `table` (`styles/customToken.ts`), so every screen draws a table alike and a style reads its colours from there.
+ *
+ * A table is drawn formatted with the table theme, whose every colour is one of the sixty colours the palette of Excel
+ * offers, as the server reports it. The tables are drawn in the colours the theme of OpenL Studio gives those ten theme
+ * colours ({@link palette}), dark in the dark appearance, unless the reader asks for the formatting of the Excel file
+ * (**Show Original Excel Formatting** in My Settings). That is drawn as Excel draws it, black on white, whatever the
+ * theme.
+ */
+export interface TableTheme {
+    /** The palette the cells are drawn in, or undefined where they keep the colours of their Excel file. */
+    palette?: ExcelPalette
+    /** The paper the table is laid on: its ground and ink, its grid, its links and the marks of its notes. */
     paper: TablePaper
+    /**
+     * The token a mark a screen lays on the cells takes, such as the outline of a picked cell or the fill of a
+     * changed one: the theme's own, or Ant Design's light one on the paper of an Excel file, so a mark reads on the
+     * paper it lies on.
+     */
+    marks: GlobalToken
 }
 
-/**
- * The colour of the token each key of a table theme file takes, nested as the file nests its keys: `base`, a kind of
- * table such as `spreadsheet`, then the part, such as `values`, and the attribute, such as `background`.
- */
-interface LookColours {
-    readonly [key: string]: TableTokenKey | LookColours
-}
+/** A translucent colour of the token, as it shows on the container it lies on. */
+const solid = (token: GlobalToken, colour: string): string => opaque(colour, token.colorBgContainer)
 
 /**
- * The look a theme of the application gives its tables: the table theme that lays the tables out, and the colours of
- * the theme the keys of its file take in the dark appearance. In the light appearance the keys keep the colours of the
- * table theme, which are made for a light ground.
- */
-interface TableLook {
-    /** The table theme the tables are read with, by its identifier: it decides the bold, the lines and alignment. */
-    tableTheme: string
-    /** The colours of the dark appearance. */
-    dark: LookColours
-}
-
-// The dark colours of the Standard table theme, each named as its file names the colour it takes the place of. The
-// blue of the titles of what a table gives is further from the ground than the light blue of what it gives, as in the
-// light appearance, and both take the grounds of the primary colour.
-const BLACK: TableTokenKey = 'colorText'
-const WHITE: TableTokenKey = 'colorBgContainer'
-const DARK_GREY: TableTokenKey = 'colorTextSecondary'
-const GREY: TableTokenKey = 'colorFill'
-const BLUE: TableTokenKey = 'colorPrimaryBgHover'
-const LIGHT_BLUE: TableTokenKey = 'colorPrimaryBg'
-
-// The parts several kinds share, shared as the Standard table theme file shares them by its aliases.
-const MUTED: LookColours = { color: DARK_GREY }
-const TITLE: LookColours = { background: GREY }
-const GIVEN_TITLE: LookColours = { background: BLUE }
-const GIVEN: LookColours = { background: LIGHT_BLUE }
-const SIMPLE: LookColours = { titles: TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN }
-const LOOKUP: LookColours = { titles: TITLE, horizontals: GIVEN_TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN }
-
-/**
- * The dark colours of the Standard table theme, at the keys of its file. Every key the file sets a colour at has one:
- * `tableColours.test.ts` reads the file to check it. The kinds the file writes nothing for take the base alone, the
- * General format, so they take the colours of the base here too.
- */
-const STANDARD_DARK: LookColours = {
-    base: {
-        style: { color: BLACK, background: WHITE },
-        header: { keyword: MUTED, type: MUTED, parameters: MUTED },
-        properties: MUTED,
-    },
-    datatype: { titles: TITLE, type: MUTED, name: GIVEN, values: MUTED },
-    spreadsheet: { titles: GIVEN_TITLE, stepTitle: TITLE, values: GIVEN, sections: GIVEN_TITLE },
-    data: { name: MUTED, titles: GIVEN_TITLE, values: GIVEN },
-    test: { name: MUTED, titles: TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN },
-    rules: { code: MUTED, titles: TITLE, returnTitles: GIVEN_TITLE, returns: GIVEN },
-    simpleRules: SIMPLE,
-    smartRules: SIMPLE,
-    simpleLookup: LOOKUP,
-    smartLookup: LOOKUP,
-}
-
-/**
- * The themes of the application that have a look of their own for the tables, by their name. The Standard theme draws
- * them with the Standard table theme: in the light appearance in the colours of its file, which are made for it, and
- * in the dark one in the dark colours of the theme.
+ * The ten theme colours of Excel as a theme of OpenL Studio gives them in an appearance.
  *
- * Any theme can join with a look of its own, the colours of each key read off its own token: `tableColours.test.ts`
- * checks that its dark colours colour every key of the file of its table theme, and that every text of it stays
- * readable on every fill.
+ * The first background and text are the container and the text of the theme, and the second ones its secondary fill
+ * and text. The first accent is its primary colour, and the other five the accents of its code editor, each of the
+ * hue Excel's own accent has, so a table keeps its hues in every theme.
+ *
+ * @param name       the theme of OpenL Studio
+ * @param isDarkMode whether the theme is drawn in its dark appearance
+ * @param token      the token of the theme in that appearance
+ * @returns the palette
  */
-const TABLE_LOOKS: Readonly<Partial<Record<ThemeName, TableLook>>> = {
-    standard: { tableTheme: 'standard', dark: STANDARD_DARK },
-}
+export const excelPaletteOf = (name: ThemeName, isDarkMode: boolean, token: GlobalToken): ExcelPalette => ({
+    lt1: token.colorBgContainer,
+    dk1: solid(token, token.colorTextBase),
+    lt2: solid(token, token.colorFillSecondary),
+    dk2: solid(token, token.colorTextSecondary),
+    accent1: token.colorPrimary,
+    ...variantOf(name, isDarkMode).accents,
+})
 
-/** The themes of the application that have a look of their own for the tables. */
-export const LOOK_THEMES: readonly ThemeName[] = Object.keys(TABLE_LOOKS) as ThemeName[]
+/** The colours worked out for each palette, by the colours a tint mixes and the tint. */
+const tinted = new Map<string, string>()
 
 /**
- * The table theme the tables are read with where the reader asks for the look of the theme of the application
- * (**Override with Studio theme**): the one the look of the theme lays its tables out with, whatever table theme the
- * settings name. The table theme of the settings stays the fallback: for a reader who does not ask, and under a theme
- * with no look of its own for the tables.
+ * The colour a colour of the palette of Excel is drawn in, in the colours of a palette.
  *
- * @param follow    whether the reader asks for the colours of the theme
- * @param themeName the theme of the application
- * @returns the table theme, or undefined where the tables are read with the table theme of the settings
- */
-export const followedTableTheme = (follow: boolean, themeName: ThemeName): string | undefined =>
-    (follow ? TABLE_LOOKS[themeName]?.tableTheme : undefined)
-
-/** The token colour of each key of a theme file, the nested keys joined by dots. */
-const keysOf = (colours: LookColours, prefix = ''): [string, TableTokenKey][] =>
-    Object.entries(colours).flatMap(([key, value]) => (typeof value === 'string'
-        ? [[`${prefix}${key}`, value] as [string, TableTokenKey]]
-        : keysOf(value, `${prefix}${key}.`)))
-
-/**
- * The colours of the look a theme of the application gives its tables, in the appearance the application is drawn in.
+ * A tint makes the theme colour lighter or darker as Excel does, but in the colours of the palette: lighter moves it
+ * towards the first background, darker towards the first text. In a dark appearance a lighter fill is therefore a
+ * quieter one, closer to the ground, as it is on the white ground of Excel.
  *
- * @param themeName  the theme of the application
- * @param isDarkMode whether the application is drawn in the dark appearance
- * @param token      the token of the application
- * @returns the colours, or undefined for a theme of the application with no look of its own for the tables
+ * @param palette the palette
+ * @param colour  the colour of the palette of Excel
+ * @returns the colour as `#rrggbb`
  */
-export const tableColoursOf = (
-    themeName: ThemeName,
-    isDarkMode: boolean,
-    token: TableToken
-): TableColours | undefined => {
-    const look = TABLE_LOOKS[themeName]
-    if (look === undefined) {
-        return undefined
+export const colourIn = (palette: ExcelPalette, { name, tint = 0 }: RawTableThemeColor): string => {
+    const base = palette[name]
+    if (tint === 0) {
+        return base
     }
-    const solid = (key: TableTokenKey) => opaque(token[key], token.colorBgContainer)
-    const keyed: KeyedColours = isDarkMode
-        ? Object.fromEntries(keysOf(look.dark).map(([key, tokenKey]) => [key, solid(tokenKey)]))
-        : {}
-    // The link of the dark token reads on the ground only, not on the blue a value is filled with, and it darkens
-    // under the pointer: a dark table draws its links in the lighter text of the primary colour, underlined under the
-    // pointer.
-    const link = solid(isDarkMode ? 'colorPrimaryTextHover' : 'colorLink')
-    return {
-        keyed,
-        paper: {
-            // The base style of the table theme is the ground and the ink of the table.
-            background: keyed['base.style.background'] ?? solid('colorBgContainer'),
-            text: keyed['base.style.color'] ?? solid('colorText'),
-            grid: solid('colorBorderSecondary'),
-            link,
-            linkHover: isDarkMode ? link : solid('colorLinkHover'),
-            note: solid('colorError'),
-        },
+    const towards = tint > 0 ? palette.lt1 : palette.dk1
+    const key = `${base}:${towards}:${tint}`
+    let colour = tinted.get(key)
+    if (colour === undefined) {
+        colour = mix(base, towards, Math.abs(tint))
+        tinted.set(key, colour)
     }
+    return colour
 }
 
-/** The colour the look draws a key in, or undefined for a key it does not colour. */
-const colourAt = (keyed: KeyedColours, key: string | undefined): string | undefined =>
-    (key === undefined ? undefined : keyed[key])
+/** A colour of a style in the colours of a palette: by its colour of the palette of Excel, where it has one. */
+const repainted = (palette: ExcelPalette, colour: string | undefined, theme: RawTableThemeColor | undefined) =>
+    (theme === undefined ? colour : colourIn(palette, theme))
 
 /** The sides of a border. */
 const SIDES = ['top', 'right', 'bottom', 'left'] as const
 
-/** The lines of the table theme around a cell, as the look draws them. */
-const bordersInLook = (border: RawTableCellBorder, keyed: KeyedColours): RawTableCellBorder => {
-    const drawn = { ...border }
+/** The lines around a cell in the colours of a palette. */
+const borderIn = (palette: ExcelPalette, border: RawTableCellBorder): RawTableCellBorder => {
+    const drawn: RawTableCellBorder = { ...border }
     for (const side of SIDES) {
         const line = border[side]
-        const color = colourAt(keyed, line?.colorKey)
-        if (line !== undefined && color !== undefined) {
-            drawn[side] = { ...line, color }
+        if (line?.colorTheme !== undefined) {
+            drawn[side] = { ...line, color: colourIn(palette, line.colorTheme) }
         }
     }
     return drawn
 }
 
-/**
- * A style of the table theme as the look draws it: each colour taken at its key, and the text in the font of the
- * application, so the font of the table theme is left out.
- */
-const styleInLook = ({ fontFamily, fontSize, ...style }: RawTableCellStyle, keyed: KeyedColours): RawTableCellStyle => {
-    const background = colourAt(keyed, style.backgroundKey)
-    const color = colourAt(keyed, style.colorKey)
+/** A style in the colours of a palette: its fill, its text and its lines. */
+export const styleIn = (palette: ExcelPalette, style: RawTableCellStyle): RawTableCellStyle => {
+    const background = repainted(palette, style.background, style.backgroundTheme)
+    const color = repainted(palette, style.color, style.colorTheme)
     return {
         ...style,
         ...(background !== undefined && { background }),
         ...(color !== undefined && { color }),
-        ...(style.border !== undefined && { border: bordersInLook(style.border, keyed) }),
+        ...(style.border !== undefined && { border: borderIn(palette, style.border) }),
     }
 }
 
-/** A cell a table theme draws: a read naming the theme reports the look of the theme as the style of the cell. */
-type ThemedCell = RawTableCell & { style: RawTableCellStyle }
-
-/** Whether a table theme draws a cell: its style is the look of the theme, which names the theme as its source. */
-export const inTheme = (cell: RawTableCell): cell is ThemedCell => cell.style?.source === 'theme'
-
-/** A cell the table theme draws, as the look draws it: its style and the pieces of its text. */
-const cellInLook = (cell: ThemedCell, keyed: KeyedColours): RawTableCell => ({
-    ...cell,
-    style: styleInLook(cell.style, keyed),
-    ...(cell.runs !== undefined && {
-        runs: cell.runs.map(run => (run.style === undefined ? run : { ...run, style: styleInLook(run.style, keyed) })),
-    }),
-})
+/** A cell in the colours of a palette: its style and the pieces of its text. */
+const cellIn = (palette: ExcelPalette, cell: RawTableCell): RawTableCell => (cell.style === undefined
+    && cell.runs === undefined
+    ? cell
+    : {
+        ...cell,
+        ...(cell.style !== undefined && { style: styleIn(palette, cell.style) }),
+        ...(cell.runs !== undefined && {
+            runs: cell.runs.map(run => (run.style === undefined
+                ? run
+                : { ...run, style: styleIn(palette, run.style) })),
+        }),
+    })
 
 /**
- * The cells of a table as the look of the theme of the application draws them.
+ * The cells of a table in the colours a table theme draws them in.
  *
- * Every colour the table theme draws a cell with, the pieces of its text among them, takes the colour of the key it is
- * set at, where the look colours that key. The text takes the font of the application. A cell the table theme does
- * not draw, whose style is not the theme's, is left as it is.
+ * Every colour of a cell, a piece of its text and a line around it takes the colour of the palette its colour of the
+ * palette of Excel is drawn in. A colour reported without one keeps its own. Where the table theme keeps the colours of
+ * the Excel file, the cells are left as they are.
  *
- * @param rows    the cells of the table, read with the table theme of the look
- * @param colours the colours of the look
- * @returns the cells as the look draws them
+ * @param rows  the cells of the table
+ * @param table how the tables are drawn
+ * @returns the cells as they are drawn
  */
-export const inLook = (rows: RawTableCell[][], colours: TableColours): RawTableCell[][] =>
-    rows.map(row => row.map(cell => (inTheme(cell) ? cellInLook(cell, colours.keyed) : cell)))
+export const paintedIn = (rows: RawTableCell[][], table: TableTheme): RawTableCell[][] => {
+    const { palette } = table
+    return palette === undefined ? rows : rows.map(row => row.map(cell => drawnIn(palette, cell)))
+}
+
+/** The cells drawn in each palette, by the cell given: a screen that changes one cell draws that one cell anew. */
+const drawnCells = new WeakMap<ExcelPalette, WeakMap<RawTableCell, RawTableCell>>()
+
+/** A cell in the colours of a palette, drawn once for as long as the screen gives the same cell. */
+const drawnIn = (palette: ExcelPalette, cell: RawTableCell): RawTableCell => {
+    let drawn = drawnCells.get(palette)
+    if (drawn === undefined) {
+        drawn = new WeakMap()
+        drawnCells.set(palette, drawn)
+    }
+    let painted = drawn.get(cell)
+    if (painted === undefined) {
+        painted = cellIn(palette, cell)
+        drawn.set(cell, painted)
+    }
+    return painted
+}
+
+/**
+ * How the tables are drawn under a theme of OpenL Studio in an appearance.
+ *
+ * @param name        the theme of OpenL Studio
+ * @param isDarkMode  whether the theme is drawn in its dark appearance
+ * @param token       the token of the theme in that appearance
+ * @param excelFormatting whether the reader asks for the colours of the Excel file, as Excel draws them
+ * @returns how the tables are drawn
+ */
+export const tableThemeOf = (name: ThemeName, isDarkMode: boolean, token: GlobalToken,
+    excelFormatting: boolean): TableTheme => {
+    if (excelFormatting) {
+        return workbookTable()
+    }
+    const palette = excelPaletteOf(name, isDarkMode, token)
+    // The link of the dark token reads on the ground only, not on the blue a value is filled with, and it darkens
+    // under the pointer: a dark table draws its links in the lighter text of the primary colour, underlined under the
+    // pointer.
+    const link = solid(token, isDarkMode ? token.colorPrimaryTextHover : token.colorLink)
+    return {
+        palette,
+        paper: {
+            background: palette.lt1,
+            text: palette.dk1,
+            grid: solid(token, token.colorBorderSecondary),
+            link,
+            linkHover: isDarkMode ? link : solid(token, token.colorLinkHover),
+            note: token.colorError,
+        },
+        marks: token,
+    }
+}
+
+/** How a table is drawn as Excel draws it, worked out the first time it is asked for. */
+let asInExcel: TableTheme | undefined
+
+/**
+ * How a table is drawn as Excel draws it: in the formatting and the colours of its file, black on white on the paper of
+ * a workbook, whatever the theme.
+ *
+ * @returns how the table is drawn
+ */
+export const workbookTable = (): TableTheme => {
+    asInExcel ??= { paper: workbookPaper(), marks: paperToken() }
+    return asInExcel
+}
+
+/** The tables of each token no theme provider carries them on, worked out once. */
+const unprovided = new WeakMap<GlobalToken, TableTheme>()
+
+/**
+ * How the tables are drawn under the theme a style or a component is given.
+ *
+ * The theme provider of the application carries it on the theme ({@link TableTheme}). A part drawn without that
+ * provider, such as one a test draws alone, draws its tables in the colours of the standard theme of its token.
+ *
+ * @param theme the token of the theme, with what the application carries on it
+ * @returns how the tables are drawn
+ */
+export const tableOf = (theme: GlobalToken & { table?: TableTheme }): TableTheme => {
+    if (theme.table !== undefined) {
+        return theme.table
+    }
+    let table = unprovided.get(theme)
+    if (table === undefined) {
+        table = tableThemeOf('standard', false, theme, false)
+        unprovided.set(theme, table)
+    }
+    return table
+}

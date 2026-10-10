@@ -1,0 +1,152 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "f55d6ff710d930c7cf6d43a377446bcd",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Person",
+  "pos": "B2:D5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype Person",
+        "colspan": 3,
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        },
+        "runs": [
+          {
+            "text": "Datatype",
+            "style": {
+              "color": "#808080"
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "Person",
+            "style": {
+              "bold": true
+            }
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "String",
+        "style": {
+          "color": "#808080",
+          "valign": "center"
+        }
+      },
+      {
+        "cell": "C3",
+        "value": "name",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center"
+        }
+      },
+      {
+        "cell": "D3",
+        "value": "Bob",
+        "style": {
+          "color": "#808080",
+          "valign": "center"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Double",
+        "style": {
+          "color": "#808080",
+          "valign": "center"
+        }
+      },
+      {
+        "cell": "C4",
+        "value": "rate",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center"
+        }
+      },
+      {
+        "cell": "D4",
+        "style": {
+          "color": "#808080",
+          "valign": "center"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Integer",
+        "style": {
+          "color": "#808080",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C5",
+        "value": "age",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D5",
+        "style": {
+          "color": "#808080",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

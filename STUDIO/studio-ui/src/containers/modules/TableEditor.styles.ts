@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style'
-import { paperToken } from '../../styles/paper'
+import { tableOf } from '../../styles/tableColours'
 
 export const useStyles = createStyles(({ css, token }) => ({
     /** The band of editing actions, directly above the table it acts on. */
@@ -18,7 +18,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     `,
     /** The cell the reader picked, marked the way a spreadsheet marks it. Like the marks below, on the paper. */
     picked: css`
-        outline: 2px solid ${paperToken().colorPrimary};
+        outline: 2px solid ${tableOf(token).marks.colorPrimary};
         outline-offset: -2px;
     `,
     /**
@@ -28,12 +28,12 @@ export const useStyles = createStyles(({ css, token }) => ({
      * the message was about.
      */
     raised: css`
-        outline: 2px solid ${paperToken().colorError};
+        outline: 2px solid ${tableOf(token).marks.colorError};
         outline-offset: -2px;
     `,
     /** A cell written since the table was read, so the reader sees what is waiting to be saved. */
     touched: css`
-        box-shadow: inset 0 0 0 100vmax ${paperToken().colorWarningBg};
+        box-shadow: inset 0 0 0 100vmax ${tableOf(token).marks.colorWarningBg};
     `,
     /**
      * The field a cell is written in.
@@ -50,7 +50,7 @@ export const useStyles = createStyles(({ css, token }) => ({
         width: 100%;
         min-width: 0;
         border-radius: 0;
-        background: ${paperToken().colorBgContainer};
+        background: ${tableOf(token).marks.colorBgContainer};
         font: inherit;
         text-align: inherit;
     `,

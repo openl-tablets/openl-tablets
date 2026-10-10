@@ -5,6 +5,7 @@ Content-Type: application/json
   "projectHistoryCount": 100,
   "detectProjectsByExcelFiles": false,
   "updateSystemProperties": false,
+  "formatTablesOnSave": false,
   "datePattern": "MM/dd/yyyy",
   "timeFormat": "hh:mm:ss a",
   "testRunThreadCount": 4,

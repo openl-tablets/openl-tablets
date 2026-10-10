@@ -122,13 +122,6 @@ i18next.addResourceBundle('en', 'project', {
         saved: 'Table saved',
         save_failed: 'Failed to save the table',
     },
-    table_theme: {
-        apply_failed: 'Failed to apply the table theme',
-        project_applied_one: 'Table theme applied to {{count}} table',
-        project_applied_other: 'Table theme applied to {{count}} tables',
-        project_skipped_one: '{{count}} table written as several partial tables was left as it is.',
-        project_skipped_other: '{{count}} tables written as several partial tables were left as they are.',
-    },
     delete_table: {
         deleted: 'Table removed',
         deleted_description: 'The "{{table}}" table was removed from the module.',

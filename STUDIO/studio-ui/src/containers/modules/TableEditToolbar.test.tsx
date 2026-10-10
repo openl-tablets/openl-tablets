@@ -89,16 +89,13 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
     })
 
-    it('opens on the palette and puts the full picker in its place only when asked', async () => {
+    it('opens on the sixty colours of the palette of Excel', async () => {
         draw()
 
         await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+
         expect(await screen.findByTestId('table-edit-palette')).toBeInTheDocument()
-
-        await userEvent.click(screen.getByTestId('table-edit-fill_colour-more'))
-
-        // One of the two at a time: the palette gives up its place rather than sitting behind the picker.
-        expect(screen.queryByTestId('table-edit-palette')).not.toBeInTheDocument()
+        expect(screen.getAllByTestId('table-edit-swatch')).toHaveLength(60)
     })
 
     it('shows a colour on the cell while the pointer rests on it, and takes it back off', async () => {
@@ -109,7 +106,7 @@ describe('TableEditToolbar', () => {
         const first = swatches[0] as HTMLElement
 
         await userEvent.hover(first)
-        expect(acted.onPreview).toHaveBeenLastCalledWith({ background: '#FFFFFF' })
+        expect(acted.onPreview).toHaveBeenLastCalledWith({ backgroundTheme: { name: 'lt1' } })
         // Nothing is written by looking: the colour is on the cell, not in what the table will be saved as.
         expect(acted.onStyle).not.toHaveBeenCalled()
 
@@ -122,10 +119,20 @@ describe('TableEditToolbar', () => {
 
         await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
         const swatches = await screen.findAllByTestId('table-edit-swatch')
+        await userEvent.click(swatches[14] as HTMLElement)
+
+        expect(acted.onStyle).toHaveBeenCalledWith({ backgroundTheme: { name: 'accent1', tint: 0.8 } })
+        expect(acted.onPreview).toHaveBeenLastCalledWith(null)
+    })
+
+    it('colours the text of the cell with the colour the reader settles on', async () => {
+        const acted = draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-font_colour'))
+        const swatches = await screen.findAllByTestId('table-edit-swatch')
         await userEvent.click(swatches[1] as HTMLElement)
 
-        expect(acted.onStyle).toHaveBeenCalledWith({ background: '#FFDDDD' })
-        expect(acted.onPreview).toHaveBeenLastCalledWith(null)
+        expect(acted.onStyle).toHaveBeenCalledWith({ colorTheme: { name: 'dk1' } })
     })
 
     it('sets the font of the picked cell', async () => {
@@ -154,6 +161,31 @@ describe('TableEditToolbar', () => {
         expect(onStyle).toHaveBeenCalledWith({ indent: 1 })
     })
 
+    it('turns off the formatting of a cell while the table is shown in the theme, and says why', async () => {
+        const { onStyle } = draw({ formattable: false, cell: { value: 'x', style: { indent: 2 } } as RawTableCell })
+
+        const formatting = ['align_left', 'align_center', 'align_right', 'bold', 'italic', 'underline',
+            'fill_colour', 'font_colour']
+        formatting.forEach(action => expect(screen.getByTestId(`table-edit-${action}`)).toBeDisabled())
+        await userEvent.click(screen.getByTestId('table-edit-bold'))
+        expect(onStyle).not.toHaveBeenCalled()
+        // The indent sets out the steps of a TBasic algorithm, so it is changed in either look.
+        await userEvent.click(screen.getByTestId('table-edit-indent'))
+        expect(onStyle).toHaveBeenCalledWith({ indent: 3 })
+        expect(screen.getByTestId('table-edit-outdent')).toBeEnabled()
+
+        await userEvent.hover(screen.getByTestId('table-edit-bold'))
+        expect(await screen.findByText('browser.module.edit_format_with_excel')).toBeInTheDocument()
+    })
+
+    it('says why a colour cannot be set while the table is shown in the theme', async () => {
+        draw({ formattable: false })
+
+        await userEvent.hover(screen.getByTestId('table-edit-font_colour'))
+
+        expect(await screen.findByText('browser.module.edit_format_with_excel')).toBeInTheDocument()
+    })
+
     it('does not write a table that would be split by a blank line', () => {
         draw({ blocked: 'browser.module.edit_blank_row' })
 
@@ -165,83 +197,5 @@ describe('TableEditToolbar', () => {
 
         expect(screen.getByTestId('table-edit-save')).toBeDisabled()
         expect(screen.getByTestId('table-edit-undo')).toBeDisabled()
-    })
-
-    const THEMES = [{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]
-
-    it('offers the table themes by name, and chooses one with no cell picked', async () => {
-        const onTheme = vi.fn()
-        draw({ picked: null, cell: undefined, dirty: false, canUndo: false, themes: THEMES, theme: null, onTheme })
-
-        await userEvent.click(screen.getByTestId('table-edit-theme'))
-        await userEvent.click(await screen.findByText('Green'))
-
-        // A theme is written into the whole table, so no cell has to be picked for it.
-        expect(onTheme).toHaveBeenCalledWith('green')
-    })
-
-    it('marks the theme the reader chose', async () => {
-        draw({ themes: THEMES, theme: 'green', onTheme: vi.fn() })
-
-        await userEvent.click(screen.getByTestId('table-edit-theme'))
-
-        expect((await screen.findByText('Green')).closest('li')).toHaveClass('ant-dropdown-menu-item-selected')
-        expect(screen.getByText('Default').closest('li')).not.toHaveClass('ant-dropdown-menu-item-selected')
-    })
-
-    it('offers no theme for a table no theme styles', () => {
-        draw({ themes: []})
-
-        expect(screen.queryByTestId('table-edit-theme')).toBeNull()
-    })
-
-    it('turns off every action that changes the table while a theme is chosen, and says why', async () => {
-        const acted = draw({ themes: THEMES, theme: 'green', onTheme: vi.fn() })
-
-        CHANGING.forEach(action => expect(screen.getByTestId(`table-edit-${action}`)).toBeDisabled())
-        // A theme is applied on its own: it is saved, taken back, or replaced by another.
-        expect(screen.getByTestId('table-edit-save')).toBeEnabled()
-        expect(screen.getByTestId('table-edit-undo')).toBeEnabled()
-        expect(screen.getByTestId('table-edit-theme')).toBeEnabled()
-        await userEvent.click(screen.getByTestId('table-edit-bold'))
-        expect(acted.onStyle).not.toHaveBeenCalled()
-
-        await userEvent.hover(screen.getByTestId('table-edit-bold'))
-        expect(await screen.findByText('browser.module.edit_theme_alone')).toBeInTheDocument()
-    })
-
-    it('says why a colour cannot be set while a theme is chosen', async () => {
-        draw({ themes: THEMES, theme: 'green', onTheme: vi.fn() })
-
-        await userEvent.hover(screen.getByTestId('table-edit-fill_colour'))
-
-        expect(await screen.findByText('browser.module.edit_theme_alone')).toBeInTheDocument()
-    })
-
-    it('turns the theme off while the module waits for Verify, and says why', async () => {
-        draw({ dirty: false, canUndo: false, themes: THEMES, theme: null, onTheme: vi.fn(), verifyNeeded: true })
-
-        const theme = screen.getByTestId('table-edit-theme')
-        expect(theme).toBeDisabled()
-        // The cells of the table are still the reader's to edit.
-        expect(screen.getByTestId('table-edit-bold')).toBeEnabled()
-
-        await userEvent.hover(theme)
-        expect(await screen.findByText('browser.module.theme_verify_first')).toBeInTheDocument()
-    })
-
-    it('turns the theme off while the table holds edits, and says why', async () => {
-        const onTheme = vi.fn()
-        draw({ themes: THEMES, theme: null, onTheme })
-
-        const theme = screen.getByTestId('table-edit-theme')
-        expect(theme).toBeDisabled()
-        await userEvent.click(theme)
-        expect(screen.queryByText('Green')).toBeNull()
-        // The edits themselves go on.
-        expect(screen.getByTestId('table-edit-bold')).toBeEnabled()
-
-        await userEvent.hover(theme)
-        expect(await screen.findByText('browser.module.edit_theme_after_edits')).toBeInTheDocument()
     })
 })

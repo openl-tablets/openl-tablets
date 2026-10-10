@@ -65,6 +65,16 @@ describe('traceService endpoints', () => {
         )
     })
 
+    it('reads a table in the table theme unless the reader asks for its Excel formatting', async () => {
+        mockApiCall.mockResolvedValue({ id: 't1', source: []} as any)
+
+        await traceService.getRawTable('p', 't1', 50)
+        expect(mockApiCall.mock.lastCall?.[0]).toBe('/projects/p/tables/t1?raw=true&maxRows=50&tableTheme=true')
+
+        await traceService.getRawTable('p', 't1', 50, true)
+        expect(mockApiCall.mock.lastCall?.[0]).toBe('/projects/p/tables/t1?raw=true&maxRows=50&styles=true')
+    })
+
     it('sends breakpoints as a JSON body', async () => {
         mockApiCall.mockResolvedValue(undefined as any)
         await traceService.setBreakpoints('p', ['u1', 'u2'])

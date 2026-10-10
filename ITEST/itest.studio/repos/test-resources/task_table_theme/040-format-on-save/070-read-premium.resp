@@ -1,0 +1,265 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "a973db19c8ebdfbbd626dceeb832c28c",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Premium",
+  "pos": "B19:D24",
+  "source": [
+    [
+      {
+        "cell": "B19",
+        "value": "Spreadsheet SpreadsheetResult Premium ( Person person )",
+        "colspan": 3,
+        "style": {
+          "align": "center",
+          "valign": "center",
+          "border": {
+            "top": {
+              "style": "solid",
+              "width": 1
+            },
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        },
+        "runs": [
+          {
+            "text": "Spreadsheet",
+            "style": {
+              "color": "#808080"
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "SpreadsheetResult",
+            "style": {
+              "color": "#808080"
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "Premium",
+            "style": {
+              "bold": true
+            }
+          },
+          {
+            "text": " ",
+            "style": {}
+          },
+          {
+            "text": "( Person person )",
+            "style": {
+              "color": "#808080"
+            }
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B20",
+        "value": "properties",
+        "style": {
+          "color": "#808080",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C20",
+        "value": "description",
+        "style": {
+          "color": "#808080",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D20",
+        "value": "The premium a person pays",
+        "style": {
+          "color": "#808080",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B21",
+        "value": "Step",
+        "style": {
+          "background": "#bfbfbf",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      },
+      {
+        "cell": "C21",
+        "value": "Formula",
+        "style": {
+          "background": "#b8cce4",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      },
+      {
+        "cell": "D21",
+        "style": {
+          "background": "#b8cce4",
+          "align": "center",
+          "valign": "center",
+          "bold": true
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B22",
+        "value": "Base*",
+        "style": {
+          "valign": "center",
+          "bold": true,
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C22",
+        "value": "= 10",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D22",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B23",
+        "value": "Totals",
+        "colspan": 3,
+        "style": {
+          "background": "#b8cce4",
+          "align": "center",
+          "valign": "center",
+          "bold": true,
+          "italic": true,
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B24",
+        "value": "Total*",
+        "style": {
+          "valign": "center",
+          "bold": true,
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "C24",
+        "value": "= $Base * 2",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      },
+      {
+        "cell": "D24",
+        "style": {
+          "background": "#daeef3",
+          "valign": "center",
+          "border": {
+            "bottom": {
+              "style": "solid",
+              "width": 1
+            }
+          }
+        }
+      }
+    ]
+  ],
+  "headerHeight": 2
+}

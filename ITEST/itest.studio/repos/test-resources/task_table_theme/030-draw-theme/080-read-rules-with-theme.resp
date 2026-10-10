@@ -34,9 +34,12 @@ Content-Type: application/json
             "text": "SimpleRules",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
               "source": "theme"
             }
           },
@@ -52,9 +55,12 @@ Content-Type: application/json
             "text": "String",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.type.color",
               "source": "theme"
             }
           },
@@ -79,9 +85,12 @@ Content-Type: application/json
             "text": "(Integer hour)",
             "style": {
               "color": "#808080",
+              "colorTheme": {
+                "name": "lt1",
+                "tint": -0.5
+              },
               "fontFamily": "Franklin Gothic Book",
               "fontSize": 10,
-              "colorKey": "base.header.parameters.color",
               "source": "theme"
             }
           }
@@ -114,12 +123,15 @@ Content-Type: application/json
         "value": "Hour",
         "style": {
           "background": "#bfbfbf",
+          "backgroundTheme": {
+            "name": "lt1",
+            "tint": -0.25
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "simpleRules.titles.background",
           "source": "theme"
         }
       },
@@ -128,12 +140,15 @@ Content-Type: application/json
         "value": "Greeting",
         "style": {
           "background": "#b4c6e7",
+          "backgroundTheme": {
+            "name": "accent1",
+            "tint": 0.6
+          },
           "align": "center",
           "valign": "center",
           "bold": true,
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "simpleRules.returnTitles.background",
           "source": "theme"
         }
       }
@@ -161,6 +176,10 @@ Content-Type: application/json
         "value": "Good Morning",
         "style": {
           "background": "#ddebf7",
+          "backgroundTheme": {
+            "name": "accent5",
+            "tint": 0.8
+          },
           "align": "center",
           "valign": "center",
           "border": {
@@ -171,7 +190,6 @@ Content-Type: application/json
           },
           "fontFamily": "Franklin Gothic Book",
           "fontSize": 10,
-          "backgroundKey": "simpleRules.returns.background",
           "source": "theme"
         }
       }

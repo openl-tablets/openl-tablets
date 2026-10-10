@@ -127,7 +127,7 @@ To manage personal settings, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Settings**.
 
-    ![My Settings page with the Table Settings section and its experimental settings, and the Testing Settings and Trace Settings sections](images/user-settings-form.png "My Settings page")
+    ![My Settings page with the Table Settings, Testing Settings and Trace Settings sections](images/user-settings-form.png "My Settings page")
 
     *My Settings page*
 
@@ -135,24 +135,14 @@ To manage personal settings, proceed as follows:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
-    -   **Experimental** — the settings of the table themes, an experimental feature:
-        -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
-            **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table
-            theme draws them with the theme. A table being edited is drawn as the file holds it. For more information
-            on themes, see [Appendix E: Table Themes](appendices/table-themes.md).
-        -   **Override with Studio theme** — draw the tables in the look of the OpenL Studio theme in place of the
-            table theme, so that in the dark appearance they are dark too. The **Standard** theme of OpenL Studio
-            draws them with the **Standard** table theme, in its own colours in the light appearance and in dark
-            colours in the dark one: the table theme decides which text is bold, which lines are drawn and how the
-            text is aligned, and the text takes the font of OpenL Studio. The other themes of OpenL Studio have no
-            look for the tables, so under them the tables are drawn as **Table Theme** selects.
+    -   **Show Original Excel Formatting** — show the tables as Excel shows them, in the formatting and the colours of
+        their Excel files, black on white, and let the cells be formatted in the edit mode. Cleared, the default, every
+        table is shown formatted with the table theme, in the colours of the OpenL Studio theme, light or dark, as
+        described in [Table Colours](rules-editor.md#table-colours).
 
     > [!Note]
-    > **Table Theme** and **Override with Studio theme** are view only: they change how the tables are shown on the
-    > screen and nothing else. The Excel files keep their own formatting, and the projects are not changed. Neither
-    > decides what is written into an Excel file: only a table theme can be written, never the look of the OpenL Studio
-    > theme, and the theme selected first is the primary one, **Standard**, as described in
-    > [Applying the Table Theme](rules-editor.md#applying-the-table-theme).
+    > **Show Original Excel Formatting** is view only: it changes how the tables are shown on the screen and nothing
+    > else. The Excel files keep their own formatting, and the projects are not changed.
 
 4.  In the **Testing Settings** section, configure the following options:
 
@@ -306,7 +296,7 @@ The following table describes the Rules Editor controls of the module:
 
 | Control                                                                                                                           | Description                                                                                                                                                                                                                                                                                                            |
 |-----------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![More options button](images/toolbar-more-options-icon.png)                                                                  | **Create Table** opens the table creation window with an immediately editable table skeleton. The **More** menu offers the following options: <br/>- Revisions: displays project revisions. <br/>- Local Changes: opens a window for reverting module changes. <br/>- Table Dependencies: opens a graph displaying dependencies among tables of the module, including the data model, that is which data type extends which and which data type a field refers to. Every data type is drawn as an entity box listing the fields it declares, a vocabulary as a box listing its values, and the data model of each project is framed as an area of its own, apart from the tables that call each other. <br/>- Compare Excel files: initiates a dialog for comparing Excel files. <br/>- Apply Table Theme to Project: writes a table theme into the tables of every module of the project, as described in [Applying the Table Theme](rules-editor.md#applying-the-table-theme). It is offered to a user who can change the project. |
+| ![More options button](images/toolbar-more-options-icon.png)                                                                  | **Create Table** opens the table creation window with an immediately editable table skeleton. The **More** menu offers the following options: <br/>- Revisions: displays project revisions. <br/>- Local Changes: opens a window for reverting module changes. <br/>- Table Dependencies: opens a graph displaying dependencies among tables of the module, including the data model, that is which data type extends which and which data type a field refers to. Every data type is drawn as an entity box listing the fields it declares, a vocabulary as a box listing its values, and the data model of each project is framed as an area of its own, apart from the tables that call each other. <br/>- Compare Excel files: initiates a dialog for comparing Excel files. |
 | ![](images/toolbar-search-icon.png)                                                                  | Filters the module tree by table name. The filter icon at the end of the field opens the extended search. For more information on performing searches, see [Searching for Tables](rules-editor.md#searching-for-tables).                                                                                                                                                                                                    |
 | ![](images/toolbar-refresh-icon.png)                                                                  | Refreshes OpenL Studio with the latest changes in Excel files.                                                                                                                                                                                                                                              |
 | ![](images/toolbar-create-table-icon.png)                                                                  | Opens the table creation window with an immediately editable table skeleton.                                                                                                                                                                                                                                            |

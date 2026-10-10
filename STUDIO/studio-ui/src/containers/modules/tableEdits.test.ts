@@ -22,6 +22,9 @@ const table: RawTableCell[][] = [
     [{ cell: 'A3', value: 12 }, { cell: 'B3', value: 'Good Afternoon' }],
 ]
 
+/** Blue, Accent 1, Lighter 60%. */
+const LIGHT_BLUE = { name: 'accent1' as const, tint: 0.6 }
+
 /** The table as the given steps leave it. */
 const after = (...steps: EditStep[]) => replay(table, steps)
 
@@ -154,6 +157,14 @@ describe('tableEdits', () => {
             const state = after({ kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } })
 
             expect(state.rows[1]?.[1]?.style?.bold).toBe(true)
+        })
+
+        it('draws a colour of the palette of Excel by its theme colour, in the colour of Office meanwhile', () => {
+            const state = after({ kind: 'style', at: { row: 1, column: 1 }, style: { backgroundTheme: LIGHT_BLUE } })
+
+            // A table drawn in the colours of OpenL Studio draws the theme colour; one that keeps the colours of its
+            // Excel file shows the colour of Office until the table is read again from its workbook.
+            expect(state.rows[1]?.[1]?.style).toEqual({ background: '#b4c7e7', backgroundTheme: LIGHT_BLUE })
         })
 
         it('carries the styling with the cell when a row is added above it', () => {
@@ -297,50 +308,12 @@ describe('tableEdits', () => {
             ])
         })
 
-        it('sends no table theme while the reader chose none', () => {
-            expect(after().theme).toBeNull()
-            expect(sent(write(1, 0, '6')).some(edit => edit.operation === 'theme')).toBe(false)
-        })
+        it('sends a colour of the palette of Excel as the theme colour, without the colour it is drawn in', () => {
+            const style = { colorTheme: { name: 'accent2' as const, tint: -0.25 } }
 
-        it('takes no change of the table while a theme is chosen, leaving the buffer as it was', () => {
-            const themed = withStep(NO_EDITS, { kind: 'theme', theme: 'default' })
-
-            // The theme is laid out by the table as it was saved, which an edit saved with it would change.
-            expect(withStep(themed, write(1, 0, '6'))).toBe(themed)
-            expect(withStep(themed, { kind: 'insertRow', at: 3 })).toBe(themed)
-            expect(withStep(themed, { kind: 'style', at: { row: 1, column: 1 }, style: { bold: true } })).toBe(themed)
-        })
-
-        it('takes no theme while the table holds edits, and keeps what was taken back to put again', () => {
-            const edited = undo(withStep(withStep(NO_EDITS, write(1, 0, '6')), write(1, 1, 'Buenos Dias')))
-
-            const refused = withStep(edited, { kind: 'theme', theme: 'default' })
-
-            expect(refused).toBe(edited)
-            expect(redo(refused).steps).toHaveLength(2)
-        })
-
-        it('takes a theme once every edit is taken back, and an edit once the theme is', () => {
-            const themed = withStep(undo(withStep(NO_EDITS, write(1, 0, '6'))), { kind: 'theme', theme: 'default' })
-
-            expect(themed.steps).toEqual([{ kind: 'theme', theme: 'default' }])
-            // The edit taken back cannot be put again: it would be saved with the theme.
-            expect(themed.undone).toEqual([])
-            expect(withStep(undo(themed), write(1, 0, '6')).steps).toEqual([write(1, 0, '6')])
-        })
-
-        it('writes the table with the theme the reader chose last', () => {
-            const edits = sent({ kind: 'theme', theme: 'default' }, { kind: 'theme', theme: 'green' })
-
-            expect(edits).toEqual([{ operation: 'theme', theme: 'green' }])
-        })
-
-        it('takes the theme back with the step that chose it', () => {
-            const chosen = withStep(withStep(NO_EDITS, { kind: 'theme', theme: 'default' }),
-                { kind: 'theme', theme: 'green' })
-
-            expect(replay(table, undo(chosen).steps).theme).toBe('default')
-            expect(replay(table, undo(undo(chosen)).steps).theme).toBeNull()
+            expect(sent({ kind: 'style', at: { row: 1, column: 1 }, style })).toEqual([
+                { operation: 'style', target: { type: 'cells', row: 1, column: 1, rowspan: 1, colspan: 1, style } },
+            ])
         })
     })
 

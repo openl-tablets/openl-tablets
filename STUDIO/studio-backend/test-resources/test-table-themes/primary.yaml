@@ -1,7 +1,0 @@
-# A primary theme: offered before the other themes, whose names come before its own.
-name: Primary
-primary: true
-
-base:
-  style:
-    bold: true
