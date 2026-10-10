@@ -12,7 +12,7 @@ i18next.addResourceBundle('en', 'system', {
     projects: 'Projects',
     maximum_count_of_changes: 'The maximum count of saved changes for each project per user',
     detect_projects_by_excel_files: 'Detect projects by Excel files',
-    detect_projects_by_excel_files_info: 'Treat folders without rules.xml as projects when they contain an Excel file in their root. Enabling this setting slows down the Repository tab.',
+    detect_projects_by_excel_files_info: 'Treat folders without rules.xml as projects when they contain an Excel file in their root. A repository that keeps projects as archives, such as a database or AWS S3 repository, has no folders and lists its projects either way. Enabling this setting slows down the Repository tab.',
     clear_all_history: 'Clear All History',
     other: 'Other',
     database_configuration: 'Database Configuration',
