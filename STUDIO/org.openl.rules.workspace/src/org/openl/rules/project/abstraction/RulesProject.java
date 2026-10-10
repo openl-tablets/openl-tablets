@@ -17,6 +17,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.impl.local.LocalChanges;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.AdditionalData;
@@ -325,6 +326,25 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public boolean isLocalOnly() {
         return designFolderName == null;
+    }
+
+    /**
+     * Lists the files changed in the workspace since the project was opened or saved, by their paths in the project.
+     *
+     * <p>A file changed in the design repository since then is no change of the workspace. A project that is not
+     * opened has no workspace copy, and so no change.
+     *
+     * @throws ProjectException if the project folder cannot be read
+     */
+    public LocalChanges getLocalChanges() throws ProjectException {
+        if (isRepositoryOnly()) {
+            return new LocalChanges(List.of(), List.of(), List.of());
+        }
+        try {
+            return localRepository.getMetainfoRegistry().localChanges(localFolderName);
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
     }
 
     private boolean isRepositoryOnly() {

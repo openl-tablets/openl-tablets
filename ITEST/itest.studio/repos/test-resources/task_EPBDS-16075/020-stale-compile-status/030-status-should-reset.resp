@@ -11,14 +11,10 @@ Content-Type: application/json
       "date": "*"
     },
     "pendingChanges": {
-      "total": 2,
+      "total": 1,
       "files": [
         {
           "path": "DESIGN/rules/EPBDS-16068/Main.xlsx",
-          "type": "modified"
-        },
-        {
-          "path": "DESIGN/rules/EPBDS-16068/rules.xml",
           "type": "modified"
         }
       ]
