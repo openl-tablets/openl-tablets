@@ -13,7 +13,7 @@ interface SystemSettings {
     dispatchingValidationEnabled: boolean
     detectProjectsByExcelFiles: boolean
     projectHistoryCount: number
-    testRunThreadCount: number
+    testRunThreadCount: number | string
     timeFormat: string
     updateSystemProperties: boolean
     db: {
@@ -24,8 +24,13 @@ interface SystemSettings {
     }
 }
 
-/** Tests run in a whole number of threads, one at least. */
-export const THREAD_COUNT_RULE: FormRule = { type: 'integer', min: 1 }
+/**
+ * Tests run in a whole number of threads, from 1 to 999,999,999. The field keeps the text as typed, so a letter,
+ * a symbol, a fraction, a negative number or a blank is refused with a message instead of being dropped.
+ *
+ * Nine digits at most keep the count within what the settings hold, so it is sent as the number typed.
+ */
+export const THREAD_COUNT_RULE: FormRule = { required: true, pattern: /^[1-9]\d{0,8}$/ }
 
 export const System: React.FC = () => {
     const { modal, notification } = App.useApp()
@@ -94,7 +99,7 @@ export const System: React.FC = () => {
                 'Content-Type': 'application/merge-patch+json',
                 // 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(values),
+            body: JSON.stringify({ ...values, testRunThreadCount: Number(values.testRunThreadCount) }),
         }, true).then(() => {
             window.location.reload()
         }).catch(e => {
@@ -130,7 +135,7 @@ export const System: React.FC = () => {
                 name="autoCompile"
             />
             <Divider titlePlacement="start">{t('system:testing')}</Divider>
-            <InputNumber
+            <Input
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
                 rules={[{ ...THREAD_COUNT_RULE, message: t('system:thread_number_invalid') }]}

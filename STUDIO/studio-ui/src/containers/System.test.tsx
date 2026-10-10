@@ -1,5 +1,5 @@
 import { act, render, screen } from '@testing-library/react'
-import { Form, InputNumber as AntdInputNumber } from 'antd'
+import { Form, Input as AntdInput } from 'antd'
 import type { FormInstance } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { System, THREAD_COUNT_RULE } from './System'
@@ -7,6 +7,9 @@ import * as services from '../services'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('../services', () => ({ apiCall: vi.fn() }))
+
+/** The rules each mocked text field was given, by its name. */
+const inputRules = vi.hoisted(() => new Map<string, unknown[]>())
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -23,9 +26,17 @@ vi.mock('../components', () => ({
             <input name={name} type="checkbox" />
         </label>
     ),
-    Input: () => null,
-    InputNumber: ({ label, name, rules }: { label: string, name: string | string[], rules?: unknown[] }) => (
-        <label data-rules={JSON.stringify(rules ?? [])}>
+    Input: ({ label, name, rules }: { label: string, name: string | string[], rules?: unknown[] }) => {
+        inputRules.set(String(name), rules ?? [])
+        return (
+            <label>
+                {label}
+                <input name={String(name)} type="text" />
+            </label>
+        )
+    },
+    InputNumber: ({ label, name }: { label: string, name: string | string[] }) => (
+        <label>
             {label}
             <input name={String(name)} type="number" />
         </label>
@@ -75,18 +86,19 @@ describe('System', () => {
         )
     })
 
-    it('accepts a whole number of test threads, one at least, and says so otherwise', async () => {
+    it('keeps the test threads as typed and says when they are not a whole number of one at least', async () => {
         render(<System />)
 
-        const threads = await screen.findByRole('spinbutton', { name: 'system:thread_number_for_tests' })
-        expect(JSON.parse(threads.closest('label')!.dataset['rules']!)).toEqual([
+        const threads = await screen.findByRole('textbox', { name: 'system:thread_number_for_tests' })
+        expect(threads).toHaveAttribute('name', 'testRunThreadCount')
+        expect(inputRules.get('testRunThreadCount')).toEqual([
             { ...THREAD_COUNT_RULE, message: 'system:thread_number_invalid' },
         ])
     })
 })
 
 describe('THREAD_COUNT_RULE', () => {
-    const validates = async (threads: number) => {
+    const validates = async (threads: number | string) => {
         let form: FormInstance | undefined
         const Harness = () => {
             const [instance] = Form.useForm()
@@ -94,7 +106,7 @@ describe('THREAD_COUNT_RULE', () => {
             return (
                 <Form form={instance} initialValues={{ threads }}>
                     <Form.Item name="threads" rules={[THREAD_COUNT_RULE]}>
-                        <AntdInputNumber />
+                        <AntdInput />
                     </Form.Item>
                 </Form>
             )
@@ -107,7 +119,12 @@ describe('THREAD_COUNT_RULE', () => {
         return valid
     }
 
-    it.each([[4, true], [1, true], [0, false], [-5, false], [1.1, false]])(
+    // The stored count arrives as a number; a typed one is text, which the field keeps as it is.
+    it.each<[number | string, boolean]>([
+        [4, true], ['4', true], ['1', true], ['12', true], ['999999999', true],
+        ['0', false], ['-5', false], ['1.1', false], ['aaa', false], ['#%', false], ['', false], [' 2', false],
+        ['1000000000', false], ['9'.repeat(400), false],
+    ])(
         'judges %s threads valid: %s',
         async (threads, valid) => {
             expect(await validates(threads)).toBe(valid)
