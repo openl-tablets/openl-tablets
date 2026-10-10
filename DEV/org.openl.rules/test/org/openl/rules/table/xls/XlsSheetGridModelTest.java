@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.helpers.ArraySplitter;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -123,6 +124,14 @@ class XlsSheetGridModelTest {
 
         xsGrid.setCellValue(0, 0, new CountriesEnum[]{null, null});
         assertEquals(",", xsGrid.getCell(0, 0).getObjectValue());
+    }
+
+    @Test
+    void writesConstantsOfAPlainArrayByTheirNames() {
+        // An array of plain objects, as a value the type of its cell does not describe is written.
+        xsGrid.setCellValue(0, 0, new Object[]{LanguagesEnum.SPA, "other"});
+
+        assertEquals("SPA,other", xsGrid.getCell(0, 0).getObjectValue());
     }
 
     @Test

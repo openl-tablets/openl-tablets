@@ -76,9 +76,7 @@ class TablePropertiesWriteTest {
         service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("tags", "greeting")));
 
         // The one it was told about is written; the one it was not still stands.
-        assertEquals(Map.of("description", "Greets by the hour", "tags", "greeting"),
-                service.read(TableTestProjects.onlyTable(project)).stream()
-                        .collect(Collectors.toMap(TableProperty::name, TableProperty::value)));
+        assertEquals(Map.of("description", "Greets by the hour", "tags", "greeting"), properties(project));
     }
 
     @Test
@@ -89,6 +87,27 @@ class TablePropertiesWriteTest {
 
         // Written as a date rather than as the text it arrived as, so the engine reads it as one.
         assertEquals("2009-01-01", service.read(TableTestProjects.onlyTable(project)).getFirst().value());
+    }
+
+    @Test
+    void writesTheCodeOfAnEnumPropertyAddedAfterAnotherOne() throws IOException {
+        var project = withProperty("enums", "country", "BY");
+
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("lang", "SPA")));
+
+        // The new row takes the place of the first property: the code the editor sends is written, not the name
+        // Spanish the engine cannot read back.
+        assertEquals(Map.of("country", "BY", "lang", "SPA"), properties(project));
+    }
+
+    @Test
+    void writesTheTextOfAPropertyAddedWhereAFlagStood() throws IOException {
+        var project = withProperty("flags", "active", "true");
+
+        service.write(TableTestProjects.onlyTable(project), List.of(new TableProperty("description", "No")));
+
+        // The text takes the place of the flag, and stays a text rather than becoming the flag's false.
+        assertEquals(Map.of("active", "true", "description", "No"), properties(project));
     }
 
     @Test
@@ -139,12 +158,24 @@ class TablePropertiesWriteTest {
 
     /** The same table, already declaring a property of its own. */
     private Path withProperties(String name) throws IOException {
+        return withProperty(name, "description", "Greets by the hour");
+    }
+
+    /** The same table, declaring the property given. */
+    private Path withProperty(String name, String property, String value) throws IOException {
         return TableTestProjects.writeProject(tempDir.resolve(name), name, "Rules", new String[][]{
                 {"SmartRules String Hello (Integer hour)", null, null},
-                {"properties", "description", "Greets by the hour"},
+                {"properties", property, value},
                 {"Hour", "Greeting", null},
                 {"[0..12)", "Good Morning", null}
         });
+    }
+
+    /** The properties the table declares, read back by name. */
+    private Map<String, String> properties(Path project) {
+        return service.read(TableTestProjects.onlyTable(project))
+                .stream()
+                .collect(Collectors.toMap(TableProperty::name, TableProperty::value));
     }
 
     /** The table's cells, row by row, with the blank tail of each row left out. */

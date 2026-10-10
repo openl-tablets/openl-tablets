@@ -350,15 +350,16 @@ public class GridTool {
                     .getWidth();
         }
 
-        actions.add(new UndoableSetValueAction(leftCell + propNameCellOffset,
-                topCell + firstPropertyRow,
-                newPropName,
-                metaInfoWriter));
+        // The new row is emptied, but an emptied cell keeps the meta info of the property it pushed down, whose type
+        // the new value would be read as
+        var propertyRow = topCell + firstPropertyRow;
+        var nameColumn = leftCell + propNameCellOffset;
+        var valueColumn = leftCell + propValueCellOffset;
+        actions.add(table -> metaInfoWriter.setMetaInfo(propertyRow, nameColumn, null));
+        actions.add(table -> metaInfoWriter.setMetaInfo(propertyRow, valueColumn, null));
 
-        actions.add(new UndoableSetValueAction(leftCell + propValueCellOffset,
-                topCell + firstPropertyRow,
-                newPropValue,
-                metaInfoWriter));
+        actions.add(new UndoableSetValueAction(nameColumn, propertyRow, newPropName, metaInfoWriter));
+        actions.add(new UndoableSetValueAction(valueColumn, propertyRow, newPropValue, metaInfoWriter));
         return new UndoableCompositeAction(actions);
     }
 

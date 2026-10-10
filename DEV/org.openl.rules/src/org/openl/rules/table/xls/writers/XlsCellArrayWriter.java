@@ -15,6 +15,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.formatters.FormatConstants;
+import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
 
 public class XlsCellArrayWriter extends AXlsCellWriter {
@@ -85,7 +86,13 @@ public class XlsCellArrayWriter extends AXlsCellWriter {
     }
 
     private static String serializeElementWithoutCellFormat(@Nullable Object value) {
-        return escapeSeparator(value == null ? StringUtils.EMPTY : value.toString());
+        var text = switch (value) {
+            case null -> StringUtils.EMPTY;
+            // A constant is read back by its name, which its display name is not
+            case Enum<?> constant -> EnumUtils.getName(constant);
+            default -> value.toString();
+        };
+        return escapeSeparator(text);
     }
 
     private static String escapeSeparator(String value) {
