@@ -21,6 +21,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
 
@@ -146,11 +147,13 @@ public class RulesProjectBuilder {
         FileUtils.deleteQuietly(tempLocalRepositoryPath.toFile());
     }
 
-    private void checkName(String artefactName) throws ProjectException {
+    /**
+     * Refuses a name a project file or folder cannot have, naming it and the characters a name cannot contain.
+     */
+    private static void checkName(String artefactName) {
         if (!NameChecker.checkName(artefactName)) {
-            throw new ProjectException(
-                    "File or folder name '%s' is invalid. %s".formatted(artefactName, NameChecker.BAD_NAME_MSG));
-
+            throw new BadRequestException("project.file.name.invalid.message",
+                    new Object[]{artefactName, NameChecker.FORBIDDEN_CHARS_STRING});
         }
     }
 

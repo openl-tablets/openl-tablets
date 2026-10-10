@@ -54,6 +54,7 @@ import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.util.StringUtils;
 
 class OpenAPIProjectCreatorTest {
@@ -123,6 +124,31 @@ class OpenAPIProjectCreatorTest {
 
         assertOpenAPIFile(projectFolderPath, "openapi.yaml");
         assertFalse(Files.exists(projectFolderPath.resolve("custom-schema.yml")));
+    }
+
+    @Test
+    void refusesAModulePathANameCannotHave() throws Exception {
+        var source = Path.of(DIR, "EPBDS-11041-openapiDateTime.yaml");
+        var projectFile = new ProjectFile("openapi.yaml", Files.newInputStream(source));
+        var projectCreator = new OpenAPIProjectCreator(projectFile,
+                REPO_ID,
+                "invalid-module-path",
+                "invalid-module-path",
+                userWorkspaceMock,
+                DEFAULT_COMMENT,
+                "rules/Mod?els.xlsx",
+                MOCK_ALGORITHM_PATH,
+                MOCK_MODEL_NAME,
+                MOCK_ALGORITHM_NAME,
+                Map.of());
+        try {
+            var refused = assertThrows(BadRequestException.class, projectCreator::createRulesProject);
+
+            assertEquals("openl.error.400.project.file.name.invalid.message", refused.getErrorCode());
+            assertEquals("Mod?els.xlsx", refused.getArgs()[0]);
+        } finally {
+            projectCreator.destroy();
+        }
     }
 
     @Test

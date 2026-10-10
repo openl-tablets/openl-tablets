@@ -15,6 +15,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.util.IOUtils;
 
 @Slf4j
@@ -50,6 +51,10 @@ public abstract class AProjectCreator {
             projectBuilder.save();
             createdProjectName = projectBuilder.getCreateProjectName();
             return projectBuilder.getProject();
+        } catch (RestRuntimeException e) {
+            // A request refused for what it holds, such as a file name, is answered with the reason. It is refused
+            // while the project is built, and the builder that refuses it cancels itself.
+            throw e;
         } catch (Exception e) {
             var cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {

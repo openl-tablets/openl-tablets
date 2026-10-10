@@ -29,6 +29,7 @@ import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -212,6 +213,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                     openAPIHelper.editOrCreateRulesDeploy(projectModel, generated, null),
                     RulesDeploy.FILE_NAME,
                     "Error uploading rules-deploy.xml file.");
+        } catch (RestRuntimeException e) {
+            // A request refused for what it holds, such as the name of a module, is answered with the reason.
+            projectBuilder.cancel();
+            throw e;
         } catch (Exception e) {
             projectBuilder.cancel();
             throw new ProjectException(e.getMessage(), e);
