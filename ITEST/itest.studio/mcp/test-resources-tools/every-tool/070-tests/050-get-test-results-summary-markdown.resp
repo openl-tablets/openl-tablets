@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "# Test Results Summary\n\n## Summary\n- **Total Tests**: 3\n- **Passed**: 3\n- **Failed**: 0\n- **Execution Time**: * ms\n"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

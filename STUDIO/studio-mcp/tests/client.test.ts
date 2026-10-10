@@ -1073,11 +1073,11 @@ describe("OpenLClient", () => {
       // getProject mock — project is already OPENED
       mockAxios.onGet(projectPath).reply(200, mockOpenProject);
 
-      // /tests/run mock — reply with a Set-Cookie header so the client stores it
+      // /tests/run mock — reply with the session cookie Studio keeps the run in
       mockAxios.onPost(`${projectPath}/tests/run`).reply(
         200,
         { status: "ok" },
-        { "Set-Cookie": "JSESSIONID=test-session-123; Path=/" }
+        { "set-cookie": "JSESSIONID=test-session-123; Path=/" }
       );
 
       return client.startProjectTests("design-project1", tableId ? { tableId } : undefined);
@@ -1089,7 +1089,7 @@ describe("OpenLClient", () => {
       mockAxios.onPost(`${projectPath}/tests/run`).reply((config) => {
         expect(config.params).toBeDefined();
         expect(config.params.tableId).toBe("my_table_42");
-        return [200, { status: "ok" }, { "Set-Cookie": "JSESSIONID=sess1; Path=/" }];
+        return [200, { status: "ok" }, { "set-cookie": "JSESSIONID=sess1; Path=/" }];
       });
 
       const result = await client.startProjectTests("design-project1", { tableId: "my_table_42" });
@@ -1101,7 +1101,7 @@ describe("OpenLClient", () => {
       mockAxios.onGet(projectPath).reply(200, mockOpenProject);
       mockAxios.onPost(`${projectPath}/tests/run`).reply((config) => {
         expect(config.params).toEqual({ tableId: "my_table_42", fromModule: "Rules" });
-        return [200, { status: "ok" }, { "Set-Cookie": "JSESSIONID=sess2; Path=/" }];
+        return [200, { status: "ok" }, { "set-cookie": "JSESSIONID=sess2; Path=/" }];
       });
 
       await client.startProjectTests("design-project1", {
@@ -1110,12 +1110,11 @@ describe("OpenLClient", () => {
       });
     });
 
-    it("should reuse stored headers in getTestResultsSummary after starting with tableId", async () => {
+    it("reads getTestResultsSummary in the session the run started in, after starting with tableId", async () => {
       await startSession("specific_table_99");
 
-      // Now getTestResultsSummary should find the stored headers
-      mockAxios.onGet(`${projectPath}/tests/summary`).reply((config) => {
-        // The stored Cookie header should be forwarded
+            mockAxios.onGet(`${projectPath}/tests/summary`).reply((config) => {
+        // The session of the run is sent
         expect(config.headers?.["Cookie"]).toBe("JSESSIONID=test-session-123");
         return [200, mockSummary];
       });
@@ -1137,7 +1136,7 @@ describe("OpenLClient", () => {
       expect(summary.numberOfTests).toBe(5);
     });
 
-    it("should reuse stored headers in getTestResults after starting with tableId", async () => {
+    it("reads getTestResults in the session the run started in, after starting with tableId", async () => {
       await startSession("specific_table_99");
 
       mockAxios.onGet(`${projectPath}/tests/summary`).reply((config) => {
@@ -1160,7 +1159,7 @@ describe("OpenLClient", () => {
       expect(results.testCases).toHaveLength(2);
     });
 
-    it("should reuse stored headers in getTestResultsByTable after starting with tableId", async () => {
+    it("reads getTestResultsByTable in the session the run started in, after starting with tableId", async () => {
       await startSession("test_table_abc");
 
       // getTestResultsByTable iterates pages via getTestResults
@@ -1183,7 +1182,7 @@ describe("OpenLClient", () => {
       mockAxios.onPost(`${projectPath}/tests/run`).replyOnce(
         200,
         { status: "ok" },
-        { "Set-Cookie": "JSESSIONID=session-AAA; Path=/" }
+        { "set-cookie": "JSESSIONID=session-AAA; Path=/" }
       );
       await client.startProjectTests("design-project1", { tableId: "table_a" });
 
@@ -1191,7 +1190,7 @@ describe("OpenLClient", () => {
       mockAxios.onPost(`${projectPath}/tests/run`).replyOnce(
         200,
         { status: "ok" },
-        { "Set-Cookie": "JSESSIONID=session-BBB; Path=/" }
+        { "set-cookie": "JSESSIONID=session-BBB; Path=/" }
       );
       await client.startProjectTests("design-project1", { tableId: "table_b" });
 
@@ -1206,16 +1205,11 @@ describe("OpenLClient", () => {
       expect(summary.numberOfTests).toBe(5);
     });
 
-    it("should throw when getTestResultsSummary is called without starting tests", async () => {
-      await expect(
-        client.getTestResultsSummary("design-project1")
-      ).rejects.toThrow(/No test execution session found/);
-    });
+    it("surfaces the answer of Studio when results are read before any test run", async () => {
+      mockAxios.onGet(`${projectPath}/tests/summary`).reply(404, { message: "No test run of the project." });
 
-    it("should throw when getTestResults is called without starting tests", async () => {
-      await expect(
-        client.getTestResults("design-project1")
-      ).rejects.toThrow(/No test execution session found/);
+      await expect(client.getTestResultsSummary("design-project1")).rejects.toThrow();
+      await expect(client.getTestResults("design-project1")).rejects.toThrow();
     });
 
     it("should start tests without tableId and still allow retrieving results", async () => {
@@ -1241,7 +1235,7 @@ describe("OpenLClient", () => {
       mockAxios.onPost(`${projectPath}/tests/run`).reply(
         200,
         { status: "ok" },
-        { "Set-Cookie": "JSESSIONID=opened-session; Path=/" }
+        { "set-cookie": "JSESSIONID=opened-session; Path=/" }
       );
 
       const result = await client.startProjectTests("design-project1");
@@ -1276,7 +1270,7 @@ describe("OpenLClient", () => {
       mockAxios.onPost(`${localProjectPath}/tests/run`).reply(
         200,
         { status: "ok" },
-        { "Set-Cookie": "JSESSIONID=local-session; Path=/" }
+        { "set-cookie": "JSESSIONID=local-session; Path=/" }
       );
 
       const result = await client.startProjectTests(localProjectId);
