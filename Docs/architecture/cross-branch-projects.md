@@ -259,9 +259,10 @@ Refreshes must run outside request threads and follow these rules:
 - The configured-branch listing must remain available only until the first snapshot is published; afterwards the
   published snapshot is served even while its health is still `INDEXING`.
 - Repository change events must mark the repository dirty and schedule a batched status check.
-- A successful Studio write must invalidate the affected branch directly. A save and a file write committed
-  directly to a closed project must also wait for that branch's publication before answering, so the next read of
-  the project sees the written revision.
+- A successful Studio write must invalidate the affected branch directly. A save, a file write committed
+  directly to a closed project and a write through the repository files API (`/repos/{repo-name}/files`) must also
+  wait for that branch's publication before answering, so the next read or listing of the project sees the written
+  revision.
 - One coordinator per repository may run at a time.
 - Different repositories may scan concurrently.
 - Branches within one repository must scan sequentially because branch-view creation shares the Git lock.

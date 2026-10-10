@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -18,10 +19,12 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.service.ProjectIndex;
 import org.openl.util.StringUtils;
 
 /**
@@ -48,6 +51,9 @@ public class RepoFileRoot implements FileRoot {
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectFileLookupService fileLookupService;
     private final ProjectLockGuard lockGuard;
+    private final DesignTimeRepository designTimeRepository;
+    /** The branch the mount writes to, or {@code null} for a repository without branches. */
+    private final @Nullable String branch;
 
     @Override
     public AProjectFolder readFolder(String version) {
@@ -110,6 +116,21 @@ public class RepoFileRoot implements FileRoot {
             repository.save(folderData, items, changesetType);
         } catch (IOException e) {
             throw new ConflictException("file.archive.upload.failed.message");
+        }
+        awaitIndex();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The mount commits every modification straight to the repository, so each one is awaited on the branch
+     * the mount writes to. A repository without branches reports its commits as it makes them, so there is
+     * nothing to wait for.
+     */
+    @Override
+    public void awaitIndex() {
+        if (branch != null && !ProjectIndex.awaitBranch(designTimeRepository, repository, branch)) {
+            throw new ConflictException("project.indexing.incomplete.message");
         }
     }
 

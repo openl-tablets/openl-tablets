@@ -66,7 +66,8 @@ class FileRootWriteBatchTest {
     void repositoryMountCommitsBatchAsOneChangeset() throws Exception {
         BranchRepository repository = mock(BranchRepository.class);
         var root = new RepoFileRoot(repository, mock(AclProjectsHelper.class),
-                mock(ProjectFileLookupService.class), mock(ProjectLockGuard.class));
+                mock(ProjectFileLookupService.class), mock(ProjectLockGuard.class), mock(DesignTimeRepository.class),
+                null);
         var items = List.of(item("data/a.txt"), item("data/sub/b.txt"));
 
         root.writeBatch("data", items, ChangesetType.DIFF, "Upload archive");

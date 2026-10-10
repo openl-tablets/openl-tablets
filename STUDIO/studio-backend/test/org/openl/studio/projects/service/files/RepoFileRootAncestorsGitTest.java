@@ -28,6 +28,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.util.IOUtils;
@@ -66,7 +67,8 @@ class RepoFileRootAncestorsGitTest {
         lenient().when(aclProvider.getDesignRepoAclService()).thenReturn(aclService);
 
         root = new RepoFileRoot(repository, aclProjectsHelper,
-                new ProjectFileLookupServiceImpl(aclProjectsHelper, aclProvider), mock(ProjectLockGuard.class));
+                new ProjectFileLookupServiceImpl(aclProjectsHelper, aclProvider), mock(ProjectLockGuard.class),
+                mock(DesignTimeRepository.class), null);
     }
 
     @AfterEach
