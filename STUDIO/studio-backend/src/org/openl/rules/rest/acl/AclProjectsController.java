@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -46,7 +47,9 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.security.CurrentUserInfo;
 import org.openl.util.StringUtils;
 
 @Validated
@@ -62,12 +65,15 @@ public class AclProjectsController {
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final TransactionTemplate txTemplate;
+    private final CurrentUserInfo currentUserInfo;
 
     public AclProjectsController(SecureDesignTimeRepository designTimeRepository,
                                  RepositoryAclServiceProvider aclServiceProvider,
                                  UserManagementService userManagementService,
                                  GroupManagementService groupManagementService,
-                                 PlatformTransactionManager txManager) {
+                                 PlatformTransactionManager txManager,
+                                 CurrentUserInfo currentUserInfo) {
+        this.currentUserInfo = currentUserInfo;
         this.aclServiceProvider = aclServiceProvider;
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
@@ -126,6 +132,7 @@ public class AclProjectsController {
     public void updateAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid,
                                             @Valid @RequestBody SetAclRoleModel requestBody) {
+        requireOtherSubject(sid);
         var aclService = aclServiceProvider.getDesignRepoAclService();
         txTemplate.execute(status -> {
             aclService.removePermissions(project, sid);
@@ -141,8 +148,21 @@ public class AclProjectsController {
     @DeleteMapping("/{project-id}")
     public void deleteAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid) {
+        requireOtherSubject(sid);
         var aclService = aclServiceProvider.getDesignRepoAclService();
         aclService.removePermissions(project, sid);
+    }
+
+    /**
+     * Refuses a change of the caller's own role on the project.
+     *
+     * <p>The caller manages the access through that role, so changing or revoking it would take away the access the
+     * request is made with.
+     */
+    private void requireOtherSubject(Sid sid) {
+        if (sid instanceof PrincipalSid principal && principal.getPrincipal().equals(currentUserInfo.getUserName())) {
+            throw new BadRequestException("acl.project.own-role.message");
+        }
     }
 
     private Stream<AclProjectModel> mapAclProjectModel(List<AProject> projects, Sid sid) {

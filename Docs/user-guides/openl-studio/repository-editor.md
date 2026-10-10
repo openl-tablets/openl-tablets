@@ -617,7 +617,8 @@ Keep in mind:
     [Role Inheritance and Conflict Resolution](administration/04-user-information/01-groups.md#role-inheritance-and-conflict-resolution).
 -   A role from the **Repository** is listed only to a Manager of that repository. It applies to every project of the
     repository, so it is read-only here and is changed by an Administrator in the **Administration** panel.
--   A Manager cannot revoke their own role on the project: the row has no trash icon.
+-   A Manager cannot change or revoke their own role on the project: the role of that row cannot be selected, and the
+    row has no trash icon.
 
 ### Modifying Project Contents
 

@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "sid": {
+      "sid": "admin",
+      "principal": true
+    },
+    "role": "CONTRIBUTOR"
+  },
+  {
+    "sid": {
+      "sid": "EPBDS_16882",
+      "principal": true
+    },
+    "role": "MANAGER"
+  }
+]
