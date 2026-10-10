@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/xml
+
+<project>
+    <name>EPBDS-16232-copy</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+        </module>
+    </modules>
+</project>
