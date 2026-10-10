@@ -301,29 +301,19 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                                            @Nullable String fromProjectVersion,
                                            List<FileData> toList,
                                            List<FileItem> changes) throws IOException, ProjectException {
-        var fromRepository = from.getRepository();
         var transformer = getResourceTransformer();
 
         for (FileData fromData : fromList) {
             var nameFrom = fromData.getName();
             var nameTo = getFolderPath() + nameFrom.substring(from.getFolderPath().length());
 
+            // A file without an id was modified or added. A file with one is written unless the destination
+            // holds the same revision of it.
             var fromUniqueId = fromData.getUniqueId();
-            if (fromUniqueId == null) {
-                // The file was modified or added
-                FileItem read = fromRepository.supports().versions()
-                        ? fromRepository.readHistory(nameFrom, fromProjectVersion)
-                        : fromRepository.read(nameFrom);
-                changes.add(new FileItem(nameTo, read.getStream()));
-            } else {
-                FileData toData = find(toList, nameTo);
-                if (toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
-                    // The file is absent in destination. Add it.
-                    // Or different revision of a file.
-                    var data = copyAndChangeName(fromData, nameTo);
-                    changes.add(new FileItem(data, readContent(from, nameFrom, fromProjectVersion, transformer)));
-                }
-                // Otherwise the file is same, no need to save it
+            var toData = fromUniqueId == null ? null : find(toList, nameTo);
+            if (fromUniqueId == null || toData == null || !fromUniqueId.equals(toData.getUniqueId())) {
+                var data = copyAndChangeName(fromData, nameTo);
+                changes.add(new FileItem(data, readContent(from, nameFrom, fromProjectVersion, transformer)));
             }
         }
     }
