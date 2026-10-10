@@ -234,13 +234,24 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             if (fromProjectVersion != null) {
                 fileData.setVersion(fromProjectVersion);
             }
-            setFileData(getRepository().save(fileData, changes, changesetType));
+            setFileData(store(fileData, changes, changesetType));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             for (FileItem change : changes) {
                 IOUtils.closeQuietly(change.getStream());
             }
+        }
+    }
+
+    /** Stores the files into the repository of this folder, naming the repository when it fails. */
+    private FileData store(FileData folderData,
+                           List<FileItem> changes,
+                           ChangesetType changesetType) throws RepositoryWriteException {
+        try {
+            return getRepository().save(folderData, changes, changesetType);
+        } catch (IOException e) {
+            throw new RepositoryWriteException(getRepository(), e);
         }
     }
 

@@ -419,7 +419,7 @@ public class AProject extends AProjectFolder implements IProject {
             fileData.setSize(fileItem.getData().getSize());
             stream = fileItem.getStream();
             fileData.setAuthor(user == null ? null : user.getUserInfo());
-            setFileData(repositoryTo.save(fileData, stream));
+            setFileData(store(repositoryTo, fileData, stream));
         } catch (IOException ex) {
             throw new ProjectException(ex.getMessage(), ex);
         } finally {
@@ -455,9 +455,20 @@ public class AProject extends AProjectFolder implements IProject {
 
             fileData.setAuthor(user == null ? null : user.getUserInfo());
             fileData.setSize(out.size());
-            setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
+            setFileData(store(getRepository(), fileData, new ByteArrayInputStream(out.toByteArray())));
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);
+        }
+    }
+
+    /** Stores the archive of the project into the repository, naming the repository when it fails. */
+    private static FileData store(Repository repository,
+                                  FileData fileData,
+                                  InputStream archive) throws RepositoryWriteException {
+        try {
+            return repository.save(fileData, archive);
+        } catch (IOException e) {
+            throw new RepositoryWriteException(repository, e);
         }
     }
 

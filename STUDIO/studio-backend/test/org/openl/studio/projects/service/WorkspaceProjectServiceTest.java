@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentCaptor.forClass;
@@ -29,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.SQLTransientConnectionException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,6 +69,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ChangedOutsideException;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.project.abstraction.RepositoryWriteException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
@@ -569,6 +572,49 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.409.project.save.changed.outside.message", refused.getErrorCode());
         assertArrayEquals(new Object[]{"pom.xml, rules/New.xlsx"}, refused.getArgs());
+    }
+
+    @Test
+    void save_names_the_repository_that_failed_to_store_the_project() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), null, projectStateValidator, webStudio);
+        var project = savableProject(acl, projectStateValidator);
+        // What a database repository answers when its database is down.
+        var down = new IOException(new SQLTransientConnectionException("Connection is not available."));
+        doThrow(new RepositoryWriteException(repository(), down)).when(webStudio).saveProject(project);
+        var model = ProjectStatusUpdateModel.builder().save(true).build();
+
+        var refused = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
+
+        assertEquals("openl.error.409.project.save.repository.failed.message", refused.getErrorCode());
+        assertArrayEquals(new Object[]{"Design", "Connection is not available."}, refused.getArgs());
+    }
+
+    @Test
+    void save_blames_no_repository_for_a_failure_of_the_workspace() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), null, projectStateValidator, webStudio);
+        var project = savableProject(acl, projectStateValidator);
+        var local = new ProjectException("Disk full", new IOException("Disk full"));
+        doThrow(local).when(webStudio).saveProject(project);
+        var model = ProjectStatusUpdateModel.builder().save(true).build();
+
+        assertSame(local, assertThrows(ProjectException.class, () -> service.updateProjectStatus(project, model)));
+    }
+
+    private RulesProject savableProject(RepositoryAclService acl, ProjectStateValidator projectStateValidator) {
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        var fileData = mock(FileData.class);
+        when(project.isModified()).thenReturn(true);
+        when(project.getFileData()).thenReturn(fileData);
+        when(projectStateValidator.canSave(project)).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        return project;
     }
 
     @Test
