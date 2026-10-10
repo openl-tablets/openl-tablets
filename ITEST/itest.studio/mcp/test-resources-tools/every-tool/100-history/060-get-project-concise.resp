@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "id: ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=; name: McpTools; branch: master; status: VIEWING_VERSION; repository: design; modifiedBy: Ada Admin; modifiedAt: #-#-#T#:#:#-#:#; revision: @; path: McpTools; comment: Create the project; branchDefault: true; inDefaultBranch: true; overwritesNewerRevision: true; repositoryInfo.id: design; repositoryInfo.name: Design; repositoryInfo.type: repo-git; repositoryInfo.features.branches: true; repositoryInfo.features.searchable: true; repositoryInfo.features.mappedFolders: true; capabilities.canWrite: true; capabilities.canDelete: true; capabilities.canClose: true; capabilities.canDeploy: true; capabilities.canCompare: true; capabilities.canViewHistory: true; capabilities.canManage: true; capabilities.canCopy: true; capabilities.canManageBranches: true; capabilities.canMerge: true; capabilities.canExport: true."
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

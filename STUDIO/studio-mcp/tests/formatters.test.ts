@@ -197,6 +197,21 @@ describe("formatters", () => {
       expect(result).toContain("1 project");
     });
 
+    it("lists the fields of a single object, nested ones by a dotted path and arrays by count", () => {
+      const data = {
+        name: "Bank",
+        status: "EDITING",
+        compileStatus: { compileState: "errors", compilation: { messages: { errors: 2, items: [{}, {}] } } },
+        tags: ["a", "b"],
+        comment: null,
+      };
+
+      expect(toMarkdownConcise({ data })).toBe(
+        "name: Bank; status: EDITING; compileStatus.compileState: errors; " +
+          "compileStatus.compilation.messages.errors: 2; compileStatus.compilation.messages.items: 2 items; tags: 2 items.",
+      );
+    });
+
     it("should handle empty results", () => {
       const result = toMarkdownConcise({ data: [] }, "projects");
       expect(result).toContain("0");

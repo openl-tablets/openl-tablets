@@ -499,8 +499,9 @@ export function toMarkdownConcise<T>(
         parts.push(`Found ${total} ${total === 1 ? 'item' : 'items'}${count < total ? ` (showing ${count})` : ''}.`);
     }
   } else {
-    // Single object summary
-    parts.push("Retrieved details successfully.");
+    // Single object summary: its fields, so a concise answer still carries the data
+    const fields = data !== null && typeof data === "object" ? conciseFields(data as Record<string, unknown>) : [];
+    parts.push(fields.length > 0 ? `${fields.join("; ")}.` : "Retrieved details successfully.");
   }
 
   // Add pagination note if applicable
@@ -709,6 +710,26 @@ function formatTables(tables: any[]): string {
   }
 
   return lines.join("\n");
+}
+
+/**
+ * The fields of an object as `path: value`, for the concise summary of a single object. A nested object adds its
+ * fields under a dotted path, three levels deep; an array is counted, not listed.
+ */
+function conciseFields(value: Record<string, unknown>, prefix = "", depth = 0): string[] {
+  return Object.entries(value).flatMap(([key, field]) => {
+    const path = prefix + key;
+    if (field === null || field === undefined) {
+      return [];
+    }
+    if (Array.isArray(field)) {
+      return [`${path}: ${formatCount(field.length, "item")}`];
+    }
+    if (typeof field === "object") {
+      return depth < 3 ? conciseFields(field as Record<string, unknown>, `${path}.`, depth + 1) : [];
+    }
+    return [`${path}: ${String(field)}`];
+  });
 }
 
 function formatCount(count: number, singular: string, plural: string = `${singular}s`): string {
