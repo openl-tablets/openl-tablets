@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"conflictGroups\": [\n      {\n        \"projectName\": \"McpTools\",\n        \"projectPath\": \"McpTools\",\n        \"files\": [\n          \"McpTools/docs/notes.txt\"\n        ]\n      }\n    ],\n    \"fileAvailability\": {\n      \"McpTools/docs/notes.txt\": {\n        \"ours\": true,\n        \"theirs\": true,\n        \"base\": true\n      }\n    },\n    \"oursRevision\": {\n      \"commit\": \"@\",\n      \"branch\": \"master\",\n      \"author\": \"Ada Admin\",\n      \"modifiedAt\": \"#-#-#T#:#:#Z\",\n      \"exists\": true\n    },\n    \"theirsRevision\": {\n      \"commit\": \"@\",\n      \"branch\": \"feature\",\n      \"author\": \"Ada Admin\",\n      \"modifiedAt\": \"#-#-#T#:#:#Z\",\n      \"exists\": true\n    },\n    \"baseRevision\": {\n      \"commit\": \"@\",\n      \"author\": \"Ada Admin\",\n      \"modifiedAt\": \"#-#-#T#:#:#Z\",\n      \"exists\": true\n    },\n    \"defaultMessage\": \"Merge with commit @\\nConflicts:\\n\\tMcpTools/docs/notes.txt\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

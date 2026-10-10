@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"file\": \"McpTools/docs/notes.txt\",\n    \"side\": \"BASE\",\n    \"contentType\": \"text/plain\",\n    \"mimeType\": \"text/plain\",\n    \"contentDisposition\": \"attachment; filename=notes.txt; filename*=UTF-8''notes.txt\",\n    \"encoding\": \"utf-8\",\n    \"byteLength\": 35,\n    \"offset\": 0,\n    \"returnedBytes\": 35,\n    \"hasMore\": false,\n    \"content\": \"Premium notes\\nBase premium is 100.\\n\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

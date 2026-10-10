@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "```json\n{\n  \"id\": \"@\",\n  \"tableType\": \"RawSource\",\n  \"kind\": \"Datatype\",\n  \"name\": \"Driver\",\n  \"pos\": \"B2:C5\",\n  \"source\": [\n    [\n      {\n        \"cell\": \"B2\",\n        \"value\": \"Datatype Driver\"\n      },\n      {\n        \"cell\": \"C2\"\n      }\n    ],\n    [\n      {\n        \"cell\": \"B3\",\n        \"value\": \"String\"\n      },\n      {\n        \"cell\": \"C3\",\n        \"value\": \"name\"\n      }\n    ],\n    [\n      {\n        \"cell\": \"B4\",\n        \"value\": \"Integer\"\n      },\n      {\n        \"cell\": \"C4\",\n        \"value\": \"age\"\n      }\n    ],\n    [\n      {\n        \"cell\": \"B5\",\n        \"value\": \"Boolean\"\n      },\n      {\n        \"cell\": \"C5\",\n        \"value\": \"married\"\n      }\n    ]\n  ],\n  \"headerHeight\": 1\n}\n```"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

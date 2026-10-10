@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "# Tables\n\n| Name | Type | Kind | Table ID | Signature | Return Type | File | Properties |\n|------|------|------|----------|-----------|-------------|------|------------|\n| AgeFactor | SimpleRules | Rules | @ | AgeFactor(Integer age) | Double | McpTools/Main.xlsx | N/A |\n\n---\n**Pagination**\n- Showing items 1-1\n- Total: 1"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"series\": [\n      {\n        \"name\": \"$Factor\",\n        \"table\": \"Premium\",\n        \"tableUri\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12\",\n        \"points\": [\n          {\n            \"instance\": 0,\n            \"label\": \"Premium #1\",\n            \"path\": [\n              \"Premium\"\n            ],\n            \"ref\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12#R1C0\",\n            \"value\": {\n              \"name\": \"$Factor\",\n              \"description\": \"Double\",\n              \"lazy\": false,\n              \"value\": 1.2\n            }\n          }\n        ],\n        \"total\": 1\n      }\n    ],\n    \"truncated\": false\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

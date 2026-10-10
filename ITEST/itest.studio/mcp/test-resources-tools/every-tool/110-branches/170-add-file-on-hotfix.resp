@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/hotfix.txt\",\n    \"action\": \"created\",\n    \"bytesWritten\": 7,\n    \"committed\": true,\n    \"branch\": \"hotfix\",\n    \"message\": \"Wrote 7 byte(s) to 'docs/hotfix.txt' and committed the project to Git: \\\"Add the hotfix notes\\\".\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

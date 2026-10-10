@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"branch\": \"feature\",\n    \"forced\": false,\n    \"safety\": {\n      \"currentBranch\": \"feature\",\n      \"divergenceStatus\": \"unmerged\",\n      \"projectStatus\": \"OPENED\",\n      \"unsavedChanges\": false,\n      \"baseBranch\": \"master\",\n      \"mergeCheck\": {\n        \"sourceBranch\": \"feature\",\n        \"targetBranch\": \"master\",\n        \"status\": \"mergeable\",\n        \"canMerge\": true\n      },\n      \"reason\": \"Branch 'feature' has commits that are not merged into base branch 'master'.\"\n    },\n    \"dataLossConfirmed\": true,\n    \"message\": \"Deleted branch 'feature'.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

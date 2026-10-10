@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"id\": \"@\",\n    \"tableType\": \"RawSource\",\n    \"kind\": \"Rules\",\n    \"name\": \"Grade\",\n    \"pos\": \"B2:C6\",\n    \"source\": [\n      [\n        {\n          \"cell\": \"B2\",\n          \"value\": \"SimpleRules String Grade(Integer score)\"\n        },\n        {\n          \"cell\": \"C2\"\n        }\n      ],\n      [\n        {\n          \"cell\": \"B3\",\n          \"value\": \"Score\"\n        },\n        {\n          \"cell\": \"C3\",\n          \"value\": \"Grade\"\n        }\n      ],\n      [\n        {\n          \"cell\": \"B4\",\n          \"value\": \"< 50\"\n        },\n        {\n          \"cell\": \"C4\",\n          \"value\": \"F\"\n        }\n      ],\n      [\n        {\n          \"cell\": \"B5\",\n          \"value\": \">= 50\"\n        },\n        {\n          \"cell\": \"C5\",\n          \"value\": \"P\"\n        }\n      ],\n      [\n        {\n          \"cell\": \"B6\",\n          \"value\": \">= 90\"\n        },\n        {\n          \"cell\": \"C6\",\n          \"value\": \"A+\"\n        }\n      ]\n    ],\n    \"headerHeight\": 1\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -154,7 +154,7 @@ server in Java.
 - **Built** — the `studio-mcp` module, the bundle in `WEB-INF/mcp` and the list of its licenses (§3.5, §5),
   `McpServerProcess` (§3.7), the Node.js runtime and the `/mcp` core context of the Docker image (§3.4, §3.6), the
   loopback binding of openl-mcp (§4.7), the WARN banner of `single` mode (§4.6), PATs forwarded as `Token` (§4.4,
-  stage 1, without the check up front), and the `single`-mode ITEST suite (§6).
+  stage 1, without the check up front), and the ITEST suite (§6).
 - **Target** — the embedded authorization server and everything it serves (§4.2–§4.5, the `/.well-known/…` core
   context), the other openl-mcp changes of §4.7, Node.js for `DEMO`, the endpoint on Tomcat, and the test matrix of
   §6.3 beyond its `single` rows.
@@ -944,9 +944,10 @@ Versioning and build:
 
 ### 6.1 Strategy
 
-- **A new suite** — `ITEST/itest.studio/mcp`, a sibling of `sso`. Built: the `single` mode, with declarative files —
-  server discovery, a tool that reaches `/rest`, and a foreign `Origin` refused. Target: it iterates over the modes and
-  reuses `SsoBrowser`, the Keycloak realm and the `noop` password encoder of the Studio suites.
+- **A new suite** — `ITEST/itest.studio/mcp`, a sibling of `sso`, with declarative files. Built: the `single` mode —
+  server discovery, a tool that reaches `/rest`, and a foreign `Origin` refused — and every tool of the server in the
+  `multi` mode, called with a Personal Access Token so that the state Studio keeps for a client outlives each
+  stateless request. Target: the other modes, with `SsoBrowser` and the Keycloak realm of the Studio suites.
 - **The production path through Jetty** — `JettyServer` runs the unpacked war in the test JVM. Its `withPort` and
   `withContext` add a core context to the same `Server` (`ProxyHandler.Reverse` with the regex of the XML), so MCP
   traffic takes the Jetty path of the image. The other Studio suites set `mcp.enabled=false`.
