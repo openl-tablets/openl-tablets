@@ -298,29 +298,14 @@ COPY --from=log4j /log4j-layout-template-json-*.jar $OPENL_APP/webapps/ROOT/WEB-
 # outside the webapp, so the filters and the security chains of OpenL Studio never see MCP traffic, and the responses
 # stream; start.sh deploys it with the 'core-deploy' and 'proxy' modules. The Rule Services images get none of them.
 USER root
-RUN --mount=type=bind,from=node,source=/usr/local/bin/node,target=/tmp/node <<'EOT'
+RUN --mount=type=bind,from=node,source=/usr/local/bin/node,target=/tmp/node \
+    --mount=type=bind,source=DEMO/webapps,target=/tmp/demo-webapps <<'EOT'
 set -eu
 if [ -d "$OPENL_APP/webapps/ROOT/WEB-INF/mcp" ]; then
     apk add --no-cache libstdc++
     cp /tmp/node /usr/local/bin/node
-    echo 'environment=core' > "$OPENL_APP/webapps/mcp.properties"
-    cat > "$OPENL_APP/webapps/mcp.xml" <<'XML'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://jetty.org/configure_10_0.dtd">
-<Configure class="org.eclipse.jetty.server.handler.ContextHandler">
-    <Set name="contextPath">/mcp</Set>
-    <!-- Without it Jetty answers POST /mcp with a redirect to /mcp/ -->
-    <Set name="allowNullPathInContext">true</Set>
-    <Set name="handler">
-        <New class="org.eclipse.jetty.proxy.ProxyHandler$Reverse">
-            <!-- Keeps the path, /mcp included, and the query of the request -->
-            <Arg type="String">^https?://[^/]+/(.*)$</Arg>
-            <!-- OpenL Studio reads the same mcp.port system property to start the server -->
-            <Arg type="String">http://127.0.0.1:<SystemProperty name="mcp.port" default="3000"/>/$1</Arg>
-        </New>
-    </Set>
-</Configure>
-XML
+    # The core context of the DEMO package, which deploys it too
+    cp /tmp/demo-webapps/mcp.xml /tmp/demo-webapps/mcp.properties "$OPENL_APP/webapps/"
 fi
 EOT
 USER openl
