@@ -279,7 +279,7 @@ A rule project in the Design repository can be created by loading one or more Ex
 Proceed as follows:
 
 1.  On the **Projects** page, click **New Project** and then click **From Excel files**.
-2.  Click or drag the necessary Excel files to the upload area. The `.xlsx` and `.xls` formats are accepted.
+2.  Click or drag the necessary Excel files to the upload area. The `.xlsx` and `.xls` formats are accepted. A file name follows the rules of a project name: it cannot contain the characters `\ / : ; < > ? * % ' [ ] | "`, start with a space, or end with a space or a dot. A project is not created from such a file, and the message names the file.
 3.  If required, add more files for the project.
 
     All files are listed under the upload area.
