@@ -59,7 +59,7 @@ class RepoFilesLockGuardTest {
         doReturn(List.of(project)).when(designTimeRepository).getProjects(REPO);
         var lockGuard = new ProjectLockGuard(designTimeRepository, lockEngine, REPO, BRANCH, "userB");
         root = new RepoFileRoot(repository, mock(AclProjectsHelper.class),
-                mock(ProjectFileLookupService.class), lockGuard);
+                mock(ProjectFileLookupService.class), lockGuard, designTimeRepository, BRANCH);
     }
 
     @Test

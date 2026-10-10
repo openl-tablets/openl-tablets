@@ -5,6 +5,7 @@ import java.util.List;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.validator.ModifyRestrictedException;
@@ -47,6 +48,17 @@ public interface FileRoot {
     void requireModifiable();
 
     /**
+     * Waits until the project index publishes a modification the mount committed to a design repository, so
+     * the next request that lists or reads the projects sees it.
+     *
+     * <p>A modification kept in a working copy until check-in has nothing to wait for, and neither has one
+     * committed to a repository without branches, which reports its commits as it makes them.
+     *
+     * @throws ConflictException when the index does not publish the modification in time
+     */
+    void awaitIndex();
+
+    /**
      * Finds files named like the trailing segment of {@code lookupPath} by walking up from the anchor
      * to the repository root, returning the match at each level nearest to the anchor first. The walk
      * goes up only — descendants and sibling branches are not visited — and is not limited to the
@@ -61,6 +73,9 @@ public interface FileRoot {
      * <p>A {@code DIFF} changeset adds and overwrites the listed files, leaving others intact.
      * A {@code FULL} changeset makes the base folder contain exactly the listed files: files under
      * it that are absent from the list are deleted.
+     *
+     * <p>The write waits for the project index as {@link #awaitIndex()} describes: a write committed to a branch
+     * of a design repository answers once the index publishes it.
      *
      * @param basePath      mount-relative folder the changeset applies to; empty for the mount root
      * @param items         the files to write, named by their mount-relative paths

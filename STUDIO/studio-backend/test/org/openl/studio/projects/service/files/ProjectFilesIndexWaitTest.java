@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -37,8 +39,9 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
- * A modification committed directly to a closed project answers only once the project index publishes it, so the
- * next read of the project sees it. An opened project and a repository without branches have nothing to wait for.
+ * A modification committed directly to a closed project or through the repository mount answers only once the
+ * project index publishes it, so the next read or listing of the project sees it (EPBDS-16088). An opened project
+ * and a repository without branches have nothing to wait for.
  *
  * @author Yury Molchan
  */
@@ -47,6 +50,7 @@ class ProjectFilesIndexWaitTest {
     private BranchRepository repository;
     private RulesProject project;
     private DesignTimeRepository designTimeRepository;
+    private AclProjectsHelper acl;
     private ProjectFileRoot root;
     private ProjectFilesServiceImpl service;
 
@@ -69,7 +73,7 @@ class ProjectFilesIndexWaitTest {
         when(designTimeRepository.refreshBranch(anyString(), anyString()))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
-        var acl = mock(AclProjectsHelper.class);
+        acl = mock(AclProjectsHelper.class);
         when(acl.hasPermission(any(AProject.class), any())).thenReturn(true);
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
         var stateValidator = mock(ProjectStateValidator.class);
@@ -155,6 +159,55 @@ class ProjectFilesIndexWaitTest {
         service.createFolder(root, "folder", true);
 
         verifyNoInteractions(designTimeRepository);
+    }
+
+    @Nested
+    class RepositoryMount {
+
+        @Test
+        void createdFileWaitsForTheIndexOfItsBranch() throws Exception {
+            service.createResource(mount("feature"), "Project1/data.txt", new ByteArrayInputStream(new byte[0]), true);
+
+            var order = inOrder(repository, designTimeRepository);
+            order.verify(repository).save(any(FileData.class), any());
+            order.verify(designTimeRepository).refreshBranch("design", "feature");
+        }
+
+        @Test
+        void uploadWaitsForTheIndexOfItsBranch() throws Exception {
+            mount("feature").writeBatch("Project1", List.of(item("Project1/rules.xml")), ChangesetType.DIFF, "Upload");
+
+            var order = inOrder(repository, designTimeRepository);
+            order.verify(repository).save(any(FileData.class), any(), any());
+            order.verify(designTimeRepository).refreshBranch("design", "feature");
+        }
+
+        @Test
+        void unpublishedWriteIsReported() throws Exception {
+            when(designTimeRepository.refreshBranch("design", "feature"))
+                    .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("The index is down")));
+            var mount = mount("feature");
+            var items = List.of(item("Project1/rules.xml"));
+
+            var ex = assertThrows(ConflictException.class,
+                    () -> mount.writeBatch("Project1", items, ChangesetType.DIFF, "Upload"));
+
+            assertEquals("openl.error.409.project.indexing.incomplete.message", ex.getErrorCode());
+            verify(repository).save(any(FileData.class), any(), any());
+        }
+
+        @Test
+        void repositoryWithoutBranchesWaitsForNothing() throws Exception {
+            mount(null).writeBatch("Project1", List.of(item("Project1/rules.xml")), ChangesetType.DIFF, "Upload");
+
+            verify(repository).save(any(FileData.class), any(), any());
+            verifyNoInteractions(designTimeRepository);
+        }
+
+        private RepoFileRoot mount(@Nullable String branch) {
+            return new RepoFileRoot(repository, acl, mock(ProjectFileLookupService.class),
+                    mock(ProjectLockGuard.class), designTimeRepository, branch);
+        }
     }
 
     private void projectWithFile(String name) {

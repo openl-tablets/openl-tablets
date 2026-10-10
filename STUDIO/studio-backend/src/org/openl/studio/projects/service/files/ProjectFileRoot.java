@@ -169,7 +169,7 @@ public class ProjectFileRoot implements FileRoot {
             }
             // The save bypasses the artefact tree, so drop its cached state.
             project.refresh();
-            awaitIndexIfClosed();
+            awaitIndex();
         } finally {
             unlockIfClosed();
         }
@@ -215,16 +215,14 @@ public class ProjectFileRoot implements FileRoot {
     }
 
     /**
-     * Waits until the project index publishes the commit of a closed project, so the next read of the
-     * project sees it.
+     * {@inheritDoc}
      *
      * <p>A closed project is committed directly to the design repository. An opened project keeps its
      * changes in its working copy until check-in, so there is nothing to wait for. Neither is there for
      * a repository without branches: it reports its commits as it makes them.
-     *
-     * @throws ConflictException when the index does not publish the commit in time
      */
-    void awaitIndexIfClosed() {
+    @Override
+    public void awaitIndex() {
         if (!project.isOpened() && project.isSupportsBranches()
                 && !ProjectIndex.awaitBranch(designTimeRepository, project.getDesignRepository(), project.getBranch())) {
             throw new ConflictException("project.indexing.incomplete.message");

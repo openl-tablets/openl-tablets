@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.files;
 import java.io.IOException;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
@@ -54,21 +55,25 @@ public class RepoFileRootFactory {
         Repository authored = resolved instanceof BranchRepository branchRepo
                 ? new AuthoringRepository(branchRepo, AuthoringRepository.currentAuthor(userManagementService))
                 : resolved;
-        return new RepoFileRoot(authored, aclProjectsHelper, fileLookupService, lockGuard(repository, resolved));
+        // A repository that knows nothing of branches can still be wrapped in something that implements
+        // the branch contract - the ACL wrapper does - so what it supports is asked before it is asked
+        // which branch it is on, which such a repository cannot answer.
+        String mountBranch = resolved.supports().branches() && resolved instanceof BranchRepository branchRepository
+                ? branchRepository.getBranch()
+                : null;
+        var userWorkspace = getUserWorkspace();
+        return new RepoFileRoot(authored, aclProjectsHelper, fileLookupService,
+                lockGuard(userWorkspace, repository, mountBranch), userWorkspace.getDesignTimeRepository(),
+                mountBranch);
     }
 
     /**
      * Guards the mount against modifying projects locked by other users. The lock is keyed by the
      * repository id, the mount's branch and the project's repository path.
      */
-    private ProjectLockGuard lockGuard(Repository repository, Repository resolved) {
-        var userWorkspace = getUserWorkspace();
-        // A repository that knows nothing of branches can still be wrapped in something that implements
-        // the branch contract - the ACL wrapper does - so what it supports is asked before it is asked
-        // which branch it is on, which such a repository cannot answer.
-        String branch = resolved.supports().branches() && resolved instanceof BranchRepository branchRepo
-                ? branchRepo.getBranch()
-                : null;
+    private static ProjectLockGuard lockGuard(UserWorkspace userWorkspace,
+                                              Repository repository,
+                                              @Nullable String branch) {
         return new ProjectLockGuard(userWorkspace.getDesignTimeRepository(),
                 userWorkspace.getProjectsLockEngine(),
                 repository.getId(),
