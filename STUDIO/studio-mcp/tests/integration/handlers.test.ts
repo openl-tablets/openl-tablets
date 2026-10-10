@@ -3181,13 +3181,16 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
   });
 
   describe("Project Status", () => {
+    /** Studio answers the status as the `compileStatus` of the project it returns for `include=status`. */
+    const withStatus = (status: object): object => ({ compileStatus: status });
+
     it("starts lazy compilation on idle by default and returns the resulting status", async () => {
       const encoded = encodeProjectPath(projectId);
       mockAxios
-        .onGet(`/projects/${encoded}/status`)
-        .replyOnce(200, { projectId, branch: "main", compileState: "idle" })
-        .onGet(`/projects/${encoded}/status`)
-        .replyOnce(200, {
+        .onGet(`/projects/${encoded}`)
+        .replyOnce(200, withStatus({ projectId, branch: "main", compileState: "idle" }))
+        .onGet(`/projects/${encoded}`)
+        .replyOnce(200, withStatus({
           projectId,
           branch: "main",
           compileState: "ok",
@@ -3196,7 +3199,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
             modules: { total: 1, compiled: 1 },
             tests: { total: 34 },
           },
-        });
+        }));
       mockAxios.onGet(`/projects/${encoded}/tables`, {
         params: { offset: 0, size: 1 },
       }).reply(200, {
@@ -3224,11 +3227,11 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
 
     it("keeps wait=false as a read-only idle snapshot with actionable guidance", async () => {
       const encoded = encodeProjectPath(projectId);
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, {
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus({
         projectId,
         branch: "main",
         compileState: "idle",
-      });
+      }));
 
       const result = await executeTool(
         "project_status",
@@ -3261,7 +3264,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 0 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",
@@ -3293,7 +3296,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 7 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",
@@ -3307,23 +3310,18 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
       expect(result.content[0].text).toContain("\"total\": 7");
     });
 
-    it("should pass branch through to the status endpoint", async () => {
+    it("accepts the status of the branch the project is opened on", async () => {
       const encoded = encodeProjectPath(projectId);
-      mockAxios.onGet(`/projects/${encoded}/status`).reply((config) => {
-        if (config.params?.branch === "develop") {
-          return [200, {
-            projectId,
-            branch: "develop",
-            compileState: "ok",
-            compilation: {
-              messages: { items: [], total: 0, errors: 0, warnings: 0 },
-              modules: { total: 1, compiled: 1 },
-              tests: { total: 0 },
-            },
-          } as ProjectStatusView];
-        }
-        return [409, { message: "branch.mismatch" }];
-      });
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus({
+        projectId,
+        branch: "develop",
+        compileState: "ok",
+        compilation: {
+          messages: { items: [], total: 0, errors: 0, warnings: 0 },
+          modules: { total: 1, compiled: 1 },
+          tests: { total: 0 },
+        },
+      }));
 
       const result = await executeTool(
         "project_status",
@@ -3359,7 +3357,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 0 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",
@@ -3398,7 +3396,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 0 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",
@@ -3431,7 +3429,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 0 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",
@@ -3465,7 +3463,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 0 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",
@@ -3475,7 +3473,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
       expect(result.content[0].text).toContain("\"errors\"");
       expect(result.content[0].text).toContain("Datatype 'Foo' not found");
       // Exactly one HTTP fetch — terminal short-circuit means no race-close fetch, no STOMP.
-      const statusCalls = mockAxios.history.get.filter((req) => req.url?.endsWith("/status"));
+      const statusCalls = mockAxios.history.get.filter((req) => req.params?.include?.includes("status"));
       expect(statusCalls).toHaveLength(1);
     });
 
@@ -3496,7 +3494,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           tests: { total: 4 },
         },
       };
-      mockAxios.onGet(`/projects/${encoded}/status`).reply(200, fixture);
+      mockAxios.onGet(`/projects/${encoded}`).reply(200, withStatus(fixture));
 
       const result = await executeTool(
         "project_status",

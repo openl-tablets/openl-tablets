@@ -407,55 +407,20 @@ describe("OpenLClient", () => {
         },
       };
 
-      const errorsFixture: Types.ProjectStatusView = {
-        projectId: { repository: "design", projectName: "AutoInsurance" },
-        branch: "main",
-        compileState: "errors",
-        compilation: {
-          messages: {
-            items: [
-              { id: 1, summary: "Datatype 'Driver' not found", severity: "ERROR" },
-              { id: 2, summary: "Unused field 'tmp'", severity: "WARN" },
-            ],
-            total: 2,
-            errors: 1,
-            warnings: 1,
-          },
-          modules: { total: 1, compiled: 0 },
-          tests: { total: 0 },
-        },
-      };
-
-      it("should fetch project status without branch parameter", async () => {
-        mockAxios.onGet(`/projects/${encodedProjectId}/status`).reply(200, okFixture);
-
-        const result = await client.getProjectStatus(projectId);
-        expect(result.compileState).toBe("ok");
-        expect(result.compilation?.modules.compiled).toBe(1);
-        // No query string sent when branch omitted
-        expect(mockAxios.history.get[0].params).toEqual({});
-      });
-
-      it("should pass branch as query parameter when provided", async () => {
-        mockAxios.onGet(`/projects/${encodedProjectId}/status`).reply((config) => {
-          if (config.params?.branch === "main") {
-            return [200, errorsFixture];
-          }
-          return [400, { message: "expected branch=main" }];
+      it("reads the status from the project Studio returns with include=status", async () => {
+        mockAxios.onGet(`/projects/${encodedProjectId}`).reply((config) => {
+          expect(config.params).toEqual({ include: ["status"] });
+          return [200, { id: projectId, name: "AutoInsurance", compileStatus: okFixture }];
         });
 
-        const result = await client.getProjectStatus(projectId, "main");
-        expect(result.compileState).toBe("errors");
-        expect(result.compilation?.messages.items).toHaveLength(2);
-        expect(mockAxios.history.get[0].params).toEqual({ branch: "main" });
+        await expect(client.getProjectStatus(projectId, "main")).resolves.toEqual(okFixture);
       });
 
-      it("should surface 409 when branch does not match the opened branch", async () => {
-        mockAxios.onGet(`/projects/${encodedProjectId}/status`).reply(409, {
-          message: "project.branch.mismatch.message",
-        });
+      it("refuses the status of a branch the project is not opened on", async () => {
+        mockAxios.onGet(`/projects/${encodedProjectId}`).reply(200, { id: projectId, compileStatus: okFixture });
 
-        await expect(client.getProjectStatus(projectId, "develop")).rejects.toThrow();
+        await expect(client.getProjectStatus(projectId, "develop"))
+          .rejects.toThrow("opened on branch 'main', not 'develop'");
       });
 
       it("should trigger lazy compilation by listing a single table", async () => {
@@ -1422,14 +1387,14 @@ describe("OpenLClient", () => {
 
       mockAxios.onGet("/repos").reply(200, [{ id: "design", name: "Design" }]); // no Set-Cookie
 
-      mockAxios.onGet(/\/projects\/[^/]+\/status$/).reply((config) => {
+      mockAxios.onGet(/\/projects\/[^/]+$/).reply((config) => {
         const cookie = (config.headers?.Cookie ?? config.headers?.cookie) as string | undefined;
         cookiesSentToProjects.push(cookie);
         if (cookie && cookie.includes("JSESSIONID=")) {
-          return [200, { compileState: "ok" }]; // reuse existing session, no new cookie
+          return [200, { compileStatus: { compileState: "ok" } }]; // reuse existing session, no new cookie
         }
         sessionsIssued += 1;
-        return [200, { compileState: "ok" }, { "set-cookie": [`JSESSIONID=SESS-${sessionsIssued}; Path=/`] }];
+        return [200, { compileStatus: { compileState: "ok" } }, { "set-cookie": [`JSESSIONID=SESS-${sessionsIssued}; Path=/`] }];
       });
 
       // listRepositories() (→ /repos, first in array) bootstraps; two concurrent status calls follow.
