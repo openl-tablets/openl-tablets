@@ -1,4 +1,5 @@
 import { App, Button, Col, Divider, Form, Typography, Row, theme } from 'antd'
+import type { FormRule } from 'antd'
 import React, { useEffect } from 'react'
 import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
@@ -22,6 +23,9 @@ interface SystemSettings {
         user: string
     }
 }
+
+/** Tests run in a whole number of threads, one at least. */
+export const THREAD_COUNT_RULE: FormRule = { type: 'integer', min: 1 }
 
 export const System: React.FC = () => {
     const { modal, notification } = App.useApp()
@@ -129,6 +133,7 @@ export const System: React.FC = () => {
             <InputNumber
                 label={t('system:thread_number_for_tests')}
                 name="testRunThreadCount"
+                rules={[{ ...THREAD_COUNT_RULE, message: t('system:thread_number_invalid') }]}
             />
             <Divider titlePlacement="start">{t('system:projects')}</Divider>
             <Row data-testid="project-history-settings" gutter={8} wrap={false}>
