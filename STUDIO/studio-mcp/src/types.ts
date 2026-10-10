@@ -475,7 +475,12 @@ export interface DeploymentItemViewModel_Short {
   modifiedAt: string;
   modifiedBy: string;
   name: string;
-  revision: string;
+  /** The design revision the project was deployed from, when Studio has linked it. */
+  designRevision?: {
+    revision: string;
+    modifiedBy?: string;
+    modifiedAt?: string;
+  };
 }
 
 /** Deploy project request (OpenAPI 3.0.1) */

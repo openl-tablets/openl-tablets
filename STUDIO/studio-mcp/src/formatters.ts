@@ -484,7 +484,7 @@ export function toMarkdownConcise<T>(
       case "deployments":
         parts.push(`Found ${total} ${total === 1 ? 'deployment' : 'deployments'}${count < total ? ` (showing ${count})` : ''}.`);
         if (count > 0) {
-          const names = data.slice(0, 3).map((d: any) => d.deploymentName).join(", ");
+          const names = data.slice(0, 3).map((d: any) => d.name).join(", ");
           parts.push(`Deployments: ${names}${count > 3 ? `, and ${count - 3} more` : ''}.`);
         }
         break;
@@ -1284,7 +1284,7 @@ function formatTableDependencies(
 /**
  * Format deployments as markdown list
  */
-function formatDeployments(deployments: any[]): string {
+function formatDeployments(deployments: Types.DeploymentViewModel_Short[]): string {
   if (!Array.isArray(deployments) || deployments.length === 0) {
     return "No deployments found.";
   }
@@ -1292,15 +1292,12 @@ function formatDeployments(deployments: any[]): string {
   const lines = ["# Deployments", ""];
 
   for (const deploy of deployments) {
-    const name = deploy.deploymentName || deploy.name || "N/A";
-    const repository = deploy.repository || "N/A";
-    const version = deploy.version || "N/A";
-    const status = deploy.status || "N/A";
-
-    lines.push(`## ${name}`);
-    lines.push(`- **Repository**: ${repository}`);
-    lines.push(`- **Version**: ${version}`);
-    lines.push(`- **Status**: ${status}`);
+    lines.push(`## ${deploy.name}`);
+    lines.push(`- **Repository**: ${deploy.repository}`);
+    for (const item of deploy.items ?? []) {
+      const design = item.designRevision ? `, from design revision ${item.designRevision.revision}` : "";
+      lines.push(`- **${item.name}**: deployed by ${item.modifiedBy} at ${item.modifiedAt}${design}`);
+    }
     lines.push("");
   }
 

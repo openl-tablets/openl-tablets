@@ -140,6 +140,34 @@ describe("formatters", () => {
   });
 
   describe("toMarkdown", () => {
+    const deployments = [{
+      id: "cHJvZHVjdGlvbjpCYW5r",
+      name: "Bank",
+      repository: "production",
+      items: [
+        {
+          name: "Bank",
+          modifiedBy: "admin",
+          modifiedAt: "2026-10-10T04:15:51-09:00",
+          designRevision: { revision: "db8f4ba6", modifiedBy: "Ada", modifiedAt: "2026-10-10T04:15:49-09:00" },
+        },
+        { name: "Rates", modifiedBy: "admin", modifiedAt: "2026-10-10T04:16:02-09:00" },
+      ],
+    }];
+
+    it("lists each deployed project with who deployed it, when, and from which design revision", () => {
+      expect(toMarkdown({ data: deployments }, "deployments")).toBe([
+        "# Deployments",
+        "",
+        "## Bank",
+        "- **Repository**: production",
+        "- **Bank**: deployed by admin at 2026-10-10T04:15:51-09:00, from design revision db8f4ba6",
+        "- **Rates**: deployed by admin at 2026-10-10T04:16:02-09:00",
+        "",
+      ].join("\n"));
+      expect(toMarkdownConcise({ data: deployments }, "deployments")).toContain("Deployments: Bank.");
+    });
+
     it("should format simple object as markdown", () => {
       const data = { name: "Test", value: 123 };
       const result = toMarkdown({ data }, "test");
