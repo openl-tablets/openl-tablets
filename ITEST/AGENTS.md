@@ -166,15 +166,12 @@ response. The framework reads one of them:
 
 Retry is what makes a step wait for the cross-branch project index (see
 [`Docs/architecture/cross-branch-projects.md`](../Docs/architecture/cross-branch-projects.md)). Project creation,
-deletion, saves, file writes to a closed project and branch operations all wait for the index themselves and answer
-only once it published, so a step that follows one of them needs no retry. Two writes do not wait, and the step
-reading their outcome must retry:
-
-- a file written through the repository files API (`POST /repos/{repo}/files/...`) — it plants or removes a project
-  without going through project creation, so the index learns of it through repository change monitoring;
-- a settings commit (`PATCH /admin/settings/...`) — it republishes the configuration, and the index starts over.
-  Its first published snapshot maps the base branch, so a project living only outside the base branch stays
-  invisible until the whole scan completes.
+deletion, saves, file writes to a closed project, file writes through the repository files API
+(`/repos/{repo}/files/...`) and branch operations all wait for the index themselves and answer only once it
+published, so a step that follows one of them needs no retry. A settings commit (`PATCH /admin/settings/...`) does
+not wait, and the step reading its outcome must retry: it republishes the configuration, and the index starts over.
+Its first published snapshot maps the base branch, so a project living only outside the base branch stays invisible
+until the whole scan completes.
 
 Without a retry such a step reads the state of the moment it happened to arrive in: too early, and a project is
 missing, or its identity resolves to nothing at all.

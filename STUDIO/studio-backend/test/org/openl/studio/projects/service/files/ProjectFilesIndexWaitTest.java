@@ -174,6 +174,20 @@ class ProjectFilesIndexWaitTest {
         }
 
         @Test
+        void deletedFolderWaitsForTheIndexOfItsBranch() throws Exception {
+            when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true)
+                    .setFolders(true)
+                    .build());
+            when(repository.list("")).thenReturn(List.of(item("Project1/rules.xml").getData()));
+
+            service.deleteResource(mount("feature"), "Project1");
+
+            var order = inOrder(repository, designTimeRepository);
+            order.verify(repository).delete(any(FileData.class));
+            order.verify(designTimeRepository).refreshBranch("design", "feature");
+        }
+
+        @Test
         void uploadWaitsForTheIndexOfItsBranch() throws Exception {
             mount("feature").writeBatch("Project1", List.of(item("Project1/rules.xml")), ChangesetType.DIFF, "Upload");
 
