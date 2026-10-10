@@ -652,21 +652,26 @@ export class OpenLClient {
   }
 
   /**
-   * Get post-compilation project status (compile state, diagnostics, pending changes).
+   * Get post-compilation project status (compile state, diagnostics, pending changes):
+   * the `compileStatus` Studio returns with the project for `include=status`.
    * Read-only — does not trigger compilation. Works for all repositories including "local".
    *
    * @param projectId - Opaque project ID from the backend.
-   * @param branch - Optional branch name. When provided, the backend asserts it matches
-   *                 the project's currently opened branch (409 on mismatch).
+   * @param branch - Optional branch name. It must be the branch the project is
+   *                 opened on; another branch fails without reading its status.
    */
   async getProjectStatus(projectId: string, branch?: string): Promise<Types.ProjectStatusView> {
-    const url = `${this.buildProjectPath(projectId)}/status`;
-    const params: Record<string, string> = {};
-    if (branch) {
-      params.branch = branch;
+    const status = (await this.getProject(projectId, ["status"])).compileStatus;
+    if (!status) {
+      throw new Error(`OpenL Studio returned no status for project '${projectId}'.`);
     }
-    const response = await this.axiosInstance.get<Types.ProjectStatusView>(url, { params });
-    return response.data;
+    if (branch && status.branch !== branch) {
+      throw new Error(
+        `Project '${projectId}' is opened on branch '${status.branch ?? "none"}', not '${branch}'. ` +
+          "Call openl_project_status with wait=true to switch it to that branch.",
+      );
+    }
+    return status;
   }
 
   /**
