@@ -168,7 +168,7 @@ describe('AccessPanel', () => {
         await waitFor(() => expect(removeProjectAcl).toHaveBeenCalledWith('p1', 'direct-user', true))
     })
 
-    it('never offers to remove the user\'s own access', async () => {
+    it('never offers to change or remove the user\'s own access', async () => {
         vi.mocked(getProjectAcl).mockResolvedValue([
             entry('me', 'project'),
             // A group spelled like the user is still a group — it stays removable.
@@ -181,8 +181,11 @@ describe('AccessPanel', () => {
         await waitFor(() => expect(screen.getByTestId('access-remove-project-direct-user')).toBeTruthy())
         // Both rows named "me" share the test id; only the group row keeps its remove button.
         expect(screen.getAllByTestId('access-remove-project-me')).toHaveLength(1)
-        // The role selects of both rows keep working — only removal is off the table.
-        expect(screen.getAllByTestId('access-role-project-me')).toHaveLength(2)
+        // The user's own role cannot be changed either; the group spelled like the user can.
+        const [ownRole, groupRole] = screen.getAllByTestId('access-role-project-me')
+        expect(ownRole).toBeDisabled()
+        expect(ownRole).toHaveAttribute('title', 'browser.access.own_readonly')
+        expect(groupRole).not.toBeDisabled()
     })
 
     it('hides add controls when the user cannot manage access', async () => {

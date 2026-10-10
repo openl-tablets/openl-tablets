@@ -150,8 +150,14 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                     <tbody>
                         {entries.map(entry => {
                             const inherited = entry.source === 'repository'
-                            // Revoking your own access would lock you out of the very screen you manage it from.
+                            // Changing or revoking your own access would lock you out of the very screen you manage
+                            // it from, and the server refuses both.
                             const self = (entry.sub.principal ?? false) && entry.sub.sid === username
+                            const locked = inherited || self
+                            const readonlyKey = inherited
+                                ? 'browser.access.inherited_readonly'
+                                : 'browser.access.own_readonly'
+                            const readonlyTitle = locked ? t(readonlyKey) : undefined
                             const sourceLabel = entry.source && t(`browser.access.source_${entry.source}`)
                             return (
                                 <tr key={`${entry.source ?? 'none'}:${entry.sub.principal ? 'u' : 'g'}:${entry.sub.sid}`}>
@@ -167,19 +173,19 @@ export const AccessPanel = ({ projectId, projectName, canManage }: AccessPanelPr
                                     <td className={styles.roleCell}>
                                         <Select
                                             data-testid={`access-role-${entry.source}-${entry.sub.sid}`}
-                                            disabled={inherited || !canManage || busy}
+                                            disabled={locked || !canManage || busy}
                                             onChange={value => changeRole(entry.sub.sid, value, entry.sub.principal ?? false)}
                                             options={roleOptions}
                                             style={{ width: 180 }}
                                             value={entry.role}
-                                            {...(inherited ? { title: t('browser.access.inherited_readonly') } : {})}
+                                            {...(readonlyTitle ? { title: readonlyTitle } : {})}
                                         />
                                     </td>
                                     <td className={styles.sourceCell}>
                                         {sourceLabel && <Tag>{sourceLabel}</Tag>}
                                     </td>
                                     <td className={styles.actionsCell}>
-                                        {canManage && !inherited && !self && (
+                                        {canManage && !locked && (
                                             <Popconfirm
                                                 onConfirm={() => revoke(entry.sub.sid, entry.sub.principal ?? false)}
                                                 title={t('browser.access.remove_confirm', { subject: entry.sub.sid })}

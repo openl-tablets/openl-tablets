@@ -744,6 +744,7 @@ i18next.addResourceBundle('en', 'repository', {
             source_project: 'Project',
             source_repository: 'Repository',
             inherited_readonly: 'Inherited from the repository and managed there',
+            own_readonly: 'Your own role, which another Manager or an Administrator changes',
             role_VIEWER: 'Viewer',
             role_CONTRIBUTOR: 'Contributor',
             role_MANAGER: 'Manager',
