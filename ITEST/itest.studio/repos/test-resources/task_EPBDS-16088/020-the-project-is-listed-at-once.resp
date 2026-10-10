@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "name": "EPBDS-16088",
+      "path": "EPBDS-16088"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": 1
+}
