@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"status\": \"success\",\n    \"summary\": {\n      \"sourceBranch\": \"hotfix\",\n      \"targetBranch\": \"master\",\n      \"before\": \"@\",\n      \"after\": \"@\",\n      \"projects\": [\n        {\n          \"id\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\",\n          \"name\": \"McpTools\",\n          \"path\": \"McpTools\",\n          \"current\": true,\n          \"status\": \"modified\",\n          \"files\": [\n            {\n              \"path\": \"McpTools/docs/hotfix.txt\",\n              \"type\": \"added\"\n            }\n          ]\n        }\n      ],\n      \"hiddenProjects\": 0\n    },\n    \"check\": {\n      \"sourceBranch\": \"hotfix\",\n      \"targetBranch\": \"master\",\n      \"status\": \"mergeable\",\n      \"canMerge\": true,\n      \"scope\": {\n        \"projects\": [\n          {\n            \"id\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\",\n            \"name\": \"McpTools\",\n            \"path\": \"McpTools\",\n            \"current\": true,\n            \"status\": \"modified\",\n            \"changedFiles\": 1\n          }\n        ],\n        \"hiddenProjects\": 0\n      }\n    }\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

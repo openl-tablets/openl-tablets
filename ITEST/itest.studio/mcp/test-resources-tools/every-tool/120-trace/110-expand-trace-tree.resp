@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"children\": [\n      {\n        \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B2:C6\",\n        \"name\": \"AgeFactor\",\n        \"instance\": 0,\n        \"kind\": \"decisionTable\",\n        \"durationMillis\": #.#,\n        \"selfMillis\": #.#,\n        \"steps\": [\n          {\n            \"ref\": \"c0\",\n            \"label\": \"Condition: MC1, Rules: [R3]\",\n            \"decision\": \"matched\",\n            \"status\": \"executed\"\n          },\n          {\n            \"ref\": \"R3\",\n            \"label\": \"Returned rule: [R3]\",\n            \"decision\": \"returned\",\n            \"status\": \"executed\",\n            \"durationMillis\": #.#,\n            \"selfMillis\": #.#\n          }\n        ]\n      }\n    ],\n    \"total\": 1,\n    \"hasMore\": false\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

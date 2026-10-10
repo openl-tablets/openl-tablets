@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "-----\n**Guide `spec/rules.xml`** (source: Docs/ref/rules.xml.md)\n\n# OpenL Tablets — Rules Project Descriptor (`rules.xml`)\n\n```xml\n<!-- All inner tags of rules.xml are optional -->\n<project>\n\n    <!-- If <name> is not de*"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

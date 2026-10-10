@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "```json\n[\n  {\n    \"id\": \"guide/working-with-openl-tables/table-types/spreadsheet-table/parsing-a-spreadsheet-table\",\n    \"type\": \"guide\",\n    \"title\": \"Spreadsheet Table\",\n    \"path\": \"guide/working-with-openl-tables/table-types/spreadsheet-table/parsing-a-spreadsheet-table.md\",\n    \"source_path\": \"Docs/user-guides/reference-guide/02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md\",\n    \"size_bytes\": #\n  },*"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

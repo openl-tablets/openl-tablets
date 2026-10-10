@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": [\n    {\n      \"id\": \"@\",\n      \"tableType\": \"SimpleRules\",\n      \"kind\": \"Rules\",\n      \"name\": \"AgeFactor\",\n      \"returnType\": \"Double\",\n      \"signature\": \"AgeFactor(Integer age)\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"sheet\": \"Rules\",\n      \"pos\": \"B2:C6\",\n      \"module\": \"Main\",\n      \"project\": \"McpTools\",\n      \"projectId\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\"\n    },\n    {\n      \"id\": \"@\",\n      \"tableType\": \"Datatype\",\n      \"kind\": \"Datatype\",\n      \"name\": \"Driver\",\n      \"signature\": \"Driver\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"sheet\": \"Data\",\n      \"pos\": \"B2:C4\",\n      \"module\": \"Main\",\n      \"project\": \"McpTools\",\n      \"projectId\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\"\n    },\n    {\n      \"id\": \"@\",\n      \"tableType\": \"SimpleSpreadsheet\",\n      \"kind\": \"Spreadsheet\",\n      \"name\": \"Premium\",\n      \"returnType\": \"Double\",\n      \"signature\": \"Premium(Driver driver)\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"sheet\": \"Rules\",\n      \"pos\": \"B8:C12\",\n      \"hasTests\": true,\n      \"module\": \"Main\",\n      \"project\": \"McpTools\",\n      \"projectId\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\"\n    },\n    {\n      \"id\": \"@\",\n      \"tableType\": \"Test\",\n      \"kind\": \"Test\",\n      \"name\": \"PremiumTest\",\n      \"signature\": \"Premium PremiumTest\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"sheet\": \"Tests\",\n      \"pos\": \"B2:D7\",\n      \"module\": \"Main\",\n      \"project\": \"McpTools\",\n      \"projectId\": \"ZGVzaWduOk1jcFRvb2xzOjQ3MmU5NzAxODkzOWQ0NmFmN2JhNDRiMzU1ZmM1OWNkYzJmNWYyNTI2YTQzMTUxNWY3YjBmOTRkYWM2MTBiZjA=\"\n    }\n  ],\n  \"pagination\": {\n    \"limit\": 50,\n    \"offset\": 0,\n    \"has_more\": false,\n    \"total_count\": 4\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

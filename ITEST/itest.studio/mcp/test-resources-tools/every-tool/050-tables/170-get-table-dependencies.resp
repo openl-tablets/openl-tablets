@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": [\n    {\n      \"id\": \"@\",\n      \"tableType\": \"SimpleRules\",\n      \"kind\": \"Rules\",\n      \"name\": \"AgeFactor\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"pos\": \"B2:C6\",\n      \"project\": \"McpTools\",\n      \"module\": \"Main\",\n      \"returnType\": \"Double\",\n      \"signature\": \"AgeFactor(Integer age)\"\n    },\n    {\n      \"id\": \"@\",\n      \"tableType\": \"Datatype\",\n      \"kind\": \"Datatype\",\n      \"name\": \"Driver\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"pos\": \"B2:C5\",\n      \"project\": \"McpTools\",\n      \"module\": \"Main\",\n      \"fields\": [\n        {\n          \"name\": \"name\",\n          \"type\": \"String\"\n        },\n        {\n          \"name\": \"age\",\n          \"type\": \"Integer\"\n        },\n        {\n          \"name\": \"married\",\n          \"type\": \"Boolean\"\n        }\n      ]\n    },\n    {\n      \"id\": \"@\",\n      \"tableType\": \"SimpleSpreadsheet\",\n      \"kind\": \"Spreadsheet\",\n      \"name\": \"Premium\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"pos\": \"B8:C12\",\n      \"project\": \"McpTools\",\n      \"module\": \"Main\",\n      \"dependencies\": [\n        \"@\"\n      ],\n      \"returnType\": \"Double\",\n      \"signature\": \"Premium(Driver driver)\"\n    },\n    {\n      \"id\": \"@\",\n      \"tableType\": \"Test\",\n      \"kind\": \"Test\",\n      \"name\": \"PremiumTest\",\n      \"file\": \"McpTools/Main.xlsx\",\n      \"pos\": \"B2:D7\",\n      \"project\": \"McpTools\",\n      \"module\": \"Main\",\n      \"dependencies\": [\n        \"@\"\n      ],\n      \"signature\": \"Premium PremiumTest\"\n    }\n  ]\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

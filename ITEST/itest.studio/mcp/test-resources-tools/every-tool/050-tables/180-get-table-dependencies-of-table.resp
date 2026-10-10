@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "# Table Dependency Graph\n\n**Query:** scope table neighborhood, root table `@`, direction BOTH\n\n## Executable call graph\n\n```mermaid\nflowchart LR\n  e0[\"AgeFactor<br/>Rules\"]\n  e1[\"Premium<br/>Spreadsheet\"]\n  e2[\"PremiumTest<br/>Test\"]\n  e1 --> e0\n  e2 --> e1\n  classDef executable fill:#eef5ff,stroke:#2563eb,color:#172554\n  classDef dispatcher fill:#fff7ed,stroke:#ea580c,color:#431407,stroke-width:2px\n  class e0,e1,e2 executable\n```\n\nArrows point from the caller to the dependency. Dispatcher nodes are highlighted."
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

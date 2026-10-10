@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"status\": \"suspended\",\n    \"frames\": [\n      {\n        \"index\": 0,\n        \"depth\": 1,\n        \"instance\": 0,\n        \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12\",\n        \"tableId\": \"@\",\n        \"name\": \"Premium\",\n        \"kind\": \"spreadsheet\",\n        \"location\": {\n          \"kind\": \"cell\",\n          \"row\": 1,\n          \"column\": 0,\n          \"ref\": \"R1C0\",\n          \"label\": \"$Factor\"\n        },\n        \"active\": true,\n        \"completed\": false,\n        \"error\": false,\n        \"steps\": [\n          {\n            \"ref\": \"R1C0\",\n            \"label\": \"$Factor\",\n            \"cell\": \"C11\",\n            \"status\": \"current\"\n          },\n          {\n            \"ref\": \"R2C0\",\n            \"label\": \"$Total\",\n            \"cell\": \"C12\",\n            \"status\": \"pending\"\n          }\n        ]\n      }\n    ],\n    \"sessionId\": \"@-@-@-@-@\",\n    \"variables\": {\n      \"parameters\": [\n        {\n          \"name\": \"driver\",\n          \"description\": \"Driver\",\n          \"lazy\": true,\n          \"parameterId\": 1\n        }\n      ],\n      \"context\": {\n        \"name\": \"context\",\n        \"description\": \"DefaultRulesRuntimeContext\",\n        \"lazy\": false,\n        \"value\": {\n          \"currentDate\": null,\n          \"requestDate\": null,\n          \"lob\": null,\n          \"nature\": null,\n          \"usState\": null,\n          \"country\": null,\n          \"usRegion\": null,\n          \"currency\": null,\n          \"lang\": null,\n          \"region\": null,\n          \"caProvince\": null,\n          \"caRegion\": null,\n          \"locale\": null\n        }\n      },\n      \"steps\": [\n        {\n          \"ref\": \"R0C0\",\n          \"label\": \"$Base\",\n          \"status\": \"executed\",\n          \"value\": {\n            \"name\": \"R0C0\",\n            \"lazy\": false,\n            \"value\": 100\n          }\n        },\n        {\n          \"ref\": \"R1C0\",\n          \"label\": \"$Factor\",\n          \"status\": \"current\"\n        },\n        {\n          \"ref\": \"R2C0\",\n          \"label\": \"$Total\",\n          \"status\": \"pending\"\n        }\n      ],\n      \"gridColumns\": [\n        \"Value\"\n      ],\n      \"gridRows\": [\n        \"Base\",\n        \"Factor\",\n        \"Total\"\n      ],\n      \"errors\": []\n    }\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

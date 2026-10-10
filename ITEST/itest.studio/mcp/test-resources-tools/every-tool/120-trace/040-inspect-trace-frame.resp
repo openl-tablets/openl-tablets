@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"parameters\": [\n      {\n        \"name\": \"driver\",\n        \"description\": \"Driver\",\n        \"lazy\": true,\n        \"parameterId\": 2\n      }\n    ],\n    \"context\": {\n      \"name\": \"context\",\n      \"description\": \"DefaultRulesRuntimeContext\",\n      \"lazy\": false,\n      \"value\": {\n        \"currentDate\": null,\n        \"requestDate\": null,\n        \"lob\": null,\n        \"nature\": null,\n        \"usState\": null,\n        \"country\": null,\n        \"usRegion\": null,\n        \"currency\": null,\n        \"lang\": null,\n        \"region\": null,\n        \"caProvince\": null,\n        \"caRegion\": null,\n        \"locale\": null\n      }\n    },\n    \"steps\": [\n      {\n        \"ref\": \"R0C0\",\n        \"label\": \"$Base\",\n        \"status\": \"executed\",\n        \"value\": {\n          \"name\": \"R0C0\",\n          \"lazy\": false,\n          \"value\": 100\n        }\n      },\n      {\n        \"ref\": \"R1C0\",\n        \"label\": \"$Factor\",\n        \"status\": \"current\"\n      },\n      {\n        \"ref\": \"R2C0\",\n        \"label\": \"$Total\",\n        \"status\": \"pending\"\n      }\n    ],\n    \"gridColumns\": [\n      \"Value\"\n    ],\n    \"gridRows\": [\n      \"Base\",\n      \"Factor\",\n      \"Total\"\n    ],\n    \"errors\": []\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

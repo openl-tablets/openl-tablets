@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"status\": \"suspended\",\n    \"frames\": [\n      {\n        \"index\": 0,\n        \"depth\": 1,\n        \"instance\": 0,\n        \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12\",\n        \"tableId\": \"@\",\n        \"name\": \"Premium\",\n        \"kind\": \"spreadsheet\",\n        \"location\": {\n          \"kind\": \"cell\",\n          \"row\": 1,\n          \"column\": 0,\n          \"ref\": \"R1C0\",\n          \"label\": \"$Factor\"\n        },\n        \"active\": false,\n        \"completed\": false,\n        \"error\": false\n      },\n      {\n        \"index\": 1,\n        \"depth\": 2,\n        \"instance\": 0,\n        \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B2:C6\",\n        \"tableId\": \"@\",\n        \"name\": \"AgeFactor\",\n        \"kind\": \"decisionTable\",\n        \"active\": true,\n        \"completed\": true,\n        \"error\": false,\n        \"steps\": [\n          {\n            \"ref\": \"R1\",\n            \"label\": \"R1\",\n            \"status\": \"pending\"\n          },\n          {\n            \"ref\": \"R2\",\n            \"label\": \"R2\",\n            \"status\": \"pending\"\n          },\n          {\n            \"ref\": \"R3\",\n            \"label\": \"R3\",\n            \"status\": \"pending\",\n            \"durationMillis\": #.#\n          }\n        ],\n        \"durationMillis\": #.#,\n        \"selfMillis\": #.#\n      }\n    ],\n    \"sessionId\": \"@-@-@-@-@\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

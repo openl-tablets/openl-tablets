@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/AGENTS.md\",\n    \"action\": \"created\",\n    \"bytesWritten\": 31,\n    \"committed\": false,\n    \"message\": \"Wrote 31 byte(s) to 'docs/AGENTS.md' in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"id\": \"@\",\n    \"tableType\": \"RawSource\",\n    \"kind\": \"Rules\",\n    \"name\": \"Grade\",\n    \"pos\": \"B2:D6\",\n    \"source\": [\n      [\n        {\n          \"cell\": \"B2\",\n          \"value\": \"SimpleRules String Grade(Integer score)\",\n          \"colspan\": 3\n        },\n        {\n          \"covered\": true\n        },\n        {\n          \"covered\": true\n        }\n      ],\n      [\n        {\n          \"cell\": \"B3\",\n          \"value\": \"Score\"\n        },\n        {\n          \"cell\": \"C3\",\n          \"value\": \"Grade\"\n        },\n        {\n          \"cell\": \"D3\",\n          \"value\": \"Comment\"\n        }\n      ]\n    ],\n    \"totalRows\": 5,\n    \"headerHeight\": 1\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
