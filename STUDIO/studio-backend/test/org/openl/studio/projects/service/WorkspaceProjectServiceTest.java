@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -63,6 +64,7 @@ import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.ChangedOutsideException;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -544,6 +546,29 @@ class WorkspaceProjectServiceTest {
 
         verify(fileData).setComment("Save PricingProject");
         verify(webStudio).saveProject(project);
+    }
+
+    @Test
+    void save_refuses_to_overwrite_files_changed_outside_studio() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), null, projectStateValidator, webStudio);
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        var fileData = mock(FileData.class);
+        when(project.isModified()).thenReturn(true);
+        when(project.getFileData()).thenReturn(fileData);
+        when(projectStateValidator.canSave(project)).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        doThrow(new ChangedOutsideException(List.of("/pom.xml", "/rules/New.xlsx")))
+                .when(webStudio).saveProject(project);
+        var model = ProjectStatusUpdateModel.builder().save(true).build();
+
+        var refused = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
+
+        assertEquals("openl.error.409.project.save.changed.outside.message", refused.getErrorCode());
+        assertArrayEquals(new Object[]{"pom.xml, rules/New.xlsx"}, refused.getArgs());
     }
 
     @Test

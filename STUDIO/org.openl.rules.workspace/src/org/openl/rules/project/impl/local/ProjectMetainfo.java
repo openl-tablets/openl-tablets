@@ -38,8 +38,17 @@ public record ProjectMetainfo(String repositoryId,
      * <p>The unique id is the file revision id in the source repository and is absent when the repository
      * does not provide one. The size and the modification time are the values of the local copy right
      * after the synchronization; a mismatch with the actual file means the file was changed locally.
+     *
+     * <p>The source stamp is the size and the modification time the file had in the source repository at that
+     * synchronization, written as {@code size:modifiedAt}. It is kept for a repository that provides no revision id,
+     * such as a folder on the file system, which other programs write to as well: a different stamp means such a
+     * program changed the file since.
      */
-    public record FileBaseline(@Nullable String uniqueId, long size, long modifiedAt) {
+    public record FileBaseline(@Nullable String uniqueId, long size, long modifiedAt, @Nullable String sourceStamp) {
+
+        public FileBaseline(@Nullable String uniqueId, long size, long modifiedAt) {
+            this(uniqueId, size, modifiedAt, null);
+        }
     }
 
     /**

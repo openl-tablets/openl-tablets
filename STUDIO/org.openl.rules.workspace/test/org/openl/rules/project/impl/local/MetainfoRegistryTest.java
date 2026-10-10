@@ -54,7 +54,7 @@ class MetainfoRegistryTest {
                 12345L,
                 "Copied from Example 1",
                 Map.of(trickyPath, new FileBaseline("9f3c1a7e", 54321L, 1751979000000L),
-                        "/rules/Main.xlsx", new FileBaseline(null, 100L, 1751979000001L)));
+                        "/rules/Main.xlsx", new FileBaseline(null, 100L, 1751979000001L, "100:1751978000000")));
         createProjectFolder();
         registry.save(PROJECT, metainfo);
 
