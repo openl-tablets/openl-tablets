@@ -4011,7 +4011,9 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
     it("should copy a project through Studio's server-side copy API", async () => {
       mockAxios.onGet("/repos").reply(200, mockRepositories);
       const sourceProjectId = "mapped:Offer-US:opaque-id";
+      mockAxios.onGet(/^\/projects\/[^/]+$/).reply(200, { id: "mapped:Offer-US:opaque-id", repository: "mapped" });
       mockAxios.onPost("/repos/design/projects/Offer-CW/from-project", {
+        sourceRepositoryId: "mapped",
         sourceProject: sourceProjectId,
       }).reply(200, { revision: "def456", branch: "main" });
       const canonicalProjectId = Buffer.from("design:Offer-CW").toString("base64");
@@ -4044,7 +4046,9 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
     it("should copy a project atomically onto a requested branch", async () => {
       mockAxios.onGet("/repos").reply(200, mockRepositories);
       const sourceProjectId = "mapped:Offer-US:opaque-id";
+      mockAxios.onGet(/^\/projects\/[^/]+$/).reply(200, { id: "mapped:Offer-US:opaque-id", repository: "mapped" });
       mockAxios.onPost("/repos/design/projects/Offer-CW/from-project", {
+        sourceRepositoryId: "mapped",
         sourceProject: sourceProjectId,
         branch: "dev",
       }).reply(200, { revision: "def456", branch: "dev" });
@@ -4076,6 +4080,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
 
     it("should reject a copy when the destination already exists (409)", async () => {
       mockAxios.onGet("/repos").reply(200, mockRepositories);
+      mockAxios.onGet(/^\/projects\/[^/]+$/).reply(200, { id: "mapped:Offer-US:opaque-id", repository: "mapped" });
       mockAxios.onPost("/repos/design/projects/Existing/from-project").reply(409, { message: "duplicated.project.message" });
 
       await expect(
@@ -4089,9 +4094,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
 
     it("should reject copying a source that does not exist", async () => {
       mockAxios.onGet("/repos").reply(200, mockRepositories);
-      mockAxios.onPost("/repos/design/projects/NewOne/from-project").reply(404, {
-        message: "Source project was not found",
-      });
+      mockAxios.onGet(/^\/projects\/[^/]+$/).reply(404, { message: "Project was not found" });
 
       await expect(
         executeTool(
@@ -4100,7 +4103,7 @@ describe("Tool Handler Integration Tests — status, edits, creation & trace", (
           client
         )
       ).rejects.toThrow(/not found/i);
-      expect(mockAxios.history.post).toHaveLength(1);
+      expect(mockAxios.history.post).toHaveLength(0);
     });
 
     it("should validate required params for create", async () => {

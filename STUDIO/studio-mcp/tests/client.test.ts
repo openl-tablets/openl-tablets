@@ -1350,8 +1350,11 @@ describe("OpenLClient", () => {
     });
 
     it("copyProject uses Studio's server-side project-copy endpoint", async () => {
+      mockAxios.onGet(`/projects/${encodeURIComponent("mapped:Offer-US:opaque-id")}`)
+        .reply(200, { id: "mapped:Offer-US:opaque-id", repository: "mapped" });
       mockAxios.onPost("/repos/design/projects/Offer-CW/from-project").reply((config) => {
         expect(JSON.parse(config.data)).toEqual({
+          sourceRepositoryId: "mapped",
           sourceProject: "mapped:Offer-US:opaque-id",
           comment: "Copy rates",
           branch: "feature/rates",

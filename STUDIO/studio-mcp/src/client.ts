@@ -462,16 +462,21 @@ export class OpenLClient {
     return response.data;
   }
 
-  /** Copy a project addressed by its stable ID and register the copy in Studio. */
+  /**
+   * Copy a project addressed by its stable ID and register the copy in Studio.
+   * Studio takes the repository of the source project too, which is read from the project.
+   */
   async copyProject(
     targetRepositoryId: string,
     targetProjectName: string,
     sourceProject: string,
     options?: { comment?: string; branch?: string; revision?: string; path?: string },
   ): Promise<Types.CreateProjectResult> {
+    const sourceRepositoryId = (await this.getProject(sourceProject)).repository;
     const response = await this.axiosInstance.post<Types.CreateProjectResult>(
       `/repos/${encodeURIComponent(targetRepositoryId)}/projects/${encodeURIComponent(targetProjectName)}/from-project`,
       {
+        sourceRepositoryId,
         sourceProject,
         ...(options?.comment ? { comment: options.comment } : {}),
         ...(options?.branch ? { branch: options.branch } : {}),
