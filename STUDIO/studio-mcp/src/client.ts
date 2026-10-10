@@ -57,7 +57,6 @@ export class OpenLClient {
    * proceed in parallel without further serialization.
    */
   private firstRequestGate: Promise<void> | null = null;
-  private testExecutionHeaders: Map<string, Record<string, string>> = new Map(); // Store headers for test execution sessions
 
   /**
    * Create a new OpenL Studio API client
@@ -1930,104 +1929,6 @@ export class OpenLClient {
   }
 
   // =============================================================================
-  // Test Execution Session Management
-  // =============================================================================
-
-  /**
-   * Store test execution headers for a project.
-   * Always keyed by projectId only — a project can have only one active test session.
-   *
-   * @param projectId - Project ID
-   * @param headers - Headers from test start response
-   */
-  private storeTestExecutionHeaders(
-    projectId: string,
-    headers: Record<string, string>
-  ): void {
-    this.testExecutionHeaders.set(projectId, headers);
-  }
-
-  /**
-   * Get test execution headers for a project
-   *
-   * @param projectId - Project ID
-   * @returns Headers if found, undefined otherwise
-   */
-  private getTestExecutionHeaders(
-    projectId: string
-  ): Record<string, string> | undefined {
-    return this.testExecutionHeaders.get(projectId);
-  }
-
-  /**
-   * Clear test execution headers for a project
-   *
-   * @param projectId - Project ID
-   */
-  private clearTestExecutionHeaders(projectId: string): void {
-    this.testExecutionHeaders.delete(projectId);
-  }
-
-  /**
-   * Extract headers from test start response
-   *
-   * @param headers - Response headers from axios
-   * @returns Extracted headers ready for use in subsequent requests
-   */
-  private extractTestExecutionHeaders(headers: Record<string, unknown>): Record<string, string> {
-    const responseHeaders: Record<string, string> = {};
-    const excludeHeaders = [
-      'content-type',
-      'content-length',
-      'content-encoding',
-      'transfer-encoding',
-      'connection',
-      'server',
-      'date',
-      'etag',
-      'last-modified',
-      'cache-control',
-      'expires',
-      'vary',
-      'access-control-allow-origin',
-      'access-control-allow-methods',
-      'access-control-allow-headers',
-      'access-control-expose-headers',
-      'accept',
-    ];
-
-    const setCookieValues: string[] = [];
-
-    Object.keys(headers).forEach((key) => {
-      const lowerKey = key.toLowerCase();
-
-      if (lowerKey === 'set-cookie') {
-        const value = headers[key];
-        if (value !== undefined && value !== null) {
-          const cookies = Array.isArray(value) ? value : [String(value)];
-          cookies.forEach((cookie) => {
-            const nameValue = cookie.split(';')[0].trim();
-            if (nameValue) {
-              setCookieValues.push(nameValue);
-            }
-          });
-        }
-      } else if (!excludeHeaders.includes(lowerKey)) {
-        const value = headers[key];
-        if (value !== undefined && value !== null) {
-          responseHeaders[key] = Array.isArray(value) ? value.join(", ") : String(value);
-        }
-      }
-    });
-
-    if (setCookieValues.length > 0) {
-      responseHeaders['Cookie'] = setCookieValues.join('; ');
-    }
-
-    return responseHeaders;
-  }
-
-  // =============================================================================
   // New Test Execution Methods
   // =============================================================================
 
@@ -2072,25 +1973,15 @@ export class OpenLClient {
       }
     }
 
-    // Clear old headers for this project before storing new ones
-    this.clearTestExecutionHeaders(projectId);
-
     // Build API parameters
     const params: Record<string, string | number | boolean> = {};
     if (options?.tableId) params.tableId = options.tableId;
     if (options?.testRanges) params.testRanges = options.testRanges;
     if (options?.fromModule) params.fromModule = options.fromModule;
 
-    // Start test execution
-    const startResponse = await this.axiosInstance.post(
-      `${projectPath}/tests/run`,
-      undefined,
-      { params }
-    );
-
-    // Extract and store headers
-    const responseHeaders = this.extractTestExecutionHeaders(startResponse.headers || {});
-    this.storeTestExecutionHeaders(projectId, responseHeaders);
+    // Start test execution. Studio keeps the run for this client: its session, or the credential
+    // of a request that has one, so the results are read with the same client, not a stored token.
+    await this.axiosInstance.post(`${projectPath}/tests/run`, undefined, { params });
 
     return {
       status: "started",
@@ -2108,7 +1999,7 @@ export class OpenLClient {
    * @param projectId - Project ID
    * @param options - Summary options
    * @returns Test results summary, or `notReady` while the execution is still running
-   * @throws Error if headers not found or request fails
+   * @throws Error if no tests were started for the project or the request fails
    */
   async getTestResultsSummary(
     projectId: string,
@@ -2121,14 +2012,6 @@ export class OpenLClient {
     }
   ): Promise<Types.TestResultsSummary | Types.ResultNotReadyView> {
     const projectPath = this.buildProjectPath(projectId);
-    const headers = this.getTestExecutionHeaders(projectId);
-
-    if (!headers) {
-      throw new Error(
-        `No test execution session found for project '${projectId}'. ` +
-        `Use openl_start_project_tests() to start test execution first.`
-      );
-    }
 
     const params: Record<string, string | number | boolean> = {};
     if (options?.failuresOnly !== undefined) params.failuresOnly = options.failuresOnly;
@@ -2139,10 +2022,7 @@ export class OpenLClient {
       `${projectPath}/tests/summary`,
       {
         params,
-        headers: {
-          ...headers,
-          "Accept": "application/json",
-        },
+        headers: { "Accept": "application/json" },
         signal: options?.signal,
         timeout: options?.timeoutMs,
       }
@@ -2171,7 +2051,7 @@ export class OpenLClient {
    * @param projectId - Project ID
    * @param options - Result options including pagination
    * @returns Full test execution summary with testCases, or `notReady` while execution is still running
-   * @throws Error if headers not found or request fails
+   * @throws Error if no tests were started for the project or the request fails
    */
   async getTestResults(
     projectId: string,
@@ -2188,14 +2068,6 @@ export class OpenLClient {
     }
   ): Promise<Types.TestsExecutionSummary | Types.ResultNotReadyView> {
     const projectPath = this.buildProjectPath(projectId);
-    const headers = this.getTestExecutionHeaders(projectId);
-
-    if (!headers) {
-      throw new Error(
-        `No test execution session found for project '${projectId}'. ` +
-        `Use openl_start_project_tests() to start test execution first.`
-      );
-    }
 
     const params: Record<string, string | number | boolean> = {};
     if (options?.failuresOnly) params.failuresOnly = true;
@@ -2210,10 +2082,7 @@ export class OpenLClient {
       `${projectPath}/tests/summary`,
       {
         params,
-        headers: {
-          ...headers,
-          "Accept": "application/json",
-        },
+        headers: { "Accept": "application/json" },
         signal: options?.signal,
         timeout: options?.timeoutMs,
       }
@@ -2232,7 +2101,7 @@ export class OpenLClient {
    * @param tableId - Table ID to filter results
    * @param options - Result options
    * @returns Filtered test execution summary, or `notReady` while execution is still running
-   * @throws Error if headers not found or request fails
+   * @throws Error if no tests were started for the project or the request fails
    */
   async getTestResultsByTable(
     projectId: string,

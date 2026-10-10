@@ -227,7 +227,7 @@ HTTP), never from the server. A PAT is supplied as
 - The MCP SDK v2 serves both the modern `2026-07-28` protocol and legacy 2025 clients over stdio and Streamable HTTP.
 - Streamable HTTP validates browser `Origin` values against `MCP_ALLOWED_ORIGINS`; requests without `Origin` are treated as non-browser clients. Every approved browser response exposes `Mcp-Session-Id` for legacy clients.
 - Every anonymous legacy MCP session owns a distinct `OpenLClient` and Studio cookie jar. Never reuse a credential-less client across MCP sessions.
-- Modern HTTP is stateless and constructs a fresh Studio client per request. Use stdio or a legacy 2025 HTTP connection for multi-call workflows whose state is held in Studio's HTTP session (interactive trace, test results, and merge-conflict inspection).
+- Modern HTTP is stateless and constructs a fresh Studio client per request. Studio keeps the state of multi-call workflows (interactive trace, test results, and merge-conflict inspection) for the Personal Access Token a request carries, so they work over modern HTTP with a token. Without a token that state lives in Studio's HTTP session: use stdio or a legacy 2025 HTTP connection.
 
 ## Response formatting
 

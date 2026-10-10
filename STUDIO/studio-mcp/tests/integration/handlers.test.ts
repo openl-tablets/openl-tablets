@@ -1965,27 +1965,16 @@ describe("Tool Handler Integration Tests", () => {
         expect(result.content[0].text).toContain("automatically opened");
       });
 
-      it("should propagate session headers from /tests/run response", async () => {
-        const sessionHeaders = {
-          "x-test-execution-id": "test-session-abc",
-          "x-custom-header": "custom-value",
-          "set-cookie": ["JSESSIONID=xyz789; Path=/"],
-        } as any;
-
+      it("reads the results in the session the run started in", async () => {
         mockAxios.onPost(`/projects/${encodedProjectId}/tests/run`).reply(202, {
           status: "accepted",
-        }, sessionHeaders);
+        }, { "set-cookie": ["JSESSIONID=xyz789; Path=/"] });
 
         await executeTool("start_project_tests", {
           projectId: "design-project1",
         }, client);
 
-        // Verify headers are stored by making a get_test_results call
-        // Mock the /tests/summary endpoint and verify headers are sent
         mockAxios.onGet(/\/projects\/design-project1\/tests\/summary/).reply((config) => {
-          // Verify that session headers are present in the request
-          expect(config.headers).toHaveProperty("x-test-execution-id", "test-session-abc");
-          expect(config.headers).toHaveProperty("x-custom-header", "custom-value");
           expect(config.headers).toHaveProperty("Cookie", "JSESSIONID=xyz789");
           expect(config.headers).toHaveProperty("Accept", "application/json");
 
@@ -2078,8 +2067,8 @@ describe("Tool Handler Integration Tests", () => {
         }, client, { signal: controller.signal })).rejects.toThrow(/aborted/i);
       });
 
-      it("should execute openl_get_test_results_summary with stored headers", async () => {
-        // First, start test execution to store headers
+      it("should execute openl_get_test_results_summary reading the results as JSON", async () => {
+        // First, start test execution
         const sessionHeaders = {
           "x-test-execution-id": "test-session-summary",
           "set-cookie": ["JSESSIONID=summary123; Path=/"],
@@ -2102,8 +2091,6 @@ describe("Tool Handler Integration Tests", () => {
         };
 
         mockAxios.onGet(/\/projects\/design-project1\/tests\/summary/).reply((config) => {
-          // Verify headers are propagated
-          expect(config.headers).toHaveProperty("x-test-execution-id");
           expect(config.headers).toHaveProperty("Accept", "application/json");
           return [200, mockSummary];
         });
@@ -2187,7 +2174,7 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     describe("get_test_results", () => {
-      it("should execute openl_get_test_results with stored headers", async () => {
+      it("should execute openl_get_test_results reading the results as JSON", async () => {
         // Start test execution
         const sessionHeaders = {
           "x-test-execution-id": "test-session-results",
@@ -2241,8 +2228,6 @@ describe("Tool Handler Integration Tests", () => {
         };
 
         mockAxios.onGet(/\/projects\/design-project1\/tests\/summary/).reply((config) => {
-          // Verify headers are propagated
-          expect(config.headers).toHaveProperty("x-test-execution-id", "test-session-results");
           expect(config.headers).toHaveProperty("Cookie", "JSESSIONID=results456");
           expect(config.headers).toHaveProperty("Accept", "application/json");
           return [200, mockResults];
@@ -2413,7 +2398,7 @@ describe("Tool Handler Integration Tests", () => {
     });
 
     describe("get_test_results_by_table", () => {
-      it("should execute openl_get_test_results_by_table with stored headers", async () => {
+      it("should execute openl_get_test_results_by_table reading the results as JSON", async () => {
         // Start test execution
         const sessionHeaders = {
           "x-test-execution-id": "test-session-by-table",
@@ -2457,8 +2442,6 @@ describe("Tool Handler Integration Tests", () => {
         };
 
         mockAxios.onGet(`/projects/${encodedProjectId}/tests/summary`).reply((config) => {
-          // Verify headers are propagated
-          expect(config.headers).toHaveProperty("x-test-execution-id", "test-session-by-table");
           expect(config.headers).toHaveProperty("Cookie", "JSESSIONID=bytable789");
           expect(config.headers).toHaveProperty("Accept", "application/json");
 
