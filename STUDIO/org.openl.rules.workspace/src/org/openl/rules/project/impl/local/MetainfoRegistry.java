@@ -4,10 +4,13 @@ import static org.openl.rules.common.impl.ArtefactPathImpl.SEGMENT_DELIMITER;
 
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -508,35 +512,60 @@ public class MetainfoRegistry {
     }
 
     private boolean hasLocalChanges(String projectName, ProjectMetainfo metainfo) {
-        var projectDir = userDir.resolve(projectName);
-        var unseen = new HashSet<>(metainfo.files().keySet());
-        try (var stream = Files.walk(projectDir)) {
-            for (Path file : (Iterable<Path>) stream.filter(Files::isRegularFile)::iterator) {
-                if (differsFromBaseline(projectDir, file, metainfo, unseen)) {
-                    return true;
-                }
-            }
+        try {
+            return !localChanges(projectName, metainfo).isEmpty();
         } catch (IOException e) {
             log.warn("Cannot inspect the local changes of the '{}' project. The project is considered changed.",
                     projectName, e);
             return true;
         }
-        // Baselines left unseen belong to files deleted locally.
-        return !unseen.isEmpty();
     }
 
-    private boolean differsFromBaseline(Path projectDir,
-                                        Path file,
-                                        ProjectMetainfo metainfo,
-                                        Set<String> unseen) throws IOException {
-        var path = SEGMENT_DELIMITER + projectDir.relativize(file).toString().replace('\\', SEGMENT_DELIMITER);
-        var baseline = metainfo.files().get(path);
-        if (baseline == null) {
-            return true;
+    /**
+     * Lists the files of the project changed locally since it was opened or saved.
+     *
+     * <p>A file is compared with its baseline by its size and its modification time. A file without a baseline is
+     * added, and a baseline without a file belongs to a file deleted locally. The repository the project came from
+     * is not read: a file changed there since is no local change.
+     *
+     * <p>A project without a record has no baselines, so every file of it is added.
+     *
+     * @param projectName the project folder in the user workspace
+     * @return the changed files, each in name order
+     * @throws IOException if the project folder cannot be read
+     */
+    public LocalChanges localChanges(String projectName) throws IOException {
+        return localChanges(projectName, records.get(projectName));
+    }
+
+    private LocalChanges localChanges(String projectName, @Nullable ProjectMetainfo metainfo) throws IOException {
+        var baselines = metainfo == null ? Map.<String, FileBaseline>of() : metainfo.files();
+        var projectDir = userDir.resolve(projectName);
+        var added = new TreeSet<String>();
+        var modified = new TreeSet<String>();
+        var deleted = new TreeSet<>(baselines.keySet());
+        if (Files.isDirectory(projectDir)) {
+            // The walk hands over the size and the modification time of each file it reads anyway.
+            Files.walkFileTree(projectDir, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attributes) {
+                    if (attributes.isRegularFile()) {
+                        var path = SEGMENT_DELIMITER
+                                + projectDir.relativize(file).toString().replace('\\', SEGMENT_DELIMITER);
+                        var baseline = baselines.get(path);
+                        deleted.remove(path);
+                        if (baseline == null) {
+                            added.add(path);
+                        } else if (baseline.size() != attributes.size()
+                                || baseline.modifiedAt() != attributes.lastModifiedTime().toMillis()) {
+                            modified.add(path);
+                        }
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         }
-        unseen.remove(path);
-        return baseline.size() != Files.size(file)
-                || baseline.modifiedAt() != Files.getLastModifiedTime(file).toMillis();
+        return new LocalChanges(List.copyOf(added), List.copyOf(modified), List.copyOf(deleted));
     }
 
     // --- record format

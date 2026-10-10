@@ -77,7 +77,13 @@ stateDiagram-v2
 - **Per file, on the read path.** File listings already carry the actual size and modification time.
   A file is changed when these differ from the recorded baseline or when it has no baseline. A changed
   file is reported without a repository revision id (`uniqueId` is `null`), which drives the incremental
-  save and the pending-changes view.
+  save into a repository that provides the ids, such as Git.
+- **Changes since the last synchronization.** `MetainfoRegistry.localChanges` (`RulesProject.getLocalChanges`)
+  lists the files added, modified and deleted against the baselines, without reading the source repository. They
+  are the pending changes of the project status, whatever the repository: the baselines are the revision opened,
+  and a repository without file revision ids — a folder on the file system, JDBC, AWS S3 — could not tell it. A
+  folder on the file system is written by other programs as well, such as an IDE or a build, and a file they
+  changed is no change made in OpenL Studio.
 - **Per project, on the status path.** An in-memory dirty-set is fed by every save and delete going through
   the local repository, so the project `modified` status is an O(1) lookup without IO.
 - **Reconstruction.** When the registry is loaded, the dirty-set is rebuilt by comparing project files
@@ -209,7 +215,8 @@ the target does not, so it never overwrites an existing workspace.
   unavailable repository.
 - `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
   interactive sign-in.
-- `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save.
+- `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save,
+  and lists the local changes against it.
 - `Migrator` — the `.studioProps` conversion and the single-user workspace rename, run unconditionally on
   every start.
 - `FolderHelper`, `ProjectHistoryService` — the edit-history location and its maintenance.
