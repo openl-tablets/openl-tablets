@@ -144,7 +144,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
 
             if (repo.supports().folders()) {
-                // Nested folder structure is supported for FolderRepository only
+                // Nested folder structure is supported for FolderRepository only. A repository without folders keeps
+                // each project as an archive, so it has no folder that the Excel detection could treat as a project.
                 var includeExcelFilesInProjectDiscovery = Boolean.parseBoolean(
                         propertyResolver.getProperty(PROJECT_DETECT_BY_EXCEL_FILES));
                 repo = MappedRepository.create(repo, baseFolder, includeExcelFilesInProjectDiscovery);
