@@ -145,6 +145,12 @@ describe("RawSource-only table contracts", () => {
     }).view.source[0][0]).toEqual(rawTable.source[0][0]);
   });
 
+  it("accepts back the read-only fields of the view openl_get_table returns", () => {
+    const view = { ...rawTable, headerHeight: 1, layout: { header: { rows: 1 } }, messages: [] };
+
+    expect(updateTableSchema.safeParse({ projectId: "p1", tableId: "t1", view }).success).toBe(true);
+  });
+
   it.each(rawCellWriteSchemas)("accepts Studio multi-value arrays for $name", ({ schema, input }) => {
     for (const value of [
       ["MA2", "FA+", "SPA"],

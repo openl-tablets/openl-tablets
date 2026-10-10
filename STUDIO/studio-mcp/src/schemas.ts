@@ -541,6 +541,8 @@ const rawTableViewSchema = z.strictObject({
     id: z.string().optional().describe("Table id; ignored on create and validated against the path on update."),
     kind: z.enum(["Rules", "Spreadsheet", "Datatype", "Data", "Test", "TBasic", "Column Match", "Method", "Run", "Constants", "Conditions", "Actions", "Returns", "Environment", "Properties", "Other"]).optional().describe("Informational table kind."),
     messages: z.array(z.any()).optional().describe("Read-only diagnostics tolerated when a get response is round-tripped."),
+    headerHeight: z.number().int().optional().describe("Read-only number of header rows, tolerated when a get response is round-tripped."),
+    layout: z.any().optional().describe("Read-only layout of a Test table, tolerated when a get response is round-tripped."),
     pos: z.string().optional(),
     source: z.array(z.array(rawTableCellSchema)).describe("Complete 2D source matrix. Preserve cell positions, covered placeholders, and spans when replacing a table. Remove read-only style objects returned by styles=true; Studio table write APIs cannot change formatting."),
     totalRows: z.number().int().optional().describe("Total row count when the response contains a window."),
