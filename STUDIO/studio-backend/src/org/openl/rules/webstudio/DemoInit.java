@@ -38,10 +38,14 @@ import org.openl.studio.repositories.service.ProjectCreationService;
 /**
  * Creates demo projects in a repository.
  *
+ * <p>Runs in the single-user mode only. The demo users it adds sign in with their names as passwords, which a
+ * multi-user installation must not get, so there {@code demo.init} is ignored and OpenL Studio starts without them.
+ *
  * @author Yury Molchan
  */
 @Component
 @ConditionalOnProperty(name = "demo.init", havingValue = "true")
+@ConditionalOnProperty(name = "user.mode", havingValue = "single")
 @DependsOn("singleUserModeInit")
 @RequiredArgsConstructor
 @Slf4j

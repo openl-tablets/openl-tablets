@@ -127,7 +127,7 @@ services:
         " > /initdb/init.sql
 
         [ -e /openl-home/.properties ] && echo /openl-home/.properties exists || echo '.version=LATEST
-        # demo.init=true is effective only when user.mode=single and other combinations are not supported.
+        # demo.init=true creates the demo projects and users only when user.mode=single; other modes ignore it.
         # demo.init=true
         # user.mode=single
         user.mode=multi
