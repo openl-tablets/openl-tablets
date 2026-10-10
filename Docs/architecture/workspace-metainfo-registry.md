@@ -45,9 +45,11 @@ file.modified-at-long./rules/Main.xlsx=1751979000000
   `version` and `modified-at-long` are known; the `author` is display metadata and may be absent.
 - A genuinely local project has `repository-id=local` and no revision keys.
 - Per-file baseline keys use the `file.<attribute>.<path>` shape. The attribute set is closed
-  (`unique-id`, `size`, `modified-at-long`), and the arbitrary user content (the path) is the key tail,
-  so parsing is unambiguous. `unique-id` is the file revision id in the source repository and is absent
-  when the repository does not provide one.
+  (`unique-id`, `size`, `modified-at-long`, `source-stamp`), and the arbitrary user content (the path) is the
+  key tail, so parsing is unambiguous. `unique-id` is the file revision id in the source repository and is
+  absent when the repository does not provide one. `source-stamp` is the size and the modification time the
+  file had in the source repository (`size:modified-at`), kept for a folder on the file system, which provides
+  no revision id: a different stamp means another program changed the file there since.
 - No `modified` state is stored at any level — it is derived (see below).
 
 ## Record Lifecycle
@@ -82,8 +84,13 @@ stateDiagram-v2
   lists the files added, modified and deleted against the baselines, without reading the source repository. They
   are the pending changes of the project status, whatever the repository: the baselines are the revision opened,
   and a repository without file revision ids — a folder on the file system, JDBC, AWS S3 — could not tell it. A
-  folder on the file system is written by other programs as well, such as an IDE or a build, and a file they
-  changed is no change made in OpenL Studio.
+  folder on the file system is written by other programs as well, such as an IDE or a build, so a save into it
+  writes only these changes: a file another program changed, added or deleted there after the open stays as it is.
+  A save that would overwrite such a change — a file changed or added on both sides, or changed on one side and
+  deleted on the other — is refused with the list of those files (`ChangedOutsideException`, `409`), and nothing
+  is written. The source stamp of a file the save leaves as it is stays the one its workspace copy was taken from,
+  so a change made there before an earlier save is still told apart. A project whose folder was deleted or moved
+  there is written whole again.
 - **Per project, on the status path.** An in-memory dirty-set is fed by every save and delete going through
   the local repository, so the project `modified` status is an O(1) lookup without IO.
 - **Reconstruction.** When the registry is loaded, the dirty-set is rebuilt by comparing project files
@@ -216,7 +223,7 @@ the target does not, so it never overwrites an existing workspace.
 - `WorkspaceRegistryReconciler` (`org.openl.studio.security`) — triggers the reconciliation on every
   interactive sign-in.
 - `RulesProject` — captures the synchronization snapshot (project link + file baselines) on open and save,
-  and lists the local changes against it.
+  lists the local changes against it, and saves only them into a folder on the file system.
 - `Migrator` — the `.studioProps` conversion and the single-user workspace rename, run unconditionally on
   every start.
 - `FolderHelper`, `ProjectHistoryService` — the edit-history location and its maintenance.

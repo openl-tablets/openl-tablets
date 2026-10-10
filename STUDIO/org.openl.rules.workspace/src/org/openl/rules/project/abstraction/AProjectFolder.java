@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.project.impl.local.LocalChanges;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -164,37 +166,80 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         super.update(newFolder, user);
         if (this.isFolder()) {
             var from = (AProjectFolder) newFolder;
+            var diff = from.getRepository().supports().uniqueFileId() && getRepository().supports().uniqueFileId();
+            saveChanges(diff ? ChangesetType.DIFF : ChangesetType.FULL, user, changes -> {
+                if (diff) {
+                    return findDiffChanges(from, changes);
+                }
+                findChanges(from, changes);
+                return null;
+            });
+        }
+    }
 
-            List<FileItem> changes = new ArrayList<>();
-            try {
-                ChangesetType changesetType;
-                String fromProjectVersion = null;
+    /**
+     * Writes into this folder only the files changed in the given folder, and leaves every other file of it as it is.
+     *
+     * <p>A file added or modified in the given folder is written here, and a file deleted there is deleted here. A
+     * file of this folder the given one has not changed keeps what it holds, so a change another program made to it
+     * stays, and so does a file another program added. A file the changes name as deleted but this folder no longer
+     * holds is skipped.
+     *
+     * @param from    the folder the changed files are read from
+     * @param changed the changed files, by their paths relative to the folder
+     * @param user    the author of the change
+     * @throws ProjectException if a file cannot be read or written
+     */
+    public void update(AProjectFolder from, LocalChanges changed, @Nullable CommonUser user) throws ProjectException {
+        super.update(from, user);
+        saveChanges(ChangesetType.DIFF, user, changes -> {
+            var transformer = getResourceTransformer();
+            var fromPath = from.getFolderPath();
+            var toPath = getFolderPath();
+            for (var path : Stream.concat(changed.added().stream(), changed.modified().stream()).toList()) {
+                changes.add(new FileItem(toPath + path, readContent(from, fromPath + path, null, transformer)));
+            }
+            for (var path : changed.deleted()) {
+                var deleted = getRepository().check(toPath + path);
+                if (deleted != null) {
+                    changes.add(new FileItem(deleted, null));
+                }
+            }
+            return null;
+        });
+    }
 
-                var fromRepository = from.getRepository();
-                var toRepository = getRepository();
-                if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
-                    changesetType = ChangesetType.DIFF;
-                    fromProjectVersion = findDiffChanges(from, changes);
-                } else {
-                    changesetType = ChangesetType.FULL;
-                    findChanges(from, changes);
-                }
-                if (getResourceTransformer() != null) {
-                    changes = getResourceTransformer().transformChangedFiles(getFolderPath(), changes);
-                }
+    /** Collects the files a save writes, and answers the version of the folder they are read from, if it has one. */
+    @FunctionalInterface
+    private interface ChangeCollector {
+        @Nullable String collect(List<FileItem> changes) throws IOException, ProjectException;
+    }
 
-                var fileData = getFileData();
-                fileData.setAuthor(user == null ? null : user.getUserInfo());
-                if (fromProjectVersion != null) {
-                    fileData.setVersion(fromProjectVersion);
-                }
-                setFileData(getRepository().save(fileData, changes, changesetType));
-            } catch (IOException e) {
-                throw new ProjectException(e.getMessage(), e);
-            } finally {
-                for (FileItem change : changes) {
-                    IOUtils.closeQuietly(change.getStream());
-                }
+    /**
+     * Saves into this folder the files the collector gathers, as the resource transformer of this folder writes them,
+     * and keeps what the repository answers. The content of every file is closed whatever happens.
+     */
+    private void saveChanges(ChangesetType changesetType,
+                             @Nullable CommonUser user,
+                             ChangeCollector collector) throws ProjectException {
+        List<FileItem> changes = new ArrayList<>();
+        try {
+            var fromProjectVersion = collector.collect(changes);
+            var transformer = getResourceTransformer();
+            if (transformer != null) {
+                changes = transformer.transformChangedFiles(getFolderPath(), changes);
+            }
+            var fileData = getFileData();
+            fileData.setAuthor(user == null ? null : user.getUserInfo());
+            if (fromProjectVersion != null) {
+                fileData.setVersion(fromProjectVersion);
+            }
+            setFileData(getRepository().save(fileData, changes, changesetType));
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        } finally {
+            for (FileItem change : changes) {
+                IOUtils.closeQuietly(change.getStream());
             }
         }
     }

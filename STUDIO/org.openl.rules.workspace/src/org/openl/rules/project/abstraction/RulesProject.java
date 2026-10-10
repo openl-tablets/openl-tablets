@@ -2,9 +2,11 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -137,7 +139,15 @@ public class RulesProject extends UserWorkspaceProject {
         var designProject = new AProject(designRepository, designData);
         var localProject = new AProject(localRepository, localFolderName);
         var realPath = designProject.getRealPath();
-        designProject.update(localProject, user);
+        Map<String, String> keptStamps = Map.of();
+        if (oldVersion != null && savesChangedFilesOnly() && designFolderExists()) {
+            var changes = getLocalChanges();
+            refuseChangesMadeOutside(changes);
+            keptStamps = stampsOfUnwrittenFiles(changes);
+            designProject.update(localProject, changes, user);
+        } else {
+            designProject.update(localProject, user);
+        }
 
         // Process saved data
         if (designRepository.supports().mappedFolders()) {
@@ -167,7 +177,7 @@ public class RulesProject extends UserWorkspaceProject {
             if (extraCommits) {
                 openVersion(version);
             } else {
-                resetLocalFileData();
+                resetLocalFileData(keptStamps);
             }
         }
         unlock();
@@ -329,6 +339,18 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     /**
+     * Whether a save writes only the files changed since the project was opened or saved.
+     *
+     * <p>A design repository that tells no revision of a file apart, such as a folder on the file system, is a folder
+     * other programs write to as well: an IDE, a build. Writing every file of the project there would put back the
+     * files as they were opened, delete the files added since and restore the ones deleted since.
+     */
+    private boolean savesChangedFilesOnly() {
+        var features = designRepository.supports();
+        return features.folders() && !features.uniqueFileId();
+    }
+
+    /**
      * Lists the files changed in the workspace since the project was opened or saved, by their paths in the project.
      *
      * <p>A file changed in the design repository since then is no change of the workspace. A project that is not
@@ -470,30 +492,44 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     private void resetLocalFileData() {
+        resetLocalFileData(Map.of());
+    }
+
+    /**
+     * Records the synchronization snapshot.
+     *
+     * @param keptStamps the source stamps to keep rather than to take from the design repository, by path
+     */
+    private void resetLocalFileData(Map<String, String> keptStamps) {
         var fileData = getFileData();
         if (designRepository.supports().branches()) {
             fileData.setBranch(((BranchRepository) designRepository).getBranch());
         }
         localRepository.getProjectState(localFolderName)
-                .saveSnapshot(designRepository.getId(), fileData, collectBaselines());
+                .saveSnapshot(designRepository.getId(), fileData, collectBaselines(keptStamps));
     }
 
     /**
      * Captures the baselines of all local project files for the synchronization snapshot.
      *
      * <p>Every file records its actual size and modification time. The repository revision id is added
-     * when the design repository provides per-file ids.
+     * when the design repository provides per-file ids, and the source stamp when it provides none.
+     *
+     * @param keptStamps the source stamps to keep rather than to take from the design repository, by path
      */
-    private Map<String, ProjectMetainfo.FileBaseline> collectBaselines() {
+    private Map<String, ProjectMetainfo.FileBaseline> collectBaselines(Map<String, String> keptStamps) {
         var baselines = new HashMap<String, ProjectMetainfo.FileBaseline>();
         try {
             Map<String, String> designUniqueIds = designUniqueIds();
+            var stamps = new HashMap<>(designStamps());
+            stamps.putAll(keptStamps);
             for (FileData localData : localRepository.list(localFolderName + "/")) {
                 var path = localData.getName().substring(localFolderName.length());
                 baselines.put(path,
                         new ProjectMetainfo.FileBaseline(designUniqueIds.get(path),
                                 localData.getSize(),
-                                localData.getModifiedAt().getTime()));
+                                localData.getModifiedAt().getTime(),
+                                stamps.get(path)));
             }
         } catch (IOException e) {
             // An incomplete snapshot would silently corrupt the local-changes detection,
@@ -521,6 +557,91 @@ public class RulesProject extends UserWorkspaceProject {
             }
         }
         return uniqueIds;
+    }
+
+    /**
+     * The stamp of every file of the design project, by its path in the project, for a design repository that
+     * provides no file revision ids; nothing for any other.
+     */
+    private Map<String, String> designStamps() throws IOException {
+        if (!savesChangedFilesOnly()) {
+            return Map.of();
+        }
+        var stamps = new HashMap<String, String>();
+        for (FileData designData : designRepository.list(designFolderName + ArtefactPathImpl.SEGMENT_DELIMITER)) {
+            var modifiedAt = designData.getModifiedAt();
+            stamps.put(designData.getName().substring(designFolderName.length()),
+                    designData.getSize() + ":" + (modifiedAt == null ? "" : modifiedAt.getTime()));
+        }
+        return stamps;
+    }
+
+    /**
+     * Whether the design project still has its folder. One deleted or moved away since the project was opened is
+     * written whole again: writing only the changed files would leave a project without the others.
+     */
+    private boolean designFolderExists() throws ProjectException {
+        try {
+            return designRepository.check(designFolderName) != null;
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Refuses a save that would overwrite what another program wrote into the design repository since the project
+     * was opened or saved: a file changed on both sides, a file added on both sides, and a file changed on one side
+     * and deleted on the other. A file deleted on both sides is no conflict.
+     *
+     * <p>A file is told changed there by its source stamp, which a project opened by an earlier version of OpenL
+     * Studio has not recorded: such a file is not checked until the project is saved or opened again.
+     */
+    private void refuseChangesMadeOutside(LocalChanges changes) throws ProjectException {
+        Map<String, String> design;
+        try {
+            design = designStamps();
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        }
+        var baselines = baselines();
+        var conflicts = new TreeSet<String>();
+        changes.added().stream().filter(design::containsKey).forEach(conflicts::add);
+        changes.modified()
+                .stream()
+                .filter(path -> isChangedOutside(baselines.get(path), design.get(path)))
+                .forEach(conflicts::add);
+        changes.deleted()
+                .stream()
+                .filter(path -> design.containsKey(path) && isChangedOutside(baselines.get(path), design.get(path)))
+                .forEach(conflicts::add);
+        if (!conflicts.isEmpty()) {
+            throw new ChangedOutsideException(List.copyOf(conflicts));
+        }
+    }
+
+    private static boolean isChangedOutside(ProjectMetainfo.@Nullable FileBaseline baseline, @Nullable String stamp) {
+        return baseline != null && baseline.sourceStamp() != null && !baseline.sourceStamp().equals(stamp);
+    }
+
+    /**
+     * The source stamps of the files a save leaves as they are. Their copy in the workspace is still the one the
+     * stamp was taken from, so a later change of theirs is told apart from what another program wrote meanwhile.
+     */
+    private Map<String, String> stampsOfUnwrittenFiles(LocalChanges changes) {
+        var written = new HashSet<>(changes.added());
+        written.addAll(changes.modified());
+        var kept = new HashMap<String, String>();
+        baselines().forEach((path, baseline) -> {
+            if (!written.contains(path) && baseline.sourceStamp() != null) {
+                kept.put(path, baseline.sourceStamp());
+            }
+        });
+        return kept;
+    }
+
+    private Map<String, ProjectMetainfo.FileBaseline> baselines() {
+        var metainfo = localRepository.getMetainfoRegistry().get(localFolderName);
+        return metainfo == null ? Map.of() : metainfo.files();
     }
 
     // Is Opened for Editing by me? -- in LW + locked by me

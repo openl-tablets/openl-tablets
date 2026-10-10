@@ -50,6 +50,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.ChangedOutsideException;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -1014,6 +1015,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                         .build();
                 eventPublisher.publishEvent(new SaveMergeConflictEvent(project, conflictInfo));
                 throw new ConflictException("project.save.merge.conflict.message");
+            }
+            if (e instanceof ChangedOutsideException changed) {
+                // Saving would overwrite what another program wrote into the design repository since the open.
+                var files = changed.getPaths().stream().map(path -> path.substring(1)).toList();
+                throw new ConflictException("project.save.changed.outside.message", String.join(", ", files));
             }
             throw e;
         }

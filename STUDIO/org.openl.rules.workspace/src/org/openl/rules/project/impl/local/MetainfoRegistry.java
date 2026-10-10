@@ -4,8 +4,8 @@ import static org.openl.rules.common.impl.ArtefactPathImpl.SEGMENT_DELIMITER;
 
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -73,6 +73,7 @@ public class MetainfoRegistry {
     private static final String FILE_UNIQUE_ID_PREFIX = "file.unique-id.";
     private static final String FILE_SIZE_PREFIX = "file.size.";
     private static final String FILE_MODIFIED_AT_PREFIX = "file.modified-at-long.";
+    private static final String FILE_SOURCE_STAMP_PREFIX = "file.source-stamp.";
 
     private final Path userDir;
     private final Path metainfoDir;
@@ -595,6 +596,7 @@ public class MetainfoRegistry {
         var uniqueIds = new HashMap<String, String>();
         var sizes = new HashMap<String, String>();
         var modifiedAts = new HashMap<String, String>();
+        var sourceStamps = new HashMap<String, String>();
         properties.forEach((key, value) -> {
             if (key.startsWith(FILE_UNIQUE_ID_PREFIX)) {
                 uniqueIds.put(key.substring(FILE_UNIQUE_ID_PREFIX.length()), value);
@@ -602,6 +604,8 @@ public class MetainfoRegistry {
                 sizes.put(key.substring(FILE_SIZE_PREFIX.length()), value);
             } else if (key.startsWith(FILE_MODIFIED_AT_PREFIX)) {
                 modifiedAts.put(key.substring(FILE_MODIFIED_AT_PREFIX.length()), value);
+            } else if (key.startsWith(FILE_SOURCE_STAMP_PREFIX)) {
+                sourceStamps.put(key.substring(FILE_SOURCE_STAMP_PREFIX.length()), value);
             }
         });
         var baselines = new HashMap<String, FileBaseline>();
@@ -613,7 +617,7 @@ public class MetainfoRegistry {
             }
             baselines.put(path,
                     new FileBaseline(uniqueIds.get(path), Long.parseLong(entry.getValue()),
-                            Long.parseLong(modifiedAt)));
+                            Long.parseLong(modifiedAt), sourceStamps.get(path)));
         }
         return baselines;
     }
@@ -645,6 +649,7 @@ public class MetainfoRegistry {
                     putIfPresent(properties, FILE_UNIQUE_ID_PREFIX + path, baseline.uniqueId());
                     properties.put(FILE_SIZE_PREFIX + path, Long.toString(baseline.size()));
                     properties.put(FILE_MODIFIED_AT_PREFIX + path, Long.toString(baseline.modifiedAt()));
+                    putIfPresent(properties, FILE_SOURCE_STAMP_PREFIX + path, baseline.sourceStamp());
                 });
         return properties;
     }
