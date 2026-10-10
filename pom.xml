@@ -410,6 +410,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-proxy</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-home</artifactId>
                 <version>${jetty.version}</version>
                 <type>zip</type>
@@ -1058,6 +1063,11 @@
             <dependency>
                 <groupId>org.openl.rules.studio</groupId>
                 <artifactId>studio-docs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.studio</groupId>
+                <artifactId>studio-mcp</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

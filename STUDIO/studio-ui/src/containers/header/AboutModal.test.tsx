@@ -33,6 +33,11 @@ const BACKEND: License[] = [
     { name: 'com.example:undeclared', version: '1.0.0', url: 'https://example.com/license' },
 ]
 
+const MCP: License[] = [
+    { name: '@modelcontextprotocol/server', version: '2.0.0', identifier: 'MIT', text: 'MIT License' },
+    { name: 'agent-base', version: '7.1.4', identifier: 'MIT' },
+]
+
 const SERVER: License[] = [
     { name: 'Eclipse Jetty', version: '12.1.14', identifier: 'EPL-2.0 OR Apache-2.0', notice: 'Eclipse Jetty' },
     { name: 'Alpine Linux', version: '3.23.6', url: 'https://pkgs.alpinelinux.org/packages?branch=v3.23' },
@@ -81,7 +86,8 @@ const renderAbout = (buildDate = '2026-10-04') => {
 
 describe('AboutModal', () => {
     beforeEach(() => {
-        fetchLicenses.mockImplementation(async (side: string) => listOf(side, { frontend: FRONTEND, backend: BACKEND }))
+        fetchLicenses.mockImplementation(async (side: string) =>
+            listOf(side, { frontend: FRONTEND, backend: BACKEND, mcp: MCP }))
     })
 
     it('shows the version, the build date in the UI language and the license of OpenL Studio', async () => {
@@ -107,21 +113,38 @@ describe('AboutModal', () => {
         expect(buildDate).toHaveTextContent('????-??-??')
     })
 
-    it('shows both sides collapsed, drawing no library until a side is expanded', async () => {
+    it('shows every side collapsed, drawing no library until a side is expanded', async () => {
         renderAbout()
 
         expect(await screen.findByText('common:about.frontend 4')).toBeInTheDocument()
         expect(screen.getByText('common:about.backend 2')).toBeInTheDocument()
+        expect(screen.getByText('common:about.mcp 2')).toBeInTheDocument()
         expect(screen.queryByRole('list')).not.toBeInTheDocument()
         expect(fetchLicenses).toHaveBeenCalledWith('frontend')
         expect(fetchLicenses).toHaveBeenCalledWith('backend')
+        expect(fetchLicenses).toHaveBeenCalledWith('mcp')
         expect(fetchLicenses).toHaveBeenCalledWith('server')
         expect(screen.queryByText(/^common:about\.server/)).not.toBeInTheDocument()
     })
 
+    it('shows the libraries the MCP server of OpenL Studio ships', async () => {
+        renderAbout()
+
+        await userEvent.click(await screen.findByText('common:about.mcp 2'))
+
+        const items = within(screen.getByRole('list')).getAllByRole('listitem')
+        expect(items.map(item => item.textContent)).toEqual([
+            '@modelcontextprotocol/server 2.0.0MIT',
+            'agent-base 7.1.4MIT',
+        ])
+        await userEvent.click(within(items[0]!).getByRole('button', { name: 'MIT' }))
+        expect(openText).toHaveBeenCalledWith('MIT License')
+        expect(linksOf(items[1]!)).toEqual([['MIT', 'https://opensource.org/license/mit']])
+    })
+
     it('shows the software the Docker image runs the webapp on, where the image lists it', async () => {
         fetchLicenses.mockImplementation(async (side: string) =>
-            listOf(side, { frontend: FRONTEND, backend: BACKEND, server: SERVER }))
+            listOf(side, { frontend: FRONTEND, backend: BACKEND, mcp: MCP, server: SERVER }))
         renderAbout()
 
         await userEvent.click(await screen.findByText('common:about.server 2'))
@@ -233,6 +256,6 @@ describe('AboutModal', () => {
         reopen(true)
 
         expect(await screen.findByText('common:about.frontend 4')).toBeInTheDocument()
-        expect(fetchLicenses).toHaveBeenCalledTimes(3)
+        expect(fetchLicenses).toHaveBeenCalledTimes(4)
     })
 })

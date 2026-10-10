@@ -8,7 +8,8 @@
 - **Git**.
 - **Docker** — optional. The Docker-based tests, `docker compose` and the Docker image need it. Pass `-DnoDocker` to
   skip the tests that start containers.
-- **Node.js 24 or later and npm 11 or later** — only to run the `npm` scripts of `STUDIO/studio-ui` yourself.
+- **Node.js 24 or later and npm 11 or later** — only to run the `npm` scripts of `STUDIO/studio-ui` or
+  `STUDIO/studio-mcp` yourself, or the built-in MCP server of a Studio started outside Docker.
 - **Lombok in the IDE** — the code uses Lombok, so enable annotation processing.
 
 ## Get the Code
@@ -33,9 +34,9 @@ mvn clean install                          # everything, with all tests
 | `-DnoDocker`           | Skips the tests that start Docker containers.                                     |
 | `-DskipTests`          | Skips all tests and drops the integration-test modules from the reactor.          |
 | `-Pitest`              | Adds the integration-test modules back to a `-DskipTests` build.                  |
-| `-Dnpm.test.skip`      | Skips the Vitest suite of `studio-ui`.                                            |
+| `-Dnpm.test.skip`      | Skips the Vitest suite of `studio-ui` and the Jest suite of `studio-mcp`.         |
 | `-Dnpm.typecheck.skip` | Skips the `tsc --noEmit` pass of `studio-ui`.                                     |
-| `-Dnpm.build.skip`     | Skips the production bundle of `studio-ui`.                                       |
+| `-Dnpm.build.skip`     | Skips the production bundle of `studio-ui` and the build of `studio-mcp`.         |
 | `-Dsonar`              | Enables JaCoCo, which writes the coverage report of `verify`.                     |
 
 The build writes the web applications of OpenL Studio and Rule Services to
@@ -83,6 +84,7 @@ mvn test -pl <module-path>                       # one module
 mvn test -pl <module-path> -Dtest=ClassName#method   # one test
 mvn verify -pl ITEST/itest.smoke -am             # one integration suite
 cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx   # one frontend test
+cd STUDIO/studio-mcp && npm test -- tests/<file>.test.ts    # one test of the MCP server
 mvn test -pl STUDIO/studio-docs                  # the user guides: links, images, Markdown
 ```
 

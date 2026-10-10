@@ -1,0 +1,6 @@
+# Build output: the compiled server and the artifacts `npm run build` writes beside it
+/guides
+/build-info.json
+
+# Testing
+/coverage

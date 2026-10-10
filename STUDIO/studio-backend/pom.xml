@@ -306,6 +306,14 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        <!-- The MCP server the war carries in WEB-INF/mcp. Optional, so that the war leaves the jar out of WEB-INF/lib
+             and a build using the war does not look for it in a remote repository. Unpacked by unpack-mcp-server. -->
+        <dependency>
+            <groupId>org.openl.rules.studio</groupId>
+            <artifactId>studio-mcp</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
@@ -434,6 +442,21 @@
                             <useRepositoryLayout>true</useRepositoryLayout>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-mcp-server</id>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <!-- The MCP server, which the war carries in WEB-INF/mcp, and the list of its libraries,
+                                 which the war serves under /licenses -->
+                            <outputDirectory>${project.build.directory}/mcp-server</outputDirectory>
+                            <markersDirectory>${project.build.directory}/mcp-server/.markers</markersDirectory>
+                            <includeArtifactIds>studio-mcp</includeArtifactIds>
+                            <includes>mcp/**,licenses/**</includes>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -551,6 +574,14 @@
                         </resource>
                         <resource>
                             <directory>${project.build.directory}/licenses</directory>
+                            <targetPath>licenses</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>${project.build.directory}/mcp-server/mcp</directory>
+                            <targetPath>WEB-INF/mcp</targetPath>
+                        </resource>
+                        <resource>
+                            <directory>${project.build.directory}/mcp-server/licenses</directory>
                             <targetPath>licenses</targetPath>
                         </resource>
                     </webResources>

@@ -10,6 +10,13 @@ const frontendLicenses = (): string[] => {
     return /--onlyAllow "([^"]+)"/.exec(scripts['build'] ?? '')![1]!.split(';')
 }
 
+/** The licenses `npm run licenses` of `studio-mcp` lets the libraries of the MCP server have. */
+const mcpLicenses = (): string[] => {
+    const { scripts } = JSON.parse(readFileSync(resolve(process.cwd(), '../studio-mcp/package.json'), 'utf8')) as
+        { scripts: Record<string, string> }
+    return /--onlyAllow "([^"]+)"/.exec(scripts['licenses'] ?? '')![1]!.split(';')
+}
+
 /** The licenses the war build lets the backend libraries have. */
 const backendLicenses = (): string[] => {
     const pom = readFileSync(resolve(process.cwd(), '../studio-backend/pom.xml'), 'utf8')
@@ -68,7 +75,8 @@ describe('licenses', () => {
     })
 
     it('knows where every license the builds accept is published', () => {
-        const licenses = [...frontendLicenses(), ...backendLicenses()].flatMap(license => license.split(' WITH '))
+        const licenses = [...frontendLicenses(), ...mcpLicenses(), ...backendLicenses()]
+            .flatMap(license => license.split(' WITH '))
 
         expect(licenses).toEqual(expect.arrayContaining(['MIT', 'GPL-2.0-only', 'Classpath-exception-2.0']))
         expect(licenses.filter(license => !publicLicense(license))).toEqual([])
