@@ -990,9 +990,6 @@ export const ModuleWorkspace = () => {
                     rows={table.source}
                     tableId={selectedId}
                     testId="module-table"
-                    // The table theme styles every table but a table of the kind Other.
-                    themeable={table.kind !== undefined && table.kind !== 'Other'}
-                    verifyNeeded={compilation.verifyNeeded}
                     whole={shown >= total}
                 >
                     {shown < total && (

@@ -169,7 +169,7 @@ vi.mock('./modules/TableEditor', async () => {
     const { useImperativeHandle } = await import('react')
     return {
         TableEditor: ({
-            ref, testId, rows, hiddenRows, editing, canWrite, verifyNeeded, onEditingChange, onOpenUsage, onSaved,
+            ref, testId, rows, hiddenRows, editing, canWrite, onEditingChange, onOpenUsage, onSaved,
             children,
         }: {
             ref?: Ref<unknown>
@@ -178,7 +178,6 @@ vi.mock('./modules/TableEditor', async () => {
             rows?: unknown[]
             hiddenRows?: number
             editing?: boolean
-            verifyNeeded?: boolean
             onEditingChange?: (editing: boolean) => void
             onOpenUsage?: (usage: typeof handed.usage) => void
             onSaved?: (written: string) => void
@@ -191,7 +190,6 @@ vi.mock('./modules/TableEditor', async () => {
                     data-can-write={String(canWrite)}
                     data-editing={String(editing)}
                     data-testid={testId}
-                    data-verify-needed={String(verifyNeeded)}
                 >
                     {`rows:${rows?.length ?? 0} hidden:${hiddenRows ?? 0}`}
                     <button data-testid="table-edit-stop" onClick={() => onEditingChange?.(false)} type="button" />
@@ -316,14 +314,6 @@ describe('ModuleWorkspace', () => {
         await waitFor(() => expect(navigateMock).toHaveBeenCalledTimes(2))
         // Told once, however many reads found it out.
         await waitFor(() => expect(screen.getAllByText('browser.module.gone')).toHaveLength(1))
-    })
-
-    it('tells the editor that the module waits for Verify, which no theme is applied before', async () => {
-        workspace.opened = true
-        workspace.verifyNeeded = true
-        render(<ModuleWorkspace />)
-
-        expect(await screen.findByTestId('module-table')).toHaveAttribute('data-verify-needed', 'true')
     })
 
     it('answers the table on screen, with nothing written, when no editor holds cells of it', async () => {

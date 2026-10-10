@@ -104,7 +104,7 @@ Content-Type: application/json
       },
       {
         "cell": "D20",
-        "value": "The premium of a person",
+        "value": "The premium a person pays",
         "style": {
           "color": "#808080",
           "valign": "center",

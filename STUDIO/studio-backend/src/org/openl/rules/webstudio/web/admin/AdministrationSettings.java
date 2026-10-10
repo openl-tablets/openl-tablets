@@ -32,6 +32,7 @@ public final class AdministrationSettings implements SettingsHolder {
     public static final String TIME_PATTERN = "data.format.time";
     public static final String DATETIME_PATTERN = "data.format.datetime";
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
+    public static final String FORMAT_TABLES_ON_SAVE = "table.format-on-save";
     public static final String DESIGN_REPOSITORY_CONFIGS = "design-repository-configs";
     public static final String PRODUCTION_REPOSITORY_CONFIGS = "production-repository-configs";
 
@@ -56,6 +57,13 @@ public final class AdministrationSettings implements SettingsHolder {
     @Setter
     @SettingPropertyName(UPDATE_SYSTEM_PROPERTIES)
     private Boolean updateSystemProperties;
+
+    @Getter
+    @Parameter(description = "Format every table saved in OpenL Studio with the table theme, in the theme colours of "
+            + "Excel. Each save compiles the module of the table first, also where verification on edit is off.")
+    @Setter
+    @SettingPropertyName(FORMAT_TABLES_ON_SAVE)
+    private Boolean formatTablesOnSave;
 
     @Parameter(description = "Date Format.")
     @Setter
@@ -116,6 +124,9 @@ public final class AdministrationSettings implements SettingsHolder {
         updateSystemProperties = Optional.ofNullable(properties.getProperty(UPDATE_SYSTEM_PROPERTIES))
                 .map(Boolean::parseBoolean)
                 .orElse(null);
+        formatTablesOnSave = Optional.ofNullable(properties.getProperty(FORMAT_TABLES_ON_SAVE))
+                .map(Boolean::parseBoolean)
+                .orElse(null);
         testRunThreadCount = Optional.ofNullable(properties.getProperty(TEST_RUN_THREAD_COUNT_PROPERTY))
                 .map(Integer::parseInt)
                 .orElse(null);
@@ -135,6 +146,7 @@ public final class AdministrationSettings implements SettingsHolder {
         properties.setProperty(DATE_PATTERN, datePattern);
         properties.setProperty(TIME_PATTERN, timeFormat);
         properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
+        properties.setProperty(FORMAT_TABLES_ON_SAVE, formatTablesOnSave);
         properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
         properties.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
         properties.setProperty(AUTO_COMPILE, autoCompile);
@@ -149,6 +161,7 @@ public final class AdministrationSettings implements SettingsHolder {
                 DATE_PATTERN,
                 TIME_PATTERN,
                 UPDATE_SYSTEM_PROPERTIES,
+                FORMAT_TABLES_ON_SAVE,
                 TEST_RUN_THREAD_COUNT_PROPERTY,
                 OpenLSystemProperties.DISPATCHING_VALIDATION,
                 AUTO_COMPILE);

@@ -1,0 +1,12 @@
+PATCH /rest/projects/{PROJECT_ID}/tables/{PREMIUM_TABLE_ID}/properties HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "properties": [
+    {
+      "name": "description",
+      "value": "The premium a person pays"
+    }
+  ]
+}

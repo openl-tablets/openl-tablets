@@ -9,7 +9,6 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +74,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void offersEveryThemeForATBasicTable() {
-        assertTrue(LOOKS.styles(factorial()));
+        assertTrue(ThemeLayouts.styles(factorial()));
     }
 
     @Test
@@ -151,7 +150,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void keepsTheIndentOfTheOperationsInTheWorkbook() {
-        LOOKS.writer().writeAll(List.of(factorial()), Map.of());
+        LOOKS.writer().format(factorial());
 
         var written = read();
         // The rows of the body follow the header: the ids, the titles, then the steps.

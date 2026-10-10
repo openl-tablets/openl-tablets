@@ -389,13 +389,6 @@ i18next.addResourceBundle('en', 'repository', {
             copy: 'Copy',
             update: 'Update',
             remove: 'Remove',
-            apply_theme: 'Apply Theme',
-            apply_theme_project: 'Apply Table Theme to Project',
-            apply_theme_project_confirm: 'Apply the table theme to the project',
-            apply_theme_project_body: 'The table theme, which follows the formatting standard of OpenL tables, is '
-                + 'written into every table of every module but the tables of the type Other, in the theme colours of '
-                + 'Excel. Values stay as they are; only the look of the tables changes. Save the project to carry the '
-                + 'change to the Design repository.',
             overwrite_revision: 'Overwrite the newer revision?',
             overwrite_revision_body: 'You are editing an older revision of the project. Saving it will overwrite everything committed since.',
             overwrite_revision_ok: 'Overwrite',
@@ -542,14 +535,6 @@ i18next.addResourceBundle('en', 'repository', {
             edit_font_colour: 'Font Color',
             edit_outdent: 'Decrease Indent',
             edit_indent: 'Increase Indent',
-            edit_theme: 'Apply Theme',
-            edit_theme_failed: 'Failed to draw the table with the theme',
-            edit_theme_alone: 'The theme is applied to the table as it was saved, with no other changes. Save the '
-                + 'theme or undo it to edit the table.',
-            edit_theme_after_edits: 'The theme is applied to the table as it was saved, with no other changes. Save '
-                + 'your changes or undo them to apply the theme.',
-            theme_verify_first: 'The project has changes that are not compiled yet, and the theme is laid out by the '
-                + 'tables as they were compiled. Click Verify, then apply the theme.',
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',
             edit_saving: 'Saving the table…',

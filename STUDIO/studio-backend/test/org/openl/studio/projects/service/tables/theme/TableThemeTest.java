@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -189,17 +188,13 @@ class TableThemeTest {
     }
 
     @Test
-    void offersEveryThemeForATableOfAKindThemesStyle() {
+    void stylesEveryTableOfAKindOpenLKnows() {
         var model = TableTestProjects.projectModel(dir);
-        var extension = TestThemes.of("datatype-extension.yaml");
 
-        assertTrue(service.styles(TableTestProjects.table(model, "Code")));
-        assertTrue(service.styles(TableTestProjects.table(model, PREMIUM)));
-        // A theme writing nothing for a kind of table other than a Datatype styles them all the same.
-        assertTrue(extension.styles(TableTestProjects.table(model, "Code")));
-        assertTrue(extension.styles(TableTestProjects.table(model, PREMIUM)));
-        assertTrue(service.styles(TableTestProjects.table(model, "people")));
-        assertFalse(service.styles(notes()), "The theme styles no table of no kind OpenL knows");
+        assertTrue(ThemeLayouts.styles(TableTestProjects.table(model, "Code")));
+        assertTrue(ThemeLayouts.styles(TableTestProjects.table(model, PREMIUM)));
+        assertTrue(ThemeLayouts.styles(TableTestProjects.table(model, "people")));
+        assertFalse(ThemeLayouts.styles(notes()), "The theme styles no table of no kind OpenL knows");
     }
 
     @Test
@@ -622,7 +617,7 @@ class TableThemeTest {
         assertNull(drawn.bold());
         assertEquals("#548235", drawn.color());
 
-        EXTENDED.writer().writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
+        tables(TableTestProjects.projectModel(dir), ACCOUNT).forEach(EXTENDED.writer()::format);
 
         var written = read(ACCOUNT).getFirst().getFirst().runs().getFirst().style();
         assertEquals(Boolean.TRUE, written.bold());
@@ -649,7 +644,7 @@ class TableThemeTest {
         var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
         assertNull(readThemed(person, EXTENDED.layoutOf(person)).source.get(1).get(1).runs());
         // A theme naming nothing of the font of the cell keeps the pieces in the workbook.
-        EXTENDED.writer().writeAll(tables(TableTestProjects.projectModel(dir), "Person"), Map.of());
+        tables(TableTestProjects.projectModel(dir), "Person").forEach(EXTENDED.writer()::format);
         assertNotNull(read("Person").get(1).get(1).runs());
 
         write(tables(TableTestProjects.projectModel(dir), "Person"));
@@ -662,7 +657,7 @@ class TableThemeTest {
     @Test
     void keepsTheSizeOfAFontOfHalfAPointTheThemeSaysNothingOf() throws IOException {
         // The theme names no size, so the header keeps the 10.5 points it is written in.
-        EXTENDED.writer().writeAll(tables(TableTestProjects.projectModel(dir), ACCOUNT), Map.of());
+        tables(TableTestProjects.projectModel(dir), ACCOUNT).forEach(EXTENDED.writer()::format);
 
         try (var workbook = workbook()) {
             var header = cell(workbook.getSheet(SHEET), ACCOUNT_ROW, 1);
@@ -782,30 +777,6 @@ class TableThemeTest {
     }
 
     @Test
-    void notesTheEditOnEveryTableItThemes() {
-        var written = service.writer().writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
-
-        // The note is written onto the table as any edit of it writes it.
-        var source = read("Person");
-        assertEquals("properties", source.get(1).getFirst().value());
-        assertEquals("modifiedBy", source.get(1).get(1).value());
-        assertEquals("admin", source.get(1).get(2).value());
-        assertEquals(List.of(person().getSyntaxNode().getId()), written, "Named by where the table stands");
-    }
-
-    @Test
-    void themesThePropertiesTheNoteLaysDown() {
-        service.writer().writeAll(List.of(person()), Map.of("modifiedBy", "admin"));
-
-        // The table had no properties: the note lays them down after the theme, and they take the theme too.
-        var source = read("Person");
-        source.get(1).forEach(cell -> assertNotNull(bottomOf(cell.style()), "The properties are closed by a line"));
-        assertNull(source.get(1).get(1).style().background(), "A property takes no look of the field under it");
-        assertEquals(MUTED, source.get(1).get(1).style().color(), "The properties are muted");
-        assertEquals(LIGHT_BLUE, source.get(2).get(1).style().background(), "The fields keep their look");
-    }
-
-    @Test
     void writesNoCellPastTheEdgeOfTheTableAnEmptyMergeReaches() throws IOException {
         // A region of empty cells does not widen the table, so it may be merged past the edge of the table.
         var wide = dir.resolve("wide");
@@ -817,8 +788,7 @@ class TableThemeTest {
             sheet.addMergedRegion(new CellRangeAddress(3, 3, 3, 5));
         });
 
-        service.writer().writeAll(List.of(TableTestProjects.table(TableTestProjects.projectModel(wide), "Wide")),
-                Map.of());
+        service.writer().format(TableTestProjects.table(TableTestProjects.projectModel(wide), "Wide"));
 
         try (InputStream in = Files.newInputStream(wide.resolve(SHEET + ".xlsx"));
              var workbook = new XSSFWorkbook(in)) {
@@ -1053,7 +1023,7 @@ class TableThemeTest {
         assertNull(teams.at(TEAMS_ROW + 4, 1).style().background(), "A column _PK_ is no key look");
         assertEquals(GREEN_EMPTY, teams.at(TEAMS_ROW + 5, 2).style().background().rgb());
 
-        FILLED_KEYS.writer().writeAll(tables(TableTestProjects.projectModel(dir), "people", TEAMS), Map.of());
+        tables(TableTestProjects.projectModel(dir), "people", TEAMS).forEach(FILLED_KEYS.writer()::format);
 
         assertEquals(GREEN_ID, read("people").get(3).getFirst().style().background());
         assertEquals(GREEN_EMPTY, read(TEAMS).get(5).get(1).style().background());
@@ -1081,9 +1051,10 @@ class TableThemeTest {
         return TableTestProjects.styledSource(TableTestProjects.table(TableTestProjects.projectModel(dir), name));
     }
 
-    /** Writes the theme into tables and saves their workbooks, the way a project is themed where no edit is noted. */
-    private List<String> write(List<IOpenLTable> tables) {
-        return service.writer().writeAll(tables, Map.of());
+    /** Writes the theme into tables and saves their workbooks, as each table saved is formatted. */
+    private void write(List<IOpenLTable> tables) {
+        var writer = service.writer();
+        tables.forEach(writer::format);
     }
 
     /** Tables of one model: tables read through two models would each save a workbook of their own. */

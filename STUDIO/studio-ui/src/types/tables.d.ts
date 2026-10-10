@@ -184,11 +184,6 @@ export type TableEdit =
             style: RawCellStyleInput
         }
     }
-    /**
-     * Writes the table theme into a table of any kind but Other, as the table was saved. It is sent alone: a batch
-     * holding it and another edit is refused.
-     */
-    | { operation: 'theme' }
 
 export interface RawTableCellInput {
     value: string | number | boolean | null
@@ -317,8 +312,6 @@ export type TableRunState = 'can-run' | 'can-run-module' | 'cannot-run'
 export interface RawTableView {
     id: string
     name: string
-    /** The kind of the table, such as `Datatype`, or `Other` for a table of no kind OpenL Tablets knows */
-    kind?: string
     /** The table body as a 2D matrix indexed source[row][col] */
     source: RawTableCell[][]
     /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */

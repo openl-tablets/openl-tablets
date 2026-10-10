@@ -20,7 +20,6 @@ export type EditStep =
     | { kind: 'removeRow', at: number, lines: number }
     | { kind: 'insertColumn', at: number }
     | { kind: 'removeColumn', at: number, lines: number }
-    | { kind: 'theme' }
 
 /** What the reader has done, and what they took back and may put again. */
 interface EditBuffer {
@@ -47,8 +46,6 @@ export interface EditedTable {
     touched: Set<string>
     /** The styling the reader asked for, cell by cell, named by what they are. */
     styled: Map<string, RawCellStyleInput>
-    /** Whether the reader asked to write the table theme into the table. A table given the theme holds no other edit. */
-    theme: boolean
 }
 
 /**
@@ -253,9 +250,6 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
         case 'removeColumn':
             removeLines(state, ACROSS, step.at, step.lines)
             return added
-        case 'theme':
-            state.theme = true
-            return added
     }
 }
 
@@ -292,7 +286,6 @@ export const replay = (rows: RawTableCell[][], steps: EditStep[]): EditedTable =
         columnIds: idsOf(rows[0]?.length ?? 0),
         touched: new Set(),
         styled: new Map(),
-        theme: false,
     }
     let added = 0
     for (const step of steps) {
@@ -301,19 +294,8 @@ export const replay = (rows: RawTableCell[][], steps: EditStep[]): EditedTable =
     return state
 }
 
-/**
- * The buffer with one more step in it; a new step leaves nothing to put back.
- *
- * <p>The theme is applied on its own. The server lays it out by the table as it was saved, and an edit saved with it
- * would change that table: a column inserted into a decision table is a condition the compiler has not read. So a
- * table given the theme takes no other step, the theme again among them, and a table holding edits takes no theme. A
- * step refused leaves the buffer as it was.
- */
+/** The buffer with one more step in it; a new step leaves nothing to put back. */
 export const withStep = (buffer: EditBuffer, step: EditStep): EditBuffer => {
-    const first = buffer.steps[0]
-    if (first !== undefined && (first.kind === 'theme' || step.kind === 'theme')) {
-        return buffer
-    }
     const last = buffer.steps.at(-1)
     // Writing a cell the last step already wrote replaces it: the reader means the value they ended with.
     const replaces = last?.kind === 'value' && step.kind === 'value' && sameCell(last.at, step.at)
@@ -458,25 +440,22 @@ const styleEdits = (state: EditedTable): TableEdit[] => {
  * <p>What the reader did is not sent step by step: the table as they left it is compared with the table that was
  * read, and only the difference crosses the wire. Rows and columns they took away go first, highest position
  * first so the ones before them do not move; what they added follows, carrying the values it ended with; then
- * the cells they wrote, and last the styling they asked for. The table theme the reader chose goes alone, since a
- * table given the theme holds no other edit (see {@link withStep}).
+ * the cells they wrote, and last the styling they asked for.
  *
  * <p>A cell written and written back to what it held produces nothing at all.
  */
-export const compile = (original: RawTableCell[][], state: EditedTable): TableEdit[] => !state.theme
-    ? [
-        // What was taken away goes first, so nothing added has to be addressed around a line that is about to go.
-        // Rows are taken away before a column is added because an added column carries a cell per row, and the
-        // table has to be the height that column was built for.
-        ...lineDeletes(original[0]?.length ?? 0, state.columnIds, 'columns'),
-        ...lineDeletes(original.length, state.rowIds, 'rows'),
-        ...columnInserts(state),
-        // An added row carries a cell per column, the added ones among them, so it goes in once they are there.
-        ...rowInserts(state),
-        ...valueEdits(original, state),
-        ...styleEdits(state),
-    ]
-    : [{ operation: 'theme' }]
+export const compile = (original: RawTableCell[][], state: EditedTable): TableEdit[] => [
+    // What was taken away goes first, so nothing added has to be addressed around a line that is about to go.
+    // Rows are taken away before a column is added because an added column carries a cell per row, and the
+    // table has to be the height that column was built for.
+    ...lineDeletes(original[0]?.length ?? 0, state.columnIds, 'columns'),
+    ...lineDeletes(original.length, state.rowIds, 'rows'),
+    ...columnInserts(state),
+    // An added row carries a cell per column, the added ones among them, so it goes in once they are there.
+    ...rowInserts(state),
+    ...valueEdits(original, state),
+    ...styleEdits(state),
+]
 
 /** How a cell is named among the ones the reader touched, by where it sits now. */
 export const keyOf = (state: EditedTable, at: CellAt): string =>

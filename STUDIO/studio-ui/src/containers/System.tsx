@@ -12,6 +12,7 @@ interface SystemSettings {
     datePattern: string
     dispatchingValidationEnabled: boolean
     detectProjectsByExcelFiles: boolean
+    formatTablesOnSave: boolean
     projectHistoryCount: number
     testRunThreadCount: number
     timeFormat: string
@@ -156,6 +157,11 @@ export const System: React.FC = () => {
             <Checkbox
                 label={t('system:update_table_properties')}
                 name="updateSystemProperties"
+            />
+            <Checkbox
+                label={t('system:format_tables_on_save')}
+                name="formatTablesOnSave"
+                tooltip={t('system:format_tables_on_save_info')}
             />
             <Input
                 label={t('system:date_format')}

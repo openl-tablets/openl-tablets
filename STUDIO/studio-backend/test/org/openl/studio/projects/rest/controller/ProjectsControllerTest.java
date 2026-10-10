@@ -256,6 +256,24 @@ class ProjectsControllerTest {
     }
 
     @Test
+    void aTableFormattedOnSaveIsNotCompiledASecondTime() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var webStudio = mock(WebStudio.class);
+        var controller = controller(projectService, webStudio);
+        var project = mock(RulesProject.class);
+        var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(1, 1, "Buenos Dias"));
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+                .thenReturn("table-id");
+        when(projectService.formatsOnSave()).thenReturn(true);
+
+        controller.editTableSource(project, "table-id", action, "Main");
+
+        // Formatting compiled the module from the workbook the write saved; the theme written after that is no rule.
+        verify(webStudio, never()).recompileCurrentModule();
+        verify(webStudio, never()).reset();
+    }
+
+    @Test
     void aRefusedWriteLeavesWhatTheSessionCompiledAlone() {
         var projectService = mock(WorkspaceProjectService.class);
         var webStudio = mock(WebStudio.class);

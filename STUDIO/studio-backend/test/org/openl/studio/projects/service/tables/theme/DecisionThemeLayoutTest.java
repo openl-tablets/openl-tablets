@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -117,7 +116,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForEveryKindOfDecisionTable() {
         for (var name : List.of(GREET, GREET_ROUND, GREETING, HELLO, RATE, FACTOR)) {
-            assertTrue(service.styles(table(name)), name);
+            assertTrue(ThemeLayouts.styles(table(name)), name);
         }
     }
 
@@ -337,7 +336,7 @@ class DecisionThemeLayoutTest {
 
     @Test
     void writesTheLookOfADecisionTableIntoTheWorkbook() throws IOException {
-        service.writer().writeAll(List.of(table(GREET)), Map.of());
+        service.writer().format(table(GREET));
 
         var written = read(GREET);
         assertEquals(List.of("Rules", " ", "String", " ", GREET, " ", "( String day, Integer hour )"),
@@ -359,7 +358,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
         for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
-            assertTrue(service.styles(tableAt(row)), "row " + row);
+            assertTrue(ThemeLayouts.styles(tableAt(row)), "row " + row);
         }
     }
 
@@ -466,7 +465,7 @@ class DecisionThemeLayoutTest {
 
     @Test
     void writesTheLookOfAConditionsTableIntoTheWorkbook() {
-        LOOKS.writer().writeAll(List.of(tableAt(CONDITIONS_ROW)), Map.of());
+        LOOKS.writer().format(tableAt(CONDITIONS_ROW));
 
         var written = TableTestProjects.styledSource(tableAt(CONDITIONS_ROW));
         assertEquals(List.of("Conditions", " ", "AgeBand"),

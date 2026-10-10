@@ -72,16 +72,6 @@ public class TableThemeService {
     }
 
     /**
-     * Whether the theme styles a table. The theme styles every table of the kinds {@link ThemeLayouts#styles} names.
-     *
-     * @param table the table
-     * @return {@code true} for a table of a kind the theme styles
-     */
-    public boolean styles(IOpenLTable table) {
-        return ThemeLayouts.styles(table);
-    }
-
-    /**
      * The look the theme gives each cell of a table, for a screen to draw it.
      *
      * <p>Every table a screen shows is drawn with the theme, so a table the theme cannot be laid out over is drawn plain
@@ -102,7 +92,7 @@ public class TableThemeService {
     }
 
     /**
-     * A writer of the theme into workbooks, for one batch of tables.
+     * A writer of the theme into workbooks.
      *
      * @return the writer
      */

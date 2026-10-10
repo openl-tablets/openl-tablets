@@ -5,7 +5,13 @@ Content-Type: application/json
 {
   "actions": [
     {
-      "operation": "theme"
+      "operation": "update",
+      "target": {
+        "type": "cell",
+        "row": 1,
+        "column": 2,
+        "value": "Bob"
+      }
     }
   ]
 }

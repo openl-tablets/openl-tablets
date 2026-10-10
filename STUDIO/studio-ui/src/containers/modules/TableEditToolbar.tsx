@@ -9,7 +9,6 @@ import {
     DeleteColumnOutlined,
     DeleteRowOutlined,
     FontColorsOutlined,
-    FormatPainterOutlined,
     InsertRowBelowOutlined,
     InsertRowLeftOutlined,
     ItalicOutlined,
@@ -56,14 +55,6 @@ interface TableEditToolbarProps {
      * <p>What is shown this way is not an edit: nothing of it is kept, taken back or saved.
      */
     onPreview: (style: RawCellStyleInput | null) => void
-    /** Whether the table theme styles the table: every table but a table of the kind Other. */
-    themeable?: boolean | undefined
-    /** Whether the reader chose to write the table theme into the table. */
-    theme?: boolean | undefined
-    /** Chooses to write the table theme into the table when the reader saves, with no other change. */
-    onTheme?: (() => void) | undefined
-    /** Whether the module waits to be verified, so its tables are not compiled as they stand and take no theme. */
-    verifyNeeded?: boolean | undefined
     /**
      * Whether the formatting of a cell can be changed: its alignment, its font and its colours. It can where the table
      * is shown in the formatting of its Excel file (**Show Original Excel Formatting** in My Settings); otherwise the
@@ -86,8 +77,8 @@ const MAX_INDENT = 15
  * <p>Every action here changes the table on screen alone. Nothing reaches the server until the reader saves,
  * and then all of it goes at once.
  *
- * <p>The table theme is applied on its own. While it is chosen, every action that changes the table is off; while the
- * table holds edits, the theme is. Each says why.
+ * <p>The formatting of a cell is changed only where the table is shown in the formatting of its Excel file; elsewhere
+ * those actions are off and say why.
  */
 export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     picked,
@@ -108,10 +99,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onStyle,
     onPreview,
     whole,
-    themeable = false,
-    theme = false,
-    onTheme,
-    verifyNeeded = false,
     formattable = true,
 }) => {
     const { t } = useTranslation('repository')
@@ -140,48 +127,24 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
         </Tooltip>
     )
 
-    // Why the actions that change the table are off, or null while the theme is not chosen.
-    const themed = theme ? t('browser.module.edit_theme_alone') : null
-
-    /**
-     * Why the theme cannot be chosen, or null when it can. The theme is laid out by the table as it was saved and
-     * compiled, so a table holding edits of the reader takes none, and nor does one of a module that waits to be
-     * verified.
-     */
-    const themeOff = (): string | null => {
-        // A theme chosen stays chosen: Undo takes it back.
-        if (theme) {
-            return null
-        }
-        if (dirty) {
-            return t('browser.module.edit_theme_after_edits')
-        }
-        return verifyNeeded ? t('browser.module.theme_verify_first') : null
-    }
-    const noTheme = themeOff()
-
-    /** An action that changes the table, which is off while the theme is chosen. */
-    const edit: typeof action = (key, icon, onClick, options = {}) =>
-        action(key, icon, onClick, themed === null ? options : { ...options, disabled: true, why: themed })
-
     // Why the formatting of a cell cannot be changed, or null when it can.
     const unformattable = formattable ? null : t('browser.module.edit_format_with_excel')
 
     /** An action that formats the picked cell, which is off where the table is shown formatted with the theme. */
     const format: typeof action = (key, icon, onClick, options = {}) =>
-        edit(key, icon, onClick, unformattable === null ? options : { ...options, disabled: true, why: unformattable })
+        action(key, icon, onClick, unformattable === null ? options : { ...options, disabled: true, why: unformattable })
 
     /** A colour of the picked cell, which is off where every formatting action is. */
     const colour = (key: string, icon: React.ReactNode, styled: (chosen: string) => RawCellStyleInput,
         value: string) => (
         <CellColourPicker
             className={styles.button}
-            disabled={themed !== null || unformattable !== null || picked === null}
+            disabled={unformattable !== null || picked === null}
             icon={icon}
             onPick={chosen => onStyle(styled(chosen))}
             onPreview={chosen => onPreview(chosen === null ? null : styled(chosen))}
             testId={`table-edit-${key}`}
-            title={themed ?? unformattable ?? t(`browser.module.edit_${key}`)}
+            title={unformattable ?? t(`browser.module.edit_${key}`)}
             value={value}
         />
     )
@@ -215,15 +178,15 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             {action('undo', <UndoOutlined />, onUndo, { disabled: !canUndo })}
             {action('redo', <RedoOutlined />, onRedo, { disabled: !canRedo })}
             {rule}
-            {edit('insert_row', <InsertRowBelowOutlined />, onInsertRow)}
-            {edit('remove_row', <DeleteRowOutlined />, onRemoveRow,
+            {action('insert_row', <InsertRowBelowOutlined />, onInsertRow)}
+            {action('remove_row', <DeleteRowOutlined />, onRemoveRow,
                 { disabled: picked === null || row < 1, why: off('browser.module.edit_header_row_kept') })}
             {rule}
-            {edit('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
+            {action('insert_column', <InsertRowLeftOutlined />, onInsertColumn, {
                 disabled: picked === null || !whole,
                 why: off('browser.module.edit_whole_table'),
             })}
-            {edit('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
+            {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
             {rule}
             {format('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
                 { on: style?.align === undefined || style.align === 'left' })}
@@ -242,20 +205,12 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                 style?.background ?? '#ffffff')}
             {colour('font_colour', <FontColorsOutlined />, chosen => ({ color: chosen }), style?.color ?? '#000000')}
             {rule}
-            {edit('outdent', <MenuUnfoldOutlined />,
+            {action('outdent', <MenuUnfoldOutlined />,
                 () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) === 0 })}
-            {edit('indent', <MenuFoldOutlined />,
+            {action('indent', <MenuFoldOutlined />,
                 () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
                 { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
-            {themeable && (
-                <>
-                    {rule}
-                    {/* The theme is written into the whole table, so it needs no cell picked. */}
-                    {action('theme', <FormatPainterOutlined />, () => onTheme?.(),
-                        { disabled: noTheme !== null, on: theme, why: noTheme })}
-                </>
-            )}
             <span className={styles.pending} />
             <Tooltip title={t('browser.module.edit_close')}>
                 <Button

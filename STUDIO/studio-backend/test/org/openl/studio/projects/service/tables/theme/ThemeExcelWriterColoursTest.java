@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -68,7 +66,7 @@ class ThemeExcelWriterColoursTest {
     void writesTheColoursOfAProjectAsTheThemeColoursOfTheWorkbook() throws IOException {
         writeProject(OFFICE, null);
 
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
 
         try (var workbook = workbook()) {
             // Every colour the theme makes of them is written as the theme colour it is, a font colour with its tint.
@@ -85,7 +83,7 @@ class ThemeExcelWriterColoursTest {
     void writesTheThemeColoursIntoAWorkbookOfAnotherThemeAndKeepsItsTheme() throws IOException {
         writeProject(TREK, null);
 
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
 
         try (var workbook = workbook()) {
             assertEquals(TREK[4], hex(workbook.getStylesSource().getTheme().getThemeColor(4)), "The theme stays");
@@ -104,7 +102,7 @@ class ThemeExcelWriterColoursTest {
         // The workbook has the theme colours, and the field name is filled with its colour as #rrggbb.
         writeProject(OFFICE, FIELD_NAME_RGB);
 
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
 
         try (var workbook = workbook()) {
             assertEquals(FIELD_NAME, ThemedColor.of(fillOf(workbook, TYPE_ROW, NAME)),
@@ -115,7 +113,7 @@ class ThemeExcelWriterColoursTest {
     @Test
     void writingTheThemeColoursAgainAddsNoStylesOrFonts() throws IOException {
         writeProject(OFFICE, null);
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
         int fonts;
         int styles;
         try (var workbook = workbook()) {
@@ -123,7 +121,7 @@ class ThemeExcelWriterColoursTest {
             styles = workbook.getNumCellStyles();
         }
 
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
 
         try (var workbook = workbook()) {
             assertEquals(fonts, workbook.getNumberOfFonts());
@@ -137,7 +135,7 @@ class ThemeExcelWriterColoursTest {
         var ivory = OFFICE.clone();
         ivory[0] = "FFFFF0";
         writeProject(ivory, null);
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
         int fonts;
         int styles;
         try (var workbook = workbook()) {
@@ -145,7 +143,8 @@ class ThemeExcelWriterColoursTest {
             styles = workbook.getNumCellStyles();
         }
 
-        service.writer().writeAll(List.of(person()), Map.of());
+        // A table saved again is formatted again, as each save is where the tables are formatted on save.
+        service.writer().format(person());
 
         try (var workbook = workbook()) {
             assertEquals(fonts, workbook.getNumberOfFonts());
@@ -158,7 +157,7 @@ class ThemeExcelWriterColoursTest {
         // A theme drawing its lines in Green, Accent 6, Darker 25%.
         var lines = TestThemes.of("excel-theme-colours.yaml");
         writeProject(OFFICE, null);
-        lines.writer().writeAll(List.of(person()), Map.of());
+        lines.writer().format(person());
         int styles;
         try (var workbook = workbook()) {
             var line = styleOf(workbook, 3, TYPE).getBorderColor(BorderSide.BOTTOM);
@@ -166,7 +165,7 @@ class ThemeExcelWriterColoursTest {
             styles = workbook.getNumCellStyles();
         }
 
-        lines.writer().writeAll(List.of(person()), Map.of());
+        lines.writer().format(person());
 
         try (var workbook = workbook()) {
             assertEquals(styles, workbook.getNumCellStyles(), "A line of the theme colour has the look");
@@ -198,7 +197,7 @@ class ThemeExcelWriterColoursTest {
         // A workbook a program wrote, rather than Excel, has no theme.
         TableTestProjects.projectModel(dir, SHEET, ThemeExcelWriterColoursTest::fillSheet);
 
-        service.writer().writeAll(List.of(person()), Map.of());
+        service.writer().format(person());
 
         try (var workbook = workbook()) {
             assertNull(workbook.getStylesSource().getTheme(), "No theme is made for the workbook");

@@ -46,7 +46,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -76,7 +75,6 @@ import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
-import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -86,6 +84,7 @@ import org.openl.rules.webstudio.web.CellValueSelector;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.TableHeaderSelector;
 import org.openl.rules.webstudio.web.TablePropertiesSelector;
+import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -130,7 +129,6 @@ import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
-import org.openl.studio.projects.model.tables.TableThemeResultView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -2444,6 +2442,82 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Runs a write of a table, and then formats the table it wrote with the table theme where the administrator asks
+     * for it ({@link AdministrationSettings#FORMAT_TABLES_ON_SAVE}).
+     *
+     * <p>The theme is laid out by the table as it is compiled, so the module is built from the workbook just written
+     * first, whatever automatic compilation is set to. A table of a kind the theme does not style, such as a table of
+     * the kind {@code Other}, is left as the write left it. The table keeps its place: the theme changes only how its
+     * cells look.
+     *
+     * @param project    the project of the table
+     * @param moduleName the module the table is written through, or {@code null} for the module that is open
+     * @param write      the write, answering the identifier of the table once written
+     * @return the identifier of the table once written
+     */
+    private String writingFormatted(RulesProject project, @Nullable String moduleName, Supplier<String> write) {
+        return writing(() -> {
+            var tableId = write.get();
+            if (formatsOnSave()) {
+                getWebStudio().rebuildCurrentModule();
+                formatSaved(project, moduleName, tableId);
+            }
+            return tableId;
+        });
+    }
+
+    /**
+     * Formats a table written into a module of its own with the table theme, where the administrator asks for it.
+     *
+     * <p>The table is found by its name once the session reads the project again, which compiles the new module.
+     */
+    private void formatCreatedInNewModule(RulesProject project, String moduleName, String tableName) {
+        if (formatsOnSave()) {
+            getWebStudio().reset();
+            Optional.ofNullable(getCreatedTable(project, moduleName, null, tableName))
+                    .ifPresent(created -> writing(() -> {
+                        formatSaved(project, moduleName, created.id);
+                        return null;
+                    }, WebStudio::reset));
+        }
+    }
+
+    /**
+     * Whether the administrator asks for every table saved to be formatted with the table theme. Such a save compiles
+     * the module of the table, so the module answers for the workbook it wrote.
+     *
+     * @return whether a table saved is formatted with the table theme
+     */
+    public boolean formatsOnSave() {
+        return Boolean.TRUE.equals(environment.getProperty(AdministrationSettings.FORMAT_TABLES_ON_SAVE, Boolean.class));
+    }
+
+    /**
+     * Formats a table a write has saved with the table theme.
+     *
+     * <p>A theme that cannot be written, such as one an {@code .xls} workbook has no room for, leaves the table as the
+     * write saved it, and the failure is logged: the write stands, and answering it with an error would have it sent
+     * again and applied twice. What the theme changed in the workbook the session holds is read from the file again.
+     */
+    private void formatSaved(RulesProject project, @Nullable String moduleName, String tableId) {
+        try {
+            format(project, moduleName, tableId);
+        } catch (RuntimeException failed) {
+            log.warn("The table '{}' is saved, but the table theme cannot be written into it.", tableId, failed);
+            getWebStudio().rebuildCurrentModule();
+        }
+    }
+
+    /**
+     * Writes the table theme into a table of a kind it styles, as the module compiles it, and saves the workbook of the
+     * table.
+     */
+    private void format(RulesProject project, @Nullable String moduleName, String tableId) {
+        Optional.ofNullable(openProject(project, moduleName).awaitCompiled().getTableById(tableId))
+                .ifPresent(tableThemeService.writer()::format);
+    }
+
+    /**
      * Resolve a table by id. When {@code editable} is set, a table that belongs to a dependency project is
      * rejected: it can be rendered read-only, but writing it here would mutate another project's source while
      * only the current project is locked and ACL-checked.
@@ -2491,7 +2565,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
+        return writingFormatted(project, moduleName, () -> tableWriterExecutor.executeWrite(writer, tableView));
     }
 
     /**
@@ -2511,7 +2585,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
+        return writingFormatted(project, moduleName, () -> tableWriterExecutor.executeAppend(writer, tableView));
     }
 
     /**
@@ -2522,126 +2596,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * the order they are given, each seeing the table as the previous one left it. The workbook is saved once, after
      * the last of them.
      *
-     * <p>A table theme is laid out by the table as it was compiled, so it is applied on its own. A sequence holding a
-     * theme and any other edit is refused before the table is read: the theme would miss what the other edits change,
-     * such as a condition inserted into a decision table. A theme is refused too while a workbook of the project was
-     * written to since it was compiled ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation
-     * off, until the module is verified.
-     *
      * @param project project
      * @param tableId table id
      * @param actions the edits to apply, in order
      * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
-     * @throws BadRequestException if a theme is sent with another edit
-     * @throws ConflictException   if the project is held by another user, or a theme is asked for while a write waits
-     *                             to be compiled
+     * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   List<RawTableSourceAction> actions,
                                   @Nullable String moduleName) {
-        var themed = actions.stream().anyMatch(RawTableSourceAction.Theme.class::isInstance);
-        if (themed && actions.size() > 1) {
-            throw new BadRequestException("table.theme.alone.message");
-        }
         var context = getWritableTable(project, tableId, moduleName);
-        if (themed) {
-            // Asked once the module is open: with automatic compilation on, opening the module a write changed is what
-            // compiles it again.
-            compiledAsWritten(context.module());
-        }
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
-    }
-
-    /**
-     * Writes the table theme into every table of every module of the project that it styles
-     * ({@link TableThemeService#styles}).
-     *
-     * <p>A table of a project this one depends on is left as it is, as is a table gathered from several partial
-     * tables: neither can be written here. Every workbook the theme reaches is saved once.
-     *
-     * <p>The theme reaches every module, so a project compiled only in part, such as one whose module compiles
-     * alone, is compiled whole first. A project whose compilation the reader stopped is refused.
-     *
-     * <p>A theme is laid out by the tables as they were compiled, so a project with a workbook written to since it was
-     * compiled is refused too ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation off, until
-     * the module is verified.
-     *
-     * <p>Each table themed is noted as edited, as any edit of a table is, where the installation records who edits
-     * tables and when.
-     *
-     * <p>Each workbook written keeps the change in the local history of its module, and the project is marked
-     * modified, as an edit of a table of the module does.
-     *
-     * <p>A theme that fails while it is written saves no workbook, and every module of the project is read from its
-     * file again. The workbooks are saved one after another: a workbook that cannot be saved stops the theme, and the
-     * workbooks saved before it keep the theme.
-     *
-     * @param project project to theme
-     * @return the tables themed, by their identifiers once written, and the tables left as they are
-     * @throws ConflictException   if the project is held by another user, its compilation was stopped, or a write
-     *                             waits to be compiled
-     */
-    @LockForEditing
-    public TableThemeResultView applyProjectTableTheme(RulesProject project) {
-        var writer = tableThemeService.writer();
-        var model = compiledWhole(compiledAsWritten(openProject(project).awaitCompiled()));
-        var modules = getProjectDescriptor(project).getModules();
-        var themed = new ArrayList<IOpenLTable>();
-        var skipped = new ArrayList<String>();
-        for (var node : model.getAllTableSyntaxNodes()) {
-            var table = new TableSyntaxNodeAdapter(node);
-            var owner = tableThemeService.styles(table)
-                    ? CollectionUtils.findFirst(modules, module -> module.containsTable(node.getUri()))
-                    : null;
-            if (owner != null) {
-                if (GridTableUtils.isAssembledFromParts(table.getGridTable())) {
-                    skipped.add(node.getId());
-                } else {
-                    themed.add(table);
-                    // The other modules of the project are compiled as dependencies of the one open, and nothing
-                    // listens to their workbooks: the workbook of each table is listened to, as the open module's are.
-                    model.initProjectHistory(node, owner);
-                }
-            }
-        }
-        // A write refused halfway may have changed the workbooks of other modules too: every module is read again.
-        var written = writing(() -> writer.writeAll(themed, systemPropertiesService.onEdit()), WebStudio::reset);
-        return new TableThemeResultView(written, skipped);
-    }
-
-    /**
-     * The project with every module of it compiled.
-     *
-     * <p>A module set to compile alone leaves the other modules of the project uncompiled, and so does a compilation
-     * the reader stopped. The project is compiled whole when it is not, but a compilation the reader stopped is not
-     * started again here: the project is refused instead.
-     */
-    private static ProjectModel compiledWhole(ProjectModel model) {
-        if (!model.isProjectCompilationCompleted()) {
-            model.compileProject(true, false);
-        }
-        if (!model.isProjectCompilationCompleted()) {
-            throw new ConflictException("table.theme.project.stopped.message");
-        }
-        return model;
-    }
-
-    /**
-     * The project as long as what it compiled answers for its workbooks.
-     *
-     * <p>A table theme is laid out by the tables as they were compiled, so it is refused while a workbook of the project
-     * was written to since it was compiled ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation
-     * off, until the module is verified.
-     */
-    private static ProjectModel compiledAsWritten(ProjectModel model) {
-        if (model.isWrittenSinceCompiled()) {
-            throw new ConflictException("table.theme.verify.message");
-        }
-        return model;
+        return writingFormatted(project, moduleName, () -> tableWriterExecutor.executeSourceAction(writer, actions));
     }
 
     /**
@@ -2662,7 +2631,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                         List<TableProperty> properties,
                                         @Nullable String moduleName) {
         var context = getWritableTable(project, tableId, moduleName);
-        return writing(() -> tablePropertiesService.write(context.table(), properties));
+        return writingFormatted(project, moduleName, () -> tablePropertiesService.write(context.table(), properties));
     }
 
     /**
@@ -2696,12 +2665,15 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     @LockForEditing
     public @Nullable String createNewTable(RulesProject project,
                                            CreateNewTableRequest createTableRequest) throws ProjectException {
+        var moduleName = createTableRequest.moduleName();
         if (StringUtils.isNotBlank(createTableRequest.modulePath())) {
-            createTableInNewModule(project, createTableRequest);
+            var name = createTableInNewModule(project, createTableRequest);
+            formatCreatedInNewModule(project, moduleName, name);
             return null;
         }
-        var projectModel = openProject(project, createTableRequest.moduleName()).awaitCompiled();
-        return writing(() -> tableCreatorService.createTable(createTableRequest, projectModel));
+        var projectModel = openProject(project, moduleName).awaitCompiled();
+        return writingFormatted(project, moduleName, () -> tableCreatorService.createTable(createTableRequest,
+                projectModel));
     }
 
     /**
@@ -2740,7 +2712,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return copyIntoNewModule(project, source, request, sheetName);
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
-        return writing(() -> writeCopy(projectModel, source, request, sheetName));
+        return writingFormatted(project, request.moduleName(),
+                () -> writeCopy(projectModel, source, request, sheetName));
     }
 
     /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */
@@ -2777,7 +2750,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             var projectModel = openProject(project, request.moduleName()).awaitCompiled();
             // Through the queue like every other write: the copy is read out of the source table's workbook,
             // which is one this session already holds and another request may be writing.
-            writing(() -> writeCopy(projectModel, source, request, sheetName));
+            writingFormatted(project, request.moduleName(), () -> writeCopy(projectModel, source, request, sheetName));
             return null;
         } catch (RuntimeException | ProjectException e) {
             // The write can fail after the empty module is registered — unlike the atomic create path. Remove
@@ -2789,8 +2762,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    private void createTableInNewModule(RulesProject project,
-                                        CreateNewTableRequest createTableRequest) throws ProjectException {
+    /**
+     * Creates a module of its own holding the table the request asks for.
+     *
+     * @return the name of the table created, which finds it once the project is compiled
+     */
+    private String createTableInNewModule(RulesProject project,
+                                          CreateNewTableRequest createTableRequest) throws ProjectException {
         if (!(createTableRequest.table() instanceof RawTableView rawTable)) {
             throw new BadRequestException("table.new-module.raw-source.message");
         }
@@ -2804,6 +2782,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // The module and its table are written as one, so a refusal leaves nothing behind to clean up. The lock
         // this request took goes back with the refusal, which is the interceptor's to do.
         tableCreatorService.createModuleWithTable(project, projectDescriptor, createTableRequest, rawTable);
+        return newTableName;
     }
 
     /** Rejects a new module whose name or path already resolves in the project. */

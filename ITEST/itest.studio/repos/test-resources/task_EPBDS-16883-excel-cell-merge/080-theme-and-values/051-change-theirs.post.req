@@ -3,6 +3,11 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "operation": "theme"
+  "operation": "update",
+  "target": {
+    "type": "cell",
+    "row": 3,
+    "column": 0,
+    "value": "DE"
+  }
 }
-

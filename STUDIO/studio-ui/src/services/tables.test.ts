@@ -1,9 +1,8 @@
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import type { CopyTableRequest, CreateTableRequest } from 'types/tables'
-import apiCall, { notifyLoadFailure } from './apiCall'
+import apiCall from './apiCall'
 import {
-    applyProjectTableTheme,
     copyTable,
     createTable,
     getDatatype,
@@ -20,8 +19,6 @@ vi.mock('./apiCall', () => ({
 vi.mock('../i18n', () => ({
     default: {
         t: (key: string, options?: { table?: string, count?: number }) => ({
-            'project:table_theme.project_applied': `Table theme applied to ${options?.count} tables`,
-            'project:table_theme.project_skipped': `${options?.count} tables were left as they are.`,
             'project:create_table_modal.created': 'Table created',
             'project:create_table_modal.created_description':
                 `The "${options?.table}" table was created successfully.`,
@@ -242,42 +239,5 @@ describe('getDatatype', () => {
         mockApiCall.mockResolvedValueOnce({ type: 'Integer', values: [{ value: 1 }, { value: 2 }, {}]})
 
         await expect(getDatatype('project-id', 'limits-id')).resolves.toEqual({ fields: [], values: ['1', '2']})
-    })
-})
-
-describe('table theme', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-        vi.spyOn(notification, 'success').mockImplementation(() => {})
-    })
-
-    it('says how many tables of the project were themed and how many were left as they are', async () => {
-        mockApiCall.mockResolvedValueOnce({ themed: ['a', 'b'], skipped: ['c']})
-
-        await expect(applyProjectTableTheme('project-id'))
-            .resolves.toEqual({ themed: ['a', 'b'], skipped: ['c']})
-
-        expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/theme', { method: 'POST' },
-            { throwError: true, suppressErrorPages: true })
-        expect(notification.success).toHaveBeenCalledWith({
-            title: 'Table theme applied to 2 tables',
-            description: '1 tables were left as they are.',
-        })
-    })
-
-    it('reads a list the server left out as an empty one', async () => {
-        mockApiCall.mockResolvedValueOnce({})
-
-        await applyProjectTableTheme('project-id')
-
-        expect(notification.success).toHaveBeenCalledWith({ title: 'Table theme applied to 0 tables' })
-    })
-
-    it('answers nothing when the theme could not be written into the project', async () => {
-        mockApiCall.mockRejectedValueOnce(new Error('locked'))
-
-        await expect(applyProjectTableTheme('project-id')).resolves.toBeNull()
-
-        expect(notifyLoadFailure).toHaveBeenCalledWith('project:table_theme.apply_failed', expect.any(Error))
     })
 })

@@ -8,7 +8,6 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,7 +71,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void offersEveryThemeForAColumnMatchTable() {
-        assertTrue(LOOKS.styles(tableAt(APPROVAL_ROW)));
+        assertTrue(ThemeLayouts.styles(tableAt(APPROVAL_ROW)));
     }
 
     @Test
@@ -156,7 +155,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void keepsTheIndentOfTheNamesInTheWorkbook() {
-        LOOKS.writer().writeAll(List.of(tableAt(APPROVAL_ROW)), Map.of());
+        LOOKS.writer().format(tableAt(APPROVAL_ROW));
 
         // The rows read start at the header, and the columns at the names.
         var written = read(APPROVAL_ROW);

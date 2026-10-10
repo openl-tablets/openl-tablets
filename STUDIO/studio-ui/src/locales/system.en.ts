@@ -19,6 +19,8 @@ i18next.addResourceBundle('en', 'system', {
     database_configuration: 'Database Configuration',
     database_configuration_info: 'Set up a database to be used for managing users in OpenL Studio. Please contact your System Administrator for this information if necessary.',
     update_table_properties: 'Update table properties (\'createdOn\', \'modifiedBy\' etc.) on editing',
+    format_tables_on_save: 'Format tables on save',
+    format_tables_on_save_info: 'Format every table saved in OpenL Studio with the table theme, in the theme colors of Excel. Each save compiles the module of the table first, also with Verify on Edit turned off, so saving a table of a large project takes longer.',
     date_format: 'Date Format',
     time_format: 'Time Format',
     db_url: 'Database URL',

@@ -44,7 +44,6 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
@@ -799,25 +798,6 @@ public class ProjectModel {
     }
 
     /**
-     * Listens to the workbook a table of another module of the project stands in, as {@link #initProjectHistory()}
-     * listens to the workbooks of this module: a write to it is kept as a revision of that module, and the project is
-     * marked modified.
-     *
-     * <p>The other modules of the project are compiled as dependencies of this one, and nothing listens to their
-     * workbooks otherwise. A write that reaches their tables through this module, such as a table theme written into
-     * the whole project, asks here before it writes. A workbook already listened to is left alone, and a table read
-     * from no workbook has none to listen to.
-     *
-     * @param table  a table, as this module compiled it
-     * @param module the module of the project the table belongs to
-     */
-    public synchronized void initProjectHistory(TableSyntaxNode table, Module module) {
-        Optional.ofNullable(table.getXlsSheetSourceCodeModule())
-                .map(XlsSheetSourceCodeModule::getWorkbookSource)
-                .ifPresent(workbook -> listen(workbook, module));
-    }
-
-    /**
      * Keeps the writes to a workbook in the history of a module of this project. A workbook already listened to is
      * left alone, and a model outside a workspace keeps no history.
      */
@@ -1532,7 +1512,7 @@ public class ProjectModel {
      * <p>Answered without taking the lock of the model: the status of a project asks it while a module is being
      * compiled.
      */
-    public boolean isWrittenSinceCompiled() {
+    boolean isWrittenSinceCompiled() {
         return Stream.concat(Stream.ofNullable(xlsModuleSyntaxNode), xlsModuleSyntaxNodes.stream())
                 .map(XlsModuleSyntaxNode::getWorkbookSyntaxNodes)
                 .filter(Objects::nonNull)

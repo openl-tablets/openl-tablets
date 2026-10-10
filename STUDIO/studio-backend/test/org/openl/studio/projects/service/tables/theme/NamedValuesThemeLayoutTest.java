@@ -8,7 +8,6 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +69,7 @@ class NamedValuesThemeLayoutTest {
     @Test
     void offersEveryThemeForAnEnvironmentAPropertiesAndAConstantsTable() {
         for (var row : List.of(ENVIRONMENT_ROW, PROPERTIES_ROW, CONSTANTS_ROW, TRANSPOSED_ROW)) {
-            assertTrue(LOOKS.styles(tableAt(row)), "row " + row);
+            assertTrue(ThemeLayouts.styles(tableAt(row)), "row " + row);
         }
     }
 
@@ -145,7 +144,7 @@ class NamedValuesThemeLayoutTest {
 
     @Test
     void writesTheLookOfAnEnvironmentTableIntoTheWorkbook() {
-        LOOKS.writer().writeAll(List.of(tableAt(ENVIRONMENT_ROW)), Map.of());
+        LOOKS.writer().format(tableAt(ENVIRONMENT_ROW));
 
         var written = read(ENVIRONMENT_ROW);
         assertEquals("Environment", written.getFirst().getFirst().value(), "The theme changes no text");

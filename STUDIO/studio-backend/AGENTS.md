@@ -171,9 +171,9 @@ names. `TableThemeService` reads it once at startup, with the YAML anchors, alia
 SnakeYAML, then binds it strictly with Jackson. The file format lives in the comments of the file and in the tests
 that read `test-table-themes/*.yaml`; see `Docs/api/raw-tables-api.md` for the endpoints.
 
-- **One theme, no identifier.** The read parameter (`tableTheme=true`), the `theme` action and the project endpoint
-  name no theme; there is no list of themes. The screen offers the theme for a table of any kind but `Other`, which
-  the read reports in `kind` (`ThemeLayouts.styles` decides the same on the server).
+- **One theme, no identifier.** The read parameter (`tableTheme=true`) and the setting that formats the tables on save
+  name no theme; there is no list of themes. It styles every table but one of the kind `Other`, which the read reports
+  in `kind` (`ThemeLayouts.styles` decides the same on the server).
 - **A broken theme stops Studio.** A file that cannot be read, is empty, writes a key twice, writes a font size that
   is not a whole number (`ACCEPT_FLOAT_AS_INT` is off), names an unknown attribute, a colour it gives no name or a
   colour written another way than a theme colour of Excel throws at startup (`TableThemeService.read`): a mistyped
@@ -199,9 +199,8 @@ that read `test-table-themes/*.yaml`; see `Docs/api/raw-tables-api.md` for the e
   part (`ThemeExcelWriter.hasTheme`) is written every colour as its theme colour, whatever the theme colours of the
   workbook are, so the table takes the colours of the theme of the workbook in Excel and the palette of Excel offers
   them. An `.xls` workbook and an `.xlsx` one without a theme part are written the RGB Office 2013 - 2022 draws the
-  colour in, the nearest one an `.xls` palette holds. One table (`write`, the `theme` action) and the project
-  (`writeAll`) write alike. A cell holding the colour the other way round, RGB for a theme colour or the reverse, has
-  not the look, so writing again turns it into the way the workbook takes it.
+  colour in, the nearest one an `.xls` palette holds. A cell holding the colour the other way round, RGB for a theme
+  colour or the reverse, has not the look, so writing again turns it into the way the workbook takes it.
 - **The theme of a workbook is never changed: a limit of Apache POI.** POI reads the theme colours
   (`ThemesTable.getThemeColor`) but has no API to set them or to give a workbook another theme; `ensureThemesTable()`
   makes an empty, Excel-invalid part. Replacing the colour scheme through the schema classes (`ThemeDocument`, then
@@ -231,37 +230,32 @@ that read `test-table-themes/*.yaml`; see `Docs/api/raw-tables-api.md` for the e
   groups — is written once under the first kind that takes it and repeated by an alias (`titles: *title`). A kind
   that looks like another is an alias in the file (`smartRules: *simple`, `smartLookup: *lookup`), never a rule of
   the code, so a theme can still give it a look of its own.
-- **One table is themed through its edit, alone.** The `theme` action of `RawTableSourceAction` writes the theme
-  into the table as it was saved. A theme is laid out by the compiled table, which any other edit of the batch would
-  change: a column inserted into a decision table is a condition the compiler has not read. So
-  `WorkspaceProjectService.editTableSource` refuses a batch holding a `theme` action and any other edit, another theme
-  included (`table.theme.alone.message`, `400`), before the table is read: refused inside the write, it would have the
-  module read again for nothing. The editor of the screen never builds one (`withStep` in `studio-ui`'s
-  `tableEdits.ts`): while a theme is chosen the cells do not open and every action changing the table is off, and
-  while the table holds edits the theme is, each saying why.
-- **A theme waits until what was written is compiled.** A workbook remembers that it was saved after a compilation
-  read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and a compilation reads every workbook again, so
+- **Formatting on save is a switch of the administrator.** `table.format-on-save`
+  (`AdministrationSettings.FORMAT_TABLES_ON_SAVE`, **Format tables on save** of the system settings, off by default)
+  formats every table a request writes with the theme. `WorkspaceProjectService.writingFormatted` wraps the edits of
+  the raw source, a write of a typed view, an append, a write of the properties, a table created and a table copied;
+  `formatCreatedInNewModule` formats a table created into a module of its own, found by its name once the project is
+  read again. A table of the kind `Other` is left as written. The theme is laid out by the compiled table, so within the
+  same `WorkbookWrites` turn as the write the module is built from the workbook just written
+  (`WebStudio.rebuildCurrentModule`, then `openProject(...).awaitCompiled()`), whatever `compile.auto` says, and the
+  table found by the identifier the write answered is themed and saved (`ThemeExcelWriter.format`). Each save costs
+  one compilation, which the setting says: the theme changes no rule, so `ProjectsController.recompileSavedTable` asks
+  for no second one. The theme moves no table, so the request answers the identifier of the write, and the properties
+  the note of the edit adds (`TableWriter.recordEdit`) are themed with the rest. A theme that fails, such as one an
+  `.xls` workbook has no room for, is logged and leaves the table as the write saved it
+  (`WorkspaceProjectService.formatSaved`): the write stands, and answering it with an error would have the client
+  send it again and apply it twice. The module is then read from its file again. There is no other way to write the
+  theme: no edit action, no project endpoint.
+- **What was written waits to be compiled.** A workbook remembers that it was saved after a compilation read it
+  (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and a compilation reads every workbook again, so
   `ProjectModel.isWrittenSinceCompiled` tells whether what the session compiled for the project open, the modules and
-  the projects it depends on included, still answers for its workbooks. While it does not, a theme of one table and of
-  the project is refused (`table.theme.verify.message`, `409`), whatever automatic compilation is set to. With it on,
-  opening any module after a write builds the module the write changed again, and every module using it
-  (`WebStudio.recompileCurrentModule`), so a theme sent once the edits are saved is laid out by the table they left
-  (`070-apply-theme-alone` of `task_table_theme`). With it off,
-  the project stays compiled as its workbooks stood until the reader verifies a module, which compiles every module
-  again (`080-apply-theme-after-verify`). `ProjectModel.isManualCompileNeeded`, the `manualCompileNeeded` of the
-  status, asks the same with automatic compilation off: the Verify button, the theme of the editor (`verifyNeeded`,
-  which also keeps a theme chosen before from being saved) and the dialog of the project theme follow what was
-  compiled, not the module written to last, and Verify on any module answers for every write before it. Such a write
-  tells every screen of the project (`WebStudio.recompileCurrentModule` publishes the status), so another one holding
-  a theme to save learns it too, once for each compilation: a later write leaves the project waiting as the first did.
-- **The whole project has an endpoint of its own** (`POST /projects/{id}/theme`).
-  It takes the tables from what the session compiled, so a project compiled only in part — its module set to compile
-  alone — is compiled whole first, and a project whose compilation the reader stopped is refused (`409`): the tables
-  of the modules left out would be missed without a word.
-  It reaches the other modules of the project through the dependency compile of the module open, whose workbooks
-  nothing listens to, so it has `ProjectModel.initProjectHistory(TableSyntaxNode, Module)` listen to the workbook of
-  each table first: a write there is kept in the history of its module and marks the project modified, as an edit
-  of the table does.
+  the projects it depends on included, still answers for its workbooks. With automatic compilation on, opening any
+  module after a write builds the module the write changed again, and every module using it
+  (`WebStudio.recompileCurrentModule`). `ProjectModel.isManualCompileNeeded`, the `manualCompileNeeded` of the status,
+  asks the same with automatic compilation off: the Verify button follows what was compiled, not the module written to
+  last, and Verify on any module answers for every write before it. Such a write tells every screen of the project
+  (`WebStudio.recompileCurrentModule` publishes the status), once for each compilation: a later write leaves the
+  project waiting as the first did.
 - **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the
   body, with what a layout knows of the table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of
   `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `TBasicThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout`,
@@ -411,18 +405,8 @@ that read `test-table-themes/*.yaml`; see `Docs/api/raw-tables-api.md` for the e
   read-only and no request model carries a source, so a table sent back as it was read writes no style. The editor of
   the screen edits the rows it shows, read with the theme unless the user asks for **Show Original Excel Formatting**,
   so an edit never sends the style of a read: it sends the values written and only the attributes of a style the user
-  changed (`compile` in `studio-ui`'s `tableEdits.ts`), such as an indent. The preview of a theme the user chose to
-  write is sent as a `theme` action, never as styles. The preview is laid over a copy of
-  the rows that is only drawn: the toolbar and the save read the edited rows, so a theme drawn on the screen never
-  reaches the workbook through an edit. Keep it that way: never edit the rows of a read naming a theme, and never
-  fold the theme into the `style` of the edited rows. The preview is the look of the table as it was read, matched by
-  the address each cell was read at, and it is exact: a table given a theme holds no other edit, so every cell stands
-  where it was read and the save lays the theme out as the read did.
-- **A written theme is not kept up to date.** An edit after the theme was written, such as rows or columns inserted
-  or deleted, writes no theme by itself: laying the theme out needs the table compiled, and its cost grows with the
-  table, so the user applies the theme again by hand once the edits are finished; the user guide says so. Only the
-  overlay follows the edits, since every read lays the theme out over the table as it is then. Do not make the edits
-  write the theme again on their own.
+  changed (`compile` in `studio-ui`'s `tableEdits.ts`), such as an indent. Keep it that way: never fold the look of a
+  read into the `style` of the edited rows. The workbook takes the theme only through formatting on save.
 - **One look on the screen and in the workbook.** A piece of the header starts from the font of the cell on both
   sides (`ThemeStyles.fontOf`, `ThemeExcelWriter`). A look is reported through the same colour, font and border
   mappings as a style read from the workbook (`RawTableStyles`, `BorderStyle.of`), so a line the theme draws looks
@@ -437,13 +421,7 @@ that read `test-table-themes/*.yaml`; see `Docs/api/raw-tables-api.md` for the e
   Writing the theme again adds no styles or fonts, which matters because unused `cellXfs` are never compacted. A
   colour is compared as the workbook holds it (`PoiExcelHelper.toStoredRgb`): the full palette of an `.xls`
   workbook holds a colour of the theme as the nearest one it has, and a theme colour is compared by the theme colour
-  and the tint it is written as (`ThemedColor.of`). A batch (`writeAll`) saves every workbook it
-  reaches once, and notes the edit on each table it themes as a save of the table does (`TableWriter.recordEdit`),
-  after the theme, naming the table by where it stands once written. Each property the note adds is a row inserted
-  at the top of the properties with the style of the row under it, a table without properties getting them so. The
-  note therefore goes through `ThemeExcelWriter.noting`, which lays out the header and the properties alone and
-  themes the rows the note inserted, nothing else; the save of a `theme` edit notes it the same way
-  (`RawTableWriter.recordEdit`).
+  and the tint it is written as (`ThemedColor.of`).
 
 ## Regenerating OpenAPI Goldens
 

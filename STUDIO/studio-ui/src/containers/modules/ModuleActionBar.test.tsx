@@ -1,6 +1,5 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { App } from 'antd'
 import { describe, expect, it, vi } from 'vitest'
 import type { Project } from '../../types/projects'
 import { ModuleActionBar } from './ModuleActionBar'
@@ -42,11 +41,6 @@ const openMergeDialog = vi.fn()
 vi.mock('../projects/branchDialogs', () => ({ openMergeDialog: (...args: unknown[]) => openMergeDialog(...args) }))
 
 vi.mock('../../services/repositories', () => ({ getDesignRepositories: () => Promise.resolve([]) }))
-
-const applyProjectTableTheme = vi.fn()
-vi.mock('../../services/tables', () => ({
-    applyProjectTableTheme: (...args: unknown[]) => applyProjectTableTheme(...args),
-}))
 
 const project = (capabilities: Project['capabilities']): Project => ({
     id: 'p1',
@@ -239,54 +233,6 @@ describe('ModuleActionBar', () => {
         } finally {
             opened.mockRestore()
         }
-    })
-
-    it('writes the table theme into the project, and reads the project back', async () => {
-        applyProjectTableTheme.mockResolvedValue({ themed: ['t1'], skipped: []})
-        const changed = vi.fn()
-        render(
-            <App>
-                <ModuleActionBar
-                    moduleName="Claims"
-                    onProjectChanged={changed}
-                    project={project({ canWrite: true } as Project['capabilities'])}
-                />
-            </App>
-        )
-
-        await userEvent.click(screen.getByTestId('module-more'))
-        await userEvent.click(await screen.findByText('browser.module.apply_theme_project'))
-        await userEvent.click(screen.getByTestId('apply-project-theme-ok'))
-
-        await waitFor(() => expect(changed).toHaveBeenCalledTimes(1))
-        expect(applyProjectTableTheme).toHaveBeenCalledWith('p1')
-    })
-
-    it('writes no table theme into a project that waits for Verify, and says why', async () => {
-        render(
-            <App>
-                <ModuleActionBar
-                    verifyNeeded
-                    moduleName="Claims"
-                    project={project({ canWrite: true } as Project['capabilities'])}
-                />
-            </App>
-        )
-
-        await userEvent.click(screen.getByTestId('module-more'))
-        await userEvent.click(await screen.findByText('browser.module.apply_theme_project'))
-
-        expect(await screen.findByTestId('apply-project-theme-verify')).toBeInTheDocument()
-        expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
-    })
-
-    it('offers the table theme only to a reader who may write the project', async () => {
-        await bar({ canViewHistory: true } as Project['capabilities'])
-
-        await userEvent.click(screen.getByTestId('module-more'))
-
-        expect(await screen.findByText('browser.module.compare')).toBeInTheDocument()
-        expect(screen.queryByText('browser.module.apply_theme_project')).toBeNull()
     })
 
     it('offers no history to a reader who may not read it', async () => {

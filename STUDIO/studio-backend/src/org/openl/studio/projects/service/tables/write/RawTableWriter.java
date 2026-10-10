@@ -45,8 +45,6 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
-import org.openl.studio.projects.service.tables.theme.TableThemeService;
-import org.openl.studio.projects.service.tables.theme.ThemeExcelWriter;
 
 /**
  * Writes {@link RawTableView} back to the original table preserving the exact 2D matrix structure.
@@ -81,30 +79,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
     private static final String ROW_WIDTH_MESSAGE = "table.action.row.width.message";
     private static final String COLUMN_HEIGHT_MESSAGE = "table.action.column.height.message";
 
-    /** The table theme a {@code theme} edit is written with, or {@code null} where this writer is given none. */
-    private final @Nullable TableThemeService themes;
-
-    /** The writer of the theme a {@code theme} edit wrote into the table, or {@code null} before any such edit. */
-    private @Nullable ThemeExcelWriter themed;
-
     public RawTableWriter(IOpenLTable table) {
-        this(table, null);
-    }
-
-    /**
-     * A writer of the raw source of a table that can also write the table theme into it.
-     *
-     * @param table  the table to write
-     * @param themes the table theme a {@code theme} edit is written with, or {@code null} to refuse such an edit
-     */
-    public RawTableWriter(IOpenLTable table, @Nullable TableThemeService themes) {
         super(table);
-        this.themes = themes;
     }
 
     public RawTableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         super(gridTable, metaInfoWriter);
-        this.themes = null;
     }
 
     /**
@@ -297,10 +277,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * <p>
      * The whole sequence is one change: the workbook is saved once, after the last edit. An edit that is refused
      * ends the sequence, and nothing of it reaches the workbook.
-     * <p>
-     * A theme is laid out by the table as it was compiled, which any other edit of the same change would leave behind:
-     * a column inserted into a decision table is a condition the compiler has not read. So a sequence holding a theme
-     * holds nothing else, and the caller refuses one that does.
      *
      * @param actions the edits to apply, in order
      */
@@ -336,30 +312,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
             case RawTableSourceAction.Merge(var target) -> merge(target);
             case RawTableSourceAction.Unmerge(var target) -> unmerge(target);
             case RawTableSourceAction.Style(var target) -> style(target);
-            case RawTableSourceAction.Theme() -> theme();
         }
-    }
-
-    /**
-     * Writes the table theme into the table, as the table was compiled. A table such as a decision table is themed by
-     * where the compiler found its parts.
-     */
-    private void theme() {
-        themed = Optional.ofNullable(themes)
-                .orElseThrow(() -> new IllegalStateException("This writer is given no table theme."))
-                .writer();
-        if (!themed.write(table, developerView())) {
-            throw new BadRequestException("table.theme.unsupported.message");
-        }
-    }
-
-    /**
-     * Notes the edit on the table, as every save does. A property the note adds takes the theme this change wrote.
-     */
-    @Override
-    protected void recordEdit() {
-        Optional.ofNullable(themed).ifPresentOrElse(writer -> writer.noting(table, developerView(), super::recordEdit),
-                super::recordEdit);
     }
 
     private void append(AppendTarget target) {

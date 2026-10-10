@@ -259,38 +259,6 @@ export const deleteTable = async (
     }
 }
 
-/** What writing the table theme into a project did; a list the server has nothing to put in is left out. */
-export interface TableThemeResult {
-    /** The tables the theme was written into */
-    themed?: string[]
-    /** The tables left as they are, each written as several partial tables */
-    skipped?: string[]
-}
-
-/**
- * Writes the table theme into every table it styles in every module of the project.
- *
- * Answers what was themed, or null when the write failed; the outcome is told to the reader here.
- */
-export const applyProjectTableTheme = async (projectId: string): Promise<TableThemeResult | null> => {
-    try {
-        const result = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/theme`,
-            { method: 'POST' },
-            LOCAL_LOAD_API_OPTIONS
-        ) as TableThemeResult
-        const skipped = result.skipped?.length ?? 0
-        notification.success({
-            title: i18n.t('project:table_theme.project_applied', { count: result.themed?.length ?? 0 }),
-            ...(skipped > 0 && { description: i18n.t('project:table_theme.project_skipped', { count: skipped }) }),
-        })
-        return result
-    } catch (error) {
-        notifyLoadFailure(i18n.t('project:table_theme.apply_failed'), error)
-        return null
-    }
-}
-
 /** The address of a table's input, and of the cases and single case under it. */
 const inputUrl = (projectId: string, tableId: string, suffix = ''): string =>
     `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/input${suffix}`

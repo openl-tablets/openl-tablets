@@ -303,8 +303,6 @@ The request applies one edit to the raw source of any table. The `operation` sel
   `rowspan`, and `colspan`.
 - **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
 - **`style`** — sets the style of a rectangle; see [Styling Cells](#styling-cells). Target type `cells`.
-- **`theme`** — writes a table theme into the table; see [Table Theme](#table-theme). The edit names the `theme` and has
-  no `target`, and it is applied on its own.
 
 A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covered`. Examples:
 
@@ -377,8 +375,8 @@ The `style` operation sets the style of every cell of a rectangle:
 
 The table theme gives every table but a table of the kind `Other` one look, the one the formatting standard of OpenL
 tables describes: a table of no kind OpenL Tablets knows and a part of a table written as several partial tables take
-no theme. A client offers the theme for a table of any kind but `Other`, which the read reports in `kind`. Every colour
-of the theme is a theme colour of Excel, made lighter or darker, such as **Blue, Accent 1, Lighter 60%**.
+no theme. The read reports the kind of a table in `kind`. Every colour of the theme is a theme colour of Excel, made
+lighter or darker, such as **Blue, Accent 1, Lighter 60%**.
 
 **Drawing the theme.** A read with `tableTheme=true` reports every cell in the look of the theme alone, in place of
 the formatting of the workbook. Nothing of the formatting of the workbook is reported but the indent of a cell, which
@@ -402,56 +400,30 @@ theme, its General format, rather than a look guessed from where they stand, whi
 line that closes it keep the theme.
 
 The theme is a view only: an edit writes only what it changes, such as a value or an indent, so no edit writes the
-look the screen drew. Only the `theme` action writes the theme.
+look the screen drew.
 
-**Writing the theme into a table.** The `theme` action writes the theme into the table:
+**Formatting the tables on save.** Where the administrator turns on `table.format-on-save` (**Format tables on save**
+in the system settings, `formatTablesOnSave` of `/rest/admin/settings/system`), every table a request writes is then
+formatted with the theme, as the read with `tableTheme=true` draws it: a table edited, appended to, given properties,
+created or copied. A table of the kind `Other` is left as the request wrote it. The setting is off by default, and the
+workbooks then keep the formatting the requests write.
 
-```json
-{"operation": "theme"}
-```
+The theme is laid out by the table as it is compiled: a decision table by where the compiler found its conditions and
+what it returns, a Conditions, an Actions or a Returns table by where it found the titles of what the table declares.
+So the module of the table is compiled from the workbook just written before the theme is written, whatever
+`compile.auto` is set to, and the request takes as long as that compilation. The theme changes no place: the request
+answers the identifier the write gave the table. A theme that cannot be written, such as one an `.xls` workbook has no
+room for, leaves the table as the request wrote it: the request answers as the write does, and the failure is logged.
 
-The theme is laid out by the table as it was saved and compiled: a decision table by where the compiler found its
-conditions and what it returns, a Conditions, an Actions or a Returns table by where it found the titles of what the
-table declares. An edit sent with the theme would change the table the compiler read, and a column it inserted into a
-decision table would be a condition the compiler has not read yet. So the theme is applied on its own: a batch
-holding a `theme` action and any other edit, another `theme` action included, is refused with `400` and
-`openl.error.400.table.theme.alone.message` before the table is read, and nothing of it is written. Send the edits
-first, then the theme, or the other way round. A theme is refused with `409` and
-`openl.error.409.table.theme.verify.message` while a workbook of the project was written to since it was compiled:
-with **Verify on Edit** turned off, a write leaves the project compiled as it stood before the write until the module
-is verified. Compile the module first, with `POST /rest/projects/{projectId}/modules/{moduleName}/compile?reset=true`,
-which compiles every module of the project again. Where OpenL Studio records who edits a table and when, a property
-the note of the edit adds takes the theme too. A table of the kind `Other` is refused with `400`.
-
-**Writing the theme into the project.** One endpoint writes the theme into every table of every module of the project
-but the tables of the kind `Other`, and recompiles what it changes:
-
-```http
-POST /rest/projects/{projectId}/theme
-```
-
-It answers `200` with the identifiers of the tables themed and of the ones left as they are, which are written as
-several partial tables. A table of any other kind is in neither list. A project compiled only in part, such as one whose
-module compiles alone, is compiled whole first, so the theme reaches every module; a project whose compilation was
-stopped is refused with `409`, and so is a project written to since it was compiled, as one table is
-(`openl.error.409.table.theme.verify.message`). Where OpenL Studio records who edits a table and when, each table
-themed is noted as edited, as any edit of a table is. A property the note adds takes the theme, and a table without
-room for the note moves and is named by where it stands once written:
-
-```json
-{ "themed": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }
-```
-
-Writing changes only the look of a table. Each cell keeps its value and every attribute the theme does not set, such
-as its number format. The header keeps its text, cells outside the table are not touched, and a table of a
-dependency project is left as it is. Writing the theme again adds no styles or fonts to the workbook.
+Writing changes only the look of a table. Each cell keeps its value, its indent and every attribute the theme does not
+set, such as its number format. The header keeps its text, cells outside the table are not touched, and writing the
+theme again adds no styles or fonts to the workbook.
 
 Each colour is written as the theme colour it is into an `.xlsx` workbook of a theme, whatever its theme colours, so
 the table takes the colours of the theme of the workbook and Excel offers the colour in its palette. Into an `.xls`
 workbook and an `.xlsx` one without a theme, each colour is written as `#rrggbb`, in the shade Office 2013 - 2022
-draws it in; an `.xls` workbook holds 56 colours and takes the nearest one it holds. The project endpoint and the
-`theme` action write alike, and neither changes the theme of a workbook: Apache POI, which writes the workbooks, has
-no way to set it.
+draws it in; an `.xls` workbook holds 56 colours and takes the nearest one it holds. The theme of a workbook is never
+changed: Apache POI, which writes the workbooks, has no way to set it.
 
 ### Applying Several Edits
 
@@ -472,8 +444,6 @@ Content-Type: application/json
   An insert or a delete shifts the coordinates of everything that follows it.
 - **One write** — the table is written once, after the last edit. An edit that is refused ends the sequence, and nothing
   of it reaches the table.
-- **A theme alone** — a `theme` action is the only edit of its batch. A batch holding it and any other edit, another
-  `theme` action included, is refused with `400`; see [Table Theme](#table-theme).
 - **Response** — as for a single edit: `204`, or `200` with the new id and the `Location` header.
 
 ## Editing a Table

@@ -31,8 +31,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
         @JsonSubTypes.Type(value = RawTableSourceAction.Update.class, name = "update"),
         @JsonSubTypes.Type(value = RawTableSourceAction.Merge.class, name = "merge"),
         @JsonSubTypes.Type(value = RawTableSourceAction.Unmerge.class, name = "unmerge"),
-        @JsonSubTypes.Type(value = RawTableSourceAction.Style.class, name = "style"),
-        @JsonSubTypes.Type(value = RawTableSourceAction.Theme.class, name = "theme")
+        @JsonSubTypes.Type(value = RawTableSourceAction.Style.class, name = "style")
 })
 public sealed interface RawTableSourceAction
         permits RawTableSourceAction.Append,
@@ -41,8 +40,7 @@ public sealed interface RawTableSourceAction
         RawTableSourceAction.Update,
         RawTableSourceAction.Merge,
         RawTableSourceAction.Unmerge,
-        RawTableSourceAction.Style,
-        RawTableSourceAction.Theme {
+        RawTableSourceAction.Style {
 
     @Schema(name = "Append", description = "Adds one or more rows or columns to the end of the table.")
     record Append(@NotNull @Valid AppendTarget target) implements RawTableSourceAction {
@@ -70,15 +68,6 @@ public sealed interface RawTableSourceAction
 
     @Schema(name = "Style", description = "Sets the styling of a rectangular range of cells.")
     record Style(@NotNull @Valid StyleTarget target) implements RawTableSourceAction {
-    }
-
-    /** Writes the table theme into a table of a kind it styles, as the table was saved, with no other edit. */
-    @Schema(name = "Theme", description = """
-            Writes the table theme into a table of any kind but `Other`, as the table was saved, in the theme colours \
-            of Excel. The theme is applied on its own: a request holding it and another edit is refused. Only the \
-            look of the table changes: each cell keeps its value and every attribute the theme does not set. A table \
-            of the kind `Other` is refused.""")
-    record Theme() implements RawTableSourceAction {
     }
 
 }
