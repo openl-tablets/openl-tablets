@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -10,10 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import org.openl.rules.project.model.Module;
 
@@ -21,14 +17,9 @@ import org.openl.rules.project.model.Module;
 class WebStudioWrittenModuleTest {
 
     private static WebStudio studio(boolean autoCompile) {
-        var studio = mock(WebStudio.class, CALLS_REAL_METHODS);
-        // The mock skips the constructor, so the holders the real methods write to are supplied here.
-        ReflectionTestUtils.setField(studio, "rewrittenModule", new AtomicReference<>());
-        ReflectionTestUtils.setField(studio, "moduleToVerify", new AtomicReference<>());
-        ReflectionTestUtils.setField(studio, "announcedWrite", new AtomicReference<>());
         var model = mock(ProjectModel.class);
         when(model.getCurrentCompilation()).thenReturn(RegisteredCompilation.completed());
-        ReflectionTestUtils.setField(studio, "model", model);
+        var studio = WebStudioMocks.studio(model);
         doReturn(new Module()).when(studio).getCurrentModule();
         doReturn(autoCompile).when(studio).isAutoCompile();
         return studio;

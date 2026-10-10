@@ -259,8 +259,9 @@ for the endpoints.
   `ProjectModel.isWrittenSinceCompiled` tells whether what the session compiled for the project open, the modules and
   the projects it depends on included, still answers for its workbooks. While it does not, a theme of one table and of
   the project is refused (`table.theme.verify.message`, `409`), whatever automatic compilation is set to. With it on,
-  opening the module a write changed builds it again (`WebStudio.recompileCurrentModule`), so a theme sent once the
-  edits are saved is laid out by the table they left (`070-apply-theme-alone` of `task_table_theme`). With it off,
+  opening any module after a write builds the module the write changed again, and every module using it
+  (`WebStudio.recompileCurrentModule`), so a theme sent once the edits are saved is laid out by the table they left
+  (`070-apply-theme-alone` of `task_table_theme`). With it off,
   the project stays compiled as its workbooks stood until the reader verifies a module, which compiles every module
   again (`080-apply-theme-after-verify`). `ProjectModel.isManualCompileNeeded`, the `manualCompileNeeded` of the
   status, asks the same with automatic compilation off: the Verify button, the theme of the editor (`verifyNeeded`,
