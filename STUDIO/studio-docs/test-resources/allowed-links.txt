@@ -33,4 +33,5 @@ https://creativecommons.org/licenses/
 https://en.wikipedia.org/wiki/
 https://fetch.spec.whatwg.org/
 https://jakarta.ee/specifications/
+https://modelcontextprotocol.io/
 https://tools.ietf.org/html/

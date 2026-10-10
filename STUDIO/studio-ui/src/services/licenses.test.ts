@@ -3,11 +3,11 @@ import { resolve } from 'node:path'
 import { expressionParts, fetchLicenses, openText, publicLicense } from './licenses'
 import { jsonResponse } from 'testing/responses'
 
-/** The licenses `npm run build` lets the frontend libraries have. */
-const frontendLicenses = (): string[] => {
-    const { scripts } = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as
+/** The licenses the `--onlyAllow` of an npm script lets the libraries of a package have. */
+const npmLicenses = (packageJson: string, script: string): string[] => {
+    const { scripts } = JSON.parse(readFileSync(resolve(process.cwd(), packageJson), 'utf8')) as
         { scripts: Record<string, string> }
-    return /--onlyAllow "([^"]+)"/.exec(scripts['build'] ?? '')![1]!.split(';')
+    return /--onlyAllow "([^"]+)"/.exec(scripts[script] ?? '')![1]!.split(';')
 }
 
 /** The licenses the war build lets the backend libraries have. */
@@ -68,7 +68,11 @@ describe('licenses', () => {
     })
 
     it('knows where every license the builds accept is published', () => {
-        const licenses = [...frontendLicenses(), ...backendLicenses()].flatMap(license => license.split(' WITH '))
+        const licenses = [
+            ...npmLicenses('package.json', 'build'),
+            ...npmLicenses('../studio-mcp/package.json', 'licenses'),
+            ...backendLicenses(),
+        ].flatMap(license => license.split(' WITH '))
 
         expect(licenses).toEqual(expect.arrayContaining(['MIT', 'GPL-2.0-only', 'Classpath-exception-2.0']))
         expect(licenses.filter(license => !publicLicense(license))).toEqual([])

@@ -42,7 +42,7 @@ generation.
 Multi-module Maven project. The version inherits from the root `pom.xml`.
 
 - **DEV/** — Core rules engine (type system, parser, binding, bytecode gen, project model)
-- **STUDIO/** — Web IDE (Spring backend + React/TypeScript frontend)
+- **STUDIO/** — Web IDE (Spring backend + React/TypeScript frontend + the built-in MCP server on Node.js)
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
 - **Util/** — Maven plugin, project archetypes and shared libraries (OpenAPI, Excel builder, YAML, OpenTelemetry)
@@ -52,7 +52,8 @@ Multi-module Maven project. The version inherits from the root `pom.xml`.
 - **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/`, which OpenL
   Studio also ships and `STUDIO/studio-docs` validates; cross-cutting architecture notes under `Docs/architecture/`
 
-Dependency versions are managed in the root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend).
+Dependency versions are managed in the root `pom.xml` (Java/Maven), `STUDIO/studio-ui/package.json` (frontend) and
+`STUDIO/studio-mcp/package.json` (MCP server).
 Read those files for current versions, prefer the latest ones, and do not hardcode versions in documentation or
 `AGENTS.md` files.
 
@@ -76,10 +77,11 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
   the reactor; openl-maven-plugin still builds with its tests skipped. `-Pitest` re-adds the dropped
   modules
 - **`-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip`** — leave out one studio-ui step at a time:
-  the vitest suite, the `tsc --noEmit` pass, the production bundle. `-DskipTests` already implies the
-  first
+  the vitest suite, the `tsc --noEmit` pass, the production bundle. studio-mcp honours the first and the last.
+  `-DskipTests` already implies the first
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
-  `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
+  `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); MCP server:
+  `cd STUDIO/studio-mcp && npm test -- tests/<file>.test.ts`; one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
 - **Mirrored versions** — `Dockerfile`, the `DEMO/start` and `DEMO/start.ps1` launch scripts and the compose and
   Kubernetes files cannot read Maven properties, so they spell out a second time `log4j.version` and
