@@ -89,8 +89,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * The module whose workbook a write has changed, waiting to be built from it again.
      *
      * <p>Named rather than flagged: a request to compile says nothing about which module it is for, and the
-     * session moves between modules and projects. Building the one that happens to be open next instead would
-     * rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
+     * session moves between modules and projects. What is dropped is what was compiled from this module and from
+     * every module using it, whichever module is opened next. Building the one that happens to be open next instead
+     * would rebuild a module nobody wrote to and leave the written one answering from the workbook it used to have.
      */
     private final AtomicReference<Module> rewrittenModule = new AtomicReference<>();
     /**
@@ -421,8 +422,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
     /**
      * Asks for the module that is open to be built from its workbook again, and for nothing besides it.
      *
-     * <p>Only the dependency this module stands for is dropped and resolved afresh; every other module the
-     * session has compiled stays as it is, and so does the compilation the screen is following.
+     * <p>The next time any module is opened, what was compiled from this one is dropped and built afresh, and so
+     * is every module using it: the module opened may be one of them. Every other module the session has compiled
+     * stays as it is, and so does the compilation the screen is following until then.
      *
      * <p>Asked for whatever the automatic-compilation setting says: the caller has left the workbook the
      * session holds in a state that answers for nothing, and it has to be read again before anything else is.
@@ -556,9 +558,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // The descriptors are resolved again whenever the workspace is refreshed, so the same module
             // arrives as a new object; what it names is what tells it from another module.
             boolean anotherModuleOpened = !ProjectModel.isSameModule(currentModule, module);
-            // The module a write changed is built from its workbook again the next time it is opened, and only
-            // it — a write elsewhere leaves this one alone, and opening another module does not consume it.
-            boolean rewritten = ProjectModel.isSameModule(rewrittenModule.get(), module);
+            // The module a write changed is built from its workbook again the next time any module is opened: the
+            // module asked for may use it, and would otherwise be answered with what was compiled before the write.
+            var rewritten = rewrittenModule.get();
             // The reader asked for the module a write left them to compile. Asked for by name: Verify on
             // another module compiles that one and leaves this request standing.
             boolean verifying = manualCompile && ProjectModel.isSameModule(moduleToVerify.get(), module);
@@ -566,7 +568,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             currentModule = module;
             currentProject = project;
             validateReadPermission(repositoryId, module);
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || verifying || forcedCompile || rewritten || anotherModuleOpened || anotherProjectOpened)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || verifying || forcedCompile || rewritten != null || anotherModuleOpened || anotherProjectOpened)) {
                 openModule(module, verifying, rewritten, anotherProjectOpened, anotherModuleOpened);
             }
         } catch (Exception e) {
@@ -613,20 +615,22 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private void openModule(Module module,
                             boolean verifying,
-                            boolean rewritten,
+                            @Nullable Module rewritten,
                             boolean anotherProjectOpened,
                             boolean anotherModuleOpened) throws ProjectResolvingException {
+        if (rewritten != null) {
+            // Its workbook was written to: what was compiled from it, and from every module using it, is dropped
+            // and resolved afresh. Asked for before anything else that would compile a module, because only this
+            // drops what was compiled from the workbook as it stood before the write — opening a module again
+            // would be answered with it.
+            model.dropCompiled(rewritten);
+        }
         if (forcedCompile) {
             reset(ReloadType.FORCED);
         } else if (needCompile || verifying) {
             reset(ReloadType.SINGLE);
-        } else if (rewritten) {
-            // Its workbook was written to: the dependency it stands for is dropped and resolved
-            // afresh. Asked for before anything else that would compile the module, because only this
-            // drops what was compiled from the workbook as it stood before the write — opening the
-            // module again would be answered with it.
-            reset(ReloadType.SINGLE);
-        } else if (anotherProjectOpened) {
+        } else if (rewritten != null || anotherProjectOpened) {
+            // The project compiled as a whole uses the written module too, so it is compiled again with the module.
             model.setModuleInfo(module, ReloadType.SINGLE);
         } else if (anotherModuleOpened) {
             model.setModuleInfo(module, ReloadType.NO);
@@ -639,9 +643,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         needCompile = false;
         forcedCompile = false;
         manualCompile = false;
-        if (rewritten) {
-            rewrittenModule.set(null);
-        }
+        rewrittenModule.compareAndSet(rewritten, null);
         if (verifying) {
             moduleToVerify.set(null);
         }

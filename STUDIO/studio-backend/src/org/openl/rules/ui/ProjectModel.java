@@ -988,18 +988,29 @@ public class ProjectModel {
                 webStudioWorkspaceDependencyManager = null;
                 break;
             case SINGLE:
-                // The session may hold nothing compiled at all - the module was cleared when its project was
-                // closed elsewhere - and then there is nothing to drop before the module is built again.
-                if (webStudioWorkspaceDependencyManager != null) {
-                    webStudioWorkspaceDependencyManager
-                            .reset(AbstractDependencyManager.buildResolvedDependency(moduleToOpen));
-                }
+                dropCompiled(moduleToOpen);
                 break;
             default:
                 // nothing compiled is dropped for the other reload types
                 break;
         }
         setModuleInfo(moduleToOpen, reloadType);
+    }
+
+    /**
+     * Drops what the session compiled from the workbook of the module, and from every module using it.
+     *
+     * <p>Nothing is compiled here: each of them is built from its workbook the next time it is asked for.
+     *
+     * <p>The session may hold nothing compiled at all — the module was cleared when its project was closed
+     * elsewhere — and then there is nothing to drop.
+     *
+     * @param module the module to build from its workbook again
+     */
+    synchronized void dropCompiled(Module module) {
+        if (webStudioWorkspaceDependencyManager != null) {
+            webStudioWorkspaceDependencyManager.reset(AbstractDependencyManager.buildResolvedDependency(module));
+        }
     }
 
     public synchronized TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
