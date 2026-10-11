@@ -2,9 +2,8 @@
 
 ## Resume point
 
-- No PR is open: #2284 merged the day it opened. Cut a fresh branch off a re-fetched `origin/main` once a
-  finding is proven.
-- All 14 change types are exhausted repo-wide; the last delta sweep ran at `origin/main` 4ec4024705. A run is:
+- PR #2305 (`dead-code/agents-docs`) is open: maintain it first. Merged? Cut a fresh branch off `origin/main`.
+- All 14 change types are exhausted repo-wide; the last delta sweep ran at `origin/main` 52d11b6c88. A run is:
   maintain the open PR, sweep the delta since that SHA, then spend the rest on a NEW vein.
 - Only documentation, build config, i18n keys and dead TS imports have ever paid. The release-note vein is the best
   one: re-run it whenever guides or release notes change.
@@ -30,7 +29,8 @@
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2305 `dead-code/agents-docs`, head 2c2798007d: change type 14, one commit —
+  2c2798007d Drop the LastCommit example of a schema description leak, no such class exists
 
 ## Merged PRs
 
@@ -260,7 +260,8 @@
   navigation and plugin list, duplicate sibling entries in non-pom XML and JSON, duplicate keys over properties and
   ignore files, per-package logger categories, image references across poms, the Jekyll `_includes`/`_layouts`/`_data` and main-nav targets, studio-docs'
   `allowed-links.txt` prefixes (all 24 used), the Docs link graph outside the `nav: auto` scopes, and Spring
-  `@Profile` values. The duplicate-entry scan paid once,
+  `@Profile` values, backticked names in every AGENTS.md, `.claude/**/*.md` and `Docs/architecture` (paid 1 in
+  #2305; re-run per delta touching them). The duplicate-entry scan paid once,
   on three `**/*.sql` Spotless includes; the `.aj`/`.apt`/`.scss` ones are prophylactic and KEPT — settled.
 
 ## Human follow-ups
@@ -283,12 +284,10 @@
 
 ## Run log
 
-- 2026-10-03: delta was 221 files — a 40-commit Docs rewrite wave and a Sonar S107 refactor wave. Reactor green
-  in 31:14 from a cold `~/.m2`. Ten veins re-ran at zero (images, release notes, Docs links and tokens, orphan
-  pages, allowed-links, Jekyll partials, @Profile, Error Prone, dependency:analyze-only's 69 hits). One finding:
-  the `jekyll-redirect-from` plugin; #2257 MERGED (-2). The wave also cleared thirteen Docs human follow-ups.
 - 2026-10-08: delta was 89 commits — the studio-backend rename, table themes, trace, 7.0.0 migration notes. PMD
   (57 hits), Error Prone, dependency:analyze (69), i18n (1,722 keys), bundles, npm, images, Docs settings and
   release notes re-ran at zero. tsc found 7 dead React imports; #2284 MERGED (-7).
 - 2026-10-10: delta was 66 commits (xls cell merge, pending changes, restored operators). Reactor green in 29:10
   cold; Error Prone, PMD (29), tsc, i18n (1,729 keys), bundles, Docs tokens, imports re-ran at zero. No PR.
+- 2026-10-11: delta was 4 commits (index wait, thread count). Reactor green in 27:06 cold; Error Prone, tsc re-ran
+  at zero. New vein, AGENTS.md names: 1 stale class, #2305 opened (-1 phrase).
