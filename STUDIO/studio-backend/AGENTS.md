@@ -28,7 +28,7 @@ annotation.
   literal English (the resolver's fallback returns them verbatim).
 - **A field whose type is another component MUST use `@Parameter`, never a field-level `@Schema(description=…)`.** This
   covers a DTO-typed field or a `List`/`Collection`/`Map` of one. The stock swagger `ModelResolver` copies a field-level
-  `@Schema` description onto the **referenced component schema** (it leaks — e.g. onto `LastCommit` itself), whereas
+  `@Schema` description onto the **referenced component schema**, whereas
   `PropertySchemaCustomizingConverter` (package `org.openl.rules.spring.openapi.converter`) reads `@Parameter` and
   sets the description on the **property only**.
 - **A class-level `@Schema(description=…)` on the component itself is correct** and expected — keep it. Simple scalar
