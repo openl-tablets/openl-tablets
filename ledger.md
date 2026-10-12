@@ -2,7 +2,7 @@
 
 ## Resume point
 
-- PR #2305 (`dead-code/agents-docs`) is open: maintain it first. Merged? Cut a fresh branch off `origin/main`.
+- No PR is open: #2305 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
 - All 14 change types are exhausted repo-wide; the last delta sweep ran at `origin/main` 52d11b6c88. A run is:
   maintain the open PR, sweep the delta since that SHA, then spend the rest on a NEW vein.
 - Only documentation, build config, i18n keys and dead TS imports have ever paid. The release-note vein is the best
@@ -29,12 +29,11 @@
 
 ## Open PR
 
-- #2305 `dead-code/agents-docs`, head 2c2798007d: change type 14, one commit —
-  2c2798007d Drop the LastCommit example of a schema description leak, no such class exists
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7)
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
   rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
@@ -290,4 +289,4 @@
 - 2026-10-10: delta was 66 commits (xls cell merge, pending changes, restored operators). Reactor green in 29:10
   cold; Error Prone, PMD (29), tsc, i18n (1,729 keys), bundles, Docs tokens, imports re-ran at zero. No PR.
 - 2026-10-11: delta was 4 commits (index wait, thread count). Reactor green in 27:06 cold; Error Prone, tsc re-ran
-  at zero. New vein, AGENTS.md names: 1 stale class, #2305 opened (-1 phrase).
+  at zero. New vein, AGENTS.md names: 1 stale class, #2305 MERGED (-1 phrase).
