@@ -35,6 +35,7 @@ import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.projects.messaging.SocketBenchmarkExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.benchmark.BenchmarkResult;
 import org.openl.studio.projects.model.benchmark.BenchmarkResultMapper;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.studio.projects.service.ExecutionStatus;
@@ -80,6 +81,7 @@ public class ProjectsBenchmarkController {
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Object.class))))
     @ApiResponse(responseCode = "202", description = "benchmark.start.202.desc")
     @ApiResponse(responseCode = "404", description = "benchmark.start.404.desc")
+    @ChangesNothing
     @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void startBenchmark(
@@ -163,6 +165,7 @@ public class ProjectsBenchmarkController {
 
     @Operation(summary = "benchmark.delete.summary", description = "benchmark.delete.desc")
     @ApiResponse(responseCode = "204", description = "benchmark.delete.204.desc")
+    @ChangesNothing
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBenchmarks(

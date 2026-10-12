@@ -13,6 +13,11 @@ All the code is in `STUDIO/studio-backend`.
 flowchart TB
     Client["REST client"] --> Ctrl["ProjectsMergeController<br/>/rest/projects/{projectId}/merge"]
     Ctrl --> MS["ProjectsMergeService<br/>check, validate, merge"]
+    Ctrl --> ML["ProjectsMergeLauncher<br/>run a merge in the background"]
+    ML --> MS
+    ML --> MR["ProjectsMergeRegistry<br/>@ClientSessionScope"]
+    ML --> SH
+    ML -- status --> Topic["/user/topic/projects/{projectId}/merge/status"]
     Ctrl --> CS["ProjectsMergeConflictsService<br/>describe, read, resolve"]
     Ctrl --> SH["ProjectsMergeConflictsSessionHolder<br/>@ClientSessionScope"]
     Ctrl --> CL["ComparisonLauncher<br/>compare a conflicted workbook"]
@@ -25,10 +30,13 @@ flowchart TB
 ```
 
 - **`ProjectsMergeController`** (`org.openl.studio.projects.rest.controller`) — the endpoints. It pauses the compilation of
-  an opened project for the length of a merge or a resolution, and brings the workspace and the editor to the state
-  after it.
+  an opened project for the length of a resolution, and brings the workspace and the editor to the state after it.
 - **`ProjectsMergeService`** (`org.openl.studio.projects.service.merge`) — checks where the branches stand, refuses a
   merge that must not be performed, and merges.
+- **`ProjectsMergeLauncher`** — validates a merge and runs it on the `mergeExecutor` pool, apart from the request that
+  starts it, reports its progress on the WebSocket, and brings the editor up to date once the merge has ended.
+- **`ProjectsMergeRegistry`** — keeps the merge a client started last (`StartedMerge`): the merge itself and the
+  editor state it found.
 - **`ProjectsMergeConflictsService`** — describes a conflict (revisions, file availability, default message), groups the
   conflicted files by project, reads one version of a file, and resolves.
 - **`ProjectsMergeConflictsSessionHolder`** — keeps the unresolved conflict of one client.
@@ -70,19 +78,93 @@ branch and the lock, and `status` says `up-to-date` for step 6. `merge` runs all
   merged (EPBDS-16541). A resolution waits for the index the same way.
 - A conflict in Git gives a `MergeConflictInfo` with the details of the conflict. Otherwise the merge is `success`.
 
+## Merge in the Background
+
+A merge of a large project parses three versions of every conflicted workbook and takes minutes, longer than a reverse
+proxy waits for an answer (EPBDS-16469). `POST /merge` therefore answers `202` once the merge is validated and runs it
+on the `mergeExecutor` pool, which runs two merges at once and queues the rest: each merge holds its workbooks in
+memory.
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant R as Request thread
+    participant P as mergeExecutor
+    C->>C: subscribe to /user/topic/projects/{projectId}/merge/status
+    C->>R: POST /merge
+    R->>R: validate, register the merge
+    R-->>C: 202 Accepted (PENDING on the topic)
+    P->>P: merge in the repository (STARTED)
+    P-->>C: COMPLETED, or ERROR with the reason
+    C->>R: GET /merge
+    R->>R: bring the editor up to date, once
+    R-->>C: 200 success or conflicts
+```
+
+- **One merge of a client at a time.** `ProjectsMergeRegistry` keeps the merge a client started last. Another merge is
+  refused with `409` (`project.merge.running.message`) while it runs: it would change the project the running merge
+  changes. An ended merge stays until the next one starts, or until the conflicts it left are resolved or cancelled
+  (`ProjectsMergeLauncher.forget`), so its result can be read again: kept longer, it would report conflicts nobody has
+  any more and hold what comparing the conflicted workbooks found. Two starts of one client never run at once: a start
+  holds the lock of the client (`ProjectsMergeRegistry.startLock()`) from its checks until it has taken its merge, so
+  the merge it replaces has ended and reached the editor.
+- **The project is read-only for the client while it is merged.** `MergeInProgressInterceptor` refuses every request
+  with a `projectId` path variable but a read (`GET`, `HEAD`, `OPTIONS`) with `409` `project.merge.running.message`
+  while a merge of that project by the client runs. An edit, a save, a branch switch or a close would be dropped by the
+  reopen at the end of the merge, or would take the merge onto a branch it was not validated for. A request that changes
+  nothing though it is no `GET` — a compilation, a run of tests or tables, a trace, a comparison, a search — is a read
+  too: its endpoint carries `@ChangesNothing`, so a page reloaded during a merge still compiles and shows the project.
+  The endpoints of `ProjectsMergeController` stay open, and find an ended merge brought to the editor all the same. The
+  project is resolved only while a merge of the client runs. Other clients, other users included, work on as before; the
+  merge still merges the branch it was validated with (`StartedMerge.currentBranch`).
+- **A merge that runs is no error** (EPBDS-16636). The same merge asked for again while it runs — the same project,
+  branch and mode — answers `202` and is the merge already running. It is not validated again: the running merge may
+  have committed already, which leaves nothing to merge. `GET /merge` answers `202` while it runs and never `409`. Two
+  such requests running alongside take one merge: the second one waits until the first has taken it, and finds it
+  running.
+- **The background works in the repository only.** The merge is handed the user workspace taken while the request
+  answered, and an opened project stays open and compiled in the editor meanwhile: a client that reloads the page in
+  the middle of a merge keeps a working editor. `POST /merge` does not wait for the compilation either: the editor
+  model is the one of `WebStudio`, read when the merge ends. The editor state belongs to the requests of the client:
+  `WebStudio.reset()` publishes `WorkspaceResetEvent` to `@ClientSessionScope` listeners, which no thread outside a
+  request finds.
+- **A merge that waited for a thread asks again what other users can change.** When it starts, a target branch where
+  another user has taken up the project, or that holds the other branch already, refuses it with
+  `project.merge.branch.locked.message` or `project.branch.merge.not.mergeable.message`, reported as `ERROR`, and
+  `GET /merge` answers `409` with the reason.
+- **A merge that ends is completed before it is announced**, so a client that reads the result on `COMPLETED` finds it.
+  A failure no handler takes, out of memory for one, still ends the merge as failed and reports `ERROR`: a merge that
+  never ended would refuse every later merge of the client. A status the socket cannot send is logged and changes
+  nothing in the merge: its result is read from `GET /merge` all the same.
+
 ## Merge in the Editor
 
 A merge is made in the repository, so a closed project is merged as well as an opened one. Only an opened project has
-the editor state to keep consistent. The controller:
+the editor state to keep consistent. `ProjectsMergeLauncher`:
 
-1. validates the merge before it touches the editor, so a refused merge does not pause anything;
-2. pauses the compilation of the project (`WebStudioWorkspaceDependencyManager.pause()`);
-3. merges;
-4. on `success`, closes the project, refreshes the workspace, and opens the project again on its branch (a project that
-   the merge deleted stays closed, and a project that the merge renamed is found by its path), then resets
-   `WebStudio` and the module info;
-5. on `conflicts`, stores the `MergeConflictInfo` in the session holder;
-6. resumes the compilation when the request ends, except after a `success`: the reset drops the dependency manager.
+1. brings the merge that ended before to the editor, refuses unresolved conflicts, and validates the merge before it
+   touches the editor;
+2. merges in the background, while the editor keeps the project open, compiled and read-only for the client;
+3. brings the editor up to date in the first request of the client about the project that finds the merge ended —
+   `MergeInProgressInterceptor` does it before every such request, and `GET /merge` and `POST /merge` before they read
+   the merge (`settleFinished`):
+    - on `success`, reads the project again from the workspace, which builds its projects anew on a refresh, pauses
+      the compilation of the project (`WebStudioWorkspaceRelatedDependencyManager.pause()`), so it does not read a
+      project being closed (EPBDS-12353), closes the project, refreshes the workspace, and opens the project again on
+      its branch (a project that the merge deleted stays closed, and a project that the merge renamed is found by its
+      path), then resets `WebStudio` and the module info. The reset drops the paused dependency manager; a failure on
+      the way resumes it. A project with changes of its own, or switched to another branch meanwhile — by another
+      client of the user, which shares the workspace — is left as it is: closing it would drop those changes;
+    - on `conflicts`, stores the `MergeConflictInfo` in the session holder;
+    - after a failure, leaves the editor as it is: the merge changed nothing.
+
+Requests that find the merge ended while another one brings the editor up to date wait until it is done
+(`StartedMerge.settleOnce`), so none of them goes on with a project that is being opened again.
+`DELETE /merge/conflicts` brings an ended merge to the editor before it looks for its conflicts: a merge that ended
+after the request was let in keeps them only then.
+
+A failure to bring the editor up to date is logged, not raised: it belongs to no request that happened to find the
+merge ended, and the result of the merge stays what it is.
 
 ## Conflict Storage
 
@@ -126,15 +208,18 @@ A refused resolution leaves the stored conflict as it was, so the client can sen
 
 The errors are `RestRuntimeException`s with message codes in `ValidationMessages.properties`. The advice maps them to
 `{"code": "openl.error.<status>.<key>", "message": "..."}`; see [Errors](README.md#errors) and the table in
-[Projects Merge API](projects-merge-api.md#error-handling). A Git failure answers `500`.
+[Projects Merge API](projects-merge-api.md#error-handling). A Git failure of a merge is reported on the status topic
+as `ERROR` with its reason, and `GET /merge` answers it with `500`.
 
 ## Testing
 
 - **Unit tests** — `STUDIO/studio-backend/test/org/openl/studio/projects/service/merge` and the controller
-  tests next to the controller.
+  tests next to the controller; `ProjectsMergeLauncherTest` runs merges on a queue the test drains, so it sees the
+  request answer before the merge runs.
 - **Git** — `GitRepositoryMergeConflictsInExcelTest` and the other merge tests in `STUDIO/org.openl.rules.repository.git`.
 - **Workbook merge** — `XlsSheetMergerTest`, `XlsTableMergerTest` and `XlsSheetShiftsTest` in
   `STUDIO/org.openl.rules.xls.merge`: the changes of the two branches, kind by kind, merged or kept a conflict;
   `XlsTableMergerTest` crosses what each branch does with a table: leaves, creates, removes, changes or moves it.
 - **Integration** — the declarative suites in `ITEST/itest.studio`; `task_EPBDS-16883-excel-cell-merge` merges a
-  sheet changed in both branches through the table API, a table theme included.
+  sheet changed in both branches through the table API, a table theme included. A merge step is three requests: the
+  `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a `GET /merge` checking its result.

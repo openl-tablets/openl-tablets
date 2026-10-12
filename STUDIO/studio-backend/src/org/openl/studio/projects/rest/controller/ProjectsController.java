@@ -120,6 +120,7 @@ import org.openl.studio.projects.model.tests.TestExecutionSummaryQuery;
 import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
 import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -311,10 +312,7 @@ public class ProjectsController {
     @Operation(summary = "projects.status.update.summary")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                     @Valid @RequestBody ProjectStatusUpdateModel request) {
-        var projectId = projectIdentifierMapper.map(project);
-        if (conflictsSessionHolder.hasConflictInfo(projectId)) {
-            throw new ConflictException("project.unresolved.merge.conflicts.message");
-        }
+        conflictsSessionHolder.requireResolved(projectIdentifierMapper.map(project));
         var normalized = normalize(request);
         try {
             projectService.updateProjectStatus(project, normalized);
@@ -506,6 +504,7 @@ public class ProjectsController {
         getWebStudio().reset();
     }
 
+    @ChangesNothing
     @PostMapping("/{projectId}/modules/{moduleName}/compile")
     @ResponseStatus(HttpStatus.ACCEPTED)
     @Operation(summary = "projects.modules.compile.summary", description = "projects.modules.compile.desc")
@@ -518,6 +517,7 @@ public class ProjectsController {
         projectService.compileModule(project, moduleName, reset);
     }
 
+    @ChangesNothing
     @DeleteMapping("/{projectId}/modules/{moduleName}/compile")
     @Operation(summary = "projects.modules.compile.cancel.summary", description = "projects.modules.compile.cancel.desc")
     @ResponseStatus(HttpStatus.ACCEPTED)
@@ -632,6 +632,7 @@ public class ProjectsController {
      * <p>The table names the address, not the work: a project is held as one, so the table being put down is
      * the reader's way of saying which editor closed rather than something the release is about.
      */
+    @ChangesNothing
     @DeleteMapping("/{projectId}/tables/{tableId}/editors")
     @Operation(summary = "projects.table.editors.stop.summary", description = "projects.table.editors.stop.desc")
     public void stopEditingTable(@ProjectId @PathVariable("projectId") RulesProject project,
@@ -850,6 +851,7 @@ public class ProjectsController {
     @Parameter(name = "fromModule", description = "projects.tests.run.param.from-module.desc", in = ParameterIn.QUERY)
     @Parameter(name = "tableId", description = "projects.tests.run.param.table-id.desc", in = ParameterIn.QUERY)
     @Parameter(name = "testRanges", description = "projects.tests.run.param.test-ranges.desc", in = ParameterIn.QUERY)
+    @ChangesNothing
     @PostMapping("/{projectId}/tests/run")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void runAllTests(@ProjectId @PathVariable("projectId") RulesProject project,

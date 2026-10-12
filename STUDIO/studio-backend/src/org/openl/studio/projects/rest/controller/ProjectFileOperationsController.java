@@ -29,6 +29,7 @@ import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
@@ -117,6 +118,7 @@ public class ProjectFileOperationsController extends AbstractFileOperationsContr
         handleMove(fileRootFactory.of(project), request);
     }
 
+    @ChangesNothing
     @PostMapping("/file-search")
     @Operation(summary = "projects.files.search.summary", description = "projects.files.search.desc")
     public List<FsNode> searchFiles(@ProjectId @PathVariable("projectId") RulesProject project,

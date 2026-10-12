@@ -1,8 +1,8 @@
 # Client Sessions
 
 OpenL Studio keeps state for each client between its requests: the compiled project, running compilations, test,
-run and benchmark results, the debug session, merge conflicts and comparisons. This page describes where that state
-lives and when it ends.
+run and benchmark results, the debug session, running merges, merge conflicts and comparisons. This page describes
+where that state lives and when it ends.
 
 ## Two Kinds of Clients
 

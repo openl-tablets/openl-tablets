@@ -3,16 +3,13 @@ import { App, Alert, Button, Checkbox, Form, Space, Spin, Tooltip } from 'antd'
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
-import type { ApiCallOptions } from '../../services'
 import { apiCall, ApiHttpError, isApiHttpError } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
 import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
+import { MERGE_API_OPTIONS, mergeBranches } from './mergeBranches'
 import { BranchSelect } from '../projects/BranchSelect'
 import { getProjectBranches } from '../../services/repositories'
-
-// A merge check reads the branches; it changes nothing, so it must not drop the projects snapshot.
-const MERGE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true, skipWorkspaceEvent: true }
 
 const BYPASS_REQUIRED_CODE = 'openl.error.409.protected.branch.bypass.required'
 
@@ -250,21 +247,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
             setMergeError(null)
 
             try {
-                const url = force
-                    ? `/projects/${projectId}/merge?force=true`
-                    : `/projects/${projectId}/merge`
-                const result: MergeResultResponse = await apiCall(
-                    url,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            mode,
-                            otherBranch: selectedBranch,
-                        }),
-                    },
-                    MERGE_API_OPTIONS
-                )
+                const result = await mergeBranches(projectId, mode, selectedBranch, force)
 
                 if (result.status === 'success') {
                     onMergeSuccess()

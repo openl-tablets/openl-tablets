@@ -1,16 +1,2 @@
-HTTP/1.1 200
-Content-Type: application/json
-
-{
-  "status": "conflicts",
-  "conflictGroups": [
-    {
-      "projectName": "EPBDS-16884-Rates",
-      "projectPath": "EPBDS-16884-Rates",
-      "files": [
-        "EPBDS-16884-Rates/Rates.xlsx"
-      ]
-    }
-  ]
-}
+HTTP/1.1 202
 

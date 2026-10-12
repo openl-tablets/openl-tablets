@@ -93,13 +93,13 @@ flowchart TB
 - Expose REST endpoints for merge operations
 - Validate incoming requests
 - Manage conflict session lifecycle
-- Pause the compilation of an opened project for the length of a merge or a resolution, and reopen the project
-  afterwards
+- Pause the compilation of an opened project for the length of a resolution, and reopen the project afterwards
 - Hand the two versions of a conflicted workbook to the Compare API
 - Coordinate with service layer
 
 **Dependencies**:
 - `ProjectsMergeService`: Core merge logic
+- `ProjectsMergeLauncher`: Runs a merge in the background and brings the editor up to date once it has ended
 - `ProjectsMergeConflictsService`: Conflict analysis and resolution
 - `WorkspaceProjectService`: Project lifecycle management
 - `ProjectsMergeConflictsSessionHolder`: Session-based conflict storage
@@ -141,7 +141,8 @@ The holder keeps one conflict at a time. A conflict stored for another project r
 The API uses session-based storage for conflict information:
 
 ```
-1. User calls POST /merge, or saves the project (PATCH /rest/projects/{projectId}) → Conflicts detected
+1. User calls POST /merge and reads GET /merge once it has ended, or saves the project
+   (PATCH /rest/projects/{projectId}) → Conflicts detected
 2. Conflict stored as MergeConflictInfo → SessionHolder
 3. User calls /conflicts, /conflicts/files or /conflicts/compare → Reads the stored conflict
 4. User calls /conflicts/resolve → Applies resolutions
@@ -156,7 +157,10 @@ The API uses session-based storage for conflict information:
 stateDiagram-v2
     [*] --> NoConflict
 
-    NoConflict --> ConflictStored: POST /merge finds conflicts
+    NoConflict --> Merging: POST /merge
+    Merging --> Merging: GET /merge answers 202
+    Merging --> NoConflict: the first request after the merge finds success
+    Merging --> ConflictStored: the first request after the merge finds conflicts
     NoConflict --> ConflictStored: project save finds conflicts
 
     ConflictStored --> ConflictStored: GET /conflicts
@@ -168,7 +172,8 @@ stateDiagram-v2
     ConflictStored --> NoConflict: DELETE /conflicts
 ```
 
-While a conflict of the project is stored, `POST /merge/check` and `POST /merge` answer `409 Conflict`.
+While a conflict of the project is stored, `POST /merge/check` and `POST /merge` answer `409 Conflict`. While a merge
+of the client is running, `POST /merge` answers `409 Conflict` too.
 
 ---
 
@@ -229,8 +234,9 @@ The status is reported whatever `blockedBy` says.
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge`
 
-**Description**: Executes a merge operation between two branches. If conflicts are detected, they are stored in session
-for later resolution.
+**Description**: Starts a merge operation between two branches. The merge is validated while the request answers, and
+then runs in the background: a merge of a large project takes minutes, longer than a reverse proxy waits for an answer.
+If conflicts are detected, they are stored in session for later resolution.
 
 **HTTP Method**: POST
 
@@ -253,7 +259,68 @@ for later resolution.
 - `receive`: Merge changes FROM `otherBranch` INTO current branch
 - `send`: Merge changes FROM current branch INTO `otherBranch`
 
-**Response**: `200 OK`
+**Response**: `202 Accepted`, with no body. The merge has started. The same merge sent again while it runs — the
+same project, `otherBranch` and `mode` — answers `202` as well: it is not validated again and starts nothing new, and
+its result is the result of the merge already running. Sending the running merge again, or asking for its result, is
+never refused.
+
+**Progress**: the merge reports itself on `/topic/projects/{projectId}/merge/status` (a client subscribes to
+`/user/topic/projects/{projectId}/merge/status` over the `/ws` WebSocket, `{projectId}` URL-encoded):
+
+- `PENDING` — the merge is waiting for a thread: only two merges run at once in the Studio;
+- `STARTED` — the merge is running;
+- `COMPLETED` — the merge has ended, with success or with conflicts;
+- `{"status": "ERROR", "message": "..."}` — the merge failed, or stopped before it finished.
+
+A client subscribes before it starts the merge, so the end cannot go unheard, and reads the result with
+[Get Merge Result](#3-get-merge-result). The result a merge ends with is described there.
+
+**Errors**:
+- `409 Conflict`: Every refusal of the check, plus: another merge of the client is still running
+  (`project.merge.running.message`), an eligible user merges into a protected branch without `force=true`, the project
+  is locked on the target branch, or there is nothing to merge
+- `403 Forbidden`: The user may not write to the project, or the target branch is protected and the user cannot
+  bypass the protection
+- `404 Not Found`: Project not found
+
+**Side Effects**:
+- The merge works in the repository only: an opened project stays open and compiled in the editor while it runs, and
+  the request does not wait for its compilation
+- The project is read-only for the client while the merge runs: every request about the project but a read — an edit of
+  a table, a file, a save, a branch switch, a close — answers `409 Conflict` with `project.merge.running.message`. A
+  compilation, a run of tests or tables, a trace or a comparison changes nothing and goes on. The endpoints of this API
+  stay open. Other clients, other users included, work as before
+- The merge merges the branch the project was on when it was validated, whatever the project is switched to meanwhile
+- A merge that is refused is refused before it starts
+
+---
+
+### 3. Get Merge Result
+
+**Endpoint**: `GET /rest/projects/{projectId}/merge`
+
+**Description**: Reads the result of the merge of the project the client started last. A client keeps the result of its
+last merge until it starts the next one, or until it resolves or cancels the conflicts the merge left, so the result can
+be read again.
+
+The first request of the client that finds the merge ended — this one, or any other request about the project — brings
+the editor up to date: it reopens a merged project, or stores the conflicts for resolution. Requests that come meanwhile
+wait until it is done. A client reads the result once the status topic reports the end of the merge; a client that does
+not follow the topic asks again while the answer is `202`.
+
+**HTTP Method**: GET
+
+**Path Parameters**:
+- `projectId` (string, required): Project identifier
+
+**Response**: `202 Accepted` while the merge is running:
+```json
+{
+  "status": "notReady"
+}
+```
+
+**Response**: `200 OK` once the merge has ended.
 
 **Success (no conflicts)**:
 ```json
@@ -307,23 +374,28 @@ A sheet both branches add with different content, or one branch removes while th
 The commit message lists those workbooks and their sheets under `Automatically resolved conflicts`, each sheet with
 the branch it was taken from, or with both branches for a sheet merged from both.
 
-**Errors**:
-- `409 Conflict`: Every refusal of the check, plus: an eligible user merges into a protected branch without
-  `force=true`, the project is locked on the target branch, or there is nothing to merge
-- `403 Forbidden`: The user may not write to the project, or the target branch is protected and the user cannot
-  bypass the protection
-- `404 Not Found`: Project not found
-- `500 Internal Server Error`: Git operation failed
+A committed merge waits up to 30 seconds for the project index to publish the target branch. An index that is late
+does not fail the merge: it is committed, and asking for it again would only find nothing left to merge.
 
-**Side Effects**:
+**Errors**:
+- `404 Not Found`: The client has started no merge of the project, or has resolved or cancelled the conflicts of its
+  last one (`project.merge.not.found.message`)
+- `409 Conflict`: The merge waited for a thread and was refused when it started: another user has taken up the project
+  on the target branch meanwhile (`project.merge.branch.locked.message`), or the target holds the other branch already
+  (`project.branch.merge.not.mergeable.message`)
+- `500 Internal Server Error`: Git operation failed, or the merge stopped before it finished
+
+A merge that is running is never answered with an error, and neither is one that has ended with conflicts: the conflicts
+are its result. `409 Conflict` answers only a merge that was refused when it started.
+
+**Side Effects** (of the first request that finds the merge ended):
 - On success: The merge is committed to the target branch. An opened project is closed, the workspace refreshed and
   the project reopened on its current branch; a project the merge deleted stays closed. A closed project stays closed
 - On conflicts: Conflict information stored in session, the target branch keeps its commit from before the merge
-- A merge that is refused is refused before the compilation of the project is paused
 
 ---
 
-### 3. Get Merge Conflicts
+### 4. Get Merge Conflicts
 
 **Endpoint**: `GET /rest/projects/{projectId}/merge/conflicts`
 
@@ -411,7 +483,7 @@ branch.
 
 ---
 
-### 4. Get Conflicted File
+### 5. Get Conflicted File
 
 **Endpoint**: `GET /rest/projects/{projectId}/merge/conflicts/files`
 
@@ -452,7 +524,7 @@ GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain
 
 ---
 
-### 5. Compare Conflicted File Versions
+### 6. Compare Conflicted File Versions
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/compare`
 
@@ -494,7 +566,7 @@ POST /rest/projects/MyProject/merge/conflicts/compare?file=MyProject%2Frules%2FM
 
 ---
 
-### 6. Resolve Conflicts
+### 7. Resolve Conflicts
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/resolve`
 
@@ -577,7 +649,7 @@ with them, and are not listed.
 
 ---
 
-### 7. Cancel Merge Conflicts
+### 8. Cancel Merge Conflicts
 
 **Endpoint**: `DELETE /rest/projects/{projectId}/merge/conflicts`
 
@@ -739,6 +811,10 @@ sent as written.
      "otherBranch": "feature-123"
    }
 
+   Response: 202 Accepted
+
+   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+
    Response: { "status": "success" }
 ```
 
@@ -753,6 +829,10 @@ sent as written.
      "mode": "receive",
      "otherBranch": "feature-123"
    }
+
+   Response: 202 Accepted
+
+   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
 
    Response: {
      "status": "conflicts",
@@ -803,6 +883,10 @@ sent as written.
    POST /rest/projects/MyProject/merge
    { "mode": "receive", "otherBranch": "feature-123" }
 
+   Response: 202 Accepted
+
+   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+
    Response: { "status": "conflicts", ... }
 
 2. Download all versions for manual merge
@@ -834,6 +918,10 @@ sent as written.
    POST /rest/projects/MyProject/merge
    { "mode": "receive", "otherBranch": "feature-123" }
 
+   Response: 202 Accepted
+
+   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+
    Response: { "status": "conflicts", ... }
 
 2. User decides not to proceed
@@ -856,6 +944,10 @@ sent as written.
 2. Confirm the bypass
    POST /rest/projects/MyProject/merge?force=true
    { "mode": "send", "otherBranch": "release-2.0" }
+
+   Response: 202 Accepted
+
+   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
 
    Response: { "status": "success" }
 ```
@@ -892,6 +984,7 @@ request body that fails validation answers `400` with a `fields` list naming eac
 | 403    | `default.message`                                | The user may not write to the project, or cannot bypass a protected target |
 | 404    | `project.identifier.message`                     | The project is not found                                 |
 | 404    | `project.merge.result.not.found.message`         | No conflict of the project is stored                     |
+| 404    | `project.merge.not.found.message`                | `GET /merge` while the client has started no merge of the project |
 | 404    | `project.merge.conflict.file.not.found`          | The file is not in the conflict list                     |
 | 404    | `project.merge.conflict.file.revision.not.found` | The requested version does not hold the file             |
 | 409    | `project.unresolved.merge.conflicts.message`     | Check or merge while a conflict of the project is stored |
@@ -902,6 +995,7 @@ request body that fails validation answers `400` with a `fields` list naming eac
 | 409    | `protected.branch.bypass.required`               | Merge into a protected branch without `force=true`       |
 | 409    | `project.merge.branch.locked.message`            | The project is locked on the target branch               |
 | 409    | `project.branch.merge.not.mergeable.message`     | Nothing to merge: the target holds every change already  |
+| 409    | `project.merge.running.message`                  | Another merge, or a change of the project, while a merge of the client runs |
 
 A project cannot take a merge when it exists only in the workspace, has unsaved changes, lives in a repository
 without branches, or its repository has no other branch. A project the user may not read answers `403`.
@@ -1072,6 +1166,11 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
     "otherBranch": "feature-user-auth"
   }'
 
+# Response: 202 Accepted
+
+# Read the result once /user/topic/projects/{projectId}/merge/status reports the end
+curl http://localhost:8080/rest/projects/MyProject/merge
+
 # Response (success)
 {
   "status": "success"
@@ -1091,6 +1190,11 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
     "mode": "send",
     "otherBranch": "release-2.0"
   }'
+
+# Response: 202 Accepted
+
+# Read the result once /user/topic/projects/{projectId}/merge/status reports the end
+curl http://localhost:8080/rest/projects/MyProject/merge
 
 # Response (success)
 {
@@ -1112,6 +1216,11 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
     "mode": "receive",
     "otherBranch": "feature-pricing"
   }'
+
+# Response: 202 Accepted
+
+# Read the result once /user/topic/projects/{projectId}/merge/status reports the end
+curl http://localhost:8080/rest/projects/MyProject/merge
 
 # Response (conflicts)
 {
@@ -1169,6 +1278,11 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resol
 curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
   -H "Content-Type: application/json" \
   -d '{"mode":"receive","otherBranch":"feature-abc"}'
+
+# Response: 202 Accepted
+
+# Read the result once /user/topic/projects/{projectId}/merge/status reports the end
+curl http://localhost:8080/rest/projects/MyProject/merge
 
 # Response (conflicts detected)
 {
@@ -1228,7 +1342,7 @@ resolution is abandoned; otherwise it ends with the client session.
 **Key**: The project id (`ProjectIdModel`)
 
 **Lifecycle**:
-1. Created: When `POST /merge` or a project save detects conflicts
+1. Created: When a merge started by `POST /merge` ends with conflicts, or a project save detects them
 2. Accessed: During conflict retrieval and resolution
 3. Cleared: On successful resolution or explicit cancel
 4. Replaced: When a conflict of another project is stored for the same client
@@ -1239,15 +1353,23 @@ refresh renamed the project (`MergeConflictProjectResolveStrategy`).
 
 ### Project Lifecycle During Merge
 
-1. `validateMergeAllowed` refuses a merge that must not be performed, before anything else happens.
-2. For an opened project, the compilation is paused (`WebStudioWorkspaceRelatedDependencyManager.pause()`).
-3. The Git repository merges the source branch into the target branch; the request waits up to 30 seconds for the
-   project index to publish the target branch, and stays a success when the index is late.
-4. On success, an opened project is closed, the workspace refreshed, and the project reopened on its branch.
-   `WebStudio` is reset, and the paused compilation is dropped with the editor model.
-5. On conflicts, or when the request fails, the compilation is resumed when the request ends.
+1. The same merge running already answers `202` at once. Otherwise the merge that ended before is brought to the
+   editor, unresolved conflicts refuse the merge, `validateMergeAllowed` refuses a merge that must not be performed,
+   and `POST /merge` answers `202` without waiting for the compilation of the project.
+2. On the `mergeExecutor` pool, the Git repository merges the source branch into the target branch — the branches as
+   they were validated; the merge waits up to 30 seconds for the project index to publish the target branch, and stays
+   a success when the index is late. An opened project stays open and compiled in the editor meanwhile, and
+   read-only for the client.
+3. The first request of the client about the project that finds the merge ended brings the editor up to date, and
+   requests that come meanwhile wait until it is done. On success, the project is read again from the workspace, the
+   compilation is paused (`WebStudioWorkspaceRelatedDependencyManager.pause()`), an opened project is closed, the
+   workspace refreshed, and the project reopened on its branch. `WebStudio` is reset, and the paused compilation is dropped with the editor model; a
+   failure on the way resumes it and is logged, while the result of the merge stays `success`. A project with changes
+   of its own, or switched to another branch meanwhile by another client of the user, is left as it is: closing it
+   would drop the changes.
+4. On conflicts the conflict is stored, and a failed merge leaves the editor as it is.
 
-Resolving conflicts follows the same steps.
+Resolving conflicts pauses the compilation for the length of its request.
 
 ### Conflict File Retrieval
 

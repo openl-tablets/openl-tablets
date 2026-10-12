@@ -50,7 +50,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
                                        @NotNull MergeOpMode mode) throws IOException {
         validateMerge(project, otherBranch);
         var repository = getBranchRepository(project);
-        var branchPair = getBranchPair(project, otherBranch, mode);
+        var branchPair = getBranchPair(project.getBranch(), otherBranch, mode);
         // Whether the branches differ is answered for everyone who may read the project: taking a
         // protected branch into your own is an ordinary operation, and even a user who may not write to
         // the target has to know whether their changes are already there — deleting a branch depends on it.
@@ -75,18 +75,21 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         if (repository.isBranchProtected(target)) {
             return bypassService.isBypassEligible(project) ? MergeBlockedBy.BYPASS_REQUIRED : MergeBlockedBy.PROTECTED_BRANCH;
         }
-        return isLocked(project, repository, target) ? MergeBlockedBy.LOCKED : null;
+        return isLocked(getUserWorkspace(), project, repository, target) ? MergeBlockedBy.LOCKED : null;
     }
 
-    private boolean isLocked(RulesProject project, BranchRepository repository, String targetBranch) {
-        var lockEngine = getUserWorkspace().getProjectsLockEngine();
+    private static boolean isLocked(UserWorkspace workspace,
+                                    RulesProject project,
+                                    BranchRepository repository,
+                                    String targetBranch) {
+        var lockEngine = workspace.getProjectsLockEngine();
         return lockEngine.getLockInfo(repository.getId(), targetBranch, project.getRealPath()).isLocked();
     }
 
-    private BranchPair getBranchPair(RulesProject project, String otherBranch, MergeOpMode mode) {
+    private static BranchPair getBranchPair(String currentBranch, String otherBranch, MergeOpMode mode) {
         return switch (mode) {
-            case RECEIVE -> new BranchPair(otherBranch, project.getBranch());
-            case SEND -> new BranchPair(project.getBranch(), otherBranch);
+            case RECEIVE -> new BranchPair(otherBranch, currentBranch);
+            case SEND -> new BranchPair(currentBranch, otherBranch);
         };
     }
 
@@ -119,9 +122,19 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         return false;
     }
 
-    private void validateProjectLock(RulesProject project, String targetBranch) {
-        if (isLocked(project, getBranchRepository(project), targetBranch)) {
-            throw new ConflictException("project.merge.branch.locked.message", targetBranch);
+    /**
+     * Refuses a merge into a branch where another user holds the project, or that has the other branch merged
+     * already. Both can change while a merge waits for a thread, so a merge asks them again when it starts.
+     */
+    private static void validateTarget(UserWorkspace workspace,
+                                       RulesProject project,
+                                       BranchRepository repository,
+                                       BranchPair branchPair) throws IOException {
+        if (isLocked(workspace, project, repository, branchPair.target())) {
+            throw new ConflictException("project.merge.branch.locked.message", branchPair.target());
+        }
+        if (repository.isMergedInto(branchPair.source(), branchPair.target())) {
+            throw new ConflictException("project.branch.merge.not.mergeable.message");
         }
     }
 
@@ -140,26 +153,27 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     public void validateMergeAllowed(RulesProject project, String otherBranch, MergeOpMode mode, boolean force) throws IOException {
         validateMerge(project, otherBranch);
         var repository = getBranchRepository(project);
-        var branchPair = getBranchPair(project, otherBranch, mode);
+        var branchPair = getBranchPair(project.getBranch(), otherBranch, mode);
         bypassService.requireBypassOrThrow(repository, branchPair.target(), project, force);
-        validateProjectLock(project, branchPair.target());
-        if (repository.isMergedInto(branchPair.source(), branchPair.target())) {
-            throw new ConflictException("project.branch.merge.not.mergeable.message");
-        }
+        validateTarget(getUserWorkspace(), project, repository, branchPair);
     }
 
     @Override
-    public MergeResult merge(RulesProject project, String otherBranch, MergeOpMode mode, boolean force) throws IOException {
-        validateMergeAllowed(project, otherBranch, mode, force);
-        var branchPair = getBranchPair(project, otherBranch, mode);
+    public MergeResult merge(RulesProject project,
+                             String currentBranch,
+                             String otherBranch,
+                             MergeOpMode mode,
+                             UserWorkspace workspace) throws IOException {
+        var branchPair = getBranchPair(currentBranch, otherBranch, mode);
         var branchRepository = getBranchRepository(project);
-        var currentUser = getUserWorkspace().getUser();
+        validateTarget(workspace, project, branchRepository, branchPair);
         var mergeResultBuilder = MergeResult.builder();
         try {
-            branchRepository.forBranch(branchPair.target()).merge(branchPair.source(), currentUser.getUserInfo(), null);
+            branchRepository.forBranch(branchPair.target())
+                    .merge(branchPair.source(), workspace.getUser().getUserInfo(), null);
             // The merge is committed by now. An index that publishes it late is logged and leaves it a success:
             // reporting a failure would have the user merge again what is already merged — see EPBDS-16541.
-            ProjectIndex.awaitBranch(getUserWorkspace().getDesignTimeRepository(), branchRepository, branchPair.target());
+            ProjectIndex.awaitBranch(workspace.getDesignTimeRepository(), branchRepository, branchPair.target());
         } catch (MergeConflictException conflictEx) {
             log.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
                     branchPair.source(),
@@ -171,7 +185,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
                     .project(project)
                     .mergeBranchFrom(branchPair.source())
                     .mergeBranchTo(branchPair.target())
-                    .currentBranch(project.getBranch())
+                    .currentBranch(currentBranch)
                     .build());
         }
         return mergeResultBuilder.build();

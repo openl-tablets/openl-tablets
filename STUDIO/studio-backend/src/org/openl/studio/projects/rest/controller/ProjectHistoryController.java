@@ -32,6 +32,7 @@ import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.history.CompareProjectHistoryRequest;
 import org.openl.studio.projects.model.history.ProjectHistoryItem;
 import org.openl.studio.projects.model.history.RestoreProjectHistoryRequest;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.security.AdminPrivilege;
@@ -78,6 +79,7 @@ public class ProjectHistoryController {
     @Operation(summary = "history.compare.summary", description = "history.compare.desc")
     @ApiResponse(responseCode = "202", description = "history.compare.202.desc")
     @ApiResponse(responseCode = "404", description = "file.version.not.found.message")
+    @ChangesNothing
     @PostMapping(value = "/projects/{projectId}/local-history/compare",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
