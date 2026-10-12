@@ -172,6 +172,15 @@ describe('TestCaseSelector', () => {
         expect(loadCase).toHaveBeenCalledTimes(2)
     })
 
+    it('lists the cases of a rule without parameters, which come without values', async () => {
+        const onChange = vi.fn()
+        renderSelector({ onChange, testCases: [{ id: '1', description: 'result' }], total: 1, value: []})
+
+        expect(screen.getByText('result')).toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('pick-case-1'))
+        expect(onChange).toHaveBeenLastCalledWith(['1'])
+    })
+
     it('pages through a table that holds more cases than the page shows', async () => {
         const onPageChange = vi.fn()
         renderSelector({ onPageChange, total: 120 })
