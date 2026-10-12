@@ -4,6 +4,7 @@ import static org.openl.rules.xls.merge.XlsSheetsMatcher.getCommentAuthor;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -80,22 +81,22 @@ public final class XlsSheetCopier {
             }
             dest.row = src.row = null;
         }
-        replaceMergedRegions(src.sheet, dest.sheet);
+        replaceMergedRegions(src.sheet.getMergedRegions(), dest.sheet);
         copyDrawings(src, dest);
     }
 
     /**
-     * Replaces the merged regions of the destination sheet with those of the source sheet.
+     * Replaces the merged regions of the destination sheet with the given ones.
      *
-     * @param src  source sheet
-     * @param dest destination sheet
+     * @param regions the merged regions the destination sheet gets
+     * @param dest    destination sheet
      */
-    static void replaceMergedRegions(Sheet src, Sheet dest) {
+    static void replaceMergedRegions(List<CellRangeAddress> regions, Sheet dest) {
         // for some reason removing of merge regions doesn't work with normal loop
         for (var i = dest.getNumMergedRegions() - 1; i >= 0; i--) {
             dest.removeMergedRegion(i);
         }
-        for (CellRangeAddress mergedRegion : src.getMergedRegions()) {
+        for (CellRangeAddress mergedRegion : regions) {
             dest.addMergedRegion(mergedRegion);
         }
     }
@@ -235,10 +236,19 @@ public final class XlsSheetCopier {
      */
     private static void copyComment(Cursor src, Cursor dest) {
         var srcClientAnchor = src.comment.getClientAnchor();
+        var version = dest.workbook.getSpreadsheetVersion();
+        var box = areaOf(srcClientAnchor);
+        // a box next to a cell moved to the edge of the sheet would leave it: it stays inside, at the edge
+        var rows = shift(dest.cell.getRowIndex() - src.cell.getRowIndex(),
+                -box.getFirstRow(),
+                version.getLastRowIndex() - box.getLastRow());
+        var columns = shift(dest.cell.getColumnIndex() - src.cell.getColumnIndex(),
+                -box.getFirstColumn(),
+                version.getLastColumnIndex() - box.getLastColumn());
         if (dest.cell.getCellComment() != null) {
             dest.comment = dest.cell.getCellComment();
             var destClientAnchor = dest.comment.getClientAnchor();
-            copyClientAnchor(srcClientAnchor, destClientAnchor);
+            copyClientAnchor(srcClientAnchor, destClientAnchor, rows, columns);
         } else {
             // Apache POI doesn't support properly threaded comments
             // see https://bz.apache.org/bugzilla/show_bug.cgi?id=65462
@@ -254,7 +264,7 @@ public final class XlsSheetCopier {
             dest.comment = drawingPatriarch.createCellComment(destClientAnchor);
 
             // set comment position and resize
-            copyClientAnchor(srcClientAnchor, destClientAnchor);
+            copyClientAnchor(srcClientAnchor, destClientAnchor, rows, columns);
             dest.cell.setCellComment(dest.comment);
         }
 
@@ -263,16 +273,31 @@ public final class XlsSheetCopier {
     }
 
     /**
-     * Copy client anchor
-     *
-     * @param src  source
-     * @param dest destination
+     * The shift of a box by its cell, kept so the box stays inside the sheet. A box that already reaches past the
+     * edge of the sheet only moves towards it.
      */
-    private static void copyClientAnchor(ClientAnchor src, ClientAnchor dest) {
-        dest.setCol1(src.getCol1());
-        dest.setCol2(src.getCol2());
-        dest.setRow1(src.getRow1());
-        dest.setRow2(src.getRow2());
+    private static int shift(int by, int least, int most) {
+        return by == 0 ? 0 : Math.clamp(by, least, Math.max(least, most));
+    }
+
+    /**
+     * The cells a box anchored to a sheet lies over.
+     */
+    static CellRangeAddress areaOf(ClientAnchor anchor) {
+        return new CellRangeAddress(Math.min(anchor.getRow1(), anchor.getRow2()),
+                Math.max(anchor.getRow1(), anchor.getRow2()),
+                Math.min(anchor.getCol1(), anchor.getCol2()),
+                Math.max(anchor.getCol1(), anchor.getCol2()));
+    }
+
+    /**
+     * Copies the place of a box moved by rows and columns, so a comment copied to another cell stays next to it.
+     */
+    private static void copyClientAnchor(ClientAnchor src, ClientAnchor dest, int rows, int columns) {
+        dest.setCol1(src.getCol1() + columns);
+        dest.setCol2(src.getCol2() + columns);
+        dest.setRow1(src.getRow1() + rows);
+        dest.setRow2(src.getRow2() + rows);
         dest.setDx1(src.getDx1());
         dest.setDx2(src.getDx2());
         dest.setDy1(src.getDy1());
@@ -419,7 +444,7 @@ public final class XlsSheetCopier {
         var creationHelper = dest.workbook.getCreationHelper();
         var srcClientAnchor = src.picture.getClientAnchor();
         var destClientAnchor = creationHelper.createClientAnchor();
-        copyClientAnchor(srcClientAnchor, destClientAnchor);
+        copyClientAnchor(srcClientAnchor, destClientAnchor, 0, 0);
 
         var srcPictureData = src.picture.getPictureData();
         var pictureIdx = dest.workbook.addPicture(srcPictureData.getData(), srcPictureData.getPictureType());

@@ -131,17 +131,31 @@ contain the project when it is opened. Proceed as follows:
     *Selecting a branch that does not hold the project yet*
 
     Sync merges the changes of both branches by itself where they do not overlap: a text file line by line, and a
-    module workbook sheet by sheet. A sheet both branches changed is merged cell by cell: each cell takes the change
-    of the branch that made it. The value, the style and the comment of a cell are merged separately, so one branch
-    can change the text of a cell and the other its style. Such a sheet stays a conflict in the following cases:
+    module workbook sheet by sheet. A sheet both branches changed is merged table by table: a table added, removed,
+    changed or moved in one branch only takes the change of that branch. A table both branches changed is merged row
+    by row, the way lines of a text file are: rows inserted, deleted or changed in one branch are taken from it, and
+    so are columns when a branch inserted or deleted columns of the table. A table that grew or moved in one branch
+    keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that branch.
+    The value, the style and the comment of a cell are merged separately, so one branch can change the text of a
+    cell and the other its style. Such a sheet stays a conflict in the following cases:
 
     -   Both branches change the value, the style or the comment of the same cell, the height or the visibility of
         the same row, the width or the visibility of the same column, the default column width or row height, the
-        merged cells or the pictures of the sheet differently.
-    -   A branch inserts or deletes rows or columns inside the content of the sheet. Edits that cannot be told apart
-        from such a move, such as many rows rewritten at once, count as one.
-    -   Both branches fill empty cells next to each other, so two tables would touch and be read as one.
+        merged cells of the same table or the pictures of the sheet differently.
+    -   Both branches insert different rows at the same place of a table, one branch inserts a row next to a row
+        the other branch deletes, or one branch deletes a row the other branch changes. Columns follow the same
+        rule.
+    -   One branch inserts or deletes rows of a table and the other branch inserts or deletes columns of it.
+    -   Both branches move the same table to different places, or one branch removes a table the other changes.
+    -   A row or a column one branch inserts or deletes crosses merged cells the other branch keeps.
+    -   Tables of the two branches would touch each other and be read as one: OpenL ends a table at an empty row
+        or column.
     -   A branch merges cells over a value the other branch wrote.
+    -   Content that moves is referred to by a formula, a defined name, a data validation, a conditional formatting
+        or a hyperlink, which would refer to other cells after the merge, or lies under a picture, a chart, an Excel
+        table or an autofilter, which would stay where it was.
+    -   A branch changes the height or the visibility of a row, or the width or the visibility of a column, where
+        content moves.
     -   The branch whose changes are merged in changes the data validation, the conditional formatting, the
         hyperlinks or the frozen panes of the sheet. It is the selected branch for **Receive their updates** and the
         current branch for **Send your updates**.

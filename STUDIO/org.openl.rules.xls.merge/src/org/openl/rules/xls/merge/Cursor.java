@@ -71,15 +71,33 @@ class Cursor {
      * @return merged region of {@code null}
      */
     public CellRangeAddress getCellMergedRegion() {
-        if (mergedRegions == null) {
-            mergedRegions = sheet.getMergedRegions();
-        }
-        for (CellRangeAddress range : mergedRegions) {
-            if (range.isInRange(cell)) {
+        return getMergedRegion(cell.getRowIndex(), cell.getColumnIndex());
+    }
+
+    /**
+     * Get the merged region of a cell of current {@code sheet}
+     *
+     * @return merged region or {@code null}
+     */
+    public CellRangeAddress getMergedRegion(int row, int column) {
+        for (CellRangeAddress range : getMergedRegions()) {
+            if (range.isInRange(row, column)) {
                 return range;
             }
         }
         return null;
+    }
+
+    /**
+     * Get the merged regions of current {@code sheet}, read on the first call and kept
+     *
+     * @return merged regions of the sheet
+     */
+    public List<CellRangeAddress> getMergedRegions() {
+        if (mergedRegions == null) {
+            mergedRegions = sheet.getMergedRegions();
+        }
+        return mergedRegions;
     }
 
     /**

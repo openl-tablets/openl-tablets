@@ -128,36 +128,36 @@ final class XlsSheetShifts {
                 }
             }
         }
+    }
 
-        /**
-         * Digest of the value of a cell, or {@code 0} for a cell with nothing to show. A blank cell with a style of
-         * its own is not empty, so a row of formatted cells is told apart from an empty one.
-         */
-        private static long digest(Cell cell) {
-            if (XlsSheetsMatcher.isBlankAndUnstyled(cell)) {
-                return 0;
-            }
-            var type = cell.getCellType();
-            var value = switch (type) {
-                case STRING -> cell.getStringCellValue();
-                case NUMERIC -> Double.toString(cell.getNumericCellValue());
-                case BOOLEAN -> Boolean.toString(cell.getBooleanCellValue());
-                case FORMULA -> cell.getCellFormula().trim();
-                case ERROR -> Byte.toString(cell.getErrorCellValue());
-                default -> "";
-            };
-            var digest = 31L * type.ordinal() + value.hashCode();
-            return digest == 0 ? 1 : digest;
+    /**
+     * Digest of the value of a cell, or {@code 0} for a cell with nothing to show. A blank cell with a style of
+     * its own is not empty, so a row of formatted cells is told apart from an empty one.
+     */
+    static long digest(Cell cell) {
+        if (XlsSheetsMatcher.isBlankAndUnstyled(cell)) {
+            return 0;
         }
+        var type = cell.getCellType();
+        var value = switch (type) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> Double.toString(cell.getNumericCellValue());
+            case BOOLEAN -> Boolean.toString(cell.getBooleanCellValue());
+            case FORMULA -> cell.getCellFormula().trim();
+            case ERROR -> Byte.toString(cell.getErrorCellValue());
+            default -> "";
+        };
+        var digest = 31L * type.ordinal() + value.hashCode();
+        return digest == 0 ? 1 : digest;
+    }
 
-        /**
-         * Spreads a digest by the position of the cell, so the sum of the digests of a row tells their order.
-         */
-        private static long mix(int position, long digest) {
-            var mixed = digest * 0x9E3779B97F4A7C15L + position * 0xC2B2AE3D27D4EB4FL;
-            mixed ^= mixed >>> 32;
-            mixed *= 0xD6E8FEB86659FD93L;
-            return mixed ^ (mixed >>> 32);
-        }
+    /**
+     * Spreads a digest by the position of the cell, so the sum of the digests of a row tells their order.
+     */
+    static long mix(int position, long digest) {
+        var mixed = digest * 0x9E3779B97F4A7C15L + position * 0xC2B2AE3D27D4EB4FL;
+        mixed ^= mixed >>> 32;
+        mixed *= 0xD6E8FEB86659FD93L;
+        return mixed ^ (mixed >>> 32);
     }
 }
