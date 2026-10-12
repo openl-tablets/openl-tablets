@@ -492,10 +492,15 @@ public class DecisionTableLoader {
         TableStructure tableStructure = new TableStructure();
         if (nHConditions > 0 && height > IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             try {
-                DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
+                DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor(
+                        !DecisionTableHelper.isSmart(tableSyntaxNode)
+                                && !DecisionTableHelper.isSimple(tableSyntaxNode));
                 IGridTable convertedTable = dtlc.convertTable(toParse);
                 toParse = LogicalTableHelper.logicalTable(convertedTable);
                 tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale(), transpose);
+            } catch (SyntaxNodeException e) {
+                // Already points to the cell at fault.
+                throw e;
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {

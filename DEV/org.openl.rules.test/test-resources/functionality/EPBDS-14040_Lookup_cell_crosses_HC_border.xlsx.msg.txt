@@ -1,0 +1,2 @@
+ERROR: The cell spans the condition column 'C2' and the horizontal condition column 'HC1'. A title cell must not span both vertical and horizontal conditions.
+ERROR: The cell spans the condition column 'C2' and the horizontal condition column 'HC1'. A title cell must not span both vertical and horizontal conditions.
