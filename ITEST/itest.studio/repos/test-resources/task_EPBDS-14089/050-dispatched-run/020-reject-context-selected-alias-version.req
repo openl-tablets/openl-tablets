@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/run?tableId={ALIAS_VERSION_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"params":{"value":"gamma","lob":"Banking"},"runtimeContext":{"currentDate":"2026-01-01"}}

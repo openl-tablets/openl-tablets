@@ -9,6 +9,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -77,6 +78,16 @@ public interface TableInputParserService {
      * @throws BadRequestException if the JSON is malformed or does not fit the method signature
      */
     ParseResult parseInput(String inputJson, IOpenMethod method, ObjectMapper mapper);
+
+    /**
+     * Checks parsed arguments against the vocabularies of the selected table version.
+     *
+     * <p>Nothing is checked when the version cannot be selected before the run. A check that fails for a reason other
+     * than an invalid value is skipped, and the table runs as it would without it.
+     *
+     * @throws BadRequestException if an argument or nested datatype field is outside its vocabulary domain
+     */
+    void validateInput(ParseResult parsed, DispatchedVersionCheck.Selection selection);
 
     /**
      * Reads a single parameter value from its JSON.

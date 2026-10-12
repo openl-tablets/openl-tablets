@@ -79,11 +79,7 @@ final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
         // If object does not belong to domain throw runtime exception with
         // appropriate message.
         if (!isInDomain) {
-            throw new OutsideOfValidDomainException(
-                    "Object '%s' is outside of valid domain '%s'. Valid values: %s".formatted(
-                            from,
-                            toClass.getName(),
-                            DomainUtils.toString(domain)));
+            throw new OutsideOfValidDomainException(from, toClass.getName(), DomainUtils.toString(domain));
         }
 
         // Return object as a converted value.

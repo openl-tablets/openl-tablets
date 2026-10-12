@@ -21,7 +21,6 @@ import org.openl.vm.IRuntimeEnv;
 public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpenMember> {
 
     private static final Object[] NO_PARAMS = new Object[0];
-    private final ValidationHandler validationHandler = new ValidationHandler();
     private final Object openlInstance;
     private final Map<Method, IOpenMember> methodMap;
     private final IRuntimeEnvBuilder runtimeEnvBuilder;
@@ -44,7 +43,7 @@ public class OpenLRulesMethodHandler implements IOpenLMethodHandler<Method, IOpe
         Exception exception = null;
         try {
             if (member instanceof IOpenMethod m) {
-                validationHandler.validateProxyArguments(m.getSignature(), env, args);
+                ValidationHandler.validateArguments(m.getSignature(), m.getDeclaringClass(), env, args);
                 result = m.invoke(openlInstance, args, env);
             } else {
                 result = ((IOpenField) member).get(openlInstance, env);

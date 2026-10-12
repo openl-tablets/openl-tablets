@@ -309,6 +309,14 @@ A rule table can be run on its own, without a test table for it.
     parameters as a tree, or the same input as JSON, exactly as
     [Starting a Trace](#starting-a-trace) describes. A table that takes no parameters runs at once, with no panel.
 
+    OpenL Studio checks vocabulary values before running the table, including fields of nested datatypes and
+    elements of lists. A value outside the vocabulary is refused with a message naming the invalid value, the
+    vocabulary and its allowed values. The table does not run until the input is corrected.
+    For a table with multiple versions, OpenL Studio checks the vocabulary of the version selected by the table
+    or runtime context, including context properties supplied by input parameters. A version with compilation
+    errors is reported before its input values are checked. When the runtime context selects no single version,
+    the values are not checked in advance and the table runs as it would without the check.
+
     ![Run button in the table toolbar with the panel open](images/run-start-button.png "Running a table")
 
     *Running a table with the input it takes*
@@ -438,11 +446,15 @@ Tracing is available for everything that can be run:
 
         *Entering parameters for a rule table*
 
-    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. Switching to **JSON** shows what the form holds, so the form can be filled in first and adjusted as text; switching back reads the text into the form the way **Run** reads it. The text can list the values under `params`, by parameter name or in order, or without `params`; for a rule with one parameter, it can also be that parameter's value as is. A list with more values than the rule has parameters stays on **JSON** with a message, as **Run** refuses it too. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON can carry it in the `runtimeContext` object. If the option is off, `isProvideRuntimeContext` is absent from `rules-deploy.xml`, or the project has no `rules-deploy.xml` at all, OpenL Studio treats runtime context as disabled, as OpenL Rule Services does by default, and the form has no such line. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. Most users can ignore this option and stay on **Form**.
+    -   **JSON** — for advanced use. If a developer gave you the input as a JSON request, for example taken from a log, paste it here instead of filling in the fields. Switching to **JSON** shows what the form holds, so the form can be filled in first and adjusted as text; switching back reads the text into the form the way **Run** reads it. The text can list the values under `params`, by parameter name or in order, or without `params`; for a rule with one parameter, it can also be that parameter's value as is. A list with more values than the rule has parameters stays on **JSON** with a message, as **Run** refuses it too. If the rule uses a runtime context (**Provide runtime context** is on in its deploy configuration), the JSON can carry it in the `runtimeContext` object. If the option is off, `isProvideRuntimeContext` is absent from `rules-deploy.xml`, or the project has no `rules-deploy.xml` at all, OpenL Studio treats runtime context as disabled, as OpenL Rule Services does by default, and the form has no such line. A parameter that is itself another spreadsheet's result is written by that spreadsheet's step names, exactly as OpenL Rule Services publishes it, so a request captured from a deployed service can be pasted as is. When the table version can be selected in advance, OpenL Studio refuses a vocabulary value outside its allowed values, including one in a nested datatype field or list element, before starting the trace. Most users can ignore this option and stay on **Form**.
 
         ![JSON input option for tracing](images/trace-json-option.png "Tracing with JSON input")
 
         *Providing input as JSON*
+
+    Trace checks vocabulary values against the selected version of a table before starting the trace, including
+    versions selected using context properties from input parameters. When the runtime context selects no single
+    version, the values are not checked in advance.
 
 1.  To leave out the other modules of the project, select **Within Current Module Only**. The rule is then traced within the current module and the modules and projects it depends on. While the project is still loading, or another module has errors, only the current module can be traced: the option is selected and cannot be changed.
 1.  Leave **Advanced tracer** off — the default — to open the business view. Select it only for the full step debugger; see [The Advanced Mode](#the-advanced-mode). The mode is chosen here, before the trace starts, and stays fixed for the trace window.
@@ -610,6 +622,11 @@ section:
     their IDs instead, as described in [Running the Tests of a Table](#running-the-tests-of-a-table).
 1.  To leave out the other modules of the project, select **Within Current Module Only**. The table is then
     measured within the current module and the modules and projects it depends on.
+    When benchmarking a rule table with input parameters, OpenL Studio checks vocabulary values before the
+    measurement starts. An invalid value, including one in a nested datatype field or list element, is refused
+    with a message naming the allowed values. For a table with multiple versions, the selected version's
+    vocabulary is checked, including versions selected using context properties from input parameters. When the
+    runtime context selects no single version, the values are not checked in advance.
 1.  Click **Benchmark**. The table runs over and over until the measurement lasts long enough to be meaningful,
     so it takes a few seconds. The results then open in a window over the table.
 

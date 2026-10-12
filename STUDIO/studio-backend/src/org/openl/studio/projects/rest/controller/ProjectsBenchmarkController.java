@@ -36,6 +36,7 @@ import org.openl.studio.projects.messaging.SocketBenchmarkExecutionProgressListe
 import org.openl.studio.projects.model.benchmark.BenchmarkResult;
 import org.openl.studio.projects.model.benchmark.BenchmarkResultMapper;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -116,6 +117,8 @@ public class ProjectsBenchmarkController {
         if (!(method instanceof TestSuiteMethod)) {
             var parseResult = inputParserService.parseInput(inputJson, method,
                     objectMapperService.createObjectMapper());
+            inputParserService.validateInput(parseResult, DispatchedVersionCheck.select(projectModel, method, uri,
+                    parseResult.runtimeContext(), parseResult.params(), currentOpenedModule));
             params = parseResult.params();
             runtimeContext = parseResult.runtimeContext();
         }

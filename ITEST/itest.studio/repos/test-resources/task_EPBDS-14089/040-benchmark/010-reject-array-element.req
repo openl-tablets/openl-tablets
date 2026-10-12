@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/benchmarks?tableId={TABLE_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"values":["alpha","gamma"]}

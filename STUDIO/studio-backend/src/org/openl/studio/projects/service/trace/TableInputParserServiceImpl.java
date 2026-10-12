@@ -7,15 +7,20 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.runtime.ValidationHandler;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.SpreadsheetResultBean;
+import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
@@ -30,6 +35,7 @@ import org.openl.util.StringUtils;
  * </p>
  *
  */
+@Slf4j
 @Service
 public class TableInputParserServiceImpl implements TableInputParserService {
 
@@ -57,6 +63,27 @@ public class TableInputParserServiceImpl implements TableInputParserService {
             // The input is typed or pasted by the user, so a value that does not fit the signature is a
             // client error, not a server failure.
             throw new BadRequestException("table.input.invalid.message", new Object[]{e.getMessage()});
+        }
+    }
+
+    @Override
+    public void validateInput(ParseResult parsed, DispatchedVersionCheck.Selection selection) {
+        var version = selection.version();
+        if (version == null) {
+            return;
+        }
+        var env = new SimpleRulesVM().getRuntimeEnv();
+        if (parsed.runtimeContext() != null) {
+            env.setContext(parsed.runtimeContext());
+        }
+        try {
+            ValidationHandler.validateArguments(version.getSignature(), selection.module(), env, parsed.params());
+        } catch (OutsideOfValidDomainException e) {
+            throw new BadRequestException("table.input.domain.message",
+                    new Object[]{e.getValue(), e.getVocabulary(), e.getAllowedValues()});
+        } catch (RuntimeException e) {
+            // A check that cannot read the input is not a fault of the input: the table runs as it would without it.
+            log.warn("Vocabulary values of table '{}' were not checked.", version.getName(), e);
         }
     }
 

@@ -368,7 +368,7 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, String uri) {
+    private @Nullable IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
@@ -1594,8 +1594,9 @@ public class ProjectModel {
         return false;
     }
 
-    public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
-        return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
+    /** Returns the method belonging to a table URI, or the method itself when it has no dispatched versions. */
+    public synchronized @Nullable IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
+        return method instanceof OpenMethodDispatcher dispatcher ? getMethodFromDispatcher(dispatcher, uri) : method;
     }
 
     private class XlsModificationListener implements XlsWorkbookListener {

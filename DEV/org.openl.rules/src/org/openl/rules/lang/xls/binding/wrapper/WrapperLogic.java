@@ -15,6 +15,7 @@ import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.runtime.ASMProxyFactory;
 import org.openl.runtime.ASMProxyHandler;
@@ -82,6 +83,17 @@ public final class WrapperLogic {
             return wrapper.getDelegate();
         }
         return method;
+    }
+
+    /** Selects the version with the same argument-derived context used when the method is invoked. */
+    public static IOpenMethod selectDispatchedVersion(OpenMethodDispatcher dispatcher,
+                                                      Object[] params,
+                                                      IRuntimeEnv env) {
+        if (dispatcher instanceof IRulesMethodWrapper wrapper) {
+            return wrapper.withInjectedContext(params, env, extractSimpleRulesRuntimeEnv(env),
+                    () -> dispatcher.findMatchingMethod(env));
+        }
+        return dispatcher.findMatchingMethod(env);
     }
 
     public static IOpenClass toModuleType(IOpenClass type, XlsModuleOpenClass xlsModuleOpenClass) {

@@ -1,13 +1,17 @@
 package org.openl.studio.projects.service.trace;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Locale;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +19,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import org.openl.domain.IDomain;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 class TableInputParserServiceImplTest {
@@ -186,5 +196,71 @@ class TableInputParserServiceImplTest {
         assertEquals(1, result.params().length);
         assertNull(result.params()[0]);
         assertNull(result.runtimeContext());
+    }
+
+    @Test
+    void requestedDispatchedVersionRejectsAnInvalidVocabularyValue() {
+        var dispatcher = dispatcher();
+        var aliasVersion = aliasVersion();
+
+        var parsed = parser.parseInput("{\"value\":\"gamma\"}", dispatcher, mapper);
+        var selection = selectionOf(aliasVersion);
+
+        var error = assertThrows(BadRequestException.class, () -> parser.validateInput(parsed, selection));
+
+        assertEquals("openl.error.400.table.input.domain.message", error.getErrorCode());
+        assertEquals("gamma", error.getArgs()[0]);
+        assertEquals("AllowedValue", error.getArgs()[1]);
+        assertNotNull(error.getArgs()[2]);
+    }
+
+    @Test
+    void inputIsNotCheckedWhenNoVersionIsSelected() {
+        var dispatcher = dispatcher();
+        var parsed = parser.parseInput("{\"value\":\"gamma\"}", dispatcher, mapper);
+
+        assertDoesNotThrow(() -> parser.validateInput(parsed, selectionOf(null)));
+    }
+
+    @Test
+    void aCheckThatCannotReadTheInputLetsTheTableRun() {
+        var datatype = mock(DatatypeOpenClass.class);
+        doReturn(Policy.class).when(datatype).getInstanceClass();
+        var field = mock(IOpenField.class);
+        when(datatype.getFields()).thenReturn(List.of(field));
+        when(field.get(any(), any())).thenThrow(new IllegalStateException("Cannot read datatype field"));
+        var signature = mock(IMethodSignature.class);
+        when(signature.getNumberOfParameters()).thenReturn(1);
+        when(signature.getParameterType(0)).thenReturn(datatype);
+        var selected = mock(IOpenMethod.class);
+        when(selected.getSignature()).thenReturn(signature);
+
+        assertDoesNotThrow(() -> parser.validateInput(
+                new TableInputParserService.ParseResult(new Object[]{new Policy()}, null), selectionOf(selected)));
+    }
+
+    private static OpenMethodDispatcher dispatcher() {
+        var dispatcher = mock(OpenMethodDispatcher.class);
+        var signature = method(new String[]{"value"}, new Class<?>[]{String.class}).getSignature();
+        when(dispatcher.getSignature()).thenReturn(signature);
+        return dispatcher;
+    }
+
+    private static IOpenMethod aliasVersion() {
+        @SuppressWarnings("unchecked")
+        var domain = mock(IDomain.class);
+        when(domain.selectObject("gamma")).thenReturn(false);
+        when(domain.iterator()).thenReturn(List.of("alpha").iterator());
+        var signature = mock(IMethodSignature.class);
+        when(signature.getNumberOfParameters()).thenReturn(1);
+        when(signature.getParameterType(0)).thenReturn(
+                new DomainOpenClass("AllowedValue", JavaOpenClass.STRING, domain, null, null));
+        var method = mock(IOpenMethod.class);
+        when(method.getSignature()).thenReturn(signature);
+        return method;
+    }
+
+    private static DispatchedVersionCheck.Selection selectionOf(IOpenMethod version) {
+        return new DispatchedVersionCheck.Selection(version, version, null);
     }
 }

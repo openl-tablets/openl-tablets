@@ -116,7 +116,10 @@ public class ProjectsRunController {
         }
 
         var parseResult = inputParserService.parseInput(inputJson, method, objectMapperService.createObjectMapper());
-        DispatchedVersionCheck.refuseIfBroken(projectModel, table, parseResult.runtimeContext(), currentOpenedModule);
+        var selection = DispatchedVersionCheck.select(projectModel, method, uri, parseResult.runtimeContext(),
+                parseResult.params(), currentOpenedModule);
+        DispatchedVersionCheck.refuseIfBroken(projectModel, selection, currentOpenedModule);
+        inputParserService.validateInput(parseResult, selection);
 
         runResultRegistry.cancelIfAny();
 

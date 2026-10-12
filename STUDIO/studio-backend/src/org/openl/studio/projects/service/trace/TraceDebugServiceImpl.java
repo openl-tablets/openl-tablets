@@ -13,6 +13,7 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.studio.projects.model.ExecutionValueMapper;
 import org.openl.studio.projects.service.AbstractMethodExecutorService;
+import org.openl.studio.projects.service.DispatchedVersionCheck;
 
 /**
  * Builds a debug session and runs it on a dedicated worker thread.
@@ -61,15 +62,20 @@ public class TraceDebugServiceImpl extends AbstractMethodExecutorService impleme
                 : request.projectModel().getCompiledOpenClass();
     }
 
-    private TestSuite buildTestSuite(TraceDebugStartRequest request) {
+    TestSuite buildTestSuite(TraceDebugStartRequest request) {
         if (request.method() instanceof TestSuiteMethod testSuiteMethod) {
             // Trace exactly one test case: several cases just stack in the tree and rarely help, so a
             // requested range (or the whole suite) collapses to its first case.
             return new TestSuite(testSuiteMethod, firstTestIndex(testSuiteMethod, request.testRanges()));
         }
         var parsed = inputParserService.parseInput(request.inputJson(), request.method(), request.objectMapper());
-        var resolvedMethod = resolveMethod(request.projectModel(), request.table(),
-                request.currentOpenedModule(), parsed.runtimeContext());
+        var selection = DispatchedVersionCheck.select(request.projectModel(), request.method(),
+                request.table().getUri(), parsed.runtimeContext(), parsed.params(), request.currentOpenedModule());
+        var resolvedMethod = selection.executable();
+        if (resolvedMethod == null) {
+            throw new IllegalStateException("Failed to resolve method for table: " + request.table().getUri());
+        }
+        inputParserService.validateInput(parsed, selection);
         var db = getDb(request.projectModel(), request.currentOpenedModule());
         return new TestSuite(new TestDescription(resolvedMethod, parsed.runtimeContext(), parsed.params(), db));
     }
