@@ -223,6 +223,107 @@ describe('TestsResultModal', () => {
         expect(rows[1]).toHaveTextContent('200')
     })
 
+    it('shows a fractional value as the short decimal its binary result stands for', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[1],
+                    parameters: [{ name: 'rate', description: 'Rate', lazy: false, value: 0.30000000000000004 }],
+                    testAssertions: [
+                        { description: 'num1', expectedValue: 20.76, actualValue: 20.759999999999998, status: 'TR_OK' },
+                        {
+                            description: 'num2',
+                            expectedValue: 0.08333,
+                            actualValue: 0.08333999999999997,
+                            status: 'TR_NEQ',
+                        },
+                    ],
+                }],
+            }],
+        })
+
+        await show()
+
+        const row = screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')[0]
+        expect(row).toHaveTextContent('0.3')
+        expect(row).not.toHaveTextContent('0.30000000000000004')
+        expect(row).toHaveTextContent('20.76')
+        expect(row).not.toHaveTextContent('20.759999999999998')
+        expect(row).toHaveTextContent('0.08334')
+        expect(row).not.toHaveTextContent('0.08333999999999997')
+        expect(row).toHaveTextContent('0.08333')
+    })
+
+    it('shows a failed comparison exactly when its short decimals would read the same', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[1],
+                    testAssertions: [{
+                        description: 'num2',
+                        expectedValue: 0.08334,
+                        actualValue: 0.08333999999999997,
+                        status: 'TR_NEQ',
+                    }],
+                }],
+            }],
+        })
+
+        await show()
+
+        const row = screen.getByTestId('test-results-tt1').querySelectorAll('tbody tr')[0]
+        expect(row).toHaveTextContent('0.08333999999999997')
+        expect(row?.textContent?.split('0.08334')).toHaveLength(2)
+    })
+
+    it('shows a failed comparison of a value with inner structure exactly', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[1],
+                    testAssertions: [{ description: 'Premium', expectedLazy: true, actualLazy: true, status: 'TR_NEQ' }],
+                }],
+            }],
+        })
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 20.759999999999998 }]})
+
+        await show()
+        await userEvent.click(await screen.findByTestId('load-tt1-out-2-0'))
+        const line = (await screen.findByText('{1 fields}')).closest('.ant-tree-treenode')
+        await userEvent.click(line!.querySelector('.ant-tree-switcher')!)
+
+        expect(await screen.findByText('20.759999999999998')).toBeInTheDocument()
+        expect(screen.queryByText('20.76')).toBeNull()
+    })
+
+    it('shows a fractional value read inside a compared value as a short decimal too', async () => {
+        readSummary.mockResolvedValue({
+            ...summary,
+            testCases: [{
+                ...summary.testCases[0],
+                testUnits: [{
+                    ...summary.testCases[0]?.testUnits[0],
+                    testAssertions: [{ description: 'Premium', expectedValue: 100, actualLazy: true, status: 'TR_OK' }],
+                }],
+            }],
+        })
+        readLines.mockResolvedValue({ total: 1, lines: [{ name: 'premium', segment: 'premium', value: 20.759999999999998 }]})
+
+        await show()
+        await userEvent.click(await screen.findByTestId('load-tt1-out-1-0'))
+        const line = (await screen.findByText('{1 fields}')).closest('.ant-tree-treenode')
+        await userEvent.click(line!.querySelector('.ant-tree-switcher')!)
+
+        expect(await screen.findByText('20.76')).toBeInTheDocument()
+        expect(screen.queryByText('20.759999999999998')).toBeNull()
+    })
+
     it('says the outcome of the whole table by the colour of its name', async () => {
         await show()
 

@@ -27,7 +27,10 @@ export const complexValueSummary = (value: object): string =>
  * A value with inner structure is named by what it holds. Nothing else comes in a value read from JSON: a bigint, a
  * symbol or a function is written the way JavaScript writes it.
  */
-export const describeSimpleValue = (value: unknown): SimpleValueText => {
+export const describeSimpleValue = (
+    value: unknown,
+    formatNumber: (value: number) => string = String
+): SimpleValueText => {
     switch (typeof value) {
         // The API leaves a null value out, so a value that is not there is shown as the null it stands for.
         case 'undefined':
@@ -35,7 +38,7 @@ export const describeSimpleValue = (value: unknown): SimpleValueText => {
         case 'string':
             return { display: `"${value}"`, kind: 'string' }
         case 'number':
-            return { display: String(value), kind: 'number' }
+            return { display: formatNumber(value), kind: 'number' }
         case 'boolean':
             return { display: String(value), kind: 'boolean' }
         case 'object':

@@ -30,7 +30,7 @@ export interface RunResult {
 }
 
 /** One assertion of a test unit: what was expected, what came out, and whether they matched. */
-interface TestAssertionResult {
+export interface TestAssertionResult {
     description?: string
     expectedValue?: unknown
     actualValue?: unknown

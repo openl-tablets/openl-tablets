@@ -1,4 +1,4 @@
-import React, { type Key, useCallback, useMemo, useRef, useState } from 'react'
+import React, { createContext, type Key, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { Spin, Tree, type TreeDataNode, type TreeProps } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -31,6 +31,8 @@ export type ValueStyles = ReturnType<typeof useStyles>['styles']
  */
 export const useValueStyles = (): ValueStyles => useStyles().styles
 
+export const NumberFormatContext = createContext<(value: number) => string>(String)
+
 const KIND_CLASS: Record<SimpleValueKind, keyof ValueStyles> = {
     null: 'valueNull',
     string: 'valueString',
@@ -41,7 +43,8 @@ const KIND_CLASS: Record<SimpleValueKind, keyof ValueStyles> = {
 
 /** A value without inner structure, coloured by its kind the way a code editor colours a literal. */
 const SimpleValue: React.FC<{ value: unknown, styles: ValueStyles }> = ({ value, styles }) => {
-    const { display, kind } = describeSimpleValue(value)
+    const formatNumber = useContext(NumberFormatContext)
+    const { display, kind } = describeSimpleValue(value, formatNumber)
     return <span className={styles[KIND_CLASS[kind]]}>{display}</span>
 }
 
