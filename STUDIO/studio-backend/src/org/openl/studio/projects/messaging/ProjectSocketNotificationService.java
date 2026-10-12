@@ -37,6 +37,7 @@ public class ProjectSocketNotificationService {
     private static final String TOPIC_PROJECTS_TABLES_BENCHMARKS = "/topic/projects/%s/tables/%s/benchmarks";
     private static final String TOPIC_PROJECTS_STATUS = "/topic/projects/%s/status";
     private static final String TOPIC_COMPARE = "/topic/compare/%s";
+    private static final String TOPIC_PROJECTS_MERGE = "/topic/projects/%s/merge";
     private static final String TOPIC_PROJECTS_BRANCHES_STATUS = "/topic/projects/%s/branches/%s/status";
     private static final String TOPIC_WORKSPACE_CHANGED = "/topic/workspace/changed";
     private static final String TOPIC_PROJECTS_CHANGED = "/topic/projects/changed";
@@ -171,9 +172,9 @@ public class ProjectSocketNotificationService {
      */
     private void notifyExecutionStatus(CommonUser user, String topic, ProjectIdModel projectId, String tableId,
                                        ExecutionStatus status) {
-        messagingTemplate.convertAndSendToUser(user.getUserName(),
-                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
-                status.name());
+        sendStatus(user.getUserName(),
+                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)),
+                status);
     }
 
     /**
@@ -181,8 +182,24 @@ public class ProjectSocketNotificationService {
      */
     private void notifyExecutionError(CommonUser user, String topic, ProjectIdModel projectId, String tableId,
                                       String errorMessage) {
-        messagingTemplate.convertAndSendToUser(user.getUserName(),
-                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+        sendError(user.getUserName(),
+                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)),
+                errorMessage);
+    }
+
+    /**
+     * Sends the status of an execution on the status topic of the execution.
+     */
+    private void sendStatus(String userName, String topic, ExecutionStatus status) {
+        messagingTemplate.convertAndSendToUser(userName, topic + STATUS, status.name());
+    }
+
+    /**
+     * Sends the reason an execution failed on the status topic of the execution.
+     */
+    private void sendError(String userName, String topic, String errorMessage) {
+        messagingTemplate.convertAndSendToUser(userName,
+                topic + STATUS,
                 Map.of("status", ExecutionStatus.ERROR.name(), "message", errorMessage));
     }
 
@@ -194,9 +211,7 @@ public class ProjectSocketNotificationService {
      * @param status       new comparison status
      */
     public void notifyComparisonStatus(String userName, String comparisonId, ExecutionStatus status) {
-        messagingTemplate.convertAndSendToUser(userName,
-                TOPIC_COMPARE.formatted(encodePathSegment(comparisonId)) + STATUS,
-                status.name());
+        sendStatus(userName, TOPIC_COMPARE.formatted(encodePathSegment(comparisonId)), status);
     }
 
     /**
@@ -207,9 +222,29 @@ public class ProjectSocketNotificationService {
      * @param errorMessage what went wrong
      */
     public void notifyComparisonError(String userName, String comparisonId, String errorMessage) {
-        messagingTemplate.convertAndSendToUser(userName,
-                TOPIC_COMPARE.formatted(encodePathSegment(comparisonId)) + STATUS,
-                Map.of("status", "ERROR", "message", errorMessage));
+        sendError(userName, TOPIC_COMPARE.formatted(encodePathSegment(comparisonId)), errorMessage);
+    }
+
+    /**
+     * Notifies user about the progress of a branch merge of the project.
+     *
+     * @param userName  destination user
+     * @param projectId the project being merged
+     * @param status    new merge status
+     */
+    public void notifyMergeStatus(String userName, ProjectIdModel projectId, ExecutionStatus status) {
+        sendStatus(userName, TOPIC_PROJECTS_MERGE.formatted(encodePathSegment(projectId.encode())), status);
+    }
+
+    /**
+     * Notifies user that a branch merge of the project failed.
+     *
+     * @param userName     destination user
+     * @param projectId    the project being merged
+     * @param errorMessage what went wrong
+     */
+    public void notifyMergeError(String userName, ProjectIdModel projectId, String errorMessage) {
+        sendError(userName, TOPIC_PROJECTS_MERGE.formatted(encodePathSegment(projectId.encode())), errorMessage);
     }
 
     /**

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -15,11 +14,13 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.bind.ServletRequestDataBinder;
 
@@ -31,27 +32,32 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonContent;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeRequest;
 import org.openl.studio.projects.model.merge.MergeResult;
+import org.openl.studio.projects.model.merge.MergeResultResponse;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
+import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
 import org.openl.studio.projects.service.merge.ProjectsMergeService;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 
 /**
- * A merge happens in the repository, so a project that is not opened merges just like an opened one. The
- * editor is touched only when there is an editor to touch — see EPBDS-16420.
+ * The endpoints of a merge: a merge is validated while the request answers, runs in the background, and its
+ * result is read once it has ended — see EPBDS-16469.
  */
 class ProjectsMergeControllerTest {
 
@@ -65,10 +71,11 @@ class ProjectsMergeControllerTest {
     private ProjectIdentifierMapper projectIdentifierMapper;
     private ProjectModel model;
     private ComparisonLauncher comparisonLauncher;
+    private ProjectsMergeLauncher mergeLauncher;
     private ProjectsMergeController controller;
 
     @BeforeEach
-    void init() throws Exception {
+    void init() {
         var repository = mock(BranchRepository.class);
         lenient().when(repository.getId()).thenReturn("design");
 
@@ -90,8 +97,7 @@ class ProjectsMergeControllerTest {
         lenient().when(projectService.getUserWorkspace()).thenReturn(userWorkspace);
 
         mergeService = mock(ProjectsMergeService.class);
-        lenient().when(mergeService.merge(any(), any(), any(), anyBoolean()))
-                .thenReturn(MergeResult.builder().build());
+        mergeLauncher = mock(ProjectsMergeLauncher.class);
         conflictsSessionHolder = new ProjectsMergeConflictsSessionHolder();
         mergeConflictsService = mock(ProjectsMergeConflictsService.class);
         projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
@@ -103,7 +109,8 @@ class ProjectsMergeControllerTest {
                 conflictsSessionHolder,
                 mergeConflictsService,
                 projectIdentifierMapper,
-                comparisonLauncher);
+                comparisonLauncher,
+                mergeLauncher);
     }
 
     /**
@@ -189,29 +196,56 @@ class ProjectsMergeControllerTest {
     }
 
     @Test
-    void mergesAClosedProjectWithoutOpeningIt() throws Exception {
-        when(project.isOpened()).thenReturn(false);
+    void startsTheMergeTheRequestAsksFor() throws Exception {
+        controller.merge(project, REQUEST, true);
 
-        var response = controller.merge(project, REQUEST, false);
-
-        assertEquals(MergeResultStatus.SUCCESS, response.status());
-        verify(mergeService).merge(project, "master", MergeOpMode.SEND, false);
-        // Opening it would compile a project nobody is looking at — and used to fail with "not opened".
-        verify(projectService, never()).openProject(project);
-        verify(project, never()).open();
-        verify(project, never()).close();
+        // The launcher refuses unresolved conflicts and validates the merge, unless the same merge runs already.
+        verify(mergeLauncher).start(project, "master", MergeOpMode.SEND, true);
     }
 
     @Test
-    void reopensAnOpenedProjectSoTheEditorShowsTheMergedContent() throws Exception {
-        when(project.isOpened()).thenReturn(true);
+    void refusesACheckWhileTheProjectHasUnresolvedConflicts() {
+        givenConflict();
 
-        var response = controller.merge(project, REQUEST, false);
+        assertThrows(ConflictException.class, () -> controller.check(project, REQUEST));
+    }
 
-        assertEquals(MergeResultStatus.SUCCESS, response.status());
-        verify(projectService).openProject(project);
-        verify(model).clearModuleInfo();
-        verify(project).close();
+    @Test
+    void answersTheResultOfAnEndedMerge() {
+        var conflictInfo = mock(MergeConflictInfo.class);
+        var groups = List.of(mock(ConflictGroup.class));
+        when(mergeConflictsService.getMergeConflicts(conflictInfo)).thenReturn(groups);
+        when(mergeLauncher.result(project))
+                .thenReturn(Optional.of(MergeResult.builder().conflictInfo(conflictInfo).build()));
+
+        var response = controller.getMergeResult(project);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        var body = (MergeResultResponse) response.getBody();
+        assertNotNull(body);
+        assertEquals(MergeResultStatus.CONFLICTS, body.status());
+        assertEquals(groups, body.conflictGroups());
+    }
+
+    @Test
+    void answersASuccessfulMergeWithNoConflicts() {
+        when(mergeLauncher.result(project)).thenReturn(Optional.of(MergeResult.builder().build()));
+
+        var body = (MergeResultResponse) controller.getMergeResult(project).getBody();
+
+        assertNotNull(body);
+        assertEquals(MergeResultStatus.SUCCESS, body.status());
+        assertEquals(List.of(), body.conflictGroups());
+    }
+
+    @Test
+    void acceptsTheRequestWhileTheMergeRuns() {
+        when(mergeLauncher.result(project)).thenReturn(Optional.empty());
+
+        var response = controller.getMergeResult(project);
+
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+        assertEquals(new ResultNotReadyView(ResultNotReadyView.ResultState.NOT_READY), response.getBody());
     }
 
 }

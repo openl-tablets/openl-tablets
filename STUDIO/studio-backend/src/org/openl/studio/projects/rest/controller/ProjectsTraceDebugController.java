@@ -68,6 +68,7 @@ import org.openl.studio.projects.model.trace.TraceDebugMapper;
 import org.openl.studio.projects.model.trace.TreeChildrenView;
 import org.openl.studio.projects.model.trace.WatchView;
 import org.openl.studio.projects.model.trace.WatchesRequest;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -120,6 +121,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.start.summary", description = "trace.start.desc")
     @ApiResponse(responseCode = "200", description = "trace.start.200.desc")
+    @ChangesNothing
     @PostMapping
     public DebugStackView startTrace(
             @ProjectId @PathVariable("projectId") RulesProject project,
@@ -217,6 +219,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")
     @ApiResponse(responseCode = "200", description = "trace.step.200.desc")
+    @ChangesNothing
     @PostMapping("/step")
     public DebugStackView step(
             @ProjectId @PathVariable("projectId") RulesProject project,
@@ -240,6 +243,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.resume.summary", description = "trace.resume.desc")
     @ApiResponse(responseCode = "202", description = "trace.resume.202.desc")
+    @ChangesNothing
     @PostMapping("/resume")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void resume(@ProjectId @PathVariable("projectId") RulesProject project) {
@@ -252,6 +256,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.pause.summary", description = "trace.pause.desc")
     @ApiResponse(responseCode = "202", description = "trace.pause.202.desc")
+    @ChangesNothing
     @PostMapping("/pause")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void pause(@ProjectId @PathVariable("projectId") RulesProject project) {
@@ -319,6 +324,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.set-breakpoints.summary", description = "trace.set-breakpoints.desc")
     @ApiResponse(responseCode = "204", description = "trace.set-breakpoints.204.desc")
+    @ChangesNothing
     @PutMapping("/breakpoints")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setBreakpoints(
@@ -352,6 +358,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.set-watches.summary", description = "trace.set-watches.desc")
     @ApiResponse(responseCode = "204", description = "trace.set-watches.204.desc")
+    @ChangesNothing
     @PutMapping("/watches")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setWatches(
@@ -393,6 +400,7 @@ public class ProjectsTraceDebugController {
 
     @Operation(summary = "trace.cancel.summary", description = "trace.cancel.desc")
     @ApiResponse(responseCode = "204", description = "trace.cancel.204.desc")
+    @ChangesNothing
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelTrace(@ProjectId @PathVariable("projectId") RulesProject project) {

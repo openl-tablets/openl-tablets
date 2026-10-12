@@ -115,6 +115,13 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 - **A holder of the user workspace hands it back.** Take it with `MultiUserWorkspaceManager.acquireUserWorkspace` and
   return it with `releaseUserWorkspace`; never call `UserWorkspace.release()` directly — other clients of the user
   still work in it.
+- **A project is read-only for a client while the client merges it.** `MergeInProgressInterceptor` refuses every
+  request with a `projectId` path variable but a read with `409` `project.merge.running.message` while the client's
+  merge of that project runs in the background, and brings an ended merge to the editor before any request about the
+  project. A new endpoint of a project needs nothing for it, unless it changes nothing though it is no `GET` — a
+  compilation, a run, a trace, a comparison: it carries `@ChangesNothing`, or the editor can neither show nor run
+  the project while it is merged. See
+  [`Docs/api/projects-merge-architecture.md`](../../Docs/api/projects-merge-architecture.md).
 
 ## User Settings
 

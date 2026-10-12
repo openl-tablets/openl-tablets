@@ -3,11 +3,15 @@ package org.openl.studio.projects.service.merge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -27,10 +31,13 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.git.MergeConflictDetails;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.MergeBlockedBy;
 import org.openl.studio.projects.model.merge.MergeOpMode;
@@ -165,20 +172,13 @@ class ProjectsMergeServiceCheckTest {
 
     @Test
     void aSuccessfulMergeWaitsUntilTheTargetBranchIsPublished() throws IOException {
-        var targetRepository = mock(BranchRepository.class);
-        when(repository.forBranch(OTHER)).thenReturn(targetRepository);
-        when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(false);
-        var user = mock(WorkspaceUser.class);
-        var userInfo = mock(UserInfo.class);
-        when(user.getUserInfo()).thenReturn(userInfo);
-        when(userWorkspace.getUser()).thenReturn(user);
-        var designTimeRepository = mock(DesignTimeRepository.class);
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var designTimeRepository = givenMergeInto(OTHER);
         when(designTimeRepository.refreshBranch("design", OTHER))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
-        service.merge(project, OTHER, MergeOpMode.SEND, false);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
 
+        assertEquals(MergeResultStatus.SUCCESS, result.status());
         verify(designTimeRepository).refreshBranch("design", OTHER);
     }
 
@@ -188,18 +188,67 @@ class ProjectsMergeServiceCheckTest {
      */
     @Test
     void anIndexThatDoesNotPublishTheMergeLeavesItASuccess() throws IOException {
-        when(repository.forBranch(OTHER)).thenReturn(mock(BranchRepository.class));
-        when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(false);
-        var user = mock(WorkspaceUser.class);
-        when(user.getUserInfo()).thenReturn(mock(UserInfo.class));
-        when(userWorkspace.getUser()).thenReturn(user);
-        var designTimeRepository = mock(DesignTimeRepository.class);
-        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        var designTimeRepository = givenMergeInto(OTHER);
         when(designTimeRepository.refreshBranch("design", OTHER))
                 .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("index is busy")));
 
-        var result = service.merge(project, OTHER, MergeOpMode.SEND, false);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
 
         assertEquals(MergeResultStatus.SUCCESS, result.status());
+    }
+
+    /** A merge may wait for a thread: a branch another user has taken up meanwhile refuses it when it starts. */
+    @Test
+    void aMergeIntoABranchLockedMeanwhileIsRefused() throws IOException {
+        var lockInfo = mock(LockInfo.class);
+        when(lockInfo.isLocked()).thenReturn(true);
+        when(lockEngine.getLockInfo("design", OTHER, "DESIGN/rules/P1")).thenReturn(lockInfo);
+
+        assertThrows(ConflictException.class,
+                () -> service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace));
+
+        verify(repository, never()).forBranch(any());
+    }
+
+    @Test
+    void aMergeOfBranchesMergedMeanwhileIsRefused() throws IOException {
+        when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(true);
+
+        assertThrows(ConflictException.class,
+                () -> service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace));
+
+        verify(repository, never()).forBranch(any());
+    }
+
+    @Test
+    void aConflictIsReportedWithTheBranchesOfTheMerge() throws IOException {
+        var targetRepository = givenTarget(CURRENT);
+        var details = mock(MergeConflictDetails.class);
+        doThrow(new MergeConflictException(details)).when(targetRepository).merge(eq(OTHER), any(), any());
+
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.RECEIVE, userWorkspace);
+
+        assertEquals(MergeResultStatus.CONFLICTS, result.status());
+        assertEquals(OTHER, result.conflictInfo().mergeBranchFrom());
+        assertEquals(CURRENT, result.conflictInfo().mergeBranchTo());
+        assertEquals(details, result.conflictInfo().details());
+    }
+
+    /** The repository of the branch a merge commits into, for the user of the workspace. */
+    private DesignTimeRepository givenMergeInto(String branch) throws IOException {
+        givenTarget(branch);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        return designTimeRepository;
+    }
+
+    private BranchRepository givenTarget(String branch) throws IOException {
+        var targetRepository = mock(BranchRepository.class);
+        when(repository.forBranch(branch)).thenReturn(targetRepository);
+        var user = mock(WorkspaceUser.class);
+        var userInfo = mock(UserInfo.class);
+        when(user.getUserInfo()).thenReturn(userInfo);
+        when(userWorkspace.getUser()).thenReturn(user);
+        return targetRepository;
     }
 }

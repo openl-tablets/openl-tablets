@@ -44,6 +44,7 @@ import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.run.RunExecutionResult;
 import org.openl.studio.projects.model.run.RunExecutionResultMapper;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.studio.projects.service.ExecutionStatus;
@@ -87,6 +88,7 @@ public class ProjectsRunController {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Object.class))))
     @ApiResponse(responseCode = "202", description = "run.start.202.desc")
+    @ChangesNothing
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public void startRun(
@@ -209,6 +211,7 @@ public class ProjectsRunController {
 
     @Operation(summary = "run.cancel.summary", description = "run.cancel.desc")
     @ApiResponse(responseCode = "204", description = "run.cancel.204.desc")
+    @ChangesNothing
     @DeleteMapping
     public void cancelRun(@ProjectId @PathVariable("projectId") RulesProject project) {
         runResultRegistry.clear();

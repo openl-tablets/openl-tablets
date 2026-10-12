@@ -25,6 +25,9 @@ export const benchmarkStatusTopic = (projectId: string, tableId: string): string
 export const traceStatusTopic = (projectId: string, tableId: string): string =>
     `${tableScope(projectId, tableId)}/trace/status`
 
+/** Where a branch merge of a project reports its status. */
+export const mergeStatusTopic = (projectId: string): string => `${projectScope(projectId)}/merge/status`
+
 /**
  * Where a test run reports itself: its status, and each test table it has finished.
  *

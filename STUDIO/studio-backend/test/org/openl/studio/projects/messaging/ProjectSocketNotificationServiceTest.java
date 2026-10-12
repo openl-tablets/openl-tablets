@@ -69,6 +69,26 @@ class ProjectSocketNotificationServiceTest {
     }
 
     @Test
+    void notifyMergeStatus() {
+        service.notifyMergeStatus(USER_NAME, projectId, ExecutionStatus.STARTED);
+
+        verify(messagingTemplate).convertAndSendToUser(
+                USER_NAME,
+                "/topic/projects/%s/merge/status".formatted(encodedProjectId()),
+                "STARTED");
+    }
+
+    @Test
+    void notifyMergeError() {
+        service.notifyMergeError(USER_NAME, projectId, "Repository is not available");
+
+        verify(messagingTemplate).convertAndSendToUser(
+                USER_NAME,
+                "/topic/projects/%s/merge/status".formatted(encodedProjectId()),
+                Map.of("status", "ERROR", "message", "Repository is not available"));
+    }
+
+    @Test
     void notifyProjectTestsExecutionStatus_completed() {
         service.notifyProjectTestsExecutionStatus(user, projectId, TestExecutionStatus.COMPLETED);
 

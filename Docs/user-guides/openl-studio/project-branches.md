@@ -126,6 +126,12 @@ contain the project when it is opened. Proceed as follows:
     If the updates received in the editor remove the module that is open, the page of the project opens with a
     message that the module is no longer in the project.
 
+    A merge of a large project can take minutes. The dialog waits for it to end, however long it takes, even when
+    a proxy stands between the browser and OpenL Studio. Meanwhile the project stays open in the editor, where it can
+    be read, run and tested, and the dialog opens it again with the merged changes once the merge has ended. While the
+    merge runs, the project cannot be changed — edited, saved, switched to another branch or closed — and another
+    merge cannot be started.
+
     ![](images/sync-merge-with-branch.png)
 
     *Selecting a branch that does not hold the project yet*

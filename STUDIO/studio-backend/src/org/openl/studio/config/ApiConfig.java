@@ -37,6 +37,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 import org.openl.studio.common.projection.FieldProjectionInterceptor;
+import org.openl.studio.projects.rest.MergeInProgressInterceptor;
 
 /**
  * Spring OpenL Studio API Configuration
@@ -64,6 +65,8 @@ public class ApiConfig implements WebMvcConfigurer {
 
     private final FieldProjectionInterceptor fieldProjectionInterceptor;
 
+    private final MergeInProgressInterceptor mergeInProgressInterceptor;
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new ByteArrayHttpMessageConverter());
@@ -78,6 +81,7 @@ public class ApiConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(fieldProjectionInterceptor);
+        registry.addInterceptor(mergeInProgressInterceptor);
     }
 
     @Override

@@ -48,12 +48,20 @@ public final class ExecutionLifecycle {
                 listener.onStatusChanged(ExecutionStatus.INTERRUPTED);
                 return CompletableFuture.completedFuture(null);
             }
-            // A listener is told why it failed; an exception that says nothing is named by its own type,
-            // so that the reason is never missing.
-            var reason = StringUtils.isBlank(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
-            listener.onError(reason, e);
+            listener.onError(reasonOf(e), e);
             return CompletableFuture.failedFuture(e);
         }
+    }
+
+    /**
+     * Tells a user why an execution failed. An exception that says nothing is named by its own type, so that the
+     * reason is never missing.
+     *
+     * @param e the failure
+     * @return the reason to show
+     */
+    public static String reasonOf(Throwable e) {
+        return StringUtils.isBlank(e.getMessage()) ? e.getClass().getSimpleName() : e.getMessage();
     }
 
     /**

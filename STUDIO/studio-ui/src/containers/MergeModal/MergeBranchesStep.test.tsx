@@ -4,6 +4,7 @@ import { Modal } from 'antd'
 import { MergeBranchesStep } from 'containers/MergeModal/MergeBranchesStep'
 import * as services from 'services'
 import { getProjectBranches } from '../../services/repositories'
+import { mergeBranches } from 'containers/MergeModal/mergeBranches'
 import { BranchInfo, CheckMergeResult, MergeBlockedBy, MergeResultResponse } from 'containers/MergeModal/types'
 import type { MockedFunction } from 'vitest'
 
@@ -41,6 +42,11 @@ vi.mock('../../services/repositories', () => ({
     getProjectBranches: vi.fn(),
 }))
 
+vi.mock('containers/MergeModal/mergeBranches', async importOriginal => ({
+    ...await importOriginal<typeof import('containers/MergeModal/mergeBranches')>(),
+    mergeBranches: vi.fn(),
+}))
+
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
     const i18n = { language: 'en' }
@@ -75,6 +81,7 @@ vi.mock('containers/projects/BranchSelect', () => ({
 }))
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
+const mockMergeBranches = vi.mocked(mergeBranches)
 
 const branches: BranchInfo[] = [
     { name: 'main', protected: false },
@@ -346,7 +353,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
@@ -366,7 +373,7 @@ describe('MergeBranchesStep', () => {
                 status: 'conflicts',
                 conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
             }
-            mockApiCall.mockResolvedValueOnce(conflictResponse)
+            mockMergeBranches.mockResolvedValueOnce(conflictResponse)
             await userEvent.click(getButton(/merge:actions.send/i))
 
             await waitFor(() => expect(props.onMergeConflicts).toHaveBeenCalledWith(conflictResponse))
@@ -381,7 +388,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.send/i)).not.toBeDisabled())
 
-            mockApiCall.mockRejectedValueOnce(
+            mockMergeBranches.mockRejectedValueOnce(
                 createApiError(409, "Cannot merge into the branch 'feature' because it is protected.")
             )
             await userEvent.click(getButton(/merge:actions.send/i))
@@ -400,7 +407,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockRejectedValueOnce(new Error('Connection failed'))
+            mockMergeBranches.mockRejectedValueOnce(new Error('Connection failed'))
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await screen.findByText('Connection failed')
@@ -416,7 +423,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onCheckCommitInfo).toHaveBeenCalled())
@@ -433,7 +440,7 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
 
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
@@ -510,7 +517,7 @@ describe('MergeBranchesStep', () => {
             await waitFor(() => expect(getButton(/merge:actions.send/i)).not.toBeDisabled())
 
             // First merge attempt → bypass-required
-            mockApiCall.mockRejectedValueOnce(createBypassError())
+            mockMergeBranches.mockRejectedValueOnce(createBypassError())
             await userEvent.click(getButton(/merge:actions.send/i))
 
             // Confirm modal is invoked with danger styling and the bypass copy
@@ -521,19 +528,13 @@ describe('MergeBranchesStep', () => {
             expect(confirmConfig.okButtonProps).toEqual({ danger: true })
 
             // Confirming retries the merge with force=true
-            mockApiCall.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: []})
             await act(async () => {
                 await confirmConfig.onOk?.()
             })
 
             await waitFor(() => {
-                expect(mockApiCall).toHaveBeenCalledWith(
-                    '/projects/proj-1/merge?force=true',
-                    expect.objectContaining({
-                        body: JSON.stringify({ mode: 'send', otherBranch: 'feature' }),
-                    }),
-                    expect.anything()
-                )
+                expect(mockMergeBranches).toHaveBeenLastCalledWith('proj-1', 'send', 'feature', true)
             })
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
         })
@@ -548,14 +549,14 @@ describe('MergeBranchesStep', () => {
             await selectBranch('feature')
             await waitFor(() => expect(getButton(/merge:actions.send/i)).not.toBeDisabled())
 
-            mockApiCall.mockRejectedValueOnce(createBypassError())
+            mockMergeBranches.mockRejectedValueOnce(createBypassError())
             await userEvent.click(getButton(/merge:actions.send/i))
 
             await waitFor(() => expect(Modal.confirm).toHaveBeenCalled())
-            const callsAfterFirstAttempt = mockApiCall.mock.calls.length
 
             // Simulate the user dismissing the modal — onOk is never invoked
-            expect(mockApiCall).toHaveBeenCalledTimes(callsAfterFirstAttempt)
+            expect(mockMergeBranches).toHaveBeenCalledTimes(1)
+            expect(mockMergeBranches).toHaveBeenCalledWith('proj-1', 'send', 'feature', false)
             expect(props.onMergeSuccess).not.toHaveBeenCalled()
         })
     })

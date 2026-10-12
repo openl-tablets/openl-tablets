@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.MergeOpMode;
@@ -100,6 +101,12 @@ public interface ProjectsMergeService {
      * they are returned in the {@link MergeResult} but the merge is not committed.
      * If no conflicts occur, the merge is committed automatically.
      *
+     * <p>The caller runs {@link #validateMergeAllowed} first, while it still answers the request. The merge itself
+     * may run apart from any request and later, once a thread is free, so it is handed the workspace of the user it
+     * merges for, and asks again what other users can change meanwhile: a merge into a branch where another user
+     * holds the project, or that has the other branch merged already, is refused with
+     * {@link org.openl.studio.common.exception.ConflictException}.
+     *
      * <p><b>Branch Resolution:</b>
      * <ul>
      *   <li>In RECEIVE mode: merges {@code otherBranch} into current branch</li>
@@ -113,6 +120,9 @@ public interface ProjectsMergeService {
      *   <li>Result status is {@link org.openl.studio.projects.model.merge.MergeResultStatus#SUCCESS}</li>
      *   <li>Conflict info is null</li>
      * </ol>
+     *
+     * <p>A committed merge then waits a while for the project index to publish the target branch. An index that
+     * is late does not undo the merge, so the result is a success all the same.
      *
      * <p><b>Conflict Path:</b>
      * <ol>
@@ -132,16 +142,19 @@ public interface ProjectsMergeService {
      * merge conflicts by preserving all three versions (BASE, OURS, THEIRS) for later resolution.
      *
      * @param project the project to merge
+     * @param currentBranch the branch of the project the merge was validated with: the project may be on another
+     *                      one by the time the merge runs
      * @param otherBranch the other branch name (interpretation depends on mode)
      * @param mode merge operation mode (RECEIVE or SEND)
+     * @param workspace the workspace of the user who merges
      * @return merge result with status and optional conflict information
      * @throws IOException if Git operation fails or repository is inaccessible
-     * @throws IllegalArgumentException if branch does not exist
      */
     @NotNull
     MergeResult merge(@NotNull RulesProject project,
+                      @NotBlank String currentBranch,
                       @NotBlank String otherBranch,
                       @NotNull MergeOpMode mode,
-                      boolean force) throws IOException;
+                      @NotNull UserWorkspace workspace) throws IOException;
 
 }

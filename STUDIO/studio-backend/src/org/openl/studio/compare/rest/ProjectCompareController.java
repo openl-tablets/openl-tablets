@@ -29,6 +29,7 @@ import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonContent;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.compare.service.ProjectComparisonService;
+import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.util.IOUtils;
 
@@ -65,6 +66,7 @@ public class ProjectCompareController {
     @Operation(summary = "compare.project.summary", description = "compare.project.desc")
     @ApiResponse(responseCode = "202", description = "compare.project.202.desc")
     @ApiResponse(responseCode = "400", description = "compare.file.not-excel.message")
+    @ChangesNothing
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
     public ComparisonStartedView compare(
