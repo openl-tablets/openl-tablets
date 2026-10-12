@@ -4,7 +4,7 @@ import { DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
-import { useValueStyles, ValueCell } from 'components/values/ParameterValues'
+import { NumberFormatContext, useValueStyles, ValueCell } from 'components/values/ParameterValues'
 import { SpreadsheetValue } from 'components/values/SpreadsheetValue'
 import {
     getRunResult,
@@ -17,6 +17,7 @@ import { isStillRunning } from 'services/taskResult'
 import type { RunResult } from 'types/execution'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
+import { formatSmartNumber } from 'utils/smartNumber'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { runStatusTopic } from './topics'
 import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
@@ -44,7 +45,11 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
         ...inputs.map((input, index): ListTableColumn<RunRow> => ({
             key: `input-${index}`,
             title: input.title,
-            render: () => <ValueCell path={`run-input-${index}`} styles={valueStyles} value={input.value} />,
+            render: () => (
+                <NumberFormatContext.Provider value={formatSmartNumber}>
+                    <ValueCell path={`run-input-${index}`} styles={valueStyles} value={input.value} />
+                </NumberFormatContext.Provider>
+            ),
         })),
         {
             key: 'result',
@@ -55,7 +60,11 @@ const RunResultTable: React.FC<{ result: RunResult }> = ({ result }) => {
                 }
                 return result.resultSpreadsheet
                     ? <SpreadsheetValue keyPrefix="run-result" spreadsheet={result.resultSpreadsheet} />
-                    : <ValueCell path="run-result" styles={valueStyles} value={result.result} />
+                    : (
+                        <NumberFormatContext.Provider value={formatSmartNumber}>
+                            <ValueCell path="run-result" styles={valueStyles} value={result.result} />
+                        </NumberFormatContext.Provider>
+                    )
             },
         },
     ]
