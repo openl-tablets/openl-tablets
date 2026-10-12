@@ -42,4 +42,8 @@ The general table recognition algorithm is as follows:
 
 It is a good practice to merge all cells in the first table row, so the first row explicitly specifies the table width. The first row is called the table **header**.
 
+In Data and Test tables, empty columns on the right that only the merged header spans are ignored. They add no
+fields, records or test cases. For example, a header merged across A1:E1 over a vertical Data table with content
+only in columns A to C defines one record, not three.
+
 **Note:** To put a table title before the header row, an empty row must be used between the title and the first row of the actual table.
