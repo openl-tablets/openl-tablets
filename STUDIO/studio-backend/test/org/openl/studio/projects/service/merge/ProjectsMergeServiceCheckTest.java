@@ -34,6 +34,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.MergeBlockedBy;
 import org.openl.studio.projects.model.merge.MergeOpMode;
+import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
@@ -179,5 +180,26 @@ class ProjectsMergeServiceCheckTest {
         service.merge(project, OTHER, MergeOpMode.SEND, false);
 
         verify(designTimeRepository).refreshBranch("design", OTHER);
+    }
+
+    /**
+     * The merge is committed before the index is asked to publish it. Reporting a failure would have the user merge
+     * again a branch that has no changes left to merge — see EPBDS-16541.
+     */
+    @Test
+    void anIndexThatDoesNotPublishTheMergeLeavesItASuccess() throws IOException {
+        when(repository.forBranch(OTHER)).thenReturn(mock(BranchRepository.class));
+        when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(false);
+        var user = mock(WorkspaceUser.class);
+        when(user.getUserInfo()).thenReturn(mock(UserInfo.class));
+        when(userWorkspace.getUser()).thenReturn(user);
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(userWorkspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        when(designTimeRepository.refreshBranch("design", OTHER))
+                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("index is busy")));
+
+        var result = service.merge(project, OTHER, MergeOpMode.SEND, false);
+
+        assertEquals(MergeResultStatus.SUCCESS, result.status());
     }
 }

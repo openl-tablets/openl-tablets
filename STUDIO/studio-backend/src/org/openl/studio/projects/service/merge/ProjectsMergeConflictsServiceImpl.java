@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
@@ -52,6 +49,7 @@ import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
+import org.openl.studio.projects.service.ProjectIndex;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -59,8 +57,6 @@ import org.openl.util.StringUtils;
 
 @Service
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
-
-    private static final long PROJECT_INDEX_TIMEOUT_SECONDS = 30;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -312,7 +308,9 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
             String branch = isMerging ? mergeConflictInfo.mergeBranchTo() : project.getBranch();
             updateRulesXmlFiles(repositoryId, modulesToAppend, branch, mergeMessage);
-            awaitProjectIndex(designRepository, repositoryId, branch);
+            // The resolution is committed by now. An index that publishes it late is logged and leaves it
+            // resolved: reporting a failure would have the user resolve again what is already committed.
+            ProjectIndex.awaitBranch(workspace.getDesignTimeRepository(), designRepository, branch);
 
             // Return success
             List<String> resolvedFilePaths = resolutions.stream()
@@ -454,23 +452,6 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                     output);
             resolvedFiles.add(new FileItem(fileName, new ByteArrayInputStream(output.toByteArray())));
             output.reset();
-        }
-    }
-
-    private void awaitProjectIndex(Repository repository, String repositoryId, String branch) throws IOException {
-        if (!repository.supports().branches() || branch == null) {
-            return;
-        }
-        try {
-            getUserWorkspace().getDesignTimeRepository()
-                    .refreshBranch(repositoryId, branch)
-                    .toCompletableFuture()
-                    .get(PROJECT_INDEX_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IOException("Interrupted while publishing the resolved branch.", e);
-        } catch (ExecutionException | TimeoutException e) {
-            throw new IOException("The resolved branch was not published by the project index.", e);
         }
     }
 

@@ -65,7 +65,9 @@ branch and the lock, and `status` says `up-to-date` for step 6. `merge` runs all
 - **`receive`** merges `otherBranch` into the current branch. **`send`** merges the current branch into `otherBranch`.
   The target of the merge is the branch that changes.
 - The Git repository merges the source into the target with the user as the author, and the service waits up to
-  30 seconds until the project index publishes the target branch.
+  30 seconds until the project index publishes the target branch. The merge is committed by then, so an index that
+  is late is logged and the merge stays a `success`: a failure would have the user merge again what is already
+  merged (EPBDS-16541). A resolution waits for the index the same way.
 - A conflict in Git gives a `MergeConflictInfo` with the details of the conflict. Otherwise the merge is `success`.
 
 ## Merge in the Editor
