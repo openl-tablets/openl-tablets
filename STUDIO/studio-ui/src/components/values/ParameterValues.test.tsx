@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ValueLevel } from 'types/execution'
 import * as look from './parameterValues.styles'
-import { type ReadLines, useValueStyles, ValueCell } from './ParameterValues'
+import { NumberFormatContext, type ReadLines, useValueStyles, ValueCell } from './ParameterValues'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -154,6 +154,20 @@ describe('ValueCell', () => {
 
         await userEvent.click(screen.getByTestId('more-value-0-0'))
         expect(drawn()).toBe(204)
+    })
+
+    it('writes a number as JavaScript does unless the screen gives a format for it', () => {
+        const { unmount } = render(<Values values={[0.1 + 0.2]} />)
+        expect(screen.getByText('0.30000000000000004')).toBeInTheDocument()
+        unmount()
+
+        render(
+            <NumberFormatContext.Provider value={() => '0.3'}>
+                <Values values={[0.1 + 0.2]} />
+            </NumberFormatContext.Provider>
+        )
+        expect(screen.getByText('0.3')).toBeInTheDocument()
+        expect(screen.queryByText('0.30000000000000004')).toBeNull()
     })
 
     it('draws a value that opens into no lines as it came with its first read', async () => {

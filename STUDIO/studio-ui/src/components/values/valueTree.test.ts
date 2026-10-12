@@ -16,6 +16,8 @@ describe('describeSimpleValue', () => {
         expect(describeSimpleValue(undefined)).toEqual({ display: 'null', kind: 'null' })
         expect(describeSimpleValue('Auto')).toEqual({ display: '"Auto"', kind: 'string' })
         expect(describeSimpleValue(25)).toEqual({ display: '25', kind: 'number' })
+        expect(describeSimpleValue(0.1 + 0.2)).toEqual({ display: '0.30000000000000004', kind: 'number' })
+        expect(describeSimpleValue(0.1 + 0.2, () => '0.3')).toEqual({ display: '0.3', kind: 'number' })
         expect(describeSimpleValue(false)).toEqual({ display: 'false', kind: 'boolean' })
         expect(describeSimpleValue(BigInt(7))).toEqual({ display: '7', kind: 'other' })
     })

@@ -262,6 +262,14 @@ and a column for each value the test compares. A tick or a cross stands next to 
 value that was compared, and a case that failed says how many of its comparisons did not match and shows the
 value that was expected under the value that came out.
 
+A fractional number is rounded when a decimal with at least two fewer digits lies within two floating-point steps of
+it, as the saved workbook does: a rule that computes `1.73 * 12` returns `20.759999999999998`, and the window shows
+`20.76`. The test compares the value the rule returned, not the one shown. A comparison that failed is shown exactly
+when its actual and expected numbers would read the same once rounded, and so is a failed comparison of a value with
+inner structure, whose fields are read later. Without a precision a test accepts a difference of one floating-point
+step, so a value two steps away fails; see
+[Using the Precision Property in Testing](../reference-guide/02-working-with-openl-tables/04-table-properties/07-dev-properties.md#using-the-precision-property-in-testing).
+
 A table lists its cases 20 to a page, and the pager under it reaches the rest. To read every case at once, save
 the results to Excel. A plain value, such as a number, a date or text, is shown at once. A value with inner
 structure - one a case was given, returned, compared or expected - shows **Load value** in its place, which reads

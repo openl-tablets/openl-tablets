@@ -6,12 +6,14 @@ import { ListTable, type ListTableColumn } from 'components/ListTable'
 import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
 import {
+    NumberFormatContext,
     type ReadLines,
     useValueStyles,
     ValueCell,
     valueLabel,
     type ValueStyles,
 } from 'components/values/ParameterValues'
+import { isComplexValue } from 'components/values/valueTree'
 import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
     getTestCaseLines,
@@ -24,11 +26,18 @@ import {
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
 import { useUserStore } from 'store'
-import type { TestsSummary, TestStatus, TestTableResult, TestUnitResult } from 'types/execution'
+import type {
+    TestAssertionResult,
+    TestsSummary,
+    TestStatus,
+    TestTableResult,
+    TestUnitResult,
+} from 'types/execution'
 import type { UserProfile } from 'types/user'
 import type { TraceParameterValue } from 'types/trace'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
+import { formatSmartNumber } from 'utils/smartNumber'
 import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
@@ -51,6 +60,14 @@ const StatusMark: React.FC<{ status: TestStatus, title: string }> = ({ status, t
 /** How many comparisons of a case did not match. */
 const failureCount = (unit: TestUnitResult): number =>
     (unit.testAssertions ?? []).filter(assertion => assertion.status !== 'TR_OK').length
+
+const showsExactly = ({ actualValue, expectedValue, actualLazy, expectedLazy }: TestAssertionResult): boolean => {
+    if (actualLazy || expectedLazy || isComplexValue(actualValue) || isComplexValue(expectedValue)) {
+        return true
+    }
+    return typeof actualValue === 'number' && typeof expectedValue === 'number'
+        && formatSmartNumber(actualValue) === formatSmartNumber(expectedValue)
+}
 
 /** The values of a test unit under the names of the columns they came from, context first. */
 const inputsOf = (unit: TestUnitResult): TraceParameterValue[] =>
@@ -122,33 +139,36 @@ const columnsOf = (
             title: assertion.description || t('tests.result'),
             render: unit => {
                 const actual = unit.testAssertions?.[index]
+                const failed = actual !== undefined && actual.status !== 'TR_OK'
                 return (
-                    <Space orientation="vertical" size={2}>
-                        <Space size={4}>
-                            {!table.runTable && actual && (
-                                <StatusMark status={actual.status} title={t(STATUS[actual.status])} />
-                            )}
-                            <ValueCell
-                                lazy={actual?.actualLazy ?? false}
-                                path={`${key}-out-${unit.id}-${index}`}
-                                readLines={readLines(table.tableId, unit.id, { of: 'assertion', index })}
-                                styles={valueStyles}
-                                value={actual?.actualValue}
-                            />
-                        </Space>
-                        {actual && actual.status !== 'TR_OK' && (
+                    <NumberFormatContext.Provider value={failed && showsExactly(actual) ? String : formatSmartNumber}>
+                        <Space orientation="vertical" size={2}>
                             <Space size={4}>
-                                <Text type="secondary">{t('tests.expected')}</Text>
+                                {!table.runTable && actual && (
+                                    <StatusMark status={actual.status} title={t(STATUS[actual.status])} />
+                                )}
                                 <ValueCell
-                                    lazy={actual.expectedLazy ?? false}
-                                    path={`${key}-exp-${unit.id}-${index}`}
-                                    readLines={readLines(table.tableId, unit.id, { of: 'expected', index })}
+                                    lazy={actual?.actualLazy ?? false}
+                                    path={`${key}-out-${unit.id}-${index}`}
+                                    readLines={readLines(table.tableId, unit.id, { of: 'assertion', index })}
                                     styles={valueStyles}
-                                    value={actual.expectedValue}
+                                    value={actual?.actualValue}
                                 />
                             </Space>
-                        )}
-                    </Space>
+                            {failed && (
+                                <Space size={4}>
+                                    <Text type="secondary">{t('tests.expected')}</Text>
+                                    <ValueCell
+                                        lazy={actual.expectedLazy ?? false}
+                                        path={`${key}-exp-${unit.id}-${index}`}
+                                        readLines={readLines(table.tableId, unit.id, { of: 'expected', index })}
+                                        styles={valueStyles}
+                                        value={actual.expectedValue}
+                                    />
+                                </Space>
+                            )}
+                        </Space>
+                    </NumberFormatContext.Provider>
                 )
             },
         })),
@@ -236,12 +256,14 @@ const TestTable: React.FC<{
             {/* A table the screen is set to leave out keeps its name and its counts, and nothing more. The columns
                 come from every case listed, so they stay the same from page to page. */}
             {units.length > 0 && (
-                <ListTable<TestUnitResult>
-                    columns={columnsOf(table, compoundResult, t, readLines, valueStyles)}
-                    data-testid={`test-results-${table.tableId}`}
-                    rowKey={unit => unit.id}
-                    rows={units.slice((page - 1) * CASES_PER_PAGE, page * CASES_PER_PAGE)}
-                />
+                <NumberFormatContext.Provider value={formatSmartNumber}>
+                    <ListTable<TestUnitResult>
+                        columns={columnsOf(table, compoundResult, t, readLines, valueStyles)}
+                        data-testid={`test-results-${table.tableId}`}
+                        rowKey={unit => unit.id}
+                        rows={units.slice((page - 1) * CASES_PER_PAGE, page * CASES_PER_PAGE)}
+                    />
+                </NumberFormatContext.Provider>
             )}
             {units.length > CASES_PER_PAGE && (
                 <Pagination
