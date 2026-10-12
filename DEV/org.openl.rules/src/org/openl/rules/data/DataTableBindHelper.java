@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SequencedSet;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,11 @@ import org.openl.rules.calc.SpreadsheetResultField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.testmethod.TestMethodHelper;
@@ -116,20 +120,38 @@ public class DataTableBindHelper {
     /**
      * Gets the table body, by skipping the table header and properties sections.
      *
+     * <p>The body ends at its last occupied column. Empty columns spanned only by a merged header hold no field and
+     * no record.
+     *
      * @param tsn inspecting table
-     * @return Table body without table header and properties section.
+     * @return Table body without table header and properties section, or {@code null} when the table has no body.
      */
     public static ILogicalTable getTableBody(TableSyntaxNode tsn) {
-
-        int startRow;
-
-        if (!tsn.hasPropertiesDefinedInTable()) {
-            startRow = 1;
-        } else {
-            startRow = 2;
+        var startRow = tsn.hasPropertiesDefinedInTable() ? 2 : 1;
+        var body = tsn.getTable().getRows(startRow);
+        if (body == null) {
+            return null;
         }
+        var source = body.getSource();
+        var width = occupiedWidth(source);
+        return width < source.getWidth()
+                ? LogicalTableHelper.logicalTable(source.getSubtable(0, 0, width, source.getHeight()))
+                : body;
+    }
 
-        return tsn.getTable().getRows(startRow);
+    private static int occupiedWidth(IGridTable table) {
+        var width = table.getWidth();
+        while (width > 1 && isEmptyColumn(table, width - 1)) {
+            width--;
+        }
+        return width;
+    }
+
+    private static boolean isEmptyColumn(IGridTable table, int column) {
+        return IntStream.range(0, table.getHeight())
+                .noneMatch(row -> GridSplitter.containsCell(table.getGrid(),
+                        table.getGridColumn(column, row),
+                        table.getGridRow(column, row)));
     }
 
     /**
