@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.lenient;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -68,6 +70,7 @@ class ProjectsBenchmarkControllerTest {
     private void tableIsExecutedBy(IOpenMethod method) {
         lenient().when(model.getMethod(TABLE_URI)).thenReturn(method);
         lenient().when(model.getOpenedModuleMethod(TABLE_URI)).thenReturn(method);
+        lenient().when(model.getCurrentDispatcherMethod(method, TABLE_URI)).thenReturn(method);
     }
 
     /**
@@ -86,6 +89,9 @@ class ProjectsBenchmarkControllerTest {
 
         model = mock(ProjectModel.class);
         lenient().when(model.getTableById(TABLE_ID)).thenReturn(table);
+        var compiled = mock(CompiledOpenClass.class);
+        lenient().when(model.getCompiledOpenClass()).thenReturn(compiled);
+        lenient().when(model.getOpenedModuleCompiledOpenClass()).thenReturn(compiled);
         var handle = mock(ProjectHandle.class);
         lenient().when(handle.awaitCompiled()).thenReturn(model);
 
@@ -141,7 +147,8 @@ class ProjectsBenchmarkControllerTest {
 
     @Test
     void startBenchmark_anyOtherTableIsMeasuredOverTheInputItIsGiven() {
-        tableIsExecutedBy(mock(IOpenMethod.class));
+        var method = mock(IOpenMethod.class);
+        tableIsExecutedBy(method);
         var params = new Object[]{42};
         when(inputParserService.parseInput(eq("{}"), any(), any()))
                 .thenReturn(new TableInputParserService.ParseResult(params, null));
@@ -150,6 +157,7 @@ class ProjectsBenchmarkControllerTest {
 
         verify(benchmarkExecutorService).benchmark(eq(listener), eq(model), eq(table), isNull(), eq(params), isNull(),
                 eq(true));
+        verify(inputParserService).validateInput(any(), argThat(selection -> selection.version() == method));
     }
 
     @Test

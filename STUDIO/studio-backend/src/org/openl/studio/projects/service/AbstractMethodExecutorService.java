@@ -23,8 +23,8 @@ import org.openl.types.IOpenMethod;
 public abstract class AbstractMethodExecutorService {
 
     /**
-     * Resolves the executable method from a table, handling {@link OpenMethodDispatcher}
-     * and optional runtime context re-resolution at the project level.
+     * Resolves the executable method from a table. Without runtime context, a dispatcher uses the requested table
+     * URI. With runtime context, execution uses the project's dispatcher so context can select the version.
      *
      * @param projectModel        project model
      * @param table               the table to resolve
@@ -42,14 +42,21 @@ public abstract class AbstractMethodExecutorService {
                 ? projectModel.getOpenedModuleMethod(uri)
                 : projectModel.getMethod(uri);
 
-        if (method instanceof OpenMethodDispatcher) {
+        if (method instanceof OpenMethodDispatcher && runtimeContext == null) {
             method = projectModel.getCurrentDispatcherMethod(method, uri);
             if (method == null) {
                 throw new IllegalStateException("Failed to resolve dispatcher method for table: " + uri);
             }
         }
 
-        // If runtime context is provided, get project-level method
+        return resolveMethod(projectModel, method, currentOpenedModule, runtimeContext);
+    }
+
+    /** Resolves a selected table version against the project when runtime context is supplied. */
+    protected static IOpenMethod resolveMethod(ProjectModel projectModel,
+                                               IOpenMethod method,
+                                               boolean currentOpenedModule,
+                                               IRulesRuntimeContext runtimeContext) {
         if (runtimeContext != null) {
             method = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors()
                     .getMethod(method.getName(), method.getSignature().getParameterTypes());

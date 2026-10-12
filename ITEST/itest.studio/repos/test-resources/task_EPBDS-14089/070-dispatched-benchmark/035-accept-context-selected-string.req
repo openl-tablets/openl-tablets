@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/benchmarks?tableId={ALIAS_VERSION_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{"params":{"value":"gamma"},"runtimeContext":{"currentDate":"2022-01-01"}}

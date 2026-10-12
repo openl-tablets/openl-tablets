@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.function.Supplier;
+
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -11,13 +13,29 @@ public interface IRulesMethodWrapper extends IOpenMethodWrapper {
                                                                Object[] params,
                                                                IRuntimeEnv env,
                                                                SimpleRuntimeEnv simpleRuntimeEnv) {
+        return withInjectedContext(params, env, simpleRuntimeEnv, () -> {
+            var rulesMethodWrapper = simpleRuntimeEnv.getMethodWrapper();
+            try {
+                simpleRuntimeEnv.setMethodWrapper(this);
+                return getDelegate().invoke(target, params, env);
+            } finally {
+                simpleRuntimeEnv.setMethodWrapper(rulesMethodWrapper);
+            }
+        });
+    }
+
+    /**
+     * Runs an action with the runtime context completed by the context properties taken from the arguments.
+     * The context is restored when the action ends.
+     */
+    default <T> T withInjectedContext(Object[] params,
+                                      IRuntimeEnv env,
+                                      SimpleRuntimeEnv simpleRuntimeEnv,
+                                      Supplier<T> action) {
         var isNewRuntimeContext = getContextPropertiesInjector().push(params, env, simpleRuntimeEnv);
-        var rulesMethodWrapper = simpleRuntimeEnv.getMethodWrapper();
         try {
-            simpleRuntimeEnv.setMethodWrapper(this);
-            return getDelegate().invoke(target, params, env);
+            return action.get();
         } finally {
-            simpleRuntimeEnv.setMethodWrapper(rulesMethodWrapper);
             if (isNewRuntimeContext) {
                 getContextPropertiesInjector().pop(simpleRuntimeEnv);
             }

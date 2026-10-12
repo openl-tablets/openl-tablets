@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -22,11 +23,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
+import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
@@ -42,6 +47,9 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.run.ExecutionRunResultRegistry;
 import org.openl.studio.projects.service.run.RunExecutorService;
 import org.openl.studio.projects.service.trace.TableInputParserService;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -54,6 +62,7 @@ class ProjectsRunControllerTest {
     private static final String XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private static final String TABLE_ID = "abc123";
     private static final String TABLE_URI = "file:/Test/rules/Main.xlsx?sheet=Rules&range=B3:E11";
+    private static final String SELECTED_URI = "file:/Test/rules/Main.xlsx?sheet=Rules&range=B20:E28";
     private static final String MODULE = "Main";
     private static final String INPUT = "{\"hour\":10}";
 
@@ -170,6 +179,40 @@ class ProjectsRunControllerTest {
     }
 
     @Test
+    void startRun_reportsSelectedVersionCompilationErrorsBeforeVocabularyErrors() {
+        var dispatcher = mock(OpenMethodDispatcher.class);
+        var signature = mock(IMethodSignature.class);
+        when(dispatcher.getName()).thenReturn("rule");
+        when(dispatcher.getSignature()).thenReturn(signature);
+        when(signature.getParameterTypes()).thenReturn(new IOpenClass[0]);
+        givenTable(null, dispatcher);
+        var compiled = mock(CompiledOpenClass.class);
+        var openClass = mock(IOpenClass.class);
+        when(projectModel.getCompiledOpenClass()).thenReturn(compiled);
+        when(compiled.getOpenClassWithErrors()).thenReturn(openClass);
+        var projectDispatcher = mock(OpenMethodDispatcher.class);
+        when(openClass.getMethod(eq("rule"), any(IOpenClass[].class))).thenReturn(projectDispatcher);
+        var selected = mock(IOpenMethod.class);
+        when(projectDispatcher.findMatchingMethod(any())).thenReturn(selected);
+        var info = mock(IMemberMetaInfo.class);
+        when(selected.getInfo()).thenReturn(info);
+        when(info.getSourceUrl()).thenReturn(SELECTED_URI);
+        var selectedTable = mock(TableSyntaxNode.class);
+        when(projectModel.getTableByUri(SELECTED_URI)).thenReturn(selectedTable);
+        when(projectModel.getMessagesByTsn(SELECTED_URI, Severity.ERROR))
+                .thenReturn(List.of(error("Selected version does not compile")));
+        var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+        when(inputParserService.parseInput(eq(INPUT), eq(dispatcher), any()))
+                .thenReturn(new TableInputParserService.ParseResult(new Object[]{10}, context));
+
+        var refused = assertThrows(ConflictException.class,
+                () -> controller.startRun(project, TABLE_ID, null, INPUT));
+
+        assertEquals("openl.error.409.run.dispatched.compile.errors.message", refused.getErrorCode());
+        verify(inputParserService, never()).validateInput(any(), any());
+    }
+
+    @Test
     void startRun_runsATableThatCompiles() {
         givenTable(null, method);
         givenARunCanStart();
@@ -177,6 +220,7 @@ class ProjectsRunControllerTest {
         controller.startRun(project, TABLE_ID, null, INPUT);
 
         verify(runExecutorService).runMethod(any(), eq(projectModel), any(), any(), any(), eq(false));
+        verify(inputParserService).validateInput(any(), argThat(selection -> selection.version() == method));
         assertTrue(registry.hasTask(projectId));
     }
 
@@ -202,6 +246,10 @@ class ProjectsRunControllerTest {
         when(projectModel.getTableById(TABLE_ID)).thenReturn(table);
         when(projectModel.getMethod(TABLE_URI)).thenReturn(fromModule == null ? tableMethod : null);
         when(projectModel.getOpenedModuleMethod(TABLE_URI)).thenReturn(fromModule == null ? null : tableMethod);
+        when(projectModel.getCurrentDispatcherMethod(tableMethod, TABLE_URI)).thenReturn(tableMethod);
+        var compiled = mock(CompiledOpenClass.class);
+        when(projectModel.getCompiledOpenClass()).thenReturn(compiled);
+        when(projectModel.getOpenedModuleCompiledOpenClass()).thenReturn(compiled);
     }
 
     private void givenARunCanStart() {

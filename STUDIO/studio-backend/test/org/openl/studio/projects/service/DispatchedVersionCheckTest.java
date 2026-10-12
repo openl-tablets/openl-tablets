@@ -159,11 +159,13 @@ class DispatchedVersionCheckTest {
     }
 
     @Test
-    void staysSilentWhereTheContextIsFilledInFromAParameterBeforeTheVersionIsChosen() {
+    void refusesBrokenVersionWhenContextIsFilledInFromAParameter() {
         var requested = version("Injected", 2009);
 
-        assertDoesNotThrow(() -> refuse(requested, on(2010, 6, 1), true));
-        assertDoesNotThrow(() -> refuse(requested, on(2010, 6, 1), false));
+        var context = on(2010, 6, 1);
+
+        assertThrows(ConflictException.class, () -> refuse(requested, context, true));
+        assertThrows(ConflictException.class, () -> refuse(requested, context, false));
     }
 
     @Test
@@ -172,6 +174,21 @@ class DispatchedVersionCheckTest {
 
         assertDoesNotThrow(() -> refuse(requested, on(2010, 6, 1), true));
         assertDoesNotThrow(() -> refuse(requested, on(2010, 6, 1), false));
+    }
+
+    @Test
+    void selectsVersionUsingAContextPropertyFromADatatypeField() throws Exception {
+        var requested = version("Quote", 2009);
+        var dispatcher = module.getOpenedModuleMethod(requested.getUri());
+        var carrierClass = module.getOpenedModuleCompiledOpenClass()
+                .getOpenClassWithErrors().findType("Carrier").getInstanceClass();
+        var carrier = carrierClass.getDeclaredConstructor().newInstance();
+        carrierClass.getMethod("setLob", String.class).invoke(carrier, "Banking");
+
+        var selected = select(dispatcher, requested, on(2010, 6, 1), carrier).version();
+
+        assertNotNull(selected);
+        assertEquals(version("Quote", 2010).getUri(), selected.getInfo().getSourceUrl());
     }
 
     @Test
@@ -223,6 +240,70 @@ class DispatchedVersionCheckTest {
         assertNull(chosenFor(context, dispatcher));
     }
 
+    @Test
+    void validatesTheRequestedVersionWithoutContextAndTheDispatchedVersionWithContext() {
+        var oldTable = version("Sound", 2009);
+        var newTable = version("Sound", 2010);
+        var dispatcher = module.getOpenedModuleMethod(oldTable.getUri());
+        var oldVersion = module.getCurrentDispatcherMethod(dispatcher, oldTable.getUri());
+
+        assertEquals(oldVersion, select(dispatcher, oldTable, null).version());
+        assertEquals(newTable.getUri(), select(dispatcher, oldTable, on(2010, 6, 1), "make").version()
+                .getInfo().getSourceUrl());
+    }
+
+    @Test
+    void selectsNoVersionWhenTheContextFitsNone() {
+        var table = version("Sound", 2009);
+        var dispatcher = module.getOpenedModuleMethod(table.getUri());
+
+        var selection = select(dispatcher, table, on(2020, 1, 1), "make");
+
+        assertNotNull(selection.executable());
+        assertNull(selection.version());
+    }
+
+    @Test
+    void selectsTheRequestedVersionOfATableWithAnInjectedContextUnlessContextIsGiven() {
+        var injected = version("Injected", 2009);
+        var injectedMethod = module.getOpenedModuleMethod(injected.getUri());
+        var requestedVersion = module.getCurrentDispatcherMethod(injectedMethod, injected.getUri());
+
+        assertEquals(requestedVersion, select(injectedMethod, injected, null, "auto").version());
+        assertEquals(version("Injected", 2010).getUri(), select(injectedMethod, injected, on(2010, 6, 1), "auto")
+                .version().getInfo().getSourceUrl());
+    }
+
+    @Test
+    void choosingValidationVersionDoesNotCacheItInTheCallerContext() {
+        var requested = version("Sound", 2009);
+        var context = on(2010, 6, 1);
+        var dispatcher = assertInstanceOf(OpenMethodDispatcher.class,
+                module.getOpenedModuleMethod(requested.getUri()));
+
+        assertNotNull(select(dispatcher, requested, context, "make").version());
+        assertNull(chosenFor(context, dispatcher));
+    }
+
+    @Test
+    void refusesTheBrokenVersionTheContextPicksWhenTheRequestedTableIsASingleVersion() {
+        var requested = version("Price", 2009);
+        var dispatcher = module.getOpenedModuleMethod(requested.getUri());
+        var single = module.getCurrentDispatcherMethod(dispatcher, requested.getUri());
+        var context = on(2010, 6, 1);
+        var selection = select(single, requested, context, "make");
+
+        assertThrows(ConflictException.class,
+                () -> DispatchedVersionCheck.refuseIfBroken(module, selection, true));
+    }
+
+    private static DispatchedVersionCheck.Selection select(IOpenMethod method,
+                                                           IOpenLTable table,
+                                                           IRulesRuntimeContext context,
+                                                           Object... params) {
+        return DispatchedVersionCheck.select(module, method, table.getUri(), context, params, true);
+    }
+
     private static IOpenMethod chosenFor(IRulesRuntimeContext context, OpenMethodDispatcher dispatcher) {
         return ((IRulesRuntimeContextOptimizationForOpenMethodDispatcher) context)
                 .getMethodForOpenMethodDispatcher(dispatcher);
@@ -236,7 +317,15 @@ class DispatchedVersionCheckTest {
                                IOpenLTable table,
                                IRulesRuntimeContext context,
                                boolean currentOpenedModule) {
-        DispatchedVersionCheck.refuseIfBroken(model, table, context, currentOpenedModule);
+        var method = currentOpenedModule
+                ? model.getOpenedModuleMethod(table.getUri())
+                : model.getMethod(table.getUri());
+        if (method == null) {
+            return;
+        }
+        var selection = DispatchedVersionCheck.select(model, method, table.getUri(), context, new Object[]{"make"},
+                currentOpenedModule);
+        DispatchedVersionCheck.refuseIfBroken(model, selection, currentOpenedModule);
     }
 
     private static List<OpenLMessage> errorsOf(IOpenLTable table) {
