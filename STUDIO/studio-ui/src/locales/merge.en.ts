@@ -84,6 +84,7 @@ i18next.addResourceBundle('en', 'merge', {
     errors: {
         load_failed: 'Failed to load project information.',
         merge_failed: 'Merge operation failed.',
+        cancel_failed: 'Failed to cancel the merge.',
         resolve_failed: 'Failed to resolve conflicts.',
         check_failed: 'Failed to check merge status.',
         all_conflicts_required: 'Please resolve all conflicts before saving.',

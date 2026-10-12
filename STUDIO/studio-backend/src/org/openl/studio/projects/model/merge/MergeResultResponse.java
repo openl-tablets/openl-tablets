@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.merge;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -10,10 +11,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Response containing the result of a merge operation")
 public record MergeResultResponse(
 
-        @Schema(description = "Status of the merge operation: 'success' if merged successfully, 'conflicts' if conflicts were detected")
+        @Parameter(description = "Status of the merge operation: 'success' if merged successfully, 'conflicts' if conflicts were detected, 'cancelled' if the merge was stopped on request before it committed anything")
         MergeResultStatus status,
 
-        @Schema(description = "List of conflict groups if conflicts were detected, empty list if merge was successful")
+        @Parameter(description = "List of conflict groups if conflicts were detected, empty list otherwise")
         List<ConflictGroup> conflictGroups
 
 ) {

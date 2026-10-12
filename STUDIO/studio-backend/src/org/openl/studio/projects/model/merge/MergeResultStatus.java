@@ -20,5 +20,12 @@ public enum MergeResultStatus {
      */
     @Schema(description = "Merge detected conflicts that require manual resolution")
     @JsonProperty("conflicts")
-    CONFLICTS
+    CONFLICTS,
+
+    /**
+     * Merge was stopped on request before it committed anything.
+     */
+    @Schema(description = "Merge was stopped on request before it committed anything")
+    @JsonProperty("cancelled")
+    CANCELLED
 }

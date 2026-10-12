@@ -172,8 +172,11 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
             branchRepository.forBranch(branchPair.target())
                     .merge(branchPair.source(), workspace.getUser().getUserInfo(), null);
             // The merge is committed by now. An index that publishes it late is logged and leaves it a success:
-            // reporting a failure would have the user merge again what is already merged — see EPBDS-16541.
-            ProjectIndex.awaitBranch(workspace.getDesignTimeRepository(), branchRepository, branchPair.target());
+            // reporting a failure would have the user merge again what is already merged — see EPBDS-16541. A cancel
+            // that comes now can no longer undo the merge, so it does not cut the wait short either.
+            ProjectIndex.awaitBranchUninterruptibly(workspace.getDesignTimeRepository(),
+                    branchRepository,
+                    branchPair.target());
         } catch (MergeConflictException conflictEx) {
             log.warn("Merge conflict occurred while merging branch '{}' into branch '{}' for project '{}'",
                     branchPair.source(),

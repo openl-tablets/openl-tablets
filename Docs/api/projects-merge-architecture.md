@@ -137,6 +137,35 @@ sequenceDiagram
   never ended would refuse every later merge of the client. A status the socket cannot send is logged and changes
   nothing in the merge: its result is read from `GET /merge` all the same.
 
+## Cancelling a Merge
+
+`DELETE /merge/conflicts` cancels a running merge as well as the conflicts a merge has left. A merge waiting for a
+thread ends at once and never runs. A running merge is stopped by interrupting its thread:
+
+- **The repository stops at a step that has published nothing.** `GitRepository.merge` waits for the lock of the
+  repository interruptibly — behind another long merge — and asks `Thread.isInterrupted()` before each conflicted
+  workbook it compares and merges, a workbook of a large project takes seconds, and before it pushes. Up to the push
+  the merge is local. An interrupted merge throws `InterruptedIOException`, and the repository resets the branch to
+  the commit the merge started from, as it does for every failed merge, so a long merge stops within seconds and
+  leaves the branches as it found them. A comparison of a workbook that an interrupt cuts off is a stopped merge, not
+  a conflict.
+- **The reset is not cut off.** JGit writes the work tree through channels an interrupt closes, so `resetToCommit`
+  clears the interrupt status for the reset and sets it again afterwards.
+- **An interrupt is never swallowed.** Whoever catches an `InterruptedException` sets the status again, and the
+  repository leaves it set. The launcher tells a cancelled merge from a failed one by it: a failure while the thread
+  is interrupted ends the merge as `cancelled`, reported as `INTERRUPTED`, when the interrupt caused it — an
+  `InterruptedIOException` other than a network timeout, a `ClosedByInterruptException` or an `InterruptedException`
+  among its causes. Any other failure stays a failure, logged and reported as `ERROR`. The status stays set when the
+  merge returns; the pool clears it before it gives the thread other work.
+- **The interrupt reaches this merge only.** `StartedMerge.Execution` knows the thread running the merge and lets it
+  go when the merge ends, so a cancel that comes later does not interrupt the work the pool gives the thread next.
+- **A merge that has started to publish finishes.** A push cut off half way may have reached the remote repository
+  already, while the merge would be reset locally and reported as cancelled. So `GitRepository.merge` announces the push
+  through `MergePublishing`, on the thread of the merge, before its last check of the interrupt, and
+  `StartedMerge.Execution` no longer interrupts the merge from then on: a cancel that came before still stops it, as the
+  merge is local up to then. Its result is `success`, whatever the cancel asked for, and it still waits for the project
+  index: `ProjectIndex.awaitBranchUninterruptibly` waits on through an interrupt and sets the status again afterwards.
+
 ## Merge in the Editor
 
 A merge is made in the repository, so a closed project is merged as well as an opened one. Only an opened project has
@@ -156,7 +185,7 @@ the editor state to keep consistent. `ProjectsMergeLauncher`:
       the way resumes it. A project with changes of its own, or switched to another branch meanwhile — by another
       client of the user, which shares the workspace — is left as it is: closing it would drop those changes;
     - on `conflicts`, stores the `MergeConflictInfo` in the session holder;
-    - after a failure, leaves the editor as it is: the merge changed nothing.
+    - after a failure or a cancel, leaves the editor as it is: the merge changed nothing.
 
 Requests that find the merge ended while another one brings the editor up to date wait until it is done
 (`StartedMerge.settleOnce`), so none of them goes on with a project that is being opened again.

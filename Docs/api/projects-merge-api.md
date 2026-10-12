@@ -159,6 +159,7 @@ stateDiagram-v2
 
     NoConflict --> Merging: POST /merge
     Merging --> Merging: GET /merge answers 202
+    Merging --> NoConflict: DELETE /conflicts stops it
     Merging --> NoConflict: the first request after the merge finds success
     Merging --> ConflictStored: the first request after the merge finds conflicts
     NoConflict --> ConflictStored: project save finds conflicts
@@ -270,7 +271,8 @@ never refused.
 - `PENDING` — the merge is waiting for a thread: only two merges run at once in the Studio;
 - `STARTED` — the merge is running;
 - `COMPLETED` — the merge has ended, with success or with conflicts;
-- `{"status": "ERROR", "message": "..."}` — the merge failed, or stopped before it finished.
+- `{"status": "ERROR", "message": "..."}` — the merge failed, or stopped before it finished;
+- `INTERRUPTED` — the merge was cancelled ([Cancel Merge Conflicts](#8-cancel-merge-conflicts)).
 
 A client subscribes before it starts the merge, so the end cannot go unheard, and reads the result with
 [Get Merge Result](#3-get-merge-result). The result a merge ends with is described there.
@@ -345,6 +347,14 @@ The API omits empty values, so a successful merge has no `conflictGroups`.
       ]
     }
   ]
+}
+```
+
+**Cancelled** — the merge was stopped on request ([Cancel Merge Conflicts](#8-cancel-merge-conflicts)) before it
+committed anything, and the branches are as it found them:
+```json
+{
+  "status": "cancelled"
 }
 ```
 
@@ -653,22 +663,32 @@ with them, and are not listed.
 
 **Endpoint**: `DELETE /rest/projects/{projectId}/merge/conflicts`
 
-**Description**: Cancels an ongoing merge conflict resolution session without applying changes.
+**Description**: Cancels the merge of the project without applying changes: stops the merge while it is running, or
+cancels the conflict resolution session it has left.
 
 **HTTP Method**: DELETE
 
 **Path Parameters**:
 - `projectId` (string, required): Project identifier
 
-**Response**: `204 No Content`
+**Response**: `202 Accepted` for a running merge. The merge is asked to stop and stops before its next step — while it
+waits for the repository behind another merge, before the next conflicted workbook it compares, at the latest before
+it publishes the merge — within seconds, without an error. Its status topic reports `INTERRUPTED`, and
+[Get Merge Result](#3-get-merge-result) answers `{"status": "cancelled"}`. A merge that has started to publish
+finishes, and its result says `success`.
+
+**Response**: `204 No Content` for the conflicts a merge has left, also when the merge ended with them just before the
+cancel reached it. The merge then has nothing left to report: [Get Merge Result](#3-get-merge-result) answers `404`,
+which the client that asked for the cancel reads as cancelled.
 
 **Errors**:
-- `404 Not Found`: No conflict information found in session
+- `404 Not Found`: No merge of the project is running and no conflict information found in session
 
 **Side Effects**:
+- A running merge leaves the branches as it found them; the Git repository puts them back
 - Conflict session data cleared
 - No changes made to repository
-- User can initiate a new merge operation
+- User can initiate a new merge operation once the cancelled one has stopped
 
 ---
 
@@ -702,8 +722,8 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 
 | Field            | Type                        | Description                                     |
 |------------------|-----------------------------|-------------------------------------------------|
-| `status`         | `success` \| `conflicts`    | Merge operation result                          |
-| `conflictGroups` | ConflictGroup[]             | Conflicts if any; absent after a success        |
+| `status`         | `success` \| `conflicts` \| `cancelled` | Merge operation result; `cancelled` for a merge stopped on request |
+| `conflictGroups` | ConflictGroup[]             | Conflicts if any; absent otherwise              |
 
 ---
 
@@ -912,6 +932,9 @@ sent as written.
 ---
 
 ### Workflow 4: Cancel Conflicts
+
+A merge that is still running is cancelled the same way: `DELETE /merge/conflicts` answers `202`, the merge stops
+before its next step, and `GET /merge` answers `{ "status": "cancelled" }`.
 
 ```
 1. Merge with conflicts detected
@@ -1367,7 +1390,7 @@ refresh renamed the project (`MergeConflictProjectResolveStrategy`).
    failure on the way resumes it and is logged, while the result of the merge stays `success`. A project with changes
    of its own, or switched to another branch meanwhile by another client of the user, is left as it is: closing it
    would drop the changes.
-4. On conflicts the conflict is stored, and a failed merge leaves the editor as it is.
+4. On conflicts the conflict is stored, and a failed or cancelled merge leaves the editor as it is.
 
 Resolving conflicts pauses the compilation for the length of its request.
 

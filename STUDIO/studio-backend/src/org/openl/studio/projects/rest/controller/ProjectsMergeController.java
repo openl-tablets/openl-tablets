@@ -302,8 +302,13 @@ public class ProjectsMergeController {
 
     @DeleteMapping("/conflicts")
     @Operation(summary = "projects.merge.cancel-conflicts.summary", description = "projects.merge.cancel-conflicts.desc")
+    @ApiResponse(responseCode = "202", description = "projects.merge.cancel-conflicts.202.desc")
     @ApiResponse(responseCode = "204", description = "projects.merge.cancel-conflicts.204.desc")
-    public void cancelMergeConflicts(@ProjectId @PathVariable("projectId") RulesProject project) {
+    public ResponseEntity<Void> cancelMergeConflicts(@ProjectId @PathVariable("projectId") RulesProject project) {
+        if (mergeLauncher.cancel(project)) {
+            // The merge stops before its next step and reports its end on the status topic.
+            return ResponseEntity.accepted().build();
+        }
         // A merge that ended a moment ago keeps its conflicts only once it reaches the editor: they are what is
         // cancelled.
         mergeLauncher.settleFinished();
@@ -314,6 +319,7 @@ public class ProjectsMergeController {
 
         conflictsSessionHolder.remove(projectId);
         mergeLauncher.forget(projectId);
+        return ResponseEntity.noContent().build();
     }
 
     /**

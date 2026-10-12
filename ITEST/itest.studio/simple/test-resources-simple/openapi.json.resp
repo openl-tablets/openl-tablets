@@ -9536,6 +9536,9 @@ Content-Type: application/json
           }
         ],
         "responses": {
+          "202": {
+            "description": "***"
+          },
           "204": {
             "description": "***"
           },
@@ -24403,7 +24406,8 @@ Content-Type: application/json
             "description": "***",
             "enum": [
               "success",
-              "conflicts"
+              "conflicts",
+              "cancelled"
             ]
           }
         }

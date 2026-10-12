@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
@@ -47,6 +48,9 @@ final class StartedMerge {
 
     /** The merge, which ends with its result. */
     private final CompletableFuture<MergeResult> task = new CompletableFuture<>();
+
+    /** The thread running the merge, which a cancel stops. */
+    private final Execution execution = new Execution();
 
     @Getter(AccessLevel.NONE)
     private final AtomicBoolean settled = new AtomicBoolean();
@@ -90,5 +94,66 @@ final class StartedMerge {
                   WebStudio studio,
                   String repositoryId,
                   String realPath) {
+    }
+
+    /**
+     * The thread a merge runs on, and whether the merge is asked to stop.
+     *
+     * <p>A merge is stopped by interrupting its thread, which belongs to a pool: the interrupt reaches the thread only
+     * while it runs this merge, never the work the pool gives it next, and only until the merge starts to publish its
+     * result, which it then finishes.
+     */
+    static final class Execution {
+
+        private @Nullable Thread runner;
+        private boolean cancelled;
+        private boolean publishing;
+
+        /**
+         * Takes the current thread as the one running the merge.
+         *
+         * @return {@code false} when the merge was cancelled before it started: it must not run
+         */
+        synchronized boolean enter() {
+            if (cancelled) {
+                return false;
+            }
+            runner = Thread.currentThread();
+            return true;
+        }
+
+        /**
+         * Lets the current thread go: a cancel asked for afterwards does not reach it.
+         *
+         * <p>An interrupt that came too late to stop the merge stays set, as an interrupt is never swallowed: the pool
+         * clears it before it gives the thread other work, unless the pool is stopping.
+         */
+        synchronized void leave() {
+            runner = null;
+        }
+
+        /**
+         * Marks the merge as publishing its result: it finishes from now on, so a cancel no longer interrupts it.
+         */
+        synchronized void publishing() {
+            publishing = true;
+        }
+
+        /**
+         * Asks the merge to stop: a running merge is interrupted, unless it publishes its result already, and a merge
+         * waiting for a thread is not run.
+         *
+         * @return {@code true} when the merge has not started: nothing runs it, so the caller ends it
+         */
+        synchronized boolean cancel() {
+            cancelled = true;
+            if (runner != null) {
+                if (!publishing) {
+                    runner.interrupt();
+                }
+                return false;
+            }
+            return true;
+        }
     }
 }

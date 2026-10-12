@@ -36,14 +36,18 @@ vi.mock('antd', async () => {
         title,
         children,
         footer,
+        closable,
+        keyboard,
     }: {
         open?: boolean
         title?: React.ReactNode
         children?: React.ReactNode
         footer?: React.ReactNode
+        closable?: boolean
+        keyboard?: boolean
     }) =>
         open ? (
-            <div role="dialog">
+            <div data-closable={String(closable !== false && keyboard !== false)} role="dialog">
                 {title && <div data-testid="modal-title">{title}</div>}
                 {children}
                 {footer && <div data-testid="modal-footer">{footer}</div>}
@@ -187,6 +191,23 @@ describe('MergeModal', () => {
         await waitFor(() => {
             expect(screen.getByText('merge:title:MyProject')).toBeInTheDocument()
         })
+    })
+
+    it('stays open while the merge runs, and is closable again once it has ended', async () => {
+        render(<MergeModal />)
+        await dispatchOpenModal(createDetail())
+        await waitFor(() => expect(mergeBranchesStepProps).toHaveBeenCalled())
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-closable', 'true')
+
+        await act(async () => {
+            getLatestProps(mergeBranchesStepProps).onMergingChange(true)
+        })
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-closable', 'false')
+
+        await act(async () => {
+            getLatestProps(mergeBranchesStepProps).onMergingChange(false)
+        })
+        expect(screen.getByRole('dialog')).toHaveAttribute('data-closable', 'true')
     })
 
     it('closes modal when event with null detail dispatched', async () => {

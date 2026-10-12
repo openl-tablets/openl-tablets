@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -49,6 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.MergePublishing;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.xls.merge.HSSFPaletteMatcher;
 import org.openl.rules.xls.merge.XlsWorkbooksMatcher;
@@ -119,6 +122,77 @@ class GitRepositoryMergeConflictsInExcelTest {
     @Test
     void testCase_01() throws IOException, GitAPIException {
         executeTestCase("01", Set.of("01/MyBook.xlsx"), "01/MyBook.xlsx", "01/MyBook.xlsx");
+    }
+
+    /**
+     * A merge is cancelled by interrupting its thread: it stops before it commits anything, leaves the branch as it
+     * found it, and a later merge works as if it had never run — see EPBDS-16469.
+     */
+    @Test
+    void anInterruptedMergeStopsAndLeavesTheBranchAsItWas() throws IOException, GitAPIException {
+        var testCaseData = initializeTestCase("02");
+        var branchRepo = repo.forBranch("02");
+
+        Thread.currentThread().interrupt();
+        try {
+            assertThrows(InterruptedIOException.class, () -> branchRepo.merge(Constants.MASTER, USER_INFO, null));
+            // The interrupt is never swallowed: the caller tells a stopped merge from a failed one by it.
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+
+        try (var git = repo.getClosableGit()) {
+            assertEquals(testCaseData.ourRevision, git.getRepository().resolve("02").getName());
+            assertTrue(git.status().call().isClean());
+        }
+        branchRepo.merge(Constants.MASTER, USER_INFO, null);
+        try (var git = repo.getClosableGit()) {
+            var mergeCommit = git.log().setMaxCount(1).call().iterator().next();
+            assertEquals(testCaseData.ourRevision, mergeCommit.getParent(0).getName());
+            assertEquals(testCaseData.theirRevision, mergeCommit.getParent(1).getName());
+        }
+    }
+
+    /** A merge announces that it starts to publish once only its push is left, and then publishes. */
+    @Test
+    void aMergeAnnouncesItsPublicationBeforeItPushes() throws IOException, GitAPIException {
+        var testCaseData = initializeTestCase("02");
+        var branchRepo = repo.forBranch("02");
+        var announced = new AtomicInteger();
+
+        MergePublishing.listen(announced::incrementAndGet, () -> {
+            branchRepo.merge(Constants.MASTER, USER_INFO, null);
+            return null;
+        });
+
+        assertEquals(1, announced.get());
+        try (var git = repo.getClosableGit()) {
+            var mergeCommit = git.log().setMaxCount(1).call().iterator().next();
+            assertEquals(testCaseData.theirRevision, mergeCommit.getParent(1).getName());
+        }
+    }
+
+    /** An interrupt that comes as the merge announces its publication still stops it: the merge is local up to then. */
+    @Test
+    void anInterruptAsThePublicationIsAnnouncedStillStopsTheMerge() throws IOException, GitAPIException {
+        var testCaseData = initializeTestCase("02");
+        var branchRepo = repo.forBranch("02");
+
+        try {
+            assertThrows(InterruptedIOException.class,
+                    () -> MergePublishing.listen(Thread.currentThread()::interrupt, () -> {
+                        branchRepo.merge(Constants.MASTER, USER_INFO, null);
+                        return null;
+                    }));
+        } finally {
+            Thread.interrupted();
+        }
+
+        try (var git = repo.getClosableGit()) {
+            assertEquals(testCaseData.ourRevision, git.getRepository().resolve("02").getName());
+            assertTrue(git.status().call().isClean());
+        }
     }
 
     @Test

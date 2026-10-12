@@ -23,6 +23,8 @@ export const MergeModal: React.FC = () => {
     // Modal state
     const [visible, setVisible] = useState(false)
     const [currentStep, setCurrentStep] = useState<MergeStep>('branches')
+    // A running merge keeps the dialog open: it is left through its Cancel button, which stops the merge.
+    const [merging, setMerging] = useState(false)
 
     // Conflict state
     const [conflictGroups, setConflictGroups] = useState<ConflictGroup[]>([])
@@ -138,8 +140,10 @@ export const MergeModal: React.FC = () => {
         <>
             <Modal
                 destroyOnHidden
+                closable={!merging}
                 footer={null}
-                mask={{ closable: currentStep === 'branches' }}
+                keyboard={!merging}
+                mask={{ closable: currentStep === 'branches' && !merging }}
                 onCancel={handleClose}
                 open={visible}
                 width={modalWidth}
@@ -160,6 +164,7 @@ export const MergeModal: React.FC = () => {
                         onCheckCommitInfo={handleCheckCommitInfo}
                         onMergeConflicts={handleMergeConflicts}
                         onMergeSuccess={handleMergeSuccess}
+                        onMergingChange={setMerging}
                         projectId={detail.projectId}
                         projectName={detail.projectName}
                         repositoryType={detail.repositoryType}

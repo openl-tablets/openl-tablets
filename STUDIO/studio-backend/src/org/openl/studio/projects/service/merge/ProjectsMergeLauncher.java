@@ -1,6 +1,9 @@
 package org.openl.studio.projects.service.merge;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -14,13 +17,13 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.MergePublishing;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.ProjectSocketNotificationService;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResult;
-import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.service.ExecutionLifecycle;
 import org.openl.studio.projects.service.ExecutionStatus;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
@@ -32,8 +35,11 @@ import org.openl.util.RuntimeExceptionWrapper;
  *
  * <p>A merge of a large project takes minutes, longer than a proxy waits for an answer. The request starting it
  * returns at once, the merge runs on its own pool, and its progress is reported on the WebSocket topic
- * {@code /user/topic/projects/{projectId}/merge/status}: {@code PENDING}, {@code STARTED}, then {@code COMPLETED} or
- * {@code ERROR} with the reason.
+ * {@code /user/topic/projects/{projectId}/merge/status}: {@code PENDING}, {@code STARTED}, then {@code COMPLETED},
+ * {@code ERROR} with the reason, or {@code INTERRUPTED} for a merge cancelled on request.
+ *
+ * <p>A cancel interrupts the thread of the merge. The repository stops the merge before its next step and puts the
+ * branches back as the merge found them, so a long merge stops within seconds and without an error.
  *
  * <p>The merge itself only works in the repository, and the project is read-only for the client meanwhile. The
  * editor state of the client — the opened project, its compilation, the conflict kept for resolution — belongs to
@@ -158,6 +164,28 @@ public class ProjectsMergeLauncher {
     }
 
     /**
+     * Stops the merge of the project this client started, when it is still running.
+     *
+     * <p>A merge waiting for a thread ends at once. A running merge is interrupted and stops before the next step it
+     * can be stopped at — the repository lock it waits for, the next workbook it compares, at the latest before it
+     * publishes the merge — leaving the branches as it found them. A merge that has started to publish finishes.
+     * Either way its end is reported as usual: a stopped merge ends with {@link MergeResult#cancelled()}.
+     *
+     * @param project the project being merged
+     * @return {@code true} when a merge of the project was running; {@code false} when there was none to stop
+     */
+    public boolean cancel(RulesProject project) {
+        var merge = find(project).filter(StartedMerge::isRunning).orElse(null);
+        if (merge == null) {
+            return false;
+        }
+        if (merge.execution().cancel()) {
+            endCancelled(merge);
+        }
+        return true;
+    }
+
+    /**
      * Brings the editor up to date after the merge of this client, once the merge has ended. A merge still running,
      * or one whose end has been taken care of, is left alone.
      *
@@ -200,25 +228,52 @@ public class ProjectsMergeLauncher {
     }
 
     private void run(StartedMerge merge) {
+        if (!merge.execution().enter()) {
+            // Cancelled while it waited for a thread: the cancel has ended it.
+            return;
+        }
         try {
             report(merge, ExecutionStatus.STARTED);
             var editor = merge.editor();
-            // Completed before it is announced: a client that reads the result on the announcement finds it.
-            merge.task().complete(mergeService.merge(editor.project(),
-                    merge.currentBranch(),
-                    merge.otherBranch(),
-                    merge.mode(),
-                    editor.workspace()));
+            // Completed before it is announced: a client that reads the result on the announcement finds it. The
+            // repository says when the merge starts to publish, from when a cancel no longer interrupts it.
+            merge.task().complete(MergePublishing.listen(merge.execution()::publishing,
+                    () -> mergeService.merge(editor.project(),
+                            merge.currentBranch(),
+                            merge.otherBranch(),
+                            merge.mode(),
+                            editor.workspace())));
             report(merge, ExecutionStatus.COMPLETED);
         } catch (IOException | RuntimeException e) {
-            fail(merge, e);
+            if (Thread.currentThread().isInterrupted() && causedByInterrupt(e)) {
+                // Stopped on request: the repository has put the branches back as the merge found them.
+                endCancelled(merge);
+            } else {
+                fail(merge, e);
+            }
         } finally {
+            merge.execution().leave();
             // A failure no handler takes - out of memory - still ends the merge: a merge that never ends would
             // refuse every later merge of the client.
             if (merge.task().completeExceptionally(new IllegalStateException(STOPPED))) {
                 reportError(merge, STOPPED);
             }
         }
+    }
+
+    /**
+     * Whether a failure is the interrupt cutting the merge off, rather than a failure the interrupt merely came
+     * along with. A timeout of the network is an interrupted read too, but no cancel.
+     */
+    private static boolean causedByInterrupt(Throwable failure) {
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            if (cause instanceof InterruptedIOException && !(cause instanceof SocketTimeoutException)
+                    || cause instanceof ClosedByInterruptException
+                    || cause instanceof InterruptedException) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void fail(StartedMerge merge, Exception e) {
@@ -230,6 +285,13 @@ public class ProjectsMergeLauncher {
                 e);
         merge.task().completeExceptionally(e);
         reportError(merge, ExecutionLifecycle.reasonOf(e));
+    }
+
+    /** Ends a merge stopped on request, unless it has ended already, and reports it as interrupted. */
+    private void endCancelled(StartedMerge merge) {
+        if (merge.task().complete(MergeResult.cancelled())) {
+            report(merge, ExecutionStatus.INTERRUPTED);
+        }
     }
 
     private void report(StartedMerge merge, ExecutionStatus status) {
@@ -256,17 +318,18 @@ public class ProjectsMergeLauncher {
 
     /**
      * Brings the editor up to date after an ended merge: a merged project is opened again, and a conflict is kept for
-     * resolution. A failed merge changed nothing, so it leaves the editor as it is.
+     * resolution. A failed or a cancelled merge changed nothing, so it leaves the editor as it is.
      */
     private void settle(StartedMerge merge) throws ProjectException {
         if (merge.task().state() != Future.State.SUCCESS) {
             return;
         }
         var result = merge.task().resultNow();
-        if (result.status() == MergeResultStatus.CONFLICTS) {
-            conflictsSessionHolder.store(merge.projectId(), result.conflictInfo());
-        } else {
-            reopen(merge);
+        switch (result.status()) {
+            case SUCCESS -> reopen(merge);
+            case CONFLICTS -> conflictsSessionHolder.store(merge.projectId(), result.conflictInfo());
+            case CANCELLED -> log.debug("The merge of the project '{}' is cancelled.",
+                    merge.projectId().getProjectName());
         }
     }
 

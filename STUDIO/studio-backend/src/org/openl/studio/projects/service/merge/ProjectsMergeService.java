@@ -122,7 +122,11 @@ public interface ProjectsMergeService {
      * </ol>
      *
      * <p>A committed merge then waits a while for the project index to publish the target branch. An index that
-     * is late does not undo the merge, so the result is a success all the same.
+     * is late does not undo the merge, so the result is a success all the same. The wait is not cut short by the
+     * interrupt of the thread either: a cancel that comes once the merge is committed can no longer undo it.
+     *
+     * <p>A merge whose thread is interrupted before it is committed stops and throws
+     * {@link java.io.InterruptedIOException}, leaving the branches as it found them.
      *
      * <p><b>Conflict Path:</b>
      * <ol>

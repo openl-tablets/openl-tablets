@@ -20,6 +20,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,12 +31,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.OngoingStubbing;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.MergePublishing;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
@@ -115,6 +119,12 @@ class ProjectsMergeLauncherTest {
         notifications = mock(ProjectSocketNotificationService.class);
         // Its merges wait in a queue until the test runs them.
         launcher = launcher(queued::add);
+    }
+
+    /** A cancel interrupts the thread running the merge, here the thread of the test: the next test starts clear. */
+    @AfterEach
+    void clearInterrupt() {
+        Thread.interrupted();
     }
 
     private ProjectsMergeLauncher launcher(Executor executor) {
@@ -531,29 +541,91 @@ class ProjectsMergeLauncherTest {
     }
 
     @Test
-    void tellsWhichProjectIsBeingMerged() throws Exception {
-        var other = otherProject();
-        // A project is resolved only while a merge of the client runs.
-        assertFalse(launcher.isRunning(() -> fail("No merge runs, so no project is resolved")));
-
+    void endsAMergeCancelledWhileItWaitsForAThread() throws Exception {
         launcher.start(project, OTHER, MergeOpMode.SEND, false);
 
-        assertTrue(launcher.isRunning(() -> project));
-        assertFalse(launcher.isRunning(() -> other));
+        assertTrue(launcher.cancel(project));
+
+        // Ended at once: a thread it waits for may be busy with another merge for minutes.
+        assertEquals(MergeResultStatus.CANCELLED, launcher.result(project).orElseThrow().status());
+        verify(notifications).notifyMergeStatus(USER, projectId, ExecutionStatus.INTERRUPTED);
+        runQueued();
+        verify(mergeService, never()).merge(any(), any(), any(), any(), any());
+        verify(notifications, never()).notifyMergeStatus(USER, projectId, ExecutionStatus.STARTED);
+    }
+
+    /** A cancel interrupts the merge, which the repository stops before its next step — see GitRepository. */
+    @Test
+    void stopsARunningMergeOnCancel() throws Exception {
+        when(project.isOpened()).thenReturn(true);
+        whenMerging(MergeOpMode.SEND).thenAnswer(invocation -> {
+            assertTrue(launcher.cancel(project));
+            assertTrue(Thread.currentThread().isInterrupted());
+            throw new InterruptedIOException("The merge is cancelled.");
+        });
+        launcher.start(project, OTHER, MergeOpMode.SEND, false);
+
+        runQueued();
+
+        // The interrupt is never swallowed, here the thread of the test.
+        assertTrue(Thread.currentThread().isInterrupted());
+        verify(notifications).notifyMergeStatus(USER, projectId, ExecutionStatus.INTERRUPTED);
+        verify(notifications, never()).notifyMergeError(any(), any(), any());
+        assertEquals(MergeResultStatus.CANCELLED, launcher.result(project).orElseThrow().status());
+        // The repository is as the merge found it, so the editor is left as it is.
+        verify(compilation, never()).pause();
+        verify(studio, never()).reset();
+        // A cancelled merge refuses no later one.
+        launcher.start(project, "release", MergeOpMode.SEND, false);
     }
 
     @Test
-    void findsNoMergeOfAnotherProject() throws Exception {
+    void reportsAMergeCutOffByTheCancelAsCancelled() throws Exception {
+        whenMerging(MergeOpMode.SEND).thenAnswer(invocation -> {
+            launcher.cancel(project);
+            // A Git write the interrupt cut off fails with whatever the write failed with.
+            throw new IOException("Cannot write the index", new ClosedByInterruptException());
+        });
         launcher.start(project, OTHER, MergeOpMode.SEND, false);
-        var other = otherProject();
 
-        assertThrows(NotFoundException.class, () -> launcher.result(other));
+        runQueued();
+
+        assertEquals(MergeResultStatus.CANCELLED, launcher.result(project).orElseThrow().status());
+        verify(notifications, never()).notifyMergeError(any(), any(), any());
+    }
+
+    /** A failure the interrupt did not cause is a failure, even when a cancel came along with it. */
+    @Test
+    void reportsAFailureThatCameAlongWithTheCancel() throws Exception {
+        whenMerging(MergeOpMode.SEND).thenAnswer(invocation -> {
+            launcher.cancel(project);
+            throw new IOException("The push is rejected");
+        });
+        launcher.start(project, OTHER, MergeOpMode.SEND, false);
+
+        runQueued();
+
+        verify(notifications).notifyMergeError(USER, projectId, "The push is rejected");
+        assertThrows(RuntimeException.class, () -> launcher.result(project));
     }
 
     @Test
-    void findsNoMergeBeforeOneIsStarted() {
+    void finishesAMergeThatHasStartedToPublish() throws Exception {
+        whenMerging(MergeOpMode.SEND).thenAnswer(invocation -> {
+            // The repository announces the push: cut off half way, it may have reached the remote repository.
+            MergePublishing.announce();
+            assertTrue(launcher.cancel(project));
+            // So the cancel no longer interrupts the merge.
+            assertFalse(Thread.currentThread().isInterrupted());
+            return MergeResult.builder().build();
+        });
+        launcher.start(project, OTHER, MergeOpMode.SEND, false);
 
-        assertThrows(NotFoundException.class, () -> launcher.result(project));
+        runQueued();
+
+        verify(notifications).notifyMergeStatus(USER, projectId, ExecutionStatus.COMPLETED);
+        assertEquals(MergeResultStatus.SUCCESS, launcher.result(project).orElseThrow().status());
+        verify(studio).reset();
     }
 
     /** A status the socket cannot send changes nothing in the merge: its result is read all the same. */
@@ -623,5 +695,44 @@ class ProjectsMergeLauncherTest {
         assertEquals(MergeResultStatus.SUCCESS, read.get(5, TimeUnit.SECONDS).status());
         first.get(5, TimeUnit.SECONDS);
         verify(studio, times(1)).reset();
+    }
+
+    @Test
+    void findsNoMergeToCancel() throws Exception {
+        whenMerging(MergeOpMode.SEND).thenReturn(MergeResult.builder().build());
+
+        assertFalse(launcher.cancel(project));
+
+        launcher.start(project, OTHER, MergeOpMode.SEND, false);
+        runQueued();
+        // An ended merge has nothing left to stop.
+        assertFalse(launcher.cancel(project));
+        assertEquals(MergeResultStatus.SUCCESS, launcher.result(project).orElseThrow().status());
+    }
+
+    @Test
+    void tellsWhichProjectIsBeingMerged() throws Exception {
+        var other = otherProject();
+        // A project is resolved only while a merge of the client runs.
+        assertFalse(launcher.isRunning(() -> fail("No merge runs, so no project is resolved")));
+
+        launcher.start(project, OTHER, MergeOpMode.SEND, false);
+
+        assertTrue(launcher.isRunning(() -> project));
+        assertFalse(launcher.isRunning(() -> other));
+    }
+
+    @Test
+    void findsNoMergeOfAnotherProject() throws Exception {
+        launcher.start(project, OTHER, MergeOpMode.SEND, false);
+        var other = otherProject();
+
+        assertThrows(NotFoundException.class, () -> launcher.result(other));
+    }
+
+    @Test
+    void findsNoMergeBeforeOneIsStarted() {
+
+        assertThrows(NotFoundException.class, () -> launcher.result(project));
     }
 }
