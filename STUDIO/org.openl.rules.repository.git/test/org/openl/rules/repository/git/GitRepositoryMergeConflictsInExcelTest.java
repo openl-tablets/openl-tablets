@@ -315,6 +315,23 @@ class GitRepositoryMergeConflictsInExcelTest {
         }
     }
 
+    @Test
+    void savedOverRowInsertedByAnotherUser_isMergedByRows() throws IOException {
+        try (var workbook = saveOneAfterAnother(sheet -> {
+            // OpenL Studio moves the rows below an inserted row of a table into the empty row under it
+            setCell(sheet, 5, 0, "CA");
+            setCell(sheet, 5, 1, 2);
+            setCell(sheet, 4, 0, "UK");
+            setCell(sheet, 4, 1, 5);
+        }, sheet -> setCell(sheet, 4, 1, 3))) {
+            var sheet = workbook.getSheet(RULES);
+            assertEquals("UK", sheet.getRow(4).getCell(0).getStringCellValue());
+            assertEquals(5, sheet.getRow(4).getCell(1).getNumericCellValue());
+            assertEquals("CA", sheet.getRow(5).getCell(0).getStringCellValue());
+            assertEquals(3, sheet.getRow(5).getCell(1).getNumericCellValue());
+        }
+    }
+
     /**
      * Saves the base workbook and a change of it by one user. Then another user of another local repository saves a
      * change of the same base revision. Returns the workbook the second save leaves.

@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
@@ -112,7 +113,7 @@ public class XlsWorkbookMerger implements Closeable {
                                 theirWorkbook.getSheet(sheetName))) {
                     continue;
                 }
-                diffDecision = decideChangedInBoth(sheetName, ourMatchRes, mergePlans);
+                diffDecision = decideChangedInBoth(sheetName, ourMatchRes, theirToBase, mergePlans);
             } else {
                 diffDecision = chooseChangedSide(ourMatchRes, theirMatchRes);
             }
@@ -130,21 +131,32 @@ public class XlsWorkbookMerger implements Closeable {
     }
 
     /**
-     * Decides how to merge a sheet changed in both revisions: cell by cell, when both revisions updated it and the
-     * changes do not conflict, or as a conflict otherwise.
+     * Decides how to merge a sheet changed in both revisions: cell by cell or table by table, when both revisions
+     * updated it and the changes do not conflict, or as a conflict otherwise.
      */
-    private DiffStatus decideChangedInBoth(String sheetName, XlsMatch match, Map<String, SheetMergePlan> mergePlans) {
+    private DiffStatus decideChangedInBoth(String sheetName,
+                                           XlsMatch match,
+                                           Map<String, XlsMatch> theirToBase,
+                                           Map<String, SheetMergePlan> mergePlans) {
         if (match != XlsMatch.UPDATED) {
             return DiffStatus.CONFLICT;
         }
         var plan = XlsSheetMerger.plan(new Cursor(baseWorkbook, baseWorkbook.getSheet(sheetName)),
                 new Cursor(ourWorkbook, ourWorkbook.getSheet(sheetName)),
-                new Cursor(theirWorkbook, theirWorkbook.getSheet(sheetName)));
+                new Cursor(theirWorkbook, theirWorkbook.getSheet(sheetName)),
+                name -> isChanged(theirToBase.get(name)));
         if (plan.isEmpty()) {
             return DiffStatus.CONFLICT;
         }
         mergePlans.put(sheetName, plan.get());
         return DiffStatus.MERGED;
+    }
+
+    /**
+     * Tells whether a revision changed or created an item.
+     */
+    private static boolean isChanged(@Nullable XlsMatch match) {
+        return match == XlsMatch.UPDATED || match == XlsMatch.CREATED;
     }
 
     private HSSFPaletteDiffResult calcPaletteDiff() {
@@ -241,8 +253,8 @@ public class XlsWorkbookMerger implements Closeable {
     }
 
     /**
-     * Applies the sheets taken from THEIR workbook and the sheets merged cell by cell to OUR workbook, and brings the
-     * values of its formulas up to date.
+     * Applies the sheets taken from THEIR workbook and the sheets merged from both revisions to OUR workbook, and
+     * brings the values of its formulas up to date.
      */
     private static void mergeSheets(StreamWorkbook ourBook,
                                     StreamWorkbook theirBook,
@@ -268,11 +280,17 @@ public class XlsWorkbookMerger implements Closeable {
             }
         }
         var mergePlans = sheetDiffResult.getMergePlans();
-        for (var entry : mergePlans.entrySet()) {
-            var sheetName = entry.getKey();
-            XlsSheetMerger.apply(new Cursor(theirBook, theirBook.getSheet(sheetName)),
-                    new Cursor(ourBook, ourBook.getSheet(sheetName)),
-                    entry.getValue());
+        // a plan that moves cells reads them from OUR workbook as it was before the merge
+        try (var ourSource = mergePlans.values().stream().anyMatch(SheetMergePlan::movesCells)
+                ? ourBook.reopen()
+                : null) {
+            for (var entry : mergePlans.entrySet()) {
+                var sheetName = entry.getKey();
+                XlsSheetMerger.apply(new Cursor(theirBook, theirBook.getSheet(sheetName)),
+                        new Cursor(ourBook, ourBook.getSheet(sheetName)),
+                        ourSource == null ? null : new Cursor(ourSource, ourSource.getSheet(sheetName)),
+                        entry.getValue());
+            }
         }
         // evaluate all formula cells in the end
         if (mergePlans.isEmpty()) {
@@ -301,7 +319,7 @@ public class XlsWorkbookMerger implements Closeable {
 
         for (short i = FIRST_COLOR_INDEX; i < LAST_COLOR_INDEX; i++) {
             var theirMatchResult = paletteDifResult.getTheirMatchResult(i);
-            if (theirMatchResult == XlsMatch.UPDATED || theirMatchResult == XlsMatch.CREATED) {
+            if (isChanged(theirMatchResult)) {
                 var theirColor = theirPalette.getColor(i);
                 var rgb = theirColor.getTriplet();
                 ourPalette.setColorAtIndex(i, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);

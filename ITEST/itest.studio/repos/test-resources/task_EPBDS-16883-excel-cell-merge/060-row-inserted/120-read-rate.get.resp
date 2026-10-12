@@ -6,7 +6,7 @@ Content-Type: application/json
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "rate",
-  "pos": "A1:B5",
+  "pos": "A1:B6",
   "source": [
     [
       {
@@ -41,20 +41,30 @@ Content-Type: application/json
     [
       {
         "cell": "A4",
-        "value": "DE"
+        "value": "FR"
       },
       {
         "cell": "B4",
-        "value": 2.25
+        "value": 4.25
       }
     ],
     [
       {
         "cell": "A5",
-        "value": "CA"
+        "value": "DE"
       },
       {
         "cell": "B5",
+        "value": 2.25
+      }
+    ],
+    [
+      {
+        "cell": "A6",
+        "value": "CA"
+      },
+      {
+        "cell": "B6",
         "value": 3.25
       }
     ]

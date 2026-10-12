@@ -5,18 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import static org.openl.rules.xls.merge.MergeFixture.RULES;
+import static org.openl.rules.xls.merge.MergeFixture.cell;
+import static org.openl.rules.xls.merge.MergeFixture.cellOf;
+import static org.openl.rules.xls.merge.MergeFixture.number;
+import static org.openl.rules.xls.merge.MergeFixture.set;
+import static org.openl.rules.xls.merge.MergeFixture.text;
+
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -25,7 +26,6 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
@@ -39,15 +39,10 @@ import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
-import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 
 class XlsSheetMergerTest {
 
-    private static final String RULES = "Rules";
-    private static final Consumer<Sheet> NO_EDIT = sheet -> {
-    };
-    private static final byte[] PNG = Base64.getDecoder()
-            .decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
+    private static final MergeFixture FIXTURE = new MergeFixture(XlsSheetMergerTest::base);
 
     /**
      * A rules table and a data table on one sheet, and a second sheet left alone.
@@ -83,7 +78,7 @@ class XlsSheetMergerTest {
         filled.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
         filled.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         sheet.getRow(9).getCell(4).setCellStyle(filled);
-        comment(sheet, 9, 4, "by John");
+        MergeFixture.comment(sheet, 9, 4, "E10:G12", "by John");
         var formatting = sheet.getSheetConditionalFormatting();
         var rule = formatting.createConditionalFormattingRule("B4>1");
         var fill = rule.createPatternFormatting();
@@ -103,14 +98,14 @@ class XlsSheetMergerTest {
 
     @Test
     void differentTablesOfOneSheet_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
         assertEquals(10, number(merged, 3, 1));
         assertEquals(31, number(merged, 9, 1));
     }
 
     @Test
     void differentRowsOfOneTable_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 5, 1, 30));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 5, 1, 30));
         assertEquals(10, number(merged, 3, 1));
         assertEquals(30, number(merged, 5, 1));
         assertEquals(2, number(merged, 4, 1));
@@ -118,7 +113,7 @@ class XlsSheetMergerTest {
 
     @Test
     void rowsAppendedAfterTable_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 11, 0, "Cid");
             set(sheet, 11, 1, 50);
             set(sheet, 11, 2, "c");
@@ -130,7 +125,7 @@ class XlsSheetMergerTest {
 
     @Test
     void sameCellChangedTheSameWay_isNotConflict() throws IOException {
-        var merged = mergeXlsx(sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             set(sheet, 3, 1, 10);
             set(sheet, 4, 1, 20);
         }, sheet -> set(sheet, 3, 1, 10));
@@ -140,21 +135,21 @@ class XlsSheetMergerTest {
 
     @Test
     void valueInOursAndStyleInTheirsOfOneCell_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> bold(sheet, 3, 1));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> bold(sheet, 3, 1));
         assertEquals(10, number(merged, 3, 1));
         assertTrue(isBold(merged, 3, 1));
     }
 
     @Test
     void styleInOursAndValueInTheirsOfOneCell_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> bold(sheet, 3, 1), sheet -> set(sheet, 3, 1, 10));
+        var merged = FIXTURE.mergeXlsx(sheet -> bold(sheet, 3, 1), sheet -> set(sheet, 3, 1, 10));
         assertEquals(10, number(merged, 3, 1));
         assertTrue(isBold(merged, 3, 1));
     }
 
     @Test
     void valueClearedInTheirsAndStyleInOursOfOneCell_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             var style = sheet.getWorkbook().createCellStyle();
             style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -167,14 +162,14 @@ class XlsSheetMergerTest {
 
     @Test
     void commentInTheirsAndValueInOursOfOneCell_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 0, "UK"), sheet -> comment(sheet, 3, 0, "checked"));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 0, "UK"), sheet -> MergeFixture.comment(sheet, 3, 0, "A4:C6", "checked"));
         assertEquals("UK", text(merged, 3, 0));
         assertEquals("checked", cell(merged, 3, 0).getCellComment().getString().getString());
     }
 
     @Test
     void styleOfOneCellChangedDifferently_isConflict() throws IOException {
-        assertConflict(sheet -> bold(sheet, 3, 1), sheet -> {
+        FIXTURE.assertConflict(sheet -> bold(sheet, 3, 1), sheet -> {
             var workbook = sheet.getWorkbook();
             var style = workbook.createCellStyle();
             style.setAlignment(HorizontalAlignment.CENTER);
@@ -184,22 +179,27 @@ class XlsSheetMergerTest {
 
     @Test
     void sameCellChangedDifferently_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 3, 1, 11));
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 3, 1, 11));
     }
 
     @Test
-    void rowInsertedInsideTable_isConflict() throws IOException {
-        // Without the check the edit of A5 would land on the inserted row: OUR A5 holds the same "US" as BASE A5.
-        assertConflict(sheet -> {
+    void rowInsertedInsideTable_isMergedByRows() throws IOException {
+        // The edit of A5 follows its row: OUR A5 holds the "US" of BASE A4, which moved down with the inserted row.
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             sheet.shiftRows(3, sheet.getLastRowNum(), 1);
             set(sheet, 3, 0, "UK");
             set(sheet, 3, 1, 9);
         }, sheet -> set(sheet, 4, 0, "MX"));
+        assertEquals("UK", text(merged, 3, 0));
+        assertEquals("US", text(merged, 4, 0));
+        assertEquals("MX", text(merged, 5, 0));
+        assertEquals("CA", text(merged, 6, 0));
+        assertEquals("B6*2", cell(merged, 4, 4).getCellFormula());
     }
 
     @Test
     void rowDeletedInsideTable_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 9, 1, 31), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 9, 1, 31), sheet -> {
             sheet.removeRow(sheet.getRow(4));
             sheet.shiftRows(5, sheet.getLastRowNum(), -1);
         });
@@ -207,7 +207,7 @@ class XlsSheetMergerTest {
 
     @Test
     void columnDeleted_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             for (var row : sheet) {
                 var cell = row.getCell(1);
                 if (cell != null) {
@@ -220,7 +220,7 @@ class XlsSheetMergerTest {
 
     @Test
     void styleChangedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             var workbook = sheet.getWorkbook();
             var font = workbook.createFont();
             font.setBold(true);
@@ -235,7 +235,7 @@ class XlsSheetMergerTest {
 
     @Test
     void cellClearedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             var row = sheet.getRow(10);
             row.removeCell(row.getCell(2));
         });
@@ -245,7 +245,7 @@ class XlsSheetMergerTest {
 
     @Test
     void cellWithStyleAndCommentRemovedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             var row = sheet.getRow(9);
             row.getCell(4).removeCellComment();
             row.removeCell(row.getCell(4));
@@ -257,25 +257,15 @@ class XlsSheetMergerTest {
 
     @Test
     void commentAddedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
-            var workbook = sheet.getWorkbook();
-            var anchor = workbook.getCreationHelper().createClientAnchor();
-            anchor.setRow1(3);
-            anchor.setRow2(5);
-            anchor.setCol1(0);
-            anchor.setCol2(2);
-            var comment = sheet.createDrawingPatriarch().createCellComment(anchor);
-            comment.setString(workbook.getCreationHelper().createRichTextString("checked"));
-            comment.setAuthor("John");
-            sheet.getRow(3).getCell(0).setCellComment(comment);
-        });
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10),
+                sheet -> MergeFixture.comment(sheet, 3, 0, "A4:C6", "checked"));
         assertEquals(10, number(merged, 3, 1));
         assertEquals("checked", cell(merged, 3, 0).getCellComment().getString().getString());
     }
 
     @Test
     void formulaAddedInTheirs_isMergedAndEvaluated() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 4, 1, 20), sheet -> sheet.getRow(3).createCell(2).setCellFormula("B4*2"));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 4, 1, 20), sheet -> sheet.getRow(3).createCell(2).setCellFormula("B4*2"));
         var formula = cell(merged, 3, 2);
         assertEquals(CellType.FORMULA, formula.getCellType());
         assertEquals("B4*2", formula.getCellFormula());
@@ -285,7 +275,7 @@ class XlsSheetMergerTest {
 
     @Test
     void mergedRegionAddedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 9, 1, 31),
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 9, 1, 31),
                 sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A8:B8")));
         assertEquals(List.of(CellRangeAddress.valueOf("A1:B1"), CellRangeAddress.valueOf("A8:B8")),
                 merged.getMergedRegions());
@@ -294,7 +284,7 @@ class XlsSheetMergerTest {
 
     @Test
     void valuesOfEveryKind_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             sheet.getRow(3).createCell(3).setCellValue(true);
             sheet.getRow(4).createCell(3).setCellErrorValue(FormulaError.DIV0.getCode());
             sheet.getRow(5).createCell(3);
@@ -308,7 +298,7 @@ class XlsSheetMergerTest {
 
     @Test
     void formulaReplacedByConstantInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             var row = sheet.getRow(3);
             row.removeCell(row.getCell(4));
             set(sheet, 3, 4, 7);
@@ -319,14 +309,14 @@ class XlsSheetMergerTest {
 
     @Test
     void formulaOfOursDependingOnTheirCell_isRecalculated() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 4, 1, 20));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 4, 1, 20));
         assertEquals("B5*2", cell(merged, 3, 4).getCellFormula());
         assertEquals(40, cell(merged, 3, 4).getNumericCellValue());
     }
 
     @Test
     void formulaThatCannotBeCalculated_keepsItsValue() throws IOException {
-        var merged = mergeXlsx(sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             set(sheet, 3, 1, 10);
             cellOf(sheet, 4, 4).setCellFormula("CUBEVALUE(\"cube\")");
             cellOf(sheet, 4, 4).setCellValue("kept");
@@ -339,7 +329,7 @@ class XlsSheetMergerTest {
     @Test
     void inlineStringOfOurs_isReplaced() throws IOException {
         // SXSSF writes text as inline strings, which keep their text when only a value is set into them.
-        var merged = merge(XSSFWorkbook::new, SXSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10),
+        var merged = FIXTURE.merge(XSSFWorkbook::new, SXSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10),
                 sheet -> set(sheet, 4, 0, "MX"));
         assertEquals("MX", text(merged, 4, 0));
         assertEquals(10, number(merged, 3, 1));
@@ -347,7 +337,7 @@ class XlsSheetMergerTest {
 
     @Test
     void rowHeightsFittedToContent_areNotConflict() throws IOException {
-        var merged = mergeXlsx(sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             set(sheet, 3, 1, 10);
             ((XSSFRow) sheet.getRow(9)).getCTRow().setHt(30);
         }, sheet -> {
@@ -360,7 +350,7 @@ class XlsSheetMergerTest {
 
     @Test
     void widthOfEmptyColumnChangedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             sheet.setColumnWidth(7, 9000);
         });
@@ -369,7 +359,7 @@ class XlsSheetMergerTest {
 
     @Test
     void hyperlinkAddedInTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             var link = sheet.getWorkbook().getCreationHelper().createHyperlink(HyperlinkType.URL);
             link.setAddress("https://openl-tablets.org");
@@ -379,7 +369,7 @@ class XlsSheetMergerTest {
 
     @Test
     void paneFrozenInTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             sheet.createFreezePane(0, 1);
         });
@@ -387,7 +377,7 @@ class XlsSheetMergerTest {
 
     @Test
     void conditionalFormattingStyleChangedInTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             var rule = sheet.getSheetConditionalFormatting().getConditionalFormattingAt(0).getRule(0);
             rule.getPatternFormatting().setFillBackgroundColor(IndexedColors.RED.getIndex());
@@ -396,7 +386,7 @@ class XlsSheetMergerTest {
 
     @Test
     void newCellOfTheirsWithFont_keepsItsStyle() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 1, 6, "Total");
             bold(sheet, 1, 6);
         });
@@ -406,7 +396,7 @@ class XlsSheetMergerTest {
 
     @Test
     void formulaOfTheirsThatCannotBeCalculated_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10),
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10),
                 sheet -> cellOf(sheet, 1, 6).setCellFormula("CUBEVALUE(\"cube\")"));
         assertEquals("CUBEVALUE(\"cube\")", cell(merged, 1, 6).getCellFormula());
         assertEquals(10, number(merged, 3, 1));
@@ -414,14 +404,14 @@ class XlsSheetMergerTest {
 
     @Test
     void formulaOfAnotherSheet_isRecalculated() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 4, 1, 20));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 4, 1, 20));
         var other = merged.getWorkbook().getSheet("Other");
         assertEquals(40, other.getRow(0).getCell(1).getNumericCellValue());
     }
 
     @Test
     void cellsFilledApart_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 13, 0, "Data Car cars"), sheet -> set(sheet, 16, 0, "Data Bus buses"));
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 13, 0, "Data Car cars"), sheet -> set(sheet, 16, 0, "Data Bus buses"));
         assertEquals("Data Car cars", text(merged, 13, 0));
         assertEquals("Data Bus buses", text(merged, 16, 0));
     }
@@ -429,7 +419,7 @@ class XlsSheetMergerTest {
     @Test
     void cellsFilledNextToEachOther_isConflict() throws IOException {
         // A row filled in each branch, one under the other: OpenL would read them as one table.
-        assertConflict(sheet -> {
+        FIXTURE.assertConflict(sheet -> {
             set(sheet, 13, 0, "Data Car cars");
             set(sheet, 3, 1, 10);
         }, sheet -> set(sheet, 14, 0, "model"));
@@ -437,19 +427,19 @@ class XlsSheetMergerTest {
 
     @Test
     void mergedCellsOfTheirsOverValueOfOurs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 10, 1, 41),
+        FIXTURE.assertConflict(sheet -> set(sheet, 10, 1, 41),
                 sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A11:B11")));
     }
 
     @Test
     void mergedCellsOfOursOverValueOfTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A11:B11")),
+        FIXTURE.assertConflict(sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A11:B11")),
                 sheet -> set(sheet, 10, 1, 41));
     }
 
     @Test
     void dateFormatInTheirsAndValueInOurs_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 9, 1, 45001), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 9, 1, 45001), sheet -> {
             var workbook = sheet.getWorkbook();
             var style = workbook.createCellStyle();
             style.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("yyyy-mm-dd"));
@@ -461,7 +451,7 @@ class XlsSheetMergerTest {
 
     @Test
     void dataValidationPromptChangedInTheirs_isConflict() throws IOException {
-        var diff = diff(XSSFWorkbook::new, sheet -> {
+        var diff = FIXTURE.diff(XSSFWorkbook::new, sheet -> {
             addValidation(sheet);
             set(sheet, 3, 1, 10);
         }, sheet -> {
@@ -473,7 +463,7 @@ class XlsSheetMergerTest {
 
     @Test
     void conditionalFormattingThemeColorChangedInTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             var rule = sheet.getSheetConditionalFormatting().getConditionalFormattingAt(0).getRule(0);
             rule.getPatternFormatting().setFillBackgroundColor(themed(5));
@@ -482,13 +472,13 @@ class XlsSheetMergerTest {
 
     @Test
     void mergedRegionsChangedInBoth_isConflict() throws IOException {
-        assertConflict(sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A8:B8")),
+        FIXTURE.assertConflict(sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A8:B8")),
                 sheet -> sheet.addMergedRegion(CellRangeAddress.valueOf("A9:B9")));
     }
 
     @Test
     void columnWidthAndRowHeightChangedInTheirs_areMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             sheet.setColumnWidth(0, 8000);
             sheet.getRow(0).setHeight((short) 600);
@@ -500,7 +490,7 @@ class XlsSheetMergerTest {
 
     @Test
     void defaultLayoutChangedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             sheet.setDefaultColumnWidth(20);
             sheet.setDefaultRowHeight((short) 400);
@@ -513,7 +503,7 @@ class XlsSheetMergerTest {
 
     @Test
     void defaultColumnWidthChangedDifferently_isConflict() throws IOException {
-        assertConflict(sheet -> {
+        FIXTURE.assertConflict(sheet -> {
             set(sheet, 3, 1, 10);
             sheet.setDefaultColumnWidth(20);
         }, sheet -> {
@@ -524,7 +514,7 @@ class XlsSheetMergerTest {
 
     @Test
     void columnWidthChangedDifferently_isConflict() throws IOException {
-        assertConflict(sheet -> {
+        FIXTURE.assertConflict(sheet -> {
             set(sheet, 3, 1, 10);
             sheet.setColumnWidth(0, 8000);
         }, sheet -> {
@@ -535,7 +525,7 @@ class XlsSheetMergerTest {
 
     @Test
     void rowHeightChangedDifferently_isConflict() throws IOException {
-        assertConflict(sheet -> {
+        FIXTURE.assertConflict(sheet -> {
             set(sheet, 3, 1, 10);
             sheet.getRow(0).setHeight((short) 600);
         }, sheet -> {
@@ -546,7 +536,7 @@ class XlsSheetMergerTest {
 
     @Test
     void sheetHiddenInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             var workbook = sheet.getWorkbook();
             workbook.setActiveSheet(1);
@@ -558,7 +548,7 @@ class XlsSheetMergerTest {
 
     @Test
     void pictureAddedInTheirs_isMerged() throws IOException {
-        var merged = mergeXlsx(sheet -> set(sheet, 3, 1, 10), XlsSheetMergerTest::addPicture);
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), XlsSheetMergerTest::addPicture);
         var pictures = ((XSSFDrawing) merged.getDrawingPatriarch()).getShapes()
                 .stream()
                 .filter(XSSFPicture.class::isInstance)
@@ -569,7 +559,7 @@ class XlsSheetMergerTest {
 
     @Test
     void picturesChangedInBoth_isConflict() throws IOException {
-        assertConflict(sheet -> {
+        FIXTURE.assertConflict(sheet -> {
             addPicture(sheet);
             set(sheet, 3, 1, 10);
         }, sheet -> {
@@ -580,7 +570,7 @@ class XlsSheetMergerTest {
 
     @Test
     void dataValidationAddedInTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             var helper = sheet.getDataValidationHelper();
             var constraint = helper.createExplicitListConstraint(new String[]{"US", "CA"});
@@ -590,7 +580,7 @@ class XlsSheetMergerTest {
 
     @Test
     void conditionalFormattingAddedInTheirs_isConflict() throws IOException {
-        assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
             set(sheet, 9, 1, 31);
             var formatting = sheet.getSheetConditionalFormatting();
             var rule = formatting.createConditionalFormattingRule("B4>1");
@@ -600,71 +590,33 @@ class XlsSheetMergerTest {
 
     @Test
     void xlsWorkbook_isMerged() throws IOException {
-        var merged = merge(HSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
+        var merged = FIXTURE.merge(HSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
         assertEquals(10, number(merged, 3, 1));
         assertEquals(31, number(merged, 9, 1));
     }
 
     @Test
+    void xlsRowHeightSetInTheirsWhileOursChangesDefault_keepsTheHeight() throws IOException {
+        // THEIR row is set to the old default height on purpose; OUR new default must not take it over.
+        var merged = FIXTURE.merge(HSSFWorkbook::new, sheet -> {
+            set(sheet, 3, 1, 10);
+            sheet.setDefaultRowHeight((short) 400);
+        }, sheet -> {
+            set(sheet, 9, 1, 31);
+            cellOf(sheet, 6, 0).getRow().setHeight(sheet.getDefaultRowHeight());
+        });
+        assertEquals(400, merged.getDefaultRowHeight());
+        assertEquals(255, merged.getRow(6).getHeight());
+    }
+
+    @Test
     void mergedSheet_isListedAsMerged() throws IOException {
-        var diff = diff(XSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
+        var diff = FIXTURE.diff(XSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
         var sheets = diff.getSheetDiffResult();
         assertEquals(List.of(RULES), List.copyOf(sheets.getDiffSheets(DiffStatus.MERGED)));
         assertTrue(sheets.getDiffSheets(DiffStatus.CONFLICT).isEmpty());
         assertTrue(diff.hasChangesToMerge());
         assertFalse(diff.hasConflicts());
-    }
-
-    private static void assertConflict(Consumer<Sheet> our, Consumer<Sheet> their) throws IOException {
-        var diff = diff(XSSFWorkbook::new, our, their);
-        assertTrue(diff.hasConflicts());
-        assertEquals(List.of(RULES), List.copyOf(diff.getSheetDiffResult().getDiffSheets(DiffStatus.CONFLICT)));
-    }
-
-    private static Sheet mergeXlsx(Consumer<Sheet> our, Consumer<Sheet> their) throws IOException {
-        return merge(XSSFWorkbook::new, our, their);
-    }
-
-    /**
-     * Merges OUR and THEIR revisions of the sheet against BASE revision, and returns the merged sheet.
-     */
-    private static Sheet merge(Supplier<Workbook> format, Consumer<Sheet> our, Consumer<Sheet> their) throws IOException {
-        return merge(format, format, our, their);
-    }
-
-    /**
-     * Merges OUR revision, written in its own format, and THEIR revision of the sheet against BASE revision.
-     */
-    private static Sheet merge(Supplier<Workbook> format, Supplier<Workbook> ourFormat, Consumer<Sheet> our, Consumer<Sheet> their)
-            throws IOException {
-        var ourBytes = write(ourFormat, our);
-        var theirBytes = write(format, their);
-        var diff = diff(write(format, NO_EDIT), ourBytes, theirBytes);
-        assertFalse(diff.hasConflicts());
-        var output = new ByteArrayOutputStream();
-        XlsWorkbookMerger.merge(new ByteArrayInputStream(ourBytes), new ByteArrayInputStream(theirBytes), diff, output);
-        return WorkbookFactory.create(new ByteArrayInputStream(output.toByteArray())).getSheet(RULES);
-    }
-
-    private static WorkbookDiffResult diff(Supplier<Workbook> format, Consumer<Sheet> our, Consumer<Sheet> their) throws IOException {
-        return diff(write(format, NO_EDIT), write(format, our), write(format, their));
-    }
-
-    private static WorkbookDiffResult diff(byte[] base, byte[] our, byte[] their) throws IOException {
-        try (var merger = XlsWorkbookMerger.create(new ByteArrayInputStream(base),
-                new ByteArrayInputStream(our),
-                new ByteArrayInputStream(their))) {
-            return merger.getDiffResult();
-        }
-    }
-
-    private static byte[] write(Supplier<Workbook> format, Consumer<Sheet> edit) throws IOException {
-        try (var workbook = format.get(); var output = new ByteArrayOutputStream()) {
-            base(workbook);
-            edit.accept(workbook.getSheet(RULES));
-            workbook.write(output);
-            return output.toByteArray();
-        }
     }
 
     private static XSSFColor themed(int theme) {
@@ -695,53 +647,7 @@ class XlsSheetMergerTest {
         return sheet.getWorkbook().getFontAt(style.getFontIndex()).getBold();
     }
 
-    private static void comment(Sheet sheet, int row, int column, String text) {
-        var workbook = sheet.getWorkbook();
-        var anchor = workbook.getCreationHelper().createClientAnchor();
-        anchor.setRow1(row);
-        anchor.setRow2(row + 2);
-        anchor.setCol1(column);
-        anchor.setCol2(column + 2);
-        var comment = sheet.createDrawingPatriarch().createCellComment(anchor);
-        comment.setString(workbook.getCreationHelper().createRichTextString(text));
-        comment.setAuthor("John");
-        sheet.getRow(row).getCell(column).setCellComment(comment);
-    }
-
     private static void addPicture(Sheet sheet) {
-        var workbook = sheet.getWorkbook();
-        var index = workbook.addPicture(PNG, Workbook.PICTURE_TYPE_PNG);
-        var anchor = workbook.getCreationHelper().createClientAnchor();
-        anchor.setCol1(5);
-        anchor.setRow1(1);
-        anchor.setCol2(6);
-        anchor.setRow2(2);
-        sheet.createDrawingPatriarch().createPicture(anchor, index);
-    }
-
-    private static void set(Sheet sheet, int row, int column, String value) {
-        cellOf(sheet, row, column).setCellValue(value);
-    }
-
-    private static void set(Sheet sheet, int row, int column, double value) {
-        cellOf(sheet, row, column).setCellValue(value);
-    }
-
-    private static Cell cellOf(Sheet sheet, int row, int column) {
-        var sheetRow = sheet.getRow(row) == null ? sheet.createRow(row) : sheet.getRow(row);
-        return sheetRow.getCell(column) == null ? sheetRow.createCell(column) : sheetRow.getCell(column);
-    }
-
-    private static Cell cell(Sheet sheet, int row, int column) {
-        var sheetRow = sheet.getRow(row);
-        return sheetRow == null ? null : sheetRow.getCell(column);
-    }
-
-    private static double number(Sheet sheet, int row, int column) {
-        return cell(sheet, row, column).getNumericCellValue();
-    }
-
-    private static String text(Sheet sheet, int row, int column) {
-        return cell(sheet, row, column).getStringCellValue();
+        MergeFixture.addPicture(sheet, "F2:G3");
     }
 }

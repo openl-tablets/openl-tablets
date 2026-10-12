@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -59,6 +60,15 @@ class StreamWorkbook implements Workbook {
 
     public Workbook unwrap() {
         return delegator;
+    }
+
+    /**
+     * Opens another copy of the workbook as it was read, for reading only.
+     */
+    StreamWorkbook reopen() throws IOException {
+        try (var input = Files.newInputStream(tempFile.toPath())) {
+            return new StreamWorkbook(input, true);
+        }
     }
 
     @Override

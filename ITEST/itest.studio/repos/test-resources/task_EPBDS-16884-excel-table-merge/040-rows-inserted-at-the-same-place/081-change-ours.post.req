@@ -1,0 +1,22 @@
+POST /rest/projects/{PROJECT_ID}/tables/37f47d65934489f3b5afa07132a839b6/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "insert",
+  "target": {
+    "type": "rows",
+    "position": 3,
+    "cells": [
+      [
+        {
+          "value": "IT"
+        },
+        {
+          "value": 5.25
+        }
+      ]
+    ]
+  }
+}
+
