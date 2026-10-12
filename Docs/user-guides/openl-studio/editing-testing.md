@@ -337,8 +337,11 @@ A rule table can be run on its own, without a test table for it.
 
     *Result of running a table*
 
+    A fractional number of the input or the result, inner fields included, is rounded the way the test results
+    window rounds it: a table that computes `1.73 * 12` shows `20.76`.
+
     A table that returns a spreadsheet shows it as the table its author wrote: a row per step, a column per
-    spreadsheet column, and the calculated value in every cell.
+    spreadsheet column, and the calculated value in every cell, unrounded.
 
     A run that fails shows its error in the **Result** column, in place of the value it did not return. A table
     that returns nothing shows `null` there, as does an input left empty.

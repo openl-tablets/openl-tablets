@@ -167,6 +167,39 @@ describe('RunResultModal', () => {
         expect(grid).toHaveTextContent('1200')
     })
 
+    it('shows a fractional input and result as the short decimal its binary value stands for', async () => {
+        await show({
+            ...value,
+            result: 20.759999999999998,
+            parameters: [{ name: 'rate', description: 'Rate', lazy: false, value: 0.30000000000000004 }],
+        })
+
+        const table = screen.getByTestId('run-result-table')
+        expect([...table.querySelectorAll('td')].map(cell => cell.textContent)).toEqual(['0.3', '20.76'])
+    })
+
+    it('shows a fractional field of a returned object as a short decimal too', async () => {
+        await show({ ...value, result: { premium: 20.759999999999998, rate: 0.08333999999999997 } })
+
+        const line = screen.getByText('{2 fields}').closest('.ant-tree-treenode')
+        await userEvent.click(line!.querySelector('.ant-tree-switcher')!)
+
+        expect(await screen.findByText('20.76')).toBeInTheDocument()
+        expect(screen.getByText('0.08334')).toBeInTheDocument()
+        expect(screen.getByTestId('run-result-table')).not.toHaveTextContent('20.759999999999998')
+        expect(screen.getByTestId('run-result-table')).not.toHaveTextContent('0.08333999999999997')
+    })
+
+    it('leaves a spreadsheet result as the run computed it', async () => {
+        await show({
+            ...value,
+            result: { Value_Premium: 20.759999999999998 },
+            resultSpreadsheet: { columns: ['Value'], rows: ['Premium'], cells: [[20.759999999999998]]},
+        })
+
+        expect(screen.getByTestId('spreadsheet-run-result')).toHaveTextContent('20.759999999999998')
+    })
+
     it('saves the result as the workbook, laid out the way the run asked for', async () => {
         await show({ ...value, result: 1 })
 
