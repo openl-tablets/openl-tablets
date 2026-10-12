@@ -24,6 +24,8 @@ The horizontal conditions are marked as HC1, HC2 and so on. Every lookup matrix 
 
 The first cell of column titles must be merged on all rows that contain horizontal condition values. The height of the titles row is determined by the first cell in the row. For example, see the **Country** cell in the previous example.
 
+A title cell of a vertical condition must not be merged into the horizontal conditions part. OpenL Tablets reports such a cell as an error, names the vertical condition and the horizontal condition it spans, and points to the cell. This error also appears when a row that belongs elsewhere, such as the properties row, is placed in the titles row.
+
 To use multiple column parameters for a condition, return, or action, merge the column header and expression cells. Use this approach if a condition cannot be presented as a simple AND combination of one-parameter conditions.
 
 ![Example of the merged column header and expression cells](../../../ref-guide-images/exampleMergedColumnHeaderExpressionCells.png)

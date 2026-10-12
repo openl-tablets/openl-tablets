@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.table.CoordinatesTransformer;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.util.ParserUtils;
 
 /**
@@ -34,11 +39,17 @@ import org.openl.util.ParserUtils;
  * starting column of the lookup matrix
  */
 
+@RequiredArgsConstructor
 public class DecisionTableLookupConvertor {
 
     private static final int HEADER_ROW = 0;
     private static final int DISPLAY_ROW = 3;
 
+    /**
+     * Whether the headers are written in the table, so a title cell crossing into the horizontal conditions is a
+     * mistake of the user. Generated headers of Smart and Simple tables report a mismatch of titles instead.
+     */
+    private final boolean explicitHeaders;
     private final List<IGridTable> hcHeaders = new ArrayList<>();
     private IGridTable retTable;
     @Getter
@@ -141,6 +152,9 @@ public class DecisionTableLookupConvertor {
     private void processHorizConditionsHeaders(ILogicalTable originalTable,
                                                int firstLookupColumn) throws OpenLCompilationException {
         var hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
+        if (explicitHeaders) {
+            validateTitleCells(originalTable.getRow(HEADER_ROW).getSource(), hcRowTable.getSource(), firstLookupColumn);
+        }
         var w = 0;
         var c = 0;
         while (w < firstLookupColumn) {
@@ -149,6 +163,57 @@ public class DecisionTableLookupConvertor {
         }
         var hcHeaderTable = hcRowTable.getSubtable(c, 0, hcRowTable.getWidth() - c, hcRowTable.getHeight());
         validateHCHeaders(hcHeaderTable);
+    }
+
+    /**
+     * Rejects a merged cell of the title rows that starts in a vertical condition column and goes into the horizontal
+     * conditions.
+     *
+     * <p>The error points to that cell and names the two headers it spans.
+     */
+    private static void validateTitleCells(IGridTable headers,
+                                           IGridTable titles,
+                                           int firstLookupColumn) throws SyntaxNodeException {
+        for (var row = 0; firstLookupColumn > 0 && row < titles.getHeight(); row++) {
+            if (isSameMergedCell(titles.getCell(firstLookupColumn - 1, row), titles.getCell(firstLookupColumn, row))) {
+                throw crossingCellError(headers, titles, firstLookupColumn, row);
+            }
+        }
+    }
+
+    private static SyntaxNodeException crossingCellError(IGridTable headers,
+                                                         IGridTable titles,
+                                                         int firstLookupColumn,
+                                                         int row) {
+        var start = firstLookupColumn - 1;
+        while (start > 0 && isSameMergedCell(titles.getCell(start - 1, row), titles.getCell(start, row))) {
+            start--;
+        }
+        var end = firstLookupColumn;
+        while (end + 1 < titles.getWidth()
+                && isSameMergedCell(titles.getCell(end, row), titles.getCell(end + 1, row))) {
+            end++;
+        }
+        var message = ("The cell spans the condition column '%s' and the horizontal condition column '%s'. "
+                + "A title cell must not span both vertical and horizontal conditions.").formatted(
+                headerTitle(headers, start),
+                headerTitle(headers, firstLookupColumn));
+        var cell = titles.getSubtable(start, row, end - start + 1, 1);
+        return SyntaxNodeExceptionUtils.createError(message, new GridCellSourceCodeModule(cell));
+    }
+
+    private static String headerTitle(IGridTable headers, int column) {
+        var cell = headers.getCell(column, 0);
+        var topLeft = cell.getTopLeftCellFromRegion();
+        return (topLeft == null ? cell : topLeft).getStringValue();
+    }
+
+    private static boolean isSameMergedCell(ICell left, ICell right) {
+        var leftRegion = left.getRegion();
+        var rightRegion = right.getRegion();
+        return leftRegion != null && rightRegion != null
+                && leftRegion.getTop() == rightRegion.getTop()
+                && leftRegion.getLeft() == rightRegion.getLeft();
     }
 
     private ILogicalTable getLookupValuesTable(ILogicalTable originalTable, int firstLookupColumn) {
@@ -213,7 +278,7 @@ public class DecisionTableLookupConvertor {
     }
 
     private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
-        if (hcHeaders.size() != hcHeaderTable.getSource().getHeight()) {
+        if (hcHeaderTable == null || hcHeaders.size() != hcHeaderTable.getSource().getHeight()) {
             throw new OpenLCompilationException(
                     "The height of the horizontal keys must be equal to the number of the horizontal headers.");
         }
