@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -20,10 +23,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -39,6 +48,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.xls.merge.HSSFPaletteMatcher;
 import org.openl.rules.xls.merge.XlsWorkbooksMatcher;
@@ -50,6 +60,7 @@ import org.openl.util.formatters.FileNameFormatter;
 class GitRepositoryMergeConflictsInExcelTest {
 
     private static final String COPY_BRANCH_PREF = "_COPY";
+    private static final String RULES = "Rules";
     private static final Path TEST_CASES_ROOT = Path.of("test-resources/EPBDS-8483");
     private static final UserInfo USER_INFO = new UserInfo("jsmith", "jsmith@email", "John Smith");
     private static final String REPO_ID = "designMerge";
@@ -82,15 +93,17 @@ class GitRepositoryMergeConflictsInExcelTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        var remote = new File(root, "remote");
-        var localRepositoriesFolder = new File(root, "repositories");
-        var local = new File(localRepositoriesFolder, "local");
-
-        FileUtils.copy(template, remote);
-        repo = createRepository(remote, local, localRepositoriesFolder.getAbsolutePath());
+        FileUtils.copy(template, new File(root, "remote"));
+        repo = createRepository("local");
     }
 
-    private GitRepository createRepository(File remote, File local, String localRepositoriesFolder) throws IOException {
+    /**
+     * Clones the remote repository into a local repository of its own.
+     */
+    private GitRepository createRepository(String localName) throws IOException {
+        var remote = new File(root, "remote");
+        var localRepositoriesFolder = new File(root, "repositories").getAbsolutePath();
+        var local = new File(localRepositoriesFolder, localName);
         var newRepo = new GitRepository();
         newRepo.setId(REPO_ID);
         var uri = remote.toURI().toString();
@@ -289,6 +302,78 @@ class GitRepositoryMergeConflictsInExcelTest {
             assertEquals(10, sheet.getRow(3).getCell(1).getNumericCellValue());
             assertEquals(31, sheet.getRow(9).getCell(1).getNumericCellValue());
         }
+    }
+
+    @Test
+    void savedOverChangeOfAnotherUser_isMergedCellByCell() throws IOException {
+        // Both users opened the same revision; the second save merges the first one by itself.
+        try (var workbook = saveOneAfterAnother(sheet -> setCell(sheet, 3, 1, 10),
+                sheet -> setCell(sheet, 10, 1, 41))) {
+            var sheet = workbook.getSheet(RULES);
+            assertEquals(10, sheet.getRow(3).getCell(1).getNumericCellValue());
+            assertEquals(41, sheet.getRow(10).getCell(1).getNumericCellValue());
+        }
+    }
+
+    /**
+     * Saves the base workbook and a change of it by one user. Then another user of another local repository saves a
+     * change of the same base revision. Returns the workbook the second save leaves.
+     */
+    private Workbook saveOneAfterAnother(Consumer<Sheet> first, Consumer<Sheet> second) throws IOException {
+        var path = "rates/Rates.xlsx";
+        var baseVersion = repo.save(workbookData(path), new ByteArrayInputStream(rates(sheet -> {
+        }))).getVersion();
+        try (var otherRepo = createRepository("other")) {
+            repo.save(workbookData(path), new ByteArrayInputStream(rates(first)));
+            var data = workbookData(path);
+            data.setVersion(baseVersion);
+            otherRepo.save(data, new ByteArrayInputStream(rates(second)));
+            try (var file = otherRepo.read(path)) {
+                return WorkbookFactory.create(file.getStream());
+            }
+        }
+    }
+
+    private static FileData workbookData(String path) {
+        return createFileData(path, "", "Change " + path);
+    }
+
+    /**
+     * A workbook with a rules table at A1 and a data table at A9 of the sheet {@value #RULES}, changed by an edit.
+     */
+    private static byte[] rates(Consumer<Sheet> edit) throws IOException {
+        try (var workbook = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
+            var sheet = workbook.createSheet(RULES);
+            setCell(sheet, 0, 0, "Rules String rate(String country)");
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:B1"));
+            setCell(sheet, 1, 0, "C1");
+            setCell(sheet, 1, 1, "RET1");
+            setCell(sheet, 2, 0, "country");
+            setCell(sheet, 2, 1, "rate");
+            setCell(sheet, 3, 0, "US");
+            setCell(sheet, 3, 1, 1);
+            setCell(sheet, 4, 0, "CA");
+            setCell(sheet, 4, 1, 2);
+            setCell(sheet, 8, 0, "Data Driver drivers");
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A9:B9"));
+            setCell(sheet, 9, 0, "name");
+            setCell(sheet, 9, 1, "age");
+            setCell(sheet, 10, 0, "Ann");
+            setCell(sheet, 10, 1, 30);
+            setCell(sheet, 11, 0, "Bob");
+            setCell(sheet, 11, 1, 40);
+            edit.accept(sheet);
+            workbook.write(output);
+            return output.toByteArray();
+        }
+    }
+
+    private static void setCell(Sheet sheet, int row, int column, String value) {
+        CellUtil.getCell(CellUtil.getRow(row, sheet), column).setCellValue(value);
+    }
+
+    private static void setCell(Sheet sheet, int row, int column, double value) {
+        CellUtil.getCell(CellUtil.getRow(row, sheet), column).setCellValue(value);
     }
 
     private void executeTestCase(String testCase,
