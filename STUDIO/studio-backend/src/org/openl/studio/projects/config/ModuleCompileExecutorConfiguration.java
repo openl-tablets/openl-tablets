@@ -4,8 +4,8 @@ import java.util.concurrent.Executor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
+
+import org.openl.studio.config.AsyncExecutors;
 
 /**
  * The pool that opens modules away from the requests that asked for them.
@@ -19,15 +19,7 @@ public class ModuleCompileExecutorConfiguration {
     @Bean(name = "moduleCompileExecutor")
     public Executor moduleCompileExecutor() {
         var availableProcessors = Runtime.getRuntime().availableProcessors();
-        var exec = new ThreadPoolTaskExecutor();
-        exec.setThreadNamePrefix("async-module-compile-executor-");
-        exec.setCorePoolSize(2);
-        exec.setMaxPoolSize(Math.max(availableProcessors, 2));
-        exec.setQueueCapacity(10);
-        exec.setAwaitTerminationSeconds(5);
-        exec.setWaitForTasksToCompleteOnShutdown(true);
-        exec.initialize();
-        return new DelegatingSecurityContextAsyncTaskExecutor(exec);
+        return AsyncExecutors.create("async-module-compile-executor-", 2, Math.max(availableProcessors, 2));
     }
 
 }
