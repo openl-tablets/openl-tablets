@@ -76,6 +76,11 @@ value, and with a precision, the difference is computed without rounding. A `Dou
 floating-point number, so the difference is computed in binary and can be a little larger than it looks: with N = 1,
 0.4 does not match 0.3. Without a precision, such a result may differ from the expected value in its last binary digit.
 
+For example, `1.73 * 12` returns `20.759999999999998`, which differs from `20.76` by one unit in the last place
+(ULP) and passes without a precision. However, `round(1240.32 / 1144.9, 5) - 1` returns `0.08333999999999997`,
+which differs from `0.08334` by two ULPs and fails without a precision. Subtraction after rounding can introduce
+another binary rounding difference. Set precision to 5 for the second expected result to accept this difference.
+
 Consider the following examples. A simple rule FinRatioWeight has two tests, FinRatioWeightTest1 and FinRatioWeightTest2:
 
 ![An example of Simple Rule](../../ref-guide-images/exampleSimpleRule.jpeg)
