@@ -400,9 +400,9 @@ export interface TableInputTestCase {
      * The context columns first, then the input columns of the tested rule. Each is named by its column.
      *
      * In a page of cases a value with inner structure is lazy and left out. A case read on its own carries every
-     * value.
+     * value. Absent when the case has none, as every empty list of the API is.
      */
-    parameters: TraceParameterValue[]
+    parameters?: TraceParameterValue[]
 }
 
 /**

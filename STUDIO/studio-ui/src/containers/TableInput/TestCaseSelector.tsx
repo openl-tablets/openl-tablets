@@ -106,7 +106,7 @@ export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
     const rows = useMemo((): CaseRow[] => testCases.map(testCase => ({
         id: testCase.id,
         description: testCase.description,
-        parameters: testCase.parameters.map(columnValue),
+        parameters: (testCase.parameters ?? []).map(columnValue),
     })), [testCases])
 
     const picked = (row: CaseRow) => (isEveryCase(value) ? !value.except.includes(row.id) : value.includes(row.id))
@@ -169,7 +169,7 @@ export const TestCaseSelector: React.FC<TestCaseSelectorProps> = ({
             render: (row: CaseRow) => (
                 <ParameterValueList
                     keyPrefix={`case-${row.id}`}
-                    onLoad={index => readCase(tableId, row.id).then(read => read.parameters[index])}
+                    onLoad={index => readCase(tableId, row.id).then(read => read.parameters?.[index])}
                     parameters={row.parameters}
                 />
             ),
