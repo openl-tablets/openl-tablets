@@ -1242,7 +1242,7 @@ refresh renamed the project (`MergeConflictProjectResolveStrategy`).
 1. `validateMergeAllowed` refuses a merge that must not be performed, before anything else happens.
 2. For an opened project, the compilation is paused (`WebStudioWorkspaceRelatedDependencyManager.pause()`).
 3. The Git repository merges the source branch into the target branch; the request waits up to 30 seconds for the
-   project index to publish the target branch.
+   project index to publish the target branch, and stays a success when the index is late.
 4. On success, an opened project is closed, the workspace refreshed, and the project reopened on its branch.
    `WebStudio` is reset, and the paused compilation is dropped with the editor model.
 5. On conflicts, or when the request fails, the compilation is resumed when the request ends.
