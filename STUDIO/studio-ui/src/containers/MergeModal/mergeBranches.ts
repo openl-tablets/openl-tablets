@@ -31,14 +31,16 @@ interface EndSignal {
  * @param mode        whether the other branch is merged into the current one, or the current one into it
  * @param otherBranch the other branch
  * @param force       confirms the bypass of the protection of the target branch
- * @returns the result of the merge: success, or the conflicts left to resolve
+ * @param onAccepted  called once the server has taken the merge: from then on a cancel finds it
+ * @returns the result of the merge: success, the conflicts left to resolve, or cancelled
  * @throws the refusal of the merge, or what the merge failed with
  */
 export const mergeBranches = async (
     projectId: string,
     mode: MergeMode,
     otherBranch: string,
-    force: boolean
+    force: boolean,
+    onAccepted?: () => void
 ): Promise<MergeResultResponse> => {
     let signal = endSignal()
     const subscription = subscribeTopic(mergeStatusTopic(projectId), body => {
@@ -52,6 +54,7 @@ export const mergeBranches = async (
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ mode, otherBranch }),
         }, MERGE_API_OPTIONS)
+        onAccepted?.()
         for (;;) {
             const result = await readResult(projectId)
             if (result) {

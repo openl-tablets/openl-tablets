@@ -76,6 +76,22 @@ public interface BranchRepository extends Repository, SearchableRepository {
 
     boolean branchExists(String branch) throws IOException;
 
+    /**
+     * Merges another branch into the branch of this repository.
+     *
+     * <p>A merge whose thread is interrupted stops at the next step it can be stopped at — while it waits for the
+     * repository, between the files it merges, at the latest before it publishes the merge — and leaves the branch as
+     * it found it. A merge that has started to publish finishes, and announces the moment through
+     * {@link MergePublishing}, so the code that stops it no longer interrupts it.
+     *
+     * @param branchFrom          the branch to merge into this one
+     * @param author              the author of the merge commit
+     * @param conflictResolveData how the conflicts of the merge are resolved, or {@code null} to merge without
+     *                            resolving any
+     * @throws java.io.InterruptedIOException when the merge is stopped by the interrupt of its thread; the interrupt
+     *                                        status stays set
+     * @throws IOException                    when the branches cannot be merged
+     */
     void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException;
 
     String getBaseBranch();

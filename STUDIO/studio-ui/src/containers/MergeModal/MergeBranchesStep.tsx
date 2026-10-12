@@ -58,6 +58,8 @@ interface MergeBranchesStepProps {
     onMergeSuccess: () => void
     onMergeConflicts: (result: MergeResultResponse) => void
     onCheckCommitInfo: (callback: () => void) => void
+    /** Tells whether a merge runs: the dialog is then left through its Cancel button, which stops the merge. */
+    onMergingChange?: (merging: boolean) => void
 }
 
 export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
@@ -71,8 +73,9 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     onMergeSuccess,
     onMergeConflicts,
     onCheckCommitInfo,
+    onMergingChange,
 }) => {
-    const { modal } = App.useApp()
+    const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()
     const [form] = Form.useForm()
@@ -95,6 +98,18 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
     const [receiveError, setReceiveError] = useState<string | null>(null)
     const [sendError, setSendError] = useState<string | null>(null)
     const [mergeError, setMergeError] = useState<string | null>(null)
+    // Cancel is offered once the server has taken the merge: a cancel sent before finds no merge to stop.
+    const [isMergeAccepted, setIsMergeAccepted] = useState(false)
+    const [isCancelling, setIsCancelling] = useState(false)
+
+    // The dialog stays open while the merge runs, and is free again once the step is gone.
+    useEffect(() => {
+        onMergingChange?.(isMerging)
+        return () => onMergingChange?.(false)
+    }, [isMerging, onMergingChange])
+
+    // Read when the merge ends, after the renders since the cancel: a ref, not state.
+    const cancelRequested = useRef(false)
 
     /**
      * Widens or narrows the target list. The repository branches are read once and kept, so ticking the box
@@ -237,6 +252,44 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         void checkMergeStatus(targetBranch)
     }, [canSelectBranch, checkMergeStatus, targetBranch])
 
+    /**
+     * Cancels the merge of the project: stops it while it runs, or drops the conflicts it has left. A merge that has
+     * left nothing to cancel answers 404, which is no failure: it reports its end on its own. Any other failure is
+     * thrown.
+     */
+    const requestCancel = async () => {
+        try {
+            await apiCall(`/projects/${projectId}/merge/conflicts`, { method: 'DELETE' }, MERGE_API_OPTIONS)
+        } catch (err: unknown) {
+            if (!isApiHttpError(err) || err.status !== 404) {
+                throw err
+            }
+        }
+    }
+
+    /**
+     * Asks the running merge to stop. It stops within seconds, before it commits anything, and reports its end as
+     * usual, which the merge reads as cancelled. A cancel that fails leaves the merge running, and Cancel can be
+     * clicked again.
+     */
+    const cancelMerge = async () => {
+        cancelRequested.current = true
+        setIsCancelling(true)
+        try {
+            await requestCancel()
+        } catch (err: unknown) {
+            cancelRequested.current = false
+            setIsCancelling(false)
+            const message = err instanceof Error ? err.message : undefined
+            setMergeError(message || t('merge:errors.cancel_failed'))
+        }
+    }
+
+    const notifyCancelled = () => notification.info({
+        title: t('merge:notifications.merge_cancelled'),
+        description: t('merge:notifications.merge_cancelled_description'),
+    })
+
     const handleMerge = (mode: MergeMode) => {
         if (!selectedBranch) return
 
@@ -245,16 +298,38 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
         const doMerge = async (force = false) => {
             setIsMerging(true)
             setMergeError(null)
+            cancelRequested.current = false
 
             try {
-                const result = await mergeBranches(projectId, mode, selectedBranch, force)
+                const result = await mergeBranches(projectId, mode, selectedBranch, force,
+                    () => setIsMergeAccepted(true))
 
                 if (result.status === 'success') {
+                    // The cancel came after the merge had started to commit: it is merged.
                     onMergeSuccess()
-                } else if (result.status === 'conflicts') {
+                } else if (result.status === 'conflicts' && !cancelRequested.current) {
                     onMergeConflicts(result)
+                } else {
+                    if (result.status === 'conflicts') {
+                        // The merge ended before the cancel reached it: the conflicts it left are cancelled too.
+                        try {
+                            await requestCancel()
+                        } catch {
+                            // They stay on the server, so they are shown for resolution, where they can be
+                            // cancelled again.
+                            onMergeConflicts(result)
+                            return
+                        }
+                    }
+                    notifyCancelled()
                 }
             } catch (err: unknown) {
+                if (cancelRequested.current && isApiHttpError(err) && err.status === 404) {
+                    // The merge ended with conflicts just before the cancel reached it, and the cancel dropped them:
+                    // no result is left to read.
+                    notifyCancelled()
+                    return
+                }
                 if (!force && isBypassRequired(err)) {
                     setIsMerging(false)
                     modal.confirm({
@@ -272,6 +347,8 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                 setMergeError(message || t('merge:errors.merge_failed'))
             } finally {
                 setIsMerging(false)
+                setIsMergeAccepted(false)
+                setIsCancelling(false)
             }
         }
 
@@ -406,6 +483,15 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                         />
                     )}
                     <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        {isMergeAccepted && (
+                            <Button
+                                data-testid="merge-cancel"
+                                disabled={isCancelling}
+                                onClick={() => void cancelMerge()}
+                            >
+                                {t('merge:buttons.cancel')}
+                            </Button>
+                        )}
                         <Tooltip
                             title={receiveBlocked ?? (isReceiveUpToDate ? t('merge:status.up_to_date_receive') : receiveActionTooltip)}
                         >

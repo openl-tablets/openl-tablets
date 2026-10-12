@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,6 +34,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonContent;
@@ -246,6 +248,52 @@ class ProjectsMergeControllerTest {
 
         assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
         assertEquals(new ResultNotReadyView(ResultNotReadyView.ResultState.NOT_READY), response.getBody());
+    }
+
+    @Test
+    void cancelStopsTheRunningMergeAtOnce() {
+        when(mergeLauncher.cancel(project)).thenReturn(true);
+
+        var response = controller.cancelMergeConflicts(project);
+
+        // The merge stops before its next step and reports its end on the status topic.
+        assertEquals(HttpStatus.ACCEPTED, response.getStatusCode());
+    }
+
+    @Test
+    void cancelDropsTheConflictOfAnEndedMerge() {
+        givenConflict();
+
+        var response = controller.cancelMergeConflicts(project);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertThrows(NotFoundException.class, () -> controller.getMergeConflictInfo(project));
+        // The merge has nothing left to report once its conflicts are cancelled.
+        verify(mergeLauncher).forget(projectIdentifierMapper.map(project));
+    }
+
+    /** A merge that ends just after the request was let in keeps its conflicts once it reaches the editor. */
+    @Test
+    void cancelDropsTheConflictOfAMergeThatEndsMeanwhile() {
+        var projectId = ProjectIdModel.builder().repository("design").projectName("RateCalculator").build();
+        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        doAnswer(invocation -> {
+            conflictsSessionHolder.store(projectId, mock(MergeConflictInfo.class));
+            return null;
+        }).when(mergeLauncher).settleFinished();
+
+        var response = controller.cancelMergeConflicts(project);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertThrows(NotFoundException.class, () -> controller.getMergeConflictInfo(project));
+    }
+
+    @Test
+    void cancelFindsNothingToCancel() {
+        when(projectIdentifierMapper.map(project))
+                .thenReturn(ProjectIdModel.builder().repository("design").projectName("RateCalculator").build());
+
+        assertThrows(NotFoundException.class, () -> controller.cancelMergeConflicts(project));
     }
 
 }

@@ -132,6 +132,10 @@ contain the project when it is opened. Proceed as follows:
     merge runs, the project cannot be changed — edited, saved, switched to another branch or closed — and another
     merge cannot be started.
 
+    To stop a merge that is running, click **Cancel** next to the merge buttons: while the merge runs, the dialog cannot
+    be closed otherwise. The merge stops within seconds and leaves both branches as they were, and the dialog reports
+    that the merge was cancelled. A merge that has already started to save its result finishes.
+
     ![](images/sync-merge-with-branch.png)
 
     *Selecting a branch that does not hold the project yet*

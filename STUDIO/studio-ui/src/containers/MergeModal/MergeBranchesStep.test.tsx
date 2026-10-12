@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { Modal } from 'antd'
+import { Modal, notification } from 'antd'
 import { MergeBranchesStep } from 'containers/MergeModal/MergeBranchesStep'
 import * as services from 'services'
 import { getProjectBranches } from '../../services/repositories'
@@ -16,6 +16,10 @@ vi.mock('antd', async () => {
         Modal: {
             ...actual.Modal,
             confirm: vi.fn(),
+        },
+        notification: {
+            ...actual.notification,
+            info: vi.fn(),
         },
     })
 })
@@ -342,6 +346,198 @@ describe('MergeBranchesStep', () => {
         })
     })
 
+    describe('cancelling a running merge', () => {
+        const startReceive = async () => {
+            mockApiCall
+                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'feature'))
+            const props = { ...defaultProps(), repositoryType: 'repo-jdbc', onMergingChange: vi.fn() }
+            render(<MergeBranchesStep {...props} />)
+            await selectBranch('feature')
+            await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
+            return props
+        }
+
+        /**
+         * A merge the test ends when it likes, as a long merge ends when the server says so. The server takes it at
+         * once, unless the test says it has not yet.
+         *
+         * The merge ends with the result the test gives, or fails with the error it gives.
+         */
+        const runningMerge = (accepted = true) => {
+            let end: (outcome: MergeResultResponse | Error) => void = () => undefined
+            mockMergeBranches.mockImplementationOnce((_projectId, _mode, _branch, _force, onAccepted) => {
+                if (accepted) {
+                    onAccepted?.()
+                }
+                return new Promise((resolve, reject) => {
+                    end = outcome => (outcome instanceof Error ? reject(outcome) : resolve(outcome))
+                })
+            })
+            // The merge ends outside React, so its end is resolved inside an act that waits for what follows it.
+            return (outcome: MergeResultResponse | Error) => act(async () => {
+                end(outcome)
+            })
+        }
+
+        it('keeps the dialog open while the merge runs', async () => {
+            const props = await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            await waitFor(() => expect(props.onMergingChange).toHaveBeenLastCalledWith(true))
+
+            await end({ status: 'success', conflictGroups: []})
+
+            expect(props.onMergingChange).toHaveBeenLastCalledWith(false)
+        })
+
+        it('offers no cancel until a merge runs', async () => {
+            await startReceive()
+
+            expect(screen.queryByTestId('merge-cancel')).not.toBeInTheDocument()
+        })
+
+        it('offers no cancel until the server has taken the merge', async () => {
+            await startReceive()
+            const end = runningMerge(false)
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            // A cancel sent now would find no merge to stop, and the merge would go on.
+            expect(getButton(/merge:actions.receive/i)).toBeDisabled()
+            expect(screen.queryByTestId('merge-cancel')).not.toBeInTheDocument()
+
+            await end({ status: 'success', conflictGroups: []})
+        })
+
+        it('asks the running merge to stop and tells that it was cancelled', async () => {
+            const props = await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            mockApiCall.mockResolvedValueOnce(undefined)
+            await userEvent.click(await screen.findByTestId('merge-cancel'))
+
+            expect(mockApiCall).toHaveBeenLastCalledWith('/projects/proj-1/merge/conflicts',
+                { method: 'DELETE' },
+                expect.objectContaining({ throwError: true }))
+            expect(screen.getByTestId('merge-cancel')).toBeDisabled()
+
+            await end({ status: 'cancelled', conflictGroups: []})
+
+            await waitFor(() => expect(vi.mocked(notification.info)).toHaveBeenCalledWith(expect.objectContaining({
+                title: 'merge:notifications.merge_cancelled',
+            })))
+            expect(props.onMergeSuccess).not.toHaveBeenCalled()
+            expect(props.onMergeConflicts).not.toHaveBeenCalled()
+            expect(screen.queryByTestId('merge-cancel')).not.toBeInTheDocument()
+        })
+
+        it('tells a merge cancelled elsewhere that it was cancelled', async () => {
+            const props = await startReceive()
+            mockMergeBranches.mockResolvedValueOnce({ status: 'cancelled', conflictGroups: []})
+
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            await waitFor(() => expect(vi.mocked(notification.info)).toHaveBeenCalled())
+            expect(props.onMergeConflicts).not.toHaveBeenCalled()
+        })
+
+        it('cancels the conflicts of a merge that ended before the cancel reached it', async () => {
+            const props = await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+            mockApiCall.mockRejectedValueOnce(createApiError(404, 'The merge result for the project is not found.'))
+            await userEvent.click(await screen.findByTestId('merge-cancel'))
+
+            mockApiCall.mockResolvedValueOnce(undefined)
+            await end({
+                status: 'conflicts',
+                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
+            })
+
+            await waitFor(() => expect(vi.mocked(notification.info)).toHaveBeenCalled())
+            expect(mockApiCall.mock.calls.filter(([url]) => url === '/projects/proj-1/merge/conflicts'))
+                .toHaveLength(2)
+            expect(props.onMergeConflicts).not.toHaveBeenCalled()
+        })
+
+        it('tells that the merge was cancelled when the cancel has dropped its result', async () => {
+            const props = await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+            mockApiCall.mockResolvedValueOnce(undefined)
+            await userEvent.click(await screen.findByTestId('merge-cancel'))
+
+            // The merge ended with conflicts before the cancel reached it, and the cancel dropped them with the result.
+            await end(createApiError(404, 'No merge of the project to report'))
+
+            await waitFor(() => expect(vi.mocked(notification.info)).toHaveBeenCalledWith(expect.objectContaining({
+                title: 'merge:notifications.merge_cancelled',
+            })))
+            expect(screen.queryByText('No merge of the project to report')).not.toBeInTheDocument()
+            expect(props.onMergeConflicts).not.toHaveBeenCalled()
+        })
+
+        it('reports a missing result as an error when no cancel was asked for', async () => {
+            await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            await end(createApiError(404, 'No merge of the project to report'))
+
+            expect(await screen.findByText('No merge of the project to report')).toBeInTheDocument()
+            expect(vi.mocked(notification.info)).not.toHaveBeenCalled()
+        })
+
+        it('takes a merge that committed before the cancel reached it as merged', async () => {
+            const props = await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+            mockApiCall.mockResolvedValueOnce(undefined)
+            await userEvent.click(await screen.findByTestId('merge-cancel'))
+
+            await end({ status: 'success', conflictGroups: []})
+
+            await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
+            expect(vi.mocked(notification.info)).not.toHaveBeenCalled()
+        })
+
+        it('lets the cancel be asked again when it fails', async () => {
+            await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            mockApiCall.mockRejectedValueOnce(createApiError(500, 'The repository is not available'))
+            await userEvent.click(await screen.findByTestId('merge-cancel'))
+
+            // The merge goes on, and the user learns why it was not stopped.
+            expect(await screen.findByText('The repository is not available')).toBeInTheDocument()
+            expect(screen.getByTestId('merge-cancel')).not.toBeDisabled()
+
+            await end({ status: 'success', conflictGroups: []})
+        })
+
+        it('shows the conflicts the cancel could not drop for resolution', async () => {
+            const props = await startReceive()
+            const end = runningMerge()
+            await userEvent.click(getButton(/merge:actions.receive/i))
+            mockApiCall.mockResolvedValueOnce(undefined)
+            await userEvent.click(await screen.findByTestId('merge-cancel'))
+
+            // The merge ended with conflicts before the cancel reached it, and dropping them fails.
+            mockApiCall.mockRejectedValueOnce(createApiError(500, 'The session is gone'))
+            const conflicts: MergeResultResponse = {
+                status: 'conflicts',
+                conflictGroups: [{ projectName: 'TestProject', projectPath: 'test', files: ['Main.xlsx']}],
+            }
+            await end(conflicts)
+
+            await waitFor(() => expect(props.onMergeConflicts).toHaveBeenCalledWith(conflicts))
+            expect(vi.mocked(notification.info)).not.toHaveBeenCalled()
+        })
+    })
+
     describe('merge execution', () => {
         it('calls merge API and triggers onMergeSuccess on success', async () => {
             mockApiCall
@@ -534,7 +730,7 @@ describe('MergeBranchesStep', () => {
             })
 
             await waitFor(() => {
-                expect(mockMergeBranches).toHaveBeenLastCalledWith('proj-1', 'send', 'feature', true)
+                expect(mockMergeBranches).toHaveBeenLastCalledWith('proj-1', 'send', 'feature', true, expect.any(Function))
             })
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
         })
@@ -556,7 +752,7 @@ describe('MergeBranchesStep', () => {
 
             // Simulate the user dismissing the modal — onOk is never invoked
             expect(mockMergeBranches).toHaveBeenCalledTimes(1)
-            expect(mockMergeBranches).toHaveBeenCalledWith('proj-1', 'send', 'feature', false)
+            expect(mockMergeBranches).toHaveBeenCalledWith('proj-1', 'send', 'feature', false, expect.any(Function))
             expect(props.onMergeSuccess).not.toHaveBeenCalled()
         })
     })

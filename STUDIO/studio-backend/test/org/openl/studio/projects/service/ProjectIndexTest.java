@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,29 @@ class ProjectIndexTest {
 
         assertFalse(ProjectIndex.awaitBranch(designTimeRepository, branchRepository(), "feature"));
         assertTrue(Thread.currentThread().isInterrupted());
+    }
+
+    /** A write that can no longer be undone waits for the index whatever interrupts it, and keeps the interrupt. */
+    @Test
+    void uninterruptibleWaitOutlastsTheInterruptAndKeepsIt() {
+        var published = new CompletableFuture<Void>();
+        when(designTimeRepository.refreshBranch("design", "feature")).thenReturn(published);
+        Thread.currentThread().interrupt();
+        // The index publishes the branch while the thread is waiting for it.
+        CompletableFuture.delayedExecutor(50, TimeUnit.MILLISECONDS)
+                .execute(() -> published.complete(null));
+
+        assertTrue(ProjectIndex.awaitBranchUninterruptibly(designTimeRepository, branchRepository(), "feature"));
+        assertTrue(Thread.currentThread().isInterrupted());
+    }
+
+    @Test
+    void uninterruptibleWaitReportsTheIndexThatFailed() {
+        when(designTimeRepository.refreshBranch("design", "feature"))
+                .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("The index is down")));
+
+        assertFalse(ProjectIndex.awaitBranchUninterruptibly(designTimeRepository, branchRepository(), "feature"));
+        assertFalse(Thread.currentThread().isInterrupted());
     }
 
     @Test

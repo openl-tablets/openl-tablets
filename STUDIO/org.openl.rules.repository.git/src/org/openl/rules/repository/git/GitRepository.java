@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -114,6 +116,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergePublishing;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -1300,16 +1303,50 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     /**
+     * Stops a merge whose thread is interrupted.
+     *
+     * <p>A merge is asked before every step it can be stopped at: it has published nothing yet, so stopping it and
+     * resetting the branch leaves the branch as the merge found it. The interrupt status is left as it is, for the
+     * caller to tell a stopped merge from a failed one.
+     *
+     * @throws InterruptedIOException when the thread of the merge is interrupted
+     */
+    private static void stopIfInterrupted() throws InterruptedIOException {
+        if (Thread.currentThread().isInterrupted()) {
+            throw new InterruptedIOException("The merge is cancelled.");
+        }
+    }
+
+    /**
+     * Takes the lock of the repository for a merge. A merge waiting for it — behind another long merge — is stopped
+     * by the interrupt of its thread: it has changed nothing yet.
+     *
+     * @throws InterruptedIOException when the thread of the merge is interrupted
+     */
+    private static void lockForMerge(Lock lock) throws InterruptedIOException {
+        try {
+            lock.lockInterruptibly();
+        } catch (InterruptedException e) {
+            // Never swallowed: the caller tells a stopped merge from a failed one by it.
+            Thread.currentThread().interrupt();
+            throw new InterruptedIOException("The merge is cancelled.");
+        }
+    }
+
+    /**
      * Collects the conflicted workbooks, whose differences can be merged automatically, and removes them from the
      * differences of the conflict.
      *
      * @return true if every conflicted file can be resolved automatically
+     * @throws InterruptedIOException when the thread of the merge is interrupted
      */
     private boolean collectAutoResolvable(Set<String> conflictedFiles,
                                           MergeConflict conflict,
-                                          Map<String, WorkbookDiffResult> toAutoResolve) throws MergeConflictException {
+                                          Map<String, WorkbookDiffResult> toAutoResolve) throws IOException {
         var allCanAutoResolve = true;
         for (String conflictedFile : conflictedFiles) {
+            // A workbook of a large project takes seconds to compare, so the merge can be stopped before each one.
+            stopIfInterrupted();
             var diffResult = diffConflictedWorkbook(conflictedFile, conflict);
             if (diffResult == null) {
                 allCanAutoResolve = false;
@@ -1363,9 +1400,10 @@ public class GitRepository implements BranchRepository, Closeable {
      *
      * @return the differences, or {@code null} when the file cannot be resolved automatically
      * @throws MergeConflictException when the versions cannot be read or compared
+     * @throws InterruptedIOException when the thread of the merge is interrupted while they are compared
      */
     private @Nullable WorkbookDiffResult diffConflictedWorkbook(String conflictedFile,
-                                                                MergeConflict conflict) throws MergeConflictException {
+                                                                MergeConflict conflict) throws IOException {
         if (!FileTypeHelper.isExcelFile(conflictedFile)) {
             // skip non-excel resources
             return null;
@@ -1392,6 +1430,8 @@ public class GitRepository implements BranchRepository, Closeable {
                 return diffResult.hasConflicts() ? null : diffResult;
             }
         } catch (Exception e) {
+            // A read cut off by the interrupt is a stopped merge, not a workbook that cannot be merged.
+            stopIfInterrupted();
             throw conflict.toException(null);
         } finally {
             IOUtils.closeQuietly(baseConflictedFile);
@@ -1405,7 +1445,7 @@ public class GitRepository implements BranchRepository, Closeable {
                                                Map<String, WorkbookDiffResult> toAutoResolve,
                                                boolean theirToOur,
                                                String branchFrom,
-                                               UserInfo userInfo) throws MergeConflictException {
+                                               UserInfo userInfo) throws IOException {
         String ourBranch;
         String theirBranch;
         if (theirToOur) {
@@ -1423,6 +1463,8 @@ public class GitRepository implements BranchRepository, Closeable {
                     theirBranch);
             resolveConflict(mergeResult, conflictResolveData, userInfo);
         } catch (Exception e) {
+            // A merge stopped while the workbooks were merged is no conflict.
+            stopIfInterrupted();
             throw conflict.toException(null);
         }
     }
@@ -1462,6 +1504,8 @@ public class GitRepository implements BranchRepository, Closeable {
             }
         };
         for (var entry : toAutoResolve.entrySet()) {
+            // Nothing is written until every workbook is merged, so the merge can be stopped before each one.
+            stopIfInterrupted();
             var conflictedFile = entry.getKey();
             var diffResult = entry.getValue();
             output.reset();
@@ -1848,13 +1892,25 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
+    /**
+     * Puts the branch back to the commit a merge started from.
+     *
+     * <p>The reset runs whether or not the thread is interrupted: a merge is stopped by interrupting its thread, and
+     * the work tree is written through channels an interrupt would close halfway. The interrupt status is given back
+     * afterwards.
+     */
     private void resetToCommit(String refToResetTo) {
+        var interrupted = Thread.interrupted();
         try {
             if (refToResetTo != null) {
                 git().reset().setMode(ResetCommand.ResetType.HARD).setRef(refToResetTo).call();
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
@@ -2187,10 +2243,10 @@ public class GitRepository implements BranchRepository, Closeable {
         initializeGit(true);
 
         var writeLock = repositoryLock.writeLock();
+        log.debug("merge(): lock");
+        lockForMerge(writeLock);
         String refToResetTo = null;
         try {
-            log.debug("merge(): lock");
-            writeLock.lock();
             initLfsCredentials();
 
             checkoutForcedOrReset(branch);
@@ -2217,6 +2273,11 @@ public class GitRepository implements BranchRepository, Closeable {
             }
 
             pull(null, author);
+            // The push publishes the merge, which finishes from here on: a push cut off half way may have published
+            // it already. So nothing interrupts the merge any more, while a stop asked for before still undoes it,
+            // as the merge is local up to here.
+            MergePublishing.announce();
+            stopIfInterrupted();
             push();
         } catch (IOException e) {
             resetToCommit(refToResetTo);

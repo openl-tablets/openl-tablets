@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service;
 
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +48,29 @@ public final class ProjectIndex {
         }
         var published = designTimeRepository.refreshBranch(repository.getId(), Objects.requireNonNull(branch));
         return await(published, "branch '%s' in repository '%s'".formatted(branch, repository.getId()));
+    }
+
+    /**
+     * Refreshes one branch of a repository with branches and waits until the project index publishes it, whatever
+     * interrupts the thread meanwhile.
+     *
+     * <p>For a write that can no longer be undone: an interrupt asks for nothing the wait could still give up. The
+     * interrupt status is set again once the wait is over, so it is never swallowed.
+     *
+     * @return {@code false} when the index did not publish the branch in time
+     */
+    public static boolean awaitBranchUninterruptibly(DesignTimeRepository designTimeRepository,
+                                                     BranchRepository repository,
+                                                     String branch) {
+        var published = designTimeRepository.refreshBranch(repository.getId(), branch);
+        try {
+            // A copy times out alone: other writes wait for the same publication.
+            published.toCompletableFuture().copy().orTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS).join();
+            return true;
+        } catch (CancellationException | CompletionException e) {
+            log.warn("Project index did not publish branch '{}' in repository '{}'.", branch, repository.getId(), e);
+            return false;
+        }
     }
 
     /**

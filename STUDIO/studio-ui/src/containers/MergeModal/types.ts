@@ -10,8 +10,8 @@ export type FileSide = 'BASE' | 'OURS' | 'THEIRS'
 // Check merge status
 export type CheckMergeStatus = 'mergeable' | 'up-to-date'
 
-// Merge result status
-export type MergeResultStatus = 'success' | 'conflicts'
+// Merge result status: a cancelled merge was stopped on request before it committed anything
+export type MergeResultStatus = 'success' | 'conflicts' | 'cancelled'
 
 /**
  * What stands between the user and the merge they asked about. Reported next to the status: whether the

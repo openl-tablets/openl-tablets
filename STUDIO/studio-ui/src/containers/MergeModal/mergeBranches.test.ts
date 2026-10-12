@@ -97,6 +97,23 @@ describe('mergeBranches', () => {
         await expect(merged).resolves.toEqual(SUCCESS)
     })
 
+    it('tells when the server has taken the merge, and only then', async () => {
+        const accepted = vi.fn()
+        let accept: () => void = () => undefined
+        mockApiCall.mockReturnValueOnce(new Promise(resolve => {
+            accept = () => resolve(undefined)
+        }))
+        mockReadTaskResult.mockResolvedValueOnce(jsonResponse(SUCCESS))
+
+        const merged = mergeBranches('proj-1', 'receive', 'feature', false, accepted)
+        await vi.waitFor(() => expect(mockApiCall).toHaveBeenCalled())
+        expect(accepted).not.toHaveBeenCalled()
+        accept()
+
+        await expect(merged).resolves.toEqual(SUCCESS)
+        expect(accepted).toHaveBeenCalledTimes(1)
+    })
+
     it('reports a refused merge and stops watching', async () => {
         const refusal = new Error('Project has unresolved merge conflicts.')
         mockApiCall.mockRejectedValueOnce(refusal)
