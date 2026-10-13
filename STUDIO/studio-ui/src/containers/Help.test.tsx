@@ -82,4 +82,10 @@ describe('Help', () => {
 
         expect(screen.getByRole('link', { name: 'Official Website' })).toHaveAttribute('href', 'https://openl-tablets.org')
     })
+
+    it('keeps the cards inside the window, so the page does not scroll sideways', () => {
+        renderHelp(openlInfo('7.0.0'))
+
+        expect(screen.getByTestId('help-cards')).toHaveStyle({ marginInline: '0px' })
+    })
 })
