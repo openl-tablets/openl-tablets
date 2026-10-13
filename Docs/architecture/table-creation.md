@@ -141,7 +141,8 @@ into another module is written into another workbook, and a colour can be held a
 was written in gives meaning to, through a palette of its own — so the copy is given the colours the source shows
 rather than the numbers standing for them, and its fill, borders and font look as they did. Each
 declared value is read back as the property it names, so a date is written into the workbook as a date and the
-dimension values are compared the way the engine dispatches on them.
+dimension values are compared the way the engine dispatches on them. A value its property cannot be read from is
+refused with `400`.
 
 Its properties section is laid out the way one written by hand is: the marker down the left, the property name beside
 it, and the value reaching the table's right edge. A value left in its own column would leave the columns beside it

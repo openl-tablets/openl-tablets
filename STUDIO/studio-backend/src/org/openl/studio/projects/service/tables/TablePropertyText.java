@@ -65,6 +65,14 @@ public final class TablePropertyText {
      * @return the value it is read as, or the text itself when the property cannot be read from it
      */
     public static Object parse(String name, String text) {
+        var value = read(name, text);
+        return value == null ? text : value;
+    }
+
+    /**
+     * The value a declared text stands for, or {@code null} when the property cannot be read from it.
+     */
+    public static @Nullable Object read(String name, String text) {
         var definition = TablePropertyDefinitionUtils.getPropertyByName(name);
         if (definition == null) {
             return text;
@@ -72,13 +80,12 @@ public final class TablePropertyText {
         var type = definition.getType().getInstanceClass();
         try {
             // Formatters answer null for a text they cannot read, where the engine's own reader throws.
-            var value = type == Date.class
+            return type == Date.class
                     ? String2DataConvertorFactory.parse(Date.class, text, null)
                     : FormattersManager.getFormatter(type, definition.getFormat()).parse(text);
-            return value == null ? text : value;
         } catch (RuntimeException e) {
             log.debug("Cannot read property '{}' from '{}'.", name, text, e);
-            return text;
+            return null;
         }
     }
 

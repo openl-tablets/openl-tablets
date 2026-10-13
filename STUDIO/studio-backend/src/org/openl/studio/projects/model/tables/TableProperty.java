@@ -14,7 +14,8 @@ import org.jspecify.annotations.Nullable;
  * editor shows it.
  * <p>
  * When a copy is created, the value is read back as the property it names, so a typed property (a date, an
- * enumeration) is stored as such. A blank value removes the property from the copy.
+ * enumeration) is stored as such; a value the property cannot be read from is refused. A blank value removes the
+ * property from the copy.
  *
  * @param name  property name
  * @param value property value; a blank value removes the property
