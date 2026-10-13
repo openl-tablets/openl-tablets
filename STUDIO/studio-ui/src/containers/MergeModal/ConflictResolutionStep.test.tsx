@@ -449,6 +449,24 @@ describe('ConflictResolutionStep', () => {
             })
         })
 
+        it('hands what the merge changed on to the dialog', async () => {
+            const props = await renderAndLoad()
+            const summary = {
+                sourceBranch: 'feature',
+                targetBranch: 'main',
+                before: 'b1',
+                after: 'a1',
+                projects: [],
+                hiddenProjects: 0,
+            }
+            mockApiCall.mockResolvedValueOnce({ status: 'success', resolvedFiles: [], summary })
+
+            await userEvent.click(screen.getByDisplayValue('OURS'))
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
+
+            await waitFor(() => expect(props.onResolveSuccess).toHaveBeenCalledWith(summary))
+        })
+
         it('sends FormData with resolution entries', async () => {
             await renderAndLoad()
 

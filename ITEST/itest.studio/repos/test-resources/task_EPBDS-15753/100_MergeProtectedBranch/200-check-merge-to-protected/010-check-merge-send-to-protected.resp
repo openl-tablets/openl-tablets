@@ -6,5 +6,19 @@ Content-Type: application/json
   "targetBranch": "release-EPBDS-15753",
   "status": "mergeable",
   "canMerge": false,
-  "blockedBy": "protected-branch"
+  "blockedBy": "protected-branch",
+  "scope": {
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3NTM6ZjkxMWEyNWU1YjFlMzFjNTcyZjhiYjc4M2FjYzE3MjMzMTU3YjRjZTFjM2ViMzcwZTIzNzA4YjVjOGY3MzY0Mg==",
+        "name": "EPBDS-15753",
+        "path": "EPBDS-15753",
+        "current": true,
+        "status": "modified",
+        "changedFiles": 1
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
+

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,14 +37,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeOutcome;
+import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -176,6 +181,49 @@ class MappedRepositoryTest {
             var folderCaptor = org.mockito.ArgumentCaptor.forClass(FileData.class);
             verify(feature).save(folderCaptor.capture(), any(), eq(ChangesetType.FULL));
             assertEquals("custom/path/NewProject", folderCaptor.getValue().getName());
+        }
+    }
+
+    @Test
+    void tellsTheScopeAndTheOutcomeOfAMergeByThePathsOfTheRepositoryItself() throws Exception {
+        var repository = mock(BranchRepository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setFolders(true).build());
+        when(repository.listFolders("")).thenReturn(List.of());
+        var change = new FileChange("project/rules.xml", FileChange.Kind.MODIFIED);
+        var scope = new MergeScope(List.of(change), Set.of("project/rules.xml"));
+        when(repository.getMergeScope("feature", "main")).thenReturn(scope);
+        var outcome = new MergeOutcome("before", "after", List.of(change), List.of());
+        when(repository.merge("feature", null, null)).thenReturn(outcome);
+
+        var mapped = MappedRepository.create(repository, "DESIGN/");
+        try {
+            assertEquals(scope, ((BranchRepository) mapped).getMergeScope("feature", "main"));
+            assertEquals(outcome, ((BranchRepository) mapped).merge("feature", null, null));
+        } finally {
+            mapped.close();
+        }
+    }
+
+    /**
+     * The root of the repository holds the projects, so no project maps it: a save of the files of several projects
+     * writes the root as it is and answers it with the commit that holds them.
+     */
+    @Test
+    void theRootOfTheRepositoryIsSavedAsItIs() throws Exception {
+        var repository = branchRepository("main", "rules/project", "Project");
+        var commit = fileData("");
+        commit.setVersion("commit");
+        var folders = ArgumentCaptor.forClass(FileData.class);
+        when(repository.save(folders.capture(), any(), eq(ChangesetType.DIFF))).thenReturn(commit);
+
+        try (var mapped = (MappedRepository) MappedRepository.create(repository, "DESIGN/")) {
+            var saved = mapped.save(fileData(""),
+                    List.of(new FileItem("DESIGN/Project/rules.xml", new ByteArrayInputStream(new byte[0]))),
+                    ChangesetType.DIFF);
+
+            assertEquals("", folders.getValue().getName());
+            assertEquals("", saved.getName());
+            assertEquals("commit", saved.getVersion());
         }
     }
 

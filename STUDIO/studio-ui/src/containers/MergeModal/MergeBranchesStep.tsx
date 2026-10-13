@@ -5,8 +5,9 @@ import { createStyles } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { apiCall, ApiHttpError, isApiHttpError } from '../../services'
 import { WIDTH_OF_FORM_LABEL_MODAL } from '../../constants'
-import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse } from './types'
+import { BranchInfo, CheckMergeResult, MergeMode, MergeResultResponse, MergeSummary } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
+import { MergeScopeTabs } from './MergeScopeTabs'
 import { MERGE_API_OPTIONS, mergeBranches } from './mergeBranches'
 import { BranchSelect } from '../projects/BranchSelect'
 import { getProjectBranches } from '../../services/repositories'
@@ -55,7 +56,8 @@ interface MergeBranchesStepProps {
     branches: BranchInfo[]
     /** Reports the wider list so the marks survive into the conflict step. */
     onBranchesWidened?: (branches: BranchInfo[]) => void
-    onMergeSuccess: () => void
+    /** Called once the merge is committed, with what it changed when the server tells it. */
+    onMergeSuccess: (summary?: MergeSummary) => void
     onMergeConflicts: (result: MergeResultResponse) => void
     onCheckCommitInfo: (callback: () => void) => void
     /** Tells whether a merge runs: the dialog is then left through its Cancel button, which stops the merge. */
@@ -306,7 +308,7 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
 
                 if (result.status === 'success') {
                     // The cancel came after the merge had started to commit: it is merged.
-                    onMergeSuccess()
+                    onMergeSuccess(result.summary)
                 } else if (result.status === 'conflicts' && !cancelRequested.current) {
                     onMergeConflicts(result)
                 } else {
@@ -481,6 +483,9 @@ export const MergeBranchesStep: React.FC<MergeBranchesStepProps> = ({
                                     branch: bypassRequiredSend ? selectedBranch : currentBranch,
                                 })}
                         />
+                    )}
+                    {(checkResultReceive || checkResultSend) && (
+                        <MergeScopeTabs receive={checkResultReceive} send={checkResultSend} />
                     )}
                     <Space style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         {isMergeAccepted && (

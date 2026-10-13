@@ -16,6 +16,8 @@ import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.MergeOutcome;
+import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
 
@@ -31,6 +33,14 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     public boolean isMergedInto(String from, String to) throws IOException {
         if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
             return branchRepository.isMergedInto(from, to);
+        }
+        throw new AccessDeniedException("There is no permission for the action.");
+    }
+
+    @Override
+    public MergeScope getMergeScope(String from, String to) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(BasePermission.READ))) {
+            return branchRepository.getMergeScope(from, to);
         }
         throw new AccessDeniedException("There is no permission for the action.");
     }
@@ -102,7 +112,9 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
     }
 
     @Override
-    public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
+    public MergeOutcome merge(String branchFrom,
+                              UserInfo author,
+                              ConflictResolveData conflictResolveData) throws IOException {
         if (conflictResolveData != null) {
             for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
                 // A conflict names its files by the path they hold in the repository itself, which is the path
@@ -113,7 +125,7 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
                 }
             }
         }
-        branchRepository.merge(branchFrom, author, conflictResolveData);
+        return branchRepository.merge(branchFrom, author, conflictResolveData);
     }
 
     @Override

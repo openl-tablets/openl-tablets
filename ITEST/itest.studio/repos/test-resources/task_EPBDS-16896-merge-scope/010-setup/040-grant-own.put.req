@@ -1,0 +1,7 @@
+PUT /rest/acls/projects/{OWN_ID}?sid=EPBDS-16896-reader&principal=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "role": "CONTRIBUTOR"
+}

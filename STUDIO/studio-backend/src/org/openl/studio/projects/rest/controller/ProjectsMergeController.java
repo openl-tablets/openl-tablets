@@ -62,6 +62,7 @@ import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.merge.MergeChangesService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
@@ -91,6 +92,7 @@ public class ProjectsMergeController {
     private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ComparisonLauncher comparisonLauncher;
     private final ProjectsMergeLauncher mergeLauncher;
+    private final MergeChangesService mergeChangesService;
 
     @InitBinder
     void allowLongResolutionLists(WebDataBinder binder) {
@@ -200,7 +202,10 @@ public class ProjectsMergeController {
                 .<ResponseEntity<?>>map(result -> ResponseEntity.ok(new MergeResultResponse(result.status(),
                         Optional.ofNullable(result.conflictInfo())
                                 .map(mergeConflictsService::getMergeConflicts)
-                                .orElseGet(List::of))))
+                                .orElseGet(List::of),
+                        Optional.ofNullable(result.changes())
+                                .map(changes -> mergeChangesService.summaryOf(project, changes))
+                                .orElse(null))))
                 .orElseGet(ResultNotReadyView::accepted);
     }
 

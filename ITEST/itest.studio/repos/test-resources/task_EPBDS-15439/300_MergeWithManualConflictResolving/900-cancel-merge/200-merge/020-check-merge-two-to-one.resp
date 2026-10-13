@@ -5,5 +5,22 @@ Content-Type: application/json
   "sourceBranch": "EPBDS-15439_MergeWithManualConflictResolvingCancel_two",
   "targetBranch": "EPBDS-15439_MergeWithManualConflictResolving_one",
   "status": "mergeable",
-  "canMerge": true
+  "canMerge": true,
+  "scope": {
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mzk6NjM3MDcwN2IwYmQ2MzZhMmVlZjI4NGZjZDY0ZmE0YjFjMmFmYjJhZGM0ZTE3YmNlMjAyOTU3YjY4MGQwNGViNQ==",
+        "name": "EPBDS-15439",
+        "path": "EPBDS-15439",
+        "current": true,
+        "status": "modified",
+        "changedFiles": 1,
+        "changedInBoth": [
+          "EPBDS-15439/Main.xlsx"
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
+

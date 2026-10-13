@@ -3,18 +3,18 @@ package org.openl.studio.projects.model.project.status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Type of pending change applied to a file relative to the design revision")
+@Schema(description = "What became of a file or a project: of a pending change, against the design revision; of a merge, against the branch before it")
 public enum ChangeType {
 
-    @Schema(description = "File exists locally but is not present in the design revision")
+    @Schema(description = "Present after the change and absent before it")
     @JsonProperty("added")
     ADDED,
 
-    @Schema(description = "File content differs from the design revision")
+    @Schema(description = "Present before and after the change, with other content")
     @JsonProperty("modified")
     MODIFIED,
 
-    @Schema(description = "File is present in the design revision but has been removed locally")
+    @Schema(description = "Present before the change and absent after it")
     @JsonProperty("deleted")
     DELETED
 }

@@ -60,6 +60,9 @@ public interface ProjectsMergeService {
      * <p>The answer also says whether this user may perform the merge. A protected or locked target
      * branch does not hide where the branches stand: the difference is reported either way.
      *
+     * <p>A mergeable answer tells what the merge would bring into the target branch: every project the source
+     * branch changed, not only the given one, and the files both branches changed.
+     *
      * <p><b>Implementation Note:</b>
      * <p>This method uses Git's merge-base and diff algorithms to determine merge feasibility
      * without actually performing the merge.
@@ -119,11 +122,14 @@ public interface ProjectsMergeService {
      *   <li>Changes are committed automatically</li>
      *   <li>Result status is {@link org.openl.studio.projects.model.merge.MergeResultStatus#SUCCESS}</li>
      *   <li>Conflict info is null</li>
+     *   <li>The result keeps what the merge changed, and the projects the target branch held before it, once the
+     *   project index has published the merge</li>
      * </ol>
      *
      * <p>A committed merge then waits a while for the project index to publish the target branch. An index that
-     * is late does not undo the merge, so the result is a success all the same. The wait is not cut short by the
-     * interrupt of the thread either: a cancel that comes once the merge is committed can no longer undo it.
+     * is late does not undo the merge, so the result is a success all the same, only without what the merge changed.
+     * So is a merge whose changes cannot be read. The wait is not cut short by the interrupt of the thread either: a
+     * cancel that comes once the merge is committed can no longer undo it.
      *
      * <p>A merge whose thread is interrupted before it is committed stops and throws
      * {@link java.io.InterruptedIOException}, leaving the branches as it found them.

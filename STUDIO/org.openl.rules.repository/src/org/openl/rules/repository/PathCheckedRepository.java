@@ -21,6 +21,8 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeOutcome;
+import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.SearchableRepository;
@@ -169,6 +171,13 @@ public class PathCheckedRepository implements BranchRepository {
     }
 
     @Override
+    public MergeScope getMergeScope(String from, String to) throws IOException {
+        validateBranch(from);
+        validateBranch(to);
+        return ((BranchRepository) delegate).getMergeScope(from, to);
+    }
+
+    @Override
     public String getBranch() {
         return ((BranchRepository) delegate).getBranch();
     }
@@ -226,9 +235,11 @@ public class PathCheckedRepository implements BranchRepository {
     }
 
     @Override
-    public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
+    public MergeOutcome merge(String branchFrom,
+                              UserInfo author,
+                              ConflictResolveData conflictResolveData) throws IOException {
         validateBranch(branchFrom);
-        ((BranchRepository) delegate).merge(branchFrom, author, conflictResolveData);
+        return ((BranchRepository) delegate).merge(branchFrom, author, conflictResolveData);
     }
 
     @Override

@@ -23,7 +23,11 @@ flowchart TB
     Ctrl --> CL["ComparisonLauncher<br/>compare a conflicted workbook"]
     Ctrl --> WS["WorkspaceProjectService<br/>workspace, editor, WebStudio"]
     MS --> Git["BranchRepository (Git)"]
+    MS --> MC["MergeChangesService<br/>scope and summary"]
+    Ctrl --> MC
+    MC --> Git
     CS --> Git
+    CS --> MC
     CS --> XM["XlsWorkbookMerger<br/>sheet and cell merge"]
     Save["Project save"] -- SaveMergeConflictEvent --> Lst["SaveMergeConflictEventListener"]
     Lst --> SH
@@ -33,12 +37,15 @@ flowchart TB
   an opened project for the length of a resolution, and brings the workspace and the editor to the state after it.
 - **`ProjectsMergeService`** (`org.openl.studio.projects.service.merge`) — checks where the branches stand, refuses a
   merge that must not be performed, and merges.
+- **`MergeChangesService`** — tells which projects and files a merge brings into the target branch: before the merge
+  for the check, and once it is committed for the result and the resolution.
 - **`ProjectsMergeLauncher`** — validates a merge and runs it on the `mergeExecutor` pool, apart from the request that
   starts it, reports its progress on the WebSocket, and brings the editor up to date once the merge has ended.
 - **`ProjectsMergeRegistry`** — keeps the merge a client started last (`StartedMerge`): the merge itself and the
   editor state it found.
 - **`ProjectsMergeConflictsService`** — describes a conflict (revisions, file availability, default message), groups the
-  conflicted files by project, reads one version of a file, and resolves.
+  conflicted files by project, reads one version of a file, and resolves. A resolved merge is summed up by
+  `MergeChangesService`, as a merge without conflicts is.
 - **`ProjectsMergeConflictsSessionHolder`** — keeps the unresolved conflict of one client.
 - **`SaveMergeConflictEventListener`** — stores the conflict that a project save found in the same holder.
 - **`ComparisonLauncher`** (`org.openl.studio.compare.service`) — starts the comparison of the two versions of a
@@ -77,6 +84,52 @@ branch and the lock, and `status` says `up-to-date` for step 6. `merge` runs all
   is late is logged and the merge stays a `success`: a failure would have the user merge again what is already
   merged (EPBDS-16541). A resolution waits for the index the same way.
 - A conflict in Git gives a `MergeConflictInfo` with the details of the conflict. Otherwise the merge is `success`.
+
+## What a Merge Brings In
+
+A branch holds every project of the repository, so a merge changes whole branches: a Sync asked for one project also
+takes in, or sends out, the changes of every other project the source branch changed. The check and the result tell
+it, so the user sees what the merge takes in before it starts and what it changed once it is committed.
+
+- **Before the merge** — `BranchRepository.getMergeScope(source, target)` walks three trees at once — the commit the
+  branches parted at, the source and the target — and compares no content: a file the source changed since then
+  that the target does not hold as the source does is a change of the merge, and one the target changed too is changed
+  in both. A file both branches made alike changes nothing. The walk enters only the folders the source changed. Of
+  several commits the branches parted at, as a criss-cross history has, the first is taken. A tree walk costs about
+  the same however large the files are, so a mergeable check answers without a noticeable delay. It tells which files
+  may conflict, not how they merge: that is known only once the merge has run.
+- **After the merge** — `BranchRepository.merge` answers with a `MergeOutcome`: the revision of the target branch
+  before the merge, the merge commit, the files the merge commit changes against the revision before, and the
+  workbooks the merge combined by itself with the sheets taken from each branch. The commit message keeps listing
+  them under `Automatically resolved conflicts`. The files are listed before the merge is published, so a failure to
+  list them undoes the merge rather than reporting a published one as failed. A resolution commits through the same
+  `merge`, which combines no workbook by itself then: the resolution adds the workbooks its conflict merged
+  automatically (`MergeConflictDetails.mergedWorkbooks`), so it answers the same way. The descriptors a resolution
+  declares modules in again are written in a commit of their own after the merge: the summary lists them as well, and
+  its revision after the merge is the commit that wrote them, as their save answers it. Descriptors whose save
+  answers no commit are left out of the summary.
+- **Projects** — `MergeChangesService` puts each file under the project whose folder holds it, reading which projects
+  each branch holds from the project index (`DesignTimeRepository.getBranchProjects`), which answers for the
+  repository rather than for what the user may read. A project is added or deleted as a whole when one side holds it
+  and the other does not: the source and the target branch before the merge, or the target branch before and after
+  it. The projects of the target branch are taken when the merge is committed — before it, and after it once the index
+  has published the branch — so what the branch receives later does not change the summary. Only the projects holding
+  a changed file are kept (`MergeChangesService.changesOf`). Files outside any project form a group of their own.
+- **Access rights** — the projects of a scope or a summary are asked one question for all
+  (`RepositoryAclService.filterGranted`). A project the user may not read is counted, never named. A file outside any
+  project is shown only when the user may read it, each file under its own rights, as the repository asks when the
+  file is read: a project the index does not know yet falls there, and its files stay hidden from a user who may not
+  read them.
+- **Paths** — every file is told by its path from the root of the repository, as a conflict names it, whatever folder
+  mapping the design repository applies.
+- **When** — the summary is made when the result is read, in the request of the client, not on the thread of the merge:
+  the access rights are asked for the client that reads it.
+- **Failures** — what a merge brings in is told beside the merge, never in its place (`MergeChangesService`). A scope
+  that cannot be read leaves the check without it, and the dialog says so instead of listing projects. What a committed
+  merge changed is told only once the project index has published the merge, since the index tells the projects of the
+  branch after it; an index that cannot be read before the merge or is late after it, or a failure to read the
+  changes, leaves the merge a `success` without a summary (EPBDS-16541), and the dialog confirms the merge with a
+  notification instead.
 
 ## Merge in the Background
 
@@ -245,10 +298,17 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
 - **Unit tests** — `STUDIO/studio-backend/test/org/openl/studio/projects/service/merge` and the controller
   tests next to the controller; `ProjectsMergeLauncherTest` runs merges on a queue the test drains, so it sees the
   request answer before the merge runs.
-- **Git** — `GitRepositoryMergeConflictsInExcelTest` and the other merge tests in `STUDIO/org.openl.rules.repository.git`.
+- **Git** — `GitRepositoryMergeConflictsInExcelTest` and the other merge tests in
+  `STUDIO/org.openl.rules.repository.git`, the scope and the outcome of a merge included.
+- **Scope and summary** — `MergeChangesServiceTest`: the order of the projects, a project added or deleted as a
+  whole, the files outside projects, the sheets of a workbook merged automatically, and the projects the user may not
+  read.
 - **Workbook merge** — `XlsSheetMergerTest`, `XlsTableMergerTest` and `XlsSheetShiftsTest` in
   `STUDIO/org.openl.rules.xls.merge`: the changes of the two branches, kind by kind, merged or kept a conflict;
   `XlsTableMergerTest` crosses what each branch does with a table: leaves, creates, removes, changes or moves it.
 - **Integration** — the declarative suites in `ITEST/itest.studio`; `task_EPBDS-16883-excel-cell-merge` merges a
-  sheet changed in both branches through the table API, a table theme included. A merge step is three requests: the
-  `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a `GET /merge` checking its result.
+  sheet changed in both branches through the table API, a table theme included; `task_EPBDS-16896-merge-scope`
+  checks and merges a branch that changes three projects, as the administrator and as a user who may read one of
+  them, so the scope and the summary name that project alone and count the two others. A merge step is three
+  requests: the `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a `GET /merge` checking
+  its result.

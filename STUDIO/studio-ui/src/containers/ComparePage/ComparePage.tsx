@@ -17,16 +17,18 @@ import {
     getComparison,
     getComparisonTable,
     getConflictFileStatus,
+    getConflictFileText,
     startConflictComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
+import { getFileContent } from 'services/files'
 import type { ConflictFileStatus } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes, type DiffView } from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
-import { ConflictTextView } from './ConflictTextView'
+import { TextVersionsView } from './TextVersionsView'
 import { RevisionPicker, type ProjectComparisonSides } from './RevisionPicker'
 import { ComparisonTree } from './ComparisonTree'
 import { isFinished, useComparisonProgress } from './useComparisonProgress'
@@ -38,35 +40,85 @@ const ASK_AGAIN = 2000
 
 const FILES_TO_COMPARE = 2
 
-/** Two versions of a module, named by the screen that opened the window. */
+/** Two versions named by the screen that opened the window, and how their comparison is started. */
 interface VersionsRequest {
-    projectId: string
-    moduleName: string | undefined
-    first: string
-    second: string
+    start: () => Promise<string>
 }
 
-/** What the window was opened to compare, or null when it opens on the files to pick. */
-const versionsRequestOf = (params: URLSearchParams): VersionsRequest | null => {
+/** A file that is not a workbook at two versions: it reads line by line. */
+interface TextVersionsRequest {
+    path: string
+    read: () => Promise<[string, string]>
+}
+
+/** The versions the window was opened for: of a workbook, or of a file that reads line by line. */
+type NamedVersions = Pick<ComparisonRequest, 'versions' | 'textVersions'>
+
+/** Two versions of a module, as Local Changes names them, or null when none are named. */
+const moduleVersionsOf = (params: URLSearchParams): VersionsRequest | null => {
     const projectId = params.get('projectId')
     const first = params.get('first')
     const second = params.get('second')
     if (!projectId || !first || !second) {
         return null
     }
-    return { projectId, moduleName: params.get('module') ?? undefined, first, second }
+    const moduleName = params.get('module') ?? undefined
+    return { start: () => startLocalHistoryComparison(projectId, moduleName, first, second) }
 }
+
+/**
+ * A file of a project at two revisions of a branch, as the summary of a merge names it before and
+ * after the merge, or null when none is named. A workbook is compared element by element, any other
+ * file reads line by line. A revision is a commit of the repository, so both are read whichever
+ * branch the project is on.
+ */
+const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
+    const projectId = params.get('projectId')
+    const file = params.get('file')
+    const before = params.get('before')
+    const after = params.get('after')
+    if (!projectId || !file || !before || !after) {
+        return null
+    }
+    if (!isWorkbookPath(file)) {
+        const read = () => Promise.all([
+            getFileContent(projectId, file, before),
+            getFileContent(projectId, file, after),
+        ])
+        return { versions: null, textVersions: { path: file, read } }
+    }
+    const branch = params.get('branch') ?? undefined
+    const start = () => startProjectComparison(projectId,
+        { path: file, branch, revision: before },
+        { path: file, branch, revision: after })
+    return { versions: { start }, textVersions: null }
+}
+
+/**
+ * A conflicted file that is not a workbook. The version being merged in is read first and the one the workspace
+ * holds second, so the diff reads as what the merge would bring.
+ */
+const conflictTextOf = (projectId: string, conflict: string): TextVersionsRequest => ({
+    path: conflict,
+    read: () => Promise.all([
+        getConflictFileText(projectId, conflict, 'THEIRS'),
+        getConflictFileText(projectId, conflict, 'OURS'),
+    ]),
+})
 
 /** What the window was opened to compare, read from the address it was opened with. */
 interface ComparisonRequest {
-    /** Two versions of a module, when the window was opened for them. */
+    /** Two versions, when the window was opened for them. */
     versions: VersionsRequest | null
+    /**
+     * A file that is not a workbook at two versions, when the window was opened for one: at two revisions, or
+     * conflicted.
+     */
+    textVersions: TextVersionsRequest | null
     /** The project the window was opened for, whether to pick its files or to read its conflict. */
     projectId: string | null
     /** The conflicted file of that project, when the window was opened for one. */
     conflict: string | null
-    /** That file when it is not a workbook, and so reads line by line rather than as a comparison. */
-    conflictText: string | null
     /** The project whose two files are picked, or null when there is nothing to pick. */
     pickedProject: string | null
 }
@@ -74,19 +126,27 @@ interface ComparisonRequest {
 /**
  * What the address says the window is for.
  *
- * A window is opened for two versions of a module, for a project whose files are picked, or for a
+ * A window is opened for two versions, for a project whose files are picked, or for a
  * conflicted file of a project. Reading them apart in one place keeps the screen itself to what it
  * draws.
  */
 const requestOf = (params: URLSearchParams): ComparisonRequest => {
-    const versions = versionsRequestOf(params)
-    const projectId = versions ? null : params.get('projectId')
+    const { versions, textVersions } = fileRevisionsOf(params)
+        ?? { versions: moduleVersionsOf(params), textVersions: null }
+    const projectId = versions || textVersions ? null : params.get('projectId')
     // A conflicted file of a project is named on its own; a project named without one is a project to
     // pick two files of.
     const conflict = projectId ? params.get('conflict') : null
-    // A file that is not a workbook is not compared as one: it reads line by line, in this window.
-    const conflictText = conflict && !isWorkbookPath(conflict) ? conflict : null
-    return { versions, projectId, conflict, conflictText, pickedProject: conflict ? null : projectId }
+    return {
+        versions,
+        // A conflicted file that is not a workbook is not compared as one: it reads line by line, in this window.
+        textVersions: projectId && conflict && !isWorkbookPath(conflict)
+            ? conflictTextOf(projectId, conflict)
+            : textVersions,
+        projectId,
+        conflict,
+        pickedProject: conflict ? null : projectId,
+    }
 }
 
 /** The comparison the window was opened for, or null when it opens on something to pick. */
@@ -94,16 +154,14 @@ const startOf = (
     versions: VersionsRequest | null,
     projectId: string | null,
     conflict: string | null,
-    conflictText: string | null,
     conflictStatus: ConflictFileStatus | null
 ): (() => Promise<string>) | null => {
     if (versions) {
-        return () => startLocalHistoryComparison(versions.projectId, versions.moduleName,
-            versions.first, versions.second)
+        return versions.start
     }
     // A conflicted workbook is compared once what became of it is known: a file one version no longer
     // holds has nothing to be compared with.
-    if (projectId && conflict && !conflictText && conflictStatus === 'modified') {
+    if (projectId && conflict && isWorkbookPath(conflict) && conflictStatus === 'modified') {
         return () => startConflictComparison(projectId, conflict)
     }
     return null
@@ -117,8 +175,9 @@ const startOf = (
  * picks. The step of the files is a click away, so another pair can be compared in the same window.
  *
  * A screen that already knows what to compare opens the window on the comparison itself, naming what
- * it wants in the address: two versions of a module, as Local Changes does. There are no files to
- * pick then, and the comparison starts as the window opens.
+ * it wants in the address: two versions of a module, as Local Changes does, or a file at two
+ * revisions, as the summary of a merge does. There are no files to pick then, and the comparison
+ * starts as the window opens; a file that is not a workbook reads line by line.
  *
  * A window opened for a project alone picks instead of files: which file of the working copy stands
  * against which file of which revision. One opened for a conflicted file of a project shows its two
@@ -128,7 +187,7 @@ export const ComparePage: React.FC = () => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const [params] = useSearchParams()
-    const { versions, projectId, conflict, conflictText, pickedProject } = useMemo(
+    const { versions, textVersions, projectId, conflict, pickedProject } = useMemo(
         () => requestOf(params), [params]
     )
     const [sides, setSides] = useState<ProjectComparisonSides | null>(null)
@@ -175,7 +234,7 @@ export const ComparePage: React.FC = () => {
     const progress = useComparisonProgress(comparisonId)
     // The comparison is on screen from the moment it is started; until it answers, its progress is.
     // A window opened for a comparison of its own has nothing else to show, so it is on screen at once.
-    const comparing = !!comparisonId || !!versions || (!!conflict && !conflictText)
+    const comparing = !!comparisonId || !!versions || (!!conflict && !textVersions)
     const running = comparing && !comparison && !error
 
     useEffect(() => {
@@ -210,7 +269,7 @@ export const ComparePage: React.FC = () => {
             // One version no longer holds the file: there is nothing to put the other one against.
             return
         }
-        const start = startOf(versions, projectId, conflict, conflictText, conflictStatus)
+        const start = startOf(versions, projectId, conflict, conflictStatus)
         if (!start) {
             return
         }
@@ -218,7 +277,7 @@ export const ComparePage: React.FC = () => {
         start()
             .then(setComparisonId)
             .catch((startError: unknown) => setError(errorMessage(startError) || t('failed')))
-    }, [versions, projectId, conflict, conflictText, conflictStatus, t])
+    }, [versions, projectId, conflict, conflictStatus, t])
 
     // The result is read when the comparison says it has finished, and again as soon as the page is
     // listening: a comparison of two small files can be over before then, and what was pushed to the
@@ -376,11 +435,11 @@ export const ComparePage: React.FC = () => {
         )
     }
 
-    if (conflictText && projectId) {
+    if (textVersions) {
         return (
             <div className={styles.page}>
-                <ConflictHead path={conflictText} status={conflictStatus} />
-                <ConflictTextView path={conflictText} projectId={projectId} />
+                <ConflictHead path={textVersions.path} status={conflictStatus} />
+                <TextVersionsView read={textVersions.read} />
             </div>
         )
     }

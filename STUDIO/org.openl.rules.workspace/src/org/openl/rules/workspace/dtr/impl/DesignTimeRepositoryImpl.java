@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -268,6 +269,18 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public List<AProject> getProjectsHeldOnlyBy(String repositoryId, String branch) {
+        return branchEntries(repositoryId, branch, project -> project.heldOnlyBy(branch));
+    }
+
+    @Override
+    public List<AProject> getBranchProjects(String repositoryId, String branch) {
+        return branchEntries(repositoryId, branch, project -> true);
+    }
+
+    /**
+     * The entries the branch holds of the projects of the repository that match the filter.
+     */
+    private List<AProject> branchEntries(String repositoryId, String branch, Predicate<BranchedProject> filter) {
         synchronized (projects) {
             if (projectsRefreshNeeded) {
                 refreshProjects();
@@ -275,7 +288,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return branchedProjects.values()
                     .stream()
                     .filter(project -> project.homeEntry().project().getRepository().getId().equals(repositoryId))
-                    .filter(project -> project.heldOnlyBy(branch))
+                    .filter(filter)
                     .map(project -> project.entry(branch).map(BranchEntry::project).orElse(null))
                     .filter(Objects::nonNull)
                     .toList();

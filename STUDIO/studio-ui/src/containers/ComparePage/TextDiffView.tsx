@@ -5,9 +5,9 @@ import { DiffInputTooLargeError, diffLines, type DiffLine } from 'utils/lineDiff
 import { useStyles } from './ComparePage.styles'
 
 interface TextDiffViewProps {
-    /** The version the comparison reads first - what is being merged in. */
+    /** The version the comparison starts from: a line only it has is removed. */
     first: string
-    /** The version it reads second - what the workspace holds. */
+    /** The version it is compared with: a line only it has is added. */
     second: string
 }
 

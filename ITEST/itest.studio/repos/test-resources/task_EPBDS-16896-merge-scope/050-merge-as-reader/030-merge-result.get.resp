@@ -1,0 +1,29 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-16896-side",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtT3duOjI4ZDdhMzA2NDVjNTkyZTI3NTcxYzhmMGRhODEyYTkzOGQ0ZDk3YTA4MzEyYmJhYjA5MjU0MWFkNzY2Y2Q5OTU=",
+        "name": "EPBDS-16896-Own",
+        "path": "EPBDS-16896-Own",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-16896-Own/notes.txt",
+            "type": "modified"
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 2
+  }
+}
+

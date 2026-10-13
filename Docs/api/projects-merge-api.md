@@ -32,8 +32,10 @@ or an uploaded file.
 
 ### Key Features
 
-- **Pre-merge Check**: Reports whether the target branch already holds every change of the source branch, and
-  whether the current user may perform the merge
+- **Pre-merge Check**: Reports whether the target branch already holds every change of the source branch, whether
+  the current user may perform the merge, and which projects and files the merge would bring in
+- **Merge Summary**: A merge reports what it changed in the target branch, project by project, and which branch
+  each sheet of a workbook merged automatically was taken from
 - **Bidirectional Merging**: Support for both receiving changes from other branches and sending changes to other
   branches
 - **Workbook Auto-resolution**: A conflicted Excel file is merged without a decision from the user sheet by sheet,
@@ -207,7 +209,35 @@ data and does not look for conflicts: only the merge itself finds them.
   "targetBranch": "main",
   "status": "mergeable",
   "canMerge": false,
-  "blockedBy": "bypass-required"
+  "blockedBy": "bypass-required",
+  "scope": {
+    "projects": [
+      {
+        "id": "ZGVzaWduOlByaWNpbmc",
+        "name": "Pricing",
+        "path": "DESIGN/rules/Pricing",
+        "current": true,
+        "status": "modified",
+        "changedFiles": 2,
+        "changedInBoth": [
+          "DESIGN/rules/Pricing/rules/Main.xlsx"
+        ]
+      },
+      {
+        "id": "ZGVzaWduOlJhdGluZw",
+        "name": "Rating",
+        "path": "DESIGN/rules/Rating",
+        "current": false,
+        "status": "added",
+        "changedFiles": 3
+      },
+      {
+        "current": false,
+        "changedFiles": 1
+      }
+    ],
+    "hiddenProjects": 1
+  }
 }
 ```
 
@@ -221,6 +251,22 @@ data and does not look for conflicts: only the merge itself finds them.
 - `locked`: The project is locked on the target branch by another user
 
 The status is reported whatever `blockedBy` says.
+
+**What the Merge Would Bring In** (`scope`, absent when the target branch is up to date): a branch holds every
+project of the repository, so a merge changes every project the source branch changed since the branches parted,
+not only the project of the request. A scope that cannot be read, for example of a branch deleted meanwhile, is
+absent too and logged: the check still tells whether the branches can be merged.
+
+- Each project is told with the number of its files the merge would change, and the files both branches changed:
+  the merge either combines them by itself or reports them as conflicts, which is known only once it has run.
+- `status` is `added` for a project the source branch holds and the target branch does not, `deleted` for one only the
+  target branch holds, and `modified` otherwise.
+- The project of the request comes first, marked `current`, the other projects follow by name, and the files outside
+  any project come last, as a group without a name, a path or a status.
+- A project the user may not read is counted in `hiddenProjects`, without its name or its files.
+- Files are told by their path from the root of the repository. A file both branches made alike is no change of the
+  merge. A file outside any project is listed only when the user may read it.
+- The answer compares the trees of the branches only, so it costs about the same however large the files are.
 
 **Errors**:
 - `409 Conflict`: Project has unresolved merge conflicts from a previous operation, the project cannot take a merge,
@@ -327,11 +373,63 @@ not follow the topic asks again while the answer is `202`.
 **Success (no conflicts)**:
 ```json
 {
-  "status": "success"
+  "status": "success",
+  "summary": {
+    "sourceBranch": "feature-pricing",
+    "targetBranch": "main",
+    "before": "1a3c5e7b9d2f4a6c8e0b1d3f5a7c9e2b4d6f8a0c",
+    "after": "4f0c2d9a7b1e3c5d8f6a2b4c6d8e0f1a3b5c7d9e",
+    "projects": [
+      {
+        "id": "ZGVzaWduOlByaWNpbmc",
+        "name": "Pricing",
+        "path": "DESIGN/rules/Pricing",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "DESIGN/rules/Pricing/rules/Main.xlsx",
+            "type": "modified",
+            "sheets": [
+              { "name": "Rates", "takenFrom": "source" },
+              { "name": "Rules", "takenFrom": "both" }
+            ]
+          },
+          {
+            "path": "DESIGN/rules/Pricing/rules.xml",
+            "type": "modified"
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
 ```
 
 The API omits empty values, so a successful merge has no `conflictGroups`.
+
+`summary` tells what the merge changed in the target branch, against the target branch before the merge:
+
+- The files are grouped and ordered by project as the `scope` of the check groups them, workbooks first in each
+  project. A project is `added` or `deleted` when the merge added or removed it as a whole, as the target branch held
+  its projects when the merge was committed. `projects` is an empty list when the merge changed no file the user may
+  read.
+- After a resolution, the descriptors (`rules.xml`) in which the resolution declares the modules of resolved
+  workbooks again are written in a commit of their own: they are listed too, and `after` is the revision the target
+  branch stands at once they are written.
+- `summary` is absent when what the merge changed cannot be told: the project index could not be read before the
+  merge or has not published it in time, or reading what it changed failed. The merge stays a `success`, as the
+  failure is only logged.
+- A workbook both branches changed and the merge combined by itself lists `sheets`: each sheet either branch changed,
+  taken from the `source` branch, from the `target` branch, or combined from `both`.
+- `before` is the revision of the target branch before the merge and `after` its revision after the merge: the merge
+  commit, or the commit of the descriptors a resolution wrote after it. A modified workbook is compared before and
+  after the merge with the Compare API (`POST /rest/projects/{projectId}/compare`), each side reading the file inside
+  its project on `targetBranch` at one of the two revisions. Any other modified file is read at each revision
+  (`GET /rest/projects/{projectId}/files/{path}?version=<revision>`) and compared line by line by the client. Both
+  name the file by its path inside the project: its `path` without the `path` of the project and the slash after it.
+- A project the user may not read is counted in `hiddenProjects`, without its name or its files.
 
 **Conflicts detected**:
 ```json
@@ -631,6 +729,10 @@ A strategy whose version does not hold the file deletes the file.
 `resolvedFiles` lists the files of the request. The workbooks that resolve automatically are merged and committed
 with them, and are not listed.
 
+The resolution of a merge conflict also answers with `summary`, which tells what the merge changed in the target
+branch as [Get Merge Result](#3-get-merge-result) does, the sheets of the workbooks merged automatically included.
+The resolution of a save conflict has no `summary`.
+
 **Errors**:
 - `404 Not Found`: No conflict information found in session
 - `400 Bad Request`:
@@ -708,13 +810,37 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 
 ### CheckMergeResult
 
-| Field          | Type                                                  | Description                                  |
-|----------------|-------------------------------------------------------|----------------------------------------------|
-| `sourceBranch` | string                                                | Source branch in the merge                   |
-| `targetBranch` | string                                                | Target branch in the merge                   |
-| `status`       | `mergeable` \| `up-to-date`                           | Where the branches stand                     |
-| `canMerge`     | boolean                                               | Whether the current user may perform it      |
-| `blockedBy`    | `bypass-required` \| `protected-branch` \| `locked`   | What prevents the merge; absent if nothing   |
+| Field          | Type                                                 | Description                                  |
+|----------------|------------------------------------------------------|----------------------------------------------|
+| `sourceBranch` | string                                               | Source branch in the merge                   |
+| `targetBranch` | string                                               | Target branch in the merge                   |
+| `status`       | `mergeable` \| `up-to-date`                          | Where the branches stand                     |
+| `canMerge`     | boolean                                              | Whether the current user may perform it      |
+| `blockedBy`    | `bypass-required` \| `protected-branch` \| `locked`  | What prevents the merge; absent if nothing   |
+| `scope`        | MergeScopeView                                       | What it brings in; absent if none or unknown |
+
+---
+
+### MergeScopeView
+
+| Field            | Type               | Description                                              |
+|------------------|--------------------|----------------------------------------------------------|
+| `projects`       | ProjectScopeView[] | The changed projects, the project of the request first  |
+| `hiddenProjects` | integer            | How many changed projects the user may not read         |
+
+---
+
+### ProjectScopeView
+
+| Field           | Type                                 | Description                                                 |
+|-----------------|--------------------------------------|-------------------------------------------------------------|
+| `id`            | string                               | Project id; absent for the files outside any project        |
+| `name`          | string                               | Project name; absent for the files outside any project      |
+| `path`          | string                               | Project folder from the root; absent outside projects       |
+| `current`       | boolean                              | Whether it is the project of the request                    |
+| `status`        | `added` \| `modified` \| `deleted`   | What the merge does to the project; absent outside projects |
+| `changedFiles`  | integer                              | How many of its files the merge changes                     |
+| `changedInBoth` | string[]                             | Its files both branches changed; absent when none           |
 
 ---
 
@@ -724,6 +850,52 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 |------------------|-----------------------------|-------------------------------------------------|
 | `status`         | `success` \| `conflicts` \| `cancelled` | Merge operation result; `cancelled` for a merge stopped on request |
 | `conflictGroups` | ConflictGroup[]             | Conflicts if any; absent otherwise              |
+| `summary`        | MergeSummaryView            | What a successful merge changed; absent otherwise or when unknown |
+
+---
+
+### MergeSummaryView
+
+| Field            | Type                 | Description                                              |
+|------------------|----------------------|----------------------------------------------------------|
+| `sourceBranch`   | string               | The branch merged in                                     |
+| `targetBranch`   | string               | The branch the merge changed                             |
+| `before`         | string               | Revision of the target branch before the merge           |
+| `after`          | string               | Revision of the target branch after the merge            |
+| `projects`       | ProjectChangesView[] | The changed projects, the project of the request first   |
+| `hiddenProjects` | integer              | How many changed projects the user may not read          |
+
+---
+
+### ProjectChangesView
+
+| Field     | Type                                 | Description                                                 |
+|-----------|--------------------------------------|-------------------------------------------------------------|
+| `id`      | string                               | Project id; absent for the files outside any project        |
+| `name`    | string                               | Project name; absent for the files outside any project      |
+| `path`    | string                               | Project folder from the root; absent outside projects       |
+| `current` | boolean                              | Whether it is the project of the request                    |
+| `status`  | `added` \| `modified` \| `deleted`   | What the merge did to the project; absent outside projects  |
+| `files`   | FileChangeView[]                     | The changed files, workbooks first                          |
+
+---
+
+### FileChangeView
+
+| Field    | Type                                 | Description                                                 |
+|----------|--------------------------------------|-------------------------------------------------------------|
+| `path`   | string                               | Path of the file from the root of the repository            |
+| `type`   | `added` \| `modified` \| `deleted`   | What the merge did to the file                              |
+| `sheets` | SheetChangeView[]                    | Sheets of a workbook merged automatically; absent otherwise |
+
+---
+
+### SheetChangeView
+
+| Field       | Type                              | Description                          |
+|-------------|-----------------------------------|--------------------------------------|
+| `name`      | string                            | Sheet name                           |
+| `takenFrom` | `source` \| `target` \| `both`    | The branch the sheet was taken from  |
 
 ---
 
@@ -807,6 +979,7 @@ sent as written.
 |-----------------|-----------|----------------------------------------------------------|
 | `status`        | `success` | All conflicts resolved successfully; the only value      |
 | `resolvedFiles` | string[]  | The files of the resolutions in the request              |
+| `summary`       | MergeSummaryView | What the merge changed; absent for a save conflict or when unknown |
 
 ---
 
@@ -822,7 +995,7 @@ sent as written.
      "otherBranch": "feature-123"
    }
 
-   Response: { "status": "mergeable", "canMerge": true, ... }
+   Response: { "status": "mergeable", "canMerge": true, "scope": { "projects": [...], ... }, ... }
 
 2. Perform merge
    POST /rest/projects/MyProject/merge
@@ -835,7 +1008,7 @@ sent as written.
 
    GET /rest/projects/MyProject/merge   (once the status topic reports the end)
 
-   Response: { "status": "success" }
+   Response: { "status": "success", "summary": { "projects": [...], ... } }
 ```
 
 ---

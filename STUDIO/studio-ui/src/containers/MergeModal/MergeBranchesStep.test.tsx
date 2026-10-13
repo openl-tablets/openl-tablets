@@ -233,6 +233,32 @@ describe('MergeBranchesStep', () => {
             await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
         })
 
+        it('shows what each direction brings in once the branches are checked', async () => {
+            mockApiCall
+                .mockResolvedValueOnce({
+                    ...mergeableResult('feature', 'main'),
+                    scope: {
+                        projects: [{
+                            name: 'Pricing',
+                            path: 'Pricing',
+                            current: true,
+                            status: 'modified',
+                            changedFiles: 2,
+                            changedInBoth: ['Pricing/rules/Main.xlsx'],
+                        }],
+                        hiddenProjects: 0,
+                    },
+                })
+                .mockResolvedValueOnce(upToDateResult('main', 'feature'))
+
+            render(<MergeBranchesStep {...defaultProps()} />)
+            await selectBranch('feature')
+
+            const scope = await screen.findByTestId('merge-scope')
+            expect(within(scope).getByText('Pricing')).toBeInTheDocument()
+            expect(within(scope).getByTestId('merge-scope-changed-in-both')).toHaveTextContent('Pricing/rules/Main.xlsx')
+        })
+
         it('enables receive button when receive is mergeable', async () => {
             mockApiCall
                 .mockResolvedValueOnce(mergeableResult('feature', 'main'))
@@ -553,6 +579,30 @@ describe('MergeBranchesStep', () => {
             await userEvent.click(getButton(/merge:actions.receive/i))
 
             await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalled())
+        })
+
+        it('hands what the merge changed on to the dialog', async () => {
+            mockApiCall
+                .mockResolvedValueOnce(mergeableResult('feature', 'main'))
+                .mockResolvedValueOnce(mergeableResult('main', 'feature'))
+
+            const props = defaultProps()
+            render(<MergeBranchesStep {...props} />)
+            await selectBranch('feature')
+            await waitFor(() => expect(getButton(/merge:actions.receive/i)).not.toBeDisabled())
+
+            const summary = {
+                sourceBranch: 'feature',
+                targetBranch: 'main',
+                before: 'b1',
+                after: 'a1',
+                projects: [],
+                hiddenProjects: 0,
+            }
+            mockMergeBranches.mockResolvedValueOnce({ status: 'success', conflictGroups: [], summary })
+            await userEvent.click(getButton(/merge:actions.receive/i))
+
+            await waitFor(() => expect(props.onMergeSuccess).toHaveBeenCalledWith(summary))
         })
 
         it('calls onMergeConflicts when merge returns conflicts', async () => {

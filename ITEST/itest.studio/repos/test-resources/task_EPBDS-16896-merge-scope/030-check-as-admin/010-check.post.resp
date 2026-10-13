@@ -1,0 +1,39 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "sourceBranch": "EPBDS-16896-side",
+  "targetBranch": "master",
+  "status": "mergeable",
+  "canMerge": true,
+  "scope": {
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtT3duOjI4ZDdhMzA2NDVjNTkyZTI3NTcxYzhmMGRhODEyYTkzOGQ0ZDk3YTA4MzEyYmJhYjA5MjU0MWFkNzY2Y2Q5OTU=",
+        "name": "EPBDS-16896-Own",
+        "path": "EPBDS-16896-Own",
+        "current": true,
+        "status": "modified",
+        "changedFiles": 1
+      },
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtQWRkZWQ6OWUyNWQyNzY2Y2IxODNlYjgzMjMwNDNmMzYxZGY0YzlkMjcwNzhlYWYwNmI1Mzg3YWUyMjYwNWE4NzRkOWJkMg==",
+        "name": "EPBDS-16896-Added",
+        "path": "EPBDS-16896-Added",
+        "current": false,
+        "status": "added",
+        "changedFiles": 2
+      },
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtSGlkZGVuOjY1ZTI0OTk5M2RlODAwYzE1MjlkNmZlZTEyMjRkMWM4MDc4ZmE5OGZjNjI1Y2VjZmU5NjYwMDZiYjdlZjUyNjc=",
+        "name": "EPBDS-16896-Hidden",
+        "path": "EPBDS-16896-Hidden",
+        "current": false,
+        "status": "modified",
+        "changedFiles": 1
+      }
+    ],
+    "hiddenProjects": 0
+  }
+}
+

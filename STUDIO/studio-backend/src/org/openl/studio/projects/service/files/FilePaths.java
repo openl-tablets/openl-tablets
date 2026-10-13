@@ -10,7 +10,7 @@ import org.openl.util.FileUtils;
  *
  * @author Yury Molchan
  */
-final class FilePaths {
+public final class FilePaths {
 
     private FilePaths() {
     }
@@ -25,7 +25,7 @@ final class FilePaths {
     /**
      * Parent directory of the path, or an empty string when the path has no parent.
      */
-    static String parent(String path) {
+    public static String parent(String path) {
         if (path == null) {
             return "";
         }

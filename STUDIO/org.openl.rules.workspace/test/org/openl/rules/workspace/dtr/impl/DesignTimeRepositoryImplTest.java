@@ -137,6 +137,11 @@ class DesignTimeRepositoryImplTest {
                     ((BranchRepository) repository.getProject("design", "Rates", "feature/rates")
                             .getRepository()).getBranch());
             assertTrue(repository.hasProject("design", "Rates"));
+            // What a merge changes is told by the projects each branch holds.
+            assertEquals(List.of("DESIGN/Rates"),
+                    repository.getBranchProjects("design", "feature/rates").stream().map(AProject::getRealPath).toList());
+            assertEquals(List.of(), repository.getBranchProjects("design", "main"));
+            assertEquals(List.of(), repository.getBranchProjects("other", "feature/rates"));
             assertEquals(BranchedProjectIndexService.IndexState.READY,
                     repository.getProjectIndexHealth("design").orElseThrow().state());
             var historical = repository.getProjectByPath("design", "feature/rates", "DESIGN/Rates", "revision");

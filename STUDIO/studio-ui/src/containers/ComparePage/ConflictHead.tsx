@@ -4,9 +4,9 @@ import type { ConflictFileStatus } from 'services/compare'
 import { useStyles } from './ComparePage.styles'
 
 interface ConflictHeadProps {
-    /** The conflicted file, by its path inside the repository. */
+    /** The compared file, by its path. */
     path: string
-    /** What the merge did to it, or null while that is still being read. */
+    /** What the merge did to a conflicted file; null while that is still being read, and for any other file. */
     status: ConflictFileStatus | null
 }
 
@@ -14,10 +14,10 @@ interface ConflictHeadProps {
 const statusKey = (status: ConflictFileStatus): string => `status_${status}`
 
 /**
- * Which file is compared and what the merge did to it, as the old comparison window said it.
+ * Which file is compared and, for a conflicted file, what the merge did to it, as the old comparison window said it.
  *
  * The window is opened away from the screen that asked for it, so it names the file itself rather than
- * leaving the reader to remember which of the conflicted files this is.
+ * leaving the reader to remember which file this is.
  */
 export const ConflictHead: React.FC<ConflictHeadProps> = ({ path, status }) => {
     const { t } = useTranslation('compare')

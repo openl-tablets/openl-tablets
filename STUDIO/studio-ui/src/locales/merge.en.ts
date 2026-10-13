@@ -29,6 +29,43 @@ i18next.addResourceBundle('en', 'merge', {
         up_to_date_send: 'They have all your updates. Nothing to merge.',
     },
 
+    scope: {
+        tab_one: '{{label}} · {{count}} project',
+        tab_other: '{{label}} · {{count}} projects',
+        whole_branch: 'Sync merges whole branches: the changes of every project below are merged, '
+            + 'not only those of the current project.',
+        nothing: 'Nothing to merge.',
+        unknown: 'Sync could not tell what this option brings in.',
+        current: 'Current project',
+        other: 'Other project',
+        outside: 'Files outside projects',
+        changed_files_one: '{{count}} changed file',
+        changed_files_other: '{{count}} changed files',
+        changed_in_both: 'Changed in both branches',
+        changed_in_both_hint: 'Sync merges these files by itself where the changes do not overlap, '
+            + 'and asks you to resolve the rest.',
+        hidden_one: 'and {{count}} project you cannot read',
+        hidden_other: 'and {{count}} projects you cannot read',
+        hidden_only_one: 'This option changes only {{count}} project you cannot read.',
+        hidden_only_other: 'This option changes only {{count}} projects you cannot read.',
+    },
+
+    summary: {
+        title: 'Merge Summary',
+        merged: 'Merged "{{source}}" into "{{target}}".',
+        resolved: 'Conflicts resolved and "{{source}}" merged into "{{target}}".',
+        nothing: 'The merge changed no file you can read.',
+        hidden_only_one: 'The merge changed only {{count}} project you cannot read.',
+        hidden_only_other: 'The merge changed only {{count}} projects you cannot read.',
+        sheet_from: 'Sheet "{{sheet}}" taken from {{branch}}',
+        sheet_both: 'Sheet "{{sheet}}" combined from both branches',
+        sheets_hint: 'Sync merged this workbook by itself, sheet by sheet: a sheet one branch changed is taken from '
+            + 'that branch, and a sheet both branches changed is combined from the changes of both.',
+        compare: 'Compare',
+        compare_hint: 'Compare the file before and after the merge',
+        close: 'Close',
+    },
+
     blocked: {
         protected: 'There are changes to merge, but the branch "{{branch}}" is protected and you may not merge into it.',
         locked: 'There are changes to merge, but the branch "{{branch}}" is locked by another operation. Try again later.',

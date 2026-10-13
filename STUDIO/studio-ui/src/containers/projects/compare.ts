@@ -44,6 +44,26 @@ export const openVersionsCompareWindow = (
 }
 
 /**
+ * Opens the comparison of a file at two revisions of a branch, such as before and after a merge. A
+ * workbook is compared element by element, any other file line by line.
+ *
+ * @param projectId the project holding the file
+ * @param file      the path of the file inside the project
+ * @param branch    the branch holding both revisions
+ * @param before    the earlier revision
+ * @param after     the later revision
+ */
+export const openFileRevisionsCompareWindow = (
+    projectId: string,
+    file: string,
+    branch: string,
+    before: string,
+    after: string
+): void => {
+    openCompare(new URLSearchParams({ projectId, file, branch, before, after }).toString())
+}
+
+/**
  * Every comparison is shown in one and the same window, because a session holds one comparison at a
  * time: a second window would take the comparison the first one is reading.
  */

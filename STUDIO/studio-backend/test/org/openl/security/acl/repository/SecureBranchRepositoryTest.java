@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
@@ -48,6 +50,21 @@ class SecureBranchRepositoryTest {
 
         assertEquals(branches, repository.listBranches());
         verify(delegate).listBranches();
+    }
+
+    @Test
+    void tellsTheScopeOfAMergeWithRepositoryReadPermission() throws Exception {
+        var scope = new MergeScope(List.of(), Set.of());
+        when(aclService.isGranted(REPOSITORY_ID, null, List.of(BasePermission.READ))).thenReturn(true);
+        when(delegate.getMergeScope("feature", "main")).thenReturn(scope);
+
+        assertSame(scope, repository.getMergeScope("feature", "main"));
+    }
+
+    @Test
+    void refusesTheScopeOfAMergeWithoutRepositoryReadPermission() throws Exception {
+        assertThrows(AccessDeniedException.class, () -> repository.getMergeScope("feature", "main"));
+        verify(delegate, never()).getMergeScope("feature", "main");
     }
 
     @Test

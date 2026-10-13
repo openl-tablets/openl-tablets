@@ -123,6 +123,17 @@ public interface DesignTimeRepository extends ProjectsContainer {
     }
 
     /**
+     * Returns every project the given branch holds.
+     *
+     * <p>A merge changes whole branches, so telling what it changes means telling which project each changed file
+     * belongs to. The answer describes the repository, not what the caller may see: the caller decides what of it
+     * to show.
+     */
+    default List<AProject> getBranchProjects(String repositoryId, String branch) {
+        return List.of();
+    }
+
+    /**
      * Returns the current background-index health for a branch-capable repository.
      */
     default Optional<BranchedProjectIndexService.IndexHealth> getProjectIndexHealth(String repositoryId) {

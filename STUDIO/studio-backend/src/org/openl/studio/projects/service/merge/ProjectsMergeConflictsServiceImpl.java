@@ -15,22 +15,27 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.io.InputStreamSource;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.git.MergeConflictDetails;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
@@ -56,7 +61,10 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
+
+    private final MergeChangesService mergeChangesService;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -297,8 +305,12 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                     mergeMessage
             );
 
+            String branch = isMerging ? mergeConflictInfo.mergeBranchTo() : project.getBranch();
+            @Nullable List<AProject> targetProjectsBefore = null;
+            MergeOutcome outcome = null;
             if (isMerging) {
-                ((BranchRepository) designRepository).forBranch(mergeConflictInfo.mergeBranchTo())
+                targetProjectsBefore = mergeChangesService.projectsBefore(repositoryId, branch);
+                outcome = ((BranchRepository) designRepository).forBranch(branch)
                         .merge(mergeConflictInfo.mergeBranchFrom(),
                                 workspace.getUser().getUserInfo(),
                                 conflictResolveData);
@@ -306,20 +318,25 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 project.save(conflictResolveData);
             }
 
-            String branch = isMerging ? mergeConflictInfo.mergeBranchTo() : project.getBranch();
-            updateRulesXmlFiles(repositoryId, modulesToAppend, branch, mergeMessage);
+            var descriptors = updateRulesXmlFiles(repositoryId, modulesToAppend, branch, mergeMessage);
             // The resolution is committed by now. An index that publishes it late is logged and leaves it
             // resolved: reporting a failure would have the user resolve again what is already committed.
-            ProjectIndex.awaitBranch(workspace.getDesignTimeRepository(), designRepository, branch);
+            var published = ProjectIndex.awaitBranch(workspace.getDesignTimeRepository(), designRepository, branch);
+            // An index that has not published the merge would tell the projects of the branch as they were before it.
+            var changes = outcome == null || !published ? null : mergeChangesService.changesOf(repositoryId,
+                    mergeConflictInfo.mergeBranchFrom(),
+                    branch,
+                    resolvedOutcome(outcome, conflictDetails, descriptors),
+                    targetProjectsBefore);
 
             // Return success
             List<String> resolvedFilePaths = resolutions.stream()
                     .map(FileConflictResolution::filePath)
                     .toList();
 
-            return new ResolveConflictsResponse(
-                    ConflictResolutionStatus.SUCCESS,
-                    resolvedFilePaths);
+            return new ResolveConflictsResponse(ConflictResolutionStatus.SUCCESS,
+                    resolvedFilePaths,
+                    changes == null ? null : mergeChangesService.summaryOf(project, changes));
         } finally {
             for (FileItem file : resolvedFiles) {
                 IOUtils.closeQuietly(file.getStream());
@@ -574,12 +591,48 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         return module;
     }
 
-    private void updateRulesXmlFiles(String repositoryId,
-                                     Map<String, List<Module>> modulesToAppend,
-                                     String branch,
-                                     String mergeMessage) throws IOException {
+    /**
+     * The merge as the resolution completed it: with the workbooks the resolution merged automatically, and with the
+     * descriptors written after its commit, which count among the files it changed. The commit of the descriptors
+     * stands for the merge, so the version after it holds them.
+     */
+    private static MergeOutcome resolvedOutcome(MergeOutcome outcome,
+                                                MergeConflictDetails conflictDetails,
+                                                @Nullable SavedDescriptors descriptors) {
+        var workbooks = MergeConflictDetails.mergedWorkbooks(conflictDetails.toAutoResolve());
+        if (descriptors == null) {
+            return new MergeOutcome(outcome.before(), outcome.after(), outcome.changes(), workbooks);
+        }
+        var listed = outcome.changes().stream().map(FileChange::path).collect(Collectors.toSet());
+        var changes = new ArrayList<>(outcome.changes());
+        descriptors.paths()
+                .stream()
+                .filter(path -> !listed.contains(path))
+                .forEach(path -> changes.add(new FileChange(path, FileChange.Kind.MODIFIED)));
+        return new MergeOutcome(outcome.before(), descriptors.revision(), changes, workbooks);
+    }
+
+    /**
+     * The descriptors written in a commit of their own after a resolution.
+     *
+     * @param revision the revision of that commit
+     * @param paths    the paths of the descriptors from the root of the repository
+     */
+    private record SavedDescriptors(String revision, List<String> paths) {
+    }
+
+    /**
+     * Declares the modules of the resolved workbooks again in the descriptors of their projects, in a commit of
+     * its own.
+     *
+     * @return the descriptors written, or {@code null} when none needed it or the save told no revision of them
+     */
+    private @Nullable SavedDescriptors updateRulesXmlFiles(String repositoryId,
+                                                           Map<String, List<Module>> modulesToAppend,
+                                                           String branch,
+                                                           String mergeMessage) throws IOException {
         if (modulesToAppend.isEmpty()) {
-            return;
+            return null;
         }
 
         var repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
@@ -600,13 +653,17 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                             .collect(Collectors.toMap(Module::getRulesRootPath, m -> m)));
 
                     // Add new modules
+                    var added = false;
                     for (Module module : entry.getValue()) {
-                        modules.putIfAbsent(module.getRulesRootPath(), module);
+                        added |= modules.putIfAbsent(module.getRulesRootPath(), module) == null;
                     }
 
-                    descriptor.setModules(new ArrayList<>(modules.values()));
-                    files.add(new FileItem(rulesXmlFile,
-                            new ByteArrayInputStream(descriptor.toBytes())));
+                    // A descriptor declaring every module already is left as it is: rewriting it changes nothing.
+                    if (added) {
+                        descriptor.setModules(new ArrayList<>(modules.values()));
+                        files.add(new FileItem(rulesXmlFile,
+                                new ByteArrayInputStream(descriptor.toBytes())));
+                    }
                 }
             }
         }
@@ -617,8 +674,14 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             folderData.setAuthor(getUserWorkspace().getUser().getUserInfo());
             folderData.setComment(mergeMessage);
             folderData.setBranch(branch);
-            repository.save(folderData, files, ChangesetType.DIFF);
+            var saved = repository.save(folderData, files, ChangesetType.DIFF);
+            // Without the revision of their commit the descriptors cannot be compared after the merge.
+            if (saved != null && saved.getVersion() != null) {
+                return new SavedDescriptors(saved.getVersion(),
+                        files.stream().map(FileItem::getData).map(FileData::getName).toList());
+            }
         }
+        return null;
     }
 
     private Module getModule(FileItem fileItem, String moduleInternalPath) throws IOException {

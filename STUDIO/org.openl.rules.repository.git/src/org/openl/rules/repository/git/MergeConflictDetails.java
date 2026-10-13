@@ -1,10 +1,13 @@
 package org.openl.rules.repository.git;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import lombok.Builder;
 
+import org.openl.rules.repository.api.MergedWorkbook;
+import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 
 /**
@@ -33,5 +36,23 @@ public record MergeConflictDetails(
 
     public Collection<String> getConflictedFiles() {
         return diffs.keySet();
+    }
+
+    /**
+     * The workbooks that are resolved automatically, with the sheets each version changed.
+     *
+     * <p>The version named yours is the version of the branch the merge changes, and so stands for the target.
+     */
+    public static List<MergedWorkbook> mergedWorkbooks(Map<String, WorkbookDiffResult> toAutoResolve) {
+        return toAutoResolve.entrySet()
+                .stream()
+                .map(entry -> {
+                    var sheets = entry.getValue().getSheetDiffResult();
+                    return new MergedWorkbook(entry.getKey(),
+                            List.copyOf(sheets.getDiffSheets(DiffStatus.OUR)),
+                            List.copyOf(sheets.getDiffSheets(DiffStatus.THEIR)),
+                            List.copyOf(sheets.getDiffSheets(DiffStatus.MERGED)));
+                })
+                .toList();
     }
 }

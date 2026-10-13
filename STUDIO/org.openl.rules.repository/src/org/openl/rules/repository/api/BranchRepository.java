@@ -11,6 +11,20 @@ import org.jspecify.annotations.Nullable;
 public interface BranchRepository extends Repository, SearchableRepository {
     boolean isMergedInto(String from, String to) throws IOException;
 
+    /**
+     * Tells what a merge of one branch into another would bring in, without merging.
+     *
+     * <p>The answer compares trees only, so it costs about the same however large the files are. It names the files
+     * both branches changed since they parted, not how the merge would combine them: that is known only once the
+     * merge has run.
+     *
+     * @param from the branch to merge in
+     * @param to   the branch the merge would change
+     * @return the files the merge would change, and those of them both branches changed
+     * @throws IOException when a branch cannot be read
+     */
+    MergeScope getMergeScope(String from, String to) throws IOException;
+
     String getBranch();
 
     boolean isBranchProtected(String branch);
@@ -88,11 +102,12 @@ public interface BranchRepository extends Repository, SearchableRepository {
      * @param author              the author of the merge commit
      * @param conflictResolveData how the conflicts of the merge are resolved, or {@code null} to merge without
      *                            resolving any
+     * @return what the merge changed in the branch of this repository, by the paths from the root of the repository
      * @throws java.io.InterruptedIOException when the merge is stopped by the interrupt of its thread; the interrupt
      *                                        status stays set
      * @throws IOException                    when the branches cannot be merged
      */
-    void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException;
+    MergeOutcome merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException;
 
     String getBaseBranch();
 
