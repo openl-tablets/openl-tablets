@@ -245,7 +245,8 @@ public class TableCopyServiceImpl implements TableCopyService {
      * <p>Each value is read as the property it names, so a date is written to the copy as a date rather than as the
      * text it was sent as, and the dimension values are the ones the engine dispatches on.
      *
-     * <p>Names and values are taken without the space around them, so a value is written as it was checked.
+     * <p>Names and values are taken without the space around them, so a value is written as it was checked. A value
+     * its property cannot be read from is refused.
      */
     private static Map<String, Object> toPropertyMap(List<TableProperty> properties) {
         var map = new LinkedHashMap<String, Object>();
@@ -253,10 +254,18 @@ public class TableCopyServiceImpl implements TableCopyService {
             var value = property.value();
             if (value != null && !value.isBlank()) {
                 var name = property.name().trim();
-                map.put(name, TablePropertyText.parse(name, value.strip()));
+                map.put(name, requireReadable(name, value.strip()));
             }
         }
         return map;
+    }
+
+    private static Object requireReadable(String name, String text) {
+        var value = TablePropertyText.read(name, text);
+        if (value == null) {
+            throw new BadRequestException("table.copy.property.invalid.message", new Object[]{name, text});
+        }
+        return value;
     }
 
     /**

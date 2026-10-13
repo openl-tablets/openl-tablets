@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -314,6 +316,22 @@ class TableCopyServiceTest {
 
         assertThrows(BadRequestException.class,
                 () -> service.copyInto(table, newName, properties, destGrid, moduleTables));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"effectiveDate, 2027-13-45", "state, Atlantis", "active, maybe"})
+    void aValueItsPropertyCannotBeReadFromIsRefused(String name, String value, @TempDir Path projectDir)
+            throws Exception {
+        var source = bankLimitIndex(projectDir);
+        var table = source.table();
+        var destGrid = creator.sheetGridModel(source.model(), "Copies");
+        var properties = List.of(new TableProperty(name, value));
+        var moduleTables = tables(source);
+
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.copyInto(table, "BankLimitIndexCopy", properties, destGrid, moduleTables));
+        assertEquals("openl.error.400.table.copy.property.invalid.message", refused.getErrorCode());
+        assertArrayEquals(new Object[]{name, value}, refused.getArgs());
     }
 
     @Test

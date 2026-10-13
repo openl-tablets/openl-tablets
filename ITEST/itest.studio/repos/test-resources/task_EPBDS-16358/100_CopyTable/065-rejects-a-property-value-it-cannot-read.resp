@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.copy.property.invalid.message",
+  "message": "The value '2027-13-45' cannot be read as the property 'effectiveDate'."
+}
