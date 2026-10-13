@@ -416,8 +416,8 @@ The API omits empty values, so a successful merge has no `conflictGroups`.
   its projects when the merge was committed. `projects` is an empty list when the merge changed no file the user may
   read.
 - After a resolution, the descriptors (`rules.xml`) in which the resolution declares the modules of resolved
-  workbooks again are written in a commit of their own: they are listed too, and `after` is the revision the target
-  branch stands at once they are written.
+  workbooks again are written in a commit of their own on the target branch: they are listed too, and `after` is the
+  commit that wrote them.
 - `summary` is absent when what the merge changed cannot be told: the project index could not be read before the
   merge or has not published it in time, or reading what it changed failed. The merge stays a `success`, as the
   failure is only logged.

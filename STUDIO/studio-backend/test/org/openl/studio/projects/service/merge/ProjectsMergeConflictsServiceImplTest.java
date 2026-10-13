@@ -242,6 +242,42 @@ class ProjectsMergeConflictsServiceImplTest {
                 "Resolved");
     }
 
+    /**
+     * The descriptors of a resolution belong to the branch it merged into: read or written on the default branch of
+     * the repository, they would change a branch the merge never touched and miss the one it did.
+     */
+    @Test
+    void theDescriptorsOfAResolutionAreWrittenToTheBranchItMergedInto() throws Exception {
+        var context = createContext();
+        var repository = context.repository();
+        var target = mock(BranchRepository.class);
+        var features = repository.supports();
+        when(target.supports()).thenReturn(features);
+        when(repository.forBranch("main")).thenReturn(target);
+        when(repository.readHistory(anyString(), eq("theirs")))
+                .thenAnswer(invocation -> new FileItem(invocation.<String>getArgument(0),
+                        new ByteArrayInputStream(new byte[0])));
+        when(repository.readHistory("rules/rules.xml", "theirs")).thenAnswer(invocation -> new FileItem(
+                "rules/rules.xml", new ByteArrayInputStream(descriptor("DeletedOurs.xlsx").getBytes())));
+        when(target.read("rules/rules.xml")).thenAnswer(invocation -> new FileItem("rules/rules.xml",
+                new ByteArrayInputStream(descriptor("Other.xlsx").getBytes())));
+        var resolved = mock(RulesProject.class);
+        when(resolved.getRealPath()).thenReturn("rules");
+        when(context.workspace().getProjectByPath("design", FIRST_FILE)).thenReturn(Optional.of(resolved));
+        when(target.merge(eq("feature"), any(), any())).thenReturn(new MergeOutcome("before", "after",
+                List.of(new FileChange(FIRST_FILE, FileChange.Kind.MODIFIED)), List.of()));
+
+        context.service().resolveConflicts(context.conflict(),
+                List.of(new FileConflictResolution(FIRST_FILE, ConflictResolutionStrategy.THEIRS),
+                        new FileConflictResolution(SECOND_FILE, ConflictResolutionStrategy.THEIRS)),
+                Map.of(),
+                "Resolved");
+
+        verify(target).save(any(FileData.class), any(), eq(ChangesetType.DIFF));
+        verify(repository, never()).read("rules/rules.xml");
+        verify(repository, never()).save(any(FileData.class), any(), any());
+    }
+
     private static String descriptor(String module) {
         return """
                 <project>

@@ -318,7 +318,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 project.save(conflictResolveData);
             }
 
-            var descriptors = updateRulesXmlFiles(repositoryId, modulesToAppend, branch, mergeMessage);
+            var descriptors = updateRulesXmlFiles(mergeConflictInfo, modulesToAppend, branch, mergeMessage);
             // The resolution is committed by now. An index that publishes it late is logged and leaves it
             // resolved: reporting a failure would have the user resolve again what is already committed.
             var published = ProjectIndex.awaitBranch(workspace.getDesignTimeRepository(), designRepository, branch);
@@ -623,11 +623,11 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
     /**
      * Declares the modules of the resolved workbooks again in the descriptors of their projects, in a commit of
-     * its own.
+     * its own on the branch the resolution was committed to.
      *
      * @return the descriptors written, or {@code null} when none needed it or the save told no revision of them
      */
-    private @Nullable SavedDescriptors updateRulesXmlFiles(String repositoryId,
+    private @Nullable SavedDescriptors updateRulesXmlFiles(MergeConflictInfo mergeConflictInfo,
                                                            Map<String, List<Module>> modulesToAppend,
                                                            String branch,
                                                            String mergeMessage) throws IOException {
@@ -635,7 +635,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             return null;
         }
 
-        var repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
+        var repository = getRepository(mergeConflictInfo);
         var files = new ArrayList<FileItem>();
 
         for (Map.Entry<String, List<Module>> entry : modulesToAppend.entrySet()) {

@@ -105,9 +105,10 @@ it, so the user sees what the merge takes in before it starts and what it change
   list them undoes the merge rather than reporting a published one as failed. A resolution commits through the same
   `merge`, which combines no workbook by itself then: the resolution adds the workbooks its conflict merged
   automatically (`MergeConflictDetails.mergedWorkbooks`), so it answers the same way. The descriptors a resolution
-  declares modules in again are written in a commit of their own after the merge: the summary lists them as well, and
-  its revision after the merge is the commit that wrote them, as their save answers it. Descriptors whose save
-  answers no commit are left out of the summary.
+  declares modules in again are written in a commit of their own after the merge, on the branch it merged into: the
+  summary lists them as well, and its revision after the merge is the commit that wrote them, as their save answers
+  it. A descriptor declaring every module already is not written again, and descriptors whose save answers no commit
+  are left out of the summary.
 - **Projects** — `MergeChangesService` puts each file under the project whose folder holds it, reading which projects
   each branch holds from the project index (`DesignTimeRepository.getBranchProjects`), which answers for the
   repository rather than for what the user may read. A project is added or deleted as a whole when one side holds it
