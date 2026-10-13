@@ -32,7 +32,7 @@ export const Help: React.FC = () => {
                     <Typography.Title level={4} type="secondary">{t('common:help.openl_tablets_help_description')}</Typography.Title>
                 </Col>
             </Row>
-            <Row gutter={[24, 24]} style={{ padding: '24px 50px' }}>
+            <Row data-testid="help-cards" gutter={[24, 24]} style={{ padding: '24px 38px', marginInline: 0 }}>
                 <Col md={8} sm={12} xs={24}>
                     <Card
                         variant="outlined"
