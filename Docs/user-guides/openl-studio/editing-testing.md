@@ -17,6 +17,7 @@ This chapter describes advanced OpenL Studio functions, such as table editing, p
 This section describes table editing and includes the following topics:
 
 -   [Editing a Comma Separated Array of Values](#editing-a-comma-separated-array-of-values)
+-   [Editing Non-Finite Numbers](#editing-non-finite-numbers)
 -   [Editing Default Table Properties](#editing-default-table-properties)
 -   [Editing Inherited Table Properties](#editing-inherited-table-properties)
 
@@ -27,6 +28,14 @@ OpenL Studio allows editing comma separated arrays of values. A multi selection 
 ![](images/comma-array-editor.png)
 
 *Editing comma separated arrays*
+
+#### Editing Non-Finite Numbers
+
+To enter a non-finite value in a `Double` or `Float` cell, use `NaN`, `Infinity`, or `-Infinity` in Formula Editor.
+OpenL Studio saves these values as text in the workbook. OpenL interprets them as numeric values when compiling the
+rule.
+The table API returns these values as strings. Use the same strings when creating or updating a table through the API.
+Entering one of these values in a formula cell keeps its formula.
 
 #### Editing Default Table Properties
 

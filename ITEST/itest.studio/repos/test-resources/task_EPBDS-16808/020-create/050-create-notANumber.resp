@@ -1,0 +1,14 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "*",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "notANumber",
+  "returnType": "Double",
+  "signature": "*",
+  "file": "*",
+  "sheet": "Rules",
+  "pos": "*"
+}

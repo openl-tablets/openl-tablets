@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "steps": [
+    {
+      "name": "RETURN",
+      "type": "Double",
+      "value": "NaN"
+    }
+  ]
+}

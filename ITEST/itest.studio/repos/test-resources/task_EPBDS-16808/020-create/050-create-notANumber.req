@@ -1,0 +1,21 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Rules",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "SimpleSpreadsheet",
+    "kind": "Spreadsheet",
+    "name": "notANumber",
+    "returnType": "Double",
+    "steps": [
+      {
+        "name": "RETURN",
+        "type": "Double",
+        "value": "NaN"
+      }
+    ]
+  }
+}

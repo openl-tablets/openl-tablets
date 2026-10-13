@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SimpleSpreadsheet",
+      "kind": "Spreadsheet",
+      "name": "special",
+      "returnType": "Double",
+      "signature": "special()",
+      "file": "EPBDS-16808/Rules.xlsx",
+      "sheet": "Rules",
+      "pos": "B2:C4",
+      "module": "Rules",
+      "project": "EPBDS-16808",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

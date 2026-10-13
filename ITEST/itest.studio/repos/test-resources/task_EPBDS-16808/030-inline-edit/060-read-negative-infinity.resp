@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "source": [
+    [
+      {
+        "cell": "B4",
+        "value": "RETURN"
+      },
+      {
+        "cell": "C4",
+        "value": "-Infinity"
+      }
+    ]
+  ]
+}
