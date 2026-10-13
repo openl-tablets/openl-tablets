@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -281,6 +280,16 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         throw new UnsupportedOperationException("Unsupported operation");
     }
 
+    /**
+     * Stops compiling and lets go of everything compiled.
+     *
+     * <p>The module being compiled at this moment is finished first, and nothing after it is started: the caller
+     * waits for that module only, not for the rest of the compilation. What was compiled, the jars of the projects
+     * included, is released before this returns, so a manager built next reads the classpath of the projects afresh.
+     *
+     * <p>The compilation in flight hands its result over once this returns, if at all. The caller may hold a lock
+     * it takes to do so, so it is never waited for.
+     */
     public void shutdown() {
         resume();
         synchronized (listenersMutex) {
@@ -290,14 +299,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         active = false;
         version.incrementAndGet();
         executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-            executorService.shutdownNow();
-        }
         super.resetAll();
     }
 
