@@ -964,9 +964,14 @@ public class ProjectModel {
         }
         compilationCancelled = true;
         dependencyManager.cancel();
+        endCurrentCompilation();
+        publishStatusChanged();
+    }
+
+    /** Ends the compilation now registered without a result: a caller waiting on it is answered at once. */
+    private void endCurrentCompilation() {
         compilationInProgress = false;
         currentCompilation.get().future().cancel(false);
-        publishStatusChanged();
     }
 
     public void reset(ReloadType reloadType) throws ProjectResolvingException {
@@ -979,13 +984,7 @@ public class ProjectModel {
                 moduleToOpen = studio.getCurrentModule();
                 // falls through
             case RELOAD:
-                if (webStudioWorkspaceDependencyManager != null) {
-                    webStudioWorkspaceDependencyManager.shutdown();
-                    xlsModuleSyntaxNodesPerProject.clear();
-                    projectSyntaxNodes.clear();
-                    xlsModuleSyntaxNodes.clear();
-                }
-                webStudioWorkspaceDependencyManager = null;
+                releaseDependencyManager();
                 break;
             case SINGLE:
                 dropCompiled(moduleToOpen);
@@ -1078,6 +1077,12 @@ public class ProjectModel {
         };
     }
 
+    /**
+     * Lets go of the module and of everything compiled for it.
+     *
+     * <p>Returns once what was compiled is released, the jars of the project included, so the files of the project
+     * can be changed or removed right after it. A compilation on its way changes nothing.
+     */
     public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
 
@@ -1086,14 +1091,27 @@ public class ProjectModel {
         OpenClassUtil.release(compiledOpenClass.get());
         compiledOpenClass.set(null);
 
-        if (webStudioWorkspaceDependencyManager != null) {
-            webStudioWorkspaceDependencyManager.shutdown();
-            xlsModuleSyntaxNodesPerProject.clear();
-            projectSyntaxNodes.clear();
-            xlsModuleSyntaxNodes.clear();
-        }
-        webStudioWorkspaceDependencyManager = null;
+        releaseDependencyManager();
         xlsModuleSyntaxNode = null;
+    }
+
+    /**
+     * Lets go of the dependency manager and of everything compiled through it.
+     *
+     * <p>Waits for the module being compiled at this moment only. The compilation on its way ends without changing
+     * this model: its cycle is cancelled, and nothing is compiling until a compilation is asked for again.
+     */
+    private void releaseDependencyManager() {
+        var dependencyManager = webStudioWorkspaceDependencyManager;
+        webStudioWorkspaceDependencyManager = null;
+        endCurrentCompilation();
+        if (dependencyManager != null) {
+            dependencyManager.shutdown();
+        }
+        // Cleared once the manager is shut down: until then a module it finishes still adds its nodes here.
+        xlsModuleSyntaxNodesPerProject.clear();
+        projectSyntaxNodes.clear();
+        xlsModuleSyntaxNodes.clear();
     }
 
     public void setModuleInfo(Module moduleInfo) throws ProjectResolvingException {
@@ -1260,13 +1278,13 @@ public class ProjectModel {
                 Throwable failure = null;
                 var stopped = false;
                 synchronized (this) {
-                    if (compilationCancelled) {
-                        // The reader stopped the compilation while this load was on its way. What was built
-                        // stays as it is — the module they have open above all: validating the project now
-                        // would go through a dependency manager that answers every module with an
-                        // interruption, and the empty class it returns would replace both. The project is not
-                        // marked as compiled through either, because it is not.
-                        this.compilationInProgress = false;
+                    if (cycle != currentCompilation.get() || cycle.future().isDone()) {
+                        // This compilation ended while this load was on its way: the reader stopped it, the model
+                        // let go of what it compiled, or another compilation took its place. What was built stays
+                        // as it is — the module they have open above all: validating the project now would go
+                        // through a dependency manager that answers every module with an interruption, and the
+                        // empty class it returns would replace both. The project is not marked as compiled through
+                        // either, because it is not.
                         stopped = true;
                     } else {
                         try {
@@ -1420,14 +1438,12 @@ public class ProjectModel {
     }
 
     private void prepareWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
-        if (webStudioWorkspaceDependencyManager != null && !webStudioWorkspaceDependencyManager.isActive()) {
-            // A manager that was told to stop compiles nothing again, so a new compilation gets a new one. The
-            // old one is shut down first: its thread and everything it compiled are held until it is.
-            webStudioWorkspaceDependencyManager.shutdown();
-            webStudioWorkspaceDependencyManager = null;
-            xlsModuleSyntaxNodesPerProject.clear();
-            projectSyntaxNodes.clear();
-            xlsModuleSyntaxNodes.clear();
+        // A manager that was told to stop compiles nothing again, and one serving other projects cannot serve this
+        // one, so a new compilation gets a new manager. The old one is let go of first: its thread and everything
+        // it compiled are held until it is.
+        if (webStudioWorkspaceDependencyManager != null && (!webStudioWorkspaceDependencyManager.isActive()
+                || !adaptWorkspaceDependencyManager(projectDescriptor))) {
+            releaseDependencyManager();
         }
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
@@ -1435,16 +1451,16 @@ public class ProjectModel {
             webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
             webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
             projectCompilationCompleted.set(null);
-        } else {
-            adaptWorkspaceDependencyManager(projectDescriptor);
         }
     }
 
     /**
      * Makes the active dependency manager serve the project. It stays as it is when it already loads the project,
-     * is expanded when every project it loads belongs to the project's workspace, and is replaced otherwise.
+     * and is expanded when every project it loads belongs to the project's workspace.
+     *
+     * @return whether the manager serves the project now; otherwise it has to be replaced
      */
-    private void adaptWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
+    private boolean adaptWorkspaceDependencyManager(ProjectDescriptor projectDescriptor) {
         Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(projectDescriptor);
         Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
@@ -1465,24 +1481,15 @@ public class ProjectModel {
                 allProjectCanBeReused = false;
             }
         }
-        if (!foundOpenedProject) {
-            if (!allProjectCanBeReused) {
-                webStudioWorkspaceDependencyManager.shutdown();
-                xlsModuleSyntaxNodesPerProject.clear();
-                projectSyntaxNodes.clear();
-                xlsModuleSyntaxNodes.clear();
-                webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
-                        .buildDependencyManager(projectDescriptor);
-                webStudioWorkspaceDependencyManager
-                        .registerOnCompilationCompleteListener(this::addCompiledDependency);
-                webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
-                projectCompilationCompleted.set(null);
-            } else {
-                // If loaded projects are a part of the new opened project, then we can reuse dependency manager
-                webStudioWorkspaceDependencyManager
-                        .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
-            }
+        if (foundOpenedProject) {
+            return true;
         }
+        if (allProjectCanBeReused) {
+            // If loaded projects are a part of the new opened project, then we can reuse dependency manager
+            webStudioWorkspaceDependencyManager
+                    .expand(webStudioWorkspaceDependencyManagerFactory.resolveWorkspace(projectDescriptor));
+        }
+        return allProjectCanBeReused;
     }
 
     public boolean isCompiledSuccessfully() {
