@@ -9,7 +9,7 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.WebService** — Main Rule Services test suite (largest)
 - **itest.security** — Authentication/authorization tests
 - **itest.studio/** — OpenL Studio E2E tests split into independent per-suite modules (parallelizable with `-T 1C`)
-- **itest.kafka.smoke** — Kafka integration
+- **itest.kafka.smoke** — Kafka integration, with services deployed from a folder and from a zip archive
 - **itest.s3** — S3 storage
 - **itest.tracing** — OpenTelemetry
 - **itest.storelogdata** — Audit logging
