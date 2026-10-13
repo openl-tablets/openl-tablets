@@ -30,16 +30,34 @@ class ParameterExport extends BaseParameterExport {
                 List<List<FieldDescriptor>> nonEmptyFields,
                 Boolean skipEmptyParameters) {
 
-        var lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields);
+        var hasPrimaryKey = primaryKeyColumns(test.getTestSuite().getTests());
+        var lowestRight = writeHeaderForFields(sheet, start, test, nonEmptyFields, hasPrimaryKey);
         var rowNum = lowestRight.getRowNum() + 1;
 
-        return writeValuesForFields(sheet, new Cursor(rowNum, start.getColNum()), test, nonEmptyFields);
+        return writeValuesForFields(sheet, new Cursor(rowNum, start.getColNum()), test, nonEmptyFields,
+                hasPrimaryKey);
+    }
+
+    private static boolean[] primaryKeyColumns(TestDescription[] cases) {
+        var count = cases[0].getExecutionParams().length;
+        var columns = new boolean[count];
+        for (var i = 0; i < count; i++) {
+            for (var testCase : cases) {
+                var parameters = testCase.getExecutionParams();
+                if (i < parameters.length && isHasPK(parameters[i])) {
+                    columns[i] = true;
+                    break;
+                }
+            }
+        }
+        return columns;
     }
 
     private Cursor writeHeaderForFields(SXSSFSheet sheet,
                                         Cursor start,
                                         TestUnitsResults test,
-                                        List<List<FieldDescriptor>> nonEmptyFields) {
+                                        List<List<FieldDescriptor>> nonEmptyFields,
+                                        boolean[] hasPrimaryKey) {
         var tasks = new TreeSet<>(WriteTask.BY_POSITION);
 
         var rowNum = start.getRowNum();
@@ -51,10 +69,11 @@ class ParameterExport extends BaseParameterExport {
         var params = testSuite.getTest(0).getExecutionParams();
         for (var i = 0; i < params.length; i++) {
             var param = params[i];
-            var hasPK = isHasPK(param);
-
             var fields = nonEmptyFields.get(i);
 
+            if (hasPrimaryKey[i]) {
+                tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName() + "._PK_", styles.header));
+            }
             var keys = mapKeys(testSuite.getTests(), i);
             if (keys != null) {
                 colNum = addMapHeaderTasks(tasks, rowNum, colNum, param.getName(), keys,
@@ -63,16 +82,12 @@ class ParameterExport extends BaseParameterExport {
                 tasks.add(new WriteTask(new Cursor(rowNum, colNum++), param.getName(), styles.header));
             } else {
                 var prefix = param.getName() + ".";
-                if (hasPK) {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum++), prefix + "_PK_", styles.header));
-                }
-
                 colNum = addHeaderTasks(tasks, new Cursor(rowNum, colNum), fields, prefix, param);
             }
 
         }
 
-        return performWrite(sheet, start, tasks, getLastColumn(test, nonEmptyFields));
+        return performWrite(sheet, start, tasks, getLastColumn(test, nonEmptyFields, hasPrimaryKey));
     }
 
     /**
@@ -164,7 +179,7 @@ class ParameterExport extends BaseParameterExport {
         return paramNum < params.length ? params[paramNum].getValue() : null;
     }
 
-    private boolean isHasPK(ParameterWithValueDeclaration param) {
+    private static boolean isHasPK(ParameterWithValueDeclaration param) {
         return param.getKeyField() instanceof PrimaryKeyField;
     }
 
@@ -207,10 +222,11 @@ class ParameterExport extends BaseParameterExport {
     private int writeValuesForFields(Sheet sheet,
                                      Cursor start,
                                      TestUnitsResults test,
-                                     List<List<FieldDescriptor>> nonEmptyFields) {
+                                     List<List<FieldDescriptor>> nonEmptyFields,
+                                     boolean[] hasPrimaryKey) {
         var rowNum = start.getRowNum();
         var colNum = FIRST_COLUMN;
-        var lastColNum = getLastColumn(test, nonEmptyFields);
+        var lastColNum = getLastColumn(test, nonEmptyFields, hasPrimaryKey);
 
         var descriptions = test.getTestSuite().getTests();
         for (TestDescription description : descriptions) {
@@ -229,6 +245,10 @@ class ParameterExport extends BaseParameterExport {
                     value = collection.toArray();
                 }
 
+                if (hasPrimaryKey[p]) {
+                    addPrimaryKeyTasks(tasks, rowNum, colNum++, parameter, nonEmptyFields.get(p), maxHeight);
+                }
+
                 var keys = mapKeys(descriptions, p);
                 if (keys != null) {
                     // Under the columns the whole table was laid out with: a key this case does not carry
@@ -238,7 +258,8 @@ class ParameterExport extends BaseParameterExport {
                 }
 
                 var fields = nonEmptyFields.get(p);
-                colNum = addParameterValueTasks(tasks, rowNum, colNum, parameter, value, fields, maxHeight);
+                colNum = addParameterValueTasks(tasks, rowNum, colNum, value, fields, maxHeight,
+                        writesListElementsInRows(parameter, fields));
             }
 
             var cursor = performWrite(sheet, new Cursor(rowNum, FIRST_COLUMN), tasks, lastColNum);
@@ -262,44 +283,49 @@ class ParameterExport extends BaseParameterExport {
         return colNum;
     }
 
-    /**
-     * Adds the tasks that write the value of a parameter: the primary key and the fields of a parameter with fields,
-     * or the value itself otherwise.
-     *
-     * @return the column to write the next parameter to
-     */
+    private void addPrimaryKeyTasks(TreeSet<WriteTask> tasks,
+                                    int rowNum,
+                                    int colNum,
+                                    ParameterWithValueDeclaration parameter,
+                                    List<FieldDescriptor> fields,
+                                    int maxHeight) {
+        var value = parameter.getValue();
+        var keyField = parameter.getKeyField();
+        if (!isHasPK(parameter)) {
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum), null, styles.parameterAbsent, maxHeight));
+            return;
+        }
+        Object id = ExportUtils.keyValue(value, keyField);
+        if (id != null && id.getClass().isArray()) {
+            var elements = value instanceof Collection<?> collection ? collection.toArray() : value;
+            for (var i = 0; i < Array.getLength(id); i++) {
+                var height = getRowHeight(Array.get(elements, i), fields);
+                tasks.add(new WriteTask(new Cursor(rowNum, colNum), Array.get(id, i), styles.parameterValue, height));
+                rowNum += height;
+            }
+        } else {
+            tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
+        }
+    }
+
+    /** Writes a parameter's fields or its value and returns the column for the next parameter. */
     private int addParameterValueTasks(TreeSet<WriteTask> tasks,
                                        int rowNum,
                                        int colNum,
-                                       ParameterWithValueDeclaration parameter,
                                        Object value,
                                        List<FieldDescriptor> fields,
-                                       int maxHeight) {
-        if (fields == null) {
-            tasks.add(new WriteTask(new Cursor(rowNum, colNum++), value, styles.parameterValue, maxHeight));
-        } else {
-            // _PK_
-            if (isHasPK(parameter)) {
-                var keyField = parameter.getKeyField();
-                Object id = ExportUtils.fieldValue(parameter.getValue(), keyField);
-
-                if (id != null && id.getClass().isArray()) {
-                    var pkRow = rowNum;
-                    var count = Array.getLength(id);
-                    for (var i = 0; i < count; i++) {
-                        var height = getRowHeight(Array.get(value, i), fields);
-                        tasks.add(new WriteTask(new Cursor(pkRow, colNum),
-                                Array.get(id, i),
-                                styles.parameterValue,
-                                height));
-                        pkRow += height;
-                    }
-                } else {
-                    tasks.add(new WriteTask(new Cursor(rowNum, colNum), id, styles.parameterValue, maxHeight));
+                                       int maxHeight,
+                                       boolean writeElementsInRows) {
+        if (fields == null || fields.isEmpty()) {
+            if (writeElementsInRows) {
+                for (var i = 0; i < Array.getLength(value); i++) {
+                    tasks.add(new WriteTask(new Cursor(rowNum + i, colNum), Array.get(value, i), styles.parameterValue));
                 }
-                colNum++;
+            } else {
+                tasks.add(new WriteTask(new Cursor(rowNum, colNum), value, styles.parameterValue, maxHeight));
             }
-
+            colNum++;
+        } else {
             // Actual fields
             addValueTasks(tasks, new Cursor(rowNum, colNum), fields, value, maxHeight);
             colNum += getFieldWidth(fields);
@@ -364,7 +390,7 @@ class ParameterExport extends BaseParameterExport {
     }
 
     private int getRowHeight(Object value, List<FieldDescriptor> fields) {
-        if (value == null || fields == null) {
+        if (value == null || fields == null || fields.isEmpty()) {
             return 1;
         }
 
@@ -408,7 +434,9 @@ class ParameterExport extends BaseParameterExport {
             var param = executionParams[i];
             var fields = nonEmptyFields.get(i);
 
-            var rowHeight = getRowHeight(param.getValue(), fields);
+            var rowHeight = writesListElementsInRows(param, fields)
+                    ? ((Collection<?>) param.getValue()).size()
+                    : getRowHeight(param.getValue(), fields);
             if (rowHeight > maxHeight) {
                 maxHeight = rowHeight;
             }
@@ -416,13 +444,22 @@ class ParameterExport extends BaseParameterExport {
         return maxHeight;
     }
 
-    private int getLastColumn(TestUnitsResults test, List<List<FieldDescriptor>> nonEmptyFields) {
+    /** A declared collection parameter lists its simple elements by row; an inferred collection stays compact. */
+    private static boolean writesListElementsInRows(ParameterWithValueDeclaration parameter,
+                                                     List<FieldDescriptor> fields) {
+        return (fields == null || fields.isEmpty())
+                && parameter.getValue() instanceof Collection<?>
+                && parameter.getType().getInstanceClass().isInterface();
+    }
+
+    private int getLastColumn(TestUnitsResults test,
+                              List<List<FieldDescriptor>> nonEmptyFields,
+                              boolean[] hasPrimaryKey) {
         var lastColumn = FIRST_COLUMN; // ID column
         var testSuite = test.getTestSuite();
         var params = testSuite.getTest(0).getExecutionParams();
         for (var i = 0; i < params.length; i++) {
-            var param = params[i];
-            if (isHasPK(param)) {
+            if (hasPrimaryKey[i]) {
                 lastColumn++; // _PK_ column
             }
             var keys = mapKeys(testSuite.getTests(), i);
@@ -430,7 +467,7 @@ class ParameterExport extends BaseParameterExport {
             if (keys != null) {
                 // A column per key of the map, as the header lays them out.
                 lastColumn += keys.size();
-            } else if (fields == null) {
+            } else if (fields == null || fields.isEmpty()) {
                 // Simple type
                 lastColumn++;
             } else {

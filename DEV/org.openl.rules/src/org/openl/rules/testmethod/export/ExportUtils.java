@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.openl.rules.data.PrimaryKeyField;
 import org.openl.types.IOpenField;
 
 final class ExportUtils {
@@ -28,6 +29,20 @@ final class ExportUtils {
         } else {
             return field.get(value, null);
         }
+    }
+
+    /** Returns the key of a Data table row or the keys of separately referenced collection elements. */
+    static Object keyValue(Object value, IOpenField field) {
+        if (value instanceof Collection<?> collection) {
+            if (field instanceof PrimaryKeyField) {
+                var key = field.get(value, null);
+                if (key != null) {
+                    return key;
+                }
+            }
+            return fieldValue(collection.toArray(), field);
+        }
+        return fieldValue(value, field);
     }
 
     static List<Object> fieldValues(List<?> values, IOpenField field) {
