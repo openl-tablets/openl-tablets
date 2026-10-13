@@ -25,7 +25,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
     protected CellMetaInfo getBodyMetaInfo(int row, int col) {
         var columnMatch = getBoundNode().getColumnMatch();
         var tableBody = columnMatch.getSyntaxNode().getTableBody();
-        if (tableBody == null) {
+        if (tableBody == null || columnMatch.getCheckTree() == null) {
             return null;
         }
         var grid = tableBody.getSource().getGrid();
