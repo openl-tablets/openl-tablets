@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "compileStatus": {
+    "compileState": "ok",
+    "compilation": {
+      "messages": {
+        "errors": 0
+      }
+    }
+  }
+}
