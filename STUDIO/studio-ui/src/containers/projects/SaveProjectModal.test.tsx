@@ -3,7 +3,11 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SaveProjectModal } from './SaveProjectModal'
 import { apiCall, ApiHttpError } from '../../services'
-import { getProjectBranches, getRepositoryConfig, saveProject } from '../../services/repositories'
+import { getProject, getProjectBranches, getRepositoryConfig, saveProject } from '../../services/repositories'
+import { openFileRevisionsCompareWindow } from './compare'
+
+const changedFileListProps = vi.hoisted(() => vi.fn())
+const collapseProps = vi.hoisted(() => vi.fn())
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -27,9 +31,22 @@ vi.mock('../../services', () => {
 
 vi.mock('../../services/repositories', () => ({
     getDesignRepositoryConfig: vi.fn(),
+    getProject: vi.fn(),
     getProjectBranches: vi.fn(),
     getRepositoryConfig: vi.fn(),
     saveProject: vi.fn(),
+}))
+
+vi.mock('./ChangedFileList', () => ({
+    ChangedFileList: (props: unknown) => {
+        changedFileListProps(props)
+        return <div data-testid="changed-files" />
+    },
+    ChangesHeader: ({ name, count }: { name: string, count: string }) => <span>{`${name} ${count}`}</span>,
+}))
+
+vi.mock('./compare', () => ({
+    openFileRevisionsCompareWindow: vi.fn(),
 }))
 
 vi.mock('store', () => ({
@@ -63,16 +80,33 @@ vi.mock('antd', async () => {
         return <textarea onChange={onChange as never} {...dom} />
     }
     const Input = { TextArea }
+    const Collapse = ({ items, size, activeKey, defaultActiveKey, ...rest }: Record<string, unknown>) => {
+        void size
+        collapseProps({ activeKey, defaultActiveKey })
+        return (
+            <div {...rest}>
+                {(items as { key: string, label: unknown, children: unknown }[]).map(item => (
+                    <div key={item.key}>{item.label as never}{item.children as never}</div>
+                ))}
+            </div>
+        )
+    }
+    const Flex = ({ children, vertical, gap, ...rest }: Record<string, unknown>) => {
+        void vertical
+        void gap
+        return <div {...rest}>{children as never}</div>
+    }
     const Typography = {
         Paragraph: ({ children }: { children?: unknown }) => <p>{children as never}</p>,
-        Text: ({ children, type, ...rest }: Record<string, unknown>) => {
+        Text: ({ children, type, strong, ...rest }: Record<string, unknown>) => {
             void type
+            void strong
             return <span {...rest}>{children as never}</span>
         },
     }
     const notification = { error: vi.fn(), success: vi.fn(), warning: vi.fn() }
     const { withStaticApp } = await import('testing/staticAntdApp')
-    return withStaticApp({ Input, Modal, Typography, notification })
+    return withStaticApp({ Collapse, Flex, Input, Modal, Typography, notification })
 })
 
 const project = { id: 'p1', name: 'Alpha', repository: 'design', status: 'EDITING', branch: 'main' } as never
@@ -83,6 +117,8 @@ describe('SaveProjectModal', () => {
         vi.mocked(saveProject).mockResolvedValue()
         vi.mocked(getProjectBranches).mockResolvedValue([])
         vi.mocked(getRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
+        // Default: the status tells no changes, so the dialog lists no files
+        vi.mocked(getProject).mockResolvedValue(project)
         // Default: identity configured
         vi.mocked(apiCall).mockResolvedValue({
             firstName: 'Jane',
@@ -165,6 +201,63 @@ describe('SaveProjectModal', () => {
 
         await userEvent.click(screen.getByTestId('commit-info-save'))
         await waitFor(() => expect(saveProject).toHaveBeenCalled())
+    })
+
+    it('lists the files the save commits, by their paths in the project', async () => {
+        vi.mocked(getProject).mockResolvedValue({
+            ...project as object,
+            compileStatus: {
+                projectId: 'p1',
+                branch: 'main',
+                revision: 'r7',
+                compileState: 'IDLE',
+                pendingChanges: {
+                    total: 2,
+                    files: [
+                        { path: 'Alpha/rules/Main.xlsx', type: 'modified' },
+                        { path: 'Alpha/rules/New.xlsx', type: 'added' },
+                    ],
+                },
+            },
+        } as never)
+        render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
+
+        await waitFor(() => expect(screen.getByTestId('save-project-changes')).toHaveTextContent(
+            'Alpha browser.save_changes'))
+        expect(getProject).toHaveBeenCalledWith('p1', { includes: ['status']}, expect.anything())
+        // The files are folded away until the user asks for them.
+        expect(collapseProps).toHaveBeenLastCalledWith({ activeKey: undefined, defaultActiveKey: undefined })
+        const props = changedFileListProps.mock.calls.at(-1)![0] as {
+            files: unknown[]
+            compare: { open: (file: unknown) => void }
+        }
+        expect(props.files).toEqual([
+            { path: 'rules/Main.xlsx', type: 'modified' },
+            { path: 'rules/New.xlsx', type: 'added' },
+        ])
+
+        // A file is compared at the revision the working copy was taken from, against the working copy.
+        props.compare.open({ path: 'rules/Main.xlsx', type: 'modified' })
+        expect(openFileRevisionsCompareWindow).toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'main', 'r7')
+    })
+
+    it('reads the files once while the dialog is open, whatever new copies of the project it is handed', async () => {
+        const { rerender } = render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
+        await waitFor(() => expect(getProject).toHaveBeenCalledTimes(1))
+
+        rerender(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={{ ...project as object } as never} />)
+
+        expect(getProject).toHaveBeenCalledTimes(1)
+    })
+
+    it('saves without listing the files when they cannot be read', async () => {
+        vi.mocked(getProject).mockRejectedValue(new ApiHttpError(500, 'failed'))
+        render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
+
+        await userEvent.click(screen.getByTestId('save-project-submit'))
+
+        await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', undefined))
+        expect(screen.queryByTestId('save-project-changes')).not.toBeInTheDocument()
     })
 
     it('opens the merge resolver on a save conflict', async () => {

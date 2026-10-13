@@ -26,6 +26,18 @@ describe('openFileRevisionsCompareWindow', () => {
         vi.restoreAllMocks()
     })
 
+    it('names the file at its saved revision alone to compare it with the working copy', () => {
+        const open = vi.spyOn(window, 'open').mockReturnValue(null)
+
+        openFileRevisionsCompareWindow('design:Pricing', 'rules/Main.xlsx', undefined, 'r7')
+
+        expect(open).toHaveBeenCalledWith(
+            '/studio/compare?projectId=design%3APricing&file=rules%2FMain.xlsx&before=r7',
+            'compare_win',
+            'width=1240,height=800,resizable=yes,scrollbars=yes'
+        )
+    })
+
     it('names the file, the branch and its two revisions', () => {
         const open = vi.spyOn(window, 'open').mockReturnValue(null)
 

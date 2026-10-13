@@ -485,7 +485,12 @@ To save a project, proceed as follows:
 
 1.  On the page of the project, click **Save**. On the **Projects** page, **Save** is in the **Actions** menu of the row.
 
-    The **Save project** window appears:
+    The **Save project** window appears. Under the name of the project and the number of files to save, folded until
+    you expand it, it lists the files the save commits, changed since the project was opened or last saved. Each file
+    is named by its path in the project, after the icon that marks it added, modified or deleted. **Compare** at the
+    end of the row of a modified file opens the file as it was saved against your changes: a workbook is compared
+    element by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files),
+    which opens on the comparison itself, with no files to pick, and any other file line by line.
 
     ![Save changes in a project](images/save-project-changes-dialog.png "Saving a project")
 

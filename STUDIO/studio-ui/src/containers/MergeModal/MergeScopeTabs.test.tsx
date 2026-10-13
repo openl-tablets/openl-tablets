@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { FilePath, MergeScopeTabs } from 'containers/MergeModal/MergeScopeTabs'
+import { MergeScopeTabs } from 'containers/MergeModal/MergeScopeTabs'
 import type { CheckMergeResult, MergeScope } from 'containers/MergeModal/types'
 
 vi.mock('react-i18next', () => {
@@ -112,19 +112,5 @@ describe('MergeScopeTabs', () => {
 
         expect(screen.queryByTestId('merge-scope-whole-branch')).not.toBeInTheDocument()
         expect(screen.queryByTestId('merge-scope-hidden')).not.toBeInTheDocument()
-    })
-})
-
-describe('FilePath', () => {
-    it('writes a path whole, its folder and the name of its file', () => {
-        const { container } = render(<FilePath path="DESIGN/rules/Pricing/rules/Main.xlsx" />)
-
-        expect(container).toHaveTextContent('DESIGN/rules/Pricing/rules/Main.xlsx')
-    })
-
-    it('writes a file at the root of the repository as it is', () => {
-        const { container } = render(<FilePath path="README.md" />)
-
-        expect(container).toHaveTextContent('README.md')
     })
 })

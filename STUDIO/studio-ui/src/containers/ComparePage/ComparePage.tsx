@@ -67,19 +67,21 @@ const moduleVersionsOf = (params: URLSearchParams): VersionsRequest | null => {
 }
 
 /**
- * A file of a project at two revisions of a branch, as the summary of a merge names it before and
- * after the merge, or null when none is named. A workbook is compared element by element, any other
- * file reads line by line. A revision is a commit of the repository, so both are read whichever
- * branch the project is on.
+ * A file of a project at a revision against the same file later, or null when none is named: at
+ * another revision of the branch, as the summary of a merge names it before and after the merge, or
+ * in the working copy, as the Save dialog names the changes it commits. A workbook is compared element
+ * by element, any other file reads line by line. A revision is a commit of the repository, so it is
+ * read whichever branch the project is on.
  */
 const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const projectId = params.get('projectId')
     const file = params.get('file')
     const before = params.get('before')
-    const after = params.get('after')
-    if (!projectId || !file || !before || !after) {
+    if (!projectId || !file || !before) {
         return null
     }
+    // A file named without a later revision is compared with the working copy.
+    const after = params.get('after') ?? undefined
     if (!isWorkbookPath(file)) {
         const read = () => Promise.all([
             getFileContent(projectId, file, before),
@@ -90,7 +92,7 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const branch = params.get('branch') ?? undefined
     const start = () => startProjectComparison(projectId,
         { path: file, branch, revision: before },
-        { path: file, branch, revision: after })
+        after ? { path: file, branch, revision: after } : { path: file })
     return { versions: { start }, textVersions: null }
 }
 
@@ -175,9 +177,10 @@ const startOf = (
  * picks. The step of the files is a click away, so another pair can be compared in the same window.
  *
  * A screen that already knows what to compare opens the window on the comparison itself, naming what
- * it wants in the address: two versions of a module, as Local Changes does, or a file at two
- * revisions, as the summary of a merge does. There are no files to pick then, and the comparison
- * starts as the window opens; a file that is not a workbook reads line by line.
+ * it wants in the address: two versions of a module, as Local Changes does, a file at two revisions,
+ * as the summary of a merge does, or a file at its saved revision against the working copy, as the
+ * Save dialog does. There are no files to pick then, and the comparison starts as the window opens;
+ * a file that is not a workbook reads line by line.
  *
  * A window opened for a project alone picks instead of files: which file of the working copy stands
  * against which file of which revision. One opened for a conflicted file of a project shows its two
