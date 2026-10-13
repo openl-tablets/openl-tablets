@@ -21688,6 +21688,9 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "scope": {
+            "$ref": "#/components/schemas/MergeScopeView"
+          },
           "sourceBranch": {
             "type": "string",
             "description": "***"
@@ -23679,6 +23682,32 @@ Content-Type: application/json
           }
         }
       },
+      "FileChangeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "sheets": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/SheetChangeView"
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          }
+        }
+      },
       "FileChange_Detailed": {
         "type": "object",
         "properties": {
@@ -24409,6 +24438,61 @@ Content-Type: application/json
               "conflicts",
               "cancelled"
             ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MergeSummaryView"
+          }
+        }
+      },
+      "MergeScopeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "hiddenProjects": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "projects": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectScopeView"
+            }
+          }
+        }
+      },
+      "MergeSummaryView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "after": {
+            "type": "string",
+            "description": "***"
+          },
+          "before": {
+            "type": "string",
+            "description": "***"
+          },
+          "hiddenProjects": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "projects": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ProjectChangesView"
+            }
+          },
+          "sourceBranch": {
+            "type": "string",
+            "description": "***"
+          },
+          "targetBranch": {
+            "type": "string",
+            "description": "***"
           }
         }
       },
@@ -25432,6 +25516,44 @@ Content-Type: application/json
           }
         }
       },
+      "ProjectChangesView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "current": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "files": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/FileChangeView"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          }
+        }
+      },
       "ProjectDependencyViewModel": {
         "type": "object",
         "properties": {
@@ -25780,6 +25902,49 @@ Content-Type: application/json
           "revisionNo",
           "technicalRevision"
         ]
+      },
+      "ProjectScopeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "changedFiles": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "changedInBoth": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "current": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "added",
+              "modified",
+              "deleted"
+            ]
+          }
+        }
       },
       "ProjectStatusSummary_Full": {
         "type": "object",
@@ -27320,6 +27485,9 @@ Content-Type: application/json
             "enum": [
               "success"
             ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MergeSummaryView"
           }
         }
       },
@@ -27584,6 +27752,25 @@ Content-Type: application/json
         "required": [
           "supportedFeatures"
         ]
+      },
+      "SheetChangeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "takenFrom": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "target",
+              "source",
+              "both"
+            ]
+          }
+        }
       },
       "SimpleRuleHeaderView": {
         "type": "object",

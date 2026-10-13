@@ -123,6 +123,26 @@ contain the project when it is opened. Proceed as follows:
     target can always be selected. Synchronizing a clean project introduces it into the selected branch, and the
     dialog says so when the selected branch does not hold the project yet.
 
+    A branch holds every project of the repository, so Sync merges whole branches: it takes in, or sends out, the
+    changes of every project the other branch changed, not only those of the current project. As soon as a branch is
+    selected, the **Receive their updates** and **Send your updates** tabs show what each option brings in before
+    anything is merged:
+
+    -   The current project comes first, marked **Current project**; every other project is marked **Other
+        project**, and a note says that their changes are merged too.
+    -   Each project shows how many of its files change, and **Added** or **Deleted** when the merge adds or removes
+        the whole project.
+    -   The files both branches changed are listed under their project as **Changed in both branches**: Sync merges
+        them by itself where the changes do not overlap and asks you to resolve the rest.
+    -   Files that belong to no project form a group of their own, **Files outside projects**.
+    -   Projects you cannot read are only counted.
+    -   If Sync cannot tell what an option brings in, its tab says so instead of listing projects. The option can
+        still be merged.
+
+    ![Sync listing what each option brings in](images/sync-merge-with-branch.png "Selecting a branch to merge with")
+
+    *What each option of Sync brings in*
+
     If the updates received in the editor remove the module that is open, the page of the project opens with a
     message that the module is no longer in the project.
 
@@ -136,9 +156,22 @@ contain the project when it is opened. Proceed as follows:
     be closed otherwise. The merge stops within seconds and leaves both branches as they were, and the dialog reports
     that the merge was cancelled. A merge that has already started to save its result finishes.
 
-    ![](images/sync-merge-with-branch.png)
+    Once the merge is saved, the **Merge Summary** shows what it changed in the branch it merged into, project by
+    project, the current project first. Each file is named by its path from the root of the repository, after the
+    icon that marks it added, modified or deleted, as in the file tree of a project. A path too long for the dialog is
+    shortened in the middle, keeping the file name, and shows whole when pointed at. A workbook both branches changed
+    and Sync merged by itself lists each sheet either branch changed: **taken from** the branch that changed it, or
+    **combined from both branches** when both changed it. **Compare** at the end of the row of a modified file of a
+    project opens it before and after the merge, so you see what the merge brought in: a workbook is compared element
+    by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), which opens
+    on the comparison itself, with no files to pick, and any other file line by line. A file outside the projects has
+    no **Compare**. Projects you cannot read are only counted. The same summary appears after conflicts are resolved
+    with **Save and Resolve**. If Sync cannot tell what the merge changed, the dialog closes with a message that the
+    merge succeeded.
 
-    *Selecting a branch that does not hold the project yet*
+    ![The Merge Summary listing the files the merge changed](images/sync-merge-summary.png "Merge summary")
+
+    *What the merge changed, with the sheets of a workbook Sync merged by itself*
 
     Sync merges the changes of both branches by itself where they do not overlap: a text file line by line, and a
     module workbook sheet by sheet. A sheet both branches changed is merged table by table: a table added, removed,

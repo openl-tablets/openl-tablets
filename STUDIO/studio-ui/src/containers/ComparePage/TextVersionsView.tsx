@@ -1,44 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { getConflictFileText } from 'services/compare'
 import { errorMessage } from 'utils/errorMessage'
 import { TextDiffView } from './TextDiffView'
 import { useStyles } from './ComparePage.styles'
 
-interface ConflictTextViewProps {
-    projectId: string
-    /** The conflicted file, by its path inside the project. */
-    path: string
-}
-
-/** The two versions of the file, or null while they are being read. */
-interface Versions {
-    theirs: string
-    ours: string
+interface TextVersionsViewProps {
+    /** Reads the two versions of the file: the one shown first, then the one it is compared with. */
+    read: () => Promise<[string, string]>
 }
 
 /**
- * The two versions of a conflicted file that is not a workbook, read line by line.
+ * Two versions of a file that is not a workbook, read line by line.
  *
- * The version being merged in is read first and the one the workspace holds second, so the diff reads
- * as what the merge would bring.
+ * The versions are read once, as the view is shown; a failure to read them is told in place of the diff.
  */
-export const ConflictTextView: React.FC<ConflictTextViewProps> = ({ projectId, path }) => {
+export const TextVersionsView: React.FC<TextVersionsViewProps> = ({ read }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
-    const [versions, setVersions] = useState<Versions | null>(null)
+    // The two versions of the file, or null while they are being read.
+    const [versions, setVersions] = useState<[string, string] | null>(null)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         let cancelled = false
-        Promise.all([
-            getConflictFileText(projectId, path, 'THEIRS'),
-            getConflictFileText(projectId, path, 'OURS'),
-        ])
-            .then(([theirs, ours]) => {
+        read()
+            .then((texts) => {
                 if (!cancelled) {
-                    setVersions({ theirs, ours })
+                    setVersions(texts)
                 }
             })
             .catch((readError: unknown) => {
@@ -49,7 +38,7 @@ export const ConflictTextView: React.FC<ConflictTextViewProps> = ({ projectId, p
         return () => {
             cancelled = true
         }
-    }, [projectId, path, t])
+    }, [read, t])
 
     return (
         <div className={styles.column}>
@@ -60,10 +49,8 @@ export const ConflictTextView: React.FC<ConflictTextViewProps> = ({ projectId, p
                         <Spin description={t('comparing')} />
                     </div>
                 )}
-                {versions && <TextDiffView first={versions.theirs} second={versions.ours} />}
+                {versions && <TextDiffView first={versions[0]} second={versions[1]} />}
             </div>
         </div>
     )
 }
-
-export default ConflictTextView

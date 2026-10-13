@@ -2,6 +2,14 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "status": "success"
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-16637-same-key-added-on-both-sides",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [],
+    "hiddenProjects": 0
+  }
 }
 

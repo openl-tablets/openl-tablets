@@ -43,6 +43,8 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeOutcome;
+import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.SearchableRepository;
@@ -360,8 +362,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
-    public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
-        ((BranchRepository) delegate).merge(branchFrom, author, conflictResolveData);
+    public MergeOutcome merge(String branchFrom,
+                              UserInfo author,
+                              ConflictResolveData conflictResolveData) throws IOException {
+        // The paths of the outcome are the paths of the repository itself, as the paths of a conflict are.
+        return ((BranchRepository) delegate).merge(branchFrom, author, conflictResolveData);
     }
 
     @Override
@@ -392,6 +397,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Override
     public boolean isMergedInto(String from, String to) throws IOException {
         return ((BranchRepository) delegate).isMergedInto(from, to);
+    }
+
+    @Override
+    public MergeScope getMergeScope(String from, String to) throws IOException {
+        return ((BranchRepository) delegate).getMergeScope(from, to);
     }
 
     @Override
@@ -626,7 +636,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             }
         }
 
-        log.warn("Mapping for external folder '{}' is not found. Use it as is.", externalPath);
+        // The root of the repository holds the projects, so no project maps it.
+        if (!externalPath.isEmpty()) {
+            log.warn("Mapping for external folder '{}' is not found. Use it as is.", externalPath);
+        }
         return externalPath;
     }
 
@@ -675,8 +688,11 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             }
         }
 
-        // Shouldn't occur. If occurred, it's a bug.
-        log.warn("Mapping for internal folder '{}' is not found. Use it as is.", internalPath);
+        // The root of the repository holds the projects, so no project maps it. Any other folder shouldn't occur: if it
+        // occurred, it's a bug.
+        if (!internalPath.isEmpty()) {
+            log.warn("Mapping for internal folder '{}' is not found. Use it as is.", internalPath);
+        }
         return internalPath;
     }
 

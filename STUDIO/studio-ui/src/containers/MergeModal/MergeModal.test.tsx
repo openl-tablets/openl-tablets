@@ -1,5 +1,6 @@
 import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
+import { notification } from 'antd'
 import { MergeModal } from 'containers/MergeModal/MergeModal'
 import * as services from 'services'
 import { MergeModalDetail } from 'containers/MergeModal/types'
@@ -99,6 +100,24 @@ vi.mock('containers/MergeModal/ConflictResolutionStep', () => ({
         return <div data-testid="conflict-resolution-step" />
     },
 }))
+
+const mergeSummaryStepProps = vi.fn()
+
+vi.mock('containers/MergeModal/MergeSummaryStep', () => ({
+    MergeSummaryStep: (props: any) => {
+        mergeSummaryStepProps(props)
+        return <div data-testid="merge-summary-step" />
+    },
+}))
+
+const summary = {
+    sourceBranch: 'feature',
+    targetBranch: 'main',
+    before: 'b1',
+    after: 'a1',
+    projects: [],
+    hiddenProjects: 0,
+}
 
 vi.mock('containers/users/UserProfileCompletionModal', () => ({
     UserProfileCompletionModal: (props: any) => (
@@ -344,6 +363,34 @@ describe('MergeModal', () => {
             await waitFor(() => {
                 expect(detail.onSuccess).toHaveBeenCalled()
             })
+            // The server told nothing of what the merge changed, so the dialog confirms the merge as it closes.
+            expect(notification.success).toHaveBeenCalledWith(
+                expect.objectContaining({ title: 'merge:notifications.merge_success' })
+            )
+        })
+
+        it('sums up what the merge changed, and closes from the summary', async () => {
+            const detail = createDetail()
+            render(<MergeModal />)
+            await dispatchOpenModal(detail)
+            await waitFor(() => expect(mergeBranchesStepProps).toHaveBeenCalled())
+
+            const { onMergeSuccess } = getLatestProps(mergeBranchesStepProps)
+            act(() => {
+                onMergeSuccess(summary)
+            })
+
+            await waitFor(() => expect(screen.getByTestId('merge-summary-step')).toBeInTheDocument())
+            expect(screen.getByTestId('modal-title')).toHaveTextContent('merge:summary.title')
+            expect(notification.success).not.toHaveBeenCalled()
+            expect(getLatestProps(mergeSummaryStepProps)).toEqual(expect.objectContaining({ summary, resolved: false }))
+            // The screens behind the dialog read the merged project while the summary is shown.
+            expect(detail.onSuccess).toHaveBeenCalled()
+
+            act(() => {
+                getLatestProps(mergeSummaryStepProps).onClose()
+            })
+            await waitFor(() => expect(screen.queryByTestId('merge-summary-step')).not.toBeInTheDocument())
         })
     })
 
@@ -517,6 +564,28 @@ describe('MergeModal', () => {
             await waitFor(() => {
                 expect(detail.onSuccess).toHaveBeenCalled()
             })
+            // The conflicts of a save have no summary, so the dialog confirms the resolution as it closes.
+            expect(notification.success).toHaveBeenCalledWith(
+                expect.objectContaining({ title: 'merge:notifications.resolve_success' })
+            )
+            await waitFor(() => {
+                expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
+            })
+        })
+
+        it('sums up the merge the resolution completed', async () => {
+            const detail = await openWithConflicts()
+
+            const { onResolveSuccess } = getLatestProps(conflictResolutionStepProps)
+            act(() => {
+                onResolveSuccess(summary)
+            })
+
+            await waitFor(() => expect(screen.getByTestId('merge-summary-step')).toBeInTheDocument())
+            expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
+            expect(notification.success).not.toHaveBeenCalled()
+            expect(getLatestProps(mergeSummaryStepProps)).toEqual(expect.objectContaining({ summary, resolved: true }))
+            expect(detail.onSuccess).toHaveBeenCalled()
         })
 
         it('compares a conflicted file in the comparison window', async () => {

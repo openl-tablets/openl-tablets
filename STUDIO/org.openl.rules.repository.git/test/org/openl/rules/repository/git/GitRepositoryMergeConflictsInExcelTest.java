@@ -50,8 +50,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergePublishing;
+import org.openl.rules.repository.api.MergedWorkbook;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.xls.merge.HSSFPaletteMatcher;
 import org.openl.rules.xls.merge.XlsWorkbooksMatcher;
@@ -376,6 +378,95 @@ class GitRepositoryMergeConflictsInExcelTest {
             assertEquals(10, sheet.getRow(3).getCell(1).getNumericCellValue());
             assertEquals(31, sheet.getRow(9).getCell(1).getNumericCellValue());
         }
+    }
+
+    @Test
+    void aMergeTellsBeforehandWhatItBringsInAndAfterwardsWhatItChanged() throws IOException, GitAPIException {
+        var testCaseData = initializeTestCase("13");
+        var rates = new FileChange("13/Rates.xlsx", FileChange.Kind.MODIFIED);
+
+        var scope = repo.getMergeScope(Constants.MASTER, "13");
+        assertEquals(List.of(rates), scope.changes());
+        assertEquals(Set.of("13/Rates.xlsx"), scope.changedInBoth());
+
+        var outcome = repo.forBranch("13").merge(Constants.MASTER, USER_INFO, null);
+        assertEquals(testCaseData.ourRevision, outcome.before());
+        try (var git = repo.getClosableGit()) {
+            assertEquals(git.getRepository().resolve("13").getName(), outcome.after());
+        }
+        assertEquals(List.of(rates), outcome.changes());
+        assertEquals(List.of(new MergedWorkbook("13/Rates.xlsx", List.of(), List.of(), List.of("Rules"))),
+                outcome.workbooks());
+
+        // Merged, the branch brings nothing in any more.
+        assertEquals(List.of(), repo.getMergeScope(Constants.MASTER, "13").changes());
+    }
+
+    @Test
+    void aScopeTellsTheFilesTheOtherBranchAddedAndDeleted() throws IOException, GitAPIException {
+        try (var git = repo.getClosableGit()) {
+            var gitRoot = git.getRepository().getDirectory().getParentFile();
+            git.branchCreate().setName("scope").call();
+            git.checkout().setName("scope").call();
+            createNewFile(new File(gitRoot, "rules"), "New.txt", "new");
+            Files.delete(new File(gitRoot, "README.md").toPath());
+            git.add().addFilepattern(".").call();
+            git.rm().addFilepattern("README.md").call();
+            git.commit().setMessage("Scope").setCommitter("User 1", "user1@email.to").call();
+            git.checkout().setName(Constants.MASTER).call();
+        }
+
+        var scope = repo.getMergeScope("scope", Constants.MASTER);
+
+        assertEquals(List.of(new FileChange("README.md", FileChange.Kind.DELETED),
+                new FileChange("rules/New.txt", FileChange.Kind.ADDED)), scope.changes());
+        assertEquals(Set.of(), scope.changedInBoth());
+        assertThrows(IOException.class, () -> repo.getMergeScope("absent", Constants.MASTER));
+    }
+
+    @Test
+    void aChangeBothBranchesMadeAlikeIsNoChangeOfTheMerge() throws IOException, GitAPIException {
+        try (var git = repo.getClosableGit()) {
+            var gitRoot = git.getRepository().getDirectory().getParentFile();
+            var readme = new File(gitRoot, "README.md").toPath();
+            git.branchCreate().setName("alike").call();
+            git.checkout().setName("alike").call();
+            Files.writeString(readme, "# the same change");
+            createNewFile(gitRoot, "Own.txt", "own");
+            createNewFile(gitRoot, "Both.txt", "alike side");
+            git.add().addFilepattern(".").call();
+            git.commit().setMessage("Alike").setCommitter("User 1", "user1@email.to").call();
+            git.checkout().setName(Constants.MASTER).call();
+            Files.writeString(readme, "# the same change");
+            createNewFile(gitRoot, "Both.txt", "alike master");
+            git.add().addFilepattern(".").call();
+            git.commit().setMessage("Alike too").setCommitter("User 1", "user1@email.to").call();
+        }
+
+        var scope = repo.getMergeScope("alike", Constants.MASTER);
+
+        // README.md was changed alike in both branches: the merge brings nothing in for it.
+        assertEquals(List.of(new FileChange("Both.txt", FileChange.Kind.MODIFIED),
+                new FileChange("Own.txt", FileChange.Kind.ADDED)), scope.changes());
+        assertEquals(Set.of("Both.txt"), scope.changedInBoth());
+    }
+
+    @Test
+    void aBranchWithNoHistoryInCommonBringsInEveryFileItHolds() throws IOException, GitAPIException {
+        try (var git = repo.getClosableGit()) {
+            var gitRoot = git.getRepository().getDirectory().getParentFile();
+            git.checkout().setOrphan(true).setName("orphan").call();
+            git.rm().addFilepattern("README.md").call();
+            createNewFile(gitRoot, "Orphan.txt", "orphan");
+            git.add().addFilepattern("Orphan.txt").call();
+            git.commit().setMessage("Orphan").setCommitter("User 1", "user1@email.to").call();
+            git.checkout().setName(Constants.MASTER).call();
+        }
+
+        var scope = repo.getMergeScope("orphan", Constants.MASTER);
+
+        assertEquals(List.of(new FileChange("Orphan.txt", FileChange.Kind.ADDED)), scope.changes());
+        assertEquals(Set.of(), scope.changedInBoth());
     }
 
     @Test

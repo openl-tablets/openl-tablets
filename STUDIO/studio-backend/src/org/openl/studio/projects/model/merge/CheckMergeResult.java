@@ -4,8 +4,10 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -23,7 +25,10 @@ public record CheckMergeResult(
         @Schema(description = "Whether the current user may perform this merge")
         boolean canMerge,
         @Schema(description = "What prevents the merge; absent when the user may perform it")
-        MergeBlockedBy blockedBy
+        MergeBlockedBy blockedBy,
+        @Parameter(description = "What the merge would bring into the target branch; absent when the target branch is up to date or when it cannot be read")
+        @Nullable
+        MergeScopeView scope
 ) {
     public CheckMergeResult {
         Objects.requireNonNull(sourceBranch);

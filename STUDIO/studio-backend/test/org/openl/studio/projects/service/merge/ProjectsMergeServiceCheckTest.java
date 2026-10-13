@@ -24,11 +24,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictDetails;
@@ -42,6 +44,8 @@ import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.MergeBlockedBy;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
+import org.openl.studio.projects.model.merge.MergeScopeView;
+import org.openl.studio.projects.model.merge.MergedChanges;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
@@ -59,6 +63,7 @@ class ProjectsMergeServiceCheckTest {
     private LockEngine lockEngine;
     private ProtectedBranchBypassService bypassService;
     private UserWorkspace userWorkspace;
+    private MergeChangesService mergeChangesService;
     private ProjectsMergeServiceImpl service;
 
     @BeforeEach
@@ -88,7 +93,8 @@ class ProjectsMergeServiceCheckTest {
 
         bypassService = mock(ProtectedBranchBypassService.class);
 
-        service = new ProjectsMergeServiceImpl(stateValidator, aclService, bypassService) {
+        mergeChangesService = mock(MergeChangesService.class);
+        service = new ProjectsMergeServiceImpl(stateValidator, aclService, bypassService, mergeChangesService) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return userWorkspace;
@@ -105,6 +111,27 @@ class ProjectsMergeServiceCheckTest {
         assertEquals(CheckMergeStatus.MERGEABLE, result.status());
         assertTrue(result.canMerge());
         assertNull(result.blockedBy());
+    }
+
+    @Test
+    void aMergeableCheckTellsWhatTheMergeBringsIn() throws IOException {
+        when(repository.isMergedInto(OTHER, CURRENT)).thenReturn(false);
+        var scope = new MergeScopeView(List.of(), 2);
+        when(mergeChangesService.scopeOf(project, repository, OTHER, CURRENT)).thenReturn(scope);
+
+        var result = service.checkMerge(project, OTHER, MergeOpMode.RECEIVE);
+
+        assertEquals(scope, result.scope());
+    }
+
+    @Test
+    void anUpToDateCheckTellsNothingTheMergeWouldBringIn() throws IOException {
+        when(repository.isMergedInto(OTHER, CURRENT)).thenReturn(true);
+
+        var result = service.checkMerge(project, OTHER, MergeOpMode.RECEIVE);
+
+        assertNull(result.scope());
+        verify(mergeChangesService, never()).scopeOf(any(), any(), any(), any());
     }
 
     @Test
@@ -195,6 +222,9 @@ class ProjectsMergeServiceCheckTest {
         var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
 
         assertEquals(MergeResultStatus.SUCCESS, result.status());
+        // An index that has not published the merge would tell the projects of the branch as they were before it.
+        assertNull(result.changes());
+        verify(mergeChangesService, never()).changesOf(any(), any(), any(), any(), any());
     }
 
     /** A merge may wait for a thread: a branch another user has taken up meanwhile refuses it when it starts. */
@@ -221,8 +251,43 @@ class ProjectsMergeServiceCheckTest {
     }
 
     @Test
+    void aSuccessfulMergeKeepsWhatItChangedAgainstTheProjectsOfTheTargetBefore() throws IOException {
+        var designTimeRepository = givenMergeInto(OTHER);
+        when(designTimeRepository.refreshBranch("design", OTHER))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        // The projects of the target are taken before the merge; the ones after it are read once it is published.
+        var before = List.of(mock(AProject.class));
+        when(mergeChangesService.projectsBefore("design", OTHER)).thenReturn(before);
+        var outcome = new MergeOutcome("b1", "a1", List.of(), List.of());
+        when(repository.forBranch(OTHER).merge(eq(CURRENT), any(), any())).thenReturn(outcome);
+
+        var changes = mock(MergedChanges.class);
+        when(mergeChangesService.changesOf("design", CURRENT, OTHER, outcome, before)).thenReturn(changes);
+
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
+
+        assertEquals(changes, result.changes());
+    }
+
+    /** Projects of the target that cannot be read before the merge leave it merged, only without what it changed. */
+    @Test
+    void aMergeWhoseProjectsBeforeCannotBeReadIsMergedAllTheSame() throws IOException {
+        var designTimeRepository = givenMergeInto(OTHER);
+        when(designTimeRepository.refreshBranch("design", OTHER))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        when(mergeChangesService.projectsBefore("design", OTHER)).thenReturn(null);
+
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
+
+        assertEquals(MergeResultStatus.SUCCESS, result.status());
+        assertNull(result.changes());
+        verify(repository.forBranch(OTHER)).merge(eq(CURRENT), any(), any());
+    }
+
+    @Test
     void aConflictIsReportedWithTheBranchesOfTheMerge() throws IOException {
-        var targetRepository = givenTarget(CURRENT);
+        givenMergeInto(CURRENT);
+        var targetRepository = repository.forBranch(CURRENT);
         var details = mock(MergeConflictDetails.class);
         doThrow(new MergeConflictException(details)).when(targetRepository).merge(eq(OTHER), any(), any());
 
@@ -245,6 +310,8 @@ class ProjectsMergeServiceCheckTest {
     private BranchRepository givenTarget(String branch) throws IOException {
         var targetRepository = mock(BranchRepository.class);
         when(repository.forBranch(branch)).thenReturn(targetRepository);
+        lenient().when(targetRepository.merge(any(), any(), any()))
+                .thenReturn(new MergeOutcome("before", "after", List.of(), List.of()));
         var user = mock(WorkspaceUser.class);
         var userInfo = mock(UserInfo.class);
         when(user.getUserInfo()).thenReturn(userInfo);

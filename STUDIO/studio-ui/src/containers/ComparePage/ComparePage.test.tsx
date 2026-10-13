@@ -6,11 +6,13 @@ import {
     getComparison,
     getComparisonTable,
     getConflictFileStatus,
+    getConflictFileText,
     startConflictComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
+import { getFileContent } from 'services/files'
 import { ResultNotReadyError } from 'services/taskResult'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
@@ -26,6 +28,7 @@ vi.mock('services/compare', () => ({
     getComparison: vi.fn(),
     getComparisonTable: vi.fn(),
     getConflictFileStatus: vi.fn(),
+    getConflictFileText: vi.fn(),
     dropComparison: vi.fn(),
 }))
 
@@ -40,12 +43,16 @@ const SIDES = {
     second: { path: 'rules/Main.xlsx', branch: 'master', revision: 'rev-1' },
 }
 
-// A file that is not a workbook is read and drawn by a view of its own; the page is asked here only
-// whether it opens on that view instead of on a comparison.
-vi.mock('./ConflictTextView', () => ({
-    ConflictTextView: ({ path, projectId }: any) => (
-        <div data-testid="conflict-text">{`${projectId}:${path}`}</div>
+// A file that is not a workbook is drawn by a view of its own; the page is asked here only whether it
+// opens on that view instead of on a comparison, and which two versions the view reads.
+vi.mock('./TextVersionsView', () => ({
+    TextVersionsView: ({ read }: any) => (
+        <button data-testid="text-versions" onClick={() => void read()}>text</button>
     ),
+}))
+
+vi.mock('services/files', () => ({
+    getFileContent: vi.fn(async (_project: string, _path: string, version: string) => `content of ${version}`),
 }))
 
 // The picker of a project reads branches, revisions and files of its own; the page is asked here only
@@ -306,6 +313,46 @@ describe('ComparePage', () => {
         expect(screen.queryByTestId('compare-back')).toBeNull()
     })
 
+    it('compares a workbook before and after a merge, on the branch the merge changed', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1',
+            file: 'rules/Main.xlsx',
+            branch: 'main',
+            before: 'b1',
+            after: 'a1',
+        })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Main.xlsx', branch: 'main', revision: 'b1' },
+            { path: 'rules/Main.xlsx', branch: 'main', revision: 'a1' }))
+        // Neither files nor revisions are picked: the window knows what to compare.
+        expect(screen.queryByTestId('revision-picker')).toBeNull()
+        expect(screen.queryByTestId('compare-back')).toBeNull()
+    })
+
+    it('reads a file that is not a workbook line by line, before and after a merge', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1',
+            file: 'rules.xml',
+            branch: 'main',
+            before: 'b1',
+            after: 'a1',
+        })
+
+        openPage()
+
+        expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('rules.xml')
+        fireEvent.click(screen.getByTestId('text-versions'))
+        await waitFor(() => expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', 'a1'))
+        expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', 'b1')
+        // Nothing is compared as a workbook, and nothing is picked.
+        expect(startProjectComparison).not.toHaveBeenCalled()
+        expect(screen.queryByTestId('revision-picker')).toBeNull()
+    })
+
     it('says why the comparison of two versions could not be started', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', first: '100', second: '200_current' })
         vi.mocked(startLocalHistoryComparison).mockRejectedValue(new Error('The version is not found'))
@@ -389,7 +436,10 @@ describe('ComparePage', () => {
 
         openPage()
 
-        expect(screen.getByTestId('conflict-text')).toHaveTextContent('p1:rules/notes.txt')
+        fireEvent.click(screen.getByTestId('text-versions'))
+        // The version being merged in is read first, so the diff reads as what the merge would bring.
+        expect(getConflictFileText).toHaveBeenNthCalledWith(1, 'p1', 'rules/notes.txt', 'THEIRS')
+        expect(getConflictFileText).toHaveBeenNthCalledWith(2, 'p1', 'rules/notes.txt', 'OURS')
         await waitFor(() => expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('status_modified'))
         // A file of that kind is never handed to the comparison of workbooks.
         expect(startConflictComparison).not.toHaveBeenCalled()
@@ -402,7 +452,7 @@ describe('ComparePage', () => {
         openPage()
 
         expect(await screen.findByTestId('compare-conflict-deleted')).toBeInTheDocument()
-        expect(screen.queryByTestId('conflict-text')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('text-versions')).not.toBeInTheDocument()
     })
 
     it('offers the equal elements in a window that has no files to pick', async () => {

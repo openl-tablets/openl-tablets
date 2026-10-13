@@ -2,6 +2,36 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "status": "success"
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-16410-feature",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTLTE2NDEwLUluQnJhbmNoOjMwMzkwNDFhYWYwOWY4YWM1ZmQzODA4MTc5YTMwNzU1MzcyY2M3ZDM2OTU1NDQ1ZjFkMGVkNjQ2OGYwNTA1ZDI=",
+        "name": "EPBDS-16410-InBranch",
+        "path": "EPBDS-16410-InBranch",
+        "current": true,
+        "status": "added",
+        "files": [
+          {
+            "path": "EPBDS-16410-InBranch/__MACOSX/._Main.xlsx",
+            "type": "added"
+          },
+          {
+            "path": "EPBDS-16410-InBranch/Main.xlsx",
+            "type": "added"
+          },
+          {
+            "path": "EPBDS-16410-InBranch/rules.xml",
+            "type": "added"
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
 

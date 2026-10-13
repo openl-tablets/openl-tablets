@@ -66,6 +66,7 @@ import org.eclipse.jgit.hooks.PrePushHook;
 import org.eclipse.jgit.internal.storage.file.LockFile;
 import org.eclipse.jgit.lfs.BuiltinLFS;
 import org.eclipse.jgit.lfs.LfsBlobFilter;
+import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -96,6 +97,7 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
@@ -113,10 +115,14 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergePublishing;
+import org.openl.rules.repository.api.MergeScope;
+import org.openl.rules.repository.api.MergedWorkbook;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -131,6 +137,27 @@ import org.openl.util.StringUtils;
 
 @Slf4j
 public class GitRepository implements BranchRepository, Closeable {
+    /**
+     * Keeps the paths where the first two trees of a walk differ. A folder they hold alike is not entered, however
+     * much the other trees changed in it.
+     */
+    private static final TreeFilter FIRST_TWO_DIFFER = new TreeFilter() {
+        @Override
+        public boolean include(TreeWalk walker) {
+            return !sameEntry(walker, 0, 1);
+        }
+
+        @Override
+        public boolean shouldBeRecursive() {
+            return false;
+        }
+
+        @Override
+        public TreeFilter clone() {
+            return this;
+        }
+    };
+
     private String id;
     private String name;
     private String uri;
@@ -1265,12 +1292,18 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
-    private void validateMergeConflict(MergeResult mergeResult,
-                                       boolean theirToOur,
-                                       String branchFrom,
-                                       UserInfo userInfo) throws GitAPIException, IOException {
+    /**
+     * Refuses a merge with conflicts that cannot be resolved automatically, and resolves the rest.
+     *
+     * @return the workbooks resolved automatically, our version standing for the branch merged into when their
+     * changes are merged into our branch
+     */
+    private List<MergedWorkbook> validateMergeConflict(MergeResult mergeResult,
+                                                       boolean theirToOur,
+                                                       String branchFrom,
+                                                       UserInfo userInfo) throws GitAPIException, IOException {
         if (mergeResult.getMergeStatus() != MergeResult.MergeStatus.CONFLICTING) {
-            return;
+            return List.of();
         }
         var mergedCommits = mergeResult.getMergedCommits();
         var repository = git().getRepository();
@@ -1300,6 +1333,7 @@ public class GitRepository implements BranchRepository, Closeable {
         } else if (!toAutoResolve.isEmpty()) {
             resolveConflictsAutomatically(mergeResult, conflict, toAutoResolve, theirToOur, branchFrom, userInfo);
         }
+        return MergeConflictDetails.mergedWorkbooks(toAutoResolve);
     }
 
     /**
@@ -2035,18 +2069,9 @@ public class GitRepository implements BranchRepository, Closeable {
         // Find a common parent for commits that were merged.
         // Then we compare it to each commit that changed the project in question.
         // If there is a difference between commits, then it should be displayed.
-        try (var walk = new RevWalk(git.getRepository())) {
-            walk.setRevFilter(RevFilter.MERGE_BASE);
-
-            for (RevCommit parent : parents) {
-                var revCommit = walk.parseCommit(parent);
-                walk.markStart(revCommit);
-            }
-            var mergeBase = walk.next();
-
-            return mergeBase != null && (differsFromMergeBase(tw, parents, changes, mergeBase)
-                    || hasChangesSinceMergeBase(tw, git, parents, changes, mergeBase));
-        }
+        var mergeBase = mergeBaseOf(git.getRepository(), parents);
+        return mergeBase != null && (differsFromMergeBase(tw, parents, changes, mergeBase)
+                || hasChangesSinceMergeBase(tw, git, parents, changes, mergeBase));
     }
 
     /**
@@ -2186,12 +2211,13 @@ public class GitRepository implements BranchRepository, Closeable {
         initializeGit(true);
 
         var writeLock = repositoryLock.writeLock();
+        String commitId;
         try {
             log.debug("save(folderData, files, changesetType): lock");
             writeLock.lock();
             initLfsCredentials();
 
-            saveMultipleFiles(folderData, files, changesetType);
+            commitId = saveMultipleFiles(folderData, files, changesetType);
         } catch (IOException e) {
             reset();
             throw e;
@@ -2205,7 +2231,20 @@ public class GitRepository implements BranchRepository, Closeable {
         }
 
         monitor.fireOnChange();
-        return check(folderData.getName());
+        var saved = check(folderData.getName());
+        // The root of the repository is no folder a check finds: the save tells it by the commit that holds the files.
+        return saved == null && folderData.getName().isEmpty() ? rootOf(folderData, commitId) : saved;
+    }
+
+    /** The root of the repository at the commit that saved the files of several of its folders. */
+    private FileData rootOf(FileData folderData, String commitId) {
+        var root = new FileData();
+        root.setName(folderData.getName());
+        root.setBranch(branch);
+        root.setAuthor(folderData.getAuthor());
+        root.setComment(folderData.getComment());
+        root.setVersion(commitId);
+        return root;
     }
 
     @Override
@@ -2238,7 +2277,9 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     @Override
-    public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
+    public MergeOutcome merge(String branchFrom,
+                              UserInfo author,
+                              ConflictResolveData conflictResolveData) throws IOException {
         requireValidBranchName(branchFrom);
         initializeGit(true);
 
@@ -2246,6 +2287,7 @@ public class GitRepository implements BranchRepository, Closeable {
         log.debug("merge(): lock");
         lockForMerge(writeLock);
         String refToResetTo = null;
+        MergeOutcome outcome;
         try {
             initLfsCredentials();
 
@@ -2254,9 +2296,11 @@ public class GitRepository implements BranchRepository, Closeable {
             if (conflictResolveData == null) {
                 pull(null, author);
             }
-            refToResetTo = git().getRepository().findRef(branch).getObjectId().getName();
+            var repository = git().getRepository();
+            var before = repository.findRef(branch).getObjectId();
+            refToResetTo = before.getName();
 
-            var branchRef = git().getRepository().findRef(branchFrom);
+            var branchRef = repository.findRef(branchFrom);
             var mergeResult = git().merge()
                     .include(branchRef)
                     .setCommit(false)
@@ -2265,12 +2309,22 @@ public class GitRepository implements BranchRepository, Closeable {
 
             validateNonConflictingMerge(mergeResult);
 
+            List<MergedWorkbook> workbooks;
             if (conflictResolveData != null) {
                 resolveConflict(mergeResult, conflictResolveData, author);
+                workbooks = List.of();
             } else {
-                validateMergeConflict(mergeResult, true, branchFrom, author);
+                workbooks = validateMergeConflict(mergeResult, true, branchFrom, author);
                 applyMergeCommit(mergeResult, getMergeMessage(branchRef), author);
             }
+            // The merge commit, not the tip after the pull below: the pull may bring in what others pushed meanwhile.
+            var after = repository.findRef(branch).getObjectId();
+            // Listed before the merge is published: a failure here undoes the merge, while one after the push would
+            // report a published merge as failed.
+            outcome = new MergeOutcome(before.getName(),
+                    after.getName(),
+                    changesBetween(repository, before, after),
+                    workbooks);
 
             pull(null, author);
             // The push publishes the merge, which finishes from here on: a push cut off half way may have published
@@ -2292,6 +2346,125 @@ public class GitRepository implements BranchRepository, Closeable {
         }
 
         monitor.fireOnChange();
+        return outcome;
+    }
+
+    @Override
+    public MergeScope getMergeScope(String from, String to) throws IOException {
+        initializeGit(true);
+
+        var readLock = repositoryLock.readLock();
+        try {
+            log.debug("getMergeScope(): lock");
+            readLock.lock();
+            var repository = git().getRepository();
+            var source = resolveBranchTip(repository, from);
+            var target = resolveBranchTip(repository, to);
+            return scopeOf(repository, mergeBaseOf(repository, source, target), source, target);
+        } finally {
+            readLock.unlock();
+            log.debug("getMergeScope(): unlock");
+        }
+    }
+
+    /**
+     * Compares the base, the source and the target tree in one walk: a file the source changed since the base and
+     * the target does not hold as the source does yet is a change the merge brings in. A file both branches made
+     * alike brings in nothing.
+     *
+     * @param base the commit the branches parted at, or {@code null} when their histories have none in common
+     */
+    private static MergeScope scopeOf(Repository repository,
+                                      @Nullable ObjectId base,
+                                      ObjectId source,
+                                      ObjectId target) throws IOException {
+        var changes = new ArrayList<FileChange>();
+        var changedInBoth = new HashSet<String>();
+        try (var treeWalk = new TreeWalk(repository)) {
+            walkDiffering(treeWalk, repository, base, source, target);
+            while (treeWalk.next()) {
+                if (!sameEntry(treeWalk, 1, 2)) {
+                    changes.add(new FileChange(treeWalk.getPathString(), changeKindOf(treeWalk, 2, 1)));
+                    if (!sameEntry(treeWalk, 0, 2)) {
+                        changedInBoth.add(treeWalk.getPathString());
+                    }
+                }
+            }
+        }
+        return new MergeScope(changes, changedInBoth);
+    }
+
+    /**
+     * Sets the walk to go through the files of the trees of the given commits where the first two differ. A missing
+     * commit stands for an empty tree.
+     */
+    private static void walkDiffering(TreeWalk treeWalk,
+                                      Repository repository,
+                                      @Nullable ObjectId... commits) throws IOException {
+        try (var walk = new RevWalk(repository)) {
+            for (var commit : commits) {
+                if (commit == null) {
+                    treeWalk.addTree(new EmptyTreeIterator());
+                } else {
+                    treeWalk.addTree(walk.parseCommit(commit).getTree());
+                }
+            }
+        }
+        treeWalk.setRecursive(true);
+        treeWalk.setFilter(FIRST_TWO_DIFFER);
+    }
+
+    /** Whether two trees of the walk hold the current path alike: both lack it, or both hold the same content. */
+    private static boolean sameEntry(TreeWalk treeWalk, int first, int second) {
+        return treeWalk.getRawMode(first) == treeWalk.getRawMode(second) && treeWalk.idEqual(first, second);
+    }
+
+    private static ObjectId resolveBranchTip(Repository repository, String branch) throws IOException {
+        var ref = findBranchRef(repository, branch);
+        if (ref == null) {
+            throw new IOException(String.format("Cannot find branch '%s'.", branch));
+        }
+        return ref.getObjectId();
+    }
+
+    /**
+     * The commit the given commits parted at, or {@code null} when their histories have none in common. Of several
+     * such commits, as a criss-cross history has, the first one is taken.
+     */
+    private static @Nullable RevCommit mergeBaseOf(Repository repository, AnyObjectId... commits) throws IOException {
+        try (var walk = new RevWalk(repository)) {
+            walk.setRevFilter(RevFilter.MERGE_BASE);
+            for (var commit : commits) {
+                walk.markStart(walk.parseCommit(commit));
+            }
+            return walk.next();
+        }
+    }
+
+    /**
+     * The files the second commit changes against the first one, compared tree against tree.
+     */
+    private static List<FileChange> changesBetween(Repository repository,
+                                                  ObjectId from,
+                                                  ObjectId to) throws IOException {
+        try (var treeWalk = new TreeWalk(repository)) {
+            walkDiffering(treeWalk, repository, from, to);
+            var changes = new ArrayList<FileChange>();
+            while (treeWalk.next()) {
+                changes.add(new FileChange(treeWalk.getPathString(), changeKindOf(treeWalk, 0, 1)));
+            }
+            return changes;
+        }
+    }
+
+    /**
+     * What becomes of the current path of the walk going from one of its trees to another.
+     */
+    private static FileChange.Kind changeKindOf(TreeWalk treeWalk, int from, int to) {
+        if (treeWalk.getRawMode(from) == 0) {
+            return FileChange.Kind.ADDED;
+        }
+        return treeWalk.getRawMode(to) == 0 ? FileChange.Kind.DELETED : FileChange.Kind.MODIFIED;
     }
 
     @Override
@@ -2370,9 +2543,14 @@ public class GitRepository implements BranchRepository, Closeable {
         return false;
     }
 
-    private void saveMultipleFiles(FileData folderData,
-                                   Iterable<FileItem> files,
-                                   ChangesetType changesetType) throws IOException {
+    /**
+     * Commits the files and publishes the commit.
+     *
+     * @return the commit that holds the files
+     */
+    private String saveMultipleFiles(FileData folderData,
+                                     Iterable<FileItem> files,
+                                     ChangesetType changesetType) throws IOException {
 
         String commitId = null;
         try {
@@ -2389,6 +2567,7 @@ public class GitRepository implements BranchRepository, Closeable {
             if (!remote) {
                 collectGarbage();
             }
+            return commitId;
         } catch (IOException e) {
             reset(commitId);
             throw e;

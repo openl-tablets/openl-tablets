@@ -119,12 +119,15 @@ class SecureDesignTimeRepositoryImplTest {
         when(aclService.isGranted(any(AProject.class), anyList())).thenReturn(false);
         when(delegate.isLastProjectBranch("design", "Rates", "feature/rates")).thenReturn(false);
         when(delegate.getProjectsHeldOnlyBy("design", "feature/rates")).thenReturn(List.of(denied));
+        when(delegate.getBranchProjects("design", "feature/rates")).thenReturn(List.of(denied));
         var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
 
         // Deleting a branch removes content the caller may not read, so the guard must see every holder:
         // filtering them out would report the last branch where there is none and let the deletion through.
         assertFalse(secured.isLastProjectBranch("design", "Rates", "feature/rates"));
         assertEquals(List.of(denied), secured.getProjectsHeldOnlyBy("design", "feature/rates"));
+        // A merge changes what the caller may not read too: the caller counts it without showing it.
+        assertEquals(List.of(denied), secured.getBranchProjects("design", "feature/rates"));
     }
 
     @Test

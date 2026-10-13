@@ -2,6 +2,34 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "status": "success"
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-16883-row-appended",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4ODMtUmF0ZXM6YmVlMGY5NzhiYjA4N2ViY2I0NjI0ZjA2ODJkMThhNzUxMmUyMWNjYTc0MTdlMjQ3MjA0MTViYmRjOGFhNTA2ZA==",
+        "name": "EPBDS-16883-Rates",
+        "path": "EPBDS-16883-Rates",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-16883-Rates/Rates.xlsx",
+            "type": "modified",
+            "sheets": [
+              {
+                "name": "Rules",
+                "takenFrom": "both"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
 

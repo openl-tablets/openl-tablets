@@ -2,6 +2,7 @@ package org.openl.studio.projects.model.merge;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -16,6 +17,14 @@ import org.openl.util.FileTypeHelper;
  */
 @Schema(description = "Group of conflicted files within a single project")
 public class ConflictGroup {
+
+    /**
+     * Workbooks first, as they have more meaning for business, then every other file; each by path, ignoring case.
+     */
+    public static final Comparator<String> FILE_ORDER = Comparator
+            .comparing((String file) -> !FileTypeHelper.isExcelFile(file))
+            .thenComparing(String.CASE_INSENSITIVE_ORDER);
+
     @Getter
     @Schema(description = "Name of the project containing conflicted files")
     private final String projectName;
@@ -31,26 +40,7 @@ public class ConflictGroup {
         this.projectName = projectName;
         this.projectPath = projectPath;
 
-        files = new TreeSet<>((f1, f2) -> {
-            var isExcel1 = FileTypeHelper.isExcelFile(f1);
-            var isExcel2 = FileTypeHelper.isExcelFile(f2);
-            if (isExcel1 && isExcel2) {
-                // Compare xls files
-                return f1.compareToIgnoreCase(f2);
-            }
-
-            // Put xls files before other files because they have more meaning for business.
-            if (isExcel1) {
-                return -1;
-            }
-
-            if (isExcel2) {
-                return 1;
-            }
-
-            // Compare other files
-            return f1.compareToIgnoreCase(f2);
-        });
+        files = new TreeSet<>(FILE_ORDER);
     }
 
     public List<String> getFiles() {

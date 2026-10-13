@@ -2,5 +2,28 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "status": "success"
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-15439_MergeWithoutConflicts_two",
+    "targetBranch": "EPBDS-15439_MergeWithoutConflicts_one",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0Mzk6NjM3MDcwN2IwYmQ2MzZhMmVlZjI4NGZjZDY0ZmE0YjFjMmFmYjJhZGM0ZTE3YmNlMjAyOTU3YjY4MGQwNGViNQ==",
+        "name": "EPBDS-15439",
+        "path": "EPBDS-15439",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-15439/Main.xlsx",
+            "type": "modified"
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
+

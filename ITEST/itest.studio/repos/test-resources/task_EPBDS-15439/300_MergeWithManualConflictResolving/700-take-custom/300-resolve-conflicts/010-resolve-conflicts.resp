@@ -5,5 +5,14 @@ Content-Type: application/json
   "status": "success",
   "resolvedFiles": [
     "EPBDS-15439/Main.xlsx"
-  ]
+  ],
+  "summary": {
+    "sourceBranch": "EPBDS-15439_MergeWithManualConflictResolving_one",
+    "targetBranch": "EPBDS-15439_MergeWithManualConflictResolvingUseOurs_two",
+    "before": "***",
+    "after": "***",
+    "projects": [],
+    "hiddenProjects": 0
+  }
 }
+

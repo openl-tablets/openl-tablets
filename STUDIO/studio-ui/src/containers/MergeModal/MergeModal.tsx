@@ -6,7 +6,16 @@ import { useCommitInfoGuard, useGlobalEvents } from '../../hooks'
 import { apiCall, NotFoundError } from '../../services'
 import { MergeBranchesStep } from './MergeBranchesStep'
 import { ConflictResolutionStep } from './ConflictResolutionStep'
-import { BranchInfo, ConflictDetails, ConflictGroup, MergeModalDetail, MergeResultResponse, MergeStep } from './types'
+import { MergeSummaryStep } from './MergeSummaryStep'
+import {
+    BranchInfo,
+    ConflictDetails,
+    ConflictGroup,
+    MergeModalDetail,
+    MergeResultResponse,
+    MergeStep,
+    MergeSummary,
+} from './types'
 import { openConflictCompareWindow } from '../projects/compare'
 
 /**
@@ -31,6 +40,8 @@ export const MergeModal: React.FC = () => {
     // The branch list the opener seeded, kept in state so a list widened inside the branches step also
     // carries its marks into the conflict step.
     const [branches, setBranches] = useState<BranchInfo[]>([])
+    // What the merge changed, shown once it is committed; resolved tells a merge completed by resolving conflicts.
+    const [summary, setSummary] = useState<{ value: MergeSummary, resolved: boolean } | null>(null)
 
     // Check for existing conflicts when modal opens
     // 404 means no conflicts - this is expected, so we suppress error pages
@@ -61,6 +72,8 @@ export const MergeModal: React.FC = () => {
     useEffect(() => {
         const hasDetails = !!(detail && Object.keys(detail).length > 0)
         setVisible(hasDetails)
+        // A summary is let go with the dialog: it may list thousands of files.
+        setSummary(null)
         if (hasDetails) {
             // Reset state when modal opens
             setCurrentStep('branches')
@@ -88,29 +101,43 @@ export const MergeModal: React.FC = () => {
         window.dispatchEvent(new CustomEvent('openMergeModal', { detail: null }))
     }, [])
 
-    const handleMergeSuccess = useCallback(() => {
-        notification.success({
-            title: t('merge:notifications.merge_success'),
-            description: t('merge:notifications.merge_success_description'),
-        })
-
-        handleClose()
+    /**
+     * Ends a merge that is committed: the dialog sums up what it changed. When the server tells nothing, as for the
+     * conflicts of a save, a notification confirms it and the dialog closes. The opener is told at once, so the
+     * screens behind the dialog read the merged project meanwhile.
+     */
+    const completeMerge = useCallback((mergeSummary: MergeSummary | undefined, resolved: boolean) => {
+        if (mergeSummary) {
+            setSummary({ value: mergeSummary, resolved })
+        } else {
+            notification.success(resolved
+                ? {
+                    title: t('merge:notifications.resolve_success'),
+                    description: t('merge:notifications.resolve_success_description'),
+                }
+                : {
+                    title: t('merge:notifications.merge_success'),
+                    description: t('merge:notifications.merge_success_description'),
+                })
+            handleClose()
+        }
 
         // Call the success callback passed from RichFaces
         detail?.onSuccess?.()
-    }, [t, handleClose, detail])
+    }, [t, notification, handleClose, detail])
+
+    const handleMergeSuccess = useCallback((mergeSummary?: MergeSummary) => {
+        completeMerge(mergeSummary, false)
+    }, [completeMerge])
 
     const handleMergeConflicts = useCallback((result: MergeResultResponse) => {
         setConflictGroups(result.conflictGroups)
         setCurrentStep('conflicts')
     }, [])
 
-    const handleResolveSuccess = useCallback(() => {
-        handleClose()
-
-        // Call the success callback passed from RichFaces
-        detail?.onSuccess?.()
-    }, [handleClose, detail])
+    const handleResolveSuccess = useCallback((mergeSummary?: MergeSummary) => {
+        completeMerge(mergeSummary, true)
+    }, [completeMerge])
 
     const handleCancelMerge = useCallback(() => {
         handleClose()
@@ -128,13 +155,19 @@ export const MergeModal: React.FC = () => {
         void runWithCommitInfo(callback)
     }, [runWithCommitInfo])
 
-    // Determine modal title based on step
-    const modalTitle = currentStep === 'branches'
-        ? t('merge:title', { projectName: detail?.projectName })
-        : t('merge:conflicts.title')
+    // A committed merge is summed up, whichever step it was committed from.
+    const step = summary ? 'summary' : currentStep
 
-    // Determine modal width based on step
-    const modalWidth = currentStep === 'branches' ? 600 : 1000
+    // Determine modal title based on step
+    const modalTitle = {
+        branches: t('merge:title', { projectName: detail?.projectName }),
+        conflicts: t('merge:conflicts.title'),
+        summary: t('merge:summary.title'),
+    }[step]
+
+    // The conflicts and the summary give each file a row of its own with its actions, so they are wide. The branches
+    // step keeps the width of its form: a long path there is shortened in the middle, keeping the name of the file.
+    const modalWidth = step === 'branches' ? 600 : 1000
 
     return (
         <>
@@ -143,7 +176,7 @@ export const MergeModal: React.FC = () => {
                 closable={!merging}
                 footer={null}
                 keyboard={!merging}
-                mask={{ closable: currentStep === 'branches' && !merging }}
+                mask={{ closable: step === 'branches' && !merging }}
                 onCancel={handleClose}
                 open={visible}
                 width={modalWidth}
@@ -156,7 +189,7 @@ export const MergeModal: React.FC = () => {
                     </div>
                 }
             >
-                {detail && currentStep === 'branches' && (
+                {detail && step === 'branches' && (
                     <MergeBranchesStep
                         branches={detail.branches}
                         currentBranch={detail.currentBranch}
@@ -171,7 +204,10 @@ export const MergeModal: React.FC = () => {
                         {...(detail.targetBranch ? { targetBranch: detail.targetBranch } : {})}
                     />
                 )}
-                {detail && currentStep === 'conflicts' && (
+                {detail && summary && (
+                    <MergeSummaryStep onClose={handleClose} resolved={summary.resolved} summary={summary.value} />
+                )}
+                {detail && step === 'conflicts' && (
                     <ConflictResolutionStep
                         branches={branches}
                         conflictGroups={conflictGroups}

@@ -211,6 +211,11 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
         return designTimeRepository.getProjectsHeldOnlyBy(repositoryId, branch);
     }
 
+    @Override
+    public List<AProject> getBranchProjects(String repositoryId, String branch) {
+        return designTimeRepository.getBranchProjects(repositoryId, branch);
+    }
+
     /**
      * Answers from the index, without building a readable view of the project first.
      *

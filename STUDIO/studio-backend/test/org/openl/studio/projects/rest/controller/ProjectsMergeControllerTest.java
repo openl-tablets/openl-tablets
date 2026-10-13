@@ -2,6 +2,7 @@ package org.openl.studio.projects.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -29,6 +30,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -48,9 +50,12 @@ import org.openl.studio.projects.model.merge.MergeRequest;
 import org.openl.studio.projects.model.merge.MergeResult;
 import org.openl.studio.projects.model.merge.MergeResultResponse;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
+import org.openl.studio.projects.model.merge.MergeSummaryView;
+import org.openl.studio.projects.model.merge.MergedChanges;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.merge.MergeChangesService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
@@ -73,6 +78,7 @@ class ProjectsMergeControllerTest {
     private ProjectIdentifierMapper projectIdentifierMapper;
     private ProjectModel model;
     private ComparisonLauncher comparisonLauncher;
+    private MergeChangesService mergeChangesService;
     private ProjectsMergeLauncher mergeLauncher;
     private ProjectsMergeController controller;
 
@@ -105,6 +111,7 @@ class ProjectsMergeControllerTest {
         projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
 
         comparisonLauncher = mock(ComparisonLauncher.class);
+        mergeChangesService = mock(MergeChangesService.class);
 
         controller = new ProjectsMergeController(mergeService,
                 projectService,
@@ -112,7 +119,8 @@ class ProjectsMergeControllerTest {
                 mergeConflictsService,
                 projectIdentifierMapper,
                 comparisonLauncher,
-                mergeLauncher);
+                mergeLauncher,
+                mergeChangesService);
     }
 
     /**
@@ -238,6 +246,21 @@ class ProjectsMergeControllerTest {
         assertNotNull(body);
         assertEquals(MergeResultStatus.SUCCESS, body.status());
         assertEquals(List.of(), body.conflictGroups());
+        assertNull(body.summary());
+    }
+
+    @Test
+    void answersASuccessfulMergeWithWhatItChanged() {
+        var changes = new MergedChanges("feature", "main", new MergeOutcome("b1", "a1", List.of(), List.of()),
+                List.of(), List.of());
+        when(mergeLauncher.result(project)).thenReturn(Optional.of(MergeResult.builder().changes(changes).build()));
+        var summary = new MergeSummaryView("feature", "main", "b1", "a1", List.of(), 0);
+        when(mergeChangesService.summaryOf(project, changes)).thenReturn(summary);
+
+        var body = (MergeResultResponse) controller.getMergeResult(project).getBody();
+
+        assertNotNull(body);
+        assertEquals(summary, body.summary());
     }
 
     @Test

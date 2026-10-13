@@ -389,6 +389,26 @@ class GitRepositoryTest {
         }
     }
 
+    /** The root of the repository is no folder a check finds: a save of files of several folders tells its commit. */
+    @Test
+    void savingTheFilesOfSeveralFoldersTellsTheCommitThatHoldsThem() throws Exception {
+        var changes = List.of(
+                new FileItem("rules/project1/root-save.txt", IOUtils.toInputStream("One")),
+                new FileItem("rules/project3/root-save.txt", IOUtils.toInputStream("Two")));
+        var folderData = new FileData();
+        folderData.setName("");
+        folderData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
+        folderData.setComment("Files of several folders");
+
+        var savedData = repo.save(folderData, changes, ChangesetType.DIFF);
+
+        assertEquals(repo.getLastRevision().getName(), savedData.getVersion());
+        assertEquals("", savedData.getName());
+        assertEquals("Files of several folders", savedData.getComment());
+        assertEquals("One", readText(repo.read("rules/project1/root-save.txt")));
+        assertEquals("Two", readText(repo.read("rules/project3/root-save.txt")));
+    }
+
     @Test
     void delete() throws IOException {
         var fileData = new FileData();

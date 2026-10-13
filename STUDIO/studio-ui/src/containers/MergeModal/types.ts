@@ -1,3 +1,5 @@
+import type { ProjectFileChange, ProjectFileChangeType } from '../../services/projectStatus'
+
 // Merge mode - direction of the merge operation
 export type MergeMode = 'receive' | 'send'
 
@@ -28,12 +30,83 @@ export interface CheckMergeResult {
     canMerge: boolean
     /** Absent when the merge may be performed. */
     blockedBy?: MergeBlockedBy
+    /** What the merge would bring in; absent when the target branch is up to date. */
+    scope?: MergeScope
+}
+
+/** Which branch a sheet of a workbook merged automatically was taken from. */
+export type SheetOrigin = 'target' | 'source' | 'both'
+
+/**
+ * A project a merge changes. The files outside any project form a group of their own, which names no project and
+ * has no status.
+ */
+export interface ChangedProject {
+    id?: string
+    name?: string
+    path?: string
+    /** Whether it is the project the dialog was opened for. */
+    current: boolean
+    /** What the merge does to the project as a whole. */
+    status?: ProjectFileChangeType
+}
+
+/** A project a merge would change, with how many of its files change. */
+export interface ProjectScope extends ChangedProject {
+    changedFiles: number
+    /** The files both branches changed: Sync merges them by itself or reports them as conflicts. */
+    changedInBoth?: string[]
+}
+
+/** What a merge would bring into the target branch. */
+export interface MergeScope {
+    projects: ProjectScope[]
+    /** How many changed projects the user may not read. */
+    hiddenProjects: number
+}
+
+export interface SheetChange {
+    name: string
+    takenFrom: SheetOrigin
+}
+
+/** A file the merge changed, by its path from the root of the repository. */
+export interface FileChange extends ProjectFileChange {
+    /** The sheets of a workbook Sync merged by itself; absent for any other file. */
+    sheets?: SheetChange[]
+}
+
+/** A project the merge changed, or the files outside any project. */
+export interface ProjectChanges extends ChangedProject {
+    files: FileChange[]
+}
+
+/** What a merge changed in the target branch. */
+export interface MergeSummary {
+    sourceBranch: string
+    targetBranch: string
+    /** The revision of the target branch before the merge. */
+    before: string
+    /** The revision of the merge. */
+    after: string
+    projects: ProjectChanges[]
+    hiddenProjects: number
 }
 
 // API Response: Merge result
 export interface MergeResultResponse {
     status: MergeResultStatus
     conflictGroups: ConflictGroup[]
+    /** What a successful merge changed. */
+    summary?: MergeSummary
+}
+
+// API Response: Conflict resolution result
+export interface ResolveConflictsResponse {
+    status: 'success'
+    resolvedFiles: string[]
+    /** What the merge changed; absent when the conflicts of a save were resolved. */
+    summary?: MergeSummary
 }
 
 // Conflict group containing files from same project

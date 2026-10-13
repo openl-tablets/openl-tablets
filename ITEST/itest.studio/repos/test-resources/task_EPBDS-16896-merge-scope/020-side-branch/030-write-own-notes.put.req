@@ -1,0 +1,5 @@
+PUT /rest/projects/{OWN_ID}/files/notes.txt HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+EPBDS-16896-Own on the side branch

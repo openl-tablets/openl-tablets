@@ -143,8 +143,16 @@ public interface ProjectsMergeConflictsService {
      *   <li>Apply each resolution strategy to its corresponding file</li>
      *   <li>Stage all resolved files in Git</li>
      *   <li>Commit the merge with provided message (or default message)</li>
-     *   <li>Return list of successfully resolved files</li>
+     *   <li>Declare the modules of the resolved workbooks again in the descriptors of their projects, in a commit of
+     *   its own</li>
+     *   <li>Return list of successfully resolved files and, for a merge, what it changed</li>
      * </ol>
+     *
+     * <p><b>Summary:</b>
+     * <p>A resolved merge tells what it changed in the target branch, against the branch before the merge. The
+     * descriptors written after the merge count among the changed files, and the revision after the merge is the
+     * commit that wrote them. A save conflict has no summary. Neither has a merge whose changes cannot be told, as when
+     * the project index has not published it in time; the resolution stays a success.
      *
      * <p><b>Strategy Application:</b>
      * <ul>
@@ -167,7 +175,8 @@ public interface ProjectsMergeConflictsService {
      * @param resolutions list of resolutions specifying strategy for each conflicted file
      * @param customFiles map of file paths to custom file content (for CUSTOM strategy)
      * @param mergeMessage optional commit message (null for default message)
-     * @return resolution response with status and list of successfully resolved file paths
+     * @return resolution response with status, list of successfully resolved file paths and, for a merge, what it
+     *         changed in the target branch
      * @throws IOException if Git operation or file operation fails
      * @throws ProjectException if project operation fails
      * @throws IllegalArgumentException if any resolution is invalid (e.g., CUSTOM without file)

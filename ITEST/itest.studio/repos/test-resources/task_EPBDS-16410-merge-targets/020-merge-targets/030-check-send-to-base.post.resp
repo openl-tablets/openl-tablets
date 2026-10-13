@@ -5,5 +5,19 @@ Content-Type: application/json
   "sourceBranch": "EPBDS-16410-feature",
   "targetBranch": "master",
   "status": "mergeable",
-  "canMerge": true
+  "canMerge": true,
+  "scope": {
+    "projects": [
+      {
+        "id": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTLTE2NDEwLUluQnJhbmNoOjMwMzkwNDFhYWYwOWY4YWM1ZmQzODA4MTc5YTMwNzU1MzcyY2M3ZDM2OTU1NDQ1ZjFkMGVkNjQ2OGYwNTA1ZDI=",
+        "name": "EPBDS-16410-InBranch",
+        "path": "EPBDS-16410-InBranch",
+        "current": true,
+        "status": "added",
+        "changedFiles": 3
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
+

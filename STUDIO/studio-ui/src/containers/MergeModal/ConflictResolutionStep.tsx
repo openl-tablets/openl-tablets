@@ -19,6 +19,8 @@ import {
     ConflictGroup,
     ConflictResolutionStrategy,
     FileSide,
+    MergeSummary,
+    ResolveConflictsResponse,
     RevisionInfo,
 } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
@@ -31,7 +33,8 @@ interface ConflictResolutionStepProps {
     conflictGroups: ConflictGroup[]
     /** The branches of the project, so a branch carries its marks here as it does everywhere else. */
     branches: BranchInfo[]
-    onResolveSuccess: () => void
+    /** Called once the conflicts are resolved, with what the merge changed when the server tells it. */
+    onResolveSuccess: (summary?: MergeSummary) => void
     onCancel: () => void
     onCompare: (filePath: string) => void
 }
@@ -218,21 +221,16 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 }
             })
 
-            await apiCall(
+            const response = await apiCall(
                 `/projects/${projectId}/merge/conflicts/resolve`,
                 {
                     method: 'POST',
                     body: formData,
                 },
                 true
-            )
+            ) as ResolveConflictsResponse | undefined
 
-            notification.success({
-                title: t('merge:notifications.resolve_success'),
-                description: t('merge:notifications.resolve_success_description'),
-            })
-
-            onResolveSuccess()
+            onResolveSuccess(response?.summary)
         } catch (err: any) {
             setError(err?.message || t('merge:errors.resolve_failed'))
         } finally {
