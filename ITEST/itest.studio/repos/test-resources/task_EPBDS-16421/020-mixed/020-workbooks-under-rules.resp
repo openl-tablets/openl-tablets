@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "path": "rules",
+    "name": "rules"
+  },
+  {
+    "path": "rules/A.xlsx",
+    "name": "A.xlsx"
+  },
+  {
+    "path": "rules/Legacy.xls",
+    "name": "Legacy.xls"
+  },
+  {
+    "path": "rules/Macro.xlsm",
+    "name": "Macro.xlsm"
+  },
+  {
+    "path": "rules.xml",
+    "name": "rules.xml"
+  }
+]

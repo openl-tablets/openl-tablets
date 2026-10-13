@@ -1,0 +1,19 @@
+HTTP/1.1 200
+Content-Type: application/xml
+
+<project>
+    <modules>
+        <module>
+            <rules-root path="rules/**/*.xlsx"/>
+        </module>
+        <module>
+            <rules-root path="tests/**/*.xlsx"/>
+        </module>
+        <module>
+            <rules-root path="rules/Legacy.xls"/>
+        </module>
+        <module>
+            <rules-root path="rules/Macro.xlsm"/>
+        </module>
+    </modules>
+</project>

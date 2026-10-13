@@ -1,0 +1,17 @@
+PUT /rest/repos/design-flat/projects/EPBDS-16421-Custom HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="Original.xlsx"
+Content-Transfer-Encoding: binary
+Content-Type: application/octet-stream
+
+&../Original.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="rules.xml"
+Content-Transfer-Encoding: binary
+Content-Type: application/xml
+
+&../rules.xml
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
