@@ -82,15 +82,16 @@ abstract class BaseExport {
 
         if (value instanceof ParameterWithValueDeclaration parameter) {
             var simpleValue = parameter.getValue();
-            if (simpleValue instanceof Collection<?> collection) {
-                simpleValue = collection.toArray();
-            }
             // Return key field for complex objects
             var keyField = parameter.getKeyField();
             if (keyField != null) {
                 // If key cannot be found, return the object itself
-                Object key = ExportUtils.fieldValue(simpleValue, keyField);
+                Object key = ExportUtils.keyValue(simpleValue, keyField);
                 simpleValue = key == null ? simpleValue : key;
+            }
+
+            if (simpleValue instanceof Collection<?> collection) {
+                simpleValue = collection.toArray();
             }
 
             return getSimpleValue(simpleValue);

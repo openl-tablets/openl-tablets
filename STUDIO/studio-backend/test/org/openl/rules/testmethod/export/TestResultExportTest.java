@@ -336,6 +336,91 @@ class TestResultExportTest {
     }
 
     @Test
+    void writesListReferencedByPrimaryKey() throws Exception {
+        var results = runTests("test-resources/test/export/EPBDS-15404-pk");
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(results, -1);
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                var result = workbook.getSheet("Result 1");
+                assertRowText(result.getRow(6), "1", "Passed", "LIST-7", "OPTIONS-7", null);
+
+                var parameters = workbook.getSheet("Parameters 1");
+                assertRowText(parameters.getRow(4), "ID", "values._PK_", "values", "options._PK_",
+                        "options[\"label\"]:String");
+                assertRowText(parameters.getRow(5), "1", "LIST-7", "42", "OPTIONS-7", "Blue");
+                assertRowText(parameters.getRow(6), null, null, "Blue", null, null);
+                assertRowText(parameters.getRow(7), "2", null, null, "OPTIONS-7", "Blue");
+            }
+        }
+    }
+
+    @Test
+    void writesListReferencedByFirstColumn() throws Exception {
+        var results = runTests("test-resources/test/export/EPBDS-15404-first-column");
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(results, -1);
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                var result = workbook.getSheet("Result 1");
+                assertRowText(result.getRow(6), "1", "Passed", "42.0,Blue", "OPTIONS-7", null);
+
+                var parameters = workbook.getSheet("Parameters 1");
+                assertRowText(parameters.getRow(4), "ID", "values", "options._PK_", "options[\"label\"]:String");
+                assertRowText(parameters.getRow(5), "1", "42", "OPTIONS-7", "Blue");
+                assertRowText(parameters.getRow(6), null, "Blue", null, null);
+                assertRowText(parameters.getRow(7), "2", null, "OPTIONS-7", "Blue");
+            }
+        }
+    }
+
+    @Test
+    void keepsPrimaryKeyColumnWhenFirstCaseHasNoList() throws Exception {
+        var results = runTests("test-resources/test/export/EPBDS-15404-pk-empty-first");
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(results, -1);
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                var parameters = workbook.getSheet("Parameters 1");
+                assertRowText(parameters.getRow(4), "ID", "values._PK_", "values", "options._PK_",
+                        "options[\"label\"]:String");
+                assertRowText(parameters.getRow(5), "1", null, null, "OPTIONS-7", "Blue");
+                assertRowText(parameters.getRow(6), "2", "LIST-7", "42", "OPTIONS-7", "Blue");
+                assertRowText(parameters.getRow(7), null, null, "Blue", null, null);
+            }
+        }
+    }
+
+    @Test
+    void writesKeysOfReferencedBeansInList() throws Exception {
+        assertReferencedBeanKeys("test-resources/test/export/EPBDS-15404-bean-list");
+    }
+
+    @Test
+    void writesKeysOfReferencedBeansInArray() throws Exception {
+        assertReferencedBeanKeys("test-resources/test/export/EPBDS-15404-bean-array");
+    }
+
+    private void assertReferencedBeanKeys(String path) throws Exception {
+        var results = runTests(path);
+        try (var export = new TempFileExporter()) {
+            var xlsx = export.createExcelFile(results, -1);
+            try (var workbook = new XSSFWorkbook(xlsx)) {
+                var result = workbook.getSheet("Result 1");
+                assertRowText(result.getRow(6), "1", "Passed", "P1,P2", null);
+
+                var parameters = workbook.getSheet("Parameters 1");
+                if (path.endsWith("bean-array")) {
+                    assertRowText(parameters.getRow(4), "ID", "policies._PK_", "policies.id", "policies.premium");
+                    assertRowText(parameters.getRow(5), "1", "P1", "One", "10");
+                    assertRowText(parameters.getRow(6), null, "P2", "Two", "20");
+                } else {
+                    assertRowText(parameters.getRow(4), "ID", "policies._PK_", "policies.premium", "policies.id");
+                    assertRowText(parameters.getRow(5), "1", "P1", "10", "One");
+                    assertRowText(parameters.getRow(6), null, "P2", "20", "Two");
+                }
+            }
+        }
+    }
+
+    @Test
     void twoResultsPerPage() throws Exception {
         File xlsx;
         try (var export = new TempFileExporter()) {

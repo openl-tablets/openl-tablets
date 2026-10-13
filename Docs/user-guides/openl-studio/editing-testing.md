@@ -344,6 +344,12 @@ table offers **Test into File** in the same place, and saves the results of its 
 keeps **Run into File**, and none of the test options: its cases are run, not tested, and the workbook holds what
 every run returned.
 
+For a test whose input list comes from a Data table, **Test into File** writes the list reference on the
+**Result** sheet when the Data table has a primary key. Without a primary key, it writes the list values there.
+When the list contains records referenced by their own primary keys, it writes those keys in order.
+The **Parameters** sheet shows each list element on a separate row. When the list has a primary key, that key has
+its own column beside the elements; other parameters keep their columns alongside the list.
+
 Three options above the input decide what the file of a rule table holds. **Run into File** and **Save to Excel** in
 the window of the result write the workbook alike; only **Run into File** takes **Result in JSON Format** into
 account:
