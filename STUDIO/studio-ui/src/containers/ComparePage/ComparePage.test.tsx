@@ -353,6 +353,28 @@ describe('ComparePage', () => {
         expect(screen.queryByTestId('revision-picker')).toBeNull()
     })
 
+    it('compares a workbook at its saved revision with the working copy when no later revision is named', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', file: 'rules/Main.xlsx', branch: 'main', before: 'r7' })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Main.xlsx', branch: 'main', revision: 'r7' },
+            { path: 'rules/Main.xlsx' }))
+        expect(screen.queryByTestId('revision-picker')).toBeNull()
+    })
+
+    it('reads a file that is not a workbook at its saved revision and in the working copy', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', file: 'rules.xml', before: 'r7' })
+
+        openPage()
+
+        fireEvent.click(screen.getByTestId('text-versions'))
+        await waitFor(() => expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', 'r7'))
+        expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', undefined)
+    })
+
     it('says why the comparison of two versions could not be started', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', first: '100', second: '200_current' })
         vi.mocked(startLocalHistoryComparison).mockRejectedValue(new Error('The version is not found'))

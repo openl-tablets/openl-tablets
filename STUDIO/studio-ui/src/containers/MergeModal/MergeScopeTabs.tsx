@@ -3,6 +3,7 @@ import { Alert, Flex, Listy, Space, Tabs, Tag, Tooltip, Typography } from 'antd'
 import { WarningOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { ProjectFileChangeType } from '../../services/projectStatus'
+import { ChangesHeader, FilePath, LIST_HEIGHT } from '../projects/ChangedFileList'
 import type { ChangedProject, CheckMergeResult, MergeScope, ProjectScope } from './types'
 
 interface MergeScopeTabsProps {
@@ -10,28 +11,6 @@ interface MergeScopeTabsProps {
     receive: CheckMergeResult | null
     /** The check of the merge of the current branch into the selected one. */
     send: CheckMergeResult | null
-}
-
-/**
- * The height a list of projects or files grows to. A longer list scrolls and is drawn a screenful at a time, so a
- * merge of hundreds of projects or files keeps the dialog and its buttons in the window.
- */
-export const LIST_HEIGHT = 320
-
-/**
- * A path from the root of the repository, on one line of a row whose other parts stay in sight. A path too long for
- * the line loses the end of its folder rather than the name of the file, and shows whole when pointed at.
- */
-export const FilePath: React.FC<{ path: string }> = ({ path }) => {
-    const slash = path.lastIndexOf('/')
-    return (
-        <Typography.Text
-            ellipsis={slash < 0 ? { tooltip: path } : { tooltip: path, suffix: path.slice(slash) }}
-            style={{ flex: 1, minWidth: 0 }}
-        >
-            {slash < 0 ? path : path.slice(0, slash)}
-        </Typography.Text>
-    )
 }
 
 /** How many projects a merge changes, those the user may not read included; the files outside projects are none. */
@@ -138,16 +117,17 @@ interface ProjectHeaderProps {
 export const ProjectHeader: React.FC<ProjectHeaderProps> = ({ project, changedFiles }) => {
     const { t } = useTranslation()
     return (
-        <Space wrap size="small">
-            <Typography.Text strong>{project.name ?? t('merge:scope.outside')}</Typography.Text>
+        <ChangesHeader
+            count={t('merge:scope.changed_files', { count: changedFiles })}
+            name={project.name ?? t('merge:scope.outside')}
+        >
             {project.name && (
                 <Tag color={project.current ? 'blue' : 'default'}>
                     {project.current ? t('merge:scope.current') : t('merge:scope.other')}
                 </Tag>
             )}
             <ProjectStatusTag status={project.status} />
-            <Typography.Text type="secondary">{t('merge:scope.changed_files', { count: changedFiles })}</Typography.Text>
-        </Space>
+        </ChangesHeader>
     )
 }
 

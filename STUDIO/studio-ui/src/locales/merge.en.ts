@@ -61,7 +61,6 @@ i18next.addResourceBundle('en', 'merge', {
         sheet_both: 'Sheet "{{sheet}}" combined from both branches',
         sheets_hint: 'Sync merged this workbook by itself, sheet by sheet: a sheet one branch changed is taken from '
             + 'that branch, and a sheet both branches changed is combined from the changes of both.',
-        compare: 'Compare',
         compare_hint: 'Compare the file before and after the merge',
         close: 'Close',
     },

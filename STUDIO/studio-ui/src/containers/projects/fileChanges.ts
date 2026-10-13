@@ -18,7 +18,8 @@ const stripPrefix = (path: string, prefix?: string | null): string => {
     return path.startsWith(`${normalizedPrefix}/`) ? path.slice(normalizedPrefix.length + 1) : path
 }
 
-const toProjectRelativePath = (
+/** The path of a file inside its project, from its path in the repository or in the project already. */
+export const toProjectRelativePath = (
     path: string,
     projectPath?: string | null,
     projectName?: string | null

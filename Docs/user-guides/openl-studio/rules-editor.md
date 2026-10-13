@@ -89,7 +89,9 @@ This section explains the following tasks that can be performed on projects and 
 
 A project can be opened for editing and saved directly in Rules Editor.
 
-1.  To save the edited project, click **Save** ![](images/toolbar-save-icon.png).
+1.  To save the edited project, click **Save** ![](images/toolbar-save-icon.png). The **Save project** window lists
+    the files the save commits, each comparable with its saved revision, as described in
+    [Saving a Project](repository-editor.md#saving-a-project).
 
     > [!Note]
     > If a project is in the **Local** status, this option is not available in Rules Editor.

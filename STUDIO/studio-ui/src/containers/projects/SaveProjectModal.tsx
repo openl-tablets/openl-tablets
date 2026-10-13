@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
-import { App, Modal, Typography } from 'antd'
+import { App, Collapse, Flex, Modal, Typography } from 'antd'
 import { SaveOutlined } from '@ant-design/icons'
 import { apiCall, isApiHttpError } from '../../services'
-import { saveProject } from '../../services/repositories'
+import { LOCAL_LOAD_API_OPTIONS } from '../../services/apiCall'
+import { getProject, saveProject } from '../../services/repositories'
 import { useCommitInfoGuard, useRepositoryConfig } from '../../hooks'
+import { errorHandler } from '../../utils/errorHandling'
 import { suggestComment } from '../../utils/repositoryConfig'
+import { ChangedFileList, ChangesHeader } from './ChangedFileList'
 import { CommentField, useCommentError } from './CommentField'
 import { openMergeDialog } from './branchDialogs'
+import { openFileRevisionsCompareWindow } from './compare'
+import { normalizeProjectFileChanges, type NormalizedFileChange } from './fileChanges'
 import type { Project } from '../../types/projects'
 import { ProjectStatus } from '../../constants/project'
 import { formatDateTime } from '../../utils/dateFormat'
@@ -34,11 +39,56 @@ const hasMergeConflicts = async (projectId: string): Promise<boolean> => {
     }
 }
 
+/** The files a save commits, and where the copy they were changed in was taken from. */
+interface PendingSave {
+    /** The files changed since the project was opened or last saved, by their paths in the project. */
+    files: NormalizedFileChange[]
+    /** The revision the working copy was opened or last saved at. */
+    revision: string | undefined
+    /** The branch of that revision; absent in a repository without branches. */
+    branch: string | undefined
+}
+
+/**
+ * Reads what a save of the project would commit, once the dialog opens for it. The project is read once for the
+ * dialog, whatever new copies of it the screen behind hands in meanwhile. A read that fails is only logged: the
+ * dialog saves the project all the same, without listing its files.
+ */
+const usePendingSave = (open: boolean, projectId: string | undefined): PendingSave | null => {
+    const [pending, setPending] = useState<PendingSave | null>(null)
+    useEffect(() => {
+        setPending(null)
+        if (!open || !projectId) {
+            return
+        }
+        let cancelled = false
+        getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
+            .then(loaded => {
+                if (!cancelled) {
+                    const status = loaded.compileStatus
+                    setPending({
+                        files: normalizeProjectFileChanges(status?.pendingChanges?.files ?? [], loaded.path, loaded.name),
+                        revision: status?.revision ?? undefined,
+                        branch: status?.branch ?? undefined,
+                    })
+                }
+            })
+            .catch((error: unknown) => {
+                errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+            })
+        return () => {
+            cancelled = true
+        }
+    }, [open, projectId])
+    return pending
+}
+
 /**
  * Commit-comment dialog for saving a project, mirroring the legacy repository save flow.
  *
- * Before committing it verifies that the profile completed during login is still valid. If the commit races another
- * change and the server reports a merge conflict, the shared merge resolver is opened on its conflicts step.
+ * It lists the files the save commits, each comparable with the revision the working copy was taken from. Before
+ * committing it verifies that the profile completed during login is still valid. If the commit races another change
+ * and the server reports a merge conflict, the shared merge resolver is opened on its conflicts step.
  */
 export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjectModalProps) => {
     const { notification } = App.useApp()
@@ -49,6 +99,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     const [submitting, setSubmitting] = useState(false)
     const config = useRepositoryConfig(open && project ? { projectId: project.id } : null)
     const commentError = useCommentError(comment, config)
+    const pending = usePendingSave(open, project?.id)
 
     // A fresh dialog starts from the repository's suggestion again.
     useEffect(() => {
@@ -105,6 +156,17 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
         await runWithCommitInfo(() => doSave(project))
     }
 
+    // A modified file is compared at the revision the working copy was taken from against the working copy.
+    const revision = pending?.revision
+    const branch = pending?.branch
+    const comparison = project && revision
+        ? {
+            hint: t('browser.save_compare_hint'),
+            open: (file: NormalizedFileChange) => openFileRevisionsCompareWindow(project.id, file.path, branch,
+                revision),
+        }
+        : undefined
+
     return (
         <>
             <Modal
@@ -116,19 +178,46 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
                 onOk={submit}
                 open={open}
                 title={<><SaveOutlined /> {t('browser.save_title')}</>}
+                // A modified project lists its files by their paths, which take the room of a wider dialog.
+                {...(project?.status === ProjectStatus.Editing ? { width: 800 } : {})}
             >
                 <Typography.Paragraph type="secondary">
                     {t('browser.save_desc', { repository: project?.repositoryInfo?.name ?? project?.repository ?? '' })}
                 </Typography.Paragraph>
-                <CommentField
-                    config={config}
-                    testId="save-project-comment"
-                    value={comment}
-                    onChange={value => {
-                        setCommentTouched(true)
-                        setComment(value)
-                    }}
-                />
+                <Flex vertical gap="middle">
+                    {project && pending && pending.files.length > 0 && (
+                        // The files are folded away until asked for, as a merge folds those of other projects.
+                        <Collapse
+                            data-testid="save-project-changes"
+                            size="small"
+                            items={[{
+                                key: 'changes',
+                                label: (
+                                    <ChangesHeader
+                                        count={t('browser.save_changes', { count: pending.files.length })}
+                                        name={project.name}
+                                    />
+                                ),
+                                children: (
+                                    <ChangedFileList
+                                        compare={comparison}
+                                        files={pending.files}
+                                        testId="save-project-changes"
+                                    />
+                                ),
+                            }]}
+                        />
+                    )}
+                    <CommentField
+                        config={config}
+                        testId="save-project-comment"
+                        value={comment}
+                        onChange={value => {
+                            setCommentTouched(true)
+                            setComment(value)
+                        }}
+                    />
+                </Flex>
             </Modal>
             {commitInfoModal}
         </>

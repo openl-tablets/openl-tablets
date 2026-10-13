@@ -1,11 +1,11 @@
 import React from 'react'
-import { Alert, Button, Collapse, Flex, Listy, Space, Tag, Tooltip, Typography } from 'antd'
-import { DiffOutlined } from '@ant-design/icons'
+import { Alert, Button, Collapse, Space, Tag, Tooltip, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { FileChangeIcon } from '../projects/FileChangeIcon'
+import { ChangedFileList } from '../projects/ChangedFileList'
 import { openFileRevisionsCompareWindow } from '../projects/compare'
-import { FilePath, LIST_HEIGHT, ProjectHeader } from './MergeScopeTabs'
+import { toProjectRelativePath } from '../projects/fileChanges'
+import { ProjectHeader } from './MergeScopeTabs'
 import type { FileChange, MergeSummary, ProjectChanges, SheetChange } from './types'
 
 interface MergeSummaryStepProps {
@@ -72,51 +72,30 @@ const keyOf = (project: ProjectChanges): string => project.path ?? ''
 
 const FileList: React.FC<{ project: ProjectChanges, summary: MergeSummary }> = ({ project, summary }) => {
     const { t } = useTranslation()
-    // A file is compared through the project that holds it, at its two revisions on the branch the merge changed:
-    // a workbook element by element, any other file line by line. A file added or deleted has one revision only.
-    const compare = (file: FileChange) => {
-        if (project.id && project.path) {
-            openFileRevisionsCompareWindow(project.id, file.path.slice(project.path.length + 1), summary.targetBranch,
-                summary.before, summary.after)
-        }
-    }
-    const comparable = (file: FileChange) => !!project.id && file.type === 'modified'
+    const { id, path } = project
+    const renderSheets = (file: FileChange) => file.sheets && file.sheets.length > 0 && (
+        <Tooltip title={t('merge:summary.sheets_hint')}>
+            <Space wrap data-testid="merge-summary-sheets" size={4}>
+                {file.sheets.map(sheet => (
+                    <Tag key={sheet.name}>{sheetLabel(sheet, summary, t)}</Tag>
+                ))}
+            </Space>
+        </Tooltip>
+    )
     return (
-        <Listy
-            virtual
-            height={LIST_HEIGHT}
-            items={project.files}
-            rowKey={file => file.path}
-            itemRender={file => (
-                <Flex vertical data-testid="merge-summary-file" gap={2} style={{ paddingBlock: 4 }}>
-                    <Flex align="center" gap="small">
-                        <FileChangeIcon title={t(`repository:browser.files.change.${file.type}`)} type={file.type} />
-                        <FilePath path={file.path} />
-                        {comparable(file) && (
-                            <Tooltip title={t('merge:summary.compare_hint')}>
-                                <Button
-                                    data-testid="merge-summary-compare"
-                                    icon={<DiffOutlined />}
-                                    onClick={() => compare(file)}
-                                    size="small"
-                                    type="link"
-                                >
-                                    {t('merge:summary.compare')}
-                                </Button>
-                            </Tooltip>
-                        )}
-                    </Flex>
-                    {file.sheets && file.sheets.length > 0 && (
-                        <Tooltip title={t('merge:summary.sheets_hint')}>
-                            <Space wrap data-testid="merge-summary-sheets" size={4}>
-                                {file.sheets.map(sheet => (
-                                    <Tag key={sheet.name}>{sheetLabel(sheet, summary, t)}</Tag>
-                                ))}
-                            </Space>
-                        </Tooltip>
-                    )}
-                </Flex>
-            )}
+        <ChangedFileList
+            details={renderSheets}
+            files={project.files}
+            testId="merge-summary"
+            // A file is compared through the project that holds it, at its two revisions on the branch the merge
+            // changed: a workbook element by element, any other file line by line.
+            compare={id && path
+                ? {
+                    hint: t('merge:summary.compare_hint'),
+                    open: file => openFileRevisionsCompareWindow(id, toProjectRelativePath(file.path, path),
+                        summary.targetBranch, summary.before, summary.after),
+                }
+                : undefined}
         />
     )
 }
