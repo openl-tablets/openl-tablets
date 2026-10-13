@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/xml
+
+<project>
+    <name>EPBDS-16421-Custom</name>
+    <modules>
+        <module>
+            <rules-root path="Original.xlsx"/>
+        </module>
+    </modules>
+</project>
