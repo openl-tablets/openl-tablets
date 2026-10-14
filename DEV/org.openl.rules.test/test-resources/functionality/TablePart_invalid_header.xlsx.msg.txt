@@ -1,0 +1,1 @@
+ERROR: Valid Syntax: TablePart <table_id> <row|column> <npart(1 to total_number_of_parts)> of <total_number_of_parts>
