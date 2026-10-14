@@ -20,7 +20,6 @@ import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.table.openl.GridTableSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
@@ -150,8 +149,11 @@ public class TablePartProcessor {
         }
     }
 
+    /**
+     * The source an error about a part points to: the header of the part, which an error message can quote.
+     */
     private static IOpenSourceCodeModule makeSourceModule(IGridTable table) {
-        return new GridTableSourceCodeModule(table);
+        return new GridCellSourceCodeModule(table);
     }
 
     final Map<String, TreeSet<TablePart>> tableParts = new HashMap<>();
