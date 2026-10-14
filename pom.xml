@@ -115,7 +115,7 @@
         <byte-buddy.version>1.18.14</byte-buddy.version>
 
         <!-- Kafka -->
-        <kafka.version>4.3.1</kafka.version>
+        <kafka.version>4.4.0</kafka.version>
         <!-- Newer lz4-java than kafka-clients pulls in by default, fixing CVE-2026-59949.
              Remove once Kafka ships this version by default. -->
         <lz4.version>1.12.0</lz4.version>
