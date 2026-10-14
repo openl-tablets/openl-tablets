@@ -3,6 +3,8 @@ package org.openl.rules.project.model;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,17 @@ class ModuleTablesTest {
         assertFalse(claims.containsTable("Pricing/rules/Claims.xlsx?sheet=Rules&cell=A1"));
         assertFalse(claims.containsTable("Pricing/rules/Claims.xls.bak?sheet=Rules&cell=A1"));
         assertFalse(claims.containsTable("Pricing/rules/Claims.xls/Rates.xlsx?sheet=Rules&cell=A1"));
+    }
+
+    @Test
+    void ownsTheTablesOfEveryFileOfItsFolder() throws IOException {
+        Files.createDirectories(projects.resolve("Pricing/rules/Rating/Premium"));
+        var rating = module("rules/Rating");
+
+        assertTrue(rating.containsTable("Pricing/rules/Rating/ageFactor.md?sheet=Rating&range=A1:B4"));
+        assertTrue(rating.containsTable("Pricing/rules/Rating/Premium/premium.md?sheet=Premium&range=A1:B5"));
+        assertFalse(rating.containsTable("Pricing/rules/RatingOld/ageFactor.md?sheet=RatingOld&range=A1:B4"));
+        assertFalse(rating.containsTable("Pricing/rules/Rating.xlsx?sheet=Rules&cell=A1"));
     }
 
     @Test

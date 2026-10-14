@@ -296,6 +296,53 @@ class TableIdsTest {
     }
 
     @Test
+    void aTableOfAMarkdownModuleIsNamedAfterTheModuleFolderNotAfterItsFile() throws IOException {
+        markdown(dir.resolve("a/rules/Main/greeting.md"), "SmartRules String greeting(Integer hour)");
+        // Another user's workspace: the file renamed and moved to a sub-folder of the module
+        markdown(dir.resolve("b/rules/Main/Hello/salutation.md"), "SmartRules String greeting(Integer hour)");
+        markdown(dir.resolve("c/rules/Other/greeting.md"), "SmartRules String greeting(Integer hour)");
+
+        var id = only(parse(dir.resolve("a"), "rules/Main")).getId();
+
+        assertEquals(id, only(parse(dir.resolve("b"), "rules/Main")).getId());
+        assertNotEquals(id, only(parse(dir.resolve("c"), "rules/Other")).getId(), "another module, another id");
+    }
+
+    /** The version a write names back in If-Match is the digest of the cells of the table, not of its file. */
+    @Test
+    void theVersionOfATableOfAMarkdownFileChangesWithItsCellsAlone() throws IOException {
+        var project = dir.resolve("a");
+        var file = project.resolve("rules/Main/greeting.md");
+        markdown(file, "SmartRules String greeting(Integer hour)");
+        var version = only(parse(project, "rules/Main")).getVersion();
+
+        assertEquals(version, only(parse(project, "rules/Main")).getVersion(), "the same file compiled again");
+        // Text around the table and the table aligned by hand are no cells of it
+        var text = Files.readString(file);
+        Files.writeString(file, text.replace("|---|---|", "|------|----------|") + "\nBy the hour.\n");
+        assertEquals(version, only(parse(project, "rules/Main")).getVersion());
+        Files.writeString(file, Files.readString(file).replace("Good Morning", "Morning"));
+        assertNotEquals(version, only(parse(project, "rules/Main")).getVersion());
+    }
+
+    @Test
+    void aFileMovedWithinItsModuleFolderKeepsItsIdAndAMovedFolderGivesANewOne() throws IOException {
+        var project = dir.resolve("a");
+        var folder = project.resolve("rules/Main");
+        markdown(folder.resolve("greeting.md"), "SmartRules String greeting(Integer hour)");
+        var module = parse(project, "rules/Main");
+        var id = only(module).getId();
+
+        assertTrue(TableIds.idsAfterMove(module, folder.resolve("greeting.md"), folder.resolve("Hello/hi.md"))
+                .isEmpty(), "a file moved within the folder keeps the id of its table");
+        var moved = TableIds.idsAfterMove(module, folder, project.resolve("lib/Main"));
+        Files.createDirectories(project.resolve("lib"));
+        Files.move(folder, project.resolve("lib/Main"));
+
+        assertEquals(Map.of(id, only(parse(project, "lib/Main")).getId()), moved);
+    }
+
+    @Test
     void theIdsOfAModuleAreToldByTheCellsTheirTablesStartAt() throws IOException {
         var module = parse(project("a", sheet -> {
             put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1");
@@ -377,6 +424,17 @@ class TableIdsTest {
         assertNull(TableIds.moduleOf(table));
     }
 
+    /** A workbook read on its own, with no project around it, as a test or a tool reads one, names its tables. */
+    @Test
+    void aTableOfAWorkbookOfNoProjectHasAnId() throws IOException {
+        var file = workbook(dir.resolve("Alone.xlsx"),
+                workbook -> put(workbook.createSheet("Rules"), 1, 1, "Rules String rate(String state)", "C1|RET1"));
+        var module = (XlsModuleSyntaxNode) new SequentialXlsLoader().parse(new PathSourceCodeModule(file))
+                .getTopNode();
+
+        assertFalse(only(module).getId().isBlank());
+    }
+
     private Path project(String name, Consumer<Sheet> rules) throws IOException {
         var project = dir.resolve(name);
         workbook(project.resolve(RULES), workbook -> rules.accept(workbook.createSheet("Rules")));
@@ -401,6 +459,21 @@ class TableIdsTest {
                 line.createCell(column + j).setCellValue(cells[j]);
             }
         }
+    }
+
+    /** Writes a Markdown file holding one rule of two rows under the given header. */
+    private static void markdown(Path file, String header) throws IOException {
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, """
+                ---
+                table: %s
+                ---
+
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                | 12-23 | Good Afternoon |
+                """.formatted(header));
     }
 
     private static XlsModuleSyntaxNode parse(Path project, String path) {

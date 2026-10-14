@@ -1,0 +1,8 @@
+<project>
+    <name>MD-POC_Sort_bug</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

@@ -19,6 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.util.FileTypeHelper;
 
 /**
  * @author nsamatov, Yury Molchan.
@@ -39,8 +40,9 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
         assertEquals(2, templates.size());
         assertTrue(templates.containsAll(Arrays.asList("Empty Project", "Sample Project")));
         var examples = templatesResolver.getTemplates("examples");
-        assertEquals(4, examples.size());
+        assertEquals(5, examples.size());
         assertTrue(examples.contains("Example-4-Reference-Guide"));
+        assertTrue(examples.contains("Example-5-Markdown-Rules"));
         assertEquals(6, templatesResolver.getTemplates("tutorials").size());
     }
 
@@ -116,6 +118,12 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
         verify(resourceResolver, never()).getResources(org.mockito.ArgumentMatchers.endsWith("**/*"));
     }
 
+    private static boolean declaresNoWorkbook(ProjectDescriptor descriptor) {
+        return descriptor.getModules()
+                .stream()
+                .noneMatch(module -> FileTypeHelper.isExcelFile(module.getRulesRootPath()));
+    }
+
     @Test
     void allPredefinedTemplatesUseDefaultProjectLayout() throws Exception {
         var templatesResolver = new PredefinedTemplatesResolver();
@@ -131,7 +139,8 @@ class PredefinedTemplatesResolverTest extends TemplatesResolverTest {
                     assertNotNull(rulesXml, () -> "%s/%s must contain rules.xml".formatted(category, template));
                     var descriptor = ProjectDescriptor.read(rulesXml.getInput());
                     assertNotNull(descriptor);
-                    assertTrue(descriptor.getModules().isEmpty(),
+                    // The default modules are workbooks: a template of Markdown modules, folders of files, names them
+                    assertTrue(descriptor.getModules().isEmpty() || declaresNoWorkbook(descriptor),
                             () -> "%s/%s must use the default modules".formatted(category, template));
                     assertTrue(Arrays.stream(projectFiles)
                             .map(ProjectFile::getName)

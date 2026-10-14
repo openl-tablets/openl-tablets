@@ -14,6 +14,7 @@
         <module>openl-data-in-dependent-module</module>
         <module>openl-external-parameters</module>
         <module>openl-lib-threshold-increased</module>
+        <module>openl-markdown</module>
         <module>openl-openapi-verify-positive</module>
         <module>openl-project</module>
         <module>openl-testedmethod-has-two-candidates</module>

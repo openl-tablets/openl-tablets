@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "Base": 1200.0,
+  "AgeFactor": 1.5,
+  "Total": 1800.0
+}

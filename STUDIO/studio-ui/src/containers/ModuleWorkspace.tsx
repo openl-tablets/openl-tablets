@@ -23,6 +23,7 @@ import { moduleRoute } from '../services/projectId'
 import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
+import { isMarkdownPath } from '../utils/workbooks'
 import { useLoadGeneration, useReleaseOnClose } from '../hooks'
 import { useSettingsStore } from '../store'
 import { ProjectStatus } from '../constants/project'
@@ -705,6 +706,9 @@ export const ModuleWorkspace = () => {
     const readable = listed || tableUnlisted?.absent === true
     // Only a table the module lists is written: the one it holds without listing is built by the compiler.
     const canWriteListed = listed && !!project?.capabilities?.canWrite
+    // A table of a Markdown file is plain text: read here and changed in the file editor. Asked of the file the
+    // table comes from, not of the module, which may include a file of the other kind.
+    const markdownTable = isMarkdownPath(selected?.file)
     useEffect(() => {
         if (!projectId || selectedId === null || !readable) {
             setTable(null)
@@ -971,7 +975,7 @@ export const ModuleWorkspace = () => {
         // A table gathered from several partial tables is read here and not written: the cells it is drawn
         // from do not sit together, so there is nothing for an editor to write back into. Neither is a table the
         // list does not name, which no band of actions is offered for either.
-        const canWriteTable = canWriteListed && table?.partial !== true
+        const canWriteTable = canWriteListed && table?.partial !== true && !markdownTable
         const toolbar = selected === null ? null : (
             <TableToolbar
                 canWrite={canWriteTable}
@@ -1003,6 +1007,7 @@ export const ModuleWorkspace = () => {
                 {toolbar}
                 <TableProblems
                     cellText={textAt}
+                    markdown={markdownTable}
                     messages={table.messages ?? []}
                     onEditCell={canWriteTable ? setEditCell : undefined}
                     onStacktrace={readStacktrace}

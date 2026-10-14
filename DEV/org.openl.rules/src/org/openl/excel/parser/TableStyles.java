@@ -30,4 +30,14 @@ public interface TableStyles {
     default List<TextRun> getTextRuns(int row, int column) {
         return List.of();
     }
+
+    /**
+     * Returns the styles of a table whose source keeps no formatting.
+     *
+     * @param region the region the styles answer for
+     * @return styles that give every cell the default look
+     */
+    static TableStyles empty(IGridRegion region) {
+        return new EmptyTableStyles(region);
+    }
 }

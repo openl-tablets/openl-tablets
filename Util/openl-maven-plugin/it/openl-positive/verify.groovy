@@ -16,6 +16,7 @@ try {
             'Data table in dependent module',
             'External parameters for Project',
             'Exceeding increased lib threshold',
+            'Markdown Rules',
             'OpenAPI Verify Positive Test',
             'OpenL Project',
             'Service',
@@ -39,6 +40,34 @@ try {
         if (current) {
             sections[current] << line
         }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // openl-markdown: modules written as folders of Markdown files, a table to a file, compile,
+    // their tests run, the files are packaged as they are, and the artifact is verified.
+    // ---------------------------------------------------------------------------------------
+    def markdown = sections['openl-markdown']
+    assert markdown.any { it.contains("Running 'helloTest' from module 'Tests'...") }
+    assert markdown.any { it.contains("Running 'premiumTest' from module 'Tests'...") }
+    assert markdown.any { it.contains('Total tests run: 3, Failures: 0, Errors: 0') }
+    assert logs.contains("SUCCESS COMPILATION - Module 'Rating',  project 'markdown'")
+    assert logs.contains("Verification is passed for 'org.openl.internal:openl-markdown' artifact.")
+
+    new ZipFile(new File(folder, 'openl-markdown/target/openl-markdown-0.0.0.zip')).withCloseable { closeable ->
+        ZipFile zf = closeable as ZipFile
+        def fileNames = zf.entries().findAll { !it.directory }.collect { it.name } as Set
+        assert fileNames == [
+                'META-INF/MANIFEST.MF',
+                'rules.xml',
+                'rules/Model/Driver.md',
+                'rules/Rating/Environment.md',
+                'rules/Rating/Factors/basePremium.md',
+                'rules/Rating/Premium/premium.md',
+                'rules/Rating/hello.md',
+                'rules/Tests/Environment.md',
+                'rules/Tests/helloTest.md',
+                'rules/Tests/premiumTest.md',
+        ] as Set
     }
 
     // ---------------------------------------------------------------------------------------

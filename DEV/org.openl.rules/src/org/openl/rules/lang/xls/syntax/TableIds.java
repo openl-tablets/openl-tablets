@@ -156,17 +156,32 @@ public final class TableIds {
     private record Entry(TableSyntaxNode table, Identity identity, Place place, @Nullable String pin) {
     }
 
-    /** The project folder of a module and the place given to its tables that stand in no file. */
-    private record Folder(@Nullable Path project, String unfiled) {
+    /**
+     * The project folder of a module, the file or the folder of the module, and the place given to its tables that
+     * stand in no file.
+     */
+    private record Folder(@Nullable Path project, @Nullable Path root, String unfiled) {
 
         static Folder of(@Nullable XlsModuleSyntaxNode module) {
             if (module == null) {
-                return new Folder(null, "");
+                return new Folder(null, null, "");
             }
             var source = module.getModule();
             var project = projectFolderOf(source);
             var file = fileOf(source);
-            return new Folder(project, file == null ? Objects.toString(source.getUri(), "") : pathOf(file, project));
+            return new Folder(project, file,
+                    file == null ? Objects.toString(source.getUri(), "") : pathOf(file, project));
+        }
+
+        /**
+         * What the tables of a file are named after: the module, for a file of a module written as a folder of
+         * Markdown files, or else the file itself.
+         *
+         * <p>A file of such a module holds a table as a sheet of a workbook holds its tables, so a file renamed or
+         * moved within the folder keeps the ids of its tables.
+         */
+        Path anchorOf(Path file) {
+            return root != null && file.startsWith(root) ? root : file;
         }
     }
 
@@ -274,6 +289,10 @@ public final class TableIds {
      * workbook; it keeps a number OpenL Studio pinned it to as well. A table the compiler built for a module whose
      * workbook moves is named after the new place. The tables of the other workbooks keep their ids.
      *
+     * <p>A module written as a folder of Markdown files names its tables after the folder: a file moved within the
+     * folder keeps the ids of its tables, and a moved folder gives every table of the module the id it has at the
+     * new place.
+     *
      * @param module the module as last compiled
      * @param from   the file or the folder that moves
      * @param to     where it moves
@@ -287,14 +306,16 @@ public final class TableIds {
         var ids = new LinkedHashMap<String, String>();
         for (var entry : entries(module, null)) {
             var file = fileOfTable(entry.table());
-            var moved = movedTo(file != null ? file : moduleFile, source, target);
+            var numbered = numberedOf(entry.table());
+            var moved = movedTo(file != null ? folder.anchorOf(file) : moduleFile, source, target);
+            var renamed = moved == null ? numbered : new Numbered(new Identity(pathOf(moved, folder.project()),
+                    numbered.identity().kind(), numbered.identity().key()), numbered.number());
             if (moved != null) {
-                var numbered = numberedOf(entry.table());
-                var identity = numbered.identity();
-                var renamed = new Numbered(new Identity(pathOf(moved, folder.project()), identity.kind(),
-                        identity.key()), numbered.number());
                 ids.put(numbered.id(), renamed.id());
-                movePin(entry, moved, renamed);
+            }
+            var movedFile = file == null ? null : movedTo(file, source, target);
+            if (movedFile != null) {
+                movePin(entry, movedFile, renamed);
             }
         }
         return ids;
@@ -520,8 +541,10 @@ public final class TableIds {
 
     private static Identity identityOf(TableSyntaxNode table, @Nullable Path file, Folder folder) {
         var kind = file == null ? Kind.GENERATED : Kind.of(table.getNodeType());
-        var project = projectFolderOf(workbookOf(table));
-        var module = file == null ? folder.unfiled() : pathOf(file, project != null ? project : folder.project());
+        var workbookProject = projectFolderOf(workbookOf(table));
+        // Neither may be known, as for a table compiled from a workbook of no project
+        var project = workbookProject != null ? workbookProject : folder.project();
+        var module = file == null ? folder.unfiled() : pathOf(folder.anchorOf(file), project);
         return new Identity(module, kind.label, keyOf(table, kind));
     }
 

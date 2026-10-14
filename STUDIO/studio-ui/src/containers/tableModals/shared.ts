@@ -1,6 +1,7 @@
 import type { DefaultOptionType, SearchConfig } from 'antd/es/select'
 import type { ProjectModule } from 'types/projects'
 import type { ProjectProperty } from 'types/tables'
+import { isWorkbookPath } from '../../utils/workbooks'
 
 /**
  * A legal OpenL table name, matching the identifier rule the compiler applies to the table header.
@@ -98,9 +99,14 @@ export interface ModuleOption {
     path?: string
 }
 
-/** The named modules of a project, in the shape the destination field works with. */
+/**
+ * The named modules of a project a table can be written to, in the shape the destination field works with.
+ *
+ * <p>Only a workbook takes a table. A Markdown module, a folder of files, is left out: a table goes into it as a
+ * file of its own, through the file editor.
+ */
 export const toModuleOptions = (modules: ProjectModule[]): ModuleOption[] => modules
-    .filter(module => module.name)
+    .filter(module => module.name && (!module.path || isWorkbookPath(module.path)))
     .map(module => ({ name: module.name ?? '', ...(module.path ? { path: module.path } : {}) }))
 
 /** The destination list, in alphabetical order: a project declares its modules in no particular one. */

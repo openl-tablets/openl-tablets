@@ -59,6 +59,7 @@ import org.openl.studio.projects.service.tables.write.RawTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -654,6 +655,12 @@ public class TableCreatorService {
      */
     public XlsSheetGridModel sheetGridModel(ProjectModel projectModel, String sheetName) {
         var moduleNode = Objects.requireNonNull(projectModel.getXlsModuleNode(), "The module is not compiled");
+        // Only a workbook takes a table: a module of Markdown files takes it as a file of its own, written as text
+        var module = projectModel.getModuleInfo();
+        var modulePath = module == null ? null : module.getRulesRootPath();
+        if (modulePath != null && !FileTypeHelper.isExcelFile(modulePath)) {
+            throw new BadRequestException("table.markdown.destination.message", new Object[]{module.getName()});
+        }
         var currentWorkbook = moduleNode.getWorkbookSyntaxNodes()[0].getWorkbookSourceCodeModule();
 
         var excelWorkbook = currentWorkbook.getWorkbook();

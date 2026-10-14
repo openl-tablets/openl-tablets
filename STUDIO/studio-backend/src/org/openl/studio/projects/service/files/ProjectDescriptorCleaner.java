@@ -3,8 +3,6 @@ package org.openl.studio.projects.service.files;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,10 +15,10 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 
 /**
@@ -43,8 +41,9 @@ public class ProjectDescriptorCleaner {
     private final AclProjectsHelper aclProjectsHelper;
 
     /**
-     * Removes module entries matching the artefact (all Excel files under it) from the project descriptor.
-     * Must be called before the artefact is deleted, while its content is still listable.
+     * Removes the module entries the artefact declares from the project descriptor: a module of the file itself, or
+     * of any file or folder under it. A module given by a path pattern is kept. Must be called before the artefact is
+     * deleted.
      *
      * <p>The rewritten descriptor is saved through the mount, the way the mount writes the deleted file.
      *
@@ -81,18 +80,15 @@ public class ProjectDescriptorCleaner {
             return;
         }
 
-        var modulePaths = new HashSet<String>();
-        findModulePaths(artefact, modulePaths);
+        var deletedPath = artefact.getInternalPath();
         var removedModuleNames = new ArrayList<String>();
-        for (String modulePath : modulePaths) {
-            descriptor.getModules().removeIf(module -> {
-                var matches = modulePath.equals(module.getRulesRootPath());
-                if (matches) {
-                    removedModuleNames.add(module.getName());
-                }
-                return matches;
-            });
-        }
+        descriptor.getModules().removeIf(module -> {
+            var matches = isDeclaredBy(module, deletedPath);
+            if (matches) {
+                removedModuleNames.add(module.getName());
+            }
+            return matches;
+        });
         var descriptorChanged = !removedModuleNames.isEmpty();
         descriptorChanged |= cleanOpenApi(project, descriptor, artefact, removedModuleNames);
 
@@ -137,16 +133,12 @@ public class ProjectDescriptorCleaner {
     }
 
     /**
-     * Collects the in-project paths of all Excel files under the artefact.
+     * Tells whether a module is declared by the path of a file or a folder inside the project: the path itself, or a
+     * path under the folder. A module given by a path pattern is declared by no path.
      */
-    private static void findModulePaths(AProjectArtefact artefact, Collection<String> modulePaths) {
-        if (artefact.isFolder()) {
-            for (AProjectArtefact child : ((AProjectFolder) artefact).getArtefacts()) {
-                findModulePaths(child, modulePaths);
-            }
-        } else if (FileTypeHelper.isExcelFile(artefact.getName())) {
-            // The path inside the project, wherever the repository keeps the project.
-            modulePaths.add(artefact.getInternalPath());
-        }
+    private static boolean isDeclaredBy(Module module, String path) {
+        var modulePath = module.getRulesRootPath();
+        return modulePath != null && !module.isModuleWithWildcard()
+                && (modulePath.equals(path) || modulePath.startsWith(path + "/"));
     }
 }
