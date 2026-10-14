@@ -94,8 +94,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     );
 
     private static final Pattern CONTEXT_SPLITTER = Pattern.compile(":\\s*+context\\s*+");
-    public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
-    public static final String TRANSIENT_FIELD_SUFFIX = "~";
+    private static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
+    private static final String TRANSIENT_FIELD_SUFFIX = "~";
 
     @Getter
     private final TableSyntaxNode tableSyntaxNode;
@@ -120,6 +120,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     @Getter(AccessLevel.PRIVATE)
     @Setter
     private Map<String, FieldDescription> fields;
+
+    // The field each row of the table declares, by the index of the row; null for a row that declares none.
+    private @Nullable DatatypeOpenField[] rowFields = new DatatypeOpenField[0];
 
     @Getter
     private Map<String, Integer> columnTitlesOrder;
@@ -164,6 +167,19 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     /**
+     * The field a row of the table declares.
+     *
+     * <p>The row of column titles declares no field, nor does a row left blank or commented out. Neither does a row
+     * whose field is rejected, such as one with a bad name or with a name declared before.
+     *
+     * @param row the index of the row in {@link #getTable()}
+     * @return the field, or {@code null} when the row declares none
+     */
+    public @Nullable IOpenField getFieldOfRow(int row) {
+        return row >= 0 && row < rowFields.length ? rowFields[row] : null;
+    }
+
+    /**
      * Process datatype fields from source table.
      *
      * @param bindingContext binding context
@@ -184,6 +200,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         // key: name of the field, value: field type.
         //
         fields = new LinkedHashMap<>();
+        rowFields = new DatatypeOpenField[tableHeight];
         bindingContext.pushErrors();
         List<SyntaxNodeException> errors;
         try {
@@ -202,6 +219,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             var indexFieldDeclared = false;
             for (var i = firstRow; i < tableHeight; i++) {
                 var field = processRow(dataTable, dataTable.getRow(i), bindingContext, fields, columnTitlesOrder, useTransientSuffix);
+                rowFields[i] = field;
                 if (field != null && !indexFieldDeclared) {
                     // This is done for operations like people["john"] in OpenL
                     // rules to access one instance of datatype from array by

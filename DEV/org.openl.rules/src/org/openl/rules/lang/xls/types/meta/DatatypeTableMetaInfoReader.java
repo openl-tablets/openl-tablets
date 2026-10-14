@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -26,6 +27,10 @@ import org.openl.util.ParserUtils;
 
 /**
  * Provides metadata for cells represented by the bound Datatype logical table.
+ *
+ * <p>The type and the default value of a row are described by the field the row declares, whatever its name cell
+ * adds to the name, such as a runtime context property. A row that declares no field has no metadata, even when it
+ * names a field declared elsewhere.
  *
  * <p>Cells outside the bound logical body have no Datatype metadata. This can occur when the raw grid grows before
  * the table is rebound.
@@ -70,70 +75,39 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         if (r >= logicalTable.getHeight()) {
             return null;
         }
+        var field = getBoundNode().getFieldOfRow(r);
+        if (field == null) {
+            return null;
+        }
 
         if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.DEFAULT_COLUMN_TITLE), c) || Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.EXAMPLE_COLUMN_TITLE), c)) {
-            return getDefaultValueMetaInfo(logicalTable, r);
+            return getDefaultValueMetaInfo(field);
         } else if (Objects.equals(getBoundNode().getColumnTitlesOrder().get(DatatypeHelper.TYPE_COLUMN_TITLE), c)) {
-            return getTypeMetaInfo(logicalTable, r, c);
+            return getTypeMetaInfo(logicalTable.getRow(r), c, field);
         }
         return null;
     }
 
-    private CellMetaInfo getDefaultValueMetaInfo(ILogicalTable logicalTable, int r) {
-        // Default Values
-        try {
-            var logicalRow = logicalTable.getRow(r);
-            var field = getField(logicalRow);
-            if (field == null) {
-                return null;
-            }
-            var type = field.getType();
-            var multiValue = false;
-            if (type.getAggregateInfo().isAggregate(type)) {
-                type = type.getAggregateInfo().getComponentType(type);
-                multiValue = true;
-            }
+    private static CellMetaInfo getDefaultValueMetaInfo(IOpenField field) {
+        var type = field.getType();
+        if (type.getAggregateInfo().isAggregate(type)) {
+            return new CellMetaInfo(type.getAggregateInfo().getComponentType(type), true);
+        }
+        return new CellMetaInfo(type, false);
+    }
 
-            return new CellMetaInfo(type, multiValue);
+    private static @Nullable CellMetaInfo getTypeMetaInfo(ILogicalTable logicalRow, int c, IOpenField field) {
+        GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, c);
+        if (ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
+            return null;
+        }
+        try {
+            IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
+            return createMetaInfo(idn[0], field.getType().getMetaInfo());
         } catch (OpenLCompilationException e) {
             log.error(e.getMessage(), e);
             return null;
         }
-    }
-
-    private CellMetaInfo getTypeMetaInfo(ILogicalTable logicalTable, int r, int c) {
-        var logicalRow = logicalTable.getRow(r);
-        GridCellSourceCodeModule typeCellSource = getCellSource(logicalRow, null, c);
-        if (!ParserUtils.isBlankOrCommented(typeCellSource.getCode())) {
-            try {
-                var field = getField(logicalRow);
-                if (field == null) {
-                    return null;
-                }
-                var fieldMetaInfo = field.getType().getMetaInfo();
-                IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
-                return createMetaInfo(idn[0], fieldMetaInfo);
-            } catch (OpenLCompilationException e) {
-                log.error(e.getMessage(), e);
-                return null;
-            }
-        }
-        return null;
-    }
-
-    private IOpenField getField(ILogicalTable logicalRow) throws OpenLCompilationException {
-        var nameColumn = getBoundNode().getColumnTitlesOrder().getOrDefault(DatatypeHelper.NAME_COLUMN_TITLE, 1);
-        String fieldName = getName(logicalRow, nameColumn);
-        if (fieldName == null) {
-            return null;
-        }
-
-        var dataType = getBoundNode().getDataType();
-        var field = dataType.getField(fieldName);
-        if (field == null) {
-            return null;
-        }
-        return field;
     }
 
     private static CellMetaInfo createMetaInfo(IdentifierNode identifier, IMetaInfo typeMeta) {
@@ -146,21 +120,5 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
                 NodeType.DATATYPE);
 
         return new CellMetaInfo(JavaOpenClass.STRING, false, List.of(nodeUsage));
-    }
-
-    private static String getName(ILogicalTable row, int nameColumn) throws OpenLCompilationException {
-        GridCellSourceCodeModule nameCellSource = getCellSource(row, null, nameColumn);
-        IdentifierNode[] idn = Tokenizer.tokenize(nameCellSource, " \r\n");
-        if (idn.length != 1) {
-            // Table with error. Skip it
-            return null;
-        } else {
-            var name = idn[0].getIdentifier();
-            if (name.endsWith(DatatypeTableBoundNode.TRANSIENT_FIELD_SUFFIX) || name
-                    .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
-                return name.substring(0, name.length() - 1);
-            }
-            return name;
-        }
     }
 }
