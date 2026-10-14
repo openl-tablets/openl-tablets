@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
+import { errorMessage } from '../utils/errorMessage'
 import { Input, InputNumber, Checkbox, InputPassword } from '../components'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
 
@@ -103,7 +104,7 @@ export const System: React.FC = () => {
         }, true).then(() => {
             window.location.reload()
         }).catch(e => {
-            notification.error({ title: e.toString() })
+            notification.error({ title: `${t('common:error')}: ${errorMessage(e)}` })
         })
     }
 

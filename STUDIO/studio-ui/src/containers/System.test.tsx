@@ -1,5 +1,6 @@
-import { act, render, screen } from '@testing-library/react'
-import { Form, Input as AntdInput } from 'antd'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Form, Input as AntdInput, Modal, notification } from 'antd'
 import type { FormInstance } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { System, THREAD_COUNT_RULE } from './System'
@@ -7,6 +8,16 @@ import * as services from '../services'
 import type { MockedFunction } from 'vitest'
 
 vi.mock('../services', () => ({ apiCall: vi.fn() }))
+
+vi.mock('antd', async () => {
+    const actual = await vi.importActual<typeof import('antd')>('antd')
+    const { withStaticApp } = await import('testing/staticAntdApp')
+    return withStaticApp({
+        ...actual,
+        Modal: { ...actual.Modal, confirm: vi.fn() },
+        notification: { success: vi.fn(), error: vi.fn() },
+    })
+})
 
 /** The rules each mocked text field was given, by its name. */
 const inputRules = vi.hoisted(() => new Map<string, unknown[]>())
@@ -94,6 +105,18 @@ describe('System', () => {
         expect(inputRules.get('testRunThreadCount')).toEqual([
             { ...THREAD_COUNT_RULE, message: 'system:thread_number_invalid' },
         ])
+    })
+
+    it('reports a refused Apply as an error with the reason, not with the class that carries it', async () => {
+        render(<System />)
+        await userEvent.click(await screen.findByRole('button', { name: 'common:btn.apply' }))
+        mockApiCall.mockRejectedValueOnce(Object.assign(new Error('Cannot be empty.'), { name: 'ApiHttpError' }))
+
+        await act(async () => {
+            vi.mocked(Modal.confirm).mock.calls[0]![0].onOk!()
+        })
+
+        await waitFor(() => expect(notification.error).toHaveBeenCalledWith({ title: 'common:error: Cannot be empty.' }))
     })
 })
 

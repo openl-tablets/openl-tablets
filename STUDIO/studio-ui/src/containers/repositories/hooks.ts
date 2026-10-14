@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { App } from 'antd'
 import { RepositoryDataType } from './constants'
 import { apiCall } from '../../services'
+import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { RepositoryResponse } from './index'
@@ -50,7 +51,7 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
             })
             window.location.reload()
         }).catch(error => {
-            notification.error({ title: error.toString() })
+            notification.error({ title: `${t('common:error')}: ${errorMessage(error)}` })
             throw error
         })
     }
@@ -65,7 +66,7 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
             })
             window.location.reload()
         }).catch(error => {
-            notification.error({ title: error.toString() })
+            notification.error({ title: `${t('common:error')}: ${errorMessage(error)}` })
         })
     }
 
