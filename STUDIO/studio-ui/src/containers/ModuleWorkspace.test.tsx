@@ -722,6 +722,21 @@ describe('ModuleWorkspace', () => {
         expect(getModuleTables).toHaveBeenCalledTimes(2)
     })
 
+    it('writes a table of a workbook, and leaves one of a Markdown file to the file editor', async () => {
+        workspace.opened = true
+        vi.mocked(getProject).mockResolvedValue({ ...project('OPENED'), capabilities: { canWrite: true } } as never)
+        vi.mocked(getModuleTables).mockResolvedValue([{ ...bankRating, file: 'Bank Rating/rules/Bank Rating.xlsx' }])
+        const { unmount } = render(<ModuleWorkspace />)
+        expect(await screen.findByTestId('module-table')).toHaveAttribute('data-can-write', 'true')
+        unmount()
+
+        // Asked of the file the table comes from: a workbook module may include a Markdown file.
+        vi.mocked(getModuleTables).mockResolvedValue([{ ...bankRating, file: 'Bank Rating/rules/Rates.md' }])
+        render(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('module-table')).toHaveAttribute('data-can-write', 'false')
+    })
+
     it('shows read-only a table the module holds without listing it: the one choosing a rule version', async () => {
         workspace.opened = true
         vi.mocked(getRawTable).mockResolvedValue({

@@ -1,0 +1,11 @@
+<project>
+    <name>insurance</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Model"/>
+        </module>
+        <module>
+            <rules-root path="rules/Rating"/>
+        </module>
+    </modules>
+</project>

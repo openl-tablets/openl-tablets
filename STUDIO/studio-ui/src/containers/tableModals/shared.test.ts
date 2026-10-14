@@ -1,5 +1,5 @@
 import { property } from './propertyFixture'
-import { IDENTIFIER, isValidPropertyValue, sheetNameFrom, toPropertyGroups } from './shared'
+import { IDENTIFIER, isValidPropertyValue, sheetNameFrom, toModuleOptions, toPropertyGroups } from './shared'
 
 describe('shared', () => {
     describe('IDENTIFIER', () => {
@@ -19,6 +19,19 @@ describe('shared', () => {
             expect(sheetNameFrom('  Spaced  ')).toBe('Spaced')
             // Trimming first, so leading spaces do not eat into the 31 characters a worksheet name may hold.
             expect(sheetNameFrom(`  ${'A'.repeat(40)}`)).toBe('A'.repeat(31))
+        })
+    })
+
+    describe('toModuleOptions', () => {
+        it('offers the named modules a table can be written to, leaving a Markdown module to the file editor', () => {
+            const options = toModuleOptions([
+                { name: 'Rates', path: 'rules/Rates.xlsx' },
+                { name: 'Greetings', path: 'rules/Greetings.md' },
+                { name: 'Rating', path: 'rules/Rating' },
+                { path: 'rules/Unnamed.xlsx' },
+            ])
+
+            expect(options).toEqual([{ name: 'Rates', path: 'rules/Rates.xlsx' }])
         })
     })
 

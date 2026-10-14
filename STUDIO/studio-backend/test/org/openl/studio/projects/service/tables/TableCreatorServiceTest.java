@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,6 +37,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
@@ -105,6 +109,30 @@ class TableCreatorServiceTest {
         var error = assertThrows(NullPointerException.class, () -> service.sheetGridModel(model, "Sheet1"));
 
         assertEquals("The module is not compiled", error.getMessage());
+    }
+
+    @Test
+    void refusesToWriteATableIntoAMarkdownModule() {
+        var model = mock(ProjectModel.class);
+        var moduleNode = mock(XlsModuleSyntaxNode.class);
+        var workbookNode = mock(WorkbookSyntaxNode.class);
+        // The first workbook of the module may be an Excel file it includes: the module itself decides
+        var included = mock(XlsWorkbookSourceCodeModule.class);
+        when(model.getXlsModuleNode()).thenReturn(moduleNode);
+        when(moduleNode.getWorkbookSyntaxNodes()).thenReturn(new WorkbookSyntaxNode[]{workbookNode});
+        when(workbookNode.getWorkbookSourceCodeModule()).thenReturn(included);
+        when(included.getUri()).thenReturn("file:/projects/Example/rules/Rates.xlsx");
+        var module = new Module();
+        module.setName("Rating");
+        module.setRulesRootPath("rules/Rating");
+        when(model.getModuleInfo()).thenReturn(module);
+
+        var error = assertThrows(BadRequestException.class, () -> service.sheetGridModel(model, "Sheet1"));
+
+        // A Markdown module is text: a new table goes into it through the file editor, never through POI.
+        assertEquals("openl.error.400.table.markdown.destination.message", error.getErrorCode());
+        assertArrayEquals(new Object[]{"Rating"}, error.getArgs());
+        verify(included, never()).getWorkbook();
     }
 
     @Test

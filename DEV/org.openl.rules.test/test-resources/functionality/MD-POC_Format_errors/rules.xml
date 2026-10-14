@@ -1,0 +1,8 @@
+<project>
+    <name>MD-POC_Format_errors</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

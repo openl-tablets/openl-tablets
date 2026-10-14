@@ -1,0 +1,8 @@
+<project>
+    <name>broken</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

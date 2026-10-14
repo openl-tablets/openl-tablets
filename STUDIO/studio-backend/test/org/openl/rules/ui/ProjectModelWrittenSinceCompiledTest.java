@@ -113,6 +113,36 @@ class ProjectModelWrittenSinceCompiledTest {
     }
 
     @Test
+    void a_markdown_file_added_to_a_module_folder_shows_until_the_project_is_compiled_again(@TempDir Path dir)
+            throws Exception {
+        Files.writeString(dir.resolve("rules.xml"), """
+                <project>
+                    <name>Markdown</name>
+                    <modules>
+                        <module>
+                            <name>Main</name>
+                            <rules-root path="rules/Main"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var folder = Files.createDirectories(dir.resolve("rules/Main"));
+        Files.writeString(folder.resolve("hello.md"), methodFile("hello", "Hi, "));
+        var model = opened(moduleOf(dir, "Main"), true);
+        model.checkProjectFiles();
+        assertFalse(model.isChangedOnDisk(), "the files are the ones compiled");
+
+        // Another program puts a table into the module folder: the folder, the module path, stays as it was.
+        Files.writeString(folder.resolve("bye.md"), methodFile("bye", "Bye, "));
+        model.checkProjectFiles();
+
+        assertTrue(model.isChangedOnDisk(), "the module folder holds a file that was not compiled");
+        model.reset(ReloadType.RELOAD, moduleOf(dir, "Main"));
+        awaitCompiled(model);
+        assertFalse(model.isChangedOnDisk(), "the module compiled again reads the new file");
+    }
+
+    @Test
     void a_changed_or_broken_descriptor_shows(@TempDir Path dir) throws Exception {
         TableTestProjects.writeProject(dir, "Rules", "Rules", HELLO);
         var model = opened(moduleOf(dir, "Rules"), true);
@@ -158,6 +188,19 @@ class ProjectModelWrittenSinceCompiledTest {
         model.setModuleInfo(module);
         awaitCompiled(model);
         return model;
+    }
+
+    /** A Markdown file holding a Method table that greets by name. */
+    private static String methodFile(String name, String greeting) {
+        return """
+                ---
+                table: Method String %s(String name)
+                ---
+
+                ```java
+                return "%s" + name;
+                ```
+                """.formatted(name, greeting);
     }
 
     /** Saves the workbook of the open module, as a write of one of its tables does. */

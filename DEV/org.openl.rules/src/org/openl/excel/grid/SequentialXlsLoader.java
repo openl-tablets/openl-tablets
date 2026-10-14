@@ -1,6 +1,8 @@
 package org.openl.excel.grid;
 
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +17,8 @@ import org.openl.dependency.DependencyType;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.markdown.MarkdownFormatException;
+import org.openl.excel.parser.markdown.MarkdownReader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -52,6 +56,10 @@ public class SequentialXlsLoader {
     private final Collection<String> imports = new HashSet<>();
     private final List<SyntaxNodeException> errors = new ArrayList<>();
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
+    /**
+     * The workbooks read so far: by their file when they have one, which is named by more than one address, else by
+     * their address.
+     */
     private final Set<String> preprocessedWorkBooks = new HashSet<>();
     private final List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
     private final Set<IDependency> dependencies = new LinkedHashSet<>();
@@ -86,7 +94,9 @@ public class SequentialXlsLoader {
             // Example of such case is AlgorithmTableSpecification.xls.
             path = null;
         }
-        try (ExcelReader excelReader = path == null ? factory.create(source.getByteStream()) : factory.create(path)) {
+        try (ExcelReader excelReader = path == null
+                ? factory.create(source.getByteStream(), StringTool.decodeURL(source.getUri()))
+                : factory.create(path)) {
             List<SheetDescriptor> sheets = excelReader.getSheets();
             var use1904Windowing = excelReader.isUse1904Windowing();
 
@@ -103,6 +113,13 @@ public class SequentialXlsLoader {
             }
 
             return sheetNodes;
+        } catch (MarkdownFormatException e) {
+            // The file has nothing to compile; the error tells the line to fix. Its workbook keeps a sheet all the
+            // same: the compiler puts the table it builds to choose between rule versions on the first one.
+            addError(SyntaxNodeExceptionUtils.createError(e.getMessage(), workbookSourceModule));
+            var sheet = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
+                    MarkdownReader.unreadSheet(StringTool.decodeURL(source.getUri())));
+            return new WorksheetSyntaxNode[]{new WorksheetSyntaxNode(TableSyntaxNode.EMPTY_ARRAY, sheet)};
         }
     }
 
@@ -289,21 +306,45 @@ public class SequentialXlsLoader {
     }
 
     private void preprocessWorkbook(IOpenSourceCodeModule source) {
-
-        var uri = source.getUri();
-
-        if (preprocessedWorkBooks.contains(uri)) {
+        // An include names a file of a module folder by its path, while the folder gives it an address of its own
+        var path = MarkdownFolderModule.pathOf(source);
+        if (!preprocessedWorkBooks.add(path == null ? source.getUri() : path.toString())) {
             return;
         }
+        if (path != null && Files.isDirectory(path)) {
+            preprocessFolder(source, path);
+        } else {
+            workbookNodes.add(readWorkbook(source));
+        }
+    }
 
-        preprocessedWorkBooks.add(uri);
-
+    private WorkbookSyntaxNode readWorkbook(IOpenSourceCodeModule source) {
         var tablePartProcessor = new TablePartProcessor();
         var workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
         var sheetNodes = createWorksheetNodes(tablePartProcessor, workbookSourceModule);
 
-        workbookNodes.add(createWorkbookNode(tablePartProcessor, workbookSourceModule, sheetNodes));
+        var workbookNode = createWorkbookNode(tablePartProcessor, workbookSourceModule, sheetNodes);
         messages.addAll(tablePartProcessor.getMessages());
+        return workbookNode;
+    }
+
+    /**
+     * Reads a module written as a folder of Markdown files: every file is a workbook of the module.
+     *
+     * <p>A file already read, such as one of a sub-folder the module includes, is not read again.
+     */
+    private void preprocessFolder(IOpenSourceCodeModule module, Path folder) {
+        var files = MarkdownFolderModule.files(module, folder);
+        if (files.isEmpty()) {
+            addError(SyntaxNodeExceptionUtils.createError("The module folder holds no Markdown file.", module));
+        }
+        // All are known before any is read: an include of one of them reads nothing, the walk reads it by its place
+        var unread = files.stream().filter(file -> preprocessedWorkBooks.add(file.file().toString())).toList();
+        for (var file : unread) {
+            var workbookNode = readWorkbook(file.source());
+            workbookNodes.add(workbookNode);
+            MarkdownFolderModule.misplacedTables(file.path(), workbookNode).forEach(this::addError);
+        }
     }
 
     private WorkbookSyntaxNode createWorkbookNode(TablePartProcessor tablePartProcessor,

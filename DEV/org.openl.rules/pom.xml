@@ -41,6 +41,19 @@
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
         </dependency>
+        <!-- Markdown rules modules: GFM tables with YAML table headers -->
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark-ext-gfm-tables</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
         <!-- Required for Java11. -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>

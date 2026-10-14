@@ -1818,6 +1818,39 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_table_of_a_markdown_module_is_changed_as_text_only() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                tableCopyService, mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var model = stubResolvedSource(service, project, source);
+        var uri = "file:/projects/PricingProject/rules/Base%20Rates.md?sheet=Rates&range=A1:B3";
+        when(source.getUri()).thenReturn(uri);
+        when(model.getModuleInfo().containsTable(uri)).thenReturn(true);
+        var state = List.of(new TableProperty("state", "AL"));
+        var request = new CopyTableRequest("Rules", null, null, "CopyName", null);
+
+        var editors = assertThrows(BadRequestException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+        var properties = assertThrows(BadRequestException.class,
+                () -> service.updateTableProperties(project, "src-id", state, null, null));
+        var copy = assertThrows(BadRequestException.class, () -> service.copyTable(project, "src-id", request));
+
+        // The file is text, with no workbook to write into or to read the styles of a copy from: refused, naming
+        // the file to edit, before any editor, property writer or destination module is reached.
+        assertEquals("openl.error.400.table.markdown.message", editors.getErrorCode());
+        assertEquals("openl.error.400.table.markdown.message", properties.getErrorCode());
+        assertEquals("openl.error.400.table.markdown.copy.message", copy.getErrorCode());
+        assertArrayEquals(new Object[]{"Base Rates.md"}, editors.getArgs());
+        verifyNoInteractions(tablePropertiesService, tableCopyService);
+        verify(service, never()).openProject(project, "Rules");
+    }
+
+    @Test
     void a_table_the_compiler_built_to_choose_a_version_is_not_written_to() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var tablePropertiesService = mock(TablePropertiesService.class);
@@ -2144,13 +2177,16 @@ class WorkspaceProjectServiceTest {
         var composite = mock(CompositeGrid.class);
         when(partGrid.getGrid()).thenReturn(composite);
         when(part.getGridTable()).thenReturn(partGrid);
+        // A table of a Markdown module keeps no formatting.
+        var markdown = datatype("Model/Driver.md?sheet=Model&range=A1:B2");
         var nodes = new LinkedHashSet<>(compiled.getAllTableSyntaxNodes());
         nodes.add(part);
+        nodes.add(markdown);
         var model = stubCompiledProject(service, project, nodes);
 
         var result = service.formatProject(project);
 
-        // The notes are of the type Other, which is not formatted.
+        // The notes are of the type Other, which is not formatted, and the Markdown table is not even skipped.
         var formatted = List.of("Person", "Code", "people", "Premium", "answer", "Greeting").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();
@@ -2161,6 +2197,7 @@ class WorkspaceProjectServiceTest {
         var module = service.getProjectDescriptor(project).getModules().getFirst();
         verify(model).initProjectHistory(TableTestProjects.table(compiled, "Person").getSyntaxNode(), module);
         verify(model, never()).initProjectHistory(eq(part), any());
+        verify(model, never()).initProjectHistory(eq(markdown), any());
         // The workbook is saved with the style of each role: the header of a table is its Title.
         try (var in = Files.newInputStream(dir.resolve("Model.xlsx")); var saved = new XSSFWorkbook(in)) {
             var header = saved.getSheet("Model").getRow(1).getCell(1).getCellStyle().getCoreXf();

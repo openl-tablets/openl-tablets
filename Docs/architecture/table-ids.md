@@ -65,7 +65,9 @@ contains it.
   name nor its id is part of it: the project is named by the `{projectId}` of the address, and renaming or moving a
   project changes no id. A workbook included by an Environment table is named by its path from the project root
   too, so its tables have one id for every user and machine. A table the compiler built, which stands in no file, is
-  named after the module it was built for.
+  named after the module it was built for. A module written as a folder of Markdown files is named by the path of the
+  folder: a file of it holds a table as a sheet of a workbook holds its tables, so the file of a table may be renamed
+  or moved to another folder of the module without changing the id.
 - **Kind** — what the kind of table declares into. All executable kinds share `method`, so turning a SmartRules table
   into a SimpleRules table keeps its id.
 - **Key** — the `id` property when the table declares it; otherwise the name.
@@ -131,6 +133,7 @@ the bare identity; the next ones add `~2`, `~3` as the last field.
 | Studio moves the table because it has no room to grow | Kept |
 | Rows or columns inserted or deleted elsewhere, in Studio or in Excel | Kept |
 | The table cut and pasted in Excel within its workbook, also to another sheet | Kept |
+| The Markdown file of the table renamed or moved within its module folder | Kept |
 | A merge moves the table | Kept |
 | A sheet renamed | Kept |
 | A parameter added, removed, renamed or retyped; the return type changed | Kept |
@@ -141,7 +144,7 @@ the bare identity; the next ones add `~2`, `~3` as the last field.
 | The module recompiled, Studio restarted, the project opened in another Studio instance | Kept |
 | The table renamed, without the `id` property | New |
 | The `id` property added, changed or removed | New |
-| The module file renamed or moved | New |
+| The module file, or the folder of a Markdown module, renamed or moved | New |
 | The table moved to another module: a copy and a delete | New |
 | The table copied | New table, new id |
 | Tables that share an identity reordered outside Studio | Their numbers may swap |
@@ -233,7 +236,8 @@ instead of answered `404`, and a client holding the id of a deleted table is tol
   - a Studio write that renames a table or changes its `id` property: the old id leads to the one the write answers;
   - a module file or folder moved through `POST /rest/projects/{projectId}/file-move`, for the project open in the
     session: the tables of the moved workbooks keep their kinds, keys and numbers under the new place of their
-    workbook (`TableIds.idsAfterMove`), worked out before the move and learned once it is done;
+    workbook (`TableIds.idsAfterMove`), worked out before the move and learned once it is done. A Markdown file moved
+    within its module folder changes no id;
   - a compilation: `StaleTableIds.Compilations`, held by `ProjectModel`, takes the ids of a module when its
     compilation is dropped — a reset of the module, or a reload that lets go of every module — and compares them
     when the module is compiled again. A table whose id no table has any more and a table under an id the module did

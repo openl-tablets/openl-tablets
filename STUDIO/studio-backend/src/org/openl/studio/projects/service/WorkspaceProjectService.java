@@ -150,6 +150,7 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.GeneratedTables;
+import org.openl.studio.projects.service.tables.MarkdownTables;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
@@ -2455,6 +2456,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 ? getOpenLTable(project, tableId, true)
                 : getOpenLTableInModule(project, tableId, moduleName);
         GeneratedTables.refuseAction(context.module(), context.table());
+        MarkdownTables.refuseWrite(context.table());
         // A table gathered from several partial tables is drawn from cells that do not sit together, and the
         // grid it is read through holds no place to write back into. Refused here, where every write resolves
         // its table, rather than left to fail on the grid itself.
@@ -2654,8 +2656,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * compilation the reader stopped is refused.
      *
      * <p>A table of a project this one depends on is left as it is, as is a table of the type Other and a table of an
-     * {@code .xls} workbook. A table gathered from several partial tables is left as it is too, and named among the
-     * skipped ones. No value is changed.
+     * {@code .xls} workbook, and a table of a Markdown module, which keeps no formatting: OpenL Studio draws its look
+     * alone. A table gathered from several partial tables is left as it is too, and named among the skipped ones. No
+     * value is changed.
      *
      * <p>Each workbook formatted is saved once, without the cell formats and the named styles no cell uses any more.
      * It keeps the change in the local history of its module, and the project is marked modified, as an edit of a
@@ -2677,7 +2680,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var skipped = new ArrayList<String>();
         for (var node : model.getAllTableSyntaxNodes()) {
             var table = new TableSyntaxNodeAdapter(node);
-            var owner = TableRegionLayout.formats(table)
+            var owner = TableRegionLayout.formats(table) && !MarkdownTables.isMarkdown(table)
                     ? CollectionUtils.findFirst(modules, module -> module.containsTable(node.getUri()))
                     : null;
             if (owner != null) {
@@ -2939,6 +2942,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var source = resolved.table();
         // A copy of the table the compiler built would be a rule nobody wrote.
         GeneratedTables.refuseAction(resolved.module(), source);
+        MarkdownTables.refuseCopy(source);
         var requestedSheet = request.sheetName();
         var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
                 ? requestedSheet

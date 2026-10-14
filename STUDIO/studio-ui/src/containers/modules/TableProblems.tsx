@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
+import { CloseCircleFilled, DownOutlined, InfoCircleFilled, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../../services/projectStatus'
 import { readJson, writeJson } from '../../utils/localStore'
@@ -92,6 +92,8 @@ interface TableProblemsProps {
      * whole point of the notice — the reader is otherwise left wondering why nothing can be edited.
      */
     partial?: boolean
+    /** Set on a table of a Markdown module, which is changed as text in the file editor rather than here. */
+    markdown?: boolean
 }
 
 /**
@@ -101,7 +103,14 @@ interface TableProblemsProps {
  * Only the messages the read returned for this table are shown; everything the project raised elsewhere stays
  * in the panel at the foot of the screen.
  */
-export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, partial = false }: TableProblemsProps) => {
+export const TableProblems = ({
+    messages,
+    onEditCell,
+    onStacktrace,
+    cellText,
+    partial = false,
+    markdown = false,
+}: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const [open, setOpen] = useState(() => readJson(STORAGE_KEY, true, (value): value is boolean =>
@@ -117,7 +126,7 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, pa
         writeJson(STORAGE_KEY, open)
     }, [open])
 
-    if (messages.length === 0 && !partial) {
+    if (messages.length === 0 && !partial && !markdown) {
         return null
     }
 
@@ -155,6 +164,12 @@ export const TableProblems = ({ messages, onEditCell, onStacktrace, cellText, pa
                             <div className={styles.partial} data-testid="table-problems-partial">
                                 <WarningFilled className={styles.warningMark} />
                                 {t('browser.module.partial_table')}
+                            </div>
+                        )}
+                        {markdown && (
+                            <div className={styles.partial} data-testid="table-problems-markdown">
+                                <InfoCircleFilled />
+                                {t('browser.module.markdown_table')}
                             </div>
                         )}
                         <CompileMessages

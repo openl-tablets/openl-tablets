@@ -380,6 +380,7 @@ i18next.addResourceBundle('en', 'repository', {
         module: {
             export: 'Export',
             export_unavailable: 'The project does not say which workbook this module is written in',
+            export_folder: 'This module is a folder of files: export the project to download it',
             refresh: 'Refresh',
             verify: 'Verify',
             run: 'Run',
@@ -448,6 +449,7 @@ i18next.addResourceBundle('en', 'repository', {
             test_elsewhere: 'Written in project "{{project}}", which is not open here',
             problems: 'Problems',
             partial_table: 'This table is written as several partial tables, so it cannot be edited here. Open it in Excel to change it.',
+            markdown_table: 'This table comes from a Markdown file, so it cannot be edited here. Edit the file as text in the Files tab to change it.',
             details: 'Table Details',
             details_show: 'Show table details',
             details_hide: 'Hide table details',

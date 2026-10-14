@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isWorkbookPath, WORKBOOK_ACCEPT } from './workbooks'
+import { isMarkdownPath, isWorkbookPath, WORKBOOK_ACCEPT } from './workbooks'
 
 describe('isWorkbookPath', () => {
     it('reads the three extensions the engine reads, whatever case they are written in', () => {
@@ -25,5 +25,19 @@ describe('isWorkbookPath', () => {
 
     it('offers the extensions to a file picker', () => {
         expect(WORKBOOK_ACCEPT).toBe('.xlsx,.xls,.xlsm')
+    })
+})
+
+describe('isMarkdownPath', () => {
+    it('reads a Markdown module, whatever case its extension is written in', () => {
+        expect(isMarkdownPath('rules/Greetings.md')).toBe(true)
+        expect(isMarkdownPath('rules/Greetings.MD')).toBe(true)
+    })
+
+    it('reads no Markdown module out of a workbook, another file or no path at all', () => {
+        expect(isMarkdownPath('rules/Greetings.xlsx')).toBe(false)
+        expect(isMarkdownPath('rules/Greetings.mdx')).toBe(false)
+        expect(isMarkdownPath('')).toBe(false)
+        expect(isMarkdownPath(undefined)).toBe(false)
     })
 })

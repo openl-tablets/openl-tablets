@@ -1,0 +1,14 @@
+<project>
+    <name>MD-POC_Mixed</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Model"/>
+        </module>
+        <module>
+            <rules-root path="rules/Rates.xlsx"/>
+        </module>
+        <module>
+            <rules-root path="rules/Tests"/>
+        </module>
+    </modules>
+</project>
