@@ -43,7 +43,8 @@ or an uploaded file.
   branches do not overlap
 - **Conflict Detection**: Automatic detection of merge conflicts with detailed file-level information
 - **Conflict Resolution**: Multiple strategies for resolving conflicts (BASE, OURS, THEIRS, CUSTOM)
-- **Conflict Comparison**: The two versions of a conflicted workbook are compared through the Compare API
+- **Conflict Comparison**: Two versions of a conflicted workbook, or its base version against either of them, are
+  compared through the Compare API
 - **Protected Branches**: A merge into a protected branch takes an explicit bypass confirmation (`force=true`)
 - **Session Management**: Maintains conflict state across multiple API calls
 - **Excel File Prioritization**: Excel files come first in conflict lists
@@ -604,12 +605,13 @@ branch.
 
 **Query Parameters**:
 - `file` (string, required): Path of the conflicted file exactly as `conflictGroups[].files` lists it
-- `side` (enum, required): Version to retrieve: `BASE`, `OURS`, or `THEIRS`
+- `side` (enum, required): Version to retrieve: `base`, `ours`, or `theirs`, as [ConflictBase](#conflictbase) names
+  them
 
 **Side Definitions**:
-- `BASE`: Common ancestor version (before branches diverged)
-- `OURS`: Version from the current branch; in a save conflict, the version being saved
-- `THEIRS`: Version from the merging branch; in a save conflict, the version another user saved first
+- `base`: Common ancestor version (before branches diverged)
+- `ours`: Version from the current branch; in a save conflict, the version being saved
+- `theirs`: Version from the merging branch; in a save conflict, the version another user saved first
 
 **Response**: `200 OK`
 - Content-Type: Determined by file name (e.g.,
@@ -623,7 +625,7 @@ avoid requesting missing versions by checking `fileAvailability` in the conflict
 
 **Example**:
 ```bash
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=OURS
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=ours
 ```
 
 **Errors**:
@@ -636,8 +638,9 @@ GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/compare`
 
-**Description**: Starts a comparison of the two versions of a conflicted workbook — the THEIRS version against the
-OURS version. The comparison itself is read through the Compare API, so this endpoint only starts it.
+**Description**: Starts a comparison of two versions of a conflicted workbook — by default their version against
+yours. The base version against either side shows what that side changed since the branches parted. The comparison
+itself is read through the Compare API, so this endpoint only starts it.
 
 **HTTP Method**: POST
 
@@ -646,6 +649,8 @@ OURS version. The comparison itself is read through the Compare API, so this end
 
 **Query Parameters**:
 - `file` (string, required): Path of the conflicted file exactly as `conflictGroups[].files` lists it
+- `first` (enum, optional): The version the comparison starts from: `base`, `ours` or `theirs`; `theirs` by default
+- `second` (enum, optional): The version compared with the first one: `base`, `ours` or `theirs`; `ours` by default
 
 **Response**: `202 Accepted`
 ```json
@@ -662,15 +667,17 @@ releases this one.
 Only Excel files are compared this way. A conflicted file of any other format is read line by line by the client
 through `GET /rest/projects/{projectId}/merge/conflicts/files`, which is why this endpoint refuses it.
 
-**Example**:
+**Example**: what the other branch changed in the workbook
 ```bash
-POST /rest/projects/MyProject/merge/conflicts/compare?file=MyProject%2Frules%2FMain.xlsx
+POST /rest/projects/MyProject/merge/conflicts/compare?file=MyProject%2Frules%2FMain.xlsx&first=base&second=theirs
 ```
 
 **Errors**:
-- `400 Bad Request`: The file is not an Excel file; this is checked before the stored conflict is read
+- `400 Bad Request`: The file is not an Excel file, which is checked before the stored conflict is read; or `first` or
+  `second` names no version
 - `404 Not Found`: No conflict information found, file not in conflict list, or file missing in one of the
-  two versions
+  two versions; `fileAvailability` of `GET /merge/conflicts` tells which versions hold the file. A conflict of
+  branches with no history in common has no `base` version (`project.merge.conflict.file.side.not.found`)
 
 ---
 
@@ -950,8 +957,8 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 
 ### ConflictBase
 
-`BASE` (common ancestor version), `OURS` (current branch version), `THEIRS` (merging branch version). The value is
-sent as written.
+`base` (common ancestor version), `ours` (current branch version), `theirs` (merging branch version). The names in
+upper case that earlier versions of OpenL Studio took, `BASE`, `OURS` and `THEIRS`, are accepted as well.
 
 ---
 
@@ -1048,8 +1055,8 @@ sent as written.
    }
 
 3. Download conflict versions for review
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=OURS
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=THEIRS
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=ours
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=theirs
 
 4. Resolve conflicts
    POST /rest/projects/MyProject/merge/conflicts/resolve
@@ -1083,9 +1090,9 @@ sent as written.
    Response: { "status": "conflicts", ... }
 
 2. Download all versions for manual merge
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=BASE
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=OURS
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=THEIRS
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=base
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=ours
+   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=theirs
 
 3. Manually merge files locally (external tool)
    - User creates merged-rules.xml combining changes
@@ -1435,10 +1442,10 @@ curl http://localhost:8080/rest/projects/MyProject/merge
 
 # Step 2: Download versions for review
 curl -o ours-pricing.xlsx \
-  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=OURS"
+  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=ours"
 
 curl -o theirs-pricing.xlsx \
-  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=THEIRS"
+  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=theirs"
 
 # Step 3: Resolve with mixed strategies
 curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resolve \
@@ -1507,14 +1514,14 @@ curl -X DELETE http://localhost:8080/rest/projects/MyProject/merge/conflicts
 When using CUSTOM strategy, review all three versions, and request only the versions `fileAvailability` reports:
 
 ```bash
-# Download BASE (common ancestor)
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=BASE
+# Download the base version (common ancestor)
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=base
 
-# Download OURS (current branch)
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=OURS
+# Download your version (current branch)
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=ours
 
-# Download THEIRS (merging branch)
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=THEIRS
+# Download their version (merging branch)
+GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=theirs
 ```
 
 ### 3. Resolve Every Conflicted File in One Request
@@ -1570,11 +1577,11 @@ Resolving conflicts pauses the compilation for the length of its request.
 ### Conflict File Retrieval
 
 Files are read from the commits of the conflict, not from the working tree:
-- `BASE`: Common ancestor from merge base
-- `OURS`: Commit of the current branch
-- `THEIRS`: Commit of the other branch
+- `base`: Common ancestor from merge base
+- `ours`: Commit of the current branch
+- `theirs`: Commit of the other branch
 
-In a `send` merge, the branches swap their Git roles, so `OURS` stays the current branch.
+In a `send` merge, the branches swap their Git roles, so `ours` stays the current branch.
 
 ---
 

@@ -157,7 +157,10 @@ class ProjectsMergeControllerTest {
                 .thenReturn(ours);
         when(comparisonLauncher.startContentOf(any())).thenReturn(new ComparisonStartedView("cmp-1"));
 
-        var started = controller.compareConflictedFile(project, "rules/Rates.xlsx");
+        var started = controller.compareConflictedFile(project,
+                "rules/Rates.xlsx",
+                ConflictBase.THEIRS,
+                ConflictBase.OURS);
 
         assertEquals("cmp-1", started.id());
         // The version being merged in is read first, so the comparison reads as what the merge brings.
@@ -168,9 +171,35 @@ class ProjectsMergeControllerTest {
     }
 
     @Test
+    void comparesTheVersionsTheRequestNames() throws Exception {
+        var conflictInfo = givenConflict();
+        var base = fileItem("base");
+        var theirs = fileItem("theirs");
+        when(mergeConflictsService.getConflictFileItem(conflictInfo, "rules/Rates.xlsx", ConflictBase.BASE))
+                .thenReturn(base);
+        when(mergeConflictsService.getConflictFileItem(conflictInfo, "rules/Rates.xlsx", ConflictBase.THEIRS))
+                .thenReturn(theirs);
+        when(comparisonLauncher.startContentOf(any())).thenReturn(new ComparisonStartedView("cmp-2"));
+
+        var started = controller.compareConflictedFile(project,
+                "rules/Rates.xlsx",
+                ConflictBase.BASE,
+                ConflictBase.THEIRS);
+
+        assertEquals("cmp-2", started.id());
+        // The base version is read first, so the comparison reads as what their branch changed.
+        var files = ArgumentCaptor.forClass(List.class);
+        verify(comparisonLauncher).startContentOf(files.capture());
+        var contents = (List<ComparisonContent>) files.getValue();
+        assertEquals("base", new String(contents.getFirst().content().readAllBytes(), StandardCharsets.UTF_8));
+        assertEquals("theirs", new String(contents.getLast().content().readAllBytes(), StandardCharsets.UTF_8));
+    }
+
+    @Test
     void refusesToCompareAFileThatIsNotAWorkbook() {
         // A file of any other format is compared line by line, which the screen does itself.
-        assertThrows(BadRequestException.class, () -> controller.compareConflictedFile(project, "rules.xml"));
+        assertThrows(BadRequestException.class,
+                () -> controller.compareConflictedFile(project, "rules.xml", ConflictBase.THEIRS, ConflictBase.OURS));
     }
 
     @Test
@@ -183,7 +212,10 @@ class ProjectsMergeControllerTest {
                 .thenThrow(new IllegalStateException("no such revision"));
 
         assertThrows(IllegalStateException.class,
-                () -> controller.compareConflictedFile(project, "rules/Rates.xlsx"));
+                () -> controller.compareConflictedFile(project,
+                        "rules/Rates.xlsx",
+                        ConflictBase.THEIRS,
+                        ConflictBase.OURS));
 
         // The version that was read stays open otherwise, because nothing takes it over.
         verify(theirs.getStream()).close();

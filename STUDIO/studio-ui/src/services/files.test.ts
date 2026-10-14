@@ -9,6 +9,7 @@ import {
     downloadFolder,
     getFileRevisions,
     getFileContent,
+    getFileText,
     isEditableTextFile,
     moveFile,
     replaceFile,
@@ -68,6 +69,19 @@ describe('files service', () => {
         vi.mocked(apiCall).mockResolvedValue(new Response(''))
 
         await expect(getFileContent('project', 'empty.txt')).resolves.toBe('')
+    })
+
+    it('shows a file not written in UTF-8 with every byte a character of its own', async () => {
+        // "Prämie=1" written in ISO-8859-1: the umlaut is one byte, which is no UTF-8.
+        vi.mocked(apiCall).mockResolvedValue(new Response(new Uint8Array([0x50, 0x72, 0xe4, 0x6d, 0x69, 0x65, 0x3d, 0x31])))
+
+        await expect(getFileText('repo/project', 'i18n/message.properties', 'rev 1')).resolves.toBe('Prämie=1')
+
+        expect(apiCall).toHaveBeenCalledWith(
+            '/projects/repo_project/files/i18n/message.properties?version=rev%201',
+            undefined,
+            { throwError: true, responseType: 'response', suppressErrorPages: true }
+        )
     })
 
 

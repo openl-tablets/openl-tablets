@@ -7,7 +7,7 @@ export type MergeMode = 'receive' | 'send'
 export type ConflictResolutionStrategy = 'BASE' | 'OURS' | 'THEIRS' | 'CUSTOM'
 
 // File version side for downloads
-export type FileSide = 'BASE' | 'OURS' | 'THEIRS'
+export type { ConflictSide as FileSide } from '../../services/compare'
 
 // Check merge status
 export type CheckMergeStatus = 'mergeable' | 'up-to-date'

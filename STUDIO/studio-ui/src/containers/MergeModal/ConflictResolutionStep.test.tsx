@@ -322,7 +322,7 @@ describe('ConflictResolutionStep', () => {
                 await userEvent.click(screen.getByText('merge:compare.download_yours'))
 
                 expect(openSpy).toHaveBeenCalledWith(
-                    expect.stringContaining('side=OURS'),
+                    expect.stringContaining('side=ours'),
                     '_blank'
                 )
             } finally {
@@ -338,7 +338,7 @@ describe('ConflictResolutionStep', () => {
                 await userEvent.click(screen.getByText('merge:compare.download_theirs'))
 
                 expect(openSpy).toHaveBeenCalledWith(
-                    expect.stringContaining('side=THEIRS'),
+                    expect.stringContaining('side=theirs'),
                     '_blank'
                 )
             } finally {
@@ -354,7 +354,7 @@ describe('ConflictResolutionStep', () => {
                 await userEvent.click(screen.getByText('merge:compare.download_base'))
 
                 expect(openSpy).toHaveBeenCalledWith(
-                    expect.stringContaining('side=BASE'),
+                    expect.stringContaining('side=base'),
                     '_blank'
                 )
             } finally {

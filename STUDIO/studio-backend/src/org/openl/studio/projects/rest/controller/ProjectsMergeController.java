@@ -148,21 +148,26 @@ public class ProjectsMergeController {
     public ComparisonStartedView compareConflictedFile(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @Parameter(description = "projects.merge.param.file.desc", required = true)
-            @RequestParam("file") String filePath) throws IOException {
+            @RequestParam("file") String filePath,
+            @Parameter(description = "projects.merge.compare-conflict.param.first.desc")
+            @RequestParam(name = "first", defaultValue = "theirs") ConflictBase first,
+            @Parameter(description = "projects.merge.compare-conflict.param.second.desc")
+            @RequestParam(name = "second", defaultValue = "ours") ConflictBase second) throws IOException {
         var fileName = FileUtils.getName(filePath);
         if (!FileTypeHelper.isExcelFile(fileName)) {
             // A file of any other format is compared line by line, which the screen does itself.
             throw new BadRequestException("compare.file.not-excel.message");
         }
         var conflictInfo = getMergeConflictInfo0(project);
-        var theirs = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, ConflictBase.THEIRS);
+        var firstVersion = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, first);
         try {
-            var ours = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, ConflictBase.OURS);
-            return comparisonLauncher.startContentOf(List.of(new ComparisonContent(fileName, theirs.getStream()),
-                    new ComparisonContent(fileName, ours.getStream())));
+            var secondVersion = mergeConflictsService.getConflictFileItem(conflictInfo, filePath, second);
+            return comparisonLauncher.startContentOf(List.of(
+                    new ComparisonContent(fileName, firstVersion.getStream()),
+                    new ComparisonContent(fileName, secondVersion.getStream())));
         } catch (Exception e) {
-            // The version of the other side is open by now; a side that cannot be read closes it.
-            IOUtils.closeQuietly(theirs.getStream());
+            // The first version is open by now; a second one that cannot be read closes it.
+            IOUtils.closeQuietly(firstVersion.getStream());
             throw e;
         }
     }

@@ -1,0 +1,3 @@
+DELETE /rest/compare/{THEIR_CHANGES} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

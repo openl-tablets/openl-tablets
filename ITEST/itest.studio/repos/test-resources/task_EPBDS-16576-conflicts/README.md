@@ -6,6 +6,8 @@ This suite verifies that the file a merge could not settle is compared through t
   the side branch leaves the workbook in conflict;
 - the conflicted workbook is compared as the merge holds it, the version being received against the
   version of the workspace;
+- the base version is compared with the version being received, which tells what the side branch
+  changed: the sheet and the table it added;
 - the comparison answers with its own identifier and is read, watched and released as any other one;
 - a conflicted file that is not an Excel file is refused before a comparison is started, because the
   screen reads such a file line by line instead.

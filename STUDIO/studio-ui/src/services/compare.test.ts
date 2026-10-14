@@ -3,6 +3,7 @@ import apiCall, { readTaskResult } from './apiCall'
 import {
     comparisonStatusTopic,
     dropComparison,
+    getConflictFileText,
     getComparison,
     getComparisonTable,
     startFileComparison,
@@ -19,6 +20,20 @@ const OPTIONS = { throwError: true, suppressErrorPages: true }
 describe('compare service', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+    })
+
+    it('reads a version of a conflicted file not written in UTF-8 with every byte a character of its own', async () => {
+        // "Prämie=1" written in ISO-8859-1: the umlaut is one byte, which is no UTF-8.
+        vi.mocked(apiCall).mockResolvedValue(new Blob([new Uint8Array([0x50, 0x72, 0xe4, 0x6d, 0x69, 0x65, 0x3d, 0x31])]))
+
+        await expect(getConflictFileText('repo/project', 'p/i18n/message.properties', 'theirs'))
+            .resolves.toBe('Prämie=1')
+
+        expect(apiCall).toHaveBeenCalledWith(
+            '/projects/repo_project/merge/conflicts/files?file=p%2Fi18n%2Fmessage.properties&side=theirs',
+            undefined,
+            { ...OPTIONS, responseType: 'blob' }
+        )
     })
 
     it('sends the two files to compare and answers with the comparison', async () => {

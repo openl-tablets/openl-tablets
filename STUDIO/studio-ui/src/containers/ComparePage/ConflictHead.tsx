@@ -8,6 +8,8 @@ interface ConflictHeadProps {
     path: string
     /** What the merge did to a conflicted file; null while that is still being read, and for any other file. */
     status: ConflictFileStatus | null
+    /** What the head offers at the end of its line: for a conflicted file, the views of it. */
+    children?: React.ReactNode
 }
 
 /** What the merge did to the file, in the words the rest of the comparison uses for it. */
@@ -19,7 +21,7 @@ const statusKey = (status: ConflictFileStatus): string => `status_${status}`
  * The window is opened away from the screen that asked for it, so it names the file itself rather than
  * leaving the reader to remember which file this is.
  */
-export const ConflictHead: React.FC<ConflictHeadProps> = ({ path, status }) => {
+export const ConflictHead: React.FC<ConflictHeadProps> = ({ path, status, children }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
 
@@ -27,6 +29,7 @@ export const ConflictHead: React.FC<ConflictHeadProps> = ({ path, status }) => {
         <div className={styles.conflictHead} data-testid="compare-conflict-head">
             <span>{`${t('file_name')}: ${path.split('/').pop() ?? path}`}</span>
             {status && <span>{`${t('file_status')}: ${t(statusKey(status))}`}</span>}
+            {children && <div className={styles.headTail}>{children}</div>}
         </div>
     )
 }

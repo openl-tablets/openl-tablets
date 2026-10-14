@@ -22,6 +22,16 @@ describe('TextDiffView', () => {
         expect(lines).toContain('  one')
     })
 
+    it('numbers the lines of the second version first when that version is shown on the left', () => {
+        render(<TextDiffView secondOnLeft first="two" second="three" />)
+
+        const [removed, added] = [...screen.getByTestId('compare-text-diff').children]
+            .map(line => [...line.children].map(cell => cell.textContent))
+        // The signs still read from the first version: the comparison starts from it.
+        expect(removed).toEqual(['', '1', '- two'])
+        expect(added).toEqual(['1', '', '+ three'])
+    })
+
     it('says that the two versions read the same', () => {
         render(<TextDiffView first={'one\ntwo'} second={'one\ntwo'} />)
 
