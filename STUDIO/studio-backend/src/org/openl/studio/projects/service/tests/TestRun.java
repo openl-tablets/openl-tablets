@@ -24,7 +24,16 @@ public final class TestRun {
     @Getter
     @Accessors(fluent = true)
     private final List<TestUnitsResults> tables;
+
+    @Getter
+    @Accessors(fluent = true)
+    private final List<String> notRun;
+
     private @Nullable ExecutionValueLevels levels;
+
+    public TestRun(List<TestUnitsResults> tables) {
+        this(tables, List.of());
+    }
 
     /**
      * Reads the values of the run a level at a time.

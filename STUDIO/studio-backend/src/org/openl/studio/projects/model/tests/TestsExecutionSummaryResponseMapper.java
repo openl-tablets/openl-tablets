@@ -50,8 +50,12 @@ public class TestsExecutionSummaryResponseMapper {
         this.tableModules = tableModules;
     }
 
-    public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults, TestExecutionSummaryQuery query, Pageable page) {
-        var builder = TestsExecutionSummary.builder().page(page).total(testUnitsResults.size());
+    public TestsExecutionSummary mapExecutionSummary(List<TestUnitsResults> testUnitsResults,
+                                                     List<String> notRunTables,
+                                                     TestExecutionSummaryQuery query,
+                                                     Pageable page) {
+        var builder = TestsExecutionSummary.builder().page(page).total(testUnitsResults.size())
+                .notRunTables(notRunTables);
         calculateSummaryStats(testUnitsResults, builder);
         testUnitsResults.stream()
                 .sorted(TEST_COMPARATOR)

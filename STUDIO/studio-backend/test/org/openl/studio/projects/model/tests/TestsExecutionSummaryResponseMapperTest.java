@@ -123,7 +123,7 @@ class TestsExecutionSummaryResponseMapperTest {
         var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
                 TableModules.none());
 
-        var summary = mapper.mapExecutionSummary(List.of(first, second), TestExecutionSummaryQuery.lazy(),
+        var summary = mapper.mapExecutionSummary(List.of(first, second), List.of(), TestExecutionSummaryQuery.lazy(),
                 Page.of(0, 1));
 
         assertEquals(2L, summary.getTotal());
