@@ -391,7 +391,7 @@ describe('Security', () => {
         mockApiCall.mockImplementation((url: string, options?: any) => {
             // The save call is the one with Content-Type: application/merge-patch+json
             if (options?.headers?.['Content-Type'] === 'application/merge-patch+json') {
-                return Promise.reject(new Error('Save failed'))
+                return Promise.reject(Object.assign(new Error('Save failed'), { name: 'ApiHttpError' }))
             }
             return Promise.resolve(defaultSettings)
         })
@@ -410,7 +410,7 @@ describe('Security', () => {
         })
 
         await waitFor(() => {
-            expect(notification.error).toHaveBeenCalled()
+            expect(notification.error).toHaveBeenCalledWith({ title: 'common:error: Save failed' })
         })
     })
 })

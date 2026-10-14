@@ -6,6 +6,7 @@ import { Checkbox, RadioGroup } from '../components/form'
 import { SecurityUserMode } from '../constants/security'
 import { InitialUsers } from './security/InitialUsers'
 import { apiCall } from '../services'
+import { errorMessage } from '../utils/errorMessage'
 import { ActiveDirectoryMode } from './security/ActiveDirectoryMode'
 import { SAMLMode } from './security/SAMLMode'
 import { OAuth2Mode } from './security/OAuth2Mode'
@@ -119,7 +120,7 @@ export const Security = () => {
                 window.location.reload()
             })
             .catch(error => {
-                notification.error({ title: error.toString() })
+                notification.error({ title: `${t('common:error')}: ${errorMessage(error)}` })
             })
     }
 
