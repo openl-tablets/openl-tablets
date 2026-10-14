@@ -11,6 +11,30 @@ vi.mock('services', () => ({
     CONFIG: { CONTEXT: '' },
 }))
 
+// The editor merges a text file of its own; the step is asked here only what it opens it with and what it does
+// with the merged text.
+const mergeEditor = vi.fn()
+const MERGED = {
+    text: 'b=merged\n',
+    decisions: [{ choice: 'theirs', lines: 'b=merged\n' }],
+    blocks: [{ kind: 'conflict', ours: 'b=ours\n', base: 'b=1\n', theirs: 'b=merged\n' }],
+}
+vi.mock('containers/MergeModal/TextMergeEditor', () => ({
+    TextMergeEditor: (props: any) => {
+        mergeEditor(props)
+        return (
+            <div data-testid="text-merge-editor">
+                <button
+                    onClick={() => props.onApply(MERGED)}
+                >
+                    apply
+                </button>
+                <button onClick={props.onCancel}>leave</button>
+            </div>
+        )
+    },
+}))
+
 vi.mock('react-i18next', () => {
     const t = (key: string, params?: Record<string, string>) => {
         if (params) {
@@ -117,6 +141,10 @@ vi.mock('antd', async () => {
 
 const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 
+/** The form the dialog sent to resolve the conflicts. */
+const resolvedForm = () => mockApiCall.mock.calls
+    .find(call => call[0] === '/projects/proj-1/merge/conflicts/resolve')![1]!.body as FormData
+
 const conflictGroups: ConflictGroup[] = [
     { projectName: 'Project A', projectPath: 'projectA', files: ['rules/Main.xlsx']},
 ]
@@ -129,7 +157,7 @@ const multiFileGroups: ConflictGroup[] = [
 const conflictDetails: ConflictDetails = {
     conflictGroups,
     fileAvailability: {
-        'rules/Main.xlsx': { ours: true, theirs: true, base: true },
+        'rules/Main.xlsx': { ours: true, theirs: true, base: true, text: false },
     },
     oursRevision: {
         commit: 'abc123',
@@ -219,6 +247,19 @@ describe('ConflictResolutionStep', () => {
 
             expect(screen.getByText('feature')).toBeInTheDocument()
             expect(screen.getByText('main')).toBeInTheDocument()
+        })
+
+        it('lays the versions out as merge tools do: yours, the base, theirs', async () => {
+            await renderAndLoad()
+
+            const labels = [...document.querySelectorAll('dt')].map(term => term.textContent)
+            expect(labels).toEqual(['merge:revisions.yours', 'merge:revisions.base', 'merge:revisions.theirs'])
+            const downloads = screen.getAllByText(/merge:compare\.download_/).map(link => link.textContent)
+            expect(downloads.slice(0, 3)).toEqual([
+                'merge:compare.download_yours',
+                'merge:compare.download_base',
+                'merge:compare.download_theirs',
+            ])
         })
 
         it('keeps a long revision branch on one line and exposes its full name', async () => {
@@ -394,8 +435,8 @@ describe('ConflictResolutionStep', () => {
                 ...conflictDetails,
                 conflictGroups: groups,
                 fileAvailability: {
-                    'rules/Main.xlsx': { ours: false, theirs: true, base: true },
-                    'rules/Helper.xlsx': { ours: true, theirs: false, base: true },
+                    'rules/Main.xlsx': { ours: false, theirs: true, base: true, text: false },
+                    'rules/Helper.xlsx': { ours: true, theirs: false, base: true, text: false },
                 },
             }
             await renderAndLoad({ ...defaultProps(), conflictGroups: groups }, details)
@@ -482,10 +523,7 @@ describe('ConflictResolutionStep', () => {
                     true
                 )
             })
-            const resolveCall = mockApiCall.mock.calls.find(
-                call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
-            )
-            const formData = resolveCall![1]!.body as FormData
+            const formData = resolvedForm()
             expect(formData.get('resolutions[0].filePath')).toBe('rules/Main.xlsx')
             expect(formData.get('resolutions[0].strategy')).toBe('THEIRS')
         })
@@ -509,10 +547,7 @@ describe('ConflictResolutionStep', () => {
                     true
                 )
             })
-            const resolveCall = mockApiCall.mock.calls.find(
-                call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
-            )
-            const formData = resolveCall![1]!.body as FormData
+            const formData = resolvedForm()
             expect(formData.get('message')).toBe('Custom merge message')
         })
 
@@ -531,10 +566,7 @@ describe('ConflictResolutionStep', () => {
                     true
                 )
             })
-            const resolveCall = mockApiCall.mock.calls.find(
-                call => call[0] === '/projects/proj-1/merge/conflicts/resolve'
-            )
-            const formData = resolveCall![1]!.body as FormData
+            const formData = resolvedForm()
             expect(formData.get('message')).toBeNull()
         })
 
@@ -601,6 +633,124 @@ describe('ConflictResolutionStep', () => {
             await userEvent.type(textarea, 'New message')
 
             expect(screen.getByDisplayValue('New message')).toBeInTheDocument()
+        })
+    })
+
+    describe('merging a text file line by line', () => {
+        const MESSAGES = 'projectA/i18n/message.properties'
+        const textDetails = (availability = { ours: true, theirs: true, base: true, text: true }): ConflictDetails => ({
+            ...conflictDetails,
+            conflictGroups: [{ projectName: 'Project A', projectPath: 'projectA', files: [MESSAGES]}],
+            fileAvailability: { [MESSAGES]: availability },
+        })
+        const textProps = () => ({
+            ...defaultProps(),
+            conflictGroups: [{ projectName: 'Project A', projectPath: 'projectA', files: [MESSAGES]}],
+        })
+
+        /** Picks merging the file line by line and applies what the editor merged. */
+        const mergeInPlace = async () => {
+            await userEvent.click(screen.getByDisplayValue('MERGE'))
+            await userEvent.click(within(screen.getByTestId('text-merge-editor')).getByText('apply'))
+        }
+
+        it('offers it for a file the server can merge line by line', async () => {
+            await renderAndLoad(textProps(), textDetails())
+
+            expect(screen.getByText('merge:resolution.merge_in_place')).toBeInTheDocument()
+        })
+
+        it('does not offer it for a workbook', async () => {
+            await renderAndLoad()
+
+            expect(screen.queryByText('merge:resolution.merge_in_place')).toBeNull()
+        })
+
+        it('does not offer it for a file that is not text, such as a library', async () => {
+            await renderAndLoad(textProps(), textDetails({ ours: true, theirs: true, base: true, text: false }))
+
+            expect(screen.queryByText('merge:resolution.merge_in_place')).toBeNull()
+        })
+
+        it('does not offer it for a file a version no longer holds', async () => {
+            await renderAndLoad(textProps(), textDetails({ ours: true, theirs: false, base: true, text: true }))
+
+            expect(screen.queryByText('merge:resolution.merge_in_place')).toBeNull()
+        })
+
+        it('merges the file in the editor and sends the merged text as the merged file', async () => {
+            const props = await renderAndLoad(textProps(), textDetails())
+
+            await userEvent.click(screen.getByDisplayValue('MERGE'))
+
+            expect(mergeEditor).toHaveBeenLastCalledWith(expect.objectContaining({
+                filePath: MESSAGES,
+                projectId: 'proj-1',
+                merged: undefined,
+            }))
+            // The columns of the editor name the branches the versions come from.
+            const { versionLabels } = mergeEditor.mock.lastCall![0]
+            expect(versionLabels.ours.props.name).toBe(textDetails().oursRevision!.branch)
+            expect(versionLabels.theirs.props.name).toBe(textDetails().theirsRevision!.branch)
+            await userEvent.click(within(screen.getByTestId('text-merge-editor')).getByText('apply'))
+
+            expect(screen.queryByTestId('text-merge-editor')).toBeNull()
+            expect(screen.getByText('merge:resolution.merged_in_place')).toBeInTheDocument()
+            mockApiCall.mockResolvedValueOnce({})
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
+
+            await waitFor(() => expect(props.onResolveSuccess).toHaveBeenCalled())
+            const formData = resolvedForm()
+            expect(formData.get('resolutions[0].strategy')).toBe('CUSTOM')
+            const file = formData.get('resolutions[0].file') as File
+            expect(file.name).toBe('message.properties')
+            expect(await file.text()).toBe('b=merged\n')
+        })
+
+        it('opens the editor again on the decisions made', async () => {
+            await renderAndLoad(textProps(), textDetails())
+            await mergeInPlace()
+
+            await userEvent.click(screen.getByText('merge:resolution.edit_merge'))
+
+            // The editor gets the decisions with the parts of the file they were made for.
+            expect(mergeEditor).toHaveBeenLastCalledWith(expect.objectContaining({ merged: MERGED }))
+        })
+
+        it('leaves the resolution as it was when the editor is left', async () => {
+            await renderAndLoad(textProps(), textDetails())
+
+            await userEvent.click(screen.getByDisplayValue('MERGE'))
+            await userEvent.click(within(screen.getByTestId('text-merge-editor')).getByText('leave'))
+
+            expect(screen.queryByTestId('text-merge-editor')).toBeNull()
+            expect(screen.getByText('merge:buttons.resolve')).toBeDisabled()
+        })
+
+        it('lets another resolution take the place of the merged text', async () => {
+            await renderAndLoad(textProps(), textDetails())
+            await mergeInPlace()
+
+            await userEvent.click(screen.getByDisplayValue('OURS'))
+
+            expect(screen.queryByText('merge:resolution.merged_in_place')).toBeNull()
+            mockApiCall.mockResolvedValueOnce({})
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
+            await waitFor(() => expect(mockApiCall).toHaveBeenCalledWith(
+                '/projects/proj-1/merge/conflicts/resolve', expect.anything(), true))
+            const formData = resolvedForm()
+            expect(formData.get('resolutions[0].strategy')).toBe('OURS')
+            expect(formData.get('resolutions[0].file')).toBeNull()
+        })
+
+        it('asks for a file again when the upload takes the place of the merged text', async () => {
+            await renderAndLoad(textProps(), textDetails())
+            await mergeInPlace()
+
+            await userEvent.click(screen.getByDisplayValue('CUSTOM'))
+
+            expect(screen.getByText('merge:upload.select_file')).toBeInTheDocument()
+            expect(screen.getByText('merge:buttons.resolve')).toBeDisabled()
         })
     })
 })

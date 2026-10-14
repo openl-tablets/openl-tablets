@@ -29,6 +29,7 @@ flowchart TB
     CS --> Git
     CS --> MC
     CS --> XM["XlsWorkbookMerger<br/>sheet and cell merge"]
+    CS --> TM["TextMerge<br/>text file line by line"]
     Save["Project save"] -- SaveMergeConflictEvent --> Lst["SaveMergeConflictEventListener"]
     Lst --> SH
 ```
@@ -44,8 +45,8 @@ flowchart TB
 - **`ProjectsMergeRegistry`** — keeps the merge a client started last (`StartedMerge`): the merge itself and the
   editor state it found.
 - **`ProjectsMergeConflictsService`** — describes a conflict (revisions, file availability, default message), groups the
-  conflicted files by project, reads one version of a file, and resolves. A resolved merge is summed up by
-  `MergeChangesService`, as a merge without conflicts is.
+  conflicted files by project, reads one version of a file, merges a conflicted text file line by line, and
+  resolves. A resolved merge is summed up by `MergeChangesService`, as a merge without conflicts is.
 - **`ProjectsMergeConflictsSessionHolder`** — keeps the unresolved conflict of one client.
 - **`SaveMergeConflictEventListener`** — stores the conflict that a project save found in the same holder.
 - **`ComparisonLauncher`** (`org.openl.studio.compare.service`) — starts the comparison of two versions of a
@@ -58,6 +59,16 @@ flowchart TB
   table by table instead: **`XlsSheetTables`** splits each version into tables and pairs them by their headers,
   **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
   **`XlsFormulaReferences`** keeps the sheet a conflict when a formula or a defined name refers to content that moves.
+- **`TextMerge`** (`org.openl.rules.repository.git.text`) — merges the three versions of a conflicted text file line
+  by line, and tells the lines it takes by itself from the conflicts between them, part by part, each part with the
+  lines every version holds in its place and their line breaks. It compares the base with each version by the diff
+  algorithm Git uses, so it takes the same lines by itself and finds the same conflicts as the merge of the branches.
+  Unlike Git's conflict markers, a conflict keeps the lines both versions start or end with: taking both versions
+  keeps each whole, and its base is the lines the branches replaced. JGit's `MergeAlgorithm` leaves those lines out
+  of a conflict and shifts its base range, which can then end before it begins. `GET /merge/conflicts/text` answers
+  with it, so a client resolves the conflicts of the file in place; content that is not UTF-8 text is not merged.
+  `TextMerge.isText` tells UTF-8 text with no NUL character in its first bytes, the sign by which Git tells binary
+  content, for the `text` flag of `GET /merge/conflicts`.
 - **Models** (`org.openl.studio.projects.model.merge`) — the records of the requests and the responses.
 
 ## Check and Merge
@@ -257,6 +268,9 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 
 - It keeps **one** conflict, with the `ProjectIdModel` of the project. A conflict that is stored for another project
   replaces it.
+- It keeps with the conflict which of its files are UTF-8 text (`textFilesOf`), the `text` flag of
+  `GET /merge/conflicts`: the versions of a stored conflict do not change, so each file is read once. A conflict
+  stored anew starts with no file read, and a conflict that is not the stored one keeps nothing.
 - The reads are by project: asking for another project than the stored one finds nothing, so a client sees
   `404 Not Found` with `project.merge.result.not.found.message`.
 - `check` and `merge` refuse with `409` while the conflict of the project is stored.
@@ -271,7 +285,8 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 `POST /merge/conflicts/resolve` takes the resolution of each conflicted file:
 
 1. **Validation** — each file is in the conflict, no file is named twice, and a `CUSTOM` resolution has a non-empty
-   uploaded file. An uploaded Excel or ZIP file is read to see that it is complete.
+   uploaded file. An uploaded Excel or ZIP file is read to see that it is complete. A text file the client merged
+   through `GET /merge/conflicts/text` comes as such an uploaded file.
 2. **Versions** — `BASE`, `OURS`, and `THEIRS` are read from the commits of the conflict, not from the working tree. A
    version that does not hold the file deletes the file.
 3. **Workbooks** — a conflicted Excel file whose changes do not overlap is merged by `XlsWorkbookMerger` without a
@@ -308,9 +323,16 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
 - **Workbook merge** — `XlsSheetMergerTest`, `XlsTableMergerTest` and `XlsSheetShiftsTest` in
   `STUDIO/org.openl.rules.xls.merge`: the changes of the two branches, kind by kind, merged or kept a conflict;
   `XlsTableMergerTest` crosses what each branch does with a table: leaves, creates, removes, changes or moves it.
+- **Text merge** — `TextMergeTest`: changes apart merged, a line both branches change, a change both make alike,
+  lines both append, blocks both add at one place that start and end alike, the base a conflict replaced, line
+  breaks kept, a last line without a line break, and content that is not UTF-8 text;
+  `ProjectsMergeConflictsServiceImplTest` reads the versions of the conflict, a base that does not hold the file
+  included, and tells which files are text; `ProjectsMergeConflictsSessionHolderTest` keeps what is found about the
+  files with the stored conflict only.
 - **Integration** — the declarative suites in `ITEST/itest.studio`; `task_EPBDS-16883-excel-cell-merge` merges a
   sheet changed in both branches through the table API, a table theme included; `task_EPBDS-16896-merge-scope`
   checks and merges a branch that changes three projects, as the administrator and as a user who may read one of
-  them, so the scope and the summary name that project alone and count the two others. A merge step is three
+  them, so the scope and the summary name that project alone and count the two others;
+  `task_EPBDS-16637-text-merge` reads a conflicted message bundle merged line by line. A merge step is three
   requests: the `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a `GET /merge` checking
   its result.

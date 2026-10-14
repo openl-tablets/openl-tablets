@@ -15,7 +15,8 @@ Content-Type: application/json
     "EPBDS-16462/rules/Main.xlsx": {
       "ours": false,
       "theirs": true,
-      "base": true
+      "base": true,
+      "text": false
     }
   },
   "oursRevision": {

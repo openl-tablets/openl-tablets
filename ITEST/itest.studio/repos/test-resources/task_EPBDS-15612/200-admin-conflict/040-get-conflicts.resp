@@ -15,7 +15,8 @@ Content-Type: application/json
     "EPBDS-15612/Qwerty.xlsx": {
       "ours": true,
       "theirs": true,
-      "base": true
+      "base": true,
+      "text": false
     }
   },
   "oursRevision": {

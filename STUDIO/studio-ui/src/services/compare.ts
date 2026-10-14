@@ -160,6 +160,50 @@ export const getConflictFileVersions = async (
     }
 }
 
+/** Which versions of a conflicted file hold it, as the merge reports it, and whether it is text to merge by lines. */
+export interface ConflictFileAvailability {
+    ours: boolean
+    theirs: boolean
+    base: boolean
+    /** Whether every version that holds the file holds it as UTF-8 text, which is merged line by line. */
+    text: boolean
+}
+
+/** Lines of a conflicted text file the merge took by itself, with their line breaks. */
+export interface MergedTextBlock {
+    kind: 'merged'
+    /** The lines the merge took. */
+    text: string
+    /** The lines of each version, given when a branch changed them; lines no branch changed are the text alone. */
+    ours?: string
+    base?: string
+    theirs?: string
+}
+
+/** Lines the branches changed differently: each version with its line breaks; one holding no line is empty. */
+export interface ConflictedTextBlock {
+    kind: 'conflict'
+    ours: string
+    base: string
+    theirs: string
+}
+
+/** A part of a conflicted text file: lines the merge took by itself, or a conflict. */
+export type ConflictTextBlock = MergedTextBlock | ConflictedTextBlock
+
+/** A conflicted text file merged line by line: its parts in their order. */
+export interface ConflictText {
+    blocks: ConflictTextBlock[]
+}
+
+/** A conflicted text file merged line by line, for the conflicts of its lines to be resolved in place. */
+export const getConflictText = async (projectId: string, path: string): Promise<ConflictText> =>
+    await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/text?file=${encodeURIComponent(path)}`,
+        undefined,
+        API_OPTIONS
+    ) as ConflictText
+
 /**
  * One version of a conflicted file, as text: what a file that is not a workbook is compared as. A file not written in
  * UTF-8 reads as Windows-1252, every byte a character of its own.

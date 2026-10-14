@@ -53,6 +53,7 @@ import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
+import org.openl.studio.projects.model.merge.ConflictTextView;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeRequest;
@@ -137,6 +138,17 @@ public class ProjectsMergeController {
                 .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
                 .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
                 .body(output.toByteArray());
+    }
+
+    @Operation(summary = "projects.merge.get-conflict-text.summary",
+            description = "projects.merge.get-conflict-text.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.get-conflict-text.200.desc")
+    @ApiResponse(responseCode = "400", description = "projects.merge.get-conflict-text.400.desc")
+    @GetMapping("/conflicts/text")
+    public ConflictTextView getConflictText(@ProjectId @PathVariable("projectId") RulesProject project,
+                                            @Parameter(description = "projects.merge.param.file.desc", required = true)
+                                            @RequestParam("file") String filePath) throws IOException {
+        return mergeConflictsService.getConflictText(getMergeConflictInfo0(project), filePath);
     }
 
     @Operation(summary = "projects.merge.compare-conflict.summary",

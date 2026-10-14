@@ -1,0 +1,28 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "blocks": [
+    {
+      "kind": "merged",
+      "text": "# Two bundles changed\npolicy.number.required=Die Versicherungsnummer ist erforderlich.\npolicy.effectiveDate.past=Das Beginndatum darf nicht in der Vergangenheit liegen.\ndriver.age.min=Der Fahrer muss mindestens {0} Jahre alt sein.\ndriver.license.required=Die Führerscheinnummer ist erforderlich.\nvehicle.vin.invalid=Die FIN {0} ist ungültig.\n"
+    },
+    {
+      "kind": "conflict",
+      "ours": "vehicle.year.max=Das Baujahr darf nicht später als {0} sein.\n",
+      "base": "vehicle.year.max=Das Baujahr darf nicht nach {0} liegen.\n",
+      "theirs": "vehicle.year.max=Das Baujahr darf {0} nicht überschreiten.\n"
+    },
+    {
+      "kind": "merged",
+      "text": "premium.limit.exceeded=Die Prämie {0} überschreitet das Limit {1}.\n"
+    },
+    {
+      "kind": "conflict",
+      "ours": "claim.date.required=Das Schadensdatum ist erforderlich.\n",
+      "base": "",
+      "theirs": "claim.amount.min=Der Schadensbetrag muss mindestens {0} betragen.\n"
+    }
+  ]
+}
+

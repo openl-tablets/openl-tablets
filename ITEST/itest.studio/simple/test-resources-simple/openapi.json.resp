@@ -10089,6 +10089,110 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/merge/conflicts/text": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictTextView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/messages/{messageId}/stacktrace": {
       "get": {
         "description": "***",
@@ -22241,6 +22345,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "text": {
+            "type": "boolean",
+            "description": "***"
+          },
           "theirs": {
             "type": "boolean",
             "description": "***"
@@ -22266,6 +22374,49 @@ Content-Type: application/json
           "projectPath": {
             "type": "string",
             "description": "***"
+          }
+        }
+      },
+      "ConflictTextBlock": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "base": {
+            "type": "string",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "merged",
+              "conflict"
+            ]
+          },
+          "ours": {
+            "type": "string",
+            "description": "***"
+          },
+          "text": {
+            "type": "string",
+            "description": "***"
+          },
+          "theirs": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "ConflictTextView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictTextBlock"
+            }
           }
         }
       },

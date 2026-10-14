@@ -27,8 +27,8 @@
 
 The Projects Merge API provides a REST interface for merging the Git branches of an OpenL Studio project. It reports
 whether there is anything to merge and whether the user may merge, performs the merge, lists the conflicts the merge
-finds, lets a client download or compare the conflicting versions, and resolves the conflicts with a chosen version
-or an uploaded file.
+finds, lets a client download or compare the conflicting versions, merges a conflicted text file line by line, and
+resolves the conflicts with a chosen version or an uploaded file.
 
 ### Key Features
 
@@ -45,6 +45,8 @@ or an uploaded file.
 - **Conflict Resolution**: Multiple strategies for resolving conflicts (BASE, OURS, THEIRS, CUSTOM)
 - **Conflict Comparison**: Two versions of a conflicted workbook, or its base version against either of them, are
   compared through the Compare API
+- **Line-by-line Merge**: A conflicted text file is merged line by line, as the merge of the branches merges it, so
+  that a client resolves each conflict of its lines in place and sends the merged file as a `CUSTOM` resolution
 - **Protected Branches**: A merge into a protected branch takes an explicit bypass confirmation (`force=true`)
 - **Session Management**: Maintains conflict state across multiple API calls
 - **Excel File Prioritization**: Excel files come first in conflict lists
@@ -71,6 +73,7 @@ flowchart TB
     subgraph GIT["Repository / Git Layer"]
         G[GitRepository<br/>- merge / commit / push<br/>- Conflict detection<br/>- File versions]
         X[XlsWorkbookMerger<br/>- Sheet and cell workbook merge]
+        T[TextMerge<br/>- Line-by-line text merge]
     end
 
     %% Connections
@@ -80,6 +83,7 @@ flowchart TB
     S1 --> G
     S2 --> G
     S2 --> X
+    S2 --> T
     G --> X
 ```
 
@@ -125,6 +129,7 @@ flowchart TB
 - Describe merge conflicts: revisions, file availability, default merge message
 - Group conflicts by project
 - Retrieve conflict file versions
+- Merge a conflicted text file line by line
 - Apply resolution strategies and merge the workbooks that resolve automatically
 - Generate conflict resolution results
 
@@ -135,6 +140,7 @@ flowchart TB
 - Store the unresolved conflict of one client: the HTTP session of a browser, or the state kept for a credential
   (see [Client Sessions](../architecture/client-sessions.md))
 - Maintain state between merge and resolution
+- Keep, with the conflict, which of its files are text, as far as `GET /conflicts` has read them
 - Clean up resolved and canceled conflicts
 
 The holder keeps one conflict at a time. A conflict stored for another project replaces it.
@@ -147,7 +153,7 @@ The API uses session-based storage for conflict information:
 1. User calls POST /merge and reads GET /merge once it has ended, or saves the project
    (PATCH /rest/projects/{projectId}) → Conflicts detected
 2. Conflict stored as MergeConflictInfo → SessionHolder
-3. User calls /conflicts, /conflicts/files or /conflicts/compare → Reads the stored conflict
+3. User calls /conflicts, /conflicts/files, /conflicts/text or /conflicts/compare → Reads the stored conflict
 4. User calls /conflicts/resolve → Applies resolutions
 5. On success, or on DELETE /conflicts → Clears session data
 ```
@@ -169,6 +175,7 @@ stateDiagram-v2
 
     ConflictStored --> ConflictStored: GET /conflicts
     ConflictStored --> ConflictStored: GET /conflicts/files
+    ConflictStored --> ConflictStored: GET /conflicts/text
     ConflictStored --> ConflictStored: POST /conflicts/compare
     ConflictStored --> ConflictStored: POST /conflicts/resolve fails
 
@@ -319,7 +326,7 @@ never refused.
 - `STARTED` — the merge is running;
 - `COMPLETED` — the merge has ended, with success or with conflicts;
 - `{"status": "ERROR", "message": "..."}` — the merge failed, or stopped before it finished;
-- `INTERRUPTED` — the merge was cancelled ([Cancel Merge Conflicts](#8-cancel-merge-conflicts)).
+- `INTERRUPTED` — the merge was cancelled ([Cancel Merge Conflicts](#9-cancel-merge-conflicts)).
 
 A client subscribes before it starts the merge, so the end cannot go unheard, and reads the result with
 [Get Merge Result](#3-get-merge-result). The result a merge ends with is described there.
@@ -449,7 +456,7 @@ The API omits empty values, so a successful merge has no `conflictGroups`.
 }
 ```
 
-**Cancelled** — the merge was stopped on request ([Cancel Merge Conflicts](#8-cancel-merge-conflicts)) before it
+**Cancelled** — the merge was stopped on request ([Cancel Merge Conflicts](#9-cancel-merge-conflicts)) before it
 committed anything, and the branches are as it found them:
 ```json
 {
@@ -533,7 +540,8 @@ conflicts.
     "MyProject/rules/Main.xlsx": {
       "ours": false,
       "theirs": true,
-      "base": true
+      "base": true,
+      "text": false
     }
   },
   "oursRevision": {
@@ -562,7 +570,8 @@ conflicts.
 - `oursRevision`: Metadata about the current branch version
 - `theirsRevision`: Metadata about the merging branch version
 - `baseRevision`: Metadata about the common ancestor version; it names no branch
-- `fileAvailability`: Whether each conflicted file exists in the current, merging, and base revisions
+- `fileAvailability`: Whether each conflicted file exists in the current, merging, and base revisions, and whether it
+  is UTF-8 text
 - `defaultMessage`: Auto-generated merge commit message (can be overridden during resolution)
 
 **RevisionDetails Fields**:
@@ -576,7 +585,8 @@ A revision that holds none of the conflicted files has no `author` and no `modif
 
 The `ours`, `theirs`, and `base` fields under each `fileAvailability` entry provide the per-file state. Clients must
 use these fields, rather than the revision-level `exists` field, to decide whether a particular version can be
-downloaded.
+downloaded. The `text` field tells whether the file is UTF-8 text, which is merged line by line when your and their
+versions both hold it, as the notes below describe.
 
 **Default Message**: `Merge with commit <their commit>`, then the conflicted files under `Conflicts:`, and the
 workbooks that resolve automatically, with their changed sheets and branches, under `Automatically resolved
@@ -629,7 +639,8 @@ GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain
 ```
 
 **Errors**:
-- `404 Not Found`: No conflict information found, file not in conflict list, or file missing in the requested revision
+- `404 Not Found`: No conflict information found, file not in conflict list, or file missing in the requested revision;
+  a conflict of branches with no history in common has no `base` revision
 - `400 Bad Request`: Missing or invalid side parameter
 
 ---
@@ -681,7 +692,74 @@ POST /rest/projects/MyProject/merge/conflicts/compare?file=MyProject%2Frules%2FM
 
 ---
 
-### 7. Resolve Conflicts
+### 7. Merge a Conflicted Text File
+
+**Endpoint**: `GET /rest/projects/{projectId}/merge/conflicts/text`
+
+**Description**: Merges the three versions of a conflicted text file line by line, as the merge of the branches merges
+it, and answers with the parts of the file in their order: the lines the merge takes by itself, and the conflicts
+between them. Each part tells the lines every version holds in its place, so a client can lay the versions side by
+side. A client resolves each conflict, puts the parts together and sends the result as a `CUSTOM` resolution.
+
+**HTTP Method**: GET
+
+**Path Parameters**:
+- `projectId` (string, required): Project identifier
+
+**Query Parameters**:
+- `file` (string, required): Path of the conflicted file exactly as `conflictGroups[].files` lists it
+
+**Response**: `200 OK`
+```json
+{
+  "blocks": [
+    {
+      "kind": "merged",
+      "text": "greeting=Hello\n"
+    },
+    {
+      "kind": "merged",
+      "text": "farewell=Goodbye\n",
+      "ours": "farewell=Bye\n",
+      "base": "farewell=Bye\n",
+      "theirs": "farewell=Goodbye\n"
+    },
+    {
+      "kind": "conflict",
+      "ours": "title=Rates\n",
+      "base": "",
+      "theirs": "title=Premiums\n"
+    }
+  ]
+}
+```
+
+- A `merged` part holds the lines the merge takes by itself (`text`): the lines both branches left as they were, the
+  ones a single branch changed, and the ones both branches changed alike. A part a branch changed also holds the lines
+  of every version (`ours`, `base`, `theirs`); a part no branch changed holds its `text` alone.
+- A `conflict` part holds the lines of your version (`ours`), of the base version (`base`) and of their version
+  (`theirs`). `ours` and `theirs` follow the sides of `GET /conflicts/files`.
+- A version of a conflict holds every line its branch has in that place, even the lines both versions start or end
+  with, which Git's conflict markers leave out. Taking both versions keeps each of them whole, such as two modules
+  both branches added to `rules.xml`, and `base` holds the lines the branches replaced.
+- Every text keeps its line breaks, so the `text` of each merged part and one version of each conflict, put together
+  in their order, give the whole file. A version of a conflict that holds no line, such as the base of lines both
+  branches added, is an empty text.
+- A base version that does not hold the file, as when both branches added it, counts as an empty file.
+
+**Example**:
+```bash
+GET /rest/projects/MyProject/merge/conflicts/text?file=MyProject%2Fi18n%2Fmessage.properties
+```
+
+**Errors**:
+- `400 Bad Request`: A version of the file is not UTF-8 text, such as a workbook
+- `404 Not Found`: No conflict information found, file not in conflict list, or your version or their version does
+  not hold the file; `fileAvailability` of `GET /merge/conflicts` tells which versions hold the file
+
+---
+
+### 8. Resolve Conflicts
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/resolve`
 
@@ -718,7 +796,8 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resol
 - `BASE`: Use the common ancestor version
 - `OURS`: Use the current branch version; in a save conflict, the version in the workspace
 - `THEIRS`: Use the merging branch version
-- `CUSTOM`: Use a custom uploaded file (file parameter required)
+- `CUSTOM`: Use a custom uploaded file (file parameter required), such as a text file merged through
+  [Merge a Conflicted Text File](#7-merge-a-conflicted-text-file)
 
 A strategy whose version does not hold the file deletes the file.
 
@@ -768,7 +847,7 @@ The resolution of a save conflict has no `summary`.
 
 ---
 
-### 8. Cancel Merge Conflicts
+### 9. Cancel Merge Conflicts
 
 **Endpoint**: `DELETE /rest/projects/{projectId}/merge/conflicts`
 
@@ -911,7 +990,7 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 | Field              | Type                                     | Description                                      |
 |--------------------|------------------------------------------|--------------------------------------------------|
 | `conflictGroups`   | ConflictGroup[]                          | Array of conflict groups                         |
-| `fileAvailability` | map of file path → ConflictFileAvailability | `ours`, `theirs`, `base`: booleans per file   |
+| `fileAvailability` | map of file path → ConflictFileAvailability | Booleans `ours`, `theirs`, `base`, `text` |
 | `oursRevision`     | RevisionDetails                          | Metadata for current branch version              |
 | `theirsRevision`   | RevisionDetails                          | Metadata for merging branch version              |
 | `baseRevision`     | RevisionDetails                          | Metadata for common ancestor version             |
@@ -920,6 +999,13 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 **Notes**:
 - `defaultMessage` names the conflicting commit and lists the conflicted files
 - Client can override `defaultMessage` when calling resolve endpoint
+- `ours`, `theirs` and `base` tell which versions hold a file; `text` tells whether every version that holds it is
+  UTF-8 text with no NUL character in its first bytes, the sign by which Git tells binary content. Such a file is
+  merged line by line by [Merge a Conflicted Text File](#7-merge-a-conflicted-text-file). A workbook or an archive is
+  no text, told by its name. Each file is read once for a conflict, as its versions do not change until it is
+  resolved; a version that cannot be read makes the file no text until it is asked about again.
+  [Merge a Conflicted Text File](#7-merge-a-conflicted-text-file) also needs your and their versions to hold the file:
+  a text file one branch deleted is `text`, yet it is not merged line by line.
 
 ---
 
@@ -959,6 +1045,29 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 
 `base` (common ancestor version), `ours` (current branch version), `theirs` (merging branch version). The names in
 upper case that earlier versions of OpenL Studio took, `BASE`, `OURS` and `THEIRS`, are accepted as well.
+
+---
+
+### ConflictTextView
+
+| Field    | Type                | Description                                                  |
+|----------|---------------------|--------------------------------------------------------------|
+| `blocks` | ConflictTextBlock[] | The parts of the file in their order: lines merged, conflicts |
+
+---
+
+### ConflictTextBlock
+
+| Field    | Type                     | Description                                                     |
+|----------|--------------------------|-----------------------------------------------------------------|
+| `kind`   | `merged` \| `conflict`   | What the part is                                                |
+| `text`   | string                   | The lines the merge took by itself; for a `merged` part only    |
+| `ours`   | string                   | The lines of your version                                       |
+| `base`   | string                   | The lines both branches started from                            |
+| `theirs` | string                   | The lines of their version                                      |
+
+Every text keeps its line breaks. A `conflict` holds the lines of every version. A `merged` part holds them only when
+a branch changed its lines: a part no branch changed holds its `text` alone.
 
 ---
 
@@ -1047,7 +1156,10 @@ upper case that earlier versions of OpenL Studio took, `BASE`, `OURS` and `THEIR
 
    Response: {
      "conflictGroups": [{ "files": ["MyProject/rules/Main.xlsx", "MyProject/rules.xml"] }],
-     "fileAvailability": { "MyProject/rules/Main.xlsx": { "ours": true, "theirs": true, "base": true }, ... },
+     "fileAvailability": {
+       "MyProject/rules/Main.xlsx": { "ours": true, "theirs": true, "base": true, "text": false },
+       "MyProject/rules.xml": { "ours": true, "theirs": true, "base": true, "text": true }
+     },
      "oursRevision": { "branch": "main", "author": "John", ... },
      "theirsRevision": { "branch": "feature-123", "author": "Jane", ... },
      "baseRevision": { "commit": "1a3c5e7...", ... },
@@ -1108,6 +1220,9 @@ upper case that earlier versions of OpenL Studio took, `BASE`, `OURS` and `THEIR
 
    Response: { "status": "success", "resolvedFiles": ["MyProject/rules.xml"] }
 ```
+
+A text file can be merged without an external tool: `GET /merge/conflicts/text` answers it merged line by line, and
+the client sends the file with each conflict resolved as the `CUSTOM` file.
 
 ---
 
@@ -1184,12 +1299,14 @@ request body that fails validation answers `400` with a `fields` list naming eac
 | 400    | `project.merge.conflict.file.not.in.conflicts`   | A resolution names a file that is not conflicted         |
 | 400    | `project.merge.conflict.custom.file.damaged`     | An uploaded Excel or ZIP file is damaged or incomplete   |
 | 400    | `compare.file.not-excel.message`                 | `/conflicts/compare` is asked for a file that is not Excel |
+| 400    | `project.merge.conflict.text.not-text.message`   | `/conflicts/text` gets a file that is not UTF-8 text     |
 | 403    | `default.message`                                | The user may not write to the project, or cannot bypass a protected target |
 | 404    | `project.identifier.message`                     | The project is not found                                 |
 | 404    | `project.merge.result.not.found.message`         | No conflict of the project is stored                     |
 | 404    | `project.merge.not.found.message`                | `GET /merge` while the client has started no merge of the project |
 | 404    | `project.merge.conflict.file.not.found`          | The file is not in the conflict list                     |
 | 404    | `project.merge.conflict.file.revision.not.found` | The requested version does not hold the file             |
+| 404    | `project.merge.conflict.file.side.not.found`     | The side has no revision: no base of unrelated histories |
 | 409    | `project.unresolved.merge.conflicts.message`     | Check or merge while a conflict of the project is stored |
 | 409    | `project.merge.invalid.state.message`            | The project cannot take a merge (see below)              |
 | 409    | `project.merge.same.branches.message`            | `otherBranch` is the current branch                      |
@@ -1543,6 +1660,9 @@ resolution is abandoned; otherwise it ends with the client session.
 **Storage**: `ProjectsMergeConflictsSessionHolder`, a `@ClientSessionScope` bean
 
 **Key**: The project id (`ProjectIdModel`)
+
+**Kept with the conflict**: which conflicted files are UTF-8 text, the `text` flag of `GET /merge/conflicts`. Each file
+is read for it once; a conflict stored anew starts with no file read.
 
 **Lifecycle**:
 1. Created: When a merge started by `POST /merge` ends with conflicts, or a project save detects them
