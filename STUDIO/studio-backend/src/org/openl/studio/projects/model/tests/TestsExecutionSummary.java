@@ -25,6 +25,10 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
     @Parameter(description = "Total number of failed tests")
     private final int numberOfFailures;
 
+    @Getter
+    @Parameter(description = "Names of the test tables a run of all tests left out because they have compilation errors. They are not counted in numberOfTests or numberOfFailures.")
+    private final List<String> notRunTables;
+
     private TestsExecutionSummary(Builder builder) {
         super(builder.testCases,
                 builder.page.isUnpaged()
@@ -37,6 +41,7 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
         this.executionTimeMs = builder.executionTimeMs;
         this.numberOfTests = builder.numberOfTests;
         this.numberOfFailures = builder.numberOfFailures;
+        this.notRunTables = builder.notRunTables;
     }
 
     @Override
@@ -55,6 +60,7 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
         private double executionTimeMs;
         private int numberOfTests;
         private int numberOfFailures;
+        private List<String> notRunTables = List.of();
         private long total;
         private Pageable page;
         private final List<TestCaseExecutionResult> testCases = new ArrayList<>();
@@ -79,6 +85,11 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
 
         public Builder numberOfFailures(int numberOfFailures) {
             this.numberOfFailures = numberOfFailures;
+            return this;
+        }
+
+        public Builder notRunTables(List<String> notRunTables) {
+            this.notRunTables = notRunTables;
             return this;
         }
 

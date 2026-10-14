@@ -957,13 +957,13 @@ public class ProjectsController {
             if (completed.isEmpty()) {
                 return ResultNotReadyView.accepted();
             }
-            var executionResults = completed.get().tables();
+            var run = completed.get();
             var mapper = testsSummaryMapper(project);
             var query = new TestExecutionSummaryQuery(failuresOnly,
                     allFailures ? TestUnitsResults.ALL_FAILURES : failures,
                     compoundResult,
                     lazyValues);
-            return ResponseEntity.ok(mapper.mapExecutionSummary(executionResults, query, page));
+            return ResponseEntity.ok(mapper.mapExecutionSummary(run.tables(), run.notRun(), query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             // A client that asked for a workbook is told by the status alone: it did not ask for JSON.
             if (completed.isEmpty()) {

@@ -5,10 +5,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import org.openl.base.INamedThing;
+import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -28,10 +34,26 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
                                              boolean currentOpenedModule) {
         var rerun = TestsRerun.of(projectModel, currentOpenedModule);
         var testMethods = currentOpenedModule ? projectModel.getOpenedModuleTestMethods() : projectModel.getAllTestMethods();
+        var notRun = notRunTables(projectModel, testMethods, currentOpenedModule);
         var executionResult = new ArrayList<TestUnitsResults>();
         listener.onStatusChanged(TestExecutionStatus.STARTED);
         runAllTests(listener, executionResult, projectModel, testMethods, currentOpenedModule, rerun);
-        return CompletableFuture.completedFuture(new TestRun(executionResult));
+        return CompletableFuture.completedFuture(new TestRun(executionResult, notRun));
+    }
+
+    private static List<String> notRunTables(ProjectModel model,
+                                             TestSuiteMethod @Nullable [] ran,
+                                             boolean currentOpenedModule) {
+        var ranUris = ran == null ? Set.<String>of()
+                : Stream.of(ran).map(TestSuiteMethod::getSourceUrl).collect(Collectors.toSet());
+        var tables = currentOpenedModule ? Stream.of(model.getTableSyntaxNodes())
+                : model.getAllTableSyntaxNodes().stream();
+        return tables
+                .filter(node -> node.getNodeType() == XlsNodeTypes.XLS_TEST_METHOD && !ranUris.contains(node.getUri()))
+                .filter(node -> !model.getErrorsByUri(node.getUri()).isEmpty())
+                .map(node -> TableSyntaxNodeUtils.getTableDisplayValue(node, 0, null)[INamedThing.SHORT])
+                .distinct()
+                .toList();
     }
 
     @Override

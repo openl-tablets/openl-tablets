@@ -30681,6 +30681,13 @@ Content-Type: application/json
             "format": "double",
             "description": "***"
           },
+          "notRunTables": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
           "numberOfElements": {
             "type": "integer",
             "format": "int32",
