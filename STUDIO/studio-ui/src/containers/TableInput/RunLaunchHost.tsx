@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CompoundResultOption, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
 import { RunResultModal } from 'containers/execution/RunResultModal'
+import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { isFinished, useExecutionProgress, useQuietSpells } from 'containers/execution/useExecutionProgress'
 import { runStatusTopic, testsTopics } from 'containers/execution/topics'
@@ -21,6 +22,7 @@ import {
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
+import { openExecutionWindow, publishExecution, type ExecutionWindowRequest } from 'services/executionWindow'
 import { useUserStore } from 'store'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
@@ -80,6 +82,11 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         compoundResult: profile?.showComplexResult ?? false,
     }))
 
+    const resultRequest = useCallback((kind: RunResults): ExecutionWindowRequest => kind === 'run'
+        ? { kind, projectId: project.id, tableId: detail.tableId, fileOptions: file }
+        : { kind, projectId: project.id, tableId: detail.tableId, options: testsOptions },
+    [project.id, detail.tableId, file, testsOptions])
+
     // The panel listens from the moment it opens, so a run it starts cannot end unheard. A rule table and a
     // test table report on topics of their own, and only one of the two is ever started from here.
     const runProgress = useExecutionProgress(runStatusTopic(project.id, detail.tableId))
@@ -105,9 +112,12 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         setStarting(true)
         setError(null)
         return run(value)
-            .then(setResults)
+            .then(kind => {
+                publishExecution(resultRequest(kind))
+                setResults(kind)
+            })
             .finally(() => setStarting(false))
-    }, [run])
+    }, [run, resultRequest])
 
     /** Runs what the panel collected and saves what came out, without showing it. */
     const startIntoFile = (value: TableLaunchValue) => {
@@ -117,7 +127,10 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         runProgress.reset()
         testsProgress.reset()
         run(value)
-            .then(setSaving)
+            .then(kind => {
+                publishExecution(resultRequest(kind))
+                setSaving(kind)
+            })
             .catch(runError => {
                 setError(errorMessage(runError))
                 setStarting(false)
@@ -200,17 +213,33 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         </Checkbox>
     )
 
+    const windowContext = useMemo(() => ({
+        open: (currentOptions?: Partial<TestsQuery>) => {
+            if (results === null) return false
+            const request = resultRequest(results)
+            const opened = openExecutionWindow(request.kind === 'tests' && currentOptions
+                ? { ...request, options: currentOptions }
+                : request)
+            if (opened) onClose()
+            return opened
+        },
+    }), [results, resultRequest, onClose])
+
     if (results !== null) {
-        return results === 'run'
-            ? <RunResultModal fileOptions={file} onClose={onClose} projectId={project.id} tableId={detail.tableId} />
-            : (
-                <TestsResultModal
-                    onClose={onClose}
-                    options={testsOptions}
-                    projectId={project.id}
-                    tableId={detail.tableId}
-                />
-            )
+        return (
+            <ExecutionWindowContext.Provider value={windowContext}>
+                {results === 'run'
+                    ? <RunResultModal fileOptions={file} onClose={onClose} projectId={project.id} tableId={detail.tableId} />
+                    : (
+                        <TestsResultModal
+                            onClose={onClose}
+                            options={testsOptions}
+                            projectId={project.id}
+                            tableId={detail.tableId}
+                        />
+                    )}
+            </ExecutionWindowContext.Provider>
+        )
     }
 
     return (

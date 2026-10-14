@@ -17,6 +17,8 @@ const ProjectWorkspace = React.lazy(() =>
     import('../containers/ProjectWorkspace').then(module => ({ default: module.ProjectWorkspace })))
 const ModuleWorkspace = React.lazy(() =>
     import('../containers/ModuleWorkspace').then(module => ({ default: module.ModuleWorkspace })))
+const ExecutionWindow = React.lazy(() =>
+    import('../containers/execution/ExecutionWindow').then(module => ({ default: module.ExecutionWindow })))
 // The user guides bring a Markdown renderer, code highlighting and diagrams of their own, loaded on the first visit.
 const UserGuides = React.lazy(() => import('../containers/userGuides/UserGuides'))
 import { UserProfile } from 'containers/UserProfile'
@@ -196,6 +198,15 @@ const router = createBrowserRouter([
     {
         path: '/trace/:projectId',
         element: <TraceView />,
+        errorElement: <RouteErrorFallback />,
+    },
+    {
+        path: '/execution-results',
+        element: (
+            <React.Suspense fallback={<Skeleton active style={{ padding: 24 }} />}>
+                <ExecutionWindow />
+            </React.Suspense>
+        ),
         errorElement: <RouteErrorFallback />,
     },
     {

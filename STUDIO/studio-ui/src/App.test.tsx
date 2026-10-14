@@ -3,6 +3,9 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+import { EXECUTION_EDITOR_NAVIGATION } from './services/executionWindow'
+
+const navigate = vi.hoisted(() => vi.fn())
 
 interface Profile {
     username: string
@@ -43,7 +46,7 @@ vi.mock('react-router/dom', () => ({
     RouterProvider: () => <div data-testid="router" />,
 }))
 
-vi.mock('./routes', () => ({ router: {} }))
+vi.mock('./routes', () => ({ router: { navigate } }))
 vi.mock('./services', () => ({ CONFIG: { CONTEXT: '/webstudio' } }))
 vi.mock('./legacy', () => ({}))
 vi.mock('./App.styles.ts', () => ({ AppStyles: () => null }))
@@ -111,6 +114,16 @@ describe('App profile completion', () => {
         render(<App />)
 
         expect(screen.queryByTestId('profile-completion-modal')).not.toBeInTheDocument()
+    })
+
+    it('routes a table link from the results window through the editor router', () => {
+        render(<App />)
+
+        window.dispatchEvent(new CustomEvent(EXECUTION_EDITOR_NAVIGATION, {
+            detail: '/webstudio/projects/p1/modules/Rules?table=t1',
+        }))
+
+        expect(navigate).toHaveBeenCalledWith('/projects/p1/modules/Rules?table=t1')
     })
 })
 

@@ -182,7 +182,7 @@ describe('useQuietSpells', () => {
         expect(result.current).toBe(0)
     })
 
-    it('counts nothing while the screen waits for nothing, or does not listen', () => {
+    it('polls while waiting without a socket, but not when there is nothing to wait for', () => {
         const { result, rerender } = renderHook(
             ({ waiting, subscribed }) => useQuietSpells({ ...going, subscribed }, waiting),
             { initialProps: { waiting: false, subscribed: true } }
@@ -192,7 +192,7 @@ describe('useQuietSpells', () => {
         expect(result.current).toBe(0)
 
         rerender({ waiting: true, subscribed: false })
-        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS * 3))
-        expect(result.current).toBe(0)
+        act(() => vi.advanceTimersByTime(QUIET_SPELL_MS))
+        expect(result.current).toBe(1)
     })
 })

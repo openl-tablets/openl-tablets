@@ -15,8 +15,8 @@ interface TableLinkProps {
     /** How the link reads, when its subject passed or failed. */
     type?: 'success' | 'danger' | undefined
     'data-testid'?: string
-    /** The screen has been left behind: the editor is going to the table. */
-    onOpen: () => void
+    /** Return true when another window handles navigation and this link can leave the current screen open. */
+    onOpen: (href: string) => boolean | void
     children: React.ReactNode
 }
 
@@ -25,7 +25,8 @@ interface TableLinkProps {
  *
  * The editor opens a module and reads a table through it, so the link carries both — which the result it
  * belongs to already names, and no address has to be asked for. The address is a real one, so it can be
- * copied and opened in a window of its own; following it here keeps the reader in the same page.
+ * copied and opened in a window of its own. In a separate results window, the link asks the original editor
+ * to navigate and leaves the results visible.
  *
  * A table whose module is not named is written as its name alone: there is nothing to open it with.
  */
@@ -54,8 +55,9 @@ export const TableLink: React.FC<TableLinkProps> = ({
             href={href}
             onClick={event => {
                 event.preventDefault()
-                onOpen()
-                void navigate(to)
+                if (!onOpen(href)) {
+                    void navigate(to)
+                }
             }}
             {...(type && { type })}
         >

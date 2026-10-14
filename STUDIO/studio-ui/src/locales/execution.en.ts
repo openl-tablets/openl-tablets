@@ -2,6 +2,10 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'execution', {
     close: 'Close',
+    openInWindow: 'Open in Window',
+    windowBlocked: 'The results window did not open. Allow pop-up windows and browser storage for this site, then try again.',
+    windowTitle: 'Execution Results — OpenL Studio',
+    noResults: 'No results to show',
 
     input: {
         form: 'Form',

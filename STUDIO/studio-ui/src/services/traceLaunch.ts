@@ -3,6 +3,7 @@ import { errorHandler } from 'utils/errorHandling'
 import { saveFile } from 'utils/download'
 import { retireTraceLaunch, stampTraceLaunch } from './traceLaunchToken'
 import { traceService } from './traceService'
+import { RESIZABLE_WINDOW_FEATURES } from './windowFeatures'
 
 /** What a trace is started with, as the launcher collects it from the table page. */
 interface TraceLaunchRequest {
@@ -34,7 +35,7 @@ const openTraceWindow = (request: TraceLaunchRequest): boolean => {
     // Carry the launch-time mode so the trace window opens straight into the business or advanced view.
     if (request.advanced) params.set('advanced', 'true')
     const url = `${CONFIG.CONTEXT}/trace/${encodeURIComponent(request.projectId)}?${params.toString()}`
-    return window.open(url, 'trace_win', 'width=1240,height=800,resizable=yes,scrollbars=yes') !== null
+    return window.open(url, 'trace_win', RESIZABLE_WINDOW_FEATURES) !== null
 }
 
 /**
