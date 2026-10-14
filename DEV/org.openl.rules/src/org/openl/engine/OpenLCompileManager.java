@@ -90,6 +90,8 @@ public class OpenLCompileManager {
 
         var allMessages = new LinkedHashSet<OpenLMessage>();
         var messages = new LinkedHashSet<OpenLMessage>();
+        // What the parser could not read, such as an include that is not found, is an error of the module
+        messages.addAll(OpenLMessagesUtils.newErrorMessages(parsedCode.getErrors()));
 
         // compile source dependencies
         var dependencies = resolveDependencies(source, parsedCode, dependencyManager, allMessages);
