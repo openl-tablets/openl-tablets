@@ -16,6 +16,7 @@ import { getTableInput, getTableInputCases } from 'services/tables'
 import type { TableInput } from 'types/tables'
 import { saveFile } from 'utils/download'
 import { RunLaunchHost } from 'containers/TableInput/RunLaunchHost'
+import { currentExecution } from 'services/executionWindow'
 
 vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
 
@@ -148,6 +149,7 @@ describe('RunLaunchHost', () => {
         expect(tableId).toBe('t1')
         expect(JSON.parse(inputJson)).toEqual({ params: { age: 42 } })
         expect(await screen.findByTestId('run-result-modal')).toBeInTheDocument()
+        expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'run', projectId: 'real-p1' }))
     })
 
     it('runs every case of a test table, and reports them as a test run', async () => {
@@ -160,6 +162,7 @@ describe('RunLaunchHost', () => {
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1' }))
         expect(await screen.findByTestId('tests-result-modal')).toBeInTheDocument()
+        expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'tests', projectId: 'real-p1' }))
     })
 
     it('offers a Run table its cases and a run into a file, with no options of a test run', async () => {
@@ -307,6 +310,7 @@ describe('RunLaunchHost', () => {
             compoundResult: true,
         }))
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'test-results.xlsx', 'application/xlsx')
+        expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'tests', projectId: 'real-p1' }))
     })
 
     it('writes the run into a workbook laid out as the Run menu it replaced laid it out', async () => {
@@ -326,6 +330,7 @@ describe('RunLaunchHost', () => {
         }))
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'run-result.xlsx', 'application/xlsx')
         expect(screen.queryByTestId('run-result-modal')).toBeNull()
+        expect(currentExecution()).toEqual(expect.objectContaining({ kind: 'run', projectId: 'real-p1' }))
     })
 
     it('writes it the other way round when the options are ticked over', async () => {

@@ -13,6 +13,7 @@ import { AppThemeProvider } from './providers/AppThemeProvider'
 import { UserProfileCompletionModal } from './containers/users/UserProfileCompletionModal'
 import { isUserProfileComplete } from './utils/userProfile'
 import { readStored, removeStored, writeStored } from './utils/localStore'
+import { EXECUTION_EDITOR_NAVIGATION } from './services/executionWindow'
 
 /** Where the tab remembers the page it reloaded for the sign-in. */
 const RELOADED_PAGE_KEY = 'openl.signIn.reloadedPage'
@@ -53,6 +54,18 @@ function App() {
         setupGlobalErrorHandling()
 
         void fetchUserInfo()
+    }, [])
+
+    useEffect(() => {
+        const navigateFromResults = (event: Event) => {
+            const href: unknown = (event as CustomEvent<unknown>).detail
+            if (typeof href !== 'string') return
+            const destination = new URL(href, location.href)
+            if (destination.origin !== location.origin || !destination.pathname.startsWith(`${CONFIG.CONTEXT}/`)) return
+            void router.navigate(`${destination.pathname.slice(CONFIG.CONTEXT.length)}${destination.search}${destination.hash}`)
+        }
+        window.addEventListener(EXECUTION_EDITOR_NAVIGATION, navigateFromResults)
+        return () => window.removeEventListener(EXECUTION_EDITOR_NAVIGATION, navigateFromResults)
     }, [])
 
     useEffect(() => {

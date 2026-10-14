@@ -10,12 +10,12 @@ vi.mock('react-router', async importOriginal => ({
     useNavigate: () => navigate,
 }))
 
-const draw = (props: { module?: string, basename?: string } = {}) => render(
+const draw = (props: { module?: string, basename?: string, onOpen?: (href: string) => boolean | void } = {}) => render(
     <MemoryRouter basename={props.basename ?? '/'} initialEntries={[props.basename ?? '/']}>
         <TableLink
             data-testid="table-link"
             module={props.module ?? 'Claims'}
-            onOpen={vi.fn()}
+            onOpen={props.onOpen ?? vi.fn()}
             projectId="p1"
             tableId="t-1"
         >
@@ -25,6 +25,8 @@ const draw = (props: { module?: string, basename?: string } = {}) => render(
 )
 
 describe('TableLink', () => {
+    beforeEach(() => navigate.mockClear())
+
     it('keeps the reader on the page when the name is clicked', async () => {
         draw()
 
@@ -39,6 +41,16 @@ describe('TableLink', () => {
         // Without the served path the address opens at the root of the server, where there is no application.
         expect(screen.getByTestId('table-link'))
             .toHaveAttribute('href', '/webstudio/projects/p1/modules/Claims?table=t-1')
+    })
+
+    it('keeps the result window open when its parent editor handles navigation', async () => {
+        const open = vi.fn(() => true)
+        draw({ onOpen: open })
+
+        await userEvent.click(screen.getByTestId('table-link'))
+
+        expect(open).toHaveBeenCalledWith('/projects/p1/modules/Claims?table=t-1')
+        expect(navigate).not.toHaveBeenCalled()
     })
 
     it('writes the name alone for a table whose module is not known', () => {

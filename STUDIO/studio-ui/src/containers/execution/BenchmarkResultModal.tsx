@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Alert, Button, Checkbox, Empty, Result, Space, Tag, Tooltip, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
@@ -6,13 +6,14 @@ import { RunningCard } from 'components/RunningCard'
 import { TableLink } from 'components/TableLink'
 import { ParameterValueList } from 'components/values/ParameterValues'
 import { deleteBenchmarks, getBenchmarks, readBenchmarks } from 'services/execution'
+import { isMissingExecution } from 'services/executionWindow'
 import { isStillRunning } from 'services/taskResult'
 import type { BenchmarkResult } from 'types/execution'
 import { errorMessage } from 'utils/errorMessage'
 import { formatRate, formatRatio, formatTime, metricsOf } from './benchmarkMetrics'
-import { isFinished, useExecutionProgress } from './useExecutionProgress'
+import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { benchmarkStatusTopic } from './topics'
-import { ExecutionModal } from './ExecutionModal'
+import { ExecutionModal, ExecutionWindowContext } from './ExecutionModal'
 
 const { Text, Title } = Typography
 
@@ -55,6 +56,7 @@ interface BenchmarkResultModalProps {
  */
 export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ projectId, tableId, onClose }) => {
     const { i18n, t } = useTranslation('execution')
+    const { openTable } = useContext(ExecutionWindowContext)
     const locale = i18n.resolvedLanguage ?? i18n.language
     const [measurements, setMeasurements] = useState<BenchmarkResult[] | null>(null)
     const [picked, setPicked] = useState<string[]>([])
@@ -65,16 +67,17 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
     const progress = useExecutionProgress(benchmarkStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
+    const quietSpells = useQuietSpells(progress, measurements === null && failure === null)
 
     // A benchmark that failed or was abandoned measured nothing; the rows of the ones before it are not its
     // result, so the window says what went wrong instead of showing them.
     const benchmarkFailed = failure !== null || (finished && progress.status !== 'COMPLETED')
 
     // The benchmark says when it has ended. The screen also reads once as soon as it is listening, for a
-    // measurement that ended before the window was there to hear about it. That read does not wait for a
-    // measurement that is still going on, which takes seconds: the status says when to read again.
+    // measurement that ended before the window was there to hear about it. While it waits, a quiet spell also
+    // prompts a read, because a disconnected socket cannot report that the measurement ended.
     useEffect(() => {
-        if (!progress.subscribed || (finished && progress.status !== 'COMPLETED')) {
+        if (finished && progress.status !== 'COMPLETED') {
             return undefined
         }
         let active = true
@@ -87,13 +90,17 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
             })
             .catch(readError => {
                 if (active && !isStillRunning(readError)) {
-                    setFailure(errorMessage(readError))
+                    if (finished && isMissingExecution(readError)) {
+                        setMeasurements([])
+                    } else {
+                        setFailure(errorMessage(readError))
+                    }
                 }
             })
         return () => {
             active = false
         }
-    }, [projectId, progress.subscribed, finished])
+    }, [projectId, progress.subscribed, finished, quietSpells])
 
     const rows = measurements ?? []
 
@@ -144,7 +151,7 @@ export const BenchmarkResultModal: React.FC<BenchmarkResultModalProps> = ({ proj
                 <TableLink
                     data-testid={`benchmark-table-${row.id}`}
                     module={row.module}
-                    onOpen={onClose}
+                    onOpen={openTable ?? onClose}
                     projectId={projectId}
                     tableId={row.tableId}
                 >

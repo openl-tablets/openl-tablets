@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { deleteBenchmarks, getBenchmarks, readBenchmarks } from 'services/execution'
 import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
+import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 import type { BenchmarkResult } from 'types/execution'
 
 vi.mock('services/execution', () => ({
@@ -20,6 +21,7 @@ const { progress } = vi.hoisted(() => ({
 vi.mock('containers/execution/useExecutionProgress', () => ({
     useExecutionProgress: () => progress.current,
     isFinished: (status: string | null) => status !== null && ['COMPLETED', 'INTERRUPTED', 'ERROR'].includes(status),
+    useQuietSpells: vi.fn(() => 0),
 }))
 
 // The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
@@ -80,6 +82,21 @@ describe('BenchmarkResultModal', () => {
         render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('benchmark.running')).toBeInTheDocument()
+    })
+
+    it('stops polling when the server has no saved measurements', async () => {
+        readAgain.mockResolvedValue([])
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        expect(await screen.findByText('benchmark.none')).toBeInTheDocument()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
+        expect(readAgain).toHaveBeenCalledTimes(1)
+    })
+
+    it('reads saved measurements after refresh before the socket connects', async () => {
+        progress.current.subscribed = false
+        await show([measurement()])
+        expect(readAgain).toHaveBeenCalledWith('p1')
     })
 
     it('reports the speed of every measurement, with the input of the measured case', async () => {
@@ -166,10 +183,22 @@ describe('BenchmarkResultModal', () => {
     })
 
     it('says why the measurement could not be read', async () => {
-        readAgain.mockRejectedValue(new Error('No benchmark found'))
+        readAgain.mockRejectedValue(Object.assign(new Error('Unknown project'), { status: 404 }))
         render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
-        expect(await screen.findByText('No benchmark found')).toBeInTheDocument()
+        expect(await screen.findByText('Unknown project')).toBeInTheDocument()
         expect(screen.getByText('benchmark.failed')).toBeInTheDocument()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
+    })
+
+    it('shows an empty list when completed measurements have been released', async () => {
+        progress.current = { status: 'COMPLETED', error: null, arrived: 0, subscribed: true }
+        read.mockRejectedValue(Object.assign(new Error('Released'), { status: 404 }))
+
+        render(<MemoryRouter><BenchmarkResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        expect(await screen.findByText('benchmark.none')).toBeInTheDocument()
+        expect(screen.queryByText('benchmark.failed')).toBeNull()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
     })
 })

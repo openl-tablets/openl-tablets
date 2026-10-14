@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Alert, Button, Result, Space } from 'antd'
+import { Alert, Button, Empty, Result, Space } from 'antd'
 import { DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { ListTable, type ListTableColumn } from 'components/ListTable'
@@ -14,6 +14,7 @@ import {
     type RunFileOptions,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
+import { isMissingExecution } from 'services/executionWindow'
 import type { RunResult } from 'types/execution'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
@@ -98,20 +99,18 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
     const { t } = useTranslation('execution')
     const [result, setResult] = useState<RunResult | null>(null)
     const [failure, setFailure] = useState<string | null>(null)
+    const [missing, setMissing] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
     const progress = useExecutionProgress(runStatusTopic(projectId, tableId))
 
     const finished = isFinished(progress.status)
-    const quietSpells = useQuietSpells(progress, result === null)
+    const quietSpells = useQuietSpells(progress, result === null && !missing)
 
     // The run says when it has ended, and the result is read then. The screen also reads once as soon as it is
     // listening, for a run that ended before the window was there to hear about it, and again when the run has
     // said nothing for a while.
     useEffect(() => {
-        if (!progress.subscribed) {
-            return undefined
-        }
         let active = true
         // Only a run that has said it ended is waited out while it publishes the result. A run still going on
         // answers one read, and the screen waits for the run to say more.
@@ -121,11 +120,16 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
             .then(loaded => {
                 if (active) {
                     setResult(loaded)
+                    setMissing(false)
                 }
             })
             .catch(readError => {
                 if (active && !isStillRunning(readError)) {
-                    setFailure(errorMessage(readError))
+                    if (isMissingExecution(readError)) {
+                        setMissing(true)
+                    } else {
+                        setFailure(errorMessage(readError))
+                    }
                 }
             })
         return () => {
@@ -144,11 +148,15 @@ export const RunResultModal: React.FC<RunResultModalProps> = ({ projectId, table
     if (result === null) {
         const reason = progress.error ?? failure
         const runFailed = failure !== null || (finished && progress.status !== 'COMPLETED')
+        let content = <RunningCard data-testid="run-running" description={t('run.running')} />
+        if (missing) {
+            content = <Empty description={t('noResults')} />
+        } else if (runFailed) {
+            content = <Result status="error" subTitle={reason ?? undefined} title={t('run.failed')} />
+        }
         return (
             <ExecutionModal onClose={onClose} title={t('run.title')}>
-                {runFailed
-                    ? <Result status="error" subTitle={reason ?? undefined} title={t('run.failed')} />
-                    : <RunningCard data-testid="run-running" description={t('run.running')} />}
+                {content}
             </ExecutionModal>
         )
     }

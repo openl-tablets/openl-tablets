@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Space, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
+import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { isFinished, useExecutionProgress, useQuietSpells } from 'containers/execution/useExecutionProgress'
 import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
@@ -15,6 +16,7 @@ import {
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
+import { openExecutionWindow, publishExecution } from 'services/executionWindow'
 import { useUserStore } from 'store'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
@@ -72,6 +74,7 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
         const table = detail.tableId ? { tableId: detail.tableId } : {}
         runTests(project.id, { ...table, ...(moduleOnly && { fromModule: detail.moduleName }) })
             .then(() => {
+                publishExecution({ kind: 'tests', projectId: project.id, tableId: detail.tableId, options })
                 if (intoFile) {
                     setSaving(true)
                 } else {
@@ -132,8 +135,22 @@ const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) =
         reads.current = reads.current.then(() => (saving.current ? saveResults(ended) : undefined))
     }, [savingFile, progress.status, progress.subscribed, quietSpells])
 
+    const windowContext = useMemo(() => ({
+        open: (currentOptions?: Partial<TestsQuery>) => {
+            const opened = openExecutionWindow({
+                kind: 'tests', projectId: project.id, tableId: detail.tableId, options: currentOptions ?? options,
+            })
+            if (opened) onClose()
+            return opened
+        },
+    }), [project.id, detail.tableId, options, onClose])
+
     if (ran) {
-        return <TestsResultModal onClose={onClose} options={options} projectId={project.id} tableId={detail.tableId} />
+        return (
+            <ExecutionWindowContext.Provider value={windowContext}>
+                <TestsResultModal onClose={onClose} options={options} projectId={project.id} tableId={detail.tableId} />
+            </ExecutionWindowContext.Provider>
+        )
     }
 
     const moduleOnlyOption = (

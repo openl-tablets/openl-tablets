@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Alert, Button, Empty, Flex, Pagination, Result, Space, Tag, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +25,7 @@ import {
     type TestsQuery,
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
+import { isMissingExecution } from 'services/executionWindow'
 import { useUserStore } from 'store'
 import type {
     TestAssertionResult,
@@ -41,7 +42,7 @@ import { formatSmartNumber } from 'utils/smartNumber'
 import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
-import { ExecutionErrors, ExecutionModal, nameOf } from './ExecutionModal'
+import { ExecutionErrors, ExecutionModal, ExecutionWindowContext, nameOf } from './ExecutionModal'
 
 const { Text, Title } = Typography
 
@@ -221,7 +222,7 @@ const TestTable: React.FC<{
     readLines: ReadCaseLines
     /** The look of the values, read once by the window for every table it lists. */
     valueStyles: ValueStyles
-    onOpenTable: () => void
+    onOpenTable: (href: string) => boolean | void
 }> = ({ table, projectId, compoundResult, readLines, valueStyles, onOpenTable }) => {
     const { t } = useTranslation('execution')
     const [page, setPage] = useState(1)
@@ -310,6 +311,7 @@ interface TestsResultModalProps {
  */
 export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, tableId, options, onClose }) => {
     const { t } = useTranslation('execution')
+    const { openTable } = useContext(ExecutionWindowContext)
     const valueStyles = useValueStyles()
     const profile = useUserStore(state => state.userProfile)
     const [query, setQuery] = useState<Required<TestsQuery>>(() => ({ ...savedQuery(profile ?? null), ...options }))
@@ -322,6 +324,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
         [projectId]
     )
     const [failure, setFailure] = useState<string | null>(null)
+    const [missing, setMissing] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
 
@@ -329,15 +332,12 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     const progress = useExecutionProgress(topics.status, topics.results)
 
     const finished = isFinished(progress.status)
-    const quietSpells = useQuietSpells(progress, summary === null)
+    const quietSpells = useQuietSpells(progress, summary === null && !missing)
 
     // The run says when it has ended, and the results are read then. The screen also reads once as soon as it is
-    // listening, for a run that ended before the window was there to hear about it, again whenever it is set to
-    // show something else, and again when the run has said nothing for a while.
+    // listening, for a run that ended before the window was there to hear about it, whenever the reader changes
+    // the filters or page, and when the run has said nothing for a while.
     useEffect(() => {
-        if (!progress.subscribed) {
-            return undefined
-        }
         let active = true
         // Only a run that has said it ended is waited out while it publishes the results. A run still going on
         // answers one read, and the screen waits for the run to say more.
@@ -346,13 +346,19 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
             .then(loaded => {
                 if (active) {
                     setSummary(loaded)
+                    setMissing(false)
                     setShownQuery(query)
                     setFailure(null)
                 }
             })
             .catch(readError => {
                 if (active && !isStillRunning(readError)) {
-                    setFailure(errorMessage(readError))
+                    if (isMissingExecution(readError)) {
+                        setMissing(true)
+                        setFailure(errorMessage(readError))
+                    } else {
+                        setFailure(errorMessage(readError))
+                    }
                 }
             })
         return () => {
@@ -372,18 +378,22 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
 
     if (summary === null) {
         const testsFailed = failure !== null || (finished && progress.status !== 'COMPLETED')
+        let content = (
+            <RunningCard
+                data-testid="tests-running"
+                description={progress.arrived > 0
+                    ? t('tests.runningDone', { count: progress.arrived })
+                    : t('tests.running')}
+            />
+        )
+        if (missing) {
+            content = <Empty description={t('noResults')} />
+        } else if (testsFailed) {
+            content = <Result status="error" subTitle={progress.error ?? failure ?? undefined} title={t('tests.startFailed')} />
+        }
         return (
-            <ExecutionModal onClose={onClose} title={t('tests.title')}>
-                {testsFailed
-                    ? <Result status="error" subTitle={progress.error ?? failure ?? undefined} title={t('tests.startFailed')} />
-                    : (
-                        <RunningCard
-                            data-testid="tests-running"
-                            description={progress.arrived > 0
-                                ? t('tests.runningDone', { count: progress.arrived })
-                                : t('tests.running')}
-                        />
-                    )}
+            <ExecutionModal onClose={onClose} openOptions={query} title={t('tests.title')}>
+                {content}
             </ExecutionModal>
         )
     }
@@ -392,6 +402,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     return (
         <ExecutionModal
             onClose={onClose}
+            openOptions={query}
             title={t('tests.title')}
             extra={(
                 <Button data-testid="tests-save" icon={<DownloadOutlined />} loading={saving} onClick={save}>
@@ -434,7 +445,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
                         <TestTable
                             key={`${table.tableId} ${shownQuery.failuresOnly} ${shownQuery.failures}`}
                             compoundResult={shownQuery.compoundResult}
-                            onOpenTable={onClose}
+                            onOpenTable={openTable ?? onClose}
                             projectId={projectId}
                             readLines={readLines}
                             table={table}

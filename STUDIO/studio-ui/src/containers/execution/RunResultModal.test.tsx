@@ -5,6 +5,7 @@ import { getRunResult, getRunResultWorkbook, readRunResult } from 'services/exec
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { RunResultModal } from 'containers/execution/RunResultModal'
+import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 
 vi.mock('services/execution', () => ({
     getRunResult: vi.fn(),
@@ -16,12 +17,12 @@ vi.mock('services/execution', () => ({
 vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
 
 // What the run reported, and how many spells it has said nothing for: a test that needs either sets it.
-const run = vi.hoisted(() => ({ status: null as string | null, quietSpells: 0 }))
+const run = vi.hoisted(() => ({ status: null as string | null, quietSpells: 0, subscribed: true }))
 
 vi.mock('containers/execution/useExecutionProgress', () => ({
-    useExecutionProgress: () => ({ status: run.status, error: null, arrived: 0, subscribed: true }),
+    useExecutionProgress: () => ({ status: run.status, error: null, arrived: 0, subscribed: run.subscribed }),
     isFinished: (status: string | null) => status === 'COMPLETED',
-    useQuietSpells: () => run.quietSpells,
+    useQuietSpells: vi.fn(() => run.quietSpells),
 }))
 
 // The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
@@ -66,6 +67,7 @@ describe('RunResultModal', () => {
         vi.clearAllMocks()
         run.status = null
         run.quietSpells = 0
+        run.subscribed = true
         readWorkbook.mockResolvedValue(new Blob(['x']))
     })
 
@@ -74,6 +76,12 @@ describe('RunResultModal', () => {
         render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
 
         expect(await screen.findByText('run.running')).toBeInTheDocument()
+    })
+
+    it('reads an existing result after refresh even before the socket connects', async () => {
+        run.subscribed = false
+        await show(value)
+        expect(readResult).toHaveBeenCalledWith('p1', { spreadsheet: true })
     })
 
     it('reads the result once while the run goes on, and again when the run said nothing for a while', async () => {
@@ -215,5 +223,14 @@ describe('RunResultModal', () => {
 
         expect(await screen.findByText('No run execution task found')).toBeInTheDocument()
         expect(screen.getByText('run.failed')).toBeInTheDocument()
+    })
+
+    it('stops polling when the saved run result is gone', async () => {
+        readResult.mockRejectedValue({ status: 404 })
+        render(<RunResultModal fileOptions={{}} onClose={vi.fn()} projectId="p1" tableId="t1" />)
+
+        expect(await screen.findByText('noResults')).toBeInTheDocument()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
+        expect(readResult).toHaveBeenCalledTimes(1)
     })
 })

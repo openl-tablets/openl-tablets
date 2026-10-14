@@ -108,9 +108,18 @@ The build writes two pages (`build.rollupOptions.input`):
   library with a NOTICE opens it as plain text too.
 - **Execution results**: a screen that follows a run, a test run or a benchmark over the socket reads the result
   once while it goes on (`get*` in `services/execution.ts`, answered `202` until the end). It retries a `202`
-  (`read*`) only after the status says the execution ended. A screen that follows a run or a test run also reads
-  again after every quiet spell of `useQuietSpells` while it waits: an end the socket drops, just as the screen
-  subscribes or while it reconnects, reaches nobody. An execution that has said it ended counts no spell.
+  (`read*`) only after the status says the execution ended. Each result screen also reads
+  again after every quiet spell of `useQuietSpells` while it waits, even when the socket is disconnected: an end
+  the socket drops, just as the screen subscribes or while it reconnects, reaches nobody. An execution that has
+  said it ended counts no spell. A confirmed missing result also ends the wait, so the screen stops polling and
+  shows that no result is available. For completed benchmarks, a missing saved list shows an empty measurement
+  list; a missing project while a benchmark is pending remains an error.
+  The same result components render in the editor dialog and at `/execution-results`. The named browser window
+  reads the latest launch from `services/executionWindow.ts` after refresh and receives later launches through
+  the browser storage event. Every launch, including a run saved straight to a file, writes a new id even when
+  its options match the previous launch. Storage failure leaves the editor dialog usable. A table link in the
+  separate window asks the original editor's router to navigate and leaves the results window open. The dialog's
+  Open in Window button uses the Ant Design export icon. A refused focus does not undo navigation.
 - **State**: Zustand stores in `src/store/`. Use selectors that subscribe to specific slices to avoid re-renders.
 - **Routing**: `createBrowserRouter` with `CONFIG.CONTEXT` as basename. Admin features under `administration/`
   with `AdministrationLayout`.

@@ -6,6 +6,8 @@ import { getTestCaseLines, getTestsSummary, getTestsSummaryWorkbook, readTestsSu
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
+import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
+import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 import * as look from 'components/values/parameterValues.styles'
 
 vi.mock('services/execution', () => ({
@@ -30,7 +32,7 @@ const run = vi.hoisted(() => ({ status: null as string | null, quietSpells: 0 })
 vi.mock('containers/execution/useExecutionProgress', () => ({
     useExecutionProgress: () => ({ status: run.status, error: null, arrived: 0, subscribed: true }),
     isFinished: (status: string | null) => status === 'COMPLETED',
-    useQuietSpells: () => run.quietSpells,
+    useQuietSpells: vi.fn(() => run.quietSpells),
 }))
 
 // The dialog renders as plain markup: jsdom cannot measure a real one, and the values are what matters.
@@ -143,6 +145,15 @@ describe('TestsResultModal', () => {
         render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
 
         expect(await screen.findByText('tests.running')).toBeInTheDocument()
+    })
+
+    it('stops polling when the saved test results are gone', async () => {
+        readSummary.mockRejectedValue({ status: 404 })
+        render(<MemoryRouter><TestsResultModal onClose={vi.fn()} projectId="p1" tableId="t1" /></MemoryRouter>)
+
+        expect(await screen.findByText('noResults')).toBeInTheDocument()
+        expect(useQuietSpells).toHaveBeenLastCalledWith(expect.anything(), false)
+        expect(readSummary).toHaveBeenCalledTimes(1)
     })
 
     it('reads the results once while the tests go on, and again when the run said nothing for a while', async () => {
@@ -667,6 +678,39 @@ describe('TestsResultModal', () => {
         expect(await screen.findByTestId('tests-read-failed')).toHaveTextContent('The project is being compiled')
         // The results that were read last are still there to read.
         expect(screen.getByTestId('test-results-tt1')).toBeInTheDocument()
+    })
+
+    it('reports 404 after a page change while keeping the last readable results', async () => {
+        await show()
+        readSummary.mockRejectedValue(Object.assign(new Error('Results released'), { status: 404 }))
+
+        await userEvent.click(screen.getByTestId('tests-failures-only'))
+
+        expect(await screen.findByTestId('tests-read-failed')).toHaveTextContent('Results released')
+        expect(screen.getByTestId('test-results-tt1')).toBeInTheDocument()
+    })
+
+    it('carries the current filters and page into the separate window', async () => {
+        const openWindow = vi.fn(() => true)
+        render(
+            <MemoryRouter>
+                <ExecutionWindowContext.Provider value={{ open: openWindow }}>
+                    <TestsResultModal
+                        onClose={vi.fn()}
+                        options={{ page: 2, size: 10 }}
+                        projectId="p1"
+                        tableId="t1"
+                    />
+                </ExecutionWindowContext.Provider>
+            </MemoryRouter>
+        )
+        await screen.findByTestId('tests-save')
+        await userEvent.click(screen.getByTestId('execution-open-window'))
+
+        expect(openWindow).toHaveBeenCalledWith(expect.objectContaining({ page: 2, size: 10 }))
+        await userEvent.click(screen.getByTestId('tests-failures-only'))
+        await userEvent.click(screen.getByTestId('execution-open-window'))
+        expect(openWindow).toHaveBeenLastCalledWith(expect.objectContaining({ failuresOnly: true, page: 0, size: 10 }))
     })
 
     it('says why the results could not be read', async () => {

@@ -1,3 +1,4 @@
+import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
@@ -5,6 +6,8 @@ import { getTestsSummaryWorkbook, readTestsSummaryWorkbook, runTests } from 'ser
 import { ResultNotReadyError } from 'services/taskResult'
 import { saveFile } from 'utils/download'
 import { TestsLaunchHost } from 'containers/TableInput/TestsLaunchHost'
+import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
+import { currentExecution } from 'services/executionWindow'
 
 vi.mock('services/repositories', () => ({ getProject: vi.fn() }))
 
@@ -38,7 +41,14 @@ vi.mock('containers/execution/useExecutionProgress', () => ({
 
 // The results have their own tests; here only the window that opens for a test run is of interest.
 vi.mock('containers/execution/TestsResultModal', () => ({
-    TestsResultModal: () => <div data-testid="tests-result-modal" />,
+    TestsResultModal: () => {
+        const { open: openWindow } = React.useContext(ExecutionWindowContext)
+        return (
+            <div data-testid="tests-result-modal">
+                <button data-testid="test-result-open-window" onClick={() => openWindow?.()} type="button">Open</button>
+            </div>
+        )
+    },
 }))
 
 vi.mock('react-i18next', () => {
@@ -108,6 +118,9 @@ describe('TestsLaunchHost', () => {
         expect(screen.queryByTestId('tests-result-modal')).toBeNull()
         // What an earlier run reported must not be taken for the end of this one.
         expect(reset).toHaveBeenCalled()
+        expect(currentExecution()).toEqual(expect.objectContaining({
+            kind: 'tests', projectId: 'real-p1', tableId: 't1',
+        }))
     })
 
     it('runs every test that tests the table the page shows', async () => {
@@ -118,6 +131,20 @@ describe('TestsLaunchHost', () => {
 
         await waitFor(() => expect(tests).toHaveBeenCalledWith('real-p1', { tableId: 't1' }))
         expect(await screen.findByTestId('tests-result-modal')).toBeInTheDocument()
+    })
+
+    it('keeps the dialog when a popup is blocked and closes it after the window opens', async () => {
+        const browserOpen = vi.spyOn(window, 'open').mockReturnValue(null)
+        render(<TestsLaunchHost />)
+        await open({ tableId: 't1' })
+        await userEvent.click(await screen.findByTestId('tests-start'))
+        await userEvent.click(await screen.findByTestId('test-result-open-window'))
+
+        expect(screen.getByTestId('tests-result-modal')).toBeInTheDocument()
+        browserOpen.mockReturnValue({} as Window)
+        await userEvent.click(screen.getByTestId('test-result-open-window'))
+        await waitFor(() => expect(screen.queryByTestId('tests-result-modal')).toBeNull())
+        browserOpen.mockRestore()
     })
 
     it('runs every test of the project when no table is named, within the module on request', async () => {

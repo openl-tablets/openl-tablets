@@ -1,9 +1,11 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { App } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { BenchmarkResultModal } from 'containers/execution/BenchmarkResultModal'
+import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { useEventProject } from 'hooks'
 import { startBenchmark } from 'services/execution'
+import { openExecutionWindow, publishExecution } from 'services/executionWindow'
 import type { Project } from 'types/projects'
 import { errorMessage } from 'utils/errorMessage'
 import { TableInputLauncher, type TableLaunchDetail, type TableLaunchValue } from './TableInputLauncher'
@@ -35,12 +37,28 @@ const BenchmarkLaunch: React.FC<BenchmarkLaunchProps> = ({ detail, project, onCl
             ...(value.fromModule && { fromModule: value.fromModule }),
             ...(value.inputJson !== undefined && { inputJson: value.inputJson }),
         })
-            .then(() => setMeasuring(true))
+            .then(() => {
+                publishExecution({ kind: 'benchmark', projectId: project.id, tableId: detail.tableId })
+                setMeasuring(true)
+            })
             .finally(() => setStarting(false))
     }, [project.id, detail.tableId])
+    const windowContext = useMemo(() => ({
+        open: () => {
+            const opened = openExecutionWindow({
+                kind: 'benchmark', projectId: project.id, tableId: detail.tableId,
+            })
+            if (opened) onClose()
+            return opened
+        },
+    }), [project.id, detail.tableId, onClose])
 
     if (measuring) {
-        return <BenchmarkResultModal onClose={onClose} projectId={project.id} tableId={detail.tableId} />
+        return (
+            <ExecutionWindowContext.Provider value={windowContext}>
+                <BenchmarkResultModal onClose={onClose} projectId={project.id} tableId={detail.tableId} />
+            </ExecutionWindowContext.Provider>
+        )
     }
 
     return (

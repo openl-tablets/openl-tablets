@@ -264,12 +264,22 @@ the table does not have starts nothing: the panel says which case it is.
 
 ##### Reading Test Results
 
-The results window lists every test table that ran, with the number of cases it holds and, in red, how many of
+The results dialog lists every test table that ran, with the number of cases it holds and, in red, how many of
 them failed. The name of a table is green when every case of it passed and red when one did not, and it opens
 that test table in the editor. Every case is a row of that table: its id, a column for each value it was given,
 and a column for each value the test compares. A tick or a cross stands next to the case and next to every
 value that was compared, and a case that failed says how many of its comparisons did not match and shows the
 value that was expected under the value that came out.
+
+Click **Open in Window** (the square-and-arrow button) to move the results out of the dialog. The dialog closes,
+and the separate window can be resized or moved beside the editor or to another monitor. The same filters, page
+controls and **Save to Excel** action are available there. The filters and page currently selected in the dialog
+carry over. Clicking a table name opens it in the original editor and leaves the separate window open. If the
+editor tab was closed, the table opens in a new tab. Opening results in a window again reuses that window. When
+another Test, Run or Benchmark starts, the open window follows its progress and shows its results. This includes
+a run saved with **Test into File** or **Run into File**. Refreshing the window shows the latest results. When the
+server no longer has a Test or Run result, the window says **No results to show**; an empty Benchmark list says
+**No measurements**. If the browser blocks the window, the dialog stays open and explains how to allow it.
 
 A fractional number is rounded when a decimal with at least two fewer digits lies within two floating-point steps of
 it, as the saved workbook does: a rule that computes `1.73 * 12` returns `20.759999999999998`, and the window shows
@@ -355,6 +365,8 @@ A rule table can be run on its own, without a test table for it.
     A run that fails shows its error in the **Result** column, in place of the value it did not return. A table
     that returns nothing shows `null` there, as does an input left empty.
 
+1.  To read the result beside the editor, click **Open in Window**. The dialog closes and a resizable separate
+    window opens with **Save to Excel**. Later Test, Run and Benchmark results use the same window.
 1.  To save the result, click **Save to Excel**. The workbook is written the way the options of the panel ask, as
     described after these steps.
 
@@ -663,6 +675,14 @@ Every measurement is a row of the results.
 ![Benchmark results](images/benchmarking-results.png "Reading benchmark results")
 
 *Benchmark results*
+
+Click **Open in Window** to move the results to a resizable separate window. The dialog closes; **Compare**,
+**Delete** and the comparison remain available in the separate window. Later measurements appear there too.
+If the server has released every measurement, the separate window says **No measurements**.
+
+![Benchmark results in a separate window](images/benchmarking-results-window.png "Benchmark results in a separate window")
+
+*Benchmark results beside the editor*
 
 A row reports the measured table, the number of test cases one run covered, the input of the measured case, and
 the following numbers:

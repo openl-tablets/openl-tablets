@@ -88,7 +88,8 @@ export const QUIET_SPELL_MS = 5000
  * end to nobody, and the screen would wait for good.
  *
  * Anything the server reports starts the spell over, so a screen that hears the execution going on asks nothing.
- * An execution that has said it ended has nothing more to say, and counts no spell.
+ * A disconnected socket cannot report progress, so the screen still asks periodically. An execution that has
+ * said it ended has nothing more to say, and counts no spell.
  *
  * @param progress what the server reports of the execution
  * @param waiting  whether the screen still waits for the result
@@ -100,7 +101,7 @@ export const useQuietSpells = (
 ): number => {
     const [spells, setSpells] = useState(0)
     const { status, arrived, subscribed } = progress
-    const listening = waiting && subscribed && !isFinished(status)
+    const listening = waiting && !isFinished(status)
 
     useEffect(() => {
         if (!listening) {
@@ -108,7 +109,7 @@ export const useQuietSpells = (
         }
         const spell = setTimeout(() => setSpells(count => count + 1), QUIET_SPELL_MS)
         return () => clearTimeout(spell)
-    }, [listening, status, arrived, spells])
+    }, [listening, status, arrived, subscribed, spells])
 
     return spells
 }
