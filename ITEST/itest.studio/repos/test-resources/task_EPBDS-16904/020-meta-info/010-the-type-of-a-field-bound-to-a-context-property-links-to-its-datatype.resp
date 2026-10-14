@@ -1,0 +1,109 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "980cdddc5b780a937275eb1d98606047",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Policy",
+  "pos": "B6:D9",
+  "source": [
+    [
+      {
+        "cell": "B6",
+        "value": "Datatype Policy",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "State",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 5,
+              "description": "Datatype State <String>",
+              "tableId": "7ecd51e4462f145437d13871c6789acc",
+              "module": "Model",
+              "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY5MDQ6ZWNiMmZmYmQyYjVkZjMxOTEwYjlkZmViNzFiMDQ3ZTAwMGVmZmM5YTgyZGZiOTMzODlhNzRlN2Y2MTEwNTg3Zg==",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C7",
+        "value": "situsState : context.usState"
+      },
+      {
+        "cell": "D7",
+        "value": "CA",
+        "metaInfo": {
+          "type": "State",
+          "editor": "combo"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "State",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 5,
+              "description": "Datatype State <String>",
+              "tableId": "7ecd51e4462f145437d13871c6789acc",
+              "module": "Model",
+              "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY5MDQ6ZWNiMmZmYmQyYjVkZjMxOTEwYjlkZmViNzFiMDQ3ZTAwMGVmZmM5YTgyZGZiOTMzODlhNzRlN2Y2MTEwNTg3Zg==",
+              "kind": "datatype"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "C8",
+        "value": "situsState2"
+      },
+      {
+        "cell": "D8",
+        "value": "CA",
+        "metaInfo": {
+          "type": "State",
+          "editor": "combo"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "Integer"
+      },
+      {
+        "cell": "C9",
+        "value": "revisionNo"
+      },
+      {
+        "cell": "D9",
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}

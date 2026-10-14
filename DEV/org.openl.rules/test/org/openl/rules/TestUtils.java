@@ -6,12 +6,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Disabled;
 
 import org.openl.message.OpenLMessage;
+import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.syntax.exception.CompositeOpenlException;
+import org.openl.types.IOpenClass;
 
 @Disabled("Auxiliary class")
 public class TestUtils {
@@ -158,5 +163,34 @@ public class TestUtils {
             }
         }
         return invoke(instance, methodName, types, args);
+    }
+
+    /**
+     * The table of a compiled module, found by its display name.
+     */
+    public static TableSyntaxNode findTable(IOpenClass module, String displayName) {
+        return Arrays.stream(((XlsMetaInfo) module.getMetaInfo()).getXlsModuleNode().getXlsTableSyntaxNodes())
+                .filter(table -> displayName.equals(table.getDisplayName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("There is no '%s' table".formatted(displayName)));
+    }
+
+    /**
+     * The meta info of a cell of a table, found by the text of a cell in the same row.
+     *
+     * <p>The cell is the given number of columns away from the first cell holding the text. An offset of 0 takes that
+     * cell itself.
+     */
+    public static CellMetaInfo metaInfoBeside(TableSyntaxNode table, String text, int columnOffset) {
+        var grid = table.getGridTable();
+        for (var row = 0; row < grid.getHeight(); row++) {
+            for (var column = 0; column < grid.getWidth(); column++) {
+                if (text.equals(grid.getCell(column, row).getStringValue())) {
+                    var cell = grid.getCell(column + columnOffset, row);
+                    return table.getMetaInfoReader().getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+                }
+            }
+        }
+        throw new IllegalStateException("There is no '%s' cell in '%s'".formatted(text, table.getDisplayName()));
     }
 }
