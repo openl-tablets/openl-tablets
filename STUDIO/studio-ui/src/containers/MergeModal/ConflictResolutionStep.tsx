@@ -324,21 +324,21 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                         </Button>
                         {renderDownloadAction(
                             record.filePath,
-                            'OURS',
+                            'ours',
                             availability?.ours,
                             t('merge:compare.download_yours'),
                             t('merge:compare.deleted_yours')
                         )}
                         {renderDownloadAction(
                             record.filePath,
-                            'THEIRS',
+                            'theirs',
                             availability?.theirs,
                             t('merge:compare.download_theirs'),
                             t('merge:compare.deleted_theirs')
                         )}
                         {renderDownloadAction(
                             record.filePath,
-                            'BASE',
+                            'base',
                             availability?.base,
                             t('merge:compare.download_base'),
                             t('merge:compare.deleted_base')

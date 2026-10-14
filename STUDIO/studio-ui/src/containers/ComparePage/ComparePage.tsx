@@ -12,19 +12,20 @@ import { useSearchParams } from 'react-router'
 import { isStillRunning } from 'services/taskResult'
 import { errorMessage } from 'utils/errorMessage'
 import { isWorkbookPath } from 'utils/workbooks'
+import { basename } from 'containers/projects/projectPaths'
 import {
     dropComparison,
     getComparison,
     getComparisonTable,
-    getConflictFileStatus,
     getConflictFileText,
+    getConflictFileVersions,
     startConflictComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
-import { getFileContent } from 'services/files'
-import type { ConflictFileStatus } from 'services/compare'
+import { getFileText } from 'services/files'
+import type { ConflictFileStatus, ConflictFileVersions, ConflictSide } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes, type DiffView } from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
@@ -39,6 +40,67 @@ const ACCEPTED = '.xls,.xlsx,.xlsm'
 const ASK_AGAIN = 2000
 
 const FILES_TO_COMPARE = 2
+
+/**
+ * What the comparison of a conflicted file shows: what your branch changed since the base, what their branch changed,
+ * or your version against theirs.
+ */
+type ConflictView = 'yours' | 'theirs' | 'versions'
+
+/** How a view of a conflicted file is offered, and how it compares its two versions. */
+interface ConflictViewDefinition {
+    label: string
+    /** The two versions it compares, the one it starts from first. */
+    compared: [ConflictSide, ConflictSide]
+    /** Whether the version it compares second is shown on the left. */
+    secondOnLeft: boolean
+}
+
+/**
+ * How each view of a conflicted file compares its versions, in the order offered. The versions stand as merge tools
+ * lay them out, your version on the left, theirs on the right and the base between them: what your branch changed
+ * shows your version left of the base, though the comparison starts from the base.
+ */
+const CONFLICT_VIEWS: Record<ConflictView, ConflictViewDefinition> = {
+    yours: { label: 'view_your_changes', compared: ['base', 'ours'], secondOnLeft: true },
+    theirs: { label: 'view_their_changes', compared: ['base', 'theirs'], secondOnLeft: false },
+    versions: { label: 'view_versions', compared: ['ours', 'theirs'], secondOnLeft: false },
+}
+
+/** The views of a conflicted file, in the order offered. */
+const VIEWS = Object.keys(CONFLICT_VIEWS) as ConflictView[]
+
+/** How each version of a conflicted file is named. */
+const VERSION_TITLES: Record<ConflictSide, string> = {
+    base: 'base_version',
+    ours: 'your_version',
+    theirs: 'their_version',
+}
+
+/** What is known of a conflicted file whose versions cannot be read: the merge compared their two versions. */
+const UNKNOWN_VERSIONS: ConflictFileVersions = { base: false, ours: true, theirs: true }
+
+/** The views of a conflicted file whose two versions both hold it. */
+const viewsOf = (versions: ConflictFileVersions): ConflictView[] =>
+    VIEWS.filter(view => CONFLICT_VIEWS[view].compared.every(side => versions[side]))
+
+/** The view a conflicted file opens on: what their branch changed, which the merge brings in, when it is offered. */
+const firstViewOf = (views: ConflictView[]): ConflictView | null =>
+    views.includes('theirs') ? 'theirs' : views[0] ?? null
+
+/**
+ * What became of a conflicted file: a file both branches still hold was modified on both sides, one that a branch no
+ * longer holds was deleted there.
+ */
+const conflictFileStatusOf = (versions: ConflictFileVersions): ConflictFileStatus =>
+    versions.ours && versions.theirs ? 'modified' : 'deleted'
+
+/** Lets a comparison go, with the workbooks it holds parsed. */
+const releaseComparison = (comparisonId: string) => {
+    dropComparison(comparisonId).catch(() => {
+        // The comparison is released with the session in any case.
+    })
+}
 
 /** Two versions named by the screen that opened the window, and how their comparison is started. */
 interface VersionsRequest {
@@ -84,8 +146,8 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const after = params.get('after') ?? undefined
     if (!isWorkbookPath(file)) {
         const read = () => Promise.all([
-            getFileContent(projectId, file, before),
-            getFileContent(projectId, file, after),
+            getFileText(projectId, file, before),
+            getFileText(projectId, file, after),
         ])
         return { versions: null, textVersions: { path: file, read } }
     }
@@ -97,25 +159,24 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
 }
 
 /**
- * A conflicted file that is not a workbook. The version being merged in is read first and the one the workspace
- * holds second, so the diff reads as what the merge would bring.
+ * A conflicted file that is not a workbook, read as the view of it compares it: the version it starts from first.
+ *
+ * @param versionOf reads a version of the file
  */
-const conflictTextOf = (projectId: string, conflict: string): TextVersionsRequest => ({
-    path: conflict,
-    read: () => Promise.all([
-        getConflictFileText(projectId, conflict, 'THEIRS'),
-        getConflictFileText(projectId, conflict, 'OURS'),
-    ]),
-})
+const conflictTextOf = (
+    conflict: string,
+    view: ConflictView,
+    versionOf: (side: ConflictSide) => Promise<string>
+): TextVersionsRequest => {
+    const [first, second] = CONFLICT_VIEWS[view].compared
+    return { path: conflict, read: () => Promise.all([versionOf(first), versionOf(second)]) }
+}
 
 /** What the window was opened to compare, read from the address it was opened with. */
 interface ComparisonRequest {
     /** Two versions, when the window was opened for them. */
     versions: VersionsRequest | null
-    /**
-     * A file that is not a workbook at two versions, when the window was opened for one: at two revisions, or
-     * conflicted.
-     */
+    /** A file that is not a workbook at two revisions, when the window was opened for one. */
     textVersions: TextVersionsRequest | null
     /** The project the window was opened for, whether to pick its files or to read its conflict. */
     projectId: string | null
@@ -141,10 +202,7 @@ const requestOf = (params: URLSearchParams): ComparisonRequest => {
     const conflict = projectId ? params.get('conflict') : null
     return {
         versions,
-        // A conflicted file that is not a workbook is not compared as one: it reads line by line, in this window.
-        textVersions: projectId && conflict && !isWorkbookPath(conflict)
-            ? conflictTextOf(projectId, conflict)
-            : textVersions,
+        textVersions,
         projectId,
         conflict,
         pickedProject: conflict ? null : projectId,
@@ -156,15 +214,15 @@ const startOf = (
     versions: VersionsRequest | null,
     projectId: string | null,
     conflict: string | null,
-    conflictStatus: ConflictFileStatus | null
+    conflictView: ConflictView | null
 ): (() => Promise<string>) | null => {
     if (versions) {
         return versions.start
     }
-    // A conflicted workbook is compared once what became of it is known: a file one version no longer
-    // holds has nothing to be compared with.
-    if (projectId && conflict && isWorkbookPath(conflict) && conflictStatus === 'modified') {
-        return () => startConflictComparison(projectId, conflict)
+    // A conflicted workbook is compared once it is known which versions hold it, as the view picked compares it.
+    if (projectId && conflict && isWorkbookPath(conflict) && conflictView) {
+        const [first, second] = CONFLICT_VIEWS[conflictView].compared
+        return () => startConflictComparison(projectId, conflict, first, second)
     }
     return null
 }
@@ -183,9 +241,64 @@ const startOf = (
  * a file that is not a workbook reads line by line.
  *
  * A window opened for a project alone picks instead of files: which file of the working copy stands
- * against which file of which revision. One opened for a conflicted file of a project shows its two
- * versions: a workbook as a comparison, anything else line by line.
+ * against which file of which revision. One opened for a conflicted file of a project shows what each
+ * branch changed since the base version, or the two versions against each other: a workbook as a
+ * comparison, anything else line by line. A view whose versions do not both hold the file is not offered.
  */
+/**
+ * What the window knows of a conflicted file: which versions hold it, what became of it, the views it is offered in
+ * and the one shown, and its versions read as text when it is not a workbook. Nothing is known without a file.
+ *
+ * Which versions hold the file is read as the window opens; without what the merge reports, the two versions the
+ * merge compared are taken to hold it. The versions stay as they are while the window is open, so each is read once
+ * for every view; a version that could not be read is read again when a view asks for it next.
+ */
+const useConflictFile = (projectId: string | null, conflict: string | null) => {
+    // Which versions hold the conflicted file; null while they are being read.
+    const [conflictVersions, setConflictVersions] = useState<ConflictFileVersions | null>(null)
+    // The view the user picked; until then, the file is shown in the view it opens on.
+    const [pickedView, setPickedView] = useState<ConflictView | null>(null)
+    const conflictStatus = conflictVersions && conflictFileStatusOf(conflictVersions)
+    const conflictViews = useMemo(() => conflictVersions ? viewsOf(conflictVersions) : [], [conflictVersions])
+    const conflictView = pickedView ?? firstViewOf(conflictViews)
+    const conflictWorkbook = !!conflict && isWorkbookPath(conflict)
+    const conflictTexts = useRef(new Map<ConflictSide, Promise<string>>())
+    const conflictText = useMemo(() => {
+        if (!projectId || !conflict || conflictWorkbook || !conflictView) {
+            return null
+        }
+        const versionOf = (side: ConflictSide) => {
+            const known = conflictTexts.current.get(side)
+            if (known) {
+                return known
+            }
+            const text = getConflictFileText(projectId, conflict, side)
+            conflictTexts.current.set(side, text)
+            text.catch(() => conflictTexts.current.delete(side))
+            return text
+        }
+        return conflictTextOf(conflict, conflictView, versionOf)
+    }, [projectId, conflict, conflictWorkbook, conflictView])
+
+    useEffect(() => {
+        if (!conflict || !projectId) {
+            return undefined
+        }
+        let cancelled = false
+        const shown = (found: ConflictFileVersions) => {
+            if (!cancelled) {
+                setConflictVersions(found)
+            }
+        }
+        getConflictFileVersions(projectId, conflict).then(shown, () => shown(UNKNOWN_VERSIONS))
+        return () => {
+            cancelled = true
+        }
+    }, [conflict, projectId])
+
+    return { conflictVersions, conflictStatus, conflictViews, conflictView, setPickedView, conflictWorkbook, conflictText }
+}
+
 export const ComparePage: React.FC = () => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
@@ -194,7 +307,8 @@ export const ComparePage: React.FC = () => {
         () => requestOf(params), [params]
     )
     const [sides, setSides] = useState<ProjectComparisonSides | null>(null)
-    const [conflictStatus, setConflictStatus] = useState<ConflictFileStatus | null>(null)
+    const { conflictVersions, conflictStatus, conflictViews, conflictView, setPickedView, conflictWorkbook, conflictText } =
+        useConflictFile(projectId, conflict)
 
     const [files, setFiles] = useState<File[]>([])
 
@@ -230,57 +344,63 @@ export const ComparePage: React.FC = () => {
     const [treeWidth, setTreeWidth] = useState<number | string>(versions || conflict ? '36%' : '30%')
     const [treeHidden, setTreeHidden] = useState(false)
 
+    // A window opened for a file says which file it compares, a workbook or not.
+    const comparedFile = conflict ?? textVersions?.path
     useEffect(() => {
-        document.title = t('title')
-    }, [t])
+        document.title = comparedFile ? t('file_title', { name: basename(comparedFile) }) : t('title')
+    }, [comparedFile, t])
 
     const progress = useComparisonProgress(comparisonId)
     // The comparison is on screen from the moment it is started; until it answers, its progress is.
     // A window opened for a comparison of its own has nothing else to show, so it is on screen at once.
-    const comparing = !!comparisonId || !!versions || (!!conflict && !textVersions)
+    const comparing = !!comparisonId || !!versions || conflictWorkbook
     const running = comparing && !comparison && !error
 
+    // The comparison the window shows is started once for each view of it, however often the effect is run. Only
+    // the start made last is answered on screen, though an earlier one was made for the same view.
+    const requested = useRef<{ key: string } | null>(null)
     useEffect(() => {
-        if (!conflict || !projectId) {
-            return undefined
-        }
-        let cancelled = false
-        getConflictFileStatus(projectId, conflict)
-            .then(status => {
-                if (!cancelled) {
-                    setConflictStatus(status)
-                }
-            })
-            .catch(() => {
-                // What became of the file is told beside the comparison; without it the comparison stands.
-                if (!cancelled) {
-                    setConflictStatus('modified')
-                }
-            })
-        return () => {
-            cancelled = true
-        }
-    }, [conflict, projectId])
-
-    // The comparison the window was opened for is started once, however often the effect is run.
-    const requested = useRef(false)
-    useEffect(() => {
-        if (requested.current) {
+        const start = startOf(versions, projectId, conflict, conflictView)
+        const key = conflictView ?? 'request'
+        if (!start || requested.current?.key === key) {
             return
         }
-        if (conflictStatus === 'deleted') {
-            // One version no longer holds the file: there is nothing to put the other one against.
-            return
-        }
-        const start = startOf(versions, projectId, conflict, conflictStatus)
-        if (!start) {
-            return
-        }
-        requested.current = true
+        const request = { key }
+        requested.current = request
         start()
-            .then(setComparisonId)
-            .catch((startError: unknown) => setError(errorMessage(startError) || t('failed')))
-    }, [versions, projectId, conflict, conflictStatus, t])
+            .then(id => {
+                if (requested.current === request) {
+                    setComparisonId(id)
+                } else {
+                    // Another view was picked meanwhile: a comparison nobody shows is let go at once.
+                    releaseComparison(id)
+                }
+            })
+            .catch((startError: unknown) => {
+                if (requested.current === request) {
+                    setError(errorMessage(startError) || t('failed'))
+                }
+            })
+    }, [versions, projectId, conflict, conflictView, t])
+
+    /**
+     * Leaves the comparison on screen and what was read of it. The comparison itself is released by the effect that
+     * holds it, which lets go of it as soon as the screen stops naming it.
+     */
+    const clearComparison = useCallback(() => {
+        setComparisonId(null)
+        setComparison(null)
+        setSelectedId(null)
+        setTable(null)
+        setTableError(null)
+        setError(null)
+    }, [])
+
+    /** Shows another view of the conflicted file: the comparison of the view left is let go. */
+    const showView = useCallback((view: ConflictView) => {
+        clearComparison()
+        setPickedView(view)
+    }, [clearComparison, setPickedView])
 
     // The result is read when the comparison says it has finished, and again as soon as the page is
     // listening: a comparison of two small files can be over before then, and what was pushed to the
@@ -360,9 +480,7 @@ export const ComparePage: React.FC = () => {
                 return
             }
             released = true
-            void dropComparison(comparisonId).catch(() => {
-                // The comparison is released with the session in any case.
-            })
+            releaseComparison(comparisonId)
         }
         window.addEventListener('pagehide', release)
         return () => {
@@ -400,18 +518,11 @@ export const ComparePage: React.FC = () => {
 
     /** Back to the files, leaving the comparison behind: another pair is compared from here. */
     const pickOtherFiles = useCallback(() => {
-        // The comparison is released by the effect that holds it, which lets go of what it was told to
-        // hold as soon as the screen stops naming it.
         // The files that were compared are let go with it, so the next pair is the pair that is picked.
         setFiles([])
-        setComparisonId(null)
-        setComparison(null)
-        setSelectedId(null)
-        setTable(null)
-        setTableError(null)
-        setError(null)
+        clearComparison()
         setShowEqualRows(false)
-    }, [comparisonId])
+    }, [clearComparison])
 
     // The way back to the files never hides with the list of elements: it heads the list while the
     // list is shown, and joins the control that brings it back when it is not. A window opened for
@@ -427,10 +538,47 @@ export const ComparePage: React.FC = () => {
         </Button>
     )
 
-    if (conflict && conflictStatus === 'deleted') {
+    // The two versions a view compares, as the window names them, and where it shows them.
+    const shownView = conflictView ? CONFLICT_VIEWS[conflictView] : null
+    const conflictTitles = shownView
+        ? { first: t(VERSION_TITLES[shownView.compared[0]]), second: t(VERSION_TITLES[shownView.compared[1]]) }
+        : undefined
+    const secondOnLeft = !!shownView?.secondOnLeft
+
+    const conflictHead = conflict && (
+        <ConflictHead path={conflict} status={conflictStatus}>
+            {conflictView && (
+                <Segmented<ConflictView>
+                    aria-label={t('conflict_view_label')}
+                    data-testid="compare-conflict-view"
+                    onChange={showView}
+                    size="small"
+                    value={conflictView}
+                    options={VIEWS.map(view => ({
+                        label: t(CONFLICT_VIEWS[view].label),
+                        value: view,
+                        disabled: !conflictViews.includes(view),
+                    }))}
+                />
+            )}
+        </ConflictHead>
+    )
+
+    if (conflict && !conflictVersions) {
         return (
             <div className={styles.page}>
-                <ConflictHead path={conflict} status={conflictStatus} />
+                {conflictHead}
+                <div className={styles.center}>
+                    <Spin description={t('comparing')} />
+                </div>
+            </div>
+        )
+    }
+
+    if (conflict && conflictViews.length === 0) {
+        return (
+            <div className={styles.page}>
+                {conflictHead}
                 <div className={styles.center} data-testid="compare-conflict-deleted">
                     <Empty description={t('conflict_deleted')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 </div>
@@ -438,18 +586,24 @@ export const ComparePage: React.FC = () => {
         )
     }
 
-    if (textVersions) {
+    const text = textVersions ?? conflictText
+    if (text) {
         return (
             <div className={styles.page}>
-                <ConflictHead path={textVersions.path} status={conflictStatus} />
-                <TextVersionsView read={textVersions.read} />
+                {conflictHead || <ConflictHead path={text.path} status={null} />}
+                <TextVersionsView
+                    key={conflictView}
+                    read={text.read}
+                    secondOnLeft={secondOnLeft}
+                    titles={conflictTitles}
+                />
             </div>
         )
     }
 
     return (
         <div className={styles.page}>
-            {conflict && <ConflictHead path={conflict} status={conflictStatus} />}
+            {conflictHead}
             {!comparing && (
                 <div className={styles.step}>
                     {pickedProject && <RevisionPicker onChange={setSides} projectId={pickedProject} />}
@@ -582,8 +736,10 @@ export const ComparePage: React.FC = () => {
                         <ComparisonPanes
                             error={tableError}
                             loading={tableLoading}
+                            secondOnLeft={secondOnLeft}
                             showEqualRows={showEqualRows}
                             table={table}
+                            titles={conflictTitles}
                             view={view}
                             leading={treeHidden && (
                                 <>
@@ -598,9 +754,6 @@ export const ComparePage: React.FC = () => {
                                     {back}
                                 </>
                             )}
-                            titles={conflict
-                                ? { first: t('their_version'), second: t('your_version') }
-                                : undefined}
                             trailing={comparison && (
                                 <Segmented<DiffView>
                                     aria-label={t('view_label')}

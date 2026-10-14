@@ -27,6 +27,8 @@ interface ComparisonPanesProps {
     trailing?: React.ReactNode
     /** What the two sides are called, when they are not simply the first and the second file. */
     titles?: { first: string; second: string } | undefined
+    /** Whether the second version stands on the left side by side, as your version does against the base. */
+    secondOnLeft?: boolean | undefined
 }
 
 /**
@@ -34,8 +36,9 @@ interface ComparisonPanesProps {
  * differ marked.
  *
  * Side by side, each file heads its own column, on the line the controls of the comparison are on, and
- * the divider between them gives either file more room. A table only one file holds is shown on that
- * side alone; the other side says the file does not have it.
+ * the divider between them gives either file more room. The first file stands on the left unless the second
+ * one is asked to. A table only one file holds is shown on that side alone; the other side says the file does
+ * not have it.
  *
  * Drawn as one, the two versions share a table: a cell the files read differently carries both values,
  * and every row is led by the sign it is read by.
@@ -49,6 +52,7 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
     leading,
     trailing,
     titles,
+    secondOnLeft = false,
 }) => {
     const { t } = useTranslation('compare')
     const { styles, cx } = useStyles()
@@ -108,16 +112,16 @@ export const ComparisonPanes: React.FC<ComparisonPanesProps> = ({
         return pane(head, 'compare-pane-combined', body)
     }
 
+    // The pane of a file; the controls lead the left pane and end the right one, whichever file each pane shows.
+    const sidePane = (side: 'first' | 'second', left: boolean) => pane(
+        named(titles?.[side] ?? t(`file_${side}`), left && leading, !left && trailing),
+        `compare-pane-${side}`,
+        content(table?.[side]))
+    const [left, right] = secondOnLeft ? ['second', 'first'] as const : ['first', 'second'] as const
     return (
         <Splitter className={styles.panes}>
-            <Splitter.Panel min="20%">
-                {pane(named(titles?.first ?? t('file_first'), leading), 'compare-pane-first',
-                    content(table?.first))}
-            </Splitter.Panel>
-            <Splitter.Panel min="20%">
-                {pane(named(titles?.second ?? t('file_second'), undefined, trailing), 'compare-pane-second',
-                    content(table?.second))}
-            </Splitter.Panel>
+            <Splitter.Panel min="20%">{sidePane(left, true)}</Splitter.Panel>
+            <Splitter.Panel min="20%">{sidePane(right, false)}</Splitter.Panel>
         </Splitter>
     )
 }

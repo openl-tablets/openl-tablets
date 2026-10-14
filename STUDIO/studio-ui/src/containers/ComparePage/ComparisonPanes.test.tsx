@@ -189,6 +189,27 @@ describe('ComparisonPanes', () => {
         expect(cells[0]).toHaveAttribute('rowspan', '1')
     })
 
+    it('stands the second file on the left when asked to, the controls staying at the ends of the line', () => {
+        render(
+            <ComparisonPanes
+                secondOnLeft
+                error={null}
+                leading={<span>leading</span>}
+                loading={false}
+                showEqualRows={false}
+                table={TABLE}
+                titles={{ first: 'Base version', second: 'Your version' }}
+                trailing={<span>trailing</span>}
+            />
+        )
+
+        const panes = screen.getAllByTestId(/^compare-pane-(first|second)$/)
+        expect(panes.map(pane => pane.dataset['testid'])).toEqual(['compare-pane-second', 'compare-pane-first'])
+        const [left, right] = panes.map(pane => pane.parentElement!.textContent)
+        expect(left).toMatch(/^leadingYour version/)
+        expect(right).toMatch(/^Base versiontrailing/)
+    })
+
     it('says which file does not hold the table', () => {
         // A table only the second file holds carries no first side at all.
         const { first: _absent, ...withoutFirst } = TABLE

@@ -130,6 +130,7 @@ export const useStyles = createStyles(({ css, token }) => ({
     conflictHead: css`
         display: flex;
         flex: none;
+        align-items: center;
         gap: ${token.marginLG}px;
         padding: ${token.paddingXS}px ${token.paddingSM}px;
         border-bottom: 1px solid ${token.colorBorderSecondary};
@@ -179,6 +180,12 @@ export const useStyles = createStyles(({ css, token }) => ({
     legendSign: css`
         margin-right: ${token.marginXXS}px;
         color: ${token.colorTextTertiary};
+    `,
+    // Which version a line of a file read line by line comes from, above the lines.
+    textLegend: css`
+        flex: none;
+        padding: ${token.paddingXS}px ${token.paddingSM}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
     `,
     added: css`
         color: ${token.colorSuccess};

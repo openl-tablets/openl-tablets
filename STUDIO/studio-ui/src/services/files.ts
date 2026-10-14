@@ -2,6 +2,7 @@ import apiCall, { isApiHttpError, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { encodeProjectPath, toUrlSafeId } from './projectId'
 import CONFIG from './config'
 import { getProjectFiles, revisionQueryParams, toRevisionPage, type RevisionPage, type RevisionQuery } from './repositories'
+import { decodeText } from '../utils/decodeText'
 import { triggerDownload } from '../utils/download'
 
 /** Text file extensions the generic editor can open. Files with no extension are also treated as text. */
@@ -24,20 +25,35 @@ const fileUrl = (projectId: string, path: string): string =>
     `/projects/${toUrlSafeId(projectId)}/files/${encodeProjectPath(path)}`
 
 /**
- * Read a project file's raw text content, optionally at a specific historical revision. The endpoint
- * returns the file bytes with the file's own content type; the body is always read as text, so a JSON
- * file keeps its exact formatting instead of being parsed into an object.
+ * The answer to a read of a project file, optionally at a specific historical revision: the file bytes with the
+ * file's own content type.
  */
-export async function getFileContent(projectId: string, path: string, version?: string): Promise<string> {
+const readFile = async (projectId: string, path: string, version?: string): Promise<Response> => {
     const query = version ? `?version=${encodeURIComponent(version)}` : ''
-    const response = await apiCall(
+    return await apiCall(
         `${fileUrl(projectId, path)}${query}`,
         undefined,
         // A missing file is the pane's to report inline; it must not replace the whole screen with the
         // global 404 page, which a folder path or a file gone since the tree was read would otherwise do.
         { throwError: true, responseType: 'response', suppressErrorPages: true }
     ) as Response
-    return response.text()
+}
+
+/**
+ * Read a project file's raw text content, optionally at a specific historical revision. The body is always read
+ * as text, so a JSON file keeps its exact formatting instead of being parsed into an object.
+ */
+export async function getFileContent(projectId: string, path: string, version?: string): Promise<string> {
+    return (await readFile(projectId, path, version)).text()
+}
+
+/**
+ * Read a project file's text to show it, optionally at a specific historical revision, as a comparison shows two
+ * versions of it. A file not written in UTF-8 reads as Windows-1252, every byte a character of its own, so lines
+ * that differ in a single letter still differ.
+ */
+export async function getFileText(projectId: string, path: string, version?: string): Promise<string> {
+    return decodeText(await (await readFile(projectId, path, version)).arrayBuffer())
 }
 
 

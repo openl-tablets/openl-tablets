@@ -164,10 +164,10 @@ contain the project when it is opened. Proceed as follows:
     **combined from both branches** when both changed it. **Compare** at the end of the row of a modified file of a
     project opens it before and after the merge, so you see what the merge brought in: a workbook is compared element
     by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), which opens
-    on the comparison itself, with no files to pick, and any other file line by line. A file outside the projects has
-    no **Compare**. Projects you cannot read are only counted. The same summary appears after conflicts are resolved
-    with **Save and Resolve**. If Sync cannot tell what the merge changed, the dialog closes with a message that the
-    merge succeeded.
+    on the comparison itself, with no files to pick, and a text file line by line. A file that is neither, such as a
+    library, has nothing to be compared by, and the window says so. A file outside the projects has no **Compare**.
+    Projects you cannot read are only counted. The same summary appears after conflicts are resolved with **Save and
+    Resolve**. If Sync cannot tell what the merge changed, the dialog closes with a message that the merge succeeded.
 
     ![The Merge Summary listing the files the merge changed](images/sync-merge-summary.png "Merge summary")
 
@@ -223,12 +223,27 @@ contain the project when it is opened. Proceed as follows:
 
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
 
-    **Compare File Versions** opens a window that puts the version being merged in against the version of the
-    current branch. The window names the file and says whether the merge modified or deleted it. An Excel file is
-    compared element by element, as described in
+    **Compare File Versions** opens a window that shows what the branches changed in the file. The window names
+    the file, says whether the merge modified or deleted it, and offers three views of it:
+
+    -   **Your Changes** compares the base version, the one both branches started from, with the version of the
+        current branch.
+    -   **Their Changes** compares the base version with the version being merged in. It shows what the other branch
+        changed. The window opens on this view.
+    -   **Both Versions** compares the version of the current branch with the version being merged in.
+
+    The versions stand as merge tools lay them out: your version on the left, their version on the right and the
+    base version between them, so **Your Changes** shows your version left of the base. A view is available only
+    when both versions it compares hold the file, and the other views are dimmed: a file both branches added has no
+    base version, so only **Both Versions** is available, and a file one branch deleted is compared only with the
+    base version, as the other branch changed it. An Excel file is compared element by element, as described in
     [Comparing Excel Files](rules-editor.md#comparing-excel-files), with the **Show equal elements** and **Show
-    equal rows** check boxes heading the list of elements; a file of any other format is compared line by line. A
-    file that one of the two versions no longer holds has nothing to be compared with, and the window says so.
+    equal rows** check boxes heading the list of elements. A text file is compared line by line: a line only the base
+    version has is marked `-` and a line only the branch version has is marked `+`, and in **Both Versions** a line
+    only your version has is marked `-` and a line only their version has is marked `+`. A text file not written in
+    UTF-8, such as a properties file in ISO-8859-1, is read as Western European text (Windows-1252). A file no view
+    can be offered for has nothing to be compared with, and neither has a file that is neither text nor an Excel
+    file, such as a library; the window says so.
 
     Download links are available only for versions in which the conflicted file exists. The **Compare** column marks
     a deleted file as **Deleted in your version**, **Deleted in their version**, or **Deleted in base version** instead
@@ -252,10 +267,11 @@ The project remains available to the dialog under the identifier issued after th
 
 *Resolving conflicts upon saving concurrent changes*
 
-The dialog contains the **Compare File Versions** link that opens the two conflicting versions side by side, in a
-window of its own.
+The dialog contains the **Compare File Versions** link that opens, in a window of its own, what the other user
+changed against the version both users started from, what you changed, or the two conflicting versions side by side,
+as for a merge.
 
-![Comparing the two versions of a conflicted file](images/compare-conflicting-versions.jpeg)
+![What the other user changed in a conflicting workbook](images/compare-conflicting-versions.jpeg "Comparing conflicting versions")
 
 *Comparing conflicting versions*
 

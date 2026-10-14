@@ -1,5 +1,6 @@
 import apiCall, { asArray, readTaskResult } from './apiCall'
 import { toUrlSafeId } from './projectId'
+import { decodeText } from '../utils/decodeText'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
 const API_OPTIONS = { throwError: true, suppressErrorPages: true }
@@ -104,14 +105,27 @@ export const startProjectComparison = async (
 }
 
 /**
- * Starts comparing the two versions of a conflicted Excel file: the one being merged in against the
- * one the workspace holds.
+ * A version of a conflicted file: the base both branches started from, the version the workspace holds, or the
+ * version being merged in.
+ */
+export type ConflictSide = 'base' | 'ours' | 'theirs'
+
+/**
+ * Starts comparing two versions of a conflicted Excel file.
  *
+ * @param first  the version the comparison starts from
+ * @param second the version it is compared with
  * @returns the identifier the comparison is read and watched by
  */
-export const startConflictComparison = async (projectId: string, path: string): Promise<string> => {
+export const startConflictComparison = async (
+    projectId: string,
+    path: string,
+    first: ConflictSide,
+    second: ConflictSide
+): Promise<string> => {
     const response = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/compare?file=${encodeURIComponent(path)}`,
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/compare?file=${encodeURIComponent(path)}`
+            + `&first=${first}&second=${second}`,
         { method: 'POST' },
         API_OPTIONS
     ) as { id: string }
@@ -121,32 +135,39 @@ export const startConflictComparison = async (projectId: string, path: string): 
 /** What the merge did to a conflicted file: changed on both sides, or gone from one of them. */
 export type ConflictFileStatus = 'modified' | 'deleted'
 
+/** Which versions of a conflicted file hold it. */
+export type ConflictFileVersions = Record<ConflictSide, boolean>
+
 /**
- * What became of a conflicted file, as the merge reports it.
+ * Which versions of a conflicted file hold it, as the merge reports it.
  *
- * A file both versions still hold was modified on both sides; one that a version no longer holds was
- * deleted there, and the two versions cannot be put against each other.
+ * A version the merge does not report on is taken to hold the file.
  */
-export const getConflictFileStatus = async (
+export const getConflictFileVersions = async (
     projectId: string,
     path: string
-): Promise<ConflictFileStatus> => {
+): Promise<ConflictFileVersions> => {
     const conflicts = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/merge/conflicts`,
         undefined,
         API_OPTIONS
-    ) as { fileAvailability?: Record<string, { ours?: boolean; theirs?: boolean }> }
+    ) as { fileAvailability?: Record<string, { base?: boolean; ours?: boolean; theirs?: boolean }> }
     const availability = conflicts.fileAvailability?.[path]
-    return availability && (availability.ours === false || availability.theirs === false)
-        ? 'deleted'
-        : 'modified'
+    return {
+        base: availability?.base !== false,
+        ours: availability?.ours !== false,
+        theirs: availability?.theirs !== false,
+    }
 }
 
-/** One version of a conflicted file, as text: what a file that is not a workbook is compared as. */
+/**
+ * One version of a conflicted file, as text: what a file that is not a workbook is compared as. A file not written in
+ * UTF-8 reads as Windows-1252, every byte a character of its own.
+ */
 export const getConflictFileText = async (
     projectId: string,
     path: string,
-    side: 'OURS' | 'THEIRS'
+    side: ConflictSide
 ): Promise<string> => {
     const file = await apiCall(
         `/projects/${toUrlSafeId(projectId)}/merge/conflicts/files`
@@ -154,7 +175,7 @@ export const getConflictFileText = async (
         undefined,
         { ...API_OPTIONS, responseType: 'blob' }
     ) as Blob
-    return await file.text()
+    return decodeText(await file.arrayBuffer())
 }
 
 /** Reads a part of a comparison, once the comparison has ended. */

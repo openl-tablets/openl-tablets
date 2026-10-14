@@ -490,7 +490,8 @@ To save a project, proceed as follows:
     is named by its path in the project, after the icon that marks it added, modified or deleted. **Compare** at the
     end of the row of a modified file opens the file as it was saved against your changes: a workbook is compared
     element by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files),
-    which opens on the comparison itself, with no files to pick, and any other file line by line.
+    which opens on the comparison itself, with no files to pick, and a text file line by line. A file that is
+    neither, such as a library, has nothing to be compared by, and the window says so.
 
     ![Save changes in a project](images/save-project-changes-dialog.png "Saving a project")
 

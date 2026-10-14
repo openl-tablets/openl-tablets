@@ -48,8 +48,9 @@ flowchart TB
   `MergeChangesService`, as a merge without conflicts is.
 - **`ProjectsMergeConflictsSessionHolder`** — keeps the unresolved conflict of one client.
 - **`SaveMergeConflictEventListener`** — stores the conflict that a project save found in the same holder.
-- **`ComparisonLauncher`** (`org.openl.studio.compare.service`) — starts the comparison of the two versions of a
-  conflicted workbook; the comparison is read through the Compare API.
+- **`ComparisonLauncher`** (`org.openl.studio.compare.service`) — starts the comparison of two versions of a
+  conflicted workbook: their version against yours, or the base version against either, which shows what that side
+  changed; the comparison is read through the Compare API.
 - **`XlsWorkbookMerger`** (`org.openl.rules.xls.merge`) — merges two versions of a workbook against their base, sheet
   by sheet. A sheet both versions changed goes to **`XlsSheetMerger`**, which merges it cell by cell, the value, the
   style and the comment of a cell each on its own, unless the changes overlap. When that fails, for instance because

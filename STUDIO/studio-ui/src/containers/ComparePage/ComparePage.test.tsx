@@ -5,14 +5,14 @@ import {
     dropComparison,
     getComparison,
     getComparisonTable,
-    getConflictFileStatus,
     getConflictFileText,
+    getConflictFileVersions,
     startConflictComparison,
     startFileComparison,
     startLocalHistoryComparison,
     startProjectComparison,
 } from 'services/compare'
-import { getFileContent } from 'services/files'
+import { getFileText } from 'services/files'
 import { ResultNotReadyError } from 'services/taskResult'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
@@ -27,7 +27,7 @@ vi.mock('services/compare', () => ({
     startProjectComparison: vi.fn(),
     getComparison: vi.fn(),
     getComparisonTable: vi.fn(),
-    getConflictFileStatus: vi.fn(),
+    getConflictFileVersions: vi.fn(),
     getConflictFileText: vi.fn(),
     dropComparison: vi.fn(),
 }))
@@ -46,13 +46,19 @@ const SIDES = {
 // A file that is not a workbook is drawn by a view of its own; the page is asked here only whether it
 // opens on that view instead of on a comparison, and which two versions the view reads.
 vi.mock('./TextVersionsView', () => ({
-    TextVersionsView: ({ read }: any) => (
-        <button data-testid="text-versions" onClick={() => void read()}>text</button>
+    TextVersionsView: ({ read, secondOnLeft }: any) => (
+        <button
+            data-second-on-left={String(!!secondOnLeft)}
+            data-testid="text-versions"
+            onClick={() => void read().catch(() => undefined)}
+        >
+            text
+        </button>
     ),
 }))
 
 vi.mock('services/files', () => ({
-    getFileContent: vi.fn(async (_project: string, _path: string, version: string) => `content of ${version}`),
+    getFileText: vi.fn(async (_project: string, _path: string, version: string) => `content of ${version}`),
 }))
 
 // The picker of a project reads branches, revisions and files of its own; the page is asked here only
@@ -107,6 +113,7 @@ vi.mock('antd', async () => ({
                 <button
                     key={option.value}
                     aria-pressed={option.value === value}
+                    disabled={option.disabled}
                     onClick={() => onChange?.(option.value)}
                     type="button"
                 >
@@ -152,6 +159,9 @@ vi.mock('antd', async () => ({
         ),
     }),
 }))
+
+/** A conflicted file every version holds: the base, yours and theirs. */
+const ALL_VERSIONS = { base: true, ours: true, theirs: true }
 
 const COMPARISON: Comparison = {
     id: 'cmp-1',
@@ -204,6 +214,9 @@ const startComparison = async () => {
 
 const openPage = () => render(<ComparePage />)
 
+/** The panes of a side-by-side comparison, from left to right. */
+const paneOrder = () => screen.getAllByTestId(/^compare-pane-(first|second)$/).map(pane => pane.dataset['testid'])
+
 describe('ComparePage', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -213,7 +226,7 @@ describe('ComparePage', () => {
         vi.mocked(getComparison).mockResolvedValue(COMPARISON)
         vi.mocked(getComparisonTable).mockResolvedValue(TABLE)
         vi.mocked(dropComparison).mockResolvedValue()
-        vi.mocked(getConflictFileStatus).mockResolvedValue('modified')
+        vi.mocked(getConflictFileVersions).mockResolvedValue(ALL_VERSIONS)
     })
 
     it('asks for the two files before it compares anything', async () => {
@@ -346,8 +359,8 @@ describe('ComparePage', () => {
 
         expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('rules.xml')
         fireEvent.click(screen.getByTestId('text-versions'))
-        await waitFor(() => expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', 'a1'))
-        expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', 'b1')
+        await waitFor(() => expect(getFileText).toHaveBeenCalledWith('p1', 'rules.xml', 'a1'))
+        expect(getFileText).toHaveBeenCalledWith('p1', 'rules.xml', 'b1')
         // Nothing is compared as a workbook, and nothing is picked.
         expect(startProjectComparison).not.toHaveBeenCalled()
         expect(screen.queryByTestId('revision-picker')).toBeNull()
@@ -371,8 +384,8 @@ describe('ComparePage', () => {
         openPage()
 
         fireEvent.click(screen.getByTestId('text-versions'))
-        await waitFor(() => expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', 'r7'))
-        expect(getFileContent).toHaveBeenCalledWith('p1', 'rules.xml', undefined)
+        await waitFor(() => expect(getFileText).toHaveBeenCalledWith('p1', 'rules.xml', 'r7'))
+        expect(getFileText).toHaveBeenCalledWith('p1', 'rules.xml', undefined)
     })
 
     it('says why the comparison of two versions could not be started', async () => {
@@ -409,14 +422,24 @@ describe('ComparePage', () => {
         expect(screen.getByTestId('compare-back')).toBeInTheDocument()
     })
 
-    it('compares the two versions of a conflicted workbook', async () => {
+    it('compares a conflicted workbook with its base, and its two versions on request', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
-        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+        vi.mocked(startConflictComparison)
+            .mockResolvedValueOnce('cmp-1')
+            .mockResolvedValueOnce('cmp-2')
+            .mockResolvedValueOnce('cmp-3')
 
         openPage()
 
-        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledWith('p1', 'rules/Main.xlsx'))
+        // What their branch changed since the base is what the window shows first, though your changes are offered
+        // first, as your version stands left of theirs.
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'base', 'theirs'))
         expect(screen.queryByTestId('compare-files')).toBeNull()
+        expect([...screen.getByTestId('compare-conflict-view').querySelectorAll('button')]
+            .map(button => [button.textContent, button.getAttribute('aria-pressed')]))
+            .toEqual([['view_your_changes', 'false'], ['view_their_changes', 'true'], ['view_versions', 'false']])
+        expect(document.title).toBe('file_title')
 
         await screen.findByTestId('compare-tree')
         push('COMPLETED')
@@ -424,9 +447,116 @@ describe('ComparePage', () => {
         expect(await screen.findByText('Rules')).toBeInTheDocument()
         // There is nothing to pick here, so there is nowhere to go back to.
         expect(screen.queryByTestId('compare-back')).toBeNull()
-        // The two sides are the two versions of the merge, not a first and a second file.
+        // The two sides are versions of the merge, not a first and a second file.
+        expect(screen.getByText('base_version')).toBeInTheDocument()
         expect(screen.getByText('their_version')).toBeInTheDocument()
+
+        await userEvent.click(screen.getByText('view_your_changes'))
+
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenLastCalledWith('p1', 'rules/Main.xlsx', 'base', 'ours'))
+        // The comparison of the view left is let go.
+        await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-1'))
         expect(screen.getByText('your_version')).toBeInTheDocument()
+        // Your version stands left of the base, where it stands in every view, though the comparison starts from the
+        // base.
+        expect(paneOrder()).toEqual(['compare-pane-second', 'compare-pane-first'])
+
+        await userEvent.click(screen.getByText('view_versions'))
+
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenLastCalledWith('p1', 'rules/Main.xlsx', 'ours', 'theirs'))
+        await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-2'))
+        expect(screen.getByText('their_version')).toBeInTheDocument()
+        expect(screen.queryByText('base_version')).toBeNull()
+        expect(paneOrder()).toEqual(['compare-pane-first', 'compare-pane-second'])
+    })
+
+    it('lets go of a comparison that answers after another view was picked', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        let answerFirst: (id: string) => void = () => undefined
+        vi.mocked(startConflictComparison)
+            .mockImplementationOnce(() => new Promise(resolve => {
+                answerFirst = resolve
+            }))
+            .mockResolvedValueOnce('cmp-2')
+
+        openPage()
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(1))
+        await userEvent.click(screen.getByText('view_versions'))
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(2))
+
+        act(() => answerFirst('cmp-1'))
+
+        // Nobody shows the comparison of the view left, so it is let go as soon as it answers.
+        await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-1'))
+        await waitFor(() => expect(subscribe).toHaveBeenLastCalledWith(
+            '/user/topic/compare/cmp-2/status', expect.any(Function)))
+    })
+
+    it('shows the comparison started last for a view picked again before its first comparison answers', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        let answerFirst: (id: string) => void = () => undefined
+        vi.mocked(startConflictComparison)
+            .mockImplementationOnce(() => new Promise(resolve => {
+                answerFirst = resolve
+            }))
+            .mockResolvedValueOnce('cmp-2')
+            .mockResolvedValueOnce('cmp-3')
+
+        openPage()
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(1))
+        await userEvent.click(screen.getByText('view_versions'))
+        await waitFor(() => expect(startConflictComparison).toHaveBeenCalledTimes(2))
+        await userEvent.click(screen.getByText('view_their_changes'))
+        await waitFor(() => expect(subscribe).toHaveBeenLastCalledWith(
+            '/user/topic/compare/cmp-3/status', expect.any(Function)))
+
+        act(() => answerFirst('cmp-1'))
+
+        // The view is the one first shown, but the first comparison of it is let go unseen.
+        await waitFor(() => expect(dropComparison).toHaveBeenCalledWith('cmp-1'))
+        expect(subscribe).not.toHaveBeenCalledWith('/user/topic/compare/cmp-1/status', expect.any(Function))
+        expect(dropComparison).not.toHaveBeenCalledWith('cmp-3')
+    })
+
+    it('compares with the base the version of a branch that kept a file the other deleted', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        vi.mocked(getConflictFileVersions).mockResolvedValue({ base: true, ours: true, theirs: false })
+        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'base', 'ours'))
+        expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('file_status: status_deleted')
+        // A view that needs their version cannot be picked.
+        expect(screen.getByText('view_their_changes')).toBeDisabled()
+        expect(screen.getByText('view_versions')).toBeDisabled()
+    })
+
+    it('compares the two versions alone when the base does not hold the file', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        vi.mocked(getConflictFileVersions).mockResolvedValue({ base: false, ours: true, theirs: true })
+        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'ours', 'theirs'))
+        expect(screen.getByText('view_their_changes')).toBeDisabled()
+        expect(screen.getByText('view_your_changes')).toBeDisabled()
+    })
+
+    it('compares the two versions when it cannot tell which versions hold the file', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/Main.xlsx' })
+        vi.mocked(getConflictFileVersions).mockRejectedValue(new Error('No conflict'))
+        vi.mocked(startConflictComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startConflictComparison)
+            .toHaveBeenCalledWith('p1', 'rules/Main.xlsx', 'ours', 'theirs'))
     })
 
     it('names the conflicted file and what the merge did to it', async () => {
@@ -443,7 +573,7 @@ describe('ComparePage', () => {
 
     it('says that one of the versions no longer holds the file', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'Project/rules/Main.xlsx' })
-        vi.mocked(getConflictFileStatus).mockResolvedValue('deleted')
+        vi.mocked(getConflictFileVersions).mockResolvedValue({ base: false, ours: true, theirs: false })
 
         openPage()
 
@@ -455,21 +585,55 @@ describe('ComparePage', () => {
 
     it('reads a conflicted file that is not a workbook line by line', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
+        vi.mocked(getConflictFileText).mockImplementation(async (_project, _path, side) => `a=${side}\n`)
 
         openPage()
 
+        fireEvent.click(await screen.findByTestId('text-versions'))
+        // The base is read first, so the diff reads as what their branch changed.
+        expect(getConflictFileText).toHaveBeenNthCalledWith(1, 'p1', 'rules/notes.txt', 'base')
+        expect(getConflictFileText).toHaveBeenNthCalledWith(2, 'p1', 'rules/notes.txt', 'theirs')
+        expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('status_modified')
+        expect(screen.getByTestId('text-versions')).toHaveAttribute('data-second-on-left', 'false')
+
+        await userEvent.click(screen.getByText('view_versions'))
         fireEvent.click(screen.getByTestId('text-versions'))
-        // The version being merged in is read first, so the diff reads as what the merge would bring.
-        expect(getConflictFileText).toHaveBeenNthCalledWith(1, 'p1', 'rules/notes.txt', 'THEIRS')
-        expect(getConflictFileText).toHaveBeenNthCalledWith(2, 'p1', 'rules/notes.txt', 'OURS')
-        await waitFor(() => expect(screen.getByTestId('compare-conflict-head')).toHaveTextContent('status_modified'))
+
+        // Your version is compared with theirs; theirs was read already, so only yours is read.
+        expect(getConflictFileText).toHaveBeenNthCalledWith(3, 'p1', 'rules/notes.txt', 'ours')
+        expect(getConflictFileText).toHaveBeenCalledTimes(3)
+        expect(screen.getByTestId('text-versions')).toHaveAttribute('data-second-on-left', 'false')
+
+        await userEvent.click(screen.getByText('view_your_changes'))
+        fireEvent.click(screen.getByTestId('text-versions'))
+
+        // The versions of a conflict do not change: a view of versions read already reads none again. Your version is
+        // shown on the left of the base.
+        expect(getConflictFileText).toHaveBeenCalledTimes(3)
+        expect(screen.getByTestId('text-versions')).toHaveAttribute('data-second-on-left', 'true')
         // A file of that kind is never handed to the comparison of workbooks.
         expect(startConflictComparison).not.toHaveBeenCalled()
     })
 
+    it('reads a version again that could not be read', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
+        vi.mocked(getConflictFileText)
+            .mockRejectedValueOnce(new Error('The merge is over'))
+            .mockImplementation(async (_project, _path, side) => `a=${side}\n`)
+
+        openPage()
+        fireEvent.click(await screen.findByTestId('text-versions'))
+        await waitFor(() => expect(getConflictFileText).toHaveBeenCalledTimes(2))
+        fireEvent.click(screen.getByTestId('text-versions'))
+
+        // The base failed and is read again; their version was read and is not.
+        await waitFor(() => expect(getConflictFileText).toHaveBeenCalledTimes(3))
+        expect(getConflictFileText).toHaveBeenLastCalledWith('p1', 'rules/notes.txt', 'base')
+    })
+
     it('does not read a file line by line when one of the versions no longer holds it', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', conflict: 'rules/notes.txt' })
-        vi.mocked(getConflictFileStatus).mockResolvedValue('deleted')
+        vi.mocked(getConflictFileVersions).mockResolvedValue({ base: false, ours: true, theirs: false })
 
         openPage()
 

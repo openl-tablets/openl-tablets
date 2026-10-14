@@ -9924,6 +9924,36 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "first",
+            "schema": {
+              "type": "string",
+              "default": "theirs",
+              "description": "***",
+              "enum": [
+                "base",
+                "ours",
+                "theirs"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "second",
+            "schema": {
+              "type": "string",
+              "default": "ours",
+              "description": "***",
+              "enum": [
+                "base",
+                "ours",
+                "theirs"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "fields",
             "required": false,
             "schema": {
@@ -10034,9 +10064,9 @@ Content-Type: application/json
               "type": "string",
               "description": "***",
               "enum": [
-                "BASE",
-                "OURS",
-                "THEIRS"
+                "base",
+                "ours",
+                "theirs"
               ]
             }
           }
