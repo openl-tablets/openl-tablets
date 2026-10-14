@@ -11,6 +11,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictGroup;
+import org.openl.studio.projects.model.merge.ConflictTextView;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
@@ -23,6 +24,7 @@ import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
  * <ul>
  *   <li>Grouping and organizing conflicted files</li>
  *   <li>Retrieving specific versions of conflicted files (BASE, OURS, THEIRS)</li>
+ *   <li>Merging a conflicted text file line by line, so that its conflicts are resolved in place</li>
  *   <li>Applying various resolution strategies to resolve conflicts</li>
  * </ul>
  *
@@ -59,8 +61,13 @@ public interface ProjectsMergeConflictsService {
      *   <li>Commit details for OURS side (author, date, branch)</li>
      *   <li>Commit details for THEIRS side (author, date, branch)</li>
      *   <li>Commit details for BASE side (common ancestor)</li>
+     *   <li>Which versions hold each conflicted file, and whether it is UTF-8 text that can be merged line by
+     *   line</li>
      *   <li>Default merge commit message</li>
      * </ul>
+     *
+     * <p>Telling whether a file is text reads its versions, unless its name tells a workbook or an archive. The
+     * versions of a stored conflict do not change, so each file is read once for it.
      *
      * @param mergeConflictInfo conflict information from merge operation
      * @return detailed conflict response with all revision information
@@ -129,6 +136,23 @@ public interface ProjectsMergeConflictsService {
      * @throws IllegalStateException if Git repository is in unexpected state
      */
     FileItem getConflictFileItem(MergeConflictInfo mergeConflictInfo, String path, ConflictBase side) throws IOException;
+
+    /**
+     * Merges a conflicted text file line by line, as the merge of the branches merges it, and tells which lines it
+     * takes by itself and where the branches conflict.
+     *
+     * <p>A version of a conflict holds every line its branch has in that place, even the lines both versions start
+     * or end with. A base version that does not hold the file counts as an empty file.
+     *
+     * @param mergeConflictInfo conflict information containing Git repository references
+     * @param path              path of the conflicted file, as the conflict lists it
+     * @return the lines merged and the conflicts, in the order of the file
+     * @throws IOException if a version of the file cannot be read
+     * @throws org.openl.studio.common.exception.NotFoundException   if the file is not conflicted, or your version or
+     *                                                               their version does not hold it
+     * @throws org.openl.studio.common.exception.BadRequestException if a version of the file is no UTF-8 text
+     */
+    ConflictTextView getConflictText(MergeConflictInfo mergeConflictInfo, String path) throws IOException;
 
     /**
      * Resolves merge conflicts using specified strategies.

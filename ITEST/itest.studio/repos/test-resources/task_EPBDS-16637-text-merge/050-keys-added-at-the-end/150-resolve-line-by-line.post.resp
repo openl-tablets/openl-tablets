@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "success",
+  "resolvedFiles": [
+    "EPBDS-16637-Messages/i18n/message.properties"
+  ],
+  "summary": {
+    "sourceBranch": "EPBDS-16637-keys-added-at-the-end",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY2MzctTWVzc2FnZXM6YzdhZmEzYjI0MDBjZTVlN2IxMDJhZjkwNDg1OWI3YjA2OWJkZDE5YjUxN2EyYjc5NGNhYzc3M2M2ODgzOWM5ZA==",
+        "name": "EPBDS-16637-Messages",
+        "path": "EPBDS-16637-Messages",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-16637-Messages/i18n/message.properties",
+            "type": "modified"
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
+}
+

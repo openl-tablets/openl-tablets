@@ -44,6 +44,7 @@ import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
+import org.openl.studio.projects.model.merge.ConflictTextView;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeRequest;
@@ -193,6 +194,15 @@ class ProjectsMergeControllerTest {
         var contents = (List<ComparisonContent>) files.getValue();
         assertEquals("base", new String(contents.getFirst().content().readAllBytes(), StandardCharsets.UTF_8));
         assertEquals("theirs", new String(contents.getLast().content().readAllBytes(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void mergesAConflictedTextFileLineByLine() throws Exception {
+        var conflictInfo = givenConflict();
+        var text = new ConflictTextView(List.of());
+        when(mergeConflictsService.getConflictText(conflictInfo, "rules/notes.txt")).thenReturn(text);
+
+        assertEquals(text, controller.getConflictText(project, "rules/notes.txt"));
     }
 
     @Test

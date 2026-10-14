@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import CodeMirror, { type Extension } from '@uiw/react-codemirror'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import CodeMirror, { Compartment, lineNumbers, type Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror'
 import { xml } from '@codemirror/lang-xml'
 import { json } from '@codemirror/lang-json'
 import { yaml } from '@codemirror/lang-yaml'
@@ -48,6 +48,17 @@ const useStyles = createStyles(({ css, token }) => ({
     `,
 }))
 
+/**
+ * The languages of the files, defined once: CodeMirror keeps every language it is given for good, so an editor that
+ * defined its own would leave one behind each time it is drawn.
+ */
+const XML: Extension[] = [xml()]
+const JSON_LANGUAGE: Extension[] = [json()]
+const YAML: Extension[] = [yaml()]
+const PROPERTIES: Extension[] = [StreamLanguage.define(properties)]
+const GROOVY: Extension[] = [StreamLanguage.define(groovy)]
+const PLAIN_TEXT: Extension[] = []
+
 /** CodeMirror language extensions for a file, chosen from its extension. Unknown types render as plain text. */
 const languageFor = (path: string): Extension[] => {
     const ext = path.slice(path.lastIndexOf('.') + 1).toLowerCase()
@@ -55,19 +66,49 @@ const languageFor = (path: string): Extension[] => {
         case 'xml':
         case 'html':
         case 'xhtml':
-            return [xml()]
+            return XML
         case 'json':
-            return [json()]
+            return JSON_LANGUAGE
         case 'yaml':
         case 'yml':
-            return [yaml()]
+            return YAML
         case 'properties':
-            return [StreamLanguage.define(properties)]
+            return PROPERTIES
         case 'groovy':
-            return [StreamLanguage.define(groovy)]
+            return GROOVY
         default:
-            return []
+            return PLAIN_TEXT
     }
+}
+
+/** Lines with the line breaks CodeMirror holds them with, which are those of Unix whatever a text is written with. */
+const unixLines = (text: string): string => text.replace(/\r\n?/g, '\n')
+
+/** Numbers the lines of a part of a file as the whole file numbers them, from the number of its first line. */
+const numbersFrom = (firstLine: number): Extension =>
+    lineNumbers({ formatNumber: line => String(line + firstLine - 1) })
+
+/** A part of a file shown on its own numbers its lines itself, and neither folds them nor marks the line it is at. */
+const FRAGMENT_SETUP = {
+    lineNumbers: false,
+    foldGutter: false,
+    highlightActiveLine: false,
+    highlightActiveLineGutter: false,
+}
+
+/** A part of a file that is only read leaves out what helps to write: an editor stands in each part of a merge. */
+const READ_ONLY_FRAGMENT_SETUP = {
+    ...FRAGMENT_SETUP,
+    autocompletion: false,
+    bracketMatching: false,
+    closeBrackets: false,
+    closeBracketsKeymap: false,
+    completionKeymap: false,
+    crosshairCursor: false,
+    dropCursor: false,
+    highlightSelectionMatches: false,
+    indentOnInput: false,
+    rectangularSelection: false,
 }
 
 interface CodeEditorProps {
@@ -76,6 +117,10 @@ interface CodeEditorProps {
     /** Renders the content without a cursor and rejects edits. */
     readOnly?: boolean
     onChange?: (value: string) => void
+    /** The number of the first line, when the editor holds a part of a file: its lines are numbered from it. */
+    firstLine?: number | undefined
+    /** What the editor says while it holds no text. */
+    placeholder?: string | undefined
 }
 
 /**
@@ -85,21 +130,52 @@ interface CodeEditorProps {
  * theme in force and its appearance, light or dark, and follows both when the user switches: the standard
  * theme lays CodeMirror's own light theme or One Dark on the surface of the page, every other theme is the
  * colour scheme of its code editor.
+ *
+ * A part of a file shown on its own numbers its lines from {@link CodeEditorProps.firstLine}, as they are numbered
+ * in the whole file. It folds nothing and marks no line as the one the cursor is at, since it stands among other
+ * parts.
+ *
+ * The editor holds a text with the line breaks of Unix, as CodeMirror does: a text written with those of Windows is
+ * shown as it reads, and the text {@link CodeEditorProps.onChange} is given has the line breaks of Unix.
  */
-export const CodeEditor = ({ value, path, readOnly, onChange }: CodeEditorProps) => {
+export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeholder }: CodeEditorProps) => {
     const { styles, cx } = useStyles()
     const { isDarkMode } = useThemeMode()
     const { themeName } = useAppTheme()
     const theme = editorTheme(themeName, isDarkMode)
-    const extensions = useMemo(() => languageFor(path), [path])
+    const fragment = firstLine !== undefined
+    const shown = useMemo(() => unixLines(value), [value])
+    // The numbers of a part are kept apart from the rest of the setup: when the parts before it grow or shrink, its
+    // numbers are drawn again without the editor being set up anew.
+    const [numbering] = useState(() => new Compartment())
+    const [firstNumbers] = useState(() => numbersFrom(firstLine ?? 1))
+    const editor = useRef<ReactCodeMirrorRef>(null)
+    // The first line the numbers are drawn from; they are drawn again only when it moves.
+    const numberedFrom = useRef(firstLine)
+    const extensions = useMemo(() => fragment
+        ? [...languageFor(path), numbering.of(firstNumbers)]
+        : languageFor(path),
+    [path, fragment, numbering, firstNumbers])
+    useEffect(() => {
+        const view = editor.current?.view
+        if (view && firstLine !== undefined && firstLine !== numberedFrom.current) {
+            view.dispatch({ effects: numbering.reconfigure(numbersFrom(firstLine)) })
+            numberedFrom.current = firstLine
+        }
+    }, [firstLine, numbering])
     return (
         <CodeMirror
+            ref={editor}
             className={cx(styles.editor, themeName === 'standard' && styles.pageSurfaces)}
             editable={!readOnly}
             extensions={extensions}
             height="100%"
             theme={theme}
-            value={value}
+            // The text is handed over with the line breaks the editor holds it with: a text with other line breaks
+            // would differ from what the editor holds and be set anew whenever it is drawn, moving the cursor away.
+            value={shown}
+            {...(fragment ? { basicSetup: readOnly ? READ_ONLY_FRAGMENT_SETUP : FRAGMENT_SETUP } : {})}
+            {...(placeholder ? { placeholder } : {})}
             {...(onChange ? { onChange } : {})}
         />
     )

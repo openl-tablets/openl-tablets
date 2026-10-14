@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "blocks": [
+    {
+      "kind": "merged",
+      "text": "# Two bundles changed\npolicy.number.required=Policy number is required.\npolicy.effectiveDate.past=Effective date cannot be in the past.\ndriver.age.min=Driver must be at least {0} years old.\ndriver.license.required=Driver license number is required.\nvehicle.vin.invalid=VIN {0} is not valid.\nvehicle.year.max=Vehicle year cannot be later than {0}.\npremium.limit.exceeded=Premium {0} exceeds the limit {1}.\n"
+    },
+    {
+      "kind": "conflict",
+      "ours": "claim.date.required=Claim date is required.\n",
+      "base": "",
+      "theirs": "claim.amount.min=Claim amount must be at least {0}.\n"
+    }
+  ]
+}
+

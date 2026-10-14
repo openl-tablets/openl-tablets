@@ -1,0 +1,22 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "blocks": [
+    {
+      "kind": "merged",
+      "text": "# Adjacent keys changed\npolicy.number.required=Policy number is required.\npolicy.effectiveDate.past=Effective date cannot be in the past.\n"
+    },
+    {
+      "kind": "conflict",
+      "ours": "driver.age.min=Driver must be {0} years old or older.\ndriver.license.required=Driver license number is required.\n",
+      "base": "driver.age.min=Driver must be at least {0} years old.\ndriver.license.required=Driver license number is required.\n",
+      "theirs": "driver.age.min=Driver must be at least {0} years old.\ndriver.license.required=Enter the driver license number.\n"
+    },
+    {
+      "kind": "merged",
+      "text": "vehicle.vin.invalid=VIN {0} is not valid.\nvehicle.year.max=Vehicle year cannot be later than {0}.\npremium.limit.exceeded=Premium {0} exceeds the limit {1}.\n"
+    }
+  ]
+}
+

@@ -1,0 +1,21 @@
+POST /rest/projects/{PROJECT_NAME}/merge/conflicts/resolve HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].strategy"
+Content-Type: text/plain
+
+CUSTOM
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].filePath"
+Content-Type: text/plain
+
+EPBDS-16637-Messages/i18n/message.properties
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="resolutions[0].file"; filename="message.properties"
+Content-Type: application/octet-stream
+
+&merged.properties
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

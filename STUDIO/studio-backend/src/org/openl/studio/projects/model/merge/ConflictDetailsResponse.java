@@ -39,6 +39,9 @@ public record ConflictDetailsResponse(
      * @param ours whether the current branch contains the file
      * @param theirs whether the merging branch contains the file
      * @param base whether the common ancestor contains the file
+     * @param text whether every revision that contains the file holds it as UTF-8 text with no NUL character in its
+     *             first bytes, which is merged line by line; a merge of its lines also needs the current and the
+     *             merging branch to contain it
      */
     @Schema(description = "Availability of a conflicted file in each merge revision")
     public record ConflictFileAvailability(
@@ -47,7 +50,10 @@ public record ConflictDetailsResponse(
             @Parameter(description = "Whether the merging branch contains the file")
             boolean theirs,
             @Parameter(description = "Whether the common ancestor contains the file")
-            boolean base
+            boolean base,
+            @Parameter(description = "Whether every revision that contains the file holds it as UTF-8 text with no "
+                    + "NUL character in its first bytes, which is merged line by line")
+            boolean text
     ) {
     }
 

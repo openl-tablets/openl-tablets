@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.io.InputStreamSource;
@@ -36,6 +37,7 @@ import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictDetails;
+import org.openl.rules.repository.git.text.TextMerge;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
@@ -51,6 +53,7 @@ import org.openl.studio.projects.model.merge.ConflictDetailsResponse.RevisionDet
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
+import org.openl.studio.projects.model.merge.ConflictTextView;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
@@ -60,11 +63,13 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflictsService {
 
     private final MergeChangesService mergeChangesService;
+    private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -90,13 +95,9 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         }
 
         // Get commit details for each side
-        String oursCommit = mergeConflictInfo.isExportOperation()
-                ? conflictDetails.theirCommit()
-                : conflictDetails.yourCommit();
-        String theirsCommit = mergeConflictInfo.isExportOperation()
-                ? conflictDetails.yourCommit()
-                : conflictDetails.theirCommit();
-        var baseCommit = conflictDetails.baseCommit();
+        var oursCommit = commitOf(mergeConflictInfo, ConflictBase.OURS);
+        var theirsCommit = commitOf(mergeConflictInfo, ConflictBase.THEIRS);
+        var baseCommit = commitOf(mergeConflictInfo, ConflictBase.BASE);
 
         // Get branch names
         var oursBranch = getYourBranch(mergeConflictInfo);
@@ -115,10 +116,10 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
         var fileAvailability = new LinkedHashMap<String, ConflictFileAvailability>();
         for (var file : conflictDetails.getConflictedFiles()) {
-            fileAvailability.put(file,
-                    new ConflictFileAvailability(oursFiles.containsKey(file),
-                            theirsFiles.containsKey(file),
-                            baseFiles.containsKey(file)));
+            fileAvailability.put(file, new ConflictFileAvailability(oursFiles.containsKey(file),
+                    theirsFiles.containsKey(file),
+                    baseFiles.containsKey(file),
+                    isText(mergeConflictInfo, file)));
         }
         builder.fileAvailability(fileAvailability);
 
@@ -218,13 +219,111 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
     @Override
     public FileItem getConflictFileItem(MergeConflictInfo mergeConflict, String path, ConflictBase side) throws IOException {
-        var conflictDetails = mergeConflict.details();
-        if (!conflictDetails.getConflictedFiles().contains(path)) {
+        return requireConflictVersion(mergeConflict, getRepository(mergeConflict), path, side);
+    }
+
+    @Override
+    public ConflictTextView getConflictText(MergeConflictInfo mergeConflict, String path) throws IOException {
+        var repository = getRepository(mergeConflict);
+        var ours = bytesOf(requireConflictVersion(mergeConflict, repository, path, ConflictBase.OURS));
+        var theirs = bytesOf(requireConflictVersion(mergeConflict, repository, path, ConflictBase.THEIRS));
+        var baseVersion = readConflictVersion(mergeConflict, repository, path, ConflictBase.BASE);
+        // The branches that both added the file merge it as added to an empty file.
+        var base = baseVersion == null ? new byte[0] : bytesOf(baseVersion);
+        return TextMerge.merge(base, ours, theirs)
+                .map(ConflictTextView::of)
+                .orElseThrow(() -> new BadRequestException("project.merge.conflict.text.not-text.message",
+                        new Object[]{path}));
+    }
+
+    /**
+     * Whether every version of a conflicted file that holds it is UTF-8 text, which a merge of its lines reads. A
+     * workbook or an archive is told by its name, without its versions being read.
+     *
+     * <p>The versions of a conflict do not change, so a file is read for it once and the answer is kept with the
+     * conflict. A version that cannot be read makes the file no text until it is asked about again: the failure may
+     * pass.
+     */
+    private boolean isText(MergeConflictInfo mergeConflict, String path) {
+        if (FileTypeHelper.isExcelFile(path) || FileTypeHelper.isZipFile(path)) {
+            return false;
+        }
+        var textFiles = conflictsSessionHolder.textFilesOf(mergeConflict);
+        var known = textFiles.get(path);
+        if (known != null) {
+            return known;
+        }
+        try {
+            var repository = getRepository(mergeConflict);
+            var text = isText(mergeConflict, repository, path, ConflictBase.OURS)
+                    && isText(mergeConflict, repository, path, ConflictBase.THEIRS)
+                    && isText(mergeConflict, repository, path, ConflictBase.BASE);
+            textFiles.put(path, text);
+            return text;
+        } catch (IOException e) {
+            log.warn("A version of the conflicted file '{}' cannot be read: {}", path, e.getMessage());
+            return false;
+        }
+    }
+
+    /** Whether a version of a conflicted file is text; a version that does not hold the file does not count. */
+    private boolean isText(MergeConflictInfo mergeConflict,
+                           Repository repository,
+                           String path,
+                           ConflictBase side) throws IOException {
+        var version = readConflictVersion(mergeConflict, repository, path, side);
+        if (version == null) {
+            return true;
+        }
+        try (var stream = version.getStream()) {
+            return TextMerge.isText(stream);
+        }
+    }
+
+    /**
+     * Reads a version of a conflicted file that the version holds.
+     *
+     * @throws NotFoundException when the file is not conflicted, or the version does not hold it
+     */
+    private FileItem requireConflictVersion(MergeConflictInfo mergeConflict,
+                                            Repository repository,
+                                            String path,
+                                            ConflictBase side) throws IOException {
+        var fileItem = readConflictVersion(mergeConflict, repository, path, side);
+        if (fileItem != null) {
+            return fileItem;
+        }
+        var commit = commitOf(mergeConflict, side);
+        // A conflict of histories with no commit in common has no base version.
+        throw commit == null
+                ? new NotFoundException("project.merge.conflict.file.side.not.found", side, path)
+                : new NotFoundException("project.merge.conflict.file.revision.not.found", commit, path);
+    }
+
+    /**
+     * Reads a version of a conflicted file from the repository the conflict was found in.
+     *
+     * @return the version, or {@code null} when it does not hold the file
+     * @throws NotFoundException when the file is not conflicted
+     */
+    private @Nullable FileItem readConflictVersion(MergeConflictInfo mergeConflict,
+                                                   Repository repository,
+                                                   String path,
+                                                   ConflictBase side) throws IOException {
+        if (!mergeConflict.details().getConflictedFiles().contains(path)) {
             throw new NotFoundException("project.merge.conflict.file.not.found", path);
         }
-        var repository = getRepository(mergeConflict);
-        var realPath = getRealPath(repository, path);
-        var commitRev = switch (side) {
+        var commit = commitOf(mergeConflict, side);
+        if (commit == null) {
+            return null;
+        }
+        return repository.readHistory(getRealPath(repository, path), commit);
+    }
+
+    /** The commit of a side of the conflict: our and their side are swapped when the current branch is sent. */
+    private static @Nullable String commitOf(MergeConflictInfo mergeConflict, ConflictBase side) {
+        var conflictDetails = mergeConflict.details();
+        return switch (side) {
             case BASE -> conflictDetails.baseCommit();
             case OURS -> mergeConflict.isExportOperation()
                     ? conflictDetails.theirCommit()
@@ -233,11 +332,12 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                     ? conflictDetails.yourCommit()
                     : conflictDetails.theirCommit();
         };
-        var fileItem = repository.readHistory(realPath, commitRev);
-        if (fileItem == null) {
-            throw new NotFoundException("project.merge.conflict.file.revision.not.found", commitRev, path);
+    }
+
+    private static byte[] bytesOf(FileItem fileItem) throws IOException {
+        try (var stream = fileItem.getStream()) {
+            return stream.readAllBytes();
         }
-        return fileItem;
     }
 
     private String getRealPath(Repository repository, String path) {
@@ -382,9 +482,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 break;
 
             case THEIRS:
-                String theirsCommit = mergeConflictInfo.isExportOperation()
-                        ? conflictDetails.yourCommit()
-                        : conflictDetails.theirCommit();
+                var theirsCommit = commitOf(mergeConflictInfo, ConflictBase.THEIRS);
                 file = designRepository.readHistory(filePath, theirsCommit);
                 stream = file == null ? null : file.getStream();
                 resolvedFiles.add(new FileItem(filePath, stream));
@@ -405,11 +503,8 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
      */
     private static @Nullable FileItem readOursFile(ConflictSources sources, String filePath) throws IOException {
         var mergeConflictInfo = sources.info();
-        var conflictDetails = mergeConflictInfo.details();
         FileItem file;
-        String oursCommit = mergeConflictInfo.isExportOperation()
-                ? conflictDetails.theirCommit()
-                : conflictDetails.yourCommit();
+        var oursCommit = commitOf(mergeConflictInfo, ConflictBase.OURS);
         if (mergeConflictInfo.isMerging()) {
             file = sources.designRepository().readHistory(filePath, oursCommit);
         } else {
@@ -440,9 +535,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             var diffResult = autoResolveEntry.getValue();
 
             FileItem yoursConflictedFile;
-            String oursCommit = mergeConflictInfo.isExportOperation()
-                    ? conflictDetails.theirCommit()
-                    : conflictDetails.yourCommit();
+            var oursCommit = commitOf(mergeConflictInfo, ConflictBase.OURS);
 
             if (mergeConflictInfo.isMerging()) {
                 yoursConflictedFile = designRepository.readHistory(fileName, oursCommit);
@@ -458,9 +551,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 }
             }
 
-            String theirsCommit = mergeConflictInfo.isExportOperation()
-                    ? conflictDetails.yourCommit()
-                    : conflictDetails.theirCommit();
+            var theirsCommit = commitOf(mergeConflictInfo, ConflictBase.THEIRS);
             var theirConflictedFile = designRepository.readHistory(fileName, theirsCommit);
 
             XlsWorkbookMerger.merge(yoursConflictedFile.getStream(),
@@ -579,9 +670,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
         // If not found, try our commit
         if (module == null) {
-            String oursCommit = mergeConflictInfo.isExportOperation()
-                    ? conflictDetails.theirCommit()
-                    : conflictDetails.yourCommit();
+            var oursCommit = commitOf(mergeConflictInfo, ConflictBase.OURS);
             try (var fileItem = repository.readHistory(rulesXmlFile, oursCommit)) {
                 if (fileItem != null) {
                     module = getModule(fileItem, moduleInternalPath);

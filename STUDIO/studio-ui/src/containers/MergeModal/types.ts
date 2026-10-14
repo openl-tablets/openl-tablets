@@ -1,4 +1,5 @@
 import type { ProjectFileChange, ProjectFileChangeType } from '../../services/projectStatus'
+import type { ConflictFileAvailability, ConflictTextBlock } from '../../services/compare'
 
 // Merge mode - direction of the merge operation
 export type MergeMode = 'receive' | 'send'
@@ -125,11 +126,7 @@ export interface RevisionInfo {
     exists: boolean
 }
 
-export interface ConflictFileAvailability {
-    ours: boolean
-    theirs: boolean
-    base: boolean
-}
+export type { ConflictFileAvailability }
 
 // API Response: Conflict details with revision info
 export interface ConflictDetails {
@@ -162,11 +159,48 @@ export interface MergeModalDetail {
     onSuccess?: () => void
 }
 
+/**
+ * How the dialog resolves a conflicted file: by a strategy of the server, or `MERGE` for a text file merged line by
+ * line in the dialog, which is sent as a merged file.
+ */
+export type FileResolution = ConflictResolutionStrategy | 'MERGE'
+
 // Internal state: Conflict file with resolution
 export interface ConflictFileState {
     filePath: string
-    resolution: ConflictResolutionStrategy | null
+    resolution: FileResolution | null
     customFile?: File | undefined
+    /** The file as the user merged it in the editor of the dialog, for the `MERGE` resolution. */
+    merged?: MergedText | undefined
+}
+
+export type {
+    ConflictedTextBlock,
+    ConflictText,
+    ConflictTextBlock,
+    MergedTextBlock,
+} from '../../services/compare'
+
+/**
+ * How a conflict of a text file is resolved: by one version of its lines, by both in an order, or by lines the user
+ * wrote.
+ */
+export type ConflictChoice = 'ours' | 'theirs' | 'ours-theirs' | 'theirs-ours' | 'base' | 'edited'
+
+/** How one conflict of a text file was resolved: the choice and the lines it gives. */
+export interface ConflictDecision {
+    choice: ConflictChoice
+    lines: string
+}
+
+/**
+ * A text file merged in the editor of the dialog: its text, how each conflict, in their order, was resolved, and the
+ * parts of the file the decisions were made for.
+ */
+export interface MergedText {
+    text: string
+    decisions: ConflictDecision[]
+    blocks: ConflictTextBlock[]
 }
 
 // Modal step enum

@@ -12,17 +12,22 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -40,10 +45,14 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
+import org.openl.studio.projects.model.merge.ConflictTextBlock;
+import org.openl.studio.projects.model.merge.ConflictTextBlockKind;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeSummaryView;
@@ -54,6 +63,8 @@ class ProjectsMergeConflictsServiceImplTest {
 
     private static final String FIRST_FILE = "rules/DeletedOurs.xlsx";
     private static final String SECOND_FILE = "rules/DeletedTheirs.xlsx";
+    /** The commits of the conflict: the base, yours and theirs. */
+    private static final List<String> COMMITS = List.of("base", "ours", "theirs");
 
     @Test
     void reportsAvailabilityForEveryConflictedFile() throws Exception {
@@ -74,6 +85,81 @@ class ProjectsMergeConflictsServiceImplTest {
         assertTrue(result.fileAvailability().get(SECOND_FILE).ours());
         assertFalse(result.fileAvailability().get(SECOND_FILE).theirs());
         assertTrue(result.fileAvailability().get(SECOND_FILE).base());
+        // A workbook is no text, whichever versions hold it.
+        assertFalse(result.fileAvailability().get(FIRST_FILE).text());
+        assertFalse(result.fileAvailability().get(SECOND_FILE).text());
+    }
+
+    @Test
+    void tellsWhichConflictedFilesAreText() throws Exception {
+        var notes = "rules/notes.txt";
+        var latin1 = "rules/latin1.properties";
+        var removed = "rules/removed.txt";
+        var library = "lib/rates.bin";
+        var context = createContext(mock(MergeChangesService.class), "base", notes, latin1, removed, library,
+                FIRST_FILE);
+        var repository = context.repository();
+        givenTextVersions(repository, notes, "a");
+        givenTextVersions(repository, library, "rate\u0000table");
+        for (var commit : COMMITS) {
+            when(repository.checkHistory(latin1, commit)).thenReturn(file(latin1));
+            givenVersion(repository, latin1, commit, "Pr\u00e4mie=" + commit + "\n", StandardCharsets.ISO_8859_1);
+        }
+        // Their branch deleted the file: the versions that hold it are text all the same.
+        givenTextVersions(repository, removed, "a");
+        when(repository.checkHistory(removed, "theirs")).thenReturn(null);
+        when(repository.readHistory(removed, "theirs")).thenReturn(null);
+
+        var result = context.service().getConflictDetails(context.conflict());
+
+        assertTrue(result.fileAvailability().get(notes).text());
+        // A merge of lines reads UTF-8 only; the screen compares such a file line by line all the same.
+        assertFalse(result.fileAvailability().get(latin1).text());
+        assertTrue(result.fileAvailability().get(removed).text());
+        assertFalse(result.fileAvailability().get(removed).theirs());
+        assertFalse(result.fileAvailability().get(library).text());
+        // A workbook is told by its name: its versions are not read.
+        assertFalse(result.fileAvailability().get(FIRST_FILE).text());
+        verify(repository, never()).readHistory(eq(FIRST_FILE), anyString());
+    }
+
+    @Test
+    void readsEachConflictedFileOnceWhileTheConflictLasts() throws Exception {
+        var notes = "rules/notes.txt";
+        var context = createContext(mock(MergeChangesService.class), "base", notes);
+        var repository = context.repository();
+        givenTextVersions(repository, notes, "a");
+
+        context.service().getConflictDetails(context.conflict());
+        var again = context.service().getConflictDetails(context.conflict());
+
+        assertTrue(again.fileAvailability().get(notes).text());
+        for (var commit : COMMITS) {
+            verify(repository, times(1)).readHistory(notes, commit);
+        }
+    }
+
+    @Test
+    void tellsAFileWithAVersionThatCannotBeReadAsNoTextUntilItIsRead() throws Exception {
+        var notes = "rules/notes.txt";
+        var other = "rules/other.txt";
+        var context = createContext(mock(MergeChangesService.class), "base", notes, other);
+        var repository = context.repository();
+        givenTextVersions(repository, notes, "a");
+        givenTextVersions(repository, other, "b");
+        when(repository.readHistory(notes, "theirs"))
+                .thenThrow(new IOException("The LFS object is unavailable"))
+                .thenAnswer(invocation -> new FileItem(notes,
+                        new ByteArrayInputStream("a=theirs\n".getBytes(StandardCharsets.UTF_8))));
+
+        var result = context.service().getConflictDetails(context.conflict());
+
+        // The other resolutions of the file stay offered, and the rest of the conflict is shown as it is.
+        assertFalse(result.fileAvailability().get(notes).text());
+        assertTrue(result.fileAvailability().get(notes).theirs());
+        assertTrue(result.fileAvailability().get(other).text());
+        // The failure is not kept: the file is read again the next time, and is text once its versions are read.
+        assertTrue(context.service().getConflictDetails(context.conflict()).fileAvailability().get(notes).text());
     }
 
     @Test
@@ -97,6 +183,107 @@ class ProjectsMergeConflictsServiceImplTest {
 
         assertEquals("openl.error.404.project.merge.conflict.file.revision.not.found", exception.getErrorCode());
         assertArrayEquals(new Object[]{"ours", FIRST_FILE}, exception.getArgs());
+    }
+
+    @Test
+    void mergesAConflictedTextFileLineByLine() throws Exception {
+        var context = createContext();
+        givenVersion(context.repository(), "base", "a=1\nb=2\nc=3\nd=4\n");
+        givenVersion(context.repository(), "ours", "a=1\nb=ours\nc=3\nd=4\n");
+        givenVersion(context.repository(), "theirs", "a=1\nb=theirs\nc=3\nd=theirs\n");
+
+        var text = context.service().getConflictText(context.conflict(), FIRST_FILE);
+
+        // Lines a branch changed come with every version of them, lines no branch changed with their text alone.
+        assertEquals(List.of(
+                new ConflictTextBlock(ConflictTextBlockKind.MERGED, "a=1\n", null, null, null),
+                new ConflictTextBlock(ConflictTextBlockKind.CONFLICT, null, "b=ours\n", "b=2\n", "b=theirs\n"),
+                new ConflictTextBlock(ConflictTextBlockKind.MERGED, "c=3\n", null, null, null),
+                new ConflictTextBlock(ConflictTextBlockKind.MERGED, "d=theirs\n", "d=4\n", "d=4\n", "d=theirs\n")),
+                text.blocks());
+    }
+
+    @Test
+    void tellsThatHistoriesWithNoCommitInCommonHaveNoBaseVersion() throws Exception {
+        var context = createContext(mock(MergeChangesService.class), null, FIRST_FILE);
+        var service = context.service();
+        var conflict = context.conflict();
+
+        var exception = assertThrows(NotFoundException.class,
+                () -> service.getConflictFileItem(conflict, FIRST_FILE, ConflictBase.BASE));
+
+        assertEquals("openl.error.404.project.merge.conflict.file.side.not.found", exception.getErrorCode());
+        assertArrayEquals(new Object[]{ConflictBase.BASE, FIRST_FILE}, exception.getArgs());
+    }
+
+    @Test
+    void readsABaseThatDoesNotHoldTheFileAsAnEmptyFile() throws Exception {
+        var context = createContext();
+        when(context.repository().readHistory(FIRST_FILE, "base")).thenReturn(null);
+        givenVersion(context.repository(), "ours", "a=ours\n");
+        givenVersion(context.repository(), "theirs", "a=theirs\n");
+
+        var text = context.service().getConflictText(context.conflict(), FIRST_FILE);
+
+        assertEquals(List.of(new ConflictTextBlock(ConflictTextBlockKind.CONFLICT, null, "a=ours\n", "", "a=theirs\n")),
+                text.blocks());
+    }
+
+    @Test
+    void refusesToMergeAFileThatIsNoText() throws Exception {
+        var context = createContext();
+        givenVersion(context.repository(), "base", "a=1\n");
+        givenVersion(context.repository(), "ours", "a=1\u0000\n");
+        givenVersion(context.repository(), "theirs", "a=2\n");
+        var service = context.service();
+        var conflict = context.conflict();
+
+        var exception = assertThrows(BadRequestException.class, () -> service.getConflictText(conflict, FIRST_FILE));
+
+        assertEquals("openl.error.400.project.merge.conflict.text.not-text.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{FIRST_FILE}, exception.getArgs());
+    }
+
+    @Test
+    void refusesToMergeAFileThatIsNotConflicted() throws Exception {
+        var context = createContext();
+        var service = context.service();
+        var conflict = context.conflict();
+
+        var exception = assertThrows(NotFoundException.class, () -> service.getConflictText(conflict, "notes.txt"));
+
+        assertEquals("openl.error.404.project.merge.conflict.file.not.found", exception.getErrorCode());
+    }
+
+    /** Answers each read of the first conflicted file at a commit with the text, read anew. */
+    private static void givenVersion(BranchRepository repository, String commit, String text) throws IOException {
+        givenVersion(repository, FIRST_FILE, commit, text);
+    }
+
+    /** Answers each read of a conflicted file at a commit with the text, read anew. */
+    private static void givenVersion(BranchRepository repository,
+                                     String path,
+                                     String commit,
+                                     String text) throws IOException {
+        givenVersion(repository, path, commit, text, StandardCharsets.UTF_8);
+    }
+
+    /** Answers each read of a conflicted file at a commit with the text written in the charset, read anew. */
+    private static void givenVersion(BranchRepository repository,
+                                     String path,
+                                     String commit,
+                                     String text,
+                                     Charset charset) throws IOException {
+        when(repository.readHistory(path, commit)).thenAnswer(invocation -> new FileItem(path,
+                new ByteArrayInputStream(text.getBytes(charset))));
+    }
+
+    /** Every version of the conflict holds the file, as the text {@code <key>=<commit>}. */
+    private static void givenTextVersions(BranchRepository repository, String path, String key) throws IOException {
+        for (var commit : COMMITS) {
+            when(repository.checkHistory(path, commit)).thenReturn(file(path));
+            givenVersion(repository, path, commit, key + "=" + commit + "\n");
+        }
     }
 
     @Test
@@ -297,6 +484,17 @@ class ProjectsMergeConflictsServiceImplTest {
     }
 
     private TestContext createContext(MergeChangesService mergeChangesService) throws IOException {
+        return createContext(mergeChangesService, "base", FIRST_FILE, SECOND_FILE);
+    }
+
+    /**
+     * @param baseCommit      the commit the branches of the conflict parted at, or {@code null} when their histories
+     *                        have none in common
+     * @param conflictedFiles the files the conflict lists
+     */
+    private TestContext createContext(MergeChangesService mergeChangesService,
+                                      @Nullable String baseCommit,
+                                      String... conflictedFiles) throws IOException {
         var repository = mock(BranchRepository.class);
         var designTimeRepository = mock(DesignTimeRepository.class);
         var workspace = mock(UserWorkspace.class);
@@ -316,13 +514,12 @@ class ProjectsMergeConflictsServiceImplTest {
         when(designTimeRepository.getRepository("design")).thenReturn(repository);
 
         var diffs = new LinkedHashMap<String, String>();
-        diffs.put(FIRST_FILE, "diff");
-        diffs.put(SECOND_FILE, "diff");
+        Stream.of(conflictedFiles).forEach(file -> diffs.put(file, "diff"));
         var conflictDetails = MergeConflictDetails.builder()
                 .diffs(diffs)
                 .yourCommit("ours")
                 .theirCommit("theirs")
-                .baseCommit("base")
+                .baseCommit(baseCommit)
                 .build();
         var conflict = MergeConflictInfo.builder()
                 .details(conflictDetails)
@@ -331,7 +528,11 @@ class ProjectsMergeConflictsServiceImplTest {
                 .mergeBranchTo("main")
                 .currentBranch("main")
                 .build();
-        var service = new ProjectsMergeConflictsServiceImpl(mergeChangesService) {
+        // The conflict is kept for the project, as a merge or a save keeps it.
+        var conflictsSessionHolder = new ProjectsMergeConflictsSessionHolder();
+        conflictsSessionHolder.store(ProjectIdModel.builder().repository("design").projectName("Project").build(),
+                conflict);
+        var service = new ProjectsMergeConflictsServiceImpl(mergeChangesService, conflictsSessionHolder) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return workspace;

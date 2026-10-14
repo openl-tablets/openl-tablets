@@ -214,12 +214,43 @@ contain the project when it is opened. Proceed as follows:
 
     Conflicts can be resolved by selecting one of the following options:
 
-    | Option             | Description                                                                                                                  |
-    |--------------------|------------------------------------------------------------------------------------------------------------------------------|
-    | Use yours          | Changes in the currently active branch are applied on merge. The changes applied by another user are lost.                   |
-    | Use theirs         | Changes in the selected branch are applied on merge. The changes made by you are lost.                                       |
-    | Use base           | The common base version of the file is applied on merge. Changes from both branches are discarded.                          |
-    | Upload merged file | Depending on the selected merging options, changes in the manually updated and uploaded file override changes in the branch. |
+    -   **Use yours** — changes in the currently active branch are applied on merge. The changes applied by another
+        user are lost.
+    -   **Use theirs** — changes in the selected branch are applied on merge. The changes made by you are lost.
+    -   **Use base** — the common base version of the file is applied on merge. Changes from both branches are
+        discarded.
+    -   **Merge line by line** — the changes of both branches are combined, and you decide only the lines both
+        branches changed, as described below. The option is offered for a text file written in UTF-8 that both your
+        version and their version hold, and not for an Excel file or another binary file.
+    -   **Upload merged file** — depending on the selected merging options, changes in the manually updated and
+        uploaded file override changes in the branch.
+
+    **Merge line by line** opens the file in a window of its own, laid out in three columns as Git merge tools lay
+    it out: **Your Version** on the left, the **Result** in the middle and **Their Version** on the right. The file is
+    shown part by part, each part at the same height in all three columns, its lines numbered as in the version of
+    the column. Lines no branch changed read alike in every column; a long run of them shows its first and last
+    lines, and the link between them shows the rest. Lines only one branch changed, or both changed alike, are
+    merged the way Sync merges them, and the note above the result says which version they were taken from.
+
+    Each place both branches changed is a conflict, headed by its number and by whether it is resolved. Each version
+    shows every line its branch has in that place, even the lines both versions start or end with, and until the
+    conflict is resolved the result shows the base lines, the ones both branches started from. A conflict is
+    resolved with the buttons above its lines, or in its result:
+
+    -   **Take Yours** or **Take Theirs** takes the lines of one version into the result.
+    -   **Add Yours** or **Add Theirs**, offered once the other version is taken, adds the lines of this version after
+        it, so the result holds both versions whole: for example, the modules both branches added to `rules.xml`.
+    -   **Discard Changes** keeps the base lines, without the changes of either branch.
+    -   Lines typed in the result take the place of the conflict, which is then marked **Edited**.
+
+    **Apply** is available once every conflict is resolved. It closes the window, and the dialog marks the file
+    **Merged line by line**; **Edit** next to the mark opens the window again with the conflicts resolved as you left
+    them. The merged file keeps the line breaks the file is written with, and **Save and Resolve** saves it as it
+    saves an uploaded file.
+
+    ![Merging a conflicting text file line by line](images/resolve-conflicts-merge-line-by-line.png "Merging a text file line by line")
+
+    *Merging a conflicting text file line by line*
 
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
 
@@ -269,7 +300,8 @@ The project remains available to the dialog under the identifier issued after th
 
 The dialog contains the **Compare File Versions** link that opens, in a window of its own, what the other user
 changed against the version both users started from, what you changed, or the two conflicting versions side by side,
-as for a merge.
+as for a merge. As in a merge, **Merge line by line** in the **Resolution** column of the dialog resolves a
+conflicting text file in place.
 
 ![What the other user changed in a conflicting workbook](images/compare-conflicting-versions.jpeg "Comparing conflicting versions")
 

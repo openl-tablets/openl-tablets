@@ -12,21 +12,36 @@ import {
 import { useTranslation } from 'react-i18next'
 import { apiCall, CONFIG } from '../../services'
 import { formatDateTime } from '../../utils/dateFormat'
+import { basename } from '../projects/projectPaths'
 import {
     BranchInfo,
     ConflictDetails,
     ConflictFileState,
     ConflictGroup,
     ConflictResolutionStrategy,
+    FileResolution,
     FileSide,
+    MergedText,
     MergeSummary,
     ResolveConflictsResponse,
     RevisionInfo,
 } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
+import { TextMergeEditor } from './TextMergeEditor'
 import { useStyles } from './ConflictResolutionStep.styles'
 
 const { TextArea } = Input
+
+/** The resolution of a text file merged line by line in the dialog; it is sent as a merged file. */
+const MERGE_IN_PLACE = 'MERGE' satisfies FileResolution
+
+/** The file a resolution sends: the one uploaded, or the text of a file merged line by line. */
+const fileOf = (res: ConflictFileState): File | undefined => {
+    if (res.resolution === MERGE_IN_PLACE && res.merged) {
+        return new File([res.merged.text], basename(res.filePath), { type: 'text/plain' })
+    }
+    return res.resolution === 'CUSTOM' ? res.customFile : undefined
+}
 
 interface ConflictResolutionStepProps {
     projectId: string
@@ -64,6 +79,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
 
     // Resolution state for each file
     const [resolutions, setResolutions] = useState<Record<string, ConflictFileState>>({})
+    // The text file being merged line by line, if any
+    const [editing, setEditing] = useState<string | null>(null)
 
     const loadConflictDetails = useCallback(async () => {
         setIsLoading(true)
@@ -134,8 +151,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 ...prev[filePath],
                 filePath,
                 resolution: strategy,
-                // Clear custom file if switching away from CUSTOM
                 customFile: strategy === 'CUSTOM' ? prev[filePath]?.customFile : undefined,
+                merged: undefined,
             },
         }))
     }
@@ -148,9 +165,16 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 filePath,
                 resolution: 'CUSTOM',
                 customFile: file,
+                merged: undefined,
             },
         }))
         return false // Prevent default upload behavior
+    }
+
+    /** Takes a text file merged line by line as its resolution. */
+    const handleMerged = (filePath: string, merged: MergedText) => {
+        setResolutions(prev => ({ ...prev, [filePath]: { filePath, resolution: MERGE_IN_PLACE, merged } }))
+        setEditing(null)
     }
 
     const handleDownload = (filePath: string, side: FileSide) => {
@@ -206,7 +230,9 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             const resolutionEntries = Object.values(resolutions)
             resolutionEntries.forEach((res, index) => {
                 formData.append(`resolutions[${index}].filePath`, res.filePath)
-                formData.append(`resolutions[${index}].strategy`, res.resolution!)
+                // A file merged line by line is sent as a merged file.
+                formData.append(`resolutions[${index}].strategy`,
+                    res.resolution === MERGE_IN_PLACE ? 'CUSTOM' : res.resolution!)
             })
 
             // Add merge message only if user modified it from default
@@ -216,8 +242,9 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
 
             // Add custom files
             resolutionEntries.forEach((res, index) => {
-                if (res.resolution === 'CUSTOM' && res.customFile) {
-                    formData.append(`resolutions[${index}].file`, res.customFile)
+                const file = fileOf(res)
+                if (file) {
+                    formData.append(`resolutions[${index}].file`, file)
                 }
             })
 
@@ -255,6 +282,11 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         onCancel()
     }
 
+    /** The branch a version comes from, marked as the dialog marks it; nothing for a version of no branch. */
+    const branchLabelOf = (revision: RevisionInfo | undefined, testId?: string) => revision?.branch && (
+        <MergeBranchLabel truncate branches={branches} name={revision.branch} testId={testId} />
+    )
+
     const renderRevisionInfo = (label: string, revision: RevisionInfo | undefined) => {
         if (!revision) return null
 
@@ -263,14 +295,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 {revision.exists ? (
                     <Tooltip title={t('merge:revisions.commit', { commit: revision.commit })}>
                         <Space orientation="vertical" size={0}>
-                            {revision.branch && (
-                                <MergeBranchLabel
-                                    truncate
-                                    branches={branches}
-                                    name={revision.branch}
-                                    testId={`conflict-branch-${revision.branch}`}
-                                />
-                            )}
+                            {branchLabelOf(revision, `conflict-branch-${revision.branch}`)}
                             {revision.author && (
                                 <Typography.Text type="secondary">
                                     {t('merge:revisions.by', { author: revision.author })}
@@ -331,17 +356,17 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                         )}
                         {renderDownloadAction(
                             record.filePath,
-                            'theirs',
-                            availability?.theirs,
-                            t('merge:compare.download_theirs'),
-                            t('merge:compare.deleted_theirs')
-                        )}
-                        {renderDownloadAction(
-                            record.filePath,
                             'base',
                             availability?.base,
                             t('merge:compare.download_base'),
                             t('merge:compare.deleted_base')
+                        )}
+                        {renderDownloadAction(
+                            record.filePath,
+                            'theirs',
+                            availability?.theirs,
+                            t('merge:compare.download_theirs'),
+                            t('merge:compare.deleted_theirs')
                         )}
                     </Space>
                 )
@@ -354,17 +379,27 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             render: (_: any, record: { filePath: string }) => {
                 const res = resolutions[record.filePath]
                 const isResolved = res?.resolution && (res.resolution !== 'CUSTOM' || res.customFile)
+                // A text file both versions hold is merged line by line; the server tells text from a binary file.
+                const availability = conflictDetails?.fileAvailability[record.filePath]
+                const mergeable = !!availability?.ours && !!availability.theirs && !!availability.text
 
                 return (
                     <Space orientation="vertical" size="small">
                         <Radio.Group
-                            onChange={e => handleResolutionChange(record.filePath, e.target.value)}
                             value={res?.resolution}
+                            onChange={e => e.target.value === MERGE_IN_PLACE
+                                ? setEditing(record.filePath)
+                                : handleResolutionChange(record.filePath, e.target.value)}
                         >
                             <Space orientation="vertical">
                                 <Radio value="OURS">{t('merge:resolution.use_yours')}</Radio>
                                 <Radio value="THEIRS">{t('merge:resolution.use_theirs')}</Radio>
                                 <Radio value="BASE">{t('merge:resolution.use_base')}</Radio>
+                                {mergeable && (
+                                    <Radio data-testid="merge-in-place" value={MERGE_IN_PLACE}>
+                                        {t('merge:resolution.merge_in_place')}
+                                    </Radio>
+                                )}
                                 <Radio value="CUSTOM">
                                     <Space>
                                         {t('merge:resolution.upload_custom')}
@@ -383,12 +418,27 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                                 </Radio>
                             </Space>
                         </Radio.Group>
+                        {res?.resolution === MERGE_IN_PLACE && (
+                            <Space size="small">
+                                <Typography.Text type="success">
+                                    <CheckCircleOutlined /> {t('merge:resolution.merged_in_place')}
+                                </Typography.Text>
+                                <Button
+                                    data-testid="merge-in-place-edit"
+                                    onClick={() => setEditing(record.filePath)}
+                                    size="small"
+                                    type="link"
+                                >
+                                    {t('merge:resolution.edit_merge')}
+                                </Button>
+                            </Space>
+                        )}
                         {res?.customFile && (
                             <Typography.Text type="success">
                                 <CheckCircleOutlined /> {res.customFile.name}
                             </Typography.Text>
                         )}
-                        {isResolved && !res?.customFile && res?.resolution !== 'CUSTOM' && (
+                        {isResolved && res?.resolution !== 'CUSTOM' && res?.resolution !== MERGE_IN_PLACE && (
                             <Typography.Text type="success">
                                 <CheckCircleOutlined /> {t('merge:resolution.resolved')}
                             </Typography.Text>
@@ -420,9 +470,10 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             {/* Revision Information - only show if available */}
             {(conflictDetails?.oursRevision || conflictDetails?.theirsRevision || conflictDetails?.baseRevision) && (
                 <Descriptions bordered column={3} size="small" style={{ marginBottom: 16 }}>
+                    {/* The versions stand as merge tools lay them out: yours, the base, theirs. */}
                     {renderRevisionInfo(t('merge:revisions.yours'), conflictDetails?.oursRevision)}
-                    {renderRevisionInfo(t('merge:revisions.theirs'), conflictDetails?.theirsRevision)}
                     {renderRevisionInfo(t('merge:revisions.base'), conflictDetails?.baseRevision)}
+                    {renderRevisionInfo(t('merge:revisions.theirs'), conflictDetails?.theirsRevision)}
                 </Descriptions>
             )}
             {/* Merge Message */}
@@ -477,6 +528,19 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                     {t('merge:buttons.resolve')}
                 </Button>
             </Space>
+            {editing && (
+                <TextMergeEditor
+                    filePath={editing}
+                    merged={resolutions[editing]?.merged}
+                    onApply={merged => handleMerged(editing, merged)}
+                    onCancel={() => setEditing(null)}
+                    projectId={projectId}
+                    versionLabels={{
+                        ours: branchLabelOf(conflictDetails?.oursRevision),
+                        theirs: branchLabelOf(conflictDetails?.theirsRevision),
+                    }}
+                />
+            )}
         </div>
     )
 }
