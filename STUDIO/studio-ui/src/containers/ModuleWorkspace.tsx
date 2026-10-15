@@ -975,6 +975,7 @@ export const ModuleWorkspace = () => {
                     editing={editing}
                     formulas={showFormulas}
                     hiddenRows={hiddenRows}
+                    kind={table.kind}
                     layout={table.layout}
                     markCell={raisedCell}
                     maxRows={table.source.length}

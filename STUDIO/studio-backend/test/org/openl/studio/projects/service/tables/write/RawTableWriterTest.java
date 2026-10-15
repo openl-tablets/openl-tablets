@@ -44,12 +44,14 @@ import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
+import org.openl.studio.projects.model.tables.RawCellColor;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.RawTableThemeColorName;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
@@ -163,7 +165,7 @@ class RawTableWriterTest {
 
     @Test
     void setsTheStylingOfEveryCellOfARange() {
-        apply(style(1, 0, 3, 2, new RawCellStyleInput("#ffff00", "#ff0000",
+        apply(style(1, 0, 3, 2, new RawCellStyleInput(rgb("#FFFF00"), rgb("#FF0000"),
                 RawTableHorizontalAlign.CENTER, true, true, true, 2)));
 
         var source = reloadStyled(mainProject);
@@ -184,12 +186,57 @@ class RawTableWriterTest {
     @Test
     void leavesTheAttributesAStyleDoesNotNameAsTheyStand() {
         apply(style(1, 1, 1, 1, new RawCellStyleInput(null, null, null, true, null, null, null)));
-        apply(style(1, 1, 1, 1, new RawCellStyleInput("#00ff00", null, null, null, null, null, null)));
+        apply(style(1, 1, 1, 1, new RawCellStyleInput(rgb("#00b050"), null, null, null, null, null, null)));
 
         var styled = styleOf(reloadStyled(mainProject), 1, 1);
-        assertEquals("#00ff00", styled.background());
+        assertEquals("#00b050", styled.background());
         // the second style named no font weight, so the bold the first one set is still there
         assertEquals(Boolean.TRUE, styled.bold());
+    }
+
+    @Test
+    void coloursACellOfAWorkbookWithNoThemeInTheColoursOfOffice() {
+        apply(style(1, 0, 1, 1, new RawCellStyleInput(theme(RawTableThemeColorName.ACCENT1, 0.6),
+                theme(RawTableThemeColorName.DK1, 0.5), null, null, null, null, null)));
+
+        var styled = styleOf(reloadStyled(mainProject), 1, 0);
+        assertEquals("#b4c6e7", styled.background(), "Blue, Accent 1, Lighter 60%");
+        assertEquals("#808080", styled.color(), "Black, Text 1, Lighter 50%");
+    }
+
+    @Test
+    void rejectsAColourOutsideThePaletteOfExcel() {
+        var green = style(1, 0, 1, 1, new RawCellStyleInput(rgb("#00ff00"), null, null, null, null, null, null));
+        var refused = assertThrows(BadRequestException.class, () -> apply(green));
+
+        assertEquals("openl.error.400.table.action.style.colour.not-standard.message", refused.getErrorCode());
+        assertNull(styleOf(reloadStyled(mainProject), 1, 0), "Nothing is written");
+    }
+
+    @Test
+    void rejectsAColourGivenTwoWaysOrNone() {
+        for (var colour : List.of(new RawCellColor(RawTableThemeColorName.ACCENT1, null, "#FF0000"),
+                new RawCellColor(null, 0.4, "#FF0000"), new RawCellColor(null, null, null))) {
+            var coloured = style(1, 0, 1, 1, new RawCellStyleInput(null, colour, null, null, null, null, null));
+            var refused = assertThrows(BadRequestException.class, () -> apply(coloured));
+            assertEquals("openl.error.400.table.action.style.colour.invalid.message", refused.getErrorCode());
+        }
+    }
+
+    @Test
+    void setsNothingButTheIndentWhileTablesAreFormattedOnSave() {
+        var writer = new RawTableWriter(load(mainProject));
+        writer.formatOnSave(true);
+
+        var bold = style(1, 0, 1, 1, new RawCellStyleInput(null, null, null, true, null, null, 1));
+        var refused = assertThrows(BadRequestException.class, () -> writer.apply(bold));
+        assertEquals("openl.error.400.table.action.style.format-on-save.message", refused.getErrorCode());
+
+        var indenting = new RawTableWriter(load(mainProject));
+        indenting.formatOnSave(true);
+        indenting.apply(style(1, 0, 1, 1, new RawCellStyleInput(null, null, null, null, null, null, 2)));
+
+        assertEquals(2, styleOf(reloadStyled(mainProject), 1, 0).indent().intValue());
     }
 
     @Test
@@ -1340,6 +1387,14 @@ class RawTableWriterTest {
 
     private void apply(RawTableSourceAction action) {
         new RawTableWriter(load(mainProject)).apply(action);
+    }
+
+    private static RawCellColor rgb(String rgb) {
+        return new RawCellColor(null, null, rgb);
+    }
+
+    private static RawCellColor theme(RawTableThemeColorName name, double tint) {
+        return new RawCellColor(name, tint, null);
     }
 
     private void apply(List<RawTableSourceAction> actions) {

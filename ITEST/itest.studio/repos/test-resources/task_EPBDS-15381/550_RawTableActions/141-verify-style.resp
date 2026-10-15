@@ -29,7 +29,7 @@ Content-Type: application/json
   "styles": [
     {
       "background": "#ffff00",
-      "color": "#0000ff",
+      "color": "#0070c0",
       "align": "center",
       "valign": "center",
       "bold": true,
@@ -43,7 +43,7 @@ Content-Type: application/json
     },
     {
       "background": "#ffff00",
-      "color": "#0000ff",
+      "color": "#0070c0",
       "align": "center",
       "bold": true,
       "indent": 1

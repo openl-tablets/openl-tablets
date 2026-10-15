@@ -1,15 +1,16 @@
 import { createRef } from 'react'
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { RawTableCell } from 'types/tables'
+import { SystemContext } from '../../contexts'
 import { ApiHttpError, notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { rolesOf } from '../../components/tableRoles'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
 import { paperToken } from '../../styles/paper'
-import { renderInTheme, tokenFor } from '../../testing/theme'
+import { hex, renderInTheme, tokenFor } from '../../testing/theme'
 
 vi.mock('../../services/tables', () => ({ applyTableActions: vi.fn() }))
 vi.mock('../../services/apiCall', async importOriginal => ({
@@ -68,6 +69,37 @@ const draw = (over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
     const redraw = (more: Partial<Parameters<typeof TableEditor>[0]>) => rerender(editor({ ...over, ...more }))
     return { onEditingChange, onSaved, redraw }
 }
+
+/** The settings of a server that does not format tables on save. */
+const NOT_FORMATTING_ON_SAVE = {
+    isExternalAuthSystem: false,
+    isUserManagementEnabled: false,
+    isGroupsManagementEnabled: false,
+    isPersonalAccessTokenEnabled: false,
+    systemSettings: { formatTablesOnSave: false },
+}
+
+/**
+ * Draws the editor where the look of a cell is the reader's to set: tables are not formatted on save, and the
+ * formatting of the workbook is shown, unless asked otherwise.
+ */
+const drawFormatting = (over: Partial<Parameters<typeof TableEditor>[0]> = {}, excelFormatting = true) =>
+    renderInTheme(
+        <SystemContext.Provider value={NOT_FORMATTING_ON_SAVE}>
+            <TableEditor
+                canWrite
+                editing
+                moduleName="Claims"
+                onEditingChange={vi.fn()}
+                onSaved={vi.fn()}
+                projectId="repo:Rating"
+                rows={ROWS}
+                tableId="table-1"
+                testId="module-table"
+                {...over}
+            />
+        </SystemContext.Provider>,
+        { excelFormatting })
 
 /** The cell drawn at the given place, for a place that holds nothing to search for by its text. */
 const cellOf = (row: number, column: number): HTMLElement => {
@@ -1091,7 +1123,7 @@ describe('TableEditor', () => {
     })
 
     it('paints the picked cell while the pointer rests on a colour, and puts it back', async () => {
-        draw()
+        drawFormatting()
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.click(screen.getByText('Good Morning'))
@@ -1106,6 +1138,53 @@ describe('TableEditor', () => {
 
         await userEvent.unhover(swatch)
         expect(painted()).toBe('')
+    })
+
+    it('sends a theme colour as the theme colour, and shows it in the colours of Office until it is saved',
+        async () => {
+            drawFormatting()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+            await userEvent.click(screen.getByText('Good Morning'))
+            await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+            // The first shade under Text 1: Text 1, Lighter 50%.
+            await userEvent.click((await screen.findAllByTestId('table-edit-swatch'))[11] as HTMLElement)
+
+            expect(hex((screen.getByText('Good Morning').closest('td') as HTMLElement).style.backgroundColor))
+                .toBe('#808080')
+            await userEvent.click(screen.getByTestId('table-edit-save'))
+
+            await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [{
+                operation: 'style',
+                target: { type: 'cells', row: 1, column: 1, rowspan: 1, colspan: 1,
+                    style: { background: { theme: 'dk1', tint: 0.5 } } },
+            }], 'Claims'))
+        })
+
+    it('offers the look of a cell only with tables not formatted on save and the Excel formatting shown', async () => {
+        const offered = async () => {
+            await userEvent.click(screen.getByText('Good Morning'))
+            return ['bold', 'fill_colour', 'indent']
+                .filter(action => screen.queryByTestId(`table-edit-${action}`) !== null)
+        }
+
+        drawFormatting()
+        expect(await offered()).toEqual(['bold', 'fill_colour', 'indent'])
+        cleanup()
+
+        // The Studio look does not show the formatting of the workbook.
+        drawFormatting({}, false)
+        expect(await offered()).toEqual([])
+        cleanup()
+
+        // Tables are formatted on save, as they are until the settings say otherwise.
+        draw()
+        expect(await offered()).toEqual([])
+        cleanup()
+
+        // A TBasic table reads the levels of its steps from the indent, so the indent stays.
+        draw({ kind: 'TBasic' })
+        expect(await offered()).toEqual(['indent'])
     })
 
     it('writes several numbers into an array cell, and lets nothing else in', async () => {

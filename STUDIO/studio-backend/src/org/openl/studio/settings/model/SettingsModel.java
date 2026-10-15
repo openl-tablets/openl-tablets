@@ -21,9 +21,16 @@ public class SettingsModel {
     @Parameter(description = "List of JavaScript files to be loaded in the application")
     private final List<String> scripts;
 
+    @Getter
+    @Parameter(description = """
+            Whether a table is formatted with the OpenL table style every time it is saved. While it is, a table \
+            edit sets no styling but the indent.""")
+    private final boolean formatTablesOnSave;
+
     private SettingsModel(Builder builder) {
         this.userMode = builder.userMode;
         this.supportedFeatures = builder.supportedFeatures;
+        this.formatTablesOnSave = builder.formatTablesOnSave;
         this.scripts = Optional.ofNullable(builder.scripts).map(List::copyOf).orElseGet(Collections::emptyList);
     }
 
@@ -35,8 +42,14 @@ public class SettingsModel {
         private UserManagementMode userMode;
         private SupportedFeaturesModel supportedFeatures;
         private List<String> scripts;
+        private boolean formatTablesOnSave;
 
         private Builder() {
+        }
+
+        public Builder formatTablesOnSave(boolean formatTablesOnSave) {
+            this.formatTablesOnSave = formatTablesOnSave;
+            return this;
         }
 
         public Builder userMode(UserManagementMode userMode) {

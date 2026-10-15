@@ -60,7 +60,8 @@ public final class AdministrationSettings implements SettingsHolder {
 
     @Getter
     @Parameter(description = "Format a table with the OpenL table style every time it is saved, created or copied, "
-            + "and every Excel file uploaded into a project.")
+            + "and every Excel file uploaded into a project. While it is on, a table edit sets no styling but the "
+            + "indent.")
     @Setter
     @SettingPropertyName(FORMAT_TABLES_ON_SAVE)
     private Boolean formatTablesOnSave;

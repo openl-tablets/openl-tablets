@@ -27373,6 +27373,42 @@ Content-Type: application/json
           }
         }
       },
+      "RawCellColor": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "rgb": {
+            "type": "string",
+            "description": "***",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "theme": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "lt1",
+              "dk1",
+              "lt2",
+              "dk2",
+              "accent1",
+              "accent2",
+              "accent3",
+              "accent4",
+              "accent5",
+              "accent6"
+            ]
+          },
+          "tint": {
+            "type": "number",
+            "format": "double",
+            "description": "***",
+            "exclusiveMaximum": false,
+            "exclusiveMinimum": false,
+            "maximum": 1,
+            "minimum": -1
+          }
+        }
+      },
       "RawCellInput": {
         "type": "object",
         "properties": {
@@ -27427,18 +27463,14 @@ Content-Type: application/json
             ]
           },
           "background": {
-            "type": "string",
-            "description": "***",
-            "pattern": "^#[0-9a-fA-F]{6}$"
+            "$ref": "#/components/schemas/RawCellColor"
           },
           "bold": {
             "type": "boolean",
             "description": "***"
           },
           "color": {
-            "type": "string",
-            "description": "***",
-            "pattern": "^#[0-9a-fA-F]{6}$"
+            "$ref": "#/components/schemas/RawCellColor"
           },
           "indent": {
             "type": "integer",
@@ -28560,6 +28592,10 @@ Content-Type: application/json
       "SettingsModel": {
         "type": "object",
         "properties": {
+          "formatTablesOnSave": {
+            "type": "boolean",
+            "description": "***"
+          },
           "scripts": {
             "type": "array",
             "description": "***",

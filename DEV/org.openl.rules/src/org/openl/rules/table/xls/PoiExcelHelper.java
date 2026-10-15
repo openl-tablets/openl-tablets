@@ -225,6 +225,10 @@ public final class PoiExcelHelper {
         /** The steps Excel writes a tint in: Lighter 60% as 19660 of them, 0.59999389629810485. */
         private static final int WRITTEN_STEPS = 32767;
 
+        /** The ten theme colours of Office 2013 - 2022 as {@code 0xRRGGBB}, in the order a workbook numbers them. */
+        private static final int[] OFFICE = {
+                0xFFFFFF, 0x000000, 0xE7E6E6, 0x44546A, 0x4472C4, 0xED7D31, 0xA5A5A5, 0xFFC000, 0x5B9BD5, 0x70AD47};
+
         /**
          * The colour of the theme a colour of a workbook is.
          *
@@ -244,6 +248,16 @@ public final class PoiExcelHelper {
          */
         public double writtenTint() {
             return (double) Math.divideExact(tint * WRITTEN_STEPS, Hls.TINT_STEPS) / WRITTEN_STEPS;
+        }
+
+        /**
+         * The colour as Office 2013 - 2022 draws it, the theme of a new workbook of Excel: the colour a workbook
+         * without a theme, such as an {@code .xls} one, is written in.
+         *
+         * @return the red, the green and the blue of the colour; the colour is one of the ten theme colours
+         */
+        public short[] toOfficeRgb() {
+            return applyTint(toRgb(OFFICE[index]), (double) tint / Hls.TINT_STEPS);
         }
 
         /**
@@ -331,8 +345,18 @@ public final class PoiExcelHelper {
      * {@link XSSFFont#setColor(XSSFColor)} takes the red, the green and the blue of a colour alone, so the colour is
      * set as the font writes it.
      */
-    private static void setThemedColor(XSSFFont font, ThemedColor themed, XSSFWorkbook workbook) {
+    static void setThemedColor(XSSFFont font, ThemedColor themed, XSSFWorkbook workbook) {
         font.getCTFont().setColorArray(new CTColor[]{themed.toColor(workbook).getCTColor()});
+    }
+
+    /**
+     * Whether a workbook has a theme to draw a theme colour from: an {@code .xlsx} one with a theme part.
+     *
+     * @param workbook the workbook
+     * @return whether a theme colour written into it takes the colour of its theme
+     */
+    public static boolean hasTheme(Workbook workbook) {
+        return workbook instanceof XSSFWorkbook xssf && xssf.getStylesSource().getTheme() != null;
     }
 
     // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.

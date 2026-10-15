@@ -73,6 +73,13 @@ public abstract class TableWriter<T extends TableView> {
     /** The regions the save formats the table in, moved along the lines the write inserts and removes. */
     private @Nullable RegionShift layout;
 
+    /**
+     * Whether tables are formatted on save, which leaves a write no styling of its own but the indent. It holds even
+     * for a table the save does not format this time, as one whose module waits for a compile.
+     */
+    @Getter(AccessLevel.PROTECTED)
+    private boolean formattingOnSave;
+
     protected TableWriter(IOpenLTable table) {
         this.table = table;
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
@@ -135,6 +142,7 @@ public abstract class TableWriter<T extends TableView> {
      * @param format whether the save formats the table
      */
     public void formatOnSave(boolean format) {
+        formattingOnSave = format;
         layout = format && isUpdateMode() ? RegionShift.ofCompiled(table) : null;
     }
 
@@ -147,6 +155,7 @@ public abstract class TableWriter<T extends TableView> {
      * @param width   how many columns the table the builder wrote has
      */
     public void formatOnSave(TableRegions regions, int height, int width) {
+        formattingOnSave = true;
         layout = RegionShift.of(regions, height, width);
     }
 

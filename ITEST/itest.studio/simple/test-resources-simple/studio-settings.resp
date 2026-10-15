@@ -10,5 +10,6 @@ Content-Type: application/json
     "userManagement": false,
     "emailVerification": false,
     "personalAccessToken": false
-  }
+  },
+  "formatTablesOnSave": true
 }

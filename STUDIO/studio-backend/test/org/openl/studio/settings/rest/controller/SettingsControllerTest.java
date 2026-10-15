@@ -8,6 +8,8 @@ import java.util.function.BooleanSupplier;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
+import org.openl.studio.projects.service.tables.TableFormatting;
+
 /**
  * Unit tests for {@link SettingsController}.
  *
@@ -22,8 +24,20 @@ class SettingsControllerTest {
         if (userMode != null) {
             environment.setProperty("user.mode", userMode);
         }
-        var settings = new SettingsController(environment, MAIL_DISABLED).getSettings();
+        var settings = new SettingsController(environment, MAIL_DISABLED, new TableFormatting(environment))
+                .getSettings();
         return settings.getSupportedFeatures().getPersonalAccessToken();
+    }
+
+    @Test
+    void tellsWhetherTablesAreFormattedOnSave() {
+        var environment = new MockEnvironment();
+        var controller = new SettingsController(environment, MAIL_DISABLED, new TableFormatting(environment));
+
+        assertTrue(controller.getSettings().isFormatTablesOnSave(), "On by default");
+
+        environment.setProperty("table.format-on-save", "false");
+        assertFalse(controller.getSettings().isFormatTablesOnSave(), "Read on every request");
     }
 
     @Test

@@ -1,8 +1,8 @@
 package org.openl.studio.projects.model.tables;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,10 +16,10 @@ import org.jspecify.annotations.Nullable;
  * already carries — the way a toolbar button changes one thing about a cell and nothing else.
  *
  * <p>The attributes are the ones the raw read reports back, except the borders and the vertical alignment, which
- * are read-only.
+ * are read-only. A colour is one of the palette of Excel: a theme colour, made lighter or darker, or a standard colour.
  *
- * @param background background colour as {@code #rrggbb}
- * @param color      font colour as {@code #rrggbb}
+ * @param background background colour
+ * @param color      font colour
  * @param align      horizontal alignment; {@code left} puts a cell back to the default
  * @param bold       whether the font is bold
  * @param italic     whether the font is italic
@@ -31,13 +31,13 @@ import org.jspecify.annotations.Nullable;
         Styling to set on the cells: background, font and alignment. An attribute that is left out is not \
         touched, so the cells keep the styling they already carry.""")
 public record RawCellStyleInput(
-        @Parameter(description = "Background colour as #rrggbb.")
-        @Pattern(regexp = "^#[0-9a-fA-F]{6}$")
-        @Nullable String background,
+        @Parameter(description = "Background colour: a theme colour of Excel, made lighter or darker, or a standard colour.")
+        @Valid
+        @Nullable RawCellColor background,
 
-        @Parameter(description = "Font colour as #rrggbb.")
-        @Pattern(regexp = "^#[0-9a-fA-F]{6}$")
-        @Nullable String color,
+        @Parameter(description = "Font colour: a theme colour of Excel, made lighter or darker, or a standard colour.")
+        @Valid
+        @Nullable RawCellColor color,
 
         @Parameter(description = "Horizontal alignment; `left` puts the cells back to the default alignment.")
         @Nullable RawTableHorizontalAlign align,
@@ -56,6 +56,18 @@ public record RawCellStyleInput(
         @Max(15)
         @Nullable Integer indent
 ) {
+
+    /** Whether the request names nothing but the indent, the one attribute that is structure rather than look. */
+    @JsonIgnore
+    public boolean isIndentOnly() {
+        return indent != null
+                && background == null
+                && color == null
+                && align == null
+                && bold == null
+                && italic == null
+                && underline == null;
+    }
 
     /** Whether the request names no attribute at all, in which case there is nothing to set. */
     @JsonIgnore

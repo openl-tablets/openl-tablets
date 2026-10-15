@@ -35,6 +35,7 @@ import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
+import org.openl.studio.projects.model.tables.RawCellColor;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableAppend;
@@ -567,6 +568,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (style.isEmpty()) {
             throw new BadRequestException("table.action.style.empty.message");
         }
+        // The save writes the OpenL table style over any other styling; the indent is structure, kept as it is.
+        if (isFormattingOnSave() && !style.isIndentOnly()) {
+            throw new BadRequestException("table.action.style.format-on-save.message");
+        }
+        requireInPalette(style.background());
+        requireInPalette(style.color());
         var developerView = developerView();
         var tableRegion = developerView.getRegion();
         requireRangeInBounds(row, column, rowspan, colspan, GridRegionUtils.height(tableRegion), GridRegionUtils.width(tableRegion));
@@ -586,9 +593,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      */
     private void styleCell(IGridTable developerView, int col, int row, RawCellStyleInput style) {
         var metaInfoWriter = getMetaInfoWriter();
-        if (style.background() != null) {
-            run(developerView, new SetFillColorAction(col, row, PoiExcelHelper.toRgb(style.background()),
-                    metaInfoWriter));
+        if (style.background() instanceof RawCellColor background) {
+            run(developerView, background.theme() != null
+                    ? new SetFillColorAction(col, row, background.themed(), metaInfoWriter)
+                    : new SetFillColorAction(col, row, PoiExcelHelper.toRgb(background.rgb()), metaInfoWriter));
         }
         if (style.align() != null) {
             run(developerView, new SetAlignmentAction(col, row, alignment(style.align()), metaInfoWriter));
@@ -605,8 +613,24 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         if (style.underline() != null) {
             run(developerView, new SetUnderlineAction(col, row, style.underline(), metaInfoWriter));
         }
-        if (style.color() != null) {
-            run(developerView, new SetColorAction(col, row, PoiExcelHelper.toRgb(style.color()), metaInfoWriter));
+        if (style.color() instanceof RawCellColor color) {
+            run(developerView, color.theme() != null
+                    ? new SetColorAction(col, row, color.themed(), metaInfoWriter)
+                    : new SetColorAction(col, row, PoiExcelHelper.toRgb(color.rgb()), metaInfoWriter));
+        }
+    }
+
+    /** Refuses a colour given two ways, or none, and an RGB outside the palette of Excel. */
+    private static void requireInPalette(@Nullable RawCellColor colour) {
+        if (colour == null) {
+            return;
+        }
+        if (!colour.isOneColour()) {
+            throw new BadRequestException("table.action.style.colour.invalid.message");
+        }
+        if (!colour.isInPalette()) {
+            throw new BadRequestException("table.action.style.colour.not-standard.message",
+                    new Object[]{colour.rgb()});
         }
     }
 

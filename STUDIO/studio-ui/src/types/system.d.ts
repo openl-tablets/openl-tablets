@@ -9,6 +9,8 @@ export interface SystemSettings {
     },
     userMode?: SystemUserMode,
     scripts?: string | string[]
+    /** Whether a table is formatted with the OpenL table style every time it is saved */
+    formatTablesOnSave?: boolean
 }
 
 export interface OpenlInfo {
