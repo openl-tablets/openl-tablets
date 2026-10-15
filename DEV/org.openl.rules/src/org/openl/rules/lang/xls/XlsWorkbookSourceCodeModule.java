@@ -161,6 +161,20 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         }
     }
 
+    /**
+     * Saves a change of the look of the workbook alone, such as the formatting of its tables.
+     *
+     * <p>No value, merge or indent changes, so what was compiled from the workbook still answers for its file: the
+     * workbook stays as saved since it was read as it was before.
+     *
+     * @throws IOException when the file cannot be written
+     */
+    public void saveLook() throws IOException {
+        var saved = savedSinceRead;
+        save();
+        savedSinceRead = saved;
+    }
+
     public IOpenSourceCodeModule getSource() {
         return src;
     }

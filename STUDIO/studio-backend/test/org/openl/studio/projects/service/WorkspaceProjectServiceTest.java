@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -144,6 +146,7 @@ import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
@@ -1926,6 +1929,68 @@ class WorkspaceProjectServiceTest {
         assertEquals(List.of(), result.formatted());
     }
 
+    @Test
+    void an_upload_into_an_opened_project_is_formatted_once_the_project_compiles_whole(@TempDir Path dir)
+            throws Exception {
+        var uploads = mock(UploadFormatting.class);
+        var uploaded = List.of("rules/Rules.xlsx");
+        when(uploads.formats(uploaded)).thenReturn(true);
+        var service = spy(serviceFormattingUploads(mock(WebStudio.class), uploads));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var model = stubCompiledProject(service, project, new LinkedHashSet<>());
+        service.getProjectDescriptor(project).setProjectFolder(dir);
+        // The open module compiles alone: the other modules are compiled once the project is.
+        when(model.isProjectCompilationCompleted()).thenReturn(false, true);
+
+        service.formatUploaded(project, uploaded);
+
+        var order = inOrder(model, uploads);
+        order.verify(model).compileProject(true, false);
+        order.verify(uploads).formatOpened(model, dir, uploaded);
+    }
+
+    @Test
+    void an_upload_with_nothing_to_format_compiles_nothing() throws Exception {
+        var uploads = mock(UploadFormatting.class);
+        var service = spy(serviceFormattingUploads(mock(WebStudio.class), uploads));
+        var project = project(repository(), "PricingProject", "PricingProject");
+
+        service.formatUploaded(project, List.of("notes.txt"));
+
+        verify(service, never()).openProject(project);
+        verify(uploads, never()).formatOpened(any(), any(), any());
+    }
+
+    @Test
+    void an_upload_into_a_project_whose_compilation_was_stopped_stays_as_uploaded() throws Exception {
+        var uploads = mock(UploadFormatting.class);
+        when(uploads.formats(any())).thenReturn(true);
+        var service = spy(serviceFormattingUploads(mock(WebStudio.class), uploads));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var model = stubCompiledProject(service, project, new LinkedHashSet<>());
+        when(model.isProjectCompilationCompleted()).thenReturn(false);
+
+        service.formatUploaded(project, List.of("Rules.xlsx"));
+
+        verify(uploads, never()).formatOpened(any(), any(), any());
+    }
+
+    @Test
+    void an_upload_failing_to_be_formatted_stays_as_uploaded_and_the_workbooks_are_read_again() throws Exception {
+        var uploads = mock(UploadFormatting.class);
+        when(uploads.formats(any())).thenReturn(true);
+        doThrow(new UncheckedIOException(new IOException("The disk is full")))
+                .when(uploads).formatOpened(any(), any(), any());
+        var webStudio = mock(WebStudio.class);
+        var service = spy(serviceFormattingUploads(webStudio, uploads));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        stubCompiledProject(service, project, new LinkedHashSet<>());
+
+        assertDoesNotThrow(() -> service.formatUploaded(project, List.of("Rules.xlsx")));
+
+        verify(webStudio).reset();
+    }
+
     /** A Datatype of the project that only tells its kind, its header, its address and its identifier. */
     private static TableSyntaxNode datatype(String id) {
         var node = datatypeNode("Datatype " + id);
@@ -2618,7 +2683,28 @@ class WorkspaceProjectServiceTest {
                 mock(MultiUserWorkspaceManager.class),
                 mock(TableCopyService.class),
                 mock(TablePropertiesService.class),
-                launcher);
+                launcher,
+                mock(UploadFormatting.class));
+    }
+
+    /** A service that formats the uploads into an opened project with the given formatting. */
+    private static WorkspaceProjectService serviceFormattingUploads(WebStudio webStudio, UploadFormatting uploads)
+            throws ProjectException {
+        return newService(
+                mock(RepositoryAclService.class),
+                mock(ProtectedBranchBypassService.class),
+                null,
+                mock(ProjectStateValidator.class),
+                webStudio,
+                mock(AclProjectsHelper.class),
+                mock(TableCreatorService.class),
+                mock(SummaryTableReader.class),
+                mock(ApplicationEventPublisher.class),
+                mock(MultiUserWorkspaceManager.class),
+                mock(TableCopyService.class),
+                mock(TablePropertiesService.class),
+                mock(ModuleCompilationLauncher.class),
+                uploads);
     }
 
     /**
@@ -2824,7 +2910,7 @@ class WorkspaceProjectServiceTest {
             throws ProjectException {
         return newService(acl, bypassService, userWorkspace, projectStateValidator, webStudio, aclProjectsHelper,
                 tableCreatorService, summaryTableReader, eventPublisher, workspaceManager, tableCopyService,
-                tablePropertiesService, mock(ModuleCompilationLauncher.class));
+                tablePropertiesService, mock(ModuleCompilationLauncher.class), mock(UploadFormatting.class));
     }
 
     private static WorkspaceProjectService newService(RepositoryAclService acl,
@@ -2839,7 +2925,8 @@ class WorkspaceProjectServiceTest {
                                                       MultiUserWorkspaceManager workspaceManager,
                                                       TableCopyService tableCopyService,
                                                       TablePropertiesService tablePropertiesService,
-                                                      ModuleCompilationLauncher moduleCompilationLauncher)
+                                                      ModuleCompilationLauncher moduleCompilationLauncher,
+                                                      UploadFormatting uploadFormatting)
             throws ProjectException {
         var dependencyResolver = mock(ProjectDependencyResolver.class);
         when(dependencyResolver.getProjectDependencies(any(RulesProject.class))).thenReturn(List.of());
@@ -2881,7 +2968,7 @@ class WorkspaceProjectServiceTest {
                 new ProjectTagsCache(mock(CacheManager.class)),
                 new ProjectListingContext(),
                 moduleCompilationLauncher,
-                () -> userWorkspace) {
+                () -> userWorkspace, uploadFormatting) {
 
             @Override
             public WebStudio getWebStudio() {

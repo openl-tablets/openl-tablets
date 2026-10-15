@@ -3,6 +3,7 @@ package org.openl.studio.projects.rest.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +33,8 @@ import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
  *
  * <p>Subclasses keep the framework-bound endpoint methods so each mount resolves its own
  * {@link FileRoot} (a project working copy or a repository subtree); the request handling lives here
- * once. A mount with a working copy refreshes its derived state through {@link #postWrite()}.
+ * once. A mount with a working copy refreshes its derived state through {@link #postWrite()}, and follows up an
+ * upload through {@link #postUpload(FileRoot, Collection)}.
  *
  * @author Yury Molchan
  */
@@ -52,22 +54,36 @@ public abstract class AbstractFilesController {
     }
 
     /**
+     * Follows up the files an upload has written, once the mount is refreshed. The default does nothing; a mount
+     * backed by a working copy overrides it.
+     *
+     * @param root     the mount written to
+     * @param uploaded the mount-relative paths of the files written
+     */
+    protected void postUpload(FileRoot root, Collection<String> uploaded) {
+        // no-op by default
+    }
+
+    /**
      * Handles a multipart create: a folder path uploads its files as one operation, a file path
      * creates a single resource.
      */
     protected void handleCreate(FileRoot root, String path, List<MultipartFile> files,
                                 boolean createFolders, ConflictPolicy conflictPolicy) throws IOException {
+        List<String> uploaded;
         try {
             if (isFolderPath(path)) {
-                filesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
+                uploaded = filesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
             } else if (files == null || files.isEmpty()) {
                 throw new BadRequestException("file.path.requires.content.message");
             } else {
                 filesService.createResource(root, stripLeadingSlash(path), files.getFirst().getInputStream(), createFolders);
+                uploaded = List.of(stripLeadingSlash(path));
             }
         } finally {
             postWrite();
         }
+        postUpload(root, uploaded);
     }
 
     /**
@@ -79,6 +95,7 @@ public abstract class AbstractFilesController {
         } finally {
             postWrite();
         }
+        postUpload(root, List.of(stripLeadingSlash(path)));
     }
 
     /**
@@ -89,11 +106,13 @@ public abstract class AbstractFilesController {
         if (!isFolderPath(path)) {
             throw new BadRequestException("file.path.requires.content.message");
         }
+        List<String> uploaded;
         try {
-            filesService.uploadArchive(root, stripSlashes(path), content, createFolders, conflictPolicy);
+            uploaded = filesService.uploadArchive(root, stripSlashes(path), content, createFolders, conflictPolicy);
         } finally {
             postWrite();
         }
+        postUpload(root, uploaded);
     }
 
     /**
@@ -167,6 +186,7 @@ public abstract class AbstractFilesController {
         } finally {
             postWrite();
         }
+        postUpload(root, List.of(stripLeadingSlash(path)));
     }
 
     /**
@@ -178,6 +198,7 @@ public abstract class AbstractFilesController {
         } finally {
             postWrite();
         }
+        postUpload(root, List.of(stripLeadingSlash(path)));
     }
 
     /**

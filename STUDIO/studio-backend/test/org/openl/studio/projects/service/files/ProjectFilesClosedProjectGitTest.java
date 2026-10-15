@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,7 +18,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -37,11 +42,15 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.projects.service.tables.TableTestProjects;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.validator.ProjectStateValidatorImpl;
 import org.openl.util.IOUtils;
 
@@ -123,7 +132,7 @@ class ProjectFilesClosedProjectGitTest {
         project = closedProject(design, design.check(PROJECT));
         root = rootOf(project);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()));
+                new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
     }
 
     @AfterEach
@@ -246,6 +255,70 @@ class ProjectFilesClosedProjectGitTest {
             assertFalse(read("rules.xml").contains("Rules.xlsx"));
             assertLeftClosedAndUnlocked(mappedProject);
         }
+    }
+
+    @Test
+    void uploadedWorkbookIsCommittedFormattedInOneCommit() throws Exception {
+        formattingService().updateResource(root, "Rules.xlsx", new ByteArrayInputStream(personWorkbook()));
+
+        assertEquals(List.of(CURRENT_USER + "Save Rules.xlsx"), newCommits());
+        assertEquals("Title", headerStyle());
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void archiveReplacingTheProjectIsCommittedFormattedInOneCommit() throws Exception {
+        var archive = new ByteArrayOutputStream();
+        try (var zip = new ZipOutputStream(archive)) {
+            zip.putNextEntry(new ZipEntry("rules.xml"));
+            zip.write(DESCRIPTOR.getBytes(StandardCharsets.UTF_8));
+            zip.putNextEntry(new ZipEntry("Rules.xlsx"));
+            zip.write(personWorkbook());
+        }
+
+        formattingService().uploadArchive(root, "", new ByteArrayInputStream(archive.toByteArray()), true,
+                ConflictPolicy.REPLACE);
+
+        assertEquals(List.of(CURRENT_USER + "Upload archive to repository root"), newCommits());
+        assertEquals("Title", headerStyle());
+        assertNull(design.check(PROJECT + "/data.txt"), "The archive replaces the project");
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    /** The service of a session that formats tables on save. */
+    private ProjectFilesServiceImpl formattingService() {
+        var formatting = mock(TableFormatting.class);
+        when(formatting.onSave()).thenReturn(true);
+        var studio = mock(WebStudio.class);
+        var uploads = new UploadFormatting(formatting) {
+            @Override
+            public WebStudio getWebStudio() {
+                return studio;
+            }
+        };
+        return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
+                new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()),
+                uploads);
+    }
+
+    /** A workbook of one Datatype, at B2 of the sheet the module is named after. */
+    private static byte[] personWorkbook() throws IOException {
+        try (var workbook = new XSSFWorkbook(); var out = new ByteArrayOutputStream()) {
+            var sheet = workbook.createSheet("Rules");
+            TableTestProjects.row(sheet, 1, 1, "Datatype Person");
+            TableTestProjects.row(sheet, 2, 1, "String", "name");
+            workbook.write(out);
+            return out.toByteArray();
+        }
+    }
+
+    /** The style the header of the Datatype has in the workbook the design repository holds. */
+    private String headerStyle() throws IOException {
+        var committed = userDir.resolve("committed.xlsx");
+        try (var item = design.read(PROJECT + "/Rules.xlsx")) {
+            Files.write(committed, item.getStream().readAllBytes());
+        }
+        return TableTestProjects.styleNameAt(committed, "Rules", 1, 1);
     }
 
     private void seed(String path, String text) throws IOException {

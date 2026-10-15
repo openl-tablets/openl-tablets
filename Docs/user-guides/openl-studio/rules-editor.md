@@ -474,6 +474,16 @@ With **Verify on Edit** cleared, a table saved again before the module is verifi
 are not known until the module is compiled. The next save after **Verify** formats it, and so does **Reformat Excel
 files**.
 
+An `.xlsx` file uploaded into a project is formatted as well, while the setting is selected:
+
+-   a module updated with **Update**, and a file uploaded or updated on the **Files** tab;
+-   a project updated from a ZIP archive or from files;
+-   a ZIP archive that replaces a project in Design repository.
+
+Unlike an edit, an uploaded file is compiled, once, with the project, to learn the roles of its tables. The other
+Excel files of the project and `.xls` files are left as they are, and a file that cannot be compiled is stored as it
+was uploaded.
+
 With **Excel Formatting** on, OpenL Studio also draws the formatting of text pieces that an Excel file holds, such as a
 header with a grey keyword and a bold name, and the cell borders the file draws, for every table.
 

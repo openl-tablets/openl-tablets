@@ -320,6 +320,11 @@ the OpenL table style, as [Reformatting the Excel Files](#reformatting-the-excel
 A table whose module was written to since its last compile, with automatic compilation off, is saved as it is written:
 its roles are not known until the module is compiled. A table of an `.xls` workbook is never formatted.
 
+An `.xlsx` file uploaded through the project files API, `POST` and `PUT /projects/{projectId}/files/{path}` and a ZIP
+archive expanded into a project folder, is formatted too, and so is a ZIP archive that overwrites a project,
+`PUT /repos/{repo-name}/projects/{project-name}?overwrite=true`. The upload is compiled once, with the project, to
+learn the roles of its tables. A file that cannot be compiled is stored as it was uploaded.
+
 ### Blank Lines Are Refused
 
 OpenL reads a table only as far as its first entirely blank row or column. A write that would leave one inside the table

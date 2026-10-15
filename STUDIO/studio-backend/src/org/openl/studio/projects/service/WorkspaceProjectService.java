@@ -157,6 +157,7 @@ import org.openl.studio.projects.service.tables.TablePropertyText;
 import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableStatuses;
 import org.openl.studio.projects.service.tables.TableVersionService;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
@@ -232,6 +233,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectTagsCache projectTagsCache;
     private final ProjectListingContext listingContext;
     private final ObjectFactory<UserWorkspace> userWorkspaceFactory;
+    private final UploadFormatting uploadFormatting;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -266,7 +268,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectTagsCache projectTagsCache,
             ProjectListingContext listingContext,
             ModuleCompilationLauncher moduleCompilationLauncher,
-            ObjectFactory<UserWorkspace> userWorkspaceFactory) {
+            ObjectFactory<UserWorkspace> userWorkspaceFactory,
+            UploadFormatting uploadFormatting) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
@@ -287,6 +290,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
+        this.uploadFormatting = uploadFormatting;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
         this.detailedMessageDescriptionMapper = detailedMessageDescriptionMapper;
@@ -2584,6 +2588,40 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // A write refused halfway may have changed the workbooks of other modules too: every module is read again.
         var written = writing(() -> formatAll(formatted), WebStudio::reset);
         return new TableFormatResultView(written, skipped);
+    }
+
+    /**
+     * Formats the Excel files an upload wrote into a project opened in OpenL Studio, with the OpenL table style.
+     *
+     * <p>The upload is compiled as any upload is, the whole project with it, and its {@code .xlsx} workbooks are
+     * formatted and saved again in the working copy. Nothing is done while tables are not formatted on save, for an
+     * upload that holds no {@code .xlsx} file, and for a project whose compilation the reader stopped: its uploaded
+     * workbooks stay as uploaded.
+     *
+     * @param project  the project the upload wrote into, opened
+     * @param uploaded the uploaded files, by their paths relative to the project
+     */
+    public void formatUploaded(RulesProject project, Collection<String> uploaded) {
+        if (!uploadFormatting.formats(uploaded)) {
+            return;
+        }
+        var model = openProject(project).awaitCompiled();
+        if (!model.isProjectCompilationCompleted()) {
+            model.compileProject(true, false);
+        }
+        if (!model.isProjectCompilationCompleted()) {
+            return;
+        }
+        var folder = getProjectDescriptor(project).getProjectFolder();
+        try {
+            // A workbook formatted but not saved is read again, so the session holds what the files hold.
+            writing(() -> {
+                uploadFormatting.formatOpened(model, folder, uploaded);
+                return null;
+            }, WebStudio::reset);
+        } catch (RuntimeException e) {
+            log.warn("The Excel files uploaded into project '{}' stay as uploaded.", project.getBusinessName(), e);
+        }
     }
 
     /**

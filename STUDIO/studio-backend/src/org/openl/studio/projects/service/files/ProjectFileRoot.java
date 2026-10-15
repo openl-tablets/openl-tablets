@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -57,7 +56,7 @@ import org.openl.util.StringUtils;
 @RequiredArgsConstructor
 public class ProjectFileRoot implements FileRoot {
 
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private final RulesProject project;
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectStateValidator projectStateValidator;

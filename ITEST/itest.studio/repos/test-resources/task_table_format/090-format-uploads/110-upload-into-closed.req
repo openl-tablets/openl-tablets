@@ -1,0 +1,10 @@
+POST /rest/projects/{PROJECT_ID}/files/Second.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="file"; filename="Second.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+&Second.xlsx
+--MULTIBOUND--

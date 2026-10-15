@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.validator.file.ProjectDescriptorValidator;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -75,6 +77,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final FileArchiveSupport archiveSupport;
     private final ProjectDescriptorCleaner descriptorCleaner;
     private final BeanValidationProvider validationProvider;
+    private final UploadFormatting uploadFormatting;
 
     @Override
     public List<FsNode> getResources(@NotNull FileRoot root,
@@ -121,7 +124,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             // validated content is closed here as well, so a write that never happens leaves nothing behind.
             try (InputStream validatedContent = validateContent(root, path, content)) {
                 lockForEditing(root, path);
-                resource.setContent(validatedContent);
+                resource.setContent(formatted(root, path, validatedContent));
             }
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
@@ -220,7 +223,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 lockForEditing(root, path);
                 var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
                         createFolders, "file.path.not.folder.message");
-                targetFolder.addResource(FilePaths.name(path), validatedContent);
+                targetFolder.addResource(FilePaths.name(path), formatted(root, path, validatedContent));
             }
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
@@ -276,22 +279,22 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void uploadArchive(@NotNull FileRoot root,
-                              @NotNull String path,
-                              @NotNull InputStream archive,
-                              boolean createParents,
-                              @NotNull ConflictPolicy conflictPolicy) throws IOException {
+    public List<String> uploadArchive(@NotNull FileRoot root,
+                                      @NotNull String path,
+                                      @NotNull InputStream archive,
+                                      boolean createParents,
+                                      @NotNull ConflictPolicy conflictPolicy) throws IOException {
         root.requireModifiable();
         requireWritableBase(root, path);
-        writeEntries(root, path, archiveSupport.readArchive(path, archive), conflictPolicy,
+        return writeEntries(root, path, archiveSupport.readArchive(path, archive), conflictPolicy,
                 uploadComment("Upload archive to ", path));
     }
 
     @Override
-    public void uploadFiles(@NotNull FileRoot root,
-                            @NotNull String path,
-                            @NotNull List<UploadedFile> files,
-                            @NotNull ConflictPolicy conflictPolicy) {
+    public List<String> uploadFiles(@NotNull FileRoot root,
+                                    @NotNull String path,
+                                    @NotNull List<UploadedFile> files,
+                                    @NotNull ConflictPolicy conflictPolicy) {
         root.requireModifiable();
         requireWritableBase(root, path);
         List<FileEntry> entries = new ArrayList<>();
@@ -303,7 +306,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             String fullPath = FilePaths.join(path, name);
             entries.add(new FileEntry(fullPath, file.content()));
         }
-        writeEntries(root, path, entries, conflictPolicy, uploadComment("Upload files to ", path));
+        return writeEntries(root, path, entries, conflictPolicy, uploadComment("Upload files to ", path));
     }
 
     /**
@@ -324,34 +327,72 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * overwrites files, honoring the policy per entry; nothing is committed when every entry is
      * skipped. For {@code REPLACE} the base folder is made to contain exactly the uploaded
      * entries, and the user must be allowed to delete every file the replace removes.
+     *
+     * @return the mount-relative paths of the files written
      */
-    private void writeEntries(FileRoot root,
-                              String basePath,
-                              List<FileEntry> entries,
-                              ConflictPolicy conflictPolicy,
-                              String comment) {
+    private List<String> writeEntries(FileRoot root,
+                                      String basePath,
+                                      List<FileEntry> entries,
+                                      ConflictPolicy conflictPolicy,
+                                      String comment) {
         if (conflictPolicy == ConflictPolicy.REPLACE && entries.isEmpty()) {
             throw new BadRequestException("file.archive.empty.message");
         }
         entries.forEach(entry -> validateResourcePath(entry.fullPath()));
         AProjectFolder current = root.readFolder(null);
-        List<FileItem> items = new ArrayList<>();
+        Map<String, byte[]> written = new LinkedHashMap<>();
         for (FileEntry entry : entries) {
             if (!isEntrySkipped(current, entry, conflictPolicy)) {
                 // An upload brings its own files with it - the libraries a descriptor names among them - so
                 // its descriptor is not checked against the working copy the upload is about to replace.
                 verifyFileContent(FilePaths.name(entry.fullPath()), entry.data());
-                var fileData = new FileData();
-                fileData.setName(entry.fullPath());
-                items.add(new FileItem(fileData, new ByteArrayInputStream(entry.data())));
+                written.put(entry.fullPath(), entry.data());
             }
         }
-        if (conflictPolicy == ConflictPolicy.REPLACE) {
+        var replace = conflictPolicy == ConflictPolicy.REPLACE;
+        if (replace) {
             requireRemovedFilesDeletable(current, basePath, entries);
+        }
+        List<FileItem> items = new ArrayList<>();
+        formatted(root, current, basePath, written, replace).forEach((path, data) -> {
+            var fileData = new FileData();
+            fileData.setName(path);
+            items.add(new FileItem(fileData, new ByteArrayInputStream(data)));
+        });
+        if (replace) {
             root.writeBatch(basePath, items, ChangesetType.FULL, comment);
         } else if (!items.isEmpty()) {
             root.writeBatch(basePath, items, ChangesetType.DIFF, comment);
         }
+        return List.copyOf(written.keySet());
+    }
+
+    /**
+     * The content of a file written into a closed project, formatted as an upload is: see
+     * {@link #formatted(FileRoot, AProjectFolder, String, Map, boolean)}. Content that is not formatted is passed on
+     * as it is, never buffered.
+     */
+    private InputStream formatted(FileRoot root, String path, InputStream content) throws IOException {
+        if (!isClosedProject(root) || !uploadFormatting.formats(List.of(path))) {
+            return content;
+        }
+        var formatted = formatted(root, root.readFolder(null), "", Map.of(path, content.readAllBytes()), false);
+        return new ByteArrayInputStream(formatted.get(path));
+    }
+
+    /**
+     * The files an upload writes, each {@code .xlsx} one formatted with the OpenL table style when it goes straight
+     * to the design repository: the upload is formatted in a stage before its one commit. An opened project is
+     * formatted once the upload is written to its working copy, as the session compiles it, so its files are passed
+     * on as they are, and so are the files of a repository mount.
+     */
+    private Map<String, byte[]> formatted(FileRoot root, AProjectFolder current, String basePath,
+                                          Map<String, byte[]> files, boolean replace) {
+        return isClosedProject(root) ? uploadFormatting.formatStaged(current, basePath, files, replace) : files;
+    }
+
+    private static boolean isClosedProject(FileRoot root) {
+        return root instanceof ProjectFileRoot projectRoot && !projectRoot.getProject().isOpened();
     }
 
     /**

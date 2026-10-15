@@ -1,0 +1,124 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "9c19056e8184ce16a54cd03d9c60200e",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Second",
+  "pos": "B2:C3",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype Second",
+        "style": 0,
+        "runs": [
+          {
+            "to": 8,
+            "style": 1
+          },
+          {
+            "to": 15,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "cell": "C2",
+        "style": 0
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "String",
+        "style": 3
+      },
+      {
+        "cell": "C3",
+        "value": "code",
+        "style": 4
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 15
+    }
+  ],
+  "headerHeight": 1
+}

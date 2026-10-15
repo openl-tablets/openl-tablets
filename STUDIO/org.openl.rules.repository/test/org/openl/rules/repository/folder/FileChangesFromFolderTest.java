@@ -10,12 +10,16 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.repository.api.FileItem;
 
@@ -64,6 +68,24 @@ class FileChangesFromFolderTest {
                         .getBytes(StandardCharsets.UTF_8).length,
                 actualEntries.get("/root-folder/project2/rules.xml"));
         assertSizeEquals(290, actualEntries.get("/root-folder/project2/rules-deploy.xml"));
+    }
+
+    @Test
+    void namesTheFilesOfAFolderByTheirPathsUnderIt(@TempDir Path folder) throws IOException {
+        Files.writeString(folder.resolve("rules.xml"), "<project/>");
+        Files.createDirectories(folder.resolve("rules"));
+        Files.writeString(folder.resolve("rules/Main.xlsx"), "Main");
+
+        var names = new ArrayList<String>();
+        try (var changes = new FileChangesFromFolder(folder, "DESIGN/Project")) {
+            for (FileItem item : changes) {
+                item.getStream().close();
+                names.add(item.getData().getName());
+            }
+        }
+
+        assertEquals(List.of("DESIGN/Project/rules.xml", "DESIGN/Project/rules/Main.xlsx"), names.stream().sorted()
+                .toList());
     }
 
     private static void assertSizeEquals(int expectedSize, byte[] arr) {

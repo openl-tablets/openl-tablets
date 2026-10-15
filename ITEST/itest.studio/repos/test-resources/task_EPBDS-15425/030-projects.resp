@@ -298,7 +298,7 @@ Content-Type: application/json
       "modifiedAt": "*",
       "revision": "*",
       "path": "Project",
-      "comment": "Project Project is created.",
+      "comment": "Project is created.",
       "branchDefault": true,
       "inDefaultBranch": true,
       "repositoryInfo": {

@@ -31,6 +31,8 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 
 /**
  * A repository-mount modification of a path inside a project locked for editing by another user is
@@ -128,7 +130,7 @@ class RepoFilesLockGuardTest {
         when(acl.hasPermission(any(AProjectArtefact.class), any())).thenReturn(true);
         var service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
-                new BeanValidationProvider(List.of()));
+                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
         RepoFileRoot mount = mock(RepoFileRoot.class);
         var tree = treeWithDataFile("a.txt");
         when(mount.readFolder(null)).thenReturn(tree);

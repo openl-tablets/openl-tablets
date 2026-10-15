@@ -1,14 +1,24 @@
 package org.openl.studio.projects.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -16,11 +26,21 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockMultipartFile;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.WebStudio;
+import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.WorkspaceProjectService;
+import org.openl.studio.projects.service.files.ConflictPolicy;
+import org.openl.studio.projects.service.files.ProjectFileRoot;
+import org.openl.studio.projects.service.files.ProjectFileRootFactory;
+import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
 
 class ProjectFilesControllerTest {
 
@@ -98,6 +118,89 @@ class ProjectFilesControllerTest {
         calendar.set(year, month, day, hour, minute, second);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
+    }
+
+    @Test
+    void formatsTheFilesOfEveryUploadIntoAnOpenedProjectOnceTheSessionIsRefreshed() throws IOException {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(true);
+        var files = mock(ProjectFilesService.class);
+        when(files.uploadFiles(any(), eq("rules"), any(), eq(ConflictPolicy.FAIL)))
+                .thenReturn(List.of("rules/Main.xlsx"));
+        when(files.uploadArchive(any(), eq(""), any(), eq(true), eq(ConflictPolicy.REPLACE)))
+                .thenReturn(List.of("Main.xlsx", "rules.xml"));
+        var workspace = mock(WorkspaceProjectService.class);
+        var studio = mock(WebStudio.class);
+        var controller = controller(files, project, workspace, studio);
+        var workbook = new MockMultipartFile("file", "Main.xlsx", null, new byte[]{1});
+
+        controller.createResource(project, "/rules/", List.of(workbook), false, ConflictPolicy.FAIL, null);
+        controller.createResource(project, "/Main.xlsx", List.of(workbook), false, ConflictPolicy.FAIL, null);
+        controller.createResourceRaw(project, "/Raw.xlsx", false, null, new ByteArrayInputStream(new byte[]{1}));
+        controller.uploadArchive(project, "/", true, ConflictPolicy.REPLACE, null,
+                new ByteArrayInputStream(new byte[]{1}));
+        controller.updateResource(project, "/Main.xlsx", workbook, null);
+        controller.updateResourceRaw(project, "/Raw.xlsx", null, new ByteArrayInputStream(new byte[]{1}));
+
+        var order = inOrder(studio, workspace);
+        order.verify(studio).reset();
+        order.verify(workspace).formatUploaded(project, List.of("rules/Main.xlsx"));
+        order.verify(studio).reset();
+        order.verify(workspace).formatUploaded(project, List.of("Main.xlsx"));
+        order.verify(studio).reset();
+        order.verify(workspace).formatUploaded(project, List.of("Raw.xlsx"));
+        order.verify(studio).reset();
+        order.verify(workspace).formatUploaded(project, List.of("Main.xlsx", "rules.xml"));
+        order.verify(studio).reset();
+        order.verify(workspace).formatUploaded(project, List.of("Main.xlsx"));
+        order.verify(studio).reset();
+        order.verify(workspace).formatUploaded(project, List.of("Raw.xlsx"));
+    }
+
+    @Test
+    void leavesAnUploadIntoAClosedProjectFormattedBeforeItsCommit() {
+        var project = mock(RulesProject.class);
+        var workspace = mock(WorkspaceProjectService.class);
+        var controller = controller(mock(ProjectFilesService.class), project, workspace, mock(WebStudio.class));
+
+        controller.createResourceRaw(project, "/Raw.xlsx", false, null, new ByteArrayInputStream(new byte[]{1}));
+
+        verify(workspace, never()).formatUploaded(any(), any());
+    }
+
+    @Test
+    void formatsNothingOfAnUploadThatFails() {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(true);
+        var files = mock(ProjectFilesService.class);
+        doThrow(new ConflictException("file.create.failed.message"))
+                .when(files).createResource(any(), any(), any(), anyBoolean());
+        var workspace = mock(WorkspaceProjectService.class);
+        var studio = mock(WebStudio.class);
+        var controller = controller(files, project, workspace, studio);
+        var content = new ByteArrayInputStream(new byte[]{1});
+
+        assertThrows(ConflictException.class,
+                () -> controller.createResourceRaw(project, "/Raw.xlsx", false, null, content));
+
+        verify(studio).reset();
+        verify(workspace, never()).formatUploaded(any(), any());
+    }
+
+    /** The controller of a session, mounting the files of the project. */
+    private static ProjectFilesController controller(ProjectFilesService files, RulesProject project,
+                                                     WorkspaceProjectService workspace, WebStudio studio) {
+        var root = mock(ProjectFileRoot.class);
+        when(root.getProject()).thenReturn(project);
+        var roots = mock(ProjectFileRootFactory.class);
+        when(roots.of(project)).thenReturn(root);
+        return new ProjectFilesController(files, roots, mock(BeanValidationProvider.class),
+                mock(FileCriteriaQueryValidator.class), workspace) {
+            @Override
+            public WebStudio getWebStudio() {
+                return studio;
+            }
+        };
     }
 
     private static FileData writtenAt(Date modifiedAt) {

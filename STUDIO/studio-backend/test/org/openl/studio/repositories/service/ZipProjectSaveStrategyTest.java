@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,12 +27,15 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -45,12 +49,16 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.projects.service.tables.TableTestProjects;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
@@ -85,7 +93,7 @@ class ZipProjectSaveStrategyTest {
         saveStrategy = new ZipProjectSaveStrategy(designTimeRepositoryMock,
                 zipFilterMock,
                 zipCharsetDetectorMock,
-                userManagementService);
+                userManagementService, new UploadFormatting(mock(TableFormatting.class)));
     }
 
     @Test
@@ -390,6 +398,94 @@ class ZipProjectSaveStrategyTest {
                 }
             });
         }
+    }
+
+    @Test
+    void testOverwriteFormatsTheWorkbooksOfTheArchive(@TempDir Path tempFolder) throws Exception {
+        var saved = saveFormatting(tempFolder, true);
+
+        assertEquals(Set.of(BASE_RULES_LOCATION + "Project 1/Main.xlsx",
+                BASE_RULES_LOCATION + "Project 1/rules.xml"), saved.keySet(), "One descriptor, generated");
+        assertEquals("Title", headerStyle(tempFolder, saved.get(BASE_RULES_LOCATION + "Project 1/Main.xlsx")));
+        assertEquals("Project 1", ProjectDescriptor.read(saved.get(BASE_RULES_LOCATION + "Project 1/rules.xml")
+                .getStream()).getName());
+    }
+
+    @Test
+    void testOverwriteNamesTheDescriptorOfTheArchiveAfterTheProject(@TempDir Path tempFolder) throws Exception {
+        var saved = saveFormatting(tempFolder, true, """
+                <project>
+                    <name>Other</name>
+                    <modules>
+                        <module>
+                            <rules-root path="Main.xlsx"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+
+        assertEquals("Title", headerStyle(tempFolder, saved.get(BASE_RULES_LOCATION + "Project 1/Main.xlsx")));
+        assertEquals("Project 1", ProjectDescriptor.read(saved.get(BASE_RULES_LOCATION + "Project 1/rules.xml")
+                .getStream()).getName());
+    }
+
+    @Test
+    void testNewProjectKeepsTheWorkbooksOfTheArchiveAsUploaded(@TempDir Path tempFolder) throws Exception {
+        var saved = saveFormatting(tempFolder, false);
+
+        assertNull(headerStyle(tempFolder, saved.get(BASE_RULES_LOCATION + "Project 1/Main.xlsx")));
+    }
+
+    /** Saves an archive of one workbook while tables are formatted on save, as an overwrite or a new project. */
+    private Map<String, FileItem> saveFormatting(Path tempFolder, boolean overwrite) throws IOException {
+        return saveFormatting(tempFolder, overwrite, null);
+    }
+
+    /** The same, the archive holding the given descriptor. */
+    private Map<String, FileItem> saveFormatting(Path tempFolder, boolean overwrite, @Nullable String descriptor)
+            throws IOException {
+        mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
+        var model = new CreateUpdateProjectModel("design1", "jsmith", "Project 1", "foo/Project 1", "Bar", overwrite);
+        var repo = designTimeRepositoryMock.getRepository(model.getRepoName());
+        var saved = captureFileItems(repo);
+        var archive = tempFolder.resolve("project.zip");
+        try (var zip = new ZipOutputStream(Files.newOutputStream(archive));
+             var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet("Main");
+            sheet.createRow(1).createCell(1).setCellValue("Datatype Person");
+            var field = sheet.createRow(2);
+            field.createCell(1).setCellValue("String");
+            field.createCell(2).setCellValue("name");
+            zip.putNextEntry(new ZipEntry("Main.xlsx"));
+            workbook.write(zip);
+            if (descriptor != null) {
+                zip.putNextEntry(new ZipEntry("rules.xml"));
+                zip.write(descriptor.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        var formatting = mock(TableFormatting.class);
+        when(formatting.onSave()).thenReturn(true);
+        var studio = mock(WebStudio.class);
+        var uploads = new UploadFormatting(formatting) {
+            @Override
+            public WebStudio getWebStudio() {
+                return studio;
+            }
+        };
+        PathFilter zipFilter = mock(PathFilter.class);
+        when(zipFilter.accept(anyString())).thenReturn(Boolean.TRUE);
+        var charsets = mock(ZipCharsetDetector.class);
+        when(charsets.detectCharset(any())).thenReturn(StandardCharsets.UTF_8);
+
+        new ZipProjectSaveStrategy(designTimeRepositoryMock, zipFilter, charsets, userManagementService, uploads)
+                .save(repo, model, archive);
+        return saved;
+    }
+
+    private static String headerStyle(Path tempFolder, FileItem workbook) throws IOException {
+        var file = tempFolder.resolve("saved.xlsx");
+        Files.write(file, workbook.getStream().readAllBytes());
+        return TableTestProjects.styleNameAt(file, "Main", 1, 1);
     }
 
     private Map<String, FileItem> captureFileItems(Repository repo) throws IOException {

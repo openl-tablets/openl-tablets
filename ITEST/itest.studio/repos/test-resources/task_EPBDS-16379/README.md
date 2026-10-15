@@ -19,7 +19,8 @@ Scenarios:
 
 - `020-damaged-module` — the module write paths of the files API: a raw `POST`, a multipart `POST` and a raw
   `PUT`. Each damaged upload is refused, the rejected module is not created, a complete workbook of either
-  format is still accepted, and a module survives a rejected update with the content it had.
+  format is still accepted, and a module survives a rejected update with the content it had. **Format tables on
+  save** is off while the complete workbook is written and read back, so it keeps the bytes it was uploaded with.
 - `030-damaged-archive` — the archive upload of the files API. A damaged archive expands into nothing, while a
   complete one expands as before.
 - `040-damaged-project` — project creation, from an archive and from module files. Neither damaged upload
