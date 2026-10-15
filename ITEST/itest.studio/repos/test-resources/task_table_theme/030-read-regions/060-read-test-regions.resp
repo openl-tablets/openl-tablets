@@ -1,0 +1,124 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "a12e468f549605e5621d6ea1fde0118a",
+  "tableType": "RawSource",
+  "kind": "Test",
+  "name": "PremiumTest",
+  "pos": "B31:C35",
+  "source": [
+    [
+      {
+        "cell": "B31",
+        "value": "Test Premium PremiumTest"
+      },
+      {
+        "cell": "C31"
+      }
+    ],
+    [
+      {
+        "cell": "B32",
+        "value": "person"
+      },
+      {
+        "cell": "C32",
+        "value": "_res_.$Total"
+      }
+    ],
+    [
+      {
+        "cell": "B33",
+        "value": ">people"
+      },
+      {
+        "cell": "C33"
+      }
+    ],
+    [
+      {
+        "cell": "B34",
+        "value": "Insured"
+      },
+      {
+        "cell": "C34",
+        "value": "Total Premium"
+      }
+    ],
+    [
+      {
+        "cell": "B35",
+        "value": "Ann"
+      },
+      {
+        "cell": "C35",
+        "value": 20
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "inputTitle",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 3,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "key",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 4,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 4
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 24
+    }
+  ],
+  "headerHeight": 3,
+  "layout": {
+    "firstDataLine": 4
+  }
+}

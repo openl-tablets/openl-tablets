@@ -13,9 +13,15 @@ import org.jspecify.annotations.Nullable;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
+import org.openl.studio.projects.model.tables.RawTableRole;
 
 /**
- * Decides which look a theme gives each cell of the body of a TBasic table: an algorithm written in steps.
+ * Decides what each cell of the body of a TBasic table is, an algorithm written in steps: its role, and the look a
+ * theme gives it.
+ *
+ * <p>The ids of the columns are code the compiler reads, and the titles under them titles of what the table takes.
+ * The label of a step is its key; its operation, its condition and what it runs are values holding code, and its
+ * description a value. A step starting a subroutine heads a section, and a step that returns is the result.
  *
  * <p>The first row of the body names the columns by their ids, such as {@code label}, {@code operation} or
  * {@code condition}, and gets the code look. The row under it titles the columns and gets the title look, and the
@@ -70,7 +76,7 @@ final class TBasicThemeLayout {
     }
 
     /**
-     * The parts of the places of one body.
+     * What the places of one body are.
      *
      * @param columns  each column of the body, by its id
      * @param overlays the part laid over each step that starts a subroutine or returns, by the row of the sheet
@@ -78,21 +84,23 @@ final class TBasicThemeLayout {
     private record Places(List<Column> columns, Map<Integer, Parts.Part> overlays)
             implements TableRegionLayout.PlaceLook {
 
-        private static final Parts CODE = Parts.BASE.with(Parts.Part.CODE);
-        private static final Parts TITLE = Parts.BASE.with(Parts.Part.TITLES);
-        private static final Parts LABEL_TITLE = TITLE.with(Parts.Part.STEP_TITLE);
-        private static final Parts LABEL = Parts.BASE.with(Parts.Part.STEPS);
-        private static final Parts CONDITION = Parts.BASE.with(Parts.Part.CONDITION);
-        private static final Parts VALUE = Parts.BASE.with(Parts.Part.VALUES);
+        private static final Place CODE = Place.of(RawTableRole.CODE, Parts.BASE.with(Parts.Part.CODE));
+        private static final Place TITLE = Place.of(RawTableRole.INPUT_TITLE, Parts.BASE.with(Parts.Part.TITLES));
+        private static final Place LABEL_TITLE = TITLE.with(Parts.Part.STEP_TITLE);
+        private static final Place LABEL = Place.of(RawTableRole.KEY, Parts.BASE.with(Parts.Part.STEPS));
+        private static final Place CONDITION = Place.code(RawTableRole.VALUE, Parts.BASE.with(Parts.Part.CONDITION));
+        private static final Place ACTION = Place.code(RawTableRole.VALUE, Parts.BASE.with(Parts.Part.VALUES));
+        private static final Place OPERATION = Place.code(RawTableRole.VALUE, Parts.BASE);
+        private static final Place TEXT = Place.of(RawTableRole.VALUE, Parts.BASE);
 
         static Places of(ThemedBody body) {
             var columns = TableRegionLayout.idsOf(body.rows()).stream().map(Column::of).toList();
             return new Places(columns, overlaysOf(body.rows(), columns.indexOf(Column.OPERATION)));
         }
 
-        /** The parts of a cell of the body, by the place it stands in. */
+        /** What a cell of the body is, by the place it stands in. */
         @Override
-        public Parts at(ICell cell, int column, int row) {
+        public Place at(ICell cell, int column, int row) {
             if (row == 0) {
                 return CODE;
             }
@@ -100,16 +108,22 @@ final class TBasicThemeLayout {
             if (row == 1) {
                 return named == Column.LABEL ? LABEL_TITLE : TITLE;
             }
-            return stepLook(named).with(overlays.get(cell.getAbsoluteRow()));
+            var overlay = overlays.get(cell.getAbsoluteRow());
+            var step = stepLook(named).with(overlay);
+            if (overlay == Parts.Part.SECTIONS) {
+                return step.as(RawTableRole.SECTION);
+            }
+            return overlay == Parts.Part.RESULT ? step.as(RawTableRole.RESULT) : step;
         }
 
-        /** The parts of a cell of a step, by the column it stands in. */
-        private static Parts stepLook(Column column) {
+        /** What a cell of a step is, by the column it stands in: its label is its key, the rest is code it runs. */
+        private static Place stepLook(Column column) {
             return switch (column) {
                 case LABEL -> LABEL;
                 case CONDITION -> CONDITION;
-                case ACTION, BEFORE, AFTER -> VALUE;
-                case DESCRIPTION, OPERATION, OTHER -> Parts.BASE;
+                case ACTION, BEFORE, AFTER -> ACTION;
+                case OPERATION -> OPERATION;
+                case DESCRIPTION, OTHER -> TEXT;
             };
         }
 

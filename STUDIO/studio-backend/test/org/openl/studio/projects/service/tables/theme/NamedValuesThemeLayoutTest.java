@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
@@ -70,7 +73,7 @@ class NamedValuesThemeLayoutTest {
     @Test
     void offersEveryThemeForAnEnvironmentAPropertiesAndAConstantsTable() {
         for (var row : List.of(ENVIRONMENT_ROW, PROPERTIES_ROW, CONSTANTS_ROW, TRANSPOSED_ROW)) {
-            assertEquals(LOOKS.getThemes(), LOOKS.getThemes(tableAt(row)), "row " + row);
+            assertTrue(LOOKS.styles(tableAt(row)), "row " + row);
         }
     }
 
@@ -152,6 +155,28 @@ class NamedValuesThemeLayoutTest {
         assertEquals(GREY_HEADER, written.getFirst().getFirst().style().background());
         assertEquals(SETTING, written.get(1).getFirst().style().background());
         assertEquals(LIGHT_LINE, written.get(1).get(1).style().border().bottom().color());
+    }
+
+    @Test
+    void readsTheRolesOfTheTablesNamingAValueInEachRow() {
+        var environment = Roles.of(tableAt(ENVIRONMENT_ROW));
+        assertEquals(RawTableRole.KEY, environment.roleAt(ENVIRONMENT_ROW + 2, 1), "A merged setting");
+        assertEquals(RawTableRole.VALUE, environment.roleAt(ENVIRONMENT_ROW + 2, 2));
+
+        var properties = Roles.of(tableAt(PROPERTIES_ROW));
+        assertEquals(RawTableRole.KEY, properties.roleAt(PROPERTIES_ROW + 1, 1));
+        assertEquals(RawTableRole.VALUE, properties.roleAt(PROPERTIES_ROW + 2, 2));
+
+        var constants = Roles.of(tableAt(CONSTANTS_ROW));
+        assertEquals(RawTableRole.CODE, constants.roleAt(CONSTANTS_ROW + 1, 1), "The type of a constant");
+        assertEquals(RawTableRole.KEY, constants.roleAt(CONSTANTS_ROW + 1, 2), "Its name");
+        assertEquals(RawTableRole.VALUE, constants.roleAt(CONSTANTS_ROW + 2, 3), "Its value");
+        assertEquals(RawTableValueType.NUMBER, constants.typeAt(CONSTANTS_ROW + 2, 3));
+
+        var transposed = Roles.of(tableAt(TRANSPOSED_ROW));
+        assertEquals(RawTableRole.CODE, transposed.roleAt(TRANSPOSED_ROW + 1, 2));
+        assertEquals(RawTableRole.KEY, transposed.roleAt(TRANSPOSED_ROW + 2, 2));
+        assertEquals(RawTableRole.VALUE, transposed.roleAt(TRANSPOSED_ROW + 3, 1));
     }
 
     /** The table whose header stands in the given row: an Environment table has no name to find it by. */

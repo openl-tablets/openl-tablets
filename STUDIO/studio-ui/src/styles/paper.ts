@@ -34,6 +34,29 @@ export interface TablePaper {
     note: string
 }
 
+/** The colours of a theme a table drawn in the Studio look is laid on. */
+interface PaperColours {
+    colorBgContainer: string
+    colorText: string
+    colorFillTertiary: string
+    colorLink: string
+    colorLinkHover: string
+    colorError: string
+}
+
+/**
+ * The paper a table is drawn on in the Studio look: the surface and the ink of the theme in force, and grid lines
+ * fainter than the lines the look draws between the parts of a table.
+ */
+export const themePaper = (token: PaperColours): TablePaper => ({
+    background: token.colorBgContainer,
+    text: token.colorText,
+    grid: token.colorFillTertiary,
+    link: token.colorLink,
+    linkHover: token.colorLinkHover,
+    note: token.colorError,
+})
+
 let workbookPaperColours: TablePaper | undefined
 
 /** The paper of a workbook, in the colours of {@link paperToken}, worked out the first time it is asked for. */

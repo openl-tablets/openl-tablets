@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
@@ -72,7 +75,7 @@ class ColumnMatchThemeLayoutTest {
 
     @Test
     void offersEveryThemeForAColumnMatchTable() {
-        assertEquals(LOOKS.getThemes(), LOOKS.getThemes(tableAt(APPROVAL_ROW)));
+        assertTrue(LOOKS.styles(tableAt(APPROVAL_ROW)));
     }
 
     @Test
@@ -164,6 +167,27 @@ class ColumnMatchThemeLayoutTest {
         assertEquals("money", money.value(), "The theme changes no text");
         assertEquals(1, money.style().indent(), "The condition stays in the group");
         assertEquals(RETURNED, written.get(RETURN_VALUES - APPROVAL_ROW).get(VALUES - NAMES).style().background());
+    }
+
+    @Test
+    void readsTheRolesOfAColumnMatchTable() {
+        var roles = Roles.of(tableAt(APPROVAL_ROW));
+
+        assertEquals(RawTableRole.CODE, roles.roleAt(APPROVAL_ROW + 1, NAMES), "The ids of the columns");
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(APPROVAL_ROW + 2, VALUES));
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(RETURN_VALUES, NAMES), "A row of what it returns");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(RETURN_VALUES, LAST_VALUE), "What it returns");
+        assertEquals(RawTableRole.KEY, roles.roleAt(HARDWARE, NAMES), "The name a condition checks");
+        assertEquals(RawTableRole.VALUE, roles.roleAt(HARDWARE, OPERATION));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(HARDWARE + 1, VALUES));
+        // Each condition indented under another makes a group with it: a line over each group.
+        assertEquals(new RawTableGroups(List.of(HARDWARE - APPROVAL_ROW, SOFTWARE - APPROVAL_ROW), List.of()),
+                roles.regions().groups());
+
+        var rating = Roles.of(tableAt(RATING_ROW));
+        assertEquals(RawTableRole.OUTPUT_TITLE, rating.roleAt(RATING_RETURNS + 1, NAMES), "The total score row");
+        assertEquals(RawTableRole.OUTPUT, rating.roleAt(RATING_RETURNS + 2, RATING_VALUES), "A score");
+        assertEquals(RawTableRole.VALUE, rating.roleAt(AGE, WEIGHT), "A weight");
     }
 
     private IOpenLTable tableAt(int row) {

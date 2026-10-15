@@ -127,7 +127,7 @@ To manage personal settings, proceed as follows:
 1.  In OpenL Studio, in the top-right corner, click the user icon.
 2.  In the panel, click **My Settings**.
 
-    ![My Settings page with the Table Settings section and its experimental settings, and the Testing Settings and Trace Settings sections](images/user-settings-form.png "My Settings page")
+    ![My Settings page with the Table Settings, Testing Settings, and Trace Settings sections](images/user-settings-form.png "My Settings page")
 
     *My Settings page*
 
@@ -135,24 +135,9 @@ To manage personal settings, proceed as follows:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
-    -   **Experimental** — the settings of the table themes, an experimental feature:
-        -   **Table Theme** — how the tables are drawn while they are viewed: every table but a table of the type
-            **Other**. The default, **Excel Formatting**, draws them with the formatting of the Excel file. A table
-            theme draws them with the theme. A table being edited is drawn as the file holds it. For more information
-            on themes, see [Appendix E: Table Themes](appendices/table-themes.md).
-        -   **Override with Studio theme** — draw the tables in the look of the OpenL Studio theme in place of the
-            table theme, so that in the dark appearance they are dark too. The **Standard** theme of OpenL Studio
-            draws them with the **Standard** table theme, in its own colours in the light appearance and in dark
-            colours in the dark one: the table theme decides which text is bold, which lines are drawn and how the
-            text is aligned, and the text takes the font of OpenL Studio. The other themes of OpenL Studio have no
-            look for the tables, so under them the tables are drawn as **Table Theme** selects.
 
-    > [!Note]
-    > **Table Theme** and **Override with Studio theme** are view only: they change how the tables are shown on the
-    > screen and nothing else. The Excel files keep their own formatting, and the projects are not changed. Neither
-    > decides what is written into an Excel file: only a table theme can be written, never the look of the OpenL Studio
-    > theme, and the theme selected first is the primary one, **Standard**, as described in
-    > [Applying the Table Theme](rules-editor.md#applying-the-table-theme).
+    Whether the tables are drawn in the colours of the OpenL Studio theme or as the Excel file formats them is chosen
+    in the theme menu, by the **Excel Formatting** switch described in [Switching the Theme](#switching-the-theme).
 
 4.  In the **Testing Settings** section, configure the following options:
 
@@ -204,7 +189,7 @@ To delete a token, in the tokens list, click the delete icon next to the token a
 
 ### Switching the Theme
 
-To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers three independent choices, and each choice applies at once. The menu stays open while you choose, so you can try several themes in a row. To close it, click the theme icon again or anywhere outside the menu.
+To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers independent choices, and each choice applies at once. The menu stays open while you choose, so you can try several themes in a row. To close it, click the theme icon again or anywhere outside the menu.
 
 The first group selects the appearance:
 
@@ -214,15 +199,17 @@ The first group selects the appearance:
 
 Under the appearances, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
 
-The second group selects the colour theme, shown beside a dot of its own main colour. **Standard** uses the colours of Ant Design, the component library OpenL Studio is built with. The other themes are colour flavours of popular code editors: each paints the screens, the code editor of project files, and the code samples of the user guides shown in OpenL Studio in its own colours. Every theme has a light and a dark variant, and the appearance selects between them.
+Under **Compact**, the **Excel Formatting** switch controls how the tables of the Excel files are drawn. Off, the default, a table is drawn by what its cells mean, in the colours of the theme, light or dark. On, a table is drawn as the Excel file formats it. The switch changes only the screen: the Excel files and the projects are not changed. For more information, see [Viewing Tables](rules-editor.md#viewing-tables).
 
-Tables of Excel workbooks keep the colours Excel shows them in, whatever the theme: black text on white, unless the workbook colours a cell itself. A cell filled in the workbook therefore stays readable in a dark theme as well.
+The second group selects the colour theme, shown beside a dot of its own main colour. **Standard** uses the colours of Ant Design, the component library OpenL Studio is built with. The other themes are colour flavours of popular code editors: each paints the screens, the tables, the code editor of project files, and the code samples of the user guides shown in OpenL Studio in its own colours. Every theme has a light and a dark variant, and the appearance selects between them.
 
-![Theme menu opened next to the user icon, offering Light, Dark, Follow System, a Compact switch, and the colour themes](images/theme-switcher.png)
+With **Excel Formatting** on, the tables keep the colours Excel shows them in, whatever the theme: black text on white, unless the workbook colours a cell itself. A cell filled in the workbook therefore stays readable in a dark theme as well.
 
-*Choosing the appearance, the theme, and the density*
+![Theme menu opened next to the user icon, offering Light, Dark, Follow System, the Compact and Excel Formatting switches, and the colour themes](images/theme-switcher.png)
 
-The three choices are independent: every theme is displayed in either appearance, at either density.
+*Choosing the appearance, the density, the look of the tables, and the theme*
+
+The choices are independent: every theme is displayed in either appearance, at either density, with the tables in either look.
 
 New users start with **Follow System**, the **Standard** theme, and the comfortable density. All three choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from the defaults again.
 

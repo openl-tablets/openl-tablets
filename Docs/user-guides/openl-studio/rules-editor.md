@@ -253,6 +253,44 @@ The tables that correspond to none of these types — the utility tables — are
 
 To view contents of a particular table, in the module tree, select the table. The table is displayed in the middle pane. If the project is closed or locked by another user, the table can be viewed but cannot be modified. Modifying a table of an open project changes its status to **In Editing**.
 
+OpenL Studio draws a table in one of two looks, selected by the **Excel Formatting** switch of the theme menu, as
+described in [Switching the Theme](getting-started.md#switching-the-theme):
+
+-   **Excel Formatting off**, the default — the table is drawn by what its cells mean, in the colours of the OpenL Studio
+    theme, light or dark. The formatting of the Excel file is not drawn, except the indent, which carries the
+    structure of a TBasic and a ColumnMatch table:
+    -   The header is closed by a line above and below, with its name in bold and its keyword, types, and punctuation
+        in a fainter colour.
+    -   The properties and the code the compiler reads, such as `C1` and `RET1` of a Rules table, are drawn in a fainter
+        colour, with a line under the properties.
+    -   The titles of what a table takes, such as the conditions of a decision table, are bold, centered, and filled
+        grey. The titles of what a table gives, such as what a decision table returns or the columns of a
+        Spreadsheet, are filled in a tint of the accent colour of the theme, and the values it gives in a lighter
+        tint.
+    -   The names of the rows and columns, such as the steps of a Spreadsheet or the keys of a Data table, are bold.
+        What a Spreadsheet returns is bold, with a line above it and a double line below it.
+    -   A heading inside the body, such as a merged step of a Spreadsheet, is filled like a title and closed by a line.
+        A line sets apart the rules that share a merged value of a condition, and the columns of a lookup that share a
+        merged value.
+    -   A number and a date are aligned to the right, and a line under the last row closes the table.
+
+    A table of the type **Other** is drawn as the Excel file formats it.
+
+    ![Rules table drawn in the colours of the OpenL Studio theme, its header, titles and returned values set apart](images/table-studio-look.png "Table drawn in the colours of the theme")
+
+    *Table drawn in the colours of the OpenL Studio theme*
+
+-   **Excel Formatting on** — the table is drawn as the Excel file formats it: its fills, borders, font colours and
+    weights, and alignment, in black on white whatever the theme. The text is written in the font of OpenL Studio in
+    both looks, whatever font the Excel file names.
+
+    ![The same Rules table drawn with the formatting of its Excel file](images/table-excel-formatting.png "Table drawn with the formatting of the Excel file")
+
+    *Table drawn with the formatting of the Excel file*
+
+The switch changes only the screen: the Excel file and the project are not changed, and the table is not read again.
+The comparison of Excel files always draws the formatting of the files.
+
 ### Modifying Tables
 
 OpenL Studio provides embedded tools for modifying table data directly in a web browser. To modify a table, proceed as follows:
@@ -299,7 +337,6 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-font-color-icon.png) | Sets the font color.                                    |
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
-    | ![](images/edit-apply-theme-icon.png) | Applies a table theme to a table of any type but Other, as described in [Applying the Table Theme](#applying-the-table-theme). |
 
     The **Close** button at the end of the toolbar leaves the edit mode. When the table has unsaved changes, OpenL Studio asks whether to discard them.
 
@@ -398,8 +435,8 @@ theme that OpenL Studio ships follows the formatting standard of OpenL tables an
     does not know where its parts stand: a Data table whose type is missing or defined with errors, a Test table whose
     tested table does not exist, a Datatype whose parent type is not found, or a Spreadsheet whose header cannot be
     read. So do the conditions and the results of a decision table OpenL Tablets cannot read. The header, the
-    properties, and the line that closes the table keep the theme. Once the error is fixed, the table is drawn with
-    the look of its parts; apply the theme again to write that look into the Excel file.
+    properties, and the line that closes the table keep the theme. Once the error is fixed, apply the theme again to
+    write the look of its parts into the Excel file.
 -   **Every other table** — a TBasic, a Run, a ColumnMatch, a Conditions, an Actions, a Returns, an Environment, a
     Properties, a Constants, and a Method table take the General format alone, as the standard describes no look of
     their own for them. The operations of a TBasic table and the names a ColumnMatch table checks keep their indent.
@@ -408,49 +445,20 @@ theme that OpenL Studio ships follows the formatting standard of OpenL tables an
     pieces of its own, other than the header, is drawn in the font of its cell.
 
 OpenL Studio also ships the **Green** theme. How a theme file is written is described in
-[Appendix E: Table Themes](appendices/table-themes.md). A theme can be used in the following ways:
+[Appendix E: Table Themes](appendices/table-themes.md).
 
--   **Viewed only** — in **My Settings**, under **Experimental**, in the **Table Theme** list, select the theme. Every
-    table but a table of the type **Other** is then drawn with the theme while it is viewed, and the Excel file keeps
-    its own formatting.
-    A table switched to the edit mode is drawn as the file holds it, so the formatting changed in the edit mode is
-    the formatting of the file. To draw the tables with the formatting of the file again, select **Excel
-    Formatting**. To draw them in the look of the OpenL Studio theme, dark in the dark appearance, select **Override
-    with Studio theme**: the **Standard** theme of OpenL Studio draws them with the **Standard** table theme whichever
-    theme the list selects, and under the other themes of OpenL Studio the list decides, as described in
-    [Modifying My Settings](getting-started.md#modifying-my-settings). Both settings change only the screen, never the
-    Excel file or the project.
--   **Written into one table** — switch the table to the edit mode, click **Apply Theme**
-    ![](images/edit-apply-theme-icon.png) on the toolbar, and select the theme. The table is drawn with the theme,
-    and the theme is written into the Excel file when **Save** is clicked. **Undo** takes the theme back. The button
-    is displayed for every table but a table of the type **Other**. The theme is applied on its own, to the table as
-    it was saved:
-    -   While a theme is selected, the cells do not open, and the buttons that change the table are unavailable. A
-        note above the table says so. Save the theme or undo it to edit the table.
-    -   While the table holds changes, **Apply Theme** is unavailable, and its tooltip says so. Save the changes or
-        undo them to apply a theme.
-    -   With **Verify on Edit** turned off, as described in [System Settings](administration/02-system-settings.md),
-        **Apply Theme** is also unavailable once a change to the project is saved, until the module is verified, and
-        its tooltip says so. A theme selected before that change is not saved: **Save** is unavailable, and its tooltip
-        says so. Click **Verify**, then apply a theme.
--   **Written into the whole project** — above the table, click **More**, select **Apply Table Theme to Project**,
-    select the theme, and click **Apply Theme**. The theme is written into every table of every module of the
-    project but the tables of the type **Other**. A module set to compile alone has the whole project compiled first,
-    and a project whose compilation was stopped is not themed. With **Verify on Edit** turned off, the project is not
-    themed either once a change to it is saved, until the module is verified: the dialog says so, and **Apply Theme**
-    is unavailable.
+To write a theme into the whole project, above the table, click **More**, select **Apply Table Theme to Project**,
+select the theme, and click **Apply Theme**. The dialog offers the table themes of OpenL Studio with the primary one,
+**Standard**, listed first, and selects it to begin with. The theme files decide which theme is primary, as described
+in [Theme File](appendices/table-themes.md#theme-file). The theme is written into every table of every module of the
+project but the tables of the type **Other**:
 
-Both ways offer the table themes of OpenL Studio with the primary one, **Standard**, listed first, and the dialog of
-the project selects it to begin with. The theme files decide which theme is primary, as described in
-[Theme File](appendices/table-themes.md#theme-file): what **My Settings** selects in **Table Theme** and **Override
-with Studio theme** only changes the screen and never the themes offered.
-
-> [!Note]
-> A theme is laid out by the tables as OpenL Tablets compiled them, such as the conditions of a decision table where
-> OpenL Tablets found them. A change saved with the theme would not be part of that table: a column inserted as a
-> condition would miss the look of a condition. So the changes and the theme are saved one after the other, with the
-> module verified in between when **Verify on Edit** is turned off, and the table drawn with the theme is exactly what
-> **Save** writes.
+-   A module set to compile alone has the whole project compiled first, and a project whose compilation was stopped is
+    not themed.
+-   With **Verify on Edit** turned off, as described in [System Settings](administration/02-system-settings.md), the
+    project is not themed once a change to it is saved, until the module is verified: the dialog says so, and
+    **Apply Theme** is unavailable. A theme is laid out by the tables as OpenL Tablets compiled them, such as the
+    conditions of a decision table where OpenL Tablets found them.
 
 Writing the theme changes only the look of a table:
 
@@ -473,12 +481,11 @@ Like any other change of a table, the change is kept in the workspace until the 
 > [!Note]
 > A theme written into the Excel file is not kept up to date by the edits made after it. When rows or columns are
 > later inserted into the table or deleted from it, the theme is not written again by itself: writing it needs the
-> table to compile, and it takes longer the larger the table is. Apply the theme again by hand once the edits are
-> finished, to the table or to the whole project. Only the screen follows the edits by itself: with a theme selected
-> in **My Settings**, the tables are drawn with the theme as they are now.
+> table to compile, and it takes longer the larger the table is. Apply the theme to the project again once the edits
+> are finished.
 
-OpenL Studio also draws the formatting of text pieces that an Excel file holds, such as a header with a grey
-keyword and a bold name, and the cell borders the file draws, for every table.
+With **Excel Formatting** on, OpenL Studio also draws the formatting of text pieces that an Excel file holds, such as a
+header with a grey keyword and a bold name, and the cell borders the file draws, for every table.
 
 ### Referring to Tables
 

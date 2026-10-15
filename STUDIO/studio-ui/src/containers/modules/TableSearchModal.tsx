@@ -5,6 +5,7 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ModuleTable, ProjectProperty, RawTableView } from 'types/tables'
 import { RawTableGrid } from '../../components/RawTableGrid'
+import { rolesOf, type TableRoles } from '../../components/tableRoles'
 import {
     getRawTable,
     searchTables,
@@ -62,7 +63,7 @@ let nextFilterId = 0
  */
 type ResultBody =
     | { state: 'reading' }
-    | { state: 'read', table: RawTableView }
+    | { state: 'read', table: RawTableView, roles: TableRoles | undefined }
     | { state: 'failed', message: string }
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -270,7 +271,10 @@ const TableSearchForm = ({
         setBodies(previous => ({ ...previous, [key]: { state: 'reading' } }))
         const { projectId: where, module } = at(table)
         getRawTable(where, table.id, { module, maxRows: TABLE_PAGE_ROWS })
-            .then(read => setBodies(previous => ({ ...previous, [key]: { state: 'read', table: read } })))
+            .then(read => setBodies(previous => ({
+                ...previous,
+                [key]: { state: 'read', table: read, roles: rolesOf(read) },
+            })))
             .catch((error: unknown) => setBodies(previous => ({
                 ...previous,
                 [key]: { state: 'failed', message: errorMessage(error) },
@@ -299,6 +303,7 @@ const TableSearchForm = ({
         const key = keyOf(table)
         const body = bodies[key]
         const read = body?.state === 'read' ? body.table : null
+        const roles = body?.state === 'read' ? body.roles : undefined
         const rows = read?.source ?? null
         const total = read ? read.totalRows ?? read.source.length : 0
         return (
@@ -336,7 +341,11 @@ const TableSearchForm = ({
                 )}
                 {rows && (
                     <div className={styles.body}>
-                        <RawTableGrid rows={rows} testId={`table-search-grid-${table.id}`} />
+                        <RawTableGrid
+                            roles={roles}
+                            rows={rows}
+                            testId={`table-search-grid-${table.id}`}
+                        />
                         {rows.length < total && (
                             <span className={styles.where}>
                                 {t('browser.module.search_body_part', { shown: rows.length, total })}

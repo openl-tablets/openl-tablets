@@ -51,7 +51,7 @@ describe('modules service', () => {
     })
 
     it('reads a table through the module it belongs to, a window at a time', async () => {
-        mockApiCall.mockResolvedValue({ id: 'table-1', name: 'Rates', source: [] })
+        mockApiCall.mockResolvedValue({ id: 'table-1', name: 'Rates', source: []})
         await getRawTable('p1', 'table-1', { module: 'Bank Rating', startRow: 120, maxRows: 120 })
 
         const [url] = mockApiCall.mock.calls[0] as [string]
@@ -65,13 +65,12 @@ describe('modules service', () => {
         expect(url).not.toContain('formulas')
     })
 
-    it('reads the look of a table theme alone, without the styles the workbook has', async () => {
-        mockApiCall.mockResolvedValue({ id: 'table-1', name: 'Rates', source: [] })
-        await getRawTable('p1', 'table-1', { tableTheme: 'green', styles: false })
+    it('reads the values alone, without the styles the workbook has', async () => {
+        mockApiCall.mockResolvedValue({ id: 'table-1', name: 'Rates', source: []})
+        await getRawTable('p1', 'table-1', { styles: false })
 
         const [url] = mockApiCall.mock.calls[0] as [string]
         expect(url).toContain('styles=false')
-        expect(url).toContain('tableTheme=green')
     })
 
     it('reads every cell with the style it names, each style kept once', async () => {
@@ -80,7 +79,7 @@ describe('modules service', () => {
             id: 'table-1',
             name: 'Rates',
             styles: [fill, { bold: true }],
-            source: [[{ value: 'Datatype Rate', runs: [{ to: 9 }, { style: 1, to: 13 }] }], [{ style: 0 }], [{ style: 0 }]],
+            source: [[{ value: 'Datatype Rate', runs: [{ to: 9 }, { style: 1, to: 13 }]}], [{ style: 0 }], [{ style: 0 }]],
         })
 
         const table = await getRawTable('p1', 'table-1')

@@ -1,2 +1,9 @@
-HTTP/1.1 204
+HTTP/1.1 200
+Content-Type: application/json
 
+{
+  "themed": [
+    "2578c0046ca8587f8d48d6ae0ccc745c",
+    "4469469bead4e5e9ddd66edcc2d19c6a"
+  ]
+}

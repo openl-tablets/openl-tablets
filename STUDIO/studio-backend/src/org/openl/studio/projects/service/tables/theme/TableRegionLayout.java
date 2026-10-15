@@ -2,13 +2,16 @@ package org.openl.studio.projects.service.tables.theme;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.function.BiFunction;
 
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -19,31 +22,40 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRegion;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableSignaturePiece;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.theme.TableRegions.Region;
 
 /**
- * Lays a table out in regions: the rectangles of its cells that take their look from the same parts of a theme,
- * whatever its kind.
+ * Lays a table out in regions: the rectangles of its cells that take one role, whatever its kind.
  *
- * <p>The screen, the editor and the project-wide writer all draw a theme from this layout, so the screen shows what
- * writing the theme gives. The body of a table is laid out by what the compiler read of it, see {@link CompiledReads}:
- * each part stands where the compiler found it. A table the compiler read none of has no parts it knows, so its body
- * takes the look every cell starts from rather than a look guessed from where its cells stand.
+ * <p>The screen draws a table from this layout, and the project-wide writer writes a theme from it, so both read a
+ * table alike. The body of a table is laid out by what the compiler read of it, see {@link CompiledReads}: each part
+ * stands where the compiler found it. A table the compiler read none of has no parts it knows, so its body holds
+ * values rather than parts guessed from where its cells stand.
  *
- * <p>The kind of a table, {@link ThemeKind}, tells which {@link BodyLayout} lays out its body. A table of no kind a
- * theme styles is not laid out. Each layout names the parts of a place of the body; every cell of the sheet a place
- * takes gets those parts, and a cell that reaches the bottom of the table gets the last row over them.
+ * <p>The kind of a table, {@link ThemeKind}, tells which {@link BodyLayout} lays out its body. A table of no kind OpenL
+ * Studio formats, which it shows as of the type Other, is not laid out. Each layout tells what a place of the body is;
+ * every cell of the sheet a place takes is that, and a cell that reaches the bottom of the table also takes the last
+ * row of a theme.
  *
- * <p>Every kind lays out its header the same way. The header reaches across the table, and the cell holding the header
- * text is formatted in pieces. The rows of properties a table declares between its header and its body take the
+ * <p>Every kind lays out its header the same way: the header reaches across the table as its signature, and its text
+ * is split into pieces. The rows of properties a table declares between its header and its body take the
  * properties.
+ *
+ * <p>A value takes the type the compiler bound it to ({@link ValueTypes}). The values of a role in one line of the
+ * table — a column, or a row of a table written the other way round — share the type most of them have, which their
+ * region takes; a value of another type names its own.
  *
  * <p>A layout depends on the compiled table and on its cells, so the layout of a compiled table is kept until the
  * table is compiled again ({@link #regionsOf}). Every page of a large table reuses it.
  */
-final class TableRegionLayout {
+public final class TableRegionLayout {
 
     /** The layouts of the compiled tables, kept until a compilation replaces the table. */
     private static final Map<TableSyntaxNode, TableRegions> LAYOUTS = Collections.synchronizedMap(new WeakHashMap<>());
@@ -52,11 +64,11 @@ final class TableRegionLayout {
     }
 
     /**
-     * Whether a table is of a kind every theme styles: every kind of table but a part of a table split into several
+     * Whether a table is of a kind OpenL Studio formats: every kind of table but a part of a table split into several
      * ({@code TablePart}) and a table of no kind OpenL knows, which OpenL Studio shows as of the type Other.
      *
      * @param table the table
-     * @return {@code true} when a theme can be drawn over the table and written into it
+     * @return {@code true} when the table is laid out in roles
      */
     static boolean styles(IOpenLTable table) {
         return OpenLTableUtils.kindOf(table) != TableKind.OTHER;
@@ -70,8 +82,19 @@ final class TableRegionLayout {
      * is laid out again for each such call, as it stands.
      *
      * @param table the table, which tells its kind
+     * @return the regions of the table, or {@code null} for a table of a kind OpenL Studio does not format
+     */
+    public static @Nullable TableRegions regionsOf(IOpenLTable table) {
+        return regionsOf(table, table.getGridTable());
+    }
+
+    /**
+     * The regions of a table as it stands on a grid, laid out once for each compilation of the table when the grid is
+     * the one the table was compiled from, see {@link #regionsOf(IOpenLTable)}.
+     *
+     * @param table the table, which tells its kind
      * @param grid  the table as it stands on its grid, header included
-     * @return the regions of the table, or {@code null} for a table of a kind no theme styles
+     * @return the regions of the table, or {@code null} for a table of a kind OpenL Studio does not format
      */
     static @Nullable TableRegions regionsOf(IOpenLTable table, IGridTable grid) {
         var node = table.getSyntaxNode();
@@ -104,7 +127,7 @@ final class TableRegionLayout {
      *
      * @param table the table, which tells its kind
      * @param grid  the table as it stands on its grid, header included
-     * @return the regions of the table, or {@code null} for a table of a kind no theme styles
+     * @return the regions of the table, or {@code null} for a table of a kind OpenL Studio does not format
      */
     static @Nullable TableRegions of(IOpenLTable table, IGridTable grid) {
         var kind = ThemeKind.of(table);
@@ -112,36 +135,43 @@ final class TableRegionLayout {
             return null;
         }
         var region = grid.getRegion();
-        var cells = new Parts[grid.getHeight()][grid.getWidth()];
+        var cells = new Place[grid.getHeight()][grid.getWidth()];
         var logical = LogicalTableHelper.logicalTable(grid);
         layOutHead(cells, region, grid, logical);
         var rows = bodyOf(logical);
+        var node = table.getSyntaxNode();
+        var transposed = false;
+        var groups = RawTableGroups.NONE;
         if (rows != null) {
-            var node = table.getSyntaxNode();
             var read = kind.readOf(node);
+            transposed = read.orElse(false);
             var body = ThemedBody.builder()
                     .rows(rows)
-                    .transposed(read.orElse(false))
+                    .transposed(transposed)
                     .compiled(new CompiledTable(node))
                     .build();
             var placed = read.isPresent() ? kind.getLayout().layOut(body) : BodyLayout.Placed.plain(body);
-            layOutPlaces(cells, region, placed, rows.getSource().getRegion().getBottom());
+            var bottom = rows.getSource().getRegion().getBottom();
+            layOutPlaces(cells, region, placed, bottom);
+            groups = groupsOf(placed, region, bottom);
         }
-        var text = logical.getCell(0, 0).getStringValue();
-        return new TableRegions(regionsOf(cells), text == null ? List.of() : HeaderRuns.split(text));
+        var types = typesOf(cells, grid, ValueTypes.of(node, region));
+        var text = Objects.requireNonNullElse(logical.getCell(0, 0).getStringValue(), "");
+        return new Roles(cells, types, transposed).regions(groups, SignatureSplitter.split(text),
+                new TableRegions.Theme(themeRegionsOf(cells), HeaderRuns.split(text)));
     }
 
     /**
-     * Names the parts of the header row and of the properties under it.
+     * Lays out the header row and the properties under it.
      *
-     * @param cells   the parts of each cell of the table, in table coordinates, which the body adds its cells to
+     * @param cells   what each cell of the table is, in table coordinates, which the body adds its cells to
      * @param region  where the table stands on its sheet
      * @param table   the table as it stands on its grid
      * @param logical the same table read with its merged cells
      */
-    private static void layOutHead(Parts[][] cells, IGridRegion region, IGridTable table, ILogicalTable logical) {
+    private static void layOutHead(Place[][] cells, IGridRegion region, IGridTable table, ILogicalTable logical) {
         // The header reaches across the table, whether the header is merged over it or not.
-        var header = Parts.BASE.with(Parts.Part.HEADER);
+        var header = Place.of(RawTableRole.SIGNATURE, Parts.BASE.with(Parts.Part.HEADER));
         for (var cell : holdersOf(table.getSubtable(0, 0, table.getWidth(), 1))) {
             cover(cells, region, cell, header);
         }
@@ -152,20 +182,20 @@ final class TableRegionLayout {
     }
 
     /**
-     * Names the parts of the rows of table properties.
+     * Lays out the rows of table properties.
      *
      * <p>The section is one row of the table, though each property stands on a row of the sheet of its own. A line
      * the look draws above or below the properties goes round the whole section, not round each of its rows.
      */
-    private static void layOutProperties(Parts[][] cells, IGridRegion region, IGridTable rows) {
+    private static void layOutProperties(Place[][] cells, IGridRegion region, IGridTable rows) {
         var top = rows.getCell(0, 0).getAbsoluteRow();
         var bottom = top + rows.getHeight() - 1;
         var properties = Parts.BASE.with(Parts.Part.PROPERTIES);
         for (var cell : holdersOf(rows)) {
             // A cell merged over several properties, such as the keyword, reaches the edges of all of them.
             var merged = cell.getAbsoluteRegion();
-            cover(cells, region, cell,
-                    properties.atEdges(Parts.BASE, merged.getTop() <= top, merged.getBottom() >= bottom));
+            cover(cells, region, cell, Place.of(RawTableRole.PROPERTIES,
+                    properties.atEdges(Parts.BASE, merged.getTop() <= top, merged.getBottom() >= bottom)));
         }
     }
 
@@ -181,62 +211,107 @@ final class TableRegionLayout {
     }
 
     /**
-     * Gives every cell of the sheet a body takes the parts of its place, and the last row over them where it reaches
-     * the bottom of the table.
+     * Gives every cell of the sheet a body takes what its place is, and the last row of a theme where it reaches the
+     * bottom of the table.
      *
      * <p>A place can take several cells of the sheet: a row written over several rows of the sheet, or a column over
-     * several columns. Every one of them takes the parts of the place. A cell inside a merged region takes the parts
-     * of the cell that holds the region.
+     * several columns. Every one of them takes what the place is. A cell inside a merged region takes what the cell
+     * that holds the region is.
      *
-     * @param cells  the parts of each cell of the table, which the body adds its cells to
+     * @param cells  what each cell of the table is, which the body adds its cells to
      * @param region where the table stands on its sheet
-     * @param placed the body as its layout reads it, a place in each of its cells, and the parts of each place
+     * @param placed the body as its layout reads it, a place in each of its cells, and what each place is
      * @param bottom the last row of the sheet the table takes
      */
-    private static void layOutPlaces(Parts[][] cells, IGridRegion region, BodyLayout.Placed placed, int bottom) {
+    private static void layOutPlaces(Place[][] cells, IGridRegion region, BodyLayout.Placed placed, int bottom) {
         var places = placed.places();
         for (var row = 0; row < places.getHeight(); row++) {
             for (var column = 0; column < places.getWidth(); column++) {
                 for (var cell : holdersOf(places.getSubtable(column, row, 1, 1).getSource())) {
-                    var parts = placed.look().at(cell, column, row);
+                    var place = placed.look().at(cell, column, row);
                     cover(cells, region, cell, cell.getAbsoluteRegion().getBottom() < bottom
-                            ? parts
-                            : parts.with(Parts.Part.LAST_ROW));
+                            ? place
+                            : place.with(Parts.Part.LAST_ROW));
                 }
             }
         }
     }
 
-    /**
-     * The regions of the cells of a table: each row cut into runs of cells naming the same parts, and a run joined to
-     * the region above it when that region spans the same columns with the same parts.
-     *
-     * @param cells the parts of each cell of the table, in table coordinates; {@code null} where no part reaches
-     * @return the regions, in the order of their top rows
-     */
-    private static List<Region> regionsOf(@Nullable Parts[][] cells) {
-        var regions = new ArrayList<Region>();
-        // The regions reaching the row above, by the columns they span and their parts.
-        var open = new HashMap<Run, Integer>();
+    /** The lines of the body that start a group, in table coordinates, inside the table. */
+    private static RawTableGroups groupsOf(BodyLayout.Placed placed, IGridRegion region, int bottom) {
+        var rows = placed.groupRows()
+                .stream()
+                .filter(row -> row > region.getTop() && row <= bottom)
+                .map(row -> row - region.getTop())
+                .sorted()
+                .toList();
+        var columns = placed.groupColumns()
+                .stream()
+                .filter(column -> column > region.getLeft() && column <= region.getRight())
+                .map(column -> column - region.getLeft())
+                .sorted()
+                .toList();
+        return new RawTableGroups(rows, columns);
+    }
+
+    /** The type of the value of each cell holding a merged region, or merged with none. */
+    private static @Nullable RawTableValueType[][] typesOf(Place[][] cells, IGridTable grid, ValueTypes values) {
+        var types = new RawTableValueType[cells.length][];
         for (var row = 0; row < cells.length; row++) {
-            var reached = new HashMap<Run, Integer>();
-            var line = cells[row];
-            var column = 0;
-            while (column < line.length) {
-                var end = column;
-                while (end + 1 < line.length && Objects.equals(line[end + 1], line[column])) {
-                    end++;
+            types[row] = new RawTableValueType[cells[row].length];
+            for (var column = 0; column < cells[row].length; column++) {
+                var place = cells[row][column];
+                var cell = grid.getCell(column, row);
+                if (place != null && holdsRegion(cell)) {
+                    types[row][column] = values.of(cell, place.typing());
                 }
-                var parts = line[column];
-                if (parts != null) {
-                    var run = new Run(column, end, parts);
+            }
+        }
+        return types;
+    }
+
+    /**
+     * The regions of the parts of a theme: each row cut into runs of cells naming the same parts, and a run joined to
+     * the region above it when that region spans the same columns with the same parts.
+     */
+    private static List<Region> themeRegionsOf(@Nullable Place[][] cells) {
+        return rectangles(cells, (row, column) -> {
+            var place = cells[row][column];
+            return place == null ? null : place.parts();
+        }, (parts, rectangle) -> new Region(parts, rectangle.top, rectangle.left, rectangle.bottom, rectangle.right));
+    }
+
+    /**
+     * The rectangles of the cells of a table that take an equal key: each row cut into runs of cells taking one key,
+     * and a run joined to the rectangle above it when that rectangle spans the same columns with the same key.
+     *
+     * @param cells  the cells of the table, in table coordinates, for their size
+     * @param keyAt  the key of a cell, or {@code null} for a cell no rectangle takes
+     * @param result the rectangle made of a key and its place
+     * @return the rectangles, in the order of their top rows
+     */
+    private static <K, R> List<R> rectangles(Object[][] cells, BiFunction<Integer, Integer, @Nullable K> keyAt,
+                                            BiFunction<K, Rectangle, R> result) {
+        var found = new ArrayList<Rectangle>();
+        var keys = new ArrayList<K>();
+        // The rectangles reaching the row above, by the columns they span and their key.
+        var open = new HashMap<Run<K>, Integer>();
+        for (var row = 0; row < cells.length; row++) {
+            var reached = new HashMap<Run<K>, Integer>();
+            var width = cells[row].length;
+            var column = 0;
+            while (column < width) {
+                var key = keyAt.apply(row, column);
+                var end = runEnd(keyAt, row, column, width, key);
+                if (key != null) {
+                    var run = new Run<>(column, end, key);
                     var above = open.get(run);
                     if (above == null) {
-                        regions.add(new Region(parts, row, column, row, end));
-                        reached.put(run, regions.size() - 1);
+                        found.add(new Rectangle(row, column, row, end));
+                        keys.add(key);
+                        reached.put(run, found.size() - 1);
                     } else {
-                        var region = regions.get(above);
-                        regions.set(above, new Region(parts, region.top(), column, row, end));
+                        found.get(above).bottom = row;
                         reached.put(run, above);
                     }
                 }
@@ -244,11 +319,112 @@ final class TableRegionLayout {
             }
             open = reached;
         }
-        return regions;
+        var results = new ArrayList<R>(found.size());
+        for (var at = 0; at < found.size(); at++) {
+            results.add(result.apply(keys.get(at), found.get(at)));
+        }
+        return results;
     }
 
-    /** A run of cells of one row naming the same parts. */
-    private record Run(int left, int right, Parts parts) {
+    /** The last column of the run of cells of a row that take the key the run starts with. */
+    private static <K> int runEnd(BiFunction<Integer, Integer, @Nullable K> keyAt, int row, int column, int width,
+                                  @Nullable K key) {
+        var end = column;
+        while (end + 1 < width && Objects.equals(keyAt.apply(row, end + 1), key)) {
+            end++;
+        }
+        return end;
+    }
+
+    /** A run of cells of one row taking the same key. */
+    private record Run<K>(int left, int right, K key) {
+    }
+
+    /** A rectangle of cells, in table coordinates, that grows down the rows. */
+    private static final class Rectangle {
+        private final int top;
+        private final int left;
+        private final int right;
+        private int bottom;
+
+        Rectangle(int top, int left, int bottom, int right) {
+            this.top = top;
+            this.left = left;
+            this.bottom = bottom;
+            this.right = right;
+        }
+    }
+
+    /**
+     * The roles of the cells of a table and the types of their values, made into regions. Nothing compares two of
+     * them, so they are not a record: a record of arrays would compare the arrays by identity.
+     */
+    @RequiredArgsConstructor
+    private static final class Roles {
+
+        /** What each cell of the table is, in table coordinates. */
+        private final @Nullable Place[][] cells;
+
+        /** The type of the value of each cell holding one. */
+        private final @Nullable RawTableValueType[][] types;
+
+        /** Whether the lines of the table are its columns, rather than its rows. */
+        private final boolean transposed;
+
+        /** The regions of the roles, each taking the type most of the values of its role in its line have. */
+        TableRegions regions(RawTableGroups groups, List<RawTableSignaturePiece> signature, TableRegions.Theme theme) {
+            var lineTypes = lineTypes();
+            var regions = rectangles(cells, (row, column) -> {
+                var place = cells[row][column];
+                return place == null ? null : new RoleKey(place.role(), lineTypes.get(lineKey(place, row, column)));
+            }, (key, rectangle) -> new RawTableRegion(key.role(), key.type(), rectangle.top, rectangle.left,
+                    rectangle.bottom, rectangle.right));
+            var own = new HashMap<TableRegions.Cell, RawTableValueType>();
+            for (var row = 0; row < cells.length; row++) {
+                for (var column = 0; column < cells[row].length; column++) {
+                    var type = types[row][column];
+                    var place = cells[row][column];
+                    if (type != null && place != null && type != lineTypes.get(lineKey(place, row, column))) {
+                        own.put(new TableRegions.Cell(row, column), type);
+                    }
+                }
+            }
+            return new TableRegions(regions, groups, signature, own, theme);
+        }
+
+        /** The type most of the values of each role in each line have, ties going to the type met first. */
+        private Map<LineKey, RawTableValueType> lineTypes() {
+            var counts = new HashMap<LineKey, Map<RawTableValueType, Integer>>();
+            for (var row = 0; row < cells.length; row++) {
+                for (var column = 0; column < cells[row].length; column++) {
+                    var type = types[row][column];
+                    var place = cells[row][column];
+                    if (type != null && place != null) {
+                        counts.computeIfAbsent(lineKey(place, row, column),
+                                key -> new EnumMap<>(RawTableValueType.class)).merge(type, 1, Integer::sum);
+                    }
+                }
+            }
+            var lineTypes = new HashMap<LineKey, RawTableValueType>();
+            counts.forEach((line, byType) -> lineTypes.put(line, byType.entrySet()
+                    .stream()
+                    .max(Map.Entry.comparingByValue())
+                    .orElseThrow()
+                    .getKey()));
+            return lineTypes;
+        }
+
+        private LineKey lineKey(Place place, int row, int column) {
+            return new LineKey(place.role(), transposed ? row : column);
+        }
+    }
+
+    /** A role in a line of the table: a column, or a row of a table written the other way round. */
+    private record LineKey(RawTableRole role, int line) {
+    }
+
+    /** The key of a region of a role: the role, and the type of its values. */
+    private record RoleKey(RawTableRole role, @Nullable RawTableValueType type) {
     }
 
     /**
@@ -293,10 +469,10 @@ final class TableRegionLayout {
     }
 
     /**
-     * Gives every cell of the merged region a cell covers the same parts. A region of empty cells does not widen the
+     * Gives every cell of the merged region a cell covers the same place. A region of empty cells does not widen the
      * table, so it may be merged past the edge of the table: the cells beyond the edge are not the table's.
      */
-    private static void cover(Parts[][] cells, IGridRegion table, ICell cell, Parts parts) {
+    private static void cover(Place[][] cells, IGridRegion table, ICell cell, Place place) {
         var region = cell.getAbsoluteRegion();
         var top = Math.max(region.getTop(), table.getTop());
         var bottom = Math.min(region.getBottom(), table.getBottom());
@@ -304,23 +480,23 @@ final class TableRegionLayout {
         var right = Math.min(region.getRight(), table.getRight());
         for (var row = top; row <= bottom; row++) {
             for (var column = left; column <= right; column++) {
-                cells[row - table.getTop()][column - table.getLeft()] = parts;
+                cells[row - table.getTop()][column - table.getLeft()] = place;
             }
         }
     }
 
-    /** The parts a layout names for a place of the body. */
+    /** What a layout tells a place of the body is. */
     @FunctionalInterface
     interface PlaceLook {
 
         /**
-         * The parts of a place.
+         * What a place is.
          *
          * @param cell   a cell of the sheet the place takes, holding a merged region or merged with none
          * @param column the column of the place in the body as the compiler reads it
          * @param row    the row of the place in the body as the compiler reads it
-         * @return the parts of the cell
+         * @return what the place is
          */
-        Parts at(ICell cell, int column, int row);
+        Place at(ICell cell, int column, int row);
     }
 }

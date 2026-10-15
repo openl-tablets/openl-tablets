@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { applyProjectTableTheme, getTableThemes } from '../../services/tables'
-import { useUserStore } from '../../store'
+import { errorHandler } from '../../utils/errorHandling'
 import { ApplyProjectThemeModal } from './ApplyProjectThemeModal'
 
 vi.mock('react-i18next', () => {
@@ -11,6 +11,7 @@ vi.mock('react-i18next', () => {
 })
 
 vi.mock('../../services/tables', () => ({ applyProjectTableTheme: vi.fn(), getTableThemes: vi.fn() }))
+vi.mock('../../utils/errorHandling', () => ({ errorHandler: { logError: vi.fn() } }))
 
 // As the server offers them: the primary theme first.
 const THEMES = [{ id: 'standard', name: 'Standard' }, { id: 'green', name: 'Green' }]
@@ -19,8 +20,6 @@ describe('ApplyProjectThemeModal', () => {
     beforeEach(() => {
         vi.mocked(applyProjectTableTheme).mockReset().mockResolvedValue({ themed: ['t1'], skipped: []})
         vi.mocked(getTableThemes).mockResolvedValue(THEMES)
-        // The settings name another theme, which only changes what the screen shows.
-        useUserStore.setState({ userProfile: { tableTheme: 'green' } as never })
     })
 
     const draw = (over: Partial<Parameters<typeof ApplyProjectThemeModal>[0]> = {}) => {
@@ -30,7 +29,7 @@ describe('ApplyProjectThemeModal', () => {
         return { onApplied, onClose }
     }
 
-    it('starts from the primary theme, which Studio offers first, whatever theme the settings name', async () => {
+    it('starts from the primary theme, which Studio offers first', async () => {
         const { onApplied, onClose } = draw()
         await waitFor(() => expect(screen.getByTestId('apply-project-theme-ok')).toBeEnabled())
 
@@ -89,6 +88,16 @@ describe('ApplyProjectThemeModal', () => {
         draw()
 
         await waitFor(() => expect(getTableThemes).toHaveBeenCalled())
+
+        expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
+    })
+
+    it('offers nothing to write when the themes cannot be read, and keeps the reason', async () => {
+        vi.mocked(getTableThemes).mockRejectedValue(new Error('down'))
+        draw()
+
+        await waitFor(() => expect(errorHandler.logError).toHaveBeenCalledWith(
+            expect.objectContaining({ message: 'down' }), { message: 'The table themes cannot be read' }))
 
         expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
     })

@@ -15,25 +15,23 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRegion;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableSignaturePart;
+import org.openl.studio.projects.model.tables.RawTableSignaturePiece;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.TableTestProjects;
-import org.openl.studio.projects.service.tables.theme.TableRegions.HeaderPart;
-import org.openl.studio.projects.service.tables.theme.TableRegions.HeaderPiece;
-import org.openl.studio.projects.service.tables.theme.TableRegions.Region;
 
 /**
- * Covers the regions a table is laid out in: rectangles of cells naming the same parts of a theme, laid out once for
- * each compilation of the table.
+ * Covers the regions a table is laid out in: rectangles of cells taking one role, laid out once for each compilation of
+ * the table, and the types of their values.
  *
  * @author Yury Molchan
  */
 class TableRegionLayoutTest {
 
     private static final String SHEET = "Types";
-
-    private static final Parts HEADER = Parts.BASE.with(Parts.Part.HEADER);
-    private static final Parts TYPE = Parts.BASE.with(Parts.Part.TYPE);
-    private static final Parts NAME = Parts.BASE.with(Parts.Part.NAME);
-    private static final Parts VALUES = Parts.BASE.with(Parts.Part.VALUES);
 
     @TempDir
     Path dir;
@@ -43,40 +41,54 @@ class TableRegionLayoutTest {
         var regions = regionsOf(person(3));
 
         assertEquals(List.of(
-                new Region(HEADER, 0, 0, 0, 2),
-                new Region(TYPE, 1, 0, 2, 0),
-                new Region(NAME, 1, 1, 2, 1),
-                new Region(VALUES, 1, 2, 2, 2),
-                new Region(TYPE.with(Parts.Part.LAST_ROW), 3, 0, 3, 0),
-                new Region(NAME.with(Parts.Part.LAST_ROW), 3, 1, 3, 1),
-                new Region(VALUES.with(Parts.Part.LAST_ROW), 3, 2, 3, 2)), regions.regions());
+                new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 2),
+                new RawTableRegion(RawTableRole.CODE, null, 1, 0, 3, 0),
+                new RawTableRegion(RawTableRole.KEY, null, 1, 1, 3, 1),
+                new RawTableRegion(RawTableRole.VALUE, RawTableValueType.STRING, 1, 2, 3, 2)), regions.regions());
+        assertEquals(RawTableGroups.NONE, regions.groups());
         // A hundred times the fields: the same regions, only taller.
         var large = regionsOf(person(300)).regions();
         assertEquals(regions.regions().size(), large.size());
-        assertEquals(new Region(NAME, 1, 1, 299, 1), large.get(2));
+        assertEquals(new RawTableRegion(RawTableRole.KEY, null, 1, 1, 300, 1), large.get(2));
+    }
+
+    @Test
+    void namesTheTypeOfAValueOfAnotherTypeThanItsRegion() throws IOException {
+        var model = TableTestProjects.projectModel(dir, SHEET, sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Limits");
+            TableTestProjects.row(sheet, 2, 1, "Integer", "low", "1");
+            TableTestProjects.row(sheet, 3, 1, "Integer", "high", "9");
+            TableTestProjects.row(sheet, 4, 1, "String", "name", "top");
+        });
+        var regions = regionsOf(TableTestProjects.table(model, "Limits"));
+
+        assertEquals(new RawTableRegion(RawTableRole.VALUE, RawTableValueType.NUMBER, 1, 2, 3, 2),
+                regions.regions().getLast(), "Most of the defaults are numbers");
+        assertEquals(RawTableValueType.STRING, regions.typeAt(3, 2), "A text default names its own type");
+        assertNull(regions.typeAt(1, 2), "A number default takes the type of its region");
+        assertNull(regions.typeAt(1, 1), "A name holds no value of a type");
     }
 
     @Test
     void splitsTheHeaderTextIntoItsParts() throws IOException {
-        assertEquals(List.of(new HeaderPiece(HeaderPart.KEYWORD, 0, 8),
-                new HeaderPiece(HeaderPart.TEXT, 8, 9),
-                new HeaderPiece(HeaderPart.NAME, 9, 15)), regionsOf(person(1)).signature());
+        assertEquals(List.of(new RawTableSignaturePiece(RawTableSignaturePart.KEYWORD, 8),
+                new RawTableSignaturePiece(RawTableSignaturePart.NAME, 15)), regionsOf(person(1)).signature());
     }
 
     @Test
     void keepsTheLayoutOfACompiledTableUntilItsWorkbookIsSaved() throws IOException {
         var table = person(2);
         var grid = table.getGridTable();
-        var first = TableRegionLayout.regionsOf(table, grid);
+        var first = TableRegionLayout.regionsOf(table);
 
-        assertSame(first, TableRegionLayout.regionsOf(table, grid), "Every page of the table reuses its layout");
+        assertSame(first, TableRegionLayout.regionsOf(table), "Every page of the table reuses its layout");
         assertNotSame(first, TableRegionLayout.regionsOf(table, grid.getRows(0, 1)),
                 "A part of the table is laid out on its own");
 
         table.getSyntaxNode().getXlsSheetSourceCodeModule().getWorkbookSource().save();
-        var saved = TableRegionLayout.regionsOf(table, grid);
+        var saved = TableRegionLayout.regionsOf(table);
         assertNotSame(first, saved, "A workbook saved since it was compiled is laid out as it stands");
-        assertEquals(first, saved);
+        assertEquals(first.regions(), saved.regions());
     }
 
     @Test
@@ -88,7 +100,7 @@ class TableRegionLayoutTest {
                 .findFirst()
                 .orElseThrow();
 
-        assertNull(TableRegionLayout.regionsOf(other, other.getGridTable()));
+        assertNull(TableRegionLayout.regionsOf(other));
     }
 
     /** The regions of a table, laid out afresh. */

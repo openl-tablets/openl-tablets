@@ -48,12 +48,12 @@ public final class ThemedTable {
         this.look = look;
         this.top = top;
         this.left = left;
-        var bottom = regions.regions().stream().mapToInt(Region::bottom).max().orElse(-1);
+        var bottom = regions.theme().regions().stream().mapToInt(Region::bottom).max().orElse(-1);
         buckets = new ArrayList<>();
         for (var bucket = 0; bucket <= bottom / BUCKET; bucket++) {
             buckets.add(new ArrayList<>());
         }
-        for (var region : regions.regions()) {
+        for (var region : regions.theme().regions()) {
             for (var bucket = region.top() / BUCKET; bucket <= region.bottom() / BUCKET; bucket++) {
                 buckets.get(bucket).add(region);
             }
@@ -105,7 +105,7 @@ public final class ThemedTable {
      * @param action what to do with a cell, named by its place on the sheet, and its look
      */
     public void forEach(BiConsumer<Cell, ThemedCell> action) {
-        for (var region : regions.regions()) {
+        for (var region : regions.theme().regions()) {
             for (var row = region.top(); row <= region.bottom(); row++) {
                 for (var column = region.left(); column <= region.right(); column++) {
                     action.accept(new Cell(top + row, left + column), cellOf(region, row, column));
@@ -124,7 +124,8 @@ public final class ThemedTable {
     /** The pieces of the header text, each in the look the theme gives its part. */
     private List<ThemedRun> runsOf(ThemeStyle cell) {
         var header = Optional.ofNullable(look.header()).orElseGet(() -> TableTheme.Header.builder().build());
-        return regions.signature()
+        return regions.theme()
+                .header()
                 .stream()
                 .map(piece -> new ThemedRun(piece.start(), piece.end(), piece.part().in(cell, header)))
                 .toList();

@@ -1,0 +1,91 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "de1f6b692cebac9eb0a13c2bdff368f7",
+  "tableType": "RawSource",
+  "kind": "Run",
+  "name": "PremiumRun",
+  "pos": "B42:B46",
+  "source": [
+    [
+      {
+        "cell": "B42",
+        "value": "Run Premium PremiumRun"
+      }
+    ],
+    [
+      {
+        "cell": "B43",
+        "value": "person"
+      }
+    ],
+    [
+      {
+        "cell": "B44",
+        "value": ">people"
+      }
+    ],
+    [
+      {
+        "cell": "B45",
+        "value": "Insured"
+      }
+    ],
+    [
+      {
+        "cell": "B46",
+        "value": "Ann"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "inputTitle",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "key",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 3
+    },
+    {
+      "part": "type",
+      "to": 11
+    },
+    {
+      "part": "name",
+      "to": 22
+    }
+  ],
+  "headerHeight": 3,
+  "layout": {
+    "firstDataLine": 4
+  }
+}

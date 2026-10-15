@@ -8,13 +8,15 @@ import { AppThemeProvider } from '../providers/AppThemeProvider'
 import { appTheme } from '../styles/appTheme'
 import { paletteOf, type Palette } from '../styles/listPageTheme'
 import type { ThemeName } from '../styles/themes'
-import { storeCompactMode, storeThemeMode, storeThemeName } from '../utils/themeMode'
+import { storeCompactMode, storeExcelFormatting, storeThemeMode, storeThemeName } from '../utils/themeMode'
 
 /** The look a test draws in, as a reader would have picked it. */
 interface Look {
     theme?: ThemeName
     mode?: ThemeMode
     compact?: boolean
+    /** Whether the tables are drawn in the formatting of their workbooks rather than in the Studio look. */
+    excelFormatting?: boolean
 }
 
 /**
@@ -22,10 +24,12 @@ interface Look {
  *
  * The look is put where the provider reads it — the browser's storage — and taken out again when the test ends.
  */
-export const renderInTheme = (ui: ReactElement, { theme = 'standard', mode = 'light', compact = false }: Look = {}) => {
+export const renderInTheme = (ui: ReactElement,
+    { theme = 'standard', mode = 'light', compact = false, excelFormatting = false }: Look = {}) => {
     storeThemeName(theme)
     storeThemeMode(mode)
     storeCompactMode(compact)
+    storeExcelFormatting(excelFormatting)
     onTestFinished(() => localStorage.clear())
     return render(<AppThemeProvider>{ui}</AppThemeProvider>)
 }

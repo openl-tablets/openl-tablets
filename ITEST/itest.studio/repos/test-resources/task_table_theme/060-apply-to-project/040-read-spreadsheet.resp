@@ -234,5 +234,116 @@ Content-Type: application/json
       }
     }
   ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "properties",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 2
+    },
+    {
+      "role": "result",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "result",
+      "type": "code",
+      "top": 3,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "top": 3,
+      "left": 2,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "section",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 2
+    },
+    {
+      "role": "result",
+      "top": 5,
+      "left": 0,
+      "bottom": 5,
+      "right": 0
+    },
+    {
+      "role": "result",
+      "type": "code",
+      "top": 5,
+      "left": 1,
+      "bottom": 5,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "top": 5,
+      "left": 2,
+      "bottom": 5,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 29
+    },
+    {
+      "part": "name",
+      "to": 37
+    },
+    {
+      "part": "punctuation",
+      "to": 39
+    },
+    {
+      "part": "parameterType",
+      "to": 46
+    },
+    {
+      "part": "parameterName",
+      "to": 53
+    },
+    {
+      "part": "punctuation",
+      "to": 55
+    }
+  ],
   "headerHeight": 2
 }

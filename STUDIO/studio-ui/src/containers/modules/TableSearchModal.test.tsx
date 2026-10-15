@@ -261,6 +261,23 @@ describe('TableSearchModal', () => {
         expect(screen.queryByTestId('table-search-grid-table-9')).toBeNull()
     })
 
+    it('draws a body read with roles by the roles of its cells', async () => {
+        vi.mocked(searchTables).mockResolvedValue([found({ module: 'ClaimsTests', project: 'Pricing' })])
+        vi.mocked(getRawTable).mockResolvedValue({
+            id: 'table-9',
+            name: 'Greeting',
+            pos: 'A1:A1',
+            source: [[{ cell: 'A1', value: 'Datatype Greeting' }]],
+            regions: [{ role: 'signature', top: 0, left: 0, bottom: 0, right: 0 }],
+        } as never)
+        open()
+
+        await userEvent.click(screen.getByTestId('table-search-run'))
+        await userEvent.click(await screen.findByTestId('table-search-body-table-9'))
+
+        expect(await screen.findByText('Datatype Greeting')).toHaveAttribute('data-role', 'signature')
+    })
+
     it('starts afresh when it is opened again, after a table was gone to', async () => {
         vi.mocked(searchTables).mockResolvedValue([found({ module: 'ClaimsTests', project: 'Pricing' })])
         const panel = (shown: boolean, initialName: string) => (

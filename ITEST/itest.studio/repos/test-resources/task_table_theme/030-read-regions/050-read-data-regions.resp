@@ -1,0 +1,82 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "098552c788ff5e39ac2cd05681644fa8",
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "people",
+  "pos": "B13:B16",
+  "source": [
+    [
+      {
+        "cell": "B13",
+        "value": "Data Person people"
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "name"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "Name"
+      }
+    ],
+    [
+      {
+        "cell": "B16",
+        "value": "Ann"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "key",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 4
+    },
+    {
+      "part": "type",
+      "to": 11
+    },
+    {
+      "part": "name",
+      "to": 18
+    }
+  ],
+  "headerHeight": 2
+}

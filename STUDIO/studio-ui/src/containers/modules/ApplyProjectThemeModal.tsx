@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Alert, Modal, Select, Typography } from 'antd'
+import type { TableThemeOption } from 'types/tables'
 import { FieldRow } from '../../components/FieldRow'
-import { toThemeOptions, useTableThemes } from '../../hooks/useTableThemes'
-import { applyProjectTableTheme } from '../../services/tables'
+import { applyProjectTableTheme, getTableThemes } from '../../services/tables'
+import { errorHandler } from '../../utils/errorHandling'
 
 interface ApplyProjectThemeModalProps {
     open: boolean
@@ -19,10 +20,39 @@ interface ApplyProjectThemeModalProps {
 }
 
 /**
+ * The table themes OpenL Studio offers, in the order it offers them: the primary one first.
+ *
+ * Undefined until the list arrives. Empty when it cannot be read: the dialog then offers no theme to choose rather
+ * than failing, and the reason is kept for support.
+ */
+const useTableThemes = (): TableThemeOption[] | undefined => {
+    const [themes, setThemes] = useState<TableThemeOption[] | undefined>(undefined)
+    useEffect(() => {
+        let current = true
+        getTableThemes()
+            .then(found => {
+                if (current) {
+                    setThemes(found)
+                }
+            })
+            .catch((error: unknown) => {
+                if (current) {
+                    setThemes([])
+                }
+                errorHandler.logError(error instanceof Error ? error : new Error(String(error)),
+                    { message: 'The table themes cannot be read' })
+            })
+        return () => {
+            current = false
+        }
+    }, [])
+    return themes
+}
+
+/**
  * Writes a table theme into every table of the project that the themes style, the theme chosen here.
  *
- * <p>The theme Studio offers first, its primary theme, is chosen to begin with. The table theme the reader's settings
- * name plays no part: it only changes what the screen shows.
+ * <p>The theme Studio offers first, its primary theme, is chosen to begin with.
  *
  * <p>While the project waits to be verified, the dialog says so and applies nothing.
  */
@@ -77,7 +107,7 @@ export const ApplyProjectThemeModal = ({
                 <Select
                     data-testid="apply-project-theme-select"
                     onChange={setPicked}
-                    options={toThemeOptions(themes)}
+                    options={(themes ?? []).map(option => ({ value: option.id, label: option.name }))}
                     value={theme}
                 />
             </FieldRow>

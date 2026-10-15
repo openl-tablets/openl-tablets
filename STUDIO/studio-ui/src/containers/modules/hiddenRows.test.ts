@@ -3,11 +3,11 @@ import type { RawTableCell, RawTableCellBorderSide, RawTableCellStyle } from 'ty
 import { withoutFirstRows } from './hiddenRows'
 
 const THIN: RawTableCellBorderSide = { style: 'solid', width: 1 }
-const THEMED: RawTableCellBorderSide = { style: 'solid', width: 1, color: '#4472c4' }
+const COLOURED: RawTableCellBorderSide = { style: 'solid', width: 1, color: '#4472c4' }
 const DASHED: RawTableCellBorderSide = { style: 'dashed', width: 1 }
 
-/** How the theme draws a cell: with the given line under it. */
-const lineUnder = (line: RawTableCellBorderSide): RawTableCellStyle => ({ border: { bottom: line }, source: 'theme' })
+/** A cell drawn with the given line under it. */
+const lineUnder = (line: RawTableCellBorderSide): RawTableCellStyle => ({ border: { bottom: line } })
 
 describe('withoutFirstRows', () => {
     it('gives the rows themselves when none is kept out of sight', () => {
@@ -16,15 +16,15 @@ describe('withoutFirstRows', () => {
         expect(withoutFirstRows(rows, 0)).toBe(rows)
     })
 
-    it('draws the line the theme draws under the rows kept out of sight on the first row left', () => {
+    it('draws a coloured line under the rows kept out of sight on the first row left', () => {
         const rows: RawTableCell[][] = [
-            [{ cell: 'A1', value: 'Rules', style: lineUnder(THEMED) }],
-            [{ cell: 'A2', value: 'Age', style: { background: '#ffffff', source: 'theme' } }],
+            [{ cell: 'A1', value: 'Rules', style: lineUnder(COLOURED) }],
+            [{ cell: 'A2', value: 'Age', style: { background: '#ffffff' } }],
         ]
 
         const left = withoutFirstRows(rows, 1)
 
-        expect(left[0]?.[0]?.style).toEqual({ background: '#ffffff', source: 'theme', border: { top: THEMED } })
+        expect(left[0]?.[0]?.style).toEqual({ background: '#ffffff', border: { top: COLOURED } })
     })
 
     it('draws the line the workbook holds under the rows kept out of sight on the first row left', () => {
@@ -40,8 +40,8 @@ describe('withoutFirstRows', () => {
 
     it('keeps the line a cell draws on its top itself', () => {
         const rows: RawTableCell[][] = [
-            [{ cell: 'A1', value: 'Rules', style: lineUnder(THEMED) }],
-            [{ cell: 'A2', value: 'Age', style: { border: { top: DASHED }, source: 'theme' } }],
+            [{ cell: 'A1', value: 'Rules', style: lineUnder(COLOURED) }],
+            [{ cell: 'A2', value: 'Age', style: { border: { top: DASHED } } }],
         ]
 
         expect(withoutFirstRows(rows, 1)[0]?.[0]?.style?.border).toEqual({ top: DASHED })
@@ -49,19 +49,18 @@ describe('withoutFirstRows', () => {
 
     it('draws the line under a merged cell over every cell under it', () => {
         const rows: RawTableCell[][] = [
-            [{ cell: 'A1', value: 'Rules Premium()', colspan: 2, style: lineUnder(THEMED) }, { covered: true }],
-            [{ cell: 'A2', value: 'Age', style: { source: 'theme' } },
-                { cell: 'B2', value: 'Premium', style: { source: 'theme' } }],
+            [{ cell: 'A1', value: 'Rules Premium()', colspan: 2, style: lineUnder(COLOURED) }, { covered: true }],
+            [{ cell: 'A2', value: 'Age', style: {} }, { cell: 'B2', value: 'Premium', style: {} }],
         ]
 
         const left = withoutFirstRows(rows, 1)
 
-        expect(left[0]?.map(cell => cell.style?.border?.top)).toEqual([THEMED, THEMED])
+        expect(left[0]?.map(cell => cell.style?.border?.top)).toEqual([COLOURED, COLOURED])
     })
 
     it('leaves a cell a region of the rows kept out of sight covers to that region', () => {
         const rows: RawTableCell[][] = [
-            [{ cell: 'A1', value: 'Group', rowspan: 2, style: lineUnder(THEMED) }],
+            [{ cell: 'A1', value: 'Group', rowspan: 2, style: lineUnder(COLOURED) }],
             [{ covered: true }],
         ]
 
@@ -69,8 +68,8 @@ describe('withoutFirstRows', () => {
     })
 
     it('leaves the first row left as it is when no line is drawn over it', () => {
-        const age: RawTableCell = { cell: 'A2', value: 'Age', style: { bold: true, source: 'theme' } }
-        const rows: RawTableCell[][] = [[{ cell: 'A1', value: 'Rules', style: { source: 'theme' } }], [age]]
+        const age: RawTableCell = { cell: 'A2', value: 'Age', style: { bold: true } }
+        const rows: RawTableCell[][] = [[{ cell: 'A1', value: 'Rules', style: { italic: true } }], [age]]
 
         expect(withoutFirstRows(rows, 1)[0]?.[0]).toBe(age)
     })

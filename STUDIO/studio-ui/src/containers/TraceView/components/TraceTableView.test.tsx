@@ -5,7 +5,7 @@ import { useTraceStore } from 'store/traceStore'
 import type { DebugFrameView, RawTableView } from 'types/trace'
 import TraceTableView from 'containers/TraceView/components/TraceTableView'
 import { paperToken } from 'styles/paper'
-import { renderInTheme } from 'testing/theme'
+import { renderInTheme, tokenFor } from 'testing/theme'
 
 vi.mock('services/traceService', () => ({
     __esModule: true,
@@ -124,6 +124,24 @@ describe('TraceTableView', () => {
         const current = await marked('B2', 'A2')
 
         expect(current).toHaveStyle({ backgroundColor: paperToken().colorWarningBg, color: paperToken().colorText })
+    })
+
+    it('draws a table read with roles in the Studio look, its highlights in the colours of the theme', async () => {
+        getFrameHighlights.mockResolvedValue([{ cell: 'B2', state: 'current' }])
+        cacheTable('tbl', {
+            id: 'tbl',
+            name: 'T',
+            pos: 'A2:B2',
+            source: [[{ cell: 'A2', value: 'Step' }, { cell: 'B2', value: '= x' }]],
+            regions: [{ role: 'key', top: 0, left: 0, bottom: 0, right: 0 },
+                { role: 'value', top: 0, left: 1, bottom: 0, right: 1 }],
+        })
+
+        renderInTheme(<TraceTableView frameIndex={0} />, { theme: 'dracula', mode: 'dark' })
+        const current = await marked('B2', 'A2')
+
+        expect(current).toHaveAttribute('data-role', 'value')
+        expect(current).toHaveStyle({ backgroundColor: tokenFor('dracula', true).colorWarningBg })
     })
 
     it('mutes non-highlighted cells while a meaningful highlight (a decision result) keeps its colour', async () => {

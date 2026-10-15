@@ -61,10 +61,32 @@ public class RawTableView extends TableView implements EditableTableView {
 
     @Parameter(description = """
             The Excel styles the cells of the read use, each once: a cell and a piece of its text name their \
-            style by its index in this list. Read with the styles or a table theme; absent otherwise.""")
+            style by its index in this list. Read with the styles; absent otherwise.""")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public final @Nullable List<RawTableCellStyle> styles;
+
+    @Parameter(description = """
+            The roles of the cells of the whole table, as rectangles in table coordinates: the header row is row 0 \
+            and the first column of the table is column 0. They do not overlap and cover the table whatever window \
+            of rows is read. Read with the styles, for a table of any kind but Other; absent otherwise.""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final @Nullable List<RawTableRegion> regions;
+
+    @Parameter(description = """
+            The lines of the body that start a group, such as the rules sharing a merged value of a condition, in \
+            table coordinates. Read with the regions; absent when the table has no groups.""")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final @Nullable RawTableGroups groups;
+
+    @Parameter(description = """
+            The pieces of the header text: the keyword, the type, the name, and the punctuation, the types and the \
+            names of the parameters, each named by where it ends in the text. Read with the regions.""")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final @Nullable List<RawTableSignaturePiece> signature;
 
     @Schema(description = """
             Total number of rows when the returned window omits rows (a startRow offset or a \
@@ -94,6 +116,9 @@ public class RawTableView extends TableView implements EditableTableView {
         this.pos = builder.pos;
         this.source = builder.source;
         this.styles = builder.styles;
+        this.regions = builder.regions;
+        this.groups = builder.groups;
+        this.signature = builder.signature;
         this.totalRows = builder.totalRows;
         this.headerHeight = builder.headerHeight;
     }
@@ -135,6 +160,9 @@ public class RawTableView extends TableView implements EditableTableView {
         private String pos;
         private List<List<RawTableCell>> source;
         private @Nullable List<RawTableCellStyle> styles;
+        private @Nullable List<RawTableRegion> regions;
+        private @Nullable RawTableGroups groups;
+        private @Nullable List<RawTableSignaturePiece> signature;
         private Integer totalRows;
         private Integer headerHeight;
 
@@ -154,6 +182,21 @@ public class RawTableView extends TableView implements EditableTableView {
 
         public Builder styles(@Nullable List<RawTableCellStyle> styles) {
             this.styles = styles;
+            return this;
+        }
+
+        public Builder regions(@Nullable List<RawTableRegion> regions) {
+            this.regions = regions;
+            return this;
+        }
+
+        public Builder groups(@Nullable RawTableGroups groups) {
+            this.groups = groups;
+            return this;
+        }
+
+        public Builder signature(@Nullable List<RawTableSignaturePiece> signature) {
+            this.signature = signature;
             return this;
         }
 

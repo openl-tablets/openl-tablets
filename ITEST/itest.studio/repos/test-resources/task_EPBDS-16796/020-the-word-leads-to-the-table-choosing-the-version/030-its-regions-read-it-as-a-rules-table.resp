@@ -1,0 +1,320 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "@@@",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "validateGapOverlap_Hello",
+  "pos": "A1:B7",
+  "source": [
+    [
+      {
+        "cell": "A1",
+        "value": "Rules String validateGapOverlap_Hello(***",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "A2",
+        "value": "C1"
+      },
+      {
+        "cell": "B2",
+        "value": "RET"
+      }
+    ],
+    [
+      {
+        "cell": "A3",
+        "value": "usState == null || contains(stateLocal,usState)"
+      },
+      {
+        "cell": "B3",
+        "value": "result"
+      }
+    ],
+    [
+      {
+        "cell": "A4",
+        "value": "UsStatesEnum[] stateLocal"
+      },
+      {
+        "cell": "B4",
+        "value": "String result"
+      }
+    ],
+    [
+      {
+        "cell": "A5",
+        "value": "US States"
+      },
+      {
+        "cell": "B5",
+        "value": "RESULT"
+      }
+    ],
+    [
+      {
+        "cell": "A6",
+        "value": [
+          "CA"
+        ]
+      },
+      {
+        "cell": "B6",
+        "value": "=Hello$0(arg_name)"
+      }
+    ],
+    [
+      {
+        "cell": "A7",
+        "value": [
+          "NY"
+        ]
+      },
+      {
+        "cell": "B7",
+        "value": "=Hello$1(arg_name)"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "inputTitle",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 4,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 5,
+      "left": 0,
+      "bottom": 6,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "code",
+      "top": 5,
+      "left": 1,
+      "bottom": 6,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 5
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 37
+    },
+    {
+      "part": "punctuation",
+      "to": 38
+    },
+    {
+      "part": "parameterType",
+      "to": 44
+    },
+    {
+      "part": "parameterName",
+      "to": 53
+    },
+    {
+      "part": "punctuation",
+      "to": 54
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": "#"
+    },
+    {
+      "part": "parameterType",
+      "to": "#"
+    },
+    {
+      "part": "parameterName",
+      "to": "#"
+    },
+    {
+      "part": "punctuation",
+      "to": 305
+    }
+  ],
+  "headerHeight": 4
+}

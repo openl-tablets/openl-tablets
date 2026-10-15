@@ -9,7 +9,7 @@ Content-Type: application/json
       "target": {
         "type": "cell",
         "row": 2,
-        "column": 2,
+        "column": 1,
         "value": "Good Day"
       }
     }

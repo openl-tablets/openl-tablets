@@ -1,0 +1,370 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "bbfc9702944a78d11af0db0d8aae2385",
+  "tableType": "RawSource",
+  "kind": "TBasic",
+  "name": "Factorial",
+  "pos": "B71:F81",
+  "source": [
+    [
+      {
+        "cell": "B71",
+        "value": "TBasic Integer Factorial (Integer n)",
+        "colspan": 5
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B72",
+        "value": "Label"
+      },
+      {
+        "cell": "C72",
+        "value": "Description"
+      },
+      {
+        "cell": "D72",
+        "value": "Operation"
+      },
+      {
+        "cell": "E72",
+        "value": "Condition"
+      },
+      {
+        "cell": "F72",
+        "value": "Action"
+      }
+    ],
+    [
+      {
+        "cell": "B73",
+        "value": "Name"
+      },
+      {
+        "cell": "C73",
+        "value": "Description"
+      },
+      {
+        "cell": "D73",
+        "value": "Operation"
+      },
+      {
+        "cell": "E73",
+        "value": "Condition"
+      },
+      {
+        "cell": "F73",
+        "value": "Action"
+      }
+    ],
+    [
+      {
+        "cell": "B74"
+      },
+      {
+        "cell": "C74",
+        "value": "the result"
+      },
+      {
+        "cell": "D74",
+        "value": "VAR"
+      },
+      {
+        "cell": "E74",
+        "value": "factorial"
+      },
+      {
+        "cell": "F74",
+        "value": "1"
+      }
+    ],
+    [
+      {
+        "cell": "B75"
+      },
+      {
+        "cell": "C75",
+        "value": "the multiplier"
+      },
+      {
+        "cell": "D75",
+        "value": "VAR"
+      },
+      {
+        "cell": "E75",
+        "value": "i"
+      },
+      {
+        "cell": "F75",
+        "value": "1"
+      }
+    ],
+    [
+      {
+        "cell": "B76"
+      },
+      {
+        "cell": "C76"
+      },
+      {
+        "cell": "D76",
+        "value": "WHILE"
+      },
+      {
+        "cell": "E76",
+        "value": "i <= n"
+      },
+      {
+        "cell": "F76"
+      }
+    ],
+    [
+      {
+        "cell": "B77"
+      },
+      {
+        "cell": "C77"
+      },
+      {
+        "cell": "D77",
+        "value": "SET",
+        "style": 0
+      },
+      {
+        "cell": "E77"
+      },
+      {
+        "cell": "F77",
+        "value": "Calculation"
+      }
+    ],
+    [
+      {
+        "cell": "B78"
+      },
+      {
+        "cell": "C78"
+      },
+      {
+        "cell": "D78",
+        "value": "RETURN"
+      },
+      {
+        "cell": "E78",
+        "value": "factorial"
+      },
+      {
+        "cell": "F78"
+      }
+    ],
+    [
+      {
+        "cell": "B79",
+        "value": "Calculation"
+      },
+      {
+        "cell": "C79",
+        "value": "multiplies by i"
+      },
+      {
+        "cell": "D79",
+        "value": "SUB"
+      },
+      {
+        "cell": "E79"
+      },
+      {
+        "cell": "F79"
+      }
+    ],
+    [
+      {
+        "cell": "B80"
+      },
+      {
+        "cell": "C80"
+      },
+      {
+        "cell": "D80",
+        "value": "SET",
+        "style": 0
+      },
+      {
+        "cell": "E80"
+      },
+      {
+        "cell": "F80",
+        "value": "factorial *= i"
+      }
+    ],
+    [
+      {
+        "cell": "B81"
+      },
+      {
+        "cell": "C81",
+        "value": "the next multiplier"
+      },
+      {
+        "cell": "D81",
+        "value": "SET",
+        "style": 0
+      },
+      {
+        "cell": "E81"
+      },
+      {
+        "cell": "F81",
+        "value": "i += 1"
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "indent": 1
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 4
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 4
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 4
+    },
+    {
+      "role": "key",
+      "top": 3,
+      "left": 0,
+      "bottom": 6,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 3,
+      "left": 1,
+      "bottom": 6,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "code",
+      "top": 3,
+      "left": 2,
+      "bottom": 6,
+      "right": 4
+    },
+    {
+      "role": "result",
+      "top": 7,
+      "left": 0,
+      "bottom": 7,
+      "right": 1
+    },
+    {
+      "role": "result",
+      "type": "code",
+      "top": 7,
+      "left": 2,
+      "bottom": 7,
+      "right": 3
+    },
+    {
+      "role": "result",
+      "top": 7,
+      "left": 4,
+      "bottom": 7,
+      "right": 4
+    },
+    {
+      "role": "section",
+      "top": 8,
+      "left": 0,
+      "bottom": 8,
+      "right": 4
+    },
+    {
+      "role": "key",
+      "top": 9,
+      "left": 0,
+      "bottom": 10,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 9,
+      "left": 1,
+      "bottom": 10,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "code",
+      "top": 9,
+      "left": 2,
+      "bottom": 10,
+      "right": 4
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 6
+    },
+    {
+      "part": "type",
+      "to": 14
+    },
+    {
+      "part": "name",
+      "to": 24
+    },
+    {
+      "part": "punctuation",
+      "to": 26
+    },
+    {
+      "part": "parameterType",
+      "to": 33
+    },
+    {
+      "part": "parameterName",
+      "to": 35
+    },
+    {
+      "part": "punctuation",
+      "to": 36
+    }
+  ],
+  "headerHeight": 2
+}

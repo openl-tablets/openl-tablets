@@ -1,8 +1,14 @@
 import { createStyles } from 'antd-style'
 import { paperToken } from '../../../styles/paper'
 
-export const useStyles = createStyles(({ css, token }) => ({
-    card: css`
+/**
+ * The styles of the table of a frame. The marks of the trace lie on the cells: on the paper of the workbook where the
+ * table is drawn in its formatting ({@link paperToken}), in the colours of the theme in the Studio look.
+ */
+export const useStyles = createStyles(({ css, token }, onPaper: boolean) => {
+    const mark = onPaper ? paperToken() : token
+    return {
+        card: css`
         .ant-card-head {
             min-height: 36px;
             padding: 0 ${token.paddingSM}px;
@@ -21,42 +27,42 @@ export const useStyles = createStyles(({ css, token }) => ({
             padding: ${token.paddingSM}px;
         }
     `,
-    loading: css`
+        loading: css`
         display: flex;
         align-items: center;
         justify-content: center;
         min-height: 100px;
     `,
-    content: css`
+        content: css`
         overflow: auto;
         max-width: 100%;
     `,
-    // Everything that is NOT part of the highlighted calculation, muted to grey (like the legacy trace),
-    // so the highlighted cells are the only colour on the table and the eye lands on them instantly.
-    dimmed: css`
+        // Everything that is NOT part of the highlighted calculation, muted to grey (like the legacy trace),
+        // so the highlighted cells are the only colour on the table and the eye lands on them instantly.
+        dimmed: css`
         filter: grayscale(1);
         opacity: 0.6;
     `,
-    /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend.
+        /* One execution-state colour language, shared with the spreadsheet grid, decision panel and legend.
        Matches the legacy trace: a matched condition and the returned result are green, an unmatched
        condition is red. The result stands apart from a plain matched condition by a bold green border.
-       The marks lie on the paper of the table ({@link paperToken}), and the legend keys them with these classes. */
-    current: css`
-        background: ${paperToken().colorWarningBg};
+       The legend keys them with these classes. */
+        current: css`
+        background: ${mark.colorWarningBg};
     `,
-    result: css`
-        background: ${paperToken().colorSuccessBg};
-        box-shadow: inset 0 0 0 1px ${paperToken().colorSuccess};
+        result: css`
+        background: ${mark.colorSuccessBg};
+        box-shadow: inset 0 0 0 1px ${mark.colorSuccess};
         font-weight: 600;
     `,
-    conditionTrue: css`
-        background: ${paperToken().colorSuccessBg};
+        conditionTrue: css`
+        background: ${mark.colorSuccessBg};
     `,
-    conditionFalse: css`
-        background: ${paperToken().colorErrorBg};
+        conditionFalse: css`
+        background: ${mark.colorErrorBg};
     `,
-    // The colour key, shown under the table — but only for the states this table actually paints.
-    legend: css`
+        // The colour key, shown under the table — but only for the states this table actually paints.
+        legend: css`
         display: flex;
         flex-wrap: wrap;
         gap: ${token.marginSM}px;
@@ -64,20 +70,21 @@ export const useStyles = createStyles(({ css, token }) => ({
         font-size: ${token.fontSizeSM}px;
         color: ${token.colorTextTertiary};
     `,
-    legendItem: css`
+        legendItem: css`
         display: inline-flex;
         align-items: center;
         gap: ${token.marginXXS}px;
     `,
-    swatch: css`
+        swatch: css`
         width: 12px;
         height: 12px;
         border-radius: ${token.borderRadiusSM}px;
         border: 1px solid ${token.colorBorderSecondary};
     `,
-    truncated: css`
+        truncated: css`
         margin-top: ${token.marginXS}px;
         font-size: ${token.fontSizeSM}px;
         color: ${token.colorTextTertiary};
     `,
-}))
+    }
+})

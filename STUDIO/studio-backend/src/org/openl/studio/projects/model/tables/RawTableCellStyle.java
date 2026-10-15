@@ -10,11 +10,10 @@ import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Excel cell styling: background, font and alignment, as the workbook holds it or as a table theme draws the cell.
+ * Excel cell styling: background, font and alignment, as the workbook holds it.
  *
  * <p>Every field is optional and absent when it matches the default, so a plain cell carries no style and
- * the whole object is dropped from the response. Present only when the raw table is requested with styles or with
- * a table theme, whose look names the theme as its source.
+ * the whole object is dropped from the response. Present only when the raw table is requested with styles.
  *
  * @param background background colour as {@code #rrggbb}, absent when white (the default)
  * @param color     font colour as {@code #rrggbb}, absent when black (the default)
@@ -26,17 +25,6 @@ import org.jspecify.annotations.Nullable;
  * @param strikeout {@code true} when the font is struck out, absent otherwise
  * @param indent    left indent in Excel indent units, absent when zero
  * @param border    cell borders per side, absent when the cell has no borders
- * @param fontFamily name of the font; set by the table theme only, absent in a style read from the workbook
- * @param fontSize   size of the font in points; set by the table theme only, absent in a style read from the
- *                   workbook
- * @param backgroundKey the key of the table theme file the background colour is set at, such as
- *                      {@code spreadsheet.values.background}; set by the table theme only, so a screen can draw the
- *                      colour of the key its own way
- * @param colorKey      the key of the table theme file the font colour is set at, such as
- *                      {@code base.header.keyword.color}; set by the table theme only
- * @param source        where the style comes from: {@link RawTableStyleSource#THEME} for the look a table theme draws
- *                      the cell with, which a read naming the theme reports in place of the style of the workbook;
- *                      absent for the style the workbook holds (the default, {@link RawTableStyleSource#WORKBOOK})
  */
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -71,27 +59,7 @@ public record RawTableCellStyle(
         Integer indent,
 
         @Parameter(description = "Cell borders per side, absent when the cell has no borders")
-        RawTableCellBorder border,
-
-        @Parameter(description = "Name of the font; set by the table theme only")
-        @Nullable String fontFamily,
-
-        @Parameter(description = "Size of the font in points; set by the table theme only")
-        @Nullable Integer fontSize,
-
-        @Parameter(description = "Key of the table theme file the background colour is set at, such as "
-                + "spreadsheet.values.background; set by the table theme only, so a screen can draw the colour of the "
-                + "key its own way")
-        @Nullable String backgroundKey,
-
-        @Parameter(description = "Key of the table theme file the font colour is set at, such as "
-                + "base.header.keyword.color; set by the table theme only")
-        @Nullable String colorKey,
-
-        @Parameter(description = "Where the style comes from: theme for the look a table theme draws the cell with, "
-                + "which a read naming the theme reports in place of the style of the workbook, a view only that no "
-                + "edit writes; absent for the style the workbook holds (workbook, the default)")
-        @Nullable RawTableStyleSource source
+        RawTableCellBorder border
 ) {
 
     /** Whether every attribute is absent, so the cell carries no style at all. */
@@ -106,11 +74,6 @@ public record RawTableCellStyle(
                 && underline == null
                 && strikeout == null
                 && indent == null
-                && border == null
-                && fontFamily == null
-                && fontSize == null
-                && backgroundKey == null
-                && colorKey == null
-                && source == null;
+                && border == null;
     }
 }

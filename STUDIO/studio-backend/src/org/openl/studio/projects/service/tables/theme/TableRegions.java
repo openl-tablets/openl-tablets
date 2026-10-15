@@ -1,34 +1,82 @@
 package org.openl.studio.projects.service.tables.theme;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRegion;
+import org.openl.studio.projects.model.tables.RawTableSignaturePiece;
+import org.openl.studio.projects.model.tables.RawTableValueType;
+
 /**
- * The layout of one table: the regions its cells form, and the pieces of its header text.
+ * The layout of one table: the regions of its roles, the lines starting a group, the pieces of its header text, and
+ * the type of each value whose type differs from the type of its region.
  *
- * <p>A region is a rectangle of cells that take their look from the same parts of a theme. Regions are named in table
- * coordinates: the header row is row 0 and the first column of the table is column 0. They do not overlap. A cell no
- * region holds is one no theme reaches, and keeps its look.
+ * <p>The regions are named in table coordinates: the header row is row 0 and the first column of the table is
+ * column 0. They do not overlap and cover the table. The layout knows no theme, so it is laid out once for a compiled
+ * table and serves every read of it.
  *
- * <p>The layout knows no theme, so it is laid out once for a compiled table and drawn in any theme.
- *
- * @param regions   the regions of the table
- * @param signature the pieces of the header text, in the order of the text, or an empty list when the header has no
- *                  keyword
+ * @param regions   the regions of the roles of the table
+ * @param groups    the lines of the body that start a group
+ * @param signature the pieces of the header text, or an empty list when the header has no keyword
+ * @param types     the type of each value of a type other than the type of its region, by its place in the table
+ * @param theme     how a table theme is laid over the table when it is written into a workbook
  * @author Yury Molchan
  */
-record TableRegions(List<Region> regions, List<HeaderPiece> signature) {
+public record TableRegions(List<RawTableRegion> regions,
+                           RawTableGroups groups,
+                           List<RawTableSignaturePiece> signature,
+                           Map<Cell, RawTableValueType> types,
+                           Theme theme) {
 
-    TableRegions {
+    public TableRegions {
         regions = List.copyOf(regions);
         signature = List.copyOf(signature);
+        types = Map.copyOf(types);
     }
 
     /**
-     * A rectangle of cells taking their look from the same parts.
+     * The type of the value of a cell, when it differs from the type of its region.
+     *
+     * @param row    the row of the cell, in table coordinates
+     * @param column the column of the cell, in table coordinates
+     * @return the type, or {@code null} for a cell of the type of its region or holding no value of a type
+     */
+    public @Nullable RawTableValueType typeAt(int row, int column) {
+        return types.get(new Cell(row, column));
+    }
+
+    /**
+     * A cell of the table.
+     *
+     * @param row    the row, in table coordinates
+     * @param column the column, in table coordinates
+     */
+    public record Cell(int row, int column) {
+    }
+
+    /**
+     * How a table theme is laid over a table: the regions of the parts of the theme, and the pieces of the header the
+     * theme formats.
+     *
+     * @param regions the regions of the parts of a theme, which cover the table
+     * @param header  the pieces of the header text, in the order of the text, or an empty list when the header has no
+     *                keyword
+     */
+    record Theme(List<Region> regions, List<HeaderPiece> header) {
+
+        Theme {
+            regions = List.copyOf(regions);
+            header = List.copyOf(header);
+        }
+    }
+
+    /**
+     * A rectangle of cells taking their look from the same parts of a theme.
      *
      * @param parts  the parts of a theme the cells take their look from
      * @param top    the first row, in table coordinates
@@ -45,7 +93,7 @@ record TableRegions(List<Region> regions, List<HeaderPiece> signature) {
     }
 
     /**
-     * A piece of the header text.
+     * A piece of the header text, as a theme formats it.
      *
      * @param part  the part of the header the piece is
      * @param start the index of the first character of the piece

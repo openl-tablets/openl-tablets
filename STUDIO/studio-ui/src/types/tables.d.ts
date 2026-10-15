@@ -2,16 +2,54 @@ import type { ProjectStatusDetailedMessage } from '../services/projectStatus'
 
 import type { TraceParameterValue } from './trace'
 
-/**
- * Where a style comes from: the workbook, the default a read leaves out, or the table theme the read named, whose look
- * is a view only that no edit writes.
- */
-export type RawTableStyleSource = 'workbook' | 'theme'
+/** What a cell of a table means, which the cell takes its look from in the Studio look. */
+export type RawTableRole =
+    | 'signature'
+    | 'properties'
+    | 'code'
+    | 'inputTitle'
+    | 'outputTitle'
+    | 'key'
+    | 'value'
+    | 'output'
+    | 'section'
+    | 'result'
+
+/** The type of a value of the body of a table, as the compiler reads it. */
+export type RawTableValueType = 'code' | 'number' | 'date' | 'boolean' | 'string'
 
 /**
- * Excel cell style read from the workbook, or the look a table theme draws the cell with where the read named one;
- * every field is optional and absent when it is the default.
+ * A rectangle of the cells of a table that take one role, in table coordinates: the header row is row 0 and the first
+ * column of the table is column 0. The regions of a table do not overlap and cover it.
  */
+export interface RawTableRegion {
+    role: RawTableRole
+    /** The type of the values of the cells, when they all have one; a cell of another type names its own. */
+    type?: RawTableValueType
+    top: number
+    left: number
+    bottom: number
+    right: number
+}
+
+/** The lines of the body of a table that start a group, in table coordinates. */
+export interface RawTableGroups {
+    /** The rows that start a group: a line is drawn above each. */
+    rows?: number[]
+    /** The columns that start a group: a line is drawn on the left of each. */
+    columns?: number[]
+}
+
+/** A part of the header text of a table. */
+export type RawTableSignaturePart = 'keyword' | 'type' | 'name' | 'punctuation' | 'parameterType' | 'parameterName'
+
+/** A piece of the header text: it ends at `to`, starts where the piece before it ends, and takes the spaces before it. */
+export interface RawTableSignaturePiece {
+    part: RawTableSignaturePart
+    to: number
+}
+
+/** Excel cell style read from the workbook; every field is optional and absent when it is the default. */
 export interface RawTableCellStyle {
     /** Background colour as #rrggbb (absent when white) */
     background?: string
@@ -28,22 +66,6 @@ export interface RawTableCellStyle {
     indent?: number
     /** The cell borders per side; a side is absent where the cell has no border */
     border?: RawTableCellBorder
-    /** The name of the font; set by the table theme only */
-    fontFamily?: string
-    /** The size of the font in points; set by the table theme only */
-    fontSize?: number
-    /**
-     * The key of the table theme file the background colour is set at, such as `spreadsheet.values.background`; set by
-     * the table theme only
-     */
-    backgroundKey?: string
-    /**
-     * The key of the table theme file the font colour is set at, such as `base.header.keyword.color`; set by the table
-     * theme only
-     */
-    colorKey?: string
-    /** Where the style comes from: `theme` for the look of a table theme; absent for the style of the workbook */
-    source?: RawTableStyleSource
 }
 
 /** One side of a cell border. */
@@ -53,11 +75,6 @@ export interface RawTableCellBorderSide {
     width?: number
     /** Line colour as #rrggbb (absent when black) */
     color?: string
-    /**
-     * The key of the table theme file the line colour is set at, such as `spreadsheet.resultRow.border.top.color`,
-     * which names the side the file sets whichever side the line is drawn on; set by the table theme only
-     */
-    colorKey?: string
 }
 
 /** The cell borders, one entry per side. */
@@ -95,18 +112,14 @@ export interface RawTableCell {
     rowspan?: number
     /** True for a cell masked by another cell's span */
     covered?: boolean
-    /**
-     * Excel cell style, present only when the raw table was requested with `styles=true`; the look of the table theme
-     * instead, with the theme as its `source`, where the read named the theme with `tableTheme=<id>`
-     */
+    /** Excel cell style, present only when the raw table was requested with `styles=true` */
     style?: RawTableCellStyle
     /** What the compiler knows about the cell, present only when the read asked with `metaInfo=true` */
     metaInfo?: RawTableCellMetaInfo
-    /**
-     * Pieces of the text formatted with fonts of their own; read with the styles, absent for the cell font. Where the
-     * read named a table theme, the pieces the theme draws the text in instead
-     */
+    /** Pieces of the text formatted with fonts of their own; read with the styles, absent for the cell font */
     runs?: RawTableTextRun[]
+    /** The type of the value, when it differs from the type of the region of the cell; read with the styles */
+    type?: RawTableValueType
 }
 
 /**
@@ -197,11 +210,6 @@ export type TableEdit =
             style: RawCellStyleInput
         }
     }
-    /**
-     * Writes a table theme into a table the server offers themes for, as the table was saved. It is sent alone: a
-     * batch holding it and another edit is refused.
-     */
-    | { operation: 'theme', theme: string }
 
 /** A table theme OpenL Studio offers. */
 export interface TableThemeOption {
@@ -338,6 +346,8 @@ export type TableRunState = 'can-run' | 'can-run-module' | 'cannot-run'
 export interface RawTableView {
     id: string
     name: string
+    /** Where the table sits on its sheet, in A1 notation: `B3:D8`. The roles of its cells are found by it. */
+    pos?: string
     /** The table body as a 2D matrix indexed source[row][col] */
     source: RawTableCell[][]
     /** Full row count when the response was truncated by maxRows; absent when the whole table is returned */
@@ -355,6 +365,12 @@ export interface RawTableView {
     partial?: boolean
     /** How the table is laid out on its sheet; absent on a table nothing asks this about. */
     layout?: TableLayout
+    /** The roles of the cells of the whole table; read with the styles, for a table of any kind but Other. */
+    regions?: RawTableRegion[]
+    /** The lines of the body that start a group; absent when the table has none. */
+    groups?: RawTableGroups
+    /** The pieces of the header text; absent when the header has no keyword. */
+    signature?: RawTableSignaturePiece[]
 }
 
 /**

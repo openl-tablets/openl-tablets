@@ -1,0 +1,61 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0735346c6d46143a844f594ff2d09504",
+  "tableType": "RawSource",
+  "kind": "Method",
+  "name": "Answer",
+  "pos": "B38:B39",
+  "source": [
+    [
+      {
+        "cell": "B38",
+        "value": "Method Integer Answer()"
+      }
+    ],
+    [
+      {
+        "cell": "B39",
+        "value": "return 42;"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 6
+    },
+    {
+      "part": "type",
+      "to": 14
+    },
+    {
+      "part": "name",
+      "to": 21
+    },
+    {
+      "part": "punctuation",
+      "to": 23
+    }
+  ],
+  "headerHeight": 0
+}

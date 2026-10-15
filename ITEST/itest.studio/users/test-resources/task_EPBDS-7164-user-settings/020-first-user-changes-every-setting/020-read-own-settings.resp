@@ -9,8 +9,6 @@ Content-Type: application/json
   "lastName": "Brown",
   "showHeader": false,
   "showFormulas": true,
-  "tableTheme": "green",
-  "overrideWithStudioTheme": true,
   "testsPerPage": 20,
   "testsFailuresOnly": true,
   "testsFailuresPerTest": -1,

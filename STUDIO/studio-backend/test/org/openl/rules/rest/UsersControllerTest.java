@@ -146,23 +146,6 @@ class UsersControllerTest {
     }
 
     @Test
-    void editUserProfile_savesAnEmptyTableThemeToDrawTheFormattingOfTheExcelFile() {
-        when(currentUserInfo.getUserName()).thenReturn("jdoe");
-        var dbUser = dbUser(UserExternalFlags.builder().build());
-        when(userManagementService.getUser("jdoe")).thenReturn(dbUser);
-        var controller = createController("multi");
-
-        var model = new UserProfileEditModel().setTableTheme("");
-        model.setEmail("old@example.com").setDisplayName("John Doe");
-
-        controller.editUserProfile(request, model);
-
-        // An empty theme is a choice, not a setting left out: it takes the user's own theme away.
-        verify(userSettingsManager).setProperty("jdoe", "table.theme", "");
-        verifyNoMoreInteractions(userSettingsManager);
-    }
-
-    @Test
     void editUserProfile_keepsDetailsLeftOutOfTheRequest() {
         when(currentUserInfo.getUserName()).thenReturn("jdoe");
         var dbUser = dbUser(UserExternalFlags.builder().withFeature(UserExternalFlags.Feature.EMAIL_VERIFIED).build());
@@ -225,8 +208,6 @@ class UsersControllerTest {
 
         var model = new UserProfileEditModel().setShowHeader(showHeader)
                 .setShowFormulas(true)
-                .setTableTheme("green")
-                .setOverrideWithStudioTheme(true)
                 .setTestsPerPage(20)
                 .setTestsFailuresOnly(true)
                 .setTestsFailuresPerTest(-1)
@@ -238,8 +219,6 @@ class UsersControllerTest {
 
         verify(userSettingsManager).setProperty("jdoe", "table.view", tableView);
         verify(userSettingsManager).setProperty("jdoe", "table.formulas.show", "true");
-        verify(userSettingsManager).setProperty("jdoe", "table.theme", "green");
-        verify(userSettingsManager).setProperty("jdoe", "table.theme-override", "true");
         verify(userSettingsManager).setProperty("jdoe", "test.tests.perpage", "20");
         verify(userSettingsManager).setProperty("jdoe", "test.failures.only", "true");
         verify(userSettingsManager).setProperty("jdoe", "test.failures.pertest", "-1");
@@ -256,10 +235,6 @@ class UsersControllerTest {
         var stored = Map.of("table.view",
                 "business",
                 "table.formulas.show",
-                "true",
-                "table.theme",
-                "green",
-                "table.theme-override",
                 "true",
                 "test.tests.perpage",
                 "20",
@@ -278,8 +253,6 @@ class UsersControllerTest {
         assertEquals("jdoe", profile.getUsername());
         assertEquals(false, profile.getShowHeader());
         assertEquals(true, profile.getShowFormulas());
-        assertEquals("green", profile.getTableTheme());
-        assertEquals(true, profile.getOverrideWithStudioTheme());
         assertEquals(Integer.valueOf(20), profile.getTestsPerPage());
         assertEquals(true, profile.getTestsFailuresOnly());
         assertEquals(Integer.valueOf(-1), profile.getTestsFailuresPerTest());
@@ -299,7 +272,6 @@ class UsersControllerTest {
 
         assertEquals("jdoe", profile.getUsername());
         assertNull(profile.getShowFormulas());
-        assertNull(profile.getOverrideWithStudioTheme());
         assertNull(profile.getTestsPerPage());
         assertNull(profile.getTestsFailuresPerTest());
     }

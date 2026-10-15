@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Card, Spin, Empty } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useTraceStore } from 'store'
@@ -6,6 +6,8 @@ import traceService from 'services/traceService'
 import { NotFoundError, isApiHttpError } from 'services'
 import type { HighlightState, RawTableCell } from 'types/trace'
 import { RawTableGrid } from 'components/RawTableGrid'
+import { onPaper, rolesOf } from 'components/tableRoles'
+import { useAppTheme } from 'providers/AppThemeProvider'
 import { useStyles } from './TraceTableView.styles'
 
 interface TraceTableViewProps {
@@ -25,12 +27,16 @@ interface TraceTableViewProps {
  */
 const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCell, dimOthers }) => {
     const { t } = useTranslation('trace')
-    const { styles, cx } = useStyles()
+    const { excelFormatting } = useAppTheme()
     const projectId = useTraceStore(s => s.projectId)
     const stackVersion = useTraceStore(s => s.stackVersion)
     const tableId = useTraceStore(s => s.frames[frameIndex]?.tableId)
     const table = useTraceStore(s => (tableId ? s.rawTableCache[tableId] : undefined)) ?? null
     const loadRawTable = useTraceStore(s => s.loadRawTable)
+    // What the cells of the table are, which the Studio look draws it by.
+    const roles = useMemo(() => (table === null ? undefined : rolesOf(table)), [table])
+    // The marks lie on the paper of the workbook in its formatting, and in the colours of the theme in the Studio look.
+    const { styles, cx } = useStyles(onPaper(roles, excelFormatting))
 
     const [highlights, setHighlights] = useState<Record<string, HighlightState>>({})
     const [loading, setLoading] = useState(false)
@@ -144,7 +150,7 @@ const TraceTableView: React.FC<TraceTableViewProps> = ({ frameIndex, highlightCe
     return (
         <Card className={styles.card} size="small" title={t('details.table')}>
             <div className={styles.content}>
-                <RawTableGrid decorate={decorate} rows={rows} testId="trace-table" />
+                <RawTableGrid decorate={decorate} roles={roles} rows={rows} testId="trace-table" />
             </div>
             {shownLegend.length > 0 && (
                 <div className={styles.legend} data-testid="trace-legend">

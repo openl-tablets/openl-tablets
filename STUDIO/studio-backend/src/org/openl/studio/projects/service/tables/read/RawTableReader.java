@@ -28,13 +28,16 @@ import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellMetaInfo;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableCellUsage;
+import org.openl.studio.projects.model.tables.RawTableGroups;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
 import org.openl.studio.projects.model.tables.RawTableUsageKind;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.service.tables.TableModules;
-import org.openl.studio.projects.service.tables.theme.ThemedTable;
+import org.openl.studio.projects.service.tables.theme.TableRegionLayout;
+import org.openl.studio.projects.service.tables.theme.TableRegions;
 import org.openl.util.StringUtils;
 
 /**
@@ -78,7 +81,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /**
      * Read a window of a table in raw format, with what the read asks to report besides the values of the cells:
-     * the Excel style of each cell, what the compiler knows about it, the look the table theme gives it.
+     * the Excel style of each cell and the roles of the cells, what the compiler knows about each cell.
      * <p>
      * The window is the {@code maxRows} rows starting at {@code startRow}, so a caller can page through a
      * large table in slices — read a chunk, edit it through the table actions API, then read the next chunk.
@@ -88,10 +91,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * {@link RawTableView#totalRows} reports the full row count whenever the window omits rows. The matrix is
      * empty when {@code startRow} is past the last row.
      * <p>
-     * A read naming a table theme reports the look the theme gives each cell in its style and its runs, in place of
-     * the formatting of the workbook, the theme named as the source of the style. Such a read is a view only: an edit
-     * is made from a read of the workbook, so it never writes the theme. A cell the theme does not reach keeps the
-     * style the workbook holds.
+     * A read with the styles names each style its cells use once, and reports the roles of the cells of the whole
+     * table, its groups and the pieces of its header, which every window of its rows shares, laid out once for each
+     * compilation of the table. A cell whose value is of another type than its region names its own type.
      *
      * @param openLTable the table to read
      * @param read       the window of rows to read, and what to report besides the values of the cells
@@ -116,11 +118,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     public RawTableCells readCells(IOpenLTable openLTable, boolean withStyles) {
         var metaInfoReader = metaInfoReaderOf(openLTable);
         var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), TableWindow.EVERY_ROW, metaInfoReader);
-        var styles = withStyles ? new RawTableStyleDictionary() : null;
+        var styled = withStyles ? new Styled(null) : null;
         var source = tableModel == null ? List.<List<RawTableCell>>of()
                 : convertTableModelToMatrix(tableModel, metaInfoReader,
-                        RawTableRead.builder().withStyles(withStyles).build(), styles);
-        return new RawTableCells(source, styles == null ? null : styles.styles());
+                        RawTableRead.builder().withStyles(withStyles).build(), styled);
+        return new RawTableCells(source, styled == null ? null : styled.styles.styles());
     }
 
     /** The table's meta info, or an empty one when the table carries none. */
@@ -141,20 +143,70 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var tableModel = gridTable == null ? null
                 : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
 
-        var styles = read.withStyles() || read.theme() != null ? new RawTableStyleDictionary() : null;
+        var styled = read.withStyles() ? styledOf(openLTable) : null;
         List<List<RawTableCell>> source = tableModel == null ? List.of()
-                : convertTableModelToMatrix(tableModel, metaInfoReader, read, styles);
+                : convertTableModelToMatrix(tableModel, metaInfoReader, read, styled);
         // The grid model keeps one extra row rather than hiding a single row; trim to exactly the window so
         // its size is predictable for paging.
         if (window.rows() != TableWindow.EVERY_ROW && source.size() > window.rows()) {
             source = source.subList(0, window.rows());
         }
         builder.source(source);
-        builder.styles(styles == null ? null : styles.styles());
+        if (styled != null) {
+            builder.styles(styled.styles.styles());
+            Optional.ofNullable(styled.layout).map(Layout::regions).ifPresent(regions -> builder
+                    .regions(regions.regions())
+                    // A table without groups sends none, rather than a group of no lines.
+                    .groups(RawTableGroups.NONE.equals(regions.groups()) ? null : regions.groups())
+                    .signature(regions.signature()));
+        }
         builder.headerHeight(headerHeightOf(openLTable));
         // Report the full height whenever the window omits rows (a non-zero offset or a top cap).
         if (window.partial(fullHeight)) {
             builder.totalRows(fullHeight);
+        }
+    }
+
+    /** What a read with the styles reports besides the values of the cells, for a table of a project. */
+    private static Styled styledOf(IOpenLTable openLTable) {
+        var regions = TableRegionLayout.regionsOf(openLTable);
+        var region = openLTable.getGridTable().getRegion();
+        return new Styled(regions == null ? null : new Layout(regions, region.getTop(), region.getLeft()));
+    }
+
+    /** What a read with the styles reports besides the values of the cells, gathered as the cells are read. */
+    private static final class Styled {
+
+        /** The styles the cells name. */
+        private final RawTableStyleDictionary styles = new RawTableStyleDictionary();
+
+        /** The roles of the cells of the table, or {@code null} for a table that has none. */
+        private final @Nullable Layout layout;
+
+        Styled(@Nullable Layout layout) {
+            this.layout = layout;
+        }
+
+        /** The number of the style of a cell. */
+        @Nullable
+        Integer styleOf(CellModel cellModel) {
+            return styles.numberOf(RawTableReader.styleOf(cellModel));
+        }
+    }
+
+    /**
+     * The roles of the cells of a table, and where the table stands on its sheet.
+     *
+     * @param regions the roles of the cells, in table coordinates
+     * @param top     the row of the sheet the table starts at
+     * @param left    the column of the sheet the table starts at
+     */
+    private record Layout(TableRegions regions, int top, int left) {
+
+        /** The type of the value of a cell of the sheet, when it differs from the type of its region. */
+        @Nullable
+        RawTableValueType typeAt(ICell cell) {
+            return regions.typeAt(cell.getAbsoluteRow() - top, cell.getAbsoluteColumn() - left);
         }
     }
 
@@ -207,11 +259,11 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * screen draws the wider one.
      *
      * @param tableModel The TableModel containing cell layout and span information
-     * @param styles     the styles the cells name, or {@code null} for a read of the values alone
+     * @param styled     what a read with the styles reports besides the values, or {@code null} for the values alone
      * @return 2D list of RawTableCell objects representing the table matrix
      */
     private List<List<RawTableCell>> convertTableModelToMatrix(TableModel tableModel, MetaInfoReader metaInfoReader,
-            RawTableRead read, @Nullable RawTableStyleDictionary styles) {
+            RawTableRead read, @Nullable Styled styled) {
         var cellValueReader = new CellValueReader(metaInfoReader);
         var matrix = new ArrayList<List<RawTableCell>>();
 
@@ -232,7 +284,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 }
                 var cellModel = (CellModel) cells[row][col];
                 var cell = tableModel.getGridTable().getCell(cellModel.getColumn(), cellModel.getRow());
-                rowCells.add(readCell(cell, cellModel, read, metaInfoReader, cellValueReader, styles));
+                rowCells.add(readCell(cell, cellModel, read, metaInfoReader, cellValueReader, styled));
                 coveredCells.mark(row, col, cellModel);
             }
             matrix.add(rowCells);
@@ -242,7 +294,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
 
     /** One cell as the API reports it: what it holds, what it was written with, and how far it reaches. */
     private RawTableCell readCell(ICell cell, CellModel cellModel, RawTableRead read,
-            MetaInfoReader metaInfoReader, CellValueReader cellValueReader, @Nullable RawTableStyleDictionary styles) {
+            MetaInfoReader metaInfoReader, CellValueReader cellValueReader, @Nullable Styled styled) {
         // A cell carries both what it computes and what it was written with, so a screen showing formulas
         // chooses between them without asking for the table again.
         var formula = cell.getFormula();
@@ -255,15 +307,10 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 .colspan(cellModel.getColspan())
                 .rowspan(cellModel.getRowspan())
                 .metaInfo(read.withMetaInfo() ? metaInfoOf(cell, metaInfoReader, read.modules()) : null);
-        var themed = Optional.ofNullable(read.theme())
-                .map(theme -> theme.at(cell.getAbsoluteRow(), cell.getAbsoluteColumn()))
-                .orElse(null);
-        if (styles != null) {
-            if (themed != null) {
-                drawInTheme(builder, cell, styleOf(cellModel), themed, styles);
-            } else {
-                builder.style(styles.numberOf(styleOf(cellModel))).runs(runsOf(cell, styles));
-            }
+        if (styled != null) {
+            builder.style(styled.styleOf(cellModel))
+                    .runs(runsOf(cell, styled.styles))
+                    .type(styled.layout == null ? null : styled.layout.typeAt(cell));
         }
         return builder.build();
     }
@@ -291,36 +338,6 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         return Optional.ofNullable(run.font())
                 .map(font -> RawTableStyles.font(RawTableCellStyle.builder(), font).build())
                 .orElse(null);
-    }
-
-    /**
-     * Reports a cell as the table theme draws it: in the style and the pieces of text the theme gives it, in place of
-     * the formatting of the workbook.
-     *
-     * <p>The style is the cell style with the attributes the theme sets laid over it. The header is drawn in the
-     * pieces of the theme. Any other text formatted in pieces of its own keeps them where the theme names nothing of
-     * the font of its cell, and is drawn in that font otherwise, as writing the theme gives.
-     *
-     * @param style  the style the cell has in the workbook, or {@code null} when it has none
-     * @param themed how the theme draws the cell
-     * @param styles the styles the cells name
-     */
-    private static void drawInTheme(RawTableCell.RawTableCellBuilder builder, ICell cell,
-            @Nullable RawTableCellStyle style, ThemedTable.ThemedCell themed, RawTableStyleDictionary styles) {
-        // Only the cell holding the header text is formatted in the pieces of the theme.
-        builder.style(styles.numberOf(ThemeStyles.over(style, themed.style())))
-                .runs(themed.keepsOwnRuns() ? runsOf(cell, styles) : runsOf(themed.runs(), style, styles));
-    }
-
-    /** The pieces of the theme as the Tables API reports them, or {@code null} when the theme formats none. */
-    private static @Nullable List<RawTableTextRun> runsOf(List<ThemedTable.ThemedRun> runs,
-            @Nullable RawTableCellStyle style, RawTableStyleDictionary styles) {
-        if (runs.isEmpty()) {
-            return null;
-        }
-        return runs.stream()
-                .map(run -> new RawTableTextRun(run.end(), styles.numberOf(ThemeStyles.fontOf(style, run.style()))))
-                .toList();
     }
 
     /** The note a reader left on the cell in Excel, which a screen marks the cell by. */

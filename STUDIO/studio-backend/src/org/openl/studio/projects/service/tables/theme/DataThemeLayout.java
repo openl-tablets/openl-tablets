@@ -18,10 +18,15 @@ import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.testmethod.TestMethodHelper;
+import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.util.StringUtils;
 
 /**
- * Decides which look a theme gives each cell of the body of a Data, a Test or a Run table.
+ * Decides what each cell of the body of a Data, a Test or a Run table is: its role, and the look a theme gives it.
+ *
+ * <p>The rows naming the fields are code the compiler reads. The titles are titles of what the table takes, and the
+ * titles of the results a Test table expects titles of what it gives. The keys of the table, its IDs, are its keys;
+ * the results a Test table expects are what it gives, and every other value is a value the table takes.
  *
  * <p>The body names its fields before it holds any value, as the compiler reads it: a row of field names, a row of
  * the tables some fields take their values from when the table refers to any, and a row of titles. Each row under them
@@ -192,19 +197,23 @@ final class DataThemeLayout {
          * field several columns: a value is told empty cell by cell.
          */
         @Override
-        public Parts at(ICell cell, int column, int row) {
+        public Place at(ICell cell, int column, int row) {
             if (row < titlesRow) {
                 // The rows naming the fields are one block: a line of the look goes round it, in an upright table.
-                return name.atEdges(Parts.BASE, !transposed && row == FIELD_NAMES,
-                        !transposed && row == titlesRow - 1);
+                return Place.of(RawTableRole.CODE, name.atEdges(Parts.BASE, !transposed && row == FIELD_NAMES,
+                        !transposed && row == titlesRow - 1));
             }
             var result = resultColumns.contains(column);
             if (row == titlesRow) {
-                return result ? returnTitles : titles;
+                return result
+                        ? Place.of(RawTableRole.OUTPUT_TITLE, returnTitles)
+                        : Place.of(RawTableRole.INPUT_TITLE, titles);
             }
+            var key = idColumns.contains(column);
             var value = result ? returns : values;
-            value = idColumns.contains(column) ? value.with(Parts.Part.IDS) : value;
-            return StringUtils.isBlank(cell.getStringValue()) ? value.with(Parts.Part.EMPTY) : value;
+            value = key ? value.with(Parts.Part.IDS) : value;
+            value = StringUtils.isBlank(cell.getStringValue()) ? value.with(Parts.Part.EMPTY) : value;
+            return Place.of(key ? RawTableRole.KEY : result ? RawTableRole.OUTPUT : RawTableRole.VALUE, value);
         }
     }
 }

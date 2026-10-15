@@ -51,12 +51,12 @@ import org.jspecify.annotations.Nullable;
  * @param covered Whether this cell is covered by another cell's span (true for masked cells, null otherwise)
  * @param comment note a reader left on the cell in Excel, if any
  * @param style   Excel styling of the cell, as an index into the styles of the read, when the read asked for the
- *                styles or named a table theme. Where the theme draws the cell, the look the theme gives it instead: a
- *                view only, which no edit takes the style from. Absent for a cell in no style at all
+ *                styles. Absent for a cell in no style at all
  * @param metaInfo What the compiler knows about the cell, when the read asked for it
  * @param runs    Pieces of the cell text formatted with fonts of their own, each named by where it ends in the text,
- *                when the read asked for the styles or named a table theme and the text does not take the font of
- *                the cell. Where the theme draws the cell, the pieces the theme draws the text in instead
+ *                when the read asked for the styles and the text does not take the font of the cell
+ * @param type    The type of the value of the cell, as the compiler reads it, when it differs from the type of the
+ *                region of the cell; read with the styles
  * @author Vladyslav Pikus
  */
 @Builder(toBuilder = true)
@@ -98,9 +98,7 @@ public record RawTableCell(
 
         @Schema(description = """
                 Excel style of the cell, as an index into the styles of the read, read when the read asks for the \
-                styles or names a table theme. Where the theme draws the cell, the look the theme gives it \
-                instead, its source naming the theme: a view only, which no edit writes. Absent for a cell in no \
-                style at all.""")
+                styles. Absent for a cell in no style at all.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         @Nullable Integer style,
 
@@ -113,11 +111,16 @@ public record RawTableCell(
 
         @Parameter(description = """
                 Pieces of the cell text formatted with fonts of their own, such as a header with a grey keyword \
-                and a bold name, each named by where it ends in the text. Read with the styles or a table theme, \
-                and absent when the text takes the font of the cell. Where the theme draws the cell, the pieces \
-                the theme draws the text in instead.""")
+                and a bold name, each named by where it ends in the text. Read with the styles, and absent when \
+                the text takes the font of the cell.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        @Nullable List<RawTableTextRun> runs
+        @Nullable List<RawTableTextRun> runs,
+
+        @Parameter(description = """
+                The type of the value of the cell, as the compiler reads it, when it differs from the type of the \
+                region of the cell. Read with the styles.""")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        @Nullable RawTableValueType type
 ) {
 
     public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
@@ -132,6 +135,7 @@ public record RawTableCell(
             style = null;
             metaInfo = null;
             runs = null;
+            type = null;
         } else {
             colspan = (colspan != null && colspan > 1) ? colspan : null;
             rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;

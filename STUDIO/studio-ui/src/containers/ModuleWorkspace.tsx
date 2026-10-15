@@ -24,12 +24,10 @@ import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/proje
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useCanonicalProjectAddress, useLoadGeneration, useReleaseOnClose } from '../hooks'
-import { offeredTheme, useTableThemes } from '../hooks/useTableThemes'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
-import { useAppTheme } from '../providers/AppThemeProvider'
-import { followedTableTheme } from '../styles/tableColours'
+import { rolesOf } from '../components/tableRoles'
 import { CompileDot, getCompileTooltip, isNoteworthyCompileState } from './projects/CompileIndicator'
 import { CompileProblemsPanel } from './projects/CompileProblemsPanel'
 import { ValueText } from './projects/ValueText'
@@ -201,21 +199,6 @@ export const ModuleWorkspace = () => {
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
     const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
     const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
-    const namedTheme = useUserStore(state => state.userProfile?.tableTheme)
-    const overrideWithStudioTheme = useUserStore(state => state.userProfile?.overrideWithStudioTheme ?? false)
-    const { themeName } = useAppTheme()
-    // The table theme the look of the Studio theme lays its tables out with, where the reader asks for the look of
-    // the Studio theme and the theme has a look of its own for the tables.
-    const followedTheme = followedTableTheme(overrideWithStudioTheme, themeName)
-    // The table themes Studio offers, and the one the tables are drawn with: the one of the look of the Studio theme,
-    // then the one the settings name. A reader with neither that Studio offers reads the tables with the formatting
-    // of the Excel file. A drawing only: applying a theme starts from the one the server offers first.
-    const tableThemes = useTableThemes()
-    const drawnTheme = offeredTheme(tableThemes, followedTheme) ?? offeredTheme(tableThemes, namedTheme)
-    // A reader who names a theme has the table read once the themes are known: read before, it is drawn twice.
-    const themeKnown = (!namedTheme && followedTheme === undefined) || tableThemes !== undefined
-    // The theme of the application whose look the table is drawn in: the one whose table theme the table is read with.
-    const look = followedTheme !== undefined && drawnTheme === followedTheme ? themeName : undefined
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
     // What the reader asked to be compiled again, and how many times. A refresh belongs to the module it was
     // pressed on: carried over to the next module, it would rebuild that one from the workbook as well.
@@ -598,6 +581,8 @@ export const ModuleWorkspace = () => {
     // many rows to keep out of sight: a row put away must keep the number it has in the table, or an edit is
     // written to the row it is drawn at rather than the row it was made in.
     const hiddenRows = showHeader ? 0 : table?.headerHeight ?? 0
+    // What the cells of the table are, which the Studio look draws it by. Every window of the table shares them.
+    const roles = useMemo(() => (table === null ? undefined : rolesOf(table)), [table])
 
     /**
      * Writes what the reader has done to the table's cells, and answers the table to write its properties to.
@@ -682,7 +667,7 @@ export const ModuleWorkspace = () => {
     // Only a table the module lists is written: the one it holds without listing is built by the compiler.
     const canWriteListed = listed && !!project?.capabilities?.canWrite
     useEffect(() => {
-        if (!projectId || selectedId === null || !readable || !themeKnown) {
+        if (!projectId || selectedId === null || !readable) {
             setTable(null)
             setTableError(null)
             return
@@ -697,7 +682,6 @@ export const ModuleWorkspace = () => {
             metaInfo: true,
             // What the band offers to run is what the read says can be run.
             runState: true,
-            tableTheme: drawnTheme,
         })
             .then(loaded => {
                 if (tableLoads.isLatest(generation)) {
@@ -712,7 +696,7 @@ export const ModuleWorkspace = () => {
                     })
                 }
             })
-    }, [projectId, selectedId, readable, moduleName, tableLoads, drawnTheme, themeKnown])
+    }, [projectId, selectedId, readable, moduleName, tableLoads])
 
     // The run state a table is read with can age. Read while the rest of the project was still being built -
     // which is where a switch to another module leaves it - it says a run must stay inside the module, and
@@ -759,7 +743,6 @@ export const ModuleWorkspace = () => {
             startRow: table.source.length,
             maxRows: TABLE_PAGE_ROWS,
             metaInfo: true,
-            tableTheme: drawnTheme,
         })
             .then(next => setTable(shown => (shown === null || !tableLoads.isLatest(generation) ? shown : {
                 ...shown,
@@ -771,7 +754,7 @@ export const ModuleWorkspace = () => {
                 }
             })
             .finally(() => setMoreLoading(false))
-    }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads, drawnTheme])
+    }, [projectId, selectedId, moduleName, table, moreLoading, tableLoads])
 
     if (linkProblem) {
         return (
@@ -993,7 +976,6 @@ export const ModuleWorkspace = () => {
                     formulas={showFormulas}
                     hiddenRows={hiddenRows}
                     layout={table.layout}
-                    look={look}
                     markCell={raisedCell}
                     maxRows={table.source.length}
                     moduleName={moduleName}
@@ -1004,10 +986,10 @@ export const ModuleWorkspace = () => {
                     onSaved={tableRewritten}
                     openAt={editCell}
                     projectId={project.id}
+                    roles={roles}
                     rows={table.source}
                     tableId={selectedId}
                     testId="module-table"
-                    verifyNeeded={compilation.verifyNeeded}
                     whole={shown >= total}
                 >
                     {shown < total && (

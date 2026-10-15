@@ -18,10 +18,16 @@ import org.openl.rules.cmatch.TableColumn;
 import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
 import org.openl.rules.table.ICell;
+import org.openl.studio.projects.model.tables.RawTableRole;
 
 /**
- * Decides which look a theme gives each cell of the body of a ColumnMatch table: a decision tree that checks its
- * arguments row by row.
+ * Decides what each cell of the body of a ColumnMatch table is, a decision tree that checks its arguments row by row:
+ * its role, and the look a theme gives it.
+ *
+ * <p>The ids of the columns are code the compiler reads, and the titles under them titles of what the table takes. The
+ * rows giving what the table returns or scores are titles of what it gives, but for their values, which it gives. The
+ * name a condition checks is its key, and what it checks the name with and against are values. The first row of a
+ * group and the row after it start a group.
  *
  * <p>The first row of the body names the columns by their ids, such as {@code names}, {@code operation} or
  * {@code values}, and gets the code look. The row under it titles the columns and gets the title look. The rows after
@@ -64,7 +70,14 @@ final class ColumnMatchThemeLayout {
         if (!(body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader)) {
             return BodyLayout.Placed.plain(body);
         }
-        return new BodyLayout.Placed(body.rows(), Places.of(body, reader.getBoundNode().getColumnMatch()));
+        var places = Places.of(body, reader.getBoundNode().getColumnMatch());
+        var rows = body.rows();
+        var groupRows = places.groupEdges()
+                .stream()
+                .filter(row -> row < rows.getHeight())
+                .map(row -> rows.getRow(row).getSource().getRegion().getTop())
+                .collect(Collectors.toUnmodifiableSet());
+        return new BodyLayout.Placed(rows, places, groupRows, Set.of());
     }
 
     /**
@@ -78,12 +91,13 @@ final class ColumnMatchThemeLayout {
                           Set<Integer> special,
                           Set<Integer> groupEdges) implements TableRegionLayout.PlaceLook {
 
-        private static final Parts CODE = Parts.BASE.with(Parts.Part.CODE);
-        private static final Parts TITLE = Parts.BASE.with(Parts.Part.TITLES);
-        private static final Parts RETURN_TITLE = Parts.BASE.with(Parts.Part.RETURN_TITLES);
-        private static final Parts RETURNED = Parts.BASE.with(Parts.Part.RETURNS);
-        private static final Parts NAME = Parts.BASE.with(Parts.Part.NAME);
-        private static final Parts VALUE = Parts.BASE.with(Parts.Part.VALUES);
+        private static final Place CODE = Place.of(RawTableRole.CODE, Parts.BASE.with(Parts.Part.CODE));
+        private static final Place TITLE = Place.of(RawTableRole.INPUT_TITLE, Parts.BASE.with(Parts.Part.TITLES));
+        private static final Place RETURN_TITLE = Place.of(RawTableRole.OUTPUT_TITLE,
+                Parts.BASE.with(Parts.Part.RETURN_TITLES));
+        private static final Place RETURNED = Place.of(RawTableRole.OUTPUT, Parts.BASE.with(Parts.Part.RETURNS));
+        private static final Place NAME = Place.of(RawTableRole.KEY, Parts.BASE.with(Parts.Part.NAME));
+        private static final Place VALUE = Place.of(RawTableRole.VALUE, Parts.BASE.with(Parts.Part.VALUES));
 
         static Places of(ThemedBody body, ColumnMatch columnMatch) {
             var compiledIds = columnMatch.getColumns().stream().map(TableColumn::getId).toList();
@@ -94,9 +108,9 @@ final class ColumnMatchThemeLayout {
             return new Places(Map.copyOf(ids), read.specialRows(), read.groupEdges());
         }
 
-        /** The parts of a cell of the body, by the place it stands in. */
+        /** What a cell of the body is, by the place it stands in. */
         @Override
-        public Parts at(ICell cell, int column, int row) {
+        public Place at(ICell cell, int column, int row) {
             if (row == IDS) {
                 return CODE;
             }
@@ -107,8 +121,8 @@ final class ColumnMatchThemeLayout {
             if (special.contains(row)) {
                 return VALUES.equals(id) ? RETURNED : RETURN_TITLE;
             }
-            var parts = NAMES.equals(id) ? NAME : VALUE;
-            return groupEdges.contains(row) ? parts.with(Parts.Part.GROUPS) : parts;
+            var place = NAMES.equals(id) ? NAME : VALUE;
+            return groupEdges.contains(row) ? place.with(Parts.Part.GROUPS) : place;
         }
     }
 
