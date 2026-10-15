@@ -1,0 +1,130 @@
+import React from 'react'
+import { Button, Col, Divider, Flex, Row, Space, Tag, Tooltip, Typography } from 'antd'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
+import type { Side } from './textMerge'
+
+/** The span of each of the three columns, as merge tools lay them out: your version, the result, their version. */
+const SPAN = 8
+const GUTTER = 8
+
+/** What each of the three columns of a merge window holds: your version, the result and their version. */
+interface ColumnsProps {
+    ours?: React.ReactNode
+    result?: React.ReactNode
+    theirs?: React.ReactNode
+}
+
+/** Three cells side by side, in the columns of a merge window: your version, the result and their version. */
+export const Columns: React.FC<ColumnsProps> = ({ ours, result, theirs }) => (
+    <Row gutter={GUTTER}>
+        <Col span={SPAN}>{ours}</Col>
+        <Col span={SPAN}>{result}</Col>
+        <Col span={SPAN}>{theirs}</Col>
+    </Row>
+)
+
+/**
+ * The buttons of a conflict, each in the column of the version it takes. A button of your version stands at the
+ * right of its column and a button of their version at the left, next to the result they point to.
+ */
+export const ButtonColumns: React.FC<ColumnsProps> = ({ ours, result, theirs }) => (
+    <Columns
+        ours={<Flex justify="end">{ours}</Flex>}
+        result={<Flex justify="center">{result}</Flex>}
+        theirs={<Flex justify="start">{theirs}</Flex>}
+    />
+)
+
+interface ConflictHeadingProps {
+    title: React.ReactNode
+    /** How the conflict is resolved, or none while it is still to be resolved. */
+    status?: string | undefined
+    /** The identifier of the title, for the conflict to be named by it. */
+    titleId?: string | undefined
+}
+
+/** The line that heads a conflict: what the conflict is, and how it is resolved or that it is still to be resolved. */
+export const ConflictHeading: React.FC<ConflictHeadingProps> = ({ title, status, titleId }) => {
+    const { t } = useTranslation()
+    return (
+        <Divider size="small" titlePlacement="start">
+            <Space size="small">
+                <span id={titleId}>{title}</span>
+                {status
+                    ? <Tag color="success">{status}</Tag>
+                    : <Tag color="warning">{t('merge:editor.unresolved')}</Tag>}
+            </Space>
+        </Divider>
+    )
+}
+
+/** The title of a column, with what names its version. */
+const ColumnTitle: React.FC<{ label: string; version?: React.ReactNode }> = ({ label, version }) => (
+    <Space wrap size="small">
+        <Typography.Text strong>{label}</Typography.Text>
+        {version}
+    </Space>
+)
+
+/** The titles of the three columns of a merge window, each version with what names it, such as its branch. */
+export const ColumnTitles: React.FC<{ versionLabels?: Partial<Record<Side, React.ReactNode>> | undefined }> = ({
+    versionLabels,
+}) => {
+    const { t } = useTranslation()
+    return (
+        <Columns
+            ours={<ColumnTitle label={t('merge:editor.your_version')} version={versionLabels?.ours} />}
+            result={<ColumnTitle label={t('merge:editor.result')} />}
+            theirs={<ColumnTitle label={t('merge:editor.their_version')} version={versionLabels?.theirs} />}
+        />
+    )
+}
+
+interface TakeButtonProps {
+    side: Side
+    label: string
+    disabled: boolean
+    onTake: () => void
+    testId: string
+}
+
+/** The button that takes a version into the result, pointing from the column of the version to the result. */
+export const TakeButton: React.FC<TakeButtonProps> = ({ side, label, disabled, onTake, testId }) => (
+    <Button
+        data-testid={testId}
+        disabled={disabled}
+        icon={side === 'ours' ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+        iconPlacement={side === 'ours' ? 'end' : 'start'}
+        onClick={onTake}
+        size="small"
+    >
+        {label}
+    </Button>
+)
+
+interface DiscardButtonProps {
+    /** What keeping the base version keeps, told when the reader points at the button. */
+    hint: string
+    disabled: boolean
+    onDiscard: () => void
+    testId: string
+}
+
+/** The button that keeps the base version in the result, without the changes of either branch. */
+export const DiscardButton: React.FC<DiscardButtonProps> = ({ hint, disabled, onDiscard, testId }) => {
+    const { t } = useTranslation()
+    return (
+        <Tooltip title={hint}>
+            <Button
+                data-testid={testId}
+                disabled={disabled}
+                icon={<CloseOutlined />}
+                onClick={onDiscard}
+                size="small"
+            >
+                {t('merge:editor.discard')}
+            </Button>
+        </Tooltip>
+    )
+}

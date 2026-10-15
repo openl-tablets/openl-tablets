@@ -1,0 +1,17 @@
+POST /rest/projects/{PROJECT_ID}/merge/conflicts/workbook?file=EPBDS-16885-Rates%2FRates.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "decisions": [
+    {
+      "id": "Rules/A1:B5",
+      "side": "theirs"
+    },
+    {
+      "id": "Rules/A1:B5",
+      "side": "ours"
+    }
+  ]
+}
+

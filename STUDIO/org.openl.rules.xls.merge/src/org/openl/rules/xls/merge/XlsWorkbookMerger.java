@@ -8,24 +8,38 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
+import org.openl.rules.xls.merge.diff.Resolution;
+import org.openl.rules.xls.merge.diff.SheetConflictReason;
+import org.openl.rules.xls.merge.diff.SheetConflicts;
 import org.openl.rules.xls.merge.diff.SheetDiffResult;
 import org.openl.rules.xls.merge.diff.SheetMergePlan;
+import org.openl.rules.xls.merge.diff.TableConflict;
+import org.openl.rules.xls.merge.diff.UnresolvedConflictsException;
+import org.openl.rules.xls.merge.diff.WorkbookConflicts;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.rules.xls.merge.diff.XlsMatch;
 import org.openl.util.IOUtils;
@@ -91,6 +105,61 @@ public class XlsWorkbookMerger implements Closeable {
      * @return difference result
      */
     public WorkbookDiffResult getDiffResult() {
+        return diff(Conflicts.strict(), null);
+    }
+
+    /**
+     * Compares the three revisions and lists the sheets either revision changed: how the merge takes each of them by
+     * itself, and what of it both revisions changed in ways the merge cannot combine.
+     *
+     * <p>A conflicting sheet is resolved table by table, or only as a whole when its conflict lies outside its tables,
+     * such as a sheet one revision removed and the other one changed.
+     *
+     * @return the sheets either revision changed, with their conflicts
+     */
+    public WorkbookConflicts getConflicts() {
+        var sheets = new ArrayList<SheetConflicts>();
+        var diff = diff(Conflicts.survey(), sheets);
+        sheets.sort(Comparator.comparingInt(sheet -> sheetOrder(sheet.name())));
+        return new WorkbookConflicts(List.copyOf(sheets), diff.getPaletteDiffResult().hasConflicts());
+    }
+
+    /**
+     * Compares the three revisions and resolves their conflicts as decided.
+     *
+     * <p>A sheet decided as a whole is taken whole from the revision decided, its tables included. Everything both
+     * revisions did not change in ways that conflict is merged as {@link #getDiffResult()} merges it.
+     *
+     * @param decisions how each conflict is resolved, by its identifier: the name of a sheet, the identifier of a table
+     *                  conflict, or {@link WorkbookConflicts#PALETTE}
+     * @return the difference, with every conflict resolved
+     * @throws UnresolvedConflictsException when a conflict has no decision, or the decisions leave a sheet a conflict,
+     *                                      such as tables of the two revisions touching each other
+     */
+    public WorkbookDiffResult resolve(Map<String, Resolution> decisions) throws UnresolvedConflictsException {
+        var conflicts = Conflicts.resolution(decisions);
+        var diff = diff(conflicts, null);
+        conflicts.requireResolved();
+        return diff;
+    }
+
+    /**
+     * A revision of the workbook, to read what a conflict holds there. It is not changed.
+     */
+    public Workbook revisionOf(Resolution revision) {
+        return switch (revision) {
+            case OURS -> ourWorkbook.unwrap();
+            case THEIRS -> theirWorkbook.unwrap();
+            case BASE -> baseWorkbook.unwrap();
+        };
+    }
+
+    /**
+     * Compares the three revisions sheet by sheet.
+     *
+     * @param survey the list the sheets either revision changed are added to, or {@code null} to list none
+     */
+    private WorkbookDiffResult diff(Conflicts conflicts, @Nullable List<SheetConflicts> survey) {
         var diffResult = new EnumMap<DiffStatus, Set<String>>(DiffStatus.class);
         Map<String, XlsMatch> ourToBase = XlsWorkbooksMatcher.match(baseWorkbook, ourWorkbook);
         Map<String, XlsMatch> theirToBase = XlsWorkbooksMatcher.match(baseWorkbook, theirWorkbook);
@@ -103,6 +172,7 @@ public class XlsWorkbookMerger implements Closeable {
             var sheetName = entry.getKey();
             var ourMatchRes = entry.getValue();
             var theirMatchRes = theirToBase.get(sheetName);
+            conflicts.startSheet();
             DiffStatus diffDecision;
             if (ourMatchRes != null && ourMatchRes == theirMatchRes) {
                 // no changes for both workbooks, sheet was removed for both workbooks, or the same changes in both
@@ -113,43 +183,149 @@ public class XlsWorkbookMerger implements Closeable {
                                 theirWorkbook.getSheet(sheetName))) {
                     continue;
                 }
-                diffDecision = decideChangedInBoth(sheetName, ourMatchRes, theirToBase, mergePlans);
+                diffDecision = decideChangedInBoth(sheetName, ourMatchRes, theirToBase, mergePlans, conflicts);
             } else {
                 diffDecision = chooseChangedSide(ourMatchRes, theirMatchRes);
+                if (diffDecision == DiffStatus.CONFLICT) {
+                    diffDecision = decideWhole(sheetName, SheetConflictReason.REMOVED_AND_CHANGED, conflicts);
+                }
             }
             log.debug("{} resolution is chosen for '{}' sheet", diffDecision.name(), sheetName);
             diffResult.computeIfAbsent(diffDecision, initGroupValue).add(sheetName);
+            if (survey != null) {
+                survey.add(surveyed(sheetName, diffDecision, conflicts));
+            }
         }
         for (String sheetName : theirToBase.keySet()) {
             if (!ourToBase.containsKey(sheetName)) {
                 diffResult.computeIfAbsent(DiffStatus.THEIR, initGroupValue).add(sheetName);
+                if (survey != null) {
+                    conflicts.startSheet();
+                    survey.add(surveyed(sheetName, DiffStatus.THEIR, conflicts));
+                }
             }
         }
 
-        var paletteDiff = calcPaletteDiff();
-        return new WorkbookDiffResult(new SheetDiffResult(diffResult, theirToBase, mergePlans), paletteDiff);
+        var paletteDiff = calcPaletteDiff(conflicts);
+        return new WorkbookDiffResult(new SheetDiffResult(diffResult, mergePlans), paletteDiff);
     }
 
     /**
-     * Decides how to merge a sheet changed in both revisions: cell by cell or table by table, when both revisions
-     * updated it and the changes do not conflict, or as a conflict otherwise.
+     * Decides how to merge a sheet changed in both revisions: as a resolution decided it for the whole sheet, cell by
+     * cell or table by table when both revisions updated it, or as a conflict otherwise.
      */
     private DiffStatus decideChangedInBoth(String sheetName,
                                            XlsMatch match,
                                            Map<String, XlsMatch> theirToBase,
-                                           Map<String, SheetMergePlan> mergePlans) {
-        if (match != XlsMatch.UPDATED) {
-            return DiffStatus.CONFLICT;
+                                           Map<String, SheetMergePlan> mergePlans,
+                                           Conflicts conflicts) {
+        var decided = conflicts.decided(sheetName);
+        if (decided != null) {
+            return statusOf(decided);
         }
-        var plan = XlsSheetMerger.plan(new Cursor(baseWorkbook, baseWorkbook.getSheet(sheetName)),
-                new Cursor(ourWorkbook, ourWorkbook.getSheet(sheetName)),
-                new Cursor(theirWorkbook, theirWorkbook.getSheet(sheetName)),
-                name -> isChanged(theirToBase.get(name)));
+        if (match != XlsMatch.UPDATED) {
+            return decideWhole(sheetName, SheetConflictReason.ADDED_IN_BOTH, conflicts);
+        }
+        var plan = plan(sheetName, theirToBase, conflicts);
+        var tables = conflicts.tables();
+        if (!tables.isEmpty()) {
+            var refusal = conflicts.refusal();
+            // Tables that touch may fit in another choice of versions, so only moved content is tried.
+            if (refusal != SheetConflictReason.MOVED_CONTENT
+                    || !refusedWhateverDecided(sheetName, theirToBase, tables)) {
+                // A survey leaves it to the resolution to tell whether the tables fit together as they are resolved.
+                return DiffStatus.CONFLICT;
+            }
+            // No version of the tables lifts the refusal, so the sheet is resolved only as a whole.
+            conflicts.startSheet();
+            return decideWhole(sheetName, refusal, conflicts);
+        }
         if (plan.isEmpty()) {
-            return DiffStatus.CONFLICT;
+            return decideWhole(sheetName, conflicts.refusal(), conflicts);
         }
         mergePlans.put(sheetName, plan.get());
         return DiffStatus.MERGED;
+    }
+
+    /**
+     * Plans the merge of a sheet both revisions changed.
+     *
+     * @return what changes in OUR revision of the sheet, or nothing if the sheet stays a conflict
+     */
+    private Optional<SheetMergePlan> plan(String sheetName, Map<String, XlsMatch> theirToBase, Conflicts conflicts) {
+        return XlsSheetMerger.plan(new Cursor(baseWorkbook, baseWorkbook.getSheet(sheetName)),
+                new Cursor(ourWorkbook, ourWorkbook.getSheet(sheetName)),
+                new Cursor(theirWorkbook, theirWorkbook.getSheet(sheetName)),
+                name -> isChanged(theirToBase.get(name)),
+                conflicts);
+    }
+
+    /**
+     * Tells whether a sheet a survey refused stays refused whichever version its conflicting tables are taken from:
+     * THEIR or BASE version of them all, OUR version being the one the survey went on with.
+     */
+    private boolean refusedWhateverDecided(String sheetName,
+                                           Map<String, XlsMatch> theirToBase,
+                                           List<TableConflict> tables) {
+        return Stream.of(Resolution.THEIRS, Resolution.BASE).allMatch(side -> {
+            var decisions = tables.stream()
+                    .collect(Collectors.toMap(TableConflict::id, table -> side, (first, second) -> first));
+            return plan(sheetName, theirToBase, Conflicts.resolution(decisions)).isEmpty();
+        });
+    }
+
+    /**
+     * Decides a sheet both revisions changed in ways that are resolved only for the sheet as a whole.
+     *
+     * @param reason why the sheet is resolved only as a whole; a strict merge may not tell it
+     */
+    private static DiffStatus decideWhole(String sheetName,
+                                          @Nullable SheetConflictReason reason,
+                                          Conflicts conflicts) {
+        var decided = conflicts.decided(sheetName);
+        if (decided != null) {
+            return statusOf(decided);
+        }
+        if (reason != null) {
+            conflicts.refuse(reason);
+        }
+        conflicts.unresolvedSheet(sheetName, reason);
+        return DiffStatus.CONFLICT;
+    }
+
+    /**
+     * The way the merge takes a sheet a resolution decided for as a whole.
+     */
+    private static DiffStatus statusOf(Resolution resolution) {
+        return switch (resolution) {
+            case OURS -> DiffStatus.OUR;
+            case THEIRS -> DiffStatus.THEIR;
+            case BASE -> DiffStatus.BASE;
+        };
+    }
+
+    /**
+     * A sheet as a survey lists it: resolved table by table when its tables conflict, and as a whole otherwise.
+     */
+    private SheetConflicts surveyed(String sheetName, DiffStatus status, Conflicts conflicts) {
+        var conflicting = status == DiffStatus.CONFLICT;
+        var tables = conflicting ? conflicts.tables() : List.<TableConflict>of();
+        return new SheetConflicts(sheetName,
+                status,
+                conflicting && tables.isEmpty() ? conflicts.refusal() : null,
+                ourWorkbook.getSheet(sheetName) != null,
+                baseWorkbook.getSheet(sheetName) != null,
+                theirWorkbook.getSheet(sheetName) != null,
+                tables);
+    }
+
+    /**
+     * The place a survey lists a sheet at: the place of the sheet in OUR revision, and after them the place of a
+     * sheet OUR revision has not got in THEIR revision.
+     */
+    private int sheetOrder(String sheetName) {
+        var ours = ourWorkbook.getSheetIndex(sheetName);
+        return ours >= 0 ? ours : ourWorkbook.getNumberOfSheets() + theirWorkbook.getSheetIndex(sheetName);
     }
 
     /**
@@ -159,9 +335,9 @@ public class XlsWorkbookMerger implements Closeable {
         return match == XlsMatch.UPDATED || match == XlsMatch.CREATED;
     }
 
-    private HSSFPaletteDiffResult calcPaletteDiff() {
+    private HSSFPaletteDiffResult calcPaletteDiff(Conflicts conflicts) {
         if (!hssf) {
-            return new HSSFPaletteDiffResult(Map.of(), Map.of());
+            return new HSSFPaletteDiffResult(Map.of());
         }
 
         var diffResult = new EnumMap<DiffStatus, Set<Short>>(DiffStatus.class);
@@ -194,7 +370,26 @@ public class XlsWorkbookMerger implements Closeable {
             }
         }
 
-        return new HSSFPaletteDiffResult(diffResult, theirToBase);
+        decidePalette(diffResult, conflicts);
+        return new HSSFPaletteDiffResult(diffResult);
+    }
+
+    /**
+     * Resolves the colours of the palette both revisions changed differently as a resolution decided: the palette is
+     * resolved as a whole, by OUR or THEIR revision.
+     */
+    private static void decidePalette(Map<DiffStatus, Set<Short>> diffResult, Conflicts conflicts) {
+        var conflicting = diffResult.get(DiffStatus.CONFLICT);
+        if (conflicting == null || conflicting.isEmpty()) {
+            return;
+        }
+        var decided = conflicts.decided(WorkbookConflicts.PALETTE);
+        if (decided == Resolution.OURS || decided == Resolution.THEIRS) {
+            var status = decided == Resolution.OURS ? DiffStatus.OUR : DiffStatus.THEIR;
+            diffResult.computeIfAbsent(status, k -> new HashSet<>()).addAll(diffResult.remove(DiffStatus.CONFLICT));
+        } else {
+            conflicts.unresolved(WorkbookConflicts.PALETTE);
+        }
     }
 
     /**
@@ -229,6 +424,26 @@ public class XlsWorkbookMerger implements Closeable {
                              InputStream their,
                              WorkbookDiffResult diffResult,
                              OutputStream output) throws IOException {
+        merge(null, our, their, diffResult, output);
+    }
+
+    /**
+     * Merges changes from {@code their} workbook and {@code our} workbook using the difference to {@code output}
+     * workbook, reading {@code base} workbook when the difference takes a sheet or a table from BASE revision, as a
+     * resolution may decide.
+     *
+     * @param base       base workbook, needed only when the difference takes something from it
+     * @param our        our workbook
+     * @param their      their workbook
+     * @param diffResult difference result for these workbooks
+     * @param output     output stream
+     * @throws IOException if happen while merge
+     */
+    public static void merge(@Nullable InputStream base,
+                             InputStream our,
+                             InputStream their,
+                             WorkbookDiffResult diffResult,
+                             OutputStream output) throws IOException {
         if (diffResult.hasConflicts()) {
             throw new IllegalStateException("Can not merge because of conflicts.");
         }
@@ -239,10 +454,15 @@ public class XlsWorkbookMerger implements Closeable {
         }
         var sheetDiffResult = diffResult.getSheetDiffResult();
         var paletteDifResult = diffResult.getPaletteDiffResult();
+        var takesBase = sheetDiffResult.takesBase();
+        if (takesBase && base == null) {
+            throw new IllegalArgumentException("The base workbook is needed to take a sheet or a table from it.");
+        }
         try (var ourBook = new StreamWorkbook(our, false);
-             var theirBook = new StreamWorkbook(their, true)) {
+             var theirBook = new StreamWorkbook(their, true);
+             var baseBook = takesBase ? new StreamWorkbook(Objects.requireNonNull(base), true) : null) {
             if (sheetDiffResult.hasChangesToMerge()) {
-                mergeSheets(ourBook, theirBook, sheetDiffResult);
+                mergeSheets(ourBook, theirBook, baseBook, sheetDiffResult);
             }
             if (paletteDifResult.hasChangesToMerge()) {
                 mergePalette(ourBook, theirBook, paletteDifResult);
@@ -253,31 +473,21 @@ public class XlsWorkbookMerger implements Closeable {
     }
 
     /**
-     * Applies the sheets taken from THEIR workbook and the sheets merged from both revisions to OUR workbook, and
-     * brings the values of its formulas up to date.
+     * Applies the sheets taken from THEIR or BASE workbook and the sheets merged from both revisions to OUR workbook,
+     * and brings the values of its formulas up to date.
+     *
+     * @param baseBook BASE workbook, needed only when a sheet or a table is taken from it
      */
     private static void mergeSheets(StreamWorkbook ourBook,
                                     StreamWorkbook theirBook,
+                                    @Nullable StreamWorkbook baseBook,
                                     SheetDiffResult sheetDiffResult) throws IOException {
         var formulas = new ArrayList<Cell>();
         for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
-            switch (sheetDiffResult.getTheirMatchResult(sheetName)) {
-                case UPDATED -> XlsSheetCopier.copy(theirBook,
-                        theirBook.getSheet(sheetName),
-                        ourBook,
-                        ourBook.getSheet(sheetName),
-                        formulas);
-                case CREATED -> XlsSheetCopier.copy(theirBook,
-                        theirBook.getSheet(sheetName),
-                        ourBook,
-                        ourBook.createSheet(sheetName),
-                        formulas);
-                case REMOVED -> {
-                    var sheetIdx = ourBook.getSheetIndex(sheetName);
-                    ourBook.removeSheetAt(sheetIdx);
-                }
-                default -> throw new IllegalStateException("Failed to merge.");
-            }
+            copySheet(theirBook, ourBook, sheetName, formulas);
+        }
+        for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.BASE)) {
+            copySheet(Objects.requireNonNull(baseBook), ourBook, sheetName, formulas);
         }
         var mergePlans = sheetDiffResult.getMergePlans();
         // a plan that moves cells reads them from OUR workbook as it was before the merge
@@ -289,6 +499,7 @@ public class XlsWorkbookMerger implements Closeable {
                 XlsSheetMerger.apply(new Cursor(theirBook, theirBook.getSheet(sheetName)),
                         new Cursor(ourBook, ourBook.getSheet(sheetName)),
                         ourSource == null ? null : new Cursor(ourSource, ourSource.getSheet(sheetName)),
+                        baseBook == null ? null : new Cursor(baseBook, baseBook.getSheet(sheetName)),
                         entry.getValue());
             }
         }
@@ -307,7 +518,30 @@ public class XlsWorkbookMerger implements Closeable {
     }
 
     /**
-     * Copies the palette colors updated or created in their workbook to our workbook.
+     * Makes a sheet of the target workbook a copy of the sheet of the source workbook: copies the sheet into the one
+     * of the target, which gets the sheet when it has none, or removes the sheet when the source has none.
+     */
+    private static void copySheet(StreamWorkbook source,
+                                  StreamWorkbook target,
+                                  String sheetName,
+                                  Collection<Cell> formulas) throws IOException {
+        var sourceSheet = source.getSheet(sheetName);
+        var targetSheet = target.getSheet(sheetName);
+        if (sourceSheet == null) {
+            if (targetSheet != null) {
+                target.removeSheetAt(target.getSheetIndex(targetSheet));
+            }
+        } else {
+            XlsSheetCopier.copy(source,
+                    sourceSheet,
+                    target,
+                    targetSheet == null ? target.createSheet(sheetName) : targetSheet,
+                    formulas);
+        }
+    }
+
+    /**
+     * Copies the palette colors THEIR workbook changed, and the ones a resolution took from it, to our workbook.
      */
     private static void mergePalette(StreamWorkbook ourBook,
                                      StreamWorkbook theirBook,
@@ -318,11 +552,13 @@ public class XlsWorkbookMerger implements Closeable {
         var theirPalette = theirHssfBook.getCustomPalette();
 
         for (short i = FIRST_COLOR_INDEX; i < LAST_COLOR_INDEX; i++) {
-            var theirMatchResult = paletteDifResult.getTheirMatchResult(i);
-            if (isChanged(theirMatchResult)) {
+            if (paletteDifResult.isTakenFromTheirs(i)) {
                 var theirColor = theirPalette.getColor(i);
-                var rgb = theirColor.getTriplet();
-                ourPalette.setColorAtIndex(i, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                // a colour THEIR palette has not got is left as OUR palette has it
+                if (theirColor != null) {
+                    var rgb = theirColor.getTriplet();
+                    ourPalette.setColorAtIndex(i, (byte) rgb[0], (byte) rgb[1], (byte) rgb[2]);
+                }
             }
         }
     }

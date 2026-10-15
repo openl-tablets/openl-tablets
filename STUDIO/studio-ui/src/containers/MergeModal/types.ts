@@ -1,5 +1,10 @@
 import type { ProjectFileChange, ProjectFileChangeType } from '../../services/projectStatus'
-import type { ConflictFileAvailability, ConflictTextBlock } from '../../services/compare'
+import type {
+    ConflictFileAvailability,
+    ConflictSide,
+    ConflictTextBlock,
+    ConflictWorkbook,
+} from '../../services/compare'
 
 // Merge mode - direction of the merge operation
 export type MergeMode = 'receive' | 'send'
@@ -160,8 +165,8 @@ export interface MergeModalDetail {
 }
 
 /**
- * How the dialog resolves a conflicted file: by a strategy of the server, or `MERGE` for a text file merged line by
- * line in the dialog, which is sent as a merged file.
+ * How the dialog resolves a conflicted file: by a strategy of the server, or `MERGE` for a file merged in the dialog,
+ * a text file line by line or a workbook table by table, which is sent as a merged file.
  */
 export type FileResolution = ConflictResolutionStrategy | 'MERGE'
 
@@ -170,8 +175,22 @@ export interface ConflictFileState {
     filePath: string
     resolution: FileResolution | null
     customFile?: File | undefined
-    /** The file as the user merged it in the editor of the dialog, for the `MERGE` resolution. */
+    /** The text file as the user merged it in the editor of the dialog, for the `MERGE` resolution. */
     merged?: MergedText | undefined
+    /** The workbook as the user merged it in the editor of the dialog, for the `MERGE` resolution. */
+    mergedWorkbook?: MergedWorkbook | undefined
+}
+
+export type { ConflictSheet, ConflictTable, ConflictTableVersion, ConflictWorkbook } from '../../services/compare'
+
+/**
+ * A workbook merged in the editor of the dialog: the merged file, the decisions made in the editor, and the conflicts
+ * they were made for. The decisions include the ones a sheet taken whole stands for, which the merge left out.
+ */
+export interface MergedWorkbook {
+    file: Blob
+    decisions: Record<string, ConflictSide>
+    workbook: ConflictWorkbook
 }
 
 export type {

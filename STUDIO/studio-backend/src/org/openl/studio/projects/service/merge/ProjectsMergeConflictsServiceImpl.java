@@ -17,6 +17,11 @@ import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.EmptyFileException;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.UnsupportedFileFormatException;
+import org.apache.poi.ooxml.POIXMLException;
+import org.apache.poi.util.RecordFormatException;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.io.InputStreamSource;
@@ -42,6 +47,10 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.DiffStatus;
+import org.openl.rules.xls.merge.diff.Resolution;
+import org.openl.rules.xls.merge.diff.SheetConflictReason;
+import org.openl.rules.xls.merge.diff.UnresolvedConflictsException;
+import org.openl.rules.xls.merge.diff.WorkbookConflicts;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -54,6 +63,7 @@ import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 import org.openl.studio.projects.model.merge.ConflictTextView;
+import org.openl.studio.projects.model.merge.ConflictWorkbookView;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
@@ -70,6 +80,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
     private final MergeChangesService mergeChangesService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
+    private final ConflictWorkbookMapper workbookMapper;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -234,6 +245,107 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 .map(ConflictTextView::of)
                 .orElseThrow(() -> new BadRequestException("project.merge.conflict.text.not-text.message",
                         new Object[]{path}));
+    }
+
+    @Override
+    public ConflictWorkbookView getConflictWorkbook(MergeConflictInfo mergeConflict, String path) throws IOException {
+        var versions = workbookVersions(mergeConflict, path);
+        try (var merger = open(path, versions)) {
+            return workbookMapper.toView(merger.getConflicts(), merger);
+        }
+    }
+
+    @Override
+    public byte[] mergeConflictWorkbook(MergeConflictInfo mergeConflict,
+                                        String path,
+                                        Map<String, ConflictBase> decisions) throws IOException {
+        if (decisions.get(WorkbookConflicts.PALETTE) == ConflictBase.BASE) {
+            throw new BadRequestException("project.merge.conflict.workbook.palette.message");
+        }
+        var versions = workbookVersions(mergeConflict, path);
+        var resolutions = new HashMap<String, Resolution>();
+        decisions.forEach((id, side) -> resolutions.put(id, switch (side) {
+            case BASE -> Resolution.BASE;
+            case OURS -> Resolution.OURS;
+            case THEIRS -> Resolution.THEIRS;
+        }));
+        WorkbookDiffResult diff;
+        try (var merger = open(path, versions)) {
+            diff = merger.resolve(resolutions);
+        } catch (UnresolvedConflictsException e) {
+            throw refusalOf(path, e);
+        }
+        var output = new ByteArrayOutputStream();
+        XlsWorkbookMerger.merge(new ByteArrayInputStream(versions.base()),
+                new ByteArrayInputStream(versions.ours()),
+                new ByteArrayInputStream(versions.theirs()),
+                diff,
+                output);
+        return output.toByteArray();
+    }
+
+    /**
+     * The versions of a conflicted workbook.
+     */
+    private record WorkbookVersions(byte[] base, byte[] ours, byte[] theirs) {
+
+        XlsWorkbookMerger open() throws IOException {
+            return XlsWorkbookMerger.create(new ByteArrayInputStream(base),
+                    new ByteArrayInputStream(ours),
+                    new ByteArrayInputStream(theirs));
+        }
+    }
+
+    /**
+     * Opens the versions of a conflicted workbook for its merge.
+     *
+     * @throws BadRequestException when a version cannot be read as a workbook, such as a damaged or encrypted file
+     */
+    private static XlsWorkbookMerger open(String path, WorkbookVersions versions) {
+        try {
+            return versions.open();
+        } catch (IOException | UnsupportedFileFormatException | EncryptedDocumentException | EmptyFileException
+                 | RecordFormatException | POIXMLException e) {
+            log.debug("A version of the conflicted workbook '{}' cannot be read", path, e);
+            throw new BadRequestException("project.merge.conflict.workbook.not-workbook.message", new Object[]{path});
+        }
+    }
+
+    /**
+     * Reads every version of a conflicted workbook: a workbook is merged table by table against its base version.
+     *
+     * @throws BadRequestException when the file is not an Excel workbook
+     * @throws NotFoundException   when the file is not conflicted, or a version does not hold it
+     */
+    private WorkbookVersions workbookVersions(MergeConflictInfo mergeConflict, String path) throws IOException {
+        if (!FileTypeHelper.isExcelFile(path)) {
+            throw new BadRequestException("project.merge.conflict.workbook.not-workbook.message", new Object[]{path});
+        }
+        var repository = getRepository(mergeConflict);
+        return new WorkbookVersions(bytesOf(requireConflictVersion(mergeConflict, repository, path, ConflictBase.BASE)),
+                bytesOf(requireConflictVersion(mergeConflict, repository, path, ConflictBase.OURS)),
+                bytesOf(requireConflictVersion(mergeConflict, repository, path, ConflictBase.THEIRS)));
+    }
+
+    /**
+     * Tells why a workbook cannot be merged as decided: conflicts left without a decision, or else the first sheet
+     * whose tables do not fit together as resolved, which leaves the sheet to be taken whole from one version.
+     */
+    private static BadRequestException refusalOf(String path, UnresolvedConflictsException e) {
+        var unresolved = new ArrayList<>(e.getUnresolved());
+        e.getRefused().forEach((sheet, reason) -> {
+            if (reason != SheetConflictReason.TOUCHING_TABLES && reason != SheetConflictReason.MOVED_CONTENT) {
+                unresolved.add(sheet);
+            }
+        });
+        if (!unresolved.isEmpty()) {
+            return new BadRequestException("project.merge.conflict.workbook.unresolved.message",
+                    new Object[]{path, String.join(", ", unresolved)});
+        }
+        var refused = e.getRefused().entrySet().iterator().next();
+        return new BadRequestException(refused.getValue() == SheetConflictReason.TOUCHING_TABLES
+                ? "project.merge.conflict.workbook.touching.message"
+                : "project.merge.conflict.workbook.moved.message", new Object[]{refused.getKey()});
     }
 
     /**

@@ -27,8 +27,8 @@
 
 The Projects Merge API provides a REST interface for merging the Git branches of an OpenL Studio project. It reports
 whether there is anything to merge and whether the user may merge, performs the merge, lists the conflicts the merge
-finds, lets a client download or compare the conflicting versions, merges a conflicted text file line by line, and
-resolves the conflicts with a chosen version or an uploaded file.
+finds, lets a client download or compare the conflicting versions, merges a conflicted text file line by line and a
+conflicted workbook table by table, and resolves the conflicts with a chosen version or an uploaded file.
 
 ### Key Features
 
@@ -47,6 +47,9 @@ resolves the conflicts with a chosen version or an uploaded file.
   compared through the Compare API
 - **Line-by-line Merge**: A conflicted text file is merged line by line, as the merge of the branches merges it, so
   that a client resolves each conflict of its lines in place and sends the merged file as a `CUSTOM` resolution
+- **Table-by-table Merge**: A conflicted workbook lists the tables and the sheets both branches changed in ways the
+  merge cannot combine; a client takes each of them whole from one version, gets the merged workbook and sends it as
+  a `CUSTOM` resolution
 - **Protected Branches**: A merge into a protected branch takes an explicit bypass confirmation (`force=true`)
 - **Session Management**: Maintains conflict state across multiple API calls
 - **Excel File Prioritization**: Excel files come first in conflict lists
@@ -65,14 +68,14 @@ flowchart TB
     %% Service Layer
     subgraph SERVICE["Service Layer"]
         S1[ProjectsMergeService<br/>- Check merge status<br/>- Refuse a merge that is not allowed<br/>- Perform merge]
-        S2[ProjectsMergeConflictsService<br/>- Describe conflicts<br/>- Group conflicts<br/>- Resolve conflicts]
+        S2[ProjectsMergeConflictsService<br/>- Describe conflicts<br/>- Group conflicts<br/>- Merge a workbook as decided<br/>- Resolve conflicts]
         S3[ComparisonLauncher<br/>- Compare a conflicted workbook]
     end
 
     %% Repository / Git Layer
     subgraph GIT["Repository / Git Layer"]
         G[GitRepository<br/>- merge / commit / push<br/>- Conflict detection<br/>- File versions]
-        X[XlsWorkbookMerger<br/>- Sheet and cell workbook merge]
+        X[XlsWorkbookMerger<br/>- Sheet, table and cell workbook merge<br/>- Conflicts of a workbook, resolved as decided]
         T[TextMerge<br/>- Line-by-line text merge]
     end
 
@@ -130,6 +133,7 @@ flowchart TB
 - Group conflicts by project
 - Retrieve conflict file versions
 - Merge a conflicted text file line by line
+- Read the conflicts of a conflicted workbook, and merge it with each conflict taken from the version decided
 - Apply resolution strategies and merge the workbooks that resolve automatically
 - Generate conflict resolution results
 
@@ -153,7 +157,8 @@ The API uses session-based storage for conflict information:
 1. User calls POST /merge and reads GET /merge once it has ended, or saves the project
    (PATCH /rest/projects/{projectId}) → Conflicts detected
 2. Conflict stored as MergeConflictInfo → SessionHolder
-3. User calls /conflicts, /conflicts/files, /conflicts/text or /conflicts/compare → Reads the stored conflict
+3. User calls /conflicts, /conflicts/files, /conflicts/text, /conflicts/workbook or /conflicts/compare → Reads the
+   stored conflict
 4. User calls /conflicts/resolve → Applies resolutions
 5. On success, or on DELETE /conflicts → Clears session data
 ```
@@ -176,6 +181,7 @@ stateDiagram-v2
     ConflictStored --> ConflictStored: GET /conflicts
     ConflictStored --> ConflictStored: GET /conflicts/files
     ConflictStored --> ConflictStored: GET /conflicts/text
+    ConflictStored --> ConflictStored: GET or POST /conflicts/workbook
     ConflictStored --> ConflictStored: POST /conflicts/compare
     ConflictStored --> ConflictStored: POST /conflicts/resolve fails
 
@@ -326,7 +332,7 @@ never refused.
 - `STARTED` — the merge is running;
 - `COMPLETED` — the merge has ended, with success or with conflicts;
 - `{"status": "ERROR", "message": "..."}` — the merge failed, or stopped before it finished;
-- `INTERRUPTED` — the merge was cancelled ([Cancel Merge Conflicts](#9-cancel-merge-conflicts)).
+- `INTERRUPTED` — the merge was cancelled ([Cancel Merge Conflicts](#11-cancel-merge-conflicts)).
 
 A client subscribes before it starts the merge, so the end cannot go unheard, and reads the result with
 [Get Merge Result](#3-get-merge-result). The result a merge ends with is described there.
@@ -456,7 +462,7 @@ The API omits empty values, so a successful merge has no `conflictGroups`.
 }
 ```
 
-**Cancelled** — the merge was stopped on request ([Cancel Merge Conflicts](#9-cancel-merge-conflicts)) before it
+**Cancelled** — the merge was stopped on request ([Cancel Merge Conflicts](#11-cancel-merge-conflicts)) before it
 committed anything, and the branches are as it found them:
 ```json
 {
@@ -759,7 +765,193 @@ GET /rest/projects/MyProject/merge/conflicts/text?file=MyProject%2Fi18n%2Fmessag
 
 ---
 
-### 8. Resolve Conflicts
+### 8. Read the Conflicts of a Workbook
+
+**Endpoint**: `GET /rest/projects/{projectId}/merge/conflicts/workbook`
+
+**Description**: Compares the three versions of a conflicted Excel file as the merge of the branches compares them,
+and answers with the sheets either branch changed: how the merge takes each of them by itself, and what both branches
+changed in ways the merge cannot combine. A client resolves each conflict by taking it whole from one version through
+[Merge a Conflicted Workbook](#9-merge-a-conflicted-workbook), and sends the merged workbook as a `CUSTOM` resolution.
+
+**HTTP Method**: GET
+
+**Path Parameters**:
+- `projectId` (string, required): Project identifier
+
+**Query Parameters**:
+- `file` (string, required): Path of the conflicted workbook exactly as `conflictGroups[].files` lists it
+
+**Response**: `200 OK`
+```json
+{
+  "sheets": [
+    {
+      "name": "Rates",
+      "status": "conflict",
+      "ours": true,
+      "base": true,
+      "theirs": true,
+      "tables": [
+        {
+          "id": "Rates/A1:B6",
+          "name": "SimpleRules Double baseRate(String country)",
+          "reason": "cells",
+          "ours": {
+            "range": "A1:B6",
+            "cells": [
+              [{ "cell": "A1", "value": "SimpleRules Double baseRate(String country)", "colspan": 2, "style": 0 }],
+              ["..."]
+            ],
+            "styles": [{ "font": { "bold": true } }, "..."],
+            "rows": 6,
+            "changedCells": ["B3"],
+            "formattingChanged": false
+          },
+          "base": { "range": "A1:B6", "cells": [["..."]], "styles": ["..."], "rows": 6, "changedCells": [],
+            "formattingChanged": false },
+          "theirs": { "range": "A1:B6", "cells": [["..."]], "styles": ["..."], "rows": 6, "changedCells": ["B3", "B5"],
+            "formattingChanged": true }
+        }
+      ]
+    },
+    {
+      "name": "Discounts",
+      "status": "theirs",
+      "ours": true,
+      "base": true,
+      "theirs": true,
+      "tables": []
+    },
+    {
+      "name": "Notes",
+      "status": "conflict",
+      "reason": "removedAndChanged",
+      "ours": false,
+      "base": true,
+      "theirs": true,
+      "tables": []
+    }
+  ],
+  "palette": false
+}
+```
+
+- `sheets` lists the sheets either branch changed, in the order of your version and then of their version. `status`
+  tells how the merge takes a sheet by itself: from your version (`ours`) or their version (`theirs`), the one branch
+  that changed it, combining the changes of both (`merged`), or that it is a `conflict`.
+- A conflicting sheet is resolved table by table and lists its conflicting tables in `tables`, from top to bottom. A
+  sheet whose conflict lies outside its tables tells the `reason` instead, and is resolved only as a whole:
+  `removedAndChanged`, `addedInBoth`, `visibility`, `layout` (the height or the width of a row or a column, their
+  visibility, or the default sizes), `pictures`, `settings` (their branch changed the data validation, the conditional
+  formatting, the hyperlinks or the frozen panes, which the merge does not take), `touchingTables` or `movedContent`.
+  A sheet whose tables would move content something refers to, whether they are taken from your, their or the base
+  version, is resolved only as a whole too. `ours`, `base` and `theirs` tell which versions have the sheet. A sheet
+  taken whole takes the cells, the merged cells, the pictures, the visibility and the sizes and visibility of the rows
+  and the columns of that version.
+- A conflicting table tells why its changes cannot be combined (`reason`): `cells`, `rows`, `rowsAndColumns`, `moved`,
+  `removedAndChanged`, `mergedCells` or `addedInBoth`. `name` is the text of its first cell, the header of an OpenL
+  table. Each version of the table (`ours`, `base`, `theirs`) holds its place, its cells read as
+  `GET /rest/projects/{projectId}/tables/{tableId}?raw=true` reads them: each style once in `styles`, a cell and a
+  piece of its text naming theirs by index. It also tells how many rows the table has;
+  a table of more than 200 rows has its first 200 rows in `cells`. `changedCells` lists the cells whose value,
+  formula, comment or merging a version changed against the base version: in a table of the base size, the cells that
+  hold something else; in a table with rows or columns inserted or deleted, every cell of a row or a column the base
+  version has no match for, which the branch inserted or changed, a row or a column matching by what its cells hold
+  whatever their formatting. A cell that only took another formatting is not listed: `formattingChanged` tells that
+  the branch changed the formatting of the table, compared as the merge compares it, the name and the size of the font
+  included, which `styles` leave out. What the other version has alike is left out of both, matched the
+  same way, so a change both branches made, such as the formatting a save gives every table, is left out even when
+  one of them inserted or deleted rows. A table whose numbers of both rows and columns differ from the base one lists
+  none. `conflictCells` lists the cells whose value, formula, comment or merging both branches changed differently, by
+  the addresses of each version, in the same order in every version; it is empty when the versions of the table
+  differ in size. A version
+  that has no such table leaves it out: the table was removed there, or both branches added it. Tables their branch
+  added next to a table your branch added at one place are one conflict, `<sheet>/added/<place>` by the first of them;
+  each version then holds the area of all the tables it added there. The tables are listed from top to bottom by
+  their places in the base version, or in their version for tables both branches added. The `...` above stands for
+  cells left out of the example.
+- `palette` tells that both branches changed the colours of the palette of an .xls workbook differently. The palette
+  is resolved as a whole, by your or their version, under the identifier `/palette`.
+- A conflict is identified by the `id` of its table, or by the `name` of its sheet. Everything the merge combines by
+  itself is merged as `POST /merge` merges it.
+
+**Example**:
+```bash
+GET /rest/projects/MyProject/merge/conflicts/workbook?file=MyProject%2Frules%2FRates.xlsx
+```
+
+**Errors**:
+- `400 Bad Request`: The file is not an Excel workbook, or a version of it cannot be read as one, such as a damaged or
+  an encrypted file
+- `404 Not Found`: No conflict information found, file not in conflict list, or your, their or the base version does
+  not hold the file; such a file is resolved as a whole file
+
+---
+
+### 9. Merge a Conflicted Workbook
+
+**Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/workbook`
+
+**Description**: Merges the three versions of a conflicted Excel file, taking every conflict whole from the version
+the request decides, and answers with the merged workbook. Nothing is saved: a client sends the workbook as a `CUSTOM`
+resolution of [Resolve Conflicts](#10-resolve-conflicts).
+
+**HTTP Method**: POST
+
+**Path Parameters**:
+- `projectId` (string, required): Project identifier
+
+**Query Parameters**:
+- `file` (string, required): Path of the conflicted workbook exactly as `conflictGroups[].files` lists it
+
+**Request Body**:
+```json
+{
+  "decisions": [
+    { "id": "Rates/A1:B6", "side": "theirs" },
+    { "id": "Rates/A9:B13", "side": "ours" },
+    { "id": "Notes", "side": "base" }
+  ]
+}
+```
+
+- `id` names a conflict of [Read the Conflicts of a Workbook](#8-read-the-conflicts-of-a-workbook): the `id` of a
+  table, the `name` of a sheet, or `/palette`.
+- `side` names the version the conflict is taken from, whole: `ours`, `theirs` or `base`. A table taken from a version
+  that has none is left out, and so is a sheet. The palette is taken from `ours` or `theirs` only.
+- A table taken from a version lands where the merge puts it: at the place one branch moved it to, so a table the
+  other branch moved stays at its new place. When both branches moved it, it lands at the place of the version taken.
+- A sheet decided by its name is taken whole from the version decided, with every table of it, so its tables need no
+  decision. Every other conflict needs one. A decision for a sheet both branches changed takes the sheet whole even
+  when the merge combines its changes by itself; a decision for anything else that is no conflict of the workbook is
+  ignored.
+
+**Response**: `200 OK` with the merged workbook, under the name of the file and with its content type
+
+**Example**:
+```bash
+curl -X POST "http://localhost:8080/rest/projects/MyProject/merge/conflicts/workbook?file=MyProject%2Frules%2FRates.xlsx" \
+  -H 'Content-Type: application/json' \
+  -d '{"decisions": [{"id": "Rates/A1:B6", "side": "theirs"}, {"id": "Notes", "side": "base"}]}' \
+  -o Rates.xlsx
+```
+
+**Errors**:
+- `400 Bad Request`:
+  - The file is not an Excel workbook, or a version of it cannot be read as one
+  - A conflict has no decision (`project.merge.conflict.workbook.unresolved.message` names the conflicts left)
+  - A conflict is decided twice
+  - The palette is decided as `base`
+  - The tables of a sheet, as decided, would touch each other and be read as one table, or move content that a formula,
+    a defined name, a data validation, a conditional formatting, a hyperlink, a picture or the layout of rows and
+    columns refers to, a formula of a table taken from the base version included; such a sheet is taken whole from one
+    version. The first such sheet is named
+- `404 Not Found`: No conflict information found, file not in conflict list, or a version does not hold the file
+
+---
+
+### 10. Resolve Conflicts
 
 **Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/resolve`
 
@@ -797,7 +989,8 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resol
 - `OURS`: Use the current branch version; in a save conflict, the version in the workspace
 - `THEIRS`: Use the merging branch version
 - `CUSTOM`: Use a custom uploaded file (file parameter required), such as a text file merged through
-  [Merge a Conflicted Text File](#7-merge-a-conflicted-text-file)
+  [Merge a Conflicted Text File](#7-merge-a-conflicted-text-file) or a workbook merged through
+  [Merge a Conflicted Workbook](#9-merge-a-conflicted-workbook)
 
 A strategy whose version does not hold the file deletes the file.
 
@@ -847,7 +1040,7 @@ The resolution of a save conflict has no `summary`.
 
 ---
 
-### 9. Cancel Merge Conflicts
+### 11. Cancel Merge Conflicts
 
 **Endpoint**: `DELETE /rest/projects/{projectId}/merge/conflicts`
 
@@ -1071,6 +1264,66 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
 ---
 
+### ConflictWorkbookView
+
+| Field     | Type                | Description                                                                      |
+|-----------|---------------------|----------------------------------------------------------------------------------|
+| `sheets`  | ConflictSheetView[] | The sheets either branch changed, in the order of your version, then of theirs  |
+| `palette` | boolean             | Whether both branches changed the palette of an .xls workbook differently       |
+
+---
+
+### ConflictSheetView
+
+| Field    | Type                                         | Description                                              |
+|----------|----------------------------------------------|----------------------------------------------------------|
+| `name`   | string                                       | The name of the sheet, which identifies it in a decision |
+| `status` | `ours` \| `theirs` \| `merged` \| `conflict` | How the merge takes the sheet by itself                  |
+| `reason` | string                                       | Why the sheet is resolved only as a whole; absent when its tables are resolved one by one |
+| `ours`   | boolean                                      | Whether your version has the sheet                       |
+| `base`   | boolean                                      | Whether the base version has the sheet                   |
+| `theirs` | boolean                                      | Whether their version has the sheet                      |
+| `tables` | ConflictTableView[]                          | The conflicting tables, from top to bottom               |
+
+---
+
+### ConflictTableView
+
+| Field    | Type                 | Description                                                         |
+|----------|----------------------|---------------------------------------------------------------------|
+| `id`     | string               | Identifies the conflict in a decision                               |
+| `name`   | string               | The text of the first cell of the table, or its place               |
+| `reason` | string               | Why the changes of the table cannot be combined                     |
+| `ours`   | ConflictTableVersion | The table in your version; absent when your version has none        |
+| `base`   | ConflictTableVersion | The table in the base version; absent when both branches added it   |
+| `theirs` | ConflictTableVersion | The table in their version; absent when their version has none      |
+
+---
+
+### ConflictTableVersion
+
+| Field          | Type             | Description                                                              |
+|----------------|------------------|--------------------------------------------------------------------------|
+| `range`        | string           | The place of the table on its sheet, in A1 notation                      |
+| `cells`        | RawTableCell[][] | The cells of the table, row by row; at most 200 rows                     |
+| `styles`       | RawTableCellStyle[] | The styles the cells name by index, each once                         |
+| `rows`         | integer          | How many rows the table has                                              |
+| `changedCells` | string[]         | The cells the branch changed against the base version, and the other branch did not change alike, in A1 notation |
+| `conflictCells` | string[]        | The cells both branches changed differently, in A1 notation as this version has them |
+
+---
+
+### ResolveConflictWorkbookRequest
+
+| Field       | Type                       | Description                                       |
+|-------------|----------------------------|---------------------------------------------------|
+| `decisions` | ConflictWorkbookDecision[] | The version each conflict is taken from; required |
+
+`ConflictWorkbookDecision` holds the `id` of a conflict (a table `id`, a sheet `name` or `/palette`) and the `side`
+it is taken from: `ours`, `theirs` or `base`.
+
+---
+
 ### ResolveConflictsRequest
 
 | Form field                | Type                                      | Description                          |
@@ -1224,6 +1477,10 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 A text file can be merged without an external tool: `GET /merge/conflicts/text` answers it merged line by line, and
 the client sends the file with each conflict resolved as the `CUSTOM` file.
 
+So can a workbook: `GET /merge/conflicts/workbook` lists the tables and the sheets both branches changed in ways the
+merge cannot combine, `POST /merge/conflicts/workbook` answers the workbook merged with each of them taken from the
+version decided, and the client sends that workbook as the `CUSTOM` file.
+
 ---
 
 ### Workflow 4: Cancel Conflicts
@@ -1300,6 +1557,12 @@ request body that fails validation answers `400` with a `fields` list naming eac
 | 400    | `project.merge.conflict.custom.file.damaged`     | An uploaded Excel or ZIP file is damaged or incomplete   |
 | 400    | `compare.file.not-excel.message`                 | `/conflicts/compare` is asked for a file that is not Excel |
 | 400    | `project.merge.conflict.text.not-text.message`   | `/conflicts/text` gets a file that is not UTF-8 text     |
+| 400    | `project.merge.conflict.workbook.not-workbook.message` | `/conflicts/workbook` gets a file that is not an Excel workbook, or cannot be read as one |
+| 400    | `project.merge.conflict.workbook.unresolved.message` | A conflict of the workbook has no decision; the conflicts left are named |
+| 400    | `project.merge.conflict.workbook.duplicate.message` | A conflict of the workbook is decided twice          |
+| 400    | `project.merge.conflict.workbook.palette.message` | The palette of a workbook is decided as `base`         |
+| 400    | `project.merge.conflict.workbook.touching.message` | The tables of a sheet, as decided, would touch each other |
+| 400    | `project.merge.conflict.workbook.moved.message`  | The tables of a sheet, as decided, move content something refers to |
 | 403    | `default.message`                                | The user may not write to the project, or cannot bypass a protected target |
 | 404    | `project.identifier.message`                     | The project is not found                                 |
 | 404    | `project.merge.result.not.found.message`         | No conflict of the project is stored                     |

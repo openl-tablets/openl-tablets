@@ -3,25 +3,35 @@ package org.openl.studio.projects.service.tables.read;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleSheetLoader;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.TextRun;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
 import org.openl.rules.tableeditor.model.ui.TableModel;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
@@ -116,8 +126,32 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * @return the cells of the table, row by row, and the styles they name, or no styles when none are read
      */
     public RawTableCells readCells(IOpenLTable openLTable, boolean withStyles) {
-        var metaInfoReader = metaInfoReaderOf(openLTable);
-        var tableModel = TableModel.initializeTableModel(openLTable.getGridTable(), TableWindow.EVERY_ROW, metaInfoReader);
+        return readCells(openLTable.getGridTable(), metaInfoReaderOf(openLTable), withStyles);
+    }
+
+    /**
+     * Reads areas of a sheet as matrices, with their Excel styles.
+     *
+     * <p>Used where the sheet belongs to a workbook of no project, such as a version of a conflicted file, so the
+     * cells carry nothing a compilation knows of them. The sheet is prepared once for every area read from it.
+     *
+     * @param sheet the sheet
+     * @return reads the cells of an area of the sheet, row by row, and the styles they name
+     */
+    public Function<CellRangeAddress, RawTableCells> cellsOf(Sheet sheet) {
+        // The engine reads a sheet only through the modules of its workbook, which have no replacement yet.
+        var workbookSource = new XlsWorkbookSourceCodeModule(new StringSourceCodeModule("", ""),
+                new SimpleWorkbookLoader(sheet.getWorkbook()));
+        var grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), workbookSource));
+        return area -> readCells(new GridTable(area.getFirstRow(),
+                area.getFirstColumn(),
+                area.getLastRow(),
+                area.getLastColumn(),
+                grid), EmptyMetaInfoReader.getInstance(), true);
+    }
+
+    private RawTableCells readCells(IGridTable gridTable, MetaInfoReader metaInfoReader, boolean withStyles) {
+        var tableModel = TableModel.initializeTableModel(gridTable, TableWindow.EVERY_ROW, metaInfoReader);
         var styled = withStyles ? new Styled(null) : null;
         var source = tableModel == null ? List.<List<RawTableCell>>of()
                 : convertTableModelToMatrix(tableModel, metaInfoReader,

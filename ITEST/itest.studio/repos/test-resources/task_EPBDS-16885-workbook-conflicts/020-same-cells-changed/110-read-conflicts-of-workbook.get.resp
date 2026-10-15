@@ -1,0 +1,526 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "sheets": [
+    {
+      "name": "Rules",
+      "status": "conflict",
+      "ours": true,
+      "base": true,
+      "theirs": true,
+      "tables": [
+        {
+          "id": "Rules/A1:B5",
+          "name": "SimpleRules Double rate(String country)",
+          "reason": "cells",
+          "ours": {
+            "range": "A1:B5",
+            "cells": [
+              [
+                {
+                  "cell": "A1",
+                  "value": "SimpleRules Double rate(String country)",
+                  "colspan": 2,
+                  "style": 0,
+                  "runs": [
+                    {
+                      "to": 11,
+                      "style": 1
+                    },
+                    {
+                      "to": 18,
+                      "style": 1
+                    },
+                    {
+                      "to": 23,
+                      "style": 2
+                    },
+                    {
+                      "to": 24,
+                      "style": 1
+                    },
+                    {
+                      "to": 30,
+                      "style": 1
+                    },
+                    {
+                      "to": 38,
+                      "style": 3
+                    },
+                    {
+                      "to": 39,
+                      "style": 1
+                    }
+                  ]
+                },
+                {
+                  "covered": true
+                }
+              ],
+              [
+                {
+                  "cell": "A2",
+                  "value": "Country",
+                  "style": 4
+                },
+                {
+                  "cell": "B2",
+                  "value": "Rate",
+                  "style": 5
+                }
+              ],
+              [
+                {
+                  "cell": "A3",
+                  "value": "US",
+                  "style": 6
+                },
+                {
+                  "cell": "B3",
+                  "value": 1.4,
+                  "style": 7
+                }
+              ],
+              [
+                {
+                  "cell": "A4",
+                  "value": "DE",
+                  "style": 6
+                },
+                {
+                  "cell": "B4",
+                  "value": 2.25,
+                  "style": 7
+                }
+              ],
+              [
+                {
+                  "cell": "A5",
+                  "value": "CA",
+                  "style": 8
+                },
+                {
+                  "cell": "B5",
+                  "value": 3.25,
+                  "style": 9
+                }
+              ]
+            ],
+            "styles": [
+              {
+                "valign": "center",
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              },
+              {
+                "color": "#808080"
+              },
+              {
+                "bold": true
+              },
+              {},
+              {
+                "background": "#eeece1",
+                "align": "center",
+                "valign": "center",
+                "bold": true
+              },
+              {
+                "background": "#b8cce4",
+                "align": "center",
+                "valign": "center",
+                "bold": true
+              },
+              {
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center"
+              },
+              {
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              }
+            ],
+            "rows": 5,
+            "changedCells": [
+              "B3"
+            ],
+            "formattingChanged": false,
+            "conflictCells": [
+              "B3"
+            ]
+          },
+          "base": {
+            "range": "A1:B5",
+            "cells": [
+              [
+                {
+                  "cell": "A1",
+                  "value": "SimpleRules Double rate(String country)",
+                  "colspan": 2,
+                  "style": 0,
+                  "runs": [
+                    {
+                      "to": 11,
+                      "style": 1
+                    },
+                    {
+                      "to": 18,
+                      "style": 1
+                    },
+                    {
+                      "to": 23,
+                      "style": 2
+                    },
+                    {
+                      "to": 24,
+                      "style": 1
+                    },
+                    {
+                      "to": 30,
+                      "style": 1
+                    },
+                    {
+                      "to": 38,
+                      "style": 3
+                    },
+                    {
+                      "to": 39,
+                      "style": 1
+                    }
+                  ]
+                },
+                {
+                  "covered": true
+                }
+              ],
+              [
+                {
+                  "cell": "A2",
+                  "value": "Country",
+                  "style": 4
+                },
+                {
+                  "cell": "B2",
+                  "value": "Rate",
+                  "style": 5
+                }
+              ],
+              [
+                {
+                  "cell": "A3",
+                  "value": "US",
+                  "style": 6
+                },
+                {
+                  "cell": "B3",
+                  "value": 1.25,
+                  "style": 7
+                }
+              ],
+              [
+                {
+                  "cell": "A4",
+                  "value": "DE",
+                  "style": 6
+                },
+                {
+                  "cell": "B4",
+                  "value": 2.25,
+                  "style": 7
+                }
+              ],
+              [
+                {
+                  "cell": "A5",
+                  "value": "CA",
+                  "style": 8
+                },
+                {
+                  "cell": "B5",
+                  "value": 3.25,
+                  "style": 9
+                }
+              ]
+            ],
+            "styles": [
+              {
+                "valign": "center",
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              },
+              {
+                "color": "#808080"
+              },
+              {
+                "bold": true
+              },
+              {},
+              {
+                "background": "#eeece1",
+                "align": "center",
+                "valign": "center",
+                "bold": true
+              },
+              {
+                "background": "#b8cce4",
+                "align": "center",
+                "valign": "center",
+                "bold": true
+              },
+              {
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center"
+              },
+              {
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              }
+            ],
+            "rows": 5,
+            "changedCells": [],
+            "formattingChanged": false,
+            "conflictCells": [
+              "B3"
+            ]
+          },
+          "theirs": {
+            "range": "A1:B5",
+            "cells": [
+              [
+                {
+                  "cell": "A1",
+                  "value": "SimpleRules Double rate(String country)",
+                  "colspan": 2,
+                  "style": 0,
+                  "runs": [
+                    {
+                      "to": 11,
+                      "style": 1
+                    },
+                    {
+                      "to": 18,
+                      "style": 1
+                    },
+                    {
+                      "to": 23,
+                      "style": 2
+                    },
+                    {
+                      "to": 24,
+                      "style": 1
+                    },
+                    {
+                      "to": 30,
+                      "style": 1
+                    },
+                    {
+                      "to": 38,
+                      "style": 3
+                    },
+                    {
+                      "to": 39,
+                      "style": 1
+                    }
+                  ]
+                },
+                {
+                  "covered": true
+                }
+              ],
+              [
+                {
+                  "cell": "A2",
+                  "value": "Country",
+                  "style": 4
+                },
+                {
+                  "cell": "B2",
+                  "value": "Rate",
+                  "style": 5
+                }
+              ],
+              [
+                {
+                  "cell": "A3",
+                  "value": "US",
+                  "style": 6
+                },
+                {
+                  "cell": "B3",
+                  "value": 1.5,
+                  "style": 7
+                }
+              ],
+              [
+                {
+                  "cell": "A4",
+                  "value": "DE",
+                  "style": 6
+                },
+                {
+                  "cell": "B4",
+                  "value": 2.4,
+                  "style": 7
+                }
+              ],
+              [
+                {
+                  "cell": "A5",
+                  "value": "CA",
+                  "style": 8
+                },
+                {
+                  "cell": "B5",
+                  "value": 3.25,
+                  "style": 9
+                }
+              ]
+            ],
+            "styles": [
+              {
+                "valign": "center",
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              },
+              {
+                "color": "#808080"
+              },
+              {
+                "bold": true
+              },
+              {},
+              {
+                "background": "#eeece1",
+                "align": "center",
+                "valign": "center",
+                "bold": true
+              },
+              {
+                "background": "#b8cce4",
+                "align": "center",
+                "valign": "center",
+                "bold": true
+              },
+              {
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center"
+              },
+              {
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1,
+                    "color": "#1f497d"
+                  }
+                }
+              }
+            ],
+            "rows": 5,
+            "changedCells": [
+              "B3",
+              "B4"
+            ],
+            "formattingChanged": false,
+            "conflictCells": [
+              "B3"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "palette": false
+}
+

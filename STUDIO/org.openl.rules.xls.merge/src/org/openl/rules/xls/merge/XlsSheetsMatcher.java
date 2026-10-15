@@ -358,6 +358,26 @@ public class XlsSheetsMatcher {
     }
 
     /**
+     * Tells whether two cells are formatted alike, as the merge compares them: the number format, the alignment, the
+     * font, the borders and the fill.
+     *
+     * <p>The cells may come from different workbooks. A cell in the default font of its workbook takes another font
+     * when the workbook changes its default font. A missing cell has the default formatting.
+     */
+    public static boolean equalFormatting(@Nullable Cell cell, @Nullable Cell other) {
+        if (cell == null || other == null) {
+            return cell == other || isUnstyled(Objects.requireNonNullElse(cell, other));
+        }
+        return equalStyles(cursorAt(cell), cursorAt(other));
+    }
+
+    private static Cursor cursorAt(Cell cell) {
+        var cursor = new Cursor(cell.getSheet().getWorkbook(), cell.getSheet());
+        cursor.cell = cell;
+        return cursor;
+    }
+
+    /**
      * Tells whether a cell has a value or a formula: a missing cell and a blank one have none.
      */
     static boolean hasValue(@Nullable Cell cell) {

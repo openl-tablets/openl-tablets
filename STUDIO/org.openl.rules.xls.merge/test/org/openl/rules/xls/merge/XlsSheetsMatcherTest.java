@@ -1,5 +1,6 @@
 package org.openl.rules.xls.merge;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -59,6 +61,26 @@ class XlsSheetsMatcherTest {
     @Test
     void testBaseWorkbookAndChanged_shouldAlwaysChanged() throws IOException {
         assertTrue(notMatchWorkbooksTest(TEST_RES.resolve("BaseWorkbook.xlsx"), TEST_RES.resolve("Changed Workbook.xlsx")));
+    }
+
+    @Test
+    void equalFormatting_comparesTheFontsOfCellsOfTwoWorkbooks() throws IOException {
+        try (var workbook = new XSSFWorkbook(); var other = new XSSFWorkbook()) {
+            var cell = workbook.createSheet().createRow(0).createCell(0);
+            var otherCell = other.createSheet().createRow(0).createCell(0);
+            assertTrue(XlsSheetsMatcher.equalFormatting(cell, otherCell));
+            other.getFontAt(0).setFontName("Verdana");
+            assertFalse(XlsSheetsMatcher.equalFormatting(cell, otherCell));
+            // A missing cell has the default formatting.
+            assertTrue(XlsSheetsMatcher.equalFormatting(null, null));
+            assertTrue(XlsSheetsMatcher.equalFormatting(cell, null));
+            var font = workbook.createFont();
+            font.setBold(true);
+            var bold = workbook.createCellStyle();
+            bold.setFont(font);
+            cell.setCellStyle(bold);
+            assertFalse(XlsSheetsMatcher.equalFormatting(null, cell));
+        }
     }
 
     private boolean notMatchWorkbooksTest(Path pathToWorkbook1, Path pathToWorkbook2) throws IOException {

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import jakarta.validation.Valid;
@@ -54,12 +55,14 @@ import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 import org.openl.studio.projects.model.merge.ConflictTextView;
+import org.openl.studio.projects.model.merge.ConflictWorkbookView;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeRequest;
 import org.openl.studio.projects.model.merge.MergeResultResponse;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.rest.model.ResolveConflictWorkbookRequest;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
@@ -133,11 +136,18 @@ public class ProjectsMergeController {
         try (var stream = fileItem.getStream()) {
             stream.transferTo(output);
         }
+        return fileOf(filePath, output.toByteArray());
+    }
+
+    /**
+     * Answers with the content of a file, under the name and with the content type of the file.
+     */
+    private static ResponseEntity<byte[]> fileOf(String filePath, byte[] content) {
         String fileName = FileUtils.getName(filePath);
         return ResponseEntity.ok()
                 .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
                 .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-                .body(output.toByteArray());
+                .body(content);
     }
 
     @Operation(summary = "projects.merge.get-conflict-text.summary",
@@ -149,6 +159,45 @@ public class ProjectsMergeController {
                                             @Parameter(description = "projects.merge.param.file.desc", required = true)
                                             @RequestParam("file") String filePath) throws IOException {
         return mergeConflictsService.getConflictText(getMergeConflictInfo0(project), filePath);
+    }
+
+    @Operation(summary = "projects.merge.get-conflict-workbook.summary",
+            description = "projects.merge.get-conflict-workbook.desc")
+    @ApiResponse(responseCode = "200", description = "projects.merge.get-conflict-workbook.200.desc")
+    @ApiResponse(responseCode = "400", description = "projects.merge.get-conflict-workbook.400.desc")
+    @GetMapping("/conflicts/workbook")
+    public ConflictWorkbookView getConflictWorkbook(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                    @Parameter(description = "projects.merge.param.file.desc",
+                                                            required = true)
+                                                    @RequestParam("file") String filePath) throws IOException {
+        return mergeConflictsService.getConflictWorkbook(getMergeConflictInfo0(project), filePath);
+    }
+
+    @Operation(summary = "projects.merge.merge-conflict-workbook.summary",
+            description = "projects.merge.merge-conflict-workbook.desc")
+    @ApiResponse(responseCode = "200",
+            description = "projects.merge.merge-conflict-workbook.200.desc",
+            content = @Content(mediaType = MediaType.ALL_VALUE, schema = @Schema(type = "string", format = "binary")))
+    @ApiResponse(responseCode = "400", description = "projects.merge.merge-conflict-workbook.400.desc")
+    @PostMapping(value = "/conflicts/workbook",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.ALL_VALUE)
+    public ResponseEntity<byte[]> mergeConflictWorkbook(@ProjectId @PathVariable("projectId") RulesProject project,
+                                                        @Parameter(description = "projects.merge.param.file.desc",
+                                                                required = true)
+                                                        @RequestParam("file") String filePath,
+                                                        @Parameter(description = "projects.merge.merge-conflict-workbook.request.desc")
+                                                        @RequestBody @Valid ResolveConflictWorkbookRequest request)
+            throws IOException {
+        var decisions = new LinkedHashMap<String, ConflictBase>();
+        for (var decision : request.decisions()) {
+            if (decisions.put(decision.id(), decision.side()) != null) {
+                throw new BadRequestException("project.merge.conflict.workbook.duplicate.message",
+                        new Object[]{decision.id()});
+            }
+        }
+        return fileOf(filePath,
+                mergeConflictsService.mergeConflictWorkbook(getMergeConflictInfo0(project), filePath, decisions));
     }
 
     @Operation(summary = "projects.merge.compare-conflict.summary",

@@ -1,0 +1,11 @@
+PUT /rest/projects/{PROJECT_ID}/files/Rates.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="Rates.xlsx"
+Content-Type: application/octet-stream
+
+&../Rates.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
+

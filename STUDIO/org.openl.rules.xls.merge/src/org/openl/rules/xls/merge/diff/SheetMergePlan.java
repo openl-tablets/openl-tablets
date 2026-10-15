@@ -40,4 +40,11 @@ public record SheetMergePlan(Map<CellAddress, CellSource> cells,
                 .stream()
                 .anyMatch(entry -> entry.getValue().our() != null && !entry.getKey().equals(entry.getValue().our()));
     }
+
+    /**
+     * Tells whether a cell is taken from BASE revision, so BASE revision is read for the merge.
+     */
+    boolean takesBase() {
+        return cells.values().stream().anyMatch(source -> source.base() != null);
+    }
 }
