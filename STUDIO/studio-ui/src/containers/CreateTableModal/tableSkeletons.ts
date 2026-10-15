@@ -1,4 +1,4 @@
-import type { DatatypeField } from 'types/tables'
+import type { DatatypeField, RawTableRegion, RawTableRole } from 'types/tables'
 
 /** Every table type the modal offers, in the order it presents them. */
 export const TABLE_PRESETS = [
@@ -823,6 +823,129 @@ export const buildTableSource = (
         }
         default:
             return [header, ...rows]
+    }
+}
+
+/** A rectangle of the cells of a built table that take one role, in table coordinates. */
+const area = (role: RawTableRole, top: number, left: number, bottom: number, right: number): RawTableRegion[] =>
+    top <= bottom && left <= right ? [{ role, top, left, bottom, right }] : []
+
+/** The columns of a Test table that hold the result it expects: OpenL knows them by their name. */
+const expectsResult = (name: string): boolean => name.startsWith(EXPECTED_RESULT) || name.startsWith('_error_')
+
+/** The role of the values of a field: what the table returns, its key, or a value. */
+const valueRole = (result: boolean, key: boolean): RawTableRole => {
+    if (result) {
+        return 'output'
+    }
+    return key ? 'key' : 'value'
+}
+
+/**
+ * The regions of the body of a Test, a Run or a Data table, as its fields are written: their names, their titles,
+ * then the values. Written transposed, each field is a row.
+ */
+const fieldRegions = (
+    fields: string[],
+    keyed: boolean,
+    height: number,
+    width: number,
+    transposed: boolean
+): RawTableRegion[] => {
+    const lines = transposed ? height - 1 : width
+    const regions: RawTableRegion[] = []
+    for (let field = 0; field < lines; field++) {
+        const result = expectsResult(fields[field] ?? '')
+        const title: RawTableRole = result ? 'outputTitle' : 'inputTitle'
+        const value = valueRole(result, keyed && field === 0)
+        regions.push(...(transposed
+            ? [
+                ...area('code', field + 1, 0, field + 1, 0),
+                ...area(title, field + 1, 1, field + 1, 1),
+                ...area(value, field + 1, 2, field + 1, width - 1),
+            ]
+            : [
+                ...area('code', 1, field, 1, field),
+                ...area(title, 2, field, 2, field),
+                ...area(value, 3, field, height - 1, field),
+            ]))
+    }
+    return regions
+}
+
+/**
+ * The roles of the cells of a built table, which OpenL Studio formats it in when tables are formatted on save. The
+ * builder knows them: it writes the header, the rows the table type owns and the rows of values.
+ *
+ * <p>A free-form table has no roles: OpenL reads it as of the type Other, which is not formatted.
+ *
+ * @param source the table as {@link buildTableSource} builds it, the header in row 0
+ */
+export const buildTableRegions = (
+    forPreset: TablePreset,
+    context: TableBuildContext,
+    source: TableCellValue[][],
+    transposed = false
+): RawTableRegion[] => {
+    if (!hasTableHeader(forPreset) || !source.length) {
+        return []
+    }
+    const height = source.length
+    const width = Math.max(1, ...source.map(row => row.length))
+    const last = height - 1
+    const right = width - 1
+    const header = area('signature', 0, 0, 0, right)
+    const geometry = geometryOf(forPreset, context)
+    switch (geometry) {
+        case 'datatype':
+            return [...header, ...area('inputTitle', 1, 0, 1, right), ...area('code', 2, 0, last, 0),
+                ...area('key', 2, 1, last, 1), ...area('value', 2, 2, last, right)]
+        case 'constants':
+            return [...header, ...area('code', 1, 0, last, 0), ...area('key', 1, 1, last, 1),
+                ...area('value', 1, 2, last, right)]
+        case 'vocabulary':
+            return [...header, ...area('value', 1, 0, last, right)]
+        case 'environment':
+        case 'properties':
+            return [...header, ...area('key', 1, 0, last, 0), ...area('value', 1, 1, last, right)]
+        case 'spreadsheet': {
+            // A Spreadsheet of one value returns its last step; one returning a SpreadsheetResult returns them all.
+            const resultType = context.resultType.trim()
+            const single = resultType !== '' && resultType !== 'SpreadsheetResult' && resultType !== 'void'
+            const steps = single ? last - 1 : last
+            return [...header, ...area('inputTitle', 1, 0, 1, 0), ...area('outputTitle', 1, 1, 1, right),
+                ...area('key', 2, 0, steps, 0), ...area('output', 2, 1, steps, right),
+                ...(single ? area('result', Math.max(last, 2), 0, last, right) : [])]
+        }
+        case 'rules':
+            return [...header, ...area('code', 1, 0, 3, right), ...area('inputTitle', 4, 0, 4, 0),
+                ...area('outputTitle', 4, 1, 4, right), ...area('value', 5, 0, last, 0),
+                ...area('output', 5, 1, last, right)]
+        case 'smartLookup':
+        case 'simpleLookup': {
+            const { rows, keys } = headerBand(geometry, context)
+            return [...header, ...area('inputTitle', 1, 0, rows, right), ...area('value', rows + 1, 0, last, keys - 1),
+                ...area('output', rows + 1, keys, last, right)]
+        }
+        case 'smartRules':
+        case 'simpleRules': {
+            const inputs = completeArguments(context.arguments).length
+            // A lookup of one argument opens with a rule, not with titles: its geometry is the one of a rules table.
+            const titled = !isLookup(forPreset)
+            const first = titled ? 2 : 1
+            return [...header,
+                ...(titled ? [...area('inputTitle', 1, 0, 1, inputs - 1), ...area('outputTitle', 1, inputs, 1, right)] : []),
+                ...area('value', first, 0, last, inputs - 1), ...area('output', first, inputs, last, right)]
+        }
+        case 'test':
+        case 'run':
+            return [...header, ...fieldRegions(context.targetColumns.map(column => column.name), false, height, width,
+                transposed)]
+        case 'data':
+            return [...header, ...fieldRegions(context.dataFields.map(field => field.name), true, height, width,
+                transposed)]
+        case 'freeForm':
+            return []
     }
 }
 

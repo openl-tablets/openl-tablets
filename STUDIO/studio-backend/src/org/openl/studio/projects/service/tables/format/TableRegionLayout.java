@@ -159,6 +159,64 @@ public final class TableRegionLayout {
     }
 
     /**
+     * The header and the properties of a table, laid out from its grid alone: the header reaches across the table, and
+     * the properties take the rows of the section that declares them.
+     *
+     * @param grid the table as it stands on its grid, header included
+     * @return the rows the header and the properties take, and their regions
+     */
+    static Head headOf(IGridTable grid) {
+        var logical = LogicalTableHelper.logicalTable(grid);
+        var right = grid.getWidth() - 1;
+        var signature = logical.getRows(0, 0).getSource().getHeight();
+        var regions = new ArrayList<RawTableRegion>(2);
+        regions.add(new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, signature - 1, right));
+        var properties = PropertiesHelper.getPropertiesTableSection(logical);
+        var height = signature;
+        if (properties != null) {
+            height += properties.getSource().getHeight();
+            regions.add(new RawTableRegion(RawTableRole.PROPERTIES, null, signature, 0, height - 1, right));
+        }
+        return new Head(height, regions);
+    }
+
+    /**
+     * The header and the properties of a table.
+     *
+     * @param height  how many rows they take
+     * @param regions their regions
+     */
+    public record Head(int height, List<RawTableRegion> regions) {
+
+        /**
+         * A header of one row reaching across the table, and the rows of properties under it.
+         *
+         * @param width      how many columns the table has
+         * @param properties how many rows the properties take: {@code 0} for a table without them
+         * @return the header and the properties
+         */
+        public static Head of(int width, int properties) {
+            var signature = new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, width - 1);
+            return properties == 0
+                    ? new Head(1, List.of(signature))
+                    : new Head(1 + properties, List.of(signature,
+                    new RawTableRegion(RawTableRole.PROPERTIES, null, 1, 0, properties, width - 1)));
+        }
+    }
+
+    /**
+     * The regions of a table as its last compile laid it out, which a save of it is formatted with when the save does
+     * not compile.
+     *
+     * @param table the table, as the last compile read it
+     * @return the regions, or {@code null} for a table of a kind OpenL Studio does not format, or one whose workbook
+     *         was written to since the compile read it, when what the compile read no longer answers for the sheet
+     */
+    public static @Nullable TableRegions compiledRegionsOf(IOpenLTable table) {
+        return isSavedSinceRead(table.getSyntaxNode()) ? null : regionsOf(table);
+    }
+
+    /**
      * Lays out the header row and the properties under it.
      *
      * @param cells   what each cell of the table is, in table coordinates, which the body adds its cells to

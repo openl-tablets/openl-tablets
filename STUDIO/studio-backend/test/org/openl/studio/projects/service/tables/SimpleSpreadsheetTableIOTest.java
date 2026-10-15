@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +34,7 @@ class SimpleSpreadsheetTableIOTest {
                 .returnType("String")
                 .build();
 
-        var writer = new TableWritersFactory()
+        var writer = new TableWritersFactory(mock(TableFormatting.class))
                 .getNewTableWriter(view, TableTestProjects.sheetGrid(project, "WithProperties"));
         new TableWriterExecutor().executeWrite(writer, view);
 

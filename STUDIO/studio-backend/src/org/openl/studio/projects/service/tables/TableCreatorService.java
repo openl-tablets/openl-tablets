@@ -33,6 +33,7 @@ import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
@@ -42,12 +43,17 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableGroups;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
+import org.openl.studio.projects.service.tables.format.RegionShift;
+import org.openl.studio.projects.service.tables.format.TableRegionLayout;
+import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.studio.projects.service.tables.write.RawTableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
@@ -70,6 +76,7 @@ public class TableCreatorService {
     private final ProjectFilesService projectFilesService;
     private final ProjectFileRootFactory projectFileRootFactory;
     private final SystemPropertiesService systemPropertiesService;
+    private final TableFormatting formatting;
 
     /**
      * Creates a table in an existing module.
@@ -87,6 +94,10 @@ public class TableCreatorService {
         var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
         if (carriesProperties(table.kind)) {
             tableWriter.stampWith(systemPropertiesService.onCreate());
+        }
+        var built = builtRegions(createTableRequest, table);
+        if (built != null) {
+            tableWriter.formatOnSave(built, table.getHeight(), table.getWidth());
         }
         return tableWriterExecutor.executeWrite(tableWriter, createTableRequest.table());
     }
@@ -207,6 +218,7 @@ public class TableCreatorService {
                 }
             }
             requireNoBlankLine(sheet, stamped.getHeight(), stamped.getWidth());
+            format(sheet, builtRegions(request, table), table, stamped);
             workbook.write(output);
             return output.toByteArray();
         } catch (IOException e) {
@@ -217,6 +229,53 @@ public class TableCreatorService {
             log.warn("Cannot lay out the table in a new workbook.", e);
             throw new BadRequestException("table.new-module.workbook.message");
         }
+    }
+
+    /**
+     * The regions the client built the table in, which the table is formatted in while tables are formatted on save.
+     *
+     * <p>A region outside the table as sent is left out. A table sent without regions, or in a view other than the
+     * raw one, is written as sent.
+     *
+     * @return the regions, or {@code null} when the table is not formatted
+     */
+    private @Nullable TableRegions builtRegions(CreateNewTableRequest request, TableView table) {
+        var regions = request.regions();
+        if (regions == null || !(table instanceof RawTableView) || !formatting.onSave()) {
+            return null;
+        }
+        var height = table.getHeight();
+        var width = table.getWidth();
+        var inside = regions.stream()
+                .filter(region -> region.top() >= 0 && region.left() >= 0 && region.top() <= region.bottom()
+                        && region.left() <= region.right() && region.bottom() < height && region.right() < width)
+                .toList();
+        return new TableRegions(inside, RawTableGroups.NONE, List.of(), Map.of());
+    }
+
+    /**
+     * Formats a table written into a workbook of its own in the regions the client built it in, its header and the
+     * properties OpenL Studio stamped under it laid out as written.
+     */
+    private void format(Sheet sheet, @Nullable TableRegions built, RawTableView sent, RawTableView written) {
+        if (built == null) {
+            return;
+        }
+        var head = TableRegionLayout.Head.of(written.getWidth(), propertyRowsOf(written));
+        var header = String.valueOf(firstCell(written.source.getFirst()));
+        var regions = RegionShift.of(built, sent.getHeight(), sent.getWidth())
+                .fittedTo(head, written.getHeight(), written.getWidth(), header);
+        new ExcelTableFormatter().format(sheet, new GridRegion(TABLE_START_ROW, TABLE_START_COLUMN,
+                TABLE_START_ROW + written.getHeight() - 1, TABLE_START_COLUMN + written.getWidth() - 1), regions);
+    }
+
+    /** How many rows the properties section under the header of a table takes: none for a table without one. */
+    private static int propertyRowsOf(RawTableView table) {
+        if (table.source.size() < 2 || !PROPERTIES_SECTION.equals(String.valueOf(firstCell(table.source.get(1))))) {
+            return 0;
+        }
+        var marker = table.source.get(1).getFirst();
+        return Optional.ofNullable(marker.rowspan()).orElse(1);
     }
 
     /**

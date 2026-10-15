@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -229,7 +230,7 @@ class DatatypeTableIOTest {
     private static void create(Path project, String sheetName, String name, List<DatatypeFieldView> fields) {
         var view = DatatypeView.builder().name(name).fields(fields).build();
         var grid = TableTestProjects.sheetGrid(project, sheetName);
-        var factory = new TableWritersFactory();
+        var factory = new TableWritersFactory(mock(TableFormatting.class));
         ((DatatypeTableWriter) factory.getNewTableWriter(view, grid)).write(view);
     }
 

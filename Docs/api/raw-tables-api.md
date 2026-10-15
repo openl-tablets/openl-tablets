@@ -295,6 +295,10 @@ Content-Type: application/json
 - `modulePath` — the project-relative path of a new `.xlsx` module. A new module is created only from a raw source.
 - `sheetName` — the sheet for the table. It has 1 to 31 characters and none of `/ \ * ? [ ] :`.
 - `table` — the table. A table of any type of the [Table Endpoints](README.md#table-endpoints) is accepted.
+- `regions` — optional, the roles of the cells of a raw table as the client built it, in the shape of
+  [Roles of the Cells](#roles-of-the-cells) and in the coordinates of `source`. While tables are formatted on save, the
+  table is written in the OpenL table style of these roles; a region outside `source` is left out. A table sent without
+  them, or in a typed view, is written as sent and formatted at its next save.
 
 The answer is `201 Created` with the summary of the new table.
 
@@ -302,6 +306,19 @@ The answer is `201 Created` with the summary of the new table.
 
 A replacement and an append answer `204 No Content`, or `200 OK` with the new table id and the `Location` header when
 the table had no room to grow and moved; see [Data Tables API](data-tables-api.md#responses).
+
+### Formatted on Save
+
+While the system setting `table.format-on-save` is on, as it is by default, every write formats the table it saves with
+the OpenL table style, as [Reformatting the Excel Files](#reformatting-the-excel-files) does, with no compile:
+
+- an edit takes the roles of the last compile of the table, moved along the rows and columns the write inserts and
+  removes, and its header and properties as they stand;
+- a copy takes the roles of the table it is copied from;
+- a created table takes the `regions` of its request.
+
+A table whose module was written to since its last compile, with automatic compilation off, is saved as it is written:
+its roles are not known until the module is compiled. A table of an `.xls` workbook is never formatted.
 
 ### Blank Lines Are Refused
 

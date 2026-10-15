@@ -10,9 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -172,7 +175,7 @@ public final class TableTestProjects {
      * than the one the existing tables were read from.
      */
     public static XlsSheetGridModel sheetGrid(Path project, String sheetName) {
-        return new TableCreatorService(null, null, null, null, null)
+        return new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class))
                 .sheetGridModel(projectModel(project), sheetName);
     }
 
@@ -232,4 +235,36 @@ public final class TableTestProjects {
         return new TableSyntaxNodeAdapter(dispatcher.getDispatcherTable());
     }
 
+
+    /**
+     * The named style a cell of a saved workbook links, such as {@code Title}, or {@code null} for a cell linking the
+     * Normal style or one of no name.
+     *
+     * @param workbook the workbook file
+     * @param sheet    the name of the sheet
+     * @param row      the row of the sheet
+     * @param column   the column of the sheet
+     */
+    public static @Nullable String styleNameAt(Path workbook, String sheet, int row, int column) throws IOException {
+        try (var in = Files.newInputStream(workbook); var read = new XSSFWorkbook(in)) {
+            var cell = read.getSheet(sheet).getRow(row).getCell(column);
+            var xfId = cell.getCellStyle().getCoreXf().getXfId();
+            var named = read.getStylesSource().getCTStylesheet().getCellStyles();
+            if (named == null) {
+                return null;
+            }
+            return named.getCellStyleList().stream()
+                    .filter(style -> style.getXfId() == xfId && style.getBuiltinId() != 0)
+                    .map(CTCellStyle::getName)
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
+
+    /** The line above a cell of a saved workbook. */
+    public static BorderStyle lineAbove(Path workbook, String sheet, int row, int column) throws IOException {
+        try (var in = Files.newInputStream(workbook); var read = new XSSFWorkbook(in)) {
+            return read.getSheet(sheet).getRow(row).getCell(column).getCellStyle().getBorderTop();
+        }
+    }
 }

@@ -137,6 +137,7 @@ Described in [Managing System Settings][system].
 | Testing                | Thread Number for Tests                     | `test.run.thread.count`      |
 | Projects               | Maximum count of saved changes per user     | `project.history.count`         |
 | Projects               | Detect projects by Excel files              | `project.detect-by-excel-files` |
+| Other                  | Format tables on save                       | `table.format-on-save`       |
 | Other                  | Update table properties                     | `update.system.properties`   |
 | Other                  | Date Format                                 | `data.format.date`           |
 | Other                  | Time Format                                 | `data.format.time`           |

@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.write;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -20,9 +21,13 @@ import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestView;
 import org.openl.studio.projects.model.tables.VocabularyView;
+import org.openl.studio.projects.service.tables.TableFormatting;
 
 @Component
+@RequiredArgsConstructor
 public class TableWritersFactory {
+
+    private final TableFormatting formatting;
 
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
@@ -46,9 +51,20 @@ public class TableWritersFactory {
         };
     }
 
+    /**
+     * The writer of a table of the project, in the view of the given type. The save of the writer formats the table
+     * while the administrator has formatting on save turned on.
+     */
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
     public TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
+        var writer = writerOf(table, tableType);
+        writer.formatOnSave(formatting.onSave());
+        return writer;
+    }
+
+    @SuppressWarnings("java:S1452")
+    private static TableWriter<? extends TableView> writerOf(IOpenLTable table, String tableType) {
         // RawTableView can be used for any table type, so check it first
         if (RawTableView.TABLE_TYPE.equals(tableType)) {
             return new RawTableWriter(table);

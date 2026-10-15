@@ -31,7 +31,7 @@ class TablePropertiesWriteTest {
     Path tempDir;
 
     private final SystemPropertiesService systemProperties = mock(SystemPropertiesService.class);
-    private final TablePropertiesService service = new TablePropertiesServiceImpl(systemProperties);
+    private final TablePropertiesService service = new TablePropertiesServiceImpl(systemProperties, mock(TableFormatting.class));
 
     @Test
     void writesAPropertyOntoATableThatDeclaresNone() throws IOException {

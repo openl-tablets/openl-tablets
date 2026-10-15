@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -44,6 +45,9 @@ import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
+import org.openl.studio.projects.service.tables.format.RegionShift;
+import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -65,6 +69,9 @@ public abstract class TableWriter<T extends TableView> {
     private MetaInfoWriter metaInfoWriter;
     private Map<String, Object> stamped = Map.of();
     private Map<String, Object> stampedOnEdit = Map.of();
+
+    /** The regions the save formats the table in, moved along the lines the write inserts and removes. */
+    private @Nullable RegionShift layout;
 
     protected TableWriter(IOpenLTable table) {
         this.table = table;
@@ -115,6 +122,59 @@ public abstract class TableWriter<T extends TableView> {
      */
     public void stampEditWith(Map<String, Object> properties) {
         this.stampedOnEdit = properties;
+    }
+
+    /**
+     * Formats the table with the OpenL table style when it is saved, with no compile. Called before the write.
+     *
+     * <p>The table is formatted in the regions its last compile laid it out in, moved along the lines the write
+     * inserts and removes, and its header and properties as they stand once written. A table of the type Other, and a
+     * table whose workbook was written to since its last compile, are saved as they are written: what the compile read
+     * no longer answers for the sheet.
+     *
+     * @param format whether the save formats the table
+     */
+    public void formatOnSave(boolean format) {
+        layout = format && isUpdateMode() ? RegionShift.ofCompiled(table) : null;
+    }
+
+    /**
+     * Formats a table being written for the first time with the OpenL table style when it is saved, in the regions its
+     * builder laid it out in. Called before the write.
+     *
+     * @param regions the regions of the table as its builder wrote it, in table coordinates
+     * @param height  how many rows the table the builder wrote has
+     * @param width   how many columns the table the builder wrote has
+     */
+    public void formatOnSave(TableRegions regions, int height, int width) {
+        layout = RegionShift.of(regions, height, width);
+    }
+
+    /**
+     * Tells the layout the save formats the table in that lines were inserted.
+     *
+     * @param rows  whether rows were inserted, rather than columns
+     * @param at    the line of the table the first inserted line takes
+     * @param count how many lines were inserted
+     */
+    protected void linesInserted(boolean rows, int at, int count) {
+        if (layout != null) {
+            if (rows) {
+                layout.rowsInserted(at, count);
+            } else {
+                layout.columnsInserted(at, count);
+            }
+        }
+    }
+
+    /**
+     * Formats the table in the regions of its layout, as it stands once written. A formatting that fails leaves the
+     * table as it is written, so the edit is saved all the same.
+     */
+    private void formatTable() {
+        if (layout != null) {
+            ExcelTableFormatter.formatOnSave(originalTable, layout);
+        }
     }
 
     /**
@@ -248,6 +308,7 @@ public abstract class TableWriter<T extends TableView> {
             int nRows = grow - region.getBottom();
             int beforeRow = region.getTop() - originalTable.getRegion().getTop() + GridRegionUtils.height(region);
             insertRows(gridTable, nRows, beforeRow);
+            linesInserted(true, beforeRow, nRows);
             inserted = true;
         }
         int gcol = cellKey.getColumn() + region.getLeft();
@@ -255,6 +316,7 @@ public abstract class TableWriter<T extends TableView> {
             int nCols = gcol - region.getRight();
             int beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + GridRegionUtils.width(region);
             insertColumns(gridTable, nCols, beforeCol);
+            linesInserted(false, beforeCol, nCols);
             inserted = true;
         }
         if (inserted) {
@@ -287,12 +349,21 @@ public abstract class TableWriter<T extends TableView> {
 
     protected void removeRows(IGridTable gridTable, int nRows, int startRow) {
         int startRow0 = gridTable.getRegion().getTop() - originalTable.getRegion().getTop() + startRow;
+        var height = GridRegionUtils.height(originalTable.getRegion());
         new UndoableRemoveRowsAction(nRows, startRow0, getMetaInfoWriter()).doAction(gridTable);
+        if (layout != null) {
+            // A merged line takes the lines merged with it along: the table says how many went.
+            layout.rowsRemoved(startRow0, height - GridRegionUtils.height(originalTable.getRegion()));
+        }
     }
 
     protected void removeColumns(IGridTable gridTable, int nCols, int startCol) {
         int startCol0 = gridTable.getRegion().getLeft() - originalTable.getRegion().getLeft() + startCol;
+        var width = GridRegionUtils.width(originalTable.getRegion());
         new UndoableRemoveColumnsAction(nCols, startCol0, getMetaInfoWriter()).doAction(gridTable);
+        if (layout != null) {
+            layout.columnsRemoved(startCol0, width - GridRegionUtils.width(originalTable.getRegion()));
+        }
     }
 
     /**
@@ -319,6 +390,7 @@ public abstract class TableWriter<T extends TableView> {
     protected void save() {
         recordEdit();
         requireNoBlankLine();
+        formatTable();
         saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
     }
 

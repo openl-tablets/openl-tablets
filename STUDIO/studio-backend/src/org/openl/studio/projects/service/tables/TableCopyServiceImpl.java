@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.ICellStyle;
@@ -23,6 +24,8 @@ import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
+import org.openl.studio.projects.service.tables.format.RegionShift;
 import org.openl.util.BooleanUtils;
 
 /**
@@ -44,6 +47,7 @@ public class TableCopyServiceImpl implements TableCopyService {
 
     private final SystemPropertiesService systemPropertiesService;
     private final TableVersionService versionService;
+    private final TableFormatting formatting;
 
     @Override
     public String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
@@ -59,7 +63,9 @@ public class TableCopyServiceImpl implements TableCopyService {
         // it, pairing edit()/stopEditing() the way the table writers do.
         original.edit();
         try {
-            var copyId = build(source, original, newName, declared, destGrid);
+            // The copy takes the regions of its source, laid out as its last compile read it.
+            var layout = formatting.onSave() ? RegionShift.ofCompiled(source) : null;
+            var copyId = build(source, original, newName, declared, destGrid, layout);
             if (replacesTheSource) {
                 standDown(source);
             }
@@ -170,7 +176,7 @@ public class TableCopyServiceImpl implements TableCopyService {
     }
 
     private static String build(IOpenLTable source, IGridTable original, String newName,
-            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid) {
+            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, @Nullable RegionShift layout) {
         var node = source.getSyntaxNode();
         var type = node.getNodeType();
 
@@ -214,9 +220,12 @@ public class TableCopyServiceImpl implements TableCopyService {
                 builder.writeProperties(newProperties, propertiesStyle);
             }
             builder.writeGridTable(body);
-            var uri = destGrid.getRangeUri(builder.getTableRegion());
+            var copy = new GridTable(builder.getTableRegion(), destGrid);
             builder.endTable();
-            return TableUtils.makeTableId(uri);
+            if (layout != null) {
+                ExcelTableFormatter.formatOnSave(copy, layout);
+            }
+            return TableUtils.makeTableId(destGrid.getRangeUri(copy.getRegion()));
         } catch (CreateTableException e) {
             log.warn("Cannot lay out the copy '{}'.", newName, e);
             throw new BadRequestException("table.copy.failed.message");

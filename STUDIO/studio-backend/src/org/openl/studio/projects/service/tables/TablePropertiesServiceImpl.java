@@ -12,11 +12,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
+import org.openl.studio.projects.service.tables.format.RegionShift;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -37,6 +40,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class TablePropertiesServiceImpl implements TablePropertiesService {
 
     private final SystemPropertiesService systemPropertiesService;
+    private final TableFormatting formatting;
 
     @Override
     public List<TableProperty> read(IOpenLTable table) {
@@ -74,6 +78,8 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
         var writable = TablePropertyRules.writable(table.getType());
         properties.forEach(property -> requireWritable(declared, writable, property));
         var gridTable = table.getGridTable();
+        // Laid out before the properties move the body, which the table is then formatted in as a save of it is.
+        var layout = formatting.onSave() ? RegionShift.ofCompiled(table) : null;
         gridTable.edit();
         try {
             var editor = new TableEditorModel(table);
@@ -83,6 +89,9 @@ public class TablePropertiesServiceImpl implements TablePropertiesService {
             // Who edited the table and when is recorded by the installation, not by the author, and this is an
             // edit like any other.
             systemPropertiesService.onEdit().forEach(editor::setProperty);
+            if (layout != null) {
+                ExcelTableFormatter.formatOnSave(GridTableUtils.getOriginalTable(gridTable), layout);
+            }
             return editor.save();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);

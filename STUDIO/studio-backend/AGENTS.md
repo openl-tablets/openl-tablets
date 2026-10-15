@@ -248,6 +248,21 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   writes the stylesheet from them, and keeps a copy of each entry: POI writes a shorter list into the stylesheet entry
   by entry and drops the entries left over, so a list must not hold one of them when a sheet reads its cell formats
   during the same write (`XmlValueDisconnectedException`).
+- **Format on save formats with no compile.** While `table.format-on-save` is on (`TableFormatting`, read on each
+  save), every save formats the table it writes before the one save of the workbook, so an edit and its formatting are
+  one history revision. `TableWritersFactory.getTableWriter` arms each update writer
+  (`TableWriter.formatOnSave(boolean)`), which takes the layout of the last compile before it writes
+  (`RegionShift.ofCompiled`): `null` for a table of the type Other, and for one whose workbook was saved since the
+  compile read it (`TableRegionLayout.compiledRegionsOf`), which is then saved unformatted. The writer tells the layout
+  every line it inserts or removes (`createOrUpdateCell` growing the table, `removeRows`/`removeColumns` measuring how
+  many lines the table really lost, the insert loops of `RawTableWriter`); `RegionShift.fittedTo` lays the header and
+  the properties out again from the grid (`TableRegionLayout.headOf`), so a property row the edit wrote needs no
+  tracking, and stretches or trims the regions to the size the table ends with. A property write
+  (`TablePropertiesServiceImpl`) and a copy (`TableCopyServiceImpl`, the source's layout on the copy) take the layout
+  the same way. A created table is formatted in the `regions` its create request carries, which the create dialog's
+  builder emits (`buildTableRegions` in `tableSkeletons.ts`); a table written into a new module is formatted on its POI
+  sheet (`ExcelTableFormatter.format(Sheet, IGridRegion, TableRegions)`). A formatting that fails is logged and the
+  table saved unformatted.
 - **Reformat Excel files is the project action** (`POST /projects/{id}/format`, `WorkspaceProjectService.formatProject`).
   It compiles what it needs instead of refusing: a project compiled only in part is compiled whole, and a project
   written since it was compiled (`ProjectModel.isWrittenSinceCompiled`) has its module built from its workbooks again
