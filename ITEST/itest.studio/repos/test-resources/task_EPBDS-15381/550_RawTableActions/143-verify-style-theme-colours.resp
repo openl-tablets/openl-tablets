@@ -1,0 +1,130 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting1",
+  "pos": "B4:D12",
+  "source": [
+    [
+      {
+        "cell": "B10",
+        "value": 12,
+        "style": 0
+      },
+      {
+        "cell": "C10",
+        "value": 18,
+        "style": 1
+      },
+      {
+        "cell": "D10",
+        "value": "Good Afternoon"
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "background": "#83cceb",
+      "color": "#be5014",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 4,
+      "left": 2,
+      "bottom": 4,
+      "right": 2
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 5,
+      "left": 0,
+      "bottom": 8,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 5,
+      "left": 2,
+      "bottom": 8,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 5
+    },
+    {
+      "part": "type",
+      "to": 12
+    },
+    {
+      "part": "name",
+      "to": 22
+    },
+    {
+      "part": "punctuation",
+      "to": 24
+    },
+    {
+      "part": "parameterType",
+      "to": 31
+    },
+    {
+      "part": "parameterName",
+      "to": 36
+    },
+    {
+      "part": "punctuation",
+      "to": 37
+    }
+  ],
+  "totalRows": 9,
+  "headerHeight": 4
+}

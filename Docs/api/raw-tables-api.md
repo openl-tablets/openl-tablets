@@ -382,6 +382,11 @@ The answer is `204 No Content`, or `200 OK` with the new table id and the `Locat
 - `openl.error.400.table.action.merge.overlap.message` — the range overlaps a merged cell.
 - `openl.error.400.table.action.merge.data-loss.message` — the range holds more than one distinct value.
 - `openl.error.400.table.action.style.empty.message` — a style names no attribute.
+- `openl.error.400.table.action.style.format-on-save.message` — a style names an attribute other than `indent` while
+  the system setting `table.format-on-save` is on.
+- `openl.error.400.table.action.style.colour.invalid.message` — a colour is given both as a theme colour and as `rgb`,
+  as neither, or as `rgb` with a `tint`.
+- `openl.error.400.table.action.style.colour.not-standard.message` — an `rgb` colour is not a standard colour of Excel.
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
   of them.
 
@@ -413,8 +418,8 @@ The `style` operation sets the style of every cell of a rectangle:
     "rowspan": 1,
     "colspan": 3,
     "style": {
-      "background": "#ffff00",
-      "color": "#0000ff",
+      "background": {"theme": "accent1", "tint": 0.6},
+      "color": {"rgb": "#C00000"},
       "align": "center",
       "bold": true,
       "indent": 1
@@ -423,11 +428,26 @@ The `style` operation sets the style of every cell of a rectangle:
 }
 ```
 
-- The `style` names the attributes to set: `background` and `color` as `#rrggbb`, `align`, `bold`, `italic`,
-  `underline`, and `indent` from 0 to 15. An attribute that is left out is not touched.
+- The `style` names the attributes to set: `background` and `color`, `align`, `bold`, `italic`, `underline`, and
+  `indent` from 0 to 15. An attribute that is left out is not touched.
 - `align` set to `left` puts the cells back to the default alignment. `indent` set to `0` takes the indent away.
 - A style that names no attribute is refused.
 - The attributes are the ones of a styled read, except the borders and the vertical alignment, which are read-only.
+- While the system setting `table.format-on-save` is on, as it is by default, a style may name the `indent` alone:
+  the save writes the OpenL table style over any other styling. `GET /settings` tells whether it is on, as
+  `formatTablesOnSave`.
+
+A colour is one of the palette of Excel, given one way:
+
+- **A theme colour** — `{"theme": "accent1", "tint": 0.6}`: `lt1`, `dk1`, `lt2`, `dk2` for the first and the second
+  background and text, `accent1` to `accent6` for the accents. The `tint` from -1 to 1 makes it lighter, above 0, or
+  darker, below 0, as Excel names it: `0.6` for Lighter 60%, `-0.25` for Darker 25%; absent for the theme colour
+  itself. The cell takes the colours of the theme of its workbook; a workbook without a theme, such as an `.xls` one,
+  takes the colour Office draws it in.
+- **A standard colour** — `{"rgb": "#C00000"}`, one of `#C00000`, `#FF0000`, `#FFC000`, `#FFFF00`, `#92D050`,
+  `#00B050`, `#00B0F0`, `#0070C0`, `#002060` and `#7030A0`.
+
+A styled read reports every colour as the `#rrggbb` it is drawn in.
 
 ### Reformatting the Excel Files
 

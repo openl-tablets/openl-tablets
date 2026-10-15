@@ -1,4 +1,5 @@
-import type { RawCellStyleInput, RawTableCell, RawTableCellInput, TableEdit } from 'types/tables'
+import { hexOf } from 'styles/excelColours'
+import type { RawCellStyleInput, RawTableCell, RawTableCellStyle, RawTableCellInput, TableEdit } from 'types/tables'
 
 /** Where a cell sits in the table, as it stands on screen. */
 export interface CellAt {
@@ -47,6 +48,19 @@ export interface EditedTable {
     /** The styling the reader asked for, cell by cell, named by what they are. */
     styled: Map<string, RawCellStyleInput>
 }
+
+/**
+ * The styling the reader asked for, as the screen draws it until the table is saved and read again: a colour of the
+ * palette of Excel in the colours of Office, as Excel draws it in a new workbook.
+ *
+ * @param style the styling asked for
+ * @returns the styling to draw
+ */
+export const shownStyle = ({ background, color, ...rest }: RawCellStyleInput): RawTableCellStyle => ({
+    ...rest,
+    ...(background === undefined ? {} : { background: hexOf(background) }),
+    ...(color === undefined ? {} : { color: hexOf(color) }),
+})
 
 /**
  * A blank cell wearing the styling of the one it is laid down beside.
@@ -218,7 +232,7 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
                     state.touched.add(key)
                 } else {
                     state.styled.set(key, { ...state.styled.get(key), ...step.style })
-                    row[step.at.column] = { ...cell, style: { ...cell.style, ...step.style } }
+                    row[step.at.column] = { ...cell, style: { ...cell.style, ...shownStyle(step.style) } }
                 }
             }
             return added

@@ -11,8 +11,12 @@ Content-Type: application/json
     "rowspan": 1,
     "colspan": 3,
     "style": {
-      "background": "#ffff00",
-      "color": "#0000ff",
+      "background": {
+        "rgb": "#FFFF00"
+      },
+      "color": {
+        "rgb": "#0070C0"
+      },
       "align": "center",
       "bold": true,
       "indent": 1

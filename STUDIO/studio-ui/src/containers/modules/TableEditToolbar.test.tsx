@@ -35,6 +35,8 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
         <TableEditToolbar
             canUndo
             dirty
+            formatting
+            indenting
             whole
             blocked={null}
             canRedo={false}
@@ -89,16 +91,33 @@ describe('TableEditToolbar', () => {
         expect(screen.getByTestId('table-edit-remove_row')).toBeDisabled()
     })
 
-    it('opens on the palette and puts the full picker in its place only when asked', async () => {
+    it('offers the look of a cell only where the formatting is kept and seen', () => {
+        draw({ formatting: false, indenting: false })
+
+        // A save that formats the table writes over the look, and the Studio look does not show it.
+        const look = ['align_left', 'align_center', 'align_right', 'bold', 'italic', 'underline',
+            'fill_colour', 'font_colour', 'outdent', 'indent']
+        look.forEach(action => expect(screen.queryByTestId(`table-edit-${action}`)).not.toBeInTheDocument())
+        // What changes the table itself stays.
+        expect(screen.getByTestId('table-edit-insert_row')).toBeInTheDocument()
+    })
+
+    it('keeps the indent of a table that reads its structure from it', () => {
+        draw({ formatting: false, indenting: true })
+
+        expect(screen.getByTestId('table-edit-indent')).toBeInTheDocument()
+        expect(screen.getByTestId('table-edit-outdent')).toBeInTheDocument()
+        expect(screen.queryByTestId('table-edit-bold')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('table-edit-fill_colour')).not.toBeInTheDocument()
+    })
+
+    it('opens the palette of Excel: the theme colours with their shades, and the standard colours', async () => {
         draw()
 
         await userEvent.click(screen.getByTestId('table-edit-fill_colour'))
+
         expect(await screen.findByTestId('table-edit-palette')).toBeInTheDocument()
-
-        await userEvent.click(screen.getByTestId('table-edit-fill_colour-more'))
-
-        // One of the two at a time: the palette gives up its place rather than sitting behind the picker.
-        expect(screen.queryByTestId('table-edit-palette')).not.toBeInTheDocument()
+        expect(screen.getAllByTestId('table-edit-swatch')).toHaveLength(70)
     })
 
     it('shows a colour on the cell while the pointer rests on it, and takes it back off', async () => {
@@ -109,7 +128,7 @@ describe('TableEditToolbar', () => {
         const first = swatches[0] as HTMLElement
 
         await userEvent.hover(first)
-        expect(acted.onPreview).toHaveBeenLastCalledWith({ background: '#FFFFFF' })
+        expect(acted.onPreview).toHaveBeenLastCalledWith({ background: { theme: 'lt1' } })
         // Nothing is written by looking: the colour is on the cell, not in what the table will be saved as.
         expect(acted.onStyle).not.toHaveBeenCalled()
 
@@ -124,8 +143,18 @@ describe('TableEditToolbar', () => {
         const swatches = await screen.findAllByTestId('table-edit-swatch')
         await userEvent.click(swatches[1] as HTMLElement)
 
-        expect(acted.onStyle).toHaveBeenCalledWith({ background: '#FFDDDD' })
+        expect(acted.onStyle).toHaveBeenCalledWith({ background: { theme: 'dk1' } })
         expect(acted.onPreview).toHaveBeenLastCalledWith(null)
+    })
+
+    it('colours the text of the cell with a standard colour', async () => {
+        const acted = draw()
+
+        await userEvent.click(screen.getByTestId('table-edit-font_colour'))
+        const swatches = await screen.findAllByTestId('table-edit-swatch')
+        await userEvent.click(swatches.at(-1) as HTMLElement)
+
+        expect(acted.onStyle).toHaveBeenCalledWith({ color: { rgb: '#7030A0' } })
     })
 
     it('sets the font of the picked cell', async () => {

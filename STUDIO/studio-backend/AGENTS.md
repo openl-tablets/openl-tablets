@@ -280,6 +280,12 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   staged in a temporary folder, each module holding an uploaded workbook compiled there with the dependency manager of
   a project opened in the session, and the formatted files committed once. A workbook that cannot be formatted is
   written as uploaded and the failure logged: formatting never fails an upload.
+- **A style edit follows the setting and the palette.** While `table.format-on-save` is on, `RawTableWriter` refuses
+  a `style` operation that names anything but `indent` (`TableWriter.isFormattingOnSave`, set by
+  `formatOnSave(boolean)` even when the save formats nothing this time). A colour (`RawCellColor`) is a theme colour,
+  `{theme, tint}`, written through the `ThemedColor` overloads of `SetFillColorAction`/`SetColorAction` (an `.xls`
+  workbook, which has no theme, takes the Office RGB, `ThemedColor.toOfficeRgb`), or one of the ten standard colours,
+  `{rgb}`; any other RGB is refused. The editor reads the setting from `GET /settings` (`formatTablesOnSave`).
 - **A read sends each fact once.** `RawTableReader` names the styles of a read in a dictionary
   (`RawTableStyleDictionary`, `RawTableView.styles`): a cell and a piece of its text name their style by its index. A
   piece of text names where it ends (`RawTableTextRun.to`), not its text. A read of the values alone (`styles=false`)

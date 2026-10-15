@@ -344,6 +344,25 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | ![](images/edit-decrease-indent-icon.png) | Decreases indent.                                       |
     | ![](images/edit-increase-indent-icon.png) | Increases indent.                                       |
 
+    The alignment, font and color buttons are shown only while **Format tables on save** is cleared in
+    [System Settings](administration/02-system-settings.md) and **Excel Formatting** is on. Otherwise a save writes the
+    OpenL table style over them, or the table is drawn in the look of OpenL Studio, which does not show them. The indent
+    buttons are shown with them, and in a TBasic or ColumnMatch table in every case: these tables read their structure
+    from the indent.
+
+    The fill color and font color buttons open the palette of Excel:
+
+    -   **Theme Colors** — the ten theme colors of the Excel file, each with five shades under it. A theme color is
+        written as the theme color, so the cell takes the colors of the theme of its Excel file.
+    -   **Standard Colors** — the ten fixed colors of Excel, from Dark Red to Purple.
+
+    ![The palette of Excel open under the fill color button](images/edit-color-palette.png "Picking a fill color")
+
+    *Picking a fill color*
+
+    Resting the pointer on a color shows it on the selected cell. Until the table is saved, a theme color is shown as
+    Excel shows it in a new workbook.
+
     The **Close** button at the end of the toolbar leaves the edit mode. When the table has unsaved changes, OpenL Studio asks whether to discard them.
 
     A merged cell grows over the line laid down beside it, the way it does in Excel. A row inserted inside a

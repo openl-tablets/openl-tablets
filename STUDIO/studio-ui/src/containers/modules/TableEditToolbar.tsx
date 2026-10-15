@@ -21,7 +21,7 @@ import {
 } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
-import type { RawCellStyleInput, RawTableCell } from 'types/tables'
+import type { RawCellColor, RawCellStyleInput, RawTableCell } from 'types/tables'
 import type { CellAt } from './tableEdits'
 import { CellColourPicker } from './CellColourPicker'
 import { useStyles } from './TableEditToolbar.styles'
@@ -40,6 +40,16 @@ interface TableEditToolbarProps {
     blocked: string | null
     /** Whether the whole table is on screen, which adding a column needs: it carries a cell per row. */
     whole: boolean
+    /**
+     * Whether the look of a cell is the reader's to set: the alignment, the font and the colours. It is where the
+     * formatting is both kept and seen: tables are not formatted on save, and the Excel formatting is shown.
+     */
+    formatting: boolean
+    /**
+     * Whether the indent is the reader's to set: wherever the look is, and in every TBasic and ColumnMatch table,
+     * which read their structure from it.
+     */
+    indenting: boolean
     onUndo: () => void
     onRedo: () => void
     onSave: () => void
@@ -69,6 +79,10 @@ const MAX_INDENT = 15
  *
  * <p>Every action here changes the table on screen alone. Nothing reaches the server until the reader saves,
  * and then all of it goes at once.
+ *
+ * <p>The actions on the look of a cell are offered only where the reader's formatting is kept and seen; elsewhere
+ * the save would write the OpenL table style over it, or the screen would not show it. The indent stays for the tables
+ * whose structure it is.
  */
 export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     picked,
@@ -89,6 +103,8 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onStyle,
     onPreview,
     whole,
+    formatting,
+    indenting,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -117,8 +133,7 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     )
 
     /** A colour of the picked cell. */
-    const colour = (key: string, icon: React.ReactNode, styled: (chosen: string) => RawCellStyleInput,
-        value: string) => (
+    const colour = (key: string, icon: React.ReactNode, styled: (chosen: RawCellColor) => RawCellStyleInput) => (
         <CellColourPicker
             className={styles.button}
             disabled={picked === null}
@@ -127,7 +142,6 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
             onPreview={chosen => onPreview(chosen === null ? null : styled(chosen))}
             testId={`table-edit-${key}`}
             title={t(`browser.module.edit_${key}`)}
-            value={value}
         />
     )
 
@@ -169,30 +183,37 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                 why: off('browser.module.edit_whole_table'),
             })}
             {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
-            {rule}
-            {action('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
-                { on: style?.align === undefined || style.align === 'left' })}
-            {action('align_center', <AlignCenterOutlined />, () => onStyle({ align: 'center' }),
-                { on: style?.align === 'center' })}
-            {action('align_right', <AlignRightOutlined />, () => onStyle({ align: 'right' }),
-                { on: style?.align === 'right' })}
-            {rule}
-            {action('bold', <BoldOutlined />, () => onStyle({ bold: !style?.bold }), { on: !!style?.bold })}
-            {action('italic', <ItalicOutlined />, () => onStyle({ italic: !style?.italic }),
-                { on: !!style?.italic })}
-            {action('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
-                { on: !!style?.underline })}
-            {rule}
-            {colour('fill_colour', <BgColorsOutlined />, chosen => ({ background: chosen }),
-                style?.background ?? '#ffffff')}
-            {colour('font_colour', <FontColorsOutlined />, chosen => ({ color: chosen }), style?.color ?? '#000000')}
-            {rule}
-            {action('outdent', <MenuUnfoldOutlined />,
-                () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),
-                { disabled: picked === null || (style?.indent ?? 0) === 0 })}
-            {action('indent', <MenuFoldOutlined />,
-                () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
-                { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
+            {formatting && (
+                <>
+                    {rule}
+                    {action('align_left', <AlignLeftOutlined />, () => onStyle({ align: 'left' }),
+                        { on: style?.align === undefined || style.align === 'left' })}
+                    {action('align_center', <AlignCenterOutlined />, () => onStyle({ align: 'center' }),
+                        { on: style?.align === 'center' })}
+                    {action('align_right', <AlignRightOutlined />, () => onStyle({ align: 'right' }),
+                        { on: style?.align === 'right' })}
+                    {rule}
+                    {action('bold', <BoldOutlined />, () => onStyle({ bold: !style?.bold }), { on: !!style?.bold })}
+                    {action('italic', <ItalicOutlined />, () => onStyle({ italic: !style?.italic }),
+                        { on: !!style?.italic })}
+                    {action('underline', <UnderlineOutlined />, () => onStyle({ underline: !style?.underline }),
+                        { on: !!style?.underline })}
+                    {rule}
+                    {colour('fill_colour', <BgColorsOutlined />, chosen => ({ background: chosen }))}
+                    {colour('font_colour', <FontColorsOutlined />, chosen => ({ color: chosen }))}
+                </>
+            )}
+            {indenting && (
+                <>
+                    {rule}
+                    {action('outdent', <MenuUnfoldOutlined />,
+                        () => onStyle({ indent: Math.max(0, (style?.indent ?? 0) - INDENT_STEP) }),
+                        { disabled: picked === null || (style?.indent ?? 0) === 0 })}
+                    {action('indent', <MenuFoldOutlined />,
+                        () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
+                        { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
+                </>
+            )}
             <span className={styles.pending} />
             <Tooltip title={t('browser.module.edit_close')}>
                 <Button

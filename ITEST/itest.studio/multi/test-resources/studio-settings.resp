@@ -8,5 +8,6 @@ Content-Type: application/json
     "userManagement": true,
     "emailVerification": false,
     "personalAccessToken": true
-  }
+  },
+  "formatTablesOnSave": true
 }

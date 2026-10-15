@@ -9,6 +9,7 @@ import {
     NO_EDITS,
     redo,
     replay,
+    shownStyle,
     undo,
     withStep,
 } from './tableEdits'
@@ -432,5 +433,13 @@ describe('tableEdits', () => {
 
             expect(blankLine(replay(empty, []))).toBeNull()
         })
+    })
+})
+
+describe('shownStyle', () => {
+    it('draws a colour of the palette of Excel as Excel draws it in a new workbook, until it is saved', () => {
+        expect(shownStyle({ background: { theme: 'accent1', tint: 0.6 }, color: { rgb: '#C00000' }, bold: true }))
+            .toEqual({ background: '#b4c6e7', color: '#c00000', bold: true })
+        expect(shownStyle({ indent: 2 })).toEqual({ indent: 2 })
     })
 })

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.studio.projects.service.tables.TableFormatting;
 import org.openl.studio.settings.model.SettingsModel;
 import org.openl.studio.settings.model.SupportedFeaturesModel;
 import org.openl.studio.settings.model.UserManagementMode;
@@ -26,11 +27,14 @@ public class SettingsController {
 
     private final Environment environment;
     private final BooleanSupplier mailSenderFeature;
+    private final TableFormatting tableFormatting;
 
     public SettingsController(Environment environment,
-                              @Qualifier("mailSenderFeature") BooleanSupplier mailSenderFeature) {
+                              @Qualifier("mailSenderFeature") BooleanSupplier mailSenderFeature,
+                              TableFormatting tableFormatting) {
         this.environment = environment;
         this.mailSenderFeature = mailSenderFeature;
+        this.tableFormatting = tableFormatting;
     }
 
     @Operation(summary = "msg.get-app-settings.summary", description = "msg.get-app-settings.desc")
@@ -48,6 +52,7 @@ public class SettingsController {
                 .scripts(Stream.of(environment.getProperty("webstudio.javascript.url"))
                         .filter(StringUtils::isNotBlank)
                         .toList())
+                .formatTablesOnSave(tableFormatting.onSave())
                 .build();
     }
 

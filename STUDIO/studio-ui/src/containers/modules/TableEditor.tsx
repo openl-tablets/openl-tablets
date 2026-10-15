@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import { Modal, Spin } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useBlocker } from 'react-router'
@@ -6,6 +6,7 @@ import { PaperTheme } from '../../components/PaperTheme'
 import { type CellDecoration, RawTableGrid } from '../../components/RawTableGrid'
 import type { OpenUsage } from '../../components/RawTableCellText'
 import { onPaper, type TableRoles } from '../../components/tableRoles'
+import { SystemContext } from '../../contexts'
 import { useAppTheme } from '../../providers/AppThemeProvider'
 import { notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
@@ -31,9 +32,16 @@ import {
     rowAsRead,
     rowDrawnFrom,
     sameCell,
+    shownStyle,
     undo,
     withStep,
 } from './tableEdits'
+
+/**
+ * The kinds of table that read their structure from the indent: the level of a step of a TBasic table, the tree of
+ * conditions of a ColumnMatch table. Their indent is offered whatever the formatting.
+ */
+const INDENTED_KINDS: ReadonlySet<string> = new Set(['TBasic', 'ColumnMatch'])
 
 /**
  * What every cell of the part of the table this one stands in is written with.
@@ -187,6 +195,8 @@ interface TableEditorProps {
     formulas?: boolean | undefined
     /** The roles of the cells of the table, which the Studio look draws it by; absent for a table read with none. */
     roles?: TableRoles | undefined
+    /** The kind of the table, `Rules`, `TBasic`, `ColumnMatch` and so on, which tells whether its indent is structure. */
+    kind?: string | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
@@ -233,6 +243,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     layout,
     formulas,
     roles,
+    kind,
     onOpenUsage,
     canWrite,
     editing,
@@ -248,8 +259,13 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     testId,
 }) => {
     const { t } = useTranslation('repository')
+    const { excelFormatting } = useAppTheme()
     // The formatting of the workbook lays the table on paper; the Studio look draws it in the theme of the application.
-    const paper = onPaper(roles, useAppTheme().excelFormatting)
+    const paper = onPaper(roles, excelFormatting)
+    // The look of a cell is the reader's to set only where it is kept and seen: a save that formats the table would
+    // write the OpenL table style over it, and the Studio look would not show it.
+    const formatting = useContext(SystemContext).systemSettings?.formatTablesOnSave === false && excelFormatting
+    const indenting = formatting || INDENTED_KINDS.has(kind ?? '')
     const { styles, cx } = useStyles(paper)
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
@@ -426,12 +442,12 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      */
     const shown = useMemo(() => {
         const cell = preview === null || picked === null ? undefined : written[picked.row]?.[picked.column]
-        if (cell === undefined || picked === null) {
+        if (cell === undefined || picked === null || preview === null) {
             return written
         }
         const rowsShown = [...written]
         const row = [...(rowsShown[picked.row] ?? [])]
-        row[picked.column] = { ...cell, style: { ...cell.style, ...preview } }
+        row[picked.column] = { ...cell, style: { ...cell.style, ...shownStyle(preview) } }
         rowsShown[picked.row] = row
         return rowsShown
     }, [written, picked, preview])
@@ -754,6 +770,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     canUndo={dirty}
                     cell={chosen}
                     dirty={dirty}
+                    formatting={formatting}
+                    indenting={indenting}
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row + rowsOfChosen })}

@@ -173,11 +173,21 @@ interface RawTableCellMetaInfo {
 }
 
 /** The styling to set on cells; an attribute left out is not touched. */
+/** One of the ten theme colours of Excel: the first and the second background and text, and the six accents. */
+export type ExcelThemeColorName = 'lt1' | 'dk1' | 'lt2' | 'dk2'
+    | 'accent1' | 'accent2' | 'accent3' | 'accent4' | 'accent5' | 'accent6'
+
+/**
+ * A colour of the palette of Excel: a theme colour of the workbook, made lighter (tint above 0) or darker (below 0),
+ * or one of the ten standard colours as #rrggbb.
+ */
+export type RawCellColor = { theme: ExcelThemeColorName, tint?: number } | { rgb: string }
+
 export interface RawCellStyleInput {
-    /** Background colour as #rrggbb */
-    background?: string
-    /** Font colour as #rrggbb */
-    color?: string
+    /** Background colour */
+    background?: RawCellColor
+    /** Font colour */
+    color?: RawCellColor
     /** Horizontal alignment; `left` puts the cells back to the default */
     align?: 'left' | 'center' | 'right' | 'justify'
     bold?: boolean
