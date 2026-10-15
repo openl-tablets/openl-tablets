@@ -36,8 +36,8 @@ import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.service.tables.TableModules;
-import org.openl.studio.projects.service.tables.theme.TableRegionLayout;
-import org.openl.studio.projects.service.tables.theme.TableRegions;
+import org.openl.studio.projects.service.tables.format.TableRegionLayout;
+import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.util.StringUtils;
 
 /**

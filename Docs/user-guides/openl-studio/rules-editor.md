@@ -404,91 +404,64 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     *Error stack trace example*
 
-### Applying the Table Theme
+### Reformatting Excel Files
 
-A table theme gives every table but a table of the type **Other** one consistent look. For example, the **Standard**
-theme that OpenL Studio ships follows the formatting standard of OpenL tables and formats the tables as follows:
+OpenL Studio formats the tables of a project with one style, the OpenL table style. The style uses only what Excel
+itself offers, so the tables look the same in Excel and change with the theme of the Excel file:
 
--   **Every table** — the General format of the standard: Franklin Gothic Book 10, black on white, the text of every
-    cell centered from top to bottom, which shows in a cell merged over several rows. The header is centered between
-    two lines, with the keyword, the type, and the parameters in grey and the name in bold. The table properties are
-    grey and closed by a line, and a line under the last row closes the table.
--   **Titles** — the titles of the columns are bold and centered. The titles of what a table takes are filled grey,
-    such as the conditions of a decision table, the inputs of a Test table, and the column of steps of a
-    Spreadsheet. The titles of what a table gives are filled blue, such as the formulas of a Spreadsheet, what a
-    decision table returns, and the results a Test table expects, and its values are filled light blue.
--   **Fields** — the field names of a Datatype are filled light blue, and its types and default values are grey. In
-    a transposed Datatype table, which has a field in each column, the field names are a row. The values of a
-    Vocabulary are centered.
--   **Steps** — the formulas of a Spreadsheet are filled light blue. A step whose name is merged across its row heads
-    a section, such as **Policy Factors Calculation**, and is written in bold italic, centered, and filled blue, with a
-    line above it. A step marked with `*` for the result, such as `PolicyNumber*`, is bold. The step a Spreadsheet
-    returns is bold, with a line above and below its row: the step named `RETURN`, or else the last step, also of a
-    Spreadsheet that returns `SpreadsheetResult`.
--   **Data** — the field names of a Data or a Test table are grey, centered, and closed by a line, and its values are
-    centered. A Data table fills its titles blue and its values light blue. The keys are bold: the first column of a
-    Data table, which OpenL Tablets reads its rows by, unless it is a `_PK_` column, which names the keys itself, and
-    the values a Test table takes from a Data table by their keys, such as `Policy1`. In a transposed table, which has
-    a field in each row, the field names and the titles are aligned left, and no line goes round the field names.
--   **Decision tables** — the rows of code of a Rules table, such as `C1` and `RET1`, are grey, centered, and closed
-    by a line, and its values are aligned left. A SimpleRules and a SmartRules table center the values, with a fine
-    dotted line between the rules. A SimpleLookup and a SmartLookup table also draw a line after each condition,
-    fill the values of the horizontal conditions across the top blue with a line between their rows, and draw a
-    fine dotted line between the columns of the values. A value of a condition merged over several rules sets them
-    apart with a line, and so does a value of a horizontal condition merged over several columns.
--   **A table OpenL Tablets cannot read** — the theme takes every part of a table from the way OpenL Tablets
-    compiles it. A table OpenL Tablets cannot compile at all takes the General format for its body, since OpenL Tablets
-    does not know where its parts stand: a Data table whose type is missing or defined with errors, a Test table whose
-    tested table does not exist, a Datatype whose parent type is not found, or a Spreadsheet whose header cannot be
-    read. So do the conditions and the results of a decision table OpenL Tablets cannot read. The header, the
-    properties, and the line that closes the table keep the theme. Once the error is fixed, apply the theme again to
-    write the look of its parts into the Excel file.
--   **Every other table** — a TBasic, a Run, a ColumnMatch, a Conditions, an Actions, a Returns, an Environment, a
-    Properties, a Constants, and a Method table take the General format alone, as the standard describes no look of
-    their own for them. The operations of a TBasic table and the names a ColumnMatch table checks keep their indent.
--   **The formatting of the Excel file** — the theme overrides the formatting the Excel file gives the table: its
-    fills, lines, fonts, and alignment. A cell the theme fills no other way is white, and a text the file formats in
-    pieces of its own, other than the header, is drawn in the font of its cell.
+-   **Cell styles** — each part of a table takes a cell style of the **Cell Styles** gallery of Excel, so a selected
+    cell shows what it is in the gallery:
 
-OpenL Studio also ships the **Green** theme. How a theme file is written is described in
-[Appendix E: Table Themes](appendices/table-themes.md).
+    -   **Title** — the header.
+    -   **Explanatory Text** — the table properties.
+    -   **Calculation** — the code the compiler reads, such as `C1` and `RET1` of a Rules table.
+    -   **Heading 3** — the titles of what the table takes, such as the conditions of a decision table.
+    -   **40% - Accent1** — the titles of what the table gives, such as what a decision table returns.
+    -   **Heading 4** — the names of rows and columns, such as the steps of a Spreadsheet or the keys of a Data table.
+    -   **Input** — the values the table takes.
+    -   **Output** — the values the table gives.
+    -   **Heading 2** — a heading inside the body, such as a subroutine of a TBasic table.
+    -   **Total** — what the table returns, such as the `RETURN` step of a TBasic table.
 
-To write a theme into the whole project, above the table, click **More**, select **Apply Table Theme to Project**,
-select the theme, and click **Apply Theme**. The dialog offers the table themes of OpenL Studio with the primary one,
-**Standard**, listed first, and selects it to begin with. The theme files decide which theme is primary, as described
-in [Theme File](appendices/table-themes.md#theme-file). The theme is written into every table of every module of the
-project but the tables of the type **Other**:
+    OpenL Studio redefines these styles in the Excel file with the theme colours and the theme fonts, in the font
+    size of the **Normal** style, so the rows keep their height.
 
--   A module set to compile alone has the whole project compiled first, and a project whose compilation was stopped is
-    not themed.
--   With **Verify on Edit** turned off, as described in [System Settings](administration/02-system-settings.md), the
-    project is not themed once a change to it is saved, until the module is verified: the dialog says so, and
-    **Apply Theme** is unavailable. A theme is laid out by the tables as OpenL Tablets compiled them, such as the
-    conditions of a decision table where OpenL Tablets found them.
+-   **Theme colours and fonts** — every colour is a theme colour, and the titles and the header are written in the
+    heading font of the theme and the rest in its body font. Changing **Page Layout > Colors** or **Fonts** in Excel
+    changes the look of the tables. An Excel file without a theme gets the Office theme.
+-   **Lines** — the header has a line above and below it, a line closes the properties and the table, a line sets
+    apart a heading inside the body, a fine line sets apart the rules that share a merged value of a condition, and
+    what a table returns has a line above it and a double line below it. There are no vertical lines.
+-   **Header** — the name of the table is bold, the names of the parameters are in the text colour, and the keyword,
+    the types, and the punctuation are lighter.
 
-Writing the theme changes only the look of a table:
+To format every table of the project, above the table, click **More**, select **Reformat Excel files**, and in the
+dialog, click **Reformat**. A tooltip on the menu item says what the action does.
 
--   Each cell keeps its value and every formatting option the theme does not set, such as its number format.
--   A text that the Excel file formats in pieces of its own, other than the header, is written in the font of its
-    cell.
--   The header keeps its text, and its keyword, name, type, and parameters are formatted in pieces.
--   Cells outside the table are not changed, and applying the theme again changes nothing more.
--   The **Standard** theme makes its colours of the theme colours **Office 2013 - 2022**, and so does **Green** but for
-    its palest green. In an Excel file of these theme colours, a colour made of them is written as the theme colour, so
-    Excel offers it in its palette. In any other file, a colour is written as a colour of its own, and the theme of the
-    file stays as it is: OpenL Studio cannot change the theme of a file, as described in
-    [Theme Colours of Excel](appendices/table-themes.md#theme-colours-of-excel).
--   The formatting set in the edit mode once the theme is saved stays over the theme until the theme is applied
-    again.
--   A table written as several partial tables and a table of a dependency project are left as they are.
+![A Rules table of a reformatted Excel file, drawn with Excel Formatting on](images/table-reformatted.png "Table formatted with the OpenL table style")
+
+*Table formatted with the OpenL table style*
+
+The project is compiled first when it needs to be: a module set to compile alone has the whole project compiled, and
+a project changed since it was compiled, with **Verify on Edit** turned off as described in
+[System Settings](administration/02-system-settings.md), has the module compiled again. A project whose compilation
+was stopped is not formatted.
+
+Reformatting changes only the look of the tables:
+
+-   Each cell keeps its value, its number format, its indent, its text wrapping, and its text rotation. The indent
+    carries the structure of a TBasic and a ColumnMatch table.
+-   A text that the Excel file formats in pieces of its own, other than the header, is written in the font of its cell.
+-   Cells outside the tables are not changed, and reformatting again changes nothing more.
+-   Tables of the type **Other**, `.xls` files, a table written as several partial tables, and a table of a
+    dependency project are left as they are.
+-   The cell styles that no cell uses any more are removed from each Excel file.
 
 Like any other change of a table, the change is kept in the workspace until the project is saved.
 
 > [!Note]
-> A theme written into the Excel file is not kept up to date by the edits made after it. When rows or columns are
-> later inserted into the table or deleted from it, the theme is not written again by itself: writing it needs the
-> table to compile, and it takes longer the larger the table is. Apply the theme to the project again once the edits
-> are finished.
+> The formatting is not kept up to date by the edits made after it. When rows or columns are later inserted into a
+> table or deleted from it, reformat the Excel files again once the edits are finished.
 
 With **Excel Formatting** on, OpenL Studio also draws the formatting of text pieces that an Excel file holds, such as a
 header with a grey keyword and a bold name, and the cell borders the file draws, for every table.

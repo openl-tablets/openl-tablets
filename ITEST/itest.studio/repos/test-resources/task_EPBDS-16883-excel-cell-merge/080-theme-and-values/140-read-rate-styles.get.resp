@@ -47,110 +47,82 @@ Content-Type: application/json
       {
         "cell": "A4",
         "value": "DE",
-        "style": 5
+        "style": 3
       },
       {
         "cell": "B4",
         "value": 2.25,
-        "style": 6
+        "style": 4
       }
     ],
     [
       {
         "cell": "A5",
         "value": "CA",
-        "style": 7
+        "style": 5
       },
       {
         "cell": "B5",
         "value": 3.5,
-        "style": 8
+        "style": 6
       }
     ]
   ],
   "styles": [
     {
-      "align": "center",
       "valign": "center",
       "border": {
         "top": {
           "style": "solid",
-          "width": 1
+          "width": 1,
+          "color": "#1f497d"
         },
         "bottom": {
           "style": "solid",
-          "width": 1
+          "width": 1,
+          "color": "#1f497d"
         }
       }
     },
     {
-      "background": "#bfbfbf",
+      "background": "#eeece1",
       "align": "center",
       "valign": "center",
       "bold": true
     },
     {
-      "background": "#b4c6e7",
+      "background": "#b8cce4",
       "align": "center",
       "valign": "center",
       "bold": true
     },
     {
-      "align": "center",
       "valign": "center"
     },
     {
-      "background": "#ddebf7",
-      "align": "center",
+      "background": "#dce6f1",
+      "align": "right",
       "valign": "center"
     },
     {
-      "align": "center",
       "valign": "center",
       "border": {
-        "top": {
-          "style": "dotted",
-          "width": 1
-        }
-      }
-    },
-    {
-      "background": "#ddebf7",
-      "align": "center",
-      "valign": "center",
-      "border": {
-        "top": {
-          "style": "dotted",
-          "width": 1
-        }
-      }
-    },
-    {
-      "align": "center",
-      "valign": "center",
-      "border": {
-        "top": {
-          "style": "dotted",
-          "width": 1
-        },
         "bottom": {
           "style": "solid",
-          "width": 1
+          "width": 1,
+          "color": "#1f497d"
         }
       }
     },
     {
-      "background": "#ddebf7",
-      "align": "center",
+      "background": "#dce6f1",
+      "align": "right",
       "valign": "center",
       "border": {
-        "top": {
-          "style": "dotted",
-          "width": 1
-        },
         "bottom": {
           "style": "solid",
-          "width": 1
+          "width": 1,
+          "color": "#1f497d"
         }
       }
     }

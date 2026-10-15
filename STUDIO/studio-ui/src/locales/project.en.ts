@@ -122,12 +122,12 @@ i18next.addResourceBundle('en', 'project', {
         saved: 'Table saved',
         save_failed: 'Failed to save the table',
     },
-    table_theme: {
-        apply_failed: 'Failed to apply the table theme',
-        project_applied_one: 'Table theme applied to {{count}} table',
-        project_applied_other: 'Table theme applied to {{count}} tables',
-        project_skipped_one: '{{count}} table written as several partial tables was left as it is.',
-        project_skipped_other: '{{count}} tables written as several partial tables were left as they are.',
+    table_format: {
+        failed: 'Failed to reformat the Excel files',
+        formatted_one: '{{count}} table formatted',
+        formatted_other: '{{count}} tables formatted',
+        skipped_one: '{{count}} table written as several partial tables was left as it is.',
+        skipped_other: '{{count}} tables written as several partial tables were left as they are.',
     },
     delete_table: {
         deleted: 'Table removed',

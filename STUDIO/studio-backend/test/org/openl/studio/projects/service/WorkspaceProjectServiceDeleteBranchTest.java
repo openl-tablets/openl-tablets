@@ -54,7 +54,6 @@ import org.openl.studio.projects.service.tables.TableVersionService;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
-import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.ProjectStateValidator;
@@ -136,8 +135,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(ProjectTagsCache.class),
                 new ProjectListingContext(),
                 mock(ModuleCompilationLauncher.class),
-                () -> userWorkspace,
-                mock(TableThemeService.class));
+                () -> userWorkspace);
     }
 
     @Test

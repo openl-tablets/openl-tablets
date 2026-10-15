@@ -25,7 +25,7 @@ class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("Unknown project structure.", bindingResult.getGlobalError());
 
-        bindingResult = validateAndGetResult(Path.of("test-resources/XSSFOptimizerTest.xlsx"), validator);
+        bindingResult = validateAndGetResult(Path.of("test-resources/unused-styles.xlsx"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
         assertObjectError("Unknown project structure.", bindingResult.getGlobalError());

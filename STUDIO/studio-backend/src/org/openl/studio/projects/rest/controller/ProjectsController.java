@@ -14,7 +14,6 @@ import java.util.function.Function;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,6 +100,7 @@ import org.openl.studio.projects.model.tables.RawTableSourceActions;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TableEditorsView;
+import org.openl.studio.projects.model.tables.TableFormatResultView;
 import org.openl.studio.projects.model.tables.TableIdView;
 import org.openl.studio.projects.model.tables.TableInputView;
 import org.openl.studio.projects.model.tables.TableNodeView;
@@ -110,7 +110,6 @@ import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
-import org.openl.studio.projects.model.tables.TableThemeResultView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
@@ -773,15 +772,12 @@ public class ProjectsController {
         return tableWriteResponse(tableId, newTableId);
     }
 
-    @Operation(summary = "project.theme.apply.summary", description = "project.theme.apply.desc")
-    @ApiResponse(responseCode = "200", description = "project.theme.apply.200.desc")
-    @PostMapping("/{projectId}/theme")
-    public TableThemeResultView applyProjectTableTheme(@ProjectId @PathVariable("projectId") RulesProject project,
-                                                       @RequestParam("theme") @NotBlank
-                                                       @Parameter(description = "project.theme.apply.param.theme.desc")
-                                                       String theme) {
-        var result = projectService.applyProjectTableTheme(project, theme);
-        // The theme reaches every module of the project, so each is built again rather than the open one alone.
+    @Operation(summary = "project.format.summary", description = "project.format.desc")
+    @ApiResponse(responseCode = "200", description = "project.format.200.desc")
+    @PostMapping("/{projectId}/format")
+    public TableFormatResultView formatProject(@ProjectId @PathVariable("projectId") RulesProject project) {
+        var result = projectService.formatProject(project);
+        // Every module of the project is formatted, so each is built again rather than the open one alone.
         recompileWrittenModule(false);
         return result;
     }

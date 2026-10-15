@@ -1,3 +1,0 @@
-POST /rest/projects/{PROJECT_ID}/modules/Model/compile?reset=true HTTP/1.1
-Authorization: ${ADMIN_AUTH_TOCKEN}
-
