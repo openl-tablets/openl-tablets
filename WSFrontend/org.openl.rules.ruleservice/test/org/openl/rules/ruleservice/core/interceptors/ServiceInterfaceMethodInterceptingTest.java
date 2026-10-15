@@ -75,6 +75,13 @@ class ServiceInterfaceMethodInterceptingTest {
 
     }
 
+    public static class ExtraMethodAroundInterceptor implements ServiceMethodAroundAdvice<Double> {
+        @Override
+        public Double around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
+            return (double) ((String) args[0]).length();
+        }
+    }
+
     public static class BeforeConverterA implements ServiceMethodBeforeAdvice {
 
         @Override
@@ -186,6 +193,10 @@ class ServiceInterfaceMethodInterceptingTest {
 
         @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
         Double nonExistedMethod(String driverRisk);
+
+        @ServiceExtraMethod(NonExistedMethodServiceExtraMethodHandler.class)
+        @ServiceCallAroundInterceptor(ExtraMethodAroundInterceptor.class)
+        Double aroundExtraMethod(String driverRisk);
 
         @ServiceExtraMethod(LoadClassServiceExtraMethodHandler.class)
         Object loadClassMethod();
@@ -404,6 +415,14 @@ class ServiceInterfaceMethodInterceptingTest {
         runtimeContext.setCurrentDate(calendar.getTime());
         assertNotNull(instance.loadClassMethod());
         assertEquals("org.openl.generated.beans.MyBean", instance.loadClassMethod().getClass().getName());
+    }
+
+    @Test
+    void aroundInterceptorOfExtraMethodGetsArgumentsAsCalled() throws Exception {
+        OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder().build());
+        OverloadInterface instance = (OverloadInterface) service.getServiceBean();
+
+        assertEquals(16, instance.aroundExtraMethod("High Risk Driver"), 0.1);
     }
 
     @Test

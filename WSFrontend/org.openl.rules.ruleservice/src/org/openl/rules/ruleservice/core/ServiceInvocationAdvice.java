@@ -435,7 +435,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                         null,
                         null);
                 try {
-                    args = processArguments(calledMethod, beanMethod, args);
+                    if (beanMethod != null) {
+                        args = processArguments(calledMethod, beanMethod, args);
+                    }
                     result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
                 } catch (Exception e) {
                     ex = e;
