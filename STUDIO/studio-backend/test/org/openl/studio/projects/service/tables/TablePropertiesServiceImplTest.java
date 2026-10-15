@@ -32,7 +32,7 @@ class TablePropertiesServiceImplTest {
     private static final Path BANK_LIMITS = Path
             .of("test-resources/org/openl/studio/projects/service/tables/copy/BankLimits.xlsx");
 
-    private final TablePropertiesService service = new TablePropertiesServiceImpl(mock(SystemPropertiesService.class));
+    private final TablePropertiesService service = new TablePropertiesServiceImpl(mock(SystemPropertiesService.class), mock(TableFormatting.class));
 
     @Test
     void readsNoPropertiesWhenTheTableDeclaresNone(@TempDir Path projectDir) throws Exception {

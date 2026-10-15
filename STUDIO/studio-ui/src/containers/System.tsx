@@ -13,6 +13,7 @@ interface SystemSettings {
     datePattern: string
     dispatchingValidationEnabled: boolean
     detectProjectsByExcelFiles: boolean
+    formatTablesOnSave: boolean
     projectHistoryCount: number
     testRunThreadCount: number | string
     timeFormat: string
@@ -159,6 +160,11 @@ export const System: React.FC = () => {
                 tooltip={t('system:detect_projects_by_excel_files_info')}
             />
             <Divider titlePlacement="start">{t('system:other')}</Divider>
+            <Checkbox
+                label={t('system:format_tables_on_save')}
+                name="formatTablesOnSave"
+                tooltip={t('system:format_tables_on_save_info')}
+            />
             <Checkbox
                 label={t('system:update_table_properties')}
                 name="updateSystemProperties"

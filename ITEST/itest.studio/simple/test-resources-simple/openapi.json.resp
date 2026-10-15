@@ -20903,6 +20903,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "formatTablesOnSave": {
+            "type": "boolean",
+            "description": "***"
+          },
           "projectHistoryCount": {
             "type": "integer",
             "format": "int32",
@@ -22303,6 +22307,13 @@ Content-Type: application/json
             "type": "string",
             "description": "***",
             "pattern": "(?i).+\\.xlsx$"
+          },
+          "regions": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/RawTableRegion"
+            }
           },
           "sheetName": {
             "type": "string",

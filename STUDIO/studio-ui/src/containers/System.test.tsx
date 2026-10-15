@@ -67,6 +67,7 @@ describe('System', () => {
             datePattern: 'MM/dd/yyyy',
             detectProjectsByExcelFiles: false,
             dispatchingValidationEnabled: true,
+            formatTablesOnSave: true,
             projectHistoryCount: 100,
             testRunThreadCount: 4,
             timeFormat: 'hh:mm:ss a',
@@ -95,6 +96,16 @@ describe('System', () => {
             'title',
             'system:detect_projects_by_excel_files_info'
         )
+    })
+
+    it('offers to format every table saved, first among the other settings, and says what it does', async () => {
+        render(<System />)
+
+        const format = await screen.findByRole('checkbox', { name: 'system:format_tables_on_save' })
+        expect(format).toHaveAttribute('name', 'formatTablesOnSave')
+        expect(format.closest('label')).toHaveAttribute('title', 'system:format_tables_on_save_info')
+        const update = screen.getByRole('checkbox', { name: 'system:update_table_properties' })
+        expect(format.compareDocumentPosition(update) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('keeps the test threads as typed and says when they are not a whole number of one at least', async () => {

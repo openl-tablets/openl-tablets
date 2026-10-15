@@ -29,6 +29,7 @@ import {
     bodyIsValid,
     buildTableColumns,
     buildTableHeader,
+    buildTableRegions,
     buildTableSource,
     cellHoldsCondition,
     cellValueType,
@@ -1282,6 +1283,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         setCreating(true)
         try {
             const source = buildTableSource(preset, generatedHeader, context, submittedBody, transposed)
+            const regions = buildTableRegions(preset, context, source, transposed)
             const table = await createTable(detail.projectId, {
                 moduleName,
                 sheetName: sheetName.trim(),
@@ -1297,6 +1299,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                         ...(band.keys ? { corner: { rows: band.rows, columns: band.keys } } : {}),
                     }),
                 },
+                ...(regions.length ? { regions } : {}),
             })
             if (table) {
                 close()

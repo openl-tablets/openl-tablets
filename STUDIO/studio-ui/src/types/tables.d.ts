@@ -231,6 +231,8 @@ export interface CreateTableRequest {
     sheetName?: string
     modulePath?: string
     table: RawTable
+    /** The roles of the cells of the table as the builder wrote it, which OpenL Studio formats it in. */
+    regions?: RawTableRegion[]
 }
 
 /** A table property in display string form; a blank value removes the property from a copy. */

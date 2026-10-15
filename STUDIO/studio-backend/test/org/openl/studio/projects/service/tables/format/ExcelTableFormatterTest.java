@@ -1,10 +1,13 @@
 package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 import static org.openl.studio.projects.service.tables.TableTestProjects.row;
@@ -17,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -42,10 +46,12 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.studio.projects.model.tables.RawTableGroups;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.write.TableWriter;
 
@@ -299,6 +305,15 @@ class ExcelTableFormatterTest {
             grid.stopEditing();
         }
         assertArrayEquals(before, Files.readAllBytes(xls), "Nothing is written");
+    }
+
+    @Test
+    void savesATableUnformattedWhenItsFormattingFails() {
+        var grid = mock(IGridTable.class);
+        when(grid.getGrid()).thenThrow(new IllegalStateException("The sheet cannot be read"));
+        var layout = RegionShift.of(new TableRegions(List.of(), RawTableGroups.NONE, List.of(), Map.of()), 1, 1);
+
+        assertDoesNotThrow(() -> ExcelTableFormatter.formatOnSave(grid, layout));
     }
 
     /** Writes the project, formats every table of it and reads the workbook back. */

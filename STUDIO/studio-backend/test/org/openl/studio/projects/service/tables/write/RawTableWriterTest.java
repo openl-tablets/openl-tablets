@@ -55,6 +55,7 @@ import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
+import org.openl.studio.projects.service.tables.TableFormatting;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
@@ -1361,7 +1362,7 @@ class RawTableWriterTest {
     private static void create(Path project, String sheetName, List<List<RawTableCell>> source) {
         var view = RawTableView.builder().source(source).build();
         var grid = TableTestProjects.sheetGrid(project, sheetName);
-        var factory = new TableWritersFactory();
+        var factory = new TableWritersFactory(mock(TableFormatting.class));
         ((RawTableWriter) factory.getNewTableWriter(view, grid)).write(view);
     }
 

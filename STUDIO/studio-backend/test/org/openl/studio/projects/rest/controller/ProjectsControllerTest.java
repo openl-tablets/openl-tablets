@@ -165,7 +165,7 @@ class ProjectsControllerTest {
                 .name("Constants")
                 .source(List.of())
                 .build();
-        var request = new CreateNewTableRequest("Main", "Rules", null, table);
+        var request = new CreateNewTableRequest("Main", "Rules", null, table, null);
         var expected = SummaryTableView.builder()
                 .id("created-id")
                 .tableType("RawSource")
@@ -283,7 +283,7 @@ class ProjectsControllerTest {
         var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
         // A module path rather than a module name: the table goes into a module the project did not have, and
         // the service says so by answering with no identifier.
-        var request = new CreateNewTableRequest(null, "Rules", "rules/New.xlsx", table);
+        var request = new CreateNewTableRequest(null, "Rules", "rules/New.xlsx", table, null);
         when(projectService.createNewTable(project, request)).thenReturn(null);
 
         controller.createNewTable(project, request);
@@ -299,7 +299,7 @@ class ProjectsControllerTest {
         var controller = controller(projectService, webStudio);
         var project = mock(RulesProject.class);
         var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
-        var request = new CreateNewTableRequest("Main", "Rules", null, table);
+        var request = new CreateNewTableRequest("Main", "Rules", null, table, null);
         when(projectService.createNewTable(project, request)).thenReturn("created-id");
 
         controller.createNewTable(project, request);

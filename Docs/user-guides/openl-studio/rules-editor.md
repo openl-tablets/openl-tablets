@@ -459,9 +459,20 @@ Reformatting changes only the look of the tables:
 
 Like any other change of a table, the change is kept in the workspace until the project is saved.
 
-> [!Note]
-> The formatting is not kept up to date by the edits made after it. When rows or columns are later inserted into a
-> table or deleted from it, reformat the Excel files again once the edits are finished.
+While **Format tables on save** is selected in [System Settings](administration/02-system-settings.md), as it is by
+default, every table is formatted when it is saved, created, or copied, with no compile:
+
+-   **An edited table** keeps the roles OpenL Tablets compiled it with. A row or a column inserted inside a part of the
+    table takes the role of that part, such as a rule inserted between two rules, and a line inserted where two parts
+    meet takes the role of the line next to it that holds values, such as a rule inserted under the titles.
+-   **A created table** takes the roles the table creation window lays it out in.
+-   **A copied table** takes the roles of the table it is copied from.
+-   The header and the properties are formatted as they stand, so a property written by the edit takes the style of
+    the properties.
+
+With **Verify on Edit** cleared, a table saved again before the module is verified is saved as it is written: its roles
+are not known until the module is compiled. The next save after **Verify** formats it, and so does **Reformat Excel
+files**.
 
 With **Excel Formatting** on, OpenL Studio also draws the formatting of text pieces that an Excel file holds, such as a
 header with a grey keyword and a bold name, and the cell borders the file draws, for every table.

@@ -14,6 +14,7 @@ Content-Type: application/json
     "value": true,
     "readOnly": true
   },
+  "formatTablesOnSave": true,
   "datePattern": {
     "value": "MM/dd/yyyy",
     "readOnly": true

@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +17,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -27,6 +30,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -37,6 +41,8 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableRegion;
+import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.files.FileRoot;
@@ -59,6 +65,9 @@ class TableCreatorServiceTest {
 
     private TableCreatorService service;
 
+    @TempDir
+    Path dir;
+
     @BeforeEach
     void setUp() {
         service = new TableCreatorService(
@@ -66,7 +75,7 @@ class TableCreatorServiceTest {
                 tableWriterExecutor,
                 projectFilesService,
                 projectFileRootFactory,
-                systemPropertiesService);
+                systemPropertiesService, mock(TableFormatting.class));
         when(systemPropertiesService.onCreate()).thenReturn(Map.of());
         when(projectFileRootFactory.of(project)).thenReturn(root);
         when(project.getBusinessName()).thenReturn("Example");
@@ -295,7 +304,7 @@ class TableCreatorServiceTest {
     @Test
     void rejectsSheetNameExcelCannotStore() {
         var request = new CreateNewTableRequest("Greeting", "Rates/2026", "rules/Greeting.xlsx",
-                rawTable(mergedHeader()));
+                rawTable(mergedHeader()), null);
 
         var descriptor = simpleDescriptor();
 
@@ -306,7 +315,7 @@ class TableCreatorServiceTest {
     @Test
     void declaresWildcardCoveredModuleWhenItsNameDiffersFromTheFile() throws Exception {
         var request = new CreateNewTableRequest("Pricing", "Greeting", "rules/Greeting.xlsx",
-                rawTable(mergedHeader()));
+                rawTable(mergedHeader()), null);
 
         // The wildcard already covers the path, but it would name the module after its workbook, so the module is
         // declared explicitly to keep the requested name.
@@ -431,6 +440,53 @@ class TableCreatorServiceTest {
     }
 
     @Test
+    void formatsATableWrittenIntoANewModuleInTheRegionsItsBuilderSent() throws Exception {
+        when(systemPropertiesService.onCreate()).thenReturn(stamp());
+        var formatting = mock(TableFormatting.class);
+        when(formatting.onSave()).thenReturn(true);
+        var formatted = new TableCreatorService(tableWritersFactory, tableWriterExecutor, projectFilesService,
+                projectFileRootFactory, systemPropertiesService, formatting);
+        var regions = List.of(
+                new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 1),
+                new RawTableRegion(RawTableRole.INPUT_TITLE, null, 1, 0, 1, 0),
+                new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 1, 1, 1, 1),
+                new RawTableRegion(RawTableRole.VALUE, null, 2, 0, 2, 0),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 2, 1, 2, 1),
+                // Past the table as sent: left out.
+                new RawTableRegion(RawTableRole.OUTPUT, null, 3, 0, 3, 1));
+        var request = new CreateNewTableRequest("Greeting", "Greeting", "rules/Greeting.xlsx",
+                rawTable(mergedHeader()), regions);
+
+        formatted.createModuleWithTable(project, simpleDescriptor(), request, (RawTableView) request.table());
+
+        var module = dir.resolve("format-on-create.xlsx");
+        Files.write(module, createdResources.get("rules/Greeting.xlsx"));
+        // The properties OpenL Studio stamped under the header move the body down by two rows.
+        assertEquals("Title", TableTestProjects.styleNameAt(module, "Greeting", 1, 1));
+        assertEquals("Explanatory Text", TableTestProjects.styleNameAt(module, "Greeting", 2, 3));
+        assertEquals("Heading 3", TableTestProjects.styleNameAt(module, "Greeting", 4, 1));
+        assertEquals("40% - Accent1", TableTestProjects.styleNameAt(module, "Greeting", 4, 2));
+        assertEquals("Input", TableTestProjects.styleNameAt(module, "Greeting", 5, 1));
+        assertEquals("Output", TableTestProjects.styleNameAt(module, "Greeting", 5, 2));
+        assertEquals("Output", TableTestProjects.styleNameAt(module, "Greeting", 5, 3), "The widened column");
+    }
+
+    @Test
+    void writesATableSentWithNoRegionsAsSent() throws Exception {
+        var formatting = mock(TableFormatting.class);
+        when(formatting.onSave()).thenReturn(true);
+        var formatted = new TableCreatorService(tableWritersFactory, tableWriterExecutor, projectFilesService,
+                projectFileRootFactory, systemPropertiesService, formatting);
+        var request = request("rules/Greeting.xlsx", rawTable(mergedHeader()));
+
+        formatted.createModuleWithTable(project, simpleDescriptor(), request, (RawTableView) request.table());
+
+        var module = dir.resolve("format-on-create-none.xlsx");
+        Files.write(module, createdResources.get("rules/Greeting.xlsx"));
+        assertNull(TableTestProjects.styleNameAt(module, "Greeting", 1, 1));
+    }
+
+    @Test
     void stampsTheCreationDateAsADateTheEngineReadsBack() throws Exception {
         when(systemPropertiesService.onCreate()).thenReturn(stamp());
 
@@ -536,7 +592,7 @@ class TableCreatorServiceTest {
     }
 
     private static CreateNewTableRequest request(String modulePath, RawTableView table) {
-        return new CreateNewTableRequest("Greeting", "Greeting", modulePath, table);
+        return new CreateNewTableRequest("Greeting", "Greeting", modulePath, table, null);
     }
 
     private static ProjectDescriptor simpleDescriptor() {

@@ -379,6 +379,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         // inline merge would otherwise expand the merge and hide an existing row.
         run(developerView, UndoableInsertRowsAction.oneAfterAnother(rows.size(), position - 1, getMetaInfoWriter(),
                 getOtherTables()));
+        linesInserted(true, position, rows.size());
         writeLines(developerView, rows, position, true, width, GridRegionUtils.height(developerView.getRegion()));
     }
 
@@ -395,6 +396,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         for (var i = 0; i < columns.size(); i++) {
             insertBlankColumns(developerView, position + i);
         }
+        linesInserted(false, position, columns.size());
         writeLines(developerView, columns, position, false, GridRegionUtils.width(developerView.getRegion()), height);
     }
 

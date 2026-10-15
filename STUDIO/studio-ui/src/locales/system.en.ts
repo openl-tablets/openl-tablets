@@ -19,6 +19,9 @@ i18next.addResourceBundle('en', 'system', {
     database_configuration: 'Database Configuration',
     database_configuration_info: 'Set up a database to be used for managing users in OpenL Studio. Please contact your System Administrator for this information if necessary.',
     update_table_properties: 'Update table properties (\'createdOn\', \'modifiedBy\' etc.) on editing',
+    format_tables_on_save: 'Format tables on save',
+    format_tables_on_save_info: 'Formats a table with the OpenL table style every time it is saved, created or '
+        + 'copied, with no compile.',
     date_format: 'Date Format',
     time_format: 'Time Format',
     db_url: 'Database URL',

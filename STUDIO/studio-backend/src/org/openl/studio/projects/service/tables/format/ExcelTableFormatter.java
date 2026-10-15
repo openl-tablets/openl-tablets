@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
@@ -41,6 +43,7 @@ import org.openl.studio.projects.service.tables.format.WorkbookStyles.Edges;
  *
  * @author Yury Molchan
  */
+@Slf4j
 public final class ExcelTableFormatter {
 
     private final Map<XSSFWorkbook, WorkbookStyles> workbooks = new IdentityHashMap<>();
@@ -54,16 +57,53 @@ public final class ExcelTableFormatter {
      * @return whether the table was formatted: a table of the type Other, or of an {@code .xls} workbook, is not
      */
     public boolean format(IOpenLTable table, IGridTable grid) {
-        if (!(((XlsSheetGridModel) grid.getGrid()).getSheetToWrite() instanceof XSSFSheet sheet)) {
-            return false;
-        }
         var regions = TableRegionLayout.regionsOf(table, grid);
-        if (regions == null) {
+        return regions != null && format(grid, regions);
+    }
+
+    /**
+     * Writes the style into a table laid out in the given regions, as when a table is saved with no compile. The
+     * caller opens the sheet for writing and saves the workbook.
+     *
+     * @param grid    the table as it stands on its sheet, header included
+     * @param regions the regions of the table, in table coordinates
+     * @return whether the table was formatted: a table of an {@code .xls} workbook is not
+     */
+    public boolean format(IGridTable grid, TableRegions regions) {
+        return format(((XlsSheetGridModel) grid.getGrid()).getSheetToWrite(), grid.getRegion(), regions);
+    }
+
+    /**
+     * Writes the style into a table standing on a sheet, laid out in the given regions, as when a table is written
+     * into a workbook of its own.
+     *
+     * @param sheet   the sheet the table stands on
+     * @param table   where the table stands on the sheet
+     * @param regions the regions of the table, in table coordinates
+     * @return whether the table was formatted: a table of an {@code .xls} workbook is not
+     */
+    public boolean format(Sheet sheet, IGridRegion table, TableRegions regions) {
+        if (!(sheet instanceof XSSFSheet xssf)) {
             return false;
         }
-        var styles = workbooks.computeIfAbsent(sheet.getWorkbook(), WorkbookStyles::new);
-        new TableWrite(sheet, grid.getRegion(), regions, styles).write();
+        var styles = workbooks.computeIfAbsent(xssf.getWorkbook(), WorkbookStyles::new);
+        new TableWrite(xssf, table, regions, styles).write();
         return true;
+    }
+
+    /**
+     * Formats a table being saved in its layout, fitted to the table as the save leaves it. A formatting that fails is
+     * logged and leaves the table as it is written, so the save goes on.
+     *
+     * @param grid   the table as it stands on its sheet, header included
+     * @param layout the regions of the table, moved along the lines the save inserted and removed
+     */
+    public static void formatOnSave(IGridTable grid, RegionShift layout) {
+        try {
+            new ExcelTableFormatter().format(grid, layout.fittedTo(grid));
+        } catch (RuntimeException e) {
+            log.warn("The table at {} is saved unformatted.", grid.getUri(), e);
+        }
     }
 
     /**

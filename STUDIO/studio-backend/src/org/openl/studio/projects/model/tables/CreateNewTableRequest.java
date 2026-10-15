@@ -1,5 +1,6 @@
 package org.openl.studio.projects.model.tables;
 
+import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +25,12 @@ public record CreateNewTableRequest(
         @Parameter(description = "Editable table content")
         @NotNull
         @Valid
-        @NonNull EditableTableView table
+        @NonNull EditableTableView table,
+
+        @Parameter(description = """
+                The regions of the roles of a raw table, as the client built it, in the coordinates of its source: \
+                the header row is row 0. While tables are formatted on save, the table is written in the OpenL table \
+                style of these roles; without them it is written as sent, and formatted at its next save.""")
+        @Nullable List<@Valid RawTableRegion> regions
 ) {
 }

@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -115,7 +116,7 @@ class DataTableIOTest {
 
     /** Create a table on a sheet of its own, the way the create endpoint does. */
     private static <V extends TableView & EditableTableView> void create(Path project, String sheetName, V view) {
-        var writer = new TableWritersFactory()
+        var writer = new TableWritersFactory(mock(TableFormatting.class))
                 .getNewTableWriter(view, TableTestProjects.sheetGrid(project, sheetName));
         new TableWriterExecutor().executeWrite(writer, view);
     }

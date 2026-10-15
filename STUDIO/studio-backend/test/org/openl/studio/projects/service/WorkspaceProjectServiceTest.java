@@ -1149,7 +1149,7 @@ class WorkspaceProjectServiceTest {
                 "NewModule",
                 "Rules",
                 "rules/NewModule.xlsx",
-                table);
+                table, null);
 
         service.createNewTable(project, request);
 
@@ -1183,7 +1183,7 @@ class WorkspaceProjectServiceTest {
                 "NewModule",
                 "Rules",
                 "rules/NewModule.xlsx",
-                table);
+                table, null);
 
         service.createNewTable(project, request);
 
@@ -1208,7 +1208,7 @@ class WorkspaceProjectServiceTest {
                 "NewModule",
                 "Rules",
                 "rules/NewModule.xlsx",
-                mock(EditableTableView.class));
+                mock(EditableTableView.class), null);
 
         var exception = assertThrows(BadRequestException.class, () -> service.createNewTable(project, request));
 
@@ -1302,7 +1302,7 @@ class WorkspaceProjectServiceTest {
                 "pricing",
                 "Rules",
                 "rules/Replacement.xlsx",
-                rawTable("Replacement"));
+                rawTable("Replacement"), null);
 
 
         var exception = assertThrows(ConflictException.class, () -> service.createNewTable(project, request));
@@ -1334,7 +1334,7 @@ class WorkspaceProjectServiceTest {
                 "pricing",
                 "Rules",
                 "rules/Pricing.xlsx",
-                rawTable("Pricing"));
+                rawTable("Pricing"), null);
         // What a matrix carrying a blank line is answered with once it reaches the sheet.
         doThrow(new BadRequestException("table.action.line.all-empty.message"))
                 .when(tableCreatorService).createModuleWithTable(any(), any(), any(), any());

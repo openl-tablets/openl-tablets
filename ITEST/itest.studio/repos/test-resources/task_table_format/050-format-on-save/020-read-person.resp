@@ -1,0 +1,199 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "f55d6ff710d930c7cf6d43a377446bcd",
+  "tableType": "RawSource",
+  "kind": "Datatype",
+  "name": "Person",
+  "pos": "B2:D5",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype Person",
+        "colspan": 3,
+        "style": 0,
+        "runs": [
+          {
+            "to": 8,
+            "style": 1
+          },
+          {
+            "to": 15,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "String",
+        "style": 3
+      },
+      {
+        "cell": "C3",
+        "value": "name",
+        "style": 4
+      },
+      {
+        "cell": "D3",
+        "value": "Bob",
+        "style": 5,
+        "type": "string"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Double",
+        "style": 3
+      },
+      {
+        "cell": "C4",
+        "value": "rate",
+        "style": 4
+      },
+      {
+        "cell": "D4",
+        "value": 0.5,
+        "style": 6
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "Integer",
+        "style": 7
+      },
+      {
+        "cell": "C5",
+        "value": "age",
+        "style": 8
+      },
+      {
+        "cell": "D5",
+        "style": 9
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "valign": "center"
+    },
+    {
+      "align": "right",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#1f497d"
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 2,
+      "bottom": 3,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 15
+    }
+  ],
+  "headerHeight": 1
+}
