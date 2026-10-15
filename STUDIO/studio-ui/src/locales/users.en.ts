@@ -115,6 +115,7 @@ i18next.addResourceBundle('en', 'users', {
         save_failed: 'Failed to save profile information.',
     },
     unsafe_default_password: 'Unsafe default password',
+    collapse_groups: 'Show less',
     email_not_verified: 'Email not verified',
     cannot_delete_superuser: 'Cannot delete a super administrator',
     cannot_delete_yourself: 'Cannot delete your own account',
