@@ -28,7 +28,7 @@ import org.openl.util.FileUtils;
  */
 public final class MarkdownReader implements ExcelReader {
 
-    private static final char BYTE_ORDER_MARK = '﻿';
+    static final char BYTE_ORDER_MARK = '\uFEFF';
 
     private final MarkdownSheet sheet;
 
@@ -42,6 +42,7 @@ public final class MarkdownReader implements ExcelReader {
         var text = read(stream);
         var withoutMark = !text.isEmpty() && text.charAt(0) == BYTE_ORDER_MARK ? text.substring(1) : text;
         var cells = MarkdownTableParser.parse(withoutMark, FileUtils.getName(sourceName))
+                .map(TableFile::table)
                 .map(SheetLayout::layOut)
                 .orElseGet(() -> new Object[0][]);
         sheet = new MarkdownSheet(sheetNameOf(sourceName), cells);

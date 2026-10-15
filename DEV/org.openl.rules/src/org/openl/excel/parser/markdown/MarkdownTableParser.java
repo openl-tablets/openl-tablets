@@ -64,27 +64,29 @@ final class MarkdownTableParser {
     private static final String TABLE = "table";
     private static final String MERGES = "merges";
 
+    private final String text;
     private final String fileName;
     private final List<String> lines;
 
     private MarkdownTableParser(String text, String fileName) {
+        this.text = text;
         this.fileName = fileName;
         this.lines = Arrays.asList(LINE_SEPARATOR.split(text, -1));
     }
 
     /**
-     * Reads the table of a file.
+     * Reads the table of a file, and where its parts stand in the text.
      *
      * @param text     the text of the file
      * @param fileName the file name the error messages tell
      * @return the table, or nothing for a file without front matter
      * @throws MarkdownFormatException when the file breaks the format
      */
-    static Optional<RulesTable> parse(String text, String fileName) {
+    static Optional<TableFile> parse(String text, String fileName) {
         return new MarkdownTableParser(text, fileName).parse();
     }
 
-    private Optional<RulesTable> parse() {
+    private Optional<TableFile> parse() {
         if (!lines.getFirst().strip().equals(FRONT_MATTER)) {
             return Optional.empty();
         }
@@ -109,7 +111,14 @@ final class MarkdownTableParser {
             throw error(1, "The front matter must be followed by a table or a code block");
         }
         checkNotSplit(node);
-        return Optional.of(readTable(header, node));
+        var separator = LINE_SEPARATOR.matcher(text);
+        return Optional.of(new TableFile(text,
+                lines,
+                separator.find() ? separator.group() : "\n",
+                readTable(header, node),
+                end,
+                header.keys(),
+                bodyOf(node)));
     }
 
     // Header
@@ -130,32 +139,39 @@ final class MarkdownTableParser {
             throw error(1, "The front matter must be a set of 'key: value' lines");
         }
 
-        String text = null;
+        String header = null;
         var properties = new LinkedHashMap<String, String>();
         List<CellRangeAddress> merges = List.of();
         var mergesLine = 1;
+        var keys = new ArrayList<TableFile.Key>();
         for (var tuple : mapping.getValue()) {
             var keyLine = firstLine + tuple.getKeyNode().getStartMark().getLine();
             var key = scalar(tuple.getKeyNode(), keyLine);
             var values = values(tuple.getValueNode(), keyLine);
+            var value = String.join(",", values);
             switch (key) {
-                case TABLE -> text = String.join(",", values);
+                case TABLE -> {
+                    header = value.strip();
+                    value = header;
+                }
                 case MERGES -> {
                     mergesLine = keyLine;
                     merges = values.stream()
-                            .flatMap(value -> Arrays.stream(value.split(",")))
+                            .flatMap(range -> Arrays.stream(range.split(",")))
                             .map(String::strip)
-                            .filter(value -> !value.isEmpty())
-                            .map(value -> range(value, keyLine))
+                            .filter(range -> !range.isEmpty())
+                            .map(range -> range(range, keyLine))
                             .toList();
+                    value = RulesTable.mergesText(merges);
                 }
-                default -> properties.put(key, String.join(",", values));
+                default -> properties.put(key, value);
             }
+            keys.add(new TableFile.Key(key, value, keyLine - 1));
         }
-        if (StringUtils.isBlank(text)) {
+        if (StringUtils.isBlank(header)) {
             throw error(1, "The front matter has no 'table' key with the header of the table");
         }
-        return new Header(text.strip(), properties, merges, mergesLine);
+        return new Header(header, properties, merges, mergesLine, keys);
     }
 
     private String scalar(org.yaml.snakeyaml.nodes.Node node, int line) {
@@ -194,6 +210,22 @@ final class MarkdownTableParser {
         var rulesTable = new RulesTable(header.text(), header.properties(), rows, header.merges());
         checkMerges(rulesTable, header.mergesLine());
         return rulesTable;
+    }
+
+    private static TableFile.Body bodyOf(Node body) {
+        var spans = body.getSourceSpans();
+        if (body instanceof FencedCodeBlock code) {
+            return new TableFile.CodeBody(spans.getFirst().getLineIndex(),
+                    spans.getLast().getLineIndex(),
+                    code.getFenceCharacter().repeat(code.getOpeningFenceLength()),
+                    StringUtils.trimToEmpty(code.getInfo()),
+                    code.getFenceIndent());
+        }
+        // A table has a source span per line: the first row, the delimiter row, then the other rows.
+        var rowLines = new ArrayList<Integer>();
+        rowLines.add(spans.getFirst().getLineIndex());
+        spans.subList(2, spans.size()).forEach(span -> rowLines.add(span.getLineIndex()));
+        return new TableFile.GfmBody(rowLines, spans.get(1).getLineIndex());
     }
 
     /**
@@ -241,7 +273,7 @@ final class MarkdownTableParser {
     /**
      * Returns the value of a cell written as {@code source}, or {@code null} for a blank cell.
      */
-    private static @Nullable String cellText(String source) {
+    static @Nullable String cellText(String source) {
         var text = unwrapCode(source.strip().replace("\\|", "|"));
         return StringUtils.trimToNull(LINE_BREAK.matcher(text).replaceAll("\n"));
     }
@@ -323,10 +355,12 @@ final class MarkdownTableParser {
      * The header of the table, read from the front matter.
      *
      * @param mergesLine the line of the file the merged ranges are written on
+     * @param keys       the keys of the front matter
      */
     private record Header(String text,
                           SequencedMap<String, String> properties,
                           List<CellRangeAddress> merges,
-                          int mergesLine) {
+                          int mergesLine,
+                          List<TableFile.Key> keys) {
     }
 }
