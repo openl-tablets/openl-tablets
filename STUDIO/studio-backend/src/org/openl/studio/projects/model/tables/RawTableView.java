@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a table in raw format as a 2D matrix of cells without any parsing or structure interpretation.
@@ -57,6 +59,13 @@ public class RawTableView extends TableView implements EditableTableView {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public final List<List<@Valid RawTableCell>> source;   // 2D matrix of cells
 
+    @Parameter(description = """
+            The Excel styles the cells of the read use, each once: a cell and a piece of its text name their \
+            style by its index in this list. Read with the styles or a table theme; absent otherwise.""")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    public final @Nullable List<RawTableCellStyle> styles;
+
     @Schema(description = """
             Total number of rows when the returned window omits rows (a startRow offset or a \
             maxRows cap); absent when the whole table is returned""")
@@ -84,6 +93,7 @@ public class RawTableView extends TableView implements EditableTableView {
         super(builder);
         this.pos = builder.pos;
         this.source = builder.source;
+        this.styles = builder.styles;
         this.totalRows = builder.totalRows;
         this.headerHeight = builder.headerHeight;
     }
@@ -124,6 +134,7 @@ public class RawTableView extends TableView implements EditableTableView {
     public static class Builder extends TableView.Builder<Builder> {
         private String pos;
         private List<List<RawTableCell>> source;
+        private @Nullable List<RawTableCellStyle> styles;
         private Integer totalRows;
         private Integer headerHeight;
 
@@ -138,6 +149,11 @@ public class RawTableView extends TableView implements EditableTableView {
 
         public Builder source(List<List<RawTableCell>> source) {
             this.source = source;
+            return this;
+        }
+
+        public Builder styles(@Nullable List<RawTableCellStyle> styles) {
+            this.styles = styles;
             return this;
         }
 

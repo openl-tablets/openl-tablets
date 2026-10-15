@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
-import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -168,7 +168,7 @@ class TBasicThemeLayoutTest {
     }
 
     /** The cells of the table as the workbook now holds them, with their styles. */
-    private List<List<RawTableCell>> read() {
+    private List<List<StyledCell>> read() {
         return TableTestProjects.styledSource(factorial());
     }
 

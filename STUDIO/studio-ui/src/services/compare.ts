@@ -1,7 +1,8 @@
 import apiCall, { asArray, readTaskResult } from './apiCall'
 import { toUrlSafeId } from './projectId'
 import { decodeText } from '../utils/decodeText'
-import type { Comparison, ComparisonTable } from 'types/compare'
+import { expandCells } from './rawTables'
+import type { Comparison, ComparisonSide, ComparisonSideData, ComparisonTable, ComparisonTableData } from 'types/compare'
 
 const API_OPTIONS = { throwError: true, suppressErrorPages: true }
 
@@ -230,11 +231,26 @@ const readComparison = async (url: string): Promise<unknown> =>
 export const getComparison = async (comparisonId: string): Promise<Comparison> =>
     await readComparison(`/compare/${encodeURIComponent(comparisonId)}`) as Comparison
 
+/** A side of a compared table as a screen reads it: every cell carrying its own style. */
+const expandSide = (side: ComparisonSideData): ComparisonSide => {
+    const { source, styles, ...rest } = side
+    return { ...rest, source: expandCells(source, styles) }
+}
+
 /** One table of the comparison, as it stands in each of the two files. */
-export const getComparisonTable = async (comparisonId: string, tableId: string): Promise<ComparisonTable> =>
-    await readComparison(
+export const getComparisonTable = async (comparisonId: string, tableId: string): Promise<ComparisonTable> => {
+    const { first, second, ...table } = await readComparison(
         `/compare/${encodeURIComponent(comparisonId)}/tables/${encodeURIComponent(tableId)}`
-    ) as ComparisonTable
+    ) as ComparisonTableData
+    const read: ComparisonTable = table
+    if (first !== undefined) {
+        read.first = expandSide(first)
+    }
+    if (second !== undefined) {
+        read.second = expandSide(second)
+    }
+    return read
+}
 
 /** Releases the comparison and the files it reads. */
 export const dropComparison = async (comparisonId: string): Promise<void> => {

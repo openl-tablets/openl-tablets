@@ -13,33 +13,11 @@ Content-Type: application/json
         "cell": "B49",
         "value": "Environment",
         "colspan": 2,
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        },
+        "style": 0,
         "runs": [
           {
-            "text": "Environment",
-            "style": {
-              "color": "#808080",
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
-              "source": "theme"
-            }
+            "to": 11,
+            "style": 1
           }
         ]
       },
@@ -52,28 +30,12 @@ Content-Type: application/json
         "cell": "B50",
         "value": "import",
         "rowspan": 2,
-        "style": {
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        }
+        "style": 2
       },
       {
         "cell": "C50",
         "value": "java.util",
-        "style": {
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        }
+        "style": 3
       }
     ],
     [
@@ -83,20 +45,53 @@ Content-Type: application/json
       {
         "cell": "C51",
         "value": "java.time",
-        "style": {
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        }
+        "style": 2
       }
     ]
+  ],
+  "styles": [
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      },
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "color": "#808080",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "colorKey": "base.header.keyword.color",
+      "source": "theme"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      },
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "valign": "center",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    }
   ],
   "headerHeight": 0
 }

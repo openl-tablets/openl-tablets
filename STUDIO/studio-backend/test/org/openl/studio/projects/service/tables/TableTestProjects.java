@@ -186,8 +186,8 @@ public final class TableTestProjects {
     }
 
     /** The table's cells as the workbook holds them, with their styles. */
-    public static List<List<RawTableCell>> styledSource(IOpenLTable table) {
-        return new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build()).source;
+    public static List<List<StyledRead.StyledCell>> styledSource(IOpenLTable table) {
+        return new StyledRead(new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build())).source;
     }
 
     /** The table whose header stands in the given row of the sheet, for a table with no name to find it by. */

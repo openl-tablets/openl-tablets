@@ -1,10 +1,10 @@
 import React from 'react'
 import { Tooltip } from 'antd'
-import type { RawTableCell, TableLayout } from 'types/tables'
+import type { RawTableCell, RawTableCellBorder, TableLayout } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
 import { type TablePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
-import { borders, fontFamilyOf, fontSizeOf, indentOf, textDecoration, tinted } from './rawTableStyle'
+import { borders, collapsedBorders, fontFamilyOf, fontSizeOf, indentOf, textDecoration, tinted } from './rawTableStyle'
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -100,15 +100,16 @@ const edgeOf = (row: number, column: number): string | undefined => {
  * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
  * which are drawn in grey.
  *
- * A side of the cell the workbook draws a border on is drawn with that border; any other side keeps the line of
- * the grid, which the cell above or on the left draws where there is one. The font and its size are drawn only
- * where the table theme sets them: a read naming a theme reports the look of the theme as the style of the cell.
- * An indented cell leaves the room of its indent beside its text.
+ * A side of the cell a border is drawn on, as the table collapses the lines its cells name
+ * ({@link collapsedBorders}), is drawn with that border; any other side keeps the line of the grid, which the cell
+ * above or on the left draws where there is one. The font and its size are drawn only where the table theme sets
+ * them: a read naming a theme reports the look of the theme as the style of the cell. An indented cell leaves the
+ * room of its indent beside its text.
  */
-const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolean,
-    ink: string): React.CSSProperties => {
+const cellStyle = (style: RawTableCell['style'], border: RawTableCellBorder | undefined, painted: boolean,
+    muted: boolean, ink: string): React.CSSProperties => {
     // Most cells of a workbook are written in no style at all, and a table holds thousands of them.
-    if (style === undefined && !painted && !muted) {
+    if (style === undefined && border === undefined && !painted && !muted) {
         return PLAIN
     }
     return {
@@ -123,7 +124,7 @@ const cellStyle = (style: RawTableCell['style'], painted: boolean, muted: boolea
         fontFamily: fontFamilyOf(style),
         fontSize: fontSizeOf(style),
         ...indentOf(style),
-        ...borders(style?.border, muted, ink),
+        ...borders(border, muted, ink),
     }
 }
 
@@ -187,6 +188,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
 }) => {
     const laidOn = paper ?? workbookPaper()
     const { styles, cx } = useStyles(laidOn)
+    // Each line two cells share is drawn once, by the cell above or on the left.
+    const borderLines = React.useMemo(() => collapsedBorders(rows), [rows])
     // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
     // table, counted down the rows or across the columns according to how the table is written.
     // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
@@ -238,7 +241,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                 onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                 rowSpan={cell.rowspan}
-                                style={cellStyle(cell.style, painted, muted, laidOn.text)}
+                                style={cellStyle(cell.style, borderLines[rowIndex]?.[columnIndex], painted, muted,
+                                    laidOn.text)}
                                 className={cx(styles.cell, cell.comment !== undefined && styles.commented,
                                     decoration?.className)}
                             >

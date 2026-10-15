@@ -13,12 +13,7 @@ Content-Type: application/json
         "cell": "B2",
         "value": "Datatype StyledData",
         "colspan": 2,
-        "style": {
-          "background": "#ffff00",
-          "color": "#0000ff",
-          "align": "center",
-          "bold": true
-        }
+        "style": 0
       },
       {
         "covered": true
@@ -32,9 +27,7 @@ Content-Type: application/json
       {
         "cell": "C3",
         "value": "name",
-        "style": {
-          "italic": true
-        }
+        "style": 1
       }
     ],
     [
@@ -45,10 +38,7 @@ Content-Type: application/json
       {
         "cell": "C4",
         "value": "count",
-        "style": {
-          "background": "#00ff00",
-          "underline": true
-        }
+        "style": 2
       }
     ],
     [
@@ -59,28 +49,43 @@ Content-Type: application/json
       {
         "cell": "C5",
         "value": "rate",
-        "style": {
-          "align": "right",
-          "indent": 2
-        }
+        "style": 3
       }
     ],
     [
       {
         "cell": "B6",
         "value": "Boolean",
-        "style": {
-          "italic": true
-        }
+        "style": 1
       },
       {
         "cell": "C6",
         "value": "active",
-        "style": {
-          "color": "#ff0000"
-        }
+        "style": 4
       }
     ]
+  ],
+  "styles": [
+    {
+      "background": "#ffff00",
+      "color": "#0000ff",
+      "align": "center",
+      "bold": true
+    },
+    {
+      "italic": true
+    },
+    {
+      "background": "#00ff00",
+      "underline": true
+    },
+    {
+      "align": "right",
+      "indent": 2
+    },
+    {
+      "color": "#ff0000"
+    }
   ],
   "headerHeight": 1
 }

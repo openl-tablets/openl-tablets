@@ -146,8 +146,10 @@ public class ComparisonMapper {
         // A table the other file does not hold at all is not marked cell by cell: every one of its
         // cells is new or gone, which the status of the table already says.
         var comparable = other.getProjection() != null;
+        var cells = tableReader.readCells(projection.getTable(), true);
         return ComparisonSideView.builder()
-                .source(tableReader.readCells(projection.getTable(), true))
+                .source(cells.source())
+                .styles(cells.styles())
                 .changedCells(comparable ? changedCellsOf(projection) : List.of())
                 .build();
     }

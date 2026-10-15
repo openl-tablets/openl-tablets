@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
-import org.openl.studio.projects.model.tables.RawTableCell;
-import org.openl.studio.projects.model.tables.RawTableTextRun;
+import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
+import org.openl.studio.projects.service.tables.StyledRead.StyledRun;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -343,7 +343,7 @@ class DecisionThemeLayoutTest {
 
         var written = read(GREET);
         assertEquals(List.of("Rules", " ", "String", " ", GREET, " ", "( String day, Integer hour )"),
-                written.getFirst().getFirst().runs().stream().map(RawTableTextRun::text).toList());
+                written.getFirst().getFirst().runs().stream().map(StyledRun::text).toList());
         assertEquals(MUTED, written.get(1).get(1).style().color());
         assertEquals(TITLE, written.get(4).get(1).style().background());
         assertEquals(RETURN, written.get(5).get(3).style().background());
@@ -472,7 +472,7 @@ class DecisionThemeLayoutTest {
 
         var written = TableTestProjects.styledSource(tableAt(CONDITIONS_ROW));
         assertEquals(List.of("Conditions", " ", "AgeBand"),
-                written.getFirst().getFirst().runs().stream().map(RawTableTextRun::text).toList());
+                written.getFirst().getFirst().runs().stream().map(StyledRun::text).toList());
         assertEquals("Inputs", written.get(1).getFirst().value(), "The theme changes no text");
         assertEquals(MUTED, written.get(2).get(1).style().color());
         assertEquals(TITLE, written.get(4).get(3).style().background());
@@ -503,7 +503,7 @@ class DecisionThemeLayoutTest {
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */
-    private List<List<RawTableCell>> read(String name) {
+    private List<List<StyledCell>> read(String name) {
         return TableTestProjects.styledSource(table(name));
     }
 

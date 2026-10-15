@@ -1,5 +1,7 @@
 import apiCall, { ApiHttpError, type ApiCallOptions } from './apiCall'
 import { errorHandler } from 'utils/errorHandling'
+import { expandRawTable } from './rawTables'
+import type { RawTableViewData } from 'types/tables'
 import type {
     BreakpointTableView,
     CellHighlight,
@@ -239,11 +241,11 @@ export const traceService = {
     ): Promise<RawTableView> => {
         const cap = maxRows != null ? `&maxRows=${maxRows}` : ''
         const withStyles = styles ? '&styles=true' : ''
-        return retryApiCall<RawTableView>(
+        return expandRawTable(await retryApiCall<RawTableViewData>(
             `/projects/${encodeURIComponent(projectId)}/tables/${encodeURIComponent(tableId)}?raw=true${cap}${withStyles}`,
             undefined,
             TRACE_API_OPTIONS
-        )
+        ))
     },
 
     /**

@@ -1,12 +1,12 @@
 import type { RawTableCell, RawTableCellBorderSide, RawTableCellStyle } from 'types/tables'
+import { wider } from '../../components/rawTableStyle'
 
 /**
  * The rows of a table with the first ones kept out of sight, such as the header of a table shown without it.
  *
- * A line two cells share is read on the upper cell, in the style the workbook holds and in the look of a table theme
- * alike: the grid draws the side of the upper cell over the side of the cell under it. So the line under the rows kept
- * out of sight is drawn on the top of the first row left, where that row draws no line of its own. The line under a
- * hidden header stays.
+ * A line two cells share may be named by either of them, in the style the workbook holds and in the look of a table
+ * theme alike, and the grid draws the wider one. So the line under the rows kept out of sight is drawn on the top of
+ * the first row left, where it is wider than a line that row draws of its own. The line under a hidden header stays.
  *
  * @param rows the rows of the table
  * @param hidden how many rows at the top are kept out of sight
@@ -43,20 +43,17 @@ const holderOf = (rows: RawTableCell[][], row: number, column: number): RawTable
 }
 
 /**
- * A cell drawn with the line under the cell above it on its top. A cell a merged region covers is drawn by that
- * region, and a style drawing a line on its top keeps that line.
+ * A cell drawn with the line under the cell above it on its top, where that line is wider than the line the cell
+ * draws there itself. A cell a merged region covers is drawn by that region.
  */
 const underLineOf = (cell: RawTableCell, above: RawTableCell | undefined): RawTableCell => {
     if (above === undefined || cell.covered) {
         return cell
     }
-    const line = above.style?.border?.bottom
-    return takes(cell.style, line) ? { ...cell, style: topped(cell.style, line) } : cell
+    const own = cell.style?.border?.top
+    const line = wider(own, above.style?.border?.bottom)
+    return line === undefined || line === own ? cell : { ...cell, style: topped(cell.style, line) }
 }
-
-/** Whether a style takes a line on its top: there is a line, and the style draws none there of its own. */
-const takes = (style: RawTableCellStyle | undefined, line: RawTableCellBorderSide | undefined):
-    line is RawTableCellBorderSide => line !== undefined && style?.border?.top === undefined
 
 /** A style with a line on its top. */
 const topped = (style: RawTableCellStyle | undefined, line: RawTableCellBorderSide): RawTableCellStyle =>

@@ -109,6 +109,24 @@ export interface RawTableCell {
     runs?: RawTableTextRun[]
 }
 
+/**
+ * A piece of a cell text as the Tables API sends it: where it ends in the text of the cell, the run before it ending
+ * where it starts, and its font as an index into the styles of the read. The text itself is not repeated.
+ */
+export interface RawTableTextRunData {
+    to: number
+    style?: number
+}
+
+/**
+ * One cell of a raw table as the Tables API sends it: its style and the fonts of the pieces of its text are indexes
+ * into the styles of the read, each style sent once ({@link RawTableViewData}).
+ */
+export interface RawTableCellData extends Omit<RawTableCell, 'style' | 'runs'> {
+    style?: number
+    runs?: RawTableTextRunData[]
+}
+
 /** What a piece of a cell's text refers to, as the compiler read it. */
 type RawTableUsageKind = 'rule' | 'datatype' | 'data' | 'field' | 'underlined' | 'other'
 
@@ -337,6 +355,16 @@ export interface RawTableView {
     partial?: boolean
     /** How the table is laid out on its sheet; absent on a table nothing asks this about. */
     layout?: TableLayout
+}
+
+/**
+ * A raw table as the Tables API sends it: the cells name their styles by index into `styles`, which holds each style
+ * the cells of the read use once. A screen reads it expanded ({@link RawTableView}).
+ */
+export interface RawTableViewData extends Omit<RawTableView, 'source'> {
+    source: RawTableCellData[][]
+    /** The styles the cells of the read use, each once; absent for a read of the values alone. */
+    styles?: RawTableCellStyle[]
 }
 
 /** Which way round a table is written, and where its data begins. */

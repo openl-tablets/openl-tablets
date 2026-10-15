@@ -13,78 +13,31 @@ Content-Type: application/json
         "cell": "A1",
         "value": "Rules String validateGapOverlap_Hello(***",
         "colspan": 2,
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        },
+        "style": 0,
         "runs": [
           {
-            "text": "Rules",
-            "style": {
-              "color": "#808080",
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "colorKey": "base.header.keyword.color",
-              "source": "theme"
-            }
+            "to": 5,
+            "style": 1
           },
           {
-            "text": " ",
-            "style": {
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "source": "theme"
-            }
+            "to": 6,
+            "style": 2
           },
           {
-            "text": "String",
-            "style": {
-              "color": "#808080",
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "colorKey": "base.header.type.color",
-              "source": "theme"
-            }
+            "to": 12,
+            "style": 3
           },
           {
-            "text": " ",
-            "style": {
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "source": "theme"
-            }
+            "to": 13,
+            "style": 2
           },
           {
-            "text": "validateGapOverlap_Hello",
-            "style": {
-              "bold": true,
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "source": "theme"
-            }
+            "to": 37,
+            "style": 4
           },
           {
-            "text": "(***",
-            "style": {
-              "color": "#808080",
-              "fontFamily": "Franklin Gothic Book",
-              "fontSize": 10,
-              "colorKey": "base.header.parameters.color",
-              "source": "theme"
-            }
+            "to": "#",
+            "style": 5
           }
         ]
       },
@@ -96,126 +49,48 @@ Content-Type: application/json
       {
         "cell": "A2",
         "value": "C1",
-        "style": {
-          "color": "#808080",
-          "align": "center",
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "colorKey": "rules.code.color",
-          "source": "theme"
-        }
+        "style": 6
       },
       {
         "cell": "B2",
         "value": "RET",
-        "style": {
-          "color": "#808080",
-          "align": "center",
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "colorKey": "rules.code.color",
-          "source": "theme"
-        }
+        "style": 6
       }
     ],
     [
       {
         "cell": "A3",
         "value": "usState == null || contains(stateLocal,usState)",
-        "style": {
-          "color": "#808080",
-          "align": "center",
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "colorKey": "rules.code.color",
-          "source": "theme"
-        }
+        "style": 6
       },
       {
         "cell": "B3",
         "value": "result",
-        "style": {
-          "color": "#808080",
-          "align": "center",
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "colorKey": "rules.code.color",
-          "source": "theme"
-        }
+        "style": 6
       }
     ],
     [
       {
         "cell": "A4",
         "value": "UsStatesEnum[] stateLocal",
-        "style": {
-          "color": "#808080",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "colorKey": "rules.code.color",
-          "source": "theme"
-        }
+        "style": 7
       },
       {
         "cell": "B4",
         "value": "String result",
-        "style": {
-          "color": "#808080",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "colorKey": "rules.code.color",
-          "source": "theme"
-        }
+        "style": 7
       }
     ],
     [
       {
         "cell": "A5",
         "value": "US States",
-        "style": {
-          "background": "#bfbfbf",
-          "align": "center",
-          "valign": "center",
-          "bold": true,
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "backgroundKey": "rules.titles.background",
-          "source": "theme"
-        }
+        "style": 8
       },
       {
         "cell": "B5",
         "value": "RESULT",
-        "style": {
-          "background": "#b4c6e7",
-          "align": "center",
-          "valign": "center",
-          "bold": true,
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "backgroundKey": "rules.returnTitles.background",
-          "source": "theme"
-        }
+        "style": 9
       }
     ],
     [
@@ -224,24 +99,12 @@ Content-Type: application/json
         "value": [
           "CA"
         ],
-        "style": {
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        }
+        "style": 10
       },
       {
         "cell": "B6",
         "value": "=Hello$0(arg_name)",
-        "style": {
-          "background": "#ddebf7",
-          "valign": "center",
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "backgroundKey": "rules.returns.background",
-          "source": "theme"
-        }
+        "style": 11
       }
     ],
     [
@@ -250,38 +113,149 @@ Content-Type: application/json
         "value": [
           "NY"
         ],
-        "style": {
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "source": "theme"
-        }
+        "style": 12
       },
       {
         "cell": "B7",
         "value": "=Hello$1(arg_name)",
-        "style": {
-          "background": "#ddebf7",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          },
-          "fontFamily": "Franklin Gothic Book",
-          "fontSize": 10,
-          "backgroundKey": "rules.returns.background",
-          "source": "theme"
-        }
+        "style": 13
       }
     ]
+  ],
+  "styles": [
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      },
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "color": "#808080",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "colorKey": "base.header.keyword.color",
+      "source": "theme"
+    },
+    {
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "color": "#808080",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "colorKey": "base.header.type.color",
+      "source": "theme"
+    },
+    {
+      "bold": true,
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "color": "#808080",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "colorKey": "base.header.parameters.color",
+      "source": "theme"
+    },
+    {
+      "color": "#808080",
+      "align": "center",
+      "valign": "center",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "colorKey": "rules.code.color",
+      "source": "theme"
+    },
+    {
+      "color": "#808080",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      },
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "colorKey": "rules.code.color",
+      "source": "theme"
+    },
+    {
+      "background": "#bfbfbf",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "backgroundKey": "rules.titles.background",
+      "source": "theme"
+    },
+    {
+      "background": "#b4c6e7",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "backgroundKey": "rules.returnTitles.background",
+      "source": "theme"
+    },
+    {
+      "valign": "center",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "background": "#ddebf7",
+      "valign": "center",
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "backgroundKey": "rules.returns.background",
+      "source": "theme"
+    },
+    {
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      },
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "source": "theme"
+    },
+    {
+      "background": "#ddebf7",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      },
+      "fontFamily": "Franklin Gothic Book",
+      "fontSize": 10,
+      "backgroundKey": "rules.returns.background",
+      "source": "theme"
+    }
   ],
   "headerHeight": 4
 }

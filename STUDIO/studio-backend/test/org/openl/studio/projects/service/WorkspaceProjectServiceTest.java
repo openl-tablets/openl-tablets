@@ -137,6 +137,7 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.StyledRead;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -1871,8 +1872,8 @@ class WorkspaceProjectServiceTest {
         verify(model).initProjectHistory(TableTestProjects.table(compiled, "Person").getSyntaxNode(), module);
         verify(model, never()).initProjectHistory(eq(part), any());
         // The theme named is the one written.
-        var header = new RawTableReader().read(TableTestProjects.table(TableTestProjects.projectModel(dir), "Person"),
-                RawTableRead.builder().withStyles(true).build()).source.getFirst().getFirst();
+        var header = new StyledRead(new RawTableReader().read(TableTestProjects.table(TableTestProjects.projectModel(dir), "Person"),
+                RawTableRead.builder().withStyles(true).build())).source.getFirst().getFirst();
         assertEquals("#c6e0b4", header.style().background());
     }
 

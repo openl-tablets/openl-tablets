@@ -13,20 +13,7 @@ Content-Type: application/json
         "cell": "A1",
         "value": "SimpleRules Double rate(String country)",
         "colspan": 2,
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 0
       },
       {
         "covered": true
@@ -36,118 +23,137 @@ Content-Type: application/json
       {
         "cell": "A2",
         "value": "Country",
-        "style": {
-          "background": "#bfbfbf",
-          "align": "center",
-          "valign": "center",
-          "bold": true
-        }
+        "style": 1
       },
       {
         "cell": "B2",
         "value": "Rate",
-        "style": {
-          "background": "#b4c6e7",
-          "align": "center",
-          "valign": "center",
-          "bold": true
-        }
+        "style": 2
       }
     ],
     [
       {
         "cell": "A3",
         "value": "US",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 3
       },
       {
         "cell": "B3",
         "value": 1.5,
-        "style": {
-          "background": "#ddebf7",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 4
       }
     ],
     [
       {
         "cell": "A4",
         "value": "DE",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 5
       },
       {
         "cell": "B4",
         "value": 2.25,
-        "style": {
-          "background": "#ddebf7",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       }
     ],
     [
       {
         "cell": "A5",
         "value": "CA",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 7
       },
       {
         "cell": "B5",
         "value": 3.5,
-        "style": {
-          "background": "#ddebf7",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 8
       }
     ]
   ],
+  "styles": [
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#bfbfbf",
+      "align": "center",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#b4c6e7",
+      "align": "center",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "align": "center",
+      "valign": "center"
+    },
+    {
+      "background": "#ddebf7",
+      "align": "center",
+      "valign": "center"
+    },
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#ddebf7",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        }
+      }
+    },
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#ddebf7",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
   "headerHeight": 1
 }
-

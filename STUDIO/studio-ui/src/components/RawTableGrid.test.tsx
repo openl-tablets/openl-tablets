@@ -201,6 +201,25 @@ describe('RawTableGrid', () => {
         expect(cell.style.borderLeft).toBe('')
     })
 
+    it('draws a line the lower cell names under the upper cell, the wider of two lines winning', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'step' }, { cell: 'B1', value: 'thin', style: { border: { bottom: { width: 1 } } } }],
+            [
+                { cell: 'A2', value: 'heading', style: { border: { top: { style: 'solid', width: 2 } } } },
+                { cell: 'B2', value: 'wide', style: { border: { top: { style: 'solid', width: 2 } } } },
+            ],
+        ]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cellAt = (address: string) =>
+            screen.getByTestId('grid').querySelector(`[data-cell="${address}"]`) as HTMLElement
+        expect(cellAt('A1').style.borderBottom).toBe(`2px solid ${written(paperToken().colorText)}`)
+        expect(cellAt('A2').style.borderTop).toBe('')
+        expect(cellAt('B1').style.borderBottom).toBe(`2px solid ${written(paperToken().colorText)}`)
+        expect(cellAt('B2').style.borderTop).toBe('')
+    })
+
     it('draws the line of the grid two cells share once, by the upper or the left one', () => {
         const line: RawTableCellBorder = { right: { style: 'solid', width: 1 } }
         const table: RawTableCell[][] = [

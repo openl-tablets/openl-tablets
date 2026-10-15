@@ -22712,6 +22712,13 @@ Content-Type: application/json
                 "$ref": "#/components/schemas/RawTableCell"
               }
             }
+          },
+          "styles": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/RawTableCellStyle"
+            }
           }
         }
       },
@@ -27751,7 +27758,10 @@ Content-Type: application/json
             "readOnly": true
           },
           "style": {
-            "$ref": "#/components/schemas/RawTableCellStyle"
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "readOnly": true
           },
           "value": {
             "description": "***",
@@ -28051,10 +28061,13 @@ Content-Type: application/json
         "description": "***",
         "properties": {
           "style": {
-            "$ref": "#/components/schemas/RawTableCellStyle"
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
           },
-          "text": {
-            "type": "string",
+          "to": {
+            "type": "integer",
+            "format": "int32",
             "description": "***"
           }
         }
@@ -28145,6 +28158,14 @@ Content-Type: application/json
                     "$ref": "#/components/schemas/RawTableCell"
                   }
                 }
+              },
+              "styles": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawTableCellStyle"
+                },
+                "readOnly": true
               },
               "totalRows": {
                 "type": "integer",

@@ -1,4 +1,4 @@
-import type { RawTableCell } from './tables'
+import type { RawTableCell, RawTableCellData, RawTableCellStyle } from './tables'
 
 /** How an element of the second file relates to the same element of the first one. */
 type ComparisonNodeStatus = 'equal' | 'changed' | 'added' | 'removed'
@@ -40,6 +40,19 @@ export interface ComparisonSide {
     source: RawTableCell[][]
     /** Addresses of the cells that read differently in the other file, in A1 notation; absent when none do. */
     changedCells?: string[]
+}
+
+/** One side of a compared table as the server sends it: the cells name their styles by index into `styles`. */
+export interface ComparisonSideData extends Omit<ComparisonSide, 'source'> {
+    source: RawTableCellData[][]
+    /** The Excel styles the cells of the side use, each once. */
+    styles?: RawTableCellStyle[]
+}
+
+/** A table of the comparison as the server sends it, each side naming its styles by index. */
+export interface ComparisonTableData extends Omit<ComparisonTable, 'first' | 'second'> {
+    first?: ComparisonSideData
+    second?: ComparisonSideData
 }
 
 /** A table of the comparison, as it stands in each of the two files. */

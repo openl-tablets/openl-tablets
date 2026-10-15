@@ -1,5 +1,11 @@
 import type React from 'react'
-import type { RawTableCellBorder, RawTableCellBorderSide, RawTableCellStyle, RawTableTextRun } from 'types/tables'
+import type {
+    RawTableCell,
+    RawTableCellBorder,
+    RawTableCellBorderSide,
+    RawTableCellStyle,
+    RawTableTextRun,
+} from 'types/tables'
 
 /** How much of its brightness a muted colour keeps. */
 const MUTED_BRIGHTNESS = 0.8
@@ -84,6 +90,129 @@ export const borders = (border: RawTableCellBorder | undefined, muted: boolean, 
         borderBottom: line(border.bottom, muted, ink),
         borderLeft: line(border.left, muted, ink),
     })
+
+/** The width of a line in pixels, a line naming none being as thin as a line gets. */
+const widthOf = (side: RawTableCellBorderSide): number => side.width ?? 1
+
+/**
+ * The line drawn on an edge two cells name a line for: the wider of the two, as Excel draws it, and the first where
+ * they are as wide. Either may be absent.
+ */
+export const wider = (first: RawTableCellBorderSide | undefined, second: RawTableCellBorderSide | undefined):
+    RawTableCellBorderSide | undefined => {
+    if (first === undefined) {
+        return second
+    }
+    return second === undefined || widthOf(second) <= widthOf(first) ? first : second
+}
+
+/** The sides of a cell a collapse is drawing, before it is known whether the cell draws any. */
+interface Sides {
+    top?: RawTableCellBorderSide | undefined
+    right?: RawTableCellBorderSide | undefined
+    bottom?: RawTableCellBorderSide | undefined
+    left?: RawTableCellBorderSide | undefined
+}
+
+/** The place of the cell that holds each place of the table: the cell itself, or the merged cell covering it. */
+const holdersOf = (rows: RawTableCell[][]): Array<Array<[number, number] | undefined>> => {
+    const holders: Array<Array<[number, number] | undefined>> = rows.map(row => row.map(() => undefined))
+    rows.forEach((row, r) => row.forEach((cell, c) => {
+        if (cell.covered) {
+            return
+        }
+        for (let below = r; below < r + (cell.rowspan ?? 1) && below < rows.length; below++) {
+            for (let right = c; right < c + (cell.colspan ?? 1); right++) {
+                const places = holders[below]
+                if (places !== undefined && right < places.length) {
+                    places[right] = [r, c]
+                }
+            }
+        }
+    }))
+    return holders
+}
+
+/** The borders a collapse drew for a cell, or undefined for a cell drawing none. */
+const bordersOf = (sides: Sides): RawTableCellBorder | undefined => {
+    const border: RawTableCellBorder = {}
+    if (sides.top !== undefined) {
+        border.top = sides.top
+    }
+    if (sides.right !== undefined) {
+        border.right = sides.right
+    }
+    if (sides.bottom !== undefined) {
+        border.bottom = sides.bottom
+    }
+    if (sides.left !== undefined) {
+        border.left = sides.left
+    }
+    return Object.keys(border).length === 0 ? undefined : border
+}
+
+/**
+ * The borders each cell of a table is drawn with, each line two cells share drawn once.
+ *
+ * <p>Every cell of a read names the lines it draws itself, so a line between two cells may be named by both, or by
+ * either. The browser draws the side of the cell above or on the left over the side of its neighbour, and the line of
+ * the grid where that cell names none, so a line is moved onto that cell: the bottom of the upper cell and the right
+ * of the left one, the wider line winning. Only a cell along the top or the left edge of the table keeps a line above
+ * or on its left. A merged cell takes the lines of every cell along its edges.
+ *
+ * @param rows the cells of the table, row by row
+ * @returns the borders of each cell at its place, undefined for a cell drawing none and for a covered place
+ */
+export const collapsedBorders = (rows: RawTableCell[][]): Array<Array<RawTableCellBorder | undefined>> => {
+    const holders = holdersOf(rows)
+    const sides: Array<Array<Sides | undefined>> = rows.map((row, r) => row.map((cell, c) => {
+        const own = cell.style?.border
+        return cell.covered ? undefined : {
+            right: own?.right,
+            bottom: own?.bottom,
+            top: r === 0 ? own?.top : undefined,
+            left: c === 0 ? own?.left : undefined,
+        }
+    }))
+    const at = (place: [number, number] | undefined): Sides | undefined =>
+        place === undefined ? undefined : sides[place[0]]?.[place[1]]
+    // The line above a cell moves onto the bottom of each cell above it; with none there, the cell keeps it.
+    const moveTop = (r: number, c: number, span: number, line: RawTableCellBorderSide, drawn: Sides) => {
+        for (let column = c; column < c + span; column++) {
+            const above = at(holders[r - 1]?.[column])
+            if (above === undefined) {
+                drawn.top = wider(drawn.top, line)
+            } else {
+                above.bottom = wider(above.bottom, line)
+            }
+        }
+    }
+    // The line on the left of a cell moves onto the right of each cell before it, as the line above does.
+    const moveLeft = (r: number, c: number, span: number, line: RawTableCellBorderSide, drawn: Sides) => {
+        for (let row = r; row < r + span && row < rows.length; row++) {
+            const before = at(holders[row]?.[c - 1])
+            if (before === undefined) {
+                drawn.left = wider(drawn.left, line)
+            } else {
+                before.right = wider(before.right, line)
+            }
+        }
+    }
+    rows.forEach((row, r) => row.forEach((cell, c) => {
+        const own = cell.style?.border
+        const drawn = sides[r]?.[c]
+        if (cell.covered || own === undefined || drawn === undefined) {
+            return
+        }
+        if (r > 0 && own.top !== undefined) {
+            moveTop(r, c, cell.colspan ?? 1, own.top, drawn)
+        }
+        if (c > 0 && own.left !== undefined) {
+            moveLeft(r, c, cell.rowspan ?? 1, own.left, drawn)
+        }
+    }))
+    return sides.map(row => row.map(cell => (cell === undefined ? undefined : bordersOf(cell))))
+}
 
 /** Where a run is drawn. */
 export interface RunPlace {

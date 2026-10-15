@@ -12,49 +12,27 @@ Content-Type: application/json
       {
         "cell": "B8",
         "value": "Datatype Code <String>",
-        "style": {
-          "background": "#c6e0b4",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1,
-              "color": "#548235"
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1,
-              "color": "#548235"
-            }
-          }
-        },
+        "style": 0,
         "runs": [
           {
-            "text": "Datatype",
-            "style": {
-              "color": "#548235"
-            }
+            "to": 8,
+            "style": 1
           },
           {
-            "text": " ",
-            "style": {}
+            "to": 9,
+            "style": 2
           },
           {
-            "text": "Code",
-            "style": {
-              "bold": true
-            }
+            "to": 13,
+            "style": 3
           },
           {
-            "text": " ",
-            "style": {}
+            "to": 14,
+            "style": 2
           },
           {
-            "text": "<String>",
-            "style": {
-              "color": "#548235"
-            }
+            "to": 22,
+            "style": 1
           }
         ]
       }
@@ -63,29 +41,57 @@ Content-Type: application/json
       {
         "cell": "B9",
         "value": "A",
-        "style": {
-          "align": "center",
-          "valign": "center"
-        }
+        "style": 4
       }
     ],
     [
       {
         "cell": "B10",
         "value": "B",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1,
-              "color": "#548235"
-            }
-          }
-        }
+        "style": 5
       }
     ]
+  ],
+  "styles": [
+    {
+      "background": "#c6e0b4",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1,
+          "color": "#548235"
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#548235"
+        }
+      }
+    },
+    {
+      "color": "#548235"
+    },
+    {},
+    {
+      "bold": true
+    },
+    {
+      "align": "center",
+      "valign": "center"
+    },
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#548235"
+        }
+      }
+    }
   ],
   "headerHeight": 1
 }

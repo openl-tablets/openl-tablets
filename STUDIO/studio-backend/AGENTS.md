@@ -338,14 +338,18 @@ for the endpoints.
   other than the header, is drawn in the font of its cell, which a read naming the theme reports with no pieces
   (`RawTableReader`), and written so (`ThemeExcelWriter.writeRuns`): `ThemedCell.keepsOwnRuns` is the one rule the
   reader and the writer ask. The properties are one section: their top and bottom lines go round
-  it, not round each property. The screen draws the side of the upper or the left cell over
-  its neighbour, as `TableViewer.setBorder` hands a workbook line two cells share to that cell, so `ThemeLines`
-  moves a theme line on the top or the left of a cell to the cell above or on its left in the overlay. A window of
-  rows has rows under it: its last row also takes the line the theme draws over the row under it, which the next
-  window keeps on its first row, so windows drawn one under the other draw it as the whole table does. A table shown
-  without its header (**Show Header** off) is cut on the screen, so the screen draws the line under the last row it
-  hides on the top of the first row it shows (`withoutFirstRows` of `studio-ui`). The writer keeps the sides as the
-  theme names them: the workbook draws a line either cell names.
+  it, not round each property. Every cell of a read reports the lines it draws itself, in the workbook
+  (`TableViewer.setGrid`) and in the overlay alike, so a line two cells share may be reported by both or by either,
+  and a window of rows reports only the lines of its own cells. The screen draws each shared line once, the wider one
+  winning (`collapsedBorders` of `studio-ui`), and draws the line under the rows a table shown without its header
+  (**Show Header** off) hides on the top of the first row it shows (`withoutFirstRows`). The writer keeps the sides as
+  the theme names them: the workbook draws a line either cell names.
+- **A read sends each fact once.** `RawTableReader` names the styles of a read in a dictionary
+  (`RawTableStyleDictionary`, `RawTableView.styles`): a cell and a piece of its text name their style by its index, so a
+  style a thousand cells share is sent once. A piece of text names where it ends in the text of its cell
+  (`RawTableTextRun.to`), not its text. A read of the values alone (`styles=false`, no theme) sends no styles. The
+  comparison sends each side with its own dictionary (`RawTableCells`, `ComparisonSideView.styles`). `studio-ui`
+  expands a read at the service boundary (`services/rawTables.ts`), every cell of one style sharing one object.
 - **A Data, a Test and a Run table are read as the compiler reads them.** `DataThemeLayout` reads the body with its
   fields across, as `DataTableBindHelper` does: the field names, the row of references when `hasForeignKeysRow` finds
   one, the titles, then the values. A Run table is bound as a Test table without expected results

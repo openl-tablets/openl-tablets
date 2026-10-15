@@ -12,59 +12,42 @@ Content-Type: application/json
       {
         "cell": "B9",
         "value": 0,
-        "style": {
-          "background": "#ffff00",
-          "color": "#0000ff",
-          "align": "center",
-          "valign": "center",
-          "bold": true,
-          "indent": 1,
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 0
       },
       {
         "cell": "C9",
         "value": 12,
-        "style": {
-          "background": "#ffff00",
-          "color": "#0000ff",
-          "align": "center",
-          "valign": "center",
-          "bold": true,
-          "indent": 1,
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 0
       },
       {
         "cell": "D9",
         "value": "Good Morning",
-        "style": {
-          "background": "#ffff00",
-          "color": "#0000ff",
-          "align": "center",
-          "bold": true,
-          "indent": 1
-        }
+        "style": 1
       }
     ]
+  ],
+  "styles": [
+    {
+      "background": "#ffff00",
+      "color": "#0000ff",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "indent": 1,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#ffff00",
+      "color": "#0000ff",
+      "align": "center",
+      "bold": true,
+      "indent": 1
+    }
   ],
   "totalRows": 9,
   "headerHeight": 4

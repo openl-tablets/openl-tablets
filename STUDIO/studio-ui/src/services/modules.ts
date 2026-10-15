@@ -1,5 +1,6 @@
-import type { ModuleTable, RawTableView } from 'types/tables'
+import type { ModuleTable, RawTableView, RawTableViewData } from 'types/tables'
 import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
+import { expandRawTable } from './rawTables'
 import { toUrlSafeId } from './projectId'
 
 const moduleUrl = (projectId: string, moduleName: string): string =>
@@ -125,11 +126,11 @@ export const getRawTable = async (
     if (options.maxRows !== undefined) {
         params.set('maxRows', String(options.maxRows))
     }
-    return await apiCall(
+    return expandRawTable(await apiCall(
         `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}?${params}`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
-    ) as RawTableView
+    ) as RawTableViewData)
 }
 
 /** One way of entering a value, with everything that way of entering it needs. */

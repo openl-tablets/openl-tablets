@@ -8,46 +8,19 @@ Content-Type: application/json
         "cell": "C8",
         "value": "Rules Double BankLimitIndex (Bank bank, RatingGroup bankRatingGroup)",
         "colspan": 11,
-        "style": {
-          "background": "#ddd9c3",
-          "color": "#4a452a",
-          "align": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1,
-              "color": "#c4bd97"
-            },
-            "left": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        },
+        "style": 0,
         "runs": [
           {
-            "text": "Rules Double ",
-            "style": {
-              "color": "#800000"
-            }
+            "to": 13,
+            "style": 1
           },
           {
-            "text": "BankLimitIndex",
-            "style": {}
+            "to": 27,
+            "style": 2
           },
           {
-            "text": " (Bank bank, RatingGroup bankRatingGroup)",
-            "style": {
-              "color": "#800000"
-            }
+            "to": 68,
+            "style": 1
           }
         ]
       },
@@ -82,5 +55,35 @@ Content-Type: application/json
         "covered": true
       }
     ]
+  ],
+  "styles": [
+    {
+      "background": "#ddd9c3",
+      "color": "#4a452a",
+      "align": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "right": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#c4bd97"
+        },
+        "left": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#800000"
+    },
+    {}
   ]
 }

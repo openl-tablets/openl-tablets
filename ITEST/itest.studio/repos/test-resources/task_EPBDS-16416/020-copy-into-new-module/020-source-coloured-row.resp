@@ -8,105 +8,25 @@ Content-Type: application/json
         "cell": "C12",
         "value": "#",
         "rowspan": 2,
-        "style": {
-          "background": "#376092",
-          "color": "#ffffff",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 2
-            },
-            "left": {
-              "style": "solid",
-              "width": 2
-            }
-          }
-        }
+        "style": 0
       },
       {
         "cell": "D12",
         "value": "Agency",
         "rowspan": 2,
-        "style": {
-          "background": "#376092",
-          "color": "#ffffff",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 2
-            }
-          }
-        }
+        "style": 1
       },
       {
         "cell": "E12",
         "value": "Rating of Agency",
         "rowspan": 2,
-        "style": {
-          "background": "#376092",
-          "color": "#ffffff",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 2
-            }
-          }
-        }
+        "style": 1
       },
       {
         "cell": "F12",
         "value": "Bank Rating Group /\nCountry, Financial Data",
         "rowspan": 2,
-        "style": {
-          "background": "#376092",
-          "color": "#ffffff",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 2
-            }
-          }
-        }
+        "style": 1
       },
       {
         "cell": "G12",
@@ -119,25 +39,7 @@ Content-Type: application/json
           "BE"
         ],
         "colspan": 3,
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 2
       },
       {
         "covered": true
@@ -153,25 +55,7 @@ Content-Type: application/json
           "KZ"
         ],
         "colspan": 3,
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 3
       },
       {
         "covered": true
@@ -181,25 +65,7 @@ Content-Type: application/json
       },
       {
         "cell": "M12",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 2
-            },
-            "right": {
-              "style": "solid",
-              "width": 2
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 4
       }
     ],
     [
@@ -218,136 +84,225 @@ Content-Type: application/json
       {
         "cell": "G13",
         "value": "< 8000",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 5
       },
       {
         "cell": "H13",
         "value": "[8000 .. 100000)",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "I13",
         "value": ">= 100000",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "J13",
         "value": "< 1000",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "K13",
         "value": "[1000 .. 10000)",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "L13",
         "value": ">= 10000",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "dotted",
-              "width": 1
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "M13",
-        "style": {
-          "background": "#b9cde5",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "right": {
-              "style": "solid",
-              "width": 2
-            },
-            "bottom": {
-              "style": "dotted",
-              "width": 1
-            }
-          }
-        }
+        "style": 7
       }
     ]
+  ],
+  "styles": [
+    {
+      "background": "#376092",
+      "color": "#ffffff",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 2
+        },
+        "right": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 2
+        },
+        "left": {
+          "style": "solid",
+          "width": 2
+        }
+      }
+    },
+    {
+      "background": "#376092",
+      "color": "#ffffff",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 2
+        },
+        "right": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 2
+        },
+        "left": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b9cde5",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 2
+        },
+        "right": {
+          "style": "dotted",
+          "width": 1
+        },
+        "bottom": {
+          "style": "dotted",
+          "width": 1
+        },
+        "left": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b9cde5",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 2
+        },
+        "right": {
+          "style": "dotted",
+          "width": 1
+        },
+        "bottom": {
+          "style": "dotted",
+          "width": 1
+        },
+        "left": {
+          "style": "dotted",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b9cde5",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 2
+        },
+        "right": {
+          "style": "solid",
+          "width": 2
+        },
+        "bottom": {
+          "style": "dotted",
+          "width": 1
+        },
+        "left": {
+          "style": "dotted",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b9cde5",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        },
+        "right": {
+          "style": "dotted",
+          "width": 1
+        },
+        "bottom": {
+          "style": "dotted",
+          "width": 1
+        },
+        "left": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b9cde5",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        },
+        "right": {
+          "style": "dotted",
+          "width": 1
+        },
+        "bottom": {
+          "style": "dotted",
+          "width": 1
+        },
+        "left": {
+          "style": "dotted",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b9cde5",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "dotted",
+          "width": 1
+        },
+        "right": {
+          "style": "solid",
+          "width": 2
+        },
+        "bottom": {
+          "style": "dotted",
+          "width": 1
+        },
+        "left": {
+          "style": "dotted",
+          "width": 1
+        }
+      }
+    }
   ]
 }
-
