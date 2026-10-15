@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4ODUtUmF0ZXM6MWQxMjNjYzBlOWE1ODFhOTk0NDcyZGNlYjQxNDcyMjBhOWY5MDk4Y2Q1NDYwZGEwOTEzMzY3YTJhY2UzOWY1Mw==",
+  "branch": "master",
+  "revision": "*"
+}
+

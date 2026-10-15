@@ -3,6 +3,7 @@ import { toUrlSafeId } from './projectId'
 import { decodeText } from '../utils/decodeText'
 import { expandCells } from './rawTables'
 import type { Comparison, ComparisonSide, ComparisonSideData, ComparisonTable, ComparisonTableData } from 'types/compare'
+import type { RawTableCell, RawTableCellData, RawTableCellStyle } from 'types/tables'
 
 const API_OPTIONS = { throwError: true, suppressErrorPages: true }
 
@@ -204,6 +205,154 @@ export const getConflictText = async (projectId: string, path: string): Promise<
         undefined,
         API_OPTIONS
     ) as ConflictText
+
+/** How the merge takes a sheet of a conflicted workbook by itself. */
+export type ConflictSheetStatus = 'ours' | 'theirs' | 'merged' | 'conflict'
+
+/** Why a sheet of a conflicted workbook is resolved only as a whole. */
+export type ConflictSheetReason =
+    | 'removedAndChanged'
+    | 'addedInBoth'
+    | 'visibility'
+    | 'layout'
+    | 'pictures'
+    | 'settings'
+    | 'touchingTables'
+    | 'movedContent'
+
+/** Why both branches changed a table of a workbook in ways the merge cannot combine. */
+export type ConflictTableReason =
+    | 'cells'
+    | 'rows'
+    | 'rowsAndColumns'
+    | 'moved'
+    | 'removedAndChanged'
+    | 'mergedCells'
+    | 'addedInBoth'
+
+/** A table as one version of a conflicted workbook has it. */
+export interface ConflictTableVersion {
+    /** The place of the table on its sheet, in A1 notation. */
+    range: string
+    /** The cells of the table, row by row, each carrying its own style; the first rows only of a long table. */
+    cells: RawTableCell[][]
+    /** How many rows the table has. */
+    rows: number
+    /**
+     * The cells whose value, formula, comment or merging the branch changed against the base version, and the other
+     * branch has not alike.
+     */
+    changedCells: string[]
+    /** Whether the branch changed the formatting of cells of the table, and the other branch has not alike. */
+    formattingChanged: boolean
+    /**
+     * The cells whose value, formula, comment or merging both branches changed differently, as this version has
+     * them.
+     */
+    conflictCells: string[]
+}
+
+/** A version of a table as the server sends it: each style once, the cells naming theirs by index. */
+interface ConflictTableVersionData extends Omit<ConflictTableVersion, 'cells'> {
+    cells: RawTableCellData[][]
+    styles: RawTableCellStyle[]
+}
+
+/** A conflicting table as the server sends it. */
+interface ConflictTableData extends Omit<ConflictTable, 'ours' | 'base' | 'theirs'> {
+    ours?: ConflictTableVersionData
+    base?: ConflictTableVersionData
+    theirs?: ConflictTableVersionData
+}
+
+/** A conflicted workbook as the server sends it. */
+interface ConflictWorkbookData extends Omit<ConflictWorkbook, 'sheets'> {
+    sheets: (Omit<ConflictSheet, 'tables'> & { tables: ConflictTableData[] })[]
+}
+
+/** A table both branches changed in ways the merge cannot combine: it is taken whole from one version. */
+export interface ConflictTable {
+    /** Identifies the conflict in a resolution. */
+    id: string
+    /** The text of the first cell of the table, its header, or its place when the cell is empty. */
+    name: string
+    reason: ConflictTableReason
+    /** The table in each version; absent from a version that has none. */
+    ours?: ConflictTableVersion
+    base?: ConflictTableVersion
+    theirs?: ConflictTableVersion
+}
+
+/** A sheet of a conflicted workbook either branch changed. Its name identifies it in a resolution. */
+export interface ConflictSheet {
+    name: string
+    status: ConflictSheetStatus
+    /** Why the sheet is resolved only as a whole; absent when its tables are resolved one by one. */
+    reason?: ConflictSheetReason
+    /** Whether each version has the sheet. */
+    ours: boolean
+    base: boolean
+    theirs: boolean
+    /** The conflicting tables of the sheet, from top to bottom. */
+    tables: ConflictTable[]
+}
+
+/** A conflicted workbook as the merge reads it: the sheets either branch changed, and the conflicts left. */
+export interface ConflictWorkbook {
+    sheets: ConflictSheet[]
+    /** Whether both branches changed the palette of an .xls workbook differently, a conflict of its own. */
+    palette: boolean
+}
+
+/** Identifies the palette of an .xls workbook among the conflicts of a workbook. */
+export const PALETTE_CONFLICT = '/palette'
+
+/** A version of a table as a screen reads it: every cell carrying its own style. */
+const expandVersion = ({ cells, styles, ...rest }: ConflictTableVersionData): ConflictTableVersion =>
+    ({ ...rest, cells: expandCells(cells, styles) })
+
+/** A conflicted workbook as the merge reads it, for its conflicts to be resolved table by table. */
+export const getConflictWorkbook = async (projectId: string, path: string): Promise<ConflictWorkbook> => {
+    const workbook = await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
+        undefined,
+        API_OPTIONS
+    ) as ConflictWorkbookData
+    return {
+        ...workbook,
+        sheets: workbook.sheets.map(sheet => ({
+            ...sheet,
+            tables: sheet.tables.map(({ ours, base, theirs, ...table }) => ({
+                ...table,
+                ...(ours && { ours: expandVersion(ours) }),
+                ...(base && { base: expandVersion(base) }),
+                ...(theirs && { theirs: expandVersion(theirs) }),
+            })),
+        })),
+    }
+}
+
+/**
+ * Merges a conflicted workbook, each conflict taken whole from the version decided for it, and answers with the
+ * merged workbook. Nothing is saved.
+ *
+ * @param decisions the version each conflict is taken from, by the identifier of the conflict
+ */
+export const mergeConflictWorkbook = async (
+    projectId: string,
+    path: string,
+    decisions: Record<string, ConflictSide>
+): Promise<Blob> =>
+    await apiCall(
+        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ decisions: Object.entries(decisions).map(([id, side]) => ({ id, side })) }),
+        },
+        // The merge changes nothing in the workspace, so it tells no other screen to read it again.
+        { ...API_OPTIONS, responseType: 'blob', skipWorkspaceEvent: true }
+    ) as Blob
 
 /**
  * One version of a conflicted file, as text: what a file that is not a workbook is compared as. A file not written in

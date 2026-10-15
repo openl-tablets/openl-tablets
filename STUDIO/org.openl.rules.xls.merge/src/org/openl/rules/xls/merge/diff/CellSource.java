@@ -13,9 +13,27 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>A cell with no cell of OUR revision to start from starts empty. A part THEIR revision has not got is cleared.
  *
+ * <p>A cell taken from BASE revision is a copy of a cell of BASE revision, whatever the other revisions have.
+ *
  * @param our   the cell of OUR revision the merged cell starts from, or {@code null} to start empty
  * @param their the cell of THEIR revision the parts are taken from, or {@code null} when no part is taken
  * @param parts the parts taken from THEIR revision
+ * @param base  the cell of BASE revision the merged cell is a copy of, or {@code null} when it takes nothing from
+ *              BASE revision
  */
-public record CellSource(@Nullable CellAddress our, @Nullable CellAddress their, Set<CellPart> parts) {
+public record CellSource(@Nullable CellAddress our,
+                         @Nullable CellAddress their,
+                         Set<CellPart> parts,
+                         @Nullable CellAddress base) {
+
+    public CellSource(@Nullable CellAddress our, @Nullable CellAddress their, Set<CellPart> parts) {
+        this(our, their, parts, null);
+    }
+
+    /**
+     * A cell that is a copy of a cell of BASE revision.
+     */
+    public static CellSource ofBase(CellAddress base) {
+        return new CellSource(null, null, Set.of(), base);
+    }
 }

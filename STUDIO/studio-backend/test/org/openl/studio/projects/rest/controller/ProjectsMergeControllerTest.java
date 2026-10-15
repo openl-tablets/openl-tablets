@@ -1,9 +1,11 @@
 package org.openl.studio.projects.rest.controller;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
@@ -11,18 +13,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.core.ResolvableType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.bind.ServletRequestDataBinder;
 
@@ -45,6 +51,8 @@ import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictTextView;
+import org.openl.studio.projects.model.merge.ConflictWorkbookDecision;
+import org.openl.studio.projects.model.merge.ConflictWorkbookView;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeRequest;
@@ -53,6 +61,7 @@ import org.openl.studio.projects.model.merge.MergeResultResponse;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.model.merge.MergeSummaryView;
 import org.openl.studio.projects.model.merge.MergedChanges;
+import org.openl.studio.projects.rest.model.ResolveConflictWorkbookRequest;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
 import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
@@ -203,6 +212,47 @@ class ProjectsMergeControllerTest {
         when(mergeConflictsService.getConflictText(conflictInfo, "rules/notes.txt")).thenReturn(text);
 
         assertEquals(text, controller.getConflictText(project, "rules/notes.txt"));
+    }
+
+    @Test
+    void readsTheConflictsOfAConflictedWorkbook() throws Exception {
+        var conflictInfo = givenConflict();
+        var workbook = new ConflictWorkbookView(List.of(), false);
+        when(mergeConflictsService.getConflictWorkbook(conflictInfo, "rules/Rates.xlsx")).thenReturn(workbook);
+
+        assertEquals(workbook, controller.getConflictWorkbook(project, "rules/Rates.xlsx"));
+    }
+
+    @Test
+    void answersAConflictedWorkbookMergedAsDecidedAsAFileOfItsName() throws Exception {
+        var conflictInfo = givenConflict();
+        var merged = new byte[]{1, 2, 3};
+        when(mergeConflictsService.mergeConflictWorkbook(conflictInfo,
+                "rules/Rates.xlsx",
+                Map.of("Rules/A1:B3", ConflictBase.THEIRS, "Other", ConflictBase.OURS))).thenReturn(merged);
+
+        var response = controller.mergeConflictWorkbook(project, "rules/Rates.xlsx",
+                new ResolveConflictWorkbookRequest(List.of(new ConflictWorkbookDecision("Rules/A1:B3",
+                        ConflictBase.THEIRS), new ConflictWorkbookDecision("Other", ConflictBase.OURS))));
+
+        assertArrayEquals(merged, response.getBody());
+        assertEquals(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
+                response.getHeaders().getContentType());
+        assertTrue(response.getHeaders().getFirst(HttpHeaders.CONTENT_DISPOSITION).contains("Rates.xlsx"));
+    }
+
+    @Test
+    void refusesAConflictDecidedTwice() {
+        givenConflict();
+        var request = new ResolveConflictWorkbookRequest(List.of(
+                new ConflictWorkbookDecision("Rules/A1:B3", ConflictBase.THEIRS),
+                new ConflictWorkbookDecision("Rules/A1:B3", ConflictBase.OURS)));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> controller.mergeConflictWorkbook(project, "rules/Rates.xlsx", request));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.duplicate.message", exception.getErrorCode());
+        verifyNoInteractions(mergeConflictsService);
     }
 
     @Test
