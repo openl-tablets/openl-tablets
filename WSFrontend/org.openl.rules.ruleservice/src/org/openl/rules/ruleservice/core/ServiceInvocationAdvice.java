@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.CachedIntrospectionResults;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -83,8 +84,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
     private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
     private final Map<Method, Method> methodMap;
-    private final RulesDeploy rulesDeploy;
-    private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
+    private final @Nullable RulesDeploy rulesDeploy;
+    private final @Nullable SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     private final ThreadLocal<IOpenMember> iOpenMethodHolder = new ThreadLocal<>();
 
@@ -99,7 +100,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                    Object serviceTarget,
                                    Map<Method, Method> methodMap,
                                    ClassLoader serviceClassLoader,
-                                   Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
+                                   @Nullable Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
                                    ApplicationContext applicationContext,
                                    Optional<RulesDeploy> rulesDeployProvider,
                                    Optional<ProjectDescriptor> projectDescriptorProvider) {
@@ -139,13 +140,19 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.loggingEnabled = Boolean
                 .parseBoolean(applicationContext.getEnvironment().getProperty("ruleservice.logging.enabled"));
 
-        var serviceSpringContext = new AnnotationConfigApplicationContext();
         var configurationClass = getConfigurationClass(serviceClassLoader);
+        var projectClassLoader = configurationClass != null ? configurationClass.getClassLoader() : serviceClassLoader;
+        var serviceSpringContext = new AnnotationConfigApplicationContext() {
+            @Override
+            protected void resetCommonCaches() {
+                super.resetCommonCaches();
+                // Spring clears the caches of the bean class loader only: clear them for the class loader it wraps too.
+                CachedIntrospectionResults.clearClassLoader(projectClassLoader);
+            }
+        };
+        serviceSpringContext.setClassLoader(new ProxyDefiningClassLoader(projectClassLoader));
         if (configurationClass != null) {
-            serviceSpringContext.setClassLoader(configurationClass.getClassLoader());
             serviceSpringContext.register(configurationClass);
-        } else {
-            serviceSpringContext.setClassLoader(serviceClassLoader);
         }
         serviceSpringContext.setParent(applicationContext);
         var beanFactory = serviceSpringContext.getBeanFactory();
@@ -173,7 +180,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private Class<?> getConfigurationClass(ClassLoader serviceClassLoader) {
+    private @Nullable Class<?> getConfigurationClass(ClassLoader serviceClassLoader) {
         try {
             var configurationClass = Class.forName("spring.SpringConfig", false, serviceClassLoader);
             if (configurationClass.isAnnotationPresent(Configuration.class)) {
@@ -186,7 +193,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private ObjectMapper configureObjectMapper(ApplicationContext context,
-                                               RulesDeploy rulesDeploy,
+                                               @Nullable RulesDeploy rulesDeploy,
                                                ClassLoader classLoader,
                                                XlsModuleOpenClass openClass) {
         var objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
@@ -352,9 +359,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         throw new OpenLRuntimeException("Service method advice is not found.");
     }
 
-    private Object afterInvocation(Method interfaceMethod,
-                                   Object result,
-                                   Exception t,
+    private @Nullable Object afterInvocation(Method interfaceMethod,
+                                   @Nullable Object result,
+                                   @Nullable Exception t,
                                    Object... args) throws Exception {
         var ret = result;
         for (var interceptor : afterInterceptors.getOrDefault(interfaceMethod, List.of())) {
@@ -380,8 +387,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private void invokeAfterServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
                                                            Method interfaceMethod,
                                                            Object[] args,
-                                                           Object ret,
-                                                           Exception ex) {
+                                                           @Nullable Object ret,
+                                                           @Nullable Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, new Inst(interfaceMethod));
         }
@@ -390,15 +397,15 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private void invokeBeforeServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
                                                             Method interfaceMethod,
                                                             Object[] args,
-                                                            Object ret,
-                                                            Exception ex) {
+                                                            @Nullable Object ret,
+                                                            @Nullable Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, ex, new Inst(interfaceMethod));
         }
     }
 
     @Override
-    public Object invoke(Method calledMethod, Object[] args) {
+    public @Nullable Object invoke(Method calledMethod, Object[] args) {
         var beanMethod = findBeanMethod(calledMethod);
         try {
             return invokeInServiceContext(calledMethod, beanMethod, args);
@@ -410,7 +417,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     /**
      * Invokes the service method with its interceptors, under the class loader and the logging of the service.
      */
-    private Object invokeInServiceContext(Method calledMethod,
+    private @Nullable Object invokeInServiceContext(Method calledMethod,
                                           @Nullable Method beanMethod,
                                           Object[] args) throws Throwable {
         Object result = null;
@@ -475,7 +482,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private @Nullable Method findBeanMethod(Method calledMethod) {
         Method beanMethod = null;
         if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-            beanMethod = getTargetMember(calledMethod);
+            beanMethod = methodMap.get(calledMethod);
             if (beanMethod == null) {
                 var msg = "Called method is not found in the service bean. Please, check that excel file contains method '%s'.".formatted(
                         MethodUtil.printMethod(calledMethod.getName(), calledMethod.getParameterTypes()));
@@ -528,8 +535,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
                                                         Object[] args,
-                                                        Object result,
-                                                        Exception ex) {
+                                                        @Nullable Object result,
+                                                        @Nullable Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             listener.afterMethodInvocation(interfaceMethod, args, result, ex, new Inst(interfaceMethod));
         }

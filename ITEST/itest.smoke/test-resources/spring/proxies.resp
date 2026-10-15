@@ -1,0 +1,4 @@
+HTTP/1.1 200 OK
+Content-Type: text/plain;charset=utf-8
+
+Hello, Java!, 2 beans proxied by class; Hello, Groovy, proxied by class: true; interceptor proxied by class: true

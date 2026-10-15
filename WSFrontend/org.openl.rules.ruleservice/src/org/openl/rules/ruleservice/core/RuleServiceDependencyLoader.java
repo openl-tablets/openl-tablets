@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.core;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
@@ -9,7 +11,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
 
     public RuleServiceDependencyLoader(ProjectDescriptor project,
-                                       Module module,
+                                       @Nullable Module module,
                                        RuleServiceDependencyManager dependencyManager) {
         super(project, module, true, dependencyManager);
     }

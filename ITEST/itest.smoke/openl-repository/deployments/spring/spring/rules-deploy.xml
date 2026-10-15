@@ -1,6 +1,7 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <serviceName>spring</serviceName>
+    <annotationTemplateClassName>spring.Service</annotationTemplateClassName>
     <publishers>
         <publisher>RESTFUL</publisher>
     </publishers>
