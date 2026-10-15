@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Difference result of the same workbook by sheet between three revisions. {@code base revision} to
@@ -18,10 +17,6 @@ public class SheetDiffResult {
      * Merge decision results for sheets
      */
     private final Map<DiffStatus, Set<String>> diffResults;
-    /**
-     * Sheets matching results between {@code base revision} and {@code their revision}
-     */
-    private final Map<String, XlsMatch> theirToBase;
     /**
      * Cell by cell merge plans of the sheets changed in both revisions
      */
@@ -42,7 +37,16 @@ public class SheetDiffResult {
      * @return {@code true} if two revisions can be automatically merged, otherwise {@code false}
      */
     public boolean hasChangesToMerge() {
-        return !hasConflicts() && (hasResults(DiffStatus.THEIR) || hasResults(DiffStatus.MERGED));
+        return !hasConflicts()
+                && (hasResults(DiffStatus.THEIR) || hasResults(DiffStatus.MERGED) || hasResults(DiffStatus.BASE));
+    }
+
+    /**
+     * Tells whether the merge takes a sheet, or a table of a sheet, from BASE revision, as a resolution may decide,
+     * so BASE revision is read for the merge.
+     */
+    public boolean takesBase() {
+        return hasResults(DiffStatus.BASE) || mergePlans.values().stream().anyMatch(SheetMergePlan::takesBase);
     }
 
     private boolean hasResults(DiffStatus diff) {
@@ -58,16 +62,6 @@ public class SheetDiffResult {
      */
     public Collection<String> getDiffSheets(DiffStatus diff) {
         return diffResults.getOrDefault(diff, Set.of());
-    }
-
-    /**
-     * Get matching result of requested sheet between {@code base revision} and {@code their revision}
-     *
-     * @param sheetName sheet name
-     * @return matching result, or {@code null} for a sheet neither revision has
-     */
-    public @Nullable XlsMatch getTheirMatchResult(String sheetName) {
-        return theirToBase.get(sheetName);
     }
 
     /**

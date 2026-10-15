@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.project.merge.conflict.workbook.unresolved.message",
+  "message": "Conflicts of 'EPBDS-16885-Rates/Rates.xlsx' are not resolved: Rules/A1:B5."
+}
+

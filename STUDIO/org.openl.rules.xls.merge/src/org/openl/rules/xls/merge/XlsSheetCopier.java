@@ -70,6 +70,7 @@ public final class XlsSheetCopier {
      */
     private static void copySheet(Cursor src, Cursor dest) throws IOException {
         dest.workbook.setSheetHidden(dest.getSheetIndex(), src.isSheetHidden());
+        copyColumns(src.sheet, dest.sheet);
         for (var rowNum = src.sheet.getFirstRowNum(); rowNum <= src.sheet.getLastRowNum(); rowNum++) {
             if (rowNum < 0) {
                 break;
@@ -78,11 +79,35 @@ public final class XlsSheetCopier {
             if (!XlsSheetsMatcher.isNullOrEmpty(src.row)) {
                 dest.row = dest.sheet.createRow(rowNum);
                 copyRow(src, dest);
+            } else if (src.row != null && (src.row.getZeroHeight() || XlsSheetMerger.customHeight(src.row) >= 0)) {
+                // an empty row keeps the height a user set for it, and whether it is hidden
+                var row = dest.sheet.createRow(rowNum);
+                row.setHeight(src.row.getHeight());
+                row.setZeroHeight(src.row.getZeroHeight());
             }
             dest.row = src.row = null;
         }
         replaceMergedRegions(src.sheet.getMergedRegions(), dest.sheet);
         copyDrawings(src, dest);
+    }
+
+    /**
+     * Copies the default width of the columns and height of the rows, and the width and the visibility of every
+     * column up to the last one either sheet has a cell in.
+     */
+    private static void copyColumns(Sheet src, Sheet dest) {
+        dest.setDefaultColumnWidth(src.getDefaultColumnWidth());
+        dest.setDefaultRowHeight(src.getDefaultRowHeight());
+        // A sheet may lay out every column to the end of the sheet, which is too many to take one by one.
+        var last = Math.max(XlsSheetShifts.lastColumn(src), XlsSheetShifts.lastColumn(dest));
+        for (var column = 0; column <= last; column++) {
+            if (dest.getColumnWidth(column) != src.getColumnWidth(column)) {
+                dest.setColumnWidth(column, src.getColumnWidth(column));
+            }
+            if (dest.isColumnHidden(column) != src.isColumnHidden(column)) {
+                dest.setColumnHidden(column, src.isColumnHidden(column));
+            }
+        }
     }
 
     /**
@@ -123,6 +148,7 @@ public final class XlsSheetCopier {
      */
     private static void copyRow(Cursor src, Cursor dest) {
         dest.row.setHeight(src.row.getHeight());
+        dest.row.setZeroHeight(src.row.getZeroHeight());
         for (var cellNum = src.row.getFirstCellNum(); cellNum <= src.row.getLastCellNum(); cellNum++) {
             if (cellNum < 0) {
                 break;
@@ -130,7 +156,6 @@ public final class XlsSheetCopier {
             src.cell = src.row.getCell(cellNum);
             if (src.cell != null) {
                 dest.cell = dest.row.createCell(cellNum);
-                dest.sheet.setColumnWidth(cellNum, src.sheet.getColumnWidth(cellNum));
                 copyCell(src, dest);
                 dest.cellStyle = src.cellStyle = null;
             }

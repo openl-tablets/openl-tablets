@@ -1,10 +1,10 @@
 import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Button, Col, Divider, Flex, Modal, Row, Space, Spin, Tag, Tooltip, Typography } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { Alert, Button, Divider, Flex, Modal, Space, Spin, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { getConflictText } from '../../services/compare'
 import { errorMessage } from '../../utils/errorMessage'
 import { basename } from '../projects/projectPaths'
+import { ButtonColumns, ColumnTitles, Columns, ConflictHeading, DiscardButton, TakeButton } from './MergeColumns'
 import type {
     ConflictChoice,
     ConflictDecision,
@@ -32,10 +32,6 @@ const CodeEditor = lazy(() => import('../projects/CodeEditor').then(module => ({
 /** How many lines no branch changed are shown whole; longer runs show their ends around a link to the rest. */
 const SHOWN_LINES = 8
 const END_LINES = 3
-
-/** The span of each of the three columns, as merge tools lay them out: your version, the result, their version. */
-const SPAN = 8
-const GUTTER = 8
 
 /** What each column shows of a part of the file: your lines, the lines of the result, their lines. */
 interface ColumnTexts {
@@ -192,11 +188,7 @@ export const TextMergeEditor: React.FC<TextMergeEditorProps> = ({
             title={(
                 <Flex vertical gap="small">
                     {t('merge:editor.title', { name: basename(filePath) })}
-                    <Columns
-                        ours={<ColumnTitle label={t('merge:editor.your_version')} version={versionLabels?.ours} />}
-                        result={<ColumnTitle label={t('merge:editor.result')} />}
-                        theirs={<ColumnTitle label={t('merge:editor.their_version')} version={versionLabels?.theirs} />}
-                    />
+                    <ColumnTitles versionLabels={versionLabels} />
                 </Flex>
             )}
         >
@@ -231,27 +223,6 @@ export const TextMergeEditor: React.FC<TextMergeEditorProps> = ({
         </Modal>
     )
 }
-
-/** Three cells side by side, in the columns of the editor: your version, the result and their version. */
-const Columns: React.FC<{ ours?: React.ReactNode; result?: React.ReactNode; theirs?: React.ReactNode }> = ({
-    ours,
-    result,
-    theirs,
-}) => (
-    <Row gutter={GUTTER}>
-        <Col span={SPAN}>{ours}</Col>
-        <Col span={SPAN}>{result}</Col>
-        <Col span={SPAN}>{theirs}</Col>
-    </Row>
-)
-
-/** The title of a column, with what names its version. */
-const ColumnTitle: React.FC<{ label: string; version?: React.ReactNode }> = ({ label, version }) => (
-    <Space wrap size="small">
-        <Typography.Text strong>{label}</Typography.Text>
-        {version}
-    </Space>
-)
 
 /** Lines of a version as a part of the file, numbered as in the whole version; a version with none says so. */
 const Lines = React.memo(function Lines({ text, first, path }: { text: string; first: number; path: string }) {
@@ -343,8 +314,8 @@ const TAKE_LABELS: Record<Side, { take: string; add: string }> = {
     theirs: { take: 'merge:editor.take_theirs', add: 'merge:editor.add_theirs' },
 }
 
-/** The button that takes the lines of a version into the result, pointing from its column to the result. */
-const TakeButton: React.FC<{ side: Side; choice: ConflictChoice | undefined; onTake: (side: Side) => void }> = ({
+/** The button that takes the lines of a version into the result, or adds them after the other version taken. */
+const TakeLinesButton: React.FC<{ side: Side; choice: ConflictChoice | undefined; onTake: (side: Side) => void }> = ({
     side,
     choice,
     onTake,
@@ -352,16 +323,13 @@ const TakeButton: React.FC<{ side: Side; choice: ConflictChoice | undefined; onT
     const { t } = useTranslation()
     const other: Side = side === 'ours' ? 'theirs' : 'ours'
     return (
-        <Button
-            data-testid={`text-merge-take-${side}`}
+        <TakeButton
             disabled={holdsSide(choice, side)}
-            icon={side === 'ours' ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
-            iconPlacement={side === 'ours' ? 'end' : 'start'}
-            onClick={() => onTake(side)}
-            size="small"
-        >
-            {t(choice === other ? TAKE_LABELS[side].add : TAKE_LABELS[side].take)}
-        </Button>
+            label={t(choice === other ? TAKE_LABELS[side].add : TAKE_LABELS[side].take)}
+            onTake={() => onTake(side)}
+            side={side}
+            testId={`text-merge-take-${side}`}
+        />
     )
 }
 
@@ -407,31 +375,20 @@ const ConflictPart = React.memo(function ConflictPart({
 
     return (
         <Flex vertical data-testid={`text-merge-conflict-${number}`} gap="small">
-            <Divider size="small" titlePlacement="start">
-                <Space size="small">
-                    {t('merge:editor.conflict', { number, count })}
-                    {choice
-                        ? <Tag color="success">{t(STATUSES[choice])}</Tag>
-                        : <Tag color="warning">{t('merge:editor.unresolved')}</Tag>}
-                </Space>
-            </Divider>
-            <Columns
-                ours={<Flex justify="end"><TakeButton choice={choice} onTake={take} side="ours" /></Flex>}
-                theirs={<Flex justify="start"><TakeButton choice={choice} onTake={take} side="theirs" /></Flex>}
+            <ConflictHeading
+                status={choice && t(STATUSES[choice])}
+                title={t('merge:editor.conflict', { number, count })}
+            />
+            <ButtonColumns
+                ours={<TakeLinesButton choice={choice} onTake={take} side="ours" />}
+                theirs={<TakeLinesButton choice={choice} onTake={take} side="theirs" />}
                 result={(
-                    <Flex justify="center">
-                        <Tooltip title={t('merge:editor.discard_hint')}>
-                            <Button
-                                data-testid="text-merge-discard"
-                                disabled={choice === 'base'}
-                                icon={<CloseOutlined />}
-                                onClick={() => onDecide(index, { choice: 'base', lines: block.base })}
-                                size="small"
-                            >
-                                {t('merge:editor.discard')}
-                            </Button>
-                        </Tooltip>
-                    </Flex>
+                    <DiscardButton
+                        disabled={choice === 'base'}
+                        hint={t('merge:editor.discard_hint')}
+                        onDiscard={() => onDecide(index, { choice: 'base', lines: block.base })}
+                        testId="text-merge-discard"
+                    />
                 )}
             />
             <Columns

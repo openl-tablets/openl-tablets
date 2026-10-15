@@ -46,6 +46,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCols;
 
 import org.openl.rules.xls.merge.diff.CellPart;
 import org.openl.rules.xls.merge.diff.CellSource;
+import org.openl.rules.xls.merge.diff.SheetConflictReason;
 import org.openl.rules.xls.merge.diff.SheetMergePlan;
 
 /**
@@ -87,16 +88,26 @@ final class XlsSheetMerger {
      * Plans the merge of a sheet changed in both revisions: cell by cell when that merges it, and table by table
      * otherwise, for instance when a revision moved the content of the sheet.
      *
+     * <p>A conflict outside the tables of the sheet leaves the whole sheet a conflict, and the conflicts tell why. A
+     * conflicting table is resolved as the conflicts decide, when they resolve anything.
+     *
      * @param changedInTheirs tells whether THEIR revision changed or created a sheet, by its name
      * @return what the merged sheet takes from THEIR revision, or nothing if the changes conflict
      */
-    static Optional<SheetMergePlan> plan(Cursor base, Cursor our, Cursor their, Predicate<String> changedInTheirs) {
+    static Optional<SheetMergePlan> plan(Cursor base,
+                                         Cursor our,
+                                         Cursor their,
+                                         Predicate<String> changedInTheirs,
+                                         Conflicts conflicts) {
         var visibility = choose(base.isSheetHidden(), our.isSheetHidden(), their.isSheetHidden());
         var defaultLayout = choose(defaultLayout(base.sheet), defaultLayout(our.sheet), defaultLayout(their.sheet));
         var pictures = choose(base, our, their, XlsSheetsMatcher::equalDrawings);
-        if (visibility == Choice.CONFLICT || pictures == Choice.CONFLICT || defaultLayout == Choice.CONFLICT
-                || !settingsOf(base.sheet).equals(settingsOf(their.sheet))) {
-            return Optional.empty();
+        var refusal = refusalOf(visibility, defaultLayout, pictures);
+        if (refusal == null && !settingsOf(base.sheet).equals(settingsOf(their.sheet))) {
+            refusal = SheetConflictReason.SETTINGS;
+        }
+        if (refusal != null) {
+            return refuse(conflicts, refusal);
         }
         var lastRow = Math.max(base.sheet.getLastRowNum(),
                 Math.max(our.sheet.getLastRowNum(), their.sheet.getLastRowNum()));
@@ -107,11 +118,17 @@ final class XlsSheetMerger {
         if (!collectLayouts(base.sheet, our.sheet, their.sheet, lastRow, XlsSheetMerger::rowLayout, rows)
                 || !collectLayouts(base.sheet, our.sheet, their.sheet, lastColumn, XlsSheetMerger::columnLayout,
                 columns)) {
-            return Optional.empty();
+            return refuse(conflicts, SheetConflictReason.LAYOUT);
         }
         return planCells(base, our, their, lastRow)
-                .or(() -> XlsTableMerger.plan(base, our, their, changedInTheirs))
-                .filter(content -> !laysOutMoved(base.sheet, our.sheet, their.sheet, content.moved()))
+                .or(() -> XlsTableMerger.plan(base, our, their, changedInTheirs, conflicts))
+                .filter(content -> {
+                    var moved = laysOutMoved(base.sheet, our.sheet, their.sheet, content.moved());
+                    if (moved) {
+                        conflicts.refuse(SheetConflictReason.MOVED_CONTENT);
+                    }
+                    return !moved;
+                })
                 .map(content -> new SheetMergePlan(content.cells(),
                         rows,
                         columns,
@@ -119,6 +136,27 @@ final class XlsSheetMerger {
                         content.mergedRegions(),
                         pictures == Choice.THEIR,
                         visibility == Choice.THEIR));
+    }
+
+    /**
+     * Why the sheet is resolved only as a whole when both revisions changed its visibility, its default layout or its
+     * pictures differently, or {@code null} when they did not.
+     */
+    private static @Nullable SheetConflictReason refusalOf(Choice visibility, Choice defaultLayout, Choice pictures) {
+        if (visibility == Choice.CONFLICT) {
+            return SheetConflictReason.VISIBILITY;
+        } else if (defaultLayout == Choice.CONFLICT) {
+            return SheetConflictReason.LAYOUT;
+        }
+        return pictures == Choice.CONFLICT ? SheetConflictReason.PICTURES : null;
+    }
+
+    /**
+     * Leaves the whole sheet a conflict, and tells the conflicts why.
+     */
+    private static Optional<SheetMergePlan> refuse(Conflicts conflicts, SheetConflictReason reason) {
+        conflicts.refuse(reason);
+        return Optional.empty();
     }
 
     /**
@@ -176,14 +214,19 @@ final class XlsSheetMerger {
      * @param our       OUR revision of the sheet, the one that is changed
      * @param ourSource OUR revision of the sheet as it was before the merge, to read the cells that move; needed
      *                  only when the plan moves cells
+     * @param base      BASE revision of the sheet; needed only when the plan takes cells from it
      * @param plan      what the sheet takes from THEIR revision
      */
-    static void apply(Cursor their, Cursor our, @Nullable Cursor ourSource, SheetMergePlan plan) throws IOException {
+    static void apply(Cursor their,
+                      Cursor our,
+                      @Nullable Cursor ourSource,
+                      @Nullable Cursor base,
+                      SheetMergePlan plan) throws IOException {
         if (plan.mergedRegions() != null) {
             XlsSheetCopier.replaceMergedRegions(plan.mergedRegions(), our.sheet);
         }
         for (var entry : plan.cells().entrySet()) {
-            copyCell(their, our, ourSource, entry.getKey(), entry.getValue());
+            copyCell(their, our, ourSource, base, entry.getKey(), entry.getValue());
         }
         if (plan.pictures()) {
             XlsSheetCopier.copyDrawings(their, our);
@@ -237,19 +280,23 @@ final class XlsSheetMerger {
     }
 
     /**
-     * Writes the content a cell of the merged sheet takes: a copy of another cell of OUR revision, or nothing, and
-     * then the parts of a cell of THEIR revision. A part a revision has not got is cleared, and a cell left with
-     * nothing in it is removed.
+     * Writes the content a cell of the merged sheet takes: a copy of a cell of BASE revision, or a copy of another cell
+     * of OUR revision, or nothing, and then the parts of a cell of THEIR revision. A part a revision has not got is
+     * cleared, and a cell left with nothing in it is removed.
      */
     private static void copyCell(Cursor their,
                                  Cursor our,
                                  @Nullable Cursor ourSource,
+                                 @Nullable Cursor base,
                                  CellAddress address,
                                  CellSource source) {
         our.row = CellUtil.getRow(address.getRow(), our.sheet);
         our.cell = CellUtil.getCell(our.row, address.getColumn());
         var from = source.our();
-        if (from == null) {
+        var fromBase = source.base();
+        if (fromBase != null) {
+            copyWhole(Objects.requireNonNull(base), fromBase, our);
+        } else if (from == null) {
             clear(our.cell);
         } else if (!address.equals(from)) {
             copyMoved(Objects.requireNonNull(ourSource), from, our);
@@ -278,6 +325,21 @@ final class XlsSheetMerger {
             our.cell.setCellStyle(our.workbook.getCellStyleAt(ourSource.cell.getCellStyle().getIndex()));
         }
         ourSource.cell = null;
+    }
+
+    /**
+     * Copies a cell of another revision whole: its value, its style and its comment, or nothing when it has no cell.
+     */
+    private static void copyWhole(Cursor source, CellAddress from, Cursor our) {
+        source.cell = SheetUtil.getCell(source.sheet, from.getRow(), from.getColumn());
+        if (source.cell == null) {
+            clear(our.cell);
+        } else {
+            for (CellPart part : CellPart.values()) {
+                copyPart(source, our, part);
+            }
+        }
+        source.cell = null;
     }
 
     /**
@@ -358,7 +420,7 @@ final class XlsSheetMerger {
      * .xlsx row it fits to its content by itself, so such a height is not a change of the row. An .xls row tells by
      * a flag of its record whether a user set its height.
      */
-    private static short customHeight(@Nullable Row row) {
+    static short customHeight(@Nullable Row row) {
         if (row == null || row instanceof XSSFRow xssfRow && !xssfRow.getCTRow().getCustomHeight()
                 || row instanceof HSSFRow hssfRow && !hasCustomHeight(hssfRow)) {
             return -1;

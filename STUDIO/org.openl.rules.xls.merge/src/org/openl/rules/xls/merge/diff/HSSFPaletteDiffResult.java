@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Difference result of the same workbook by HSSF Palette between three revisions. {@code base revision} to
@@ -19,10 +18,6 @@ public class HSSFPaletteDiffResult {
      * Merge decision results for palette colors
      */
     private final Map<DiffStatus, Set<Short>> diffResults;
-    /**
-     * Colors matching results between {@code base revision} and {@code their revision}
-     */
-    private final Map<Short, XlsMatch> theirToBase;
 
     public boolean hasConflicts() {
         return hasResults(DiffStatus.CONFLICT);
@@ -43,12 +38,13 @@ public class HSSFPaletteDiffResult {
     }
 
     /**
-     * Get matching result of requested color between {@code base revision} and {@code their revision}
+     * Tells whether the merge takes a color from {@code their revision}: their revision alone changed it, or a
+     * resolution took the palette from their revision.
      *
      * @param cInx color index
-     * @return matching result
      */
-    public @Nullable XlsMatch getTheirMatchResult(Short cInx) {
-        return theirToBase.get(cInx);
+    public boolean isTakenFromTheirs(short cInx) {
+        var theirs = diffResults.get(DiffStatus.THEIR);
+        return theirs != null && theirs.contains(cInx);
     }
 }
