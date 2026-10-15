@@ -2,6 +2,7 @@ package org.openl.excel.parser.markdown;
 
 import java.util.List;
 import java.util.SequencedMap;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
@@ -24,5 +25,12 @@ record RulesTable(String header,
      */
     int width() {
         return body.stream().mapToInt(List::size).max().orElse(0);
+    }
+
+    /**
+     * Returns merged ranges in A1 notation, joined with commas, the way the front matter lists them.
+     */
+    static String mergesText(List<CellRangeAddress> merges) {
+        return merges.stream().map(CellRangeAddress::formatAsString).collect(Collectors.joining(", "));
     }
 }
