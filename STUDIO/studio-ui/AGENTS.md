@@ -79,6 +79,12 @@ The build writes two pages (`build.rollupOptions.input`):
   signed out opens the login page instead: whatever served it guards no page, as the Vite dev server does not. The
   tab remembers the reloaded page in `sessionStorage` until the login page is opened for it or the user signs in,
   so a session lost after a sign-in is reloaded through the server again.
+- **Raw table reads**: the Tables API sends each style of a read once (`styles`), and a cell and a piece of its text
+  name theirs by index, a piece by where it ends in the text. The services that read a table — `getRawTable` of
+  `services/modules.ts`, `traceService.getRawTable`, `getComparisonTable` — expand it on arrival
+  (`services/rawTables.ts`), so a screen reads `cell.style` and `run.text` as objects, every cell of one style sharing
+  one. Each cell names the lines it draws itself; `RawTableGrid` draws each line two cells share once, on the upper or
+  the left cell, the wider one winning (`collapsedBorders` in `components/rawTableStyle.ts`).
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
   an address of its own, so it is not under `CONFIG.API_ROOT`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides

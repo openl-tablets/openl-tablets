@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
-import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -164,7 +164,7 @@ class NamedValuesThemeLayoutTest {
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */
-    private List<List<RawTableCell>> read(int row) {
+    private List<List<StyledCell>> read(int row) {
         return TableTestProjects.styledSource(tableAt(row));
     }
 

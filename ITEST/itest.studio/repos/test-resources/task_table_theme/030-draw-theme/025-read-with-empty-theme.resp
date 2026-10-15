@@ -62,5 +62,6 @@ Content-Type: application/json
       }
     ]
   ],
+  "styles": [],
   "headerHeight": 1
 }

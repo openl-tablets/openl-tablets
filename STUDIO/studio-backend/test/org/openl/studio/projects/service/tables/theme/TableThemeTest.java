@@ -39,15 +39,15 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.RawTableBorderLineStyle;
-import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellBorder;
 import org.openl.studio.projects.model.tables.RawTableCellBorderSide;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableStyleSource;
-import org.openl.studio.projects.model.tables.RawTableTextRun;
-import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.TableThemeView;
+import org.openl.studio.projects.service.tables.StyledRead;
+import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
+import org.openl.studio.projects.service.tables.StyledRead.StyledRun;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
@@ -353,10 +353,9 @@ class TableThemeTest {
         var step = written.get(4).getFirst().style();
         assertTrue(step == null || step.bold() == null, "A step that is not marked is not bold");
         assertEquals(LIGHT_BLUE, written.get(4).get(1).style().background());
-        // The last step closes the calculation: lines go round its row. A line two rows share is read as the line
-        // under the upper one.
+        // The last step closes the calculation: lines go round its row, each read on the cell that draws it.
         for (var column = 0; column < 2; column++) {
-            assertNotNull(bottomOf(written.get(4).get(column).style()), "A line above the last step");
+            assertNotNull(topOf(written.get(5).get(column).style()), "A line above the last step");
             assertNotNull(bottomOf(written.get(5).get(column).style()), "A line under it");
         }
     }
@@ -387,44 +386,40 @@ class TableThemeTest {
     }
 
     @Test
-    void drawsTheLineOverASectionByTheCellsAboveIt() {
+    void readsTheLineOverASectionOnTheSectionItself() {
         var table = premium();
         var themed = readThemed(table, service.layoutOf(table, THEME)).source;
 
-        // The screen draws the side of the upper cell over the side of the lower one, as it draws a workbook: the
-        // line over the heading is drawn by the step above it, all across the heading.
+        // Each cell reports the lines it draws itself: the heading draws the line over it, the step above none.
+        assertEquals(RawTableBorderLineStyle.SOLID, topOf(themed.get(3).getFirst().style()).style());
         for (var column = 0; column < 2; column++) {
-            var line = bottomOf(themed.get(2).get(column).style());
-            assertEquals(RawTableBorderLineStyle.SOLID, line.style());
+            assertNull(bottomOf(themed.get(2).get(column).style()), "The step above draws no line under it");
         }
-        assertNull(topOf(themed.get(3).getFirst().style()), "The heading draws no line of its own");
-        // The header keeps its top: no cell of the table is above it.
-        assertNotNull(topOf(themed.getFirst().getFirst().style()));
+        assertNotNull(topOf(themed.getFirst().getFirst().style()), "The header draws its top");
     }
 
     @Test
-    void drawsTheLineOverASectionUnderTheRowsReadByTheLastOfThem() {
+    void readsAWindowOfRowsWithTheLinesOfItsOwnCells() {
         var table = premium();
         var layout = service.layoutOf(table, THEME);
 
-        // A window ending right above the heading: its last step draws the line over the heading.
-        var window = new RawTableReader().read(table, RawTableRead.builder()
+        // A window ending right above the heading reports no line under its last step: the heading draws it.
+        var window = new StyledRead(new RawTableReader().read(table, RawTableRead.builder()
                 .startRow(0)
                 .maxRows(3)
                 .withStyles(true)
                 .theme(layout)
-                .build()).source;
+                .build())).source;
         for (var column = 0; column < 2; column++) {
-            var line = bottomOf(window.get(2).get(column).style());
-            assertEquals(RawTableBorderLineStyle.SOLID, line.style());
+            assertNull(bottomOf(window.get(2).get(column).style()));
         }
-        // The next window starts with the heading and draws the line itself: no row of it is above the heading.
-        var next = new RawTableReader().read(table, RawTableRead.builder()
+        // The next window starts with the heading, which reports the line over it.
+        var next = new StyledRead(new RawTableReader().read(table, RawTableRead.builder()
                 .startRow(3)
                 .maxRows(3)
                 .withStyles(true)
                 .theme(layout)
-                .build()).source;
+                .build())).source;
         assertNotNull(topOf(next.getFirst().getFirst().style()));
     }
 
@@ -547,7 +542,7 @@ class TableThemeTest {
     @Test
     void drawsTheThemeInTheStyleOfEachCellAReadNamesItFor() {
         var table = person();
-        var plain = new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build());
+        var plain = new StyledRead(new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build()));
         var themed = readThemed(table, service.layoutOf(table, THEME));
 
         var header = themed.source.getFirst().getFirst();
@@ -642,9 +637,9 @@ class TableThemeTest {
         var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person");
         var kept = readThemed(person, EXTENDED.layoutOf(person, EXTENDED_THEME)).source.get(1).get(1);
         assertEquals(List.of("na", "me"), texts(kept.runs()));
-        var alone = new RawTableReader().read(person, RawTableRead.builder()
+        var alone = new StyledRead(new RawTableReader().read(person, RawTableRead.builder()
                 .theme(EXTENDED.layoutOf(person, EXTENDED_THEME))
-                .build()).source.get(1).get(1);
+                .build())).source.get(1).get(1);
         assertEquals(List.of("na", "me"), texts(alone.runs()), "Kept by a read of the theme alone");
         var drawn = readThemed(person, service.layoutOf(person, THEME)).source.get(1).get(1);
         assertNull(drawn.runs(), "A theme naming the font draws the text in it");
@@ -1061,8 +1056,8 @@ class TableThemeTest {
     }
 
     /** The table read with the styles of its cells and the look a theme gives each of them. */
-    private static RawTableView readThemed(IOpenLTable table, ThemedTable theme) {
-        return new RawTableReader().read(table, RawTableRead.builder().withStyles(true).theme(theme).build());
+    private static StyledRead readThemed(IOpenLTable table, ThemedTable theme) {
+        return new StyledRead(new RawTableReader().read(table, RawTableRead.builder().withStyles(true).theme(theme).build()));
     }
 
     private IOpenLTable person() {
@@ -1078,7 +1073,7 @@ class TableThemeTest {
     }
 
     /** The cells of a table as the workbook now holds them, with their styles. */
-    private List<List<RawTableCell>> read(String name) {
+    private List<List<StyledCell>> read(String name) {
         return TableTestProjects.styledSource(TableTestProjects.table(TableTestProjects.projectModel(dir), name));
     }
 
@@ -1170,8 +1165,8 @@ class TableThemeTest {
         return themes.stream().map(TableThemeView::id).toList();
     }
 
-    private static List<String> texts(List<RawTableTextRun> runs) {
-        return runs.stream().map(RawTableTextRun::text).toList();
+    private static List<String> texts(List<StyledRun> runs) {
+        return runs.stream().map(StyledRun::text).toList();
     }
 
     /**

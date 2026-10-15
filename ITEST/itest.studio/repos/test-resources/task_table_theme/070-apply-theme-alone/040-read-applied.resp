@@ -12,167 +12,133 @@ Content-Type: application/json
       {
         "cell": "B27",
         "value": "SimpleRules String Greeting(Integer hour, String name)",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        },
+        "style": 0,
         "runs": [
           {
-            "text": "SimpleRules",
-            "style": {
-              "color": "#808080"
-            }
+            "to": 11,
+            "style": 1
           },
           {
-            "text": " ",
-            "style": {}
+            "to": 12,
+            "style": 2
           },
           {
-            "text": "String",
-            "style": {
-              "color": "#808080"
-            }
+            "to": 18,
+            "style": 1
           },
           {
-            "text": " ",
-            "style": {}
+            "to": 19,
+            "style": 2
           },
           {
-            "text": "Greeting",
-            "style": {
-              "bold": true
-            }
+            "to": 27,
+            "style": 3
           },
           {
-            "text": "(Integer hour, String name)",
-            "style": {
-              "color": "#808080"
-            }
+            "to": 54,
+            "style": 1
           }
         ]
       },
       {
         "cell": "C27",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 0
       },
       {
         "cell": "D27",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 0
       }
     ],
     [
       {
         "cell": "B28",
         "value": "Hour",
-        "style": {
-          "background": "#bfbfbf",
-          "align": "center",
-          "valign": "center",
-          "bold": true
-        }
+        "style": 4
       },
       {
         "cell": "C28",
         "value": "Name",
-        "style": {
-          "background": "#bfbfbf",
-          "align": "center",
-          "valign": "center",
-          "bold": true
-        }
+        "style": 4
       },
       {
         "cell": "D28",
         "value": "Greeting",
-        "style": {
-          "background": "#b4c6e7",
-          "align": "center",
-          "valign": "center",
-          "bold": true
-        }
+        "style": 5
       }
     ],
     [
       {
         "cell": "B29",
         "value": "< 12",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "C29",
         "value": "Bob",
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "D29",
         "value": "Good Morning",
-        "style": {
-          "background": "#ddebf7",
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 7
       }
     ]
+  ],
+  "styles": [
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {},
+    {
+      "bold": true
+    },
+    {
+      "background": "#bfbfbf",
+      "align": "center",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#b4c6e7",
+      "align": "center",
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#ddebf7",
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
   ],
   "headerHeight": 1
 }

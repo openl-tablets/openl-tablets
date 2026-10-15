@@ -25,8 +25,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   never cuts a merged cell in two. Read the next window from the end of the previous one, not from `startRow` plus
   `maxRows`. A window that starts past the last row holds no rows: `source` is empty and `totalRows` is the height of
   the table, with or without `maxRows`.
-- `styles` — `true` adds the Excel style of every cell and the pieces of its text formatted with fonts of their own; see
-  [Style of a Cell](#style-of-a-cell).
+- `styles` — `true` adds the Excel styles the cells use, each once, and names the style of every cell and of the pieces
+  of its text formatted with fonts of their own; see [Style of a Cell](#style-of-a-cell).
 - `tableTheme` — the identifier of a table theme. Reports, for a table of any kind but `Other`, the look that the theme
   gives every cell in place of its Excel style, with or without `styles=true`; see [Table Theme](#table-theme). An
   empty value draws no theme, as the empty setting draws the formatting of the Excel file. Only with `raw=true`.
@@ -71,6 +71,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   `Actions`, `Returns`, `Environment`, `Properties`, or `Other`.
 - `source` — the matrix of cells. The first row is the header of the table, followed by its properties and the body.
   An empty list for a window that starts past the last row.
+- `styles` — the Excel styles the cells of the read use, each once, with `styles=true` or `tableTheme`. A cell and a
+  piece of its text name their style by its index in this list. Read-only.
 - `pos` — the position of the table on its sheet, such as `B4:D12`. Read-only.
 - `totalRows` — the number of rows of the table when the window leaves rows out. Read-only.
 - `headerHeight` — the number of rows at the top that the header takes: the header line, the properties, and the
@@ -90,8 +92,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   address.
 - `formula` — the formula of the cell, such as `=B2*C2`, next to the `value` it computed. Read-only.
 - `comment` — the note that a reader left on the cell. Read-only.
-- `style` — the Excel style of the cell, with `styles=true`, or the look the table theme gives it, with `tableTheme`.
-  Read-only.
+- `style` — the index in `styles` of the Excel style of the cell, with `styles=true`, or of the look the table theme
+  gives it, with `tableTheme`. Absent for a cell in no style at all. Read-only.
 - `runs` — the pieces of the text formatted with fonts of their own, with `styles=true` or `tableTheme`, when the text
   does not take the font of the cell; see [Style of a Cell](#style-of-a-cell). Read-only.
 - `metaInfo` — what the compiler knows about the cell, with `metaInfo=true`. Read-only.
@@ -110,14 +112,19 @@ A client reads the matrix row by row and skips the covered cells.
 
 ### Style of a Cell
 
-The `style` of a cell leaves out an attribute that has its default value:
+A read sends each style once: `styles` lists the styles its cells use, and a cell names its style by its index in the
+list. A table of thousands of cells in a few styles sends those few. A style leaves out an attribute that has its
+default value:
 
 - `background`, `color` — `#rrggbb`. The default background is white and the default font colour is black.
 - `align`, `valign` — the horizontal and the vertical alignment.
 - `bold`, `italic`, `underline`, `strikeout` — `true` for the font attribute.
 - `indent` — the left indent in Excel units.
 - `border` — the borders by side. Each side the workbook draws has its `style` (`solid`, `dashed`, `dotted`, `double`),
-  its `width` in pixels, and its `color`, absent when black. A side without a border is absent.
+  its `width` in pixels, and its `color`, absent when black. A side without a border is absent. Each cell reports the
+  borders it has itself, so a line two cells share may be reported by both of them, or by either; a client draws the
+  wider line, as Excel does. A read of some rows reports the lines of its own cells only, so the line between two
+  windows of rows is the one the cells on either side of it draw.
 - `fontFamily`, `fontSize` — set by the table theme only. A style read from the workbook has neither.
 - `backgroundKey`, `colorKey` — the key of the table theme file the background and the font colour are set at,
   beside the colour itself: the base or the kind, the part and the attribute, such as
@@ -130,19 +137,23 @@ The `style` of a cell leaves out an attribute that has its default value:
   the workbook; absent for the style the workbook holds, `workbook`. The style of a run names its source the same way.
 
 A text formatted in pieces, such as a header with a grey keyword and a bold name, is read as `runs`, and so is a text
-formatted whole in a font of its own, as one run. Put together, the texts of the runs give the text of the cell as the
-workbook writes it, spaces around the value included. A run with a `style` draws its text with that style alone: an
-attribute absent from it is at its default rather than taken from the cell. A run without a `style` takes the font of
-the cell.
+formatted whole in a font of its own, as one run. A run names `to`, the index in the text of the cell after its last
+character: it starts where the run before it ends, the first one at the start of the text, and the runs together cover
+the text of the cell as the workbook writes it, spaces around the value included. The text is not repeated. A run with
+a `style` draws its text with that style alone, named by its index in `styles`: an attribute absent from it is at its
+default rather than taken from the cell. A run without a `style` takes the font of the cell.
 
 ```json
 {
-  "cell": "B2",
-  "value": "Datatype Commission",
-  "runs": [
-    {"text": "Datatype", "style": {"color": "#808080"}},
-    {"text": " "},
-    {"text": "Commission", "style": {"bold": true}}
+  "styles": [{"color": "#808080"}, {"bold": true}],
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Datatype Commission",
+        "runs": [{"to": 8, "style": 0}, {"to": 9}, {"to": 19, "style": 1}]
+      }
+    ]
   ]
 }
 ```
@@ -387,15 +398,13 @@ GET /rest/projects/{projectId}/tables/{tableId}/themes[?module=...]
 place of the formatting of the workbook, and every other cell with its Excel style, as `styles=true` reads it:
 
 - `style` — the cell style with the attributes the theme sets laid over it, each colour of the theme with its key, and
-  `source` set to `theme`.
+  `source` set to `theme`, named in `styles` as every style is.
 - `runs` — the pieces the theme formats the header text in, each style of theirs with `source` set to `theme`. Any
   other text the workbook formats in pieces keeps them where the theme sets nothing of the font of the cell, and is
   drawn in the font of the theme otherwise, as writing the theme gives.
 
-A line two cells of the table share is reported on the upper or the left cell, as the cell styles report the lines a
-workbook holds: the line the theme draws over a section of a Spreadsheet is the `bottom` of the cells above it. A read
-of some rows reports the line over the row under them on its last row as well, while the first row of the next rows
-keeps it: the rows read one window after another draw the line as the whole table does.
+Each cell reports the lines the theme draws on it, as the cell styles report the lines a workbook holds: the line the
+theme draws over a section of a Spreadsheet is the `top` of the cells of the section.
 
 The parts of a table are the ones the compiler read. A table it read none of, such as a Data, a Test or a Run table
 whose type or tested table is missing, has no parts OpenL knows: the cells of its body take the base look of the

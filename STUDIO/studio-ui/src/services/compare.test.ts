@@ -69,6 +69,20 @@ describe('compare service', () => {
         expect(readTaskResult).toHaveBeenCalledWith('/compare/cmp-1/tables/0-1', undefined, OPTIONS)
     })
 
+    it('reads each side of a table with the style every cell names', async () => {
+        vi.mocked(readTaskResult).mockResolvedValue(jsonResponse({
+            id: '0-1',
+            name: 'Rules',
+            status: 'changed',
+            first: { source: [[{ cell: 'B2', style: 0, value: 'x' }]], styles: [{ bold: true }], changedCells: ['B2'] },
+        }))
+
+        const table = await getComparisonTable('cmp-1', '0-1')
+
+        expect(table.first).toEqual({ source: [[{ cell: 'B2', style: { bold: true }, value: 'x' }]], changedCells: ['B2'] })
+        expect(table).not.toHaveProperty('second')
+    })
+
     it('releases the comparison', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 

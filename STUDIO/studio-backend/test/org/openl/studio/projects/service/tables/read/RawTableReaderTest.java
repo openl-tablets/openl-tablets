@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -29,6 +30,8 @@ import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
+import org.openl.studio.projects.service.tables.StyledRead;
+import org.openl.studio.projects.service.tables.StyledRead.StyledRun;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.write.RawTableWriter;
 
@@ -75,7 +78,7 @@ class RawTableReaderTest {
                 "the default read must carry no cell styles");
 
         // With styles requested, the shape is unchanged and Excel formatting is attached.
-        var styled = new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build());
+        var styled = new StyledRead(new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build()));
         assertEquals(plain.source.size(), styled.source.size());
         assertTrue(styled.source.stream().flatMap(List::stream).anyMatch(c -> c.style() != null),
                 "a styled read must attach at least one cell style");
@@ -255,12 +258,12 @@ class RawTableReaderTest {
             sheet.getRow(2).getCell(1).setCellStyle(closed);
         });
 
-        var source = new RawTableReader().read(TableTestProjects.table(model, "Greeting"), RawTableRead.builder()
+        var source = new StyledRead(new RawTableReader().read(TableTestProjects.table(model, "Greeting"), RawTableRead.builder()
                 .withStyles(true)
-                .build()).source;
+                .build())).source;
 
         var runs = source.getFirst().getFirst().runs();
-        assertEquals(List.of("Datatype ", "Greeting"), runs.stream().map(RawTableTextRun::text).toList());
+        assertEquals(List.of("Datatype ", "Greeting"), runs.stream().map(StyledRun::text).toList());
         assertEquals("#808080", runs.getFirst().style().color());
         assertEquals(Boolean.TRUE, runs.get(1).style().bold());
         var bottom = source.get(1).getFirst().style().border().bottom();
@@ -268,6 +271,69 @@ class RawTableReaderTest {
         assertNull(source.get(1).getFirst().style().border().top(),
                 "A side the workbook draws nothing on has no border");
         assertNull(source.get(1).get(1).style(), "A cell the workbook draws no border around carries none");
+    }
+
+    @Test
+    void namesEachStyleOnceAndEachPieceOfTextByWhereItEnds(@TempDir Path tempDir) throws Exception {
+        var model = TableTestProjects.projectModel(tempDir.resolve("shared"), "Shared", sheet -> {
+            var workbook = (XSSFWorkbook) sheet.getWorkbook();
+            var bold = workbook.createFont();
+            bold.setBold(true);
+            var header = new XSSFRichTextString("Datatype Greeting");
+            header.applyFont(9, 17, bold);
+            sheet.createRow(1).createCell(1).setCellValue(header);
+            var filled = workbook.createCellStyle();
+            filled.setFillForegroundColor(new XSSFColor(new byte[]{(byte) 0xDD, (byte) 0xEB, (byte) 0xF7}));
+            filled.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            for (var row = 2; row < 5; row++) {
+                TableTestProjects.row(sheet, row, 1, "String", "code" + row);
+                sheet.getRow(row).getCell(2).setCellStyle(filled);
+            }
+        });
+        var table = TableTestProjects.table(model, "Greeting");
+
+        var view = new RawTableReader().read(table, RawTableRead.builder().withStyles(true).build());
+
+        var names = view.source.subList(1, 4).stream().map(row -> row.get(1).style()).distinct().toList();
+        assertEquals(1, names.size(), "Three cells of one style name one entry");
+        assertEquals("#ddebf7", view.styles.get(names.getFirst()).background());
+        assertNull(view.source.get(1).getFirst().style(), "A cell in no style names none");
+        var runs = view.source.getFirst().getFirst().runs();
+        assertEquals(List.of(9, 17), runs.stream().map(RawTableTextRun::to).toList(), "Each piece ends where it ends");
+        assertNull(runs.getFirst().style(), "A piece in the font of the cell names no style");
+        assertEquals(Boolean.TRUE, view.styles.get(runs.get(1).style()).bold());
+        assertEquals(view.styles.size(), view.styles.stream().distinct().count(), "No style is named twice");
+
+        var plain = new RawTableReader().read(table, RawTableRead.builder().build());
+        assertNull(plain.styles, "A read of the values names no styles");
+        assertNull(plain.source.getFirst().getFirst().runs());
+        var cells = new RawTableReader().readCells(table, true);
+        assertEquals(view.styles, cells.styles(), "A matrix read alone names its styles the same way");
+        assertNull(new RawTableReader().readCells(table, false).styles());
+    }
+
+    @Test
+    void readsALineTwoCellsShareOnEachCellThatDrawsIt(@TempDir Path tempDir) throws Exception {
+        var model = TableTestProjects.projectModel(tempDir.resolve("lines"), "Lines", sheet -> {
+            var workbook = sheet.getWorkbook();
+            TableTestProjects.row(sheet, 1, 1, "Datatype Lines");
+            TableTestProjects.row(sheet, 2, 1, "String", "first");
+            TableTestProjects.row(sheet, 3, 1, "String", "second");
+            var over = workbook.createCellStyle();
+            over.setBorderTop(BorderStyle.MEDIUM);
+            sheet.getRow(3).getCell(1).setCellStyle(over);
+            var under = workbook.createCellStyle();
+            under.setBorderBottom(BorderStyle.THIN);
+            sheet.getRow(2).getCell(2).setCellStyle(under);
+        });
+
+        var source = new StyledRead(new RawTableReader().read(TableTestProjects.table(model, "Lines"),
+                RawTableRead.builder().withStyles(true).build())).source;
+
+        assertEquals(2, source.get(2).getFirst().style().border().top().width(), "The lower cell draws its line");
+        assertNull(source.get(1).getFirst().style(), "The upper cell draws none, so it reports none");
+        assertEquals(1, source.get(1).get(1).style().border().bottom().width(), "The upper cell draws its line");
+        assertNull(source.get(2).get(1).style(), "The lower cell draws none, so it reports none");
     }
 
     private static List<String> cellAddresses(List<RawTableCell> row) {

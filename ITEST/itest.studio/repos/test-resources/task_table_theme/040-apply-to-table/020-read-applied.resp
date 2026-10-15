@@ -13,36 +13,19 @@ Content-Type: application/json
         "cell": "B2",
         "value": "Datatype Person",
         "colspan": 3,
-        "style": {
-          "align": "center",
-          "valign": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        },
+        "style": 0,
         "runs": [
           {
-            "text": "Datatype",
-            "style": {
-              "color": "#808080"
-            }
+            "to": 8,
+            "style": 1
           },
           {
-            "text": " ",
-            "style": {}
+            "to": 9,
+            "style": 2
           },
           {
-            "text": "Person",
-            "style": {
-              "bold": true
-            }
+            "to": 15,
+            "style": 3
           }
         ]
       },
@@ -57,96 +40,102 @@ Content-Type: application/json
       {
         "cell": "B3",
         "value": "String",
-        "style": {
-          "color": "#808080",
-          "valign": "center"
-        }
+        "style": 4
       },
       {
         "cell": "C3",
         "value": "name",
-        "style": {
-          "background": "#ddebf7",
-          "valign": "center"
-        }
+        "style": 5
       },
       {
         "cell": "D3",
         "value": "Bob",
-        "style": {
-          "color": "#808080",
-          "valign": "center"
-        }
+        "style": 4
       }
     ],
     [
       {
         "cell": "B4",
         "value": "Double",
-        "style": {
-          "color": "#808080",
-          "valign": "center"
-        }
+        "style": 4
       },
       {
         "cell": "C4",
         "value": "rate",
-        "style": {
-          "background": "#ddebf7",
-          "valign": "center"
-        }
+        "style": 5
       },
       {
         "cell": "D4",
-        "style": {
-          "color": "#808080",
-          "valign": "center"
-        }
+        "style": 4
       }
     ],
     [
       {
         "cell": "B5",
         "value": "Integer",
-        "style": {
-          "color": "#808080",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       },
       {
         "cell": "C5",
         "value": "age",
-        "style": {
-          "background": "#ddebf7",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 7
       },
       {
         "cell": "D5",
-        "style": {
-          "color": "#808080",
-          "valign": "center",
-          "border": {
-            "bottom": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 6
       }
     ]
+  ],
+  "styles": [
+    {
+      "align": "center",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {},
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center"
+    },
+    {
+      "background": "#ddebf7",
+      "valign": "center"
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#ddebf7",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
   ],
   "headerHeight": 1
 }

@@ -8,30 +8,7 @@ Content-Type: application/json
         "cell": "B2",
         "value": "Rules Double BankLimitIndexCopy (Bank bank, RatingGroup bankRatingGroup)",
         "colspan": 11,
-        "style": {
-          "background": "#ddd9c3",
-          "color": "#4a452a",
-          "align": "center",
-          "border": {
-            "top": {
-              "style": "solid",
-              "width": 1
-            },
-            "right": {
-              "style": "solid",
-              "width": 1
-            },
-            "bottom": {
-              "style": "solid",
-              "width": 1,
-              "color": "#c4bd97"
-            },
-            "left": {
-              "style": "solid",
-              "width": 1
-            }
-          }
-        }
+        "style": 0
       },
       {
         "covered": true
@@ -64,5 +41,31 @@ Content-Type: application/json
         "covered": true
       }
     ]
+  ],
+  "styles": [
+    {
+      "background": "#ddd9c3",
+      "color": "#4a452a",
+      "align": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "right": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1,
+          "color": "#c4bd97"
+        },
+        "left": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
   ]
 }

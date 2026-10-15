@@ -146,16 +146,6 @@ final class ThemeStyles {
     }
 
     /**
-     * The line a look draws over a cell, as a read reports it, or {@code null} when the look draws none there.
-     *
-     * @param theme the look of the cell
-     * @return the line over the cell
-     */
-    static @Nullable RawTableCellBorderSide topLine(ThemeStyle theme) {
-        return Optional.ofNullable(theme.border()).map(ThemeBorder::top).map(ThemeStyles::reported).orElse(null);
-    }
-
-    /**
      * A line as a read reports it: the line the workbook draws once the theme is written, or none at all. A line of a
      * colour the theme file sets keeps the key it is set at.
      */

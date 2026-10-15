@@ -1,6 +1,7 @@
 package org.openl.rules.tableeditor.model.ui;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.CompositeGrid;
@@ -14,6 +15,9 @@ import org.openl.rules.table.ui.ICellStyle;
 /** Lays a table's region out place by place, so that every place of the grid says what stands there. */
 @RequiredArgsConstructor
 class TableViewer {
+
+    /** The sides of a cell, in the order a style names their borders. */
+    private static final int[] SIDES = {ICellStyle.TOP, ICellStyle.RIGHT, ICellStyle.BOTTOM, ICellStyle.LEFT};
 
     private final IGrid grid;
     private final IGridRegion reg;
@@ -131,146 +135,36 @@ class TableViewer {
         return intersect != null ? GridRegionUtils.height(intersect) : 1;
     }
 
+    /**
+     * Gives every cell the borders it has itself. A line two cells share may be named by both of them, or by either:
+     * the screen draws the wider one, as Excel does. A side of a merged cell takes the border of the cells along that
+     * edge, a border drawn on one of them winning over the others drawing none.
+     */
     void setGrid(TableModel tm) {
-        var width = GridRegionUtils.width(reg);
-
-        for (var i = 0; i <= width; i++) {
-            setVerticalBorder(i, tm);
-        }
-
-        var height = tm.getHeight();
-
-        for (var i = 0; i <= height; i++) {
-            setHorizontalBorder(i, tm);
-        }
-
-    }
-
-    void setHorizontalBorder(int row, TableModel tm) {
-        var width = GridRegionUtils.width(reg);
         var left = reg.getLeft();
         var top = reg.getTop();
-
-        for (var i = 0; i < width; i++) {
-            ICellStyle ts = row + top - 1 < 0 ? null : grid.getCell(i + left, row + top - 1).getStyle();
-            var bs = grid.getCell(i + left, row + top).getStyle();
-
-            CellModel cmTop = ts == null ? null : tm.findCellModel(i, row - 1, ICellStyle.BOTTOM);
-            CellModel cmBottom = bs == null ? null : tm.findCellModel(i, row, ICellStyle.TOP);
-
-            if (cmTop == null && cmBottom == null) {
-                continue;
-            }
-
-            BorderStyle tStyle = ts != null ? getBorderStyle(ts, ICellStyle.BOTTOM) : null;
-            BorderStyle bStyle = bs != null ? getBorderStyle(bs, ICellStyle.TOP) : null;
-
-            var borderWidth = width(tStyle, bStyle);
-            var bstyle = shared(tStyle, bStyle, borderWidth);
-
-            setBorder(borderWidth, bstyle, cmTop, ICellStyle.BOTTOM, cmBottom, ICellStyle.TOP);
-        }
-
-    }
-
-    void setVerticalBorder(int column, TableModel tm) {
-        var height = tm.getHeight();
-        var left = reg.getLeft();
-        var top = reg.getTop();
-
-        for (var i = 0; i < height; i++) {
-            ICellStyle ls = column + left - 1 < 0 ? null : grid.getCell(column + left - 1, i + top).getStyle();
-            var rs = grid.getCell(column + left, i + top).getStyle();
-
-            CellModel cmLeft = ls == null ? null : tm.findCellModel(column - 1, i, ICellStyle.RIGHT);
-            CellModel cmRight = rs == null ? null : tm.findCellModel(column, i, ICellStyle.LEFT);
-
-            if (cmLeft == null && cmRight == null) {
-                continue;
-            }
-
-            BorderStyle lStyle = ls != null ? getBorderStyle(ls, ICellStyle.RIGHT) : null;
-            BorderStyle rStyle = rs != null ? getBorderStyle(rs, ICellStyle.LEFT) : null;
-
-            var borderWidth = width(lStyle, rStyle);
-            var bstyle = shared(lStyle, rStyle, borderWidth);
-
-            setBorder(borderWidth, bstyle, cmLeft, ICellStyle.RIGHT, cmRight, ICellStyle.LEFT);
-        }
-
-    }
-
-    /**
-     * Sets the border between two adjacent cells: the first one is above or on the left, the second one is below or
-     * on the right, and at least one of them is present. Each side is the side of its cell facing the other cell.
-     * <p>
-     * A single border goes to the first cell if it is present, otherwise to the second one. A double border goes to
-     * the only present cell; when both cells are present, each of them gets a single border.
-     */
-    private static void setBorder(int borderWidth,
-                                  BorderStyle bstyle,
-                                  CellModel first,
-                                  int firstSide,
-                                  CellModel second,
-                                  int secondSide) {
-        switch (borderWidth) {
-            case 0 -> { /* No border */ }
-            case 1 -> {
-                if (first == null) {
-                    second.setBorderStyle(bstyle, secondSide);
-                } else {
-                    first.setBorderStyle(bstyle, firstSide);
+        for (var row = 0; row < tm.getHeight(); row++) {
+            for (var column = 0; column < GridRegionUtils.width(reg); column++) {
+                var style = grid.getCell(column + left, row + top).getStyle();
+                if (style != null) {
+                    for (var side : SIDES) {
+                        setBorder(tm.findCellModel(column, row, side), side, getBorderStyle(style, side));
+                    }
                 }
             }
-            case 2 -> {
-                if (first == null) {
-                    second.setBorderStyle(bstyle, secondSide);
-                } else if (second == null) {
-                    first.setBorderStyle(bstyle, firstSide);
-                } else {
-                    var half = new BorderStyle(1, bstyle.getStyle(), bstyle.getRgb());
-                    second.setBorderStyle(half, secondSide);
-                    first.setBorderStyle(half, firstSide);
-                }
-            }
-            default -> { /* getBorderStyle gives no border wider than 2 */ }
         }
     }
 
-    /**
-     * The border two cells share, at least one of them present. Where neither cell has a border, it is
-     * {@link BorderStyle#NONE} itself, so a reader of the cell can tell the line of the grid from a border the
-     * workbook draws.
-     */
-    private static BorderStyle shared(BorderStyle bs1, BorderStyle bs2, int borderWidth) {
-        var drawn = dominant(bs1, bs2);
-        return drawn == BorderStyle.NONE ? BorderStyle.NONE
-                : new BorderStyle(borderWidth, drawn.getStyle(), drawn.getRgb());
-    }
-
-    int width(BorderStyle bs1, BorderStyle bs2) {
-        if (bs1 == null && bs2 == null) {
-            return 0;
+    /** Sets a side of a cell, unless the side already holds a border the workbook draws and the new one is none. */
+    private static void setBorder(@Nullable CellModel model, int side, BorderStyle border) {
+        if (model == null) {
+            return;
         }
-
-        if (bs1 == null) {
-            return bs2.getWidth();
+        var sides = model.getBorderStyle();
+        var current = sides == null ? null : sides[side];
+        if (border != BorderStyle.NONE || current == null) {
+            model.setBorderStyle(border, side);
         }
-        return bs2 == null ? bs1.getWidth() : Math.max(bs1.getWidth(), bs2.getWidth());
-    }
-
-    /**
-     * Picks the style drawn on a border two cells share: the first one, unless it is missing or it is
-     * {@link BorderStyle#NONE} while the second one is present.
-     */
-    private static BorderStyle dominant(BorderStyle bs1, BorderStyle bs2) {
-        if (bs1 == null) {
-            return bs2;
-        }
-        if (bs2 == null) {
-            return bs1;
-        }
-        return bs1 == BorderStyle.NONE ? bs2 : bs1;
     }
 
 }

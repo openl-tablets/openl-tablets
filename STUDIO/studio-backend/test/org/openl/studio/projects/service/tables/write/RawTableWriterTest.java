@@ -56,6 +56,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.theme.TableThemeService;
@@ -195,7 +196,7 @@ class RawTableWriterTest {
         assertEquals("#ddebf7", styleOf(source, 1, 1).background(), "The field names take the look of their column");
         assertNull(styleOf(source, 2, 0).border(), "A row before the last is not closed");
         assertNotNull(styleOf(source, 3, 0).border().bottom(), "The last row is closed");
-        assertEquals("alpha", value(source, 1, 2), "The theme changes no value");
+        assertEquals("alpha", styledValue(source, 1, 2), "The theme changes no value");
     }
 
     @Test
@@ -204,7 +205,7 @@ class RawTableWriterTest {
 
         // The table had no properties: the note of the edit lays them down after the theme, and they take it too.
         var source = reloadStyled(mainProject);
-        assertEquals("modifiedBy", value(source, 1, 1));
+        assertEquals("modifiedBy", styledValue(source, 1, 1));
         var property = styleOf(source, 1, 2);
         assertNotNull(property, "The properties take the theme");
         assertNotNull(property.border().bottom(), "The properties are closed by a line");
@@ -224,7 +225,7 @@ class RawTableWriterTest {
 
         // The note adds its property over the one the table declares: one line still closes the properties.
         var source = reloadStyled(described);
-        assertEquals("modifiedBy", value(source, 1, 1));
+        assertEquals("modifiedBy", styledValue(source, 1, 1));
         assertNull(styleOf(source, 1, 2).border(), "No line between two properties");
         assertNotNull(styleOf(source, 2, 2).border().bottom(), "The properties are closed by a line");
     }
@@ -268,7 +269,7 @@ class RawTableWriterTest {
 
         // The note lays the properties down under the header, and the code moves down under them with its look.
         var source = reloadStyled(rules);
-        assertEquals("modifiedBy", value(source, 1, 1));
+        assertEquals("modifiedBy", styledValue(source, 1, 1));
         assertNotEquals(RawTableHorizontalAlign.CENTER, styleOf(source, 1, 0).align(),
                 "The properties are not centred as the code is");
         assertNotNull(styleOf(source, 1, 2).border().bottom(), "The properties are closed by a line");
@@ -1517,11 +1518,11 @@ class RawTableWriterTest {
     }
 
     /** The table read back with the styling attached, which the plain read leaves out. */
-    private List<List<RawTableCell>> reloadStyled(Path project) {
+    private List<List<StyledCell>> reloadStyled(Path project) {
         return TableTestProjects.styledSource(load(project));
     }
 
-    private static RawTableCellStyle styleOf(List<List<RawTableCell>> source, int row, int col) {
+    private static RawTableCellStyle styleOf(List<List<StyledCell>> source, int row, int col) {
         return source.get(row).get(col).style();
     }
 
@@ -1531,6 +1532,10 @@ class RawTableWriterTest {
     }
 
     private static Object value(List<List<RawTableCell>> source, int row, int col) {
+        return source.get(row).get(col).value();
+    }
+
+    private static Object styledValue(List<List<StyledCell>> source, int row, int col) {
         return source.get(row).get(col).value();
     }
 
