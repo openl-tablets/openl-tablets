@@ -1,6 +1,6 @@
 import React from 'react'
 import { Tooltip } from 'antd'
-import { useTheme } from 'antd-style'
+import { useTheme, useThemeMode } from 'antd-style'
 import type {
     RawTableCell,
     RawTableCellBorder,
@@ -15,7 +15,11 @@ import { themePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, roleColoursOf, useStyles } from './RawTableGrid.styles'
 import { borders, collapsedBorders, indentOf, textDecoration, tinted } from './rawTableStyle'
 import { useAppTheme } from '../providers/AppThemeProvider'
-import { type CellRole, cellRoleOf, onPaper, roleLinesOf, type RoleLines, type TableRoles } from './tableRoles'
+import { type CodeHighlighter, useCodeHighlighter } from '../hooks/useCodeHighlighter'
+import type { CodePiece } from '../utils/codeHighlight'
+import {
+    type CellRole, cellRoleOf, holdsCode, onPaper, roleLinesOf, type RoleLines, type TableRoles,
+} from './tableRoles'
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -160,6 +164,31 @@ const studioCellStyle = (role: CellRole | undefined, style: RawTableCell['style'
     ...borders(border, muted, ink),
 })
 
+/** The roles that hold the values of a table, which the Studio look colours by their type. */
+const VALUED: ReadonlySet<string> = new Set(['value', 'output', 'result'])
+
+/**
+ * The class a value takes in the Studio look by its type: a number and a date in the hue of a number, a boolean and a
+ * text in their own. Code is highlighted piece by piece instead, and a cell of no role or no type keeps the colour of
+ * its role.
+ */
+const typeClassOf = (role: CellRole | undefined, styles: RawTableGridStyles): string | false => {
+    if (role === undefined || !VALUED.has(role.region.role)) {
+        return false
+    }
+    switch (role.type) {
+        case 'number':
+        case 'date':
+            return styles.numberValue
+        case 'boolean':
+            return styles.booleanValue
+        case 'string':
+            return styles.stringValue
+        default:
+            return false
+    }
+}
+
 /** The classes a cell takes from its role in the Studio look: its text, and its fill unless the screen paints it. */
 const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles, painted: boolean,
     muted: boolean): Array<string | false> => {
@@ -185,6 +214,7 @@ const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles, p
     return [
         styles.studioCell,
         name !== undefined && text[name],
+        typeClassOf(role, styles),
         !painted && !muted && name !== undefined && name in fill && fill[name as keyof typeof fill],
         muted && styles.mutedRole,
     ]
@@ -213,13 +243,45 @@ const signatureRuns = (text: string, pieces: RawTableSignaturePiece[], faint: st
     })
 }
 
+/** A piece of highlighted code as a piece of the text of a cell, in the colour and the font the highlighter gives it. */
+const codeRunOf = ({ text, style }: CodePiece, bold: boolean): RawTableTextRun => {
+    if (style === undefined) {
+        return { text }
+    }
+    const decoration = String(style.textDecoration ?? style.textDecorationLine ?? '')
+    const font: RawTableCellStyle = {
+        ...(typeof style.color === 'string' && { color: style.color }),
+        ...((bold || style.fontWeight === 'bold') && { bold: true }),
+        ...(style.fontStyle === 'italic' && { italic: true }),
+        ...(decoration.includes('underline') && { underline: true }),
+        ...(decoration.includes('line-through') && { strikeout: true }),
+    }
+    return { text, style: font }
+}
+
 /**
- * A cell as the Studio look writes its text: the header in the pieces of its signature, any other text in the font of
- * the cell, whatever pieces the workbook formats it in.
+ * The pieces of the code a cell holds, as the code editor of the theme highlights them, or undefined for a cell that
+ * holds no code. A piece takes the weight of the cell, which a result is drawn in.
+ */
+const codeRunsOf = (cell: RawTableCell, role: CellRole | undefined, roles: TableRoles, highlighter: CodeHighlighter,
+    theme: { name: Parameters<CodeHighlighter['highlight']>[2], dark: boolean }): RawTableTextRun[] | undefined => {
+    if (role === undefined || !holdsCode(role) || typeof cell.value !== 'string') {
+        return undefined
+    }
+    const bold = role.region.role === 'result'
+    return highlighter.highlight(cell.value, roles.language, theme.name, theme.dark)?.map(piece => codeRunOf(piece, bold))
+}
+
+/**
+ * A cell as the Studio look writes its text: the header in the pieces of its signature, code in the pieces the code
+ * editor highlights, any other text in the font of the cell, whatever pieces the workbook formats it in.
  */
 const studioTextOf = (cell: RawTableCell, role: CellRole | undefined, roles: TableRoles | undefined,
-    faint: string): RawTableCell => {
+    faint: string, code: RawTableTextRun[] | undefined): RawTableCell => {
     const { runs, ...plain } = cell
+    if (code !== undefined) {
+        return { ...plain, runs: code }
+    }
     const header = role?.region.role === 'signature' && role.place.row === 0 && role.place.column === 0
     if (!header || roles === undefined || roles.signature.length === 0 || typeof cell.value !== 'string') {
         return runs === undefined ? cell : plain
@@ -287,7 +349,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     roles,
     testId,
 }) => {
-    const { excelFormatting } = useAppTheme()
+    const { excelFormatting, themeName } = useAppTheme()
+    const { isDarkMode } = useThemeMode()
     const token = useTheme()
     // The Studio look draws a table by what its cells mean, in the colours of the theme; a table read with no roles,
     // or with the Excel Formatting of the theme menu on, keeps the formatting of its workbook.
@@ -314,6 +377,16 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const cellRoles = React.useMemo(() => (studio && roles !== undefined
         ? rows.map(row => row.map(cell => (cell.covered ? undefined : cellRoleOf(roles, cell.cell, cell.type))))
         : undefined), [roles, rows, studio])
+    // The grammars of the code editor are loaded with the first table holding code, and each code cell is highlighted
+    // once for the rows and the theme it is drawn in.
+    const hasCode = React.useMemo(() => cellRoles?.some(row => row.some(role => role !== undefined && holdsCode(role)))
+        ?? false, [cellRoles])
+    const highlighter = useCodeHighlighter(hasCode)
+    const codeRuns = React.useMemo(() => (cellRoles === undefined || roles === undefined || highlighter === undefined
+        ? undefined
+        : rows.map((row, rowIndex) => row.map((cell, column) => codeRunsOf(cell, cellRoles[rowIndex]?.[column], roles,
+            highlighter, { name: themeName, dark: isDarkMode })))), [cellRoles, highlighter, isDarkMode, roles, rows,
+        themeName])
     // Each line two cells share is drawn once, by the cell above or on the left: in the Studio look the lines of the
     // roles, in the formatting of the workbook the borders of the cells.
     const borderLines = React.useMemo(() => collapsedBorders(rows, cellRoles === undefined || roles === undefined
@@ -385,7 +458,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                     ? studioCellStyle(role, cell.style, border, muted, laidOn.text)
                                     : cellStyle(cell.style, border, painted, muted, laidOn.text)}
                             >
-                                {decoration?.content ?? cellText(studio ? studioTextOf(cell, role, roles, look.faint)
+                                {decoration?.content ?? cellText(studio
+                                    ? studioTextOf(cell, role, roles, look.faint, codeRuns?.[rowIndex]?.[columnIndex])
                                     : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage)}
                             </td>
                         )

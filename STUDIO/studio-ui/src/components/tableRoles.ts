@@ -48,6 +48,8 @@ export interface TableRoles {
     groupColumns: ReadonlySet<number>
     /** The pieces of the header text. */
     signature: RawTableSignaturePiece[]
+    /** The language the code of the table is written in: the steps of a TBasic table, or an OpenL expression. */
+    language: 'openl' | 'tbasic'
     /** Where the table starts on its sheet. */
     origin: Place
     /** The last row of the table, in table coordinates. */
@@ -60,7 +62,8 @@ export interface TableRoles {
  * The roles of the cells of a table a read reports, or undefined for a table read with no roles: a table of the
  * kind Other, or a read of the values alone.
  */
-export const rolesOf = (view: Pick<RawTableView, 'pos' | 'regions' | 'groups' | 'signature'>): TableRoles | undefined => {
+export const rolesOf = (view: Pick<RawTableView, 'kind' | 'pos' | 'regions' | 'groups' | 'signature'>):
+    TableRoles | undefined => {
     const origin = placeOf(view.pos?.split(':')[0])
     if (view.regions === undefined || view.regions.length === 0 || origin === undefined) {
         return undefined
@@ -77,6 +80,7 @@ export const rolesOf = (view: Pick<RawTableView, 'pos' | 'regions' | 'groups' | 
         groupRows: new Set(view.groups?.rows ?? []),
         groupColumns: new Set(view.groups?.columns ?? []),
         signature: view.signature ?? [],
+        language: view.kind === 'TBasic' ? 'tbasic' : 'openl',
         origin,
         bottom,
         buckets,
@@ -118,6 +122,12 @@ export const cellRoleOf = (roles: TableRoles, address: string | undefined, own: 
     const region = place === undefined ? undefined : regionAt(roles, place)
     return place === undefined || region === undefined ? undefined : { region, place, type: own ?? region.type }
 }
+
+/**
+ * Whether a cell holds code, which the Studio look highlights as the code editor does: a declaration the compiler
+ * reads, or a value the compiler reads as an expression.
+ */
+export const holdsCode = (cell: CellRole): boolean => cell.region.role === 'code' || cell.type === 'code'
 
 /** The lines the Studio look draws, in the colours of the theme. */
 export interface RoleLines {

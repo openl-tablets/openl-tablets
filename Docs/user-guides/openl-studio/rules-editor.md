@@ -273,6 +273,12 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
         A line sets apart the rules that share a merged value of a condition, and the columns of a lookup that share a
         merged value.
     -   A number and a date are aligned to the right, and a line under the last row closes the table.
+    -   Code is highlighted as the code editor of the theme highlights it: an expression, such as a formula of a
+        Spreadsheet, the code the compiler reads, such as `C1` and `RET1`, the body of a Method table, and the steps of
+        a TBasic table, its operations such as `IF` and `END IF` included.
+    -   A value is coloured by its type, in the colours the code editor of the theme gives values: a number and a
+        date in one colour, a boolean and a text each in another. A value is coloured whole, such as `2026-10-15`,
+        `$1,000`, or `10%`.
 
     A table of the type **Other** is drawn as the Excel file formats it.
 

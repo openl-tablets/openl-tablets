@@ -91,10 +91,11 @@ The build writes two pages (`build.rollupOptions.input`):
   an address of its own, so it is not under `CONFIG.API_ROOT`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
   with; Mermaid is a chunk of its own, loaded with the first diagram, and so are the code grammars and the colour
-  schemes of the code editor, shared with it and loaded with the first code block (`HighlightedCode`). The guides are
-  files rather than REST, so `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of
-  `apiCall`. The syntax a page may use is set by the validator of `STUDIO/studio-docs`, see
-  `Docs/architecture/embedded-user-guides.md`. The search indexes the pages in a module worker
+  schemes of the code editor, shared with it and loaded with the first code block (`HighlightedCode`) or the first
+  table holding code (`useCodeHighlighter` of `hooks/`). The guides are files rather than REST, so
+  `services/userGuides.ts` reads them with `fetch` from `${CONFIG.CONTEXT}/docs` instead of `apiCall`. The syntax a
+  page may use is set by the validator of `STUDIO/studio-docs`, see `Docs/architecture/embedded-user-guides.md`. The
+  search indexes the pages in a module worker
   (`guideSearch.worker.ts`), and on the page itself where no worker starts — under `_REACT_UI_ROOT_` the scripts come
   from another origin than the page, so the fallback is what a developer sees. A worker has no DOM: code it imports must
   not touch `document`, which `vite.config.ts` enforces for the one package that does (`domlessEntityDecoder`), and
@@ -184,8 +185,10 @@ The build writes two pages (`build.rollupOptions.input`):
   `codeHighlight.test.ts` keep the copies in step. Adding a theme means an entry in `THEMES` and in `SCHEMES`
   (both appearances) plus its name in `common.en.ts`; `listPageTheme.test.ts` holds every palette to 4.5:1 for text
   and 3:1 for links and primary buttons. A test draws in a theme through `renderInTheme` and reads a palette
-  through `paletteFor` (`src/testing/theme.tsx`). The code samples of the guides take the theme's highlight style
-  as inline colours (`codeHighlight.ts`), so they look as the same code does in the editor, and every block wears
+  through `paletteFor` (`src/testing/theme.tsx`). The code samples of the guides and the code of a table in the Studio
+  look take the theme's highlight style as inline colours (`utils/codeHighlight.ts`, which adds the `openl` and
+  `tbasic` grammars of OpenL expressions to the languages of the guides), so they look as the same code does in the
+  editor, and every block wears
   the editor's background and text (`codeBlockColors`) from the start, before the grammars load.
   The palette in force also travels as the **`openl` custom token** (`styles/customToken.ts`), so a style that
   needs a real colour reads `token.openl.…` inside `createStyles` instead of importing a palette. A module that
@@ -329,7 +332,9 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       read by `rolesOf` of `components/tableRoles.ts`) in the **Studio look**: by what its cells mean, in the colours
       of the theme (`roleColoursOf` in `RawTableGrid.styles.ts`, the lines of `RoleLines`), keeping of the formatting
       of the workbook only the indent. A cell finds its region by its address (`cellRoleOf`), so a window of rows, a
-      hidden header and a line the reader laid down all draw right. Every text of a role reads on its fill in every
+      hidden header and a line the reader laid down all draw right. Code (`holdsCode`) is highlighted as the code
+      editor of the theme highlights it, as the `runs` of the cell, so a link in it still leads to its table; a value
+      takes the `syntax` hue of its type, a date the hue of a number. Every text of a role reads on its fill in every
       theme, light and dark, as the text of the application does on its surfaces (4.5:1), and a faint text as its
       secondary text (3:1): `RawTableGrid.test.tsx` holds every theme to it. A table read with no roles — a table of
       the kind Other, a side of a comparison, a table of a user guide — and every table while the reader has **Excel

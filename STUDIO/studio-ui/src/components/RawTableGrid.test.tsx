@@ -1,13 +1,15 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { roleColoursOf } from 'components/RawTableGrid.styles'
 import { rolesOf } from 'components/tableRoles'
 import { contrastRatio, opaque } from 'styles/colorMath'
 import { paperToken } from 'styles/paper'
-import { THEME_ORDER } from 'styles/themes'
-import { renderInTheme, tokenFor } from 'testing/theme'
+import { LIST_PAGE_COLORS } from 'styles/listPageTheme'
+import { THEME_ORDER, variantOf } from 'styles/themes'
+import { hex, renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
+import { highlight } from 'utils/codeHighlight'
 
 /** A colour as a style writes it back once the browser has read it. */
 const written = (colour: string): string => {
@@ -414,6 +416,101 @@ describe('RawTableGrid', () => {
             }
             // A faint text reads as the secondary text of the application.
             expect(contrastOn(theme.faint, surface)).toBeGreaterThanOrEqual(3)
+        })
+    })
+
+    describe('code and values in the Studio look', () => {
+        // A Spreadsheet step of a formula, a TBasic-free table: the values of each type and a formula.
+        const steps: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Spreadsheet Double Plan()', colspan: 5 }, { covered: true }, { covered: true },
+                { covered: true }, { covered: true }],
+            [{ cell: 'A2', value: 'Total' }, { cell: 'B2', value: 1200, type: 'number' },
+                { cell: 'C2', value: '2026-10-15', type: 'date' }, { cell: 'D2', value: true, type: 'boolean' },
+                { cell: 'E2', value: '= $Rate * 18', type: 'code' }],
+            [{ cell: 'A3', value: 'C1' }, { cell: 'B3', value: 'North' }, { cell: 'C3', value: 'x', formula: '=1+2' },
+                { cell: 'D3', value: 'y' }, { cell: 'E3', value: 'z' }],
+        ]
+        const rolesOfKind = (kind?: string) => rolesOf({
+            ...(kind !== undefined && { kind }),
+            pos: 'A1:E3',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 4 },
+                { role: 'key', top: 1, left: 0, bottom: 1, right: 0 },
+                { role: 'value', type: 'string', top: 1, left: 1, bottom: 1, right: 4 },
+                { role: 'code', top: 2, left: 0, bottom: 2, right: 0 },
+                { role: 'value', type: 'string', top: 2, left: 1, bottom: 2, right: 4 },
+            ],
+        })
+        const { syntax } = variantOf('standard', false)
+        const cellAt = (address: string) =>
+            screen.getByTestId('grid').querySelector(`td[data-cell="${address}"]`) as HTMLElement
+        /** The colour of the piece of the text of a cell that reads as given. */
+        const colourOf = (address: string, text: string) => hex([...cellAt(address).querySelectorAll('span')]
+            .find(piece => piece.textContent === text)?.style.color)
+        /** The colour the code editor of the theme gives a keyword. */
+        const highlightedKeyword = () =>
+            hex(highlight('if', 'openl', 'standard', false)?.find(piece => piece.text === 'if')?.style?.color)
+        const drawIn = (rows = steps, kind?: string, formulas = false) => renderInTheme(
+            <RawTableGrid formulas={formulas} roles={rolesOfKind(kind)} rows={rows} testId="grid" />,
+            { theme: 'standard', mode: 'light' }
+        )
+
+        it('colours a value by its type, a date whole with its separators', () => {
+            drawIn()
+
+            expect(cellAt('B2')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxNumber })
+            expect(cellAt('C2')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxNumber })
+            expect(cellAt('C2').querySelectorAll('span')).toHaveLength(0)
+            expect(cellAt('D2')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxBoolean })
+            expect(cellAt('B3')).toHaveStyle({ color: LIST_PAGE_COLORS.syntaxString })
+            // A name of a step holds no value of a type.
+            expect(cellAt('A2')).not.toHaveStyle({ color: LIST_PAGE_COLORS.syntaxString })
+        })
+
+        it('highlights the code a cell holds as the code editor of the theme does', async () => {
+            drawIn()
+
+            await waitFor(() => expect(colourOf('E2', '18')).toBe(syntax.number))
+            expect(cellAt('E2')).toHaveTextContent('= $Rate * 18')
+            // A declaration the compiler reads is code too.
+            expect(cellAt('A3').querySelectorAll('span').length).toBeGreaterThan(0)
+        })
+
+        it('highlights the operations of a TBasic table', async () => {
+            const tbasic: RawTableCell[][] = [
+                [{ cell: 'A1', value: 'TBasic Void Run()' }],
+                [{ cell: 'A2', value: 'END IF', type: 'code' }],
+            ]
+            const keyword = highlightedKeyword()
+            renderInTheme(<RawTableGrid
+                rows={tbasic}
+                testId="grid"
+                roles={rolesOf({
+                    kind: 'TBasic',
+                    pos: 'A1:A2',
+                    regions: [{ role: 'signature', top: 0, left: 0, bottom: 0, right: 0 },
+                        { role: 'value', type: 'code', top: 1, left: 0, bottom: 1, right: 0 }],
+                })}
+            />, { theme: 'standard', mode: 'light' })
+
+            await waitFor(() => expect(colourOf('A2', 'END')).toBe(keyword))
+            expect(colourOf('A2', 'IF')).toBe(keyword)
+        })
+
+        it('draws the formula of a cell plain, as another text than its value', async () => {
+            drawIn(steps, undefined, true)
+            await waitFor(() => expect(colourOf('E2', '18')).toBe(syntax.number))
+
+            expect(cellAt('C3')).toHaveTextContent('=1+2')
+            expect(cellAt('C3').querySelectorAll('span')).toHaveLength(0)
+        })
+
+        it('draws code as written in the formatting of the workbook', () => {
+            renderInTheme(<RawTableGrid roles={rolesOfKind()} rows={steps} testId="grid" />,
+                { theme: 'standard', mode: 'light', excelFormatting: true })
+
+            expect(cellAt('E2').querySelectorAll('span')).toHaveLength(0)
+            expect(cellAt('B2')).not.toHaveStyle({ color: LIST_PAGE_COLORS.syntaxNumber })
         })
     })
 
