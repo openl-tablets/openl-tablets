@@ -7,12 +7,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.studio.projects.service.tables.theme.ThemedTable.ThemedRun;
+import org.openl.studio.projects.service.tables.theme.TableRegions.HeaderPart;
+import org.openl.studio.projects.service.tables.theme.TableRegions.HeaderPiece;
 import org.openl.studio.projects.service.tables.write.VocabularyTableWriter;
 import org.openl.util.StringUtils;
 
 /**
- * Splits the text of a table header into the pieces the theme formats.
+ * Splits the text of a table header into the pieces a theme formats.
  *
  * <p>The header reads as the compiler reads it, and its keyword tells how:
  * <ul>
@@ -32,7 +33,8 @@ import org.openl.util.StringUtils;
  *     header names the table after the keyword. They read as a Spreadsheet header without a type and parameters.</li>
  * </ul>
  *
- * <p>The spaces between the pieces keep the look of the header cell. The pieces together cover the whole text.
+ * <p>The spaces between the pieces are {@link HeaderPart#TEXT}, in the look of the header cell. The pieces together
+ * cover the whole text.
  */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 final class HeaderRuns {
@@ -42,47 +44,41 @@ final class HeaderRuns {
 
     /** The text of the header cell. */
     private final String text;
-    /** The look of the header cell, which every piece starts from. */
-    private final ThemeStyle cell;
-    /** The look of each part of the header. */
-    private final TableTheme.Header header;
     /** The pieces found so far, in the order of the text. */
-    private final List<ThemedRun> runs = new ArrayList<>();
+    private final List<HeaderPiece> pieces = new ArrayList<>();
 
     /**
      * Splits a header text into pieces.
      *
-     * @param text   the text of the header cell
-     * @param cell   the look of the header cell, which every piece starts from
-     * @param header the look of each part of the header
+     * @param text the text of the header cell
      * @return the pieces of the text, or an empty list when the text has no keyword
      */
-    static List<ThemedRun> split(String text, ThemeStyle cell, TableTheme.Header header) {
-        return new HeaderRuns(text, cell, header).split();
+    static List<HeaderPiece> split(String text) {
+        return new HeaderRuns(text).split();
     }
 
-    private List<ThemedRun> split() {
-        var at = piece(0, spaces(text, 0), cell);
+    private List<HeaderPiece> split() {
+        var at = piece(0, spaces(text, 0), HeaderPart.TEXT);
         var keywordEnd = word(text, at, false);
         if (keywordEnd == at) {
             return List.of();
         }
         var keyword = text.substring(at, keywordEnd);
-        at = piece(at, keywordEnd, cell.with(header.keyword()));
-        at = piece(at, spaces(text, at), cell);
+        at = piece(at, keywordEnd, HeaderPart.KEYWORD);
+        at = piece(at, spaces(text, at), HeaderPart.TEXT);
         if (IXlsTableNames.DATATYPE_TABLE.equals(keyword)) {
             splitType(at);
         } else {
             splitMethod(at);
         }
-        return List.copyOf(runs);
+        return List.copyOf(pieces);
     }
 
     /** The pieces of a Datatype header after its keyword: the name, then what follows it. */
     private void splitType(int from) {
-        var at = piece(from, word(text, from, true), cell.with(header.name()));
-        at = piece(at, spaces(text, at), cell);
-        piece(at, text.length(), cell.with(header.type()));
+        var at = piece(from, word(text, from, true), HeaderPart.NAME);
+        at = piece(at, spaces(text, at), HeaderPart.TEXT);
+        piece(at, text.length(), HeaderPart.TYPE);
     }
 
     /**
@@ -99,11 +95,11 @@ final class HeaderRuns {
     /** The pieces of a Spreadsheet header after its keyword: the type it returns, the name, the parameters. */
     private void splitMethod(int from) {
         var pieces = MethodPieces.of(text, from);
-        var at = piece(from, pieces.typeEnd(), cell.with(header.type()));
-        at = piece(at, pieces.nameStart(), cell);
-        at = piece(at, pieces.nameEnd(), cell.with(header.name()));
-        at = piece(at, pieces.parameters(), cell);
-        piece(at, text.length(), cell.with(header.parameters()));
+        var at = piece(from, pieces.typeEnd(), HeaderPart.TYPE);
+        at = piece(at, pieces.nameStart(), HeaderPart.TEXT);
+        at = piece(at, pieces.nameEnd(), HeaderPart.NAME);
+        at = piece(at, pieces.parameters(), HeaderPart.TEXT);
+        piece(at, text.length(), HeaderPart.PARAMETERS);
     }
 
     /**
@@ -136,9 +132,9 @@ final class HeaderRuns {
     }
 
     /** Adds the piece between two indexes, when it is not empty, and answers where the next piece starts. */
-    private int piece(int start, int end, ThemeStyle style) {
+    private int piece(int start, int end, HeaderPart part) {
         if (end > start) {
-            runs.add(new ThemedRun(start, end, style));
+            pieces.add(new HeaderPiece(part, start, end));
         }
         return end;
     }

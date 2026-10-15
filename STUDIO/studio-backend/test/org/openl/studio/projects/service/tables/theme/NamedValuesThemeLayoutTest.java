@@ -99,7 +99,7 @@ class NamedValuesThemeLayoutTest {
         assertEquals(SETTING, layout.at(PROPERTIES_ROW + 1, 1).style().background().rgb());
         assertEquals(WHITE, layout.at(PROPERTIES_ROW + 2, 2).style().background().rgb());
         // The keyword is muted and the name of the table bold, as in the header of every table.
-        var runs = layout.at(PROPERTIES_ROW, 1).runs("Properties Catalogue");
+        var runs = layout.at(PROPERTIES_ROW, 1).runs();
         assertEquals(MUTED, runs.getFirst().style().color().rgb());
         assertEquals(Boolean.TRUE, runs.getLast().style().bold());
     }

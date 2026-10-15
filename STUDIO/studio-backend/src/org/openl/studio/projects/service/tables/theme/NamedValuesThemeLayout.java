@@ -21,11 +21,11 @@ final class NamedValuesThemeLayout {
      * The places of the body of a table that names a value in each row, read as it is written.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed layOut(ThemedBody body) {
-        var name = body.base().with(body.look().name());
-        var values = body.base().with(body.look().values());
+        var name = Parts.BASE.with(Parts.Part.NAME);
+        var values = Parts.BASE.with(Parts.Part.VALUES);
         return new BodyLayout.Placed(body.rows(), (cell, column, row) -> column == 0 ? name : values);
     }
 }

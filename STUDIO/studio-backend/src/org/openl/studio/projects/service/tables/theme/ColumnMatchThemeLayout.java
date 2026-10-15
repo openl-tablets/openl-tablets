@@ -12,9 +12,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import lombok.Builder;
-import org.jspecify.annotations.Nullable;
-
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.SubValue;
 import org.openl.rules.cmatch.TableColumn;
@@ -61,7 +58,7 @@ final class ColumnMatchThemeLayout {
      * returns or scores, and its conditions.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed layOut(ThemedBody body) {
         if (!(body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader)) {
@@ -71,68 +68,47 @@ final class ColumnMatchThemeLayout {
     }
 
     /**
-     * The looks of the places of one body, each laid over the base once rather than once per cell.
+     * The parts of the places of one body.
      *
-     * @param code        the look of an id
-     * @param title       the look of a column title
-     * @param returnTitle the look of a row giving what the table returns or scores, but for its values
-     * @param returned    the look of a value the table returns or scores with
-     * @param name        the look of a name the table checks
-     * @param value       the look of what a condition checks its name with and against
-     * @param groups      the look laid over the first row of a group and the row after it
-     * @param ids         the id of each column of the body the compiler read one for
-     * @param special     the rows of the body that give what the table returns or scores
-     * @param groupEdges  the rows of the body a group starts at, and the rows after a group
+     * @param ids        the id of each column of the body the compiler read one for
+     * @param special    the rows of the body that give what the table returns or scores
+     * @param groupEdges the rows of the body a group starts at, and the rows after a group
      */
-    @Builder
-    private record Places(ThemeStyle code,
-                          ThemeStyle title,
-                          ThemeStyle returnTitle,
-                          ThemeStyle returned,
-                          ThemeStyle name,
-                          ThemeStyle value,
-                          @Nullable ThemeStyle groups,
-                          Map<Integer, String> ids,
+    private record Places(Map<Integer, String> ids,
                           Set<Integer> special,
-                          Set<Integer> groupEdges) implements ThemeLayouts.PlaceLook {
+                          Set<Integer> groupEdges) implements TableRegionLayout.PlaceLook {
+
+        private static final Parts CODE = Parts.BASE.with(Parts.Part.CODE);
+        private static final Parts TITLE = Parts.BASE.with(Parts.Part.TITLES);
+        private static final Parts RETURN_TITLE = Parts.BASE.with(Parts.Part.RETURN_TITLES);
+        private static final Parts RETURNED = Parts.BASE.with(Parts.Part.RETURNS);
+        private static final Parts NAME = Parts.BASE.with(Parts.Part.NAME);
+        private static final Parts VALUE = Parts.BASE.with(Parts.Part.VALUES);
 
         static Places of(ThemedBody body, ColumnMatch columnMatch) {
-            var base = body.base();
-            var look = body.look();
             var compiledIds = columnMatch.getColumns().stream().map(TableColumn::getId).toList();
             var read = new Read(body, columnMatch.getRows(), compiledIds,
                     CompiledReads.specialRowsOf(columnMatch.getAlgorithm()));
             var ids = new HashMap<Integer, String>();
             compiledIds.forEach(id -> read.columnsOf(id).forEach(at -> ids.put(at, id)));
-            return Places.builder()
-                    .code(base.with(look.code()))
-                    .title(base.with(look.titles()))
-                    .returnTitle(base.with(look.returnTitles()))
-                    .returned(base.with(look.returns()))
-                    .name(base.with(look.name()))
-                    .value(base.with(look.values()))
-                    .groups(look.groups())
-                    .ids(Map.copyOf(ids))
-                    .special(read.specialRows())
-                    .groupEdges(read.groupEdges())
-                    .build();
+            return new Places(Map.copyOf(ids), read.specialRows(), read.groupEdges());
         }
 
-        /** The look of a cell of the body, by the place it stands in. */
+        /** The parts of a cell of the body, by the place it stands in. */
         @Override
-        public ThemeStyle at(ICell cell, int column, int row) {
+        public Parts at(ICell cell, int column, int row) {
             if (row == IDS) {
-                return code;
+                return CODE;
             }
             if (row == TITLES) {
-                return title;
+                return TITLE;
             }
             var id = ids.getOrDefault(column, "");
             if (special.contains(row)) {
-                return VALUES.equals(id) ? returned : returnTitle;
+                return VALUES.equals(id) ? RETURNED : RETURN_TITLE;
             }
-            var style = NAMES.equals(id) ? name : value;
-            return groupEdges.contains(row) ? style.with(groups) : style;
+            var parts = NAMES.equals(id) ? NAME : VALUE;
+            return groupEdges.contains(row) ? parts.with(Parts.Part.GROUPS) : parts;
         }
     }
 

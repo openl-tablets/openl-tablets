@@ -58,7 +58,7 @@ final class DataThemeLayout {
      * The places of the body of a Data table, whose IDs name its rows.
      *
      * @param body the body of the table
-     * @return the body, read the way the compiler reads it, and the look of each of its places
+     * @return the body, read the way the compiler reads it, and the parts of each of its places
      */
     static BodyLayout.Placed data(ThemedBody body) {
         return layOut(body, false);
@@ -68,7 +68,7 @@ final class DataThemeLayout {
      * The places of the body of a Test or a Run table, each row of which calls a method with its values.
      *
      * @param body the body of the table
-     * @return the body, read the way the compiler reads it, and the look of each of its places
+     * @return the body, read the way the compiler reads it, and the parts of each of its places
      */
     static BodyLayout.Placed calls(ThemedBody body) {
         return layOut(body, true);
@@ -81,19 +81,14 @@ final class DataThemeLayout {
     private static BodyLayout.Placed layOut(ThemedBody body, boolean calls) {
         var fields = body.upright();
         var references = fields.getHeight() > REFERENCES && DataTableBindHelper.hasForeignKeysRow(fields);
-        var base = body.base();
-        var look = body.look();
-        var titles = base.with(look.titles());
-        var values = base.with(look.values());
+        var titles = Parts.BASE.with(Parts.Part.TITLES);
+        var values = Parts.BASE.with(Parts.Part.VALUES);
         var places = Places.builder()
-                .base(base)
-                .name(label(base.with(look.name()), body))
+                .name(label(Parts.BASE.with(Parts.Part.NAME), body))
                 .titles(label(titles, body))
                 .values(values)
-                .returnTitles(label(titles.with(look.returnTitles()), body))
-                .returns(values.with(look.returns()))
-                .ids(look.ids())
-                .empty(look.empty())
+                .returnTitles(label(titles.with(Parts.Part.RETURN_TITLES), body))
+                .returns(values.with(Parts.Part.RETURNS))
                 .titlesRow(references ? REFERENCES + 1 : REFERENCES)
                 .idColumns(keyColumns(body, calls))
                 .resultColumns(calls ? resultColumns(fields) : Set.of())
@@ -103,11 +98,11 @@ final class DataThemeLayout {
     }
 
     /**
-     * The look of a field name or a title. In a table written transposed it labels a row, so it lines up as the
+     * The parts of a field name or a title. In a table written transposed it labels a row, so it lines up as the
      * style every cell starts from does.
      */
-    private static ThemeStyle label(ThemeStyle style, ThemedBody body) {
-        return body.transposed() ? style.withAlign(body.base().align()) : style;
+    private static Parts label(Parts parts, ThemedBody body) {
+        return body.transposed() ? parts.alignedAs(Parts.BASE) : parts;
     }
 
     /**
@@ -169,52 +164,47 @@ final class DataThemeLayout {
     }
 
     /**
-     * The looks of the places of one body.
+     * The parts of the places of one body.
      *
-     * @param base          the look every cell starts from
-     * @param name          the look of the rows naming the fields and the tables they take their values from
-     * @param titles        the look of a title
-     * @param values        the look of a value
-     * @param returnTitles  the look of the title of a result a Test table expects
-     * @param returns       the look of a result a Test table expects
-     * @param ids           the look laid over a value that is a key of a Data table
-     * @param empty         the look laid over a value that is not filled
+     * @param name          the parts of the rows naming the fields and the tables they take their values from
+     * @param titles        the parts of a title
+     * @param values        the parts of a value
+     * @param returnTitles  the parts of the title of a result a Test table expects
+     * @param returns       the parts of a result a Test table expects
      * @param titlesRow     the row of titles, which follows the rows naming the fields
      * @param idColumns     the columns whose values are keys of a Data table
      * @param resultColumns the columns that hold the results a Test table expects
      * @param transposed    whether the table is written transposed, its field names in a column of their own
      */
     @Builder
-    private record Places(ThemeStyle base,
-                          ThemeStyle name,
-                          ThemeStyle titles,
-                          ThemeStyle values,
-                          ThemeStyle returnTitles,
-                          ThemeStyle returns,
-                          @Nullable ThemeStyle ids,
-                          @Nullable ThemeStyle empty,
+    private record Places(Parts name,
+                          Parts titles,
+                          Parts values,
+                          Parts returnTitles,
+                          Parts returns,
                           int titlesRow,
                           Set<Integer> idColumns,
                           Set<Integer> resultColumns,
-                          boolean transposed) implements ThemeLayouts.PlaceLook {
+                          boolean transposed) implements TableRegionLayout.PlaceLook {
 
         /**
-         * The look of a cell of the sheet a place takes. A row of values can take several rows of the sheet, and a
+         * The parts of a cell of the sheet a place takes. A row of values can take several rows of the sheet, and a
          * field several columns: a value is told empty cell by cell.
          */
         @Override
-        public ThemeStyle at(ICell cell, int column, int row) {
+        public Parts at(ICell cell, int column, int row) {
             if (row < titlesRow) {
                 // The rows naming the fields are one block: a line of the look goes round it, in an upright table.
-                return name.atEdges(base, !transposed && row == FIELD_NAMES, !transposed && row == titlesRow - 1);
+                return name.atEdges(Parts.BASE, !transposed && row == FIELD_NAMES,
+                        !transposed && row == titlesRow - 1);
             }
             var result = resultColumns.contains(column);
             if (row == titlesRow) {
                 return result ? returnTitles : titles;
             }
             var value = result ? returns : values;
-            value = idColumns.contains(column) ? value.with(ids) : value;
-            return StringUtils.isBlank(cell.getStringValue()) ? value.with(empty) : value;
+            value = idColumns.contains(column) ? value.with(Parts.Part.IDS) : value;
+            return StringUtils.isBlank(cell.getStringValue()) ? value.with(Parts.Part.EMPTY) : value;
         }
     }
 }

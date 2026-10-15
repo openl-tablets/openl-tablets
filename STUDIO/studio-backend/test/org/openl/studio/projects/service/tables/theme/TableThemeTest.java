@@ -234,8 +234,8 @@ class TableThemeTest {
             assertEquals(WHITE, layout.at(1, column).style().background().rgb());
             assertTrue(lineBelow(layout.at(1, column)));
         }
-        assertNotNull(layout.at(1, 1).header(), "The cell holding the header text formats it in pieces");
-        assertNull(layout.at(1, 3).header());
+        assertFalse(layout.at(1, 1).runs().isEmpty(), "The cell holding the header text formats it in pieces");
+        assertTrue(layout.at(1, 3).runs().isEmpty());
         // The types and the defaults are muted on either side of the field names; the last row is closed.
         assertEquals(MUTED, layout.at(2, 1).style().color().rgb());
         assertEquals(LIGHT_BLUE, layout.at(2, 2).style().background().rgb());
@@ -300,7 +300,7 @@ class TableThemeTest {
         // Datatype fills it: a Spreadsheet keeps it white, as any cell the theme fills no other way.
         assertEquals(WHITE, layout.at(PREMIUM_ROW, 1).style().background().rgb());
         assertEquals(ThemeLineStyle.THIN, layout.at(PREMIUM_ROW, 2).style().border().bottom().style());
-        assertNotNull(layout.at(PREMIUM_ROW, 1).header());
+        assertFalse(layout.at(PREMIUM_ROW, 1).runs().isEmpty());
         // The row naming the columns, with the title of the column of steps set apart.
         var stepTitle = layout.at(PREMIUM_ROW + 1, 1).style();
         assertEquals(TITLE_GREY, stepTitle.background().rgb());
@@ -507,20 +507,20 @@ class TableThemeTest {
         var cell = ThemeStyle.NONE.with(header.style());
 
         assertEquals(List.of("Spreadsheet", " ", "SpreadsheetResult", " ", PREMIUM, " ", "( Person person )"),
-                pieces(PREMIUM_HEADER, cell, header));
+                pieces(PREMIUM_HEADER));
         assertEquals(List.of("Spreadsheet", " ", "SpreadsheetResult", " ", "Plan", "( Plan plan )"),
-                pieces("Spreadsheet SpreadsheetResult Plan( Plan plan )", cell, header));
+                pieces("Spreadsheet SpreadsheetResult Plan( Plan plan )"));
         assertEquals(List.of("Spreadsheet", "  ", "Gender[]", " ", "AllGenders", "()"),
-                pieces("Spreadsheet  Gender[] AllGenders()", cell, header));
+                pieces("Spreadsheet  Gender[] AllGenders()"));
         // A header may leave out the type it returns, or name no parameters.
-        assertEquals(List.of("Spreadsheet", " ", PREMIUM, "()"), pieces("Spreadsheet Premium()", cell, header));
-        assertEquals(List.of("Calc", " ", "Double", " ", "Rate"), pieces("Calc Double Rate", cell, header));
+        assertEquals(List.of("Spreadsheet", " ", PREMIUM, "()"), pieces("Spreadsheet Premium()"));
+        assertEquals(List.of("Calc", " ", "Double", " ", "Rate"), pieces("Calc Double Rate"));
         assertEquals("SpreadsheetResult", HeaderRuns.returnType(PREMIUM_HEADER));
         assertEquals("", HeaderRuns.returnType("Spreadsheet Premium()"));
         assertEquals("org.openl.rules.calc.SpreadsheetResult",
                 HeaderRuns.returnType("Spreadsheet org.openl.rules.calc.SpreadsheetResult Premium()"));
 
-        var runs = HeaderRuns.split(PREMIUM_HEADER, cell, header);
+        var runs = runs(PREMIUM_HEADER, cell, header);
         assertEquals("#808080", runs.get(0).style().color().rgb());
         assertEquals("#808080", runs.get(2).style().color().rgb());
         assertEquals(Boolean.TRUE, runs.get(4).style().bold());
@@ -533,12 +533,12 @@ class TableThemeTest {
         var header = theme.lookOf(theme.datatype()).header();
         var cell = ThemeStyle.NONE.with(header.style());
 
-        assertEquals(List.of("Datatype", " ", "Code", "<String>"), pieces("Datatype Code<String>", cell, header));
+        assertEquals(List.of("Datatype", " ", "Code", "<String>"), pieces("Datatype Code<String>"));
         assertEquals(List.of("Datatype", " ", "Child", " ", "extends Parent"),
-                pieces("Datatype Child extends Parent", cell, header));
-        assertEquals(List.of(), pieces("   ", cell, header));
+                pieces("Datatype Child extends Parent"));
+        assertEquals(List.of(), pieces("   "));
 
-        var runs = HeaderRuns.split("Datatype Code <String>", cell, header);
+        var runs = runs("Datatype Code <String>", cell, header);
         assertEquals(Boolean.TRUE, runs.get(2).style().bold());
         assertEquals("#808080", runs.get(0).style().color().rgb());
         assertEquals("#808080", runs.get(4).style().color().rgb());
@@ -847,7 +847,7 @@ class TableThemeTest {
         assertEquals(ThemeHorizontalAlign.LEFT, code.align());
         assertEquals(Boolean.FALSE, code.bold());
         assertTrue(lineBelow(layout.at(ANSWER_ROW + 1, 1)), "The last row closes the table");
-        var runs = layout.at(ANSWER_ROW, 1).runs("Method Integer " + ANSWER + "()");
+        var runs = layout.at(ANSWER_ROW, 1).runs();
         assertEquals(MUTED, runs.getFirst().style().color().rgb(), "It is signed as every table");
     }
 
@@ -997,7 +997,7 @@ class TableThemeTest {
                         "row " + row + ", column " + column);
             }
         }
-        assertNotNull(layout.at(first - 1, 1).header(), "The header keeps the look of the theme");
+        assertFalse(layout.at(first - 1, 1).runs().isEmpty(), "The header keeps the look of the theme");
     }
 
     @Test
@@ -1019,7 +1019,7 @@ class TableThemeTest {
         var theme = LOOKS.theme(LOOKS_THEME);
         var header = theme.lookOf(theme.run()).header();
         assertEquals(List.of("Run", " ", RATED, " ", RATED_RUN),
-                pieces("Run " + RATED + " " + RATED_RUN, ThemeStyle.NONE.with(header.style()), header));
+                pieces("Run " + RATED + " " + RATED_RUN));
     }
 
     @Test
@@ -1153,8 +1153,15 @@ class TableThemeTest {
         return Optional.ofNullable(style).map(RawTableCellStyle::border).map(RawTableCellBorder::top).orElse(null);
     }
 
-    private static List<String> pieces(String text, ThemeStyle cell, TableTheme.Header header) {
-        return HeaderRuns.split(text, cell, header).stream()
+    private static List<ThemedTable.ThemedRun> runs(String text, ThemeStyle cell, TableTheme.Header header) {
+        return HeaderRuns.split(text)
+                .stream()
+                .map(piece -> new ThemedTable.ThemedRun(piece.start(), piece.end(), piece.part().in(cell, header)))
+                .toList();
+    }
+
+    private static List<String> pieces(String text) {
+        return HeaderRuns.split(text).stream()
                 .map(run -> text.substring(run.start(), run.end()))
                 .toList();
     }

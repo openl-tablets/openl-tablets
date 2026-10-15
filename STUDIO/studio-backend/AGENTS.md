@@ -284,21 +284,26 @@ for the endpoints.
   nothing listens to, so it has `ProjectModel.initProjectHistory(TableSyntaxNode, Module)` listen to the workbook of
   each table first: a write there is kept in the history of its module and marks the project modified, as an edit
   of the table does.
-- **One layout for both uses.** `ThemeLayouts` themes the header and the properties for every kind and hands the
-  body, with what a layout knows of the table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of
-  `DatatypeThemeLayout`, `SpreadsheetThemeLayout`, `TBasicThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout`,
-  `ColumnMatchThemeLayout` or `NamedValuesThemeLayout`. The body of a Method table is code, which takes `base`
-  (`BodyLayout.Placed.plain`). Both the screen overlay and `ThemeExcelWriter` ask it, so what is drawn is what
-  writing the theme gives.
-- **A layout tells the look of a place, `ThemeLayouts` themes the sheet.** A layout answers the places it reads the
-  body in and the look of each (`BodyLayout.Placed`), and `ThemeLayouts` alone gives that look to every cell of the
-  sheet the place takes, so a row written over several rows of the sheet is themed whole. It themes a merged region
-  once, by the cell that holds it, and lays `lastRow` over every cell that reaches the bottom of the table.
-  `ThemeLayouts.of` drops every cell past the edge of the table:
+- **One layout for both uses.** `TableRegionLayout` lays every table out in regions (`TableRegions`): rectangles
+  of its cells, in table coordinates, that name the same parts of a theme (`Parts`), and the pieces of its header
+  text. It lays out the header and the properties for every kind and hands the body, with what a layout knows of the
+  table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of `DatatypeThemeLayout`,
+  `SpreadsheetThemeLayout`, `TBasicThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout`,
+  `ColumnMatchThemeLayout` or `NamedValuesThemeLayout`. The body of a Method table is code, which takes the base
+  (`BodyLayout.Placed.plain`). Both the screen overlay and `ThemeExcelWriter` draw the theme from the regions
+  (`ThemedTable`), so what is drawn is what writing the theme gives.
+- **A layout names the parts of a place, `TableRegionLayout` lays out the sheet.** A layout answers the places it
+  reads the body in and the parts of each (`BodyLayout.Placed`), and `TableRegionLayout` alone gives those parts to
+  every cell of the sheet the place takes, so a row written over several rows of the sheet is laid out whole. It lays
+  out a merged region once, by the cell that holds it, and lays the last row over every cell that reaches the bottom
+  of the table. A cell past the edge of the table is dropped:
   `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its edge.
-  How the compiler read a table is asked once for every kind, in `ThemeLayouts.of`: each `ThemeKind` names a function
-  of `CompiledReads`, which tells whether the compiler read the table transposed, or nothing for a table it read none
-  of — a Datatype whose parent type is not found, a Vocabulary of a type that does not exist, a Data, a Test or a Run
+  `Parts` names a look without a theme — a part laid over the base, fitted to the edges of a block, turned for a
+  table written the other way round — so the layout of a table serves every theme, and the regions are the runs of
+  cells naming equal parts, joined down the rows.
+  How the compiler read a table is asked once for every kind, in `TableRegionLayout.of`: each `ThemeKind` names a
+  function of `CompiledReads`, which tells whether the compiler read the table transposed, or nothing for a table it
+  read none of — a Datatype whose parent type is not found, a Vocabulary of a type that does not exist, a Data, a Test or a Run
   table whose type is missing or defined with errors or whose tested table does not exist, a Spreadsheet, a TBasic or
   a ColumnMatch table whose body could not be built, a ColumnMatch table of an algorithm the compiler does not know.
   Such a table has no parts the compiler knows, so its body takes the base alone: the theme never guesses the parts
@@ -306,6 +311,13 @@ for the endpoints.
   `ThemedBody.columnsOf`, `rowsOf`, `placesOf`); only an Environment,
   which the loader reads by its rows, and a Method table, whose body is code, are read as written. A Conditions, an
   Actions and a Returns table take their axes from the titles the compiler found.
+- **A table is laid out once for each compilation.** `TableRegionLayout.regionsOf` keeps the regions of a compiled
+  table in a weak map keyed by its `TableSyntaxNode`: a compilation makes new nodes, so it drops the old layouts, and
+  every page of a large table drawn in a theme reuses one layout instead of laying the whole table out again. A layout
+  depends on the cells too, so it is reused only while the workbook of the table was not saved since the compilation
+  read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`); a table read while a write waits for a compilation is laid
+  out as it stands, on every read. A part of a table, and the writer, which works on the table as the write leaves it,
+  lay out afresh.
 - **A Spreadsheet section is a merge.** A step whose name cell is merged over the values of its row heads a section:
   the compiler takes it for a step with no value. The steps, the columns and the result are the ones the compiler
   read (`SpreadsheetBoundNode.getStructureBuilder()`). A step or a column it read marked for the result, its name
@@ -395,7 +407,7 @@ for the endpoints.
   what a step runs (`action`, `before`, `after`) `values`. A theme can leave the conditions out, as `every-kind.yaml`
   does, so only what a step runs is filled, or give them a look of their own. The compiled algorithm keeps the
   operations it runs, not where they stand, so once the compiler built the steps (`Algorithm.getAlgorithmSteps()`)
-  the layout reads the ids (`ThemeLayouts.idsOf`, trimmed and in lower case) and the operation of each row of the
+  the layout reads the ids (`TableRegionLayout.idsOf`, trimmed and in lower case) and the operation of each row of the
   sheet as `AlgorithmBuilder` reads them, and lays `sections` over every cell of a step that starts a subroutine
   (`SUB`, `FUNCTION`) and `result` over every cell of one that returns (`RETURN`). `ColumnMatchThemeLayout` takes its
   places from the compiled table (`ColumnMatch.getColumns`, `getRows`): the id of each column, the rows giving what
