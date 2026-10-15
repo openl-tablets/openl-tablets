@@ -51,8 +51,8 @@ To view a list of users, proceed as follows:
     - **Red** — an administrator group.
     - **Blue** — the configured Default Group.
     - **Gray** — an external identity provider group that does not match any group registered in OpenL Studio. Unmatched
-      groups are shown individually or collapsed into a **+N** badge indicating the count of unmatched groups. Clicking
-      the badge expands the full list.
+      groups are shown individually or collapsed into a **+N** badge indicating the count of unmatched groups. Click
+      the badge to expand the full list, then click **Show less** to collapse it again without reloading the page.
 
    ![](../../images/users-list-group-colors.png "Users list showing color-coded group membership")
 

@@ -1,7 +1,8 @@
 import React, { FC, useMemo } from 'react'
 import { UserDetailsGroup } from '../../types/user'
 import { UserGroupType } from '../../constants'
-import { Tag } from 'antd'
+import { Button, Tag } from 'antd'
+import { useTranslation } from 'react-i18next'
 import { apiCall } from '../../services'
 import { GroupItem } from '../../types/group'
 import { EditUserGroupDetailsWithAccessRights } from '../EditUserGroupDetailsWithAccessRights'
@@ -48,8 +49,9 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
     reloadGroups,
     onCloseEditDrawer,
 }) => {
+    const { t } = useTranslation()
     const [selectedGroup, setSelectedGroup] = React.useState<SelectedGroup>()
-    const [notMatchedExternalGroups, setNotMatchedExternalGroups] = React.useState<string[]>([])
+    const [notMatchedExternalGroups, setNotMatchedExternalGroups] = React.useState<string[] | null>(null)
 
     const fetchExternalUserGroupsNotMatched = async () => {
         const response: string[] = await apiCall(`/users/${username}/groups/external?matched=false`)
@@ -82,14 +84,14 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
             }))
         }
 
-        if (notMatchedExternalGroupsCount && notMatchedExternalGroups.length === 0) {
+        if (notMatchedExternalGroupsCount && notMatchedExternalGroups === null) {
             // Add a special group for not matched external groups
             allGroups.push({
                 name: `+${notMatchedExternalGroupsCount}`
             })
         }
 
-        if (notMatchedExternalGroups && notMatchedExternalGroups.length > 0) {
+        if (notMatchedExternalGroups) {
             // Map not matched external groups to include color attribute
             const notMatchedGroupsWithColor = notMatchedExternalGroups
                 .filter(group => !userGroups?.some((g) => g.name === group))
@@ -100,7 +102,7 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
         }
 
         return allGroups
-    }, [userGroups, notMatchedExternalGroups])
+    }, [userGroups, notMatchedExternalGroups, notMatchedExternalGroupsCount])
 
     return (
         <div>
@@ -125,6 +127,11 @@ export const RenderGroupCell: FC<RenderGroupCellProps> = ({
                         )}
                     />
                 ))}
+            {notMatchedExternalGroups !== null && notMatchedExternalGroupsCount ? (
+                <Button onClick={() => setNotMatchedExternalGroups(null)} size="small" type="link">
+                    {t('users:collapse_groups')}
+                </Button>
+            ) : null}
         </div>
     )
 }
