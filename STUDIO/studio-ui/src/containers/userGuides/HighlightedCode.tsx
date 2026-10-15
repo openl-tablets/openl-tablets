@@ -1,15 +1,8 @@
-import React, { type PropsWithChildren, useEffect, useMemo, useState } from 'react'
+import React, { type PropsWithChildren, useMemo } from 'react'
 import { useThemeMode } from 'antd-style'
+import { useCodeHighlighter } from 'hooks/useCodeHighlighter'
 import { useAppTheme } from 'providers/AppThemeProvider'
 import { codeBlockColors } from 'styles/themes'
-import { errorHandler } from 'utils/errorHandling'
-
-type Highlighter = typeof import('./codeHighlight')
-
-/** The highlighter once loaded, so a page opened after the first one draws its code highlighted at once. */
-let loaded: Highlighter | undefined
-
-const loadHighlighter = async (): Promise<Highlighter> => (loaded ??= await import('./codeHighlight'))
 
 interface HighlightedCodeProps {
     /** The code of the block. */
@@ -40,28 +33,11 @@ export const CodeBlock: React.FC<PropsWithChildren> = ({ children }) => {
 export const HighlightedCode: React.FC<HighlightedCodeProps> = ({ code, language }) => {
     const { themeName } = useAppTheme()
     const { isDarkMode } = useThemeMode()
-    const [highlighter, setHighlighter] = useState(loaded)
+    const highlighter = useCodeHighlighter()
     const pieces = useMemo(
         () => highlighter?.highlight(code, language, themeName, isDarkMode),
         [highlighter, code, language, themeName, isDarkMode]
     )
-
-    useEffect(() => {
-        if (highlighter) {
-            return undefined
-        }
-        let current = true
-        loadHighlighter()
-            .then(module => {
-                if (current) {
-                    setHighlighter(module)
-                }
-            })
-            .catch((error: unknown) => errorHandler.logError(error instanceof Error ? error : new Error(String(error))))
-        return () => {
-            current = false
-        }
-    }, [highlighter])
 
     const tokens = pieces?.map(({ at, text, style }) => (style ? <span key={at} style={style}>{text}</span> : text))
     return (

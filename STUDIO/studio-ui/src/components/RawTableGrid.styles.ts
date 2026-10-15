@@ -1,6 +1,7 @@
 import { createStyles } from 'antd-style'
 import type { GlobalToken } from 'antd'
 import { mix } from '../styles/colorMath'
+import { LIST_PAGE_COLORS } from '../styles/listPageTheme'
 import type { TablePaper } from '../styles/paper'
 
 /**
@@ -202,6 +203,18 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
         /** The fill of what a table gives. */
         outputFill: css`
         background: ${roles.outputFill};
+    `,
+        /** A number or a date, in the hue the code editor of the theme gives a number. */
+        numberValue: css`
+        color: ${LIST_PAGE_COLORS.syntaxNumber};
+    `,
+        /** A boolean, in the hue the code editor of the theme gives a boolean. */
+        booleanValue: css`
+        color: ${LIST_PAGE_COLORS.syntaxBoolean};
+    `,
+        /** A text, in the hue the code editor of the theme gives a string. */
+        stringValue: css`
+        color: ${LIST_PAGE_COLORS.syntaxString};
     `,
         /** A cell beside the point on this screen, drawn in the faintest text of the theme. */
         mutedRole: css`

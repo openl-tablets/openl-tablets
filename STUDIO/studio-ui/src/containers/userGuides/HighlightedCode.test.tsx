@@ -2,7 +2,7 @@ import { render, waitFor } from '@testing-library/react'
 import { errorHandler } from 'utils/errorHandling'
 import { HighlightedCode } from './HighlightedCode'
 
-vi.mock('./codeHighlight', () => {
+vi.mock('utils/codeHighlight', () => {
     throw new Error('The chunk did not load')
 })
 

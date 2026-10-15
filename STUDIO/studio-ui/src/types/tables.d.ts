@@ -346,6 +346,8 @@ export type TableRunState = 'can-run' | 'can-run-module' | 'cannot-run'
 export interface RawTableView {
     id: string
     name: string
+    /** The kind of the table: `Rules`, `Spreadsheet`, `TBasic`, `Other`, ... */
+    kind?: string
     /** Where the table sits on its sheet, in A1 notation: `B3:D8`. The roles of its cells are found by it. */
     pos?: string
     /** The table body as a 2D matrix indexed source[row][col] */
