@@ -36,7 +36,9 @@ const useStyles = createStyles(({ css, token }) => ({
         }
 
         .cm-gutters {
-            background: ${token.colorFillQuaternary};
+            /* A long line scrolled sideways runs under the line numbers, so the fill lies on a solid surface. */
+            background: linear-gradient(${token.colorFillQuaternary}, ${token.colorFillQuaternary}),
+                ${token.colorBgContainer};
             border-right: 1px solid ${token.colorBorderSecondary};
             color: ${token.colorTextQuaternary};
         }

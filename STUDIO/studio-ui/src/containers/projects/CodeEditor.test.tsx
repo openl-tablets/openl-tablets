@@ -39,6 +39,14 @@ describe('CodeEditor', () => {
         expect(dark.container.querySelector('.cm-theme-dark')).toBeTruthy()
     })
 
+    it('lays the line numbers on a solid surface, which a long line scrolled sideways runs under', () => {
+        render(<CodeEditor path="notes.txt" value="a" />)
+        const css = [...document.querySelectorAll('style')].map(style => style.textContent).join('\n')
+
+        // The fill of the numbers is translucent: on the surface of the page, no text shows through it.
+        expect(css).toMatch(/\.cm-gutters\{background:linear-gradient\([^{}]+\),\s*#ffffff;/)
+    })
+
     it('is drawn in the scheme of a theme taken from a code editor', () => {
         const { container } = renderInTheme(<CodeEditor path="a.xml" value="" />, { theme: 'dracula' })
 
