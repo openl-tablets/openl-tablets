@@ -1,0 +1,698 @@
+# Table Formatting
+
+How OpenL Studio gives every OpenL table one readable look: on the screen, and written into the Excel files.
+
+## Goals
+
+A business user opens a table to find a rule, a value or a result. The look must answer three questions at a
+glance: what the table is, what it takes, and what it gives.
+
+- **Self-explaining** — the four sections every table shares are visually separated, and inputs look different
+  from outputs.
+- **One style** — a single OpenL table style. There is no list of themes and nothing to select.
+- **Excel-native** — the Excel file holds only what Excel itself offers: the theme colours, the theme fonts, and
+  the built-in cell styles. Changing the theme of a workbook in Excel recolours its tables.
+- **Cheap** — formatting a table costs at most one pass over its cells and adds a bounded number of cell formats to
+  the workbook. A table edit is formatted with no compile, in the lines it changed when the table was formatted
+  before; only new content, such as an uploaded workbook, is compiled once to be formatted.
+
+## Decisions at a glance
+
+| Area | Decision |
+|---|---|
+| Style | One OpenL table style, built into the code. There is no theme to select or to write. |
+| Writing to Excel, by hand | One project action: **Reformat Excel files**. There is no action for a single table. |
+| Writing to Excel, always | System setting **Format tables on save**, on by default: every table saved, created, copied or uploaded is formatted. |
+| Edit toolbar | Formatting buttons only with **Format tables on save** off and **Excel Formatting** on; indent always for TBasic and ColumnMatch. |
+| `.xls` files | Not formatted, ignored by every formatting path. |
+| Screen | The **Excel Formatting** switch of the theme menu, under **Compact**. Off: the Studio look. On: the Excel look. |
+| Switching | The switch only re-renders. Both looks are drawn from one read of the table. |
+| Studio look | Formulas and code are highlighted as CodeMirror highlights code; values are coloured by their type. |
+| Colour picker | Only the 60 theme colours and the 10 standard colours of Excel. No custom colour. |
+| REST API | One compact read: a style dictionary and role regions, every fact sent once. |
+
+## Table anatomy
+
+Practically every OpenL table is made of four sections. Some tables skip a section; none adds one.
+
+```mermaid
+flowchart TB
+    S["1. Signature — the header cell: keyword, name, return type, parameters"]
+    P["2. Properties — rows of table properties"]
+    H["3. Headers — what each column or row of the body means"]
+    B["4. Body — the values, the rules, the steps"]
+    S --> P --> H --> B
+```
+
+- **Signature** — a line above and a line below. The table name is bold and the parameter names are in the text
+  colour. The keyword, the types and the punctuation are grey.
+- **Properties** — grey, with a line below.
+- **Headers** — titles in the heading font. Titles of what the table takes are told apart from titles of what it
+  gives.
+- **Body** — a line below closes the table.
+
+### Roles
+
+A cell takes its look from its **role**. A role is a meaning, never a position: the layout is read from the
+compiled table.
+
+| Role | Section | Meaning | Example |
+|---|---|---|---|
+| `signature` | Signature | The header cell | `SmartRules Double Premium(Driver driver)` |
+| `properties` | Properties | A table property, name and value | `effectiveDate`, `lob` |
+| `code` | Headers | A technical declaration the compiler reads | `C1`, `RET1`, `age >= min`, `policyNumber`, `>Policies` |
+| `inputTitle` | Headers | A title of what the table takes | **Driver Age**, **Step** |
+| `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title |
+| `key` | Body | What names a row or a column | a Data ID, a rule name, a step name, a field name |
+| `value` | Body | A value the table takes or holds | a condition value, a data value, a TBasic action |
+| `output` | Body | A value the table gives | a returned value, an expected result |
+| `section` | Body | A heading inside the body | a merged Spreadsheet row, a TBasic `SUB` |
+| `result` | Body | What the table returns | the `RETURN` step, the steps marked `*` of a Spreadsheet |
+
+One modifier draws a separator inside the body:
+
+- **`group`** — a minor line above the first line of a group. A group is the rules that share a merged condition
+  value, or the conditions of a ColumnMatch table indented under one name. Merged decision tables are hard to read
+  without it.
+
+### Roles per table type
+
+The ten roles are shared by all table types, but each type holds its cells in its own structure. This section
+says, for each type, which of its cells take which role, and so which Excel cell style and colour. The formatter
+and the Studio look both follow it.
+
+For example, a SmartRules table:
+
+| | A | B | C |
+|---|---|---|---|
+| 1 | `SmartRules Double Premium(Driver driver)` · `signature`, merged over A–C | | |
+| 2 | `effectiveDate` · `properties` | `01/01/2026` · `properties` | |
+| 3 | **Driver Age** · `inputTitle` | **Region** · `inputTitle` | **Premium** · `outputTitle` |
+| 4 | `18-25` · `value` | `North` · `value` | `1200` · `output` |
+| 5 | `26-65` · `value` | `South` · `value` | `950` · `output` |
+
+- **In Excel** — row 1 takes **Title**, row 2 **Explanatory Text**, A3:B3 **Heading 3** (fill `lt2`), C3
+  **40% - Accent1**, A4:B5 **Input** and C4:C5 **Output** (fill `accent1` lighter 80%). Row 5 also gets the line
+  that closes the body.
+- **In the Studio look** — the same cells take the role tokens. `18-25` is drawn in the number colour, `North` in
+  the string colour, and `1200` in the number colour on the output fill.
+
+A Spreadsheet table reads differently, because its structure is steps × columns:
+
+| | A | B |
+|---|---|---|
+| 1 | `Spreadsheet Double Calc(Policy p)` · `signature` | |
+| 2 | **Step** · `inputTitle` | **Value** · `outputTitle` |
+| 3 | `Base Rate` · `key` | `= p.rate` · `output`, type `code` |
+| 4 | **Adjustments** · `section`, merged over A–B | |
+| 5 | `Age Factor` · `key` | `= AgeFactor(p.age)` · `output`, type `code` |
+| 6 | `RETURN` · `result` | `= $Value$BaseRate * $Value$AgeFactor` · `result`, type `code` |
+
+Which steps of a Spreadsheet take `result` depends on what it returns. The compiler decides it, and the layout
+reads its answer:
+
+- **A single value** — such as `Double` above: the step named `RETURN`, or the last step when none is so named. A
+  column named `RETURN` takes the place of the step.
+- **`SpreadsheetResult`, with steps or columns marked `*`** — the returned cells are the marked steps × the marked
+  columns. When only steps are marked, every column the result keeps (not marked `~`) is returned, and the other
+  way round. The returned cells and the names of their steps and columns take `result`.
+- **`SpreadsheetResult`, nothing marked `*`** — every step not marked `~` is returned. Since that is the whole
+  table, or nearly, no cell takes `result`.
+
+For example, a Spreadsheet returning two of its steps:
+
+| | A | B |
+|---|---|---|
+| 1 | `Spreadsheet SpreadsheetResult Quote(Policy p)` · `signature` | |
+| 2 | **Step** · `inputTitle` | **Value** · `outputTitle` |
+| 3 | `Base Rate` · `key` | `= p.rate` · `output`, type `code` |
+| 4 | `Premium*` · `result` | `= $BaseRate * p.factor` · `result`, type `code` |
+| 5 | `Tax*` · `result` | `= $Premium * 0.05` · `result`, type `code` |
+| 6 | `Audit Note` · `key` | `= "checked"` · `output`, type `code` |
+
+Rows 4 and 5 are adjacent, so they are one `result` region: one line above row 4 and one double line below row 5.
+Marked steps apart from each other make regions of their own.
+
+Every type takes `signature`, and `properties` when it has them. A transposed table takes the same roles, turned
+with its lines of data. The table below lists the remaining roles per type.
+
+| Table type | `code` | `inputTitle` | `outputTitle` | `key` | `value` | `output` | `section`, `result` |
+|---|---|---|---|---|---|---|---|
+| Datatype | type column | title row | — | field names | defaults, other columns | — | — |
+| Vocabulary | — | — | — | — | values | — | — |
+| Spreadsheet | — | step column title | column titles | step names | — | cells | merged step rows; the returned step, or the steps and columns marked `*` |
+| Rules | `C`/`RET` row, expressions, parameters | condition titles | return and action titles | `RULE` column | condition values | return values | — |
+| SimpleRules, SmartRules | — | condition titles | return titles | rule names | condition values | return values | — |
+| SimpleLookup, SmartLookup | — | vertical titles, horizontal values | return title | — | vertical values | the return grid | — |
+| Data | field row, `>` reference row | titles | — | IDs (not `_PK_`) | values | — | — |
+| Test | field row, `>` reference row | input titles | `_res_`, `_error_` titles | reference IDs | input values | expected results | — |
+| Run | field row, `>` reference row | input titles | — | reference IDs | input values | — | — |
+| TBasic | column IDs row | titles | — | labels | operations, conditions, actions | — | `SUB`, `FUNCTION`; `RETURN` |
+| Method | — | — | — | — | the code | — | — |
+| ColumnMatch | column IDs row | titles | return, score rows | condition names | operations, weights, values | returned values | — |
+| Conditions | inputs, expression, parameters | titles | — | part names | — | — | — |
+| Actions, Returns | inputs, expression, parameters | — | titles | part names | — | — | — |
+| Environment, Properties | — | — | — | setting names | values | — | — |
+| Constants | type column | — | — | names | values | — | — |
+
+The following tables are not formatted and are drawn as their Excel file draws them:
+
+- tables of the type **Other**;
+- a table gathered from several partial tables;
+- a table of a dependency project.
+
+A table the compiler cannot read keeps `signature`, `properties` and the closing line, and its body takes `value`.
+
+### Value types
+
+The Studio look colours a body value by its type. The type comes from the compiler, never from a guess on the text.
+
+| Type | Values |
+|---|---|
+| `code` | an OpenL expression: a cell starting with `=`, a `code` cell, the body of a Method table, the operations, conditions and actions of a TBasic table |
+| `number` | numbers and ranges of numbers |
+| `date` | dates and ranges of dates |
+| `boolean` | `true`, `false` |
+| `string` | everything else, an array taking the type of its elements |
+
+## The OpenL table style in Excel
+
+### Only what the workbook's theme offers
+
+- **Fonts** — the theme's `majorFont` and `minorFont`, written as a scheme font (`<scheme val="major|minor"/>`).
+  The face name written beside it is read from the workbook's own theme part, never hard-coded. Every role takes
+  the font size of the workbook's **Normal** style, so row heights do not change.
+- **Fill colours** — only `lt2`, `dk2` and `accent1`–`accent6`, with a tint. `lt1` and `dk1` are never a fill:
+  they are white and black in every Excel theme. A cell with no fill has no fill, not a white one.
+- **Text colours** — `dk1`, and `dk1` lighter by 50% for what matters less.
+- **Colours as theme references** — every colour is written as a theme index with a tint, whatever theme the
+  workbook has. Changing the theme in Excel (**Page Layout > Colors**) recolours the tables. No colour is written
+  as RGB, whatever theme the workbook has.
+
+SpreadsheetML numbers the theme colours with the first two pairs swapped: `0` is `lt1`, `1` `dk1`, `2` `lt2`, `3`
+`dk2`, and `4`–`9` are `accent1`–`accent6`. The writer names them by the theme slot and maps them in one place.
+
+### Role styles
+
+Each role is an Excel built-in cell style from the **Titles and Headings**, **Data and Model** and **Themed Cell
+Styles** groups of the **Cell Styles** gallery. A selected cell therefore shows its meaning in the gallery, and a
+user who applies the style from the gallery gets the same look.
+
+Office defines several of these styles with fixed RGB colours, for example the orange of **Input**. A built-in
+style can be redefined with theme colours, so the formatter writes each linked style into the workbook with the
+look of its role: theme colours and theme fonts only. No custom cell style is created.
+
+| Role | Excel cell style | `builtinId` | Font size | Look |
+|---|---|---|---|---|
+| `signature` | Title | 15 | Normal (Office: 18) | `majorFont`, `dk1`; text in pieces (below); major lines above and below |
+| `properties` | Explanatory Text | 53 | Normal (Office: 11) | italic, `dk1` lighter 50% |
+| `code` | Calculation | 22 | Normal (Office: 11) | `dk1` lighter 50% |
+| `inputTitle` | Heading 3 | 18 | Normal (Office: 11) | `majorFont`, bold, centred; fill `lt2` |
+| `outputTitle` | 40% - Accent1 | 31 | Normal (Office: 11) | `majorFont`, bold, centred; fill `accent1` lighter 60% |
+| `key` | Heading 4 | 19 | Normal (Office: 11) | bold, `dk1` |
+| `value` | Input | 20 | Normal (Office: 11) | `minorFont`, `dk1`, no fill |
+| `output` | Output | 21 | Normal (Office: 11) | `minorFont`, `dk1`; fill `accent1` lighter 80% |
+| `section` | Heading 2 | 17 | Normal (Office: 13) | `majorFont`, bold; fill `lt2`; minor line below |
+| `result` | Total | 25 | Normal (Office: 11) | bold; a thin `accent1` line above, a double `accent1` line below |
+
+The formatter owns these ten styles in a workbook it formats. It writes their definitions each time it formats, so
+an edit of them in Excel is replaced, including on cells outside OpenL tables that use them. The **Normal** style is
+never changed.
+
+**Font size** — every style takes the size of the workbook's **Normal** style: 11 in a new Office workbook, and
+whatever size the workbook's Normal style has otherwise. The size is written into the style, so a table keeps the
+row heights of the rest of the sheet. The Office size of each style, given in brackets, is what Office writes when
+the style is first used. The formatter replaces it with the Normal size.
+
+The `builtinId` values are those of ECMA-376 Part 1, §18.8.7, the ids Excel writes for these styles.
+
+A cell's own format adds only what the style cannot hold: the lines at the edge of a region (below), and what is
+kept from the cell.
+
+Lines:
+
+- **Major line** — thin, `dk2`. It is drawn above and below the signature and below the body.
+- **Minor line** — thin, `lt2` darker by 25%. It is drawn below the properties, below a section, and above a
+  group, as a hair line.
+
+The lines of a one-row role — the signature, a section — belong to its style. The line below the properties, the
+line closing the body, the line above a group and the lines of a `result` region sit at the edge of a region, so
+the cell's own format draws them. A `result` region of several rows has its two lines once, at its top and bottom;
+**Total** keeps its lines in its definition, so a single row a user marks with it in Excel looks the same.
+
+There are no vertical lines. Headers and body are told apart by fill, so a transposed table needs no rotated
+lines.
+
+Alignment:
+
+- Titles are centred.
+- Values take the **General** alignment, so Excel aligns numbers right and text left by their type.
+- The signature, keys and sections are aligned left.
+- An indented cell is aligned left, whatever its role: Excel shows an indent only in a text aligned left.
+- Every cell is centred vertically, so a merged condition value reads against its whole group.
+
+Kept from the cell as it was:
+
+- the number format;
+- the indent (it carries the structure of TBasic and ColumnMatch tables);
+- wrap text;
+- text rotation.
+
+Everything else — font, fill, borders, horizontal and vertical alignment — comes from the role.
+
+### The signature in pieces
+
+The signature is the only cell written as rich text. Its pieces are read from the compiled header:
+
+| Piece | Font |
+|---|---|
+| keyword (`SmartRules`, `Datatype`) | `dk1` lighter 50% |
+| return type, parent type, tested table | `dk1` lighter 50% |
+| table name | bold, `dk1` |
+| parameter types, punctuation | `dk1` lighter 50% |
+| parameter names | `dk1` |
+
+Every other cell is written as plain text. Rich text found in it is replaced by the same text in the cell's font.
+
+### Regions, not cells
+
+A role is laid out as a rectangle of cells: a **region**. A Data table of 10,000 rows is about six regions,
+whatever its size. The writer turns each region into cell formats like this:
+
+1. A cell format is identified by its key: the role and its edge (no line, line above, line below, or both), plus
+   what is kept from the cell (number format, indent, wrap text, rotation).
+2. The workbook's existing formats are indexed by that key once per workbook, so formatting a table again finds
+   them and adds nothing.
+3. Each cell gets the index of its format. No style object is created per cell.
+
+The number of cell formats a workbook gains is bounded by roles × edges × the distinct number formats of its tables:
+tens, not thousands. **Reformat Excel files** also removes the cell formats and the named styles no cell uses any more,
+so a workbook formatted many times does not grow, and a workbook that arrived with a format per cell, or with the
+thousands of named styles Excel copies along with a sheet, shrinks to what its cells use.
+
+That removal is part of the formatter and runs only with **Reformat Excel files**: it scans every cell of the
+workbook, which a save of one table must not pay for. A save, formatted or not, removes nothing: a named style the
+user keeps unused, and an OpenL role style no table uses yet, stay in the workbook. This replaces `XSSFOptimizer`,
+which compacted the named styles on every save of a table (EPBDS-6482), and whose compaction of the cell formats had
+no caller.
+
+Excel tables (**Format as Table**, list objects) were considered and rejected. They forbid merged cells and need
+unique header texts, which OpenL tables cannot guarantee.
+
+### Files the style is not written to
+
+- **`.xls`** — not supported. The binary format has other limits (no theme, no theme fonts, 56 colours, 4,000
+  cell formats) and security gaps. Format on save and **Reformat Excel files** ignore `.xls` files: they are
+  neither written nor reported. The Studio look still draws their tables, because it reads roles, not the file's
+  formatting.
+- **An `.xlsx` without a theme part** — files written by tools other than Excel may have none. The writer adds the
+  Office theme first (POI `StylesTable.ensureThemesTable`), so the theme references resolve as Excel resolves them.
+
+## The two looks on the screen
+
+The **Excel Formatting** switch sits in the theme menu of the header, right under **Compact**. It is kept in the
+browser (`localStorage`, `openl.theme.excelFormatting`) like the other theme settings, and is off by default.
+
+| | Studio look (switch off) | Excel look (switch on) |
+|---|---|---|
+| Drawn from | roles, value types, signature pieces | the cell formats of the workbook |
+| Colours | the tokens of the Studio theme, light or dark | the workbook's theme, on light paper |
+| Workbook formatting | ignored, except the indent | shown as Excel shows it |
+| Code and values | highlighted | as written |
+
+Both looks are drawn from the same response. The switch re-renders the grid and sends no request. Compare always
+draws the Excel look.
+
+### The Studio look
+
+Each role maps to an Ant Design token, so all 14 Studio themes and the dark appearance follow without a table of
+their own:
+
+| Role | Token |
+|---|---|
+| `signature` | `colorText`; grey pieces `colorTextSecondary`; major lines `colorBorder` |
+| `properties`, `code` | `colorTextSecondary`; minor line `colorBorderSecondary` |
+| `inputTitle`, `section` | fill `colorFillTertiary`, weight 600 |
+| `outputTitle` | fill `colorPrimary` at 12% over `colorBgContainer`, weight 600 |
+| `output` | fill `colorPrimary` at 6% over `colorBgContainer` |
+| `key` | weight 600 |
+| `result` | weight 600; lines `colorPrimary` |
+
+The text of every role reads on its fill in every theme, light and dark, as the text of the application does on its
+surfaces: 4.5:1, and 3:1 for the grey pieces, as for the secondary text. The tertiary text, the secondary fill and the
+primary background hover of Ant Design fall below that in some themes, so the table takes the tokens above.
+
+Text is coloured by the code editor's highlight style for the current Studio theme (`codeMirrorThemes.ts`):
+
+- **`code`** — tokenised by a CodeMirror stream language and coloured by the theme's `HighlightStyle`, through the
+  inline-style highlighter shared with the user guides:
+    - `openl` — the Java grammar of `@codemirror/legacy-modes` (`clike`), extended with the OpenL operators and
+      literals;
+    - `tbasic` — `openl` plus the TBasic operation keywords (`IF`, `ELSE`, `END`, `SUB`, `FUNCTION`, `RETURN`,
+      `BREAK`, `CONTINUE`, and the rest the algorithm compiler accepts).
+- **`number`, `boolean`, `string`** — the theme's `syntax` hues, the same as parameter values
+  (`--openl-syntaxNumber`, `--openl-syntaxBoolean`, `--openl-syntaxString`).
+- **`date`** — the number hue.
+
+A value of a data type is coloured whole, its separators included: all of `2026-10-15`, `1,000.50`, `[18..25)` or
+`$1K` takes one colour. Only code is split into tokens.
+
+Code keeps the table's proportional font. A monospace font would widen every column holding code.
+
+### The Excel look
+
+The grid draws each cell format from the style dictionary of the response. Theme colours are resolved on the
+server with the workbook's own theme, so the client receives plain colours. Shared borders are not merged on the
+server: the grid collapses them as Excel does, the wider line winning.
+
+Both looks write the text in the font of the application, at the size the screen gives tables, whatever font the
+workbook names: the read carries no font name or size.
+
+## The read API
+
+`GET /projects/{projectId}/tables/{tableId}?raw=true` returns everything both looks need, once.
+
+```json
+{
+  "id": "c1f0e2a7",
+  "kind": "SmartRules",
+  "pos": "B3:D44",
+  "totalRows": 42,
+  "layout": { "transposed": false, "firstDataLine": 2 },
+  "regions": [
+    { "role": "signature", "top": 0, "left": 0, "bottom": 0, "right": 2 },
+    { "role": "inputTitle", "top": 1, "left": 0, "bottom": 1, "right": 1 },
+    { "role": "outputTitle", "top": 1, "left": 2, "bottom": 1, "right": 2 },
+    { "role": "value", "type": "number", "top": 2, "left": 0, "bottom": 41, "right": 0 },
+    { "role": "value", "type": "string", "top": 2, "left": 1, "bottom": 41, "right": 1 },
+    { "role": "output", "type": "number", "top": 2, "left": 2, "bottom": 41, "right": 2 }
+  ],
+  "groups": { "rows": [14, 27] },
+  "signature": [
+    { "part": "keyword", "to": 10 },
+    { "part": "type", "to": 17 },
+    { "part": "name", "to": 25 },
+    { "part": "punctuation", "to": 26 },
+    { "part": "parameterType", "to": 32 },
+    { "part": "parameterName", "to": 39 },
+    { "part": "punctuation", "to": 40 }
+  ],
+  "styles": [
+    {
+      "border": {
+        "top": { "style": "solid", "width": 1, "color": "#44546a" },
+        "bottom": { "style": "solid", "width": 1, "color": "#44546a" }
+      }
+    },
+    { "color": "#7f7f7f" },
+    { "bold": true },
+    { "bold": true, "align": "center", "background": "#e7e6e6" },
+    { "bold": true, "align": "center", "background": "#b4c6e7" },
+    { "background": "#d9e1f2" }
+  ],
+  "source": [
+    [
+      {
+        "value": "SmartRules Double Premium(Driver driver)",
+        "style": 0,
+        "colspan": 3,
+        "runs": [{ "to": 18, "style": 1 }, { "to": 25, "style": 2 }, { "to": 33, "style": 1 }, { "to": 40 }]
+      },
+      { "covered": true },
+      { "covered": true }
+    ],
+    [{ "value": "Driver Age", "style": 3 }, { "value": "Region", "style": 3 }, { "value": "Premium", "style": 4 }],
+    [{ "value": "18-25" }, { "value": "North" }, { "value": 1200, "style": 5 }]
+  ]
+}
+```
+
+The example shows the first three rows of a window. A run with no `style` takes the cell's style.
+
+- **`regions`** — the roles of the whole table, in table coordinates. They partition the table and cover it
+  whatever window of rows is read, so a page of rows needs no layout of its own. A region carries `type` when all
+  its values have the same type. A cell whose type differs from its region's carries its own `type`.
+- **`groups`** — the `rows` and the `columns` of the body that start a group; a list without lines is left out, and so
+  is `groups` of a table without groups.
+- **`signature`** — the pieces of the header text as offsets, for the Studio look. The Excel look takes the
+  cell's own `runs`.
+- **`styles`** — the Excel cell formats the cells of the read use, each once, resolved to plain colours, in the
+  attributes the table actions write them with (`background`, `color`, a `border` side as its `style`, `width` and
+  `color`). A cell names its format by index. A cell in the workbook's Normal format names none. A format names no
+  font name or size: the screen writes every table in the font of the application.
+- **`runs`** — only for a rich-text cell: the end offset and the style index of each piece. The text is not
+  repeated.
+
+Every fact is sent once:
+
+- a cell format is sent once in `styles` and named by index;
+- the text of a rich-text cell is not repeated in its runs;
+- each cell sends only its own borders, and the grid collapses shared edges;
+- the line closing the body belongs to a region, so two windows of rows never both send it;
+- one read serves both looks.
+
+Other parts of the read:
+
+- `styles=false` — leaves out `styles` and `runs` for a client that only wants values.
+- `metaInfo` — what the compiler knows of each cell, such as its type and the tables it uses, on request.
+- `formula` beside the value — the Excel formula and the value it computed are different facts.
+
+## Writing the style
+
+Every path that formats a table runs the same formatter over the table's regions:
+
+```mermaid
+flowchart LR
+    C[Compiled table] --> L[Region layout, cached per compile]
+    N[Table builder: create, copy] --> R[Regions]
+    L --> R
+    E[Edit: insert or delete lines] -->|shift| R
+    Up[Upload: staged] --> C
+    R --> F[ExcelTableFormatter]
+    F --> W[Workbook in memory]
+    W --> S[One save or commit]
+```
+
+### Reformat Excel files
+
+An action of the project, in its **More** menu. Its tooltip:
+
+> Formats every table of every Excel file of the project with the OpenL table style: the theme colours, theme fonts
+> and cell styles of Excel. Values are not changed. Tables of the type Other are left as they are.
+
+The action:
+
+1. Compiles the project if it is not compiled. It does not refuse while a compilation is due.
+2. Formats every table that is formatted at all.
+3. Saves each workbook once and removes its unused cell formats.
+
+It answers `POST /projects/{projectId}/format` with `{formatted: [tableId], skipped: [tableId]}`. A table is
+skipped when it is gathered from several partial tables. `.xls` files are ignored.
+
+### Format tables on save
+
+A system setting in **Administration > System**, `table.format-on-save` (`formatTablesOnSave`), on by default. Its
+tooltip:
+
+> Formats a table with the OpenL table style every time it is saved, created or copied, with no compile. An Excel
+> file uploaded into a project is formatted too. While it is on, the table editor offers no formatting buttons, only
+> the indent of TBasic and ColumnMatch tables.
+
+Formatting a table edit must not compile, so it takes the regions from what is already known:
+
+- **An edited table** — the regions of the last compile, when the module has not been written since that compile.
+  Inserted and deleted rows and columns shift and stretch them, with no compile. A value edit changes no region.
+- **A created table** — the builder of the table type emits the regions of what it writes, and the create request
+  carries them. The table creation window knows them: it writes the header, the titles and the rows. A table created
+  without them, such as one created through the API in a typed view, is formatted at its next save after a compile.
+- **A copied table** — the regions of the source table, moved to the copy.
+- **Not known** — the module was written since its last compile, which happens only with **Verify on Edit** off.
+  The save is not formatted, and inserted lines keep the format of their neighbours. The next save after **Verify**,
+  or **Reformat Excel files**, formats the table.
+
+The formatter writes into the workbook before it is saved, so an edit and its formatting are one save and one
+local-history revision.
+
+A save formats only what the edit changed when the table's previous save left it formatted, in the regions the edit
+starts from, and nothing has written its workbook since:
+
+- **A value edit** formats only the header, which every save writes in its pieces again: a value written into it is
+  plain text.
+- **Inserted, deleted and appended lines** — the inserted lines are formatted, and the lines on either side of where
+  lines were inserted or removed, whose edges move.
+- **Restyled cells** — the rows of the cells a style edit changes, such as their indent, are formatted again. A merge
+  or unmerge changes no cell format.
+- **Everything else formats the whole table** — the first save after the setting is turned on or after a compile
+  that changed the roles, a workbook written by anything else since, and a header and properties that came to take
+  another number of rows.
+
+OpenL Studio remembers the tables its last saves formatted, with the timestamp and length of their workbook files as
+those saves left them. A table it forgot, as after a restart, is formatted whole at its next save.
+
+A save can change a role: for example, a header edit can turn a condition column into a return column. The screen
+follows at once, because the Studio look reads the regions of the new compile. The file takes the new look at the
+table's next save.
+
+### Uploaded Excel files
+
+With **Format tables on save** on, an Excel file that reaches a project from outside the table editor is formatted
+too:
+
+- a file uploaded or replaced through the project files API, `POST` or `PUT /projects/{projectId}/files/{path}`;
+- the files of a ZIP archive written into a project folder, `POST /projects/{projectId}/files/{folder}/` with
+  `application/zip`, including `conflictPolicy=REPLACE`, which replaces the whole project;
+- the files of a ZIP archive that updates an existing project of a repository,
+  `PUT /repos/{repo-name}/projects/{project-name}` with `overwrite=true`.
+
+Nothing is known of an uploaded workbook's tables until it is compiled, so this is the one formatting path that
+compiles. The content is formatted before anyone else can see it:
+
+```mermaid
+flowchart LR
+    U[Upload] --> V[Integrity check]
+    V --> St[Staged content]
+    St --> C[Compile once]
+    C --> F[Format the uploaded workbooks]
+    F --> W[Written or committed once]
+```
+
+- **A project opened by the user** — the upload is written to the user's workspace, which is the stage: nothing is
+  committed before **Save**. The project is compiled — the compile that any upload needs anyway — and the uploaded
+  workbooks are formatted and written again in the workspace. When the upload replaces workbooks of the module open,
+  as **Update** does, the compile of that module serves; otherwise the whole project is compiled.
+- **A closed project, and a project updated from a ZIP archive** — the content goes straight to the design
+  repository. It is staged in a temporary folder first: the project as it stands with the upload written over it, or
+  the archive unpacked, which is otherwise read in place. Each module holding an uploaded workbook is compiled there
+  with the project's dependencies, its uploaded workbooks are formatted, and the content is committed once.
+
+Only the uploaded `.xlsx` files are formatted. The other workbooks of the project are left as they are, and so are
+`.xls` files. A workbook that cannot be formatted, for example because the compilation stopped, is written as it was
+uploaded: formatting never fails an upload.
+
+Formatting changes no value, merge or indent, so it does not make the compiled module stale. The compile of an
+opened project serves the screen afterwards as it is.
+
+### The edit toolbar
+
+The formatting buttons are shown only where formatting is both kept and seen: **Format tables on save** off, and
+the **Excel Formatting** switch on. In every other case they are hidden: a save would overwrite the formatting, or
+the Studio look would not show it.
+
+| Format tables on save | Excel Formatting switch | Align, bold, italic, underline, fill, font colour | Indent, outdent |
+|---|---|---|---|
+| off | on | shown | every table |
+| off | off | hidden | TBasic and ColumnMatch tables only |
+| on | either | hidden | TBasic and ColumnMatch tables only |
+
+The indent stays for TBasic and ColumnMatch tables because it is structure, not look. TBasic reads the level of a
+step from it. ColumnMatch builds its tree of conditions from it (`MatchAlgorithmCompiler`).
+
+The switch is a setting of the browser, so the toolbar re-renders when it is toggled. Nothing is read again. The
+setting is read with the other application settings, `GET /settings` (`formatTablesOnSave`), when OpenL Studio loads.
+
+The style operations of the table actions API follow the setting: while it is on, a `style` operation other than
+`indent` is refused with `400`. An integration then cannot write formatting that the next save overwrites.
+
+### The colour picker
+
+The fill and font colour pickers offer exactly Excel's own palette, and nothing else:
+
+- **Theme Colors** — the 10 theme colours of the workbook, each with 5 shades: 60 swatches. A pick is written as a
+  theme colour and tint.
+- **Standard Colors** — the 10 fixed colours of Excel, Dark Red `#C00000` to Purple `#7030A0`. A pick is written as
+  that RGB.
+
+The API takes a colour as `{"theme": "accent1", "tint": 0.4}` or `{"rgb": "#C00000"}`. Any other RGB value is
+refused with `400`.
+
+## Layout in the backend
+
+```mermaid
+flowchart LR
+    N[TableSyntaxNode] --> RL[TableRegionLayout]
+    RL --> TR[TableRegions]
+    TR --> RC[Region cache]
+    RC --> RR[RawTableReader]
+    RC --> TF[ExcelTableFormatter]
+    TS[TableStyle] --> TF
+```
+
+- **`TableRegions`** — the regions, groups and signature pieces of one table: a small immutable record.
+- **`TableRegionLayout`** — per kind of table, builds `TableRegions` from the compiled node: the bound node of the
+  table's meta-info reader, or its member, such as the `DecisionTable` or the Spreadsheet structure.
+- **Region cache** — a weak map keyed by the compiled `TableSyntaxNode`. A compile makes new nodes, so it
+  invalidates the cache. Every page of a large table reuses one layout.
+- **`TableStyle`** — the role looks, in code: a Java enum with each role's built-in style, font scheme, fill,
+  lines and alignment. With one style there is nothing to configure, so there is no style file.
+- **`ExcelTableFormatter`** — writes `TableRegions` into a workbook: it writes the ten built-in styles, indexes and
+  reuses cell formats, and writes the signature pieces.
+- **`RegionShift`** — moves the regions of the last compile along the lines a save inserts and removes, and names
+  the lines it touched.
+- **`FormattedTables`** — the tables recent saves left formatted, with their regions and the state of their workbook
+  files, so that a later save formats only the lines it touched.
+- **`RawTableReader`** — reads the window of cells, collects the used cell formats into `styles`, and adds the
+  cached regions.
+
+## Cost
+
+| Operation | Target |
+|---|---|
+| Read a page of a 100,000-row table | one layout per compile, not per page; no per-cell style objects |
+| Payload | a few dozen style entries per table, whatever its size |
+| Format on save | the lines the edit changed, or one pass over the table's cells; no compile; one save |
+| Reformat Excel files | one compile of the project, one pass per table, one save per workbook |
+| Upload with format on save | one compile of the staged project, one pass per uploaded table, one write or commit |
+| Workbook growth | bounded by roles × edges × number formats; unused formats removed on reformat |
+
+### Measured
+
+Measured on a container of 4 CPUs and 6 GB (a 4.8 GB heap) with JDK 25, one user session, each request recorded with
+JFR between two full garbage collections:
+
+- **Edits** — a Data table of 10 columns × 100,000 rows and one of 100 columns × 10,000 rows. Each edit is saved three
+  times with **Format tables on save** off, then once more on, the first save that formats the whole table, then three
+  times on. A row or column is inserted inside the body; an inserted column is removed again, unmeasured, before the
+  next run, so every run edits a table of the same size. One run of each, not counted, warms the code up.
+- **Uploads** — a module of 1,000 tables of every kind updated as **Update** writes it, and a project of 20
+  workbooks replaced from a ZIP archive and from its files. Off and on alternate six times after a pair not counted.
+
+The figures are medians, and the ratios are on ÷ off for time, CPU time and peak heap. The time of an edit is the
+wait of its save. The time of an upload is the upload and the compile of the next read of a table, as a formatted
+upload compiles within its request what an upload without formatting leaves to that read.
+
+| Edit | Table | Off | On | Time | CPU | Peak heap | First save on |
+|---|---|---|---|---|---|---|---|
+| A value changed | 10 × 100,000 | 4.63 s | 4.43 s | 0.96 | 0.91 | 1.02 | 8.11 s |
+| | 100 × 10,000 | 4.98 s | 4.92 s | 0.99 | 0.94 | 0.99 | 10.10 s |
+| A row inserted | 10 × 100,000 | 10.04 s | 10.17 s | 1.01 | 1.04 | 1.06 | 12.99 s |
+| | 100 × 10,000 | 10.39 s | 10.44 s | 1.00 | 0.98 | 0.93 | 14.52 s |
+| A column inserted | 10 × 100,000 | 11.10 s | 11.81 s | 1.06 | 1.05 | 1.01 | 14.30 s |
+| | 100 × 10,000 | 12.04 s | 12.16 s | 1.01 | 1.07 | 1.03 | 16.41 s |
+
+- **A table formatted at its previous save** saves within 10% of a save without formatting, in time, CPU and peak
+  heap. It allocates as much, and its garbage collection pauses as long. The compile of the next read takes as long.
+- **The first save that formats the whole table** — after the setting is turned on, after a compile that changed
+  the roles, or after the workbook was written by anything else — costs one pass over every cell: 1.3–2 times the
+  save without formatting, once.
+- **Before this step** a value save of these tables took 24–30% longer with formatting on, and 36–43% more CPU: every
+  save formatted every cell. The pass itself was made cheaper too: a cell format is read once and written only when
+  it changes, and the header is written one run per piece.
+- **Not formatting's own limit** — POI refuses a record larger than 100 MB, so a 100 × 30,000 table cannot be opened
+  for editing, and a 100 × 25,000 one saves once and then cannot be opened again, with formatting off as well.
+
+| Upload | Off | On | Time | CPU | Peak heap |
+|---|---|---|---|---|---|
+| A module of 1,000 tables updated | 0.95 + 0.51 s | 1.84 + 0.05 s | 1.30 | 1.17 | 1.03 |
+| A project of 20 workbooks from a ZIP | 0.99 + 0.69 s | 2.35 + 0.04 s | 1.43 | 1.44 | 1.00 |
+| The same project from its files | 0.91 + 0.56 s | 2.16 + 0.03 s | 1.47 | 1.53 | 1.05 |
+
+- **An upload costs 30–47% more time and 17–53% more CPU**, the upload and the compile of the next read counted
+  together; its peak heap stays within 5%. A formatted upload does the compile the next read would do, then lays out
+  every table of the uploaded workbooks, loads each workbook for writing and saves it again. A project whose upload
+  spans several modules is compiled whole, where the next read without formatting compiles only the module open.
+- **Before this step** the same uploads took 1.6–2.0 times as long: the module open was compiled twice, and the
+  header of every table was written piece over piece.
+- **Above the target** — the uploads stay above the 10% of the plan. The formatting that remains — a layout, a pass
+  over each table and one save per workbook — is the work of formatting itself. Formatting an upload after its
+  response, or leaving it to the next save and **Reformat Excel files**, would take it out of the user's wait; that
+  is a decision left open.

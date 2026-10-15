@@ -43,8 +43,9 @@ Studio.
   [Table Creation](architecture/table-creation.md), [Table Dependency Graph](architecture/table-dependency-graph.md),
   [Decision Table Condition Indexing](architecture/decision-table-condition-indexing.md),
   [Upload Integrity](architecture/upload-integrity.md),
-  [Embedded User Guides](architecture/embedded-user-guides.md), and the design of the
-  [Built-in MCP Server](architecture/mcp-server-jetty-architecture.md).
+  [Embedded User Guides](architecture/embedded-user-guides.md), the design of the
+  [Built-in MCP Server](architecture/mcp-server-jetty-architecture.md), and
+  [Table Formatting](architecture/table-formatting.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),
   [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md), and
