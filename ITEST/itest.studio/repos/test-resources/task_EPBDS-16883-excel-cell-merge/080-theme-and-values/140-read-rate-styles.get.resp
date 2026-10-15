@@ -155,5 +155,74 @@ Content-Type: application/json
       }
     }
   ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 2,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 2,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 18
+    },
+    {
+      "part": "name",
+      "to": 23
+    },
+    {
+      "part": "punctuation",
+      "to": 24
+    },
+    {
+      "part": "parameterType",
+      "to": 30
+    },
+    {
+      "part": "parameterName",
+      "to": 38
+    },
+    {
+      "part": "punctuation",
+      "to": 39
+    }
+  ],
   "headerHeight": 1
 }

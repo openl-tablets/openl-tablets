@@ -4,9 +4,9 @@ import { wider } from '../../components/rawTableStyle'
 /**
  * The rows of a table with the first ones kept out of sight, such as the header of a table shown without it.
  *
- * A line two cells share may be named by either of them, in the style the workbook holds and in the look of a table
- * theme alike, and the grid draws the wider one. So the line under the rows kept out of sight is drawn on the top of
- * the first row left, where it is wider than a line that row draws of its own. The line under a hidden header stays.
+ * A line two cells share may be named by either of them in the style the workbook holds, and the grid draws the wider
+ * one. So the line under the rows kept out of sight is drawn on the top of the first row left, where it is wider than a
+ * line that row draws of its own. The line under a hidden header stays.
  *
  * @param rows the rows of the table
  * @param hidden how many rows at the top are kept out of sight

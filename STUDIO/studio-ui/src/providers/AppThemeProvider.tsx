@@ -4,9 +4,11 @@ import { theme as antdTheme, type ThemeConfig } from 'antd'
 import {
     appearanceOf,
     readCompactMode,
+    readExcelFormatting,
     readThemeMode,
     readThemeName,
     storeCompactMode,
+    storeExcelFormatting,
     storeThemeMode,
     storeThemeName,
 } from '../utils/themeMode'
@@ -22,6 +24,12 @@ interface AppTheme {
     /** The theme whose colours the application is painted in. */
     themeName: ThemeName
     setThemeName: (name: ThemeName) => void
+    /**
+     * Whether the tables are shown in the formatting of their Excel files, as Excel shows them, rather than drawn in
+     * the colours of the theme by what each of their cells means.
+     */
+    excelFormatting: boolean
+    setExcelFormatting: (excelFormatting: boolean) => void
 }
 
 const AppThemeContext = createContext<AppTheme>({
@@ -29,9 +37,11 @@ const AppThemeContext = createContext<AppTheme>({
     setCompact: () => {},
     themeName: 'standard',
     setThemeName: () => {},
+    excelFormatting: false,
+    setExcelFormatting: () => {},
 })
 
-/** The theme and the density the user picked, and the way to change them. */
+/** The theme, the density and the formatting of the tables the user picked, and the way to change them. */
 export const useAppTheme = (): AppTheme => useContext(AppThemeContext)
 
 /**
@@ -67,12 +77,12 @@ const ThemeColorMeta = () => {
 
 /**
  * Gives the whole application the theme the user picked, the appearance they picked — light, dark, or the
- * one the operating system asks for — and the density they picked with them.
+ * one the operating system asks for — the density and the formatting of the tables they picked with them.
  *
- * All three choices are restored from browser storage on start and written back whenever they change, so
- * they survive a reload. The first render is already drawn in the remembered appearance: antd-style would
+ * Every choice is restored from browser storage on start and written back whenever it changes, so it
+ * survives a reload. The first render is already drawn in the remembered appearance: antd-style would
  * otherwise start light and switch in an effect, which a dark reader sees as a white flash on every load.
- * Under `auto` the provider follows the system and repaints when the system switches. The three are
+ * Under `auto` the provider follows the system and repaints when the system switches. The choices are
  * independent: every theme has a variant for either appearance, worn at either density.
  *
  * The provider adds the algorithm of the appearance, dark or default, to the tokens the theme hands over. The
@@ -84,6 +94,7 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
     const [themeMode, setThemeMode] = useState<ThemeMode>(readThemeMode)
     const [compact, setCompact] = useState<boolean>(readCompactMode)
     const [themeName, setThemeName] = useState<ThemeName>(readThemeName)
+    const [excelFormatting, setExcelFormatting] = useState<boolean>(readExcelFormatting)
 
     const onThemeModeChange = useCallback((mode: ThemeMode) => {
         storeThemeMode(mode)
@@ -100,9 +111,21 @@ export const AppThemeProvider = ({ children }: PropsWithChildren) => {
         setThemeName(next)
     }, [])
 
+    const rememberExcelFormatting = useCallback((next: boolean) => {
+        storeExcelFormatting(next)
+        setExcelFormatting(next)
+    }, [])
+
     const value = useMemo(
-        () => ({ compact, setCompact: rememberCompact, setThemeName: rememberThemeName, themeName }),
-        [compact, rememberCompact, rememberThemeName, themeName]
+        () => ({
+            compact,
+            excelFormatting,
+            setCompact: rememberCompact,
+            setExcelFormatting: rememberExcelFormatting,
+            setThemeName: rememberThemeName,
+            themeName,
+        }),
+        [compact, excelFormatting, rememberCompact, rememberExcelFormatting, rememberThemeName, themeName]
     )
 
     const theme = useCallback(

@@ -53,6 +53,21 @@ export const readCompactMode = (): boolean => readStored(THEME_COMPACT_KEY) === 
 /** Remembers the picked density for the next visit. */
 export const storeCompactMode = (compact: boolean): void => writeStored(THEME_COMPACT_KEY, String(compact))
 
+/** Where the choice to show the tables in the formatting of their Excel files is remembered between visits. */
+export const THEME_EXCEL_FORMATTING_KEY = 'openl.theme.excelFormatting'
+
+/**
+ * Whether the tables are shown in the formatting of their Excel files (**Excel Formatting** in the theme menu).
+ *
+ * The tables are drawn in the colours of the theme by default, so anything but a stored `true` — nothing picked
+ * yet, a browser that refuses storage, a value this version does not know — draws them so.
+ */
+export const readExcelFormatting = (): boolean => readStored(THEME_EXCEL_FORMATTING_KEY) === 'true'
+
+/** Remembers for the next visit whether the tables are shown in the formatting of their Excel files. */
+export const storeExcelFormatting = (excelFormatting: boolean): void =>
+    writeStored(THEME_EXCEL_FORMATTING_KEY, String(excelFormatting))
+
 /** Where the picked theme is remembered between visits. */
 export const THEME_NAME_KEY = 'openl.theme.name'
 

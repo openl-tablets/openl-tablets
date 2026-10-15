@@ -23,6 +23,8 @@ interface OpenCellProps {
     onCancel: () => void
     /** Told while the reader has the menu of other ways open, which is not them leaving the cell. */
     onSwitching: (open: boolean) => void
+    /** Whether the table is drawn on the paper of a workbook, which the field then lies on too. */
+    onPaper: boolean
 }
 
 /**
@@ -33,10 +35,10 @@ interface OpenCellProps {
  * the tab would answer a key at a time. Here a keystroke redraws the one cell it is typed into.
  */
 export const OpenCell: React.FC<OpenCellProps> = ({
-    from, several, own, asked, address, onCommit, onCancel, onSwitching,
+    from, several, own, asked, address, onCommit, onCancel, onSwitching, onPaper,
 }) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
+    const { styles } = useStyles(onPaper)
     const [draft, setDraft] = useState(from)
     // The way the reader chose to write the cell, when it is not the way the cell asks for.
     const [switched, setSwitched] = useState<EditorKind | null>(null)

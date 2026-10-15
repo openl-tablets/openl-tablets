@@ -10,7 +10,6 @@ import {
     getProjectTables,
     getTableCopyInfo,
     getTableThemes,
-    getTableThemesOf,
 } from './tables'
 
 vi.mock('./apiCall', () => ({
@@ -263,16 +262,6 @@ describe('table theme', () => {
 
         expect(mockApiCall).toHaveBeenCalledTimes(2)
         expect(mockApiCall).toHaveBeenLastCalledWith('/table-themes', undefined,
-            { throwError: true, suppressErrorPages: true })
-    })
-
-    it('asks which table themes style a table, through the module it is read in', async () => {
-        mockApiCall.mockResolvedValueOnce([{ id: 'green', name: 'Green' }])
-
-        await expect(getTableThemesOf('project-id', 'table-id', 'Main'))
-            .resolves.toEqual([{ id: 'green', name: 'Green' }])
-
-        expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/tables/table-id/themes?module=Main', undefined,
             { throwError: true, suppressErrorPages: true })
     })
 

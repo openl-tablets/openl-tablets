@@ -87,5 +87,38 @@ Content-Type: application/json
       "color": "#ff0000"
     }
   ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 19
+    }
+  ],
   "headerHeight": 1
 }

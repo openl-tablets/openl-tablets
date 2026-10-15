@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
@@ -73,7 +76,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void offersEveryThemeForATBasicTable() {
-        assertEquals(LOOKS.getThemes(), LOOKS.getThemes(factorial()));
+        assertTrue(LOOKS.styles(factorial()));
     }
 
     @Test
@@ -157,6 +160,28 @@ class TBasicThemeLayoutTest {
         assertEquals("SET", nested.value(), "The theme changes no text");
         assertEquals(1, nested.style().indent(), "The level of the step stays as it is");
         assertEquals(CODE, written.get(FIRST_STEP - FACTORIAL_ROW).get(ACTION - LABEL).style().background());
+    }
+
+    @Test
+    void readsTheRolesOfATBasicTable() {
+        var roles = Roles.of(factorial());
+
+        assertEquals(RawTableRole.CODE, roles.roleAt(FACTORIAL_ROW + 1, OPERATION), "The ids of the columns");
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(FACTORIAL_ROW + 2, LABEL));
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(FACTORIAL_ROW + 2, ACTION));
+        assertEquals(RawTableRole.KEY, roles.roleAt(SUBROUTINE_STEP + 1, LABEL), "A label");
+        assertEquals(RawTableRole.VALUE, roles.roleAt(FIRST_STEP, DESCRIPTION));
+        assertEquals(RawTableValueType.STRING, roles.typeAt(FIRST_STEP, DESCRIPTION), "A description is text");
+        assertEquals(RawTableRole.VALUE, roles.roleAt(FIRST_STEP, ACTION));
+        assertEquals(RawTableValueType.CODE, roles.typeAt(FIRST_STEP, ACTION), "What a step runs is code");
+        assertEquals(RawTableValueType.CODE, roles.typeAt(LOOP_STEP, CONDITION), "So is its condition");
+        assertEquals(RawTableValueType.CODE, roles.typeAt(LOOP_STEP, OPERATION), "And its operation");
+        assertEquals(RawTableRole.RESULT, roles.roleAt(RETURN_STEP, OPERATION), "A step that returns");
+        assertEquals(RawTableRole.RESULT, roles.roleAt(RETURN_STEP, LABEL));
+        assertEquals(RawTableValueType.CODE, roles.typeAt(RETURN_STEP, CONDITION));
+        assertEquals(RawTableRole.SECTION, roles.roleAt(SUBROUTINE_STEP, LABEL), "A step starting a subroutine");
+        assertEquals(RawTableRole.SECTION, roles.roleAt(SUBROUTINE_STEP, ACTION));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(LAST_STEP, OPERATION));
     }
 
     private IOpenLTable factorial() {

@@ -1,7 +1,7 @@
 ## Appendix E: Table Themes
 
-A table theme describes the look OpenL Studio gives its tables: every table but a table of the type **Other**. A
-theme is drawn over the tables while they are viewed, or written into the Excel file, as described in
+A table theme describes the look OpenL Studio writes into the tables of a project: every table but a table of the type
+**Other**. A theme is written into the Excel files, as described in
 [Applying the Table Theme](../rules-editor.md#applying-the-table-theme). OpenL Studio ships the **Standard** and
 **Green** themes. This appendix describes how a theme file is written.
 
@@ -20,8 +20,8 @@ The following topics are included:
 
 A theme is a YAML file with the `.yaml` extension:
 
--   **Identifier** — the file name without the extension, such as `corporate` for `corporate.yaml`. **My Settings**
-    and the API refer to the theme by it, so it tells the themes apart: of two files of one name, OpenL Studio offers
+-   **Identifier** — the file name without the extension, such as `corporate` for `corporate.yaml`. The API refers to
+    the theme by it, so it tells the themes apart: of two files of one name, OpenL Studio offers
     the one it reads first and writes a warning about the other to its log.
 -   **Name** — the name the file declares, which OpenL Studio shows wherever a theme is chosen. Two themes may declare
     one name.
@@ -35,7 +35,7 @@ A theme file holds the following keys:
 
 -   **`name`** — required. The name of the theme shown in OpenL Studio.
 -   **`primary`** — `true` for the primary theme, which OpenL Studio lists before the other themes and selects first
-    when a theme is applied to a table or to a project. The other themes follow in the order of their names. The
+    when a theme is applied to a project. The other themes follow in the order of their names. The
     **Standard** theme is the primary one; the key is `false` when the file does not write it.
 -   **`themeColors`** — the theme colours of Excel that the colours of the theme are made of, as described in
     [Theme Colours of Excel](#theme-colours-of-excel).
@@ -81,14 +81,6 @@ The themes that OpenL Studio ships write a look only for the kinds that the form
 describes: a Datatype and a Vocabulary, a Spreadsheet, a Data and a Test table, and the decision tables, a Rules, a
 SimpleRules, a SmartRules, a SimpleLookup, and a SmartLookup table. A SmartRules and a SmartLookup table take the
 look of a SimpleRules and a SimpleLookup table. Every other kind takes the base alone, the General format.
-
-OpenL Studio also tells the screen where each colour of a theme is set: the key of the file, such as
-`spreadsheet.values.background` or `base.header.keyword.color`, the file read with its aliases and merge keys
-resolved, so a kind an alias repeats has keys of its own, such as `smartRules.returns.background`. With **Override with
-Studio theme** selected in **My Settings**, the **Standard** theme of OpenL Studio draws the tables with the
-**Standard** table theme, whichever table theme is selected, and in the dark appearance gives each key of its file a
-dark colour of its own. Under the other themes of OpenL Studio, or with **Override with Studio theme** cleared, a table
-theme is drawn in its own colours. Only the screen changes: the Excel file and the project are not changed.
 
 ### Parts of a Table
 
@@ -297,7 +289,7 @@ also be written as the palette of Excel names a theme colour, such as `Blue, Acc
 [Theme Colours of Excel](#theme-colours-of-excel), or set by the name the theme gives it, as described in
 [Naming Colours](#naming-colours). A shorter colour, such as `#fff`, is refused, and so is a name the theme gives no
 colour, such as `red`. An `.xls` file holds its colours in a palette of 56: a colour of the theme the palette has no
-room for is written as the nearest colour it holds, while the screen draws the colour of the theme. An `.xls` file
+room for is written as the nearest colour it holds. An `.xls` file
 also holds at most 4,000 cell styles, and an `.xlsx` file 64,000: a theme that needs more styles than the file has
 room for is refused, and the file is left as it was. Save an `.xls` file as `.xlsx` to write the theme into it.
 
@@ -399,9 +391,7 @@ themeColors:
   followedHyperlink: "#954f72"
 ```
 
-The screen draws a theme colour as Excel draws it, made lighter or darker. How the colour is written into an Excel
-file depends on the theme colours of the file, whether the theme is written into one table or into the whole
-project:
+How a theme colour is written into an Excel file depends on the theme colours of the file:
 
 -   **A file whose theme colours are those under `themeColors`** — every colour of the theme is written as the theme
     colour it is made of, so Excel offers it in its palette. The twelve colours are compared, not their name: a file

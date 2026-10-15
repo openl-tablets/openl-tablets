@@ -74,12 +74,12 @@ describe('compare service', () => {
             id: '0-1',
             name: 'Rules',
             status: 'changed',
-            first: { source: [[{ cell: 'B2', style: 0, value: 'x' }]], styles: [{ bold: true }], changedCells: ['B2'] },
+            first: { source: [[{ cell: 'B2', style: 0, value: 'x' }]], styles: [{ bold: true }], changedCells: ['B2']},
         }))
 
         const table = await getComparisonTable('cmp-1', '0-1')
 
-        expect(table.first).toEqual({ source: [[{ cell: 'B2', style: { bold: true }, value: 'x' }]], changedCells: ['B2'] })
+        expect(table.first).toEqual({ source: [[{ cell: 'B2', style: { bold: true }, value: 'x' }]], changedCells: ['B2']})
         expect(table).not.toHaveProperty('second')
     })
 

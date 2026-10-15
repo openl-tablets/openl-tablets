@@ -1,10 +1,21 @@
 import React from 'react'
 import { Tooltip } from 'antd'
-import type { RawTableCell, RawTableCellBorder, TableLayout } from 'types/tables'
+import { useTheme } from 'antd-style'
+import type {
+    RawTableCell,
+    RawTableCellBorder,
+    RawTableCellStyle,
+    RawTableSignaturePart,
+    RawTableSignaturePiece,
+    RawTableTextRun,
+    TableLayout,
+} from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
-import { type TablePaper, workbookPaper } from '../styles/paper'
-import { type RawTableGridStyles, useStyles } from './RawTableGrid.styles'
-import { borders, collapsedBorders, fontFamilyOf, fontSizeOf, indentOf, textDecoration, tinted } from './rawTableStyle'
+import { themePaper, workbookPaper } from '../styles/paper'
+import { type RawTableGridStyles, roleColoursOf, useStyles } from './RawTableGrid.styles'
+import { borders, collapsedBorders, indentOf, textDecoration, tinted } from './rawTableStyle'
+import { useAppTheme } from '../providers/AppThemeProvider'
+import { type CellRole, cellRoleOf, onPaper, roleLinesOf, type RoleLines, type TableRoles } from './tableRoles'
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -25,11 +36,6 @@ interface RawTableGridProps {
     decorate?: ((cell: RawTableCell, row: number, column: number) => CellDecoration | undefined) | undefined
     /** Draw the formula a cell was written with rather than the value it computed, where it has one. */
     formulas?: boolean | undefined
-    /**
-     * The paper the table is laid on: its ground and ink, its grid, its links and the marks of its notes. Absent
-     * where the table lies on the paper of a workbook ({@link workbookPaper}).
-     */
-    paper?: TablePaper | undefined
     /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
     onOpenUsage?: OpenUsage | undefined
     /** Told which cell the reader picked; absent on a screen where a cell cannot be picked. */
@@ -51,6 +57,11 @@ interface RawTableGridProps {
      * Absent where the lines are not numbered, which is every other table.
      */
     layout?: TableLayout | undefined
+    /**
+     * The roles of the cells of the table, which the Studio look draws it by. Absent for a table drawn in the
+     * formatting of its workbook alone, such as a side of a comparison or a table of the kind Other.
+     */
+    roles?: TableRoles | undefined
     testId?: string | undefined
 }
 
@@ -102,9 +113,8 @@ const edgeOf = (row: number, column: number): string | undefined => {
  *
  * A side of the cell a border is drawn on, as the table collapses the lines its cells name
  * ({@link collapsedBorders}), is drawn with that border; any other side keeps the line of the grid, which the cell
- * above or on the left draws where there is one. The font and its size are drawn only where the table theme sets
- * them: a read naming a theme reports the look of the theme as the style of the cell. An indented cell leaves the
- * room of its indent beside its text.
+ * above or on the left draws where there is one. The text is written in the font of the application, whatever font
+ * the workbook names. An indented cell leaves the room of its indent beside its text.
  */
 const cellStyle = (style: RawTableCell['style'], border: RawTableCellBorder | undefined, painted: boolean,
     muted: boolean, ink: string): React.CSSProperties => {
@@ -120,12 +130,101 @@ const cellStyle = (style: RawTableCell['style'], border: RawTableCellBorder | un
         fontWeight: style?.bold ? 'bold' : undefined,
         fontStyle: style?.italic ? 'italic' : undefined,
         textDecoration: textDecoration(style),
-        // A font the machine does not have falls back to a sans-serif one, not to the browser's serif default.
-        fontFamily: fontFamilyOf(style),
-        fontSize: fontSizeOf(style),
         ...indentOf(style),
         ...borders(border, muted, ink),
     }
+}
+
+/**
+ * How a cell of the Studio look lines up across its width: a title in the middle, a number or a date on the right as
+ * Excel lines up a value by its type, and everything else on the left.
+ */
+const roleAlignOf = (role: CellRole | undefined): React.CSSProperties['textAlign'] => {
+    const name = role?.region.role
+    if (name === 'inputTitle' || name === 'outputTitle') {
+        return 'center'
+    }
+    const valued = name === 'value' || name === 'output' || name === 'result'
+    return valued && (role?.type === 'number' || role?.type === 'date') ? 'right' : undefined
+}
+
+/**
+ * A cell drawn in the Studio look: lined up by its role, keeping the indent of the workbook, which carries the
+ * structure of a TBasic and a ColumnMatch table, with the lines the look draws around it. Nothing else of the
+ * formatting of the workbook is drawn.
+ */
+const studioCellStyle = (role: CellRole | undefined, style: RawTableCell['style'], border: RawTableCellBorder | undefined,
+    muted: boolean, ink: string): React.CSSProperties => ({
+    textAlign: roleAlignOf(role),
+    ...indentOf(style),
+    ...borders(border, muted, ink),
+})
+
+/** The classes a cell takes from its role in the Studio look: its text, and its fill unless the screen paints it. */
+const roleClassesOf = (role: CellRole | undefined, styles: RawTableGridStyles, painted: boolean,
+    muted: boolean): Array<string | false> => {
+    const name = role?.region.role
+    const text = {
+        signature: styles.signature,
+        properties: styles.muted,
+        code: styles.muted,
+        inputTitle: styles.inputTitle,
+        section: styles.inputTitle,
+        outputTitle: styles.outputTitle,
+        key: styles.strong,
+        result: styles.strong,
+        value: false as const,
+        output: false as const,
+    }
+    const fill = {
+        inputTitle: styles.inputTitleFill,
+        section: styles.inputTitleFill,
+        outputTitle: styles.outputTitleFill,
+        output: styles.outputFill,
+    }
+    return [
+        styles.studioCell,
+        name !== undefined && text[name],
+        !painted && !muted && name !== undefined && name in fill && fill[name as keyof typeof fill],
+        muted && styles.mutedRole,
+    ]
+}
+
+/** The pieces of the header text the Studio look draws in a colour of their own. */
+const MUTED_PIECES: ReadonlySet<RawTableSignaturePart> = new Set(['keyword', 'type', 'punctuation', 'parameterType'])
+
+/**
+ * The header text in the pieces of its signature: the name of the table bold, the names of the parameters in the
+ * colour of the text, and the keyword, the types and the punctuation in a fainter one.
+ */
+const signatureRuns = (text: string, pieces: RawTableSignaturePiece[], faint: string): RawTableTextRun[] => {
+    const name: RawTableCellStyle = { bold: true }
+    const muted: RawTableCellStyle = { color: faint }
+    let from = 0
+    return pieces.map(piece => {
+        const run: RawTableTextRun = { text: text.slice(from, piece.to) }
+        if (piece.part === 'name') {
+            run.style = name
+        } else if (MUTED_PIECES.has(piece.part)) {
+            run.style = muted
+        }
+        from = piece.to
+        return run
+    })
+}
+
+/**
+ * A cell as the Studio look writes its text: the header in the pieces of its signature, any other text in the font of
+ * the cell, whatever pieces the workbook formats it in.
+ */
+const studioTextOf = (cell: RawTableCell, role: CellRole | undefined, roles: TableRoles | undefined,
+    faint: string): RawTableCell => {
+    const { runs, ...plain } = cell
+    const header = role?.region.role === 'signature' && role.place.row === 0 && role.place.column === 0
+    if (!header || roles === undefined || roles.signature.length === 0 || typeof cell.value !== 'string') {
+        return runs === undefined ? cell : plain
+    }
+    return { ...plain, runs: signatureRuns(cell.value, roles.signature, faint) }
 }
 
 /**
@@ -161,14 +260,16 @@ const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles:
 }
 
 /**
- * Draws a table the way its author wrote it in Excel: the same cells, the same merges, the same
- * styling, with the values already evaluated — or, where the screen asks for it, with the formulas the
- * cells were written with, which every cell carries beside its value.
+ * Draws a table of a workbook in one of two looks, with the values already evaluated — or, where the screen asks for
+ * it, with the formulas the cells were written with, which every cell carries beside its value.
  *
- * The cells keep the colours Excel draws them in, whatever the theme: black text on white, under what the
- * workbook fills or colours itself, so a filled cell stays readable in a dark theme. A screen may lay the table on a
- * paper of its own instead ({@link TablePaper}), as the table editor does for the look of the theme of the
- * application.
+ * The Studio look draws the table by what its cells mean ({@link TableRoles}), in the colours of the theme of the
+ * application, light or dark. It keeps nothing of the formatting of the workbook but the indent.
+ *
+ * The formatting of the workbook draws the table the way its author wrote it in Excel: the same cells, the same
+ * merges, the same styling, in the colours Excel draws them in whatever the theme — black text on white, under what
+ * the workbook fills or colours itself, so a filled cell stays readable in a dark theme. A table read with no roles is
+ * drawn this way, and so is every table while the reader has **Excel Formatting** on in the theme menu.
  *
  * Every screen that shows a table of a workbook — the trace window, the comparison — draws it through
  * this component and only says how its own cells are marked, so a table looks the same everywhere.
@@ -177,19 +278,52 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     rows,
     decorate,
     formulas,
-    paper,
     onOpenUsage,
     onPickCell,
     onOpenCell,
     onKeyDown,
     tableRef,
     layout,
+    roles,
     testId,
 }) => {
-    const laidOn = paper ?? workbookPaper()
+    const { excelFormatting } = useAppTheme()
+    const token = useTheme()
+    // The Studio look draws a table by what its cells mean, in the colours of the theme; a table read with no roles,
+    // or with the Excel Formatting of the theme menu on, keeps the formatting of its workbook.
+    const studio = !onPaper(roles, excelFormatting)
+    const {
+        colorBgContainer, colorText, colorFillTertiary, colorLink, colorLinkHover, colorError, colorTextSecondary,
+        colorBorder, colorBorderSecondary, colorPrimary,
+    } = token
+    // The paper and the lines of the theme, worked out again only when a colour of them changes.
+    const look = React.useMemo(() => ({
+        paper: themePaper({ colorBgContainer, colorText, colorFillTertiary, colorLink, colorLinkHover, colorError }),
+        faint: roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary }).faint,
+        lines: {
+            major: { color: colorBorder, style: 'solid', width: 1 },
+            minor: { color: colorBorderSecondary, style: 'solid', width: 1 },
+            resultAbove: { color: colorPrimary, style: 'solid', width: 1 },
+            resultBelow: { color: colorPrimary, style: 'double', width: 3 },
+        } satisfies RoleLines,
+    }), [colorBgContainer, colorBorder, colorBorderSecondary, colorError, colorFillTertiary, colorLink, colorLinkHover,
+        colorPrimary, colorText, colorTextSecondary])
+    const laidOn = studio ? look.paper : workbookPaper()
     const { styles, cx } = useStyles(laidOn)
-    // Each line two cells share is drawn once, by the cell above or on the left.
-    const borderLines = React.useMemo(() => collapsedBorders(rows), [rows])
+    // What each cell is in the Studio look, found by its address in the table.
+    const cellRoles = React.useMemo(() => (studio && roles !== undefined
+        ? rows.map(row => row.map(cell => (cell.covered ? undefined : cellRoleOf(roles, cell.cell, cell.type))))
+        : undefined), [roles, rows, studio])
+    // Each line two cells share is drawn once, by the cell above or on the left: in the Studio look the lines of the
+    // roles, in the formatting of the workbook the borders of the cells.
+    const borderLines = React.useMemo(() => collapsedBorders(rows, cellRoles === undefined || roles === undefined
+        ? undefined
+        : (cell, row, column) => {
+            const role = cellRoles[row]?.[column]
+            return role === undefined
+                ? undefined
+                : roleLinesOf(roles, role, { rows: cell.rowspan ?? 1, columns: cell.colspan ?? 1 }, look.lines)
+        }), [cellRoles, look, roles, rows])
     // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
     // table, counted down the rows or across the columns according to how the table is written.
     // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
@@ -233,21 +367,26 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                         const muted = !!decoration?.muted
                         const painted = !!decoration?.painted
                         const key = cell.cell ?? `c${columnIndex}`
+                        const border = borderLines[rowIndex]?.[columnIndex]
+                        const role = cellRoles?.[rowIndex]?.[columnIndex]
                         const drawn = (
                             <td
                                 colSpan={cell.colspan}
                                 data-cell={cell.cell}
                                 data-edge={edgeOf(rowIndex, columnIndex)}
+                                data-role={role?.region.role}
                                 onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                 rowSpan={cell.rowspan}
-                                style={cellStyle(cell.style, borderLines[rowIndex]?.[columnIndex], painted, muted,
-                                    laidOn.text)}
                                 className={cx(styles.cell, cell.comment !== undefined && styles.commented,
+                                    ...(studio ? roleClassesOf(role, styles, painted, muted) : []),
                                     decoration?.className)}
+                                style={studio
+                                    ? studioCellStyle(role, cell.style, border, muted, laidOn.text)
+                                    : cellStyle(cell.style, border, painted, muted, laidOn.text)}
                             >
-                                {decoration?.content ?? cellText(cell, !!formulas, muted, styles, laidOn.text,
-                                    onOpenUsage)}
+                                {decoration?.content ?? cellText(studio ? studioTextOf(cell, role, roles, look.faint)
+                                    : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage)}
                             </td>
                         )
                         // The note is shown while the cell is read. A cell the screen has taken over — one

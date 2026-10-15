@@ -105,16 +105,6 @@ public class TableThemeService {
     }
 
     /**
-     * The themes that can be drawn over a table or written into it, in the order {@link #getThemes()} offers them.
-     *
-     * @param table the table
-     * @return every theme for a table the themes style; none for a table of any other kind
-     */
-    public List<TableThemeView> getThemes(IOpenLTable table) {
-        return styles(table) ? getThemes() : List.of();
-    }
-
-    /**
      * Whether the themes style a table. Every theme styles every table of the kinds {@link TableRegionLayout#styles}
      * names, so they look alike in one theme.
      *
@@ -130,20 +120,18 @@ public class TableThemeService {
     }
 
     /**
-     * The look a theme gives each cell of a table, for a screen to draw it.
-     *
-     * <p>The table is laid out once for each compilation of it, so every page of a large table drawn in the theme
-     * reuses the layout, see {@link TableRegionLayout#regionsOf}.
+     * The look a theme gives each cell of a table, as writing the theme into it gives.
      *
      * @param table   the table to theme
      * @param themeId the theme, by its identifier
      * @return the look of each cell, or {@code null} for a table of a kind no theme styles
      * @throws BadRequestException when no theme has the identifier
      */
-    public @Nullable ThemedTable layoutOf(IOpenLTable table, String themeId) {
+    @Nullable
+    ThemedTable layoutOf(IOpenLTable table, String themeId) {
         var theme = theme(themeId);
         var grid = table.getGridTable();
-        return ThemedTable.of(table, grid, TableRegionLayout.regionsOf(table, grid), theme);
+        return ThemedTable.of(table, grid, TableRegionLayout.of(table, grid), theme);
     }
 
     /**

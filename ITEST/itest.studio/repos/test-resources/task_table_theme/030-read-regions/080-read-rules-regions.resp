@@ -1,0 +1,112 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0e31423acbfea77e07c32c8b334eaee6",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Greeting",
+  "pos": "B27:C29",
+  "source": [
+    [
+      {
+        "cell": "B27",
+        "value": "SimpleRules String Greeting(Integer hour)"
+      },
+      {
+        "cell": "C27"
+      }
+    ],
+    [
+      {
+        "cell": "B28",
+        "value": "Hour"
+      },
+      {
+        "cell": "C28",
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B29",
+        "value": "< 12"
+      },
+      {
+        "cell": "C29",
+        "value": "Good Morning"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "inputTitle",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 1,
+      "left": 1,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 18
+    },
+    {
+      "part": "name",
+      "to": 27
+    },
+    {
+      "part": "punctuation",
+      "to": 28
+    },
+    {
+      "part": "parameterType",
+      "to": 35
+    },
+    {
+      "part": "parameterName",
+      "to": 40
+    },
+    {
+      "part": "punctuation",
+      "to": 41
+    }
+  ],
+  "headerHeight": 1
+}

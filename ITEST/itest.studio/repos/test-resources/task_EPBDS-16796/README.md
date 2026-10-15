@@ -8,8 +8,7 @@ as a table it does not hold: the word `Hello` in `CallHello` was plain text, and
   wrote under the name the compiler gives such a table, but not the built table.
 - The word `Hello` names the built table and the module it is read through; its id is captured from there, since
   it changes with every compilation of the module.
-- The built table opens through the module, says it cannot be run, and the `standard` theme draws it as a Rules
-  table.
+- The built table opens through the module, says it cannot be run, and its regions read it as a Rules table.
 - Nothing but the compiler writes it, and it is never run: editing, copying, running and tracing it are refused
   with `400`, the message naming the table and saying it is virtual and can only be viewed.
 - `validateGapOverlapCheck` is the author's own: written in the workbook, it reads as a table that can be run, is

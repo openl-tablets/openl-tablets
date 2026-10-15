@@ -1,0 +1,74 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "beefea4e5984f38d5e2e3250138c6e42",
+  "tableType": "RawSource",
+  "kind": "Environment",
+  "name": "Environment",
+  "pos": "B49:C51",
+  "source": [
+    [
+      {
+        "cell": "B49",
+        "value": "Environment",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B50",
+        "value": "import",
+        "rowspan": 2
+      },
+      {
+        "cell": "C50",
+        "value": "java.util"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C51",
+        "value": "java.time"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    }
+  ],
+  "headerHeight": 0
+}

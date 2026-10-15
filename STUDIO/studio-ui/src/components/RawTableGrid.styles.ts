@@ -1,4 +1,6 @@
 import { createStyles } from 'antd-style'
+import type { GlobalToken } from 'antd'
+import { mix } from '../styles/colorMath'
 import type { TablePaper } from '../styles/paper'
 
 /**
@@ -9,11 +11,46 @@ import type { TablePaper } from '../styles/paper'
  */
 const MIN_CELL_WIDTH = 64
 
+/** The colours the Studio look draws the roles of a table in. */
+export interface RoleColours {
+    /** The text of a table. */
+    text: string
+    /** A text that matters less than the rules: the properties, the declarations, the keyword and the types. */
+    faint: string
+    /** The fill of the titles of what a table takes, and of a heading within its body. */
+    inputTitleFill: string
+    /** The fill of the titles of what a table gives. */
+    outputTitleFill: string
+    /** The fill of what a table gives. */
+    outputFill: string
+}
+
+/** How strongly the titles of what a table gives are tinted in the primary colour of the theme. */
+const OUTPUT_TITLE_TINT = 0.12
+
+/** How strongly what a table gives is tinted in the primary colour of the theme. */
+const OUTPUT_TINT = 0.06
+
+/**
+ * The colours of the roles in a theme, read off its token. The text of every role reads on its fill in every theme,
+ * light and dark, as the text of the application does on its surfaces; the faint text reads as its secondary text.
+ */
+export const roleColoursOf = (token: Pick<GlobalToken, 'colorText' | 'colorTextSecondary' | 'colorFillTertiary'
+    | 'colorBgContainer' | 'colorPrimary'>): RoleColours => ({
+    text: token.colorText,
+    faint: token.colorTextSecondary,
+    inputTitleFill: token.colorFillTertiary,
+    outputTitleFill: mix(token.colorBgContainer, token.colorPrimary, OUTPUT_TITLE_TINT),
+    outputFill: mix(token.colorBgContainer, token.colorPrimary, OUTPUT_TINT),
+})
+
 /**
  * The styles of a table of a workbook. The cells are drawn on the paper the table is laid on ({@link TablePaper}); the
  * margin beside the table — the numbers of its lines — belongs to the screen and follows the theme.
  */
-export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
+export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
+    const roles = roleColoursOf(token)
+    return {
     /**
      * The table is as wide as its own text needs and no wider: stretching it to the screen spreads a few short
      * columns across a whole monitor and leaves the reader's eye travelling between them.
@@ -22,7 +59,7 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
      * page gives each column a few characters and wraps every value into a tower of lines — which is neither
      * what the workbook shows nor something a browser can paint quickly. The screen it sits on scrolls instead.
      */
-    table: css`
+        table: css`
         border-collapse: collapse;
         /* The table takes the focus so the keyboard reaches it; the picked cell is what shows where it is. */
         outline: none;
@@ -34,7 +71,7 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
         background: ${paper.background};
         color: ${paper.text};
     `,
-    /**
+        /**
      * Every row stands at least one line tall, as every row of the workbook does.
      *
      * <p>A row whose cells all run on into the rows below it has no line of its own, and the browser folds it
@@ -43,10 +80,10 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
      * <p>The height is a little under the line a cell draws, which also holds the part of the text below its
      * baseline: a row with something written in it keeps the height it has.
      */
-    row: css`
+        row: css`
         height: calc(${Math.round(token.fontSizeSM * token.lineHeightSM) + 2 * token.paddingXXS + 1}px + 0.4em);
     `,
-    /**
+        /**
      * A cell keeps the line breaks the author wrote, and wraps a long value instead of widening its column past
      * the screen — the way the workbook itself shows it.
      *
@@ -62,7 +99,7 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
      * line drawn by one of the two cells only, the line two cells share is the one the upper or the left cell
      * has, which is where the reader of the workbook hands it.
      */
-    cell: css`
+        cell: css`
         border-right: 1px solid ${paper.grid};
         border-bottom: 1px solid ${paper.grid};
         /* An indented cell leaves the room of its indent beside the padding, on the side it names. */
@@ -93,11 +130,11 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
             border-left: 1px solid ${paper.grid};
         }
     `,
-    /**
+        /**
      * The number of a line of data, beside the table rather than in it: the workbook has no such cell, and a
      * reader counting cases down a long table should not have to count rows to find the third one.
      */
-    lineNumber: css`
+        lineNumber: css`
         border: none;
         /* The ground the table is laid on, so the numbers read as the margin they are and not as cells. */
         background: ${token.colorBgLayout};
@@ -109,12 +146,12 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
         white-space: nowrap;
         user-select: none;
     `,
-    /**
+        /**
      * A cell a reader left a note on in Excel, marked in its corner the way the old editor marked it.
      *
      * <p>The mark is drawn by the cell itself rather than by an image, so it costs the page nothing.
      */
-    commented: css`
+        commented: css`
         position: relative;
 
         &::after {
@@ -126,25 +163,69 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
             border-left: 6px solid transparent;
         }
     `,
-    /** The note itself, kept to the width the old editor gave it and to the lines its author typed. */
-    note: css`
+        /**
+     * The look of a role in the Studio look: what the cells of the role mean, drawn in the colours of the theme
+     * rather than in the formatting of the workbook. Every cell lines up in the middle of its row, so a merged
+     * value reads against the whole of what it covers.
+     */
+        studioCell: css`
+        vertical-align: middle;
+    `,
+        /** The header of the table: its pieces are drawn in colours of their own. */
+        signature: css`
+        color: ${roles.text};
+    `,
+        /** The properties, and the declarations the compiler reads: what matters less than the rules. */
+        muted: css`
+        color: ${roles.faint};
+    `,
+        /** The titles of what a table takes, and a heading within its body. */
+        inputTitle: css`
+        font-weight: 600;
+    `,
+        /** The titles of what a table gives. */
+        outputTitle: css`
+        font-weight: 600;
+    `,
+        /** What names a row or a column, and what a table returns. */
+        strong: css`
+        font-weight: 600;
+    `,
+        /** The fill of the titles of what a table takes, and of a heading within its body. */
+        inputTitleFill: css`
+        background: ${roles.inputTitleFill};
+    `,
+        /** The fill of the titles of what a table gives. */
+        outputTitleFill: css`
+        background: ${roles.outputTitleFill};
+    `,
+        /** The fill of what a table gives. */
+        outputFill: css`
+        background: ${roles.outputFill};
+    `,
+        /** A cell beside the point on this screen, drawn in the faintest text of the theme. */
+        mutedRole: css`
+        color: ${token.colorTextQuaternary};
+    `,
+        /** The note itself, kept to the width the old editor gave it and to the lines its author typed. */
+        note: css`
         display: block;
         max-width: 160px;
         white-space: pre-line;
     `,
-    /**
+        /**
      * A piece of a cell's text the compiler resolved.
      *
      * A formula is read as a sentence, and a rule under every word of it is a sentence that cannot be read —
      * so a piece that leads nowhere is left as it stands and says what it is in its tooltip alone.
      */
-    /**
+        /**
      * A piece that names a table reads as the way into it that it is, and underlines under the pointer.
      *
      * <p>It is a button, so it is reached by the keyboard as every other way into a table is; the button's
      * own frame is dropped, since what is drawn is a word inside a sentence.
      */
-    usageLink: css`
+        usageLink: css`
         padding: 0;
         border: none;
         background: none;
@@ -158,7 +239,8 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => ({
             text-decoration: underline;
         }
     `,
-}))
+    }
+})
 
 /**
  * The table's styles, as the table that draws it reads them.

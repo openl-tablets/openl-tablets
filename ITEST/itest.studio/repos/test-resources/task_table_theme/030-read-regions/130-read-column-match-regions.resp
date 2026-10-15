@@ -1,0 +1,274 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "3f272036e7907a8bd1106f2c63689865",
+  "tableType": "RawSource",
+  "kind": "Column Match",
+  "name": "NeedApprovalOf",
+  "pos": "B84:E91",
+  "source": [
+    [
+      {
+        "cell": "B84",
+        "value": "ColumnMatch <MATCH> String NeedApprovalOf (String area, Integer money)",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B85",
+        "value": "names"
+      },
+      {
+        "cell": "C85",
+        "value": "operation"
+      },
+      {
+        "cell": "D85",
+        "value": "values",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B86",
+        "value": "Expenses"
+      },
+      {
+        "cell": "C86",
+        "value": "Condition"
+      },
+      {
+        "cell": "D86",
+        "value": "Need Approval Of",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B87",
+        "value": "Return Values"
+      },
+      {
+        "cell": "C87"
+      },
+      {
+        "cell": "D87",
+        "value": "CAO"
+      },
+      {
+        "cell": "E87",
+        "value": "Team Lead"
+      }
+    ],
+    [
+      {
+        "cell": "B88",
+        "value": "area"
+      },
+      {
+        "cell": "C88",
+        "value": "match"
+      },
+      {
+        "cell": "D88",
+        "value": "Hardware",
+        "type": "string"
+      },
+      {
+        "cell": "E88",
+        "value": "Hardware",
+        "type": "string"
+      }
+    ],
+    [
+      {
+        "cell": "B89",
+        "value": "money",
+        "style": 0
+      },
+      {
+        "cell": "C89",
+        "value": "min"
+      },
+      {
+        "cell": "D89",
+        "value": 100000
+      },
+      {
+        "cell": "E89",
+        "value": 5000
+      }
+    ],
+    [
+      {
+        "cell": "B90",
+        "value": "area"
+      },
+      {
+        "cell": "C90",
+        "value": "match"
+      },
+      {
+        "cell": "D90",
+        "value": "Software",
+        "type": "string"
+      },
+      {
+        "cell": "E90",
+        "value": "Software",
+        "type": "string"
+      }
+    ],
+    [
+      {
+        "cell": "B91",
+        "value": "money",
+        "style": 0
+      },
+      {
+        "cell": "C91",
+        "value": "min"
+      },
+      {
+        "cell": "D91",
+        "value": 20000
+      },
+      {
+        "cell": "E91",
+        "value": 1000
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "indent": 1
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 3
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 3
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 3
+    },
+    {
+      "role": "outputTitle",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "type": "string",
+      "top": 3,
+      "left": 2,
+      "bottom": 3,
+      "right": 3
+    },
+    {
+      "role": "key",
+      "top": 4,
+      "left": 0,
+      "bottom": 7,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 4,
+      "left": 1,
+      "bottom": 7,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 4,
+      "left": 2,
+      "bottom": 7,
+      "right": 3
+    }
+  ],
+  "groups": {
+    "rows": [
+      4,
+      6
+    ]
+  },
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 26
+    },
+    {
+      "part": "name",
+      "to": 41
+    },
+    {
+      "part": "punctuation",
+      "to": 43
+    },
+    {
+      "part": "parameterType",
+      "to": 49
+    },
+    {
+      "part": "parameterName",
+      "to": 54
+    },
+    {
+      "part": "punctuation",
+      "to": 55
+    },
+    {
+      "part": "parameterType",
+      "to": 63
+    },
+    {
+      "part": "parameterName",
+      "to": 69
+    },
+    {
+      "part": "punctuation",
+      "to": 70
+    }
+  ],
+  "headerHeight": 2
+}

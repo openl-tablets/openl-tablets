@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.theme;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -21,6 +22,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.StyledRead.StyledCell;
 import org.openl.studio.projects.service.tables.StyledRead.StyledRun;
 import org.openl.studio.projects.service.tables.TableTestProjects;
@@ -119,7 +123,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForEveryKindOfDecisionTable() {
         for (var name : List.of(GREET, GREET_ROUND, GREETING, HELLO, RATE, FACTOR)) {
-            assertEquals(service.getThemes(), service.getThemes(table(name)), name);
+            assertTrue(service.styles(table(name)), name);
         }
     }
 
@@ -361,7 +365,7 @@ class DecisionThemeLayoutTest {
     @Test
     void offersEveryThemeForATableThatDeclaresWhatDecisionTablesTake() {
         for (var row : List.of(CONDITIONS_ROW, ACTIONS_ROW, HOURS_ROW, RETURNS_ROW)) {
-            assertEquals(service.getThemes(), service.getThemes(tableAt(row)), "row " + row);
+            assertTrue(service.styles(tableAt(row)), "row " + row);
         }
     }
 
@@ -476,6 +480,112 @@ class DecisionThemeLayoutTest {
         assertEquals("Inputs", written.get(1).getFirst().value(), "The theme changes no text");
         assertEquals(MUTED, written.get(2).get(1).style().color());
         assertEquals(TITLE, written.get(4).get(3).style().background());
+    }
+
+    @Test
+    void readsTheRolesOfARulesTable() {
+        var roles = Roles.of(table(GREET));
+
+        assertEquals(RawTableRole.SIGNATURE, roles.roleAt(GREET_ROW, 3));
+        for (var row = GREET_ROW + 1; row <= GREET_ROW + 3; row++) {
+            assertEquals(RawTableRole.CODE, roles.roleAt(row, 2), "The kind, the expression and the parameters");
+        }
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(GREET_ROW + 4, 1), "The title of the rule names");
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(GREET_ROW + 4, 2));
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(GREET_ROW + 4, 4));
+        assertEquals(RawTableRole.KEY, roles.roleAt(GREET_ROW + 5, 1), "The RULE column names the rules");
+        assertEquals(RawTableRole.VALUE, roles.roleAt(GREET_ROW + 6, 3));
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(GREET_ROW + 7, 4));
+        assertEquals(RawTableValueType.NUMBER, roles.typeAt(GREET_ROW + 5, 3), "An Integer limit");
+        assertEquals(RawTableValueType.STRING, roles.typeAt(GREET_ROW + 5, 2));
+        assertNull(roles.typeAt(GREET_ROW + 5, 1), "A name holds no value of a type");
+        // The rules sharing the merged Weekday make a group: the line after it is the only one, the first rule
+        // standing right under the titles.
+        assertEquals(new RawTableGroups(List.of(7), List.of()), roles.regions().groups());
+    }
+
+    @Test
+    void readsTheRolesOfARulesTableWrittenTheOtherWayRound() {
+        var roles = Roles.of(table(GREET_ROUND));
+
+        assertEquals(RawTableRole.CODE, roles.roleAt(GREET_ROUND_ROW + 1, 1));
+        assertEquals(RawTableRole.CODE, roles.roleAt(GREET_ROUND_ROW + 3, 3));
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(GREET_ROUND_ROW + 1, 4));
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(GREET_ROUND_ROW + 3, 4));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(GREET_ROUND_ROW + 2, 6));
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(GREET_ROUND_ROW + 3, 7));
+        // A rule is a column: the merged Weekday groups the first two, so the column after them starts a group.
+        assertEquals(new RawTableGroups(List.of(), List.of(6)), roles.regions().groups());
+    }
+
+    @Test
+    void readsTheRolesOfASmartRulesTableNamingItsRules() {
+        var roles = Roles.of(table(HELLO));
+
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(HELLO_ROW + 1, 1));
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(HELLO_ROW + 1, 2));
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(HELLO_ROW + 1, 3));
+        assertEquals(RawTableRole.KEY, roles.roleAt(HELLO_ROW + 2, 1), "The rule names");
+        assertEquals(RawTableRole.VALUE, roles.roleAt(HELLO_ROW + 3, 2));
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(HELLO_ROW + 2, 3));
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(HELLO_ROW + 2, 4));
+        assertEquals(RawTableValueType.NUMBER, roles.typeAt(HELLO_ROW + 2, 4), "The rank of the reply");
+        assertEquals(RawTableGroups.NONE, roles.regions().groups());
+    }
+
+    @Test
+    void readsTheRolesOfALookup() {
+        var rate = Roles.of(table(RATE));
+
+        assertEquals(RawTableRole.INPUT_TITLE, rate.roleAt(RATE_ROW + 1, 1), "A vertical title");
+        assertEquals(RawTableRole.INPUT_TITLE, rate.roleAt(RATE_ROW + 1, 3), "A horizontal value");
+        assertEquals(RawTableRole.VALUE, rate.roleAt(RATE_ROW + 3, 2), "A vertical value");
+        assertEquals(RawTableRole.OUTPUT, rate.roleAt(RATE_ROW + 4, 4), "The return grid");
+        assertEquals(RawTableValueType.NUMBER, rate.typeAt(RATE_ROW + 4, 4));
+        assertEquals(new RawTableGroups(List.of(4), List.of()), rate.regions().groups());
+
+        var factor = Roles.of(table(FACTOR));
+        assertEquals(RawTableRole.INPUT_TITLE, factor.roleAt(FACTOR_ROW + 1, 2), "A merged horizontal value");
+        assertEquals(RawTableRole.INPUT_TITLE, factor.roleAt(FACTOR_ROW + 2, 5));
+        assertEquals(RawTableRole.OUTPUT, factor.roleAt(FACTOR_ROW + 3, 5));
+        // The columns under the merged 2 start a group of the horizontal values.
+        assertEquals(new RawTableGroups(List.of(), List.of(3)), factor.regions().groups());
+    }
+
+    @Test
+    void readsTheBodyOfADecisionTableThatDidNotCompileAsValues() {
+        var roles = Roles.of(tableAt(BROKEN_ROW));
+
+        assertEquals(RawTableRole.SIGNATURE, roles.roleAt(BROKEN_ROW, 1));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(BROKEN_ROW + 1, 1));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(BROKEN_ROW + 2, 2));
+    }
+
+    @Test
+    void readsTheRolesOfTheDeclarationsOfConditionsActionsAndReturns() {
+        var conditions = Roles.of(tableAt(CONDITIONS_ROW));
+        assertEquals(RawTableRole.KEY, conditions.roleAt(CONDITIONS_ROW + 1, 1), "A keyword names a part");
+        assertEquals(RawTableRole.KEY, conditions.roleAt(CONDITIONS_ROW + 4, 1));
+        assertEquals(RawTableRole.CODE, conditions.roleAt(CONDITIONS_ROW + 2, 2));
+        assertEquals(RawTableRole.CODE, conditions.roleAt(CONDITIONS_ROW + 3, 4));
+        assertEquals(RawTableRole.INPUT_TITLE, conditions.roleAt(CONDITIONS_ROW + 4, 2));
+
+        var actions = Roles.of(tableAt(ACTIONS_ROW));
+        assertEquals(RawTableRole.CODE, actions.roleAt(ACTIONS_ROW + 1, 1), "No keyword: the inputs are code");
+        assertEquals(RawTableRole.OUTPUT_TITLE, actions.roleAt(ACTIONS_ROW + 4, 2));
+
+        var hours = Roles.of(tableAt(HOURS_ROW));
+        assertEquals(RawTableRole.KEY, hours.roleAt(HOURS_ROW + 1, 2), "A keyword over a part in a column");
+        assertEquals(RawTableRole.CODE, hours.roleAt(HOURS_ROW + 2, 2));
+        assertEquals(RawTableRole.INPUT_TITLE, hours.roleAt(HOURS_ROW + 3, 4));
+
+        var returns = Roles.of(tableAt(RETURNS_ROW));
+        assertEquals(RawTableRole.KEY, returns.roleAt(RETURNS_ROW + 1, 1));
+        assertEquals(RawTableRole.OUTPUT_TITLE, returns.roleAt(RETURNS_ROW + 2, 1));
+        assertEquals(RawTableRole.CODE, returns.roleAt(RETURNS_ROW + 2, 3));
+
+        var undeclared = Roles.of(tableAt(UNDECLARED_ROW));
+        assertEquals(RawTableRole.VALUE, undeclared.roleAt(UNDECLARED_ROW + 1, 2), "No declaration is read");
     }
 
     private IOpenLTable table(String name) {

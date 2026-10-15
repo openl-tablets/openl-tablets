@@ -166,37 +166,6 @@ class TableThemeServiceTest {
     }
 
     @Test
-    void keepsTheKeyOfTheFileEachColourIsSetAt() {
-        var theme = new TableThemeService(FIXTURES + "named-colours.yaml").theme("named-colours");
-        var datatype = theme.lookOf(theme.datatype());
-
-        // A part the kind takes from the base keeps the key of the base, and a part the kind writes its own key.
-        assertEquals("base.header.keyword.color", datatype.header().keyword().color().key());
-        assertEquals("base.lastRow.border.bottom.color", datatype.lastRow().border().bottom().color().key());
-        assertEquals("datatype.name.background", datatype.name().background().key());
-        assertEquals("datatype.name.color", datatype.name().color().key(), "A colour written as #rrggbb as well");
-        // The key tells where the colour is set, not the colour: both parts take one colour.
-        assertEquals(datatype.header().keyword().color(), datatype.lastRow().border().bottom().color());
-    }
-
-    @Test
-    void setsAColourAtTheKeyOfThePartAnAliasOrAMergeKeyGivesIt() {
-        var standard = service.theme("standard");
-
-        // A SmartRules table repeats the look of a SimpleRules table, and a Test table titles what it takes as a
-        // Datatype titles its columns: each part is set at a key of its own, so a screen can colour the kinds apart.
-        assertEquals("simpleRules.returns.background",
-                standard.lookOf(standard.simpleRules()).returns().background().key());
-        assertEquals("smartRules.returns.background",
-                standard.lookOf(standard.smartRules()).returns().background().key());
-        assertEquals("datatype.titles.background", standard.lookOf(standard.datatype()).titles().background().key());
-        assertEquals("test.titles.background", standard.lookOf(standard.test()).titles().background().key());
-        // A colour a merge key brings is set at the part it is merged into.
-        var green = service.theme("green");
-        assertEquals("base.properties.color", green.lookOf(green.datatype()).properties().color().key());
-    }
-
-    @Test
     void readsAColourAsThePaletteOfExcelNamesAThemeColour() {
         var theme = new TableThemeService(FIXTURES + "excel-theme-colours.yaml").theme("excel-theme-colours");
         var datatype = theme.lookOf(theme.datatype());

@@ -84,7 +84,9 @@ The build writes two pages (`build.rollupOptions.input`):
   `services/modules.ts`, `traceService.getRawTable`, `getComparisonTable` — expand it on arrival
   (`services/rawTables.ts`), so a screen reads `cell.style` and `run.text` as objects, every cell of one style sharing
   one. Each cell names the lines it draws itself; `RawTableGrid` draws each line two cells share once, on the upper or
-  the left cell, the wider one winning (`collapsedBorders` in `components/rawTableStyle.ts`).
+  the left cell, the wider one winning (`collapsedBorders` in `components/rawTableStyle.ts`). A read with the styles
+  also says what the cells of the whole table mean (`regions`, `groups`, `signature`), which a screen turns into the
+  `roles` of the grid once per read (`rolesOf`).
 - **WebSocket**: `services/websocket.ts` connects to `${CONTEXT}/ws`, built from `document.baseURI`. The handshake has
   an address of its own, so it is not under `CONFIG.API_ROOT`.
 - **User guides**: `/docs/*` opens `containers/userGuides`, loaded as a lazy chunk with everything it draws the guides
@@ -206,8 +208,8 @@ The build writes two pages (`build.rollupOptions.input`):
 - **Settings live in the profile.** Every setting of **My Settings** is a field of the user profile (`GET` and
   `PUT /users/profile`, `UserProfile` in `types/user.d.ts`), kept on the server, so it follows the user from browser
   to browser and no user reads another's. `localStorage` keeps only what the header picks for the browser — the
-  appearance, the theme and the density — and the state of a screen, such as the width of a panel or a filter. A new
-  setting is a field of the profile, never a key of the browser.
+  appearance, the theme, the density and the look of the tables (**Excel Formatting**) — and the state of a screen,
+  such as the width of a panel or a filter. A new setting is a field of the profile, never a key of the browser.
 
 ## Development
 
@@ -323,35 +325,28 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   application mounts. Outside `<AntApp>`, `App.useApp()` answers with empty objects, so a test of a component
   that pops something up either renders it inside `<AntApp>` or mocks `antd` with
   `App: { useApp: () => ({ notification, modal }) }` (see `staticAntdApp` in `src/testing/`).
-    - **A workbook's table keeps the colours of Excel.** `RawTableGrid` writes its cells in black on white
-      whatever the theme, because an author fills a cell for that paper: the default text of a cell filled in
-      cyan reads only in black. Everything drawn on the cells — the paper and the ink, the rules, the links, and
-      every mark a screen lays on a cell (the picked and changed cells, the trace highlights and their legend)
-      — takes `paperToken()` (`styles/paper.ts`, Ant Design's own light token) rather than the theme's token.
-      The table editor draws its grid inside `PaperTheme`, a `ConfigProvider` that drops the theme in force
-      (`inherit: false`) and keeps the density, so the Ant Design controls written into a cell, and the notes over
-      one, lie on the paper as well. The line numbers beside the table belong to the screen and follow the theme.
-      The one exception is the look a theme of the application gives the tables (`TABLE_LOOKS` in
-      `styles/tableColours.ts`: a table theme, and the token each key of its file takes in the dark appearance), where
-      the user asked for **Override with Studio theme** (My Settings, `overrideWithStudioTheme` of the profile, view
-      only like the table theme of the settings: neither changes a workbook or a project). The table theme then decides
-      every colour of the cells, so no colour of an author is left to need the paper. `ModuleWorkspace` reads the
-      table with the table theme of the look (`followedTableTheme`: `standard` under the Standard theme) whatever
-      table theme the settings name, which stays the fallback under a theme with no look, and tells `TableEditor` the
-      `look` it reads the table with. The server reports the key of the theme file each colour is set at
-      (`backgroundKey`, `colorKey`, such as `spreadsheet.values.background`) in the style of each cell the table theme
-      draws, which names `theme` as its `source` (`inTheme`). `TableEditor` draws those cells as the look
-      recolours them by their keys (`inLook`), on the paper of the look (`TablePaper`), so `RawTableGrid` knows no look:
-      it lays its cells on the paper it is given, the paper of a workbook (`workbookPaper`) by default. The colours of
-      the look (`tableColoursOf`) are the ground and the ink of
-      its base style, the grid of the theme, and a solid colour of the token for each key. A look is written as the
-      table theme file nests its keys, and shares a part where the file repeats one by an alias (`smartRules: SIMPLE`
-      as `smartRules: *simple`); a colour of a key the look does not colour keeps the colour of the table theme. Only
-      the Standard theme has a look today, in the colours of the table theme in the light appearance. A theme joins
-      with a `TableLook` of its own: `tableColours.test.ts` reads the file of its table theme to hold an appearance it
-      colours to every key the file sets a colour at, and every text of it readable on every fill. A table being edited
-      and a table no theme styles keep the paper. A table read with a table theme is read again without it when the
-      user edits it (`TableEditor`), so the edit starts from the style the workbook holds.
+    - **A table is drawn in one of two looks.** `RawTableGrid` draws a table read with roles (`roles`, built once per
+      read by `rolesOf` of `components/tableRoles.ts`) in the **Studio look**: by what its cells mean, in the colours
+      of the theme (`roleColoursOf` in `RawTableGrid.styles.ts`, the lines of `RoleLines`), keeping of the formatting
+      of the workbook only the indent. A cell finds its region by its address (`cellRoleOf`), so a window of rows, a
+      hidden header and a line the reader laid down all draw right. Every text of a role reads on its fill in every
+      theme, light and dark, as the text of the application does on its surfaces (4.5:1), and a faint text as its
+      secondary text (3:1): `RawTableGrid.test.tsx` holds every theme to it. A table read with no roles — a table of
+      the kind Other, a side of a comparison, a table of a user guide — and every table while the reader has **Excel
+      Formatting** on (`excelFormatting` of `useAppTheme()`, `openl.theme.excelFormatting` in `localStorage`, the
+      switch of `ThemeSwitch` under **Compact**) is drawn in the formatting of its workbook (`onPaper`). Both looks are
+      drawn from one read: no fetch depends on the switch.
+    - **A workbook's table keeps the colours of Excel.** In the formatting of its workbook, `RawTableGrid` writes its
+      cells in black on white whatever the theme, because an author fills a cell for that paper: the default text of
+      a cell filled in cyan reads only in black. Everything drawn on the cells — the paper and the ink, the rules, the
+      links, and every mark a screen lays on a cell (the picked and changed cells, the trace highlights and their
+      legend) — takes `paperToken()` (`styles/paper.ts`, Ant Design's own light token) rather than the theme's token;
+      in the Studio look they take the theme's token (`useStyles(onPaper(...))` of `TableEditor.styles.ts` and
+      `TraceTableView.styles.ts`). On paper, the table editor draws its grid inside `PaperTheme`, a `ConfigProvider`
+      that drops the theme in force (`inherit: false`) and keeps the density, so the Ant Design controls written into a
+      cell, and the notes over one, lie on the paper as well. The line numbers beside the table belong to the screen
+      and follow the theme. In either look the table is written in the font of the application, whatever font the
+      workbook names: a read carries no font name or size.
     - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
       `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.
     - **A canvas needs a real colour.** Cytoscape paints the table dependency graph on a `<canvas>`, which cannot

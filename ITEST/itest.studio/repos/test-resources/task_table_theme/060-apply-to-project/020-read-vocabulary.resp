@@ -93,5 +93,36 @@ Content-Type: application/json
       }
     }
   ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 0
+    },
+    {
+      "role": "value",
+      "type": "string",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 8
+    },
+    {
+      "part": "name",
+      "to": 13
+    },
+    {
+      "part": "type",
+      "to": 22
+    }
+  ],
   "headerHeight": 1
 }

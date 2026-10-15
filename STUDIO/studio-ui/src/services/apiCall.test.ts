@@ -306,7 +306,7 @@ describe('apiCall', () => {
         fetchMock.mockResolvedValueOnce(
             mockResponse({
                 status: 400,
-                jsonData: { fields: [{ field: 'name', message: 'Name is required' }] },
+                jsonData: { fields: [{ field: 'name', message: 'Name is required' }]},
             })
         )
 

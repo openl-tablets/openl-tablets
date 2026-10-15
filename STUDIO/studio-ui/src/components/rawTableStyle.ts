@@ -65,14 +65,6 @@ const line = (side: RawTableCellBorderSide | undefined, muted: boolean, ink: str
     return colour === undefined ? drawn : `${drawn} ${colour}`
 }
 
-/** The font a style names, with a sans-serif one to fall back on where the machine does not have it. */
-export const fontFamilyOf = (style: RawTableCellStyle | undefined): string | undefined =>
-    (style?.fontFamily === undefined ? undefined : `"${style.fontFamily}", sans-serif`)
-
-/** The size of the font a style names, in points. */
-export const fontSizeOf = (style: RawTableCellStyle | undefined): string | undefined =>
-    (style?.fontSize === undefined ? undefined : `${style.fontSize}pt`)
-
 /** The borders of a cell the workbook draws none around, shared by every such cell. */
 const NO_BORDERS: React.CSSProperties = {}
 
@@ -151,22 +143,30 @@ const bordersOf = (sides: Sides): RawTableCellBorder | undefined => {
     return Object.keys(border).length === 0 ? undefined : border
 }
 
+/** The borders a cell names itself: the ones of its Excel style. */
+const workbookBordersOf = (cell: RawTableCell): RawTableCellBorder | undefined => cell.style?.border
+
 /**
  * The borders each cell of a table is drawn with, each line two cells share drawn once.
  *
- * <p>Every cell of a read names the lines it draws itself, so a line between two cells may be named by both, or by
- * either. The browser draws the side of the cell above or on the left over the side of its neighbour, and the line of
- * the grid where that cell names none, so a line is moved onto that cell: the bottom of the upper cell and the right
- * of the left one, the wider line winning. Only a cell along the top or the left edge of the table keeps a line above
- * or on its left. A merged cell takes the lines of every cell along its edges.
+ * <p>Every cell names the lines it draws itself, so a line between two cells may be named by both, or by either. The
+ * browser draws the side of the cell above or on the left over the side of its neighbour, and the line of the grid
+ * where that cell names none, so a line is moved onto that cell: the bottom of the upper cell and the right of the left
+ * one, the wider line winning. Only a cell along the top or the left edge of the table keeps a line above or on its
+ * left. A merged cell takes the lines of every cell along its edges.
  *
- * @param rows the cells of the table, row by row
+ * @param rows    the cells of the table, row by row
+ * @param ownOf   the lines a cell names itself: the borders of its Excel style, unless told otherwise
  * @returns the borders of each cell at its place, undefined for a cell drawing none and for a covered place
  */
-export const collapsedBorders = (rows: RawTableCell[][]): Array<Array<RawTableCellBorder | undefined>> => {
+export const collapsedBorders = (
+    rows: RawTableCell[][],
+    ownOf: (cell: RawTableCell, row: number, column: number) => RawTableCellBorder | undefined = workbookBordersOf
+): Array<Array<RawTableCellBorder | undefined>> => {
     const holders = holdersOf(rows)
+    const owns = rows.map((row, r) => row.map((cell, c) => (cell.covered ? undefined : ownOf(cell, r, c))))
     const sides: Array<Array<Sides | undefined>> = rows.map((row, r) => row.map((cell, c) => {
-        const own = cell.style?.border
+        const own = owns[r]?.[c]
         return cell.covered ? undefined : {
             right: own?.right,
             bottom: own?.bottom,
@@ -199,7 +199,7 @@ export const collapsedBorders = (rows: RawTableCell[][]): Array<Array<RawTableCe
         }
     }
     rows.forEach((row, r) => row.forEach((cell, c) => {
-        const own = cell.style?.border
+        const own = owns[r]?.[c]
         const drawn = sides[r]?.[c]
         if (cell.covered || own === undefined || drawn === undefined) {
             return
@@ -244,8 +244,6 @@ export const runStyle = (run: RawTableTextRun, place: RunPlace): React.CSSProper
         fontWeight: style.bold ? 'bold' : 'normal',
         fontStyle: style.italic ? 'italic' : 'normal',
         textDecoration: place.linked ? undefined : textDecoration(style) ?? 'none',
-        fontFamily: fontFamilyOf(style),
-        fontSize: fontSizeOf(style),
     }
 }
 

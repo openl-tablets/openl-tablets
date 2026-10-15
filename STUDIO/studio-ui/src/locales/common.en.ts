@@ -69,6 +69,7 @@ i18next.addResourceBundle('en', 'common', {
         dark: 'Dark',
         system: 'Follow System',
         compact: 'Compact',
+        excel_formatting: 'Excel Formatting',
         names: {
             standard: 'Standard',
             dracula: 'Dracula / Alucard',

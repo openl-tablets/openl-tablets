@@ -28,8 +28,13 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawTableCell;
+import org.openl.studio.projects.model.tables.RawTableRegion;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.studio.projects.model.tables.RawTableSignaturePart;
+import org.openl.studio.projects.model.tables.RawTableSignaturePiece;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableTextRun;
+import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.StyledRead;
 import org.openl.studio.projects.service.tables.StyledRead.StyledRun;
 import org.openl.studio.projects.service.tables.TableTestProjects;
@@ -334,6 +339,63 @@ class RawTableReaderTest {
         assertNull(source.get(1).getFirst().style(), "The upper cell draws none, so it reports none");
         assertEquals(1, source.get(1).get(1).style().border().bottom().width(), "The upper cell draws its line");
         assertNull(source.get(2).get(1).style(), "The lower cell draws none, so it reports none");
+    }
+
+    @Test
+    void readsTheRolesOfTheWholeTableWithEveryWindowOfItsRows(@TempDir Path tempDir) throws Exception {
+        var model = TableTestProjects.projectModel(tempDir.resolve("roles"), "Roles", sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Limits");
+            TableTestProjects.row(sheet, 2, 1, "Integer", "low", "1");
+            TableTestProjects.row(sheet, 3, 1, "Integer", "high", "9");
+            TableTestProjects.row(sheet, 4, 1, "String", "name", "top");
+        });
+        var table = TableTestProjects.table(model, "Limits");
+
+        var window = new RawTableReader().read(table, RawTableRead.builder()
+                .startRow(2)
+                .maxRows(2)
+                .withStyles(true)
+                .build());
+
+        assertEquals(new RawTableRegion(RawTableRole.VALUE, RawTableValueType.NUMBER, 1, 2, 3, 2),
+                window.regions.getLast(), "The regions of the whole table, whatever window is read");
+        assertEquals(List.of(new RawTableSignaturePiece(RawTableSignaturePart.KEYWORD, 8),
+                new RawTableSignaturePiece(RawTableSignaturePart.NAME, 15)), window.signature);
+        assertNull(window.groups, "A table without groups sends none");
+        assertNull(window.source.getFirst().get(2).type(), "A number takes the type of its region");
+        assertEquals(RawTableValueType.STRING, window.source.get(1).get(2).type(), "A text names its own type");
+
+        var plain = new RawTableReader().read(table, RawTableRead.builder().build());
+        assertNull(plain.regions, "A read of the values alone reports no roles");
+        assertNull(plain.source.get(3).get(2).type());
+    }
+
+    @Test
+    void leavesTheNameAndTheSizeOfAFontToTheScreen(@TempDir Path tempDir) throws Exception {
+        var model = TableTestProjects.projectModel(tempDir.resolve("fonts"), "Fonts", sheet -> {
+            var workbook = sheet.getWorkbook();
+            TableTestProjects.row(sheet, 1, 1, "Datatype Fonts");
+            TableTestProjects.row(sheet, 2, 1, "String", "name");
+            var light = workbook.createFont();
+            light.setFontName("Calibri Light");
+            light.setFontHeightInPoints((short) 14);
+            var titled = workbook.createCellStyle();
+            titled.setFont(light);
+            sheet.getRow(1).getCell(1).setCellStyle(titled);
+            var bold = workbook.createFont();
+            bold.setBold(true);
+            var strong = workbook.createCellStyle();
+            strong.setFont(bold);
+            sheet.getRow(2).getCell(2).setCellStyle(strong);
+        });
+
+        var view = new RawTableReader().read(TableTestProjects.table(model, "Fonts"),
+                RawTableRead.builder().withStyles(true).build());
+        var source = new StyledRead(view).source;
+
+        assertNull(source.getFirst().getFirst().style(), "A font of another name and size is no style of the cell");
+        assertEquals(Boolean.TRUE, source.get(1).get(1).style().bold(), "The weight of a font is");
+        assertNull(source.get(1).getFirst().style(), "A cell in the font of the workbook has no style");
     }
 
     private static List<String> cellAddresses(List<RawTableCell> row) {

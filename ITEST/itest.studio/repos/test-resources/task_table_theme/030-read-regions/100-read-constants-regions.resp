@@ -1,0 +1,102 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "b691db024f0424b4a05d709e11dcbcba",
+  "tableType": "RawSource",
+  "kind": "Constants",
+  "name": "Limits",
+  "pos": "B59:D61",
+  "source": [
+    [
+      {
+        "cell": "B59",
+        "value": "Constants Limits",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B60",
+        "value": "Integer"
+      },
+      {
+        "cell": "C60",
+        "value": "DEFAULT_AGE"
+      },
+      {
+        "cell": "D60",
+        "value": 43,
+        "style": 0
+      }
+    ],
+    [
+      {
+        "cell": "B61",
+        "value": "Double"
+      },
+      {
+        "cell": "C61",
+        "value": "MAX_RATE"
+      },
+      {
+        "cell": "D61",
+        "value": 0.7,
+        "style": 0
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "align": "right"
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 1,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "value",
+      "type": "number",
+      "top": 1,
+      "left": 2,
+      "bottom": 2,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 9
+    },
+    {
+      "part": "name",
+      "to": 16
+    }
+  ],
+  "headerHeight": 1
+}

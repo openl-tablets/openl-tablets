@@ -12442,14 +12442,6 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
-            "name": "tableTheme",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
             "name": "module",
             "schema": {
               "type": "string"
@@ -14552,128 +14544,6 @@ Content-Type: application/json
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/TableTestView"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      }
-    },
-    "/projects/{projectId}/tables/{tableId}/themes": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "path",
-            "name": "tableId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "module",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TableThemeView"
                   }
                 }
               }
@@ -27003,6 +26873,18 @@ Content-Type: application/json
             "description": "***",
             "readOnly": true
           },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "code",
+              "number",
+              "date",
+              "boolean",
+              "string"
+            ],
+            "readOnly": true
+          },
           "value": {
             "description": "***",
             "oneOf": [
@@ -27046,10 +26928,6 @@ Content-Type: application/json
         "description": "***",
         "properties": {
           "color": {
-            "type": "string",
-            "description": "***"
-          },
-          "colorKey": {
             "type": "string",
             "description": "***"
           },
@@ -27113,10 +26991,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "backgroundKey": {
-            "type": "string",
-            "description": "***"
-          },
           "bold": {
             "type": "boolean",
             "description": "***"
@@ -27128,19 +27002,6 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "colorKey": {
-            "type": "string",
-            "description": "***"
-          },
-          "fontFamily": {
-            "type": "string",
-            "description": "***"
-          },
-          "fontSize": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
           "indent": {
             "type": "integer",
             "format": "int32",
@@ -27150,14 +27011,6 @@ Content-Type: application/json
           "italic": {
             "type": "boolean",
             "description": "***"
-          },
-          "source": {
-            "type": "string",
-            "description": "***",
-            "enum": [
-              "workbook",
-              "theme"
-            ]
           },
           "strikeout": {
             "type": "boolean",
@@ -27229,6 +27082,104 @@ Content-Type: application/json
         ],
         "description": "***"
       },
+      "RawTableGroups": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "columns": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "RawTableRegion": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "bottom": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "left": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "right": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "role": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "signature",
+              "properties",
+              "code",
+              "inputTitle",
+              "outputTitle",
+              "key",
+              "value",
+              "output",
+              "section",
+              "result"
+            ]
+          },
+          "top": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "type": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "code",
+              "number",
+              "date",
+              "boolean",
+              "string"
+            ]
+          }
+        }
+      },
+      "RawTableSignaturePiece": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "part": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "keyword",
+              "type",
+              "name",
+              "punctuation",
+              "parameterType",
+              "parameterName"
+            ]
+          },
+          "to": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          }
+        }
+      },
       "RawTableSourceAction": {
         "type": "object",
         "description": "***",
@@ -27239,7 +27190,6 @@ Content-Type: application/json
             "insert": "#/components/schemas/Insert",
             "merge": "#/components/schemas/Merge",
             "style": "#/components/schemas/Style",
-            "theme": "#/components/schemas/Theme",
             "unmerge": "#/components/schemas/Unmerge",
             "update": "#/components/schemas/Update"
           },
@@ -27266,9 +27216,6 @@ Content-Type: application/json
           },
           {
             "$ref": "#/components/schemas/Style"
-          },
-          {
-            "$ref": "#/components/schemas/Theme"
           }
         ],
         "properties": {
@@ -27321,6 +27268,9 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "groups": {
+                "$ref": "#/components/schemas/RawTableGroups"
+              },
               "headerHeight": {
                 "type": "integer",
                 "format": "int32",
@@ -27378,6 +27328,14 @@ Content-Type: application/json
                 "description": "***",
                 "readOnly": true
               },
+              "regions": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawTableRegion"
+                },
+                "readOnly": true
+              },
               "runState": {
                 "type": "string",
                 "description": "***",
@@ -27386,6 +27344,14 @@ Content-Type: application/json
                   "can-run-module",
                   "cannot-run"
                 ],
+                "readOnly": true
+              },
+              "signature": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawTableSignaturePiece"
+                },
                 "readOnly": true
               },
               "source": {
@@ -30174,28 +30140,6 @@ Content-Type: application/json
           "pageSize"
         ]
       },
-      "Theme": {
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/RawTableSourceAction"
-          },
-          {
-            "type": "object",
-            "properties": {
-              "theme": {
-                "type": "string",
-                "description": "***",
-                "minLength": 1
-              }
-            }
-          }
-        ],
-        "description": "***",
-        "required": [
-          "theme"
-        ]
-      },
       "TreeChildrenView": {
         "type": "object",
         "description": "***",
@@ -30831,10 +30775,6 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           },
-          "overrideWithStudioTheme": {
-            "type": "boolean",
-            "description": "***"
-          },
           "showComplexResult": {
             "type": "boolean",
             "description": "***"
@@ -30849,10 +30789,6 @@ Content-Type: application/json
           },
           "showRealNumbers": {
             "type": "boolean",
-            "description": "***"
-          },
-          "tableTheme": {
-            "type": "string",
             "description": "***"
           },
           "testsFailuresOnly": {
@@ -30909,10 +30845,6 @@ Content-Type: application/json
             "maxLength": 25,
             "minLength": 0
           },
-          "overrideWithStudioTheme": {
-            "type": "boolean",
-            "description": "***"
-          },
           "showComplexResult": {
             "type": "boolean",
             "description": "***"
@@ -30927,10 +30859,6 @@ Content-Type: application/json
           },
           "showRealNumbers": {
             "type": "boolean",
-            "description": "***"
-          },
-          "tableTheme": {
-            "type": "string",
             "description": "***"
           },
           "testsFailuresOnly": {

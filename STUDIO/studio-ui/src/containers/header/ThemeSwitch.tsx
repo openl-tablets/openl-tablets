@@ -1,6 +1,12 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Button, Dropdown, Switch, type MenuProps } from 'antd'
-import Icon, { BgColorsOutlined, CompressOutlined, MoonOutlined, SunOutlined } from '@ant-design/icons'
+import Icon, {
+    BgColorsOutlined,
+    CompressOutlined,
+    FileExcelOutlined,
+    MoonOutlined,
+    SunOutlined,
+} from '@ant-design/icons'
 import { useThemeMode, type ThemeMode } from 'antd-style'
 import { useTranslation } from 'react-i18next'
 import { useAppTheme } from '../../providers/AppThemeProvider'
@@ -11,7 +17,7 @@ import { accentOf, THEME_ORDER, type ThemeName } from '../../styles/themes'
  * because it stands for both at once. Ant Design has no such icon, so it is drawn here.
  */
 const HalfFilledCircle = () => (
-    <svg fill="currentColor" height="1em" viewBox="0 0 1024 1024" width="1em">
+    <svg aria-hidden="true" fill="currentColor" height="1em" viewBox="0 0 1024 1024" width="1em">
         <path d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" />
         <path d="M512 140v744c205.4 0 372-166.6 372-372S717.4 140 512 140z" />
     </svg>
@@ -34,7 +40,10 @@ const MODE_ORDER: readonly ThemeMode[] = ['light', 'dark', 'auto']
 /** The density entry is not an appearance, so it carries a key no {@link ThemeMode} can collide with. */
 const COMPACT_KEY = 'compact'
 
-/** A theme entry is keyed apart from the appearances and the density, which share the same menu. */
+/** Nor is the entry that shows the tables in the formatting of their Excel files. */
+const EXCEL_FORMATTING_KEY = 'excelFormatting'
+
+/** A theme entry is keyed apart from the appearances and the switches, which share the same menu. */
 const themeKey = (name: ThemeName): string => `theme:${name}`
 
 const isThemeKey = (key: string): boolean => key.startsWith('theme:')
@@ -43,24 +52,27 @@ const themeOf = (key: string): ThemeName => key.slice('theme:'.length) as ThemeN
 
 /**
  * Picks how OpenL Studio looks: the appearance — light, dark, or the one the operating system asks for —
- * the density it is laid out in, and the theme its colours come from.
+ * the density it is laid out in, how the tables are formatted, and the theme its colours come from.
  *
- * The button wears the icon of the appearance in force and opens the menu: the appearances with the density
- * under them, then the themes. Picking anything applies it at once and remembers it for the next visit. The
- * menu stays open meanwhile, so one choice after another can be tried and compared on the screen behind it;
- * it closes the way it opened, by its button or a click elsewhere. The choices are independent — a theme is
- * worn in either appearance, at either density — so the menu offers each on its own rather than one list of
+ * The button wears the icon of the appearance in force and opens the menu: the appearances with the density and
+ * the formatting of the tables under them, then the themes. The tables are drawn in the colours of the theme by
+ * what each of their cells means, unless **Excel Formatting** shows them in the formatting of their Excel files.
+ *
+ * Picking anything applies it at once and remembers it for the next visit. The menu stays open meanwhile, so one
+ * choice after another can be tried and compared on the screen behind it; it closes the way it opened, by its
+ * button or a click elsewhere. The choices are independent — a theme is worn in either appearance, at either
+ * density, with either formatting of the tables — so the menu offers each on its own rather than one list of
  * combinations.
  *
  * Each theme is shown beside a dot of its own accent, in the variant of the appearance in force, so the
- * choice is made by looking rather than by reading. The compact row carries a switch that shows the density
- * rather than takes the click — the row itself is the control, so the menu stays one list of choices to a
- * keyboard and a screen reader.
+ * choice is made by looking rather than by reading. The compact and the Excel formatting rows carry a switch that
+ * shows the choice rather than takes the click — the row itself is the control, so the menu stays one list of
+ * choices to a keyboard and a screen reader.
  */
 export const ThemeSwitch = () => {
     const { t } = useTranslation()
     const { isDarkMode, setThemeMode, themeMode } = useThemeMode()
-    const { compact, setCompact, setThemeName, themeName } = useAppTheme()
+    const { compact, excelFormatting, setCompact, setExcelFormatting, setThemeName, themeName } = useAppTheme()
     const [open, setOpen] = useState(false)
 
     const items: MenuProps['items'] = useMemo(() => [
@@ -75,17 +87,25 @@ export const ThemeSwitch = () => {
             key: COMPACT_KEY,
             label: t('common:theme.compact'),
         },
+        {
+            extra: <Switch checked={excelFormatting} data-testid="theme-excel-formatting" size="small" tabIndex={-1} />,
+            icon: <FileExcelOutlined />,
+            key: EXCEL_FORMATTING_KEY,
+            label: t('common:theme.excel_formatting'),
+        },
         { type: 'divider' as const },
         ...THEME_ORDER.map(name => ({
             icon: <BgColorsOutlined style={{ color: accentOf(name, isDarkMode) }} />,
             key: themeKey(name),
             label: t(`common:theme.names.${name}`),
         })),
-    ], [compact, isDarkMode, t])
+    ], [compact, excelFormatting, isDarkMode, t])
 
     const onPick = ({ key }: { key: string }): void => {
         if (key === COMPACT_KEY) {
             setCompact(!compact)
+        } else if (key === EXCEL_FORMATTING_KEY) {
+            setExcelFormatting(!excelFormatting)
         } else if (isThemeKey(key)) {
             setThemeName(themeOf(key))
         } else {
@@ -103,7 +123,12 @@ export const ThemeSwitch = () => {
             menu={{
                 items,
                 onClick: onPick,
-                selectedKeys: [themeMode, themeKey(themeName), ...(compact ? [COMPACT_KEY] : [])],
+                selectedKeys: [
+                    themeMode,
+                    themeKey(themeName),
+                    ...(compact ? [COMPACT_KEY] : []),
+                    ...(excelFormatting ? [EXCEL_FORMATTING_KEY] : []),
+                ],
             }}
         >
             <Button

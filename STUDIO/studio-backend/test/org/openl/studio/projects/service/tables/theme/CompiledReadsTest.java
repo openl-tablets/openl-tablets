@@ -6,6 +6,7 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
+import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
@@ -150,6 +152,15 @@ class CompiledReadsTest {
 
         assertEquals(BLACK, layout.at(FUZZY_ROW + 1, NAMES).style().color().rgb(), "The ids are not code");
         assertEquals(WHITE, layout.at(FUZZY_ROW + 2, NAMES).style().background().rgb(), "The titles are not grey");
+    }
+
+    @Test
+    void readsTheBodyOfATableTheCompilerReadNoneOfAsValues() {
+        for (var row : List.of(ORPHAN_ROW, LOST_ROW, FUZZY_ROW)) {
+            var roles = Roles.of(tableAt(row));
+            assertEquals(RawTableRole.SIGNATURE, roles.roleAt(row, 1));
+            assertEquals(RawTableRole.VALUE, roles.roleAt(row + 2, 1), "Row " + row);
+        }
     }
 
     private IOpenLTable tableAt(int row) {

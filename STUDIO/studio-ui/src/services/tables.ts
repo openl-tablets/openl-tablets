@@ -278,23 +278,6 @@ export const getTableThemes = (): Promise<TableThemeOption[]> => {
     return tableThemes
 }
 
-/**
- * The table themes that can be written into a table, by name: every theme for a table of a kind the themes style,
- * none for a table of any other kind. The server says which, so the screen keeps no list of kinds.
- */
-export const getTableThemesOf = async (
-    projectId: string,
-    tableId: string,
-    moduleName?: string
-): Promise<TableThemeOption[]> => {
-    const themes = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/themes` + inModule(moduleName),
-        undefined,
-        LOCAL_LOAD_API_OPTIONS
-    )
-    return asArray(themes) as TableThemeOption[]
-}
-
 /** What writing the table theme into a project did; a list the server has nothing to put in is left out. */
 export interface TableThemeResult {
     /** The tables the theme was written into */

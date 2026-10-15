@@ -4,9 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeSwitch } from './ThemeSwitch'
 import { accentOf, THEME_ORDER } from '../../styles/themes'
 
-const { appThemeRef, setCompact, setThemeMode, setThemeName, themeModeRef } = vi.hoisted(() => ({
-    appThemeRef: { current: { compact: false, themeName: 'standard' } },
+const { appThemeRef, setCompact, setExcelFormatting, setThemeMode, setThemeName, themeModeRef } = vi.hoisted(() => ({
+    appThemeRef: { current: { compact: false, excelFormatting: false, themeName: 'standard' } },
     setCompact: vi.fn(),
+    setExcelFormatting: vi.fn(),
     setThemeMode: vi.fn(),
     setThemeName: vi.fn(),
     themeModeRef: { current: 'auto' },
@@ -19,7 +20,7 @@ vi.mock('antd-style', () => ({
 }))
 
 vi.mock('../../providers/AppThemeProvider', () => ({
-    useAppTheme: () => ({ ...appThemeRef.current, setCompact, setThemeName }),
+    useAppTheme: () => ({ ...appThemeRef.current, setCompact, setExcelFormatting, setThemeName }),
 }))
 
 vi.mock('@ant-design/icons', () => ({
@@ -27,6 +28,7 @@ vi.mock('@ant-design/icons', () => ({
     default: ({ component }: { component: () => unknown }) => <i data-testid="icon-auto">{component() as never}</i>,
     BgColorsOutlined: ({ style }: { style?: { color?: string } }) => <i data-colour={style?.color} data-testid="icon-theme" />,
     CompressOutlined: () => <i data-testid="icon-compact" />,
+    FileExcelOutlined: () => <i data-testid="icon-excel-formatting" />,
     MoonOutlined: () => <i data-testid="icon-dark" />,
     SunOutlined: () => <i data-testid="icon-light" />,
 }))
@@ -70,7 +72,7 @@ describe('ThemeSwitch', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         themeModeRef.current = 'auto'
-        appThemeRef.current = { compact: false, themeName: 'standard' }
+        appThemeRef.current = { compact: false, excelFormatting: false, themeName: 'standard' }
     })
 
     it('offers the three appearances and marks the one in force', () => {
@@ -82,16 +84,17 @@ describe('ThemeSwitch', () => {
         expect(screen.getByTestId('theme-option-auto').getAttribute('data-selected')).toBe('true')
     })
 
-    it('offers the density right under the appearances, and the themes after both', () => {
+    it('offers the density and the Excel formatting right under the appearances, and the themes after them', () => {
         render(<ThemeSwitch />)
 
         const order = screen.getAllByTestId(/^theme-option-/).map(option => option.getAttribute('data-testid'))
 
-        expect(order.slice(0, 5)).toEqual([
+        expect(order.slice(0, 6)).toEqual([
             'theme-option-light',
             'theme-option-dark',
             'theme-option-auto',
             'theme-option-compact',
+            'theme-option-excelFormatting',
             'theme-option-theme-standard',
         ])
     })
@@ -145,6 +148,7 @@ describe('ThemeSwitch', () => {
         expect(setThemeName).toHaveBeenCalledWith('dracula')
         expect(setThemeMode).not.toHaveBeenCalled()
         expect(setCompact).not.toHaveBeenCalled()
+        expect(setExcelFormatting).not.toHaveBeenCalled()
     })
 
     it('offers the compact density under the themes, switched off to begin with', () => {
@@ -165,7 +169,7 @@ describe('ThemeSwitch', () => {
     })
 
     it('marks the compact density while it is in force', async () => {
-        appThemeRef.current = { compact: true, themeName: 'standard' }
+        appThemeRef.current = { compact: true, excelFormatting: false, themeName: 'standard' }
 
         render(<ThemeSwitch />)
 
@@ -175,5 +179,38 @@ describe('ThemeSwitch', () => {
         await userEvent.click(screen.getByTestId('theme-option-compact'))
 
         expect(setCompact).toHaveBeenCalledWith(false)
+    })
+
+    it('offers the Excel formatting of the tables, switched off to begin with', () => {
+        render(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-option-excelFormatting').textContent)
+            .toContain('common:theme.excel_formatting')
+        expect(screen.getByTestId('theme-excel-formatting').getAttribute('aria-checked')).toBe('false')
+        expect(screen.getByTestId('theme-option-excelFormatting').getAttribute('data-selected')).toBeNull()
+    })
+
+    it('turns the Excel formatting on and off without touching the density or the theme', async () => {
+        render(<ThemeSwitch />)
+
+        await userEvent.click(screen.getByTestId('theme-option-excelFormatting'))
+
+        expect(setExcelFormatting).toHaveBeenCalledWith(true)
+        expect(setCompact).not.toHaveBeenCalled()
+        expect(setThemeName).not.toHaveBeenCalled()
+        expect(setThemeMode).not.toHaveBeenCalled()
+    })
+
+    it('marks the Excel formatting while it is in force', async () => {
+        appThemeRef.current = { compact: false, excelFormatting: true, themeName: 'standard' }
+
+        render(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-excel-formatting').getAttribute('aria-checked')).toBe('true')
+        expect(screen.getByTestId('theme-option-excelFormatting').getAttribute('data-selected')).toBe('true')
+
+        await userEvent.click(screen.getByTestId('theme-option-excelFormatting'))
+
+        expect(setExcelFormatting).toHaveBeenCalledWith(false)
     })
 })

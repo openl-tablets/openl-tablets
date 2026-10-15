@@ -13,9 +13,6 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
 /**
  * Turns the colours, fonts and border lines of a cell into the style the Tables API reports.
  *
- * <p>A style read from the workbook and the look a table theme draws over it are both reported through here, so a
- * theme is drawn on the screen the way the workbook it is written into is drawn.
- *
  * <p>An attribute at its default is left out: a white fill, a black font or line, and a font flag that is off.
  */
 final class RawTableStyles {
@@ -49,7 +46,8 @@ final class RawTableStyles {
     }
 
     /**
-     * Lays the attributes of a font into a style.
+     * Lays the attributes of a font into a style. Its name and its size are left out: a screen draws a table in its
+     * own font.
      *
      * @param style the style to fill
      * @param font  the font
@@ -86,6 +84,7 @@ final class RawTableStyles {
                 .color(hex(border.getRgb(), BLACK))
                 .build();
     }
+
 
     /** {@link Boolean#TRUE} for a flag that is on, {@code null} for one that is off or not named. */
     static @Nullable Boolean flag(@Nullable Boolean on) {

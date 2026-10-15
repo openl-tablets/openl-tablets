@@ -1,0 +1,204 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "a973db19c8ebdfbbd626dceeb832c28c",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "Premium",
+  "pos": "B19:D24",
+  "source": [
+    [
+      {
+        "cell": "B19",
+        "value": "Spreadsheet SpreadsheetResult Premium ( Person person )",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B20",
+        "value": "properties"
+      },
+      {
+        "cell": "C20",
+        "value": "description"
+      },
+      {
+        "cell": "D20",
+        "value": "The premium of a person"
+      }
+    ],
+    [
+      {
+        "cell": "B21",
+        "value": "Step"
+      },
+      {
+        "cell": "C21",
+        "value": "Formula"
+      },
+      {
+        "cell": "D21"
+      }
+    ],
+    [
+      {
+        "cell": "B22",
+        "value": "Base*"
+      },
+      {
+        "cell": "C22",
+        "value": "= 10"
+      },
+      {
+        "cell": "D22"
+      }
+    ],
+    [
+      {
+        "cell": "B23",
+        "value": "Totals",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B24",
+        "value": "Total*"
+      },
+      {
+        "cell": "C24",
+        "value": "= $Base * 2"
+      },
+      {
+        "cell": "D24"
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "properties",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 0
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 1,
+      "bottom": 2,
+      "right": 2
+    },
+    {
+      "role": "result",
+      "top": 3,
+      "left": 0,
+      "bottom": 3,
+      "right": 0
+    },
+    {
+      "role": "result",
+      "type": "code",
+      "top": 3,
+      "left": 1,
+      "bottom": 3,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "top": 3,
+      "left": 2,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "section",
+      "top": 4,
+      "left": 0,
+      "bottom": 4,
+      "right": 2
+    },
+    {
+      "role": "result",
+      "top": 5,
+      "left": 0,
+      "bottom": 5,
+      "right": 0
+    },
+    {
+      "role": "result",
+      "type": "code",
+      "top": 5,
+      "left": 1,
+      "bottom": 5,
+      "right": 1
+    },
+    {
+      "role": "output",
+      "top": 5,
+      "left": 2,
+      "bottom": 5,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 11
+    },
+    {
+      "part": "type",
+      "to": 29
+    },
+    {
+      "part": "name",
+      "to": 37
+    },
+    {
+      "part": "punctuation",
+      "to": 39
+    },
+    {
+      "part": "parameterType",
+      "to": 46
+    },
+    {
+      "part": "parameterName",
+      "to": 53
+    },
+    {
+      "part": "punctuation",
+      "to": 55
+    }
+  ],
+  "headerHeight": 2
+}

@@ -1,0 +1,123 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "719cded84a67b39943cbbab1e817c123",
+  "tableType": "RawSource",
+  "kind": "Conditions",
+  "name": "AgeBand",
+  "pos": "B64:D68",
+  "source": [
+    [
+      {
+        "cell": "B64",
+        "value": "Conditions AgeBand",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B65",
+        "value": "Inputs"
+      },
+      {
+        "cell": "C65",
+        "value": "Integer age",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B66",
+        "value": "Expression"
+      },
+      {
+        "cell": "C66",
+        "value": "age >= minAge && age <= maxAge",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B67",
+        "value": "Parameter"
+      },
+      {
+        "cell": "C67",
+        "value": "Integer minAge"
+      },
+      {
+        "cell": "D67",
+        "value": "Integer maxAge"
+      }
+    ],
+    [
+      {
+        "cell": "B68",
+        "value": "Title"
+      },
+      {
+        "cell": "C68",
+        "value": "Age Band",
+        "colspan": 2
+      },
+      {
+        "covered": true
+      }
+    ]
+  ],
+  "styles": [],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 2
+    },
+    {
+      "role": "key",
+      "top": 1,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 1,
+      "bottom": 3,
+      "right": 2
+    },
+    {
+      "role": "inputTitle",
+      "top": 4,
+      "left": 1,
+      "bottom": 4,
+      "right": 2
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 10
+    },
+    {
+      "part": "name",
+      "to": 18
+    }
+  ],
+  "headerHeight": 0
+}

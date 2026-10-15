@@ -171,7 +171,8 @@ that id travels as a **path segment**, so it **MUST** stay within one.
 
 ## Table Theme
 
-The looks OpenL Studio gives every table but a table of the type Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the
+The screen draws a table by the roles of its cells, which a read reports (`regions`), and the looks OpenL Studio
+writes into every table of a project but a table of the type Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the
 screen shows as Other) are the `table-themes/*.yaml` files of its classpath
 (`resources/table-themes/` ships `standard` and `green`). `standard` follows the formatting standard of OpenL
 tables: its General section is the base, and the colours are the ones the standard names.
@@ -180,20 +181,13 @@ then binds them strictly with Jackson.
 See `Docs/user-guides/openl-studio/appendices/table-themes.md` for the file format and `Docs/api/raw-tables-api.md`
 for the endpoints.
 
-- **A theme is known by its file name.** The file name without `.yaml` is the identifier the settings, the read
-  parameter and the write actions carry; the `name` the file declares is only what the screen shows. Of two files of
+- **A theme is known by its file name.** The file name without `.yaml` is the identifier the project action
+  (`POST /projects/{id}/theme`) carries; the `name` the file declares is only what the screen shows. Of two files of
   one identifier the first read is offered and the other logged as a warning (`TableThemeService`); two themes
   declaring one name are both offered.
 - **The primary theme is offered first.** A file writing `primary: true` (`standard`) is listed before the others,
-  then each group by name (`TableThemeService.inOfferedOrder`), in both theme lists. The screen applies a theme
-  starting from the first one offered, never from an identifier it knows, and never from the table theme of the
-  settings or the look of the Studio theme: those only decide what the screen draws.
-- **No theme means the Excel formatting.** The `table.theme` user setting is empty by default, and a setting that
-  is empty or names a theme Studio no longer offers draws the tables as the workbook formats them: the screen asks a
-  read for the theme only when it is offered (`offeredTheme`). A read naming a theme Studio does not offer is refused
-  with `400`. The REST mapper leaves the empty value out of the
-  profile (`NON_EMPTY`), so the screen reads a missing `tableTheme` as **Excel Formatting** and sends `""` to choose
-  it again.
+  then each group by name (`TableThemeService.inOfferedOrder`), in the list of themes. The screen applies a theme
+  starting from the first one offered, never from an identifier it knows.
 - **A broken theme is left out, not fatal.** A file that cannot be read, declares no name, writes a key twice,
   writes a font size that is not a whole number (`ACCEPT_FLOAT_AS_INT` is off), names an unknown attribute or a
   colour it gives no name is logged as an error and not offered; Studio starts with the rest.
@@ -202,26 +196,15 @@ for the endpoints.
   file writes under `themeColors` (`ExcelThemeColours`, keyed by `ExcelThemeColour`). `TableThemeService` takes
   `colors` out of the file before binding and reads `themeColors` beforehand, which also stays a key of the theme,
   and hands both to `ThemeColourReader`, which reads a colour wherever a part sets one (`color`, `background`, the
-  `color` of a line). `ThemeStyle` and `ThemeBorderLine` therefore hold a `ThemeColour`: the `#rrggbb` the screen
-  draws, which it checks, and the theme colour and tint it is written as (`PoiExcelHelper.ThemedColor`). The RGB of a
-  theme colour is tinted as Excel tints it (`PoiExcelHelper.applyTint`), the function the reader draws a workbook
-  colour with, so the overlay and the written workbook draw alike. The shipped themes set every colour by its name,
+  `color` of a line). `ThemeStyle` and `ThemeBorderLine` therefore hold a `ThemeColour`: the `#rrggbb`, which it
+  checks, and the theme colour and tint it is written as (`PoiExcelHelper.ThemedColor`). The RGB of a theme colour is
+  tinted as Excel tints it (`PoiExcelHelper.applyTint`), the function the reader draws a workbook colour with. The shipped themes set every colour by its name,
   each a theme colour of **Office 2013 - 2022** but the palest green of `green`.
-- **The overlay tells where each colour is set.** `ThemeColourReader` gives every colour the key of the file it is
-  read at (`ThemeColour.key`): the keys from the top of the file down, as Jackson reads the file with its aliases and
-  merge keys resolved, such as `spreadsheet.values.background`, `base.header.keyword.color` or
-  `spreadsheet.resultRow.border.top.color`, so a part an alias repeats has a key of its own. The key travels with the
-  colour through every part laid over another, and the overlay reports it beside the colour (`backgroundKey`,
-  `colorKey` of a style, a run and a border side), so the screen can draw a key in a colour of its own theme
-  (**Override with Studio theme**). The key is no part of the colour (`ThemeColour.equals`): parts that look alike take
-  one style in a workbook and draw one line. Which table theme the screen reads and which colour a key takes there is
-  the frontend's alone: the server knows no theme of OpenL Studio and never writes a key into a workbook.
 - **A theme colour is written as the theme colour only into a workbook of those theme colours.** The writer reads
   the theme colours of each workbook once (`ExcelThemeColours.areThoseOf`: all twelve compared by colour, not by the
   name, which Excel 2013-2022 writes as `Office`). When they are those of the theme, every colour of the theme is
   written as the theme colour, so the palette of Excel offers it; otherwise every colour is written as RGB, and so
-  into an `.xls` workbook and one without a theme part. One table (`write`, the `theme` action) and the project
-  (`writeAll`) write alike. A cell holding the colour the other way round, RGB for a theme colour or the reverse, has
+  into an `.xls` workbook and one without a theme part. A cell holding the colour the other way round, RGB for a theme colour or the reverse, has
   not the look, so writing again turns it into the way the workbook takes it.
 - **The theme of a workbook is never changed: a limit of Apache POI.** POI reads the theme colours
   (`ThemesTable.getThemeColor`) but has no API to set them or to give a workbook another theme; `ensureThemesTable()`
@@ -241,8 +224,7 @@ for the endpoints.
   and the lookups — and give every other kind (TBasic, Method, Run, ColumnMatch, Conditions, Actions, Returns,
   Environment, Properties, Constants) the base alone, which is the General format of the standard. The layouts of
   those kinds stay, so a theme of one's own can still give them a look, and their tests read
-  `test-table-themes/every-kind.yaml` (`TestThemes.everyKind()`), which does. The server decides which
-  tables a theme suits (`GET .../tables/{id}/themes`): the screen never keeps a list of themed kinds. Each kind is a
+  `test-table-themes/every-kind.yaml` (`TestThemes.everyKind()`), which does. Each kind is a
   constant of `ThemeKind`, which names the part of `TableTheme` the kind takes its look from and the `BodyLayout` of
   its body, so a new kind of table is one constant there and one part of `TableTheme`.
 - **Every kind extends the base.** `base` is the skin every table shares — the signature, the properties, the cell
@@ -253,29 +235,19 @@ for the endpoints.
   groups — is written once under the first kind that takes it and repeated by an alias (`titles: *title`). A kind
   that looks like another is an alias in the file (`smartRules: *simple`, `smartLookup: *lookup`), never a rule of
   the code, so a theme can still give it a look of its own.
-- **One table is themed through its edit, alone.** The `theme` action of `RawTableSourceAction` writes the theme
-  into the table as it was saved. A theme is laid out by the compiled table, which any other edit of the batch would
-  change: a column inserted into a decision table is a condition the compiler has not read. So
-  `WorkspaceProjectService.editTableSource` refuses a batch holding a `theme` action and any other edit, another theme
-  included (`table.theme.alone.message`, `400`), before the table is read: refused inside the write, it would have the
-  module read again for nothing. The editor of the screen never builds one (`withStep` in `studio-ui`'s
-  `tableEdits.ts`): while a theme is chosen the cells do not open and every action changing the table is off, and
-  while the table holds edits the theme is, each saying why.
 - **A theme waits until what was written is compiled.** A workbook remembers that it was saved after a compilation
   read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and a compilation reads every workbook again, so
   `ProjectModel.isWrittenSinceCompiled` tells whether what the session compiled for the project open, the modules and
-  the projects it depends on included, still answers for its workbooks. While it does not, a theme of one table and of
-  the project is refused (`table.theme.verify.message`, `409`), whatever automatic compilation is set to. With it on,
-  opening any module after a write builds the module the write changed again, and every module using it
-  (`WebStudio.recompileCurrentModule`), so a theme sent once the edits are saved is laid out by the table they left
-  (`070-apply-theme-alone` of `task_table_theme`). With it off,
-  the project stays compiled as its workbooks stood until the reader verifies a module, which compiles every module
-  again (`080-apply-theme-after-verify`). `ProjectModel.isManualCompileNeeded`, the `manualCompileNeeded` of the
-  status, asks the same with automatic compilation off: the Verify button, the theme of the editor (`verifyNeeded`,
-  which also keeps a theme chosen before from being saved) and the dialog of the project theme follow what was
-  compiled, not the module written to last, and Verify on any module answers for every write before it. Such a write
-  tells every screen of the project (`WebStudio.recompileCurrentModule` publishes the status), so another one holding
-  a theme to save learns it too, once for each compilation: a later write leaves the project waiting as the first did.
+  the projects it depends on included, still answers for its workbooks. While it does not, a theme of the project is
+  refused (`table.theme.verify.message`, `409`), whatever automatic compilation is set to. With it on, opening any
+  module after a write builds the module the write changed again, and every module using it
+  (`WebStudio.recompileCurrentModule`), so a theme sent once the edits are saved is laid out by the tables they left.
+  With it off, the project stays compiled as its workbooks stood until the reader verifies a module, which compiles
+  every module again (`080-apply-theme-after-verify` of `task_table_theme`). `ProjectModel.isManualCompileNeeded`, the
+  `manualCompileNeeded` of the status, asks the same with automatic compilation off: the Verify button and the dialog
+  of the project theme follow what was compiled, not the module written to last, and Verify on any module answers for
+  every write before it. Such a write tells every screen of the project (`WebStudio.recompileCurrentModule` publishes
+  the status), once for each compilation: a later write leaves the project waiting as the first did.
 - **The whole project has an endpoint of its own** (`POST /projects/{id}/theme`).
   It takes the tables from what the session compiled, so a project compiled only in part — its module set to compile
   alone — is compiled whole first, and a project whose compilation the reader stopped is refused (`409`): the tables
@@ -285,13 +257,22 @@ for the endpoints.
   each table first: a write there is kept in the history of its module and marks the project modified, as an edit
   of the table does.
 - **One layout for both uses.** `TableRegionLayout` lays every table out in regions (`TableRegions`): rectangles
-  of its cells, in table coordinates, that name the same parts of a theme (`Parts`), and the pieces of its header
-  text. It lays out the header and the properties for every kind and hands the body, with what a layout knows of the
+  of its cells, in table coordinates, that take one role and one type of value and name the same parts of a theme
+  (`Place`: a `RawTableRole`, how its values are typed, and the `Parts`), the lines of its body that start a group, and
+  the pieces of its header text (`SignatureSplitter`). It lays out the header and the properties for every kind and hands the body, with what a layout knows of the
   table (`ThemedBody`), to the `BodyLayout` its `ThemeKind` names: a method of `DatatypeThemeLayout`,
   `SpreadsheetThemeLayout`, `TBasicThemeLayout`, `DataThemeLayout`, `DecisionThemeLayout`,
   `ColumnMatchThemeLayout` or `NamedValuesThemeLayout`. The body of a Method table is code, which takes the base
-  (`BodyLayout.Placed.plain`). Both the screen overlay and `ThemeExcelWriter` draw the theme from the regions
-  (`ThemedTable`), so what is drawn is what writing the theme gives.
+  (`BodyLayout.Placed.code`). A read reports the roles of the regions (`RawTableView.regions`), which the screen draws
+  the Studio look by, and `ThemeExcelWriter` writes a theme from the parts of the same regions (`ThemedTable`).
+- **A role is a meaning, read from the compiled table.** Every kind of table holds the same roles in its own
+  structure (`RawTableRole`): a layout names the role of each place it reads, never a position it assumes. The type of
+  a value (`ValueTypes`) is the data type the compiler gives the cell (`CellMetaInfo.getDataType`), a formula
+  (`SpreadsheetExpressionMarker.isFormula`) or the body of a Method table being `code`; a region takes the type most of
+  its values have on each of its lines, and a cell of another type names its own (`TableRegions.typeAt`,
+  `RawTableCell.type`). The groups (`RawTableGroups`) are the rows of the rules that share a merged value of a
+  condition, the columns of a lookup under a merged horizontal value, and the conditions of a ColumnMatch table
+  indented under one name.
 - **A layout names the parts of a place, `TableRegionLayout` lays out the sheet.** A layout answers the places it
   reads the body in and the parts of each (`BodyLayout.Placed`), and `TableRegionLayout` alone gives those parts to
   every cell of the sheet the place takes, so a row written over several rows of the sheet is laid out whole. It lays
@@ -300,7 +281,7 @@ for the endpoints.
   `GridSplitter` does not widen a table for a region of empty cells, so such a region may be merged past its edge.
   `Parts` names a look without a theme — a part laid over the base, fitted to the edges of a block, turned for a
   table written the other way round — so the layout of a table serves every theme, and the regions are the runs of
-  cells naming equal parts, joined down the rows.
+  cells naming equal places, joined down the rows.
   How the compiler read a table is asked once for every kind, in `TableRegionLayout.of`: each `ThemeKind` names a
   function of `CompiledReads`, which tells whether the compiler read the table transposed, or nothing for a table it
   read none of — a Datatype whose parent type is not found, a Vocabulary of a type that does not exist, a Data, a Test or a Run
@@ -313,7 +294,7 @@ for the endpoints.
   Actions and a Returns table take their axes from the titles the compiler found.
 - **A table is laid out once for each compilation.** `TableRegionLayout.regionsOf` keeps the regions of a compiled
   table in a weak map keyed by its `TableSyntaxNode`: a compilation makes new nodes, so it drops the old layouts, and
-  every page of a large table drawn in a theme reuses one layout instead of laying the whole table out again. A layout
+  every page of a large table reuses one layout instead of laying the whole table out again. A layout
   depends on the cells too, so it is reused only while the workbook of the table was not saved since the compilation
   read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`); a table read while a write waits for a compilation is laid
   out as it stands, on every read. A part of a table, and the writer, which works on the table as the write leaves it,
@@ -335,11 +316,10 @@ for the endpoints.
 - **An active theme overrides the look of the workbook.** The shipped themes name every attribute in the base
   style: `none` takes every side away, the fill is white, every font flag is off. A themed table therefore shows
   only the fills, lines, fonts and alignment the theme names. A text the workbook formats in pieces of its own,
-  other than the header, is drawn in the font of its cell, which a read naming the theme reports with no pieces
-  (`RawTableReader`), and written so (`ThemeExcelWriter.writeRuns`): `ThemedCell.keepsOwnRuns` is the one rule the
-  reader and the writer ask. The properties are one section: their top and bottom lines go round
-  it, not round each property. Every cell of a read reports the lines it draws itself, in the workbook
-  (`TableViewer.setGrid`) and in the overlay alike, so a line two cells share may be reported by both or by either,
+  other than the header, is written in the font of its cell (`ThemeExcelWriter.writeRuns`,
+  `ThemedCell.keepsOwnRuns`). The properties are one section: their top and bottom lines go round
+  it, not round each property. Every cell of a read reports the lines it draws itself (`TableViewer.setGrid`), so a
+  line two cells share may be reported by both or by either,
   and a window of rows reports only the lines of its own cells. The screen draws each shared line once, the wider one
   winning (`collapsedBorders` of `studio-ui`), and draws the line under the rows a table shown without its header
   (**Show Header** off) hides on the top of the first row it shows (`withoutFirstRows`). The writer keeps the sides as
@@ -347,7 +327,9 @@ for the endpoints.
 - **A read sends each fact once.** `RawTableReader` names the styles of a read in a dictionary
   (`RawTableStyleDictionary`, `RawTableView.styles`): a cell and a piece of its text name their style by its index, so a
   style a thousand cells share is sent once. A piece of text names where it ends in the text of its cell
-  (`RawTableTextRun.to`), not its text. A read of the values alone (`styles=false`, no theme) sends no styles. The
+  (`RawTableTextRun.to`), not its text. A read of the values alone (`styles=false`) sends no styles. A style names no
+  font name or size (`RawTableStyles.font`): the screen draws a table in the font of the application. The roles of
+  the whole table come with the styles, once for every window of its rows. The
   comparison sends each side with its own dictionary (`RawTableCells`, `ComparisonSideView.styles`). `studio-ui`
   expands a read at the service boundary (`services/rawTables.ts`), every cell of one style sharing one object.
 - **A Data, a Test and a Run table are read as the compiler reads them.** `DataThemeLayout` reads the body with its
@@ -363,7 +345,7 @@ for the endpoints.
   base alone. Its
   references to other
   tables are left as values. `empty` is laid over a blank value, cell by cell — a fill written with the theme, not a
-  conditional format, so the workbook reads it back as the overlay draws it. A column of a Test table whose field
+  conditional format, so the workbook reads it back as it was written. A column of a Test table whose field
   starts with `_res_` or `_error_` holds the result it expects, as `TestSuiteMethod.createFieldsToTest` tells it: its
   title takes `returnTitles` over `titles` and its values `returns` over `values`. The rows naming the fields are one
   block, the lines of `name` going round it (`ThemeStyle.atEdges`). A transposed table draws no line round them, and
@@ -442,28 +424,13 @@ for the endpoints.
   is a Vocabulary when the compiler bound it as the type of the values it lists (`AliasDatatypeMetaInfoReader`),
   whatever its header looks like. A Datatype whose parent type is not found has no fields the compiler read, and
   takes the base alone for its body, as a Data table does.
-- **The overlay is a view only.** A read naming a theme reports the look of the theme in `RawTableCell.style` and
-  `runs`, in place of the formatting of the workbook, and every style the theme gives names it as its source
-  (`RawTableCellStyle.source`, `RawTableStyleSource.THEME`; a style of the workbook leaves it out). Both fields are
-  read-only and no request model carries a source, so a table sent back as it was read writes no style. No edit
-  starts from such a read: when the user edits a table drawn with a theme, `TableEditor` reads it again without the
-  theme and edits that read, whose `style` is what the workbook holds. The one exception is the preview of a theme the
-  user chose to write, which the save sends as a `theme` action, never as styles. The preview is laid over a copy of
-  the rows that is only drawn: the toolbar and the save read the edited rows, so a theme drawn on the screen never
-  reaches the workbook through an edit. Keep it that way: never edit the rows of a read naming a theme, and never
-  fold the theme into the `style` of the edited rows. The preview is the look of the table as it was read, matched by
-  the address each cell was read at, and it is exact: a table given a theme holds no other edit, so every cell stands
-  where it was read and the save lays the theme out as the read did.
 - **A written theme is not kept up to date.** An edit after the theme was written, such as rows or columns inserted
   or deleted, writes no theme by itself: laying the theme out needs the table compiled, and its cost grows with the
-  table, so the user applies the theme again by hand once the edits are finished; the user guide says so. Only the
-  overlay follows the edits, since every read lays the theme out over the table as it is then. Do not make the edits
-  write the theme again on their own.
-- **One look on the screen and in the workbook.** A piece of the header starts from the font of the cell on both
-  sides (`ThemeStyles.fontOf`, `ThemeExcelWriter`). A look is reported through the same colour, font and border
-  mappings as a style read from the workbook (`RawTableStyles`, `BorderStyle.of`), so a line the theme draws looks
-  like the one the written workbook shows. `ThemeStyles` sits beside `RawTableStyles` in the `read` package, so the
-  theme package never depends on the reader. The writer tells fonts apart by `PoiExcelHelper.FontAttributes`, with
+  table, so the user applies the theme to the project again once the edits are finished; the user guide says so. Do
+  not make the edits write the theme again on their own.
+- **A piece of the header starts from the font of the cell** (`ThemeExcelWriter`). The theme package never depends
+  on the reader, which reads the roles of the regions alone. The writer tells fonts apart by
+  `PoiExcelHelper.FontAttributes`, with
   the size in twips, the colour as RGB and the theme colour it is made of (`themed`), and the RGB of a theme colour
   must be `#rrggbb`, which `ThemeColour` checks when the file is read.
 - **Writing keeps what the theme does not set.** `ThemeExcelWriter` clones the style of each cell and sets only
@@ -476,8 +443,7 @@ for the endpoints.
   after the theme, naming the table by where it stands once written. Each property the note adds is a row inserted
   at the top of the properties with the style of the row under it, a table without properties getting them so. The
   note therefore goes through `ThemeExcelWriter.noting`, which lays out the header and the properties alone and
-  themes the rows the note inserted, nothing else; the save of a `theme` edit notes it the same way
-  (`RawTableWriter.recordEdit`).
+  themes the rows the note inserted, nothing else.
 
 ## Regenerating OpenAPI Goldens
 

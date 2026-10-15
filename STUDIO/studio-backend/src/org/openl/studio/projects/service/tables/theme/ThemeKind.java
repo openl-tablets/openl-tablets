@@ -28,7 +28,7 @@ enum ThemeKind {
     VOCABULARY(TableTheme::vocabulary, DatatypeThemeLayout::values, CompiledReads::vocabulary),
     SPREADSHEET(TableTheme::spreadsheet, SpreadsheetThemeLayout::layOut, CompiledReads::spreadsheet),
     TBASIC(TableTheme::tbasic, TBasicThemeLayout::layOut, CompiledReads::tbasic),
-    METHOD(TableTheme::method, BodyLayout.Placed::plain, CompiledReads.ALWAYS),
+    METHOD(TableTheme::method, BodyLayout.Placed::code, CompiledReads.ALWAYS),
     DATA(TableTheme::data, DataThemeLayout::data, CompiledReads::data),
     TEST(TableTheme::test, DataThemeLayout::calls, CompiledReads::data),
     RUN(TableTheme::run, DataThemeLayout::calls, CompiledReads::data),

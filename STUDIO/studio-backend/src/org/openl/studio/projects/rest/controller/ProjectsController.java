@@ -111,7 +111,6 @@ import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableThemeResultView;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
@@ -558,9 +557,6 @@ public class ProjectsController {
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
-                                      @RequestParam(value = "tableTheme", required = false)
-                                      @Parameter(description = "projects.table.get.param.table-theme.desc")
-                                      String tableTheme,
                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
                                       @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState) {
         var read = raw
@@ -569,23 +565,12 @@ public class ProjectsController {
                         .maxRows(maxRows)
                         .withStyles(styles)
                         .withMetaInfo(metaInfo)
-                        .build(), tableTheme, module)
+                        .build(), module)
                 : (EditableTableView) projectService.getTable(project, tableId, module);
         if (runState && read instanceof TableView view) {
             view.runState = projectService.getTableRunState(project, tableId, module);
         }
         return read;
-    }
-
-    @GetMapping("/{projectId}/tables/{tableId}/themes")
-    @Operation(summary = "projects.table.themes.summary", description = "projects.table.themes.desc")
-    public List<TableThemeView> getTableThemes(@ProjectId @PathVariable("projectId") RulesProject project,
-                                               @PathVariable("tableId")
-                                               @Parameter(description = "project.table.id.desc") String tableId,
-                                               @RequestParam(value = "module", required = false)
-                                               @Parameter(description = "projects.table.get.param.module.desc")
-                                               String module) {
-        return projectService.getTableThemes(project, tableId, module);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}/tests")

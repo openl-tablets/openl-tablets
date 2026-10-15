@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables.theme;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.IntBinaryOperator;
@@ -22,6 +23,8 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.studio.projects.model.tables.RawTableRole;
+import org.openl.util.StringUtils;
 
 /**
  * Decides which look a theme gives each cell of the body of a decision table: a Rules, a SimpleRules, a SmartRules, a
@@ -52,6 +55,9 @@ import org.openl.rules.table.ILogicalTable;
  * below it on the right. The style every cell starts from keeps its lines where it names them.
  */
 final class DecisionThemeLayout {
+
+    /** The keywords naming the parts of a declaration of a Conditions, an Actions or a Returns table. */
+    private static final Set<String> KEYWORDS = Set.of("inputs", "expression", "parameter", "title");
 
     private DecisionThemeLayout() {
     }
@@ -99,11 +105,26 @@ final class DecisionThemeLayout {
         return placed(body, Places.ofDeclarations(body, false));
     }
 
-    /** The body with the parts of each of its places, or with the base alone where the compiler laid out none. */
+    /**
+     * The body with what each of its places is, or holding values alone where the compiler laid out none, and the
+     * lines that start a group: the rules after the first one a group sets apart, and the columns of a lookup after
+     * the first one its horizontal groups set apart.
+     */
     private static BodyLayout.Placed placed(ThemedBody body, @Nullable Places places) {
-        return Optional.ofNullable(places)
-                .map(laid -> new BodyLayout.Placed(body.rows(), Looks.of(laid)))
-                .orElseGet(() -> BodyLayout.Placed.plain(body));
+        if (places == null) {
+            return BodyLayout.Placed.plain(body);
+        }
+        var lines = places.groups()
+                .stream()
+                .filter(line -> line > places.rulesFrom())
+                .collect(Collectors.toUnmodifiableSet());
+        var crosses = places.columns()
+                .stream()
+                .filter(cross -> cross > places.gridFrom())
+                .collect(Collectors.toUnmodifiableSet());
+        var transposed = places.axes().transposed();
+        return new BodyLayout.Placed(body.rows(), Looks.of(places), transposed ? crosses : lines,
+                transposed ? lines : crosses);
     }
 
     /**
@@ -175,6 +196,9 @@ final class DecisionThemeLayout {
      *                    of the declarations
      * @param horizontals the lines of the values of the horizontal conditions
      * @param conditions  the crosses of the conditions, and of the column naming the rules
+     * @param ruleNames   the crosses of the column naming the rules
+     * @param keywords    the lines whose first cross names the part of a declaration they hold, such as
+     *                    {@code Inputs} or {@code Title}
      * @param returns     the crosses of what the table returns or acts in
      * @param gridFrom    the first cross of the values a lookup returns, or {@link Integer#MAX_VALUE} for a table
      *                    that is not a lookup
@@ -188,6 +212,8 @@ final class DecisionThemeLayout {
                           Set<Integer> code,
                           Set<Integer> horizontals,
                           Set<Integer> conditions,
+                          Set<Integer> ruleNames,
+                          Set<Integer> keywords,
                           Set<Integer> returns,
                           int gridFrom,
                           int rulesFrom,
@@ -247,12 +273,29 @@ final class DecisionThemeLayout {
                     .code(code)
                     .horizontals(Set.of())
                     .conditions(conditions ? declarations : Set.of())
+                    .ruleNames(Set.of())
+                    .keywords(keywordLines(body, axes, region))
                     .returns(conditions ? Set.of() : declarations)
                     .gridFrom(Integer.MAX_VALUE)
                     .rulesFrom(axes.lineEnd(region) + 1)
                     .groups(Set.of())
                     .columns(Set.of())
                     .build();
+        }
+
+        /**
+         * The lines of a table declaring what decision tables take whose first cross names the part of a declaration
+         * they hold, as the compiler finds the parts by their keyword: {@code Inputs}, {@code Expression},
+         * {@code Parameter} and {@code Title}, in any case.
+         */
+        private static Set<Integer> keywordLines(ThemedBody body, Axes axes, IGridRegion region) {
+            var sheet = body.rows().getSource().getGrid();
+            var first = axes.crossStart(region);
+            return IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
+                    .filter(line -> KEYWORDS.contains(StringUtils.trimToEmpty(
+                            axes.cellAt(sheet, line, first).getStringValue()).toLowerCase(Locale.ROOT)))
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
         }
 
         /**
@@ -367,7 +410,8 @@ final class DecisionThemeLayout {
             header.addAll(titles);
             header.addAll(horizontals);
             var rulesFrom = header.stream().mapToInt(Integer::intValue).max().orElse(axes.lineStart(region) - 1) + 1;
-            conditions.addAll(ruleNames(sheet, region));
+            var ruleNames = ruleNames(sheet, region);
+            conditions.addAll(ruleNames);
             var gridFrom = grid.stream().mapToInt(Integer::intValue).min().orElse(Integer.MAX_VALUE);
             returns.addAll(grid);
             return Places.builder()
@@ -375,6 +419,8 @@ final class DecisionThemeLayout {
                     .code(Set.copyOf(code))
                     .horizontals(Set.copyOf(horizontals))
                     .conditions(Set.copyOf(conditions))
+                    .ruleNames(Set.copyOf(ruleNames))
+                    .keywords(Set.of())
                     .returns(Set.copyOf(returns))
                     .gridFrom(gridFrom)
                     .rulesFrom(rulesFrom)
@@ -490,11 +536,17 @@ final class DecisionThemeLayout {
     }
 
     /**
-     * The parts of the places of one table.
+     * What the places of one table are.
      *
-     * <p>The parts are laid as a table written the usual way takes them and turned to the axes of the table for each
-     * cell. The base is turned the other way before the parts are laid over it, so it keeps its own lines where it
-     * names them.
+     * <p>The code is code the compiler reads, and a keyword naming a part of a declaration is its key. The titles of
+     * the conditions, of the column naming the rules and the values of the horizontal conditions of a lookup are titles
+     * of what the table takes; the titles of what it returns or acts in, titles of what it gives. Under them, the names
+     * of the rules are keys, the values of the conditions values the table takes, and what it returns, the grid of a
+     * lookup included, what it gives.
+     *
+     * <p>The parts of a theme are laid as a table written the usual way takes them and turned to the axes of the table
+     * for each cell. The base is turned the other way before the parts are laid over it, so it keeps its own lines
+     * where it names them.
      *
      * @param places      where the parts stand
      * @param base        the parts every cell starts from, as a table written the usual way takes them
@@ -529,28 +581,38 @@ final class DecisionThemeLayout {
                     .build();
         }
 
-        /** The parts of a cell, by the line and the cross of the sheet it stands in. */
+        /** What a cell is, by the line and the cross of the sheet it stands in. */
         @Override
-        public Parts at(ICell cell, int column, int row) {
+        public Place at(ICell cell, int column, int row) {
             var axes = places.axes();
-            return axes.turned(uprightAt(axes.lineOf(cell), axes.crossOf(cell), cell));
+            var place = uprightAt(axes.lineOf(cell), axes.crossOf(cell), cell);
+            return place.withParts(axes.turned(place.parts()));
         }
 
-        private Parts uprightAt(int line, int cross, ICell cell) {
+        private Place uprightAt(int line, int cross, ICell cell) {
+            var keyword = places.keywords().contains(line) && isFirstCross(cross);
             if (places.code().contains(line)) {
-                return codeAt(cell);
+                return Place.of(keyword ? RawTableRole.KEY : RawTableRole.CODE, codeAt(cell));
             }
             var inGrid = cross >= places.gridFrom();
             if (places.horizontals().contains(line) && inGrid) {
-                return columnAt(horizontals, cross).apart(base, true, cross > places.gridFrom());
+                return Place.of(RawTableRole.INPUT_TITLE,
+                        columnAt(horizontals, cross).apart(base, true, cross > places.gridFrom()));
             }
             if (line < places.rulesFrom()) {
-                return headerAt(cross);
+                return keyword ? Place.of(RawTableRole.KEY, headerAt(cross)) : titleAt(cross);
             }
             var parts = valueAt(cross, inGrid);
             parts = places.groups().contains(line) ? parts.with(Parts.Part.GROUPS) : parts;
             parts = inGrid ? columnAt(parts, cross) : parts;
-            return parts.apart(base, line > places.rulesFrom(), !inGrid || cross > places.gridFrom());
+            return Place.of(roleOfValue(cross, inGrid),
+                    parts.apart(base, line > places.rulesFrom(), !inGrid || cross > places.gridFrom()));
+        }
+
+        /** Whether a cross is the first one of the declarations, the one naming their parts. */
+        private boolean isFirstCross(int cross) {
+            return places.conditions().stream().allMatch(other -> other >= cross)
+                    && places.returns().stream().allMatch(other -> other >= cross);
         }
 
         /** The parts of a column of a lookup, with the groups turned over them when the column sets a group apart. */
@@ -558,11 +620,30 @@ final class DecisionThemeLayout {
             return places.columns().contains(cross) ? parts.withTurned(Parts.Part.GROUPS) : parts;
         }
 
+        /** A title: of what the table takes, or of what it gives. */
+        private Place titleAt(int cross) {
+            var parts = headerAt(cross);
+            return places.returns().contains(cross) && !places.conditions().contains(cross)
+                    ? Place.of(RawTableRole.OUTPUT_TITLE, parts)
+                    : Place.of(RawTableRole.INPUT_TITLE, parts);
+        }
+
         private Parts headerAt(int cross) {
             if (places.conditions().contains(cross)) {
                 return titles;
             }
             return places.returns().contains(cross) ? returnTitle : base;
+        }
+
+        /** The role of a value: the name of a rule, a value of a condition, or what the table gives. */
+        private RawTableRole roleOfValue(int cross, boolean inGrid) {
+            if (places.ruleNames().contains(cross)) {
+                return RawTableRole.KEY;
+            }
+            if (places.conditions().contains(cross)) {
+                return RawTableRole.VALUE;
+            }
+            return inGrid || places.returns().contains(cross) ? RawTableRole.OUTPUT : RawTableRole.VALUE;
         }
 
         private Parts valueAt(int cross, boolean inGrid) {

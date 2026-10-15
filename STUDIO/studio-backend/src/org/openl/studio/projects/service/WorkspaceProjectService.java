@@ -131,7 +131,6 @@ import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
 import org.openl.studio.projects.model.tables.TableThemeResultView;
-import org.openl.studio.projects.model.tables.TableThemeView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -2102,37 +2101,29 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return raw table data
      */
     public RawTableView getTableRaw(RulesProject project, String tableId) {
-        return getTableRaw(project, tableId, RawTableRead.builder().build(), null, null);
+        return getTableRaw(project, tableId, RawTableRead.builder().build(), null);
     }
 
     /**
      * Get a window of a table in raw format: the {@code maxRows} rows starting at {@code startRow} and,
-     * optionally, each cell's Excel style.
+     * optionally, each cell's Excel style and the roles of the cells of the table.
      * <p>
      * The window lets a caller page through a large table in slices. Cell addresses stay absolute, and
      * {@code totalRows} is set whenever the window omits rows.
      *
      * @param project    project
      * @param tableId    table id
-     * @param read       the window of rows to return, and whether to attach each cell's Excel style and what the
-     *                   compiler knows about each cell. The modules and the theme of the read are those of the
-     *                   module the table is read through and of {@code tableTheme}
-     * @param tableTheme the theme whose look to report in the style of each cell it draws, by its identifier, or
-     *                   {@code null} or empty to draw none, as the empty setting draws the formatting of the Excel
-     *                   file. A view only: a table is edited from a read without the theme
+     * @param read       the window of rows to return, and whether to attach each cell's Excel style and the roles of
+     *                   the cells, and what the compiler knows about each cell. The modules of the read are those of
+     *                   the module the table is read through
      * @param moduleName the module to read the table through, or {@code null} for the one that holds it
      * @return raw table data, with {@code totalRows} set when the window omits rows
      */
     public RawTableView getTableRaw(RulesProject project, String tableId, RawTableRead read,
-            @Nullable String tableTheme, @Nullable String moduleName) {
+            @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
-        var theme = Optional.ofNullable(tableTheme)
-                .filter(StringUtils::isNotEmpty)
-                .map(themeId -> tableThemeService.layoutOf(context.table(), themeId))
-                .orElse(null);
         var tableView = rawTableReader.read(context.table(), read.toBuilder()
                 .modules(TableModules.ofWorkspace(context.module(), projectIdentifierMapper))
-                .theme(theme)
                 .build());
         // Only a screen drawing the cells has anything to do with where they sit, so only the grid is told.
         tableView.layout = TableLayouts.of(context.module(), context.table());
@@ -2278,18 +2269,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (!project.isModified()) {
             project.releaseMyLock();
         }
-    }
-
-    /**
-     * The table themes that can be drawn over the given table or written into it: the ones a screen offers for it.
-     *
-     * @param project    project owning the table
-     * @param tableId    table the themes are asked about
-     * @param moduleName module the table is asked for through
-     * @return the themes, by name; none for a table no theme styles
-     */
-    public List<TableThemeView> getTableThemes(RulesProject project, String tableId, @Nullable String moduleName) {
-        return tableThemeService.getThemes(getOpenLTableInModule(project, tableId, moduleName).table());
     }
 
     /**
@@ -2535,35 +2514,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * the order they are given, each seeing the table as the previous one left it. The workbook is saved once, after
      * the last of them.
      *
-     * <p>A table theme is laid out by the table as it was compiled, so it is applied on its own. A sequence holding a
-     * theme and any other edit is refused before the table is read: the theme would miss what the other edits change,
-     * such as a condition inserted into a decision table. A theme is refused too while a workbook of the project was
-     * written to since it was compiled ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation
-     * off, until the module is verified.
-     *
      * @param project project
      * @param tableId table id
      * @param actions the edits to apply, in order
      * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
-     * @throws BadRequestException if a theme is sent with another edit
-     * @throws ConflictException   if the project is held by another user, or a theme is asked for while a write waits
-     *                             to be compiled
+     * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   List<RawTableSourceAction> actions,
                                   @Nullable String moduleName) {
-        var themed = actions.stream().anyMatch(RawTableSourceAction.Theme.class::isInstance);
-        if (themed && actions.size() > 1) {
-            throw new BadRequestException("table.theme.alone.message");
-        }
         var context = getWritableTable(project, tableId, moduleName);
-        if (themed) {
-            // Asked once the module is open: with automatic compilation on, opening the module a write changed is what
-            // compiles it again.
-            compiledAsWritten(context.module());
-        }
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
         return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));

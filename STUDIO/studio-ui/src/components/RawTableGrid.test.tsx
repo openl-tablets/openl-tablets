@@ -1,9 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
+import { roleColoursOf } from 'components/RawTableGrid.styles'
+import { rolesOf } from 'components/tableRoles'
+import { contrastRatio, opaque } from 'styles/colorMath'
 import { paperToken } from 'styles/paper'
-import { inLook, type TableColours } from 'styles/tableColours'
-import { renderInTheme } from 'testing/theme'
+import { THEME_ORDER } from 'styles/themes'
+import { renderInTheme, tokenFor } from 'testing/theme'
 import type { RawTableCell, RawTableCellBorder } from 'types/tables'
 
 /** A colour as a style writes it back once the browser has read it. */
@@ -259,14 +262,14 @@ describe('RawTableGrid', () => {
         expect(muted?.style.borderBottom).toBe('1px solid')
     })
 
-    it('draws the pieces of a text in the fonts the workbook gives them', () => {
+    it('draws the pieces of a text in the weights and the colours the workbook gives them', () => {
         const table: RawTableCell[][] = [[{
             cell: 'A1',
             value: 'Datatype Person',
             runs: [
                 { text: 'Datatype', style: { color: '#808080' } },
                 { text: ' ' },
-                { text: 'Person', style: { bold: true, strikeout: true, fontFamily: 'Calibri', fontSize: 14 } },
+                { text: 'Person', style: { bold: true, strikeout: true } },
             ],
         }]]
 
@@ -283,136 +286,134 @@ describe('RawTableGrid', () => {
         expect((pieces[1] as HTMLElement).style.fontWeight).toBe('')
         expect((pieces[2] as HTMLElement).style.fontWeight).toBe('bold')
         expect((pieces[2] as HTMLElement).style.textDecoration).toBe('line-through')
-        // The font and the size a table theme gives a piece are drawn on the piece itself.
-        expect((pieces[2] as HTMLElement).style.fontFamily).toBe('"Calibri", sans-serif')
-        expect((pieces[2] as HTMLElement).style.fontSize).toBe('14pt')
+        // The text is written in the font of the application, whatever font the workbook names.
+        expect((pieces[2] as HTMLElement).style.fontFamily).toBe('')
+        expect((pieces[2] as HTMLElement).style.fontSize).toBe('')
     })
 
-    it('draws the look of a table theme a read reports as the style of a cell', () => {
-        const table: RawTableCell[][] = [[{
-            cell: 'A1',
-            value: 'Datatype Person',
-            style: { background: '#b4c6e7', fontFamily: 'Franklin Gothic Book', fontSize: 10, source: 'theme' },
-            runs: [{ text: 'Datatype', style: { color: '#808080', source: 'theme' } }, { text: ' Person' }],
-        }]]
-
-        render(<RawTableGrid rows={table} testId="grid" />)
-
-        const themed = screen.getByTestId('grid').querySelector('td') as HTMLElement
-        expect(themed.style.background).toContain('rgb(180, 198, 231)')
-        expect(themed.style.fontFamily).toBe('"Franklin Gothic Book", sans-serif')
-        expect(themed.style.fontSize).toBe('10pt')
-        expect(themed.querySelectorAll('span')).toHaveLength(2)
-    })
-
-    describe('in the colours of the application', () => {
-        const colours: TableColours = {
-            keyed: {
-                'base.style.color': '#dcdcdc',
-                'base.header.keyword.color': '#adadad',
-                'datatype.name.background': '#15325b',
-                'spreadsheet.resultRow.border.top.color': '#424242',
-            },
-            paper: {
-                background: '#141414',
-                text: '#dcdcdc',
-                grid: '#303030',
-                link: '#1668dc',
-                linkHover: '#3c89e8',
-                note: '#dc4446',
-            },
-        }
-        // The table editor draws a table in the look as the look recolours it, on the paper of the look.
-        const drawIn = (table: RawTableCell[][]) => render(
-            <RawTableGrid paper={colours.paper} rows={inLook(table, colours)} testId="grid" />
+    describe('in the Studio look', () => {
+        // A rule of one condition: its header, the titles of what it takes and gives, and a line of each.
+        const rule: RawTableCell[][] = [
+            [{ cell: 'B2', value: 'Rules Double Rate(Integer age)', colspan: 2, style: { background: '#ff0000' } },
+                { covered: true }],
+            [{ cell: 'B3', value: 'Age' }, { cell: 'C3', value: 'Rate' }],
+            [{ cell: 'B4', value: '18', style: { indent: 2 } }, { cell: 'C4', value: 0.5, type: 'number' }],
+            [{ cell: 'B5', value: '65' }, { cell: 'C5', value: 0.25 }],
+        ]
+        const roles = rolesOf({
+            pos: 'B2:C5',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 1 },
+                { role: 'inputTitle', top: 1, left: 0, bottom: 1, right: 0 },
+                { role: 'outputTitle', top: 1, left: 1, bottom: 1, right: 1 },
+                { role: 'value', type: 'string', top: 2, left: 0, bottom: 3, right: 0 },
+                { role: 'output', type: 'string', top: 2, left: 1, bottom: 3, right: 1 },
+            ],
+            groups: { rows: [3], columns: []},
+            signature: [
+                { part: 'keyword', to: 5 },
+                { part: 'type', to: 12 },
+                { part: 'name', to: 17 },
+                { part: 'punctuation', to: 18 },
+                { part: 'parameterType', to: 25 },
+                { part: 'parameterName', to: 29 },
+                { part: 'punctuation', to: 30 },
+            ],
+        })
+        const dark = tokenFor('standard', true)
+        const colours = roleColoursOf(dark)
+        const cellAt = (address: string) =>
+            screen.getByTestId('grid').querySelector(`td[data-cell="${address}"]`) as HTMLElement
+        const drawIn = (excelFormatting = false) => renderInTheme(
+            <RawTableGrid roles={roles} rows={rule} testId="grid" />,
+            { theme: 'standard', mode: 'dark', excelFormatting }
         )
 
-        it('lays the table on the ground of the application, written in its text', () => {
-            drawIn(rows)
+        it('draws each cell by its role, in the colours of the theme, whatever the workbook formats it with', () => {
+            drawIn()
 
-            expect(screen.getByTestId('grid')).toHaveStyle({ backgroundColor: '#141414', color: '#dcdcdc' })
-            expect(screen.getByTestId('grid').querySelector('td')).toHaveStyle({ borderRightColor: '#303030' })
+            expect(screen.getByTestId('grid')).toHaveStyle({ backgroundColor: dark.colorBgContainer })
+            expect(cellAt('B2')).toHaveAttribute('data-role', 'signature')
+            expect(cellAt('B2').style.background).toBe('')
+            expect(cellAt('B3')).toHaveStyle({ backgroundColor: colours.inputTitleFill })
+            expect(cellAt('C3')).toHaveStyle({ backgroundColor: colours.outputTitleFill })
+            expect(cellAt('C4')).toHaveStyle({ backgroundColor: colours.outputFill })
+            expect(cellAt('B4')).toHaveAttribute('data-role', 'value')
         })
 
-        it('draws each colour of the table theme in the colour of the application the key it is set at takes', () => {
-            drawIn([[{
-                cell: 'A1',
-                value: 'name',
-                style: {
-                    background: '#ddebf7',
-                    backgroundKey: 'datatype.name.background',
-                    color: '#000000',
-                    colorKey: 'base.style.color',
-                    bold: true,
-                    fontFamily: 'Franklin Gothic Book',
-                    fontSize: 10,
-                    border: {
-                        bottom: {
-                            style: 'solid',
-                            width: 1,
-                            color: '#d9d9d9',
-                            colorKey: 'spreadsheet.resultRow.border.top.color',
-                        },
-                        top: { style: 'solid', width: 1 },
-                    },
-                    source: 'theme',
-                },
-            }, {
-                cell: 'B1',
-                value: 'own',
-                style: { background: '#ff0000', color: '#00ff00', colorKey: 'corporate.values.color', source: 'theme' },
-            }]])
+        it('keeps the indent of the workbook, which carries the structure of a table', () => {
+            drawIn()
 
-            const [keyed, own] = Array.from(screen.getByTestId('grid').querySelectorAll('td')) as HTMLElement[]
-            expect(keyed?.style.background).toContain('rgb(21, 50, 91)')
-            expect(keyed?.style.color).toBe('rgb(220, 220, 220)')
-            // A line is coloured by the key of its side in the file, whichever side it is drawn on.
-            expect(keyed?.style.borderBottom).toBe('1px solid rgb(66, 66, 66)')
-            // A line naming no colour is drawn in the text of the application, as Excel draws it in its ink.
-            expect(keyed?.style.borderTop).toBe(`1px solid ${written('#dcdcdc')}`)
-            // The table theme still decides the bold, while the text is set in the font of the application.
-            expect(keyed?.style.fontWeight).toBe('bold')
-            expect(keyed?.style.fontFamily).toBe('')
-            expect(keyed?.style.fontSize).toBe('')
-            // A colour without a key, or of a key the application has no colour for, is the table theme's own.
-            expect(own?.style.background).toContain('rgb(255, 0, 0)')
-            expect(own?.style.color).toBe('rgb(0, 255, 0)')
+            expect(cellAt('B4').style.getPropertyValue('--cell-indent-left')).toBe('2em')
         })
 
-        it('leaves a cell the table theme does not draw in the colours of the workbook', () => {
-            drawIn([[{ cell: 'A1', value: 'own', style: { background: '#ffff00', color: '#ff0000' } }]])
+        it('lines a title up in the middle and a number on the right', () => {
+            drawIn()
 
-            const cell = screen.getByTestId('grid').querySelector('td') as HTMLElement
-            expect(cell.style.background).toContain('rgb(255, 255, 0)')
-            expect(cell.style.color).toBe('rgb(255, 0, 0)')
+            expect(cellAt('B3').style.textAlign).toBe('center')
+            // The cell names its own type, which wins over the type of its region.
+            expect(cellAt('C4').style.textAlign).toBe('right')
+            expect(cellAt('C5').style.textAlign).toBe('')
         })
 
-        it('draws the pieces of a text in the colours of the application their keys take, in its font', () => {
-            drawIn([[{
-                cell: 'A1',
-                value: 'Datatype Person',
-                style: { fontFamily: 'Franklin Gothic Book', fontSize: 10, source: 'theme' },
-                runs: [
-                    {
-                        text: 'Datatype',
-                        style: {
-                            color: '#808080',
-                            colorKey: 'base.header.keyword.color',
-                            fontFamily: 'Arial',
-                            source: 'theme',
-                        },
-                    },
-                    { text: ' ' },
-                    { text: 'Person', style: { bold: true, fontSize: 10, source: 'theme' } },
-                ],
-            }]])
+        it('writes the name of the table bold and its keyword, types and punctuation faint', () => {
+            drawIn()
 
-            const pieces = screen.getByTestId('grid').querySelectorAll('span')
-            expect((pieces[0] as HTMLElement).style.color).toBe('rgb(173, 173, 173)')
-            expect((pieces[0] as HTMLElement).style.fontFamily).toBe('')
-            // A piece naming no colour is drawn in the text of the application.
-            expect((pieces[2] as HTMLElement).style.color).toBe('rgb(220, 220, 220)')
-            expect((pieces[2] as HTMLElement).style.fontSize).toBe('')
+            const pieces = Array.from(cellAt('B2').querySelectorAll('span')) as HTMLElement[]
+            expect(pieces.map(piece => piece.textContent))
+                .toEqual(['Rules', ' Double', ' Rate', '(', 'Integer', ' age', ')'])
+            expect(pieces[2]?.style.fontWeight).toBe('bold')
+            expect(pieces[0]).toHaveStyle({ color: colours.faint })
+            expect(pieces[4]).toHaveStyle({ color: colours.faint })
+            expect(pieces[5]?.style.color).toBe('')
+        })
+
+        it('draws the lines of the parts of the table, and above the first line of a group', () => {
+            drawIn()
+
+            expect(cellAt('B2').style.borderTop).toBe(`1px solid ${written(dark.colorBorder)}`)
+            expect(cellAt('B2').style.borderBottom).toBe(`1px solid ${written(dark.colorBorder)}`)
+            // The group of the last line is set apart by a line drawn on the line above it.
+            expect(cellAt('B4').style.borderBottom).toBe(`1px solid ${written(dark.colorBorderSecondary)}`)
+            // The last line closes the table.
+            expect(cellAt('B5').style.borderBottom).toBe(`1px solid ${written(dark.colorBorder)}`)
+        })
+
+        it('draws the formatting of the workbook with Excel Formatting on', () => {
+            drawIn(true)
+
+            expect(screen.getByTestId('grid')).toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
+            expect(cellAt('B2').style.background).toContain('rgb(255, 0, 0)')
+            expect(cellAt('B2')).not.toHaveAttribute('data-role')
+            expect(cellAt('B2').querySelectorAll('span')).toHaveLength(0)
+        })
+
+        it('draws a table read with no roles in the formatting of its workbook', () => {
+            renderInTheme(<RawTableGrid rows={rule} testId="grid" />, { theme: 'standard', mode: 'dark' })
+
+            expect(cellAt('B2').style.background).toContain('rgb(255, 0, 0)')
+        })
+
+        const VARIANTS = THEME_ORDER.flatMap(name => [false, true].map(isDarkMode => ({
+            name,
+            appearance: isDarkMode ? 'dark' : 'light',
+            token: tokenFor(name, isDarkMode),
+        })))
+
+        it.each(VARIANTS)('keeps the text of every role readable in $name $appearance', ({ token }) => {
+            const theme = roleColoursOf(token)
+            const surface = token.colorBgContainer
+            const contrastOn = (color: string, fill: string) => {
+                const ground = opaque(fill, surface)
+                return contrastRatio(opaque(color, ground), ground)
+            }
+
+            // The text of a role reads on its fill as the text of the application does on its surfaces.
+            for (const fill of [surface, theme.inputTitleFill, theme.outputTitleFill, theme.outputFill]) {
+                expect(contrastOn(theme.text, fill)).toBeGreaterThanOrEqual(4.5)
+            }
+            // A faint text reads as the secondary text of the application.
+            expect(contrastOn(theme.faint, surface)).toBeGreaterThanOrEqual(3)
         })
     })
 

@@ -6,6 +6,7 @@ import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.DatatypeTableMetaInfoReader;
 import org.openl.rules.table.ICell;
+import org.openl.studio.projects.model.tables.RawTableRole;
 
 /**
  * Decides which look a theme gives each cell of the body of a Datatype, a Vocabulary or a Constants table.
@@ -91,14 +92,17 @@ final class DatatypeThemeLayout {
     private record Places(Set<Integer> titleRows, Set<Integer> typeColumns,
                           Set<Integer> nameColumns) implements TableRegionLayout.PlaceLook {
 
-        private static final Parts TITLES = Parts.BASE.with(Parts.Part.TITLES);
-        private static final Parts TYPE = Parts.BASE.with(Parts.Part.TYPE);
-        private static final Parts NAME = Parts.BASE.with(Parts.Part.NAME);
-        private static final Parts VALUES = Parts.BASE.with(Parts.Part.VALUES);
+        private static final Place TITLES = Place.of(RawTableRole.INPUT_TITLE, Parts.BASE.with(Parts.Part.TITLES));
+        private static final Place TYPE = Place.of(RawTableRole.CODE, Parts.BASE.with(Parts.Part.TYPE));
+        private static final Place NAME = Place.of(RawTableRole.KEY, Parts.BASE.with(Parts.Part.NAME));
+        private static final Place VALUES = Place.of(RawTableRole.VALUE, Parts.BASE.with(Parts.Part.VALUES));
 
-        /** The parts of a place in the body: the titles, the types, the names, or the other values. */
+        /**
+         * What a place in the body is: a title of what the table takes, a type the compiler reads, the name of a
+         * field or a constant, which is a key of the table, or a value.
+         */
         @Override
-        public Parts at(ICell cell, int column, int row) {
+        public Place at(ICell cell, int column, int row) {
             if (titleRows.contains(row)) {
                 return TITLES;
             }
