@@ -115,14 +115,14 @@ public class TableThemeService {
     }
 
     /**
-     * Whether the themes style a table. Every theme styles every table of the kinds {@link ThemeLayouts#styles}
+     * Whether the themes style a table. Every theme styles every table of the kinds {@link TableRegionLayout#styles}
      * names, so they look alike in one theme.
      *
      * @param table the table
      * @return {@code true} for a table of a kind the themes style
      */
     public boolean styles(IOpenLTable table) {
-        return ThemeLayouts.styles(table);
+        return TableRegionLayout.styles(table);
     }
 
     private static TableThemeView viewOf(Map.Entry<String, TableTheme> theme) {
@@ -132,13 +132,18 @@ public class TableThemeService {
     /**
      * The look a theme gives each cell of a table, for a screen to draw it.
      *
+     * <p>The table is laid out once for each compilation of it, so every page of a large table drawn in the theme
+     * reuses the layout, see {@link TableRegionLayout#regionsOf}.
+     *
      * @param table   the table to theme
      * @param themeId the theme, by its identifier
      * @return the look of each cell, or {@code null} for a table of a kind no theme styles
      * @throws BadRequestException when no theme has the identifier
      */
     public @Nullable ThemedTable layoutOf(IOpenLTable table, String themeId) {
-        return ThemeLayouts.of(table, table.getGridTable(), theme(themeId));
+        var theme = theme(themeId);
+        var grid = table.getGridTable();
+        return ThemedTable.of(table, grid, TableRegionLayout.regionsOf(table, grid), theme);
     }
 
     /**

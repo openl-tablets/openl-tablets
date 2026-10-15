@@ -115,7 +115,7 @@ public final class ThemeExcelWriter {
      * @return whether the theme was written into the table
      */
     public boolean write(IOpenLTable table, IGridTable grid) {
-        var layout = Optional.ofNullable(ThemeLayouts.of(table, grid, theme));
+        var layout = Optional.ofNullable(ThemedTable.of(table, grid, TableRegionLayout.of(table, grid), theme));
         layout.ifPresent(laid -> write(laid, grid, at -> true));
         return layout.isPresent();
     }
@@ -141,7 +141,7 @@ public final class ThemeExcelWriter {
             // Only the header and the properties are laid out: the body under them keeps the look it has, so no part
             // the compiler found is looked for.
             var head = grid.getSubtable(0, 0, grid.getWidth(), rows.getBottom() - grid.getRegion().getTop() + 1);
-            Optional.ofNullable(ThemeLayouts.of(table, head, theme))
+            Optional.ofNullable(ThemedTable.of(table, head, TableRegionLayout.of(table, head), theme))
                     .ifPresent(laid -> write(laid, head,
                             at -> at.row() >= rows.getTop() && at.row() < rows.getTop() + added));
         }
@@ -163,7 +163,7 @@ public final class ThemeExcelWriter {
         var colours = theme.themeColors();
         var looks = workbooks.computeIfAbsent(sheet.getWorkbook(),
                 workbook -> new WorkbookLooks(workbook, colours != null && colours.areThoseOf(workbook)));
-        layout.cells().forEach((at, themed) -> {
+        layout.forEach((at, themed) -> {
             if (kept.test(at)) {
                 var cell = PoiExcelHelper.getOrCreateCell(at.column(), at.row(), sheet);
                 var original = cell.getCellStyle();
@@ -186,10 +186,10 @@ public final class ThemeExcelWriter {
             return;
         }
         var own = cell.getRichStringCellValue();
-        // Only the header is formatted in pieces of the theme, so the text of no other cell is read for them.
-        List<ThemedRun> runs = themed.header() == null ? List.of() : themed.runs(own.getString());
+        // Only the header is formatted in pieces of the theme.
+        List<ThemedRun> runs = themed.runs();
         // Nothing to write: the theme formats no piece, and the text keeps the pieces it has or has none.
-        if (runs.isEmpty() && (themed.keepsOwnRuns(runs) || own.numFormattingRuns() == 0)) {
+        if (runs.isEmpty() && (themed.keepsOwnRuns() || own.numFormattingRuns() == 0)) {
             return;
         }
         var rich = cell.getSheet().getWorkbook().getCreationHelper().createRichTextString(own.getString());

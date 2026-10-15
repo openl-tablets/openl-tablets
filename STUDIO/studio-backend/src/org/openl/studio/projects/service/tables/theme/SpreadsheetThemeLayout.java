@@ -17,7 +17,7 @@ import org.openl.util.OpenClassUtils;
 /**
  * Decides which look a theme gives each cell of the body of a Spreadsheet table.
  *
- * <p>The header and the properties are themed as every kind themes them, see {@link ThemeLayouts}. The first row
+ * <p>The header and the properties are themed as every kind themes them, see {@link TableRegionLayout}. The first row
  * under them names the columns and gets the title look, and the title of the column of steps, such as {@code Step},
  * gets the step title look over it. The first column names the steps and gets the step look. Every other cell holds
  * the value of a step and gets the value look. Every cell starts from the look of the whole table, and the last row
@@ -49,7 +49,7 @@ final class SpreadsheetThemeLayout {
      * its first row.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed layOut(ThemedBody body) {
         if (!(body.compiled().node().getMetaInfoReader() instanceof SpreadsheetMetaInfoReader reader)) {
@@ -59,36 +59,26 @@ final class SpreadsheetThemeLayout {
     }
 
     /**
-     * The looks of the places of one body, each laid over the base once rather than once per cell.
+     * The parts of the places of one body.
      *
-     * @param title          the look of a column title
-     * @param stepTitle      the look of the title of the column of steps
-     * @param step           the look of a step name
-     * @param section        the look of a step heading a section
-     * @param value          the look of the value of a step
-     * @param marked         the look laid over a name marked for the result
-     * @param result         the look laid over the name of the step the Spreadsheet returns
-     * @param resultRow      the look laid over every cell of the row of the step the Spreadsheet returns
-     * @param stepsEnd       the last column of the sheet the column of steps takes
-     * @param markedRows     the first rows of the sheet the steps marked for the result take
-     * @param markedColumns  the first columns of the sheet the columns marked for the result take
-     * @param resultRows     the rows of the sheet the step the Spreadsheet returns takes, if any
-     * @param resultColumn   the first column of the sheet the column the Spreadsheet returns takes, if any
+     * @param stepsEnd      the last column of the sheet the column of steps takes
+     * @param markedRows    the first rows of the sheet the steps marked for the result take
+     * @param markedColumns the first columns of the sheet the columns marked for the result take
+     * @param resultRows    the rows of the sheet the step the Spreadsheet returns takes, if any
+     * @param resultColumn  the first column of the sheet the column the Spreadsheet returns takes, if any
      */
     @Builder
-    private record Places(ThemeStyle title,
-                          ThemeStyle stepTitle,
-                          ThemeStyle step,
-                          ThemeStyle section,
-                          ThemeStyle value,
-                          @Nullable ThemeStyle marked,
-                          @Nullable ThemeStyle result,
-                          @Nullable ThemeStyle resultRow,
-                          int stepsEnd,
+    private record Places(int stepsEnd,
                           Set<Integer> markedRows,
                           Set<Integer> markedColumns,
                           @Nullable Span resultRows,
-                          int resultColumn) implements ThemeLayouts.PlaceLook {
+                          int resultColumn) implements TableRegionLayout.PlaceLook {
+
+        private static final Parts TITLE = Parts.BASE.with(Parts.Part.TITLES);
+        private static final Parts STEP_TITLE = TITLE.with(Parts.Part.STEP_TITLE);
+        private static final Parts STEP = Parts.BASE.with(Parts.Part.STEPS);
+        private static final Parts SECTION = STEP.with(Parts.Part.SECTIONS);
+        private static final Parts VALUE = Parts.BASE.with(Parts.Part.VALUES);
 
         /**
          * The places of a body, as the compiler read the Spreadsheet.
@@ -97,22 +87,12 @@ final class SpreadsheetThemeLayout {
          * compiler took for its result, or every step, and then its last step closes the calculation.
          */
         static Places of(ThemedBody body, SpreadsheetMetaInfoReader reader) {
-            var base = body.base();
-            var look = body.look();
             var spreadsheet = reader.getBoundNode();
             var read = new Read(spreadsheet.getStructureBuilder());
             var returned = OpenClassUtils.isVoid(spreadsheet.getHeader().getType())
                     ? Optional.<SpreadsheetHeaderDefinition>empty()
                     : read.returned();
             return Places.builder()
-                    .title(base.with(look.titles()))
-                    .stepTitle(base.with(look.titles()).with(look.stepTitle()))
-                    .step(base.with(look.steps()))
-                    .section(base.with(look.steps()).with(look.sections()))
-                    .value(base.with(look.values()))
-                    .marked(look.marked())
-                    .result(look.result())
-                    .resultRow(look.resultRow())
                     .stepsEnd(body.rows().getCell(0, 0).getAbsoluteRegion().getRight())
                     .markedRows(read.marked(true))
                     .markedColumns(read.marked(false))
@@ -121,23 +101,23 @@ final class SpreadsheetThemeLayout {
                     .build();
         }
 
-        /** The look of a cell of the body, by the place it stands in. */
+        /** The parts of a cell of the body, by the place it stands in. */
         @Override
-        public ThemeStyle at(ICell cell, int column, int row) {
+        public Parts at(ICell cell, int column, int row) {
             if (row == 0) {
                 if (column == 0) {
-                    return stepTitle;
+                    return STEP_TITLE;
                 }
-                var named = markedColumns.contains(cell.getAbsoluteColumn()) ? title.with(marked) : title;
-                return cell.getAbsoluteColumn() == resultColumn ? named.with(result) : named;
+                var named = markedColumns.contains(cell.getAbsoluteColumn()) ? TITLE.with(Parts.Part.MARKED) : TITLE;
+                return cell.getAbsoluteColumn() == resultColumn ? named.with(Parts.Part.RESULT) : named;
             }
             if (column > 0) {
-                return resultRowIf(value, cell);
+                return resultRowIf(VALUE, cell);
             }
             // A step name merged over the values of its row heads a section.
-            var name = cell.getAbsoluteRegion().getRight() > stepsEnd ? section : step;
-            name = markedRows.contains(cell.getAbsoluteRow()) ? name.with(marked) : name;
-            return resultRowIf(inResult(cell) ? name.with(result) : name, cell);
+            var name = cell.getAbsoluteRegion().getRight() > stepsEnd ? SECTION : STEP;
+            name = markedRows.contains(cell.getAbsoluteRow()) ? name.with(Parts.Part.MARKED) : name;
+            return resultRowIf(inResult(cell) ? name.with(Parts.Part.RESULT) : name, cell);
         }
 
         /** Whether a cell stands in the row of the step the Spreadsheet returns. */
@@ -147,15 +127,15 @@ final class SpreadsheetThemeLayout {
         }
 
         /**
-         * A look of a cell with the result row look laid over it in the row of the step the Spreadsheet returns, its
+         * The parts of a cell with the result row laid over them in the row of the step the Spreadsheet returns, its
          * lines above and below on the edges of the step only.
          */
-        private ThemeStyle resultRowIf(ThemeStyle style, ICell cell) {
-            if (resultRows == null || !inResult(cell) || resultRow == null) {
-                return style;
+        private Parts resultRowIf(Parts parts, ICell cell) {
+            if (resultRows == null || !inResult(cell)) {
+                return parts;
             }
             var region = cell.getAbsoluteRegion();
-            return style.with(resultRow).atEdges(style, region.getTop() <= resultRows.from(),
+            return parts.withAround(Parts.Part.RESULT_ROW, region.getTop() <= resultRows.from(),
                     region.getBottom() >= resultRows.to());
         }
     }

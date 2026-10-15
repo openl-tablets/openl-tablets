@@ -448,7 +448,7 @@ class DecisionThemeLayoutTest {
         var layout = layoutAt(UNDECLARED_ROW);
 
         // The header is signed as the header of every table is; the body takes the look every cell starts from.
-        assertEquals(Boolean.TRUE, layout.at(UNDECLARED_ROW, 1).runs("Conditions Undeclared").getLast().style().bold());
+        assertEquals(Boolean.TRUE, layout.at(UNDECLARED_ROW, 1).runs().getLast().style().bold());
         for (var column = 1; column <= 3; column++) {
             assertEquals(BLACK, layout.at(UNDECLARED_ROW + 1, column).style().color().rgb());
             assertEquals(WHITE, layout.at(UNDECLARED_ROW + 1, column).style().background().rgb());

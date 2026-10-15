@@ -78,7 +78,7 @@ class TBasicThemeLayoutTest {
 
     @Test
     void signsATBasicTableAsASpreadsheet() {
-        var runs = layout().at(FACTORIAL_ROW, LABEL).runs(FACTORIAL);
+        var runs = layout().at(FACTORIAL_ROW, LABEL).runs();
 
         assertEquals(List.of("TBasic", " ", "Integer", " ", "Factorial", " ", "(Integer n)"),
                 runs.stream().map(run -> FACTORIAL.substring(run.start(), run.end())).toList());

@@ -308,10 +308,10 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
     private static void drawInTheme(RawTableCell.RawTableCellBuilder builder, ICell cell,
             @Nullable RawTableCellStyle style, ThemedTable.ThemedCell themed) {
         // Only the cell holding the header text is formatted in the pieces of the theme.
-        var text = themed.header() == null ? null : cell.getStringValue();
-        var runs = themed.runs(text);
+        var runs = themed.runs();
+        var text = runs.isEmpty() ? null : cell.getStringValue();
         builder.style(ThemeStyles.over(style, themed.style()))
-                .runs(themed.keepsOwnRuns(runs) ? runsOf(cell) : runsOf(text, runs, style));
+                .runs(themed.keepsOwnRuns() ? runsOf(cell) : runsOf(text, runs, style));
     }
 
     /** The pieces of the theme as the Tables API reports them, or {@code null} when the theme formats none. */

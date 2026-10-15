@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import lombok.Builder;
 import org.apache.commons.lang3.EnumUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -46,7 +45,7 @@ final class TBasicThemeLayout {
      * The places of the body of a TBasic table the compiler built the steps of, read as it is written.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed layOut(ThemedBody body) {
         return new BodyLayout.Placed(body.rows(), Places.of(body));
@@ -71,101 +70,80 @@ final class TBasicThemeLayout {
     }
 
     /**
-     * The looks of the places of one body, each laid over the base once rather than once per cell.
+     * The parts of the places of one body.
      *
-     * @param base       the look of a description, an operation and a column of no known id
-     * @param code       the look of an id
-     * @param title      the look of a column title
-     * @param labelTitle the look of the title of the column of labels
-     * @param label      the look of a label
-     * @param condition  the look of the condition of a step
-     * @param value      the look of what a step runs
-     * @param columns    each column of the body, by its id
-     * @param overlays   the look laid over each step that starts a subroutine or returns, by the row of the sheet
+     * @param columns  each column of the body, by its id
+     * @param overlays the part laid over each step that starts a subroutine or returns, by the row of the sheet
      */
-    @Builder
-    private record Places(ThemeStyle base,
-                          ThemeStyle code,
-                          ThemeStyle title,
-                          ThemeStyle labelTitle,
-                          ThemeStyle label,
-                          ThemeStyle condition,
-                          ThemeStyle value,
-                          List<Column> columns,
-                          Map<Integer, ThemeStyle> overlays) implements ThemeLayouts.PlaceLook {
+    private record Places(List<Column> columns, Map<Integer, Parts.Part> overlays)
+            implements TableRegionLayout.PlaceLook {
+
+        private static final Parts CODE = Parts.BASE.with(Parts.Part.CODE);
+        private static final Parts TITLE = Parts.BASE.with(Parts.Part.TITLES);
+        private static final Parts LABEL_TITLE = TITLE.with(Parts.Part.STEP_TITLE);
+        private static final Parts LABEL = Parts.BASE.with(Parts.Part.STEPS);
+        private static final Parts CONDITION = Parts.BASE.with(Parts.Part.CONDITION);
+        private static final Parts VALUE = Parts.BASE.with(Parts.Part.VALUES);
 
         static Places of(ThemedBody body) {
-            var base = body.base();
-            var look = body.look();
-            var columns = ThemeLayouts.idsOf(body.rows()).stream().map(Column::of).toList();
-            return Places.builder()
-                    .base(base)
-                    .code(base.with(look.code()))
-                    .title(base.with(look.titles()))
-                    .labelTitle(base.with(look.titles()).with(look.stepTitle()))
-                    .label(base.with(look.steps()))
-                    .condition(base.with(look.condition()))
-                    .value(base.with(look.values()))
-                    .columns(columns)
-                    .overlays(overlaysOf(body.rows(), columns.indexOf(Column.OPERATION), look))
-                    .build();
+            var columns = TableRegionLayout.idsOf(body.rows()).stream().map(Column::of).toList();
+            return new Places(columns, overlaysOf(body.rows(), columns.indexOf(Column.OPERATION)));
         }
 
-        /** The look of a cell of the body, by the place it stands in. */
+        /** The parts of a cell of the body, by the place it stands in. */
         @Override
-        public ThemeStyle at(ICell cell, int column, int row) {
+        public Parts at(ICell cell, int column, int row) {
             if (row == 0) {
-                return code;
+                return CODE;
             }
             var named = columns.get(column);
             if (row == 1) {
-                return named == Column.LABEL ? labelTitle : title;
+                return named == Column.LABEL ? LABEL_TITLE : TITLE;
             }
             return stepLook(named).with(overlays.get(cell.getAbsoluteRow()));
         }
 
-        /** The look of a cell of a step, by the column it stands in. */
-        private ThemeStyle stepLook(Column column) {
+        /** The parts of a cell of a step, by the column it stands in. */
+        private static Parts stepLook(Column column) {
             return switch (column) {
-                case LABEL -> label;
-                case CONDITION -> condition;
-                case ACTION, BEFORE, AFTER -> value;
-                case DESCRIPTION, OPERATION, OTHER -> base;
+                case LABEL -> LABEL;
+                case CONDITION -> CONDITION;
+                case ACTION, BEFORE, AFTER -> VALUE;
+                case DESCRIPTION, OPERATION, OTHER -> Parts.BASE;
             };
         }
 
         /**
-         * The look laid over each step that starts a subroutine or returns, by the row of the sheet it stands in.
+         * The part laid over each step that starts a subroutine or returns, by the row of the sheet it stands in.
          *
          * <p>The compiler reads a step in each row of the sheet, its operation at the place of its id, and matches the
          * operation to its keywords in any case.
          *
          * @param operation the column of the operations, or {@code -1} for a table that names none
          */
-        private static Map<Integer, ThemeStyle> overlaysOf(ILogicalTable body, int operation, TableTheme.Look look) {
-            var overlays = new HashMap<Integer, ThemeStyle>();
+        private static Map<Integer, Parts.Part> overlaysOf(ILogicalTable body, int operation) {
+            var overlays = new HashMap<Integer, Parts.Part>();
             if (operation < 0 || body.getHeight() <= STEPS) {
                 return overlays;
             }
             var steps = body.getRows(STEPS).getSource();
             for (var row = 0; row < steps.getHeight(); row++) {
                 var cell = steps.getCell(operation, row);
-                Optional.ofNullable(overlayOf(cell.getStringValue(), look))
+                Optional.ofNullable(overlayOf(cell.getStringValue()))
                         .ifPresent(overlay -> overlays.put(cell.getAbsoluteRow(), overlay));
             }
             return overlays;
         }
 
         /**
-         * The look laid over a step by its operation: the section look for a subroutine, the result look for a
-         * return.
+         * The part laid over a step by its operation: the sections for a subroutine, the result for a return.
          */
-        private static @Nullable ThemeStyle overlayOf(@Nullable String operation, TableTheme.Look look) {
+        private static Parts.@Nullable Part overlayOf(@Nullable String operation) {
             var keyword = EnumUtils.getEnum(TBasicSpecificationKey.class,
                     Objects.requireNonNullElse(operation, "").toUpperCase(Locale.ROOT));
             return switch (keyword) {
-                case SUB, FUNCTION -> look.sections();
-                case RETURN -> look.result();
+                case SUB, FUNCTION -> Parts.Part.SECTIONS;
+                case RETURN -> Parts.Part.RESULT;
                 case null, default -> null;
             };
         }

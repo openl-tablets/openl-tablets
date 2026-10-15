@@ -79,7 +79,7 @@ class CompiledReadsTest {
         assertEquals(WHITE, layout.at(ORPHAN_ROW + 1, 2).style().background().rgb());
         assertEquals(BLACK, layout.at(ORPHAN_ROW + 1, 1).style().color().rgb());
         var header = "Datatype Orphan extends Missing";
-        var name = layout.at(ORPHAN_ROW, 1).runs(header).stream()
+        var name = layout.at(ORPHAN_ROW, 1).runs().stream()
                 .filter(run -> "Orphan".equals(header.substring(run.start(), run.end())))
                 .findFirst()
                 .orElseThrow();

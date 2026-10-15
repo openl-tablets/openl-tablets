@@ -78,7 +78,7 @@ class ColumnMatchThemeLayoutTest {
     @Test
     void signsTheAlgorithmWithTheTypeTheTableReturns() {
         var header = "ColumnMatch <MATCH> String NeedApprovalOf (String area, Integer money)";
-        var runs = layoutAt(APPROVAL_ROW).at(APPROVAL_ROW, NAMES).runs(header);
+        var runs = layoutAt(APPROVAL_ROW).at(APPROVAL_ROW, NAMES).runs();
 
         assertEquals("<MATCH> String", header.substring(runs.get(2).start(), runs.get(2).end()));
         assertEquals(MUTED, runs.get(2).style().color().rgb());

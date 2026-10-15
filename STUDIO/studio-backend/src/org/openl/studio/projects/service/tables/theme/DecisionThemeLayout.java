@@ -61,7 +61,7 @@ final class DecisionThemeLayout {
      * rules. The table is compiled with a rule in each column when its body is transposed.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed rules(ThemedBody body) {
         return placed(body, Places.of(body));
@@ -82,7 +82,7 @@ final class DecisionThemeLayout {
      * A table the compiler reads no declaration from takes the base skin alone.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed conditions(ThemedBody body) {
         return placed(body, Places.ofDeclarations(body, true));
@@ -93,16 +93,16 @@ final class DecisionThemeLayout {
      * {@link #conditions}. The titles take the return title look.
      *
      * @param body the body of the table
-     * @return the body and the look of each of its places
+     * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed actions(ThemedBody body) {
         return placed(body, Places.ofDeclarations(body, false));
     }
 
-    /** The body with the look of each of its places, or with the base alone where the compiler laid out none. */
+    /** The body with the parts of each of its places, or with the base alone where the compiler laid out none. */
     private static BodyLayout.Placed placed(ThemedBody body, @Nullable Places places) {
         return Optional.ofNullable(places)
-                .map(laid -> new BodyLayout.Placed(body.rows(), Looks.of(body, laid)))
+                .map(laid -> new BodyLayout.Placed(body.rows(), Looks.of(laid)))
                 .orElseGet(() -> BodyLayout.Placed.plain(body));
     }
 
@@ -158,11 +158,11 @@ final class DecisionThemeLayout {
         }
 
         /**
-         * A look as a table written the usual way takes it, turned to these axes: in a table written the other way
-         * round, a line above a part is on its left. Turning a look twice gives it back.
+         * Parts as a table written the usual way takes them, turned to these axes: in a table written the other way
+         * round, a line above a part is on its left. Turning parts twice gives them back.
          */
-        ThemeStyle turned(ThemeStyle style) {
-            return transposed ? style.transposed() : style;
+        Parts turned(Parts parts) {
+            return transposed ? parts.transposed() : parts;
         }
     }
 
@@ -490,109 +490,82 @@ final class DecisionThemeLayout {
     }
 
     /**
-     * The looks of the places of one table, each laid over the base once rather than once per cell.
+     * The parts of the places of one table.
      *
-     * <p>The looks are laid as a table written the usual way takes them and turned to the axes of the table for each
-     * cell. The base is turned the other way before the looks are laid over it, so it keeps its own lines where it
+     * <p>The parts are laid as a table written the usual way takes them and turned to the axes of the table for each
+     * cell. The base is turned the other way before the parts are laid over it, so it keeps its own lines where it
      * names them.
      *
      * @param places      where the parts stand
-     * @param base        the look every cell starts from, as a table written the usual way takes it
-     * @param code        the look of the code, before its lines are fitted to the block it forms
-     * @param titles      the look of a title of a condition
-     * @param values      the look of a value of a condition
-     * @param horizontals the look of a value of a horizontal condition
-     * @param returnTitle the look of a title of what the table returns
-     * @param returns     the look of a value the table returns
-     * @param groups      the look laid over the first rule of a group and over the rule after it
-     * @param columns     the look laid over the first column of a group of a lookup and over the column after it:
-     *                    the group look turned, a line above a rule being a line on the left of a column
+     * @param base        the parts every cell starts from, as a table written the usual way takes them
+     * @param code        the parts of the code, before its lines are fitted to the block it forms
+     * @param titles      the parts of a title of a condition
+     * @param values      the parts of a value of a condition
+     * @param horizontals the parts of a value of a horizontal condition
+     * @param returnTitle the parts of a title of what the table returns
+     * @param returns     the parts of a value the table returns
      */
     @Builder
     private record Looks(Places places,
-                         ThemeStyle base,
-                         ThemeStyle code,
-                         ThemeStyle titles,
-                         ThemeStyle values,
-                         ThemeStyle horizontals,
-                         ThemeStyle returnTitle,
-                         ThemeStyle returns,
-                         @Nullable ThemeStyle groups,
-                         @Nullable ThemeStyle columns) implements ThemeLayouts.PlaceLook {
+                         Parts base,
+                         Parts code,
+                         Parts titles,
+                         Parts values,
+                         Parts horizontals,
+                         Parts returnTitle,
+                         Parts returns) implements TableRegionLayout.PlaceLook {
 
-        static Looks of(ThemedBody body, Places places) {
-            var look = body.look();
-            var upright = places.axes().turned(body.base());
-            var groups = look.groups();
+        static Looks of(Places places) {
+            var upright = places.axes().turned(Parts.BASE);
             return Looks.builder()
                     .places(places)
                     .base(upright)
-                    .code(upright.with(look.code()))
-                    .titles(upright.with(look.titles()))
-                    .values(upright.with(look.values()))
-                    .horizontals(upright.with(look.horizontals()))
-                    .returnTitle(upright.with(look.returnTitles()))
-                    .returns(upright.with(look.returns()))
-                    .groups(groups)
-                    .columns(Optional.ofNullable(groups).map(ThemeStyle::transposed).orElse(null))
+                    .code(upright.with(Parts.Part.CODE))
+                    .titles(upright.with(Parts.Part.TITLES))
+                    .values(upright.with(Parts.Part.VALUES))
+                    .horizontals(upright.with(Parts.Part.HORIZONTALS))
+                    .returnTitle(upright.with(Parts.Part.RETURN_TITLES))
+                    .returns(upright.with(Parts.Part.RETURNS))
                     .build();
         }
 
-        /** The look of a cell, by the line and the cross of the sheet it stands in. */
+        /** The parts of a cell, by the line and the cross of the sheet it stands in. */
         @Override
-        public ThemeStyle at(ICell cell, int column, int row) {
+        public Parts at(ICell cell, int column, int row) {
             var axes = places.axes();
             return axes.turned(uprightAt(axes.lineOf(cell), axes.crossOf(cell), cell));
         }
 
-        private ThemeStyle uprightAt(int line, int cross, ICell cell) {
+        private Parts uprightAt(int line, int cross, ICell cell) {
             if (places.code().contains(line)) {
                 return codeAt(cell);
             }
             var inGrid = cross >= places.gridFrom();
             if (places.horizontals().contains(line) && inGrid) {
-                return apart(columnAt(horizontals, cross), true, cross > places.gridFrom());
+                return columnAt(horizontals, cross).apart(base, true, cross > places.gridFrom());
             }
             if (line < places.rulesFrom()) {
                 return headerAt(cross);
             }
-            var style = valueAt(cross, inGrid);
-            style = places.groups().contains(line) ? style.with(groups) : style;
-            style = inGrid ? columnAt(style, cross) : style;
-            return apart(style, line > places.rulesFrom(), !inGrid || cross > places.gridFrom());
+            var parts = valueAt(cross, inGrid);
+            parts = places.groups().contains(line) ? parts.with(Parts.Part.GROUPS) : parts;
+            parts = inGrid ? columnAt(parts, cross) : parts;
+            return parts.apart(base, line > places.rulesFrom(), !inGrid || cross > places.gridFrom());
         }
 
-        /** A look of a column of a lookup, with the group look turned over it when the column sets a group apart. */
-        private ThemeStyle columnAt(ThemeStyle style, int cross) {
-            return places.columns().contains(cross) ? style.with(columns) : style;
+        /** The parts of a column of a lookup, with the groups turned over them when the column sets a group apart. */
+        private Parts columnAt(Parts parts, int cross) {
+            return places.columns().contains(cross) ? parts.withTurned(Parts.Part.GROUPS) : parts;
         }
 
-        /**
-         * A look keeping the line it draws above and the line on its left only where they set the cell apart from one
-         * of its kind: the first rule draws none above it, under the titles, and the first column of the values a
-         * lookup returns none on its left, beside the conditions. Such a side is the one of the base.
-         *
-         * @param above whether the cell keeps the line above it
-         * @param left  whether the cell keeps the line on its left
-         */
-        private ThemeStyle apart(ThemeStyle style, boolean above, boolean left) {
-            var border = style.border();
-            if (border == null || above && left) {
-                return style;
-            }
-            var sides = Optional.ofNullable(base.border()).orElse(ThemeBorder.KEEP);
-            return style.withBorder(border.withTop(above ? border.top() : sides.top())
-                    .withLeft(left ? border.left() : sides.left()));
-        }
-
-        private ThemeStyle headerAt(int cross) {
+        private Parts headerAt(int cross) {
             if (places.conditions().contains(cross)) {
                 return titles;
             }
             return places.returns().contains(cross) ? returnTitle : base;
         }
 
-        private ThemeStyle valueAt(int cross, boolean inGrid) {
+        private Parts valueAt(int cross, boolean inGrid) {
             if (places.conditions().contains(cross)) {
                 return values;
             }
@@ -603,7 +576,7 @@ final class DecisionThemeLayout {
          * The code with its lines above and below on the edges of the block it forms only, as the properties have. The
          * titles of a declaration may stand between its parts, and then each run of code is a block of its own.
          */
-        private ThemeStyle codeAt(ICell cell) {
+        private Parts codeAt(ICell cell) {
             var region = cell.getAbsoluteRegion();
             var axes = places.axes();
             var lines = places.code();
