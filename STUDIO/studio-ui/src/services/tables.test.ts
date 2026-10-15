@@ -3,13 +3,12 @@ import type { MockedFunction } from 'vitest'
 import type { CopyTableRequest, CreateTableRequest } from 'types/tables'
 import apiCall, { notifyLoadFailure } from './apiCall'
 import {
-    applyProjectTableTheme,
     copyTable,
     createTable,
+    formatProject,
     getDatatype,
     getProjectTables,
     getTableCopyInfo,
-    getTableThemes,
 } from './tables'
 
 vi.mock('./apiCall', () => ({
@@ -21,8 +20,8 @@ vi.mock('./apiCall', () => ({
 vi.mock('../i18n', () => ({
     default: {
         t: (key: string, options?: { table?: string, count?: number }) => ({
-            'project:table_theme.project_applied': `Table theme applied to ${options?.count} tables`,
-            'project:table_theme.project_skipped': `${options?.count} tables were left as they are.`,
+            'project:table_format.formatted': `${options?.count} tables formatted`,
+            'project:table_format.skipped': `${options?.count} tables were left as they are.`,
             'project:create_table_modal.created': 'Table created',
             'project:create_table_modal.created_description':
                 `The "${options?.table}" table was created successfully.`,
@@ -246,35 +245,21 @@ describe('getDatatype', () => {
     })
 })
 
-describe('table theme', () => {
+describe('reformat Excel files', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         vi.spyOn(notification, 'success').mockImplementation(() => {})
     })
 
-    it('asks for the table themes once, and again only after an answer that failed', async () => {
-        mockApiCall.mockRejectedValueOnce(new Error('down'))
-        await expect(getTableThemes()).rejects.toThrow('down')
+    it('says how many tables of the project were formatted and how many were left as they are', async () => {
+        mockApiCall.mockResolvedValueOnce({ formatted: ['a', 'b'], skipped: ['c']})
 
-        mockApiCall.mockResolvedValueOnce([{ id: 'default', name: 'Default' }])
-        await expect(getTableThemes()).resolves.toEqual([{ id: 'default', name: 'Default' }])
-        await expect(getTableThemes()).resolves.toEqual([{ id: 'default', name: 'Default' }])
+        await expect(formatProject('project-id')).resolves.toEqual({ formatted: ['a', 'b'], skipped: ['c']})
 
-        expect(mockApiCall).toHaveBeenCalledTimes(2)
-        expect(mockApiCall).toHaveBeenLastCalledWith('/table-themes', undefined,
-            { throwError: true, suppressErrorPages: true })
-    })
-
-    it('says how many tables of the project were themed and how many were left as they are', async () => {
-        mockApiCall.mockResolvedValueOnce({ themed: ['a', 'b'], skipped: ['c']})
-
-        await expect(applyProjectTableTheme('project-id', 'green'))
-            .resolves.toEqual({ themed: ['a', 'b'], skipped: ['c']})
-
-        expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/theme?theme=green', { method: 'POST' },
+        expect(mockApiCall).toHaveBeenCalledWith('/projects/project-id/format', { method: 'POST' },
             { throwError: true, suppressErrorPages: true })
         expect(notification.success).toHaveBeenCalledWith({
-            title: 'Table theme applied to 2 tables',
+            title: '2 tables formatted',
             description: '1 tables were left as they are.',
         })
     })
@@ -282,16 +267,16 @@ describe('table theme', () => {
     it('reads a list the server left out as an empty one', async () => {
         mockApiCall.mockResolvedValueOnce({})
 
-        await applyProjectTableTheme('project-id', 'default')
+        await formatProject('project-id')
 
-        expect(notification.success).toHaveBeenCalledWith({ title: 'Table theme applied to 0 tables' })
+        expect(notification.success).toHaveBeenCalledWith({ title: '0 tables formatted' })
     })
 
-    it('answers nothing when the theme could not be written into the project', async () => {
+    it('answers nothing when the Excel files could not be formatted', async () => {
         mockApiCall.mockRejectedValueOnce(new Error('locked'))
 
-        await expect(applyProjectTableTheme('project-id', 'default')).resolves.toBeNull()
+        await expect(formatProject('project-id')).resolves.toBeNull()
 
-        expect(notifyLoadFailure).toHaveBeenCalledWith('project:table_theme.apply_failed', expect.any(Error))
+        expect(notifyLoadFailure).toHaveBeenCalledWith('project:table_format.failed', expect.any(Error))
     })
 })

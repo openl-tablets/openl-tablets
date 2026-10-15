@@ -212,13 +212,6 @@ export type TableEdit =
     }
 
 /** A table theme OpenL Studio offers. */
-export interface TableThemeOption {
-    /** What the theme is asked for by: the name of its file */
-    id: string
-    /** What the theme is shown by */
-    name: string
-}
-
 export interface RawTableCellInput {
     value: string | number | boolean | null
     colspan?: number

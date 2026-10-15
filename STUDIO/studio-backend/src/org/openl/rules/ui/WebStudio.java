@@ -448,8 +448,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * said about them is what it said before the write.
      *
      * <p>Every screen following the project is told that it waits, not only the one that wrote: another screen
-     * holding a table theme to save would lay it out by the tables as they were compiled before the write. They are
-     * told once for each compilation: a later write leaves the project waiting as the first one did.
+     * would read the tables as they were compiled before the write. They are told once for each compilation: a later
+     * write leaves the project waiting as the first one did.
      */
     public synchronized void recompileCurrentModule() {
         if (isAutoCompile()) {

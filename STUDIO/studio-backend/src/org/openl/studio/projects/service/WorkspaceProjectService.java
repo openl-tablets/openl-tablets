@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,6 +47,7 @@ import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.AProject;
@@ -77,7 +80,9 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.GridTableUtils;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -123,6 +128,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableDetailsView;
 import org.openl.studio.projects.model.tables.TableEditorsView;
+import org.openl.studio.projects.model.tables.TableFormatResultView;
 import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.model.tables.TableRunState;
@@ -130,7 +136,6 @@ import org.openl.studio.projects.model.tables.TableSearchScope;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TableTargetView;
 import org.openl.studio.projects.model.tables.TableTestView;
-import org.openl.studio.projects.model.tables.TableThemeResultView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.merge.SaveMergeConflictEvent;
@@ -152,12 +157,14 @@ import org.openl.studio.projects.service.tables.TablePropertyText;
 import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableStatuses;
 import org.openl.studio.projects.service.tables.TableVersionService;
+import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
+import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.read.EditableTableReader;
 import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
-import org.openl.studio.projects.service.tables.theme.TableThemeService;
+import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -225,7 +232,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectTagsCache projectTagsCache;
     private final ProjectListingContext listingContext;
     private final ObjectFactory<UserWorkspace> userWorkspaceFactory;
-    private final TableThemeService tableThemeService;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -260,8 +266,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectTagsCache projectTagsCache,
             ProjectListingContext listingContext,
             ModuleCompilationLauncher moduleCompilationLauncher,
-            ObjectFactory<UserWorkspace> userWorkspaceFactory,
-            TableThemeService tableThemeService) {
+            ObjectFactory<UserWorkspace> userWorkspaceFactory) {
         super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
         this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
@@ -281,7 +286,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableVersionService = tableVersionService;
         this.metadataService = metadataService;
         this.tableWriterExecutor = tableWriterExecutor;
-        this.tableThemeService = tableThemeService;
         this.tableWritersFactory = tableWritersFactory;
         this.eventPublisher = eventPublisher;
         this.bypassService = bypassService;
@@ -2532,53 +2536,45 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Writes a table theme into every table of every module of the project that the themes style
-     * ({@link TableThemeService#styles}).
+     * Formats every table of every Excel file of the project with the OpenL table style.
      *
-     * <p>A table of a project this one depends on is left as it is, as is a table gathered from several partial
-     * tables: neither can be written here. Every workbook the theme reaches is saved once.
+     * <p>Every module is formatted, so the project is compiled whole first when it is not: a project compiled only in
+     * part, such as one whose module compiles alone, and a project with a workbook written to since it was compiled
+     * ({@link ProjectModel#isWrittenSinceCompiled()}), whose module is built from its workbooks again. A project whose
+     * compilation the reader stopped is refused.
      *
-     * <p>The theme reaches every module, so a project compiled only in part, such as one whose module compiles
-     * alone, is compiled whole first. A project whose compilation the reader stopped is refused.
+     * <p>A table of a project this one depends on is left as it is, as is a table of the type Other and a table of an
+     * {@code .xls} workbook. A table gathered from several partial tables is left as it is too, and named among the
+     * skipped ones. No value is changed.
      *
-     * <p>A theme is laid out by the tables as they were compiled, so a project with a workbook written to since it was
-     * compiled is refused too ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation off, until
-     * the module is verified.
+     * <p>Each workbook formatted is saved once, without the cell formats and the named styles no cell uses any more.
+     * It keeps the change in the local history of its module, and the project is marked modified, as an edit of a
+     * table of the module does.
      *
-     * <p>Each table themed is noted as edited, as any edit of a table is, where the installation records who edits
-     * tables and when.
+     * <p>A formatting that fails saves no workbook, and every module of the project is read from its file again. The
+     * workbooks are saved one after another: a workbook that cannot be saved stops the formatting, and the workbooks
+     * saved before it stay formatted.
      *
-     * <p>Each workbook written keeps the change in the local history of its module, and the project is marked
-     * modified, as an edit of a table of the module does.
-     *
-     * <p>A theme that fails while it is written saves no workbook, and every module of the project is read from its
-     * file again. The workbooks are saved one after another: a workbook that cannot be saved stops the theme, and the
-     * workbooks saved before it keep the theme.
-     *
-     * @param project project to theme
-     * @param themeId the theme, by its identifier
-     * @return the tables themed, by their identifiers once written, and the tables left as they are
-     * @throws BadRequestException when no theme has the identifier
-     * @throws ConflictException   if the project is held by another user, its compilation was stopped, or a write
-     *                             waits to be compiled
+     * @param project project to format
+     * @return the tables formatted and the tables left as they are, by their identifiers
+     * @throws ConflictException if the project is held by another user, or its compilation was stopped
      */
     @LockForEditing
-    public TableThemeResultView applyProjectTableTheme(RulesProject project, String themeId) {
-        var writer = tableThemeService.writer(themeId);
-        var model = compiledWhole(compiledAsWritten(openProject(project).awaitCompiled()));
+    public TableFormatResultView formatProject(RulesProject project) {
+        var model = compiledWhole(compiledAsWritten(project, openProject(project).awaitCompiled()));
         var modules = getProjectDescriptor(project).getModules();
-        var themed = new ArrayList<IOpenLTable>();
+        var formatted = new ArrayList<IOpenLTable>();
         var skipped = new ArrayList<String>();
         for (var node : model.getAllTableSyntaxNodes()) {
             var table = new TableSyntaxNodeAdapter(node);
-            var owner = tableThemeService.styles(table)
+            var owner = TableRegionLayout.formats(table)
                     ? CollectionUtils.findFirst(modules, module -> module.containsTable(node.getUri()))
                     : null;
             if (owner != null) {
                 if (GridTableUtils.isAssembledFromParts(table.getGridTable())) {
                     skipped.add(node.getId());
                 } else {
-                    themed.add(table);
+                    formatted.add(table);
                     // The other modules of the project are compiled as dependencies of the one open, and nothing
                     // listens to their workbooks: the workbook of each table is listened to, as the open module's are.
                     model.initProjectHistory(node, owner);
@@ -2586,8 +2582,39 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             }
         }
         // A write refused halfway may have changed the workbooks of other modules too: every module is read again.
-        var written = writing(() -> writer.writeAll(themed, systemPropertiesService.onEdit()), WebStudio::reset);
-        return new TableThemeResultView(written, skipped);
+        var written = writing(() -> formatAll(formatted), WebStudio::reset);
+        return new TableFormatResultView(written, skipped);
+    }
+
+    /**
+     * Formats tables and saves each workbook formatted once, without the styles no cell uses any more.
+     *
+     * @return the identifiers of the tables formatted
+     */
+    private static List<String> formatAll(List<IOpenLTable> tables) {
+        var formatter = new ExcelTableFormatter();
+        var formatted = new ArrayList<String>();
+        var edited = new ArrayList<IGridTable>();
+        Map<XlsWorkbookSourceCodeModule, XlsSheetGridModel> saved = new IdentityHashMap<>();
+        try {
+            for (var table : tables) {
+                var grid = GridTableUtils.getOriginalTable(table.getGridTable());
+                grid.edit();
+                edited.add(grid);
+                if (formatter.format(table, grid)) {
+                    var sheet = (XlsSheetGridModel) grid.getGrid();
+                    saved.putIfAbsent(sheet.getSheetSource().getWorkbookSource(), sheet);
+                    formatted.add(table.getId());
+                }
+            }
+            saved.forEach((workbook, sheet) -> {
+                ExcelTableFormatter.removeUnusedStyles((XSSFWorkbook) workbook.getWorkbook());
+                TableWriter.saveWorkbook(sheet);
+            });
+        } finally {
+            edited.forEach(IGridTable::stopEditing);
+        }
+        return formatted;
     }
 
     /**
@@ -2602,23 +2629,28 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             model.compileProject(true, false);
         }
         if (!model.isProjectCompilationCompleted()) {
-            throw new ConflictException("table.theme.project.stopped.message");
+            throw new ConflictException("table.format.project.stopped.message");
         }
         return model;
     }
 
     /**
-     * The project as long as what it compiled answers for its workbooks.
+     * The project compiled from its workbooks as they are written.
      *
-     * <p>A table theme is laid out by the tables as they were compiled, so it is refused while a workbook of the project
-     * was written to since it was compiled ({@link ProjectModel#isWrittenSinceCompiled()}): with automatic compilation
-     * off, until the module is verified.
+     * <p>The tables are laid out as they were compiled, so a project with a workbook written to since it was compiled
+     * ({@link ProjectModel#isWrittenSinceCompiled()}) has its module built from its workbooks again, as Verify builds
+     * it.
      */
-    private static ProjectModel compiledAsWritten(ProjectModel model) {
-        if (model.isWrittenSinceCompiled()) {
-            throw new ConflictException("table.theme.verify.message");
+    private ProjectModel compiledAsWritten(RulesProject project, ProjectModel model) {
+        if (!model.isWrittenSinceCompiled()) {
+            return model;
         }
-        return model;
+        try {
+            model.reset(ReloadType.RELOAD);
+        } catch (ProjectResolvingException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+        return openProject(project).awaitCompiled();
     }
 
     /**

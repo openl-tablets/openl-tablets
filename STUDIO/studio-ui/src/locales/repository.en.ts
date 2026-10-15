@@ -392,13 +392,15 @@ i18next.addResourceBundle('en', 'repository', {
             copy: 'Copy',
             update: 'Update',
             remove: 'Remove',
-            apply_theme: 'Apply Theme',
-            apply_theme_project: 'Apply Table Theme to Project',
-            apply_theme_project_confirm: 'Apply a table theme to the project',
-            apply_theme_project_body: 'The theme is written into every table of every module but the tables of the '
-                + 'type Other. Values stay as they are; only the look of the tables changes. Save the project to '
-                + 'carry the change to the Design repository.',
-            apply_theme_project_theme: 'Theme',
+            reformat: 'Reformat Excel files',
+            reformat_tooltip: 'Formats every table of every Excel file of the project with the OpenL table style: '
+                + 'the theme colours, theme fonts and cell styles of Excel. Values are not changed. Tables of the '
+                + 'type Other are left as they are.',
+            reformat_confirm: 'Reformat the Excel files of the project?',
+            reformat_body: 'Every table of every Excel file of the project is formatted with the OpenL table style. '
+                + 'Values are not changed, and the tables of the type Other and the .xls files are left as they are. '
+                + 'Save the project to carry the change to the Design repository.',
+            reformat_ok: 'Reformat',
             overwrite_revision: 'Overwrite the newer revision?',
             overwrite_revision_body: 'You are editing an older revision of the project. Saving it will overwrite everything committed since.',
             overwrite_revision_ok: 'Overwrite',
@@ -543,8 +545,6 @@ i18next.addResourceBundle('en', 'repository', {
             edit_font_colour: 'Font Color',
             edit_outdent: 'Decrease Indent',
             edit_indent: 'Increase Indent',
-            theme_verify_first: 'The project has changes that are not compiled yet, and a theme is laid out by the '
-                + 'tables as they were compiled. Click Verify, then apply a theme.',
             related_more_one: '{{count}} more',
             related_more_other: '{{count}} more',
             edit_saving: 'Saving the table…',

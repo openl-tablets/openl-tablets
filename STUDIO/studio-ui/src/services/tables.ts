@@ -12,7 +12,6 @@ import type {
     TableInputTestCase,
     TableEdit,
     TableProperty,
-    TableThemeOption,
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './apiCall'
@@ -260,52 +259,34 @@ export const deleteTable = async (
     }
 }
 
-/** The table themes, asked for once: Studio reads them when it starts, so they do not change while it runs. */
-let tableThemes: Promise<TableThemeOption[]> | null = null
-
-/**
- * The table themes OpenL Studio offers, by name.
- *
- * Asked for once and kept. A failed answer is not kept, so the next screen asks again.
- */
-export const getTableThemes = (): Promise<TableThemeOption[]> => {
-    tableThemes ??= (apiCall('/table-themes', undefined, LOCAL_LOAD_API_OPTIONS) as Promise<unknown>)
-        .then(themes => asArray(themes) as TableThemeOption[])
-        .catch((error: unknown) => {
-            tableThemes = null
-            throw error
-        })
-    return tableThemes
-}
-
-/** What writing the table theme into a project did; a list the server has nothing to put in is left out. */
-export interface TableThemeResult {
-    /** The tables the theme was written into */
-    themed?: string[]
+/** What reformatting the Excel files of a project did; a list the server has nothing to put in is left out. */
+export interface TableFormatResult {
+    /** The tables formatted */
+    formatted?: string[]
     /** The tables left as they are, each written as several partial tables */
     skipped?: string[]
 }
 
 /**
- * Writes a table theme into every table it styles in every module of the project.
+ * Formats every table of every Excel file of the project with the OpenL table style.
  *
- * Answers what was themed, or null when the write failed; the outcome is told to the reader here.
+ * Answers what was formatted, or null when the write failed; the outcome is told to the reader here.
  */
-export const applyProjectTableTheme = async (projectId: string, theme: string): Promise<TableThemeResult | null> => {
+export const formatProject = async (projectId: string): Promise<TableFormatResult | null> => {
     try {
         const result = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/theme?theme=${encodeURIComponent(theme)}`,
+            `/projects/${toUrlSafeId(projectId)}/format`,
             { method: 'POST' },
             LOCAL_LOAD_API_OPTIONS
-        ) as TableThemeResult
+        ) as TableFormatResult
         const skipped = result.skipped?.length ?? 0
         notification.success({
-            title: i18n.t('project:table_theme.project_applied', { count: result.themed?.length ?? 0 }),
-            ...(skipped > 0 && { description: i18n.t('project:table_theme.project_skipped', { count: skipped }) }),
+            title: i18n.t('project:table_format.formatted', { count: result.formatted?.length ?? 0 }),
+            ...(skipped > 0 && { description: i18n.t('project:table_format.skipped', { count: skipped }) }),
         })
         return result
     } catch (error) {
-        notifyLoadFailure(i18n.t('project:table_theme.apply_failed'), error)
+        notifyLoadFailure(i18n.t('project:table_format.failed'), error)
         return null
     }
 }

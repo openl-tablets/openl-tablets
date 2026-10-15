@@ -1,7 +1,0 @@
-HTTP/1.1 409
-Content-Type: application/json
-
-{
-  "code": "openl.error.409.table.theme.verify.message",
-  "message": "The project has changes that are not compiled yet, and a table theme is laid out by the tables as they were compiled. Verify the module, then apply the theme."
-}

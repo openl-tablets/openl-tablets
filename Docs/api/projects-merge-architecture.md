@@ -330,9 +330,9 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
   included, and tells which files are text; `ProjectsMergeConflictsSessionHolderTest` keeps what is found about the
   files with the stored conflict only.
 - **Integration** — the declarative suites in `ITEST/itest.studio`; `task_EPBDS-16883-excel-cell-merge` merges a
-  sheet changed in both branches through the table API, a table theme included; `task_EPBDS-16896-merge-scope`
-  checks and merges a branch that changes three projects, as the administrator and as a user who may read one of
-  them, so the scope and the summary name that project alone and count the two others;
+  sheet changed in both branches through the table API, a reformat of the Excel files included;
+  `task_EPBDS-16896-merge-scope` checks and merges a branch that changes three projects, as the administrator and as a
+  user who may read one of them, so the scope and the summary name that project alone and count the two others;
   `task_EPBDS-16637-text-merge` reads a conflicted message bundle merged line by line. A merge step is three
   requests: the `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a `GET /merge` checking
   its result.

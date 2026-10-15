@@ -1,6 +1,0 @@
-name: Theme Colour Without Theme Colours
-colors:
-  blue: Blue, Accent 1, Lighter 60%
-datatype:
-  name:
-    background: blue

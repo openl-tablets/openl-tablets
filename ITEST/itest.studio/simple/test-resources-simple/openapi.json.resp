@@ -101,10 +101,6 @@ Content-Type: application/json
       "name": "Settings: System"
     },
     {
-      "description": "***",
-      "name": "Table Themes (BETA)"
-    },
-    {
       "name": "Tags"
     },
     {
@@ -8521,6 +8517,108 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/format": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TableFormatResultView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/history": {
       "get": {
         "description": "***",
@@ -15252,117 +15350,6 @@ Content-Type: application/json
         ]
       }
     },
-    "/projects/{projectId}/theme": {
-      "post": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "path",
-            "name": "projectId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "theme",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TableThemeResultView"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Projects (BETA)"
-        ]
-      }
-    },
     "/projects/{projectId}/trace": {
       "delete": {
         "description": "***",
@@ -19627,102 +19614,6 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "Settings"
-        ]
-      }
-    },
-    "/table-themes": {
-      "get": {
-        "description": "***",
-        "operationId": "***",
-        "parameters": [
-          {
-            "description": "***",
-            "in": "query",
-            "name": "fields",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TableThemeView"
-                  }
-                }
-              }
-            },
-            "description": "***"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "404": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "423": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BaseError"
-                }
-              }
-            },
-            "description": "***"
-          }
-        },
-        "summary": "***",
-        "tags": [
-          "Table Themes (BETA)"
         ]
       }
     },
@@ -29079,6 +28970,26 @@ Content-Type: application/json
           }
         }
       },
+      "TableFormatResultView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "formatted": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skipped": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "TableIdView": {
         "type": "object",
         "properties": {
@@ -29504,40 +29415,6 @@ Content-Type: application/json
             "description": "***"
           },
           "projectId": {
-            "type": "string",
-            "description": "***"
-          }
-        }
-      },
-      "TableThemeResultView": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "skipped": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          },
-          "themed": {
-            "type": "array",
-            "description": "***",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "TableThemeView": {
-        "type": "object",
-        "description": "***",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "***"
-          },
-          "name": {
             "type": "string",
             "description": "***"
           }

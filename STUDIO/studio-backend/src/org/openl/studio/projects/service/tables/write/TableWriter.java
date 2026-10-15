@@ -11,7 +11,6 @@ import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -43,7 +42,6 @@ import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.common.utils.XSSFOptimizer;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -395,18 +393,14 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     /**
-     * Persist the workbook the grid belongs to, dropping the styles the write left unused.
+     * Persist the workbook the grid belongs to.
      *
      * <p>Writes what the grid holds as it stands. A caller writing a table saves through {@link #save()} instead,
      * which first refuses a table left split by a blank line.
      */
     public static void saveWorkbook(XlsSheetGridModel gridModel) {
         try {
-            var workbook = gridModel.getSheetSource().getWorkbookSource();
-            if (workbook.getWorkbook() instanceof XSSFWorkbook xssfWorkbook) {
-                XSSFOptimizer.removeUnusedStyles(xssfWorkbook);
-            }
-            workbook.save();
+            gridModel.getSheetSource().getWorkbookSource().save();
         } catch (IOException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }

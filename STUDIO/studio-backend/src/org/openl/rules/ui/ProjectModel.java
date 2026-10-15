@@ -804,8 +804,8 @@ public class ProjectModel {
      * marked modified.
      *
      * <p>The other modules of the project are compiled as dependencies of this one, and nothing listens to their
-     * workbooks otherwise. A write that reaches their tables through this module, such as a table theme written into
-     * the whole project, asks here before it writes. A workbook already listened to is left alone, and a table read
+     * workbooks otherwise. A write that reaches their tables through this module, such as the formatting of every
+     * table of the project, asks here before it writes. A workbook already listened to is left alone, and a table read
      * from no workbook has none to listen to.
      *
      * @param table  a table, as this module compiled it

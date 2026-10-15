@@ -43,10 +43,9 @@ vi.mock('../projects/branchDialogs', () => ({ openMergeDialog: (...args: unknown
 
 vi.mock('../../services/repositories', () => ({ getDesignRepositories: () => Promise.resolve([]) }))
 
-const applyProjectTableTheme = vi.fn()
+const formatProject = vi.fn()
 vi.mock('../../services/tables', () => ({
-    applyProjectTableTheme: (...args: unknown[]) => applyProjectTableTheme(...args),
-    getTableThemes: () => Promise.resolve([{ id: 'default', name: 'Default' }, { id: 'green', name: 'Green' }]),
+    formatProject: (...args: unknown[]) => formatProject(...args),
 }))
 
 const project = (capabilities: Project['capabilities']): Project => ({
@@ -242,8 +241,8 @@ describe('ModuleActionBar', () => {
         }
     })
 
-    it('writes the table theme the reader chooses into the project, and reads the project back', async () => {
-        applyProjectTableTheme.mockResolvedValue({ themed: ['t1'], skipped: []})
+    it('reformats the Excel files of the project once the reader confirms, and reads the project back', async () => {
+        formatProject.mockResolvedValue({ formatted: ['t1'], skipped: []})
         const changed = vi.fn()
         render(
             <App>
@@ -256,40 +255,29 @@ describe('ModuleActionBar', () => {
         )
 
         await userEvent.click(screen.getByTestId('module-more'))
-        await userEvent.click(await screen.findByText('browser.module.apply_theme_project'))
-        // The reader's own theme is chosen to begin with: this one names none, so the first one offered.
-        await waitFor(() => expect(screen.getByTestId('apply-project-theme-ok')).toBeEnabled())
-        await userEvent.click(screen.getByTestId('apply-project-theme-ok'))
+        await userEvent.click(await screen.findByTestId('module-reformat'))
+        await userEvent.click(await screen.findByTestId('reformat-ok'))
 
         await waitFor(() => expect(changed).toHaveBeenCalledTimes(1))
-        expect(applyProjectTableTheme).toHaveBeenCalledWith('p1', 'default')
+        expect(formatProject).toHaveBeenCalledWith('p1')
     })
 
-    it('writes no table theme into a project that waits for Verify, and says why', async () => {
-        render(
-            <App>
-                <ModuleActionBar
-                    verifyNeeded
-                    moduleName="Claims"
-                    project={project({ canWrite: true } as Project['capabilities'])}
-                />
-            </App>
-        )
+    it('tells what reformatting does before the reader chooses it', async () => {
+        await bar({ canWrite: true } as Project['capabilities'])
 
         await userEvent.click(screen.getByTestId('module-more'))
-        await userEvent.click(await screen.findByText('browser.module.apply_theme_project'))
+        await userEvent.hover(await screen.findByTestId('module-reformat'))
 
-        expect(await screen.findByTestId('apply-project-theme-verify')).toBeInTheDocument()
-        expect(screen.getByTestId('apply-project-theme-ok')).toBeDisabled()
+        expect(await screen.findByText('browser.module.reformat_tooltip')).toBeInTheDocument()
     })
 
-    it('offers the table theme only to a reader who may write the project', async () => {
+    it('offers Reformat Excel files only to a reader who may write the project', async () => {
         await bar({ canViewHistory: true } as Project['capabilities'])
 
         await userEvent.click(screen.getByTestId('module-more'))
 
         expect(await screen.findByText('browser.module.compare')).toBeInTheDocument()
-        expect(screen.queryByText('browser.module.apply_theme_project')).toBeNull()
+        expect(screen.queryByTestId('module-reformat')).toBeNull()
     })
 
     it('offers no history to a reader who may not read it', async () => {

@@ -407,55 +407,34 @@ The `style` operation sets the style of every cell of a rectangle:
 - A style that names no attribute is refused.
 - The attributes are the ones of a styled read, except the borders and the vertical alignment, which are read-only.
 
-### Table Theme
+### Reformatting the Excel Files
 
-A table theme gives every table but a table of the kind `Other` one look: a table of no kind OpenL Tablets knows and a
-part of a table written as several partial tables take no theme. OpenL Studio offers every theme file in the
-`table-themes` folder of its classpath and ships `standard` and `green`. A theme is asked for by its identifier, the
-name of its file without the extension. How a theme file is written is described in
-[Appendix E: Table Themes](../user-guides/openl-studio/appendices/table-themes.md).
-
-**Listing the themes.** One endpoint lists every theme OpenL Studio offers, each with its identifier and the name it
-is shown by: the primary themes first, which a theme file marks with `primary: true`, then the others, each in the
-order of their names. A client selects the first theme when a theme is applied, so it never chooses one by its
-identifier.
+One endpoint formats every table of every `.xlsx` file of the project with the OpenL table style, and recompiles what
+it changes. The style is described in
+[Reformatting Excel Files](../user-guides/openl-studio/rules-editor.md#reformatting-excel-files): each part of a
+table takes a built-in cell style of Excel, redefined with the theme colours and the theme fonts of the file.
 
 ```http
-GET /rest/table-themes
+POST /rest/projects/{projectId}/format
 ```
+
+It answers `200` with the identifiers of the tables formatted and of the ones left as they are, which are written as
+several partial tables:
 
 ```json
-[{"id": "standard", "name": "Standard"}, {"id": "green", "name": "Green"}]
+{ "formatted": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }
 ```
 
-**Writing the theme into the project.** One endpoint writes a theme into every table of every module of the project
-but the tables of the kind `Other`, and recompiles what it changes:
-
-```http
-POST /rest/projects/{projectId}/theme?theme={id}
-```
-
-It answers `200` with the identifiers of the tables themed and of the ones left as they are, which are written as
-several partial tables. A table of any other kind is in neither list. A project compiled only in part, such as one whose
-module compiles alone, is compiled whole first, so the theme reaches every module; a project whose compilation was
-stopped is refused with `409`, and so is a project written to since it was compiled
-(`openl.error.409.table.theme.verify.message`): with **Verify on Edit** turned off, a write leaves the project compiled
-as it stood before the write until the module is verified. Where OpenL Studio records who edits a table and when, each table
-themed is noted as edited, as any edit of a table is. A property the note adds takes the theme, and a table without
-room for the note moves and is named by where it stands once written:
-
-```json
-{ "themed": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }
-```
-
-Writing changes only the look of a table. Each cell keeps its value and every attribute the theme does not set, such
-as its number format. The header keeps its text, cells outside the table are not touched, and a table of a
-dependency project is left as it is. Writing the theme again adds no styles or fonts to the workbook.
-
-A theme that makes its colours of the theme colours of Excel (`themeColors`) writes each such colour as the theme
-colour, made lighter or darker, into a workbook whose twelve theme colours are those, so Excel offers it in its
-palette, and as `#rrggbb` into any other workbook, an `.xls` one and one without a theme among them. The theme of a
-workbook does not change: Apache POI, which writes the workbooks, has no way to set it.
+- A table of the kind `Other`, a table of an `.xls` file and a table of a dependency project are in neither list.
+- A project compiled only in part, such as one whose module compiles alone, is compiled whole first, and a project
+  written to since it was compiled is compiled from its files again, so every table is formatted as it stands. A
+  project whose compilation was stopped is refused with `409`
+  (`openl.error.409.table.format.project.stopped.message`).
+- Each cell keeps its value, its number format, its indent, its text wrapping and its text rotation. The header keeps
+  its text and is formatted in pieces; any other text formatted in pieces is written in the font of its cell. Cells
+  outside the tables are not touched.
+- Each Excel file is saved once, without the cell formats and the named styles no cell uses any more. Formatting
+  again adds nothing to the file.
 
 ### Applying Several Edits
 

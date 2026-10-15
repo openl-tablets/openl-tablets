@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -135,7 +136,6 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
-import org.openl.studio.projects.service.tables.StyledRead;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -144,11 +144,9 @@ import org.openl.studio.projects.service.tables.TablePropertiesService;
 import org.openl.studio.projects.service.tables.TableRunStateService;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
-import org.openl.studio.projects.service.tables.read.RawTableRead;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 import org.openl.studio.projects.service.tables.read.SummaryTableReader;
 import org.openl.studio.projects.service.tables.read.TableEditorsReader;
-import org.openl.studio.projects.service.tables.theme.TableThemeService;
 import org.openl.studio.projects.service.tables.write.TableWriterExecutor;
 import org.openl.studio.projects.service.tables.write.TableWritersFactory;
 import org.openl.studio.projects.validator.NewBranchValidator;
@@ -1778,21 +1776,7 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void a_table_theme_studio_does_not_offer_is_refused_before_anything_is_written() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
-                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
-        var project = project(repository(), "PricingProject", "PricingProject");
-        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
-
-        var refused = assertThrows(BadRequestException.class, () -> service.applyProjectTableTheme(project, "purple"));
-
-        assertEquals("openl.error.400.table.theme.unknown.message", refused.getErrorCode());
-        verify(service, never()).openProject(project);
-    }
-
-    @Test
-    void a_table_theme_failing_halfway_has_every_module_read_from_its_file_again(@TempDir Path dir) throws Exception {
+    void a_formatting_failing_halfway_has_every_module_read_from_its_file_again(@TempDir Path dir) throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
         var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
@@ -1803,7 +1787,7 @@ class WorkspaceProjectServiceTest {
             TableTestProjects.row(sheet, 1, 1, "Datatype Person");
             TableTestProjects.row(sheet, 2, 1, "String", "name");
         });
-        // The Datatype after the one themed first is a table of another module that cannot be written.
+        // The Datatype after the one formatted first is a table of another module that cannot be written.
         var broken = datatype("broken");
         var brokenGrid = mock(IGridTable.class);
         var grid = mock(IGrid.class);
@@ -1813,15 +1797,15 @@ class WorkspaceProjectServiceTest {
         var person = TableTestProjects.table(compiled, "Person").getSyntaxNode();
         stubCompiledProject(service, project, new LinkedHashSet<>(List.of(person, broken)));
 
-        assertThrows(IllegalStateException.class, () -> service.applyProjectTableTheme(project, "green"));
+        assertThrows(IllegalStateException.class, () -> service.formatProject(project));
 
-        // The first table was themed and not saved: what the session holds of it is read from its file again, once.
+        // The first table was formatted and not saved: what the session holds of it is read from its file again, once.
         verify(webStudio).reset();
         verify(webStudio, never()).rebuildCurrentModule();
     }
 
     @Test
-    void the_table_theme_reaches_every_table_it_styles_but_a_partial_one(@TempDir Path dir) throws Exception {
+    void formatting_reaches_every_table_but_a_partial_one(@TempDir Path dir) throws Exception {
         var acl = mock(RepositoryAclService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
                 mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
@@ -1856,27 +1840,32 @@ class WorkspaceProjectServiceTest {
         nodes.add(part);
         var model = stubCompiledProject(service, project, nodes);
 
-        var result = service.applyProjectTableTheme(project, "green");
+        var result = service.formatProject(project);
 
-        // The notes are of no kind OpenL knows, which no theme styles.
-        var themed = List.of("Person", "Code", "people", "Premium", "answer", "Greeting").stream()
+        // The notes are of the type Other, which is not formatted.
+        var formatted = List.of("Person", "Code", "people", "Premium", "answer", "Greeting").stream()
                 .map(name -> TableTestProjects.table(compiled, name).getSyntaxNode().getId())
                 .toList();
-        assertEquals(themed, result.themed());
+        assertEquals(formatted, result.formatted());
         assertEquals(List.of("part"), result.skipped());
-        // The other modules are compiled as dependencies of the one open: the workbook of each table themed is
+        // The other modules are compiled as dependencies of the one open: the workbook of each table formatted is
         // listened to first, and a table left as it is has nothing written.
         var module = service.getProjectDescriptor(project).getModules().getFirst();
         verify(model).initProjectHistory(TableTestProjects.table(compiled, "Person").getSyntaxNode(), module);
         verify(model, never()).initProjectHistory(eq(part), any());
-        // The theme named is the one written.
-        var header = new StyledRead(new RawTableReader().read(TableTestProjects.table(TableTestProjects.projectModel(dir), "Person"),
-                RawTableRead.builder().withStyles(true).build())).source.getFirst().getFirst();
-        assertEquals("#c6e0b4", header.style().background());
+        // The workbook is saved with the style of each role: the header of a table is its Title.
+        try (var in = Files.newInputStream(dir.resolve("Model.xlsx")); var saved = new XSSFWorkbook(in)) {
+            var header = saved.getSheet("Model").getRow(1).getCell(1).getCellStyle().getCoreXf();
+            var title = saved.getStylesSource().getCTStylesheet().getCellStyles().getCellStyleList().stream()
+                    .filter(named -> named.getXfId() == header.getXfId())
+                    .findFirst()
+                    .orElseThrow();
+            assertEquals("Title", title.getName());
+        }
     }
 
     @Test
-    void the_table_theme_compiles_a_project_compiled_only_in_part_whole_first(@TempDir Path dir) throws Exception {
+    void formatting_compiles_a_project_compiled_only_in_part_whole_first(@TempDir Path dir) throws Exception {
         var acl = mock(RepositoryAclService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
                 mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
@@ -1891,16 +1880,16 @@ class WorkspaceProjectServiceTest {
         // The open module compiles alone: the other modules are compiled once the project is.
         when(model.isProjectCompilationCompleted()).thenReturn(false, true);
 
-        var result = service.applyProjectTableTheme(project, "green");
+        var result = service.formatProject(project);
 
         var order = inOrder(model);
         order.verify(model).compileProject(true, false);
         order.verify(model).getAllTableSyntaxNodes();
-        assertEquals(List.of(person.getId()), result.themed());
+        assertEquals(List.of(person.getId()), result.formatted());
     }
 
     @Test
-    void the_table_theme_refuses_a_project_whose_compilation_was_stopped() throws Exception {
+    void formatting_refuses_a_project_whose_compilation_was_stopped() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
                 mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
@@ -1910,17 +1899,16 @@ class WorkspaceProjectServiceTest {
         // A compilation the reader stopped is not started again, so the project stays compiled in part.
         when(model.isProjectCompilationCompleted()).thenReturn(false);
 
-        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project, "green"));
+        var refused = assertThrows(ConflictException.class, () -> service.formatProject(project));
 
-        assertEquals("openl.error.409.table.theme.project.stopped.message", refused.getErrorCode());
+        assertEquals("openl.error.409.table.format.project.stopped.message", refused.getErrorCode());
         verify(model, never()).getAllTableSyntaxNodes();
     }
 
     @Test
-    void the_table_theme_waits_for_a_project_written_to_since_it_was_compiled() throws Exception {
+    void formatting_compiles_a_project_written_to_since_it_was_compiled_from_its_workbooks_again() throws Exception {
         var acl = mock(RepositoryAclService.class);
-        var webStudio = mock(WebStudio.class);
-        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
                 mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
         var project = project(repository(), "PricingProject", "PricingProject");
         when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
@@ -1928,13 +1916,14 @@ class WorkspaceProjectServiceTest {
         // A write left a workbook of the project compiled as it stood before the write.
         when(model.isWrittenSinceCompiled()).thenReturn(true);
 
-        var refused = assertThrows(ConflictException.class, () -> service.applyProjectTableTheme(project, "green"));
+        var result = service.formatProject(project);
 
-        assertEquals("openl.error.409.table.theme.verify.message", refused.getErrorCode());
-        // Refused before the project is compiled whole or anything is written.
-        verify(model, never()).compileProject(anyBoolean(), anyBoolean());
-        verify(model, never()).getAllTableSyntaxNodes();
-        verify(webStudio, never()).reset();
+        // The module is built from its workbooks again, as Verify builds it, and the project is read once built.
+        var order = inOrder(model, service);
+        order.verify(model).reset(ReloadType.RELOAD);
+        order.verify(service).openProject(project);
+        order.verify(model).getAllTableSyntaxNodes();
+        assertEquals(List.of(), result.formatted());
     }
 
     /** A Datatype of the project that only tells its kind, its header, its address and its identifier. */
@@ -2892,8 +2881,7 @@ class WorkspaceProjectServiceTest {
                 new ProjectTagsCache(mock(CacheManager.class)),
                 new ProjectListingContext(),
                 moduleCompilationLauncher,
-                () -> userWorkspace,
-                new TableThemeService()) {
+                () -> userWorkspace) {
 
             @Override
             public WebStudio getWebStudio() {
