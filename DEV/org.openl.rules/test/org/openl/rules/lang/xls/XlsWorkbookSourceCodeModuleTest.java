@@ -81,6 +81,19 @@ class XlsWorkbookSourceCodeModuleTest {
         assertTrue(workbook.isSavedSinceRead());
     }
 
+    /** A save of the look alone, such as the formatting of the tables, leaves what was compiled answering. */
+    @Test
+    void a_save_of_the_look_leaves_the_workbook_as_it_was_read() throws IOException {
+        var workbook = written();
+
+        workbook.saveLook();
+
+        assertFalse(workbook.isSavedSinceRead());
+        workbook.save();
+        workbook.saveLook();
+        assertTrue(workbook.isSavedSinceRead(), "a write saved before is not forgotten");
+    }
+
     /**
      * The sheets of one workbook are parsed by one thread while another saves a write into it, and every parsed
      * sheet asks to be told about a save — so the telling stands being added to while it goes round.

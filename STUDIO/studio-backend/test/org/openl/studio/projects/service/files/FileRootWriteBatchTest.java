@@ -44,6 +44,8 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -348,7 +350,7 @@ class FileRootWriteBatchTest {
     private static ProjectFilesServiceImpl service(AclProjectsHelper acl) {
         return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
-                new BeanValidationProvider(List.of()));
+                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
     }
 
     private static AclProjectsHelper grantAllAcl() {

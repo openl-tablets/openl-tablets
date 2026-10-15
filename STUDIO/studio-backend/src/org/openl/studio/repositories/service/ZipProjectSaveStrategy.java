@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +18,8 @@ import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -28,38 +31,41 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.folder.FileAdaptor;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
+import org.openl.util.FileTool;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 
+/**
+ * Saves a project uploaded as a ZIP archive to a design repository, as one commit.
+ *
+ * <p>An archive that overwrites a project has its {@code .xlsx} files formatted with the OpenL table style while
+ * tables are formatted on save: the archive is unpacked into a temporary folder, formatted there, and the folder is
+ * committed in its place.
+ */
 @Component
+@RequiredArgsConstructor
 public class ZipProjectSaveStrategy {
 
     private static final String ROOT_XLSX_MODULE_PATTERN = "*.xlsx";
 
     private final DesignTimeRepository designTimeRepository;
+    @Qualifier("zipFilter")
     private final PathFilter zipFilter;
     private final ZipCharsetDetector zipCharsetDetector;
     private final UserManagementService userManagementService;
-
-    public ZipProjectSaveStrategy(DesignTimeRepository designTimeRepository,
-                                  @Qualifier("zipFilter") PathFilter zipFilter,
-                                  ZipCharsetDetector zipCharsetDetector,
-                                  UserManagementService userManagementService) {
-        this.designTimeRepository = designTimeRepository;
-        this.zipFilter = zipFilter;
-        this.zipCharsetDetector = zipCharsetDetector;
-        this.userManagementService = userManagementService;
-    }
+    private final UploadFormatting uploadFormatting;
 
     public FileData save(Repository repository, CreateUpdateProjectModel model, Path zipArchive) throws IOException {
         var author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
@@ -84,19 +90,72 @@ public class ZipProjectSaveStrategy {
             var generatedRulesXml = Files.exists(root.resolve(ProjectDescriptor.FILE_NAME))
                     ? Optional.<byte[]>empty()
                     : Optional.of(rulesXml(root, filter, model.getProjectName()));
-            if (repository.supports().folders()) {
-                try (var changes = new FileChangesFromFolder(root,
-                        projectData.getName(),
-                        filter,
-                        adaptor)) {
-                    var projectChanges = generatedRulesXml.isPresent()
-                            ? appendProjectDescriptor(changes, projectData.getName(), generatedRulesXml.orElseThrow())
-                            : changes;
-                    return repository.save(projectData, projectChanges, ChangesetType.FULL);
+            var stage = model.isOverwrite() ? formattedStage(root, filter, adaptor, generatedRulesXml) : null;
+            if (stage == null) {
+                return save(repository, projectData, root, filter, generatedRulesXml, adaptor);
+            }
+            try {
+                // The stage holds the project as it is saved: the files the filter keeps, the descriptor named.
+                return save(repository, projectData, stage, file -> true, Optional.empty());
+            } finally {
+                FileUtils.deleteQuietly(stage);
+            }
+        }
+    }
+
+    private static FileData save(Repository repository,
+                                 FileData projectData,
+                                 Path projectRoot,
+                                 Predicate<Path> filter,
+                                 Optional<byte[]> generatedRulesXml,
+                                 FileAdaptor... adaptors) throws IOException {
+        if (repository.supports().folders()) {
+            try (var changes = new FileChangesFromFolder(projectRoot, projectData.getName(), filter, adaptors)) {
+                var projectChanges = generatedRulesXml.isPresent()
+                        ? appendProjectDescriptor(changes, projectData.getName(), generatedRulesXml.orElseThrow())
+                        : changes;
+                return repository.save(projectData, projectChanges, ChangesetType.FULL);
+            }
+        }
+        return saveAsArchive(repository, projectData, projectRoot, filter, generatedRulesXml, adaptors);
+    }
+
+    /**
+     * The project of the archive unpacked into a temporary folder, with its {@code .xlsx} files formatted, or
+     * {@code null} when none of its files is formatted.
+     */
+    private @Nullable Path formattedStage(Path projectRoot, Predicate<Path> filter, FileAdaptor adaptor,
+                                          Optional<byte[]> generatedRulesXml) throws IOException {
+        List<String> files;
+        try (var walk = Files.walk(projectRoot)) {
+            files = walk.filter(Files::isRegularFile)
+                    .filter(filter)
+                    .map(file -> projectRoot.relativize(file).toString())
+                    .toList();
+        }
+        if (!uploadFormatting.formats(files)) {
+            return null;
+        }
+        var stage = FileTool.createTempDirectory("openl-upload-");
+        try {
+            for (var file : files) {
+                var source = projectRoot.resolve(file);
+                var target = stage.resolve(file);
+                Files.createDirectories(target.getParent());
+                try (var content = adaptor.accept(source)
+                        ? adaptor.apply(Files.newInputStream(source))
+                        : Files.newInputStream(source)) {
+                    Files.copy(content, target);
                 }
             }
-
-            return saveAsArchive(repository, projectData, root, filter, adaptor, generatedRulesXml);
+            if (generatedRulesXml.isPresent()) {
+                Files.write(stage.resolve(ProjectDescriptor.FILE_NAME), generatedRulesXml.orElseThrow());
+            }
+            uploadFormatting.formatStaged(stage, files);
+            return stage;
+        } catch (IOException | RuntimeException e) {
+            FileUtils.deleteQuietly(stage);
+            throw e;
         }
     }
 
@@ -104,12 +163,12 @@ public class ZipProjectSaveStrategy {
                                           FileData projectData,
                                           Path projectRoot,
                                           Predicate<Path> filter,
-                                          ProjectDescriptorNameAdaptor adaptor,
-                                          Optional<byte[]> generatedRulesXml) throws IOException {
+                                          Optional<byte[]> generatedRulesXml,
+                                          FileAdaptor... adaptors) throws IOException {
         Path tmp = FileUtils.createPrivateTempFile(FileUtils.getBaseName(projectData.getName()), ".zip");
         try {
             try (var zos = new ZipOutputStream(Files.newOutputStream(tmp))) {
-                try (var changes = new FileChangesFromFolder(projectRoot, filter, adaptor)) {
+                try (var changes = new FileChangesFromFolder(projectRoot, filter, adaptors)) {
                     for (FileItem fileItem : changes) {
                         var name = fileItem.getData().getName();
                         if (name.charAt(0) == '/') {

@@ -21,7 +21,7 @@ i18next.addResourceBundle('en', 'system', {
     update_table_properties: 'Update table properties (\'createdOn\', \'modifiedBy\' etc.) on editing',
     format_tables_on_save: 'Format tables on save',
     format_tables_on_save_info: 'Formats a table with the OpenL table style every time it is saved, created or '
-        + 'copied, with no compile.',
+        + 'copied, with no compile. An Excel file uploaded into a project is formatted too.',
     date_format: 'Date Format',
     time_format: 'Time Format',
     db_url: 'Database URL',

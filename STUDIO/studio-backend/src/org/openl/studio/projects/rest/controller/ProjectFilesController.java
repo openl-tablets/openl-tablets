@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.DateTimeException;
 import java.time.ZoneId;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,8 +36,11 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.files.ConflictPolicy;
+import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.FileViewMode;
+import org.openl.studio.projects.service.files.ProjectFileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
@@ -64,13 +68,16 @@ public class ProjectFilesController extends AbstractFilesController {
             project is modified directly in the design repository and is not left locked.""";
 
     private final ProjectFileRootFactory fileRootFactory;
+    private final WorkspaceProjectService workspaceProjectService;
 
     public ProjectFilesController(ProjectFilesService filesService,
                                   ProjectFileRootFactory fileRootFactory,
                                   BeanValidationProvider validationProvider,
-                                  FileCriteriaQueryValidator queryValidator) {
+                                  FileCriteriaQueryValidator queryValidator,
+                                  WorkspaceProjectService workspaceProjectService) {
         super(filesService, validationProvider, queryValidator);
         this.fileRootFactory = fileRootFactory;
+        this.workspaceProjectService = workspaceProjectService;
     }
 
     @Lookup
@@ -82,6 +89,17 @@ public class ProjectFilesController extends AbstractFilesController {
     @Override
     protected void postWrite() {
         getWebStudio().reset();
+    }
+
+    /**
+     * Formats the Excel files uploaded into an opened project, as the session compiles them. A closed project has its
+     * upload formatted before it is committed.
+     */
+    @Override
+    protected void postUpload(FileRoot root, Collection<String> uploaded) {
+        if (root instanceof ProjectFileRoot projectRoot && projectRoot.getProject().isOpened()) {
+            workspaceProjectService.formatUploaded(projectRoot.getProject(), uploaded);
+        }
     }
 
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

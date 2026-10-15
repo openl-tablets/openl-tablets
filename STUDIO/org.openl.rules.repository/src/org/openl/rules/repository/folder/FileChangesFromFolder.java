@@ -15,10 +15,17 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 
+/**
+ * The files under a folder, as changes to write into a repository folder.
+ *
+ * <p>Each file is named by its path under the folder walked, with {@code /} between the names, after the repository
+ * folder it is written to. The folder walked may be the root of an archive or a folder of any file system.
+ */
 public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable {
 
     private static final Predicate<Path> ACCEPT_ALL = path -> true;
 
+    private final Path walkRoot;
     private final Stream<Path> stream;
     private final String folderTo;
     private final List<FileAdaptor> fileAdaptors;
@@ -45,6 +52,7 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
                                  String folderTo,
                                  Predicate<Path> filter,
                                  FileAdaptor... fileAdaptors) throws IOException {
+        this.walkRoot = walkRoot;
         this.stream = Files.walk(walkRoot).filter(p -> !walkRoot.equals(p)).filter(Files::isRegularFile).filter(filter);
         this.folderTo = folderTo;
         this.fileAdaptors = Arrays.asList(fileAdaptors);
@@ -71,7 +79,7 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
                     if (fileAdaptor.isPresent()) {
                         is = fileAdaptor.get().apply(is);
                     }
-                    return new FileItem(folderTo + path, is);
+                    return new FileItem(folderTo + nameOf(path), is);
                 } catch (RuntimeException e) {
                     throw e;
                 } catch (Exception e) {
@@ -79,6 +87,15 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
                 }
             }
         };
+    }
+
+    /** The path of a file under the folder walked, starting with {@code /}, whatever the file system separates by. */
+    private String nameOf(Path path) {
+        var name = new StringBuilder();
+        for (var segment : walkRoot.relativize(path)) {
+            name.append('/').append(segment);
+        }
+        return name.toString();
     }
 
     @Override

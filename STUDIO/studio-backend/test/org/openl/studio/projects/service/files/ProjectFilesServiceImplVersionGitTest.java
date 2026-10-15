@@ -32,6 +32,8 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.util.IOUtils;
 
 /**
@@ -74,7 +76,7 @@ class ProjectFilesServiceImplVersionGitTest {
                 mock(ProjectLockGuard.class), mock(DesignTimeRepository.class), null);
         service = new ProjectFilesServiceImpl(aclProjectsHelper, mock(FileNodeMapper.class),
                 mock(FileSearchSupport.class), mock(FileArchiveSupport.class), mock(ProjectDescriptorCleaner.class),
-                new BeanValidationProvider(List.of()));
+                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
     }
 
     @AfterEach

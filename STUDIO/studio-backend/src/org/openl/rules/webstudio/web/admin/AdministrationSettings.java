@@ -59,7 +59,8 @@ public final class AdministrationSettings implements SettingsHolder {
     private Boolean updateSystemProperties;
 
     @Getter
-    @Parameter(description = "Format a table with the OpenL table style every time it is saved, created or copied.")
+    @Parameter(description = "Format a table with the OpenL table style every time it is saved, created or copied, "
+            + "and every Excel file uploaded into a project.")
     @Setter
     @SettingPropertyName(FORMAT_TABLES_ON_SAVE)
     private Boolean formatTablesOnSave;

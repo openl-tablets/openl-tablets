@@ -271,6 +271,15 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   module open, so it has `ProjectModel.initProjectHistory(TableSyntaxNode, Module)` listen to the workbook of each
   table first. Each workbook is saved once; a table gathered from partial tables is reported in `skipped`. It notes no
   edit on the tables: no value changes.
+- **An upload is formatted after one compile** (`UploadFormatting`), only its `.xlsx` files, while
+  `table.format-on-save` is on. An upload into an opened project is written to the working copy first: the files
+  controller's `postUpload` hook, after the session reset, has `WorkspaceProjectService.formatUploaded` compile the
+  project whole and format the tables whose workbook is an uploaded file, saved with
+  `XlsWorkbookSourceCodeModule.saveLook`, which leaves the compile answering for the workbook. An upload into a closed
+  project (`ProjectFilesServiceImpl`), and a ZIP archive that overwrites a project (`ZipProjectSaveStrategy`), are
+  staged in a temporary folder, each module holding an uploaded workbook compiled there with the dependency manager of
+  a project opened in the session, and the formatted files committed once. A workbook that cannot be formatted is
+  written as uploaded and the failure logged: formatting never fails an upload.
 - **A read sends each fact once.** `RawTableReader` names the styles of a read in a dictionary
   (`RawTableStyleDictionary`, `RawTableView.styles`): a cell and a piece of its text name their style by its index. A
   piece of text names where it ends (`RawTableTextRun.to`), not its text. A read of the values alone (`styles=false`)

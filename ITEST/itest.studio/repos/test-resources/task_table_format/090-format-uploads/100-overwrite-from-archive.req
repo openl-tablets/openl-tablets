@@ -1,0 +1,11 @@
+PUT /rest/repos/design-flat/projects/{PROJECT_BUSINESS_NAME}?overwrite=true HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=MULTIBOUND
+
+--MULTIBOUND
+Content-Disposition: form-data; name="template"; filename="overwrite.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&overwrite.zip
+--MULTIBOUND--

@@ -145,8 +145,9 @@ public interface ProjectFilesService {
      * @param archive        the ZIP archive stream
      * @param createParents  if {@code true}, the target folder and missing parents are created
      * @param conflictPolicy how to handle an entry whose target file already exists
+     * @return the mount-relative paths of the files written; an entry the policy skips is not among them
      */
-    void uploadArchive(@NotNull FileRoot root,
+    List<String> uploadArchive(@NotNull FileRoot root,
                        @NotNull String path,
                        @NotNull InputStream archive,
                        boolean createParents,
@@ -165,8 +166,9 @@ public interface ProjectFilesService {
      * @param path           mount-relative target folder (e.g. "folder"); empty for the mount root
      * @param files          the files to upload, each carrying a name and content
      * @param conflictPolicy how to handle a file whose target already exists
+     * @return the mount-relative paths of the files written; a file the policy skips is not among them
      */
-    void uploadFiles(@NotNull FileRoot root,
+    List<String> uploadFiles(@NotNull FileRoot root,
                      @NotNull String path,
                      @NotNull List<UploadedFile> files,
                      @NotNull ConflictPolicy conflictPolicy);

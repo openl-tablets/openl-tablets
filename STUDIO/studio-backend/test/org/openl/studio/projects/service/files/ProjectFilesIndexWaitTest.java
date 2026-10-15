@@ -36,6 +36,8 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
 /**
@@ -80,7 +82,7 @@ class ProjectFilesIndexWaitTest {
         root = new ProjectFileRoot(project, acl, stateValidator, mock(ProjectFileLookupService.class),
                 () -> new UserInfo("user1"), designTimeRepository);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class), new BeanValidationProvider(List.of()));
+                new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
     }
 
     @Test

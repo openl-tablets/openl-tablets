@@ -653,6 +653,10 @@ arrive in full — an upload interrupted halfway, or content damaged on its way 
 module nobody can open never reaches the project. Files of any other type are stored as they arrive, and an
 upload larger than 1000 MB is refused rather than checked.
 
+While **Format tables on save** is selected in [System Settings](administration/02-system-settings.md), an uploaded
+`.xlsx` file is formatted with the OpenL table style before it is stored, as described in
+[Reformatting Excel Files](rules-editor.md#reformatting-excel-files).
+
 #### Creating a Folder
 
 To create a new folder in the project structure, proceed as follows:
