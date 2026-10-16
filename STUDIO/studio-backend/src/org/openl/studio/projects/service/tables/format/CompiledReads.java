@@ -29,8 +29,7 @@ import org.openl.source.IOpenSourceCodeModule;
  *
  * <p>A layout takes the parts of a body from what the compiler read of the table. A table the compiler read none of
  * has no parts it knows: its type, its parent type or its tested table is missing, its body cannot be built, or its
- * header names nothing the compiler knows. Its body holds values, rather than parts guessed from where its cells
- * stand.
+ * header names nothing the compiler knows. Its parts are found from its text instead, see {@link GuessedReads}.
  *
  * <p>An Environment and a Method table have no compiled parts a layout needs: the loader reads an Environment by its
  * rows, and the body of a Method table is code.
@@ -134,7 +133,16 @@ final class CompiledReads {
      * @return the count of the rows, or {@code -1} for an algorithm the compiler does not know
      */
     static int specialRowsOf(@Nullable IOpenSourceCodeModule algorithm) {
-        var name = algorithm == null ? null : algorithm.getCode();
+        return specialRowsOf(algorithm == null ? null : algorithm.getCode());
+    }
+
+    /**
+     * How many rows an algorithm of a ColumnMatch table reads before its conditions, by its name.
+     *
+     * @param name the name of the algorithm, or {@code null} for a header naming none
+     * @return the count of the rows, or {@code -1} for an algorithm the compiler does not know
+     */
+    static int specialRowsOf(@Nullable String name) {
         try {
             return MatchAlgorithmFactory.getAlgorithm(name).getSpecialRowCount();
         } catch (IllegalArgumentException unknown) {

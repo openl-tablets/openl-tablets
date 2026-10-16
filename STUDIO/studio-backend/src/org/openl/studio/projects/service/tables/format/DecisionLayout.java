@@ -45,7 +45,10 @@ import org.openl.util.StringUtils;
  *
  * <p>Where each part stands is taken from the compiled table: the lines of the sheet its code, its titles and its
  * horizontal conditions take, and the columns its conditions and what it returns take. Every line under them holds
- * rules. A table that did not compile holds values in its body.
+ * rules.
+ *
+ * <p>A table the compiler read none of, because a type it names is missing, or laid out no rows of, is read from
+ * its text, see {@link Guess}.
  *
  * <p>A table written the other way round, with a rule in each column, takes the roles with its rows and columns
  * swapped.
@@ -66,7 +69,8 @@ final class DecisionLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed rules(TableBody body) {
-        return placed(body, Places.of(body));
+        var places = body.guessed() ? null : Places.of(body);
+        return placed(body, places != null ? places : Guess.rules(body));
     }
 
     /**
@@ -80,13 +84,13 @@ final class DecisionLayout {
      *
      * <p>The titles are found where the compiler reads them, by their keyword or by their place. A table written the
      * other way round, with a part in each column, takes the roles turned, as a table with a rule in each column does.
-     * A table the compiler reads no declaration from holds values in its body.
+     * A table the compiler reads no declaration from is read from its text, see {@link Guess}.
      *
      * @param body the body of the table
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed conditions(TableBody body) {
-        return placed(body, Places.ofDeclarations(body, true));
+        return placed(body, body.guessed() ? Guess.declarations(body, true) : Places.ofDeclarations(body, true));
     }
 
     /**
@@ -97,7 +101,7 @@ final class DecisionLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed actions(TableBody body) {
-        return placed(body, Places.ofDeclarations(body, false));
+        return placed(body, body.guessed() ? Guess.declarations(body, false) : Places.ofDeclarations(body, false));
     }
 
     /**
@@ -247,6 +251,14 @@ final class DecisionLayout {
             var axes = new Axes(titles.isNormalOrientation());
             var titleLines = new HashSet<Integer>();
             compiled.addPlaces(titles, axes::lineOf, titleLines);
+            return declared(body, axes, titleLines, conditions);
+        }
+
+        /**
+         * The places of a table that declares what decision tables take: its titles in the given lines, and every
+         * other line of its body as code.
+         */
+        static Places declared(TableBody body, Axes axes, Set<Integer> titleLines, boolean conditions) {
             var region = body.rows().getSource().getRegion();
             var code = IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
                     .filter(line -> !titleLines.contains(line))
@@ -519,6 +531,194 @@ final class DecisionLayout {
         private static boolean isHorizontal(FunctionalRow row) {
             return row.getName() != null
                     && row.getName().startsWith(DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
+        }
+    }
+
+    /**
+     * Where the parts of a decision table the compiler read none of stand, as its text tells them.
+     *
+     * <ul>
+     *     <li>A Rules table names the kind of each column in the first line of its code, such as {@code C1},
+     *     {@code RET1} or {@code RULE}: the code takes three lines, the expressions and the parameters under the
+     *     kinds, and the titles the fourth. A condition of any kind is a condition, an action or a return is what the
+     *     table returns or acts in, and {@code RULE} names the rules.</li>
+     *     <li>A SimpleRules and a SmartRules table title its columns in its first line: the first as many columns as
+     *     the header names parameters are its conditions, keeping at least the last one for what it returns.</li>
+     *     <li>A lookup writes its horizontal conditions across its top, one line each, as tall as the title of its
+     *     first column. The parameters the horizontal conditions leave are its vertical conditions, at least one, and
+     *     the columns after them hold what it returns.</li>
+     *     <li>A Conditions, an Actions and a Returns table name the parts of their declarations by their keywords:
+     *     the part titled {@code Title} holds the titles. With no keywords, the parts stand in columns, the titles in
+     *     the fourth, or the last.</li>
+     * </ul>
+     */
+    private static final class Guess {
+
+        /** The lines of code of a Rules table: the kinds, the expressions and the parameters. */
+        private static final int CODE_LINES = 3;
+
+        /** The part of a declaration that holds the titles, when the table names no part by its keyword. */
+        private static final int TITLE_PART = 3;
+
+        private static final String TITLE = "title";
+
+        private Guess() {
+        }
+
+        /** The places of a decision table, or {@code null} for a Rules table naming no kind of column. */
+        static @Nullable Places rules(TableBody body) {
+            var node = body.compiled().node();
+            if (DecisionTableHelper.isSimpleLookupTable(node) || DecisionTableHelper.isSmartLookupTable(node)) {
+                return lookup(body);
+            }
+            if (DecisionTableHelper.isSimple(node) || DecisionTableHelper.isSmart(node)) {
+                return matched(body);
+            }
+            return declared(body);
+        }
+
+        /** A Rules table: its code, its titles, and the crosses the kinds of its columns name. */
+        private static @Nullable Places declared(TableBody body) {
+            var axes = new Axes(body.transposed());
+            var upright = body.upright();
+            var conditions = new HashSet<Integer>();
+            var ruleNames = new HashSet<Integer>();
+            var returns = new HashSet<Integer>();
+            for (var column = 0; column < upright.getWidth(); column++) {
+                var cell = upright.getCell(column, 0);
+                var crosses = crosses(axes, cell.getAbsoluteRegion());
+                var kind = GuessedReads.columnKindOf(cell.getStringValue());
+                switch (kind) {
+                    case RULE -> {
+                        ruleNames.addAll(crosses);
+                        conditions.addAll(crosses);
+                    }
+                    case ACTION, RETURN, COLLECT_RETURN -> returns.addAll(crosses);
+                    case null -> {
+                        // A column of no kind the compiler knows holds values.
+                    }
+                    default -> conditions.addAll(crosses);
+                }
+            }
+            if (conditions.isEmpty() && returns.isEmpty()) {
+                return null;
+            }
+            var code = new HashSet<Integer>();
+            for (var line = 0; line < Math.min(CODE_LINES, upright.getHeight()); line++) {
+                code.addAll(lines(axes, upright.getCell(0, line).getAbsoluteRegion()));
+            }
+            var region = body.rows().getSource().getRegion();
+            var titlesEnd = upright.getHeight() > CODE_LINES
+                    ? axes.lineEnd(upright.getCell(0, CODE_LINES).getAbsoluteRegion())
+                    : axes.lineEnd(region);
+            return rulesOf(body, axes, code, Set.of(), conditions, ruleNames, returns, Integer.MAX_VALUE,
+                    titlesEnd + 1);
+        }
+
+        /** A SimpleRules or a SmartRules table: its titles, its conditions by the parameters, then what it returns. */
+        private static Places matched(TableBody body) {
+            var axes = new Axes(false);
+            var rows = body.rows();
+            var count = Math.min(parametersOf(body), rows.getWidth() - 1);
+            var conditions = new HashSet<Integer>();
+            var returns = new HashSet<Integer>();
+            var titlesEnd = Integer.MIN_VALUE;
+            for (var column = 0; column < rows.getWidth(); column++) {
+                var region = rows.getCell(column, 0).getAbsoluteRegion();
+                (column < count ? conditions : returns).addAll(crosses(axes, region));
+                titlesEnd = Math.max(titlesEnd, axes.lineEnd(region));
+            }
+            return rulesOf(body, axes, Set.of(), Set.of(), conditions, Set.of(), returns, Integer.MAX_VALUE,
+                    titlesEnd + 1);
+        }
+
+        /** A lookup: its horizontal conditions across the top, its vertical conditions, and the grid it returns. */
+        private static Places lookup(TableBody body) {
+            var axes = new Axes(false);
+            var rows = body.rows();
+            var region = rows.getSource().getRegion();
+            var horizontals = lines(axes, rows.getCell(0, 0).getAbsoluteRegion());
+            var count = Math.clamp((long) parametersOf(body) - horizontals.size(), 1, Math.max(1, rows.getWidth() - 1));
+            var conditions = new HashSet<Integer>();
+            for (var column = 0; column < Math.min(count, rows.getWidth()); column++) {
+                conditions.addAll(crosses(axes, rows.getCell(column, 0).getAbsoluteRegion()));
+            }
+            var gridFrom = conditions.stream().mapToInt(Integer::intValue).max().orElse(axes.crossStart(region)) + 1;
+            var grid = IntStream.rangeClosed(gridFrom, axes.crossEnd(region))
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
+            var rulesFrom = horizontals.stream().mapToInt(Integer::intValue).max().orElse(axes.lineStart(region)) + 1;
+            return rulesOf(body, axes, Set.of(), horizontals, conditions, Set.of(), grid, gridFrom, rulesFrom);
+        }
+
+        /** The places of a decision table, its groups found on the sheet as it stands. */
+        private static Places rulesOf(TableBody body, Axes axes, Set<Integer> code, Set<Integer> horizontals,
+                                      Set<Integer> conditions, Set<Integer> ruleNames, Set<Integer> returns,
+                                      int gridFrom, int rulesFrom) {
+            var region = body.rows().getSource().getRegion();
+            var sheet = body.rows().getSource().getGrid();
+            return Places.builder()
+                    .axes(axes)
+                    .code(Set.copyOf(code))
+                    .horizontals(Set.copyOf(horizontals))
+                    .conditions(Set.copyOf(conditions))
+                    .ruleNames(Set.copyOf(ruleNames))
+                    .keywords(Set.of())
+                    .returns(Set.copyOf(returns))
+                    .gridFrom(gridFrom)
+                    .rulesFrom(rulesFrom)
+                    .groups(Reader.groupEdges(axes, conditions, rulesFrom, sheet, region))
+                    .columns(Reader.groupEdges(axes.swapped(), horizontals, gridFrom, sheet, region))
+                    .build();
+        }
+
+        /**
+         * A Conditions, an Actions or a Returns table: the parts of its declarations named by their keywords, or by
+         * their place, and the titles among them.
+         */
+        static Places declarations(TableBody body, boolean conditions) {
+            var rows = body.rows();
+            var region = rows.getSource().getRegion();
+            var sheet = rows.getSource().getGrid();
+            // The parts stand in rows when the first column names more of them than the first row, else in columns.
+            var axes = new Axes(keywordsIn(rows.transpose()) <= keywordsIn(rows));
+            var first = axes.crossStart(region);
+            var titles = IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
+                    .filter(line -> TITLE.equalsIgnoreCase(
+                            StringUtils.trimToEmpty(axes.cellAt(sheet, line, first).getStringValue())))
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
+            if (titles.isEmpty()) {
+                var parts = axes.transposed() ? rows : rows.transpose();
+                var part = Math.min(TITLE_PART, parts.getWidth() - 1);
+                titles = lines(axes, parts.getCell(part, 0).getAbsoluteRegion());
+            }
+            return Places.declared(body, axes, titles, conditions);
+        }
+
+        /** How many parts of a declaration the first row of a body names by their keywords. */
+        private static long keywordsIn(ILogicalTable rows) {
+            return IntStream.range(0, rows.getWidth())
+                    .mapToObj(column -> GuessedReads.textAt(rows, column, 0).toLowerCase(Locale.ROOT))
+                    .filter(KEYWORDS::contains)
+                    .count();
+        }
+
+        private static int parametersOf(TableBody body) {
+            var header = body.compiled().node().getGridTable().getCell(0, 0).getStringValue();
+            return header == null ? 0 : GuessedReads.parametersOf(header);
+        }
+
+        private static Set<Integer> lines(Axes axes, IGridRegion region) {
+            return IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
+        }
+
+        private static Set<Integer> crosses(Axes axes, IGridRegion region) {
+            return IntStream.rangeClosed(axes.crossStart(region), axes.crossEnd(region))
+                    .boxed()
+                    .collect(Collectors.toUnmodifiableSet());
         }
     }
 

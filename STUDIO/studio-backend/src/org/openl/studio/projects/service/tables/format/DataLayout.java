@@ -35,8 +35,12 @@ import org.openl.util.StringUtils;
  * result the test expects: its title is a title of what the table gives, and its values are what it gives.
  *
  * <p>A table written transposed holds a field in each row and the values of one row in each column. It takes the
- * roles the way it is compiled, so each place runs the other way. A table the compiler read none of holds values in
- * its body, see {@link CompiledReads}.
+ * roles the way it is compiled, so each place runs the other way.
+ *
+ * <p>A table the compiler read none of, because its type or its tested table is missing, is read from its text the
+ * same way. It is transposed when its field names stand down its first column, see {@link GuessedReads#fieldsTurned}.
+ * Its keys are the ones the compiler would read: in a Data table the first field, unless it is {@code _PK_}, and in a
+ * Test and a Run table every field that takes its values from a Data table by a {@code >} reference.
  */
 final class DataLayout {
 
@@ -76,7 +80,8 @@ final class DataLayout {
     private static BodyLayout.Placed layOut(TableBody body, boolean calls) {
         var fields = body.upright();
         var references = fields.getHeight() > REFERENCES && DataTableBindHelper.hasForeignKeysRow(fields);
-        var places = new Places(references ? REFERENCES + 1 : REFERENCES, keyColumns(body, calls),
+        var keys = body.guessed() ? guessedKeys(fields, calls, references) : keyColumns(body, calls);
+        var places = new Places(references ? REFERENCES + 1 : REFERENCES, keys,
                 calls ? resultColumns(fields) : Set.of());
         return new BodyLayout.Placed(fields, places);
     }
@@ -100,6 +105,22 @@ final class DataLayout {
                 .filter(key -> key < first.getWidth())
                 .forEach(key -> columns.addAll(body.placesOf(first.getColumn(key).getSource(), true)));
         return Set.copyOf(columns);
+    }
+
+    /**
+     * The columns of the body of a table the compiler read none of whose values are keys, as its text names them: the
+     * first field of a Data table, unless it is {@code _PK_}, or the fields of a Test and a Run table that take their
+     * values from a Data table by a {@code >} reference.
+     */
+    private static Set<Integer> guessedKeys(ILogicalTable fields, boolean calls, boolean references) {
+        if (calls) {
+            return references
+                    ? columns(fields, column -> StringUtils.trimToEmpty(textOf(fields, column, REFERENCES))
+                    .startsWith(">"))
+                    : Set.of();
+        }
+        return fields.getWidth() > 0 && !DataTableBindHelper.FPK.equals(
+                StringUtils.trimToEmpty(textOf(fields, 0, FIELD_NAMES))) ? Set.of(0) : Set.of();
     }
 
     /** The column a reference reads the rows of a Data table by, unless the table names it {@code _PK_}. */

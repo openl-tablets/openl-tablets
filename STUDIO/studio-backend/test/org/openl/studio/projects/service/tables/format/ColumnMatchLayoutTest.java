@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -54,6 +55,16 @@ class ColumnMatchLayoutTest {
     @BeforeEach
     void writeProject() throws IOException {
         TableTestProjects.projectModel(dir, SHEET, ColumnMatchLayoutTest::fillSheet);
+    }
+
+    @Test
+    void readsTheAlgorithmAHeaderNamesRightAfterItsKeyword() {
+        assertEquals("FUZZY", ColumnMatchLayout.algorithmOf("ColumnMatch <FUZZY> String Fuzzy (Integer age)"));
+        assertEquals("WEIGHTED", ColumnMatchLayout.algorithmOf("  ColumnMatch< WEIGHTED >Integer Score()"));
+        assertNull(ColumnMatchLayout.algorithmOf("ColumnMatch String Grade (Integer age)"), "No algorithm");
+        assertNull(ColumnMatchLayout.algorithmOf("ColumnMatch List<String> Grade ()"), "A generic type is no algorithm");
+        assertNull(ColumnMatchLayout.algorithmOf("<FUZZY> Grade"), "No keyword");
+        assertNull(ColumnMatchLayout.algorithmOf("ColumnMatch <FUZZY"));
     }
 
     @Test

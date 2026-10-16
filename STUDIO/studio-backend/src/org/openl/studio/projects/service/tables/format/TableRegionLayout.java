@@ -35,8 +35,8 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
  *
  * <p>The screen draws a table from this layout, and the formatter writes the OpenL table style from it, so both read a
  * table alike. The body of a table is laid out by what the compiler read of it, see {@link CompiledReads}: each part
- * stands where the compiler found it. A table the compiler read none of has no parts it knows, so its body holds
- * values rather than parts guessed from where its cells stand.
+ * stands where the compiler found it. A table the compiler read none of, because a type or a table it names is
+ * missing, is laid out by the parts its text writes where its kind writes them, see {@link GuessedReads}.
  *
  * <p>The kind of a table, {@link LayoutKind}, tells which {@link BodyLayout} lays out its body. A table of no kind
  * OpenL Studio formats, which it shows as of the type Other, is not laid out. Each layout tells what a place of the
@@ -142,13 +142,14 @@ public final class TableRegionLayout {
         var groups = RawTableGroups.NONE;
         if (rows != null) {
             var read = kind.readOf(node);
-            transposed = read.orElse(false);
+            transposed = read.orElseGet(() -> kind.isTurned(rows));
             var body = TableBody.builder()
                     .rows(rows)
                     .transposed(transposed)
                     .compiled(new CompiledTable(node))
+                    .guessed(read.isEmpty())
                     .build();
-            var placed = read.isPresent() ? kind.getLayout().layOut(body) : BodyLayout.Placed.plain(body);
+            var placed = kind.getLayout().layOut(body);
             var bottom = rows.getSource().getRegion().getBottom();
             layOutPlaces(cells, region, placed);
             groups = groupsOf(placed, region, bottom);

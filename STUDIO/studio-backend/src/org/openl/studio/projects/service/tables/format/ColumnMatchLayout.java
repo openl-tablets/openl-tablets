@@ -7,10 +7,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.cmatch.SubValue;
@@ -18,6 +22,7 @@ import org.openl.rules.cmatch.TableColumn;
 import org.openl.rules.cmatch.TableRow;
 import org.openl.rules.lang.xls.types.meta.ColumnMatchMetaInfoReader;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.studio.projects.model.tables.RawTableRole;
 
 /**
@@ -38,7 +43,9 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  * checks together. The first row of a group and the row after it start a group. The indent tells the compiler the
  * group, and formatting never changes it.
  *
- * <p>The ids, the rows and their indents are the ones the compiler read.
+ * <p>The ids, the rows and their indents are the ones the compiler read. A table the compiler read none of is read
+ * from its text the same way: the ids in its first row, the algorithm its header names in angle brackets, and the
+ * indents of the names of its conditions. An algorithm the compiler does not know is read as {@code MATCH}.
  */
 final class ColumnMatchLayout {
 
@@ -62,10 +69,15 @@ final class ColumnMatchLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed layOut(TableBody body) {
-        if (!(body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader)) {
+        Places places;
+        if (body.guessed()) {
+            var header = body.compiled().node().getGridTable().getCell(0, 0).getStringValue();
+            places = Places.guessed(body.rows(), algorithmOf(Objects.requireNonNullElse(header, "")));
+        } else if (body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader) {
+            places = Places.of(body, reader.getBoundNode().getColumnMatch());
+        } else {
             return BodyLayout.Placed.plain(body);
         }
-        var places = Places.of(body, reader.getBoundNode().getColumnMatch());
         var rows = body.rows();
         var groupRows = places.groupEdges()
                 .stream()
@@ -73,6 +85,22 @@ final class ColumnMatchLayout {
                 .map(row -> rows.getRow(row).getSource().getRegion().getTop())
                 .collect(Collectors.toUnmodifiableSet());
         return new BodyLayout.Placed(rows, places, groupRows, Set.of());
+    }
+
+    /**
+     * The algorithm the header of a table names in angle brackets right after its keyword, such as {@code <WEIGHTED>},
+     * or {@code null} for a header naming none.
+     */
+    static @Nullable String algorithmOf(String header) {
+        var open = header.indexOf('<');
+        var close = open < 0 ? -1 : header.indexOf('>', open);
+        if (close < 0) {
+            return null;
+        }
+        var keyword = header.substring(0, open).strip();
+        return keyword.isEmpty() || keyword.chars().anyMatch(Character::isWhitespace)
+                ? null
+                : header.substring(open + 1, close).trim();
     }
 
     /**
@@ -100,6 +128,57 @@ final class ColumnMatchLayout {
             var ids = new HashMap<Integer, String>();
             compiledIds.forEach(id -> read.columnsOf(id).forEach(at -> ids.put(at, id)));
             return new Places(Map.copyOf(ids), read.specialRows(), read.groupEdges());
+        }
+
+        /**
+         * The places of a body the compiler read none of: the ids written in its first row, the rows the algorithm
+         * reads before the conditions, and the groups the indents of the names of the conditions make.
+         */
+        static Places guessed(ILogicalTable rows, @Nullable String algorithm) {
+            var ids = new HashMap<Integer, String>();
+            var written = TableRegionLayout.idsOf(rows);
+            for (var column = 0; column < written.size(); column++) {
+                if (!written.get(column).isEmpty()) {
+                    ids.put(column, written.get(column));
+                }
+            }
+            var count = CompiledReads.specialRowsOf(algorithm);
+            if (count < 0) {
+                count = CompiledReads.specialRowsOf((String) null);
+            }
+            var first = TITLES + 1;
+            var conditions = Math.min(first + count, rows.getHeight());
+            var names = ids.entrySet()
+                    .stream()
+                    .filter(id -> NAMES.equals(id.getValue()))
+                    .mapToInt(Map.Entry::getKey)
+                    .findFirst()
+                    .orElse(0);
+            var special = IntStream.range(first, conditions).boxed().collect(Collectors.toUnmodifiableSet());
+            return new Places(Map.copyOf(ids), special, groupEdges(rows, names, conditions));
+        }
+
+        /**
+         * The rows of a body a group of conditions starts at, and the rows after a group, by the indents written on
+         * the sheet, as {@link Read#groupEdges} tells them of the rows the compiler read.
+         */
+        private static Set<Integer> groupEdges(ILogicalTable rows, int names, int from) {
+            var edges = new HashSet<Integer>();
+            var head = TableBody.NONE;
+            for (var row = from; row <= rows.getHeight(); row++) {
+                if (row == rows.getHeight() || !isIndented(rows.getCell(names, row))) {
+                    if (head != TableBody.NONE && row > head + 1) {
+                        edges.add(head);
+                        edges.add(row);
+                    }
+                    head = row;
+                }
+            }
+            return Set.copyOf(edges);
+        }
+
+        private static boolean isIndented(ICell cell) {
+            return cell.getStyle() != null && cell.getStyle().getIndent() > 0;
         }
 
         /** What a cell of the body is, by the place it stands in. */

@@ -29,8 +29,8 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  *
  * <p>The compiled algorithm keeps the operations it runs, not where they stand, so the columns and the steps are read
  * from the sheet as the compiler reads them: the ids in the first row, the operations in the rows of the sheet from
- * the third row of the body on. A table whose steps the compiler could not build holds values in its body, see
- * {@link CompiledReads}.
+ * the third row of the body on. A table whose steps the compiler could not build is read from the sheet the same
+ * way.
  */
 final class TBasicLayout {
 
