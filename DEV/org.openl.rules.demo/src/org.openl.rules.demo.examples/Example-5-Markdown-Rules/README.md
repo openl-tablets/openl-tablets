@@ -25,5 +25,5 @@ policy.
   a line break.
 - Everything else in a file is documentation. A file without front matter is documentation as a whole.
 
-In OpenL Studio the tables of a Markdown module are shown, run, tested and traced as any others. They are changed by
-editing their files as text, on the **Files** tab of the project.
+In OpenL Studio the tables of a Markdown module are shown, run, tested, traced and edited as any others, all but their
+look: a Markdown file keeps no formatting. A file is also edited as text, on the **Files** tab of the project.

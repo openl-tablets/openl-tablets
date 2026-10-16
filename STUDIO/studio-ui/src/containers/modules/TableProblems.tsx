@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CloseCircleFilled, DownOutlined, InfoCircleFilled, UpOutlined, WarningFilled } from '@ant-design/icons'
+import { CloseCircleFilled, DownOutlined, UpOutlined, WarningFilled } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import type { ProjectStatusDetailedMessage } from '../../services/projectStatus'
 import { readJson, writeJson } from '../../utils/localStore'
@@ -92,8 +92,6 @@ interface TableProblemsProps {
      * whole point of the notice — the reader is otherwise left wondering why nothing can be edited.
      */
     partial?: boolean
-    /** Set on a table of a Markdown module, which is changed as text in the file editor rather than here. */
-    markdown?: boolean
 }
 
 /**
@@ -109,7 +107,6 @@ export const TableProblems = ({
     onStacktrace,
     cellText,
     partial = false,
-    markdown = false,
 }: TableProblemsProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -126,7 +123,7 @@ export const TableProblems = ({
         writeJson(STORAGE_KEY, open)
     }, [open])
 
-    if (messages.length === 0 && !partial && !markdown) {
+    if (messages.length === 0 && !partial) {
         return null
     }
 
@@ -164,12 +161,6 @@ export const TableProblems = ({
                             <div className={styles.partial} data-testid="table-problems-partial">
                                 <WarningFilled className={styles.warningMark} />
                                 {t('browser.module.partial_table')}
-                            </div>
-                        )}
-                        {markdown && (
-                            <div className={styles.partial} data-testid="table-problems-markdown">
-                                <InfoCircleFilled />
-                                {t('browser.module.markdown_table')}
                             </div>
                         )}
                         <CompileMessages

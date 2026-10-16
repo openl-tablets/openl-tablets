@@ -21,6 +21,7 @@ import org.openl.studio.projects.model.tables.SpreadsheetView;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.model.tables.TestView;
 import org.openl.studio.projects.model.tables.VocabularyView;
+import org.openl.studio.projects.service.tables.MarkdownTables;
 import org.openl.studio.projects.service.tables.TableFormatting;
 
 @Component
@@ -53,13 +54,14 @@ public class TableWritersFactory {
 
     /**
      * The writer of a table of the project, in the view of the given type. The save of the writer formats the table
-     * while the administrator has formatting on save turned on.
+     * while the administrator has formatting on save turned on, unless the table comes from a Markdown module, which
+     * keeps no formatting.
      */
     // Each writer writes the view of its own table type.
     @SuppressWarnings("java:S1452")
     public TableWriter<? extends TableView> getTableWriter(IOpenLTable table, String tableType) {
         var writer = writerOf(table, tableType);
-        writer.formatOnSave(formatting.onSave());
+        writer.formatOnSave(formatting.onSave() && !MarkdownTables.isMarkdown(table));
         return writer;
     }
 

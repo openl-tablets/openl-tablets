@@ -60,6 +60,8 @@ interface OpenCellProps {
     marks: RawTextMark[]
     /** Whether pieces of the text can be marked: a text of a cell the table was read with, not its header. */
     markable: boolean
+    /** Whether the file of the table holds Excel formulas: a workbook does, a Markdown file does not. */
+    excelFormulas: boolean
     /**
      * Keeps what was written, with the marks on it where the text can be marked, and closes the cell. `excel` tells
      * a value written as an Excel formula.
@@ -88,7 +90,8 @@ interface OpenCellProps {
  * the tab would answer a key at a time. Here a keystroke redraws the one cell it is typed into.
  */
 export const OpenCell: React.FC<OpenCellProps> = ({
-    from, marks: fromMarks, markable, several, own, asked, address, onCommit, onCancel, onSwitching, onPaper, onMarker,
+    from, marks: fromMarks, markable, excelFormulas, several, own, asked, address, onCommit, onCancel, onSwitching,
+    onPaper, onMarker,
 }) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles(onPaper)
@@ -206,9 +209,11 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     /** The other ways this cell can be written, which the reader picks from beside it. */
     const switches = useMemo(() => {
         // A cell can always be written as a formula, OpenL or Excel, whatever it holds now — as the old editor
-        // offered it. The way the cell asks for comes first, and is not offered twice when it is one of those.
+        // offered it — but a file that holds no Excel formulas takes none. The way the cell asks for comes first,
+        // and is not offered twice when it is one of those.
         const ways = [...new Set<EditorKind>([
-            ...(own === null ? [] : [own]), 'formula', 'excelFormula', 'multiline', 'text',
+            ...(own === null ? [] : [own]), 'formula', ...(excelFormulas ? ['excelFormula' as const] : []),
+            'multiline', 'text',
         ])]
         // What the menu is for is said once, over the ways of writing it offers — as the Editor said it.
         return [{
@@ -223,7 +228,7 @@ export const OpenCell: React.FC<OpenCellProps> = ({
                 onClick: () => setSwitched(way),
             })),
         }]
-    }, [kind, own, t])
+    }, [excelFormulas, kind, own, t])
 
     const inCell = (
         // Another way of writing the value is asked for with the right button, where the Editor asked

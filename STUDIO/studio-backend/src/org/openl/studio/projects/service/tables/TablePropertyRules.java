@@ -37,16 +37,14 @@ final class TablePropertyRules {
      * <p>A table the compiler built to dispatch between the versions of another is written by nobody: it is built
      * again from those versions whenever the module is compiled. A table its author wrote under the same name is the
      * author's own. Neither is a table assembled from parts written on
-     * several sheets — it stands on no sheet of its own to be written to — nor a table of a Markdown module, changed
-     * as text. And some kinds carry no properties at all: the environment, a properties table, whatever OpenL could
-     * not name.
+     * several sheets — it stands on no sheet of its own to be written to. And some kinds carry no properties at
+     * all: the environment, a properties table, whatever OpenL could not name.
      */
     static boolean canEditProperties(IOpenLTable table) {
         return table.isCanContainProperties()
                 && !(table instanceof TableSyntaxNodeAdapter adapter
                         && ProjectModel.isBuiltByCompiler(adapter.getSyntaxNode()))
-                && !GridTableUtils.isAssembledFromParts(table.getGridTable())
-                && !MarkdownTables.isMarkdown(table);
+                && !GridTableUtils.isAssembledFromParts(table.getGridTable());
     }
 
     /**

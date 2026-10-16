@@ -2456,7 +2456,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 ? getOpenLTable(project, tableId, true)
                 : getOpenLTableInModule(project, tableId, moduleName);
         GeneratedTables.refuseAction(context.module(), context.table());
-        MarkdownTables.refuseWrite(context.table());
         // A table gathered from several partial tables is drawn from cells that do not sit together, and the
         // grid it is read through holds no place to write back into. Refused here, where every write resolves
         // its table, rather than left to fail on the grid itself.
@@ -2641,6 +2640,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                   @Nullable String moduleName,
                                   @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
+        MarkdownTables.refuseStyle(context.table(), actions);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
         return renamed(context,

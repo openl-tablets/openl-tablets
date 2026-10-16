@@ -139,7 +139,10 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
+import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.SummaryTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
@@ -1818,12 +1821,11 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void a_table_of_a_markdown_module_is_changed_as_text_only() throws Exception {
+    void a_table_of_a_markdown_module_is_written_but_neither_styled_nor_copied() throws Exception {
         var acl = mock(RepositoryAclService.class);
-        var tablePropertiesService = mock(TablePropertiesService.class);
         var tableCopyService = mock(TableCopyService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
-                tableCopyService, mock(SummaryTableReader.class), tablePropertiesService));
+                tableCopyService, mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
         var project = project(repository(), "PricingProject", "PricingProject");
         when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
         var source = mock(IOpenLTable.class);
@@ -1831,22 +1833,20 @@ class WorkspaceProjectServiceTest {
         var uri = "file:/projects/PricingProject/rules/Base%20Rates.md?sheet=Rates&range=A1:B3";
         when(source.getUri()).thenReturn(uri);
         when(model.getModuleInfo().containsTable(uri)).thenReturn(true);
-        var state = List.of(new TableProperty("state", "AL"));
+        var bold = List.<RawTableSourceAction>of(new RawTableSourceAction.Style(new StyleTarget.Cells(0, 0, 1, 1,
+                new RawCellStyleInput(null, null, null, true, null, null, null))));
         var request = new CopyTableRequest("Rules", null, null, "CopyName", null);
 
-        var editors = assertThrows(BadRequestException.class,
-                () -> service.getTableEditors(project, "src-id", null, null, null));
-        var properties = assertThrows(BadRequestException.class,
-                () -> service.updateTableProperties(project, "src-id", state, null, null));
+        var styled = assertThrows(BadRequestException.class,
+                () -> service.editTableSource(project, "src-id", bold, null, null));
         var copy = assertThrows(BadRequestException.class, () -> service.copyTable(project, "src-id", request));
 
-        // The file is text, with no workbook to write into or to read the styles of a copy from: refused, naming
-        // the file to edit, before any editor, property writer or destination module is reached.
-        assertEquals("openl.error.400.table.markdown.message", editors.getErrorCode());
-        assertEquals("openl.error.400.table.markdown.message", properties.getErrorCode());
+        // The file keeps the values of its table as text and no formatting, so neither a style nor a copy, which
+        // reads the formatting of its source, reaches a writer: refused, naming the file.
+        assertEquals("openl.error.400.table.markdown.style.message", styled.getErrorCode());
         assertEquals("openl.error.400.table.markdown.copy.message", copy.getErrorCode());
-        assertArrayEquals(new Object[]{"Base Rates.md"}, editors.getArgs());
-        verifyNoInteractions(tablePropertiesService, tableCopyService);
+        assertArrayEquals(new Object[]{"Base Rates.md"}, styled.getArgs());
+        verifyNoInteractions(tableCopyService);
         verify(service, never()).openProject(project, "Rules");
     }
 
