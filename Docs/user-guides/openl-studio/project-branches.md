@@ -207,6 +207,9 @@ contain the project when it is opened. Proceed as follows:
     -   Both branches add a sheet with the same name and different content, or one branch removes a sheet the other
         changes.
 
+    A formula taken from their branch that reads another workbook comes with the link to that workbook and keeps the
+    value it was saved with: OpenL Studio does not open the other workbook.
+
     If Sync finds such a conflict, or both branches changed the same place of any other file, the **Resolve
     Conflicts** dialog appears. **Cancel**, the close button and Esc all cancel the merge and leave both branches as
     they were. A merge that cannot be cancelled, for instance while OpenL Studio cannot be reached, keeps the dialog
@@ -302,7 +305,9 @@ contain the project when it is opened. Proceed as follows:
     file **Merged table by table**; **Edit** next to the mark opens the window again with the decisions made, and
     **Download** saves the merged workbook. **Save and Resolve** saves it as it saves an uploaded file. If the tables,
     as resolved, would touch each other or move content a formula or another cell refers to, the window says so; take
-    the whole sheet from one version then. To combine the changes of both branches inside one table, take one version
+    the whole sheet from one version then. A formula that reads another workbook by the number of a link your version
+    gives to a different workbook stops the merge as well, and the window names its cell; take the whole file from
+    one version then. To combine the changes of both branches inside one table, take one version
     and edit the table in the editor after the merge, or download the merged workbook, edit it in Excel and upload it
     with **Upload merged file**.
 
