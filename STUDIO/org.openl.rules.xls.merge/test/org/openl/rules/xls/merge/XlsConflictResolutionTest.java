@@ -26,7 +26,10 @@ import java.util.function.Consumer;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -343,6 +346,49 @@ class XlsConflictResolutionTest {
                 .stream()
                 .map(TableConflict::id)
                 .toList());
+    }
+
+    @Test
+    void tablesApartByRowsWithoutValues_areTablesOfTheirOwnWhateverTheRowsAreFilledWith() throws Exception {
+        // The rows between the rules table and the data table hold no value, only the fill of the sheet.
+        var fixture = new MergeFixture(workbook -> {
+            tables(workbook);
+            var sheet = workbook.getSheet(RULES);
+            for (var row = 6; row < 8; row++) {
+                for (var column = 0; column < 3; column++) {
+                    fill(cellOf(sheet, row, column), IndexedColors.GREY_25_PERCENT);
+                }
+            }
+        });
+        Consumer<Sheet> our = sheet -> set(sheet, 3, 1, 10);
+        Consumer<Sheet> their = sheet -> {
+            set(sheet, 3, 1, 20);
+            set(sheet, 10, 1, 31);
+            fill(cellOf(sheet, 6, 0), IndexedColors.LIGHT_YELLOW);
+        };
+
+        assertEquals(List.of(RATES), fixture.conflicts(XSSFWorkbook::new, our, their)
+                .sheets()
+                .getFirst()
+                .tables()
+                .stream()
+                .map(TableConflict::id)
+                .toList());
+
+        var merged = fixture.resolveXlsx(our, their, Map.of(RATES, Resolution.OURS)).getSheet(RULES);
+        assertEquals(10, number(merged, 3, 1));
+        // The data table merges by itself, and so does the fill of a cell between the tables.
+        assertEquals(31, number(merged, 10, 1));
+        assertEquals(IndexedColors.LIGHT_YELLOW.getIndex(), cell(merged, 6, 0).getCellStyle().getFillForegroundColor());
+        assertEquals(IndexedColors.GREY_25_PERCENT.getIndex(),
+                cell(merged, 6, 1).getCellStyle().getFillForegroundColor());
+    }
+
+    private static void fill(Cell cell, IndexedColors color) {
+        var style = cell.getSheet().getWorkbook().createCellStyle();
+        style.setFillForegroundColor(color.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cell.setCellStyle(style);
     }
 
     @Test

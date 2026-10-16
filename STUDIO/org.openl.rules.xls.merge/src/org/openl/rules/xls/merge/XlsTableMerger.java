@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +100,10 @@ final class XlsTableMerger {
      * and the content taken from BASE revision that the merge writes elsewhere.
      */
     private final List<CellRangeAddress> baseMoved = new ArrayList<>();
+    /**
+     * The tables of the three revisions: a cell outside all of them holds no value in any revision.
+     */
+    private final List<CellRangeAddress> tables = new ArrayList<>();
 
     /**
      * The cells and the merged cells of a sheet merged table by table.
@@ -135,6 +140,9 @@ final class XlsTableMerger {
         var baseTables = XlsSheetTables.split(base.sheet);
         var ourTables = XlsSheetTables.split(our.sheet);
         var theirTables = XlsSheetTables.split(their.sheet);
+        tables.addAll(baseTables);
+        tables.addAll(ourTables);
+        tables.addAll(theirTables);
         var ourPairs = XlsSheetTables.match(baseTables, base.sheet, ourTables, our.sheet);
         var theirPairs = XlsSheetTables.match(baseTables, base.sheet, theirTables, their.sheet);
         for (CellRangeAddress baseTable : baseTables) {
@@ -390,6 +398,7 @@ final class XlsTableMerger {
                 }
             });
         }
+        looseCells(cells);
         var moved = new ArrayList<CellRangeAddress>(ourMoved);
         moved.addAll(theirMoved);
         if (clearedTables.isEmpty() && outputs.isEmpty()) {
@@ -401,6 +410,67 @@ final class XlsTableMerger {
                 .collect(Collectors.toCollection(ArrayList::new));
         outputs.forEach(output -> regions.addAll(output.regions));
         return new Content(cells, regions, moved);
+    }
+
+    /**
+     * Merges the cells outside every table, which hold no value in any revision, cell by cell: the style or the comment
+     * THEIR revision alone changed is taken, the way a sheet is merged cell by cell. Where both revisions changed a
+     * part differently, OUR revision keeps it, since no table depends on it.
+     *
+     * @param cells the cells of OUR revision that change; a cell the tables write is left to them
+     */
+    private void looseCells(Map<CellAddress, CellSource> cells) {
+        var places = new Places(Stream.of(tables, layout, clearedTables).flatMap(List::stream));
+        var addresses = new HashSet<CellAddress>();
+        for (Cursor side : List.of(base, their)) {
+            side.sheet.forEach(row -> row.forEach(cell -> addresses.add(cell.getAddress())));
+        }
+        for (CellAddress address : addresses) {
+            if (!cells.containsKey(address) && !places.hold(address)) {
+                var parts = looseParts(address);
+                if (parts != null && !parts.isEmpty()) {
+                    cells.put(address, new CellSource(address, address, parts));
+                }
+            }
+        }
+    }
+
+    /**
+     * The places of tables, found by the rows they span: the tables of the three revisions, and the places the merge
+     * writes tables at. A cell outside all of them is merged cell by cell.
+     */
+    private static final class Places {
+
+        private final Map<Integer, List<CellRangeAddress>> byRow = new HashMap<>();
+
+        Places(Stream<CellRangeAddress> places) {
+            places.forEach(place -> {
+                for (var row = place.getFirstRow(); row <= place.getLastRow(); row++) {
+                    byRow.computeIfAbsent(row, key -> new ArrayList<>()).add(place);
+                }
+            });
+        }
+
+        /** Tells whether a place holds the cell. */
+        boolean hold(CellAddress address) {
+            return byRow.getOrDefault(address.getRow(), List.of()).stream().anyMatch(place -> place.isInRange(address));
+        }
+    }
+
+    /**
+     * The parts of a cell outside every table that THEIR revision alone changed.
+     *
+     * @return the parts, or {@code null} if both revisions changed a part differently
+     */
+    private @Nullable Set<CellPart> looseParts(CellAddress address) {
+        base.cell = SheetUtil.getCell(base.sheet, address.getRow(), address.getColumn());
+        our.cell = SheetUtil.getCell(our.sheet, address.getRow(), address.getColumn());
+        their.cell = SheetUtil.getCell(their.sheet, address.getRow(), address.getColumn());
+        try {
+            return XlsSheetMerger.theirParts(base, our, their);
+        } finally {
+            base.cell = our.cell = their.cell = null;
+        }
     }
 
     /**
