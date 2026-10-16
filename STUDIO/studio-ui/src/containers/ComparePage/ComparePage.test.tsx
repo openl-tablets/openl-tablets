@@ -344,6 +344,13 @@ describe('ComparePage', () => {
         // Neither files nor revisions are picked: the window knows what to compare.
         expect(screen.queryByTestId('revision-picker')).toBeNull()
         expect(screen.queryByTestId('compare-back')).toBeNull()
+
+        await screen.findByTestId('compare-tree')
+        push('COMPLETED')
+        // The two sides are the revisions before and after, not a first and a second file.
+        expect(await screen.findByText('earlier_revision')).toBeInTheDocument()
+        expect(screen.getByText('later_revision')).toBeInTheDocument()
+        expect(screen.queryByText('file_first')).toBeNull()
     })
 
     it('reads a file that is not a workbook line by line, before and after a merge', async () => {
@@ -376,6 +383,12 @@ describe('ComparePage', () => {
             { path: 'rules/Main.xlsx', branch: 'main', revision: 'r7' },
             { path: 'rules/Main.xlsx' }))
         expect(screen.queryByTestId('revision-picker')).toBeNull()
+
+        await screen.findByTestId('compare-tree')
+        push('COMPLETED')
+        // The saved revision stands against your changes, the ones the save commits.
+        expect(await screen.findByText('saved_revision')).toBeInTheDocument()
+        expect(screen.getByText('your_changes')).toBeInTheDocument()
     })
 
     it('reads a file that is not a workbook at its saved revision and in the working copy', async () => {
@@ -418,6 +431,9 @@ describe('ComparePage', () => {
         push('COMPLETED')
 
         expect(await screen.findByText('Rules')).toBeInTheDocument()
+        // The working copy stands against the revision picked beside it.
+        expect(screen.getByText('user_workspace')).toBeInTheDocument()
+        expect(screen.getByText('selected_revision')).toBeInTheDocument()
         // The pickers are a click away, so another pair is compared in the same window.
         expect(screen.getByTestId('compare-back')).toBeInTheDocument()
     })

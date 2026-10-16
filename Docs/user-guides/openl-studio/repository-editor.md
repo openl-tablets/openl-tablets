@@ -488,10 +488,11 @@ To save a project, proceed as follows:
     The **Save project** window appears. Under the name of the project and the number of files to save, folded until
     you expand it, it lists the files the save commits, changed since the project was opened or last saved. Each file
     is named by its path in the project, after the icon that marks it added, modified or deleted. **Compare** at the
-    end of the row of a modified file opens the file as it was saved against your changes: a workbook is compared
-    element by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files),
-    which opens on the comparison itself, with no files to pick, and a text file line by line. A file that is
-    neither, such as a library, has nothing to be compared by, and the window says so.
+    end of the row of a modified file opens the file as it was saved, headed **Saved revision**, against your
+    changes, headed **Your changes**: a workbook is compared element by element in the window described in
+    [Comparing Excel Files](rules-editor.md#comparing-excel-files), which opens on the comparison itself, with no
+    files to pick, and a text file line by line. A file that is neither, such as a library, has nothing to be
+    compared by, and the window says so.
 
     ![Save changes in a project](images/save-project-changes-dialog.png "Saving a project")
 
@@ -958,7 +959,7 @@ To compare the working copy with another revision, proceed as follows:
 1.  To list the elements that are the same in both files as well, select the **Show equal elements** check box.
 2.  Click **Compare**.
 
-    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it next to each other, with the cells that read differently highlighted, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
+    The elements that differ are listed grouped by Excel sheet. Selecting an element displays the two versions of it next to each other, the working copy headed **User workspace** and the revision headed **Selected revision**, with the cells that read differently highlighted, exactly as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files).
 
 1.  To compare another pair, click **Select other files**.
 
