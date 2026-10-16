@@ -8,10 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.xls.merge.MergeFixture.RULES;
+import static org.openl.rules.xls.merge.MergeFixture.bold;
 import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.cellOf;
 import static org.openl.rules.xls.merge.MergeFixture.deleteRow;
 import static org.openl.rules.xls.merge.MergeFixture.insertRow;
+import static org.openl.rules.xls.merge.MergeFixture.isBold;
 import static org.openl.rules.xls.merge.MergeFixture.layOut;
 import static org.openl.rules.xls.merge.MergeFixture.moveTable;
 import static org.openl.rules.xls.merge.MergeFixture.number;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -34,6 +37,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
@@ -252,6 +256,61 @@ class XlsConflictResolutionTest {
                 3, 1));
         assertEquals(1, number(TWO_SHEETS.resolveXlsx(our, their, Map.of(RULES, Resolution.BASE)).getSheet(RULES),
                 3, 1));
+    }
+
+    @Test
+    void sheetRemovedInOneRevision_andFormattedInTheOther_isRemoved() throws Exception {
+        Consumer<Sheet> remove = sheet -> sheet.getWorkbook().removeSheetAt(sheet.getWorkbook().getSheetIndex(sheet));
+        Consumer<Sheet> format = sheet -> {
+            bold(sheet, 3, 1);
+            sheet.setColumnWidth(1, 9000);
+        };
+
+        assertNull(TWO_SHEETS.mergeXlsx(format, remove));
+        assertNull(TWO_SHEETS.mergeXlsx(remove, format));
+    }
+
+    /** A hyperlink or the visibility of a sheet is no formatting, even when it comes with some. */
+    @Test
+    void sheetRemovedInOneRevision_andGivenOtherSettingsInTheOther_staysAConflict() throws Exception {
+        Consumer<Sheet> remove = sheet -> sheet.getWorkbook().removeSheetAt(sheet.getWorkbook().getSheetIndex(sheet));
+        Consumer<Sheet> link = sheet -> {
+            bold(sheet, 3, 1);
+            var hyperlink = sheet.getWorkbook().getCreationHelper().createHyperlink(HyperlinkType.URL);
+            hyperlink.setAddress("https://openl-tablets.org");
+            CellUtil.getCell(CellUtil.getRow(3, sheet), 1).setHyperlink(hyperlink);
+        };
+        Consumer<Sheet> hide = sheet -> {
+            bold(sheet, 3, 1);
+            sheet.getWorkbook().setSheetHidden(sheet.getWorkbook().getSheetIndex(sheet), true);
+        };
+
+        assertTrue(TWO_SHEETS.diff(XSSFWorkbook::new, link, remove).hasConflicts());
+        assertTrue(TWO_SHEETS.diff(XSSFWorkbook::new, remove, hide).hasConflicts());
+    }
+
+    @Test
+    void sheetAddedInBothWithOtherVisibility_staysAConflict() throws Exception {
+        Consumer<Sheet> our = sheet -> {
+            var workbook = sheet.getWorkbook();
+            set(workbook.createSheet("Extra"), 0, 0, "same");
+            workbook.setSheetHidden(workbook.getSheetIndex("Extra"), true);
+        };
+        Consumer<Sheet> their = sheet -> set(sheet.getWorkbook().createSheet("Extra"), 0, 0, "same");
+
+        assertTrue(FIXTURE.diff(XSSFWorkbook::new, our, their).hasConflicts());
+    }
+
+    @Test
+    void sheetAddedInBothWithOtherFormatting_keepsOurs() throws Exception {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            var extra = sheet.getWorkbook().createSheet("Extra");
+            set(extra, 0, 0, "same");
+            bold(extra, 0, 0);
+        }, sheet -> set(sheet.getWorkbook().createSheet("Extra"), 0, 0, "same")).getWorkbook().getSheet("Extra");
+
+        assertEquals("same", text(merged, 0, 0));
+        assertTrue(isBold(merged, 0, 0));
     }
 
     @Test
