@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,29 +12,42 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.row;
 import static org.openl.studio.projects.service.tables.TableTestProjects.styleNameAt;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
+import org.openl.studio.projects.model.tables.RawCellStyleInput;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.model.tables.TableProperty;
+import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyServiceImpl;
@@ -42,6 +56,8 @@ import org.openl.studio.projects.service.tables.TableFormatting;
 import org.openl.studio.projects.service.tables.TablePropertiesServiceImpl;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.TableVersionService;
+import org.openl.studio.projects.service.tables.format.FormattedTables;
+import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 
 /**
  * Covers a table formatted with the OpenL table style when it is saved, with no compile: in the regions of its last
@@ -120,6 +136,72 @@ class FormatOnSaveTest {
         save(table, true, update(FIRST_RULE - HEADER, DAY, "Feast"));
 
         assertNull(styleAt(FIRST_RULE, DAY));
+    }
+    @Test
+    void remembersATableItLeftFormattedSoAValueSaveHasNothingToFormat() throws IOException {
+        save(true, update(FIRST_RULE - HEADER, DAY, "Holiday"));
+
+        var compiled = TableTestProjects.table(TableTestProjects.projectModel(dir), "Rate");
+        assertTrue(isFormatted(compiled));
+
+        save(compiled, true, update(FIRST_RULE - HEADER, DAY, "Feast"));
+        assertEquals("Input", styleAt(FIRST_RULE, DAY));
+        assertEquals("Output", styleAt(GROUPED_RULE, RATE));
+    }
+
+    @ParameterizedTest
+    @MethodSource("lineEdits")
+    void formatsTheLinesAnEditTouchesAsAFormatOfTheWholeTableWould(RawTableSourceAction edit, @TempDir Path whole)
+            throws IOException {
+        // A table formatted at its previous save: the edit formats the lines it touches alone.
+        save(true, update(FIRST_RULE - HEADER, DAY, "Holiday"));
+        var formatted = TableTestProjects.table(TableTestProjects.projectModel(dir), "Rate");
+        assertTrue(isFormatted(formatted));
+        save(formatted, true, edit);
+        // The same table saved unformatted before: the edit formats it whole.
+        var unformatted = TableTestProjects.projectModel(whole, SHEET, FormatOnSaveTest::fillSheet);
+        save(TableTestProjects.table(unformatted, "Rate"), false, update(FIRST_RULE - HEADER, DAY, "Holiday"));
+        save(TableTestProjects.table(TableTestProjects.projectModel(whole), "Rate"), true, edit);
+
+        assertEquals(TableTestProjects.looksOf(whole.resolve(SHEET + ".xlsx"), SHEET),
+                TableTestProjects.looksOf(dir.resolve(SHEET + ".xlsx"), SHEET));
+    }
+
+    static Stream<Arguments> lineEdits() {
+        return Stream.of(
+                Arguments.of(Named.of("a rule inserted into a group",
+                        insertRow(GROUPED_RULE - HEADER, "< 6", "Holiday", "3"))),
+                Arguments.of(Named.of("the last rule removed",
+                        new RawTableSourceAction.Delete(new DeleteTarget.Rows(GROUPED_RULE - HEADER, 1)))),
+                Arguments.of(Named.of("a rule appended", new RawTableSourceAction.Append(
+                        new AppendTarget.Rows(List.of(cells("> 20", "Holiday", "4")))))),
+                Arguments.of(Named.of("a condition inserted before the rate",
+                        insertColumn(RATE - HOUR, "Note", "early", "morning", "evening"))),
+                Arguments.of(Named.of("the table renamed, its header as long as it was",
+                        update(0, HOUR, "SmartRules Double Rats(Integer hour, String day)"))),
+                Arguments.of(Named.of("the hour of the first rules unmerged",
+                        new RawTableSourceAction.Unmerge(new UnmergeTarget.Cells(FIRST_RULE - HEADER, 0)))),
+                Arguments.of(Named.of("a day indented", new RawTableSourceAction.Style(new StyleTarget.Cells(
+                        GROUPED_RULE - HEADER, DAY - HOUR, 1, 1,
+                        new RawCellStyleInput(null, null, null, null, null, null, 1))))));
+    }
+
+    @Test
+    void formatsATableInFullOnceItsWorkbookWasWrittenSinceItsFormattedSave() throws IOException {
+        save(true, update(FIRST_RULE - HEADER, DAY, "Holiday"));
+        // The workbook is written outside OpenL Studio, and a cell loses its look.
+        var file = dir.resolve(SHEET + ".xlsx");
+        try (var workbook = new XSSFWorkbook(Files.newInputStream(file))) {
+            workbook.getSheet(SHEET).getRow(GROUPED_RULE).getCell(RATE).setCellStyle(workbook.getCellStyleAt(0));
+            try (var out = Files.newOutputStream(file)) {
+                workbook.write(out);
+            }
+        }
+
+        var compiled = TableTestProjects.table(TableTestProjects.projectModel(dir), "Rate");
+        save(compiled, true, update(FIRST_RULE - HEADER, DAY, "Feast"));
+
+        assertEquals("Output", styleAt(GROUPED_RULE, RATE), "The cell takes the look of its role again");
     }
 
     @Test
@@ -201,10 +283,22 @@ class FormatOnSaveTest {
         save(table(), format, action);
     }
 
-    private static void save(IOpenLTable table, boolean format, RawTableSourceAction action) {
+    private static void save(IOpenLTable table, boolean format, RawTableSourceAction... actions) {
         var writer = new RawTableWriter(table);
         writer.formatOnSave(format);
-        writer.apply(List.of(action));
+        writer.apply(List.of(actions));
+    }
+
+    /** Whether a save left the table formatted in the regions its last compile laid it out in. */
+    private static boolean isFormatted(IOpenLTable table) {
+        var grid = GridTableUtils.getOriginalTable(table.getGridTable());
+        grid.edit();
+        try {
+            return FormattedTables.isFormatted(FormattedTables.positionOf(grid),
+                    TableRegionLayout.compiledRegionsOf(table));
+        } finally {
+            grid.stopEditing();
+        }
     }
 
     private IOpenLTable table() {
@@ -224,8 +318,19 @@ class FormatOnSaveTest {
     }
 
     private static RawTableSourceAction insertRow(int position, String... values) {
-        var cells = Arrays.stream(values).map(value -> new RawCellInput(value, null, null, null)).toList();
-        return new RawTableSourceAction.Insert(new InsertTarget.Rows(position, List.of(cells)));
+        return new RawTableSourceAction.Insert(new InsertTarget.Rows(position, List.of(cells(values))));
+    }
+
+    private static List<RawCellInput> cells(String... values) {
+        return Arrays.stream(values).map(value -> new RawCellInput(value, null, null, null)).toList();
+    }
+
+    /** A column of the given values under the header, which reaches across it. */
+    private static RawTableSourceAction insertColumn(int position, String... values) {
+        var cells = new ArrayList<RawCellInput>();
+        cells.add(new RawCellInput(null, null, null, true));
+        cells.addAll(cells(values));
+        return new RawTableSourceAction.Insert(new InsertTarget.Columns(position, List.of(cells)));
     }
 
     /** A SmartRules table whose first two rules share the hour, which makes them a group. */

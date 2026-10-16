@@ -582,6 +582,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
                 styleCell(developerView, tableRegion.getLeft() + c, tableRegion.getTop() + r, style);
             }
         }
+        rowsRestyled(row, rowspan);
     }
 
     /**

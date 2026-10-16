@@ -2593,10 +2593,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     /**
      * Formats the Excel files an upload wrote into a project opened in OpenL Studio, with the OpenL table style.
      *
-     * <p>The upload is compiled as any upload is, the whole project with it, and its {@code .xlsx} workbooks are
-     * formatted and saved again in the working copy. Nothing is done while tables are not formatted on save, for an
-     * upload that holds no {@code .xlsx} file, and for a project whose compilation the reader stopped: its uploaded
-     * workbooks stay as uploaded.
+     * <p>The upload is compiled as any upload is, and its {@code .xlsx} workbooks are formatted and saved again in the
+     * working copy. The compile of the module open in the session answers for an upload of its own workbook, as Update
+     * writes it; any other upload has the project compiled whole. Nothing is done while tables are not formatted on
+     * save, for an upload that holds no {@code .xlsx} file, and for a project whose compilation the reader stopped: its
+     * uploaded workbooks stay as uploaded.
      *
      * @param project  the project the upload wrote into, opened
      * @param uploaded the uploaded files, by their paths relative to the project
@@ -2606,17 +2607,19 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return;
         }
         var model = openProject(project).awaitCompiled();
-        if (!model.isProjectCompilationCompleted()) {
-            model.compileProject(true, false);
-        }
-        if (!model.isProjectCompilationCompleted()) {
+        var folder = getProjectDescriptor(project).getProjectFolder();
+        Collection<TableSyntaxNode> compiled;
+        if (uploadFormatting.compiledIn(model.getModuleInfo(), folder, uploaded)) {
+            compiled = List.of(model.getTableSyntaxNodes());
+        } else if (compileWhole(model)) {
+            compiled = model.getAllTableSyntaxNodes();
+        } else {
             return;
         }
-        var folder = getProjectDescriptor(project).getProjectFolder();
         try {
             // A workbook formatted but not saved is read again, so the session holds what the files hold.
             writing(() -> {
-                uploadFormatting.formatOpened(model, folder, uploaded);
+                uploadFormatting.formatOpened(compiled, folder, uploaded);
                 return null;
             }, WebStudio::reset);
         } catch (RuntimeException e) {
@@ -2663,13 +2666,22 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * started again here: the project is refused instead.
      */
     private static ProjectModel compiledWhole(ProjectModel model) {
-        if (!model.isProjectCompilationCompleted()) {
-            model.compileProject(true, false);
-        }
-        if (!model.isProjectCompilationCompleted()) {
+        if (!compileWhole(model)) {
             throw new ConflictException("table.format.project.stopped.message");
         }
         return model;
+    }
+
+    /**
+     * Compiles the project whole when it is compiled only in part.
+     *
+     * @return whether the project is compiled whole: the reader may have stopped the compilation
+     */
+    private static boolean compileWhole(ProjectModel model) {
+        if (!model.isProjectCompilationCompleted()) {
+            model.compileProject(true, false);
+        }
+        return model.isProjectCompilationCompleted();
     }
 
     /**

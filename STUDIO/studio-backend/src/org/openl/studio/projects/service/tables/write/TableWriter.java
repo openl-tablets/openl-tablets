@@ -46,6 +46,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableView;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
+import org.openl.studio.projects.service.tables.format.FormattedTables;
 import org.openl.studio.projects.service.tables.format.RegionShift;
 import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -177,13 +178,29 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     /**
-     * Formats the table in the regions of its layout, as it stands once written. A formatting that fails leaves the
-     * table as it is written, so the edit is saved all the same.
+     * Tells the layout the save formats the table in that the cells of rows were restyled, so that a table formatted
+     * before has them formatted again.
+     *
+     * @param at    the row of the table the first restyled cell stands in
+     * @param count how many rows hold restyled cells
      */
-    private void formatTable() {
+    protected void rowsRestyled(int at, int count) {
         if (layout != null) {
-            ExcelTableFormatter.formatOnSave(originalTable, layout);
+            layout.rowsRestyled(at, count);
         }
+    }
+
+    /**
+     * Formats the table in the regions of its layout, as it stands once written: only the lines the write touched
+     * when its previous save left it formatted. A formatting that fails leaves the table as it is written, so the
+     * edit is saved all the same.
+     *
+     * @param position where the table stands, read while it is open for writing
+     * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
+     */
+    private @Nullable TableRegions formatTable(FormattedTables.@Nullable Position position) {
+        return layout == null ? null : ExcelTableFormatter.formatOnSave(originalTable, layout,
+                FormattedTables.isFormatted(position, layout.start()));
     }
 
     /**
@@ -399,8 +416,13 @@ public abstract class TableWriter<T extends TableView> {
     protected void save() {
         recordEdit();
         requireNoBlankLine();
-        formatTable();
+        // Read while the table is open for writing: the save closes it.
+        var position = layout == null ? null : FormattedTables.positionOf(originalTable);
+        var formatted = formatTable(position);
         saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
+        if (formatted != null) {
+            FormattedTables.formatted(position, formatted);
+        }
     }
 
     /**

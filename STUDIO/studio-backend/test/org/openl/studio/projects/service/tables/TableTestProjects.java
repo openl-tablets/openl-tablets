@@ -11,8 +11,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
@@ -20,6 +25,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
@@ -247,18 +253,66 @@ public final class TableTestProjects {
      */
     public static @Nullable String styleNameAt(Path workbook, String sheet, int row, int column) throws IOException {
         try (var in = Files.newInputStream(workbook); var read = new XSSFWorkbook(in)) {
-            var cell = read.getSheet(sheet).getRow(row).getCell(column);
-            var xfId = cell.getCellStyle().getCoreXf().getXfId();
-            var named = read.getStylesSource().getCTStylesheet().getCellStyles();
-            if (named == null) {
-                return null;
-            }
-            return named.getCellStyleList().stream()
-                    .filter(style -> style.getXfId() == xfId && style.getBuiltinId() != 0)
-                    .map(CTCellStyle::getName)
-                    .findFirst()
-                    .orElse(null);
+            return styleNameOf(read, read.getSheet(sheet).getRow(row).getCell(column).getCellStyle());
         }
+    }
+
+    private static @Nullable String styleNameOf(XSSFWorkbook workbook, XSSFCellStyle cellStyle) {
+        var xfId = cellStyle.getCoreXf().getXfId();
+        var named = workbook.getStylesSource().getCTStylesheet().getCellStyles();
+        if (named == null) {
+            return null;
+        }
+        return named.getCellStyleList().stream()
+                .filter(style -> style.getXfId() == xfId && style.getBuiltinId() != 0)
+                .map(CTCellStyle::getName)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * The look of every cell of a sheet of a saved workbook, cell by cell: the named style it links, the lines around
+     * it with their colours, its number format and its indent.
+     *
+     * @param workbook the workbook file
+     * @param sheet    the name of the sheet
+     */
+    public static List<String> looksOf(Path workbook, String sheet) throws IOException {
+        var looks = new ArrayList<String>();
+        try (var in = Files.newInputStream(workbook); var read = new XSSFWorkbook(in)) {
+            for (var row : read.getSheet(sheet)) {
+                for (var cell : row) {
+                    var style = (XSSFCellStyle) cell.getCellStyle();
+                    looks.add(String.join(" ", cell.getAddress().formatAsString(),
+                            String.valueOf(styleNameOf(read, style)),
+                            edge(style.getBorderTop(), style.getTopBorderXSSFColor()),
+                            edge(style.getBorderBottom(), style.getBottomBorderXSSFColor()),
+                            edge(style.getBorderLeft(), style.getLeftBorderXSSFColor()),
+                            edge(style.getBorderRight(), style.getRightBorderXSSFColor()),
+                            style.getDataFormatString(), String.valueOf(style.getIndention()), runsOf(cell)));
+                }
+            }
+        }
+        return looks;
+    }
+
+    /** The pieces of the text of a cell, each with the font it is written in. */
+    private static String runsOf(Cell cell) {
+        if (cell.getCellType() != CellType.STRING) {
+            return "-";
+        }
+        var text = (XSSFRichTextString) cell.getRichStringCellValue();
+        var runs = new ArrayList<String>();
+        for (var run = 0; run < text.numFormattingRuns(); run++) {
+            var font = text.getFontOfFormattingRun(run);
+            runs.add(text.getLengthOfFormattingRun(run) + (font == null ? "" : ":" + font.getBold() + ":"
+                    + ThemedColor.of(font.getXSSFColor())));
+        }
+        return runs.toString();
+    }
+
+    private static String edge(BorderStyle line, @Nullable XSSFColor colour) {
+        return line + "/" + ThemedColor.of(colour);
     }
 
     /** The line above a cell of a saved workbook. */

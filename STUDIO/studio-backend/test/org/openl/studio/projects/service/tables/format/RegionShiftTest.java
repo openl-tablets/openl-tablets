@@ -1,9 +1,12 @@
 package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -151,6 +154,22 @@ class RegionShiftTest {
         assertEquals(RawTableRole.OUTPUT, roleAt(regions, 8, 2));
         assertEquals(new RawTableGroups(List.of(6), List.of()), regions.groups());
         assertEquals("rate", nameOf(regions, "Rules Integer rate(Integer age)"), "The header is read again");
+        assertTrue(shift.bodyMoved());
+    }
+
+    @Test
+    void tellsTheLinesTheEditsTouchedInTheTableTheyLeave() {
+        var shift = RegionShift.of(RULES, 7, 3);
+
+        shift.rowsInserted(3, 2);
+        shift.rowsRemoved(6, 1);
+        shift.columnsInserted(3, 1);
+
+        shift.fittedTo(TableRegionLayout.Head.of(4, 0), 8, 4, "Rules");
+        assertEquals(Set.of(2, 3, 4, 5, 6), shift.touchedRows(),
+                "The rows inserted, the rows on either side of them, and the rows on either side of the one removed");
+        assertEquals(Set.of(2, 3), shift.touchedColumns(), "The column added at the end, and the column before it");
+        assertFalse(shift.bodyMoved());
     }
 
     @Test

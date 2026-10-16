@@ -1946,7 +1946,30 @@ class WorkspaceProjectServiceTest {
 
         var order = inOrder(model, uploads);
         order.verify(model).compileProject(true, false);
-        order.verify(uploads).formatOpened(model, dir, uploaded);
+        order.verify(uploads).formatOpened(model.getAllTableSyntaxNodes(), dir, uploaded);
+    }
+
+    @Test
+    void an_upload_of_the_module_open_is_formatted_in_the_compile_of_that_module(@TempDir Path dir) throws Exception {
+        var uploads = mock(UploadFormatting.class);
+        var uploaded = List.of("Rules.xlsx");
+        when(uploads.formats(uploaded)).thenReturn(true);
+        var service = spy(serviceFormattingUploads(mock(WebStudio.class), uploads));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var model = stubCompiledProject(service, project, new LinkedHashSet<>());
+        service.getProjectDescriptor(project).setProjectFolder(dir);
+        var open = new TableSyntaxNode[]{datatype("person")};
+        when(model.getTableSyntaxNodes()).thenReturn(open);
+        var module = mock(Module.class);
+        when(model.getModuleInfo()).thenReturn(module);
+        when(uploads.compiledIn(module, dir, uploaded)).thenReturn(true);
+        when(model.isProjectCompilationCompleted()).thenReturn(false);
+
+        service.formatUploaded(project, uploaded);
+
+        // Update replaces the workbook of the module open: the session compiled it, and nothing more is compiled.
+        verify(model, never()).compileProject(anyBoolean(), anyBoolean());
+        verify(uploads).formatOpened(List.of(open), dir, uploaded);
     }
 
     @Test
@@ -2004,6 +2027,7 @@ class WorkspaceProjectServiceTest {
                                                     Set<TableSyntaxNode> nodes) {
         var model = mock(ProjectModel.class);
         when(model.getAllTableSyntaxNodes()).thenReturn(nodes);
+        when(model.getTableSyntaxNodes()).thenReturn(new TableSyntaxNode[0]);
         when(model.isProjectCompilationCompleted()).thenReturn(true);
         var handle = mock(ProjectHandle.class);
         when(handle.awaitCompiled()).thenReturn(model);
