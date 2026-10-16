@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.xls.merge.MergeFixture.RULES;
+import static org.openl.rules.xls.merge.MergeFixture.bold;
 import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.cellOf;
+import static org.openl.rules.xls.merge.MergeFixture.isBold;
 import static org.openl.rules.xls.merge.MergeFixture.layOut;
 import static org.openl.rules.xls.merge.MergeFixture.number;
 import static org.openl.rules.xls.merge.MergeFixture.set;
@@ -170,13 +172,17 @@ class XlsSheetMergerTest {
     }
 
     @Test
-    void styleOfOneCellChangedDifferently_isConflict() throws IOException {
-        FIXTURE.assertConflict(sheet -> bold(sheet, 3, 1), sheet -> {
+    void styleOfOneCellChangedDifferently_keepsOurs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> bold(sheet, 3, 1), sheet -> {
             var workbook = sheet.getWorkbook();
             var style = workbook.createCellStyle();
             style.setAlignment(HorizontalAlignment.CENTER);
             sheet.getRow(3).getCell(1).setCellStyle(style);
+            set(sheet, 10, 1, 31);
         });
+        assertTrue(isBold(merged, 3, 1));
+        assertEquals(HorizontalAlignment.GENERAL, cell(merged, 3, 1).getCellStyle().getAlignment());
+        assertEquals(31, number(merged, 10, 1));
     }
 
     @Test
@@ -673,20 +679,6 @@ class XlsSheetMergerTest {
         var validation = helper.createValidation(constraint, new CellRangeAddressList(3, 5, 0, 0));
         sheet.addValidationData(validation);
         return validation;
-    }
-
-    private static void bold(Sheet sheet, int row, int column) {
-        var workbook = sheet.getWorkbook();
-        var font = workbook.createFont();
-        font.setBold(true);
-        var style = workbook.createCellStyle();
-        style.setFont(font);
-        sheet.getRow(row).getCell(column).setCellStyle(style);
-    }
-
-    private static boolean isBold(Sheet sheet, int row, int column) {
-        var style = cell(sheet, row, column).getCellStyle();
-        return sheet.getWorkbook().getFontAt(style.getFontIndex()).getBold();
     }
 
     private static void addPicture(Sheet sheet) {

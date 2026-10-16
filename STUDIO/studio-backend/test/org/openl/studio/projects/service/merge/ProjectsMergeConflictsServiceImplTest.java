@@ -450,9 +450,11 @@ class ProjectsMergeConflictsServiceImplTest {
             var style = sheet.getWorkbook().createCellStyle();
             style.setFont(font);
             sheet.getRow(1).getCell(0).setCellStyle(style);
+            rate(sheet, 1, 10);
         }, sheet -> {
             // The default font of the workbook changes the font of every cell written in it.
             sheet.getWorkbook().getFontAt(0).setFontName("Verdana");
+            rate(sheet, 1, 20);
         });
 
         var table = context.service()
@@ -462,9 +464,9 @@ class ProjectsMergeConflictsServiceImplTest {
                 .tables()
                 .getFirst();
 
+        // The rate both branches changed makes the conflict; the fonts alone would not.
         assertEquals(ConflictTableReason.CELLS, table.reason());
-        assertEquals(List.of(), table.ours().changedCells());
-        assertEquals(List.of(), table.ours().conflictCells());
+        assertEquals(List.of("B2"), table.ours().conflictCells());
         assertTrue(table.ours().formattingChanged());
         assertTrue(table.theirs().formattingChanged());
     }

@@ -6,11 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.xls.merge.MergeFixture.RULES;
+import static org.openl.rules.xls.merge.MergeFixture.bold;
 import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.cellOf;
 import static org.openl.rules.xls.merge.MergeFixture.deleteRow;
 import static org.openl.rules.xls.merge.MergeFixture.insertLine;
 import static org.openl.rules.xls.merge.MergeFixture.insertRow;
+import static org.openl.rules.xls.merge.MergeFixture.isBold;
 import static org.openl.rules.xls.merge.MergeFixture.move;
 import static org.openl.rules.xls.merge.MergeFixture.moveTable;
 import static org.openl.rules.xls.merge.MergeFixture.number;
@@ -131,6 +133,16 @@ class XlsTableMergerTest {
     }
 
     @Test
+    void sameRowInsertedInBothWithOtherFormatting_isMergedOnce() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            insertRow(sheet, 4, "UK", 4);
+            bold(sheet, 4, 0);
+        }, sheet -> insertRow(sheet, 4, "UK", 4));
+        assertRates(merged, "US", "UK", "CA", "MX");
+        assertTrue(isBold(merged, 4, 0));
+    }
+
+    @Test
     void differentRowsInsertedAtTheSamePlace_isConflict() throws IOException {
         FIXTURE.assertConflict(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> insertRow(sheet, 4, "DE", 5));
     }
@@ -141,6 +153,12 @@ class XlsTableMergerTest {
         assertRates(merged, "US", "MX");
         assertEquals(10, number(merged, 3, 1));
         assertNull(cell(merged, 5, 0));
+    }
+
+    @Test
+    void rowDeletedInTheirs_andFormattedInOurs_isDeleted() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> bold(sheet, 4, 1), sheet -> deleteRow(sheet, 4));
+        assertRates(merged, "US", "MX");
     }
 
     @Test
@@ -169,6 +187,59 @@ class XlsTableMergerTest {
         assertEquals("LA", text(merged, 11, 2));
         assertEquals("b", text(merged, 11, 3));
         assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A9:D9")));
+    }
+
+    @Test
+    void rowInsertedInTheirs_nextToARowWhoseEmptyCellsTheyFormatted_isMerged() throws IOException {
+        var fixture = new MergeFixture(workbook -> {
+            tables(workbook);
+            // Ann has a name alone, so the formatting of her empty cells must not make her row another one.
+            workbook.getSheet(RULES).getRow(10).getCell(1).setBlank();
+            workbook.getSheet(RULES).getRow(10).getCell(2).setBlank();
+        });
+        var merged = fixture.mergeXlsx(sheet -> set(sheet, 10, 0, "Anna"), sheet -> {
+            move(sheet, "A12:C12", 1, 0);
+            set(sheet, 11, 0, "Cid");
+            set(sheet, 11, 1, 50);
+            set(sheet, 11, 2, "c");
+            bold(sheet, 10, 1);
+            bold(sheet, 10, 2);
+        });
+        assertEquals("Anna", text(merged, 10, 0));
+        assertEquals("Cid", text(merged, 11, 0));
+        assertEquals("Bob", text(merged, 12, 0));
+        assertTrue(isBold(merged, 10, 1));
+        assertTrue(isBold(merged, 10, 2));
+    }
+
+    @Test
+    void rowsAndColumnsInOurs_andFormattingInTheirs_takeOurs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(XlsTableMergerTest::insertRowAndColumn, sheet -> bold(sheet, 10, 0));
+        assertEquals("NY", text(merged, 10, 2));
+        assertEquals("Cid", text(merged, 12, 0));
+    }
+
+    @Test
+    void formattingInOurs_andRowsAndColumnsInTheirs_takeTheirs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> bold(sheet, 10, 0), XlsTableMergerTest::insertRowAndColumn);
+        assertEquals("NY", text(merged, 10, 2));
+        assertEquals("Cid", text(merged, 12, 0));
+    }
+
+    /**
+     * Inserts a column of cities and a row of a driver into the data table.
+     */
+    private static void insertRowAndColumn(Sheet sheet) {
+        move(sheet, "C10:C12", 0, 1);
+        sheet.removeMergedRegion(regionIndex(sheet, "A9:C9"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A9:D9"));
+        set(sheet, 9, 2, "city");
+        set(sheet, 10, 2, "NY");
+        set(sheet, 11, 2, "LA");
+        set(sheet, 12, 0, "Cid");
+        set(sheet, 12, 1, 50);
+        set(sheet, 12, 2, "SF");
+        set(sheet, 12, 3, "c");
     }
 
     @Test
@@ -225,6 +296,27 @@ class XlsTableMergerTest {
     void tableMovedToDifferentPlaces_isConflict() throws IOException {
         FIXTURE.assertConflict(sheet -> moveTable(sheet, "A9:C12", "A9:C9", 6, 0),
                 sheet -> moveTable(sheet, "A9:C12", "A9:C9", 0, 8));
+    }
+
+    @Test
+    void tableRemovedInTheirs_andFormattedInOurs_isRemoved() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            bold(sheet, 10, 1);
+            set(sheet, 3, 1, 10);
+        }, sheet -> removeTable(sheet, "A9:C12", "A9:C9"));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 8, 0)));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 10, 1)));
+        assertEquals(10, number(merged, 3, 1));
+    }
+
+    @Test
+    void sameTableAddedInBothWithOtherFormatting_isMergedOnce() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 0, 7, "Data X x");
+            bold(sheet, 0, 7);
+        }, sheet -> set(sheet, 0, 7, "Data X x"));
+        assertEquals("Data X x", text(merged, 0, 7));
+        assertTrue(isBold(merged, 0, 7));
     }
 
     @Test

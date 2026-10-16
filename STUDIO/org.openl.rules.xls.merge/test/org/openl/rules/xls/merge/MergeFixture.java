@@ -215,6 +215,23 @@ final class MergeFixture {
         return col;
     }
 
+    /**
+     * Writes an existing cell in bold.
+     */
+    static void bold(Sheet sheet, int row, int column) {
+        var workbook = sheet.getWorkbook();
+        var font = workbook.createFont();
+        font.setBold(true);
+        var style = workbook.createCellStyle();
+        style.setFont(font);
+        sheet.getRow(row).getCell(column).setCellStyle(style);
+    }
+
+    static boolean isBold(Sheet sheet, int row, int column) {
+        var style = cell(sheet, row, column).getCellStyle();
+        return sheet.getWorkbook().getFontAt(style.getFontIndex()).getBold();
+    }
+
     static double number(Sheet sheet, int row, int column) {
         return cell(sheet, row, column).getNumericCellValue();
     }

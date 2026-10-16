@@ -56,16 +56,18 @@ flowchart TB
   changed; the comparison is read through the Compare API.
 - **`XlsWorkbookMerger`** (`org.openl.rules.xls.merge`) — merges two versions of a workbook against their base, sheet
   by sheet. A sheet both versions changed goes to **`XlsSheetMerger`**, which merges it cell by cell, the value, the
-  style and the comment of a cell each on its own, unless the changes overlap. The height and the visibility of a
-  row, the width and the visibility of a column and the default sizes of the sheet are taken the same way, but one
-  both versions changed differently keeps your version, as sizes do not change what OpenL reads. When that fails,
-  for instance because
+  style and the comment of a cell each on its own, unless the values or the comments overlap. A style both versions
+  changed differently keeps your version, as formatting does not change what OpenL reads. The height and the
+  visibility of a row, the width and the visibility of a column and the default sizes of the sheet are taken the same
+  way, and one both versions changed differently keeps your version too. When that fails, for instance because
   **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
   table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
   value, as the OpenL compiler does whatever their style, and pairs them by their headers; a cell outside every
   table, styled but empty, is merged cell by cell,
   **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
   **`XlsFormulaReferences`** keeps the sheet a conflict when a formula or a defined name refers to content that moves.
+  A row, a table or a sheet one version removes while the other changes only its look is removed, and a table one
+  version only formats is taken from the other version when their changes cannot be merged row by row.
   **`Conflicts`** tells the merge what to do with a place both versions changed in ways it cannot combine: a strict
   merge, the one of a merge of branches, leaves the sheet a conflict at once (`getDiffResult`); a survey notes every
   conflicting table and goes on with your version of it, so the conflicts after it are found too (`getConflicts`); a
