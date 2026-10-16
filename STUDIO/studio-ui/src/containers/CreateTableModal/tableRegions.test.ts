@@ -60,12 +60,12 @@ describe('buildTableRegions', () => {
         expect(built('freeForm').regions).toEqual([])
     })
 
-    it('lays out a Datatype by its titles, types, names and values', () => {
+    it('lays out a Datatype by its titles, types, the fields it gives and values', () => {
         const { regions } = built('datatype')
 
         expect(roleAt(regions, 1, 0)).toBe('inputTitle')
         expect(roleAt(regions, 2, 0)).toBe('code')
-        expect(roleAt(regions, 2, 1)).toBe('key')
+        expect(roleAt(regions, 2, 1)).toBe('output')
     })
 
     it('lays out the conditions and what a SmartRules table returns', () => {
@@ -85,13 +85,23 @@ describe('buildTableRegions', () => {
         expect(roleAt(regions, 1, 1)).toBe('output')
     })
 
-    it('lays out the band of a lookup as titles, and the values it returns where the conditions meet', () => {
+    it('titles a lookup by its conditions in the corner and its horizontal values over the grid it returns', () => {
         const { regions } = built('simpleLookup')
 
         expect(roleAt(regions, 1, 0)).toBe('inputTitle')
-        expect(roleAt(regions, 1, 1)).toBe('inputTitle')
+        expect(roleAt(regions, 1, 1)).toBe('outputTitle')
         expect(roleAt(regions, 2, 0)).toBe('value')
         expect(roleAt(regions, 2, 1)).toBe('output')
+    })
+
+    it('gives each row of the horizontal values of a lookup a region of its own', () => {
+        const { regions } = built('simpleLookup', { arguments: [
+            { type: 'String', name: 'plan' }, { type: 'String', name: 'term' },
+            { type: 'String', name: 'size' }, { type: 'String', name: 'region' },
+        ]})
+
+        const titles = regions.filter(region => region.role === 'outputTitle')
+        expect(titles.map(region => [region.top, region.bottom])).toEqual([[1, 1], [2, 2]])
     })
 
     it('lays out the code of a Rules table above its titles', () => {
@@ -110,7 +120,7 @@ describe('buildTableRegions', () => {
         expect(roleAt(single.regions, 2, 0)).toBe('result')
 
         const all = built('spreadsheet', { resultType: 'SpreadsheetResult' })
-        expect(roleAt(all.regions, 2, 0)).toBe('key')
+        expect(roleAt(all.regions, 2, 0)).toBe('value')
         expect(roleAt(all.regions, 2, 1)).toBe('output')
     })
 
@@ -139,6 +149,7 @@ describe('buildTableRegions', () => {
         expect(roleAt(built('environment').regions, 1, 0)).toBe('key')
         expect(roleAt(built('properties').regions, 1, 1)).toBe('value')
         expect(roleAt(built('constants').regions, 1, 0)).toBe('code')
+        expect(roleAt(built('constants').regions, 1, 1)).toBe('output')
         expect(roleAt(built('vocabulary').regions, 1, 0)).toBe('value')
     })
 })

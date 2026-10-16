@@ -129,23 +129,34 @@ export const cellRoleOf = (roles: TableRoles, address: string | undefined, own: 
  */
 export const holdsCode = (cell: CellRole): boolean => cell.region.role === 'code' || cell.type === 'code'
 
-/** The lines the Studio look draws, in the colours of the theme. */
+/** The lines the Studio look draws, in the colours of the theme, as the Excel style draws them. */
 export interface RoleLines {
-    /** A line that sets the sections of a table apart: above and below the signature, below the body. */
-    major: RawTableCellBorderSide
-    /** A line that sets a part apart within a section: below the properties and a heading, above a group. */
-    minor: RawTableCellBorderSide
-    /** The line above what a table returns. */
-    resultAbove: RawTableCellBorderSide
+    /** The line of a role: above the signature, the properties, the code, the titles, a heading and the result. */
+    role: RawTableCellBorderSide
+    /** The line above the first line of a group, and on the left of the first column of one. */
+    group: RawTableCellBorderSide
     /** The double line below what a table returns. */
     resultBelow: RawTableCellBorderSide
 }
 
+/** The lines a role draws above the first row and below the last row of its region, as its Excel style does. */
+const ROLE_EDGES: Readonly<Record<string, { top: keyof RoleLines, bottom?: keyof RoleLines }>> = {
+    signature: { top: 'role', bottom: 'role' },
+    properties: { top: 'role', bottom: 'role' },
+    code: { top: 'role', bottom: 'role' },
+    inputTitle: { top: 'role' },
+    outputTitle: { top: 'role' },
+    section: { top: 'role' },
+    result: { top: 'role', bottom: 'resultBelow' },
+}
+
 /**
- * The lines the Studio look draws around a cell, by its role and where it stands: the signature between two major
- * lines, a minor line under the properties and under a heading, the result between its own lines, a minor line above
- * the first line of a group, and a major line closing the table. No other line is drawn: the parts of a table are
- * told apart by their fill.
+ * The lines the Studio look draws around a cell, by its role and where it stands: the line of a role above the first
+ * row of the region of the signature, the properties, the code, the titles, a heading and the result — a lookup has a
+ * region for each row of its horizontal values — and below the last row of the signature, the properties and the
+ * code, a double line below the result, a group line above the first line of a group, and the line of a role
+ * closing the table. No other line is drawn: the parts of a table are told apart
+ * by their fill.
  *
  * @param roles  the roles of the cells of the table
  * @param cell   what the cell is
@@ -158,27 +169,21 @@ export const roleLinesOf = (roles: TableRoles, cell: CellRole, span: { rows: num
     const { region, place } = cell
     const lastRow = place.row + span.rows - 1
     const border: RawTableCellBorder = {}
-    if (region.role === 'signature') {
-        border.top = lines.major
-        border.bottom = lines.major
-    } else if ((region.role === 'properties' || region.role === 'section') && lastRow === region.bottom) {
-        border.bottom = lines.minor
-    } else if (region.role === 'result') {
-        if (place.row === region.top) {
-            border.top = lines.resultAbove
-        }
-        if (lastRow === region.bottom) {
-            border.bottom = lines.resultBelow
-        }
+    const edges = ROLE_EDGES[region.role]
+    if (edges && place.row === region.top) {
+        border.top = lines[edges.top]
+    }
+    if (edges?.bottom && lastRow === region.bottom) {
+        border.bottom = lines[edges.bottom]
     }
     if (border.top === undefined && roles.groupRows.has(place.row)) {
-        border.top = lines.minor
+        border.top = lines.group
     }
     if (roles.groupColumns.has(place.column)) {
-        border.left = lines.minor
+        border.left = lines.group
     }
     if (border.bottom === undefined && lastRow >= roles.bottom) {
-        border.bottom = lines.major
+        border.bottom = lines.role
     }
     return Object.keys(border).length === 0 ? undefined : border
 }

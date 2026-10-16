@@ -48,6 +48,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -55,6 +56,8 @@ import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRegion;
+import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.studio.projects.service.tables.write.TableWriter;
 
@@ -87,8 +90,6 @@ class ExcelTableFormatterTest {
     private static final ThemedColor TEXT = new ThemedColor(1, 0);
     private static final ThemedColor MUTED = new ThemedColor(1, 500);
     private static final ThemedColor LT2 = new ThemedColor(2, 0);
-    private static final ThemedColor DK2 = new ThemedColor(3, 0);
-    private static final ThemedColor ACCENT1 = new ThemedColor(4, 0);
 
     @TempDir
     Path dir;
@@ -101,16 +102,17 @@ class ExcelTableFormatterTest {
             assertTrue(namedStyleAt(workbook, RATE_ROW, 1).getCustomBuiltin(), "The style is redefined");
             assertEquals("Explanatory Text", namedStyleAt(workbook, RATE_ROW + 1, 2).getName());
             assertEquals("Heading 3", namedStyleAt(workbook, RATE_ROW + 2, 1).getName());
-            assertEquals("40% - Accent1", namedStyleAt(workbook, RATE_ROW + 2, 3).getName());
+            assertEquals("Heading 2", namedStyleAt(workbook, RATE_ROW + 2, 3).getName());
             assertEquals("Input", namedStyleAt(workbook, RATE_ROW + 3, 2).getName());
             assertEquals("Output", namedStyleAt(workbook, RATE_ROW + 3, 3).getName());
             assertEquals("Calculation", namedStyleAt(workbook, FACTORIAL_ROW + 1, OPERATION).getName());
             assertEquals("Heading 4", namedStyleAt(workbook, SUBROUTINE_STEP + 1, LABEL).getName());
-            assertEquals("Heading 2", namedStyleAt(workbook, SUBROUTINE_STEP, LABEL).getName());
+            assertEquals("Heading 3", namedStyleAt(workbook, SUBROUTINE_STEP, LABEL).getName(),
+                    "A heading takes the style of a title");
             assertEquals("Total", namedStyleAt(workbook, RETURN_STEP, ACTION).getName());
             // Every role style is written, and each once.
             var named = workbook.getStylesSource().getCTStylesheet().getCellStyles();
-            assertEquals(11, named.sizeOfCellStyleArray(), "Normal and the ten role styles");
+            assertEquals(10, named.sizeOfCellStyleArray(), "Normal and the nine role styles");
             assertEquals(named.sizeOfCellStyleArray(), named.getCount());
             assertStylesAreValid(workbook);
         }
@@ -148,29 +150,81 @@ class ExcelTableFormatterTest {
     @Test
     void drawsTheLinesAtTheEdgesOfTheRegions() throws IOException {
         try (var workbook = formatted(ExcelTableFormatterTest::fillSheet)) {
+            // Every line is drawn in the darkest text colour of the theme.
             var signature = styleAt(workbook, RATE_ROW, 2);
-            assertLine(BorderStyle.THIN, DK2, signature.getBorderTop(), signature.getTopBorderXSSFColor());
-            assertLine(BorderStyle.THIN, DK2, signature.getBorderBottom(), signature.getBottomBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, signature.getBorderTop(), signature.getTopBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, signature.getBorderBottom(), signature.getBottomBorderXSSFColor());
+            // The properties and the code draw a line above their first row and below their last one.
             var properties = styleAt(workbook, RATE_ROW + 1, 3);
-            assertLine(BorderStyle.THIN, new ThemedColor(2, -250), properties.getBorderBottom(),
+            assertLine(BorderStyle.THIN, TEXT, properties.getBorderTop(),
+                    properties.getTopBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, properties.getBorderBottom(),
                     properties.getBottomBorderXSSFColor());
+            var code = styleAt(workbook, FACTORIAL_ROW + 1, OPERATION);
+            assertLine(BorderStyle.THIN, TEXT, code.getBorderTop(), code.getTopBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, code.getBorderBottom(), code.getBottomBorderXSSFColor());
+            // The titles and a section draw a line above their first row only.
+            var titles = styleAt(workbook, RATE_ROW + 2, 3);
+            assertLine(BorderStyle.THIN, TEXT, titles.getBorderTop(),
+                    titles.getTopBorderXSSFColor());
+            assertEquals(BorderStyle.NONE, titles.getBorderBottom(), "No line below the titles");
+            assertEquals(BorderStyle.NONE, styleAt(workbook, RATE_ROW + 3, 2).getBorderTop(), "No line above values");
             // The hour is merged over the first two rules: the rule after them starts a group.
             var group = styleAt(workbook, RATE_ROW + 5, 3);
-            assertLine(BorderStyle.HAIR, new ThemedColor(2, -250), group.getBorderTop(), group.getTopBorderXSSFColor());
+            assertLine(BorderStyle.HAIR, TEXT, group.getBorderTop(), group.getTopBorderXSSFColor());
             assertEquals(BorderStyle.NONE, styleAt(workbook, RATE_ROW + 4, 3).getBorderTop(), "No line inside it");
             var closing = styleAt(workbook, RATE_ROW + 5, 1);
-            assertLine(BorderStyle.THIN, DK2, closing.getBorderBottom(), closing.getBottomBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, closing.getBorderBottom(), closing.getBottomBorderXSSFColor());
             assertEquals(BorderStyle.NONE, closing.getBorderRight(), "No vertical lines");
 
             var result = styleAt(workbook, RETURN_STEP, ACTION);
-            assertLine(BorderStyle.THIN, ACCENT1, result.getBorderTop(), result.getTopBorderXSSFColor());
-            assertLine(BorderStyle.DOUBLE, ACCENT1, result.getBorderBottom(), result.getBottomBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, result.getBorderTop(), result.getTopBorderXSSFColor());
+            assertLine(BorderStyle.DOUBLE, TEXT, result.getBorderBottom(), result.getBottomBorderXSSFColor());
             var section = styleAt(workbook, SUBROUTINE_STEP, ACTION);
-            assertLine(BorderStyle.THIN, new ThemedColor(2, -250), section.getBorderBottom(),
-                    section.getBottomBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, section.getBorderTop(),
+                    section.getTopBorderXSSFColor());
+            assertEquals(BorderStyle.NONE, section.getBorderBottom());
+            assertEquals(HorizontalAlignment.CENTER, section.getAlignment(), "A heading is centred");
             var last = styleAt(workbook, LAST_STEP, ACTION);
-            assertLine(BorderStyle.THIN, DK2, last.getBorderBottom(), last.getBottomBorderXSSFColor());
+            assertLine(BorderStyle.THIN, TEXT, last.getBorderBottom(), last.getBottomBorderXSSFColor());
         }
+    }
+
+    @Test
+    void drawsALineAboveTheFirstRowOfEachRegionOfTheTitlesOfWhatATableGives() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet(SHEET);
+            row(sheet, 0, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            row(sheet, 1, 0, "Plan", "Annual", "Monthly");
+            row(sheet, 2, 0, null, "Small", "Large");
+            row(sheet, 3, 0, "Basic", "1", "2");
+            var table = new GridRegion(0, 0, 3, 2);
+            // A lookup lays out a region for each row of its horizontal values: each row is set apart.
+            new ExcelTableFormatter().format(sheet, table, lookupRegions(List.of(
+                    new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 1, 1, 1, 2),
+                    new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 2, 1, 2, 2))));
+            for (var at = 1; at <= 2; at++) {
+                var title = styleAt(workbook, at, 2);
+                assertLine(BorderStyle.THIN, TEXT, title.getBorderTop(), title.getTopBorderXSSFColor());
+            }
+            assertEquals(BorderStyle.NONE, styleAt(workbook, 2, 0).getBorderTop(), "A title of what it takes");
+
+            // One region of titles over two rows, as a transposed table lays it out, has one line, above it.
+            new ExcelTableFormatter().format(sheet, table, lookupRegions(List.of(
+                    new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 1, 1, 2, 2))));
+            assertEquals(BorderStyle.NONE, styleAt(workbook, 2, 2).getBorderTop());
+        }
+    }
+
+    /** The regions of a lookup of two rows of horizontal values, which take the given titles. */
+    private static TableRegions lookupRegions(List<RawTableRegion> titles) {
+        var regions = new ArrayList<RawTableRegion>();
+        regions.add(new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 2));
+        regions.add(new RawTableRegion(RawTableRole.INPUT_TITLE, null, 1, 0, 2, 0));
+        regions.addAll(titles);
+        regions.add(new RawTableRegion(RawTableRole.VALUE, null, 3, 0, 3, 0));
+        regions.add(new RawTableRegion(RawTableRole.OUTPUT, null, 3, 1, 3, 2));
+        return new TableRegions(regions, RawTableGroups.NONE, List.of(), Map.of());
     }
 
     @Test

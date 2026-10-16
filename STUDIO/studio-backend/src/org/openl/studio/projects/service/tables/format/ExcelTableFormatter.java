@@ -31,10 +31,10 @@ import org.openl.studio.projects.service.tables.format.WorkbookStyles.Edges;
 /**
  * Writes the OpenL table style into the workbooks of tables.
  *
- * <p>Each cell of a table gets a cell format that links the built-in style of its role and draws the lines at the
- * edges of its region: a line above and below the signature, below the properties, below a section, above a group,
- * above and below the result, and below the body. What the cell had is kept: its number format, its indent, its text
- * wrapping and its text rotation. No value of a cell is changed.
+ * <p>Each cell of a table gets a cell format that links the built-in style of its role and draws the lines at the edges
+ * of its region: a line above and below the signature, the properties and the code, above the titles and a section,
+ * above a group, above and below the result, and below the body. What the cell had is kept: its number format, its
+ * indent, its text wrapping and its text rotation. No value of a cell is changed.
  *
  * <p>The signature is the only cell written as rich text, in its pieces: the name of the table bold, the names of the
  * parameters in the text colour, and the rest lighter. Rich text in any other cell is replaced by the same text in the
@@ -228,12 +228,10 @@ public final class ExcelTableFormatter {
             }
         }
 
-        /** The line above a cell of a region: the line of its role, or the line above a group. */
+        /** The line above a cell of a region: the line of its role on its first row, or the line above a group. */
         private static @Nullable Line topOf(TableStyle style, RawTableRegion region, int row, Set<Integer> groups) {
-            if (style == TableStyle.SIGNATURE || style == TableStyle.RESULT && row == region.top()) {
-                return style.getLook().top();
-            }
-            return groups.contains(row) ? Line.GROUP : null;
+            var above = row == region.top() ? style.getLook().top() : null;
+            return above == null && groups.contains(row) ? Line.GROUP : above;
         }
 
         /**
@@ -241,8 +239,8 @@ public final class ExcelTableFormatter {
          * the table.
          */
         private static @Nullable Line bottomOf(TableStyle style, RawTableRegion region, int row, int bottom) {
-            var below = style == TableStyle.SIGNATURE || row == region.bottom() ? style.lineBelow() : null;
-            return below == null && row == bottom ? Line.MAJOR : below;
+            var below = row == region.bottom() ? style.getLook().bottom() : null;
+            return below == null && row == bottom ? Line.ROLE : below;
         }
 
         /** The row of the sheet, created when it has none. */

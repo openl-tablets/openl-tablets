@@ -7,8 +7,6 @@ import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.jspecify.annotations.Nullable;
-
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.ITable;
@@ -18,7 +16,6 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.studio.projects.model.tables.RawTableRole;
-import org.openl.util.StringUtils;
 
 /**
  * Decides the role of each cell of the body of a Data, a Test or a Run table.
@@ -60,7 +57,17 @@ final class DataLayout {
      * @return the body, read the way the compiler reads it, and what each of its places is
      */
     static BodyLayout.Placed data(TableBody body) {
-        return layOut(body, false);
+        return layOut(body, false, keyColumns(body, false));
+    }
+
+    /**
+     * The places of the body of a Data table the compiler read none of, its keys as its text names them.
+     *
+     * @param body the body of the table
+     * @return the body, read the way its text tells, and what each of its places is
+     */
+    static BodyLayout.Placed guessedData(TableBody body) {
+        return layOut(body, false, guessedKeys(body.upright(), false));
     }
 
     /**
@@ -70,18 +77,26 @@ final class DataLayout {
      * @return the body, read the way the compiler reads it, and what each of its places is
      */
     static BodyLayout.Placed calls(TableBody body) {
-        return layOut(body, true);
+        return layOut(body, true, keyColumns(body, true));
+    }
+
+    /**
+     * The places of the body of a Test or a Run table the compiler read none of, its keys as its text names them.
+     *
+     * @param body the body of the table
+     * @return the body, read the way its text tells, and what each of its places is
+     */
+    static BodyLayout.Placed guessedCalls(TableBody body) {
+        return layOut(body, true, guessedKeys(body.upright(), true));
     }
 
     /**
      * The places of a body read the way the compiler reads it: a field in each column, and the values of one row in
      * each row.
      */
-    private static BodyLayout.Placed layOut(TableBody body, boolean calls) {
+    private static BodyLayout.Placed layOut(TableBody body, boolean calls, Set<Integer> keys) {
         var fields = body.upright();
-        var references = fields.getHeight() > REFERENCES && DataTableBindHelper.hasForeignKeysRow(fields);
-        var keys = body.guessed() ? guessedKeys(fields, calls, references) : keyColumns(body, calls);
-        var places = new Places(references ? REFERENCES + 1 : REFERENCES, keys,
+        var places = new Places(hasReferences(fields) ? REFERENCES + 1 : REFERENCES, keys,
                 calls ? resultColumns(fields) : Set.of());
         return new BodyLayout.Placed(fields, places);
     }
@@ -112,15 +127,20 @@ final class DataLayout {
      * first field of a Data table, unless it is {@code _PK_}, or the fields of a Test and a Run table that take their
      * values from a Data table by a {@code >} reference.
      */
-    private static Set<Integer> guessedKeys(ILogicalTable fields, boolean calls, boolean references) {
+    private static Set<Integer> guessedKeys(ILogicalTable fields, boolean calls) {
         if (calls) {
-            return references
-                    ? columns(fields, column -> StringUtils.trimToEmpty(textOf(fields, column, REFERENCES))
-                    .startsWith(">"))
+            return hasReferences(fields)
+                    ? columns(fields, column -> GuessedReads.textAt(fields, column, REFERENCES).startsWith(">"))
                     : Set.of();
         }
-        return fields.getWidth() > 0 && !DataTableBindHelper.FPK.equals(
-                StringUtils.trimToEmpty(textOf(fields, 0, FIELD_NAMES))) ? Set.of(0) : Set.of();
+        return fields.getWidth() > 0 && !DataTableBindHelper.FPK.equals(GuessedReads.textAt(fields, 0, FIELD_NAMES))
+                ? Set.of(0)
+                : Set.of();
+    }
+
+    /** Whether the body names the tables some fields take their values from, in the row under the field names. */
+    private static boolean hasReferences(ILogicalTable fields) {
+        return fields.getHeight() > REFERENCES && DataTableBindHelper.hasForeignKeysRow(fields);
     }
 
     /** The column a reference reads the rows of a Data table by, unless the table names it {@code _PK_}. */
@@ -143,7 +163,7 @@ final class DataLayout {
      */
     private static Set<Integer> resultColumns(ILogicalTable fields) {
         return columns(fields, column -> {
-            var field = StringUtils.trimToEmpty(textOf(fields, column, FIELD_NAMES));
+            var field = GuessedReads.textAt(fields, column, FIELD_NAMES);
             return field.startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)
                     || field.startsWith(TestMethodHelper.EXPECTED_ERROR);
         });
@@ -154,10 +174,6 @@ final class DataLayout {
                 .filter(taken)
                 .boxed()
                 .collect(Collectors.toUnmodifiableSet());
-    }
-
-    private static @Nullable String textOf(ILogicalTable fields, int column, int row) {
-        return fields.getCell(column, row).getStringValue();
     }
 
     /**

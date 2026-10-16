@@ -12,8 +12,8 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  * Decides the role of each cell of the body of a Datatype, a Vocabulary or a Constants table.
  *
  * <p>The header and the properties take the roles every kind gives them, see {@link TableRegionLayout}. The rows below
- * them take the role of their column: a type is code the compiler reads, a name is a key of the table, and every
- * other cell is a value. A Datatype that names its columns titles them on that row.
+ * them take the role of their column: a type is code the compiler reads, a name is what the table gives, a field or a
+ * constant, and every other cell is a value. A Datatype that names its columns titles them on that row.
  *
  * <p>The columns are the ones the compiler read. A Datatype names them on a row of titles, or keeps the type, the name
  * and the default value of a field in its first three columns when it names none. A Constants table is read by place
@@ -45,13 +45,6 @@ final class DatatypeLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed fields(TableBody body) {
-        if (body.guessed()) {
-            var upright = body.upright();
-            var order = DatatypeHelper.getColumnTitlesOrder(upright);
-            return new BodyLayout.Placed(upright, new Places(order.isEmpty() ? Set.of() : Set.of(0),
-                    Set.of(order.getOrDefault(DatatypeHelper.TYPE_COLUMN_TITLE, TYPE_COLUMN)),
-                    Set.of(order.getOrDefault(DatatypeHelper.NAME_COLUMN_TITLE, NAME_COLUMN))));
-        }
         if (!(body.compiled().node().getMetaInfoReader() instanceof DatatypeTableMetaInfoReader reader)) {
             return BodyLayout.Placed.plain(body);
         }
@@ -72,10 +65,6 @@ final class DatatypeLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed constants(TableBody body) {
-        if (body.guessed()) {
-            return new BodyLayout.Placed(body.upright(),
-                    new Places(Set.of(), Set.of(TYPE_COLUMN), Set.of(NAME_COLUMN)));
-        }
         if (!(body.compiled().node().getMetaInfoReader() instanceof ConstantsTableMetaInfoReader reader)) {
             return BodyLayout.Placed.plain(body);
         }
@@ -83,6 +72,32 @@ final class DatatypeLayout {
         return new BodyLayout.Placed(body.upright(), new Places(Set.of(),
                 body.columnsOf(compiled, TYPE_COLUMN),
                 body.columnsOf(compiled, NAME_COLUMN)));
+    }
+
+    /**
+     * The places of the body of a Datatype the compiler read none of: the columns its titles name, or else its first
+     * three columns.
+     *
+     * @param body the body of the table
+     * @return the body and the parts of each of its places
+     */
+    static BodyLayout.Placed guessedFields(TableBody body) {
+        var upright = body.upright();
+        var order = DatatypeHelper.getColumnTitlesOrder(upright);
+        return new BodyLayout.Placed(upright, new Places(order.isEmpty() ? Set.of() : Set.of(0),
+                Set.of(order.getOrDefault(DatatypeHelper.TYPE_COLUMN_TITLE, TYPE_COLUMN)),
+                Set.of(order.getOrDefault(DatatypeHelper.NAME_COLUMN_TITLE, NAME_COLUMN))));
+    }
+
+    /**
+     * The places of the body of a Constants table the compiler read none of: the type, the name and the value of each
+     * constant by place.
+     *
+     * @param body the body of the table
+     * @return the body and the parts of each of its places
+     */
+    static BodyLayout.Placed guessedConstants(TableBody body) {
+        return new BodyLayout.Placed(body.upright(), new Places(Set.of(), Set.of(TYPE_COLUMN), Set.of(NAME_COLUMN)));
     }
 
     /**
@@ -107,12 +122,13 @@ final class DatatypeLayout {
 
         private static final Place TITLES = Place.of(RawTableRole.INPUT_TITLE);
         private static final Place TYPE = Place.of(RawTableRole.CODE);
-        private static final Place NAME = Place.of(RawTableRole.KEY);
+        /** A name: what the table gives, a name rather than a value to type. */
+        private static final Place NAME = Place.of(RawTableRole.OUTPUT).untyped();
         private static final Place VALUES = Place.of(RawTableRole.VALUE);
 
         /**
          * What a place in the body is: a title of what the table takes, a type the compiler reads, the name of a
-         * field or a constant, which is a key of the table, or a value.
+         * field or a constant, or a value.
          */
         @Override
         public Place at(ICell cell, int column, int row) {

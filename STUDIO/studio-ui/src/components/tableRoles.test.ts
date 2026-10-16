@@ -5,9 +5,8 @@ import { cellRoleOf, onPaper, placeOf, regionAt, roleLinesOf, rolesOf, type Role
 const line = (color: string): RawTableCellBorderSide => ({ color, style: 'solid', width: 1 })
 
 const LINES: RoleLines = {
-    major: line('major'),
-    minor: line('minor'),
-    resultAbove: line('above'),
+    role: line('role'),
+    group: line('group'),
     resultBelow: { color: 'below', style: 'double', width: 3 },
 }
 
@@ -74,35 +73,65 @@ describe('tableRoles', () => {
         expect(tall.bottom).toBe(499)
     })
 
-    it('draws the header between two major lines and a minor line under the properties', () => {
+    it('draws the line of a role around the header and the properties, and above the titles', () => {
         const roles = spreadsheet!
         const linesAt = (address: string, rows = 1) =>
             roleLinesOf(roles, cellRoleOf(roles, address, undefined)!, { rows, columns: 1 }, LINES)
 
-        expect(linesAt('C3')).toEqual({ top: LINES.major, bottom: LINES.major })
-        // The properties take two rows: the line goes under the last of them.
-        expect(linesAt('C4')).toBeUndefined()
-        expect(linesAt('C5')).toEqual({ bottom: LINES.minor })
-        // A merged cell reaching the last row of the properties draws it too.
-        expect(linesAt('C4', 2)).toEqual({ bottom: LINES.minor })
+        expect(linesAt('C3')).toEqual({ top: LINES.role, bottom: LINES.role })
+        // The properties take two rows: the lines go above the first of them and below the last.
+        expect(linesAt('C4')).toEqual({ top: LINES.role })
+        expect(linesAt('C5')).toEqual({ bottom: LINES.role })
+        // A merged cell over both rows of the properties draws both.
+        expect(linesAt('C4', 2)).toEqual({ top: LINES.role, bottom: LINES.role })
+        expect(linesAt('C6')).toEqual({ top: LINES.role })
+    })
+
+    it('draws the line of a role above the first row of each region of the titles of what a table gives', () => {
+        // A lookup sends a region for each row of its horizontal values; a transposed test one for all its results.
+        const titles = (outputs: RawTableRegion[]) => rolesOf({
+            pos: 'B2:D5',
+            regions: [
+                { role: 'signature', top: 0, left: 0, bottom: 0, right: 2 },
+                { role: 'inputTitle', top: 1, left: 0, bottom: 2, right: 0 },
+                ...outputs,
+                { role: 'output', top: 3, left: 1, bottom: 3, right: 2 },
+                { role: 'value', top: 3, left: 0, bottom: 3, right: 0 },
+            ],
+            signature: [],
+        })!
+        const lookup = titles([
+            { role: 'outputTitle', top: 1, left: 1, bottom: 1, right: 2 },
+            { role: 'outputTitle', top: 2, left: 1, bottom: 2, right: 2 },
+        ])
+        const whole = titles([{ role: 'outputTitle', top: 1, left: 1, bottom: 2, right: 2 }])
+        const linesAt = (roles: typeof lookup, address: string, rows = 1) =>
+            roleLinesOf(roles, cellRoleOf(roles, address, undefined)!, { rows, columns: 1 }, LINES)
+
+        expect(linesAt(lookup, 'C3')).toEqual({ top: LINES.role })
+        expect(linesAt(lookup, 'C4')).toEqual({ top: LINES.role })
+        expect(linesAt(whole, 'C3')).toEqual({ top: LINES.role })
+        expect(linesAt(whole, 'C4')).toBeUndefined()
+        // The title of a condition merged down its rows has its line above it only.
+        expect(linesAt(lookup, 'B3', 2)).toEqual({ top: LINES.role })
     })
 
     it('draws the result between its own lines, the double one closing the table', () => {
         const roles = spreadsheet!
 
         expect(roleLinesOf(roles, cellRoleOf(roles, 'D8', undefined)!, { rows: 1, columns: 1 }, LINES))
-            .toEqual({ top: LINES.resultAbove, bottom: LINES.resultBelow, left: LINES.minor })
+            .toEqual({ top: LINES.role, bottom: LINES.resultBelow, left: LINES.group })
     })
 
-    it('draws a minor line above the first row of a group and left of the first column of one', () => {
+    it('draws a group line above the first row of a group and left of the first column of one', () => {
         const roles = spreadsheet!
 
         // The key of the last step starts a group of rows, and lies on the last row of the table.
         expect(roleLinesOf(roles, cellRoleOf(roles, 'C8', undefined)!, { rows: 1, columns: 1 }, LINES))
-            .toEqual({ top: LINES.minor, bottom: LINES.major })
+            .toEqual({ top: LINES.group, bottom: LINES.role })
         // The value of the first step starts a group of columns.
         expect(roleLinesOf(roles, cellRoleOf(roles, 'D7', undefined)!, { rows: 1, columns: 1 }, LINES))
-            .toEqual({ left: LINES.minor })
+            .toEqual({ left: LINES.group })
         expect(roleLinesOf(roles, cellRoleOf(roles, 'C7', undefined)!, { rows: 1, columns: 1 }, LINES))
             .toBeUndefined()
     })

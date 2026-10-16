@@ -3,14 +3,20 @@ package org.openl.studio.projects.service.tables.format;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.datatype.binding.DatatypeHelper;
 import org.openl.rules.dt.DecisionTableColumnHeaders;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.studio.projects.model.tables.RawTableSignaturePart;
 import org.openl.util.StringUtils;
@@ -42,10 +48,19 @@ final class GuessedReads {
     private static final Pattern TYPE = Pattern.compile("[\\p{L}_$][\\w$.]*+(<[^>]*+>)?+(\\s*+\\[\\s*+])*+",
             Pattern.UNICODE_CHARACTER_CLASS);
 
+    /** The primitive types, the only types whose names start with a lower-case letter. */
+    private static final Set<String> PRIMITIVES = Set.of("boolean", "byte", "char", "short", "int", "long", "float",
+            "double");
+
     /** The kind of a column of a Rules table, such as {@code C1}, {@code HC2}, {@code RET1} or {@code RULE}. */
     private static final Pattern COLUMN_KIND = Pattern.compile("(?i)(" + String.join("|",
             Arrays.stream(DecisionTableColumnHeaders.values()).map(DecisionTableColumnHeaders::getHeaderKey).toList())
             + ")\\d*");
+
+    /** The kinds of the columns of a Rules table, by the key a text names them with. */
+    private static final Map<String, DecisionTableColumnHeaders> COLUMN_KINDS = Arrays
+            .stream(DecisionTableColumnHeaders.values())
+            .collect(Collectors.toUnmodifiableMap(DecisionTableColumnHeaders::getHeaderKey, Function.identity()));
 
     private GuessedReads() {
     }
@@ -91,24 +106,19 @@ final class GuessedReads {
      * @return {@code true} for a table written with a rule in each column
      */
     static boolean kindsTurned(ILogicalTable body) {
-        return !anyOf(body, GuessedReads::isColumnKind) && anyOf(body.transpose(), GuessedReads::isColumnKind);
+        Predicate<String> isKind = text -> columnKindOf(text) != null;
+        return !anyOf(body, isKind) && anyOf(body.transpose(), isKind);
     }
 
-    /** Whether a text names the kind of a column of a Rules table, such as {@code C1} or {@code RET1}. */
-    static boolean isColumnKind(@Nullable String text) {
-        return text != null && COLUMN_KIND.matcher(text.trim()).matches();
-    }
-
-    /** The kind of a column of a Rules table its text names, or {@code null} for a text naming none. */
+    /**
+     * The kind of a column of a Rules table its text names, such as {@code C1} or {@code RET1}, in any case.
+     *
+     * @param text the text of a cell
+     * @return the kind, or {@code null} for a text naming none
+     */
     static @Nullable DecisionTableColumnHeaders columnKindOf(@Nullable String text) {
-        if (!isColumnKind(text)) {
-            return null;
-        }
-        var kind = text.trim().replaceAll("\\d+$", "").toUpperCase(Locale.ROOT);
-        return Arrays.stream(DecisionTableColumnHeaders.values())
-                .filter(header -> header.getHeaderKey().equals(kind))
-                .findFirst()
-                .orElse(null);
+        var kind = text == null ? null : COLUMN_KIND.matcher(text.trim());
+        return kind != null && kind.matches() ? COLUMN_KINDS.get(kind.group(1).toUpperCase(Locale.ROOT)) : null;
     }
 
     /**
@@ -154,6 +164,11 @@ final class GuessedReads {
                 .count();
     }
 
+    /** The text of the header of a table, or an empty text for a header that holds none. */
+    static String headerOf(TableSyntaxNode node) {
+        return Objects.requireNonNullElse(node.getGridTable().getCell(0, 0).getStringValue(), "");
+    }
+
     /** The text of a cell of a body, trimmed, or an empty text for a blank cell. */
     static String textAt(ILogicalTable body, int column, int row) {
         return StringUtils.trimToEmpty(body.getCell(column, row).getStringValue());
@@ -164,9 +179,14 @@ final class GuessedReads {
         return FIELD.matcher(text).matches();
     }
 
-    /** Whether a text names a type: a name starting with a capital. */
+    /** Whether a text names a type: a name starting with a capital, or a primitive type, an array of it included. */
     static boolean isType(String text) {
-        return TYPE.matcher(text).matches() && Character.isUpperCase(text.charAt(0));
+        if (!TYPE.matcher(text).matches()) {
+            return false;
+        }
+        var bracket = text.indexOf('[');
+        var name = (bracket < 0 ? text : text.substring(0, bracket)).trim();
+        return Character.isUpperCase(text.charAt(0)) || PRIMITIVES.contains(name);
     }
 
     /** Whether every cell of the first row of a body that holds text holds a text the test accepts. */

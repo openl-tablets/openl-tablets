@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.model.tables.RawTableRole.INPUT_TITLE;
-import static org.openl.studio.projects.model.tables.RawTableRole.KEY;
 import static org.openl.studio.projects.model.tables.RawTableRole.OUTPUT;
 import static org.openl.studio.projects.model.tables.RawTableRole.OUTPUT_TITLE;
 import static org.openl.studio.projects.model.tables.RawTableRole.PROPERTIES;
 import static org.openl.studio.projects.model.tables.RawTableRole.RESULT;
 import static org.openl.studio.projects.model.tables.RawTableRole.SECTION;
 import static org.openl.studio.projects.model.tables.RawTableRole.SIGNATURE;
+import static org.openl.studio.projects.model.tables.RawTableRole.VALUE;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -73,7 +73,7 @@ class SpreadsheetRolesTest {
         assertEquals(PROPERTIES, roles.roleAt(RETURNED_STEP + 1, 3));
         assertEquals(INPUT_TITLE, roles.roleAt(RETURNED_STEP + 2, 1), "The title of the column of steps");
         assertEquals(OUTPUT_TITLE, roles.roleAt(RETURNED_STEP + 2, 2), "A title of a column");
-        assertEquals(KEY, roles.roleAt(RETURNED_STEP + 3, 1), "The name of a step");
+        assertEquals(VALUE, roles.roleAt(RETURNED_STEP + 3, 1), "The name of a step");
         assertEquals(OUTPUT, roles.roleAt(RETURNED_STEP + 3, 2));
         assertEquals(SECTION, roles.roleAt(RETURNED_STEP + 4, 1), "A step merged across its row heads a section");
         assertEquals(SECTION, roles.roleAt(RETURNED_STEP + 4, 3));
@@ -90,7 +90,7 @@ class SpreadsheetRolesTest {
 
         assertEquals(OUTPUT_TITLE, roles.roleAt(RETURNED_COLUMN + 1, 2));
         assertEquals(RESULT, roles.roleAt(RETURNED_COLUMN + 1, 3), "The title of the column returned");
-        assertEquals(KEY, roles.roleAt(RETURNED_COLUMN + 2, 1), "A step name is no part of the column");
+        assertEquals(VALUE, roles.roleAt(RETURNED_COLUMN + 2, 1), "A step name is no part of the column");
         assertEquals(OUTPUT, roles.roleAt(RETURNED_COLUMN + 3, 2));
         assertEquals(RESULT, roles.roleAt(RETURNED_COLUMN + 3, 3));
     }
@@ -99,7 +99,7 @@ class SpreadsheetRolesTest {
     void returnsTheLastStepOfASingleValueNamingNoReturn() {
         var roles = rolesAt(LAST_STEP);
 
-        assertEquals(KEY, roles.roleAt(LAST_STEP + 2, 1));
+        assertEquals(VALUE, roles.roleAt(LAST_STEP + 2, 1));
         assertEquals(OUTPUT, roles.roleAt(LAST_STEP + 2, 2));
         assertEquals(RESULT, roles.roleAt(LAST_STEP + 3, 1));
         assertEquals(RESULT, roles.roleAt(LAST_STEP + 3, 2));
@@ -110,7 +110,7 @@ class SpreadsheetRolesTest {
         var roles = rolesAt(MARKED_STEPS);
 
         assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_STEPS + 1, 2), "No column is marked");
-        assertEquals(KEY, roles.roleAt(MARKED_STEPS + 2, 1));
+        assertEquals(VALUE, roles.roleAt(MARKED_STEPS + 2, 1));
         assertEquals(RESULT, roles.roleAt(MARKED_STEPS + 3, 1));
         assertEquals(RESULT, roles.roleAt(MARKED_STEPS + 4, 2));
         assertEquals(OUTPUT, roles.roleAt(MARKED_STEPS + 5, 2));
@@ -127,7 +127,7 @@ class SpreadsheetRolesTest {
 
         assertEquals(OUTPUT_TITLE, roles.roleAt(MARKED_COLUMN + 1, 2));
         assertEquals(RESULT, roles.roleAt(MARKED_COLUMN + 1, 3), "The title of the column marked");
-        assertEquals(KEY, roles.roleAt(MARKED_COLUMN + 2, 1), "No step is marked");
+        assertEquals(VALUE, roles.roleAt(MARKED_COLUMN + 2, 1), "No step is marked");
         assertEquals(OUTPUT, roles.roleAt(MARKED_COLUMN + 2, 2));
         assertEquals(RESULT, roles.roleAt(MARKED_COLUMN + 2, 3));
         assertEquals(RESULT, roles.roleAt(MARKED_COLUMN + 3, 3));
@@ -148,8 +148,8 @@ class SpreadsheetRolesTest {
     void returnsNoCellOfASpreadsheetResultMarkingNothing() {
         var roles = rolesAt(NOTHING_MARKED);
 
-        assertEquals(KEY, roles.roleAt(NOTHING_MARKED + 2, 1));
-        assertEquals(KEY, roles.roleAt(NOTHING_MARKED + 3, 1), "A step left out with ~ reads as any step");
+        assertEquals(VALUE, roles.roleAt(NOTHING_MARKED + 2, 1));
+        assertEquals(VALUE, roles.roleAt(NOTHING_MARKED + 3, 1), "A step left out with ~ reads as any step");
         assertEquals(OUTPUT, roles.roleAt(NOTHING_MARKED + 4, 2));
         assertTrue(roles.regions().regions().stream().noneMatch(region -> region.role() == RESULT));
     }

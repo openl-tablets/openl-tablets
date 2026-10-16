@@ -145,12 +145,16 @@ const cellStyle = (style: RawTableCell['style'], border: RawTableCellBorder | un
 }
 
 /**
- * How a cell of the Studio look lines up across its width: a title in the middle, a number or a date on the right as
- * Excel lines up a value by its type, and everything else on the left.
+ * How a cell of the Studio look lines up across its width: a title and a heading in the middle, a number or a date on
+ * the right as Excel lines up a value by its type, and everything else on the left. An indented cell stays on the
+ * side of its indent whatever its role, as the formatter writes it: its indent carries the structure of the table.
  */
-const roleAlignOf = (role: CellRole | undefined): React.CSSProperties['textAlign'] => {
+const roleAlignOf = (role: CellRole | undefined, style: RawTableCell['style']): React.CSSProperties['textAlign'] => {
+    if (style?.indent) {
+        return undefined
+    }
     const name = role?.region.role
-    if (name === 'inputTitle' || name === 'outputTitle') {
+    if (name === 'inputTitle' || name === 'outputTitle' || name === 'section') {
         return 'center'
     }
     const valued = name === 'value' || name === 'output' || name === 'result'
@@ -164,7 +168,7 @@ const roleAlignOf = (role: CellRole | undefined): React.CSSProperties['textAlign
  */
 const studioCellStyle = (role: CellRole | undefined, style: RawTableCell['style'], border: RawTableCellBorder | undefined,
     muted: boolean, ink: string): React.CSSProperties => ({
-    textAlign: roleAlignOf(role),
+    textAlign: roleAlignOf(role, style),
     ...indentOf(style),
     ...borders(border, muted, ink),
 })
@@ -362,7 +366,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const studio = !onPaper(roles, excelFormatting)
     const {
         colorBgContainer, colorText, colorFillTertiary, colorLink, colorLinkHover, colorError, colorTextSecondary,
-        colorBorder, colorBorderSecondary, colorPrimary,
+        colorBorder, colorPrimary, colorTextBase,
     } = token
     // The paper and the lines of the theme, worked out again only when a colour of them changes.
     const look = React.useMemo(() => ({
@@ -370,13 +374,13 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             colorError }),
         faint: roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary }).faint,
         lines: {
-            major: { color: colorBorder, style: 'solid', width: 1 },
-            minor: { color: colorBorderSecondary, style: 'solid', width: 1 },
-            resultAbove: { color: colorPrimary, style: 'solid', width: 1 },
-            resultBelow: { color: colorPrimary, style: 'double', width: 3 },
+            // Every line in the base text colour, so the parts of a table stand apart at a glance.
+            role: { color: colorTextBase, style: 'solid', width: 1 },
+            group: { color: colorTextBase, style: 'solid', width: 1 },
+            resultBelow: { color: colorTextBase, style: 'double', width: 3 },
         } satisfies RoleLines,
-    }), [colorBgContainer, colorBorder, colorBorderSecondary, colorError, colorFillTertiary, colorLink, colorLinkHover,
-        colorPrimary, colorText, colorTextSecondary])
+    }), [colorBgContainer, colorBorder, colorError, colorFillTertiary, colorLink, colorLinkHover,
+        colorPrimary, colorText, colorTextBase, colorTextSecondary])
     const laidOn = studio ? look.paper : workbookPaper()
     const { styles, cx } = useStyles(laidOn)
     // What each cell is in the Studio look, found by its address in the table.

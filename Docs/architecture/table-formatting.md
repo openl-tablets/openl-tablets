@@ -44,11 +44,11 @@ flowchart TB
     S --> P --> H --> B
 ```
 
-- **Signature** — a line above and a line below. The table name is bold and the parameter names are in the text
-  colour. The keyword, the types and the punctuation are grey.
-- **Properties** — grey, with a line below.
-- **Headers** — titles in the heading font. Titles of what the table takes are told apart from titles of what it
-  gives.
+- **Signature** — a line above and below. The table name is bold and the parameter names are in the text colour. The
+  keyword, the types and the punctuation are grey.
+- **Properties** — grey, with a line above and below.
+- **Headers** — titles in the heading font, the code with a line above and below, the titles with a line above.
+  Titles of what the table takes are told apart from titles of what it gives.
 - **Body** — a line below closes the table.
 
 ### Roles
@@ -62,16 +62,16 @@ compiled table.
 | `properties` | Properties | A table property, name and value | `effectiveDate`, `lob` |
 | `code` | Headers | A technical declaration the compiler reads | `C1`, `RET1`, `age >= min`, `policyNumber`, `>Policies` |
 | `inputTitle` | Headers | A title of what the table takes | **Driver Age**, **Step** |
-| `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title |
-| `key` | Body | What names a row or a column | a Data ID, a rule name, a step name, a field name |
-| `value` | Body | A value the table takes or holds | a condition value, a data value, a TBasic action |
-| `output` | Body | A value the table gives | a returned value, an expected result |
+| `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title, a horizontal value of a lookup |
+| `key` | Body | What names a row or a column | a Data ID, a rule name |
+| `value` | Body | A value the table takes or holds | a condition value, a data value, a TBasic action, a Spreadsheet step name |
+| `output` | Body | A value the table gives | a returned value, an expected result, a Datatype field or a constant name |
 | `section` | Body | A heading inside the body | a merged Spreadsheet row, a TBasic `SUB` |
 | `result` | Body | What the table returns | the `RETURN` step, the steps marked `*` of a Spreadsheet |
 
 One modifier draws a separator inside the body:
 
-- **`group`** — a minor line above the first line of a group. A group is the rules that share a merged condition
+- **`group`** — a line above the first line of a group. A group is the rules that share a merged condition
   value, or the conditions of a ColumnMatch table indented under one name. Merged decision tables are hard to read
   without it.
 
@@ -103,9 +103,9 @@ A Spreadsheet table reads differently, because its structure is steps × columns
 |---|---|---|
 | 1 | `Spreadsheet Double Calc(Policy p)` · `signature` | |
 | 2 | **Step** · `inputTitle` | **Value** · `outputTitle` |
-| 3 | `Base Rate` · `key` | `= p.rate` · `output`, type `code` |
+| 3 | `Base Rate` · `value` | `= p.rate` · `output`, type `code` |
 | 4 | **Adjustments** · `section`, merged over A–B | |
-| 5 | `Age Factor` · `key` | `= AgeFactor(p.age)` · `output`, type `code` |
+| 5 | `Age Factor` · `value` | `= AgeFactor(p.age)` · `output`, type `code` |
 | 6 | `RETURN` · `result` | `= $Value$BaseRate * $Value$AgeFactor` · `result`, type `code` |
 
 Which steps of a Spreadsheet take `result` depends on what it returns. The compiler decides it, and the layout
@@ -125,10 +125,10 @@ For example, a Spreadsheet returning two of its steps:
 |---|---|---|
 | 1 | `Spreadsheet SpreadsheetResult Quote(Policy p)` · `signature` | |
 | 2 | **Step** · `inputTitle` | **Value** · `outputTitle` |
-| 3 | `Base Rate` · `key` | `= p.rate` · `output`, type `code` |
+| 3 | `Base Rate` · `value` | `= p.rate` · `output`, type `code` |
 | 4 | `Premium*` · `result` | `= $BaseRate * p.factor` · `result`, type `code` |
 | 5 | `Tax*` · `result` | `= $Premium * 0.05` · `result`, type `code` |
-| 6 | `Audit Note` · `key` | `= "checked"` · `output`, type `code` |
+| 6 | `Audit Note` · `value` | `= "checked"` · `output`, type `code` |
 
 Rows 4 and 5 are adjacent, so they are one `result` region: one line above row 4 and one double line below row 5.
 Marked steps apart from each other make regions of their own.
@@ -138,12 +138,12 @@ with its lines of data. The table below lists the remaining roles per type.
 
 | Table type | `code` | `inputTitle` | `outputTitle` | `key` | `value` | `output` | `section`, `result` |
 |---|---|---|---|---|---|---|---|
-| Datatype | type column | title row | — | field names | defaults, other columns | — | — |
+| Datatype | type column | title row | — | — | defaults, other columns | field names | — |
 | Vocabulary | — | — | — | — | values | — | — |
-| Spreadsheet | — | step column title | column titles | step names | — | cells | merged step rows; the returned step, or the steps and columns marked `*` |
+| Spreadsheet | — | step column title | column titles | — | step names | cells | merged step rows; the returned step, or the steps and columns marked `*` |
 | Rules | `C`/`RET` row, expressions, parameters | condition titles | return and action titles | `RULE` column | condition values | return values | — |
 | SimpleRules, SmartRules | — | condition titles | return titles | rule names | condition values | return values | — |
-| SimpleLookup, SmartLookup | — | vertical titles, horizontal values | return title | — | vertical values | the return grid | — |
+| SimpleLookup, SmartLookup | — | vertical titles in the corner | horizontal values | — | vertical values | the return grid | — |
 | Data | field row, `>` reference row | titles | — | IDs (not `_PK_`) | values | — | — |
 | Test | field row, `>` reference row | input titles | `_res_`, `_error_` titles | reference IDs | input values | expected results | — |
 | Run | field row, `>` reference row | input titles | — | reference IDs | input values | — | — |
@@ -153,7 +153,7 @@ with its lines of data. The table below lists the remaining roles per type.
 | Conditions | inputs, expression, parameters | titles | — | part names | — | — | — |
 | Actions, Returns | inputs, expression, parameters | — | titles | part names | — | — | — |
 | Environment, Properties | — | — | — | setting names | values | — | — |
-| Constants | type column | — | — | names | values | — | — |
+| Constants | type column | — | — | — | values | names | — |
 
 The following tables are not formatted and are drawn as their Excel file draws them:
 
@@ -233,18 +233,19 @@ look of its role: theme colours and theme fonts only. No custom cell style is cr
 
 | Role | Excel cell style | `builtinId` | Font size | Look |
 |---|---|---|---|---|
-| `signature` | Title | 15 | Normal (Office: 18) | `majorFont`, `dk1`; text in pieces (below); major lines above and below |
-| `properties` | Explanatory Text | 53 | Normal (Office: 11) | italic, `dk1` lighter 50% |
-| `code` | Calculation | 22 | Normal (Office: 11) | `dk1` lighter 50% |
-| `inputTitle` | Heading 3 | 18 | Normal (Office: 11) | `majorFont`, bold, centred; fill `lt2` |
-| `outputTitle` | 40% - Accent1 | 31 | Normal (Office: 11) | `majorFont`, bold, centred; fill `accent1` lighter 60% |
+| `signature` | Title | 15 | Normal (Office: 18) | `majorFont`, `dk1`; text in pieces (below); lines above and below |
+| `properties` | Explanatory Text | 53 | Normal (Office: 11) | italic, `dk1` lighter 50%; lines above and below |
+| `code` | Calculation | 22 | Normal (Office: 11) | `dk1` lighter 50%; lines above and below |
+| `inputTitle`, `section` | Heading 3 | 18 | Normal (Office: 11) | `majorFont`, bold, centred; fill `lt2`; line above |
+| `outputTitle` | Heading 2 | 17 | Normal (Office: 13) | `majorFont`, bold, centred; fill `accent1` lighter 60%; line above |
 | `key` | Heading 4 | 19 | Normal (Office: 11) | bold, `dk1` |
 | `value` | Input | 20 | Normal (Office: 11) | `minorFont`, `dk1`, no fill |
 | `output` | Output | 21 | Normal (Office: 11) | `minorFont`, `dk1`; fill `accent1` lighter 80% |
-| `section` | Heading 2 | 17 | Normal (Office: 13) | `majorFont`, bold; fill `lt2`; minor line below |
-| `result` | Total | 25 | Normal (Office: 11) | bold; a thin `accent1` line above, a double `accent1` line below |
+| `result` | Total | 25 | Normal (Office: 11) | bold; a thin line above, a double line below |
 
-The formatter owns these ten styles in a workbook it formats. It writes their definitions each time it formats, so
+A heading inside the body looks like a title of what the table takes, so the two roles share **Heading 3**.
+
+The formatter owns these nine styles in a workbook it formats. It writes their definitions each time it formats, so
 an edit of them in Excel is replaced, including on cells outside OpenL tables that use them. The **Normal** style is
 never changed.
 
@@ -260,23 +261,31 @@ kept from the cell.
 
 Lines:
 
-- **Major line** — thin, `dk2`. It is drawn above and below the signature and below the body.
-- **Minor line** — thin, `lt2` darker by 25%. It is drawn below the properties, below a section, and above a
-  group, as a hair line.
+Every line is drawn in `dk1`, the text colour of the theme:
 
-The lines of a one-row role — the signature, a section — belong to its style. The line below the properties, the
-line closing the body, the line above a group and the lines of a `result` region sit at the edge of a region, so
-the cell's own format draws them. A `result` region of several rows has its two lines once, at its top and bottom;
-**Total** keeps its lines in its definition, so a single row a user marks with it in Excel looks the same.
+- **Role line** — thin. It is drawn above and below the signature, the properties and the code, above the titles
+  and a section, and below the body.
+- **Group line** — hair. It is drawn above a group.
+- **Result lines** — thin above the result, double below it.
+
+A line sits on the top edge of the region that it sets apart from what stands above it, never on the bottom edge of the
+region above: the signature, the properties, the code, the titles and a section each draw theirs on the first row of
+their region. The parts of the header — the signature, the properties and the code — also close their region with a line
+on its last row, so each is framed above and below; the titles have only their line above. A lookup lays out each row of
+its horizontal values as an `outputTitle` region of its own, so each row is set apart; any other region of titles, such
+as the titles of a transposed table, has one line above it. The cell's own format draws these lines, the line closing
+the body, the line above a group and the lines of a `result` region. A `result` region of several rows has its two lines
+once, at its top and bottom; **Total** keeps its lines in its definition, so a single row a user marks with it in Excel
+looks the same.
 
 There are no vertical lines. Headers and body are told apart by fill, so a transposed table needs no rotated
 lines.
 
 Alignment:
 
-- Titles are centred.
+- Titles and sections are centred.
 - Values take the **General** alignment, so Excel aligns numbers right and text left by their type.
-- The signature, keys and sections are aligned left.
+- The signature and keys are aligned left.
 - An indented cell is aligned left, whatever its role: Excel shows an indent only in a text aligned left.
 - Every cell is centred vertically, so a merged condition value reads against its whole group.
 
@@ -364,13 +373,16 @@ their own:
 
 | Role | Token |
 |---|---|
-| `signature` | `colorText`; grey pieces `colorTextSecondary`; major lines `colorBorder` |
-| `properties`, `code` | `colorTextSecondary`; minor line `colorBorderSecondary` |
-| `inputTitle`, `section` | fill `colorFillTertiary`, weight 600 |
+| `signature` | `colorText`; grey pieces `colorTextSecondary` |
+| `properties`, `code` | `colorTextSecondary` |
+| `inputTitle`, `section` | fill `colorFillTertiary`, weight 600, centred (an indented `section` cell on the left) |
 | `outputTitle` | fill `colorPrimary` at 12% over `colorBgContainer`, weight 600 |
 | `output` | fill `colorPrimary` at 6% over `colorBgContainer` |
 | `key` | weight 600 |
-| `result` | weight 600; lines `colorPrimary` |
+| `result` | weight 600 |
+
+Every line the look draws — of the roles, of the result and above a group — is `colorTextBase`, so the parts of a
+table stand apart at a glance. The lines sit where the Excel style draws them.
 
 The text of every role reads on its fill in every theme, light and dark, as the text of the application does on its
 surfaces: 4.5:1, and 3:1 for the grey pieces, as for the secondary text. The tertiary text, the secondary fill and the
@@ -658,7 +670,7 @@ flowchart LR
   invalidates the cache. Every page of a large table reuses one layout.
 - **`TableStyle`** — the role looks, in code: a Java enum with each role's built-in style, font scheme, fill,
   lines and alignment. With one style there is nothing to configure, so there is no style file.
-- **`ExcelTableFormatter`** — writes `TableRegions` into a workbook: it writes the ten built-in styles, indexes and
+- **`ExcelTableFormatter`** — writes `TableRegions` into a workbook: it writes the nine built-in styles, indexes and
   reuses cell formats, and writes the signature pieces.
 - **`RegionShift`** — moves the regions of the last compile along the lines a save inserts and removes, and names
   the lines it touched.

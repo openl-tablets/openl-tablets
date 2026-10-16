@@ -43,13 +43,13 @@ class TableRegionLayoutTest {
         assertEquals(List.of(
                 new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 2),
                 new RawTableRegion(RawTableRole.CODE, null, 1, 0, 3, 0),
-                new RawTableRegion(RawTableRole.KEY, null, 1, 1, 3, 1),
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 3, 1),
                 new RawTableRegion(RawTableRole.VALUE, RawTableValueType.STRING, 1, 2, 3, 2)), regions.regions());
         assertEquals(RawTableGroups.NONE, regions.groups());
         // A hundred times the fields: the same regions, only taller.
         var large = regionsOf(person(300)).regions();
         assertEquals(regions.regions().size(), large.size());
-        assertEquals(new RawTableRegion(RawTableRole.KEY, null, 1, 1, 300, 1), large.get(2));
+        assertEquals(new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 300, 1), large.get(2));
     }
 
     @Test

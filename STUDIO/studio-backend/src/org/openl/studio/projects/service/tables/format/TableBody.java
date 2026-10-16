@@ -17,14 +17,11 @@ import org.openl.rules.table.ILogicalTable;
  * @param transposed whether the compiler read the table with its rows and columns swapped, or, for a table it read
  *                   none of, whether its text tells it is written so
  * @param compiled   the table as it was compiled
- * @param guessed    whether the compiler read none of the table, so its parts are found from its text, see
- *                   {@link GuessedReads}
  */
 @Builder
 record TableBody(ILogicalTable rows,
                   boolean transposed,
-                  CompiledTable compiled,
-                  boolean guessed) {
+                  CompiledTable compiled) {
 
     /** No column or row of the body. */
     static final int NONE = -1;

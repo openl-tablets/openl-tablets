@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.format;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -15,12 +16,14 @@ import org.openl.studio.projects.model.tables.RawTableRole;
 /**
  * The OpenL table style: the look of each role of a table, written into a workbook as an Excel built-in cell style.
  *
- * <p>Each role is a built-in style of the Cell Styles gallery of Excel, so a selected cell shows its meaning there. The
- * look holds only what the theme of the workbook offers: its fonts, its fill colours and its text colours. Changing
- * the theme of the workbook in Excel changes the look of its tables.
+ * <p>Each role is a built-in style of the Cell Styles gallery of Excel, so a selected cell shows its meaning there. A
+ * heading inside the body looks like a title of what the table takes and shares its style. The look holds only what
+ * the theme of the workbook offers: its fonts, its fill colours and its text colours. Changing the theme of the
+ * workbook in Excel changes the look of its tables.
  *
  * <p>Every role takes the font size of the Normal style of the workbook and is centred vertically. The lines of a
- * one-row role, the signature and a section, belong to its style, and so do the lines of the result.
+ * region belong to the style of its role: above and below the signature, the properties and the code, above the
+ * titles and a section, and the lines of the result above and below it. Every line is drawn in {@code dk1}.
  *
  * @author Yury Molchan
  */
@@ -31,42 +34,43 @@ enum TableStyle {
     SIGNATURE(RawTableRole.SIGNATURE, "Title", 15, Look.BASE.toBuilder()
             .major(true)
             .align(HorizontalAlignment.LEFT)
-            .top(Line.MAJOR)
-            .bottom(Line.MAJOR)),
+            .top(Line.ROLE)
+            .bottom(Line.ROLE)),
     PROPERTIES(RawTableRole.PROPERTIES, "Explanatory Text", 53, Look.BASE.toBuilder()
             .italic(true)
-            .colour(Look.MUTED)),
+            .colour(Look.MUTED)
+            .top(Line.ROLE)
+            .bottom(Line.ROLE)),
     CODE(RawTableRole.CODE, "Calculation", 22, Look.BASE.toBuilder()
-            .colour(Look.MUTED)),
-    INPUT_TITLE(RawTableRole.INPUT_TITLE, "Heading 3", 18, Look.BASE.toBuilder()
+            .colour(Look.MUTED)
+            .top(Line.ROLE)
+            .bottom(Line.ROLE)),
+    /** The titles of what a table takes, and the headings inside its body, which look alike. */
+    INPUT_TITLE(Set.of(RawTableRole.INPUT_TITLE, RawTableRole.SECTION), "Heading 3", 18, Look.BASE.toBuilder()
             .major(true)
             .bold(true)
             .align(HorizontalAlignment.CENTER)
-            .fill(ThemeSlot.LT2.tinted(0))),
-    OUTPUT_TITLE(RawTableRole.OUTPUT_TITLE, "40% - Accent1", 31, Look.BASE.toBuilder()
+            .fill(ThemeSlot.LT2.tinted(0))
+            .top(Line.ROLE)),
+    OUTPUT_TITLE(RawTableRole.OUTPUT_TITLE, "Heading 2", 17, Look.BASE.toBuilder()
             .major(true)
             .bold(true)
             .align(HorizontalAlignment.CENTER)
-            .fill(ThemeSlot.ACCENT1.tinted(600))),
+            .fill(ThemeSlot.ACCENT1.tinted(600))
+            .top(Line.ROLE)),
     KEY(RawTableRole.KEY, "Heading 4", 19, Look.BASE.toBuilder()
             .bold(true)
             .align(HorizontalAlignment.LEFT)),
     VALUE(RawTableRole.VALUE, "Input", 20, Look.BASE.toBuilder()),
     OUTPUT(RawTableRole.OUTPUT, "Output", 21, Look.BASE.toBuilder()
             .fill(ThemeSlot.ACCENT1.tinted(800))),
-    SECTION(RawTableRole.SECTION, "Heading 2", 17, Look.BASE.toBuilder()
-            .major(true)
-            .bold(true)
-            .align(HorizontalAlignment.LEFT)
-            .fill(ThemeSlot.LT2.tinted(0))
-            .bottom(Line.MINOR)),
     RESULT(RawTableRole.RESULT, "Total", 25, Look.BASE.toBuilder()
             .bold(true)
-            .top(Line.RESULT_ABOVE)
+            .top(Line.ROLE)
             .bottom(Line.RESULT_BELOW));
 
-    /** The role the style is the look of. */
-    private final RawTableRole role;
+    /** The roles the style is the look of. */
+    private final Set<RawTableRole> roles;
 
     /** The name of the built-in style, as Excel names it. */
     private final String styleName;
@@ -78,21 +82,16 @@ enum TableStyle {
     private final Look look;
 
     TableStyle(RawTableRole role, String styleName, int builtinId, Look.LookBuilder look) {
-        this(role, styleName, builtinId, look.build());
+        this(Set.of(role), styleName, builtinId, look);
     }
 
-    /**
-     * The line below a region of the role: the line of its style, or the minor line below the properties, which the
-     * cell format of the last row draws.
-     */
-    @Nullable
-    Line lineBelow() {
-        return this == PROPERTIES ? Line.MINOR : look.bottom();
+    TableStyle(Set<RawTableRole> roles, String styleName, int builtinId, Look.LookBuilder look) {
+        this(roles, styleName, builtinId, look.build());
     }
 
     /** The style of a role. */
     static TableStyle of(RawTableRole role) {
-        return Arrays.stream(values()).filter(style -> style.role == role).findFirst().orElseThrow();
+        return Arrays.stream(values()).filter(style -> style.roles.contains(role)).findFirst().orElseThrow();
     }
 
     /**
@@ -106,7 +105,6 @@ enum TableStyle {
     enum ThemeSlot {
         DK1(1),
         LT2(2),
-        DK2(3),
         ACCENT1(4);
 
         private final int index;
@@ -130,20 +128,17 @@ enum TableStyle {
      */
     record Line(BorderStyle style, ThemedColor colour) {
 
-        /** A line that sets the sections of a table apart: above and below the signature, below the body. */
-        static final Line MAJOR = new Line(BorderStyle.THIN, ThemeSlot.DK2.tinted(0));
+        /**
+         * The line of a role, in the darkest text colour of the theme: above the signature, the properties, the code,
+         * the titles and a section, and below the body.
+         */
+        static final Line ROLE = new Line(BorderStyle.THIN, ThemeSlot.DK1.tinted(0));
 
-        /** A line that sets a part apart within a section: below the properties and below a section. */
-        static final Line MINOR = new Line(BorderStyle.THIN, ThemeSlot.LT2.tinted(-250));
-
-        /** The line above a group, in the colour of the minor line. */
-        static final Line GROUP = new Line(BorderStyle.HAIR, MINOR.colour());
-
-        /** The line above the result. */
-        static final Line RESULT_ABOVE = new Line(BorderStyle.THIN, ThemeSlot.ACCENT1.tinted(0));
+        /** The line above a group: a hair line, in the colour of every line. */
+        static final Line GROUP = new Line(BorderStyle.HAIR, ROLE.colour());
 
         /** The double line below the result. */
-        static final Line RESULT_BELOW = new Line(BorderStyle.DOUBLE, ThemeSlot.ACCENT1.tinted(0));
+        static final Line RESULT_BELOW = new Line(BorderStyle.DOUBLE, ROLE.colour());
     }
 
     /**

@@ -60,20 +60,20 @@ class NamedValuesLayoutTest {
 
         var constants = Roles.of(tableAt(CONSTANTS_ROW));
         assertEquals(RawTableRole.CODE, constants.roleAt(CONSTANTS_ROW + 1, 1), "The type of a constant");
-        assertEquals(RawTableRole.KEY, constants.roleAt(CONSTANTS_ROW + 1, 2), "Its name");
+        assertEquals(RawTableRole.OUTPUT, constants.roleAt(CONSTANTS_ROW + 1, 2), "Its name");
         assertEquals(RawTableRole.VALUE, constants.roleAt(CONSTANTS_ROW + 2, 3), "Its value");
         assertEquals(RawTableValueType.NUMBER, constants.typeAt(CONSTANTS_ROW + 2, 3));
 
         var transposed = Roles.of(tableAt(TRANSPOSED_ROW));
         assertEquals(RawTableRole.CODE, transposed.roleAt(TRANSPOSED_ROW + 1, 2));
-        assertEquals(RawTableRole.KEY, transposed.roleAt(TRANSPOSED_ROW + 2, 2));
+        assertEquals(RawTableRole.OUTPUT, transposed.roleAt(TRANSPOSED_ROW + 2, 2));
         assertEquals(RawTableRole.VALUE, transposed.roleAt(TRANSPOSED_ROW + 3, 1));
 
         // The compiler reads every row as a constant, its type first: a row naming the titles of a Datatype too.
         var titled = Roles.of(tableAt(TITLED_ROW));
         for (var row = TITLED_ROW + 1; row <= TITLED_ROW + 2; row++) {
             assertEquals(RawTableRole.CODE, titled.roleAt(row, 1), "row " + row);
-            assertEquals(RawTableRole.KEY, titled.roleAt(row, 2), "row " + row);
+            assertEquals(RawTableRole.OUTPUT, titled.roleAt(row, 2), "row " + row);
             assertEquals(RawTableRole.VALUE, titled.roleAt(row, 3), "row " + row);
         }
     }

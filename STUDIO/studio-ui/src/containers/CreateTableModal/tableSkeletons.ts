@@ -899,9 +899,9 @@ export const buildTableRegions = (
     switch (geometry) {
         case 'datatype':
             return [...header, ...area('inputTitle', 1, 0, 1, right), ...area('code', 2, 0, last, 0),
-                ...area('key', 2, 1, last, 1), ...area('value', 2, 2, last, right)]
+                ...area('output', 2, 1, last, 1), ...area('value', 2, 2, last, right)]
         case 'constants':
-            return [...header, ...area('code', 1, 0, last, 0), ...area('key', 1, 1, last, 1),
+            return [...header, ...area('code', 1, 0, last, 0), ...area('output', 1, 1, last, 1),
                 ...area('value', 1, 2, last, right)]
         case 'vocabulary':
             return [...header, ...area('value', 1, 0, last, right)]
@@ -914,7 +914,7 @@ export const buildTableRegions = (
             const single = resultType !== '' && resultType !== 'SpreadsheetResult' && resultType !== 'void'
             const steps = single ? last - 1 : last
             return [...header, ...area('inputTitle', 1, 0, 1, 0), ...area('outputTitle', 1, 1, 1, right),
-                ...area('key', 2, 0, steps, 0), ...area('output', 2, 1, steps, right),
+                ...area('value', 2, 0, steps, 0), ...area('output', 2, 1, steps, right),
                 ...(single ? area('result', Math.max(last, 2), 0, last, right) : [])]
         }
         case 'rules':
@@ -924,8 +924,11 @@ export const buildTableRegions = (
         case 'smartLookup':
         case 'simpleLookup': {
             const { rows, keys } = headerBand(geometry, context)
-            return [...header, ...area('inputTitle', 1, 0, rows, right), ...area('value', rows + 1, 0, last, keys - 1),
-                ...area('output', rows + 1, keys, last, right)]
+            // The titles of the vertical conditions stand in the corner; the horizontal values title the grid returned,
+            // each row of them a region of its own, as the server lays a lookup out.
+            const horizontals = Array.from({ length: rows }, (_, at) => area('outputTitle', at + 1, keys, at + 1, right))
+            return [...header, ...area('inputTitle', 1, 0, rows, keys - 1), ...horizontals.flat(),
+                ...area('value', rows + 1, 0, last, keys - 1), ...area('output', rows + 1, keys, last, right)]
         }
         case 'smartRules':
         case 'simpleRules': {

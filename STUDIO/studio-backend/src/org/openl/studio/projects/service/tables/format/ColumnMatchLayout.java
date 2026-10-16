@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,16 +68,25 @@ final class ColumnMatchLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed layOut(TableBody body) {
-        Places places;
-        if (body.guessed()) {
-            var header = body.compiled().node().getGridTable().getCell(0, 0).getStringValue();
-            places = Places.guessed(body.rows(), algorithmOf(Objects.requireNonNullElse(header, "")));
-        } else if (body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader) {
-            places = Places.of(body, reader.getBoundNode().getColumnMatch());
-        } else {
-            return BodyLayout.Placed.plain(body);
-        }
-        var rows = body.rows();
+        return body.compiled().node().getMetaInfoReader() instanceof ColumnMatchMetaInfoReader reader
+                ? placed(body.rows(), Places.of(body, reader.getBoundNode().getColumnMatch()))
+                : BodyLayout.Placed.plain(body);
+    }
+
+    /**
+     * The places of the body of a ColumnMatch table the compiler read none of: its ids, the algorithm its header names
+     * and the indents of its conditions, as written.
+     *
+     * @param body the body of the table
+     * @return the body and the parts of each of its places
+     */
+    static BodyLayout.Placed guessed(TableBody body) {
+        var algorithm = algorithmOf(GuessedReads.headerOf(body.compiled().node()));
+        return placed(body.rows(), Places.guessed(body.rows(), algorithm));
+    }
+
+    /** The body with the parts of its places, and the rows of the sheet a group starts at. */
+    private static BodyLayout.Placed placed(ILogicalTable rows, Places places) {
         var groupRows = places.groupEdges()
                 .stream()
                 .filter(row -> row < rows.getHeight())
