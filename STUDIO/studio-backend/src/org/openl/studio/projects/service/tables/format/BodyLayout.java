@@ -40,13 +40,13 @@ interface BodyLayout {
             this(places, roles, Set.of(), Set.of());
         }
 
-        /** The value every place of a body the compiler read none of takes. */
+        /** The value every place of a body takes when neither the compiler nor its text tells its parts. */
         private static final Place PLAIN = Place.of(RawTableRole.VALUE);
 
         /** The code every place of the body of a Method table holds. */
         private static final Place CODE = Place.code(RawTableRole.VALUE);
 
-        /** A body the compiler read none of: every place holds a value. */
+        /** A body whose parts neither the compiler nor its text tells: every place holds a value. */
         static Placed plain(TableBody body) {
             return new Placed(body.rows(), (cell, column, row) -> PLAIN);
         }

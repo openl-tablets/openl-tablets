@@ -155,9 +155,10 @@ default rather than taken from the cell. A run without a `style` takes the font 
 
 A read with `styles=true` says what the cells of the table mean, once for the whole table, so every window of its rows
 shares it. A screen draws a table by what its cells mean rather than by the formatting of the workbook, as OpenL
-Studio does unless the user turns on **Excel Formatting**. The roles are read from the compiled table, never guessed
-from where a cell stands; how each kind of table maps to them is described in
-[Roles per table type](../architecture/table-formatting.md#roles-per-table-type).
+Studio does unless the user turns on **Excel Formatting**. The roles are read from the compiled table; a table the
+compiler cannot read takes them from its text. How each kind of table maps to them is described in
+[Roles per table type](../architecture/table-formatting.md#roles-per-table-type) and
+[Tables the compiler cannot read](../architecture/table-formatting.md#tables-the-compiler-cannot-read).
 
 ```json
 {

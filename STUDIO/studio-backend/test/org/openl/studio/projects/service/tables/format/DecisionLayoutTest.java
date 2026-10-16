@@ -169,12 +169,12 @@ class DecisionLayoutTest {
     }
 
     @Test
-    void readsTheBodyOfADecisionTableThatDidNotCompileAsValues() {
+    void readsADecisionTableThatDidNotCompileByTheKindsOfItsColumns() {
         var roles = Roles.of(tableAt(BROKEN_ROW));
 
         assertEquals(RawTableRole.SIGNATURE, roles.roleAt(BROKEN_ROW, 1));
-        assertEquals(RawTableRole.VALUE, roles.roleAt(BROKEN_ROW + 1, 1));
-        assertEquals(RawTableRole.VALUE, roles.roleAt(BROKEN_ROW + 2, 2));
+        assertEquals(RawTableRole.CODE, roles.roleAt(BROKEN_ROW + 1, 1), "The kind of a column");
+        assertEquals(RawTableRole.CODE, roles.roleAt(BROKEN_ROW + 2, 2), "An expression");
     }
 
     @Test
@@ -201,7 +201,9 @@ class DecisionLayoutTest {
         assertEquals(RawTableRole.CODE, returns.roleAt(RETURNS_ROW + 2, 3));
 
         var undeclared = Roles.of(tableAt(UNDECLARED_ROW));
-        assertEquals(RawTableRole.VALUE, undeclared.roleAt(UNDECLARED_ROW + 1, 2), "No declaration is read");
+        // No declaration is read: the parts stand in columns, and the last of them holds the titles.
+        assertEquals(RawTableRole.CODE, undeclared.roleAt(UNDECLARED_ROW + 1, 2));
+        assertEquals(RawTableRole.INPUT_TITLE, undeclared.roleAt(UNDECLARED_ROW + 1, 3));
     }
 
     private IOpenLTable table(String name) {

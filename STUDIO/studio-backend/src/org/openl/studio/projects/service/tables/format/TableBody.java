@@ -14,13 +14,17 @@ import org.openl.rules.table.ILogicalTable;
  * The body of a table a layout lays out, and what its layout knows about the table.
  *
  * @param rows       the body: the rows of the table under its header and the properties it declares
- * @param transposed whether the compiler read the table with its rows and columns swapped
+ * @param transposed whether the compiler read the table with its rows and columns swapped, or, for a table it read
+ *                   none of, whether its text tells it is written so
  * @param compiled   the table as it was compiled
+ * @param guessed    whether the compiler read none of the table, so its parts are found from its text, see
+ *                   {@link GuessedReads}
  */
 @Builder
 record TableBody(ILogicalTable rows,
                   boolean transposed,
-                  CompiledTable compiled) {
+                  CompiledTable compiled,
+                  boolean guessed) {
 
     /** No column or row of the body. */
     static final int NONE = -1;

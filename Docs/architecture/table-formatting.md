@@ -161,7 +161,36 @@ The following tables are not formatted and are drawn as their Excel file draws t
 - a table gathered from several partial tables;
 - a table of a dependency project.
 
-A table the compiler cannot read keeps `signature`, `properties` and the closing line, and its body takes `value`.
+### Tables the compiler cannot read
+
+A table the compiler reads none of — its type, its parent type or its tested table is missing, or its body cannot be
+built — still writes its parts where its kind writes them. Its roles are taken from its text, with the same map as
+above:
+
+- **Orientation** — a Data, a Test or a Run table is transposed when its field names (a name starting with a
+  lower-case letter, `_` or `$`, such as `vehicleID` or `_res_.total`) stand down its first column and not across its
+  first row. A Datatype and a Constants table are transposed when their titles say so, or when their first row, not
+  their first column, holds only types. A Rules table is transposed when the kinds of its columns, such as `C1` or
+  `RET1`, stand down its first column.
+- **Data, Test, Run** — the field row, the `>` reference row when there is one, the titles, then the values. The key
+  of a Data table is its first field unless it is `_PK_`; the keys of a Test and a Run table are the fields with a
+  `>` reference.
+- **Datatype, Constants** — the columns titled **Type** and **Name**, or else the first and the second column.
+- **Vocabulary** — a Datatype whose header names the type of its values, such as `Datatype Gender <String>`.
+- **Spreadsheet** — the step names down the first column and the column titles across the first row. It returns
+  nothing for `void`, the step or the column named `RETURN`, the steps and columns marked `*` for a
+  `SpreadsheetResult`, or else the last step.
+- **Rules** — three lines of code and a line of titles; a column is a condition, a return or the rule names by its
+  kind.
+- **SimpleRules, SmartRules** — as many condition columns as the header names parameters, keeping at least the last
+  column for the return.
+- **SimpleLookup, SmartLookup** — the horizontal conditions take as many rows as the title of the first column; the
+  parameters they leave are the vertical conditions, at least one, and the columns after them the return grid.
+- **TBasic, ColumnMatch** — the ids written in the first row; a ColumnMatch algorithm OpenL does not know reads as
+  `MATCH`.
+- **Conditions, Actions, Returns** — the part titled **Title** by its keyword, or else the fourth part, or the last.
+
+A body whose text tells none of its parts, such as a Rules table naming no kind of column, takes `value`.
 
 ### Value types
 

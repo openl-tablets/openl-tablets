@@ -186,15 +186,17 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   `TableRegionLayout` alone gives it to every cell of the sheet the place takes, a merged region once, by the cell
   holding it, and drops a cell past the edge of the table (`GridSplitter` does not widen a table for a region of
   empty cells). A new kind of table is one constant of `LayoutKind`.
-- **A role is a meaning, read from the compiled table.** A layout names the role of each place it reads, never a
-  position it assumes. How the compiler read a table is asked once, in `TableRegionLayout.of`: each `LayoutKind`
+- **A role is a meaning, read from the compiled table, or from the text of one the compiler cannot read.** A layout
+  names the role of each place it reads, never a position it assumes. How the compiler read a table is asked once, in `TableRegionLayout.of`: each `LayoutKind`
   names a function of `CompiledReads`, which tells whether the compiler read the table transposed, or nothing — a
   Datatype whose parent type is not found, a Vocabulary of a type that does not exist, a Data, a Test or a Run table
   whose type or tested table is missing, a Spreadsheet, a TBasic or a ColumnMatch table whose body could not be
-  built, a ColumnMatch table of an unknown algorithm. Such a body holds values (`BodyLayout.Placed.plain`). The type
-  of a value (`ValueTypes`) is the data type the compiler gives the cell (`CellMetaInfo.getDataType`), a formula, or
-  the body of a Method table being `code`; a region takes the type most of its values have on each of its lines,
-  and a cell of another type names its own (`TableRegions.typeAt`).
+  built, a ColumnMatch table of an unknown algorithm. Such a body is read from its text instead (`TableBody.guessed`):
+  `LayoutKind` names a `GuessedReads` orientation test (field names, types, column kinds), and each layout finds its
+  parts where its kind writes them; only a body whose text tells none of them holds values
+  (`BodyLayout.Placed.plain`). The type of a value (`ValueTypes`) is the data type the compiler gives the cell
+  (`CellMetaInfo.getDataType`), a formula, or the body of a Method table being `code`; a region takes the type most
+  of its values have on each of its lines, and a cell of another type names its own (`TableRegions.typeAt`).
 - **A table is laid out once for each compilation.** `TableRegionLayout.regionsOf` keeps the regions in a weak map
   keyed by the compiled `TableSyntaxNode`, so every page of a large table reuses one layout. It is reused only while
   the workbook was not saved since the compilation read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and
