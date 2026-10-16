@@ -58,7 +58,9 @@ flowchart TB
   by sheet. A sheet both versions changed goes to **`XlsSheetMerger`**, which merges it cell by cell, the value, the
   style and the comment of a cell each on its own, unless the changes overlap. When that fails, for instance because
   **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
-  table by table instead: **`XlsSheetTables`** splits each version into tables and pairs them by their headers,
+  table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
+  value, as the OpenL compiler does whatever their style, and pairs them by their headers; a cell outside every
+  table, styled but empty, is merged cell by cell,
   **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
   **`XlsFormulaReferences`** keeps the sheet a conflict when a formula or a defined name refers to content that moves.
   **`Conflicts`** tells the merge what to do with a place both versions changed in ways it cannot combine: a strict
