@@ -389,12 +389,17 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void rowHiddenInTheirsWhereOurRowsMove_isConflict() throws IOException {
+    void rowHiddenInTheirsWhereTheirRowsMove_isShown() throws IOException {
         // A hidden row is kept by its index, so it would hide the row of OUR revision that moves onto it.
-        FIXTURE.assertConflict(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> {
             set(sheet, 3, 1, 10);
             sheet.getRow(5).setZeroHeight(true);
         });
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("UK", text(merged, 4, 0));
+        assertEquals("MX", text(merged, 6, 0));
+        assertFalse(merged.getRow(5).getZeroHeight());
+        assertFalse(merged.getRow(6).getZeroHeight());
     }
 
     @Test
@@ -523,12 +528,40 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void columnWidthChangedWhereRowsMove_isConflict() throws IOException {
-        // A width is kept by its column, and the rows of the rules table move under it.
-        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+    void columnWidthChangedInTheirsWhereOurRowsMove_isMerged() throws IOException {
+        // THEIR revision both inserts the row and widens the column, so its own content stays under the width.
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             insertRow(sheet, 4, "UK", 4);
             sheet.setColumnWidth(1, 9000);
         });
+        assertEquals(9000, merged.getColumnWidth(1));
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("UK", text(merged, 4, 0));
+        assertEquals("CA", text(merged, 5, 0));
+    }
+
+    @Test
+    void rowHeightSetInTheirsWhereTheirRowMovedTo_isMerged() throws IOException {
+        // THEIR revision laid out the row MX moves up to, as THEIR revision has it.
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+            deleteRow(sheet, 4);
+            sheet.getRow(4).setHeight((short) 600);
+        });
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("MX", text(merged, 4, 0));
+        assertEquals(600, merged.getRow(4).getHeight());
+    }
+
+    @Test
+    void rowHeightSetInOursWhereOurRowsMove_staysAtItsRow() throws IOException {
+        // OUR revision laid out the row of MX, which moves up when THEIR revision deletes CA.
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 3, 1, 10);
+            sheet.getRow(5).setHeight((short) 600);
+        }, sheet -> deleteRow(sheet, 4));
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("MX", text(merged, 4, 0));
+        assertEquals(600, merged.getRow(5).getHeight());
     }
 
     @Test

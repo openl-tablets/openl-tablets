@@ -18,11 +18,6 @@ public enum SheetConflictReason {
      */
     VISIBILITY,
     /**
-     * Both revisions changed the height or the visibility of the same row, the width or the visibility of the same
-     * column, or the default column width or row height, differently
-     */
-    LAYOUT,
-    /**
      * Both revisions changed the pictures of the sheet differently
      */
     PICTURES,
@@ -37,8 +32,7 @@ public enum SheetConflictReason {
     TOUCHING_TABLES,
     /**
      * Content that moves is referred to by a formula, a defined name, a data validation, a conditional formatting or a
-     * hyperlink, lies under a picture, a chart, an Excel table or an autofilter, or a revision changed the layout of
-     * the rows or the columns it moves through
+     * hyperlink, or lies under a picture, a chart, an Excel table or an autofilter
      */
     MOVED_CONTENT
 

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -93,21 +94,19 @@ public final class XlsSheetCopier {
 
     /**
      * Copies the default width of the columns and height of the rows, and the width and the visibility of every
-     * column up to the last one either sheet has a cell in.
+     * column either sheet lays out.
      */
     private static void copyColumns(Sheet src, Sheet dest) {
         dest.setDefaultColumnWidth(src.getDefaultColumnWidth());
         dest.setDefaultRowHeight(src.getDefaultRowHeight());
-        // A sheet may lay out every column to the end of the sheet, which is too many to take one by one.
-        var last = Math.max(XlsSheetShifts.lastColumn(src), XlsSheetShifts.lastColumn(dest));
+        var last = Math.max(XlsSheetMerger.lastLaidOutColumn(src), XlsSheetMerger.lastLaidOutColumn(dest));
+        var columns = new TreeSet<Integer>();
         for (var column = 0; column <= last; column++) {
-            if (dest.getColumnWidth(column) != src.getColumnWidth(column)) {
-                dest.setColumnWidth(column, src.getColumnWidth(column));
-            }
-            if (dest.isColumnHidden(column) != src.isColumnHidden(column)) {
-                dest.setColumnHidden(column, src.isColumnHidden(column));
+            if (XlsSheetMerger.columnLayout(dest, column) != XlsSheetMerger.columnLayout(src, column)) {
+                columns.add(column);
             }
         }
+        XlsSheetMerger.takeColumns(src, dest, columns);
     }
 
     /**

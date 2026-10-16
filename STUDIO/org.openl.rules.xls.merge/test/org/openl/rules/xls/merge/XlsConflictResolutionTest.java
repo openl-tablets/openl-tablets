@@ -12,6 +12,7 @@ import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.cellOf;
 import static org.openl.rules.xls.merge.MergeFixture.deleteRow;
 import static org.openl.rules.xls.merge.MergeFixture.insertRow;
+import static org.openl.rules.xls.merge.MergeFixture.layOut;
 import static org.openl.rules.xls.merge.MergeFixture.moveTable;
 import static org.openl.rules.xls.merge.MergeFixture.number;
 import static org.openl.rules.xls.merge.MergeFixture.removeTable;
@@ -282,49 +283,38 @@ class XlsConflictResolutionTest {
     }
 
     @Test
-    void rowHeightChangedDifferently_isResolvedWithTheWholeSheet() throws Exception {
-        Consumer<Sheet> our = sheet -> {
-            set(sheet, 3, 1, 10);
-            sheet.getRow(0).setHeight((short) 600);
-        };
-        Consumer<Sheet> their = sheet -> {
-            set(sheet, 10, 1, 31);
-            sheet.getRow(0).setHeight((short) 700);
-        };
-
-        var sheet = FIXTURE.conflicts(XSSFWorkbook::new, our, their).sheets().getFirst();
-        assertEquals(SheetConflictReason.LAYOUT, sheet.reason());
-        assertEquals(List.of(), sheet.tables());
-
-        var merged = FIXTURE.resolveXlsx(our, their, Map.of(RULES, Resolution.THEIRS)).getSheet(RULES);
-        assertEquals(700, merged.getRow(0).getHeight());
-        assertEquals(1, number(merged, 3, 1));
-        assertEquals(31, number(merged, 10, 1));
-    }
-
-    @Test
-    void columnHiddenDifferently_isUndoneWithTheWholeSheetTaken() throws Exception {
+    void sheetTakenWhole_takesTheLayoutOfThatVersion() throws Exception {
         Consumer<Sheet> our = sheet -> {
             set(sheet, 3, 1, 10);
             sheet.setColumnHidden(2, true);
+            // An empty column past the cells of every version.
+            sheet.setColumnHidden(20, true);
             sheet.setDefaultColumnWidth(12);
         };
         Consumer<Sheet> their = sheet -> {
             set(sheet, 10, 1, 31);
             sheet.setColumnWidth(2, 5000);
+            var toTheEnd = layOut(sheet, 31, 16384);
+            toTheEnd.setWidth(20);
+            toTheEnd.setCustomWidth(true);
             sheet.createRow(6).setZeroHeight(true);
+            sheet.createFreezePane(0, 1);
         };
 
-        assertEquals(SheetConflictReason.LAYOUT,
-                FIXTURE.conflicts(XSSFWorkbook::new, our, their).sheets().getFirst().reason());
+        var sheet = FIXTURE.conflicts(XSSFWorkbook::new, our, their).sheets().getFirst();
+        assertEquals(SheetConflictReason.SETTINGS, sheet.reason());
+        assertEquals(List.of(), sheet.tables());
 
         var theirs = FIXTURE.resolveXlsx(our, their, Map.of(RULES, Resolution.THEIRS)).getSheet(RULES);
         assertFalse(theirs.isColumnHidden(2));
         assertEquals(5000, theirs.getColumnWidth(2));
+        assertFalse(theirs.isColumnHidden(20));
+        assertEquals(20 * 256, theirs.getColumnWidth(16383));
         assertTrue(theirs.getRow(6).getZeroHeight());
         assertEquals(8, theirs.getDefaultColumnWidth());
         var base = FIXTURE.resolveXlsx(our, their, Map.of(RULES, Resolution.BASE)).getSheet(RULES);
         assertFalse(base.isColumnHidden(2));
+        assertFalse(base.isColumnHidden(20));
         assertEquals(8, base.getDefaultColumnWidth());
     }
 

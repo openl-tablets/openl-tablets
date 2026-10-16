@@ -389,9 +389,11 @@ removed, changed or moved in one branch takes the change of that branch; a table
 row, or column by column when a branch inserted or deleted its columns, and a row changed in both cell by cell. A
 workbook resolves automatically when every such sheet merges:
 
-- no value, style or comment of a cell, height or visibility of a row, width or visibility of a column, default
-  column width or row height, merged cell of a table or picture of the sheet is changed differently in the two
-  branches: one branch may change the value of a cell and the other its style;
+- no value, style or comment of a cell, merged cell of a table or picture of the sheet is changed differently in the
+  two branches: one branch may change the value of a cell and the other its style. The height or visibility of a row,
+  the width or visibility of a column and the default column width or row height are taken the same way, but one
+  changed differently in the two branches keeps the size of your version, as sizes do not change what OpenL reads. So
+  does a row or a column content of their version moves through;
 - the branches do not insert different rows at the same place of a table, neither inserts a row next to a row the
   other deletes, and neither deletes a row the other changes; the same holds for columns;
 - one branch does not change the rows of a table while the other changes its columns, and no inserted or deleted row
@@ -399,8 +401,7 @@ workbook resolves automatically when every such sheet merges:
 - the branches do not move a table to different places, and neither removes a table the other changes;
 - tables of the two branches do not touch each other, and neither branch merges cells over a value the other wrote;
 - no formula, defined name, data validation, conditional formatting or hyperlink refers to content that moves, no
-  picture, chart, Excel table or autofilter lies over it, and neither branch changes the height, width or visibility
-  of a row or a column where content moves;
+  picture, chart, Excel table or autofilter lies over it;
 - the branch merged in leaves the data validation, the conditional formatting, the hyperlinks and the frozen panes of
   the sheet as they were: `otherBranch` for `receive`, the current branch for `send`.
 
@@ -756,9 +757,9 @@ changed in ways the merge cannot combine. A client resolves each conflict by tak
   that changed it, combining the changes of both (`merged`), or that it is a `conflict`.
 - A conflicting sheet is resolved table by table and lists its conflicting tables in `tables`, from top to bottom. A
   sheet whose conflict lies outside its tables tells the `reason` instead, and is resolved only as a whole:
-  `removedAndChanged`, `addedInBoth`, `visibility`, `layout` (the height or the width of a row or a column, their
-  visibility, or the default sizes), `pictures`, `settings` (their branch changed the data validation, the conditional
-  formatting, the hyperlinks or the frozen panes, which the merge does not take), `touchingTables` or `movedContent`.
+  `removedAndChanged`, `addedInBoth`, `visibility`, `pictures`, `settings` (their branch changed the data
+  validation, the conditional formatting, the hyperlinks or the frozen panes, which the merge does not take),
+  `touchingTables` or `movedContent`.
   A sheet whose tables would move content something refers to, whether they are taken from your, their or the base
   version, is resolved only as a whole too. `ours`, `base` and `theirs` tell which versions have the sheet. A sheet
   taken whole takes the cells, the merged cells, the pictures, the visibility and the sizes and visibility of the rows
@@ -858,9 +859,9 @@ curl -X POST "http://localhost:8080/rest/projects/MyProject/merge/conflicts/work
   - A conflict is decided twice
   - The palette is decided as `base`
   - The tables of a sheet, as decided, would touch each other and be read as one table, or move content that a formula,
-    a defined name, a data validation, a conditional formatting, a hyperlink, a picture or the layout of rows and
-    columns refers to, a formula of a table taken from the base version included; such a sheet is taken whole from one
-    version. The first such sheet is named
+    a defined name, a data validation, a conditional formatting, a hyperlink or a picture refers to, a formula of a
+    table taken from the base version included; such a sheet is taken whole from one version. The first such sheet is
+    named
 - `404 Not Found`: No conflict information found, file not in conflict list, or a version does not hold the file
 
 ---

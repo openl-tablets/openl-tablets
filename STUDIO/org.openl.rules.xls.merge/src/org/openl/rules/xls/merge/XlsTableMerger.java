@@ -110,11 +110,12 @@ final class XlsTableMerger {
      *
      * @param cells         cells of OUR revision that change, with the content they take
      * @param mergedRegions all the merged cells of the merged sheet, or {@code null} to keep those of OUR revision
-     * @param moved         areas whose content lands at other addresses than a revision has it at
+     * @param theirMoved    areas of THEIR revision whose content lands at other addresses, and the addresses it lands
+     *                      at
      */
     record Content(Map<CellAddress, CellSource> cells,
                    @Nullable List<CellRangeAddress> mergedRegions,
-                   List<CellRangeAddress> moved) {
+                   List<CellRangeAddress> theirMoved) {
     }
 
     /**
@@ -399,17 +400,15 @@ final class XlsTableMerger {
             });
         }
         looseCells(cells);
-        var moved = new ArrayList<CellRangeAddress>(ourMoved);
-        moved.addAll(theirMoved);
         if (clearedTables.isEmpty() && outputs.isEmpty()) {
-            return new Content(cells, null, moved);
+            return new Content(cells, null, theirMoved);
         }
         var regions = our.getMergedRegions()
                 .stream()
                 .filter(region -> clearedTables.stream().noneMatch(table -> table.intersects(region)))
                 .collect(Collectors.toCollection(ArrayList::new));
         outputs.forEach(output -> regions.addAll(output.regions));
-        return new Content(cells, regions, moved);
+        return new Content(cells, regions, theirMoved);
     }
 
     /**

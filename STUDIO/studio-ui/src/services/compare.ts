@@ -214,7 +214,6 @@ export type ConflictSheetReason =
     | 'removedAndChanged'
     | 'addedInBoth'
     | 'visibility'
-    | 'layout'
     | 'pictures'
     | 'settings'
     | 'touchingTables'

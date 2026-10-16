@@ -23,7 +23,9 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.ss.util.SheetUtil;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCol;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.Resolution;
@@ -201,6 +203,16 @@ final class MergeFixture {
         comment.setString(workbook.getCreationHelper().createRichTextString(text));
         comment.setAuthor("John");
         cellOf(sheet, row, column).setCellComment(comment);
+    }
+
+    /**
+     * Lays out the columns of an .xlsx sheet from the first to the last one, counted from 1, as one layout.
+     */
+    static CTCol layOut(Sheet sheet, int first, int last) {
+        var col = ((XSSFSheet) sheet).getCTWorksheet().getColsArray(0).addNewCol();
+        col.setMin(first);
+        col.setMax(last);
+        return col;
     }
 
     static double number(Sheet sheet, int row, int column) {

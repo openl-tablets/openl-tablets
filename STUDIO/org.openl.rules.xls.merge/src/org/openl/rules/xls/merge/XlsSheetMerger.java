@@ -17,6 +17,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -54,9 +56,12 @@ import org.openl.rules.xls.merge.diff.SheetMergePlan;
  *
  * <p>A cell changed in one revision only takes the content of that revision. A cell changed the same way in both
  * revisions is not a conflict. The value, the style and the comment of a cell are merged each on its own, so one
- * revision may change the value and the other the style of the same cell. Row heights, column widths, the default
- * row height and column width, merged cells, pictures and the visibility of the sheet follow the same rule, each as a
- * whole.
+ * revision may change the value and the other the style of the same cell. Merged cells, pictures and the visibility
+ * of the sheet follow the same rule, each as a whole.
+ *
+ * <p>Row heights, column widths and the default row height and column width are taken the same way, except that one
+ * both revisions changed differently keeps OUR value: they change how the sheet looks, not what OpenL reads from it.
+ * A row or a column that content of THEIR revision moves through keeps OUR layout too.
  *
  * <p>The sheet cannot be merged, and stays a conflict, when a part of a cell or a property is changed differently in
  * both revisions, when either revision inserted or deleted rows or columns inside the content, when both revisions
@@ -102,7 +107,7 @@ final class XlsSheetMerger {
         var visibility = choose(base.isSheetHidden(), our.isSheetHidden(), their.isSheetHidden());
         var defaultLayout = choose(defaultLayout(base.sheet), defaultLayout(our.sheet), defaultLayout(their.sheet));
         var pictures = choose(base, our, their, XlsSheetsMatcher::equalDrawings);
-        var refusal = refusalOf(visibility, defaultLayout, pictures);
+        var refusal = refusalOf(visibility, pictures);
         if (refusal == null && !settingsOf(base.sheet).equals(settingsOf(their.sheet))) {
             refusal = SheetConflictReason.SETTINGS;
         }
@@ -113,25 +118,15 @@ final class XlsSheetMerger {
                 Math.max(our.sheet.getLastRowNum(), their.sheet.getLastRowNum()));
         var lastColumn = Math.max(lastLaidOutColumn(base.sheet),
                 Math.max(lastLaidOutColumn(our.sheet), lastLaidOutColumn(their.sheet)));
-        var rows = new TreeSet<Integer>();
-        var columns = new TreeSet<Integer>();
-        if (!collectLayouts(base.sheet, our.sheet, their.sheet, lastRow, XlsSheetMerger::rowLayout, rows)
-                || !collectLayouts(base.sheet, our.sheet, their.sheet, lastColumn, XlsSheetMerger::columnLayout,
-                columns)) {
-            return refuse(conflicts, SheetConflictReason.LAYOUT);
-        }
+        var rows = theirLayouts(base.sheet, our.sheet, their.sheet, lastRow, XlsSheetMerger::rowLayout);
+        var columns = theirLayouts(base.sheet, our.sheet, their.sheet, lastColumn, XlsSheetMerger::columnLayout);
         return planCells(base, our, their, lastRow)
                 .or(() -> XlsTableMerger.plan(base, our, their, changedInTheirs, conflicts))
-                .filter(content -> {
-                    var moved = laysOutMoved(base.sheet, our.sheet, their.sheet, content.moved());
-                    if (moved) {
-                        conflicts.refuse(SheetConflictReason.MOVED_CONTENT);
-                    }
-                    return !moved;
-                })
                 .map(content -> new SheetMergePlan(content.cells(),
-                        rows,
-                        columns,
+                        outside(rows, content.theirMoved(), CellRangeAddress::getFirstRow,
+                                CellRangeAddress::getLastRow),
+                        outside(columns, content.theirMoved(), CellRangeAddress::getFirstColumn,
+                                CellRangeAddress::getLastColumn),
                         defaultLayout == Choice.THEIR,
                         content.mergedRegions(),
                         pictures == Choice.THEIR,
@@ -139,14 +134,12 @@ final class XlsSheetMerger {
     }
 
     /**
-     * Why the sheet is resolved only as a whole when both revisions changed its visibility, its default layout or its
-     * pictures differently, or {@code null} when they did not.
+     * Why the sheet is resolved only as a whole when both revisions changed its visibility or its pictures
+     * differently, or {@code null} when they did not.
      */
-    private static @Nullable SheetConflictReason refusalOf(Choice visibility, Choice defaultLayout, Choice pictures) {
+    private static @Nullable SheetConflictReason refusalOf(Choice visibility, Choice pictures) {
         if (visibility == Choice.CONFLICT) {
             return SheetConflictReason.VISIBILITY;
-        } else if (defaultLayout == Choice.CONFLICT) {
-            return SheetConflictReason.LAYOUT;
         }
         return pictures == Choice.CONFLICT ? SheetConflictReason.PICTURES : null;
     }
@@ -186,25 +179,20 @@ final class XlsSheetMerger {
     }
 
     /**
-     * Tells whether a revision changed the height or the visibility of a row, or the width or the visibility of a
-     * column, where content moves. Such a layout is kept by its index, so it would land on other content.
+     * The rows or the columns whose layout is taken from THEIR revision, less those THEIR content moves through. A
+     * layout is kept by its index, so THEIR layout would land on other content there.
+     *
+     * @param moved the areas of THEIR revision whose content moves, and the areas it lands at
+     * @param first the first row or column of an area
+     * @param last  the last row or column of an area
      */
-    private static boolean laysOutMoved(Sheet base, Sheet our, Sheet their, List<CellRangeAddress> moved) {
-        var rows = new BitSet();
-        var columns = new BitSet();
-        for (CellRangeAddress area : moved) {
-            rows.set(area.getFirstRow(), area.getLastRow() + 1);
-            columns.set(area.getFirstColumn(), area.getLastColumn() + 1);
-        }
-        return changed(base, our, their, rows, XlsSheetMerger::rowLayout)
-                || changed(base, our, their, columns, XlsSheetMerger::columnLayout);
-    }
-
-    private static boolean changed(Sheet base, Sheet our, Sheet their, BitSet indexes, Layout layout) {
-        return indexes.stream().anyMatch(i -> {
-            var baseLayout = layout.of(base, i);
-            return baseLayout != layout.of(our, i) || baseLayout != layout.of(their, i);
-        });
+    private static Set<Integer> outside(Set<Integer> indexes,
+                                        List<CellRangeAddress> moved,
+                                        ToIntFunction<CellRangeAddress> first,
+                                        ToIntFunction<CellRangeAddress> last) {
+        var crossed = new BitSet();
+        moved.forEach(area -> crossed.set(first.applyAsInt(area), last.applyAsInt(area) + 1));
+        return indexes.stream().filter(i -> !crossed.get(i)).collect(Collectors.toCollection(TreeSet::new));
     }
 
     /**
@@ -241,10 +229,7 @@ final class XlsSheetMerger {
             our.sheet.setDefaultColumnWidth(their.sheet.getDefaultColumnWidth());
             our.sheet.setDefaultRowHeight(their.sheet.getDefaultRowHeight());
         }
-        for (int column : plan.columns()) {
-            our.sheet.setColumnWidth(column, their.sheet.getColumnWidth(column));
-            our.sheet.setColumnHidden(column, their.sheet.isColumnHidden(column));
-        }
+        takeColumns(their.sheet, our.sheet, plan.columns());
         if (plan.visibility()) {
             our.workbook.setSheetHidden(our.getSheetIndex(), their.isSheetHidden());
         }
@@ -379,25 +364,76 @@ final class XlsSheetMerger {
     }
 
     /**
-     * Collects the rows or the columns whose layout THEIR revision changed alone.
-     *
-     * @return {@code false} if both revisions changed the layout of a row or a column differently
+     * The rows or the columns whose layout THEIR revision changed alone. A layout both revisions changed differently
+     * keeps OUR value.
      */
-    private static boolean collectLayouts(Sheet base,
-                                          Sheet our,
-                                          Sheet their,
-                                          int last,
-                                          Layout layout,
-                                          Set<Integer> changed) {
+    private static Set<Integer> theirLayouts(Sheet base, Sheet our, Sheet their, int last, Layout layout) {
+        var changed = new TreeSet<Integer>();
         for (var i = 0; i <= last; i++) {
-            var choice = choose(layout.of(base, i), layout.of(our, i), layout.of(their, i));
-            if (choice == Choice.CONFLICT) {
-                return false;
-            } else if (choice == Choice.THEIR) {
+            if (choose(layout.of(base, i), layout.of(our, i), layout.of(their, i)) == Choice.THEIR) {
                 changed.add(i);
             }
         }
-        return true;
+        return changed;
+    }
+
+    /**
+     * Gives the columns of OUR revision the width and the visibility THEIR revision has.
+     *
+     * <p>A sheet may lay out all of its 16,384 columns, and POI rewrites the layouts of all the columns of an .xlsx
+     * sheet for every column it changes. So neighbouring columns that take the same layout are written at once.
+     */
+    static void takeColumns(Sheet their, Sheet our, Set<Integer> columns) {
+        if (our instanceof XSSFSheet xssfSheet) {
+            var helper = xssfSheet.getColumnHelper();
+            var cols = xssfSheet.getCTWorksheet().getColsArray(0);
+            columnRuns(their, xssfSheet, columns).forEach(run -> helper.addCleanColIntoCols(cols, run.col()));
+            return;
+        }
+        for (int column : columns) {
+            our.setColumnWidth(column, their.getColumnWidth(column));
+            our.setColumnHidden(column, their.isColumnHidden(column));
+        }
+    }
+
+    /**
+     * The layouts THEIR revision gives the columns, one for each run of neighbouring columns that take the same
+     * layout. A run lies within one layout of OUR revision or between two of them, so it replaces a part of one
+     * layout or fills a gap.
+     */
+    private static List<ColumnRun> columnRuns(Sheet their, XSSFSheet our, Set<Integer> columns) {
+        var runs = new ArrayList<ColumnRun>();
+        for (int column : columns) {
+            var layout = columnLayout(their, column);
+            var ourCol = our.getColumnHelper().getColumn(column, false);
+            var ourStart = ourCol == null ? 0 : ourCol.getMin();
+            if (!runs.isEmpty() && runs.getLast().continuesAt(column, layout, ourStart)) {
+                runs.getLast().col().setMax(column + 1L);
+            } else {
+                var col = CTCol.Factory.newInstance();
+                col.setMin(column + 1L);
+                col.setMax(column + 1L);
+                col.setWidth(their.getColumnWidth(column) / 256.0);
+                col.setCustomWidth(true);
+                col.setHidden(their.isColumnHidden(column));
+                runs.add(new ColumnRun(col, layout, ourStart));
+            }
+        }
+        return runs;
+    }
+
+    /**
+     * A run of neighbouring columns that take the same layout from THEIR revision.
+     *
+     * @param col      the layout of the run, with its columns counted from 1
+     * @param layout   the layout THEIR revision gives each column of the run
+     * @param ourStart the first column of the layout of OUR revision the run lies within, or {@code 0} for a gap
+     */
+    private record ColumnRun(CTCol col, long layout, long ourStart) {
+
+        boolean continuesAt(int column, long columnLayout, long columnOurStart) {
+            return col.getMax() == column && layout == columnLayout && ourStart == columnOurStart;
+        }
     }
 
     /**
@@ -439,7 +475,7 @@ final class XlsSheetMerger {
     /**
      * The width of a column and whether the column is hidden.
      */
-    private static long columnLayout(Sheet sheet, int column) {
+    static long columnLayout(Sheet sheet, int column) {
         return (long) sheet.getColumnWidth(column) << 1 | (sheet.isColumnHidden(column) ? 1 : 0);
     }
 
@@ -447,7 +483,7 @@ final class XlsSheetMerger {
      * The last column that has a cell or a width or visibility of its own. An .xls sheet keeps the layout of its
      * columns in a form that cannot be listed, so all of its columns are taken.
      */
-    private static int lastLaidOutColumn(Sheet sheet) {
+    static int lastLaidOutColumn(Sheet sheet) {
         var last = XlsSheetShifts.lastColumn(sheet);
         if (sheet instanceof XSSFSheet xssfSheet) {
             for (CTCols cols : xssfSheet.getCTWorksheet().getColsArray()) {
