@@ -219,6 +219,12 @@ public abstract class TableWriter<T extends TableView> {
     /**
      * Creates or updates cell in the table.
      *
+     * <p>A cell past the bottom or the right edge grows the table to reach it: the rows or the columns between are
+     * inserted at that edge. A cell inside the table, the last row and the last column included, leaves its size as
+     * it is.
+     *
+     * <p>So a line written past the edge grows the table once, by its first cell.
+     *
      * @param gridTable table to update
      * @param cellKey   relative cell coordinates
      * @param value     new cell value
@@ -227,16 +233,17 @@ public abstract class TableWriter<T extends TableView> {
         var region = gridTable.getRegion();
         // calculate absolute coordinates
         int grow = cellKey.getRow() + region.getTop();
-        // check if cell is out of table
+        // Check if the cell is out of the table. Every insert looks over the whole sheet for room, so a cell inside
+        // the table must not ask for one: a column of a large table would cost a pass over the sheet per row.
         boolean inserted = false;
-        if (region.getBottom() <= grow) {
+        if (region.getBottom() < grow) {
             int nRows = grow - region.getBottom();
             int beforeRow = region.getTop() - originalTable.getRegion().getTop() + GridRegionUtils.height(region);
             insertRows(gridTable, nRows, beforeRow);
             inserted = true;
         }
         int gcol = cellKey.getColumn() + region.getLeft();
-        if (region.getRight() <= gcol) {
+        if (region.getRight() < gcol) {
             int nCols = gcol - region.getRight();
             int beforeCol = region.getLeft() - originalTable.getRegion().getLeft() + GridRegionUtils.width(region);
             insertColumns(gridTable, nCols, beforeCol);
@@ -251,11 +258,13 @@ public abstract class TableWriter<T extends TableView> {
         updateCellValue(gridTable, gcol, grow, value);
     }
 
-    private void insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
+    /** Grows the table by the columns a cell written past its right edge needs. */
+    void insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
         new UndoableInsertColumnsAction(nCols, beforeCol, getMetaInfoWriter()).doAction(gridTable);
     }
 
-    private void insertRows(IGridTable gridTable, int nRows, int beforeRow) {
+    /** Grows the table by the rows a cell written past its bottom edge needs. */
+    void insertRows(IGridTable gridTable, int nRows, int beforeRow) {
         new UndoableInsertRowsAction(nRows, beforeRow, getMetaInfoWriter()).doAction(gridTable);
     }
 

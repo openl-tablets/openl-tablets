@@ -28,6 +28,7 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -346,6 +347,60 @@ class RawTableWriterTest {
         assertEquals("q", value(source, 1, 1));
         // the column that previously sat at index 1 is shifted right
         assertEquals("code", value(source, 1, 2));
+    }
+
+    @Test
+    void growsTheTableOnceForEachAppendedColumnNotForEachOfItsCells() {
+        var writer = new GrowthCountingWriter(load(mainProject));
+
+        writer.apply(appendColumns(List.of(row("a", "b", "c", "d"), row("e", "f", "g", "h"))));
+
+        // The first cell of a column lies past the edge and grows the table; the cells under it are already inside.
+        assertEquals(List.of(1, 1), writer.columnsGrown);
+        assertEquals(List.of(), writer.rowsGrown);
+        assertEquals("h", value(reload(mainProject), 3, 4));
+    }
+
+    @Test
+    void growsTheTableOnceForEachAppendedRowNotForEachOfItsCells() {
+        var writer = new GrowthCountingWriter(load(mainProject));
+
+        writer.apply(appendRows(List.of(row("double", "rate", "delta"), row("long", "id", "epsilon"))));
+
+        assertEquals(List.of(1, 1), writer.rowsGrown);
+        assertEquals(List.of(), writer.columnsGrown);
+        assertEquals("epsilon", value(reload(mainProject), 5, 2));
+    }
+
+    @Test
+    void writesTheLastColumnAndTheLastRowWithoutGrowingTheTable() {
+        var writer = new GrowthCountingWriter(load(mainProject));
+
+        // A column inserted at the end is laid down before its cells are written, so they are inside the table.
+        writer.apply(List.of(
+                insertColumn(3, row("p", "q", "r", "s")),
+                updateColumn(3, row("p2", "q2", "r2", "s2")),
+                updateRow(3, row("int", "minute", "delta", "s3"))));
+
+        assertEquals(List.of(), writer.columnsGrown);
+        assertEquals(List.of(), writer.rowsGrown);
+        var source = reload(mainProject);
+        assertEquals(4, width(source));
+        assertEquals(4, source.size());
+        assertEquals("q2", value(source, 1, 3));
+        assertEquals("s3", value(source, 3, 3));
+    }
+
+    @Test
+    void writesTheWholeTableWithoutGrowingIt() {
+        var table = load(mainProject);
+        var writer = new GrowthCountingWriter(table);
+
+        writer.write(new RawTableReader().read(table));
+
+        assertEquals(List.of(), writer.columnsGrown);
+        assertEquals(List.of(), writer.rowsGrown);
+        assertEquals("gamma", value(reload(mainProject), 3, 2));
     }
 
     @Test
@@ -1624,5 +1679,33 @@ class RawTableWriterTest {
             }
         }
         throw new IllegalStateException("No table with header " + header);
+    }
+
+    /**
+     * A writer that notes by how many columns or rows each cell written past the edge of the table grew it.
+     *
+     * <p>Every growth looks over the whole sheet for room, so a write growing the table for each cell of a long
+     * column takes time quadratic in its length.
+     */
+    private static final class GrowthCountingWriter extends RawTableWriter {
+
+        private final List<Integer> columnsGrown = new ArrayList<>();
+        private final List<Integer> rowsGrown = new ArrayList<>();
+
+        private GrowthCountingWriter(IOpenLTable table) {
+            super(table, THEMES);
+        }
+
+        @Override
+        void insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
+            columnsGrown.add(nCols);
+            super.insertColumns(gridTable, nCols, beforeCol);
+        }
+
+        @Override
+        void insertRows(IGridTable gridTable, int nRows, int beforeRow) {
+            rowsGrown.add(nRows);
+            super.insertRows(gridTable, nRows, beforeRow);
+        }
     }
 }
