@@ -91,6 +91,8 @@ class UploadFormattingTest {
         var upload = Map.of("notes.txt", "Hello".getBytes(StandardCharsets.UTF_8));
 
         assertSame(upload, uploads(true).formatStaged(null, "", upload, false));
+        // a merge run outside a request hands the session in
+        assertSame(upload, uploads(true).formatStaged(null, "", upload, false, mock(WebStudio.class)));
     }
 
     @Test

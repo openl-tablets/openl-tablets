@@ -82,6 +82,10 @@ flowchart TB
   version of every conflicting table too, and lists the sheet as resolved only as a whole when every try is refused;
   tables that touch may fit in another choice, so they stay listed. A sheet taken whole is copied by
   `XlsSheetCopier`, the default sizes and the sizes and visibility of the rows and columns included.
+- **`MergedWorkbookFormatting`** — formats the workbooks of the merged project that a merge combines while
+  **Format tables on save** is on, as an upload into a closed project is formatted (`UploadFormatting`): staged with
+  the project the merge changes and compiled once. See
+  [Table Formatting](../architecture/table-formatting.md#merged-workbooks).
 - **`ConflictWorkbookMapper`** — tells the conflicts of a workbook the way `GET /merge/conflicts/workbook` answers
   them: each conflicting table with its cells in every version, read from the revisions the merge compared through
   `RawTableReader.readCells(Sheet, CellRangeAddress)`, the first 200 rows of a long table, and the cells a version
@@ -121,8 +125,12 @@ branch and the lock, and `status` says `up-to-date` for step 6. `merge` runs all
 
 - **`receive`** merges `otherBranch` into the current branch. **`send`** merges the current branch into `otherBranch`.
   The target of the merge is the branch that changes.
-- The Git repository merges the source into the target with the user as the author, and the service waits up to
-  30 seconds until the project index publishes the target branch. The merge is committed by then, so an index that
+- The Git repository merges the source into the target with the user as the author. While **Format tables on save**
+  is on, the workbooks of the project the merge combined by itself are then formatted and committed on the target
+  branch in a commit of their own, based on the merge commit, so the repository is not held while the project
+  compiles. A formatting that fails, or a commit that conflicts with a change the target took meanwhile, leaves the
+  merge as committed.
+- The service waits up to 30 seconds until the project index publishes the target branch. The merge is committed by then, so an index that
   is late is logged and the merge stays a `success`: a failure would have the user merge again what is already
   merged (EPBDS-16541). A resolution waits for the index the same way.
 - A conflict in Git gives a `MergeConflictInfo` with the details of the conflict. Otherwise the merge is `success`.
@@ -150,7 +158,8 @@ it, so the user sees what the merge takes in before it starts and what it change
   declares modules in again are written in a commit of their own after the merge, on the branch it merged into: the
   summary lists them as well, and its revision after the merge is the commit that wrote them, as their save answers
   it. A descriptor declaring every module already is not written again, and descriptors whose save answers no commit
-  are left out of the summary.
+  are left out of the summary. The workbooks a merge formats after its commit count the same way: the revision after
+  the merge is the commit that formatted them.
 - **Projects** — `MergeChangesService` puts each file under the project whose folder holds it, reading which projects
   each branch holds from the project index (`DesignTimeRepository.getBranchProjects`), which answers for the
   repository rather than for what the user may read. A project is added or deleted as a whole when one side holds it
@@ -323,7 +332,10 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 3. **Workbooks** — a conflicted Excel file whose changes do not overlap is merged by `XlsWorkbookMerger` without a
    decision: a sheet changed in one branch only is taken from it, a sheet changed in both is merged table by table, row
    by row and cell by cell. The same merge completes a `POST /merge` and a project save without a conflict when every
-   conflicted file is such a workbook. Such files are not listed in the request or in `resolvedFiles`.
+   conflicted file is such a workbook. Such files are not listed in the request or in `resolvedFiles`. While
+   **Format tables on save** is on, they are formatted before the commit, and so is the workbook
+   `POST /merge/conflicts/workbook` answers: staged with the project as the branch the merge changes holds it, or with
+   the copy in the workspace in a save conflict.
 4. **Commit** — for a merge conflict the repository completes the merge with the resolved files and the message of the
    request. For a save conflict the project is saved with them. Without a message the service builds one: the commit of
    the other branch, the conflicted files, and the workbooks resolved automatically.

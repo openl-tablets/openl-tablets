@@ -497,7 +497,10 @@ An `.xlsx` file uploaded into a project is formatted as well, while the setting 
 
 -   a module updated with **Update**, and a file uploaded or updated on the **Files** tab;
 -   a project updated from a ZIP archive or from files;
--   a ZIP archive that replaces a project in Design repository.
+-   a ZIP archive that replaces a project in Design repository;
+-   a workbook of the project a merge of branches combines from both branches, as described in
+    [Working with Project Branches](project-branches.md): the one **Sync** merges by itself, and the one **Merge table
+    by table** builds.
 
 Unlike an edit, an uploaded file is compiled, once, with the project, to learn the roles of its tables. The other
 Excel files of the project and `.xls` files are left as they are, and a file that cannot be compiled is stored as it

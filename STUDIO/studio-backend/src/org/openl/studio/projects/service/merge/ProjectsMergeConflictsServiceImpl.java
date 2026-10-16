@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -43,6 +44,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictDetails;
 import org.openl.rules.repository.git.text.TextMerge;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.LinkedWorkbookMismatchException;
@@ -82,9 +84,16 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     private final MergeChangesService mergeChangesService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ConflictWorkbookMapper workbookMapper;
+    private final MergedWorkbookFormatting mergedWorkbookFormatting;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
+    }
+
+    @Lookup
+    public WebStudio getWebStudio() {
         // Spring overrides this method with a lookup of the bean; the stub itself never runs.
         throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
     }
@@ -287,7 +296,35 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             throw new BadRequestException("project.merge.conflict.workbook.link.message",
                     new Object[]{e.getSheet() + "!" + e.getCell()});
         }
-        return output.toByteArray();
+        var merged = output.toByteArray();
+        return formatted(mergeConflict, Map.of(path, merged)).getOrDefault(path, merged);
+    }
+
+    /**
+     * The workbooks a merge combined, formatted as the merge formats them. Workbooks that cannot be staged to be
+     * formatted, as when the branch the merge changes cannot be read, are left as merged: formatting never fails a
+     * merge.
+     */
+    private Map<String, byte[]> formatted(MergeConflictInfo mergeConflict, Map<String, byte[]> workbooks) {
+        try {
+            return mergedWorkbookFormatting.format(stagedProject(mergeConflict), workbooks, getWebStudio());
+        } catch (IOException e) {
+            log.warn("The merged workbooks {} are left unformatted.", workbooks.keySet(), e);
+            return workbooks;
+        }
+    }
+
+    /**
+     * The project the merged workbooks are staged with to be formatted: the project the resolution is committed to.
+     * That is the project as the branch the merge changes holds it, or else the copy in the workspace.
+     */
+    private static AProjectFolder stagedProject(MergeConflictInfo mergeConflict) throws IOException {
+        var project = mergeConflict.project();
+        return mergeConflict.isMerging()
+                ? MergedWorkbookFormatting.onBranch(project,
+                        project.getDesignRepository(),
+                        mergeConflict.mergeBranchTo())
+                : project;
     }
 
     /**
@@ -641,13 +678,15 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     }
 
     /**
-     * Adds the Excel files whose conflicts are resolved automatically, merged from our and their version.
+     * Adds the Excel files whose conflicts are resolved automatically, merged from our and their version and formatted
+     * as a merge formats the workbooks it combines.
      */
-    private static void addAutoResolvedFiles(ConflictSources sources, List<FileItem> resolvedFiles) throws IOException {
+    private void addAutoResolvedFiles(ConflictSources sources, List<FileItem> resolvedFiles) throws IOException {
         var mergeConflictInfo = sources.info();
         var conflictDetails = mergeConflictInfo.details();
         var designRepository = sources.designRepository();
         var output = new ByteArrayOutputStream();
+        var merged = new LinkedHashMap<String, byte[]>();
         for (var autoResolveEntry : conflictDetails.toAutoResolve().entrySet()) {
             var fileName = autoResolveEntry.getKey();
             var diffResult = autoResolveEntry.getValue();
@@ -676,8 +715,13 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                     theirConflictedFile.getStream(),
                     diffResult,
                     output);
-            resolvedFiles.add(new FileItem(fileName, new ByteArrayInputStream(output.toByteArray())));
+            merged.put(fileName, output.toByteArray());
             output.reset();
+        }
+        if (!merged.isEmpty()) {
+            var workbooks = formatted(mergeConflictInfo, merged);
+            merged.forEach((path, workbook) -> resolvedFiles.add(
+                    new FileItem(path, new ByteArrayInputStream(workbooks.getOrDefault(path, workbook)))));
         }
     }
 

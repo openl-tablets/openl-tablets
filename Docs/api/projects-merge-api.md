@@ -507,6 +507,11 @@ that fails to merge, such as one where a formula of the branch merged in would r
 The commit message lists those workbooks and their sheets under `Automatically resolved conflicts`, each sheet with
 the branch it was taken from, or with both branches for a sheet merged from both.
 
+While **Format tables on save** is on, the workbooks of the project merged this way are formatted with the OpenL table
+style once the merge is committed, and committed on the target branch right after the merge by the same user, with
+the message `Format the workbooks merged from branch '<source branch>'`. A workbook that cannot be formatted is left
+as merged, and so is every workbook when the target branch took a conflicting change meanwhile.
+
 A committed merge waits up to 30 seconds for the project index to publish the target branch. An index that is late
 does not fail the merge: it is committed, and asking for it again would only find nothing left to merge.
 
@@ -938,7 +943,9 @@ resolution of [Resolve Conflicts](#10-resolve-conflicts).
   when the merge combines its changes by itself; a decision for anything else that is no conflict of the workbook is
   ignored.
 
-**Response**: `200 OK` with the merged workbook, under the name of the file and with its content type
+**Response**: `200 OK` with the merged workbook, under the name of the file and with its content type. While
+**Format tables on save** is on, the workbook comes formatted with the OpenL table style, staged with the project as
+the branch the merge changes holds it, or with the copy in the workspace in a save conflict.
 
 **Example**:
 ```bash
@@ -1019,8 +1026,8 @@ A strategy whose version does not hold the file deletes the file.
 }
 ```
 
-`resolvedFiles` lists the files of the request. The workbooks that resolve automatically are merged and committed
-with them, and are not listed.
+`resolvedFiles` lists the files of the request. The workbooks that resolve automatically are merged, formatted while
+**Format tables on save** is on, and committed with them, and are not listed.
 
 The resolution of a merge conflict also answers with `summary`, which tells what the merge changed in the target
 branch as [Get Merge Result](#3-get-merge-result) does, the sheets of the workbooks merged automatically included.
