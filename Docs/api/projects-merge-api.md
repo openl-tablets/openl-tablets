@@ -382,7 +382,9 @@ committed anything, and the branches are as it found them:
 ```
 
 A merge whose conflicted files are all workbooks that resolve automatically answers `success`. A sheet changed in
-both branches is split into tables, each ending at an empty row or column the way OpenL reads it. A table added,
+both branches is split into tables, each ending at a row or a column with no value the way OpenL reads it, whatever
+the style of its cells; the style and the comment of an empty cell between tables are merged cell by cell. A table
+added,
 removed, changed or moved in one branch takes the change of that branch; a table changed in both is merged row by
 row, or column by column when a branch inserted or deleted its columns, and a row changed in both cell by cell. A
 workbook resolves automatically when every such sheet merges:
