@@ -101,6 +101,10 @@ Content-Type: application/json
       "name": "Settings: System"
     },
     {
+      "description": "***",
+      "name": "Table Themes (BETA)"
+    },
+    {
       "name": "Tags"
     },
     {
@@ -19617,6 +19621,102 @@ Content-Type: application/json
         ]
       }
     },
+    "/table-themes": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableThemeView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Table Themes (BETA)"
+        ]
+      }
+    },
     "/tags/types": {
       "get": {
         "description": "***",
@@ -29462,6 +29562,20 @@ Content-Type: application/json
             "description": "***"
           },
           "projectId": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TableThemeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
             "type": "string",
             "description": "***"
           }
