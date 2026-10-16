@@ -62,8 +62,11 @@ interface RawTableGridProps {
     formulas?: boolean | undefined
     /** Follows a piece of a cell's text to the table it names; absent when this screen cannot go there. */
     onOpenUsage?: OpenUsage | undefined
-    /** Told which cell the reader picked; absent on a screen where a cell cannot be picked. */
-    onPickCell?: ((row: number, column: number) => void) | undefined
+    /**
+     * Told which cell the reader picked, and whether they held Shift to reach it from the cell picked before; absent
+     * on a screen where a cell cannot be picked.
+     */
+    onPickCell?: ((row: number, column: number, extend: boolean) => void) | undefined
     /** Told which cell the reader opened, by double-clicking it. */
     onOpenCell?: ((row: number, column: number) => void) | undefined
     /**
@@ -590,7 +593,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                 data-cell={cell.cell}
                                 data-edge={edgeOf(rowIndex, columnIndex, cell, rows.length, columns)}
                                 data-role={role?.region.role}
-                                onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
+                                onClick={onPickCell && (event => onPickCell(rowIndex, columnIndex, event.shiftKey))}
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}
                                 rowSpan={cell.rowspan}
                                 className={cx(styles.cell, cell.comment !== undefined && styles.commented,

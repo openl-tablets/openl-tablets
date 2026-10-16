@@ -15,8 +15,10 @@ import {
     ItalicOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    MergeCellsOutlined,
     RedoOutlined,
     SaveOutlined,
+    SplitCellsOutlined,
     UnderlineOutlined,
     UndoOutlined,
 } from '@ant-design/icons'
@@ -67,6 +69,12 @@ interface TableEditToolbarProps {
     onInsertColumn: () => void
     onRemoveColumn: () => void
     onStyle: (style: RawCellStyleInput) => void
+    /** Why the cells picked cannot be merged, or null when they can. */
+    mergeBlocked: string | null
+    /** Whether the picked cell is a merged one, which can be taken apart. */
+    unmergeable: boolean
+    onMerge: () => void
+    onUnmerge: () => void
     /**
      * Shows a colour on the picked cell before it is chosen, and takes it back off with null.
      *
@@ -114,6 +122,10 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     onRemoveColumn,
     onStyle,
     onPreview,
+    mergeBlocked,
+    unmergeable,
+    onMerge,
+    onUnmerge,
     whole,
     formatting,
     indenting,
@@ -207,6 +219,10 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                 why: off('browser.module.edit_whole_table'),
             })}
             {action('remove_column', <DeleteColumnOutlined />, onRemoveColumn)}
+            {rule}
+            {action('merge', <MergeCellsOutlined />, onMerge, { disabled: mergeBlocked !== null, why: mergeBlocked })}
+            {action('unmerge', <SplitCellsOutlined />, onUnmerge,
+                { disabled: !unmergeable, why: off('browser.module.edit_unmerge_pick') })}
             {formatting && (
                 <>
                     {rule}
