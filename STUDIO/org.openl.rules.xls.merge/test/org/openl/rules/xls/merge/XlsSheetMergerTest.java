@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openl.rules.xls.merge.MergeFixture.RULES;
 import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.cellOf;
+import static org.openl.rules.xls.merge.MergeFixture.layOut;
 import static org.openl.rules.xls.merge.MergeFixture.number;
 import static org.openl.rules.xls.merge.MergeFixture.set;
 import static org.openl.rules.xls.merge.MergeFixture.text;
@@ -34,6 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
 import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
@@ -502,36 +504,70 @@ class XlsSheetMergerTest {
     }
 
     @Test
-    void defaultColumnWidthChangedDifferently_isConflict() throws IOException {
-        FIXTURE.assertConflict(sheet -> {
+    void defaultColumnWidthChangedDifferently_keepsOurs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             set(sheet, 3, 1, 10);
             sheet.setDefaultColumnWidth(20);
         }, sheet -> {
             set(sheet, 9, 1, 31);
             sheet.setDefaultColumnWidth(25);
         });
+        assertEquals(20, merged.getDefaultColumnWidth());
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals(31, number(merged, 9, 1));
     }
 
     @Test
-    void columnWidthChangedDifferently_isConflict() throws IOException {
-        FIXTURE.assertConflict(sheet -> {
+    void columnWidthChangedDifferently_keepsOurs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             set(sheet, 3, 1, 10);
             sheet.setColumnWidth(0, 8000);
         }, sheet -> {
             set(sheet, 9, 1, 31);
             sheet.setColumnWidth(0, 9000);
+            sheet.setColumnWidth(2, 7000);
         });
+        assertEquals(8000, merged.getColumnWidth(0));
+        assertEquals(7000, merged.getColumnWidth(2));
+        assertEquals(31, number(merged, 9, 1));
     }
 
     @Test
-    void rowHeightChangedDifferently_isConflict() throws IOException {
-        FIXTURE.assertConflict(sheet -> {
+    void columnsLaidOutToTheEndInTheirs_areMergedAtOnce() throws IOException {
+        var merged = (XSSFSheet) FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 3, 1, 10);
+            sheet.setColumnWidth(5, 9000);
+            var filled = sheet.getWorkbook().createCellStyle();
+            filled.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+            filled.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            layOut(sheet, 9, 13).setStyle(filled.getIndex());
+        }, sheet -> {
+            set(sheet, 9, 1, 31);
+            var col = layOut(sheet, 4, 16384);
+            col.setWidth(20);
+            col.setCustomWidth(true);
+        });
+        assertEquals(20 * 256, merged.getColumnWidth(3));
+        assertEquals(9000, merged.getColumnWidth(5));
+        assertEquals(20 * 256, merged.getColumnWidth(10));
+        assertEquals(FillPatternType.SOLID_FOREGROUND, merged.getColumnStyle(10).getFillPattern());
+        assertEquals(20 * 256, merged.getColumnWidth(16383));
+        assertEquals(5, merged.getCTWorksheet().getColsArray(0).sizeOfColArray());
+        assertEquals(31, number(merged, 9, 1));
+    }
+
+    @Test
+    void rowHeightChangedDifferently_keepsOurs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             set(sheet, 3, 1, 10);
             sheet.getRow(0).setHeight((short) 600);
         }, sheet -> {
             set(sheet, 9, 1, 31);
             sheet.getRow(0).setHeight((short) 700);
         });
+        assertEquals(600, merged.getRow(0).getHeight());
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals(31, number(merged, 9, 1));
     }
 
     @Test
@@ -590,9 +626,15 @@ class XlsSheetMergerTest {
 
     @Test
     void xlsWorkbook_isMerged() throws IOException {
-        var merged = FIXTURE.merge(HSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10), sheet -> set(sheet, 9, 1, 31));
+        var merged = FIXTURE.merge(HSSFWorkbook::new, sheet -> set(sheet, 3, 1, 10), sheet -> {
+            set(sheet, 9, 1, 31);
+            sheet.setColumnWidth(7, 9000);
+            sheet.setColumnHidden(8, true);
+        });
         assertEquals(10, number(merged, 3, 1));
         assertEquals(31, number(merged, 9, 1));
+        assertEquals(9000, merged.getColumnWidth(7));
+        assertTrue(merged.isColumnHidden(8));
     }
 
     @Test

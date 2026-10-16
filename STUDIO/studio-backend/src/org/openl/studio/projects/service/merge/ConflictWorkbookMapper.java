@@ -97,7 +97,6 @@ class ConflictWorkbookMapper {
             case REMOVED_AND_CHANGED -> ConflictSheetReason.REMOVED_AND_CHANGED;
             case ADDED_IN_BOTH -> ConflictSheetReason.ADDED_IN_BOTH;
             case VISIBILITY -> ConflictSheetReason.VISIBILITY;
-            case LAYOUT -> ConflictSheetReason.LAYOUT;
             case PICTURES -> ConflictSheetReason.PICTURES;
             case SETTINGS -> ConflictSheetReason.SETTINGS;
             case TOUCHING_TABLES -> ConflictSheetReason.TOUCHING_TABLES;

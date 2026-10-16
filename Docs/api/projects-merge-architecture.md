@@ -56,7 +56,10 @@ flowchart TB
   changed; the comparison is read through the Compare API.
 - **`XlsWorkbookMerger`** (`org.openl.rules.xls.merge`) — merges two versions of a workbook against their base, sheet
   by sheet. A sheet both versions changed goes to **`XlsSheetMerger`**, which merges it cell by cell, the value, the
-  style and the comment of a cell each on its own, unless the changes overlap. When that fails, for instance because
+  style and the comment of a cell each on its own, unless the changes overlap. The height and the visibility of a
+  row, the width and the visibility of a column and the default sizes of the sheet are taken the same way, but one
+  both versions changed differently keeps your version, as sizes do not change what OpenL reads. When that fails,
+  for instance because
   **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
   table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
   value, as the OpenL compiler does whatever their style, and pairs them by their headers; a cell outside every

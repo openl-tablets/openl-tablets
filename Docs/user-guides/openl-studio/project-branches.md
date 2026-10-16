@@ -181,11 +181,13 @@ contain the project when it is opened. Proceed as follows:
     so are columns when a branch inserted or deleted columns of the table. A table that grew or moved in one branch
     keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that branch.
     The value, the style and the comment of a cell are merged separately, so one branch can change the text of a
-    cell and the other its style. Such a sheet stays a conflict in the following cases:
+    cell and the other its style. The height of a row, the width of a column, their visibility and the default sizes
+    are merged the same way, but one both branches changed differently keeps the size of your version: sizes change
+    how the sheet looks, not what OpenL reads from it. A row or a column that content of their branch moves through
+    keeps the size of your version too. Such a sheet stays a conflict in the following cases:
 
-    -   Both branches change the value, the style or the comment of the same cell, the height or the visibility of
-        the same row, the width or the visibility of the same column, the default column width or row height, the
-        merged cells of the same table or the pictures of the sheet differently.
+    -   Both branches change the value, the style or the comment of the same cell, the merged cells of the same table
+        or the pictures of the sheet differently.
     -   Both branches insert different rows at the same place of a table, one branch inserts a row next to a row
         the other branch deletes, or one branch deletes a row the other branch changes. Columns follow the same
         rule.
@@ -198,8 +200,6 @@ contain the project when it is opened. Proceed as follows:
     -   Content that moves is referred to by a formula, a defined name, a data validation, a conditional formatting
         or a hyperlink, which would refer to other cells after the merge, or lies under a picture, a chart, an Excel
         table or an autofilter, which would stay where it was.
-    -   A branch changes the height or the visibility of a row, or the width or the visibility of a column, where
-        content moves.
     -   The branch whose changes are merged in changes the data validation, the conditional formatting, the
         hyperlinks or the frozen panes of the sheet. It is the selected branch for **Receive their updates** and the
         current branch for **Send your updates**.
@@ -289,7 +289,7 @@ contain the project when it is opened. Proceed as follows:
     **Whole Sheet** above the tables takes the whole sheet from your version, from their version or from the base
     version, which resolves all its tables at once; **Table by Table** leaves them to be resolved one by one again. A
     sheet whose conflict lies outside its tables, such as a sheet one branch removed and the other one changed, or
-    the height of a row both branches changed differently, is resolved only as a whole: the window tells why, and
+    a sheet both branches hid or showed differently, is resolved only as a whole: the window tells why, and
     which versions have the sheet. So is a sheet whose tables would move content a formula refers to, whichever
     version they are taken from. **Compare Versions** next to the reason opens the workbook in the window described
     in [Comparing Excel Files](rules-editor.md#comparing-excel-files), with what each branch changed in it. A sheet

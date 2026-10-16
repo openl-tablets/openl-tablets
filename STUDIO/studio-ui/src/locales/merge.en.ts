@@ -140,15 +140,12 @@ i18next.addResourceBundle('en', 'merge', {
             removedAndChanged: 'One branch removed the sheet, and the other one changed it.',
             addedInBoth: 'Both branches added a sheet of this name with different content.',
             visibility: 'Both branches hid or showed the sheet differently.',
-            layout: 'Both branches changed the height of a row, the width of a column, their visibility or the '
-                + 'default sizes differently.',
             pictures: 'Both branches changed the pictures of the sheet differently.',
             settings: 'Their branch changed the data validation, the conditional formatting, the hyperlinks or the '
                 + 'frozen panes, which are taken only with Use theirs for the whole file.',
             touchingTables: 'Tables of the two branches would touch each other and be read as one table.',
             movedContent: 'Content one branch moved is referred to by a formula, a defined name, a data validation, a '
-                + 'conditional formatting or a hyperlink, lies under a picture or another object, or moves through '
-                + 'rows or columns a branch laid out.',
+                + 'conditional formatting or a hyperlink, or lies under a picture or another object.',
         },
         table_reason: {
             cells: 'Both branches changed the same cells differently.',
