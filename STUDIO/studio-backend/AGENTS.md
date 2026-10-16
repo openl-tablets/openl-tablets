@@ -263,6 +263,20 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   builder emits (`buildTableRegions` in `tableSkeletons.ts`); a table written into a new module is formatted on its POI
   sheet (`ExcelTableFormatter.format(Sheet, IGridRegion, TableRegions)`). A formatting that fails is logged and the
   table saved unformatted.
+- **A formatting pass costs every cell of the table.** Reading a cell's format through XMLBeans creates an object per
+  attribute, about 0.5 µs a cell on a freshly loaded workbook, so `ExcelTableFormatter` reads `getS()` (never
+  `isSetS()`), writes `setS()` only when the format changes, looks a row up once, and `WorkbookStyles` keeps the last
+  format asked for. The header is built one run per piece (`XSSFRichTextString.append`): `applyFont` rebuilds every run
+  of the text at each call, which cost a formatted upload of 1,000 tables a tenth of its time. A table its previous save
+  left formatted in the same regions (`FormattedTables`: the table's workbook file, sheet and corner, the regions, and
+  the file's timestamp and length right after that save; any other write of the file formats the table in full again)
+  has only the lines an edit touched formatted: `RegionShift.touchedRows`/`touchedColumns`, the lines inserted or
+  restyled and the lines on either side of where lines were inserted or removed, and the header, written in its pieces
+  at every save, as a value written into it is plain text — a value edit formats no other cell. A value write and a
+  merge change no cell format but a number format, which the look keeps; a style edit reports the rows it restyles
+  (`TableWriter.rowsRestyled`), and a header or properties block that changed height (`RegionShift.bodyMoved`) formats
+  the table in full. `TableWriter.save` reads the position while the table is open for writing, as the save closes it,
+  and tells `ExcelTableFormatter.formatOnSave` whether the table stands formatted.
 - **Reformat Excel files is the project action** (`POST /projects/{id}/format`, `WorkspaceProjectService.formatProject`).
   It compiles what it needs instead of refusing: a project compiled only in part is compiled whole, and a project
   written since it was compiled (`ProjectModel.isWrittenSinceCompiled`) has its module built from its workbooks again
@@ -273,13 +287,14 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   edit on the tables: no value changes.
 - **An upload is formatted after one compile** (`UploadFormatting`), only its `.xlsx` files, while
   `table.format-on-save` is on. An upload into an opened project is written to the working copy first: the files
-  controller's `postUpload` hook, after the session reset, has `WorkspaceProjectService.formatUploaded` compile the
-  project whole and format the tables whose workbook is an uploaded file, saved with
-  `XlsWorkbookSourceCodeModule.saveLook`, which leaves the compile answering for the workbook. An upload into a closed
-  project (`ProjectFilesServiceImpl`), and a ZIP archive that overwrites a project (`ZipProjectSaveStrategy`), are
-  staged in a temporary folder, each module holding an uploaded workbook compiled there with the dependency manager of
-  a project opened in the session, and the formatted files committed once. A workbook that cannot be formatted is
-  written as uploaded and the failure logged: formatting never fails an upload.
+  controller's `postUpload` hook, after the session reset, has `WorkspaceProjectService.formatUploaded` format the
+  tables whose workbook is an uploaded file in the compile of the module open when it holds them all
+  (`UploadFormatting.compiledIn`, as Update replaces the module's own workbook), or else in a compile of the whole
+  project. The workbooks are saved with `XlsWorkbookSourceCodeModule.saveLook`, which leaves the compile answering
+  for them. An upload into a closed project (`ProjectFilesServiceImpl`), and a ZIP archive that overwrites a project
+  (`ZipProjectSaveStrategy`), are staged in a temporary folder, each module holding an uploaded workbook compiled
+  there with the dependency manager of a project opened in the session, and the formatted files committed once. A
+  workbook that cannot be formatted is written as uploaded and the failure logged: formatting never fails an upload.
 - **A style edit follows the setting and the palette.** While `table.format-on-save` is on, `RawTableWriter` refuses
   a `style` operation that names anything but `indent` (`TableWriter.isFormattingOnSave`, set by
   `formatOnSave(boolean)` even when the save formats nothing this time). A colour (`RawCellColor`) is a theme colour,

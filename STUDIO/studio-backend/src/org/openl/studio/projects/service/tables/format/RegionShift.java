@@ -1,10 +1,12 @@
 package org.openl.studio.projects.service.tables.format;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,14 +47,23 @@ public final class RegionShift {
     /** The roles of a line that stands alone, which a line inserted next to it never repeats. */
     private static final Set<RawTableRole> ALONE = EnumSet.of(RawTableRole.SECTION, RawTableRole.RESULT);
 
+    /** The regions the shift started from, as the last compile laid the table out. */
+    private final TableRegions start;
     private List<RawTableRegion> regions;
     private TreeSet<Integer> groupRows;
     private TreeSet<Integer> groupColumns;
     private Map<TableRegions.Cell, RawTableValueType> types;
+    /** The rows the edits inserted, and the rows next to where rows were inserted or removed. */
+    private TreeSet<Integer> touchedRows = new TreeSet<>();
+    /** The columns the edits inserted, and the columns next to where columns were inserted or removed. */
+    private TreeSet<Integer> touchedColumns = new TreeSet<>();
+    /** Whether the body moved, as the header and the properties came to take another number of rows. */
+    private boolean bodyMoved;
     private int height;
     private int width;
 
     private RegionShift(TableRegions regions, int height, int width) {
+        this.start = regions;
         this.regions = new ArrayList<>(regions.regions());
         this.groupRows = new TreeSet<>(regions.groups().rows());
         this.groupColumns = new TreeSet<>(regions.groups().columns());
@@ -90,6 +101,45 @@ public final class RegionShift {
     }
 
     /**
+     * The regions the shift started from, before any edit moved them.
+     *
+     * @return the regions of the table as its last compile laid it out
+     */
+    public TableRegions start() {
+        return start;
+    }
+
+    /**
+     * The rows the edits inserted or restyled, and the rows on either side of where rows were inserted or removed, in
+     * the table as it stands: the rows whose look an edit can have changed when the table was formatted before it.
+     *
+     * @return the rows, in table coordinates, in their order
+     */
+    public NavigableSet<Integer> touchedRows() {
+        return Collections.unmodifiableNavigableSet(touchedRows.headSet(height, false));
+    }
+
+    /**
+     * The columns the edits inserted, and the columns on either side of where columns were inserted or removed, as
+     * {@link #touchedRows()} names the rows.
+     *
+     * @return the columns, in table coordinates, in their order
+     */
+    public NavigableSet<Integer> touchedColumns() {
+        return Collections.unmodifiableNavigableSet(touchedColumns.headSet(width, false));
+    }
+
+    /**
+     * Whether fitting the regions moved the body, as the header and the properties came to take another number of
+     * rows than they took. A body moved so may give every line of it other roles than it had.
+     *
+     * @return whether the body moved under the header
+     */
+    public boolean bodyMoved() {
+        return bodyMoved;
+    }
+
+    /**
      * Inserts rows.
      *
      * @param at    the row the first inserted row takes, the rows from it on moving down
@@ -119,6 +169,10 @@ public final class RegionShift {
         }
         regions = moved;
         groupRows = shifted(groupRows, at, count);
+        touchedRows = shifted(touchedRows, at, count);
+        for (var row = Math.max(at - 1, 0); row <= at + count; row++) {
+            touchedRows.add(row);
+        }
         types = shiftedTypes(at, count);
         height += count;
     }
@@ -143,15 +197,10 @@ public final class RegionShift {
             }
         }
         regions = kept;
-        var groups = new TreeSet<Integer>();
-        groupRows.forEach(row -> {
-            if (row < at) {
-                groups.add(row);
-            } else if (row >= end) {
-                groups.add(row - count);
-            }
-        });
-        groupRows = groups;
+        groupRows = removed(groupRows, at, count);
+        touchedRows = removed(touchedRows, at, count);
+        touchedRows.add(Math.max(at - 1, 0));
+        touchedRows.add(at);
         var moved = new HashMap<TableRegions.Cell, RawTableValueType>();
         types.forEach((cell, type) -> {
             if (cell.row() < at) {
@@ -190,6 +239,18 @@ public final class RegionShift {
             return bottom;
         }
         return bottom < end ? at - 1 : bottom - (end - at);
+    }
+
+    /**
+     * Marks rows whose cells an edit restyled, so a table formatted before has them formatted again.
+     *
+     * @param at    the first row restyled
+     * @param count how many rows are restyled
+     */
+    public void rowsRestyled(int at, int count) {
+        for (var row = at; row < at + count; row++) {
+            touchedRows.add(row);
+        }
     }
 
     /**
@@ -241,6 +302,7 @@ public final class RegionShift {
      */
     public TableRegions fittedTo(TableRegionLayout.Head head, int rows, int columns, String header) {
         var oldHead = headHeight();
+        bodyMoved |= head.height() != oldHead;
         if (head.height() > oldHead) {
             rowsInserted(oldHead, head.height() - oldHead);
         } else {
@@ -354,6 +416,19 @@ public final class RegionShift {
         return moved;
     }
 
+    /** The lines left once lines are removed: those after the removed ones move back by as many. */
+    private static TreeSet<Integer> removed(TreeSet<Integer> lines, int at, int count) {
+        var left = new TreeSet<Integer>();
+        lines.forEach(line -> {
+            if (line < at) {
+                left.add(line);
+            } else if (line >= at + count) {
+                left.add(line - count);
+            }
+        });
+        return left;
+    }
+
     private Map<TableRegions.Cell, RawTableValueType> shiftedTypes(int at, int count) {
         var moved = new HashMap<TableRegions.Cell, RawTableValueType>();
         types.forEach((cell, type) -> moved.put(cell.row() >= at
@@ -371,6 +446,9 @@ public final class RegionShift {
         var rows = groupRows;
         groupRows = groupColumns;
         groupColumns = rows;
+        var touched = touchedRows;
+        touchedRows = touchedColumns;
+        touchedColumns = touched;
         var turnedTypes = new HashMap<TableRegions.Cell, RawTableValueType>();
         types.forEach((cell, type) -> turnedTypes.put(new TableRegions.Cell(cell.column(), cell.row()), type));
         types = turnedTypes;

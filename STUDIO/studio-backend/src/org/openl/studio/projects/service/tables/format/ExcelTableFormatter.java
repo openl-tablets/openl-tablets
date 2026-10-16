@@ -1,8 +1,10 @@
 package org.openl.studio.projects.service.tables.format;
 
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +12,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
@@ -18,7 +21,6 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableSignaturePart;
@@ -83,26 +85,75 @@ public final class ExcelTableFormatter {
      * @return whether the table was formatted: a table of an {@code .xls} workbook is not
      */
     public boolean format(Sheet sheet, IGridRegion table, TableRegions regions) {
+        return format(sheet, table, regions, Lines.WHOLE);
+    }
+
+    /** Writes the style into the given lines of a table standing on a sheet. */
+    boolean format(Sheet sheet, IGridRegion table, TableRegions regions, Lines lines) {
         if (!(sheet instanceof XSSFSheet xssf)) {
             return false;
         }
         var styles = workbooks.computeIfAbsent(xssf.getWorkbook(), WorkbookStyles::new);
-        new TableWrite(xssf, table, regions, styles).write();
+        new TableWrite(xssf, table, regions, styles, lines).write();
         return true;
+    }
+
+    /**
+     * Formats a table being saved in its layout, fitted to the table as the save leaves it, every line of it. A
+     * formatting that fails is logged and leaves the table as it is written, so the save goes on.
+     *
+     * @param grid   the table as it stands on its sheet, header included
+     * @param layout the regions of the table, moved along the lines the save inserted and removed
+     * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
+     */
+    public static @Nullable TableRegions formatOnSave(IGridTable grid, RegionShift layout) {
+        return formatOnSave(grid, layout, false);
     }
 
     /**
      * Formats a table being saved in its layout, fitted to the table as the save leaves it. A formatting that fails is
      * logged and leaves the table as it is written, so the save goes on.
      *
-     * @param grid   the table as it stands on its sheet, header included
-     * @param layout the regions of the table, moved along the lines the save inserted and removed
+     * <p>A table formatted before, in the regions the edit started from, needs only the lines the edit touched: the
+     * lines it inserted or restyled, and the lines next to where it inserted or removed some. Its header is written
+     * in its pieces again, as a value written into it is plain text. A header and properties that came to take
+     * another number of rows have the table formatted whole.
+     *
+     * @param grid      the table as it stands on its sheet, header included
+     * @param layout    the regions of the table, moved along the lines the save inserted and removed
+     * @param formatted whether the table stands formatted in the regions the edit started from
+     * @return the regions the table stands formatted in, or {@code null} when it is saved unformatted
      */
-    public static void formatOnSave(IGridTable grid, RegionShift layout) {
+    public static @Nullable TableRegions formatOnSave(IGridTable grid, RegionShift layout, boolean formatted) {
         try {
-            new ExcelTableFormatter().format(grid, layout.fittedTo(grid));
+            var regions = layout.fittedTo(grid);
+            var lines = formatted && !layout.bodyMoved()
+                    ? new Lines(false, layout.touchedRows(), layout.touchedColumns())
+                    : Lines.WHOLE;
+            var sheet = ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite();
+            new ExcelTableFormatter().format(sheet, grid.getRegion(), regions, lines);
+            return regions;
         } catch (RuntimeException e) {
             log.warn("The table at {} is saved unformatted.", grid.getUri(), e);
+            return null;
+        }
+    }
+
+    /**
+     * The lines of a table to format: every line, or the given rows across the table and columns down the table.
+     *
+     * @param all     whether every line is formatted
+     * @param rows    the rows, in table coordinates, unless every line is
+     * @param columns the columns, in table coordinates, unless every line is
+     */
+    record Lines(boolean all, NavigableSet<Integer> rows, NavigableSet<Integer> columns) {
+
+        /** Every line of a table. */
+        static final Lines WHOLE = new Lines(true, Collections.emptyNavigableSet(), Collections.emptyNavigableSet());
+
+        /** Whether any cell is to be formatted. */
+        boolean reachCells() {
+            return all || !rows.isEmpty() || !columns.isEmpty();
         }
     }
 
@@ -125,26 +176,56 @@ public final class ExcelTableFormatter {
      * @param table   where the table stands on the sheet
      * @param regions the regions of the table
      * @param styles  the style in the workbook
+     * @param lines   the lines of the table to format
      */
-    private record TableWrite(XSSFSheet sheet, IGridRegion table, TableRegions regions, WorkbookStyles styles) {
+    private record TableWrite(XSSFSheet sheet, IGridRegion table, TableRegions regions, WorkbookStyles styles,
+                              Lines lines) {
 
         void write() {
-            var bottom = table.getBottom() - table.getTop();
+            if (lines.reachCells()) {
+                writeCells();
+            }
+            // A value written into the header is plain text, which no line touched tells: it is written every time.
+            writeSignature();
+        }
+
+        /** Gives the cells of the lines to format their cell formats, region by region. */
+        private void writeCells() {
             var groupRows = Set.copyOf(regions.groups().rows());
             var groupColumns = Set.copyOf(regions.groups().columns());
             for (var region : regions.regions()) {
-                var style = TableStyle.of(region.role());
+                var columns = lines.columns().subSet(region.left(), true, region.right(), true);
                 for (var row = region.top(); row <= region.bottom(); row++) {
-                    var top = topOf(style, region, row, groupRows);
-                    var below = bottomOf(style, region, row, bottom);
-                    var plain = new Edges(top, below, null);
-                    var grouped = new Edges(top, below, Line.GROUP);
-                    for (var column = region.left(); column <= region.right(); column++) {
-                        write(row, column, style, groupColumns.contains(column) ? grouped : plain);
+                    if (lines.all() || lines.rows().contains(row)) {
+                        writeRow(region, row, groupRows, groupColumns, null);
+                    } else if (!columns.isEmpty()) {
+                        writeRow(region, row, groupRows, groupColumns, columns);
                     }
                 }
             }
-            writeSignature();
+        }
+
+        /**
+         * Gives cells of one row of a region their cell formats, a line before each column starting a group.
+         *
+         * @param columns the columns of the cells, or {@code null} for every cell of the row
+         */
+        private void writeRow(RawTableRegion region, int row, Set<Integer> groupRows, Set<Integer> groupColumns,
+                              @Nullable Set<Integer> columns) {
+            var style = TableStyle.of(region.role());
+            var bottom = table.getBottom() - table.getTop();
+            var edges = new Edges(topOf(style, region, row, groupRows), bottomOf(style, region, row, bottom), null);
+            var grouped = new Edges(edges.top(), edges.bottom(), Line.GROUP);
+            var sheetRow = rowOf(table.getTop() + row);
+            if (columns == null) {
+                for (var column = region.left(); column <= region.right(); column++) {
+                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges);
+                }
+            } else {
+                for (var column : columns) {
+                    write(sheetRow, column, style, groupColumns.contains(column) ? grouped : edges);
+                }
+            }
         }
 
         /** The line above a cell of a region: the line of its role, or the line above a group. */
@@ -164,12 +245,24 @@ public final class ExcelTableFormatter {
             return below == null && row == bottom ? Line.MAJOR : below;
         }
 
+        /** The row of the sheet, created when it has none. */
+        private XSSFRow rowOf(int at) {
+            var row = sheet.getRow(at);
+            return row != null ? row : sheet.createRow(at);
+        }
+
         /** Gives a cell its cell format, and writes its text as plain text. */
-        private void write(int row, int column, TableStyle style, Edges edges) {
-            var cell = (XSSFCell) PoiExcelHelper.getOrCreateCell(table.getLeft() + column, table.getTop() + row, sheet);
+        private void write(XSSFRow row, int column, TableStyle style, Edges edges) {
+            var at = table.getLeft() + column;
+            var found = row.getCell(at);
+            var cell = found != null ? found : row.createCell(at);
             var ct = cell.getCTCell();
-            var source = ct.isSetS() ? (int) ct.getS() : 0;
-            ct.setS(styles.format(style, edges, source));
+            // An absent cell format reads as the first one, as the schema of a workbook gives it.
+            var source = (int) ct.getS();
+            var format = styles.format(style, edges, source);
+            if (format != source) {
+                ct.setS(format);
+            }
             if (style != TableStyle.SIGNATURE && isRich(cell)) {
                 writeText(cell, new XSSFRichTextString(cell.getStringCellValue()));
             }
@@ -194,15 +287,21 @@ public final class ExcelTableFormatter {
                 return;
             }
             var text = cell.getStringCellValue();
-            var rich = new XSSFRichTextString(text);
-            if (covers(regions.signature(), text)) {
-                var from = 0;
-                for (var piece : regions.signature()) {
-                    rich.applyFont(from, piece.to(), pieceFont(piece.part()));
+            writeText(cell, covers(regions.signature(), text) ? inPieces(text) : new XSSFRichTextString(text));
+        }
+
+        /** The header text, a run of its own font for each piece. */
+        private XSSFRichTextString inPieces(String text) {
+            // One run appended per piece: a font applied to a range rebuilds every run of the text.
+            var rich = new XSSFRichTextString();
+            var from = 0;
+            for (var piece : regions.signature()) {
+                if (piece.to() > from) {
+                    rich.append(text.substring(from, piece.to()), pieceFont(piece.part()));
                     from = piece.to();
                 }
             }
-            writeText(cell, rich);
+            return rich;
         }
 
         private static boolean covers(List<RawTableSignaturePiece> pieces, String text) {

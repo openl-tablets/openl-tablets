@@ -32,11 +32,11 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
@@ -83,26 +83,42 @@ public class UploadFormatting {
     }
 
     /**
+     * Whether the upload wrote the workbook of a module alone, so the compile of that module answers for the whole
+     * upload: the module open in the session, when the upload replaced its own workbook, as Update does.
+     *
+     * @param module   the module, or {@code null} for a session with no module open
+     * @param folder   the folder of the working copy of the project
+     * @param uploaded the uploaded files, by their paths relative to the project
+     * @return whether every uploaded {@code .xlsx} file is the workbook of the module
+     */
+    public boolean compiledIn(@Nullable Module module, Path folder, Collection<String> uploaded) {
+        var rules = module == null ? null : module.getRulesPath();
+        if (rules == null) {
+            return false;
+        }
+        var workbook = real(rules);
+        return uploadedWorkbooks(folder, uploaded).stream().allMatch(workbook::equals);
+    }
+
+    /**
      * Formats the uploaded workbooks of a project opened in OpenL Studio, compiled as the session compiles it.
      *
      * <p>The upload is already written into the working copy, which stages it until the project is saved. The
      * workbooks are saved there again as a change of their look alone, so the compile goes on answering for them.
      *
-     * @param model    the project, compiled whole with the upload
+     * @param nodes    the tables of the compile of the upload, those of other workbooks among them
      * @param folder   the folder of the working copy of the project
      * @param uploaded the uploaded files, by their paths relative to the project
      * @throws UncheckedIOException if a workbook cannot be saved: the session holds workbooks no file has
      */
-    public void formatOpened(ProjectModel model, Path folder, Collection<String> uploaded) {
-        var workbooks = excelPaths(uploaded).stream()
-                .map(path -> real(folder.resolve(path)))
-                .collect(Collectors.toSet());
+    public void formatOpened(Collection<TableSyntaxNode> nodes, Path folder, Collection<String> uploaded) {
+        var workbooks = uploadedWorkbooks(folder, uploaded);
         if (!formatting.onSave() || workbooks.isEmpty()) {
             return;
         }
         var formatter = new ExcelTableFormatter();
         Set<XlsWorkbookSourceCodeModule> saved = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (var node : model.getAllTableSyntaxNodes()) {
+        for (var node : nodes) {
             var source = node.getXlsSheetSourceCodeModule().getWorkbookSource();
             if (workbooks.contains(pathOf(source)) && format(formatter, new TableSyntaxNodeAdapter(node))) {
                 saved.add(source);
@@ -115,6 +131,11 @@ public class UploadFormatting {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /** The uploaded {@code .xlsx} files, by their real paths in the working copy of the project. */
+    private static Set<Path> uploadedWorkbooks(Path folder, Collection<String> uploaded) {
+        return excelPaths(uploaded).stream().map(path -> real(folder.resolve(path))).collect(Collectors.toSet());
     }
 
     /**

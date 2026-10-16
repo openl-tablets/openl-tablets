@@ -85,6 +85,9 @@ final class WorkbookStyles {
     private final Map<Integer, Kept> kept = new HashMap<>();
     private @Nullable Map<XfKey, Integer> cellXfs;
 
+    /** The last cell format asked for, which the cells next to a cell mostly ask for again. */
+    private @Nullable Asked last;
+
     WorkbookStyles(XSSFWorkbook workbook) {
         styles = workbook.getStylesSource();
         var fontScheme = fontSchemeOf(styles);
@@ -107,8 +110,18 @@ final class WorkbookStyles {
      * @return the cell format, as an index of the cell formats of the workbook
      */
     int format(TableStyle style, Edges edges, int source) {
+        var asked = last;
+        if (asked != null && asked.style == style && asked.source == source && asked.edges.equals(edges)) {
+            return asked.format;
+        }
         var from = kept.computeIfAbsent(source, this::keptOf);
-        return formats.computeIfAbsent(new Format(style, edges, from), this::write);
+        var format = formats.computeIfAbsent(new Format(style, edges, from), this::write);
+        last = new Asked(style, edges, source, format);
+        return format;
+    }
+
+    /** A cell format asked for: the style of a role and the lines at its edges over a cell format a cell had. */
+    private record Asked(TableStyle style, Edges edges, int source, int format) {
     }
 
     /**

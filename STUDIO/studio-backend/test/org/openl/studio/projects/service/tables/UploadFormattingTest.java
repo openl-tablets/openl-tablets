@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,6 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 
@@ -100,7 +98,7 @@ class UploadFormattingTest {
         var model = TableTestProjects.projectModel(dir, SHEET, UploadFormattingTest::person);
         TableTestProjects.table(model, "Person");
 
-        uploads(true).formatOpened(model, dir, List.of(WORKBOOK));
+        uploads(true).formatOpened(model.getAllTableSyntaxNodes(), dir, List.of(WORKBOOK));
 
         assertEquals("Title", styleAt(1, 1));
         assertFalse(model.isWrittenSinceCompiled(), "Only the look of the workbook is written");
@@ -111,8 +109,8 @@ class UploadFormattingTest {
         var model = TableTestProjects.projectModel(dir, SHEET, UploadFormattingTest::person);
         TableTestProjects.table(model, "Person");
 
-        uploads(true).formatOpened(model, dir, List.of("Other.xlsx"));
-        uploads(false).formatOpened(model, dir, List.of(WORKBOOK));
+        uploads(true).formatOpened(model.getAllTableSyntaxNodes(), dir, List.of("Other.xlsx"));
+        uploads(false).formatOpened(model.getAllTableSyntaxNodes(), dir, List.of(WORKBOOK));
 
         assertNull(styleAt(1, 1));
     }
@@ -128,13 +126,20 @@ class UploadFormattingTest {
         var parts = mock(CompositeGrid.class);
         when(partGrid.getGrid()).thenReturn(parts);
         when(part.getGridTable()).thenReturn(partGrid);
-        var model = mock(ProjectModel.class);
-        when(model.getAllTableSyntaxNodes()).thenReturn(new LinkedHashSet<>(List.of(part, person)));
-
-        uploads(true).formatOpened(model, dir, List.of(WORKBOOK));
+        uploads(true).formatOpened(List.of(part, person), dir, List.of(WORKBOOK));
 
         verify(partGrid, never()).edit();
         assertEquals("Title", styleAt(1, 1), "The other tables are formatted");
+    }
+
+    @Test
+    void tellsWhetherAnUploadWroteTheWorkbookOfAModuleAlone() throws IOException {
+        var module = TableTestProjects.projectModel(dir, SHEET, UploadFormattingTest::person).getModuleInfo();
+        var uploads = uploads(true);
+
+        assertTrue(uploads.compiledIn(module, dir, List.of(WORKBOOK, "notes.txt")));
+        assertFalse(uploads.compiledIn(module, dir, List.of(WORKBOOK, "Other.xlsx")), "Another workbook");
+        assertFalse(uploads.compiledIn(null, dir, List.of(WORKBOOK)), "No module is open");
     }
 
     @Test

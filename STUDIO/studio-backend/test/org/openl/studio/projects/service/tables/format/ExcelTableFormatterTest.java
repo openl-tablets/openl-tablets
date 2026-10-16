@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -218,6 +221,30 @@ class ExcelTableFormatterTest {
     }
 
     @Test
+    void formatsTheGivenLinesAloneAndLeavesTheOtherCellsAsTheyAre() throws IOException {
+        var table = TableTestProjects.table(TableTestProjects.projectModel(dir, SHEET,
+                ExcelTableFormatterTest::fillSheet), "Rate");
+        var grid = GridTableUtils.getOriginalTable(table.getGridTable());
+        grid.edit();
+        try {
+            var lines = new ExcelTableFormatter.Lines(false, new TreeSet<>(Set.of(3)), new TreeSet<>(Set.of(2)));
+            new ExcelTableFormatter().format(((XlsSheetGridModel) grid.getGrid()).getSheetToWrite(), grid.getRegion(),
+                    TableRegionLayout.compiledRegionsOf(table), lines);
+            TableWriter.saveWorkbook((XlsSheetGridModel) grid.getGrid());
+        } finally {
+            grid.stopEditing();
+        }
+
+        try (var workbook = read()) {
+            assertEquals("Input", namedStyleAt(workbook, RATE_ROW + 3, 2).getName(), "A cell of the row");
+            assertEquals("Output", namedStyleAt(workbook, RATE_ROW + 5, 3).getName(), "A cell of the column");
+            assertEquals(0, styleAt(workbook, RATE_ROW + 5, 2).getCoreXf().getXfId(), "A cell of neither");
+            assertTrue(workbook.getSheet(SHEET).getRow(RATE_ROW).getCell(1).getRichStringCellValue()
+                    .numFormattingRuns() > 1, "The header is written in its pieces every time");
+        }
+    }
+
+    @Test
     void readsTheFontsOfTheThemeOfTheWorkbook() throws IOException {
         try (var workbook = formatted(sheet -> {
             fillSheet(sheet);
@@ -313,7 +340,7 @@ class ExcelTableFormatterTest {
         when(grid.getGrid()).thenThrow(new IllegalStateException("The sheet cannot be read"));
         var layout = RegionShift.of(new TableRegions(List.of(), RawTableGroups.NONE, List.of(), Map.of()), 1, 1);
 
-        assertDoesNotThrow(() -> ExcelTableFormatter.formatOnSave(grid, layout));
+        assertNull(assertDoesNotThrow(() -> ExcelTableFormatter.formatOnSave(grid, layout, false)));
     }
 
     /** Writes the project, formats every table of it and reads the workbook back. */
