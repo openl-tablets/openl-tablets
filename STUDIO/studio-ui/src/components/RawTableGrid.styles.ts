@@ -123,12 +123,22 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
             height: ${Math.round(token.fontSizeSM * token.lineHeightSM)}px;
         }
 
+        /* The screen frames the table in a solid line where it ends. A line the workbook or a role draws along an
+           edge takes its place, as the cell names it itself. */
         &[data-edge~='top'] {
-            border-top: 1px solid ${paper.grid};
+            border-top: 1px solid ${paper.frame};
         }
 
         &[data-edge~='left'] {
-            border-left: 1px solid ${paper.grid};
+            border-left: 1px solid ${paper.frame};
+        }
+
+        &[data-edge~='bottom'] {
+            border-bottom: 1px solid ${paper.frame};
+        }
+
+        &[data-edge~='right'] {
+            border-right: 1px solid ${paper.frame};
         }
     `,
         /**
@@ -138,7 +148,7 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
         lineNumber: css`
         border: none;
         /* The ground the table is laid on, so the numbers read as the margin they are and not as cells. */
-        background: ${token.colorBgLayout};
+        background: ${token.colorBgBase};
         padding: 0 ${token.paddingXS}px;
         color: ${token.colorText};
         font-size: ${token.fontSizeSM}px;

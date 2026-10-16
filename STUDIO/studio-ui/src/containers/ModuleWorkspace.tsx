@@ -80,8 +80,7 @@ const useStyles = createStyles(({ css, token }) => ({
     /**
      * The table is drawn at the width its own text needs, and the canvas scrolls around it.
      *
-     * The canvas is the grey of the Projects page, so the table reads as a sheet laid on it rather than as part
-     * of the page — its own white cells stay its own.
+     * The canvas is the plain ground of the theme, and the frame around the table sets it apart from the page.
      */
     canvas: css`
         flex: 1;
@@ -89,7 +88,7 @@ const useStyles = createStyles(({ css, token }) => ({
         min-height: 0;
         overflow: auto;
         padding: 16px;
-        background: ${token.colorBgLayout};
+        background: ${token.colorBgBase};
     `,
     centered: css`
         display: flex;

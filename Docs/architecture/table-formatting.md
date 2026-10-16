@@ -352,6 +352,11 @@ browser (`localStorage`, `openl.theme.excelFormatting`) like the other theme set
 Both looks are drawn from the same response. The switch re-renders the grid and sends no request. Compare always
 draws the Excel look.
 
+In both looks the screen frames a table in a solid line, `colorBorder`, along every edge where the table ends. The
+frame belongs to the screen, not to the workbook: no cell border is written for it. A line the workbook or a role
+draws along an edge is drawn in its place. The table lies on the plain ground of the theme, `colorBgBase`, and so
+do the numbers of its lines beside it.
+
 ### The Studio look
 
 Each role maps to an Ant Design token, so all 14 Studio themes and the dark appearance follow without a table of
