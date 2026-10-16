@@ -13,13 +13,39 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
 public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     private final int beforeRow;
+    private final boolean oneAfterAnother;
 
     /**
      * @param otherTables the tables beside the one edited, shared by every insert of the edit
      */
     public UndoableInsertRowsAction(int nRows, int beforeRow, MetaInfoWriter metaInfoWriter, OtherTables otherTables) {
+        this(nRows, beforeRow, metaInfoWriter, otherTables, false);
+    }
+
+    private UndoableInsertRowsAction(int nRows,
+                                     int beforeRow,
+                                     MetaInfoWriter metaInfoWriter,
+                                     OtherTables otherTables,
+                                     boolean oneAfterAnother) {
         super(metaInfoWriter, nRows, otherTables);
         this.beforeRow = beforeRow;
+        this.oneAfterAnother = oneAfterAnother;
+    }
+
+    /**
+     * Rows laid down one after another under a row of the table, each taking the look of the row above it, as that
+     * many single-row inserts would lay them. The rows under them move down once for the whole block.
+     *
+     * @param nRows       how many rows are laid down
+     * @param afterRow    the row the first new row goes under, counted from the first row of the table
+     * @param otherTables the tables beside the one edited, shared by every insert of the edit
+     * @see GridTool#insertRowsOneAfterAnother
+     */
+    public static UndoableInsertRowsAction oneAfterAnother(int nRows,
+                                                           int afterRow,
+                                                           MetaInfoWriter metaInfoWriter,
+                                                           OtherTables otherTables) {
+        return new UndoableInsertRowsAction(nRows, afterRow, metaInfoWriter, otherTables, true);
     }
 
     /**
@@ -47,6 +73,8 @@ public class UndoableInsertRowsAction extends UndoableInsertAction {
 
     @Override
     protected IUndoableGridTableAction performAction(IGridRegion fullTableRegion, IGridTable table) {
-        return GridTool.insertRows(lines, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter);
+        return oneAfterAnother
+                ? GridTool.insertRowsOneAfterAnother(lines, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter)
+                : GridTool.insertRows(lines, beforeRow, fullTableRegion, table.getGrid(), metaInfoWriter);
     }
 }

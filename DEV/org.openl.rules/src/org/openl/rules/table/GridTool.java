@@ -154,23 +154,84 @@ public class GridTool {
                                                        IGrid grid,
                                                        boolean before,
                                                        MetaInfoWriter metaInfoWriter) {
-        var h = GridRegionUtils.height(region);
-        var w = GridRegionUtils.width(region);
-        var rowsToMove = h - row;
-
-        var actions = new ArrayList<IUndoableGridTableAction>(w * rowsToMove);
-
-        var firstToMove = region.getTop() + row;
-        var rowTo = firstToMove + nRows;
-        var left = region.getLeft();
+        var actions = new ArrayList<IUndoableGridTableAction>(
+                GridRegionUtils.width(region) * (GridRegionUtils.height(region) - row));
         // Shift cells by row, copy cells of inserted row and resize merged regions after
-        actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid, metaInfoWriter));
-        var block = new CellBlock(left, firstToMove, left, rowTo, w, nRows);
+        actions.addAll(shiftRows(region.getTop() + row + nRows, nRows, INSERT, region, grid, metaInfoWriter));
+        actions.addAll(layRows(nRows, row, region, grid, before, metaInfoWriter));
+        return new UndoableCompositeAction(actions);
+    }
+
+    /**
+     * Lays rows down one after another under a row of the table, as that many single-row inserts would: each new row
+     * takes the look of the row above it, and a merge ending on that row grows over it.
+     *
+     * <p>The rows under the place move down once, by the whole block, where single-row inserts would move them once
+     * for every row: on a long table that is most of the time an insert takes. Both leave every cell, merge and
+     * comment the same as long as no merged region reaches below the place: a cell a merge covers takes its look from
+     * the cell it moves onto, which differs between the two. A table with such a merge takes the rows one at a time.
+     *
+     * <p>The grid is read when the action runs, as each single-row insert reads it after the one before.
+     *
+     * @param nRows    how many rows are laid down
+     * @param afterRow the row the first new row goes under, counted from the first row of the table
+     * @param region   the region of the whole table
+     */
+    public static IUndoableGridTableAction insertRowsOneAfterAnother(int nRows,
+                                                                     int afterRow,
+                                                                     IGridRegion region,
+                                                                     IGrid grid,
+                                                                     MetaInfoWriter metaInfoWriter) {
+        return table -> {
+            var place = region.getTop() + afterRow;
+            if (hasMergeUnder(grid, region, place)) {
+                for (var row = 0; row < nRows; row++) {
+                    insertRows(1, afterRow + row, grownBy(region, row), grid, metaInfoWriter).doAction(table);
+                }
+            } else {
+                new UndoableCompositeAction(shiftRows(place + 1, nRows, INSERT, region, grid, metaInfoWriter))
+                        .doAction(table);
+                var grown = grownBy(region, nRows);
+                for (var row = 0; row < nRows; row++) {
+                    new UndoableCompositeAction(layRows(1, afterRow + row, grown, grid, false, metaInfoWriter))
+                            .doAction(table);
+                }
+            }
+        };
+    }
+
+    /**
+     * The cells of rows laid down under a row of the table: they take the look of the rows from that one on, and the
+     * merges reaching that row grow over them.
+     */
+    private static List<IUndoableGridTableAction> layRows(int nRows,
+                                                          int row,
+                                                          IGridRegion region,
+                                                          IGrid grid,
+                                                          boolean before,
+                                                          MetaInfoWriter metaInfoWriter) {
+        var above = region.getTop() + row;
+        var left = region.getLeft();
+        var block = new CellBlock(left, above, left, above + nRows, GridRegionUtils.width(region), nRows);
+        var actions = new ArrayList<IUndoableGridTableAction>();
         actions.addAll(copyCells(block, grid, metaInfoWriter));
         actions.addAll(resizeMergedRegions(grid, row, nRows, ROWS, region, metaInfoWriter));
         actions.addAll(emptyCells(block, grid, before, ROWS, metaInfoWriter));
+        return actions;
+    }
 
-        return new UndoableCompositeAction(actions);
+    /**
+     * Whether a merged region over the table reaches below the given row of it.
+     */
+    private static boolean hasMergeUnder(IGrid grid, IGridRegion table, int row) {
+        return IntStream.range(0, grid.getNumberOfMergedRegions())
+                .mapToObj(grid::getMergedRegion)
+                .anyMatch(merge -> merge.getBottom() > row && merge.getTop() <= table.getBottom()
+                        && merge.getLeft() <= table.getRight() && merge.getRight() >= table.getLeft());
+    }
+
+    private static IGridRegion grownBy(IGridRegion region, int rows) {
+        return new GridRegion(region.getTop(), region.getLeft(), region.getBottom() + rows, region.getRight());
     }
 
     /**

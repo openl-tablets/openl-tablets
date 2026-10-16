@@ -420,12 +420,12 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireNotEmpty(rows);
         var width = GridRegionUtils.width(developerView.getRegion());
         requireBatchLines(developerView, rows, position, true, width, ROW_WIDTH_MESSAGE);
-        // A single multi-row grid insert at the table's top boundary corrupts the region, so allocate the rows one
-        // at a time. Do not write or merge them until the complete block exists: a later insertion inside an inline
-        // merge would otherwise expand the merge and hide an existing row.
-        for (var i = 0; i < rows.size(); i++) {
-            insertBlankRows(developerView, position - 1 + i);
-        }
+        // The rows go in one after another, each under the one before, as single-row inserts would lay them; the rows
+        // under them move once for the whole block. A single multi-row grid insert would instead lay the block under
+        // its own first rows. Do not write or merge them until the complete block exists: a later insertion inside an
+        // inline merge would otherwise expand the merge and hide an existing row.
+        run(developerView, UndoableInsertRowsAction.oneAfterAnother(rows.size(), position - 1, getMetaInfoWriter(),
+                getOtherTables()));
         writeLines(developerView, rows, position, true, width, GridRegionUtils.height(developerView.getRegion()));
     }
 
@@ -693,10 +693,6 @@ public class RawTableWriter extends TableWriter<RawTableView> {
 
     private IGridTable developerView() {
         return table.getGridTable(IXlsTableNames.VIEW_DEVELOPER);
-    }
-
-    private void insertBlankRows(IGridTable developerView, int beforeRow) {
-        run(developerView, new UndoableInsertRowsAction(1, beforeRow, getMetaInfoWriter(), getOtherTables()));
     }
 
     private void insertBlankColumns(IGridTable developerView, int beforeColumn) {
