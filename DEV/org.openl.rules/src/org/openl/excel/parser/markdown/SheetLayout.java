@@ -2,6 +2,7 @@ package org.openl.excel.parser.markdown;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.SequencedMap;
@@ -22,7 +23,8 @@ import org.openl.util.StringUtils;
  *
  * <p>The table starts in the top left corner with its header cell merged across the table. Properties follow under a
  * {@code properties} cell merged down, one property per row, its name and value in the next two columns. The body
- * comes last.
+ * comes last. A body narrower than the properties has the last cell of each row merged over the columns they take, as
+ * a workbook lays it out.
  *
  * <p>Reading back accepts only what the file can hold. The merges of the header and of the {@code properties} cell
  * follow from the layout, so they are not written; a property value merged to the right is read as a plain value.
@@ -76,11 +78,32 @@ final class SheetLayout {
                 target[column] = cells.get(column);
             }
         }
-        table.merges().forEach(range -> addMerge(merges, new CellRangeAddress(range.getFirstRow() + bodyTop,
-                range.getLastRow() + bodyTop,
-                range.getFirstColumn(),
-                range.getLastColumn())));
+        merges.addAll(bodyMerges(table, bodyTop, width));
         return new SheetCells(values, merges);
+    }
+
+    /**
+     * Returns the merged ranges of the body on the sheet. The last cell of each row reaches the last column of the
+     * table.
+     */
+    private static List<CellRangeAddress> bodyMerges(RulesTable table, int bodyTop, int width) {
+        var last = table.width() - 1;
+        var merges = new ArrayList<CellRangeAddress>();
+        var reaching = new BitSet();
+        for (var range : table.merges()) {
+            var widened = range.getLastColumn() == last;
+            if (widened) {
+                reaching.set(range.getFirstRow(), range.getLastRow() + 1);
+            }
+            addMerge(merges, new CellRangeAddress(range.getFirstRow() + bodyTop,
+                    range.getLastRow() + bodyTop,
+                    range.getFirstColumn(),
+                    widened ? width - 1 : range.getLastColumn()));
+        }
+        for (var row = reaching.nextClearBit(0); row < table.body().size(); row = reaching.nextClearBit(row + 1)) {
+            addMerge(merges, new CellRangeAddress(row + bodyTop, row + bodyTop, last, width - 1));
+        }
+        return merges;
     }
 
     /**
@@ -111,16 +134,19 @@ final class SheetLayout {
             throw refuse("A property needs the third column for its value, but the table is %d columns wide"
                     .formatted(width));
         }
-        // Properties widen the table to three columns, which a narrower body does not have
-        var bodyWidth = properties.isEmpty() || width > PROPERTIES_WIDTH ? width : bodyWidth(sheet, bodyTop);
+        var bodyWidth = properties.isEmpty() || width > PROPERTIES_WIDTH ? width : widthUnderProperties(sheet,
+                bodyTop,
+                height);
         var body = IntStream.range(bodyTop, height).mapToObj(row -> bodyRow(sheet, row, bodyWidth)).toList();
+        // The last cells of a narrower body merged over the columns of the properties follow from the layout
         var merges = sheet.merges()
                 .stream()
-                .filter(range -> range.getFirstRow() >= bodyTop && range.getNumberOfCells() > 1)
+                .filter(range -> range.getFirstRow() >= bodyTop)
                 .map(range -> new CellRangeAddress(range.getFirstRow() - bodyTop,
                         range.getLastRow() - bodyTop,
                         range.getFirstColumn(),
-                        range.getLastColumn()))
+                        Math.min(range.getLastColumn(), bodyWidth - 1)))
+                .filter(range -> range.getNumberOfCells() > 1)
                 .toList();
         return new RulesTable(header.strip(), properties, body, merges);
     }
@@ -217,6 +243,23 @@ final class SheetLayout {
         return extent;
     }
 
+    /**
+     * Returns the width of a body under properties, which widen the table to three columns. A narrower body keeps its
+     * own width when the last cell of each row is merged over the columns of the properties, as the layout gives it;
+     * else the body takes all three.
+     */
+    private static int widthUnderProperties(SheetCells sheet, int bodyTop, int height) {
+        var own = bodyWidth(sheet, bodyTop);
+        return IntStream.range(bodyTop, height).allMatch(row -> reachesTheProperties(sheet, row, own - 1))
+                ? own
+                : PROPERTIES_WIDTH;
+    }
+
+    private static boolean reachesTheProperties(SheetCells sheet, int row, int column) {
+        var range = sheet.mergeAt(row, column);
+        return (range == null ? column : range.getLastColumn()) == PROPERTIES_WIDTH - 1;
+    }
+
     private static int bodyWidth(SheetCells sheet, int bodyTop) {
         var width = 1;
         for (var row = bodyTop; row < sheet.values().length; row++) {
@@ -228,7 +271,7 @@ final class SheetLayout {
         }
         for (var range : sheet.merges()) {
             if (range.getFirstRow() >= bodyTop) {
-                width = Math.max(width, range.getLastColumn() + 1);
+                width = Math.max(width, range.getFirstColumn() + 1);
             }
         }
         return width;

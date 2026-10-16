@@ -16,6 +16,7 @@ import java.time.Month;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -199,6 +200,43 @@ class MarkdownGridTest {
         } finally {
             grid.stopEditing();
         }
+    }
+
+    @Test
+    void newFileIsWrittenFromTheTableWrittenOnItsSheet() throws Exception {
+        var saved = new AtomicReference<String>();
+        var sheet = MarkdownGrid.create("Proj/rules/Rating/Factors/bonus.md", saved::set);
+
+        // A new table is laid down where the sheet finds room: the top left corner of the sheet of its file
+        assertEquals(new GridRegion(0, 0, 2, 1), sheet.findEmptyRect(2, 3));
+        sheet.setCellValue(0, 0, "SmartRules Double bonus(Integer years)");
+        sheet.addMergedRegion(new GridRegion(0, 0, 0, 1));
+        sheet.setCellValue(0, 1, "Years");
+        sheet.setCellValue(1, 1, "Bonus");
+        sheet.setCellValue(0, 2, 5);
+        sheet.setCellValue(1, 2, 0.1);
+        sheet.save();
+
+        assertEquals("Proj/rules/Rating/Factors/bonus.md?sheet=Factors", sheet.getUri());
+        assertEquals("""
+                ---
+                table: SmartRules Double bonus(Integer years)
+                ---
+
+                | Years | Bonus |
+                |---|---|
+                | 5 | 0.1 |
+                """, saved.get());
+    }
+
+    @Test
+    void newFileIsAddressedAsTheFilesOfItsModuleAre() {
+        var sibling = table.getXlsSheetSourceCodeModule().getWorkbookSource();
+        var folder = file.getParent();
+
+        var uri = MarkdownGrid.uriOf(sibling, folder, folder.resolve("Sub Folder/bonus.md"));
+
+        assertEquals(sibling.getUri().replace("greeting.md", "Sub%20Folder/bonus.md"), uri);
     }
 
     @Test

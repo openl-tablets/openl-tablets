@@ -50,7 +50,8 @@ class TableCopyServiceTest {
     private final SystemPropertiesService systemPropertiesService = mock(SystemPropertiesService.class);
     private final TableCopyService service =
             new TableCopyServiceImpl(systemPropertiesService, new TableVersionService(), mock(TableFormatting.class));
-    private final TableCreatorService creator = new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class));
+    private final TableCreatorService creator = new TableCreatorService(null, null, null, null, null,
+            mock(TableFormatting.class), null);
     private final RawTableReader reader = new RawTableReader();
 
     @Test

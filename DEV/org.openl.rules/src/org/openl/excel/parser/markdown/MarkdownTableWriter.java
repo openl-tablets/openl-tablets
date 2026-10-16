@@ -35,6 +35,9 @@ final class MarkdownTableWriter {
     private static final String TABLE = "table";
     private static final String MERGES = "merges";
     private static final String DELIMITER = "---";
+    private static final String METHOD = "Method ";
+    /** The fence a new file writes the code of a Method in. */
+    private static final TableFile.CodeBody NEW_CODE = new TableFile.CodeBody(0, 0, "```", "java", 0);
 
     /**
      * Writes the table laid out on a sheet into the text of its file.
@@ -51,6 +54,32 @@ final class MarkdownTableWriter {
         var file = MarkdownTableParser.parse(text.substring(mark.length()), fileName)
                 .orElseThrow(() -> new MarkdownWriteException("%s holds no table to write".formatted(fileName)));
         return mark + write(file, SheetLayout.tableOf(sheet));
+    }
+
+    /**
+     * Writes a table into a file of its own: the front matter, then the body as a GFM table, or as a code block for
+     * the body of a Method of one cell.
+     */
+    static String newFile(RulesTable table) {
+        var text = new ArrayList<String>();
+        text.add(DELIMITER);
+        text.add(rendered(TABLE, table.header()));
+        table.properties().forEach((name, value) -> text.add(rendered(name, value)));
+        if (!table.merges().isEmpty()) {
+            text.add(rendered(MERGES, RulesTable.mergesText(table.merges())));
+        }
+        text.add(DELIMITER);
+        text.add("");
+        var body = table.body();
+        if (table.header().startsWith(METHOD) && body.size() == 1 && body.getFirst().size() == 1
+                && table.merges().isEmpty()) {
+            text.addAll(codeBlock(NEW_CODE, body.getFirst().getFirst()));
+        } else {
+            text.addAll(gfmTable(null, table));
+        }
+        // The file ends with a line break, as a text file does
+        text.add("");
+        return String.join("\n", text);
     }
 
     /**
@@ -105,7 +134,11 @@ final class MarkdownTableWriter {
                 return file.lines().subList(key.line(), end);
             }
         }
-        return List.of(MERGES.equals(name) ? name + ": [" + value + "]" : name + ": " + scalar(value));
+        return List.of(rendered(name, value));
+    }
+
+    private static String rendered(String name, String value) {
+        return MERGES.equals(name) ? name + ": [" + value + "]" : name + ": " + scalar(value);
     }
 
     /**
@@ -165,13 +198,21 @@ final class MarkdownTableWriter {
         return text;
     }
 
-    private static List<String> gfmTable(TableFile file, RulesTable table) {
+    /**
+     * Writes the body as a GFM table, keeping the rows of the file that did not change; a new file has none.
+     */
+    private static List<String> gfmTable(@Nullable TableFile file, RulesTable table) {
         var width = table.width();
+        var lines = file == null ? List.<String>of() : file.lines();
         // The rows of the file are kept only while the table keeps its columns
-        var source = file.body() instanceof TableFile.GfmBody gfm && file.table().width() == width ? gfm : null;
-        var delimiter = source == null ? "|" + (DELIMITER + "|").repeat(width) : file.lines().get(source.delimiterLine());
+        var source = file != null && file.body() instanceof TableFile.GfmBody gfm && file.table().width() == width
+                ? gfm
+                : null;
+        var delimiter = source == null ? "|" + (DELIMITER + "|").repeat(width) : lines.get(source.delimiterLine());
         var rowLines = source == null ? List.<Integer>of() : source.rowLines();
-        var unchanged = source == null ? Map.<List<@Nullable String>, Queue<Integer>>of() : rowsOf(file.table());
+        var unchanged = source == null || file == null
+                ? Map.<List<@Nullable String>, Queue<Integer>>of()
+                : rowsOf(file.table());
         // Cells are aligned only to the widths of a table aligned by hand
         var widths = source == null ? new int[width] : widths(delimiter, width);
         var text = new ArrayList<String>();
@@ -179,7 +220,7 @@ final class MarkdownTableWriter {
         for (var cells : table.body()) {
             var kept = keptRow(unchanged, cells, lastKept);
             lastKept = Math.max(lastKept, kept);
-            text.add(kept < 0 ? row(cells, widths) : file.lines().get(rowLines.get(kept)));
+            text.add(kept < 0 ? row(cells, widths) : lines.get(rowLines.get(kept)));
             if (text.size() == 1) {
                 text.add(delimiter);
             }

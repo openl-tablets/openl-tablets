@@ -236,7 +236,7 @@ class FormatOnSaveTest {
     void formatsATableCreatedInTheModuleInTheRegionsItsBuilderSent() throws IOException {
         var formatting = formattingOn();
         var creator = new TableCreatorService(new TableWritersFactory(formatting), new TableWriterExecutor(), null,
-                null, mock(SystemPropertiesService.class), formatting);
+                null, mock(SystemPropertiesService.class), formatting, null);
         var view = RawTableView.builder()
                 .kind(TableKind.DATATYPE)
                 .name("Person")

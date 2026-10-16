@@ -61,7 +61,7 @@ public final class MarkdownReader implements ExcelReader {
      * Returns the name of the sheet of a Markdown file: the name of the folder the file is in, or the name of the
      * file when its path names no folder.
      */
-    private static String sheetNameOf(String path) {
+    static String sheetNameOf(String path) {
         var normalized = path.replace('\\', '/');
         var file = normalized.lastIndexOf('/');
         var folder = file > 0 ? normalized.substring(normalized.lastIndexOf('/', file - 1) + 1, file) : "";

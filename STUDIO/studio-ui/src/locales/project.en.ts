@@ -50,6 +50,7 @@ i18next.addResourceBundle('en', 'project', {
         delete_record: 'Delete Record',
         cell: 'Row {{row}}, column {{column}}',
         create: 'Create',
+        create_markdown: 'Create as Markdown',
         created: 'Table created',
         created_description: 'The "{{table}}" table was created successfully.',
         create_failed: 'Failed to create the table',

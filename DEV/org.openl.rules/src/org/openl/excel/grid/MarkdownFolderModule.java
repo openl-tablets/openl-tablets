@@ -3,7 +3,6 @@ package org.openl.excel.grid;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -16,11 +15,12 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.impl.NumericStringComparator;
+import org.openl.excel.parser.markdown.MarkdownFileSource;
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.util.FileTypeHelper;
@@ -74,21 +74,11 @@ final class MarkdownFolderModule {
                 (path, attributes) -> attributes.isRegularFile() && FileTypeHelper.isMarkdownFile(path.toString()))) {
             return paths.sorted(READING_ORDER).map(path -> {
                 var inFolder = folder.relativize(path).toString().replace('\\', '/');
-                return new ModuleFile(inFolder, path, new FileSourceCodeModule(path, base + uriPath(inFolder)));
+                var source = new MarkdownFileSource(path, base + MarkdownGrid.uriPath(inFolder));
+                return new ModuleFile(inFolder, path, source);
             }).toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
-     * Writes a relative path as a URI path, escaping what a URI cannot hold, such as spaces.
-     */
-    private static String uriPath(String path) {
-        try {
-            return new URI(null, null, path, null).toASCIIString();
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(e);
         }
     }
 
@@ -146,42 +136,6 @@ final class MarkdownFolderModule {
     private record ModuleTable(XlsNodeTypes type, String name) {
         String file() {
             return name + ".md";
-        }
-    }
-
-    /**
-     * A file of a module folder, known by the address of the module followed by the path of the file in the folder.
-     *
-     * <p>The address of the module is the one its tables are told apart by, so the tables of a file keep the same
-     * address wherever the project is.
-     */
-    private static final class FileSourceCodeModule extends PathSourceCodeModule {
-
-        private final String uri;
-
-        private FileSourceCodeModule(Path file, String uri) {
-            super(file);
-            this.uri = uri;
-        }
-
-        @Override
-        public String getUri() {
-            return uri;
-        }
-
-        @Override
-        public String getFileUri() {
-            return super.getUri();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            return o instanceof FileSourceCodeModule that && uri.equals(that.uri);
-        }
-
-        @Override
-        public int hashCode() {
-            return uri.hashCode();
         }
     }
 }

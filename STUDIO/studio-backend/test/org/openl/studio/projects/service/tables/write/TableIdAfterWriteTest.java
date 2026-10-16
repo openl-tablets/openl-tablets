@@ -152,7 +152,7 @@ class TableIdAfterWriteTest {
         var sourceId = source.getId();
         var copier = new TableCopyServiceImpl(mock(SystemPropertiesService.class), new TableVersionService(),
                 mock(TableFormatting.class));
-        var creator = new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class));
+        var creator = new TableCreatorService(null, null, null, null, null, mock(TableFormatting.class), null);
 
         // The copy is written below the source, then the source takes the properties of the version it stood for,
         // and moves below the copy: the two share what they are, and are told apart by their order.

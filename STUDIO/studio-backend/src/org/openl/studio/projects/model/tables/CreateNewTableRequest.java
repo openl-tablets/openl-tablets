@@ -18,8 +18,9 @@ public record CreateNewTableRequest(
         @Parameter(description = "Name of the sheet where the table will be created")
         @Nullable String sheetName,
 
-        @Parameter(description = "Project-relative path for a new module. When absent, the module must already exist.")
-        @Pattern(regexp = "(?i).+\\.xlsx$")
+        @Parameter(description = "Project-relative path for a new module: an .xlsx workbook, or a folder for a module "
+                + "of Markdown files. When absent, the module must already exist.")
+        @Pattern(regexp = "(?i).+\\.xlsx|[^.]+")
         @Nullable String modulePath,
 
         @Parameter(description = "Editable table content")

@@ -113,7 +113,8 @@ class MarkdownTableWriterTest {
 
     @Test
     void insertedRowLeavesTheOtherRowsAsTheyAre() {
-        var cells = insertRow(cellsOf(GREETING), 4, "11-12", "Lunch");
+        // The row repeats the merges of the row beside it, as the editor lays it down
+        var cells = merge(insertRow(cellsOf(GREETING), 4, "11-12", "Lunch"), new CellRangeAddress(4, 4, 1, 2));
 
         assertEquals(GREETING.replace("| 12-17 |", "| 11-12 | Lunch          |\n| 12-17 |"), write(GREETING, cells));
     }
@@ -127,7 +128,7 @@ class MarkdownTableWriterTest {
 
     @Test
     void addedColumnRewritesTheTable() {
-        var cells = set(set(cellsOf(GREETING), 2, 2, "Note"), 3, 2, "early");
+        var cells = set(set(bodyUnmerged(cellsOf(GREETING)), 2, 2, "Note"), 3, 2, "early");
 
         assertEquals(GREETING.replace("""
                 | Hour  | Greeting       |
@@ -161,7 +162,7 @@ class MarkdownTableWriterTest {
         var cells = cellsOf(merged);
         var unmerged = new SheetCells(cells.values(), cells.merges()
                 .stream()
-                .filter(range -> range.getFirstRow() < 4)
+                .filter(range -> !range.equals(new CellRangeAddress(4, 5, 0, 0)))
                 .toList());
 
         assertEquals(GREETING.replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"),
@@ -252,6 +253,53 @@ class MarkdownTableWriterTest {
     }
 
     @Test
+    void newFileHoldsTheTableAlone() {
+        var table = parse(GREETING).table();
+        var merged = SheetLayout.tableOf(merge(set(cellsOf(GREETING), 5, 0, null), new CellRangeAddress(4, 5, 0, 0)));
+
+        var text = MarkdownTableWriter.newFile(table);
+
+        assertEquals("""
+                ---
+                table: SmartRules String greeting(Integer hour)
+                description: Greeting by the hour
+                ---
+
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                | 12-17 | Good Afternoon |
+                | 18-23 | Good Evening |
+                """, text);
+        assertEquals(table, parse(text).table());
+        assertTrue(MarkdownTableWriter.newFile(merged)
+                .contains("description: Greeting by the hour\nmerges: [A3:A4]\n"));
+        assertEquals(merged, parse(MarkdownTableWriter.newFile(merged)).table());
+    }
+
+    @Test
+    void bodyNarrowerThanThePropertiesKeepsItsWidth() {
+        // A workbook merges the last cell of each row of the body over the columns the properties take
+        var widened = cellsOf(GREETING);
+        assertEquals(List.of("A1:C1", "B3:C3", "B4:C4", "B5:C5", "B6:C6"),
+                widened.merges().stream().map(CellRangeAddress::formatAsString).toList());
+
+        assertEquals(GREETING, write(GREETING, widened));
+        assertEquals(parse(GREETING).table(), SheetLayout.tableOf(widened));
+
+        // A body that leaves the columns of the properties empty takes them all
+        var unmerged = bodyUnmerged(widened);
+        var table = SheetLayout.tableOf(unmerged);
+        assertEquals(3, table.width());
+        assertEquals(unmerged.merges(), SheetLayout.cellsOf(table).merges());
+    }
+
+    @Test
+    void newFileWritesTheCodeOfAMethodInACodeBlock() {
+        assertEquals(HELLO, MarkdownTableWriter.newFile(parse(HELLO).table()));
+    }
+
+    @Test
     void layoutWithoutMarkdownFormIsRefused() {
         var greeting = cellsOf(GREETING);
         assertRefused(GREETING, "The first cell of the table must hold its header", set(greeting, 0, 0, null));
@@ -261,8 +309,8 @@ class MarkdownTableWriterTest {
                 set(greeting, 0, 3, "x"));
         assertRefused(GREETING, "The merged range C2:C3 cannot be written in a Markdown file",
                 merge(greeting, new CellRangeAddress(1, 2, 2, 2)));
-        assertRefused(GREETING, "The cell B4 has a value, but the merged range A4:B4 covers it",
-                merge(greeting, new CellRangeAddress(3, 3, 0, 1)));
+        assertRefused(GREETING, "The cell A5 has a value, but the merged range A4:A5 covers it",
+                merge(greeting, new CellRangeAddress(3, 4, 0, 0)));
         assertRefused(GREETING, "The table must have a row under its header",
                 new SheetCells(new String[][]{{"Data String values"}}, List.of()));
         assertRefused(GREETING, "The property 'merges' cannot be written: the name is taken",
@@ -307,6 +355,12 @@ class MarkdownTableWriterTest {
         var merges = new ArrayList<>(cells.merges());
         merges.add(range);
         return new SheetCells(cells.values(), merges);
+    }
+
+    /** The cells with the body merged nowhere, the columns of the properties left empty. */
+    private static SheetCells bodyUnmerged(SheetCells cells) {
+        return new SheetCells(cells.values(),
+                cells.merges().stream().filter(range -> range.getFirstRow() < 2).toList());
     }
 
     private static SheetCells insertRow(SheetCells cells, int at, String... values) {

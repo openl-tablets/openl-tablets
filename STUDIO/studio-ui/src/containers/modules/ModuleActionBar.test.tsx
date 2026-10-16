@@ -186,7 +186,7 @@ describe('ModuleActionBar', () => {
         expect(onTableCreated).toHaveBeenCalledWith({ id: 'new-1' }, 'Claims')
     })
 
-    it('offers neither a new table nor a new workbook for a Markdown module, which is changed as text', async () => {
+    it('offers a new table but no new workbook for a folder of Markdown files', async () => {
         render(
             <ModuleActionBar
                 moduleName="Greetings"
@@ -198,7 +198,8 @@ describe('ModuleActionBar', () => {
             await Promise.resolve()
         })
 
-        expect(screen.queryByTestId('module-createTable')).toBeNull()
+        // The table is written as a file of its own
+        expect(screen.getByTestId('module-createTable')).toBeEnabled()
         expect(screen.queryByTestId('module-update')).toBeNull()
         // A folder of files is downloaded with the project, not on its own.
         expect(screen.getByTestId('module-export')).toBeDisabled()

@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.tables;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,6 +35,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
@@ -78,6 +80,7 @@ public class TableCreatorService {
     private final ProjectFileRootFactory projectFileRootFactory;
     private final SystemPropertiesService systemPropertiesService;
     private final TableFormatting formatting;
+    private final MarkdownTableFiles markdownTableFiles;
 
     /**
      * Creates a table in an existing module.
@@ -85,20 +88,26 @@ public class TableCreatorService {
      * <p>The table is stamped as created once it is written, so its author and creation date are recorded the same
      * way for a table written here and for one copied.
      *
+     * <p>A module written as a folder of Markdown files takes the table as a new file of its own
+     * ({@link MarkdownTableFiles}), which keeps no formatting.
+     *
      * @return the identifier the table is known by once its module is compiled again
      */
     public String createTable(CreateNewTableRequest createTableRequest, ProjectModel projectModel) {
         var table = (TableView) createTableRequest.table();
         requireTableName(table.name);
 
-        var gridModel = sheetGridModel(projectModel, resolveSheetName(createTableRequest));
-        var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
+        var folder = MarkdownTableFiles.folderOf(projectModel.getModuleInfo());
+        IWritableGrid grid = folder == null
+                ? sheetGridModel(projectModel, resolveSheetName(createTableRequest))
+                : markdownTableFiles.newFile(projectModel, folder, createTableRequest.sheetName(), table.name, table.kind);
+        var tableWriter = tableWritersFactory.getNewTableWriter(table, grid);
         // The new table is numbered among the tables of its module, as its next compile numbers it.
         tableWriter.setModule(projectModel.getXlsModuleNode());
         if (carriesProperties(table.kind)) {
             tableWriter.stampWith(systemPropertiesService.onCreate());
         }
-        var built = builtRegions(createTableRequest, table);
+        var built = folder == null ? builtRegions(createTableRequest, table) : null;
         if (built != null) {
             tableWriter.formatOnSave(built, table.getHeight(), table.getWidth());
         }
@@ -113,14 +122,34 @@ public class TableCreatorService {
      * root modules remain available together with a module created in a nested folder. A failure to update the
      * descriptor removes the newly created workbook.
      *
+     * <p>A path of a workbook gives a workbook. Any other path gives a module written as a folder of Markdown files,
+     * holding the file of the table in the folder its sheet names.
+     *
      * @param rawTable the table of the request, already narrowed to a raw source by the caller
      */
     public void createModuleWithTable(RulesProject project,
                                       ProjectDescriptor resolvedDescriptor,
                                       CreateNewTableRequest createTableRequest,
                                       RawTableView rawTable) throws ProjectException {
-        createModule(project, resolvedDescriptor, createTableRequest.moduleName(), createTableRequest.modulePath(),
-                createWorkbook(createTableRequest, rawTable));
+        var modulePath = createTableRequest.modulePath();
+        if (FileTypeHelper.isExcelFile(modulePath)) {
+            createModule(project, resolvedDescriptor, createTableRequest.moduleName(), modulePath, modulePath,
+                    createWorkbook(createTableRequest, rawTable));
+        } else {
+            var folder = Objects.requireNonNull(modulePath, "The path of the module").replaceFirst("/+$", "");
+            var file = MarkdownTableFiles.firstFileOf(folder, createTableRequest.sheetName(), rawTable.name,
+                    rawTable.kind);
+            createModule(project, resolvedDescriptor, createTableRequest.moduleName(), folder, file,
+                    markdownFile(rawTable));
+        }
+    }
+
+    /** The text of the Markdown file of a table written into a new module, stamped as created. */
+    private byte[] markdownFile(RawTableView table) {
+        var stamped = withStampedProperties(table);
+        // The rule RawTableWriter holds a table of an existing module to, as for a new workbook
+        stamped.source.forEach(RawTableWriter::requireWritableRow);
+        return MarkdownTableFiles.textOf(stamped).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -139,17 +168,24 @@ public class TableCreatorService {
                                   String moduleName,
                                   String modulePath,
                                   String sheetName) throws ProjectException {
-        createModule(project, resolvedDescriptor, moduleName, modulePath, createEmptyWorkbook(sheetName));
+        createModule(project, resolvedDescriptor, moduleName, modulePath, modulePath, createEmptyWorkbook(sheetName));
     }
 
-    /** Writes the module workbook to the project and registers it, removing the workbook when registration fails. */
+    /**
+     * Writes the file of a new module to the project and registers the module, removing the module when registration
+     * fails.
+     *
+     * @param modulePath the path of the module: its workbook, or the folder holding its Markdown files
+     * @param filePath   the path of the file written
+     */
     private void createModule(RulesProject project,
                               ProjectDescriptor resolvedDescriptor,
                               String moduleName,
                               String modulePath,
-                              byte[] workbook) throws ProjectException {
+                              String filePath,
+                              byte[] content) throws ProjectException {
         var root = projectFileRootFactory.of(project);
-        projectFilesService.createResource(root, modulePath, new ByteArrayInputStream(workbook), true);
+        projectFilesService.createResource(root, filePath, new ByteArrayInputStream(content), true);
         try {
             registerModule(project, root, resolvedDescriptor, moduleName, modulePath);
         } catch (RuntimeException | ProjectException e) {
