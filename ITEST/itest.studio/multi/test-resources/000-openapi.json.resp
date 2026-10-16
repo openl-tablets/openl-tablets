@@ -23070,7 +23070,6 @@ Content-Type: application/json
               "removedAndChanged",
               "addedInBoth",
               "visibility",
-              "layout",
               "pictures",
               "settings",
               "touchingTables",

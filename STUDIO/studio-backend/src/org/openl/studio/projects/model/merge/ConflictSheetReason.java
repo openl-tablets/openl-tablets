@@ -30,15 +30,6 @@ public enum ConflictSheetReason {
     VISIBILITY,
 
     /**
-     * Both branches changed the height or the visibility of a row, the width or the visibility of a column, or the
-     * default sizes differently.
-     */
-    @Schema(description = "Both branches changed the height or the visibility of a row, the width or the visibility "
-            + "of a column, or the default sizes differently")
-    @JsonProperty("layout")
-    LAYOUT,
-
-    /**
      * Both branches changed the pictures of the sheet differently.
      */
     @Schema(description = "Both branches changed the pictures of the sheet differently")
@@ -62,11 +53,10 @@ public enum ConflictSheetReason {
 
     /**
      * Content that moves is referred to by a formula, a name, a data validation, a conditional formatting or a
-     * hyperlink, lies under a picture or another object, or moves through rows or columns a branch laid out.
+     * hyperlink, or lies under a picture or another object.
      */
     @Schema(description = "Content that moves is referred to by a formula, a defined name, a data validation, a "
-            + "conditional formatting or a hyperlink, lies under a picture or another object, or moves through rows "
-            + "or columns a branch laid out")
+            + "conditional formatting or a hyperlink, or lies under a picture or another object")
     @JsonProperty("movedContent")
     MOVED_CONTENT
 }
