@@ -62,6 +62,8 @@ interface ConflictResolutionStepProps {
     onResolveSuccess: (summary?: MergeSummary) => void
     onCancel: () => void
     onCompare: (filePath: string) => void
+    /** Called when the resolution starts and stops being saved, so that the dialog is not closed meanwhile. */
+    onSavingChange: (saving: boolean) => void
 }
 
 export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
@@ -71,6 +73,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     onResolveSuccess,
     onCancel,
     onCompare,
+    onSavingChange,
 }) => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
@@ -238,6 +241,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         }
 
         setIsSaving(true)
+        onSavingChange(true)
         setError(null)
 
         try {
@@ -280,24 +284,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             setError(err?.message || t('merge:errors.resolve_failed'))
         } finally {
             setIsSaving(false)
+            onSavingChange(false)
         }
-    }
-
-    const handleCancel = async () => {
-        try {
-            await apiCall(
-                `/projects/${projectId}/merge/conflicts`,
-                { method: 'DELETE' },
-                true
-            )
-            notification.info({
-                title: t('merge:notifications.merge_cancelled'),
-                description: t('merge:notifications.merge_cancelled_description'),
-            })
-        } catch (_err) {
-            // Ignore cancel errors
-        }
-        onCancel()
     }
 
     /** The branch a version comes from, marked as the dialog marks it; nothing for a version of no branch. */
@@ -558,7 +546,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             <Space className={styles.actions}>
                 <Button
                     disabled={isSaving}
-                    onClick={handleCancel}
+                    onClick={onCancel}
                 >
                     {t('merge:buttons.cancel')}
                 </Button>

@@ -4,6 +4,7 @@ import { BranchesOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../../hooks'
 import { apiCall, NotFoundError } from '../../services'
+import { LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from '../../services/apiCall'
 import { MergeBranchesStep } from './MergeBranchesStep'
 import { ConflictResolutionStep } from './ConflictResolutionStep'
 import { MergeSummaryStep } from './MergeSummaryStep'
@@ -32,7 +33,8 @@ export const MergeModal: React.FC = () => {
     // Modal state
     const [visible, setVisible] = useState(false)
     const [currentStep, setCurrentStep] = useState<MergeStep>('branches')
-    // A running merge keeps the dialog open: it is left through its Cancel button, which stops the merge.
+    // A running merge keeps the dialog open: it is left through its Cancel button, which stops the merge. So does a
+    // resolution being saved, which closing the dialog would discard halfway.
     const [merging, setMerging] = useState(false)
 
     // Conflict state
@@ -139,9 +141,27 @@ export const MergeModal: React.FC = () => {
         completeMerge(mergeSummary, true)
     }, [completeMerge])
 
-    const handleCancelMerge = useCallback(() => {
+    // The conflicts are left by Cancel, the close button or Escape alike: the merge is discarded, so no merge is left
+    // waiting behind the closed dialog. A merge that cannot be discarded keeps the dialog open, to be discarded again
+    // or resolved; one that is gone already has nothing left to discard.
+    const handleCancelMerge = useCallback(async () => {
+        if (detail) {
+            try {
+                await apiCall(`/projects/${detail.projectId}/merge/conflicts`, { method: 'DELETE' },
+                    LOCAL_LOAD_API_OPTIONS)
+                notification.info({
+                    title: t('merge:notifications.merge_cancelled'),
+                    description: t('merge:notifications.merge_cancelled_description'),
+                })
+            } catch (error) {
+                if (!(error instanceof NotFoundError)) {
+                    notifyLoadFailure(t('merge:notifications.merge_cancel_failed'), error)
+                    return
+                }
+            }
+        }
         handleClose()
-    }, [handleClose])
+    }, [detail, handleClose, notification, t])
 
     // The comparison opens in a window of its own, which reads the two versions itself - the same
     // window wherever the merge was started from.
@@ -177,7 +197,7 @@ export const MergeModal: React.FC = () => {
                 footer={null}
                 keyboard={!merging}
                 mask={{ closable: step === 'branches' && !merging }}
-                onCancel={handleClose}
+                onCancel={step === 'conflicts' ? () => void handleCancelMerge() : handleClose}
                 open={visible}
                 width={modalWidth}
                 title={
@@ -211,9 +231,10 @@ export const MergeModal: React.FC = () => {
                     <ConflictResolutionStep
                         branches={branches}
                         conflictGroups={conflictGroups}
-                        onCancel={handleCancelMerge}
+                        onCancel={() => void handleCancelMerge()}
                         onCompare={handleCompare}
                         onResolveSuccess={handleResolveSuccess}
+                        onSavingChange={setMerging}
                         projectId={detail.projectId}
                     />
                 )}

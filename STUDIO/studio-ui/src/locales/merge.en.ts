@@ -235,5 +235,6 @@ i18next.addResourceBundle('en', 'merge', {
         resolve_success_description: 'All conflicts have been resolved and the merge is complete.',
         merge_cancelled: 'Merge Cancelled',
         merge_cancelled_description: 'The merge operation has been cancelled.',
+        merge_cancel_failed: 'The merge could not be cancelled',
     },
 })
