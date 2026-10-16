@@ -24,8 +24,8 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.IProjectSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -520,11 +520,12 @@ public final class TableIds {
 
     /** The table as the compiler reads it from what is written, or {@code null} when its header cannot be read. */
     private static @Nullable TableSyntaxNode nodeOf(IGridTable written) {
-        if (!(written.getGrid() instanceof XlsSheetGridModel sheet)) {
+        var sheet = written.getGrid() instanceof IWritableGrid grid ? grid.getSheetSource() : null;
+        if (sheet == null) {
             return null;
         }
         try {
-            return XlsHelper.createTableSyntaxNode(written, sheet.getSheetSource());
+            return XlsHelper.createTableSyntaxNode(written, sheet);
         } catch (OpenLCompilationException e) {
             return null;
         }

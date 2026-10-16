@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.excel.grid.SequentialXlsLoader;
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -340,6 +341,24 @@ class TableIdsTest {
         Files.move(folder, project.resolve("lib/Main"));
 
         assertEquals(Map.of(id, only(parse(project, "lib/Main")).getId()), moved);
+    }
+
+    @Test
+    void aTableWrittenIntoAMarkdownFileIsKnownByTheIdItsModuleGivesIt() throws IOException {
+        var project = dir.resolve("a");
+        markdown(project.resolve("rules/Main/greeting.md"), "SmartRules String greeting(Integer hour)");
+        var table = only(parse(project, "rules/Main"));
+        var grid = MarkdownGrid.open(table.getXlsSheetSourceCodeModule());
+        var region = table.getGridTable().getRegion();
+        var written = new GridTable(region.getTop(), region.getLeft(), region.getBottom(), region.getRight(), grid);
+
+        assertEquals(table.getId(), TableIds.idAfterWrite(table, written), "a table still what it was keeps its id");
+        grid.setCellValue(0, 0, "SmartRules String salutation(Integer hour)");
+        var renamed = TableIds.idAfterWrite(table, written);
+        grid.save();
+
+        assertNotEquals(table.getId(), renamed);
+        assertEquals(only(parse(project, "rules/Main")).getId(), renamed);
     }
 
     @Test
