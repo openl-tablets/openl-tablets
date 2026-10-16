@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -15,17 +16,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridSplitter;
@@ -448,6 +454,28 @@ class RawTableWriterTest {
         assertEquals("f2", value(source, 2, 1));
         // the row that previously sat at index 1 is shifted down by two
         assertEquals("code", value(source, 3, 1));
+    }
+
+    @Test
+    void movesTheRowsUnderAnInsertedBlockOnce() {
+        var writer = new MetaInfoSpyingWriter(load(mainProject));
+
+        writer.apply(insertRows(1, List.of(row("int", "a", "x"), row("int", "b", "y"), row("int", "c", "z"))));
+
+        // The table stands from row 2 of the sheet: its rows 2 to 4 end at rows 5 to 7. Every cell there is written
+        // twice, cleared as a row past the table and then moved onto. Laying the rows down one at a time would move
+        // the rows once for each new row, and write row 5 four times.
+        var writes = new HashMap<String, Integer>();
+        Mockito.mockingDetails(writer.metaInfoWriter).getInvocations().stream()
+                .filter(invocation -> invocation.getMethod().getName().equals("setMetaInfo"))
+                .filter(invocation -> invocation.<Integer>getArgument(0) >= 5)
+                .forEach(invocation -> writes.merge(invocation.getArgument(0) + ":" + invocation.getArgument(1), 1,
+                        Integer::sum));
+        assertEquals(9, writes.size());
+        assertEquals(Set.of(2), Set.copyOf(writes.values()));
+        var source = reload(mainProject);
+        assertEquals("c", value(source, 3, 1));
+        assertEquals("hour", value(source, 6, 1));
     }
 
     @Test
@@ -1713,6 +1741,27 @@ class RawTableWriterTest {
             }
         }
         throw new IllegalStateException("No table with header " + header);
+    }
+
+    /**
+     * A writer whose writes of what the compiler knows about a cell can be read back: one goes with every cell
+     * written, moved included.
+     */
+    private static final class MetaInfoSpyingWriter extends RawTableWriter {
+
+        private @Nullable MetaInfoWriter metaInfoWriter;
+
+        private MetaInfoSpyingWriter(IOpenLTable table) {
+            super(table, THEMES);
+        }
+
+        @Override
+        protected MetaInfoWriter getMetaInfoWriter() {
+            if (metaInfoWriter == null) {
+                metaInfoWriter = spy(super.getMetaInfoWriter());
+            }
+            return metaInfoWriter;
+        }
     }
 
     /**
