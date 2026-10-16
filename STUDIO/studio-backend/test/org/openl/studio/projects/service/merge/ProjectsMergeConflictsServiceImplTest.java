@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -38,21 +40,27 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.git.MergeConflictDetails;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.xls.merge.XlsWorkbookMerger;
+import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.ProjectIdModel;
@@ -524,6 +532,109 @@ class ProjectsMergeConflictsServiceImplTest {
         }
     }
 
+    /** A merged workbook is staged with the project as the branch the merge changes holds it. */
+    @Test
+    void formatsTheWorkbookItMergesTableByTable() throws Exception {
+        var context = createContext();
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> rate(sheet, 1, 10), sheet -> rate(sheet, 1, 20));
+        var formatted = new byte[]{7};
+        when(context.formatting().format(argThat(onTarget(context)), any(), any()))
+                .thenReturn(Map.of(FIRST_FILE, formatted));
+
+        var merged = context.service()
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+
+        assertArrayEquals(formatted, merged);
+    }
+
+    /** A workbook of a save conflict is staged with the copy in the workspace, which holds your changes. */
+    @Test
+    void formatsTheWorkbookOfASaveConflictWithTheProjectOfTheWorkspace() throws Exception {
+        var context = createContext();
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> rate(sheet, 1, 10), sheet -> rate(sheet, 1, 20));
+        var saveConflict = MergeConflictInfo.builder()
+                .details(context.conflict().details())
+                .project(context.conflict().project())
+                .build();
+        var formatted = new byte[]{7};
+        when(context.formatting().format(eq(context.conflict().project()), any(), any()))
+                .thenReturn(Map.of(FIRST_FILE, formatted));
+
+        var merged = context.service()
+                .mergeConflictWorkbook(saveConflict, FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+
+        assertArrayEquals(formatted, merged);
+    }
+
+    /** A branch that cannot be read leaves the merged workbook unformatted, but merged. */
+    @Test
+    void leavesTheWorkbookUnformattedWhenTheBranchCannotBeRead() throws Exception {
+        var context = createContext();
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> rate(sheet, 1, 10), sheet -> rate(sheet, 1, 20));
+        when(context.repository().forBranch("main")).thenThrow(new IOException("The branch is gone"));
+        // the versions of the conflict are read from the repository of the branch, as it was
+        var designRepository = mock(BranchRepository.class);
+        when(designRepository.forBranch("main")).thenReturn(context.repository());
+        when(context.designTimeRepository().getRepository("design")).thenReturn(designRepository);
+
+        var merged = context.service()
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+
+        try (var workbook = WorkbookFactory.create(new ByteArrayInputStream(merged))) {
+            assertEquals(20, workbook.getSheet("Rules").getRow(1).getCell(1).getNumericCellValue());
+        }
+        verify(context.formatting(), never()).format(any(), any(), any());
+    }
+
+    /** The project of the branch the merge changes, read by the paths from the root of the repository. */
+    private static ArgumentMatcher<AProjectFolder> onTarget(TestContext context) {
+        return staged -> staged instanceof AProject && !(staged instanceof RulesProject)
+                && staged.getRepository() == context.repository() && "Project".equals(staged.getFolderPath());
+    }
+
+    @Test
+    void formatsTheWorkbooksTheResolutionMergesByItself() throws Exception {
+        var auto = "rules/Auto.xlsx";
+        var base = rates(sheet -> {
+        });
+        var ours = rates(sheet -> rate(sheet, 1, 10));
+        var theirs = rates(sheet -> rate(sheet, 2, 20));
+        WorkbookDiffResult diff;
+        try (var merger = XlsWorkbookMerger.create(new ByteArrayInputStream(base),
+                new ByteArrayInputStream(ours),
+                new ByteArrayInputStream(theirs))) {
+            diff = merger.getDiffResult();
+        }
+        var context = createContext(mock(MergeChangesService.class),
+                "base",
+                Map.of(auto, diff),
+                FIRST_FILE,
+                SECOND_FILE);
+        var repository = context.repository();
+        givenTheirVersions(repository);
+        when(repository.readHistory(auto, "ours")).thenAnswer(invocation -> new FileItem(auto,
+                new ByteArrayInputStream(ours)));
+        when(repository.readHistory(auto, "theirs")).thenAnswer(invocation -> new FileItem(auto,
+                new ByteArrayInputStream(theirs)));
+        var formatted = new byte[]{7};
+        when(context.formatting().format(argThat(onTarget(context)), any(), any()))
+                .thenReturn(Map.of(auto, formatted));
+        var resolution = ArgumentCaptor.forClass(ConflictResolveData.class);
+        when(repository.merge(eq("feature"), any(), resolution.capture()))
+                .thenReturn(new MergeOutcome("before", "after", List.of(), List.of()));
+
+        resolveBothWithTheirs(context);
+
+        var file = StreamSupport.stream(resolution.getValue().getResolvedFiles().spliterator(), false)
+                .filter(item -> item.getData().getName().equals(auto))
+                .findFirst()
+                .orElseThrow();
+        assertArrayEquals(formatted, file.getStream().readAllBytes());
+    }
+
     @Test
     void refusesAWorkbookWithAConflictLeftUnresolved() throws Exception {
         var context = createContext();
@@ -719,6 +830,13 @@ class ProjectsMergeConflictsServiceImplTest {
 
     private static void givenWorkbook(BranchRepository repository, String commit, Consumer<Sheet> edit)
             throws IOException {
+        var bytes = rates(edit);
+        when(repository.readHistory(FIRST_FILE, commit)).thenAnswer(invocation -> new FileItem(FIRST_FILE,
+                new ByteArrayInputStream(bytes)));
+    }
+
+    /** A workbook with a table of rates, changed by an edit. */
+    private static byte[] rates(Consumer<Sheet> edit) throws IOException {
         try (var workbook = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
             var sheet = workbook.createSheet("Rules");
             text(sheet, 0, 0, "Rules rate");
@@ -728,9 +846,7 @@ class ProjectsMergeConflictsServiceImplTest {
             rate(sheet, 2, 2);
             edit.accept(sheet);
             workbook.write(output);
-            var bytes = output.toByteArray();
-            when(repository.readHistory(FIRST_FILE, commit)).thenAnswer(invocation -> new FileItem(FIRST_FILE,
-                    new ByteArrayInputStream(bytes)));
+            return output.toByteArray();
         }
     }
 
@@ -1003,6 +1119,16 @@ class ProjectsMergeConflictsServiceImplTest {
     private TestContext createContext(MergeChangesService mergeChangesService,
                                       @Nullable String baseCommit,
                                       String... conflictedFiles) throws IOException {
+        return createContext(mergeChangesService, baseCommit, Map.of(), conflictedFiles);
+    }
+
+    /**
+     * @param toAutoResolve the workbooks the conflict merges by itself once it is resolved
+     */
+    private TestContext createContext(MergeChangesService mergeChangesService,
+                                      @Nullable String baseCommit,
+                                      Map<String, WorkbookDiffResult> toAutoResolve,
+                                      String... conflictedFiles) throws IOException {
         var repository = mock(BranchRepository.class);
         var designTimeRepository = mock(DesignTimeRepository.class);
         var workspace = mock(UserWorkspace.class);
@@ -1012,6 +1138,8 @@ class ProjectsMergeConflictsServiceImplTest {
         when(repository.supports()).thenReturn(features);
         when(repository.forBranch("main")).thenReturn(repository);
         when(project.getRepository()).thenReturn(repository);
+        lenient().when(project.getDesignRepository()).thenReturn(repository);
+        lenient().when(project.getRealPath()).thenReturn("Project");
         when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
         var user = mock(WorkspaceUser.class);
         lenient().when(workspace.getUser()).thenReturn(user);
@@ -1028,6 +1156,7 @@ class ProjectsMergeConflictsServiceImplTest {
                 .yourCommit("ours")
                 .theirCommit("theirs")
                 .baseCommit(baseCommit)
+                .toAutoResolve(toAutoResolve)
                 .build();
         var conflict = MergeConflictInfo.builder()
                 .details(conflictDetails)
@@ -1040,15 +1169,25 @@ class ProjectsMergeConflictsServiceImplTest {
         var conflictsSessionHolder = new ProjectsMergeConflictsSessionHolder();
         conflictsSessionHolder.store(ProjectIdModel.builder().repository("design").projectName("Project").build(),
                 conflict);
+        // A workbook a merge combines is left as it is, unless a test formats it.
+        var formatting = mock(MergedWorkbookFormatting.class);
+        lenient().when(formatting.format(any(), any(), any())).thenAnswer(invocation -> invocation.getArgument(1));
+        var studio = mock(WebStudio.class);
         var service = new ProjectsMergeConflictsServiceImpl(mergeChangesService,
                 conflictsSessionHolder,
-                new ConflictWorkbookMapper(new RawTableReader())) {
+                new ConflictWorkbookMapper(new RawTableReader()),
+                formatting) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return workspace;
             }
+
+            @Override
+            public WebStudio getWebStudio() {
+                return studio;
+            }
         };
-        return new TestContext(repository, designTimeRepository, workspace, conflict, service);
+        return new TestContext(repository, designTimeRepository, workspace, conflict, service, formatting);
     }
 
     private static FileData file(String name) {
@@ -1061,6 +1200,7 @@ class ProjectsMergeConflictsServiceImplTest {
                                DesignTimeRepository designTimeRepository,
                                UserWorkspace workspace,
                                MergeConflictInfo conflict,
-                               ProjectsMergeConflictsServiceImpl service) {
+                               ProjectsMergeConflictsServiceImpl service,
+                               MergedWorkbookFormatting formatting) {
     }
 }
