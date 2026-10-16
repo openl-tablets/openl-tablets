@@ -206,7 +206,9 @@ contain the project when it is opened. Proceed as follows:
         changes.
 
     If Sync finds such a conflict, or both branches changed the same place of any other file, the **Resolve
-    Conflicts** dialog appears.
+    Conflicts** dialog appears. **Cancel**, the close button and Esc all cancel the merge and leave both branches as
+    they were. A merge that cannot be cancelled, for instance while OpenL Studio cannot be reached, keeps the dialog
+    open, and a message tells why.
 
     ![Resolve Conflicts dialog](images/resolve-conflicts-on-merge.png "Resolving conflicts on merging branches")
 
