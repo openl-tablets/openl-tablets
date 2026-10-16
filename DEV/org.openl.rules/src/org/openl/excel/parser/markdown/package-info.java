@@ -5,7 +5,8 @@
  * code block after it. Everything else in the file is documentation and does not compile. A module is a folder of
  * such files.
  *
- * <p>Writing a table back changes only its front matter and its body, and only the keys and rows that changed.
+ * <p>The table editor writes a table through {@link org.openl.excel.parser.markdown.MarkdownGrid}, which a save
+ * writes back into the file. Only the front matter and the body change, and only the keys and rows that changed.
  */
 @NullMarked
 package org.openl.excel.parser.markdown;

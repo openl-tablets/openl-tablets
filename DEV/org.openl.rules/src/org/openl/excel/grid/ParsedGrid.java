@@ -18,7 +18,7 @@ import org.openl.excel.parser.ExtendedValue;
 import org.openl.excel.parser.MergedCell;
 import org.openl.excel.parser.SheetDescriptor;
 import org.openl.excel.parser.TableStyles;
-import org.openl.exception.OpenlNotCheckedException;
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -47,7 +47,7 @@ public class ParsedGrid extends AGrid {
     private final SheetDescriptor sheetDescriptor;
     @Getter(AccessLevel.PROTECTED)
     private final boolean use1904Windowing;
-    /** The sheet is read from a Markdown module: text, which keeps no formatting and is not written through here. */
+    /** The sheet is read from a Markdown file: text, which keeps no formatting and is written as text. */
     private final boolean markdown;
     private final List<IGridRegion> regions = new ArrayList<>();
     private final RegionsPool regionsPool = new RegionsPool();
@@ -312,11 +312,10 @@ public class ParsedGrid extends AGrid {
         return grid;
     }
 
-    private XlsSheetGridModel openForWriting() {
+    private IWritableGrid openForWriting() {
         if (markdown) {
-            throw new OpenlNotCheckedException(
-                    "Tables of the Markdown module '%s' are read-only. Edit the file as text.".formatted(
-                            sheetSource.getWorkbookSource().getDisplayName()));
+            // The file is read as it stands, rather than as parsed: an earlier write may have saved it since
+            return MarkdownGrid.open(sheetSource);
         }
         sheetSource.getWorkbookSource().getWorkbookLoader().setCanUnload(false);
         var grid = new XlsSheetGridModel(sheetSource);
@@ -356,7 +355,7 @@ public class ParsedGrid extends AGrid {
      * <p>The writer is named by its id rather than by the thread itself, so that a write which never said it had
      * finished keeps nothing alive.
      */
-    private record Editing(XlsSheetGridModel grid, long editor) {
+    private record Editing(IWritableGrid grid, long editor) {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

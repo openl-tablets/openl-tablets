@@ -6,6 +6,7 @@
 
 package org.openl.rules.table.xls;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -790,6 +791,11 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
      */
     public Workbook getWorkbookToWrite() {
         return getSheetToWrite().getWorkbook();
+    }
+
+    @Override
+    public void save() throws IOException {
+        sheetSource.getWorkbookSource().save();
     }
 
     public SpreadsheetConstants getSpreadsheetConstants() {

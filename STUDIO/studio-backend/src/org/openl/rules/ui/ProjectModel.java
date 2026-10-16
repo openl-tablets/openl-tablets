@@ -836,6 +836,9 @@ public class ProjectModel {
     /**
      * Keeps the writes to a workbook in the history of a module of this project. A workbook already listened to is
      * left alone, and a model outside a workspace keeps no history.
+     *
+     * <p>A write to a Markdown file marks the project modified, but keeps no history yet: the files of a module folder
+     * would share the history of the module, which tells no file from another.
      */
     private void listen(XlsWorkbookSourceCodeModule workbook, Module module) {
         if (workbook.getListeners().stream().anyMatch(XlsModificationListener.class::isInstance)) {
@@ -844,7 +847,8 @@ public class ProjectModel {
         var repository = getLocalRepository();
         var storagePath = historyFolderOf(module);
         if (repository != null && storagePath != null) {
-            workbook.addListener(new XlsModificationListener(repository, storagePath));
+            var history = FileTypeHelper.isMarkdownFile(workbook.getUri()) ? null : storagePath;
+            workbook.addListener(new XlsModificationListener(repository, history));
         }
     }
 
@@ -1811,10 +1815,14 @@ public class ProjectModel {
     private final class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
-        private final String storagePath;
+        /** Where the history of the workbook is kept, or {@code null} when it keeps none. */
+        private final @Nullable String storagePath;
 
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
+            if (storagePath == null) {
+                return;
+            }
             var sourceFile = workbookSourceCodeModule.getSourceFile();
             ProjectHistoryService.init(storagePath, sourceFile);
             // Another program may have written the file since the history took it: the history keeps that version
@@ -1832,8 +1840,10 @@ public class ProjectModel {
             isModified();
             var sourceFile = workbookSourceCodeModule.getSourceFile();
             repository.getProjectState(sourceFile.getPath()).notifyModified();
-            ProjectHistoryService.save(storagePath, sourceFile);
-            keptInHistory.put(sourceFile, stampOf(sourceFile));
+            if (storagePath != null) {
+                ProjectHistoryService.save(storagePath, sourceFile);
+                keptInHistory.put(sourceFile, stampOf(sourceFile));
+            }
         }
 
         private static String stampOf(File file) {

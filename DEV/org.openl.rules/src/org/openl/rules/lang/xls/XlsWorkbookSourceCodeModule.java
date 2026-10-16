@@ -279,9 +279,26 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
      * @throws FileLockedException            when another program holds the file open, or it is read-only
      */
     public void save() throws IOException {
-        var sourceFile = getSourceFile();
         synchronized (fileAccessLock) {
             var workbook = getWorkbook();
+            save(workbook::write);
+        }
+    }
+
+    /**
+     * Saves the file of the workbook with what the content writes into it, such as the text of a Markdown file, which
+     * is not read into a workbook.
+     *
+     * <p>The file is replaced and compared as a save of the workbook does. The save is told to the listeners and marks
+     * the file saved since it was read.
+     *
+     * @param content what is written into the file
+     * @throws WorkbookChangedOutsideException when another program changed the file since it was read
+     * @throws FileLockedException            when another program holds the file open, or it is read-only
+     */
+    public void save(FileReplacement.Content content) throws IOException {
+        var sourceFile = getSourceFile();
+        synchronized (fileAccessLock) {
             refuseChangedOutside(sourceFile, false);
             for (XlsWorkbookListener wl : listeners) {
                 wl.beforeSave(this);
@@ -289,7 +306,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
             var written = new AtomicReference<String>();
             try {
-                FileReplacement.replace(sourceFile.toPath(), workbook::write, temporary -> {
+                FileReplacement.replace(sourceFile.toPath(), content, temporary -> {
                     written.set(HashingUtils.sha256Hex(Files.newInputStream(temporary)));
                     refuseChangedOutside(sourceFile, true);
                 });

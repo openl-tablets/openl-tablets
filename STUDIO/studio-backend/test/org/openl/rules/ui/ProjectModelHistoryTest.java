@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -145,6 +146,28 @@ class ProjectModelHistoryTest {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Test
+    void writeToAMarkdownFileMarksTheProjectModifiedButKeepsNoHistory() throws IOException {
+        var state = mock(ProjectState.class);
+        var model = new ProjectModel(studioOf(state));
+        var listeners = new ArrayList<XlsWorkbookListener>();
+        var source = Files.writeString(workspace.resolve("premium.md"), "as the file was");
+        var workbook = workbookOf(source, listeners);
+        when(workbook.getUri()).thenReturn(source.toUri().toString());
+        var module = mock(Module.class);
+        when(module.getRulesRootPath()).thenReturn("rules/Rating");
+
+        model.initProjectHistory(tableIn(workbook), module);
+        var listener = listeners.getFirst();
+        listener.beforeSave(workbook);
+        Files.writeString(source, "as the table editor wrote it");
+        listener.afterSave(workbook);
+
+        // The files of a module folder would share the history of the module, which tells no file from another
+        assertFalse(Files.exists(workspace.resolve(".history")));
+        verify(state).notifyModified();
     }
 
     /** A session with a workspace of its own, the project Pricing open in it. */

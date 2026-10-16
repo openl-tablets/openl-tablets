@@ -3,7 +3,6 @@ package org.openl.excel.parser.markdown;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.CompiledOpenClass;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.TestUtils;
@@ -103,16 +101,6 @@ class MarkdownModuleTest {
         assertNull(cell.getFont());
         assertNull(cell.getComment());
         assertNull(cell.getFormula());
-    }
-
-    @Test
-    void tablesAreReadOnly() {
-        var table = table("SmartRules String greeting").getGridTable();
-
-        var error = assertThrows(OpenlNotCheckedException.class, table::edit);
-
-        assertEquals("Tables of the Markdown module 'greeting.md' are read-only. Edit the file as text.",
-                error.getMessage());
     }
 
     @Test
