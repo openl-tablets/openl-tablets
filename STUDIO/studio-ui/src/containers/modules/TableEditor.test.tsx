@@ -1335,6 +1335,52 @@ describe('TableEditor', () => {
         expect(await offered()).toEqual([])
     })
 
+    it('merges the cells picked with Shift into one, and sends the merge on save', async () => {
+        draw({ rows: [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 'Morning' }, { cell: 'C5', value: '' }],
+        ]})
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.click(screen.getByText('Morning'))
+        // Shift reaches from the cell picked before to the one clicked, as in a spreadsheet.
+        fireEvent.click(cellOf(1, 1), { shiftKey: true })
+        await userEvent.click(screen.getByTestId('table-edit-merge'))
+
+        expect(cellOf(1, 0)).toHaveAttribute('colspan', '2')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'merge', target: { type: 'cells', row: 1, column: 0, rowspan: 1, colspan: 2 } },
+        ], 'Claims', undefined))
+    })
+
+    it('takes a merged cell apart, and sends it on save', async () => {
+        draw({ rows: [
+            [{ cell: 'B4', value: 'Rules String Greeting(Integer hour)', colspan: 2 }, { covered: true }],
+            [{ cell: 'B5', value: 'Morning', colspan: 2 }, { covered: true }],
+        ]})
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.click(screen.getByText('Morning'))
+        await userEvent.click(screen.getByTestId('table-edit-unmerge'))
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
+            { operation: 'unmerge', target: { type: 'cells', row: 1, column: 0 } },
+        ], 'Claims', undefined))
+    })
+
+    it('withholds merging cells that hold different values', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+        await userEvent.click(screen.getByText('0'))
+        fireEvent.click(screen.getByText('Good Morning'), { shiftKey: true })
+
+        // A merged cell keeps one value, and the table refuses to merge cells holding two.
+        expect(screen.getByTestId('table-edit-merge')).toBeDisabled()
+    })
+
     it('writes several numbers into an array cell, and lets nothing else in', async () => {
         vi.mocked(getTableEditors).mockResolvedValue({
             ...NO_EDITORS,

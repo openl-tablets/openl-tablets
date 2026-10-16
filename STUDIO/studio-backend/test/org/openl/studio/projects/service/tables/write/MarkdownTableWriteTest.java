@@ -19,10 +19,12 @@ import org.openl.excel.parser.markdown.MarkdownWriteException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.tableeditor.model.TableEditorModel;
+import org.openl.studio.projects.model.tables.DeleteTarget;
 import org.openl.studio.projects.model.tables.InsertTarget;
 import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
+import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
@@ -46,6 +48,11 @@ class MarkdownTableWriteTest {
             | 12-17 | Good Afternoon |
             | 18-23 | Good Evening   |
             """;
+
+    /** The greeting with the afternoon and the evening under one merged hour. */
+    private static final String MERGED = GREETING.replace("description: Greeting by the hour\n",
+                    "description: Greeting by the hour\nmerges: [A3:A4]\n")
+            .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |");
 
     @TempDir
     Path project;
@@ -112,6 +119,25 @@ class MarkdownTableWriteTest {
         assertEquals(GREETING.replace("description: Greeting by the hour\n",
                         "description: Greeting by the hour\nmerges: [A3:A4]\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), written());
+    }
+
+    @Test
+    void unmergedCellsLeaveTheFrontMatter() throws IOException {
+        Files.writeString(file, MERGED, StandardCharsets.UTF_8);
+
+        apply(new RawTableSourceAction.Unmerge(new UnmergeTarget.Cells(4, 0)));
+
+        assertEquals(MERGED.replace("merges: [A3:A4]\n", ""), written());
+    }
+
+    @Test
+    void removedRowShrinksTheMergeItRanThrough() throws IOException {
+        Files.writeString(file, MERGED, StandardCharsets.UTF_8);
+
+        apply(new RawTableSourceAction.Delete(new DeleteTarget.Rows(5, 1)));
+
+        // A merge left over a single cell is a merge no longer
+        assertEquals(MERGED.replace("merges: [A3:A4]\n", "").replace("|       | Good Evening   |\n", ""), written());
     }
 
     @Test
