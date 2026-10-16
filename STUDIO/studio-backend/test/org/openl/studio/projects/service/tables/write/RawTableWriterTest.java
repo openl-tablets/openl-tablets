@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +28,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.GridRegionUtils;
+import org.openl.rules.table.GridSplitter;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -389,6 +392,37 @@ class RawTableWriterTest {
         assertEquals(4, source.size());
         assertEquals("q2", value(source, 1, 3));
         assertEquals("s3", value(source, 3, 3));
+    }
+
+    @Test
+    void readsTheSheetForTheOtherTablesOnceForEveryRowAnEditLaysDown() {
+        var table = load(mainProject);
+
+        try (var splits = mockConstruction(GridSplitter.class,
+                (splitter, context) -> when(splitter.split()).thenReturn(IGridTable.EMPTY_GRID))) {
+            new RawTableWriter(table, THEMES).apply(List.of(
+                    appendRows(List.of(row("double", "rate", "delta"), row("long", "id", "epsilon"))),
+                    insertRows(1, List.of(row("int", "a", "x"), row("int", "b", "y")))));
+
+            // Each row grows the table and asks for room around it, yet the sheet is read for the other tables once.
+            assertEquals(1, splits.constructed().size());
+        }
+        assertEquals(8, reload(mainProject).size());
+    }
+
+    @Test
+    void readsTheSheetForTheOtherTablesOnceForEveryColumnAnEditLaysDown() {
+        var table = load(mainProject);
+
+        try (var splits = mockConstruction(GridSplitter.class,
+                (splitter, context) -> when(splitter.split()).thenReturn(IGridTable.EMPTY_GRID))) {
+            new RawTableWriter(table, THEMES).apply(List.of(
+                    appendColumns(List.of(row("a", "b", "c", "d"), row("e", "f", "g", "h"))),
+                    insertColumns(1, List.of(row("p", "q", "r", "s"), row("t", "u", "v", "w")))));
+
+            assertEquals(1, splits.constructed().size());
+        }
+        assertEquals(7, width(reload(mainProject)));
     }
 
     @Test

@@ -2,7 +2,6 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTool;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -15,30 +14,31 @@ public class UndoableInsertColumnsAction extends UndoableInsertAction {
 
     private final int beforeCol;
 
-    public UndoableInsertColumnsAction(int nCols, int beforeCol, MetaInfoWriter metaInfoWriter) {
-        super(metaInfoWriter, nCols);
+    /**
+     * @param otherTables the tables beside the one edited, shared by every insert of the edit
+     */
+    public UndoableInsertColumnsAction(int nCols, int beforeCol, MetaInfoWriter metaInfoWriter,
+                                       OtherTables otherTables) {
+        super(metaInfoWriter, nCols, otherTables);
         this.beforeCol = beforeCol;
     }
 
-    public static boolean canInsertColumns(IGridTable table, int nCols) {
+    /**
+     * Whether the table has room for columns laid down on its right: the columns, a blank column after them and a
+     * blank row above and below cross none of the other tables.
+     */
+    public static boolean canInsertColumns(IGridTable table, int nCols, OtherTables otherTables) {
         IGridRegion region = getOriginalRegion(table);
         var newRegion = new GridRegion(region.getTop() - 1,
                 region.getRight() + 1,
                 region.getBottom() + 1,
                 region.getRight() + 1 + nCols);
-        var allGridTables = table.getGrid().getTables();
-        for (IGridTable allGridTable : allGridTables) {
-            if (!table.getUri().equals(allGridTable.getUri()) && GridRegionUtils.intersects(newRegion,
-                    allGridTable.getRegion())) {
-                return false;
-            }
-        }
-        return true;
+        return otherTables.isFree(newRegion);
     }
 
     @Override
     protected boolean canPerformAction(IGridTable table) {
-        return UndoableInsertColumnsAction.canInsertColumns(table, lines);
+        return UndoableInsertColumnsAction.canInsertColumns(table, lines, otherTables);
     }
 
     @Override

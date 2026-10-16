@@ -9,6 +9,8 @@ import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -29,6 +31,7 @@ import org.openl.rules.table.SubGridTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.rules.table.actions.MergeCellsAction;
+import org.openl.rules.table.actions.OtherTables;
 import org.openl.rules.table.actions.RemoveMergedRegionsAction;
 import org.openl.rules.table.actions.UndoableCompositeAction;
 import org.openl.rules.table.actions.UndoableEditTableAction;
@@ -56,6 +59,11 @@ public abstract class TableWriter<T extends TableView> {
 
     protected final IOpenLTable table;
     protected final IGridTable originalTable;
+    /**
+     * The tables beside this one, found once for every line the write inserts: finding them reads the whole sheet.
+     */
+    @Getter(AccessLevel.PACKAGE)
+    private final OtherTables otherTables;
     private MetaInfoWriter metaInfoWriter;
     private Map<String, Object> stamped = Map.of();
     private Map<String, Object> stampedOnEdit = Map.of();
@@ -63,12 +71,14 @@ public abstract class TableWriter<T extends TableView> {
     protected TableWriter(IOpenLTable table) {
         this.table = table;
         this.originalTable = GridTableUtils.getOriginalTable(table.getGridTable());
+        this.otherTables = new OtherTables(originalTable);
     }
 
     protected TableWriter(IGridTable gridTable, MetaInfoWriter metaInfoWriter) {
         this.originalTable = gridTable;
         this.metaInfoWriter = metaInfoWriter;
         this.table = null;
+        this.otherTables = new OtherTables(originalTable);
     }
 
     public void write(T tableView) {
@@ -197,8 +207,8 @@ public abstract class TableWriter<T extends TableView> {
                 if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                     nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
                 }
-                if (!UndoableInsertRowsAction.canInsertRows(originalTable, 1) || !UndoableInsertColumnsAction
-                        .canInsertColumns(originalTable, nColsToInsert)) {
+                if (!UndoableInsertRowsAction.canInsertRows(originalTable, 1, otherTables)
+                        || !UndoableInsertColumnsAction.canInsertColumns(originalTable, nColsToInsert, otherTables)) {
                     UndoableEditTableAction.moveTable(originalTable, getMetaInfoWriter());
                 }
                 GridRegionAction allTable = new GridRegionAction(originalRegion,
@@ -260,12 +270,12 @@ public abstract class TableWriter<T extends TableView> {
 
     /** Grows the table by the columns a cell written past its right edge needs. */
     void insertColumns(IGridTable gridTable, int nCols, int beforeCol) {
-        new UndoableInsertColumnsAction(nCols, beforeCol, getMetaInfoWriter()).doAction(gridTable);
+        new UndoableInsertColumnsAction(nCols, beforeCol, getMetaInfoWriter(), otherTables).doAction(gridTable);
     }
 
     /** Grows the table by the rows a cell written past its bottom edge needs. */
     void insertRows(IGridTable gridTable, int nRows, int beforeRow) {
-        new UndoableInsertRowsAction(nRows, beforeRow, getMetaInfoWriter()).doAction(gridTable);
+        new UndoableInsertRowsAction(nRows, beforeRow, getMetaInfoWriter(), otherTables).doAction(gridTable);
     }
 
     @SuppressWarnings("rawtypes")
