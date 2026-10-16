@@ -481,7 +481,8 @@ public class XlsWorkbookMerger implements Closeable {
      * and brings the values of its formulas up to date.
      *
      * <p>OUR workbook gets the links to other workbooks that the formulas taken from THEIR or BASE workbook read. A
-     * formula that reads another workbook keeps the value it was saved with, since the other workbook is not at hand.
+     * formula that cannot be recalculated, such as one that reads another workbook, which is not at hand, keeps the
+     * value it was saved with.
      *
      * @param baseBook BASE workbook, needed only when a sheet or a table is taken from it
      * @throws IOException                     when a sheet cannot be copied
@@ -517,7 +518,7 @@ public class XlsWorkbookMerger implements Closeable {
         if (mergePlans.isEmpty()) {
             var formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
             formulaEvaluator.setIgnoreMissingWorkbooks(true);
-            formulas.forEach(formulaEvaluator::evaluateFormulaCell);
+            formulas.forEach(cell -> XlsSheetMerger.recalculate(cell, formulaEvaluator));
         } else {
             // a merged cell may be read by any formula of the workbook, the copied ones included
             XlsSheetMerger.recalculate(ourBook);

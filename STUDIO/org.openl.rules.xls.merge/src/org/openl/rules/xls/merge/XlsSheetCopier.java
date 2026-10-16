@@ -4,20 +4,26 @@ import static org.openl.rules.xls.merge.XlsSheetsMatcher.getCommentAuthor;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Shape;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.ss.util.SheetUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
@@ -88,6 +94,7 @@ public final class XlsSheetCopier {
             }
             dest.row = src.row = null;
         }
+        restoreArrayFormulas(dest);
         replaceMergedRegions(src.sheet.getMergedRegions(), dest.sheet);
         copyDrawings(src, dest);
     }
@@ -178,7 +185,9 @@ public final class XlsSheetCopier {
      * Copies the value or the formula of a cell. The destination cell keeps its style and comment.
      *
      * <p>A formula comes with the value it keeps, which it goes on showing when it cannot be recalculated, such as a
-     * formula that reads another workbook.
+     * formula that reads another workbook. An array formula is written as a plain formula in its first cell, which
+     * notes the cells the formula spans where they land, for {@link #restoreArrayFormulas(Cursor)}; the other cells it
+     * spans get the values it gave them.
      *
      * @param src  source
      * @param dest destination
@@ -193,28 +202,88 @@ public final class XlsSheetCopier {
             case BOOLEAN -> dest.cell.setCellValue(src.cell.getBooleanCellValue());
             case NUMERIC -> dest.cell.setCellValue(src.cell.getNumericCellValue());
             case FORMULA -> {
+                if (src.cell.isPartOfArrayFormulaGroup() && !startsArrayFormula(src.cell)) {
+                    valueOf(src.cell, src.cell.getCachedFormulaResultType()).accept(dest.cell);
+                    // the cell is a part of the array formula once it is restored
+                    dest.addFormulaCell(dest.cell);
+                    return;
+                }
                 XlsExternalLinks.linkWorkbooks(src.cell, dest.cell);
                 dest.cell.setCellFormula(src.cell.getCellFormula());
-                copyFormulaValue(src.cell, dest.cell);
+                valueOf(src.cell, src.cell.getCachedFormulaResultType()).accept(dest.cell);
                 dest.addFormulaCell(dest.cell);
+                if (startsArrayFormula(src.cell)) {
+                    var range = src.cell.getArrayFormulaRange();
+                    var rows = dest.cell.getRowIndex() - src.cell.getRowIndex();
+                    var columns = dest.cell.getColumnIndex() - src.cell.getColumnIndex();
+                    dest.arrayFormulas.add(new CellRangeAddress(range.getFirstRow() + rows,
+                            range.getLastRow() + rows,
+                            range.getFirstColumn() + columns,
+                            range.getLastColumn() + columns));
+                }
             }
             default -> throw new IllegalStateException("Unexpected cell type: " + src.cell.getCellType());
         }
     }
 
-    /**
-     * Copies the value a formula cell keeps.
-     */
-    private static void copyFormulaValue(Cell src, Cell dest) {
-        switch (src.getCachedFormulaResultType()) {
-            case NUMERIC -> dest.setCellValue(src.getNumericCellValue());
-            case STRING -> dest.setCellValue(src.getRichStringCellValue());
-            case BOOLEAN -> dest.setCellValue(src.getBooleanCellValue());
-            case ERROR -> dest.setCellErrorValue(src.getErrorCellValue());
-            default -> {
-                // a formula that keeps no value
-            }
+    private static boolean startsArrayFormula(Cell cell) {
+        if (!cell.isPartOfArrayFormulaGroup()) {
+            return false;
         }
+        var range = cell.getArrayFormulaRange();
+        return range.getFirstRow() == cell.getRowIndex() && range.getFirstColumn() == cell.getColumnIndex();
+    }
+
+    /**
+     * Makes the array formulas copied into a sheet array formulas again, once every cell they span is written: the
+     * first cell keeps the formula, and the other cells keep the values the formula gave them.
+     */
+    static void restoreArrayFormulas(Cursor dest) {
+        for (var range : dest.arrayFormulas) {
+            var first = new CellAddress(range.getFirstRow(), range.getFirstColumn());
+            var formula = CellUtil.getCell(CellUtil.getRow(first.getRow(), dest.sheet), first.getColumn())
+                    .getCellFormula();
+            // An .xls workbook resets the values of the cells an array formula spans, so they are written back.
+            var values = new LinkedHashMap<CellAddress, Consumer<Cell>>();
+            for (var address : range) {
+                var cell = SheetUtil.getCell(dest.sheet, address.getRow(), address.getColumn());
+                if (cell != null && !address.equals(first)) {
+                    values.put(address, valueOf(cell, cell.getCellType()));
+                }
+            }
+            dest.sheet.setArrayFormula(formula, range);
+            values.forEach((address, value) -> value.accept(
+                    CellUtil.getCell(CellUtil.getRow(address.getRow(), dest.sheet), address.getColumn())));
+        }
+        dest.arrayFormulas.clear();
+    }
+
+    /**
+     * Writes into another cell the value a cell holds as the given type: the type of a cell with a value, or the type
+     * of the value a formula cell keeps.
+     */
+    private static Consumer<Cell> valueOf(Cell cell, CellType type) {
+        return switch (type) {
+            case NUMERIC -> {
+                var value = cell.getNumericCellValue();
+                yield dest -> dest.setCellValue(value);
+            }
+            case STRING -> {
+                var value = cell.getRichStringCellValue();
+                yield dest -> dest.setCellValue(value);
+            }
+            case BOOLEAN -> {
+                var value = cell.getBooleanCellValue();
+                yield dest -> dest.setCellValue(value);
+            }
+            case ERROR -> {
+                var value = cell.getErrorCellValue();
+                yield dest -> dest.setCellErrorValue(value);
+            }
+            default -> dest -> {
+                // no value
+            };
+        };
     }
 
     /**
