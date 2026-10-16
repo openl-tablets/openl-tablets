@@ -101,13 +101,18 @@ const verticalAlignOf = (valign: string | undefined): React.CSSProperties['verti
 /**
  * The edges of the table a cell lies along, or undefined for a cell inside it. A cell draws the line of the grid
  * above it and on its left only along an edge: inside the table, the cell above it and the one on its left draw
- * those lines.
+ * those lines. Along every edge the line is the frame the screen draws around the table.
  */
-const edgeOf = (row: number, column: number): string | undefined => {
-    if (row === 0) {
-        return column === 0 ? 'top left' : 'top'
+const edgeOf = (row: number, column: number, cell: RawTableCell, height: number, width: number): string | undefined => {
+    // Most cells lie inside the table: they are told so without building a text.
+    const top = row === 0
+    const left = column === 0
+    const bottom = row + (cell.rowspan ?? 1) >= height
+    const right = column + (cell.colspan ?? 1) >= width
+    if (!top && !left && !bottom && !right) {
+        return undefined
     }
-    return column === 0 ? 'left' : undefined
+    return `${top ? 'top ' : ''}${left ? 'left ' : ''}${bottom ? 'bottom ' : ''}${right ? 'right' : ''}`.trimEnd()
 }
 
 /**
@@ -361,7 +366,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     } = token
     // The paper and the lines of the theme, worked out again only when a colour of them changes.
     const look = React.useMemo(() => ({
-        paper: themePaper({ colorBgContainer, colorText, colorFillTertiary, colorLink, colorLinkHover, colorError }),
+        paper: themePaper({ colorBgContainer, colorText, colorFillTertiary, colorBorder, colorLink, colorLinkHover,
+            colorError }),
         faint: roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary }).faint,
         lines: {
             major: { color: colorBorder, style: 'solid', width: 1 },
@@ -446,7 +452,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                             <td
                                 colSpan={cell.colspan}
                                 data-cell={cell.cell}
-                                data-edge={edgeOf(rowIndex, columnIndex)}
+                                data-edge={edgeOf(rowIndex, columnIndex, cell, rows.length, columns)}
                                 data-role={role?.region.role}
                                 onClick={onPickCell && (() => onPickCell(rowIndex, columnIndex))}
                                 onDoubleClick={onOpenCell && (() => onOpenCell(rowIndex, columnIndex))}

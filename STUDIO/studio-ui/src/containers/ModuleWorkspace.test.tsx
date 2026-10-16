@@ -8,7 +8,7 @@ import { ModuleWorkspace } from './ModuleWorkspace'
 import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
-import { renderInTheme } from '../testing/theme'
+import { renderInTheme, tokenFor } from '../testing/theme'
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { App as AntApp } from 'antd'
 
@@ -168,9 +168,10 @@ vi.mock('./modules/TableEditor', async () => {
     return {
         TableEditor: ({
             ref, testId, rows, hiddenRows, editing, canWrite, roles, onEditingChange, onOpenUsage, onSaved,
-            children,
+            children, canvasClassName,
         }: {
             ref?: Ref<unknown>
+            canvasClassName?: string
             canWrite?: boolean
             testId?: string
             rows?: unknown[]
@@ -186,6 +187,7 @@ vi.mock('./modules/TableEditor', async () => {
             useImperativeHandle(ref, () => editorHandle.current)
             return (
                 <div
+                    className={canvasClassName}
                     data-can-write={String(canWrite)}
                     data-editing={String(editing)}
                     data-roles={roles?.regions.length ?? 0}
@@ -271,6 +273,14 @@ describe('ModuleWorkspace', () => {
         // Writing the cells may move the table, so the properties go to the table as it stands afterwards.
         await expect(detailsPanel.beforeSave?.()).resolves.toEqual({ tableId: 't-2', changed: true })
         expect(write).toHaveBeenCalled()
+    })
+
+    it('lays the table on the plain ground of the theme, not on the grey of a page', async () => {
+        workspace.opened = true
+        render(<ModuleWorkspace />)
+
+        expect(await screen.findByTestId('module-table'))
+            .toHaveStyle({ backgroundColor: tokenFor('standard', false).colorBgBase })
     })
 
     it('goes to the project, saying why, when the project no longer has the module', async () => {

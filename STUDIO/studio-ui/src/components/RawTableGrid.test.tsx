@@ -183,6 +183,8 @@ describe('RawTableGrid', () => {
 
             const margin = screen.getByTestId('table-line-number').closest('td')
             expect(margin).not.toHaveStyle({ backgroundColor: paperToken().colorBgContainer })
+            // The plain ground of the theme, not the grey of a page.
+            expect(margin).toHaveStyle({ backgroundColor: tokenFor('dracula', true).colorBgBase })
         })
     })
 
@@ -246,6 +248,27 @@ describe('RawTableGrid', () => {
         expect(cellAt('B3')).toHaveStyle({ borderRightStyle: 'solid', borderBottomStyle: 'solid' })
         expect(cellAt('B3')).not.toHaveStyle({ borderTopStyle: 'solid' })
         expect(cellAt('B3')).not.toHaveStyle({ borderLeftStyle: 'solid' })
+    })
+
+    it('frames the table in a solid line along every edge it ends at, a merged cell included', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'R1' }, { cell: 'B1', value: 'Young', rowspan: 2 }, { cell: 'C1', value: 'x' }],
+            [{ cell: 'A2', value: 'R2' }, { covered: true }, { cell: 'C2', value: 'y' }],
+        ]
+
+        render(<RawTableGrid rows={table} testId="grid" />)
+
+        const cellAt = (address: string) => screen.getByTestId('grid').querySelector(`[data-cell="${address}"]`)
+        expect(cellAt('A1')).toHaveAttribute('data-edge', 'top left')
+        expect(cellAt('B1')).toHaveAttribute('data-edge', 'top bottom')
+        expect(cellAt('C1')).toHaveAttribute('data-edge', 'top right')
+        expect(cellAt('A2')).toHaveAttribute('data-edge', 'left bottom')
+        expect(cellAt('C2')).toHaveAttribute('data-edge', 'bottom right')
+        const frame = paperToken().colorBorder
+        expect(cellAt('C2')).toHaveStyle({ borderRight: `1px solid ${frame}`, borderBottom: `1px solid ${frame}` })
+        expect(cellAt('A1')).toHaveStyle({ borderTop: `1px solid ${frame}`, borderLeft: `1px solid ${frame}` })
+        // Inside the table a cell draws the fainter line of the grid.
+        expect(cellAt('A1')).toHaveStyle({ borderRight: `1px solid ${paperToken().colorBorderSecondary}` })
     })
 
     it('draws a line naming no colour in the ink of the paper, and in the grey of a muted cell', () => {

@@ -26,6 +26,8 @@ export interface TablePaper {
     text: string
     /** The lines of the grid between the cells. */
     grid: string
+    /** The solid line the screen draws around a table: no line of the workbook, only where the table ends. */
+    frame: string
     /** A piece of a cell that names a table. */
     link: string
     /** A piece of a cell that names a table, under the pointer. */
@@ -39,6 +41,7 @@ interface PaperColours {
     colorBgContainer: string
     colorText: string
     colorFillTertiary: string
+    colorBorder: string
     colorLink: string
     colorLinkHover: string
     colorError: string
@@ -52,6 +55,7 @@ export const themePaper = (token: PaperColours): TablePaper => ({
     background: token.colorBgContainer,
     text: token.colorText,
     grid: token.colorFillTertiary,
+    frame: token.colorBorder,
     link: token.colorLink,
     linkHover: token.colorLinkHover,
     note: token.colorError,
@@ -64,6 +68,7 @@ export const workbookPaper = (): TablePaper => (workbookPaperColours ??= {
     background: paperToken().colorBgContainer,
     text: paperToken().colorText,
     grid: paperToken().colorBorderSecondary,
+    frame: paperToken().colorBorder,
     link: paperToken().colorLink,
     linkHover: paperToken().colorLinkHover,
     note: paperToken().colorError,
