@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,6 +55,7 @@ import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergePublishing;
 import org.openl.rules.repository.api.MergedWorkbook;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.xls.merge.HSSFPaletteMatcher;
 import org.openl.rules.xls.merge.XlsWorkbooksMatcher;
@@ -497,6 +499,67 @@ class GitRepositoryMergeConflictsInExcelTest {
         }
     }
 
+    @Test
+    void savedOverWorkbookThatCannotBeMergedAutomatically_staysInTheConflict() throws IOException {
+        var path = "rates/Rates.xlsx";
+        var baseVersion = repo.save(workbookData(path), new ByteArrayInputStream(rates(sheet -> {
+        }))).getVersion();
+        try (var otherRepo = createRepository("other")) {
+            // Both users link another workbook under the same number, and the formula one of them writes reads it.
+            repo.save(workbookData(path), new ByteArrayInputStream(rates(sheet -> {
+                setCell(sheet, 3, 1, 9);
+                link(sheet, "Census.xlsx");
+                sheet.getRow(3).createCell(5).setCellFormula("[1]Census!A1");
+            })));
+            var data = workbookData(path);
+            data.setVersion(baseVersion);
+            var stream = new ByteArrayInputStream(rates(sheet -> {
+                setCell(sheet, 10, 1, 41);
+                link(sheet, "Rates.xlsx");
+            }));
+
+            var e = assertThrows(MergeConflictException.class, () -> otherRepo.save(data, stream));
+
+            assertEquals(Set.of(path), Set.copyOf(e.getDetails().getConflictedFiles()));
+        }
+    }
+
+    /**
+     * A workbook the merge would combine by itself is merged only with the resolution when another file conflicts. One
+     * that fails to merge is listed among the conflicts, so the user can resolve it.
+     */
+    @Test
+    void workbookThatCannotBeMerged_staysListedBesideAnotherConflict() throws IOException {
+        var workbook = "mixed/Rates.xlsx";
+        var notes = "mixed/notes.txt";
+        repo.save(workbookData(workbook), new ByteArrayInputStream(rates(sheet -> {
+        })));
+        saveText(repo, notes, "base");
+        repo.createRepositoryBranch("mixed", null);
+        var theirs = repo.forBranch("mixed");
+        // Both branches link another workbook under the same number, and the formula of their branch reads it.
+        theirs.save(workbookData(workbook), new ByteArrayInputStream(rates(sheet -> {
+            setCell(sheet, 3, 1, 9);
+            link(sheet, "Census.xlsx");
+            sheet.getRow(3).createCell(5).setCellFormula("[1]Census!A1");
+        })));
+        saveText(theirs, notes, "theirs");
+        repo.save(workbookData(workbook), new ByteArrayInputStream(rates(sheet -> {
+            setCell(sheet, 10, 1, 41);
+            link(sheet, "Rates.xlsx");
+        })));
+        saveText(repo, notes, "ours");
+
+        var e = assertThrows(MergeConflictException.class, () -> repo.merge("mixed", USER_INFO, null));
+
+        assertEquals(Set.of(workbook, notes), Set.copyOf(e.getDetails().getConflictedFiles()));
+        assertEquals(Map.of(), e.getDetails().toAutoResolve());
+    }
+
+    private static void saveText(Repository repository, String path, String text) throws IOException {
+        repository.save(createFileData(path, text), new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)));
+    }
+
     /**
      * Saves the base workbook and a change of it by one user. Then another user of another local repository saves a
      * change of the same base revision. Returns the workbook the second save leaves.
@@ -513,6 +576,17 @@ class GitRepositoryMergeConflictsInExcelTest {
             try (var file = otherRepo.read(path)) {
                 return WorkbookFactory.create(file.getStream());
             }
+        }
+    }
+
+    /**
+     * Links the workbook of a sheet to another workbook, which is not kept.
+     */
+    private static void link(Sheet sheet, String workbookName) {
+        try (var other = new XSSFWorkbook()) {
+            ((XSSFWorkbook) sheet.getWorkbook()).linkExternalWorkbook(workbookName, other);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 

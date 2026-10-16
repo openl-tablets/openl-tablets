@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -1329,7 +1330,9 @@ public class GitRepository implements BranchRepository, Closeable {
         var allCanAutoResolve = collectAutoResolvable(conflictedFiles, conflict, toAutoResolve);
 
         if (!allCanAutoResolve) {
-            throw conflict.toException(toAutoResolve);
+            // The resolution merges these workbooks: one that fails to merge stays listed, to be resolved by hand.
+            keepMergeable(toAutoResolve, conflict);
+            throw conflict.without(toAutoResolve.keySet()).toException(toAutoResolve);
         } else if (!toAutoResolve.isEmpty()) {
             resolveConflictsAutomatically(mergeResult, conflict, toAutoResolve, theirToOur, branchFrom, userInfo);
         }
@@ -1368,8 +1371,48 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     /**
-     * Collects the conflicted workbooks, whose differences can be merged automatically, and removes them from the
-     * differences of the conflict.
+     * Leaves out of the workbooks to merge automatically those that fail to merge, such as one whose formula taken
+     * from their version reads another workbook through a link our version numbers differently.
+     *
+     * @throws InterruptedIOException when the thread of the merge is interrupted
+     */
+    private void keepMergeable(Map<String, WorkbookDiffResult> toAutoResolve,
+                               MergeConflict conflict) throws InterruptedIOException {
+        var workbooks = toAutoResolve.entrySet().iterator();
+        while (workbooks.hasNext()) {
+            var workbook = workbooks.next();
+            if (!merges(workbook.getKey(), workbook.getValue(), conflict)) {
+                workbooks.remove();
+            }
+        }
+    }
+
+    /**
+     * Tells whether a conflicted workbook merges automatically. The merged workbook is not kept.
+     *
+     * @throws InterruptedIOException when the thread of the merge is interrupted
+     */
+    private boolean merges(String workbook,
+                           WorkbookDiffResult diffResult,
+                           MergeConflict conflict) throws InterruptedIOException {
+        // A workbook of a large project takes seconds to merge, so the merge can be stopped before each one.
+        stopIfInterrupted();
+        var ourCommit = conflict.ourCommit();
+        var theirCommit = conflict.theirCommit();
+        try (var our = parseHistory0(workbook, ourCommit, new ReadHistoryVisitor(ourCommit));
+             var their = parseHistory0(workbook, theirCommit, new ReadHistoryVisitor(theirCommit))) {
+            XlsWorkbookMerger.merge(our.getStream(), their.getStream(), diffResult, OutputStream.nullOutputStream());
+            return true;
+        } catch (Exception e) {
+            // A merge cut off by the interrupt is a stopped merge, not a workbook that cannot be merged.
+            stopIfInterrupted();
+            log.warn("The conflicted workbook '{}' cannot be merged automatically.", workbook, e);
+            return false;
+        }
+    }
+
+    /**
+     * Collects the conflicted workbooks whose differences can be merged automatically.
      *
      * @return true if every conflicted file can be resolved automatically
      * @throws InterruptedIOException when the thread of the merge is interrupted
@@ -1386,7 +1429,6 @@ public class GitRepository implements BranchRepository, Closeable {
                 allCanAutoResolve = false;
             } else {
                 toAutoResolve.put(conflictedFile, diffResult);
-                conflict.diffs().remove(conflictedFile);
             }
         }
         return allCanAutoResolve;
@@ -1466,6 +1508,7 @@ public class GitRepository implements BranchRepository, Closeable {
         } catch (Exception e) {
             // A read cut off by the interrupt is a stopped merge, not a workbook that cannot be merged.
             stopIfInterrupted();
+            log.warn("The versions of the conflicted workbook '{}' cannot be compared.", conflictedFile, e);
             throw conflict.toException(null);
         } finally {
             IOUtils.closeQuietly(baseConflictedFile);
@@ -1499,6 +1542,8 @@ public class GitRepository implements BranchRepository, Closeable {
         } catch (Exception e) {
             // A merge stopped while the workbooks were merged is no conflict.
             stopIfInterrupted();
+            // The workbooks stay in the conflict, to be resolved as any other conflicted file.
+            log.warn("The conflicted workbooks {} cannot be merged automatically.", toAutoResolve.keySet(), e);
             throw conflict.toException(null);
         }
     }
@@ -1510,6 +1555,15 @@ public class GitRepository implements BranchRepository, Closeable {
                                  @Nullable String ourCommit,
                                  @Nullable String theirCommit,
                                  Map<String, String> diffs) {
+
+        /**
+         * The conflict without the workbooks the merge resolves by itself.
+         */
+        MergeConflict without(Set<String> workbooks) {
+            var rest = new HashMap<>(diffs);
+            rest.keySet().removeAll(workbooks);
+            return new MergeConflict(baseCommit, ourCommit, theirCommit, rest);
+        }
 
         MergeConflictException toException(@Nullable Map<String, WorkbookDiffResult> toAutoResolve) {
             return new MergeConflictException(MergeConflictDetails.builder()

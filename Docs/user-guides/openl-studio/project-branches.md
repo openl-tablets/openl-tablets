@@ -208,7 +208,9 @@ contain the project when it is opened. Proceed as follows:
         changes.
 
     A formula taken from their branch that reads another workbook comes with the link to that workbook and keeps the
-    value it was saved with: OpenL Studio does not open the other workbook.
+    value it was saved with: OpenL Studio does not open the other workbook. A workbook Sync cannot merge by itself,
+    such as one where such a formula would read the workbook your branch links under the same number, stays a
+    conflict as a whole file.
 
     If Sync finds such a conflict, or both branches changed the same place of any other file, the **Resolve
     Conflicts** dialog appears. **Cancel**, the close button and Esc all cancel the merge and leave both branches as

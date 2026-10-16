@@ -499,6 +499,9 @@ workbook resolves automatically when every such sheet merges:
 
 A sheet both branches add with different content, or one branch removes while the other changes it, is a conflict.
 
+When other files conflict too, such a workbook is not listed among the conflicts: the resolution merges it. A workbook
+that fails to merge, such as one where a formula of the branch merged in would read another workbook, is listed.
+
 The commit message lists those workbooks and their sheets under `Automatically resolved conflicts`, each sheet with
 the branch it was taken from, or with both branches for a sheet merged from both.
 
