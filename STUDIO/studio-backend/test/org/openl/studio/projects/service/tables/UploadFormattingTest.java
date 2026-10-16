@@ -56,7 +56,7 @@ class UploadFormattingTest {
         assertEquals(Set.of(WORKBOOK), formatted);
         assertEquals("Title", styleAt(1, 1));
         assertEquals("Calculation", styleAt(2, 1), "The type of a field");
-        assertEquals("Heading 4", styleAt(2, 2), "The name of a field");
+        assertEquals("Output", styleAt(2, 2), "The name of a field");
     }
 
     @Test

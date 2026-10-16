@@ -6,6 +6,7 @@ import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +95,12 @@ class CompiledReadsTest {
     /** An Actions table of three parts, named by keywords down its first column. */
     private static final int STEPS_ROW = 109;
 
+    /** A Datatype whose parent type is not found, written transposed, its fields of primitive types. */
+    private static final int PRIMITIVES_ROW = 122;
+
+    /** A ColumnMatch table of a missing type, a condition indented under the one above it. */
+    private static final int GROUPED_ROW = 126;
+
     private static final int NAMES = 1;
 
     @TempDir
@@ -109,7 +116,7 @@ class CompiledReadsTest {
         var roles = Roles.of(tableAt(ORPHAN_ROW));
 
         assertEquals(RawTableRole.CODE, roles.roleAt(ORPHAN_ROW + 1, 1), "The type");
-        assertEquals(RawTableRole.KEY, roles.roleAt(ORPHAN_ROW + 1, 2), "The name");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(ORPHAN_ROW + 1, 2), "The name");
         assertEquals(RawTableRole.VALUE, roles.roleAt(ORPHAN_ROW + 1, 3), "The default");
         // The header is split into its pieces as the header of every table is.
         var header = "Datatype Orphan extends Missing";
@@ -130,7 +137,7 @@ class CompiledReadsTest {
 
         for (var column = 1; column <= 2; column++) {
             assertEquals(RawTableRole.CODE, roles.roleAt(WIDE_ROW + 1, column), "column " + column);
-            assertEquals(RawTableRole.KEY, roles.roleAt(WIDE_ROW + 2, column), "column " + column);
+            assertEquals(RawTableRole.OUTPUT, roles.roleAt(WIDE_ROW + 2, column), "column " + column);
         }
     }
 
@@ -140,7 +147,7 @@ class CompiledReadsTest {
 
         // No space before the type: the header names a Datatype, and its column holds the type and the name of a field.
         assertEquals(RawTableRole.CODE, roles.roleAt(GENDER_ROW + 1, 1), "The type");
-        assertEquals(RawTableRole.KEY, roles.roleAt(GENDER_ROW + 2, 1), "The name");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(GENDER_ROW + 2, 1), "The name");
     }
 
     @Test
@@ -159,7 +166,7 @@ class CompiledReadsTest {
 
         assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(LOST_ROW + 1, 1), "The title of the steps");
         assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(LOST_ROW + 1, 2), "The title of a column");
-        assertEquals(RawTableRole.KEY, roles.roleAt(LOST_ROW + 2, 1), "A step");
+        assertEquals(RawTableRole.VALUE, roles.roleAt(LOST_ROW + 2, 1), "A step");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(LOST_ROW + 2, 2), "Its value");
         // A Spreadsheet returning a single value returns its last step.
         assertEquals(RawTableRole.RESULT, roles.roleAt(LOST_ROW + 3, 1));
@@ -172,7 +179,7 @@ class CompiledReadsTest {
 
         assertEquals(RawTableRole.RESULT, roles.roleAt(MARKED_ROW + 1, 2), "The marked column");
         assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(MARKED_ROW + 1, 3));
-        assertEquals(RawTableRole.KEY, roles.roleAt(MARKED_ROW + 2, 1));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(MARKED_ROW + 2, 1));
         assertEquals(RawTableRole.RESULT, roles.roleAt(MARKED_ROW + 3, 1), "The marked step");
         assertEquals(RawTableRole.RESULT, roles.roleAt(MARKED_ROW + 3, 2));
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(MARKED_ROW + 3, 3), "A column not marked");
@@ -186,7 +193,7 @@ class CompiledReadsTest {
         assertEquals(RawTableRole.RESULT, roles.roleAt(total, 1), "The step the compiler returns");
         assertEquals(RawTableRole.RESULT, roles.roleAt(total, 2));
         // The row repeating its name is no step the compiler returns.
-        assertEquals(RawTableRole.KEY, roles.roleAt(total + 1, 1));
+        assertEquals(RawTableRole.VALUE, roles.roleAt(total + 1, 1));
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(total + 1, 2));
     }
 
@@ -275,7 +282,7 @@ class CompiledReadsTest {
         var roles = Roles.of(tableAt(GRID_ROW));
 
         assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(GRID_ROW + 1, 1), "The vertical condition");
-        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(GRID_ROW + 1, 2), "A horizontal value");
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(GRID_ROW + 1, 2), "A horizontal value");
         assertEquals(RawTableRole.VALUE, roles.roleAt(GRID_ROW + 2, 1));
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(GRID_ROW + 2, 2), "The grid it returns");
         assertEquals(RawTableRole.OUTPUT, roles.roleAt(GRID_ROW + 2, 3));
@@ -306,7 +313,7 @@ class CompiledReadsTest {
     @Test
     void returnsWhatTheTypeAndTheNamesOfASpreadsheetTheCompilerReadNoneOfTell() {
         var quiet = Roles.of(tableAt(QUIET_ROW));
-        assertEquals(RawTableRole.KEY, quiet.roleAt(QUIET_ROW + 2, 1), "A void Spreadsheet returns nothing");
+        assertEquals(RawTableRole.VALUE, quiet.roleAt(QUIET_ROW + 2, 1), "A void Spreadsheet returns nothing");
         assertEquals(RawTableRole.OUTPUT, quiet.roleAt(QUIET_ROW + 2, 2));
 
         var named = Roles.of(tableAt(NAMED_ROW));
@@ -320,7 +327,7 @@ class CompiledReadsTest {
         var roles = Roles.of(tableAt(LIMITS_ROW));
 
         assertEquals(RawTableRole.CODE, roles.roleAt(LIMITS_ROW + 1, 1));
-        assertEquals(RawTableRole.KEY, roles.roleAt(LIMITS_ROW + 1, 2));
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(LIMITS_ROW + 1, 2), "The name of a constant");
         assertEquals(RawTableRole.VALUE, roles.roleAt(LIMITS_ROW + 1, 3));
     }
 
@@ -329,7 +336,7 @@ class CompiledReadsTest {
         var roles = Roles.of(tableAt(TITLED_ROW));
 
         assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(TITLED_ROW + 1, 1));
-        assertEquals(RawTableRole.KEY, roles.roleAt(TITLED_ROW + 2, 1), "The column titled Name");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(TITLED_ROW + 2, 1), "The column titled Name");
         assertEquals(RawTableRole.CODE, roles.roleAt(TITLED_ROW + 2, 2), "The column titled Type");
         assertEquals(RawTableRole.VALUE, roles.roleAt(TITLED_ROW + 2, 3));
     }
@@ -342,6 +349,22 @@ class CompiledReadsTest {
         assertEquals(RawTableRole.CODE, roles.roleAt(STEPS_ROW + 1, 2), "The inputs");
         assertEquals(RawTableRole.CODE, roles.roleAt(STEPS_ROW + 2, 2), "The expression");
         assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(STEPS_ROW + 3, 2), "The title");
+    }
+
+    @Test
+    void readsATransposedDatatypeOfPrimitiveTypesByTheRowOfItsTypes() {
+        var roles = Roles.of(tableAt(PRIMITIVES_ROW));
+
+        assertEquals(RawTableRole.CODE, roles.roleAt(PRIMITIVES_ROW + 1, 2), "The type");
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(PRIMITIVES_ROW + 2, 2), "The name");
+    }
+
+    @Test
+    void groupsTheConditionsOfAColumnMatchTheCompilerReadNoneOfByTheirIndent() {
+        var roles = Roles.of(tableAt(GROUPED_ROW));
+
+        // The first condition heads a group with the one indented under it; the condition after them starts anew.
+        assertEquals(Set.of(4, 6), Set.copyOf(roles.regions().groups().rows()));
     }
 
     private IOpenLTable tableAt(int row) {
@@ -472,5 +495,22 @@ class CompiledReadsTest {
         TableTestProjects.row(sheet, STEPS_ROW + 1, 1, "Inputs", "Integer a");
         TableTestProjects.row(sheet, STEPS_ROW + 2, 1, "Expression", "a + 1");
         TableTestProjects.row(sheet, STEPS_ROW + 3, 1, "Title", "Plus");
+
+        TableTestProjects.row(sheet, PRIMITIVES_ROW, 1, "Datatype Primitives extends Missing");
+        merge(sheet, PRIMITIVES_ROW, PRIMITIVES_ROW, 1, 2);
+        TableTestProjects.row(sheet, PRIMITIVES_ROW + 1, 1, "int", "double");
+        TableTestProjects.row(sheet, PRIMITIVES_ROW + 2, 1, "count", "rate");
+
+        TableTestProjects.row(sheet, GROUPED_ROW, NAMES, "ColumnMatch <MATCH> String Grade (Missing m)");
+        merge(sheet, GROUPED_ROW, GROUPED_ROW, NAMES, 3);
+        TableTestProjects.row(sheet, GROUPED_ROW + 1, NAMES, "names", "operation", "values");
+        TableTestProjects.row(sheet, GROUPED_ROW + 2, NAMES, "Attribute", "Condition", "Grade");
+        TableTestProjects.row(sheet, GROUPED_ROW + 3, NAMES, "Return Values", null, "A");
+        TableTestProjects.row(sheet, GROUPED_ROW + 4, NAMES, "score", "min", "90");
+        TableTestProjects.row(sheet, GROUPED_ROW + 5, NAMES, "bonus", "min", "1");
+        TableTestProjects.row(sheet, GROUPED_ROW + 6, NAMES, "age", "min", "18");
+        var indented = sheet.getWorkbook().createCellStyle();
+        indented.setIndention((short) 1);
+        sheet.getRow(GROUPED_ROW + 5).getCell(NAMES).setCellStyle(indented);
     }
 }

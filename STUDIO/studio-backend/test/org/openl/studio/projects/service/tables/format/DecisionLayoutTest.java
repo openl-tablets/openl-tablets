@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.studio.projects.service.tables.TableTestProjects.merge;
 
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.studio.projects.model.tables.RawTableGroups;
+import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableRole;
 import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.service.tables.TableTestProjects;
@@ -154,16 +156,22 @@ class DecisionLayoutTest {
         var rate = Roles.of(table(RATE));
 
         assertEquals(RawTableRole.INPUT_TITLE, rate.roleAt(RATE_ROW + 1, 1), "A vertical title");
-        assertEquals(RawTableRole.INPUT_TITLE, rate.roleAt(RATE_ROW + 1, 3), "A horizontal value");
+        assertEquals(RawTableRole.OUTPUT_TITLE, rate.roleAt(RATE_ROW + 1, 3), "A horizontal value");
         assertEquals(RawTableRole.VALUE, rate.roleAt(RATE_ROW + 3, 2), "A vertical value");
         assertEquals(RawTableRole.OUTPUT, rate.roleAt(RATE_ROW + 4, 4), "The return grid");
         assertEquals(RawTableValueType.NUMBER, rate.typeAt(RATE_ROW + 4, 4));
         assertEquals(new RawTableGroups(List.of(4), List.of()), rate.regions().groups());
 
         var factor = Roles.of(table(FACTOR));
-        assertEquals(RawTableRole.INPUT_TITLE, factor.roleAt(FACTOR_ROW + 1, 2), "A merged horizontal value");
-        assertEquals(RawTableRole.INPUT_TITLE, factor.roleAt(FACTOR_ROW + 2, 5));
+        assertEquals(RawTableRole.OUTPUT_TITLE, factor.roleAt(FACTOR_ROW + 1, 2), "A merged horizontal value");
+        assertEquals(RawTableRole.OUTPUT_TITLE, factor.roleAt(FACTOR_ROW + 2, 5), "A horizontal value of the second row");
         assertEquals(RawTableRole.OUTPUT, factor.roleAt(FACTOR_ROW + 3, 5));
+        // Each row of the horizontal values is a region of its own, so a line sets it apart from the row above.
+        var horizontals = factor.regions().regions().stream()
+                .filter(region -> region.role() == RawTableRole.OUTPUT_TITLE)
+                .toList();
+        assertTrue(horizontals.stream().allMatch(region -> region.top() == region.bottom()), horizontals::toString);
+        assertEquals(2, horizontals.stream().map(RawTableRegion::top).distinct().count(), horizontals::toString);
         // The columns under the merged 2 start a group of the horizontal values.
         assertEquals(new RawTableGroups(List.of(), List.of(3)), factor.regions().groups());
     }

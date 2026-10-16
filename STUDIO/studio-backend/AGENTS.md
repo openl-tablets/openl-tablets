@@ -187,25 +187,27 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   holding it, and drops a cell past the edge of the table (`GridSplitter` does not widen a table for a region of
   empty cells). A new kind of table is one constant of `LayoutKind`.
 - **A role is a meaning, read from the compiled table, or from the text of one the compiler cannot read.** A layout
-  names the role of each place it reads, never a position it assumes. How the compiler read a table is asked once, in `TableRegionLayout.of`: each `LayoutKind`
-  names a function of `CompiledReads`, which tells whether the compiler read the table transposed, or nothing — a
-  Datatype whose parent type is not found, a Vocabulary of a type that does not exist, a Data, a Test or a Run table
-  whose type or tested table is missing, a Spreadsheet, a TBasic or a ColumnMatch table whose body could not be
-  built, a ColumnMatch table of an unknown algorithm. Such a body is read from its text instead (`TableBody.guessed`):
-  `LayoutKind` names a `GuessedReads` orientation test (field names, types, column kinds), and each layout finds its
-  parts where its kind writes them; only a body whose text tells none of them holds values
+  names the role of each place it reads, never a position it assumes. How the compiler read a table is asked once, in
+  `TableRegionLayout.of`: each `LayoutKind` names a function of `CompiledReads`, which tells whether the compiler read
+  the table transposed, or nothing — a Datatype whose parent type is not found, a Vocabulary of a type that does not
+  exist, a Data, a Test or a Run table whose type or tested table is missing, a Spreadsheet, a TBasic or a ColumnMatch
+  table whose body could not be built, a ColumnMatch table of an unknown algorithm. Such a body is read from its text
+  instead: each `LayoutKind` names a `TextRead` beside its compiled layout — a layout that finds the parts where the
+  kind writes them, and a `GuessedReads` orientation test (field names, types, column kinds) — and
+  `TableRegionLayout.of` picks one of the two once; only a body whose text tells none of its parts holds values
   (`BodyLayout.Placed.plain`). The type of a value (`ValueTypes`) is the data type the compiler gives the cell
-  (`CellMetaInfo.getDataType`), a formula, or the body of a Method table being `code`; a region takes the type most
-  of its values have on each of its lines, and a cell of another type names its own (`TableRegions.typeAt`).
+  (`CellMetaInfo.getDataType`), a formula, or the body of a Method table being `code`; a region takes the type most of
+  its values have on each of its lines, and a cell of another type names its own (`TableRegions.typeAt`).
 - **A table is laid out once for each compilation.** `TableRegionLayout.regionsOf` keeps the regions in a weak map
   keyed by the compiled `TableSyntaxNode`, so every page of a large table reuses one layout. It is reused only while
   the workbook was not saved since the compilation read it (`XlsWorkbookSourceCodeModule.isSavedSinceRead`), and
   only for the grid the table was compiled from; otherwise the table is laid out as it stands.
 - **Each kind is read as the compiler reads it.**
     - *Datatype, Vocabulary, Constants* (`DatatypeLayout`): the orientation, the columns and the row of titles of the
-      compiled body (`DatatypeTableBoundNode.getColumnTitlesOrder()`, `hasColumnTitles()`); a type is `code`, a name
-      `key`. A Datatype bound as the type of the values it lists (`AliasDatatypeMetaInfoReader`) is a Vocabulary. A
-      Constants table is read by place, as `ConstantsTableBoundNode` reads it.
+      compiled body (`DatatypeTableBoundNode.getColumnTitlesOrder()`, `hasColumnTitles()`); a type is `code`, the name
+      of a field or a constant `output` (untyped: a name, not a value). A Datatype bound as the type of the values it
+      lists (`AliasDatatypeMetaInfoReader`) is a Vocabulary. A Constants table is read by place, as
+      `ConstantsTableBoundNode` reads it.
     - *Data, Test, Run* (`DataLayout`): the fields across, as `DataTableBindHelper` reads them — the field names
       (`code`), the row of references when `hasForeignKeysRow` finds one, the titles, then the values. The keys
       (`key`) are the column a reference reads the rows of a Data table by (`ITableModel.getKeyColumnIndex()`) unless
@@ -213,12 +215,14 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
       (`ColumnDescriptor.isReference()`). A Test column whose field starts with `_res_` or `_error_` is
       `outputTitle`/`output`.
     - *Decision tables* (`DecisionLayout`): the places of the compiled `FunctionalRow`s — the code of a Rules table
-      (`getInfoTable`, `getCodeTable`, `getParamsTable`), the titles (`getPresentationTable`) and the values. The
-      column naming the rules is `key`. A condition value merged over several rules starts a group, and so does a
-      horizontal value of a lookup merged over several columns. Conditions, Actions and Returns tables take the titles
-      the compiler found (`ADtColumnsDefinitionTableBoundNode.getTitles`).
+      (`getInfoTable`, `getCodeTable`, `getParamsTable`), the titles (`getPresentationTable`) and the values. The column
+      naming the rules is `key`. The titles of the vertical conditions of a lookup, in its corner, are `inputTitle`; its
+      horizontal values over the grid it returns `outputTitle`. A condition value merged over several rules starts a
+      group, and so does a horizontal value of a lookup merged over several columns. Conditions, Actions and Returns
+      tables take the titles the compiler found (`ADtColumnsDefinitionTableBoundNode.getTitles`).
     - *Spreadsheet* (`SpreadsheetLayout`): the steps, the columns and the result the compiler read
-      (`getStructureBuilder()`); a step name merged over its row is a `section`.
+      (`getStructureBuilder()`); a step name is a `value` (untyped: a name, not a value), one merged over its row a
+      `section`.
     - *TBasic and ColumnMatch* (`TBasicLayout`, `ColumnMatchLayout`): the ids of the columns read as `AlgorithmBuilder`
       reads them (`TableRegionLayout.idsOf`), the rows the compiled table holds; a TBasic step starting a subroutine
       is a `section` and one that returns the `result`; a ColumnMatch condition with the conditions indented under it
@@ -228,7 +232,7 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   `builtinId`), the heading or body font of the theme, bold and italic, the text colour (`dk1`, or `dk1` lighter by
   half), the fill, the alignment and the lines of the style. Colours are theme slots (`TableStyle.ThemeSlot`, the
   SpreadsheetML numbering with the first pairs swapped) with a tint (`PoiExcelHelper.ThemedColor`); no RGB is written.
-- **`WorkbookStyles` owns the style in one workbook.** It redefines the ten built-in styles in `cellStyleXfs` and
+- **`WorkbookStyles` owns the style in one workbook.** It redefines the nine built-in styles in `cellStyleXfs` and
   `cellStyles` (`customBuiltin`), in place when the workbook names them, and never touches Normal, whose font size every
   role takes. It reads the faces of the theme fonts from the theme part; a workbook without a theme, or with an empty
   one, gets the Office theme (`office-theme.xml` beside the class): `StylesTable.ensureThemesTable` alone makes an
@@ -239,11 +243,14 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   the borders are read from their XML, and a border is added with the theme set aside.
 - **`ExcelTableFormatter` writes cells, not styles.** Each cell gets the index of a cell format keyed by its role, the
   lines at the edges of its region and what is kept from the cell (number format, indent, wrap, rotation); no
-  `CellStyle` object is made per cell (`CTCell.setS`). An indented cell is aligned left. The lines follow
-  `roleLinesOf` of `studio-ui`: the signature between two major lines, a minor line below the properties and below
-  a section, the result between its own lines, a hair line above a group and on the left of a group column, a major
-  line closing the table. The signature is the only rich text, in its pieces; rich text in any other cell is written
-  plain. A table of an `.xls` workbook and a table of the type Other are not formatted.
+  `CellStyle` object is made per cell (`CTCell.setS`). An indented cell is aligned left. The lines follow `roleLinesOf`
+  of `studio-ui`, all in `dk1` (`Line.ROLE`): a line on the top edge of a region, never below the region above — above
+  the signature, the properties, the code, the titles and a section, and below the last row of the signature, the
+  properties and the code; a lookup lays out each row of its horizontal values
+  as a region of its own (`Place.byRows`), so each row is set apart — the result between its own lines, a hair line
+  above a group and on the left of a group column, and a line closing the table. The signature is the only rich text, in
+  its pieces; rich text in any other cell is written plain. A table of an `.xls` workbook and a table of the type Other
+  are not formatted.
 - **Unused styles are removed only by Reformat.** `ExcelTableFormatter.removeUnusedStyles` (`UnusedStyles`) drops the
   cell formats no cell, row or column names and the named styles no cell format links, renumbering the references; it
   reads every cell, so a save of one table never runs it. It reads POI's private `xfs` and `styleXfs` lists, as POI

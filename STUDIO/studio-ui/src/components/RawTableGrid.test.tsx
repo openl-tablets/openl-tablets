@@ -381,6 +381,23 @@ describe('RawTableGrid', () => {
             expect(cellAt('C5').style.textAlign).toBe('')
         })
 
+        it('lines a heading up in the middle, and keeps an indented heading on the left of its indent', () => {
+            const steps: RawTableCell[][] = [
+                [{ cell: 'B2', value: 'Taxes', colspan: 2 }, { covered: true }],
+                [{ cell: 'B3', value: 'SUB', style: { indent: 1 } }, { cell: 'C3', value: 'Decorate' }],
+            ]
+            const sections = rolesOf({
+                pos: 'B2:C3',
+                regions: [{ role: 'section', top: 0, left: 0, bottom: 1, right: 1 }],
+                signature: [],
+            })
+            renderInTheme(<RawTableGrid roles={sections} rows={steps} testId="grid" />, { theme: 'standard' })
+
+            expect(cellAt('B2').style.textAlign).toBe('center')
+            expect(cellAt('C3').style.textAlign).toBe('center')
+            expect(cellAt('B3').style.textAlign).toBe('')
+        })
+
         it('writes the name of the table bold and its keyword, types and punctuation faint', () => {
             drawIn()
 
@@ -396,12 +413,15 @@ describe('RawTableGrid', () => {
         it('draws the lines of the parts of the table, and above the first line of a group', () => {
             drawIn()
 
-            expect(cellAt('B2').style.borderTop).toBe(`1px solid ${written(dark.colorBorder)}`)
-            expect(cellAt('B2').style.borderBottom).toBe(`1px solid ${written(dark.colorBorder)}`)
+            // The lines of the roles are drawn in the base text colour, so the parts of the table stand apart.
+            expect(cellAt('B2').style.borderTop).toBe(`1px solid ${written(dark.colorTextBase)}`)
+            // The line above the titles is drawn by the header, the cell above them.
+            expect(cellAt('B2').style.borderBottom).toBe(`1px solid ${written(dark.colorTextBase)}`)
+            expect(cellAt('B3').style.borderTop).toBe('')
             // The group of the last line is set apart by a line drawn on the line above it.
-            expect(cellAt('B4').style.borderBottom).toBe(`1px solid ${written(dark.colorBorderSecondary)}`)
+            expect(cellAt('B4').style.borderBottom).toBe(`1px solid ${written(dark.colorTextBase)}`)
             // The last line closes the table.
-            expect(cellAt('B5').style.borderBottom).toBe(`1px solid ${written(dark.colorBorder)}`)
+            expect(cellAt('B5').style.borderBottom).toBe(`1px solid ${written(dark.colorTextBase)}`)
         })
 
         it('draws the formatting of the workbook with Excel Formatting on', () => {

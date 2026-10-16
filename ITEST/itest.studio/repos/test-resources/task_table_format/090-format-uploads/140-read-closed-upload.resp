@@ -48,13 +48,11 @@ Content-Type: application/json
       "border": {
         "top": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         },
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     },
@@ -68,21 +66,23 @@ Content-Type: application/json
       "color": "#808080",
       "valign": "center",
       "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     },
     {
+      "background": "#dce6f1",
       "valign": "center",
-      "bold": true,
       "border": {
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     }
@@ -103,7 +103,7 @@ Content-Type: application/json
       "right": 0
     },
     {
-      "role": "key",
+      "role": "output",
       "top": 1,
       "left": 1,
       "bottom": 1,

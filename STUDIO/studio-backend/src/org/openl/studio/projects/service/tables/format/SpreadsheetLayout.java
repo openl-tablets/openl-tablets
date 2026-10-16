@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.SpreadsheetHeaderDefinition;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
+import org.openl.rules.calc.SpreadsheetSymbols;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
@@ -25,8 +26,8 @@ import org.openl.util.OpenClassUtils;
  *
  * <p>The header and the properties are laid out as every kind lays them out, see {@link TableRegionLayout}. The first
  * row under them names the columns: their titles are titles of what the table gives, and the title of the column of
- * steps, such as {@code Step}, a title of what it takes. The first column names the steps, the keys of the table.
- * Every other cell holds the value of a step, which the table gives.
+ * steps, such as {@code Step}, a title of what it takes. The first column names the steps: values the table holds,
+ * names rather than values to type. Every other cell holds the value of a step, which the table gives.
  *
  * <p>A step whose name is merged across its row is a heading that splits the steps into sections: the compiler takes
  * it for a step with no value.
@@ -59,13 +60,20 @@ final class SpreadsheetLayout {
      * @return the body and what each of its places is
      */
     static BodyLayout.Placed layOut(TableBody body) {
-        if (body.guessed()) {
-            return new BodyLayout.Placed(body.rows(), Places.guessed(body));
-        }
         if (!(body.compiled().node().getMetaInfoReader() instanceof SpreadsheetMetaInfoReader reader)) {
             return BodyLayout.Placed.plain(body);
         }
         return new BodyLayout.Placed(body.rows(), Places.of(body, reader));
+    }
+
+    /**
+     * The places of the body of a Spreadsheet the compiler read none of, as its text names its steps and columns.
+     *
+     * @param body the body of the table
+     * @return the body and what each of its places is
+     */
+    static BodyLayout.Placed guessed(TableBody body) {
+        return new BodyLayout.Placed(body.rows(), Places.guessed(body));
     }
 
     /**
@@ -78,7 +86,7 @@ final class SpreadsheetLayout {
 
         private static final Place TITLE = Place.of(RawTableRole.OUTPUT_TITLE);
         private static final Place STEP_TITLE = Place.of(RawTableRole.INPUT_TITLE);
-        private static final Place STEP = Place.of(RawTableRole.KEY);
+        private static final Place STEP = Place.of(RawTableRole.VALUE).untyped();
         private static final Place SECTION = Place.of(RawTableRole.SECTION);
         private static final Place VALUE = Place.of(RawTableRole.OUTPUT);
 
@@ -94,9 +102,8 @@ final class SpreadsheetLayout {
 
         /** The places of a body the compiler read none of, as its text tells them. */
         static Places guessed(TableBody body) {
-            var header = Objects.requireNonNullElse(
-                    body.compiled().node().getGridTable().getCell(0, 0).getStringValue(), "");
-            return new Places(stepsEndOf(body), new Guess(body.rows()).returnedCells(GuessedReads.typeOf(header)));
+            var type = GuessedReads.typeOf(GuessedReads.headerOf(body.compiled().node()));
+            return new Places(stepsEndOf(body), new Guess(body.rows()).returnedCells(type));
         }
 
         /** The last column of the sheet the column of steps takes. */
@@ -157,11 +164,14 @@ final class SpreadsheetLayout {
             return titles.contains(cell.getAbsoluteColumn());
         }
 
-        /** A single step returned, or a single column. */
-        static Returned single(Line line) {
-            return line.step()
-                    ? new Returned(line.lines(), null, line.lines(), Set.of())
-                    : new Returned(null, line.lines(), Set.of(), line.lines());
+        /**
+         * A single step returned, or a single column.
+         *
+         * @param step  whether a step is returned, rather than a column
+         * @param lines the rows of the sheet the step takes, or the columns the column takes
+         */
+        static Returned single(boolean step, Set<Integer> lines) {
+            return step ? new Returned(lines, null, lines, Set.of()) : new Returned(null, lines, Set.of(), lines);
         }
 
         /**
@@ -194,12 +204,11 @@ final class SpreadsheetLayout {
     /**
      * A step or a column of a Spreadsheet, and the marks of its name or title.
      *
-     * @param step    whether it is a step, rather than a column
      * @param marked  whether its name ends with {@code *}: a {@code SpreadsheetResult} returns it
      * @param dropped whether its name ends with {@code ~}: a {@code SpreadsheetResult} keeps it out
      * @param lines   the rows of the sheet a step takes, or the columns a column takes
      */
-    private record Line(boolean step, boolean marked, boolean dropped, Set<Integer> lines) {
+    private record Line(boolean marked, boolean dropped, Set<Integer> lines) {
 
         /** The rows or the columns of the sheet a region takes along a step or a column. */
         static Set<Integer> linesOf(boolean step, IGridRegion region) {
@@ -220,6 +229,9 @@ final class SpreadsheetLayout {
         /** The name the compiler returns the step or the column of, whatever the type of the Spreadsheet. */
         private static final String RETURN = "RETURN";
 
+        private static final String MARKED = SpreadsheetSymbols.ASTERISK.toString();
+        private static final String DROPPED = SpreadsheetSymbols.TILDE.toString();
+
         /**
          * What the Spreadsheet returns, as the compiler tells it from the type its header names: nothing for
          * {@code void}; the step or the column named {@code RETURN}; for a {@code SpreadsheetResult}, the marked steps
@@ -229,62 +241,63 @@ final class SpreadsheetLayout {
             if ("void".equals(type)) {
                 return Returned.NOTHING;
             }
-            var steps = lines(true);
-            var columns = lines(false);
-            var named = namedReturn(true);
-            if (named == null) {
-                named = namedReturn(false);
+            var steps = named(true);
+            var columns = named(false);
+            var step = returnOf(steps);
+            if (step != null) {
+                return Returned.single(true, step.lines());
             }
-            if (named != null) {
-                return Returned.single(named);
+            var column = returnOf(columns);
+            if (column != null) {
+                return Returned.single(false, column.lines());
             }
             if ("SpreadsheetResult".equals(type)) {
-                return Returned.marked(steps, columns);
+                return Returned.marked(linesOf(steps), linesOf(columns));
             }
-            return steps.isEmpty() ? Returned.NOTHING : Returned.single(steps.getLast());
+            return steps.isEmpty() ? Returned.NOTHING : Returned.single(true, steps.getLast().line().lines());
         }
 
         /** The step or the column named {@code RETURN}, or {@code null} for none. */
-        private @Nullable Line namedReturn(boolean step) {
-            var count = step ? body.getHeight() : body.getWidth();
-            for (var at = 1; at < count; at++) {
-                var cell = step ? body.getCell(0, at) : body.getCell(at, 0);
-                if (RETURN.equals(unmarked(nameOf(cell.getStringValue())))) {
-                    return lineOf(step, cell, RETURN);
-                }
-            }
-            return null;
+        private static @Nullable Line returnOf(List<Named> named) {
+            return named.stream().filter(line -> RETURN.equals(line.name())).map(Named::line).findFirst().orElse(null);
+        }
+
+        private static List<Line> linesOf(List<Named> named) {
+            return named.stream().map(Named::line).toList();
         }
 
         /** The steps down the first column, or the columns across the first row, that have a name. */
-        private List<Line> lines(boolean step) {
-            var lines = new ArrayList<Line>();
+        private List<Named> named(boolean step) {
+            var named = new ArrayList<Named>();
             var count = step ? body.getHeight() : body.getWidth();
             for (var at = 1; at < count; at++) {
                 var cell = step ? body.getCell(0, at) : body.getCell(at, 0);
                 var name = nameOf(cell.getStringValue());
                 if (!name.isEmpty()) {
-                    lines.add(lineOf(step, cell, name));
+                    var marked = name.endsWith(MARKED);
+                    var dropped = name.endsWith(DROPPED);
+                    var unmarked = marked || dropped ? name.substring(0, name.length() - 1).trim() : name;
+                    named.add(new Named(unmarked,
+                            new Line(marked, dropped, Line.linesOf(step, cell.getAbsoluteRegion()))));
                 }
             }
-            return lines;
-        }
-
-        private static Line lineOf(boolean step, ICell cell, String name) {
-            return new Line(step, name.endsWith("*"), name.endsWith("~"),
-                    Line.linesOf(step, cell.getAbsoluteRegion()));
-        }
-
-        /** A name without the {@code *} or the {@code ~} that marks it. */
-        private static String unmarked(String name) {
-            return name.endsWith("*") || name.endsWith("~") ? name.substring(0, name.length() - 1).trim() : name;
+            return named;
         }
 
         /** The name of a step or a column, its type left out. */
         private static String nameOf(@Nullable String text) {
             var name = Objects.requireNonNullElse(text, "");
-            var type = name.indexOf(':');
+            var type = name.indexOf(SpreadsheetSymbols.TYPE_DELIMITER.toString());
             return (type < 0 ? name : name.substring(0, type)).trim();
+        }
+
+        /**
+         * A step or a column with its name.
+         *
+         * @param name the name, without the mark that closes it
+         * @param line the step or the column
+         */
+        private record Named(String name, Line line) {
         }
     }
 
@@ -302,7 +315,7 @@ final class SpreadsheetLayout {
         Returned returnedCells() {
             var single = builder.getReturnHeaderDefinition();
             if (single != null) {
-                return Returned.single(new Line(single.isRow(), false, false, sheetLines(single)));
+                return Returned.single(single.isRow(), sheetLines(single));
             }
             return Returned.marked(linesOf(builder.getRowHeaders().values()),
                     linesOf(builder.getColumnHeaders().values()));
@@ -312,7 +325,7 @@ final class SpreadsheetLayout {
         private List<Line> linesOf(Collection<SpreadsheetHeaderDefinition> headers) {
             return headers.stream()
                     .filter(Objects::nonNull)
-                    .map(header -> new Line(header.isRow(), header.getDefinition().isAsteriskPresented(),
+                    .map(header -> new Line(header.getDefinition().isAsteriskPresented(),
                             header.getDefinition().isTildePresented(), sheetLines(header)))
                     .toList();
         }

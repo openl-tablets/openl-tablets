@@ -40,7 +40,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 /**
  * The OpenL table style in one workbook: the built-in cell styles of the roles, and the cell formats that link them.
  *
- * <p>The ten built-in styles of the roles are written into the workbook, redefined with the theme colours and the
+ * <p>The nine built-in styles of the roles are written into the workbook, redefined with the theme colours and the
  * theme fonts. A style the workbook already names is redefined in place; the others are added. The Normal style is
  * never changed, and every role takes the font size it has.
  *

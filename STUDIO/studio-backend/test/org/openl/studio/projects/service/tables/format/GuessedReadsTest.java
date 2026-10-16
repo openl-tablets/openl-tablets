@@ -26,7 +26,7 @@ class GuessedReadsTest {
         assertEquals(DecisionTableColumnHeaders.RULE, GuessedReads.columnKindOf("RULE"));
         assertNull(GuessedReads.columnKindOf("Age"), "A title names no kind");
         assertNull(GuessedReads.columnKindOf(null));
-        assertFalse(GuessedReads.isColumnKind("C1 x"));
+        assertNull(GuessedReads.columnKindOf("C1 x"));
     }
 
     @Test

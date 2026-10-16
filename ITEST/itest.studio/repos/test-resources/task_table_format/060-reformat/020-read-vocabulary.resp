@@ -50,13 +50,11 @@ Content-Type: application/json
       "border": {
         "top": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         },
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     },
@@ -74,8 +72,7 @@ Content-Type: application/json
       "border": {
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     }

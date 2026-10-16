@@ -141,15 +141,16 @@ public final class TableRegionLayout {
         var transposed = false;
         var groups = RawTableGroups.NONE;
         if (rows != null) {
+            // A table the compiler read none of is laid out from its text.
             var read = kind.readOf(node);
-            transposed = read.orElseGet(() -> kind.isTurned(rows));
+            var text = kind.getText();
+            transposed = read.orElseGet(() -> text.turned().test(rows));
             var body = TableBody.builder()
                     .rows(rows)
                     .transposed(transposed)
                     .compiled(new CompiledTable(node))
-                    .guessed(read.isEmpty())
                     .build();
-            var placed = kind.getLayout().layOut(body);
+            var placed = (read.isPresent() ? kind.getLayout() : text.layout()).layOut(body);
             var bottom = rows.getSource().getRegion().getBottom();
             layOutPlaces(cells, region, placed);
             groups = groupsOf(placed, region, bottom);
@@ -412,7 +413,8 @@ public final class TableRegionLayout {
             var lineTypes = lineTypes();
             var regions = rectangles(cells, (row, column) -> {
                 var place = cells[row][column];
-                return place == null ? null : new RoleKey(place.role(), lineTypes.get(lineKey(place, row, column)));
+                return place == null ? null : new RoleKey(place.role(), lineTypes.get(lineKey(place, row, column)),
+                        place.byRow() ? row : null);
             }, (key, rectangle) -> new RawTableRegion(key.role(), key.type(), rectangle.top, rectangle.left,
                     rectangle.bottom, rectangle.right));
             var own = new HashMap<TableRegions.Cell, RawTableValueType>();
@@ -459,8 +461,11 @@ public final class TableRegionLayout {
     private record LineKey(RawTableRole role, int line) {
     }
 
-    /** The key of a region of a role: the role, and the type of its values. */
-    private record RoleKey(RawTableRole role, @Nullable RawTableValueType type) {
+    /**
+     * The key of a region of a role: the role, the type of its values, and the row of a place each row of which is a
+     * region of its own.
+     */
+    private record RoleKey(RawTableRole role, @Nullable RawTableValueType type, @Nullable Integer row) {
     }
 
     /**

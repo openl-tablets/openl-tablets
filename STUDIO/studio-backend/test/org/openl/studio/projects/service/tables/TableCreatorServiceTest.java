@@ -465,7 +465,7 @@ class TableCreatorServiceTest {
         assertEquals("Title", TableTestProjects.styleNameAt(module, "Greeting", 1, 1));
         assertEquals("Explanatory Text", TableTestProjects.styleNameAt(module, "Greeting", 2, 3));
         assertEquals("Heading 3", TableTestProjects.styleNameAt(module, "Greeting", 4, 1));
-        assertEquals("40% - Accent1", TableTestProjects.styleNameAt(module, "Greeting", 4, 2));
+        assertEquals("Heading 2", TableTestProjects.styleNameAt(module, "Greeting", 4, 2));
         assertEquals("Input", TableTestProjects.styleNameAt(module, "Greeting", 5, 1));
         assertEquals("Output", TableTestProjects.styleNameAt(module, "Greeting", 5, 2));
         assertEquals("Output", TableTestProjects.styleNameAt(module, "Greeting", 5, 3), "The widened column");

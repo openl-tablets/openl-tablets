@@ -259,17 +259,19 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
 -   **Excel Formatting off**, the default — the table is drawn by what its cells mean, in the colours of the OpenL Studio
     theme, light or dark. The formatting of the Excel file is not drawn, except the indent, which carries the
     structure of a TBasic and a ColumnMatch table:
-    -   The header is closed by a line above and below, with its name in bold and its keyword, types, and punctuation
+    -   The parts of a table are set apart by lines in the colour of the text: a line above and below the header,
+        the properties and the code, a line above the titles and a heading inside the body, and above each row of
+        the horizontal values of a lookup. The header has its name in bold and its keyword, types, and punctuation
         in a fainter colour.
     -   The properties and the code the compiler reads, such as `C1` and `RET1` of a Rules table, are drawn in a fainter
-        colour, with a line under the properties.
+        colour.
     -   The titles of what a table takes, such as the conditions of a decision table, are bold, centered, and filled
-        grey. The titles of what a table gives, such as what a decision table returns or the columns of a
-        Spreadsheet, are filled in a tint of the accent colour of the theme, and the values it gives in a lighter
-        tint.
-    -   The names of the rows and columns, such as the steps of a Spreadsheet or the keys of a Data table, are bold.
+        grey. The titles of what a table gives, such as what a decision table returns, the columns of a Spreadsheet,
+        or the horizontal values of a lookup, are filled in a tint of the accent colour of the theme, and the values it
+        gives, the names of the fields of a Datatype and of constants among them, in a lighter tint.
+    -   The names of the rows and columns, such as the rule names of a Rules table or the keys of a Data table, are bold.
         What a Spreadsheet returns is bold, with a line above it and a double line below it.
-    -   A heading inside the body, such as a merged step of a Spreadsheet, is filled like a title and closed by a line.
+    -   A heading inside the body, such as a merged step of a Spreadsheet, is centered and filled like a title.
         A line sets apart the rules that share a merged value of a condition, and the columns of a lookup that share a
         merged value.
     -   A number and a date are aligned to the right, and a line under the last row closes the table.
@@ -434,12 +436,13 @@ itself offers, so the tables look the same in Excel and change with the theme of
     -   **Title** — the header.
     -   **Explanatory Text** — the table properties.
     -   **Calculation** — the code the compiler reads, such as `C1` and `RET1` of a Rules table.
-    -   **Heading 3** — the titles of what the table takes, such as the conditions of a decision table.
-    -   **40% - Accent1** — the titles of what the table gives, such as what a decision table returns.
-    -   **Heading 4** — the names of rows and columns, such as the steps of a Spreadsheet or the keys of a Data table.
-    -   **Input** — the values the table takes.
-    -   **Output** — the values the table gives.
-    -   **Heading 2** — a heading inside the body, such as a subroutine of a TBasic table.
+    -   **Heading 3** — the titles of what the table takes, such as the conditions of a decision table, and a heading
+        inside the body, such as a subroutine of a TBasic table.
+    -   **Heading 2** — the titles of what the table gives, such as what a decision table returns or the horizontal
+        values of a lookup.
+    -   **Heading 4** — the names of rows and columns, such as the rule names of a Rules table or the keys of a Data table.
+    -   **Input** — the values the table takes, and the step names of a Spreadsheet.
+    -   **Output** — the values the table gives, and the names of the fields of a Datatype and of constants.
     -   **Total** — what the table returns, such as the `RETURN` step of a TBasic table.
 
     OpenL Studio redefines these styles in the Excel file with the theme colours and the theme fonts, in the font
@@ -448,9 +451,11 @@ itself offers, so the tables look the same in Excel and change with the theme of
 -   **Theme colours and fonts** — every colour is a theme colour, and the titles and the header are written in the
     heading font of the theme and the rest in its body font. Changing **Page Layout > Colors** or **Fonts** in Excel
     changes the look of the tables. An Excel file without a theme gets the Office theme.
--   **Lines** — the header has a line above and below it, a line closes the properties and the table, a line sets
-    apart a heading inside the body, a fine line sets apart the rules that share a merged value of a condition, and
-    what a table returns has a line above it and a double line below it. There are no vertical lines.
+-   **Lines** — every line is in the text colour of the theme. A line runs above and below the header, the
+    properties and the code, above the titles and a heading inside the body, above each row of the horizontal
+    values of a lookup, and a line closes the table; a fine line sets apart the rules that share a merged value of
+    a condition, and what a table returns has a line above it and a double line below it. There are no vertical
+    lines.
 -   **Header** — the name of the table is bold, the names of the parameters are in the text colour, and the keyword,
     the types, and the punctuation are lighter.
 

@@ -103,7 +103,7 @@ Content-Type: application/json
       "right": 0
     },
     {
-      "role": "key",
+      "role": "output",
       "top": 1,
       "left": 1,
       "bottom": 4,

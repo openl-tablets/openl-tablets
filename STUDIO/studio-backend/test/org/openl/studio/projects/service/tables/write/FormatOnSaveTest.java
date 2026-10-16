@@ -94,7 +94,7 @@ class FormatOnSaveTest {
 
         assertEquals("Title", styleAt(HEADER, HOUR));
         assertEquals("Heading 3", styleAt(TITLES, DAY));
-        assertEquals("40% - Accent1", styleAt(TITLES, RATE));
+        assertEquals("Heading 2", styleAt(TITLES, RATE));
         assertEquals("Input", styleAt(FIRST_RULE, DAY));
         assertEquals("Output", styleAt(GROUPED_RULE, RATE));
         assertEquals(BorderStyle.HAIR, lineAbove(GROUPED_RULE, DAY), "A line sets the group apart");
@@ -227,7 +227,7 @@ class FormatOnSaveTest {
 
         var copy = TableTestProjects.table(TableTestProjects.projectModel(dir), "Rate2").getGridTable().getRegion();
         assertEquals("Title", styleAt(copy.getTop(), copy.getLeft()));
-        assertEquals("40% - Accent1", styleAt(copy.getTop() + 1, copy.getLeft() + 2));
+        assertEquals("Heading 2", styleAt(copy.getTop() + 1, copy.getLeft() + 2));
         assertEquals("Input", styleAt(copy.getTop() + 2, copy.getLeft() + 1));
         assertEquals(BorderStyle.HAIR, lineAbove(copy.getTop() + 4, copy.getLeft() + 1), "The group of the source");
     }
@@ -248,14 +248,14 @@ class FormatOnSaveTest {
         var regions = List.of(
                 new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 1),
                 new RawTableRegion(RawTableRole.CODE, null, 1, 0, 2, 0),
-                new RawTableRegion(RawTableRole.KEY, null, 1, 1, 2, 1));
+                new RawTableRegion(RawTableRole.OUTPUT, null, 1, 1, 2, 1));
 
         creator.createTable(new CreateNewTableRequest("Rules", SHEET, null, view, regions), model);
 
         var person = TableTestProjects.table(TableTestProjects.projectModel(dir), "Person").getGridTable().getRegion();
         assertEquals("Title", styleAt(person.getTop(), person.getLeft()));
         assertEquals("Calculation", styleAt(person.getTop() + 2, person.getLeft()));
-        assertEquals("Heading 4", styleAt(person.getTop() + 1, person.getLeft() + 1));
+        assertEquals("Output", styleAt(person.getTop() + 1, person.getLeft() + 1));
     }
 
     @Test

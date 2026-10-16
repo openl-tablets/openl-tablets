@@ -74,13 +74,11 @@ Content-Type: application/json
       "border": {
         "top": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         },
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     },
@@ -88,13 +86,25 @@ Content-Type: application/json
       "background": "#eeece1",
       "align": "center",
       "valign": "center",
-      "bold": true
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
     },
     {
       "background": "#b8cce4",
       "align": "center",
       "valign": "center",
-      "bold": true
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
     },
     {
       "valign": "center"
@@ -109,8 +119,7 @@ Content-Type: application/json
       "border": {
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     },
@@ -121,8 +130,7 @@ Content-Type: application/json
       "border": {
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     }

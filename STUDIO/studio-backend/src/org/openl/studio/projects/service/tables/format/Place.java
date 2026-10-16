@@ -8,9 +8,11 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  *
  * @param role   what the place means
  * @param typing how the value of the place is typed
+ * @param byRow  whether each row of the place is a region of its own, which draws the line of its role, rather than
+ *               a part of one region spanning the rows
  * @author Yury Molchan
  */
-record Place(RawTableRole role, Typing typing) {
+record Place(RawTableRole role, Typing typing, boolean byRow) {
 
     /** How the value of a place is typed. */
     enum Typing {
@@ -30,7 +32,7 @@ record Place(RawTableRole role, Typing typing) {
      * @return the place
      */
     static Place of(RawTableRole role) {
-        return new Place(role, typingOf(role));
+        return new Place(role, typingOf(role), false);
     }
 
     /**
@@ -40,17 +42,22 @@ record Place(RawTableRole role, Typing typing) {
      * @return the place
      */
     static Place code(RawTableRole role) {
-        return new Place(role, Typing.CODE);
+        return new Place(role, Typing.CODE, false);
     }
 
     /** This place taking another role, its value typed as before unless the role holds no value. */
     Place as(RawTableRole other) {
-        return new Place(other, typingOf(other) == Typing.NONE ? Typing.NONE : typing);
+        return new Place(other, typingOf(other) == Typing.NONE ? Typing.NONE : typing, byRow);
     }
 
     /** This place holding no value to type, such as the name of a step a Spreadsheet returns. */
     Place untyped() {
-        return new Place(role, Typing.NONE);
+        return new Place(role, Typing.NONE, byRow);
+    }
+
+    /** This place with each of its rows a region of its own, such as a row of the horizontal values of a lookup. */
+    Place byRows() {
+        return new Place(role, typing, true);
     }
 
     private static Typing typingOf(RawTableRole role) {

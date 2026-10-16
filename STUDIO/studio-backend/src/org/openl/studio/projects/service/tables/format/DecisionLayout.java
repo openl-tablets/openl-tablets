@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.IntBinaryOperator;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,7 +38,8 @@ import org.openl.util.StringUtils;
  * titles of a condition are titles of what the table takes, and its values are values, and so is the column a table
  * names its rules in. The titles of a column the table returns or acts in are titles of what it gives, and its values
  * are what it gives. A lookup also checks horizontal conditions, whose values stand across its top over the values it
- * returns: they are titles of what the table takes.
+ * returns: they title what the table gives, each row of them a region of its own, set apart from the row above, while
+ * the titles of its vertical conditions in the corner above its rules title what it takes.
  *
  * <p>A value of a condition merged over several rules makes them a group, which the rule after the group closes. A
  * value of a horizontal condition merged over several columns of a lookup makes them a group as well. The first rule,
@@ -55,8 +57,11 @@ import org.openl.util.StringUtils;
  */
 final class DecisionLayout {
 
+    /** The keyword naming the part of a declaration that holds its titles. */
+    private static final String TITLE_KEYWORD = "title";
+
     /** The keywords naming the parts of a declaration of a Conditions, an Actions or a Returns table. */
-    private static final Set<String> KEYWORDS = Set.of("inputs", "expression", "parameter", "title");
+    private static final Set<String> KEYWORDS = Set.of("inputs", "expression", "parameter", TITLE_KEYWORD);
 
     private DecisionLayout() {
     }
@@ -69,8 +74,18 @@ final class DecisionLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed rules(TableBody body) {
-        var places = body.guessed() ? null : Places.of(body);
+        var places = Places.of(body);
         return placed(body, places != null ? places : Guess.rules(body));
+    }
+
+    /**
+     * The places of the body of a decision table the compiler read none of, as its text tells them, see {@link Guess}.
+     *
+     * @param body the body of the table
+     * @return the body and the parts of each of its places
+     */
+    static BodyLayout.Placed guessedRules(TableBody body) {
+        return placed(body, Guess.rules(body));
     }
 
     /**
@@ -90,7 +105,17 @@ final class DecisionLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed conditions(TableBody body) {
-        return placed(body, body.guessed() ? Guess.declarations(body, true) : Places.ofDeclarations(body, true));
+        return placed(body, Places.ofDeclarations(body, true));
+    }
+
+    /**
+     * The places of the body of a Conditions table the compiler read no declaration from, as its text tells them.
+     *
+     * @param body the body of the table
+     * @return the body and the parts of each of its places
+     */
+    static BodyLayout.Placed guessedConditions(TableBody body) {
+        return placed(body, Guess.declarations(body, true));
     }
 
     /**
@@ -101,7 +126,18 @@ final class DecisionLayout {
      * @return the body and the parts of each of its places
      */
     static BodyLayout.Placed actions(TableBody body) {
-        return placed(body, body.guessed() ? Guess.declarations(body, false) : Places.ofDeclarations(body, false));
+        return placed(body, Places.ofDeclarations(body, false));
+    }
+
+    /**
+     * The places of the body of an Actions or a Returns table the compiler read no declaration from, as its text tells
+     * them.
+     *
+     * @param body the body of the table
+     * @return the body and the parts of each of its places
+     */
+    static BodyLayout.Placed guessedActions(TableBody body) {
+        return placed(body, Guess.declarations(body, false));
     }
 
     /**
@@ -258,7 +294,7 @@ final class DecisionLayout {
          * The places of a table that declares what decision tables take: its titles in the given lines, and every
          * other line of its body as code.
          */
-        static Places declared(TableBody body, Axes axes, Set<Integer> titleLines, boolean conditions) {
+        private static Places declared(TableBody body, Axes axes, Set<Integer> titleLines, boolean conditions) {
             var region = body.rows().getSource().getRegion();
             var code = IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
                     .filter(line -> !titleLines.contains(line))
@@ -288,13 +324,47 @@ final class DecisionLayout {
          * {@code Parameter} and {@code Title}, in any case.
          */
         private static Set<Integer> keywordLines(TableBody body, Axes axes, IGridRegion region) {
+            return keywordLines(body, axes, region, KEYWORDS::contains);
+        }
+
+        /**
+         * The lines of a table declaring what decision tables take whose first cross names a part the test accepts,
+         * its text trimmed and in lower case.
+         */
+        private static Set<Integer> keywordLines(TableBody body, Axes axes, IGridRegion region,
+                                                 Predicate<String> named) {
             var sheet = body.rows().getSource().getGrid();
             var first = axes.crossStart(region);
             return IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
-                    .filter(line -> KEYWORDS.contains(StringUtils.trimToEmpty(
+                    .filter(line -> named.test(StringUtils.trimToEmpty(
                             axes.cellAt(sheet, line, first).getStringValue()).toLowerCase(Locale.ROOT)))
                     .boxed()
                     .collect(Collectors.toUnmodifiableSet());
+        }
+
+        /**
+         * The places of a decision table that holds rules, its groups found on the sheet as it stands: the lines a
+         * value of a condition is merged over, and the crosses of a lookup a horizontal value is merged over.
+         */
+        private static Places ofRules(ILogicalTable rows, Axes axes, Set<Integer> code, Set<Integer> horizontals,
+                              Set<Integer> conditions, Set<Integer> ruleNames, Set<Integer> returns, int gridFrom,
+                              int rulesFrom) {
+            var region = rows.getSource().getRegion();
+            var sheet = rows.getSource().getGrid();
+            return Places.builder()
+                    .axes(axes)
+                    .code(Set.copyOf(code))
+                    .horizontals(Set.copyOf(horizontals))
+                    .conditions(Set.copyOf(conditions))
+                    .ruleNames(Set.copyOf(ruleNames))
+                    .keywords(Set.of())
+                    .returns(Set.copyOf(returns))
+                    .gridFrom(gridFrom)
+                    .rulesFrom(rulesFrom)
+                    .groups(Reader.groupEdges(axes, conditions, rulesFrom, sheet, region))
+                    // The columns of a lookup are grouped by its horizontal conditions as its rules are by the others.
+                    .columns(Reader.groupEdges(axes.swapped(), horizontals, gridFrom, sheet, region))
+                    .build();
         }
 
         /**
@@ -413,20 +483,7 @@ final class DecisionLayout {
             conditions.addAll(ruleNames);
             var gridFrom = grid.stream().mapToInt(Integer::intValue).min().orElse(Integer.MAX_VALUE);
             returns.addAll(grid);
-            return Places.builder()
-                    .axes(axes)
-                    .code(Set.copyOf(code))
-                    .horizontals(Set.copyOf(horizontals))
-                    .conditions(Set.copyOf(conditions))
-                    .ruleNames(Set.copyOf(ruleNames))
-                    .keywords(Set.of())
-                    .returns(Set.copyOf(returns))
-                    .gridFrom(gridFrom)
-                    .rulesFrom(rulesFrom)
-                    .groups(groupEdges(axes, conditions, rulesFrom, sheet, region))
-                    // The columns of a lookup are grouped by its horizontal conditions as its rules are by the others.
-                    .columns(groupEdges(axes.swapped(), horizontals, gridFrom, sheet, region))
-                    .build();
+            return Places.ofRules(body, axes, code, horizontals, conditions, ruleNames, returns, gridFrom, rulesFrom);
         }
 
         /**
@@ -560,8 +617,6 @@ final class DecisionLayout {
         /** The part of a declaration that holds the titles, when the table names no part by its keyword. */
         private static final int TITLE_PART = 3;
 
-        private static final String TITLE = "title";
-
         private Guess() {
         }
 
@@ -603,6 +658,7 @@ final class DecisionLayout {
             if (conditions.isEmpty() && returns.isEmpty()) {
                 return null;
             }
+            // The lines of the body, as the compiler reads them: a line is as tall as the cell of its first column.
             var code = new HashSet<Integer>();
             for (var line = 0; line < Math.min(CODE_LINES, upright.getHeight()); line++) {
                 code.addAll(lines(axes, upright.getCell(0, line).getAbsoluteRegion()));
@@ -611,8 +667,8 @@ final class DecisionLayout {
             var titlesEnd = upright.getHeight() > CODE_LINES
                     ? axes.lineEnd(upright.getCell(0, CODE_LINES).getAbsoluteRegion())
                     : axes.lineEnd(region);
-            return rulesOf(body, axes, code, Set.of(), conditions, ruleNames, returns, Integer.MAX_VALUE,
-                    titlesEnd + 1);
+            return Places.ofRules(body.rows(), axes, code, Set.of(), conditions, ruleNames, returns,
+                    Integer.MAX_VALUE, titlesEnd + 1);
         }
 
         /** A SimpleRules or a SmartRules table: its titles, its conditions by the parameters, then what it returns. */
@@ -628,8 +684,8 @@ final class DecisionLayout {
                 (column < count ? conditions : returns).addAll(crosses(axes, region));
                 titlesEnd = Math.max(titlesEnd, axes.lineEnd(region));
             }
-            return rulesOf(body, axes, Set.of(), Set.of(), conditions, Set.of(), returns, Integer.MAX_VALUE,
-                    titlesEnd + 1);
+            return Places.ofRules(body.rows(), axes, Set.of(), Set.of(), conditions, Set.of(), returns,
+                    Integer.MAX_VALUE, titlesEnd + 1);
         }
 
         /** A lookup: its horizontal conditions across the top, its vertical conditions, and the grid it returns. */
@@ -648,29 +704,10 @@ final class DecisionLayout {
                     .boxed()
                     .collect(Collectors.toUnmodifiableSet());
             var rulesFrom = horizontals.stream().mapToInt(Integer::intValue).max().orElse(axes.lineStart(region)) + 1;
-            return rulesOf(body, axes, Set.of(), horizontals, conditions, Set.of(), grid, gridFrom, rulesFrom);
+            return Places.ofRules(body.rows(), axes, Set.of(), horizontals, conditions, Set.of(), grid, gridFrom,
+                    rulesFrom);
         }
 
-        /** The places of a decision table, its groups found on the sheet as it stands. */
-        private static Places rulesOf(TableBody body, Axes axes, Set<Integer> code, Set<Integer> horizontals,
-                                      Set<Integer> conditions, Set<Integer> ruleNames, Set<Integer> returns,
-                                      int gridFrom, int rulesFrom) {
-            var region = body.rows().getSource().getRegion();
-            var sheet = body.rows().getSource().getGrid();
-            return Places.builder()
-                    .axes(axes)
-                    .code(Set.copyOf(code))
-                    .horizontals(Set.copyOf(horizontals))
-                    .conditions(Set.copyOf(conditions))
-                    .ruleNames(Set.copyOf(ruleNames))
-                    .keywords(Set.of())
-                    .returns(Set.copyOf(returns))
-                    .gridFrom(gridFrom)
-                    .rulesFrom(rulesFrom)
-                    .groups(Reader.groupEdges(axes, conditions, rulesFrom, sheet, region))
-                    .columns(Reader.groupEdges(axes.swapped(), horizontals, gridFrom, sheet, region))
-                    .build();
-        }
 
         /**
          * A Conditions, an Actions or a Returns table: the parts of its declarations named by their keywords, or by
@@ -679,15 +716,9 @@ final class DecisionLayout {
         static Places declarations(TableBody body, boolean conditions) {
             var rows = body.rows();
             var region = rows.getSource().getRegion();
-            var sheet = rows.getSource().getGrid();
             // The parts stand in rows when the first column names more of them than the first row, else in columns.
             var axes = new Axes(keywordsIn(rows.transpose()) <= keywordsIn(rows));
-            var first = axes.crossStart(region);
-            var titles = IntStream.rangeClosed(axes.lineStart(region), axes.lineEnd(region))
-                    .filter(line -> TITLE.equalsIgnoreCase(
-                            StringUtils.trimToEmpty(axes.cellAt(sheet, line, first).getStringValue())))
-                    .boxed()
-                    .collect(Collectors.toUnmodifiableSet());
+            var titles = Places.keywordLines(body, axes, region, TITLE_KEYWORD::equals);
             if (titles.isEmpty()) {
                 var parts = axes.transposed() ? rows : rows.transpose();
                 var part = Math.min(TITLE_PART, parts.getWidth() - 1);
@@ -705,8 +736,7 @@ final class DecisionLayout {
         }
 
         private static int parametersOf(TableBody body) {
-            var header = body.compiled().node().getGridTable().getCell(0, 0).getStringValue();
-            return header == null ? 0 : GuessedReads.parametersOf(header);
+            return GuessedReads.parametersOf(GuessedReads.headerOf(body.compiled().node()));
         }
 
         private static Set<Integer> lines(Axes axes, IGridRegion region) {
@@ -726,10 +756,10 @@ final class DecisionLayout {
      * What the places of one table are.
      *
      * <p>The code is code the compiler reads, and a keyword naming a part of a declaration is its key. The titles of
-     * the conditions, of the column naming the rules and the values of the horizontal conditions of a lookup are titles
-     * of what the table takes; the titles of what it returns or acts in, titles of what it gives. Under them, the names
-     * of the rules are keys, the values of the conditions values the table takes, and what it returns, the grid of a
-     * lookup included, what it gives.
+     * the conditions and of the column naming the rules are titles of what the table takes; the titles of what it
+     * returns or acts in, and the values of the horizontal conditions of a lookup over the grid it returns, titles of
+     * what it gives. Under them, the names of the rules are keys, the values of the conditions values the table
+     * takes, and what it returns, the grid of a lookup included, what it gives.
      *
      * @param places where the parts stand
      */
@@ -739,6 +769,8 @@ final class DecisionLayout {
         private static final Place KEY = Place.of(RawTableRole.KEY);
         private static final Place TITLE = Place.of(RawTableRole.INPUT_TITLE);
         private static final Place RESULT_TITLE = Place.of(RawTableRole.OUTPUT_TITLE);
+        /** A horizontal value of a lookup: each row of them is set apart from the row above. */
+        private static final Place HORIZONTAL = RESULT_TITLE.byRows();
 
         /** What a cell is, by the line and the cross of the sheet it stands in. */
         @Override
@@ -752,7 +784,7 @@ final class DecisionLayout {
             }
             var inGrid = cross >= places.gridFrom();
             if (places.horizontals().contains(line) && inGrid) {
-                return TITLE;
+                return HORIZONTAL;
             }
             if (line < places.rulesFrom()) {
                 return keyword ? KEY : titleAt(cross);

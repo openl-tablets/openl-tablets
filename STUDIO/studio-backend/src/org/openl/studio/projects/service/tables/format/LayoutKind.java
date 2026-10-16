@@ -22,40 +22,59 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
 @RequiredArgsConstructor
 enum LayoutKind {
 
-    DATATYPE(DatatypeLayout::fields, CompiledReads::datatype, GuessedReads::typesTurned),
+    DATATYPE(DatatypeLayout::fields, CompiledReads::datatype,
+            new TextRead(DatatypeLayout::guessedFields, GuessedReads::typesTurned)),
     VOCABULARY(DatatypeLayout::values, CompiledReads::vocabulary),
-    SPREADSHEET(SpreadsheetLayout::layOut, CompiledReads::spreadsheet),
+    SPREADSHEET(SpreadsheetLayout::layOut, CompiledReads::spreadsheet, new TextRead(SpreadsheetLayout::guessed)),
     TBASIC(TBasicLayout::layOut, CompiledReads::tbasic),
     METHOD(BodyLayout.Placed::code, CompiledReads.ALWAYS),
-    DATA(DataLayout::data, CompiledReads::data, GuessedReads::fieldsTurned),
-    TEST(DataLayout::calls, CompiledReads::data, GuessedReads::fieldsTurned),
-    RUN(DataLayout::calls, CompiledReads::data, GuessedReads::fieldsTurned),
-    RULES(DecisionLayout::rules, CompiledReads::decision, GuessedReads::kindsTurned),
-    SIMPLE_RULES(DecisionLayout::rules, CompiledReads::decision),
-    SMART_RULES(DecisionLayout::rules, CompiledReads::decision),
-    SIMPLE_LOOKUP(DecisionLayout::rules, CompiledReads::decision),
-    SMART_LOOKUP(DecisionLayout::rules, CompiledReads::decision),
-    COLUMN_MATCH(ColumnMatchLayout::layOut, CompiledReads::columnMatch),
-    CONDITIONS(DecisionLayout::conditions, CompiledReads::declarations),
-    ACTIONS(DecisionLayout::actions, CompiledReads::declarations),
-    RETURNS(DecisionLayout::actions, CompiledReads::declarations),
+    DATA(DataLayout::data, CompiledReads::data, new TextRead(DataLayout::guessedData, GuessedReads::fieldsTurned)),
+    TEST(DataLayout::calls, CompiledReads::data, new TextRead(DataLayout::guessedCalls, GuessedReads::fieldsTurned)),
+    RUN(DataLayout::calls, CompiledReads::data, new TextRead(DataLayout::guessedCalls, GuessedReads::fieldsTurned)),
+    RULES(DecisionLayout::rules, CompiledReads::decision,
+            new TextRead(DecisionLayout::guessedRules, GuessedReads::kindsTurned)),
+    SIMPLE_RULES(DecisionLayout::rules, CompiledReads::decision, new TextRead(DecisionLayout::guessedRules)),
+    SMART_RULES(DecisionLayout::rules, CompiledReads::decision, new TextRead(DecisionLayout::guessedRules)),
+    SIMPLE_LOOKUP(DecisionLayout::rules, CompiledReads::decision, new TextRead(DecisionLayout::guessedRules)),
+    SMART_LOOKUP(DecisionLayout::rules, CompiledReads::decision, new TextRead(DecisionLayout::guessedRules)),
+    COLUMN_MATCH(ColumnMatchLayout::layOut, CompiledReads::columnMatch, new TextRead(ColumnMatchLayout::guessed)),
+    CONDITIONS(DecisionLayout::conditions, CompiledReads::declarations,
+            new TextRead(DecisionLayout::guessedConditions)),
+    ACTIONS(DecisionLayout::actions, CompiledReads::declarations, new TextRead(DecisionLayout::guessedActions)),
+    RETURNS(DecisionLayout::actions, CompiledReads::declarations, new TextRead(DecisionLayout::guessedActions)),
     ENVIRONMENT(NamedValuesLayout::layOut, CompiledReads.ALWAYS),
     PROPERTIES(NamedValuesLayout::layOut, CompiledReads::properties),
-    CONSTANTS(DatatypeLayout::constants, CompiledReads::constants, GuessedReads::typesTurned);
+    CONSTANTS(DatatypeLayout::constants, CompiledReads::constants,
+            new TextRead(DatatypeLayout::guessedConstants, GuessedReads::typesTurned));
 
-    /** How the kind lays out its body. */
+    /** How the kind lays out its body as the compiler read it. */
     @Getter
     private final BodyLayout layout;
 
     /** How the compiler read a table of the kind, see {@link CompiledReads}. */
     private final Function<TableSyntaxNode, Optional<Boolean>> read;
 
-    /** Whether the text of the body of a table the compiler read none of tells it is written transposed. */
-    private final Predicate<ILogicalTable> turned;
+    /** How a table of the kind the compiler read none of is read from its text, see {@link GuessedReads}. */
+    @Getter
+    private final TextRead text;
 
-    /** A kind whose tables the compiler read none of are read as they are written. */
+    /** A kind whose layout reads the sheet alone, so a table the compiler read none of is laid out alike. */
     LayoutKind(BodyLayout layout, Function<TableSyntaxNode, Optional<Boolean>> read) {
-        this(layout, read, body -> false);
+        this(layout, read, new TextRead(layout));
+    }
+
+    /**
+     * How a table of a kind the compiler read none of is read from its text.
+     *
+     * @param layout how its body is laid out from its text
+     * @param turned whether its text tells it is written with its rows and columns swapped
+     */
+    record TextRead(BodyLayout layout, Predicate<ILogicalTable> turned) {
+
+        /** A table read as it is written. */
+        TextRead(BodyLayout layout) {
+            this(layout, body -> false);
+        }
     }
 
     /**
@@ -67,17 +86,6 @@ enum LayoutKind {
      */
     Optional<Boolean> readOf(TableSyntaxNode node) {
         return read.apply(node);
-    }
-
-    /**
-     * Whether the text of a table of this kind the compiler read none of tells it is written with its rows and columns
-     * swapped, see {@link GuessedReads}.
-     *
-     * @param body the body of the table
-     * @return {@code true} for a table its text tells is written transposed
-     */
-    boolean isTurned(ILogicalTable body) {
-        return turned.test(body);
     }
 
     /**
@@ -118,8 +126,7 @@ enum LayoutKind {
         if (node.getMetaInfoReader() instanceof AliasDatatypeMetaInfoReader) {
             return true;
         }
-        var header = node.getGridTable().getCell(0, 0).getStringValue();
-        return CompiledReads.datatype(node).isEmpty() && header != null && GuessedReads.isVocabulary(header);
+        return CompiledReads.datatype(node).isEmpty() && GuessedReads.isVocabulary(GuessedReads.headerOf(node));
     }
 
     /** The kind of a decision table, by the keyword of its header. */

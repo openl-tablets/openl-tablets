@@ -53,7 +53,7 @@ Content-Type: application/json
       {
         "cell": "B4",
         "value": "String",
-        "style": 3
+        "style": 6
       },
       {
         "cell": "C4",
@@ -70,7 +70,7 @@ Content-Type: application/json
       {
         "cell": "B5",
         "value": "Double",
-        "style": 3
+        "style": 6
       },
       {
         "cell": "C5",
@@ -80,7 +80,7 @@ Content-Type: application/json
       {
         "cell": "D5",
         "value": 0.5,
-        "style": 6,
+        "style": 7,
         "type": "number"
       }
     ],
@@ -88,16 +88,16 @@ Content-Type: application/json
       {
         "cell": "B6",
         "value": "Integer",
-        "style": 7
+        "style": 8
       },
       {
         "cell": "C6",
         "value": "age",
-        "style": 8
+        "style": 9
       },
       {
         "cell": "D6",
-        "style": 9
+        "style": 10
       }
     ]
   ],
@@ -107,13 +107,11 @@ Content-Type: application/json
       "border": {
         "top": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         },
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     },
@@ -125,13 +123,23 @@ Content-Type: application/json
     },
     {
       "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
       "valign": "center"
     },
     {
-      "valign": "center",
-      "bold": true
+      "valign": "center"
     },
     {
+      "color": "#808080",
       "valign": "center"
     },
     {
@@ -144,29 +152,26 @@ Content-Type: application/json
       "border": {
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
         }
       }
     },
     {
       "valign": "center",
-      "bold": true,
       "border": {
         "bottom": {
           "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
-        }
-      }
-    },
-    {
-      "valign": "center",
-      "border": {
-        "bottom": {
-          "style": "solid",
-          "width": 1,
-          "color": "#1f497d"
+          "width": 1
         }
       }
     }
@@ -187,7 +192,7 @@ Content-Type: application/json
       "right": 0
     },
     {
-      "role": "key",
+      "role": "output",
       "top": 1,
       "left": 1,
       "bottom": 4,
