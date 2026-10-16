@@ -89,11 +89,12 @@ export const ModuleActionBar = ({
     // offered here exactly as the project's own screen offers them, by the same capabilities.
     const { actions, dialogs } = useProjectDialogs(project, { onChanged: () => onProjectChanged?.() })
     // The old Editor let a module's workbook be replaced from this row; the dialog it opens is the one the
-    // Files tab uses, restricted to Excel. A Markdown module, a folder of files, is changed as text in the file
-    // editor: no workbook replaces it and no table is written into it.
+    // Files tab uses, restricted to Excel. A Markdown module is changed as text in the file editor: no workbook
+    // replaces it.
     const canUpdateModule = !!project.capabilities?.canWrite && !!modulePath && isWorkbookPath(modulePath)
-    // A module whose path is not known yet may still take a table: only a known folder of files refuses one.
-    const markdown = !!modulePath && !isWorkbookPath(modulePath)
+    // A module of a single Markdown file holds its one table and takes no other. A folder of Markdown files takes a
+    // table as a file of its own, and a module whose path is not known yet may still take one.
+    const singleFile = isMarkdownPath(modulePath)
     // Only a module of a single file is downloaded from here: a folder is downloaded with the project.
     const exportable = !!modulePath && (isWorkbookPath(modulePath) || isMarkdownPath(modulePath))
     const exportHint = modulePath ? 'browser.module.export_folder' : 'browser.module.export_unavailable'
@@ -223,7 +224,7 @@ export const ModuleActionBar = ({
                     <Badge color="blue" count={testCount} data-testid="module-test-count" />
                 )}
             </Button>
-            {canWrite && !markdown && (
+            {canWrite && !singleFile && (
                 <Button
                     data-testid="module-createTable"
                     disabled={disabled}

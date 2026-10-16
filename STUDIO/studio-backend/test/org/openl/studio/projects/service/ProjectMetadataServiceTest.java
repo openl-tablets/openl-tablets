@@ -10,11 +10,15 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
@@ -30,9 +34,14 @@ import org.openl.studio.projects.model.ProjectTypeKind;
 import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
+import org.openl.studio.projects.model.files.FileNode;
+import org.openl.studio.projects.model.files.FolderNode;
+import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileRoot;
+import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.studio.projects.service.tables.TableTestProjects;
 import org.openl.types.IOpenClass;
 
 class ProjectMetadataServiceTest {
@@ -93,6 +102,37 @@ class ProjectMetadataServiceTest {
         var types = service.getTypes(model);
 
         assertEquals(List.of("Address"), types.stream().map(ProjectTypeView::name).toList());
+    }
+
+    @Test
+    void namesTheModuleFolderOfATypeWrittenInAMarkdownFile(@TempDir Path project) throws IOException {
+        Files.writeString(project.resolve("rules.xml"), """
+                <project>
+                    <name>Drivers</name>
+                    <modules>
+                        <module>
+                            <name>Drivers</name>
+                            <rules-root path="rules/Drivers"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        Files.createDirectories(project.resolve("rules/Drivers"));
+        Files.writeString(project.resolve("rules/Drivers/Driver.md"), """
+                ---
+                table: Datatype Driver
+                ---
+
+                | String  | name |
+                |---------|------|
+                | Integer | age  |
+                """);
+
+        var driver = type(service.getTypes(TableTestProjects.projectModel(project)), "Driver");
+
+        assertEquals("Drivers", driver.module());
+        assertEquals(List.of(new ProjectTypeFieldView("name", "String", false),
+                new ProjectTypeFieldView("age", "Integer", false)), driver.fields());
     }
 
     @Test
@@ -207,6 +247,21 @@ class ProjectMetadataServiceTest {
     }
 
     @Test
+    void readsTheFoldersOfAModuleOfMarkdownFilesAsItsSheets() {
+        when(projectFileRootFactory.of(project)).thenReturn(root);
+        var files = FileCriteriaQuery.builder().basePath("rules/Rating").extension("md").build();
+        when(projectFilesService.getResources(root, files, true, FileViewMode.FLAT, null)).thenReturn(List.of(
+                FolderNode.builder().path("rules/Rating/Factors").name("Factors").basePath("rules/Rating").build(),
+                markdownFile("rules/Rating/Factors", "ageFactor.md"),
+                markdownFile("rules/Rating/Premium", "base.md"),
+                markdownFile("rules/Rating", "premium.md"),
+                markdownFile("rules/Rating", "discount.md")));
+
+        // The module folder first: a new table goes there unless the reader names another
+        assertEquals(List.of("Rating", "Factors", "Premium"), service.getSheets(project, "rules/Rating"));
+    }
+
+    @Test
     void reportsAModuleWorkbookItCannotRead() throws Exception {
         var resource = mock(AProjectResource.class);
         when(resource.getContent()).thenReturn(new ByteArrayInputStream("not a workbook".getBytes()));
@@ -214,6 +269,10 @@ class ProjectMetadataServiceTest {
         when(projectFilesService.getResource(root, "rules/Main.xlsx", null)).thenReturn(resource);
 
         assertThrows(BadRequestException.class, () -> service.getSheets(project, "rules/Main.xlsx"));
+    }
+
+    private static FileNode markdownFile(String folder, String name) {
+        return FileNode.builder().path(folder + "/" + name).name(name).basePath(folder).extension("md").build();
     }
 
     private static PropertyDefinitionView property(List<PropertyDefinitionView> properties, String name) {

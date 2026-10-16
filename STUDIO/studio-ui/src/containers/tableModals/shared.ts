@@ -1,7 +1,7 @@
 import type { DefaultOptionType, SearchConfig } from 'antd/es/select'
 import type { ProjectModule } from 'types/projects'
 import type { ProjectProperty } from 'types/tables'
-import { isWorkbookPath } from '../../utils/workbooks'
+import { isMarkdownPath, isWorkbookPath } from '../../utils/workbooks'
 
 /**
  * A legal OpenL table name, matching the identifier rule the compiler applies to the table header.
@@ -99,14 +99,33 @@ export interface ModuleOption {
     path?: string
 }
 
+/** The format a new module is written in: a workbook, or a folder of Markdown files, a table to a file. */
+export type ModuleFormat = 'excel' | 'markdown'
+
+/** Whether the module is a folder of Markdown files, which takes a table as a file of its own. */
+export const isMarkdownFolder = (module: ModuleOption | undefined): boolean =>
+    !!module?.path && !isWorkbookPath(module.path)
+
+/** What a table is written into: a module the project does not declare yet, a workbook, or a Markdown folder. */
+export type Destination = 'new' | 'workbook' | 'markdown'
+
+/** What the module of the given name is to a table written into it. */
+export const destinationOf = (modules: ModuleOption[], moduleName: string): Destination => {
+    const module = modules.find(option => option.name === moduleName)
+    if (!module) {
+        return 'new'
+    }
+    return isMarkdownFolder(module) ? 'markdown' : 'workbook'
+}
+
 /**
  * The named modules of a project a table can be written to, in the shape the destination field works with.
  *
- * <p>Only a workbook takes a table. A Markdown module, a folder of files, is left out: a table goes into it as a
- * file of its own, through the file editor.
+ * <p>A workbook takes a table on a sheet. A module written as a folder of Markdown files takes it as a file of its
+ * own. A module of a single Markdown file holds its one table and takes no other, so it is left out.
  */
 export const toModuleOptions = (modules: ProjectModule[]): ModuleOption[] => modules
-    .filter(module => module.name && (!module.path || isWorkbookPath(module.path)))
+    .filter(module => module.name && !isMarkdownPath(module.path))
     .map(module => ({ name: module.name ?? '', ...(module.path ? { path: module.path } : {}) }))
 
 /** The destination list, in alphabetical order: a project declares its modules in no particular one. */
@@ -145,10 +164,17 @@ export const withTrailingBlank = <T, >(values: T[], isComplete: (value: T) => bo
 /** Folder a table kind belongs in. A project keeps its Test and Run tables apart from the rules they exercise. */
 const moduleFolder = (kind: string): string => kind === 'Test' || kind === 'Run' ? 'tests' : 'rules'
 
-/** Where a module the author just named is written. The author names it; the path follows. */
-export const defaultModulePath = (moduleName: string, kind = 'Datatype'): string => {
-    const safeName = moduleName.trim().replaceAll(/[\\/:*?"<>|]/g, '-')
-    return `${moduleFolder(kind)}/${safeName || 'NewModule'}.xlsx`
+/**
+ * Where a module the author just named is written. The author names it; the path follows.
+ *
+ * <p>A workbook is a file named after the module. A module of Markdown files is a folder of that name, which takes
+ * no dot: the server reads a path with an extension as a file.
+ */
+export const defaultModulePath = (moduleName: string, kind = 'Datatype', format: ModuleFormat = 'excel'): string => {
+    const safeName = moduleName.trim().replaceAll(/[\\/:*?"<>|]/g, '-') || 'NewModule'
+    return format === 'markdown'
+        ? `${moduleFolder(kind)}/${safeName.replaceAll('.', '-')}`
+        : `${moduleFolder(kind)}/${safeName}.xlsx`
 }
 
 /** The module a table kind should land in by default: a Test or Run table belongs with the project's tests. */

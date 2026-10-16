@@ -15,6 +15,7 @@ import {
     defaultModulePath,
     deleteAt,
     IDENTIFIER,
+    isMarkdownFolder,
     isValidPropertyValue,
     isValidSheetName,
     type ModuleOption,
@@ -106,7 +107,8 @@ const CopyTableForm: React.FC<{ detail: CopyTableModalDetail }> = ({ detail }) =
                 if (!active) {
                     return
                 }
-                const available = toModuleOptions(loadedModules)
+                // A copy keeps the formatting of its table, which only a workbook holds
+                const available = toModuleOptions(loadedModules).filter(module => !isMarkdownFolder(module))
                 const current = available.find(module => module.name === detail.currentModuleName)
                 const destination = current?.name ?? available[0]?.name ?? ''
                 setSourceInfo(info)

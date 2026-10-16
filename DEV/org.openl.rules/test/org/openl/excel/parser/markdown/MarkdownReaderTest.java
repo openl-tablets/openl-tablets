@@ -50,14 +50,15 @@ class MarkdownReaderTest {
                 | 12-17 | Good Afternoon |
                 """;
 
+        // The last cell of each row of a body narrower than the properties is merged over the columns they take
         assertArrayEquals(new Object[][]{
                 {"Rules String Greeting(Integer hour)", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
                 {"properties", "description", "Greeting by the hour of the day"},
                 {MERGE_WITH_UP, "effectiveDate", "2024-01-01"},
                 {MERGE_WITH_UP, "state", "CA,NY"},
-                {"Hour", "Greeting", null},
-                {"0-11", "Good Morning", null},
-                {"12-17", "Good Afternoon", null}}, cellsOf("Greeting.md", text));
+                {"Hour", "Greeting", MERGE_WITH_LEFT},
+                {"0-11", "Good Morning", MERGE_WITH_LEFT},
+                {"12-17", "Good Afternoon", MERGE_WITH_LEFT}}, cellsOf("Greeting.md", text));
     }
 
     @Test

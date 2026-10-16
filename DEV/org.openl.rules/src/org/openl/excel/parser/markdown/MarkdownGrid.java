@@ -3,7 +3,10 @@ package org.openl.excel.parser.markdown;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -13,11 +16,16 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.CellLoader;
+import org.openl.rules.lang.xls.load.SheetLoader;
 import org.openl.rules.table.AGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
@@ -26,6 +34,8 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
+import org.openl.util.FileUtils;
+import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
 /**
@@ -42,14 +52,31 @@ import org.openl.util.StringUtils;
  */
 public final class MarkdownGrid extends AGrid implements IWritableGrid {
 
-    private final XlsSheetSourceCodeModule sheetSource;
-    private final String text;
+    /** The address of the sheet, which the tables written on it are known by. */
+    @Getter
+    private final String uri;
+    /** The sheet of the file the module compiles, or {@code null} for a file written outside a module. */
+    @Getter
+    private final @Nullable XlsSheetSourceCodeModule sheetSource;
+    /** The name of the file the error messages tell. */
+    private final String fileName;
+    /** The text of the file when the sheet was opened, or {@code null} for a file that does not exist yet. */
+    private final @Nullable String text;
+    private final Saver saver;
     private final List<List<@Nullable String>> rows = new ArrayList<>();
     private final List<IGridRegion> merges = new ArrayList<>();
 
-    private MarkdownGrid(XlsSheetSourceCodeModule sheetSource, String text, SheetCells cells) {
+    private MarkdownGrid(String uri,
+                         @Nullable XlsSheetSourceCodeModule sheetSource,
+                         String fileName,
+                         @Nullable String text,
+                         SheetCells cells,
+                         Saver saver) {
+        this.uri = uri;
         this.sheetSource = sheetSource;
+        this.fileName = fileName;
         this.text = text;
+        this.saver = saver;
         for (var row = 0; row < cells.values().length; row++) {
             for (var column = 0; column < cells.values()[row].length; column++) {
                 put(column, row, cells.values()[row][column]);
@@ -82,7 +109,111 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var file = MarkdownTableParser.parse(withoutMark, workbook.getDisplayName())
                 .orElseThrow(() -> new MarkdownWriteException(
                         "%s holds no table to write".formatted(workbook.getDisplayName())));
-        return new MarkdownGrid(sheetSource, text, SheetLayout.cellsOf(file.table()));
+        return new MarkdownGrid(sheetSource.getUri(),
+                sheetSource,
+                workbook.getDisplayName(),
+                text,
+                SheetLayout.cellsOf(file.table()),
+                written -> workbook.save(out -> out.write(written.getBytes(StandardCharsets.UTF_8))));
+    }
+
+    /**
+     * Opens the sheet of a Markdown file that does not exist yet, for a new table to be written on.
+     *
+     * <p>The save hands the text of the file to the saver, which creates the file. The sheet is compiled by no
+     * module, so a table written on it is known by no module either.
+     *
+     * @param fileUri the address the file is compiled under, see {@link #uriOf}
+     * @param saver   creates the file with the text it is given
+     */
+    public static MarkdownGrid create(String fileUri, Saver saver) {
+        var path = StringTool.decodeURL(fileUri);
+        var uri = fileUri + "?sheet=" + StringTool.encodeURL(MarkdownReader.sheetNameOf(path));
+        return new MarkdownGrid(uri, null, FileUtils.getName(path), null, new SheetCells(new String[0][], List.of()),
+                saver);
+    }
+
+    /**
+     * Opens the sheet of a new file of a module folder, for a new table to be written on.
+     *
+     * <p>The sheet is the one the module compiles the file as once it is written, so a table written on it is known
+     * as the module will know it. The address of the file is read off a file the folder holds.
+     *
+     * @param sibling a file of the module folder, as it was compiled
+     * @param folder  the module folder
+     * @param file    the new file
+     * @param saver   creates the file with the text it is given
+     */
+    public static MarkdownGrid createIn(XlsWorkbookSourceCodeModule sibling, Path folder, Path file, Saver saver) {
+        var fileUri = uriOf(sibling, folder, file);
+        var path = StringTool.decodeURL(fileUri);
+        var workbook = new XlsWorkbookSourceCodeModule(new MarkdownFileSource(file, fileUri));
+        var sheet = new XlsSheetSourceCodeModule(new UnwrittenSheet(MarkdownReader.sheetNameOf(path)), workbook);
+        return new MarkdownGrid(sheet.getUri(), sheet, FileUtils.getName(path), null,
+                new SheetCells(new String[0][], List.of()), saver);
+    }
+
+    /** The sheet of a file not written yet: it has a name, and nothing to read. */
+    private record UnwrittenSheet(String name) implements SheetLoader {
+
+        @Override
+        public Sheet getSheet() {
+            throw new IllegalStateException("The file of the sheet '%s' is not written yet".formatted(name));
+        }
+
+        @Override
+        public String getSheetName() {
+            return name;
+        }
+
+        @Override
+        public CellLoader getCellLoader(int column, int row) {
+            throw new IllegalStateException("The file of the sheet '%s' is not written yet".formatted(name));
+        }
+    }
+
+    /**
+     * Returns the address a new file of a module folder is compiled under, read off a file the folder holds.
+     *
+     * @param sibling a file of the module folder, as it was compiled
+     * @param folder  the module folder
+     * @param file    the new file
+     */
+    public static String uriOf(XlsWorkbookSourceCodeModule sibling, Path folder, Path file) {
+        var siblingPath = Path.of(URI.create(sibling.getFileUri())).toAbsolutePath().normalize();
+        var siblingTail = uriPath(folder.relativize(siblingPath).toString().replace('\\', '/'));
+        var siblingUri = sibling.getUri();
+        if (!siblingUri.endsWith(siblingTail)) {
+            throw new IllegalArgumentException("%s is not a file of %s".formatted(siblingUri, folder));
+        }
+        var base = siblingUri.substring(0, siblingUri.length() - siblingTail.length());
+        return base + uriPath(folder.relativize(file.toAbsolutePath().normalize()).toString().replace('\\', '/'));
+    }
+
+    /**
+     * Writes a relative path as a URI path, escaping what a URI cannot hold, such as spaces.
+     */
+    public static String uriPath(String path) {
+        try {
+            return new URI(null, null, path, null).toASCIIString();
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * Creates or rewrites the file of a sheet with its text.
+     */
+    @FunctionalInterface
+    public interface Saver {
+
+        /**
+         * Writes the file.
+         *
+         * @param text the text of the file
+         * @throws IOException when the file cannot be written
+         */
+        void save(String text) throws IOException;
     }
 
     /**
@@ -99,14 +230,10 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
                         range.getLeft(),
                         range.getRight()))
                 .toList();
-        var workbook = sheetSource.getWorkbookSource();
-        var written = MarkdownTableWriter.write(text, workbook.getDisplayName(), new SheetCells(values, ranges));
-        workbook.save(out -> out.write(written.getBytes(StandardCharsets.UTF_8)));
-    }
-
-    @Override
-    public XlsSheetSourceCodeModule getSheetSource() {
-        return sheetSource;
+        var cells = new SheetCells(values, ranges);
+        saver.save(text == null
+                ? MarkdownTableWriter.newFile(SheetLayout.tableOf(cells))
+                : MarkdownTableWriter.write(text, fileName, cells));
     }
 
     // Reading
@@ -122,11 +249,6 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     @Nullable
     String valueAt(int column, int row) {
         return row < rows.size() && column < rows.get(row).size() ? rows.get(row).get(column) : null;
-    }
-
-    @Override
-    public String getUri() {
-        return sheetSource.getUri();
     }
 
     @Override
