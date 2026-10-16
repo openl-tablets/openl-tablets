@@ -242,6 +242,8 @@ final class XlsSheetMerger {
      */
     static void recalculate(Workbook workbook) {
         var evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+        // a formula that reads another workbook keeps the value it was saved with
+        evaluator.setIgnoreMissingWorkbooks(true);
         for (Sheet sheet : workbook) {
             for (Row row : sheet) {
                 for (Cell cell : row) {

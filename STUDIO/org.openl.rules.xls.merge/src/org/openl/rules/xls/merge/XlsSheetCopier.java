@@ -177,8 +177,13 @@ public final class XlsSheetCopier {
     /**
      * Copies the value or the formula of a cell. The destination cell keeps its style and comment.
      *
+     * <p>A formula comes with the value it keeps, which it goes on showing when it cannot be recalculated, such as a
+     * formula that reads another workbook.
+     *
      * @param src  source
      * @param dest destination
+     * @throws LinkedWorkbookMismatchException when the formula reads another workbook through a link the workbook of
+     *                                         the destination numbers differently; a link it lacks is brought along
      */
     static void copyValue(Cursor src, Cursor dest) {
         switch (src.cell.getCellType()) {
@@ -188,10 +193,27 @@ public final class XlsSheetCopier {
             case BOOLEAN -> dest.cell.setCellValue(src.cell.getBooleanCellValue());
             case NUMERIC -> dest.cell.setCellValue(src.cell.getNumericCellValue());
             case FORMULA -> {
+                XlsExternalLinks.linkWorkbooks(src.cell, dest.cell);
                 dest.cell.setCellFormula(src.cell.getCellFormula());
+                copyFormulaValue(src.cell, dest.cell);
                 dest.addFormulaCell(dest.cell);
             }
             default -> throw new IllegalStateException("Unexpected cell type: " + src.cell.getCellType());
+        }
+    }
+
+    /**
+     * Copies the value a formula cell keeps.
+     */
+    private static void copyFormulaValue(Cell src, Cell dest) {
+        switch (src.getCachedFormulaResultType()) {
+            case NUMERIC -> dest.setCellValue(src.getNumericCellValue());
+            case STRING -> dest.setCellValue(src.getRichStringCellValue());
+            case BOOLEAN -> dest.setCellValue(src.getBooleanCellValue());
+            case ERROR -> dest.setCellErrorValue(src.getErrorCellValue());
+            default -> {
+                // a formula that keeps no value
+            }
         }
     }
 
