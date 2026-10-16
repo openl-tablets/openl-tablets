@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
@@ -157,6 +158,8 @@ public interface ProjectsMergeService {
      * @param otherBranch the other branch name (interpretation depends on mode)
      * @param mode merge operation mode (RECEIVE or SEND)
      * @param workspace the workspace of the user who merges
+     * @param studio the session the merge was started in, which formats the workbooks the merge combines by itself
+     *               while tables are formatted on save
      * @return merge result with status and optional conflict information
      * @throws IOException if Git operation fails or repository is inaccessible
      */
@@ -165,6 +168,7 @@ public interface ProjectsMergeService {
                       @NotBlank String currentBranch,
                       @NotBlank String otherBranch,
                       @NotNull MergeOpMode mode,
-                      @NotNull UserWorkspace workspace) throws IOException;
+                      @NotNull UserWorkspace workspace,
+                      @NotNull WebStudio studio) throws IOException;
 
 }

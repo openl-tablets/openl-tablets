@@ -143,7 +143,7 @@ class ProjectsMergeLauncherTest {
     }
 
     private OngoingStubbing<MergeResult> whenMerging(MergeOpMode mode) throws IOException {
-        return when(mergeService.merge(project, CURRENT, OTHER, mode, workspace));
+        return when(mergeService.merge(project, CURRENT, OTHER, mode, workspace, studio));
     }
 
     private RulesProject otherProject() {
@@ -170,7 +170,7 @@ class ProjectsMergeLauncherTest {
 
         verify(mergeService).validateMergeAllowed(project, OTHER, MergeOpMode.RECEIVE, true);
         // The request has answered, and the merge has not run yet: its result is not ready, which is no error.
-        verify(mergeService, never()).merge(any(), any(), any(), any(), any());
+        verify(mergeService, never()).merge(any(), any(), any(), any(), any(), any());
         assertEquals(Optional.empty(), launcher.result(project));
         assertTrue(launcher.isRunning(() -> project));
 
@@ -347,7 +347,7 @@ class ProjectsMergeLauncherTest {
 
         runQueued();
 
-        verify(mergeService).merge(project, CURRENT, OTHER, MergeOpMode.RECEIVE, workspace);
+        verify(mergeService).merge(project, CURRENT, OTHER, MergeOpMode.RECEIVE, workspace, studio);
     }
 
     /** The result of the merge stays what it is: the failure belongs to no request that happened to settle it. */
@@ -483,7 +483,7 @@ class ProjectsMergeLauncherTest {
         launcher.start(project, OTHER, MergeOpMode.SEND, false);
         runQueued();
 
-        verify(mergeService, times(1)).merge(any(), any(), any(), any(), any());
+        verify(mergeService, times(1)).merge(any(), any(), any(), any(), any(), any());
         verify(notifications, times(1)).notifyMergeStatus(USER, projectId, ExecutionStatus.PENDING);
         assertEquals(MergeResultStatus.SUCCESS, launcher.result(project).orElseThrow().status());
     }
@@ -536,7 +536,7 @@ class ProjectsMergeLauncherTest {
         assertThrows(RejectedExecutionException.class,
                 () -> refusing.start(project, OTHER, MergeOpMode.SEND, false));
 
-        verify(mergeService, never()).merge(any(), any(), any(), any(), any());
+        verify(mergeService, never()).merge(any(), any(), any(), any(), any(), any());
         assertThrows(RejectedExecutionException.class, () -> refusing.result(project));
     }
 
@@ -550,7 +550,7 @@ class ProjectsMergeLauncherTest {
         assertEquals(MergeResultStatus.CANCELLED, launcher.result(project).orElseThrow().status());
         verify(notifications).notifyMergeStatus(USER, projectId, ExecutionStatus.INTERRUPTED);
         runQueued();
-        verify(mergeService, never()).merge(any(), any(), any(), any(), any());
+        verify(mergeService, never()).merge(any(), any(), any(), any(), any(), any());
         verify(notifications, never()).notifyMergeStatus(USER, projectId, ExecutionStatus.STARTED);
     }
 

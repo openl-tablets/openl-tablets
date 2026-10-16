@@ -210,6 +210,12 @@ contain the project when it is opened. Proceed as follows:
     -   Both branches add a sheet with the same name and different content, or one branch removes a sheet the other
         changes.
 
+    While **Format tables on save** is selected in [System Settings](administration/02-system-settings.md), an
+    `.xlsx` workbook of the project that Sync merges by itself is formatted with the OpenL table style, as an
+    uploaded file is, and saved in a commit of its own right after the merge. The `.xlsx` workbook **Merge table by
+    table** builds is formatted before it is saved; an `.xls` workbook is left as merged. See
+    [Reformatting Excel Files](rules-editor.md#reformatting-excel-files).
+
     A formula taken from their branch that reads another workbook comes with the link to that workbook and keeps the
     value it was saved with: OpenL Studio does not open the other workbook. A workbook Sync cannot merge by itself,
     such as one where such a formula would read the workbook your branch links under the same number, stays a

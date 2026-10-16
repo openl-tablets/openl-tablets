@@ -22,7 +22,7 @@ glance: what the table is, what it takes, and what it gives.
 |---|---|
 | Style | One OpenL table style, built into the code. There is no theme to select or to write. |
 | Writing to Excel, by hand | One project action: **Reformat Excel files**. There is no action for a single table. |
-| Writing to Excel, always | System setting **Format tables on save**, on by default: every table saved, created, copied or uploaded is formatted. |
+| Writing to Excel, always | System setting **Format tables on save**, on by default: every table saved, created, copied, uploaded or merged is formatted. |
 | Edit toolbar | Formatting buttons only with **Format tables on save** off and **Excel Formatting** on; indent always for TBasic and ColumnMatch. |
 | `.xls` files | Not formatted, ignored by every formatting path. |
 | Screen | The **Excel Formatting** switch of the theme menu, under **Compact**. Off: the Studio look. On: the Excel look. |
@@ -524,6 +524,7 @@ flowchart LR
     L --> R
     E[Edit: insert or delete lines] -->|shift| R
     Up[Upload: staged] --> C
+    Mg[Merge: staged] --> C
     R --> F[ExcelTableFormatter]
     F --> W[Workbook in memory]
     W --> S[One save or commit]
@@ -627,6 +628,25 @@ uploaded: formatting never fails an upload.
 
 Formatting changes no value, merge or indent, so it does not make the compiled module stale. The compile of an
 opened project serves the screen afterwards as it is.
+
+### Merged workbooks
+
+With **Format tables on save** on, an `.xlsx` workbook a merge of branches combines from both branches is formatted
+the way an uploaded workbook of a closed project is (`MergedWorkbookFormatting` over `UploadFormatting`): staged with
+the project the merge changes, and compiled once. An `.xls` workbook is left as merged.
+
+- **Sync** — once the Git repository has committed the merge, the workbooks it combined by itself are read from the
+  merge commit and staged with the project as that commit holds it. The formatted ones are committed on the target
+  branch in a commit of their own, based on the merge commit, so a change the branch took meanwhile is merged with
+  them. Formatting after the commit keeps the repository free while the project compiles. The merge runs on a thread
+  of its own, outside the request of the user, so the staged compile takes the session the merge was started in.
+- **Resolve Conflicts** — the workbook **Merge table by table** builds is formatted before it is shown, downloaded or
+  saved, and so are the workbooks a resolution merges by itself. They are staged with the project as the branch the
+  merge changes holds it, or with the copy in the workspace in a save conflict, and committed with the resolution.
+
+Only the workbooks of the merged project are formatted: a workbook of another project the branches hold is committed
+as the merge combined it. A workbook that cannot be formatted is left as merged, and so is every workbook of a Sync
+whose formatting commit conflicts with a change the branch took meanwhile: formatting never fails a merge.
 
 ### The edit toolbar
 

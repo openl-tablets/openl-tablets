@@ -20,3 +20,6 @@ side branch into master.
 | `080-theme-and-values` | One branch reformats the Excel files of the project, the other changes values of a table | merged automatically |
 
 A conflict here is the expected result, not a defect.
+
+**Format tables on save** is on, as it is by default, so a commit formatting the merged workbook follows the merge
+commit of a scenario merged automatically. Such a scenario reads both commits from the history of master.

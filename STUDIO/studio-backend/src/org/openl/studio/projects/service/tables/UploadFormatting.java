@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -152,6 +153,21 @@ public class UploadFormatting {
      */
     public Map<String, byte[]> formatStaged(AProjectFolder current, String base, Map<String, byte[]> uploaded,
                                             boolean replace) {
+        return formatStaged(current, base, uploaded, replace, this::getWebStudio);
+    }
+
+    /**
+     * The files written into a project kept in the design repository, each {@code .xlsx} one formatted, as
+     * {@link #formatStaged(AProjectFolder, String, Map, boolean)} formats them, compiled in the given session: the
+     * one a merge running outside the request of the user was started in.
+     */
+    public Map<String, byte[]> formatStaged(AProjectFolder current, String base, Map<String, byte[]> uploaded,
+                                            boolean replace, WebStudio studio) {
+        return formatStaged(current, base, uploaded, replace, () -> studio);
+    }
+
+    private Map<String, byte[]> formatStaged(AProjectFolder current, String base, Map<String, byte[]> uploaded,
+                                             boolean replace, Supplier<WebStudio> studio) {
         if (!formatting.onSave() || excelPaths(uploaded.keySet()).isEmpty()) {
             return uploaded;
         }
@@ -162,7 +178,7 @@ public class UploadFormatting {
             for (var file : uploaded.entrySet()) {
                 write(inStage(stage, file.getKey()), file.getValue());
             }
-            var formatted = formatStaged(stage, uploaded.keySet());
+            var formatted = formatStaged(stage, uploaded.keySet(), studio);
             var written = new LinkedHashMap<String, byte[]>(uploaded);
             for (var path : formatted) {
                 written.put(path, Files.readAllBytes(inStage(stage, path)));
@@ -186,6 +202,10 @@ public class UploadFormatting {
      * @return the paths of the workbooks formatted
      */
     public Set<String> formatStaged(Path project, Collection<String> uploaded) {
+        return formatStaged(project, uploaded, this::getWebStudio);
+    }
+
+    private Set<String> formatStaged(Path project, Collection<String> uploaded, Supplier<WebStudio> studio) {
         var workbooks = excelPaths(uploaded).stream()
                 .collect(Collectors.toMap(path -> real(project.resolve(path)), path -> path));
         if (!formatting.onSave() || workbooks.isEmpty()) {
@@ -193,7 +213,7 @@ public class UploadFormatting {
         }
         try {
             var descriptor = ProjectResolver.getInstance().resolve(project);
-            var manager = new WebStudioWorkspaceDependencyManagerFactory(getWebStudio())
+            var manager = new WebStudioWorkspaceDependencyManagerFactory(studio.get())
                     .buildDependencyManager(descriptor);
             try {
                 var formatted = new HashSet<String>();

@@ -19,6 +19,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.git.MergeConflictException;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
@@ -43,6 +44,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     private final RepositoryAclService designRepositoryAclService;
     private final ProtectedBranchBypassService bypassService;
     private final MergeChangesService mergeChangesService;
+    private final MergedWorkbookFormatting mergedWorkbookFormatting;
 
     @Override
     @NotNull
@@ -168,7 +170,8 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
                              String currentBranch,
                              String otherBranch,
                              MergeOpMode mode,
-                             UserWorkspace workspace) throws IOException {
+                             UserWorkspace workspace,
+                             WebStudio studio) throws IOException {
         var branchPair = getBranchPair(currentBranch, otherBranch, mode);
         var branchRepository = getBranchRepository(project);
         validateTarget(workspace, project, branchRepository, branchPair);
@@ -176,8 +179,14 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
         try {
             var repositoryId = project.getDesignRepository().getId();
             var targetProjectsBefore = mergeChangesService.projectsBefore(repositoryId, branchPair.target());
-            var outcome = branchRepository.forBranch(branchPair.target())
-                    .merge(branchPair.source(), workspace.getUser().getUserInfo(), null);
+            var author = workspace.getUser().getUserInfo();
+            var outcome = mergedWorkbookFormatting.formatCommitted(project,
+                    branchRepository,
+                    branchRepository.forBranch(branchPair.target()).merge(branchPair.source(), author, null),
+                    new MergedWorkbookFormatting.CommittedMerge(branchPair.source(),
+                            branchPair.target(),
+                            author,
+                            studio));
             // The merge is committed by now. An index that publishes it late is logged and leaves it a success:
             // reporting a failure would have the user merge again what is already merged — see EPBDS-16541. A cancel
             // that comes now can no longer undo the merge, so it does not cut the wait short either.

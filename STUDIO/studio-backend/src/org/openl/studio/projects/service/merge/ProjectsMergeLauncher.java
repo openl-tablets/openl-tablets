@@ -242,7 +242,8 @@ public class ProjectsMergeLauncher {
                             merge.currentBranch(),
                             merge.otherBranch(),
                             merge.mode(),
-                            editor.workspace())));
+                            editor.workspace(),
+                            editor.studio())));
             report(merge, ExecutionStatus.COMPLETED);
         } catch (IOException | RuntimeException e) {
             if (Thread.currentThread().isInterrupted() && causedByInterrupt(e)) {
