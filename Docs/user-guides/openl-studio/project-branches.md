@@ -162,7 +162,8 @@ contain the project when it is opened. Proceed as follows:
     shortened in the middle, keeping the file name, and shows whole when pointed at. A workbook both branches changed
     and Sync merged by itself lists each sheet either branch changed: **taken from** the branch that changed it, or
     **combined from both branches** when both changed it. **Compare** at the end of the row of a modified file of a
-    project opens it before and after the merge, so you see what the merge brought in: a workbook is compared element
+    project opens it before the merge, headed **Earlier revision**, and after it, headed **Later revision**, so you
+    see what the merge brought in: a workbook is compared element
     by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), which opens
     on the comparison itself, with no files to pick, and a text file line by line. A file that is neither, such as a
     library, has nothing to be compared by, and the window says so. A file outside the projects has no **Compare**.
