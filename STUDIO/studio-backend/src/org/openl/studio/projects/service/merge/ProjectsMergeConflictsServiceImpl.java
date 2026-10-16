@@ -47,6 +47,7 @@ import org.openl.rules.repository.git.MergeConflictDetails;
 import org.openl.rules.repository.git.text.TextMerge;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.xls.merge.LinkedWorkbookMismatchException;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.Resolution;
@@ -278,11 +279,16 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             throw refusalOf(path, e);
         }
         var output = new ByteArrayOutputStream();
-        XlsWorkbookMerger.merge(new ByteArrayInputStream(versions.base()),
-                new ByteArrayInputStream(versions.ours()),
-                new ByteArrayInputStream(versions.theirs()),
-                diff,
-                output);
+        try {
+            XlsWorkbookMerger.merge(new ByteArrayInputStream(versions.base()),
+                    new ByteArrayInputStream(versions.ours()),
+                    new ByteArrayInputStream(versions.theirs()),
+                    diff,
+                    output);
+        } catch (LinkedWorkbookMismatchException e) {
+            throw new BadRequestException("project.merge.conflict.workbook.link.message",
+                    new Object[]{e.getSheet() + "!" + e.getCell()});
+        }
         return output.toByteArray();
     }
 

@@ -431,7 +431,9 @@ public class XlsWorkbookMerger implements Closeable {
      * @param their      their workbook
      * @param diffResult difference result for these workbooks
      * @param output     output stream
-     * @throws IOException if happen while merge
+     * @throws IOException                     if happen while merge
+     * @throws LinkedWorkbookMismatchException when a formula taken from another workbook would read another workbook
+     *                                         in OUR one
      */
     public static void merge(InputStream our,
                              InputStream their,
@@ -450,7 +452,9 @@ public class XlsWorkbookMerger implements Closeable {
      * @param their      their workbook
      * @param diffResult difference result for these workbooks
      * @param output     output stream
-     * @throws IOException if happen while merge
+     * @throws IOException                     if happen while merge
+     * @throws LinkedWorkbookMismatchException when a formula taken from another workbook would read another workbook
+     *                                         in OUR one
      */
     public static void merge(@Nullable InputStream base,
                              InputStream our,
@@ -489,7 +493,13 @@ public class XlsWorkbookMerger implements Closeable {
      * Applies the sheets taken from THEIR or BASE workbook and the sheets merged from both revisions to OUR workbook,
      * and brings the values of its formulas up to date.
      *
+     * <p>OUR workbook gets the links to other workbooks that the formulas taken from THEIR or BASE workbook read. A
+     * formula that reads another workbook keeps the value it was saved with, since the other workbook is not at hand.
+     *
      * @param baseBook BASE workbook, needed only when a sheet or a table is taken from it
+     * @throws IOException                     when a sheet cannot be copied
+     * @throws LinkedWorkbookMismatchException when a formula taken from THEIR or BASE workbook reads another workbook
+     *                                         through a link OUR workbook numbers differently
      */
     private static void mergeSheets(StreamWorkbook ourBook,
                                     StreamWorkbook theirBook,
@@ -519,6 +529,7 @@ public class XlsWorkbookMerger implements Closeable {
         // evaluate all formula cells in the end
         if (mergePlans.isEmpty()) {
             var formulaEvaluator = ourBook.getCreationHelper().createFormulaEvaluator();
+            formulaEvaluator.setIgnoreMissingWorkbooks(true);
             formulas.forEach(formulaEvaluator::evaluateFormulaCell);
         } else {
             // a merged cell may be read by any formula of the workbook, the copied ones included

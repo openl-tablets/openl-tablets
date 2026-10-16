@@ -403,7 +403,10 @@ workbook resolves automatically when every such sheet merges:
 - no formula, defined name, data validation, conditional formatting or hyperlink refers to content that moves, no
   picture, chart, Excel table or autofilter lies over it;
 - the branch merged in leaves the data validation, the conditional formatting, the hyperlinks and the frozen panes of
-  the sheet as they were: `otherBranch` for `receive`, the current branch for `send`.
+  the sheet as they were: `otherBranch` for `receive`, the current branch for `send`;
+- a formula taken from the branch merged in that reads another workbook finds, under the number of each link it
+  reads, the workbook its own branch links there. The links such a formula reads come along, and no other; links of
+  one number that name different workbooks matter only to a formula that reads them.
 
 A sheet both branches add with different content, or one branch removes while the other changes it, is a conflict.
 
@@ -862,6 +865,9 @@ curl -X POST "http://localhost:8080/rest/projects/MyProject/merge/conflicts/work
     a defined name, a data validation, a conditional formatting, a hyperlink or a picture refers to, a formula of a
     table taken from the base version included; such a sheet is taken whole from one version. The first such sheet is
     named
+  - A formula taken from a version reads another workbook by the number of a link your version gives to a different
+    workbook (`project.merge.conflict.workbook.link.message` names the cell); the whole file is taken from one
+    version then
 - `404 Not Found`: No conflict information found, file not in conflict list, or a version does not hold the file
 
 ---
@@ -1478,6 +1484,7 @@ request body that fails validation answers `400` with a `fields` list naming eac
 | 400    | `project.merge.conflict.workbook.palette.message` | The palette of a workbook is decided as `base`         |
 | 400    | `project.merge.conflict.workbook.touching.message` | The tables of a sheet, as decided, would touch each other |
 | 400    | `project.merge.conflict.workbook.moved.message`  | The tables of a sheet, as decided, move content something refers to |
+| 400    | `project.merge.conflict.workbook.link.message`   | A formula taken from a version reads another workbook your version links under another number |
 | 403    | `default.message`                                | The user may not write to the project, or cannot bypass a protected target |
 | 404    | `project.identifier.message`                     | The project is not found                                 |
 | 404    | `project.merge.result.not.found.message`         | No conflict of the project is stored                     |

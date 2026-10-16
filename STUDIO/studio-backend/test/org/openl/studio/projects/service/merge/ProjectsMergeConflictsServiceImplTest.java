@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
@@ -561,6 +562,28 @@ class ProjectsMergeConflictsServiceImplTest {
     }
 
     @Test
+    void refusesAFormulaThatWouldReadAnotherWorkbook() throws Exception {
+        var context = createContext();
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> {
+            rate(sheet, 1, 10);
+            link(sheet, "Rates.xlsx");
+        }, sheet -> {
+            link(sheet, "Census.xlsx");
+            CellUtil.getCell(CellUtil.getRow(1, sheet), 1).setCellFormula("[1]Census!A1");
+        });
+        var service = context.service();
+        var conflict = context.conflict();
+        var theirs = Map.of("Rules/A1:B3", ConflictBase.THEIRS);
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, theirs));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.link.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{"Rules!B2"}, exception.getArgs());
+    }
+
+    @Test
     void marksOnlyTheRowsABranchInsertedInATableLongerThanShown() throws Exception {
         var context = createContext();
         // A rates table of 250 rows below its header.
@@ -720,6 +743,15 @@ class ProjectsMergeConflictsServiceImplTest {
 
     private static void number(Sheet sheet, int row, int column, double value) {
         CellUtil.getCell(CellUtil.getRow(row, sheet), column).setCellValue(value);
+    }
+
+    /** Links the workbook of a sheet to another workbook, which is not kept. */
+    private static void link(Sheet sheet, String workbookName) {
+        try (var other = new XSSFWorkbook()) {
+            ((XSSFWorkbook) sheet.getWorkbook()).linkExternalWorkbook(workbookName, other);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /** Writes the text of a cell in bold, the formatting alone changed. */
