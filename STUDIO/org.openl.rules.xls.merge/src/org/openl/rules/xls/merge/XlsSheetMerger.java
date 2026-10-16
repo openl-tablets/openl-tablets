@@ -216,6 +216,7 @@ final class XlsSheetMerger {
         for (var entry : plan.cells().entrySet()) {
             copyCell(their, our, ourSource, base, entry.getKey(), entry.getValue());
         }
+        XlsSheetCopier.restoreArrayFormulas(our);
         if (plan.pictures()) {
             XlsSheetCopier.copyDrawings(their, our);
         }
@@ -255,7 +256,10 @@ final class XlsSheetMerger {
         }
     }
 
-    private static void recalculate(Cell cell, FormulaEvaluator evaluator) {
+    /**
+     * Recalculates a formula cell. A formula that cannot be calculated keeps its value.
+     */
+    static void recalculate(Cell cell, FormulaEvaluator evaluator) {
         try {
             evaluator.evaluateFormulaCell(cell);
         } catch (RuntimeException e) {
