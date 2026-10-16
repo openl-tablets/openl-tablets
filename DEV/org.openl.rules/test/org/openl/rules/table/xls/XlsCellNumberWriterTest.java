@@ -21,6 +21,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.runtime.RulesEngineFactory;
@@ -28,6 +30,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.UndoableSetValueAction;
 import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
+import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.types.java.JavaOpenClass;
 
 class XlsCellNumberWriterTest {
@@ -106,7 +109,9 @@ class XlsCellNumberWriterTest {
         }
         Files.move(inlinePath, path, StandardCopyOption.REPLACE_EXISTING);
 
-        writeValue(path, Double.POSITIVE_INFINITY);
+        var source = new XlsWorkbookSourceCodeModule(new PathSourceCodeModule(path));
+        new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, source)).setCellValue(2, 5, Double.POSITIVE_INFINITY);
+        source.save();
 
         try (var workbook = WorkbookFactory.create(path.toFile())) {
             var cell = workbook.getSheetAt(0).getRow(5).getCell(2);
