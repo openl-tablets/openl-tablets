@@ -28,6 +28,11 @@ public abstract class UndoableInsertAction extends UndoableEditTableAction {
      */
     protected final int lines;
 
+    /**
+     * The tables the inserted lines must leave room around, found once for every insert of the edit.
+     */
+    protected final OtherTables otherTables;
+
     @Override
     public void doAction(IGridTable table) {
         if (!canPerformAction(table)) {

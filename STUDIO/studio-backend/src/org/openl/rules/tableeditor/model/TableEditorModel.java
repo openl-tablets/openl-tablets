@@ -16,6 +16,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.actions.GridRegionAction;
 import org.openl.rules.table.actions.GridRegionAction.ActionType;
+import org.openl.rules.table.actions.OtherTables;
 import org.openl.rules.table.actions.UndoableEditTableAction;
 import org.openl.rules.table.actions.UndoableInsertColumnsAction;
 import org.openl.rules.table.actions.UndoableInsertRowsAction;
@@ -89,8 +90,9 @@ public class TableEditorModel {
             if (tableWidth < NUMBER_PROPERTIES_COLUMNS) {
                 nColsToInsert = NUMBER_PROPERTIES_COLUMNS - tableWidth;
             }
-            if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1) || !UndoableInsertColumnsAction
-                    .canInsertColumns(gridTable, nColsToInsert)) {
+            var otherTables = new OtherTables(gridTable);
+            if (!UndoableInsertRowsAction.canInsertRows(gridTable, 1, otherTables) || !UndoableInsertColumnsAction
+                    .canInsertColumns(gridTable, nColsToInsert, otherTables)) {
                 UndoableEditTableAction.moveTable(fullTable, tableMetaInfoWriter);
             }
             new GridRegionAction(fullTableRegion,

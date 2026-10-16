@@ -49,7 +49,7 @@ class UndoableInsertColumnsActionTest {
                 .orElseThrow();
         var metaInfoWriter = new MetaInfoWriterImpl(EmptyMetaInfoReader.getInstance(), table);
 
-        new UndoableInsertColumnsAction(1, 1, metaInfoWriter).doAction(table);
+        new UndoableInsertColumnsAction(1, 1, metaInfoWriter, new OtherTables(table)).doAction(table);
         grid.setCellValue(LEFT + 1, DATA_TOP + 1, "zip");
         grid.setCellValue(LEFT + 1, DATA_TOP + 2, "Zip");
         grid.setCellValue(LEFT + 1, DATA_TOP + 3, "02101");
