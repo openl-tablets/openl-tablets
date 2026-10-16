@@ -2,9 +2,7 @@ package org.openl.rules.table.xls.writers;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.xssf.usermodel.XSSFCell;
 
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -22,11 +20,6 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
         var cellToWrite = getCellToWrite();
         var doubleValue = numberValue.doubleValue();
         if (!Double.isFinite(doubleValue)) {
-            if (cellToWrite.getCellType() == CellType.STRING
-                    && cellToWrite instanceof XSSFCell xssfCell
-                    && xssfCell.getCTCell().isSetIs()) {
-                cellToWrite.setBlank();
-            }
             cellToWrite.setCellValue(numberValue.toString());
             return;
         }

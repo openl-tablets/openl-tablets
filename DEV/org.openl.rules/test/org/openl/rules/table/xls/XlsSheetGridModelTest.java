@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
 import java.time.ZoneId;
@@ -12,17 +13,23 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.helpers.ArraySplitter;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
@@ -192,6 +199,39 @@ class XlsSheetGridModelTest {
         xsGrid.setCellValue(0, 0, new Date[]{date(2050, Calendar.JANUARY, 2, 3, 4, 5, 678)});
 
         assertEquals("2050-01-02T03:04:05.678", xsGrid.getCell(0, 0).getObjectValue());
+    }
+
+    /** A value written over a text kept in its cell, as openpyxl writes texts, replaces that text. */
+    @ParameterizedTest
+    @MethodSource("valuesOverInlineText")
+    void valueReplacesTextKeptInCell(Object value, Object expected) throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var cell = workbook.createSheet().createRow(0).createCell(0).getCTCell();
+            cell.setT(STCellType.INLINE_STR);
+            cell.addNewIs().setT("CA");
+            var source = new XlsWorkbookSourceCodeModule(
+                    new URLSourceCodeModule("./test/rules/XlsSheetGridModelTest.xls"),
+                    new SimpleWorkbookLoader(workbook));
+            var grid = new XlsSheetGridModel(new XlsSheetSourceCodeModule(0, source));
+
+            grid.setCellValue(0, 0, value);
+
+            assertFalse(cell.isSetIs(), "the cell keeps no text of its own");
+            assertEquals(expected, grid.getCell(0, 0).getObjectValue());
+        }
+    }
+
+    private static Stream<Arguments> valuesOverInlineText() {
+        var date = date(2026, Calendar.OCTOBER, 16);
+        return Stream.of(arguments(30, 30),
+                arguments(1.5, 1.5),
+                arguments(Double.POSITIVE_INFINITY, "Infinity"),
+                arguments(true, true),
+                arguments(date, date),
+                arguments(CountriesEnum.US, "US"),
+                arguments(new CountriesEnum[]{CountriesEnum.US, CountriesEnum.CA}, "US,CA"),
+                arguments(new String[]{"MA", "NY"}, "MA,NY"),
+                arguments("NY", "NY"));
     }
 
     @Test

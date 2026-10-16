@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -339,12 +340,27 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellValue(int col, int row, Object value) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite());
         if (value != null) {
+            dropInlineText(poiCell);
             var cellWriter = getCellWriter(value);
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue();
         } else {
             poiCell.setBlank();
+        }
+    }
+
+    /**
+     * Empties a cell that keeps its text in itself, as tools other than Excel, such as openpyxl, write texts.
+     *
+     * <p>Apache POI writes a new value next to such a text and leaves the text in place. The cell then holds both, and
+     * a number written so is read back together with the old text, which fails the compilation of the module.
+     *
+     * <p>The cell keeps its style.
+     */
+    private static void dropInlineText(Cell cell) {
+        if (cell instanceof XSSFCell xssf && xssf.getCTCell().isSetIs()) {
+            cell.setBlank();
         }
     }
 
