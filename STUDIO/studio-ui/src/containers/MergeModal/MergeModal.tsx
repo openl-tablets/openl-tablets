@@ -17,6 +17,7 @@ import {
     MergeSummary,
 } from './types'
 import { openConflictCompareWindow } from '../projects/compare'
+import { errorHandler } from 'utils/errorHandling'
 
 /**
  * MergeModal component
@@ -32,7 +33,8 @@ export const MergeModal: React.FC = () => {
     // Modal state
     const [visible, setVisible] = useState(false)
     const [currentStep, setCurrentStep] = useState<MergeStep>('branches')
-    // A running merge keeps the dialog open: it is left through its Cancel button, which stops the merge.
+    // A running merge keeps the dialog open: it is left through its Cancel button, which stops the merge. So does a
+    // resolution being saved, which closing the dialog would discard halfway.
     const [merging, setMerging] = useState(false)
 
     // Conflict state
@@ -139,9 +141,23 @@ export const MergeModal: React.FC = () => {
         completeMerge(mergeSummary, true)
     }, [completeMerge])
 
-    const handleCancelMerge = useCallback(() => {
+    // The conflicts are left by Cancel, the close button or Escape alike: the merge is discarded, so no merge is left
+    // waiting behind the closed dialog.
+    const handleCancelMerge = useCallback(async () => {
+        if (detail) {
+            try {
+                await apiCall(`/projects/${detail.projectId}/merge/conflicts`, { method: 'DELETE' }, true)
+                notification.info({
+                    title: t('merge:notifications.merge_cancelled'),
+                    description: t('merge:notifications.merge_cancelled_description'),
+                })
+            } catch (error) {
+                // The merge may be gone already: the dialog closes either way.
+                errorHandler.logError(error instanceof Error ? error : new Error(String(error)))
+            }
+        }
         handleClose()
-    }, [handleClose])
+    }, [detail, handleClose, notification, t])
 
     // The comparison opens in a window of its own, which reads the two versions itself - the same
     // window wherever the merge was started from.
@@ -177,7 +193,7 @@ export const MergeModal: React.FC = () => {
                 footer={null}
                 keyboard={!merging}
                 mask={{ closable: step === 'branches' && !merging }}
-                onCancel={handleClose}
+                onCancel={step === 'conflicts' ? () => void handleCancelMerge() : handleClose}
                 open={visible}
                 width={modalWidth}
                 title={
@@ -211,9 +227,10 @@ export const MergeModal: React.FC = () => {
                     <ConflictResolutionStep
                         branches={branches}
                         conflictGroups={conflictGroups}
-                        onCancel={handleCancelMerge}
+                        onCancel={() => void handleCancelMerge()}
                         onCompare={handleCompare}
                         onResolveSuccess={handleResolveSuccess}
+                        onSavingChange={setMerging}
                         projectId={detail.projectId}
                     />
                 )}

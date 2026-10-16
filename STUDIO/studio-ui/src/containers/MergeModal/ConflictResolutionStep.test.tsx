@@ -218,6 +218,7 @@ const defaultProps = () => ({
     onResolveSuccess: vi.fn(),
     onCancel: vi.fn(),
     onCompare: vi.fn(),
+    onSavingChange: vi.fn(),
 })
 
 /**
@@ -511,6 +512,10 @@ describe('ConflictResolutionStep', () => {
             await waitFor(() => {
                 expect(props.onResolveSuccess).toHaveBeenCalled()
             })
+            // The dialog stays open while the resolution is saved.
+            await waitFor(() => {
+                expect(props.onSavingChange.mock.calls).toEqual([[true], [false]])
+            })
         })
 
         it('hands what the merge changed on to the dialog', async () => {
@@ -621,29 +626,13 @@ describe('ConflictResolutionStep', () => {
     })
 
     describe('cancel action', () => {
-        it('calls DELETE API and onCancel', async () => {
+        it('leaves the conflicts to the dialog, which discards the merge', async () => {
             const props = await renderAndLoad()
-
-            mockApiCall.mockResolvedValueOnce({}) // delete
 
             await userEvent.click(screen.getByText('merge:buttons.cancel'))
 
-            expect(mockApiCall).toHaveBeenCalledWith(
-                '/projects/proj-1/merge/conflicts',
-                { method: 'DELETE' },
-                true
-            )
-            await waitFor(() => expect(props.onCancel).toHaveBeenCalled())
-        })
-
-        it('calls onCancel even when DELETE fails', async () => {
-            const props = await renderAndLoad()
-
-            mockApiCall.mockRejectedValueOnce(new Error('Delete error'))
-
-            await userEvent.click(screen.getByText('merge:buttons.cancel'))
-
-            await waitFor(() => expect(props.onCancel).toHaveBeenCalled())
+            expect(props.onCancel).toHaveBeenCalled()
+            expect(mockApiCall).not.toHaveBeenCalledWith('/projects/proj-1/merge/conflicts', { method: 'DELETE' }, true)
         })
     })
 

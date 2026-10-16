@@ -1,10 +1,11 @@
 import React from 'react'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { notification } from 'antd'
 import { MergeModal } from 'containers/MergeModal/MergeModal'
 import * as services from 'services'
 import { MergeModalDetail } from 'containers/MergeModal/types'
 import { openConflictCompareWindow } from '../projects/compare'
+import { errorHandler } from 'utils/errorHandling'
 import type { MockedFunction, Mock } from 'vitest'
 
 // --- Mocks ---
@@ -39,6 +40,7 @@ vi.mock('antd', async () => {
         footer,
         closable,
         keyboard,
+        onCancel,
     }: {
         open?: boolean
         title?: React.ReactNode
@@ -46,9 +48,11 @@ vi.mock('antd', async () => {
         footer?: React.ReactNode
         closable?: boolean
         keyboard?: boolean
+        onCancel?: () => void
     }) =>
         open ? (
             <div data-closable={String(closable !== false && keyboard !== false)} role="dialog">
+                {closable !== false && <button aria-label="Close" onClick={onCancel} type="button" />}
                 {title && <div data-testid="modal-title">{title}</div>}
                 {children}
                 {footer && <div data-testid="modal-footer">{footer}</div>}
@@ -540,8 +544,8 @@ describe('MergeModal', () => {
             return detail
         }
 
-        it('onCancel closes modal', async () => {
-            await openWithConflicts()
+        it('onCancel discards the merge and closes modal', async () => {
+            const detail = await openWithConflicts()
 
             const { onCancel } = getLatestProps(conflictResolutionStepProps)
             act(() => {
@@ -551,6 +555,52 @@ describe('MergeModal', () => {
             await waitFor(() => {
                 expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
             })
+            expect(mockApiCall).toHaveBeenCalledWith(`/projects/${detail.projectId}/merge/conflicts`,
+                { method: 'DELETE' }, true)
+        })
+
+        it('discards the merge when the conflicts are closed by the close button', async () => {
+            const detail = await openWithConflicts()
+
+            fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+            await waitFor(() => {
+                expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
+            })
+            expect(mockApiCall).toHaveBeenCalledWith(`/projects/${detail.projectId}/merge/conflicts`,
+                { method: 'DELETE' }, true)
+        })
+
+        it('keeps the dialog open while the resolution is saved', async () => {
+            await openWithConflicts()
+
+            const { onSavingChange } = getLatestProps(conflictResolutionStepProps)
+            act(() => {
+                onSavingChange(true)
+            })
+            expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument()
+
+            act(() => {
+                onSavingChange(false)
+            })
+            expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
+        })
+
+        it('closes even when the merge cannot be discarded', async () => {
+            await openWithConflicts()
+            const logError = vi.spyOn(errorHandler, 'logError').mockImplementation(() => {})
+            mockApiCall.mockRejectedValue(new Error('gone'))
+
+            const { onCancel } = getLatestProps(conflictResolutionStepProps)
+            act(() => {
+                onCancel()
+            })
+
+            await waitFor(() => {
+                expect(screen.queryByTestId('conflict-resolution-step')).not.toBeInTheDocument()
+            })
+            expect(logError).toHaveBeenCalledWith(new Error('gone'))
+            logError.mockRestore()
         })
 
         it('onResolveSuccess closes modal and calls onSuccess', async () => {
