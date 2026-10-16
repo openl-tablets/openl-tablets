@@ -389,11 +389,13 @@ removed, changed or moved in one branch takes the change of that branch; a table
 row, or column by column when a branch inserted or deleted its columns, and a row changed in both cell by cell. A
 workbook resolves automatically when every such sheet merges:
 
-- no value, style or comment of a cell, merged cell of a table or picture of the sheet is changed differently in the
-  two branches: one branch may change the value of a cell and the other its style. The height or visibility of a row,
-  the width or visibility of a column and the default column width or row height are taken the same way, but one
-  changed differently in the two branches keeps the size of your version, as sizes do not change what OpenL reads. So
-  does a row or a column content of their version moves through;
+- no value or comment of a cell, merged cell of a table or picture of the sheet is changed differently in the two
+  branches: one branch may change the value of a cell and the other its style. The style of a cell, the height or
+  visibility of a row, the width or visibility of a column and the default column width or row height are taken the
+  same way, but one changed differently in the two branches keeps the one of your version, as formatting and sizes do
+  not change what OpenL reads. So does the size of a row or a column content of their version moves through. A row,
+  a table or a sheet one branch removes while the other changes only its formatting or its sizes is removed, and a
+  table one branch only formats is taken from the other branch when their changes cannot be merged row by row;
 - the branches do not insert different rows at the same place of a table, neither inserts a row next to a row the
   other deletes, and neither deletes a row the other changes; the same holds for columns;
 - one branch does not change the rows of a table while the other changes its columns, and no inserted or deleted row

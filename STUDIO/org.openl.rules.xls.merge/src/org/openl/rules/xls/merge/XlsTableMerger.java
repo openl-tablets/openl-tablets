@@ -163,7 +163,7 @@ final class XlsTableMerger {
         var theirCreated = new ArrayList<>(theirTables);
         theirCreated.removeAll(new HashSet<>(theirPairs.values()));
         // A table both revisions created alike at one place is merged already.
-        theirCreated.removeIf(table -> ourCreated.contains(table) && equalTables(view(our, table), view(their, table)));
+        theirCreated.removeIf(table -> ourCreated.contains(table) && holdAlike(view(our, table), view(their, table)));
         for (List<CellRangeAddress> group : createdGroups(theirCreated, ourCreated)) {
             if (!mergeCreated(group, ourCreated)) {
                 return false;
@@ -292,7 +292,7 @@ final class XlsTableMerger {
         var theirTable = conflict.theirs();
         var start = mergedStart(conflict);
         return switch (resolution.get()) {
-            case OURS -> ourTable == null || takeOurs(ourTable, theirTable, start);
+            case OURS -> ourTable == null || takeOurs(ourTable, theirTable, start) == null;
             case THEIRS -> takeTheirs(ourTable, theirTable, start);
             case BASE -> takeBase(ourTable, Objects.requireNonNull(conflict.base()), theirTable, start);
         };
@@ -323,17 +323,17 @@ final class XlsTableMerger {
      * Takes a table whole from OUR revision, where the merge puts it.
      *
      * @param start where the merge puts the table, or {@code null} to keep it at its place
-     * @return {@code false} if the sheet stays a conflict
+     * @return why the table cannot be written, or {@code null} when it is
      */
-    private boolean takeOurs(CellRangeAddress ourTable,
-                             @Nullable CellRangeAddress theirTable,
-                             @Nullable CellAddress start) {
+    private @Nullable TableConflictReason takeOurs(CellRangeAddress ourTable,
+                                                   @Nullable CellRangeAddress theirTable,
+                                                   @Nullable CellAddress start) {
         if (start == null || start.equals(start(ourTable))) {
             layout.add(ourTable);
             otherMoved(Side.OUR, theirTable, ourTable);
-            return true;
+            return null;
         }
-        return writeWhole(ourTable, Side.OUR, view(our, ourTable), theirTable, place(start, ourTable)) == null;
+        return writeWhole(ourTable, Side.OUR, view(our, ourTable), theirTable, place(start, ourTable));
     }
 
     /**
@@ -492,16 +492,18 @@ final class XlsTableMerger {
         }
         var start = start(place == Choice.THEIR ? theirTable : ourTable);
         if (equalTables(baseView, theirView) || equalTables(ourView, theirView)) {
-            if (place == Choice.OUR) {
-                layout.add(ourTable);
-                otherMoved(Side.OUR, theirTable, ourTable);
-                return null;
-            }
-            return writeWhole(ourTable, Side.OUR, ourView, theirTable, place(start, ourTable));
+            return takeOurs(ourTable, theirTable, start);
         } else if (equalTables(baseView, ourView)) {
             return writeWhole(ourTable, Side.THEIR, theirView, ourTable, place(start, theirTable));
         }
-        return mergeLines(baseTable, ourTable, theirTable, start);
+        var reason = mergeLines(baseTable, ourTable, theirTable, start);
+        // A revision that changed only the formatting of the table does not keep its lines from being taken whole.
+        if (reason != null && holdAlike(baseView, theirView)) {
+            return takeOurs(ourTable, theirTable, start);
+        } else if (reason != null && holdAlike(baseView, ourView)) {
+            return writeWhole(ourTable, Side.THEIR, theirView, ourTable, place(start, theirTable));
+        }
+        return reason;
     }
 
     /**
@@ -514,13 +516,13 @@ final class XlsTableMerger {
                                                        @Nullable CellRangeAddress ourTable,
                                                        @Nullable CellRangeAddress theirTable) {
         if (ourTable != null) {
-            if (!equalTables(baseView, view(our, ourTable))) {
+            if (!holdAlike(baseView, view(our, ourTable))) {
                 return TableConflictReason.REMOVED_AND_CHANGED;
             }
             clearedTables.add(ourTable);
             return null;
         }
-        return theirTable == null || equalTables(baseView, view(their, theirTable))
+        return theirTable == null || holdAlike(baseView, view(their, theirTable))
                 ? null
                 : TableConflictReason.REMOVED_AND_CHANGED;
     }
@@ -792,15 +794,33 @@ final class XlsTableMerger {
      * Tells whether two tables have the same size, cells and merged cells.
      */
     private static boolean equalTables(View a, View b) {
+        return sameTables(a, b, View::equalLine);
+    }
+
+    /**
+     * Tells whether two tables hold the same values, comments and merged cells, whatever their formatting.
+     */
+    private static boolean holdAlike(View a, View b) {
+        return sameTables(a, b, View::holdsLine);
+    }
+
+    private static boolean sameTables(View a, View b, SameLine sameLine) {
         if (a.lines() != b.lines() || a.positions() != b.positions()) {
             return false;
         }
         for (var line = 0; line < a.lines(); line++) {
-            if (!a.equalLine(line, b, line)) {
+            if (!sameLine.test(a, line, b, line)) {
                 return false;
             }
         }
         return a.regions().equals(b.regions());
+    }
+
+    /** Compares a line of a table with a line of another table. */
+    @FunctionalInterface
+    private interface SameLine {
+
+        boolean test(View view, int line, View other, int otherLine);
     }
 
     private static CellAddress start(CellRangeAddress table) {
@@ -898,11 +918,23 @@ final class XlsTableMerger {
          * comments.
          */
         boolean equalLine(int line, View other, int otherLine) {
+            return sameCells(line, other, otherLine, true);
+        }
+
+        /**
+         * Tells whether a line of this table and a line of another table hold the same: values and comments, whatever
+         * their formatting.
+         */
+        boolean holdsLine(int line, View other, int otherLine) {
+            return sameCells(line, other, otherLine, false);
+        }
+
+        private boolean sameCells(int line, View other, int otherLine, boolean formatting) {
             for (var position = 0; position < positions(); position++) {
                 cursor.cell = cell(line, position);
                 other.cursor.cell = other.cell(otherLine, position);
                 var equal = XlsSheetsMatcher.equalValues(cursor, other.cursor)
-                        && XlsSheetsMatcher.equalStyles(cursor, other.cursor)
+                        && (!formatting || XlsSheetsMatcher.equalStyles(cursor, other.cursor))
                         && XlsSheetsMatcher.equalComments(cursor, other.cursor);
                 cursor.cell = other.cursor.cell = null;
                 if (!equal) {
@@ -1128,7 +1160,7 @@ final class XlsTableMerger {
                 return false;
             }
             for (var i = 0; i < ourHunk.sideTo() - ourHunk.sideFrom(); i++) {
-                if (!our.equalLine(ourHunk.sideFrom() + i, their, theirHunk.sideFrom() + i)) {
+                if (!our.holdsLine(ourHunk.sideFrom() + i, their, theirHunk.sideFrom() + i)) {
                     return false;
                 }
             }
@@ -1143,7 +1175,7 @@ final class XlsTableMerger {
             for (LineAlignment.Hunk hunk : hunks) {
                 for (var line = hunk.baseFrom(); line < hunk.baseTo(); line++) {
                     var otherLine = otherAlignment.sideOf()[line];
-                    if (otherLine >= 0 && !base.equalLine(line, other, otherLine)) {
+                    if (otherLine >= 0 && !base.holdsLine(line, other, otherLine)) {
                         return true;
                     }
                 }

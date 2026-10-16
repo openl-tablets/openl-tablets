@@ -1,6 +1,7 @@
 package org.openl.rules.xls.merge;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.jspecify.annotations.NullMarked;
@@ -131,11 +132,11 @@ final class XlsSheetShifts {
     }
 
     /**
-     * Digest of the value of a cell, or {@code 0} for a cell with nothing to show. A blank cell with a style of
-     * its own is not empty, so a row of formatted cells is told apart from an empty one.
+     * Digest of the value of a cell, or {@code 0} for a cell with nothing to show. A blank cell with no comment is
+     * empty whatever its style, so the formatting of a row alone never tells it apart from another one.
      */
     static long digest(Cell cell) {
-        if (XlsSheetsMatcher.isBlankAndUnstyled(cell)) {
+        if (cell.getCellType() == CellType.BLANK && cell.getCellComment() == null) {
             return 0;
         }
         var type = cell.getCellType();

@@ -183,12 +183,15 @@ contain the project when it is opened. Proceed as follows:
     keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that branch.
     The value, the style and the comment of a cell are merged separately, so one branch can change the text of a
     cell and the other its style. The height of a row, the width of a column, their visibility and the default sizes
-    are merged the same way, but one both branches changed differently keeps the size of your version: sizes change
-    how the sheet looks, not what OpenL reads from it. A row or a column that content of their branch moves through
-    keeps the size of your version too. Such a sheet stays a conflict in the following cases:
+    are merged the same way. A style or a size both branches changed differently keeps the one of your version:
+    formatting and sizes change how the sheet looks, not what OpenL reads from it. A row or a column that content of
+    their branch moves through keeps the size of your version too. A row, a table or a sheet one branch removed while
+    the other changed only its formatting or its sizes is removed, and a table one branch only formatted is taken
+    from the other branch when their changes cannot be merged row by row. Such a sheet stays a conflict in the
+    following cases:
 
-    -   Both branches change the value, the style or the comment of the same cell, the merged cells of the same table
-        or the pictures of the sheet differently.
+    -   Both branches change the value or the comment of the same cell, the merged cells of the same table or the
+        pictures of the sheet differently.
     -   Both branches insert different rows at the same place of a table, one branch inserts a row next to a row
         the other branch deletes, or one branch deletes a row the other branch changes. Columns follow the same
         rule.
@@ -275,9 +278,10 @@ contain the project when it is opened. Proceed as follows:
     red in every version. Each version shows the table as its branch has it, in its own formatting: the other cells
     whose value, formula, comment or merging the branch changed are framed in orange, the rows and the columns it
     inserted included. A change of formatting alone, such as another font, frames the whole table with a dashed
-    line, marked **Formatting Changed**, and when both branches changed the formatting of the table the reason says
-    so. A new default font of the workbook changes the font of every cell written in it. A change both branches made
-    alike, such as the formatting a save gives every table, is not marked. The line above the tables explains the
+    line, marked **Formatting Changed**, and when both branches changed the formatting of the table the window says
+    so: the table takes the formatting of the version you choose. A new default font of the workbook changes the
+    font of every cell written in it. A change both branches made alike, such as the formatting a save gives every
+    table, is not marked. The line above the tables explains the
     frames. Until the table is resolved the result shows the table of the base version.
 
     A table with such cells shows only the rows around them, the same rows in every version, when that leaves out at

@@ -6,7 +6,8 @@ package org.openl.rules.xls.merge.diff;
 public enum TableConflictReason {
 
     /**
-     * Both revisions changed the value, the style or the comment of the same cell differently
+     * Both revisions changed the value or the comment of the same cell differently; a style changed differently keeps
+     * OUR one
      */
     CELLS,
     /**

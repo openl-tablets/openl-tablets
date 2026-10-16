@@ -628,7 +628,10 @@ final class XlsSheetMerger {
     /**
      * The parts of the current cells the merged cell takes from THEIR revision.
      *
-     * @return the parts, or {@code null} if both revisions changed a part differently
+     * <p>A style both revisions changed differently keeps OUR style, the way a size does: the formatting changes how
+     * the sheet looks, not what OpenL reads from it.
+     *
+     * @return the parts, or {@code null} if both revisions changed the value or the comment differently
      */
     static @Nullable Set<CellPart> theirParts(Cursor base, Cursor our, Cursor their) {
         var mask = 0;
@@ -639,7 +642,7 @@ final class XlsSheetMerger {
                 case COMMENT -> XlsSheetsMatcher::equalComments;
             };
             var choice = choose(base, our, their, equal);
-            if (choice == Choice.CONFLICT) {
+            if (choice == Choice.CONFLICT && part != CellPart.STYLE) {
                 return null;
             } else if (choice == Choice.THEIR) {
                 mask |= 1 << part.ordinal();
@@ -675,7 +678,7 @@ final class XlsSheetMerger {
      * The settings of a sheet a merge cannot take from one revision: data validation, conditional formatting,
      * hyperlinks and frozen panes, as text that tells whether they changed. The order of the entries does not count.
      */
-    private static List<String> settingsOf(Sheet sheet) {
+    static List<String> settingsOf(Sheet sheet) {
         var settings = new ArrayList<String>();
         for (DataValidation validation : sheet.getDataValidations()) {
             var constraint = validation.getValidationConstraint();

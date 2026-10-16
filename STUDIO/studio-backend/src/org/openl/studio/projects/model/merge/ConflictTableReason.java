@@ -9,9 +9,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Why both branches changed a table in ways the merge cannot combine")
 public enum ConflictTableReason {
     /**
-     * Both branches changed the value, the style or the comment of the same cell differently.
+     * Both branches changed the value or the comment of the same cell differently. A style changed differently keeps
+     * the one of your version.
      */
-    @Schema(description = "Both branches changed the value, the style or the comment of the same cell differently")
+    @Schema(description = "Both branches changed the value or the comment of the same cell differently")
     @JsonProperty("cells")
     CELLS,
 

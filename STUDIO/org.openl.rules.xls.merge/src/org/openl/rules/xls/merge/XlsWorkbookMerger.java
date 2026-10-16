@@ -218,7 +218,8 @@ public class XlsWorkbookMerger implements Closeable {
         }
         var diffDecision = chooseChangedSide(ourMatch, theirMatch);
         if (diffDecision == DiffStatus.CONFLICT) {
-            diffDecision = decideWhole(sheetName, SheetConflictReason.REMOVED_AND_CHANGED, conflicts);
+            diffDecision = removedOverLook(sheetName, ourMatch, theirMatch)
+                    .orElseGet(() -> decideWhole(sheetName, SheetConflictReason.REMOVED_AND_CHANGED, conflicts));
         }
         return diffDecision;
     }
@@ -237,7 +238,11 @@ public class XlsWorkbookMerger implements Closeable {
             return statusOf(decided);
         }
         if (match != XlsMatch.UPDATED) {
-            return decideWhole(sheetName, SheetConflictReason.ADDED_IN_BOTH, conflicts);
+            // a sheet both revisions added with the same content keeps OUR formatting
+            return XlsSheetsMatcher.equalContent(new Cursor(ourWorkbook, ourWorkbook.getSheet(sheetName)),
+                    new Cursor(theirWorkbook, theirWorkbook.getSheet(sheetName)))
+                    ? DiffStatus.OUR
+                    : decideWhole(sheetName, SheetConflictReason.ADDED_IN_BOTH, conflicts);
         }
         var plan = plan(sheetName, theirToBase, conflicts);
         var tables = conflicts.tables();
@@ -403,6 +408,32 @@ public class XlsWorkbookMerger implements Closeable {
         } else {
             conflicts.unresolved(WorkbookConflicts.PALETTE_ID);
         }
+    }
+
+    /**
+     * Removes a sheet one revision removed while the other changed only its look: the formatting of its cells or the
+     * sizes of its rows and columns.
+     *
+     * @return the revision the sheet is taken from, or nothing when the other revision changed its content
+     */
+    private Optional<DiffStatus> removedOverLook(String sheetName,
+                                                 @Nullable XlsMatch ourMatch,
+                                                 @Nullable XlsMatch theirMatch) {
+        if (ourMatch == XlsMatch.REMOVED && theirMatch == XlsMatch.UPDATED && keepsContent(theirWorkbook, sheetName)) {
+            return Optional.of(DiffStatus.OUR);
+        } else if (theirMatch == XlsMatch.REMOVED && ourMatch == XlsMatch.UPDATED
+                && keepsContent(ourWorkbook, sheetName)) {
+            return Optional.of(DiffStatus.THEIR);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Tells whether a revision holds a sheet as BASE revision does, whatever its look.
+     */
+    private boolean keepsContent(Workbook revision, String sheetName) {
+        return XlsSheetsMatcher.equalContent(new Cursor(baseWorkbook, baseWorkbook.getSheet(sheetName)),
+                new Cursor(revision, revision.getSheet(sheetName)));
     }
 
     /**
