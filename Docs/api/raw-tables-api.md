@@ -353,6 +353,10 @@ A formula that does not start with `=`, holds nothing after it, or Excel cannot 
 compute, such as one calling a function it does not implement: OpenL reads the value a formula computed, and the cell
 would read as empty.
 
+A table of a Markdown module holds no Excel formulas, so a read returns none, and a `formula` written into it — by an
+edit, or by a table written whole or created — is refused with `openl.error.400.table.markdown.layout.message`, and
+nothing is written. Its OpenL formulas are values.
+
 ### Versions
 
 A read of the table, of a window too, answers the version of the whole table in the `ETag` header; the body carries
@@ -468,6 +472,10 @@ the table or the request named the table by an id it had before.
   [Formulas](#formulas).
 - `openl.error.400.table.cell.formula.invalid.message` — a `formula` that Excel cannot read or OpenL Studio cannot
   compute; see [Formulas](#formulas).
+- `openl.error.400.table.markdown.style.message` — a `style` on a table of a Markdown module, whose file keeps no
+  formatting.
+- `openl.error.400.table.markdown.layout.message` — the edit leaves a table of a Markdown module in a shape its file
+  cannot hold, or writes an Excel `formula` into it; the message tells why.
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
   of them; a mark without `from`, `to` or `color`, or with an unknown `color`.
 

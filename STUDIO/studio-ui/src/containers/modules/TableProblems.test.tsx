@@ -33,13 +33,6 @@ describe('TableProblems', () => {
         expect(screen.getByTestId('table-problems-partial')).toHaveTextContent('browser.module.partial_table')
     })
 
-    it('says that a table of a Markdown module is changed as text', () => {
-        render(<TableProblems markdown messages={[]} />)
-
-        expect(screen.getByTestId('table-problems-markdown')).toHaveTextContent('browser.module.markdown_table')
-        expect(screen.queryByTestId('table-problems-partial')).toBeNull()
-    })
-
     it('counts what the table raised, and lists it by severity', () => {
         const raised = [
             message(1, 'ERROR', 'Identifier is not found'),

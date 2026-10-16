@@ -209,6 +209,12 @@ interface TableEditorProps {
     roles?: TableRoles | undefined
     /** The kind of the table, `Rules`, `TBasic`, `ColumnMatch` and so on, which tells whether its indent is structure. */
     kind?: string | undefined
+    /**
+     * Set on a table of a Markdown file, which keeps its values as text and no formatting: the look of a cell and its
+     * indent are not the reader's to set.
+     * The file holds no Excel formulas either, so a cell is not offered to be written as one.
+     */
+    plainText?: boolean | undefined
     /** Follows a piece of a cell's text to the table it names. */
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
@@ -259,6 +265,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     formulas,
     roles,
     kind,
+    plainText = false,
     onOpenUsage,
     canWrite,
     canMark = true,
@@ -279,9 +286,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // The formatting of the workbook lays the table on paper; the Studio look draws it in the theme of the application.
     const paper = onPaper(roles, excelFormatting)
     // The look of a cell is the reader's to set only where it is kept and seen: a save that formats the table would
-    // write the OpenL table style over it, and the Studio look would not show it.
-    const formatting = useContext(SystemContext).systemSettings?.formatTablesOnSave === false && excelFormatting
-    const indenting = formatting || INDENTED_KINDS.has(kind ?? '')
+    // write the OpenL table style over it, the Studio look would not show it, and a Markdown file does not keep it.
+    const formattedOnSave = useContext(SystemContext).systemSettings?.formatTablesOnSave !== false
+    const formatting = !plainText && !formattedOnSave && excelFormatting
+    const indenting = !plainText && (formatting || INDENTED_KINDS.has(kind ?? ''))
     const { styles, cx } = useStyles(paper)
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)
@@ -735,6 +743,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     <OpenCell
                         address={written[at.row]?.[at.column]?.cell}
                         asked={asked}
+                        excelFormulas={!plainText}
                         from={open.from}
                         markable={markableAt(at)}
                         marks={open.marks}

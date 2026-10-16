@@ -444,7 +444,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     To enter an MS Excel formula, such as `=B2*C2`, select **Excel Formula Editor** in the same list. The formula is
     saved as an MS Excel formula, and OpenL reads the value MS Excel computes for it. A cell that holds an MS Excel
     formula opens in **Excel Formula Editor**. As in MS Excel, a value typed there without `=` replaces the formula;
-    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor.
+    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor. A
+    Markdown file holds no MS Excel formulas, so a table of a Markdown module does not offer **Excel Formula Editor**.
 
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
 
