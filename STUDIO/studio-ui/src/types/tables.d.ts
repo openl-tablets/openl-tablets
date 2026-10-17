@@ -36,7 +36,7 @@ export interface RawTableRegion {
 export interface RawTableGroups {
     /** The rows that start a group: a line is drawn above each. */
     rows?: number[]
-    /** The columns that start a group: a line is drawn on the left of each. */
+    /** The columns that start a group: a line is drawn on the left of each, from the titles down. */
     columns?: number[]
 }
 

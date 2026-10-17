@@ -24,7 +24,7 @@ public record RawTableGroups(
 
         @Parameter(description = """
                 The columns that start a group, in table coordinates, such as the columns of a lookup under a merged \
-                horizontal value; a line is drawn on the left of each""")
+                horizontal value; a line is drawn on the left of each, from the titles down""")
         List<Integer> columns
 ) {
 

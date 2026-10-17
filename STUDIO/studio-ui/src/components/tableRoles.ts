@@ -150,13 +150,16 @@ const ROLE_EDGES: Readonly<Record<string, { top: keyof RoleLines, bottom?: keyof
     result: { top: 'role', bottom: 'resultBelow' },
 }
 
+/** The parts of the header, which the line on the left of a group column does not cross. */
+const HEADER_PARTS: ReadonlySet<string> = new Set(['signature', 'properties', 'code'])
+
 /**
  * The lines the Studio look draws around a cell, by its role and where it stands: the line of a role above the first
  * row of the region of the signature, the properties, the code, the titles, a heading and the result — a lookup has a
  * region for each row of its horizontal values — and below the last row of the signature, the properties and the
- * code, a double line below the result, a group line above the first line of a group, and the line of a role
- * closing the table. No other line is drawn: the parts of a table are told apart
- * by their fill.
+ * code, a double line below the result, a group line above the first line of a group and on the left of a group
+ * column from the titles down, and the line of a role closing the table. No other line is drawn: the parts of a table
+ * are told apart by their fill.
  *
  * @param roles  the roles of the cells of the table
  * @param cell   what the cell is
@@ -179,7 +182,7 @@ export const roleLinesOf = (roles: TableRoles, cell: CellRole, span: { rows: num
     if (border.top === undefined && roles.groupRows.has(place.row)) {
         border.top = lines.group
     }
-    if (roles.groupColumns.has(place.column)) {
+    if (roles.groupColumns.has(place.column) && !HEADER_PARTS.has(region.role)) {
         border.left = lines.group
     }
     if (border.bottom === undefined && lastRow >= roles.bottom) {

@@ -73,7 +73,8 @@ One modifier draws a separator inside the body:
 
 - **`group`** — a line above the first line of a group. A group is the rules that share a merged condition
   value, or the conditions of a ColumnMatch table indented under one name. Merged decision tables are hard to read
-  without it.
+  without it. The columns of a lookup that share a merged horizontal value are a group too, with a line on the left
+  of the first of them from the titles down: it does not cross the signature, the properties or the code.
 
 ### Roles per table type
 
@@ -265,7 +266,8 @@ Every line is drawn in `dk1`, the text colour of the theme:
 
 - **Role line** — thin. It is drawn above and below the signature, the properties and the code, above the titles
   and a section, and below the body.
-- **Group line** — hair. It is drawn above a group.
+- **Group line** — hair. It is drawn above a group of rows, and on the left of a group of columns from the titles
+  down.
 - **Result lines** — thin above the result, double below it.
 
 A line sits on the top edge of the region that it sets apart from what stands above it, never on the bottom edge of the

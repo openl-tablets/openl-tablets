@@ -251,6 +251,32 @@ class ExcelTableFormatterTest {
         }
     }
 
+    @Test
+    void drawsTheLineOfAGroupColumnFromTheTitlesDown() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet(SHEET);
+            row(sheet, 0, 0, "SimpleLookup Double Fee(String plan, String term)");
+            row(sheet, 1, 0, "properties", "description", "Fees");
+            row(sheet, 2, 0, "Plan", "Basic", "Gold");
+            row(sheet, 3, 0, "A", "1", "2");
+            var regions = new TableRegions(List.of(
+                    new RawTableRegion(RawTableRole.SIGNATURE, null, 0, 0, 0, 2),
+                    new RawTableRegion(RawTableRole.PROPERTIES, null, 1, 0, 1, 2),
+                    new RawTableRegion(RawTableRole.INPUT_TITLE, null, 2, 0, 2, 0),
+                    new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 2, 1, 2, 2),
+                    new RawTableRegion(RawTableRole.VALUE, null, 3, 0, 3, 0),
+                    new RawTableRegion(RawTableRole.OUTPUT, null, 3, 1, 3, 2)),
+                    new RawTableGroups(List.of(), List.of(2)), List.of(), Map.of());
+
+            new ExcelTableFormatter().format(sheet, new GridRegion(0, 0, 3, 2), regions);
+
+            assertEquals(BorderStyle.NONE, styleAt(workbook, 0, 2).getBorderLeft(), "Not across the header");
+            assertEquals(BorderStyle.NONE, styleAt(workbook, 1, 2).getBorderLeft(), "Nor across the properties");
+            assertEquals(BorderStyle.HAIR, styleAt(workbook, 2, 2).getBorderLeft(), "From the titles");
+            assertEquals(BorderStyle.HAIR, styleAt(workbook, 3, 2).getBorderLeft(), "Down the values");
+        }
+    }
+
     /** The regions of a lookup of two rows of horizontal values, which take the given titles. */
     private static TableRegions lookupRegions(List<RawTableRegion> titles) {
         var regions = new ArrayList<RawTableRegion>();

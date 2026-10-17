@@ -248,10 +248,11 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   the signature, the properties, the code, the titles and a section, and below the last row of the signature, the
   properties and the code; a lookup lays out each row of its horizontal values as a region of its own (`Place.byRows`),
   so each row is set apart — the result between its own lines, a hair line above a group and on the left of a group
-  column, and a line closing the table. The header row is merged into one cell across the table unless another cell of
-  it holds a value or a merge reaches out of it (`TableWrite.mergeSignature`, through the grid model when there is one,
-  so its region pool stays in sync). The signature is the only rich text, in its pieces; rich text in any other cell is
-  written plain. A table of an `.xls` workbook and a table of the type Other are not formatted.
+  column from the titles down (`TableStyle.isHeaderPart`), and a line closing the table. The header row is merged into
+  one cell across the table unless another cell of it holds a value or a merge reaches out of it
+  (`TableWrite.mergeSignature`, through the grid model when there is one, so its region pool stays in sync). The
+  signature is the only rich text, in its pieces; rich text in any other cell is written plain. A table of an `.xls`
+  workbook and a table of the type Other are not formatted.
 - **Unused styles are removed only by Reformat.** `ExcelTableFormatter.removeUnusedStyles` (`UnusedStyles`) drops the
   cell formats no cell, row or column names and the named styles no cell format links, renumbering the references; it
   reads every cell, so a save of one table never runs it. It reads POI's private `xfs` and `styleXfs` lists, as POI

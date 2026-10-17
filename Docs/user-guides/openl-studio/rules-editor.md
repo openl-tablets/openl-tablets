@@ -274,7 +274,7 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
         What a Spreadsheet returns is bold, with a line above it and a double line below it.
     -   A heading inside the body, such as a merged step of a Spreadsheet, is centered and filled like a title.
         A line sets apart the rules that share a merged value of a condition, and the columns of a lookup that share a
-        merged value.
+        merged value, from the titles down.
     -   A number and a date are aligned to the right, and a line under the last row closes the table.
     -   Code is highlighted as the code editor of the theme highlights it: an expression, such as a formula of a
         Spreadsheet, the code the compiler reads, such as `C1` and `RET1`, the body of a Method table, and the steps of
@@ -456,8 +456,8 @@ itself offers, so the tables look the same in Excel and change with the theme of
 -   **Lines** — every line is in the text colour of the theme. A line runs above and below the header, the
     properties and the code, above the titles and a heading inside the body, above each row of the horizontal
     values of a lookup, and a line closes the table; a fine line sets apart the rules that share a merged value of
-    a condition, and what a table returns has a line above it and a double line below it. There are no vertical
-    lines.
+    a condition, and the columns of a lookup that share a merged value from the titles down, and what a table
+    returns has a line above it and a double line below it. No other line is vertical.
 -   **Header** — the header is merged into one cell across the table, unless another cell of its row holds a value.
     The name of the table is bold, the names of the parameters are in the text colour, and the keyword, the types,
     and the punctuation are lighter.
