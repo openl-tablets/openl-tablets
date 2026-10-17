@@ -2,11 +2,11 @@
 
 ## Resume point
 
-- PR #2348 (`dead-code/sweep`) is open with 1 commit, green, Sonar 0 new issues; maintain it first.
-- Everything up to `origin/main` d7f23c8670 is swept, Java included (Error Prone, PMD, whole-type index).
+- PR #2348 (`dead-code/sweep`) is open with 1 commit, green, Sonar 0 new issues, awaiting review; maintain it first.
+- Everything up to `origin/main` 9dcb1642e3 is swept, Java included (Error Prone, PMD, whole-type index).
 - `dead-code/ledger` vanished from the remote mid-run and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
-- All 14 change types are exhausted repo-wide; a run is: maintain the open PR, sweep the delta since d7f23c8670,
+- All 14 change types are exhausted repo-wide; a run is: maintain the open PR, sweep the delta since 9dcb1642e3,
   then spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
 
 ## Change-type queue
@@ -137,6 +137,7 @@
   `gpg.format`/`commit.gpgsign` first. Before every push, list open `dead-code/*` PRs and re-fetch main.
 - Index the whole tree once (regex `[A-Za-z_$][\w$]*` per file into a Counter, ~8 s) and answer every "is this name
   used" question from it; a name whose total count equals its count in its own file is unreferenced.
+- `-Dpmd.rulesets` on the CLI is IGNORED (default rules run): configure the plugin in the root pom.
 - PMD needs reactor artifacts and a warm `~/.m2`, so run it online and fully qualified (a `pmd:` prefix fails):
   `mvn test-compile org.apache.maven.plugins:maven-pmd-plugin:3.28.0:pmd dependency:analyze-only -Pitest -fae -T2
   -Dquick -DnoPerf -pl '!STUDIO/studio-ui'`, plugin under root `<build><plugins>`, ruleset under `.toDelete/` by
@@ -289,10 +290,10 @@
 
 ## Run log
 
-- 2026-10-10: delta was 66 commits (xls cell merge, pending changes, restored operators). Reactor green in 29:10
-  cold; Error Prone, PMD (29), tsc, i18n (1,729 keys), bundles, Docs tokens, imports re-ran at zero. No PR.
 - 2026-10-11: delta was 4 commits (index wait, thread count). Reactor green in 27:06 cold; Error Prone, tsc re-ran
   at zero. New vein, AGENTS.md names: 1 stale class, #2305 MERGED (-1 phrase).
 - 2026-10-17: delta was 61 commits (table themes removed, Excel-native formatting, merge conflicts). i18n
   (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; Error Prone, PMD (56,
   all pre-delta), new-type index at zero; tsc found 1 dead React import, #2348 opened. Reactor 21:22 warm.
+- 2026-10-17 (2nd): delta was 8 commits (EPBDS-7164 table formatting). Reactor green 29:17 cold; Error Prone, PMD
+  (studio-backend), tsc, removed-name index, Docs images and tokens at zero; no locale or bundle change. No commit.
