@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
@@ -136,12 +137,49 @@ public class TableCreatorService {
             createModule(project, resolvedDescriptor, createTableRequest.moduleName(), modulePath, modulePath,
                     createWorkbook(createTableRequest, rawTable));
         } else {
-            var folder = Objects.requireNonNull(modulePath, "The path of the module").replaceFirst("/+$", "");
+            var folder = folderOf(Objects.requireNonNull(modulePath, "The path of the module"));
             var file = MarkdownTableFiles.firstFileOf(folder, createTableRequest.sheetName(), rawTable.name,
                     rawTable.kind);
             createModule(project, resolvedDescriptor, createTableRequest.moduleName(), folder, file,
                     markdownFile(rawTable));
         }
+    }
+
+    /**
+     * Opens the file of the first table of a new module of Markdown files, for a table to be written on. The save
+     * writes the file and registers the module, removing the module when registration fails.
+     *
+     * @param modulePath the folder of the new module
+     * @param sheetName  the sheet the table goes to: the folder of its file
+     * @param tableName  the name of the table
+     * @param kind       the kind of the table
+     */
+    public MarkdownGrid newMarkdownModule(RulesProject project,
+                                          ProjectDescriptor resolvedDescriptor,
+                                          String moduleName,
+                                          String modulePath,
+                                          @Nullable String sheetName,
+                                          String tableName,
+                                          TableKind kind) {
+        var folder = folderOf(modulePath);
+        var file = MarkdownTableFiles.firstFileOf(folder, sheetName, tableName, kind);
+        return MarkdownGrid.create(file, text -> {
+            try {
+                createModule(project, resolvedDescriptor, moduleName, folder, file,
+                        text.getBytes(StandardCharsets.UTF_8));
+            } catch (ProjectException e) {
+                throw new IOException(e);
+            }
+        });
+    }
+
+    /** The path of a module folder without the slashes it may end with; a plain scan, so a long run costs nothing. */
+    private static String folderOf(String modulePath) {
+        var end = modulePath.length();
+        while (end > 0 && modulePath.charAt(end - 1) == '/') {
+            end--;
+        }
+        return modulePath.substring(0, end);
     }
 
     /** The text of the Markdown file of a table written into a new module, stamped as created. */
@@ -691,7 +729,7 @@ public class TableCreatorService {
         // Only a workbook takes a table: a module of Markdown files takes it as a file of its own, written as text
         var module = projectModel.getModuleInfo();
         var modulePath = module == null ? null : module.getRulesRootPath();
-        if (modulePath != null && !FileTypeHelper.isExcelFile(modulePath)) {
+        if (modulePath != null && FileTypeHelper.isMarkdownFile(modulePath)) {
             throw new BadRequestException("table.markdown.destination.message", new Object[]{module.getName()});
         }
         var currentWorkbook = moduleNode.getWorkbookSyntaxNodes()[0].getWorkbookSourceCodeModule();
@@ -704,14 +742,5 @@ public class TableCreatorService {
 
         var sourceCodeModule = new XlsSheetSourceCodeModule(new SimpleSheetLoader(sheet), currentWorkbook);
         return new XlsSheetGridModel(sourceCodeModule);
-    }
-
-    /**
-     * Persist the workbook a table was written into, dropping the styles the write left unused.
-     *
-     * @param gridModel the grid model the copy was written into
-     */
-    public void save(XlsSheetGridModel gridModel) {
-        TableWriter.saveWorkbook(gridModel);
     }
 }

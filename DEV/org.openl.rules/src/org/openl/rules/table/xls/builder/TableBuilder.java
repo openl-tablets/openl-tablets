@@ -9,6 +9,8 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -17,6 +19,7 @@ import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellComment;
@@ -26,6 +29,13 @@ import org.openl.rules.table.xls.formatters.FormatConstants;
 
 /**
  * Class that allows creating tables in specified excel sheet.
+ *
+ * <p>A merged range of a copied table is written once, its value in its top left cell: a cell the range covers is
+ * written empty.
+ *
+ * <p>A grid that is no sheet of a workbook, such as a Markdown file, takes the values and the merged cells of a table.
+ * The styles and the comments belong to a workbook alone, and a formula is written as the value it computes: only a
+ * workbook computes formulas.
  *
  * @author Aliaksandr Antonik
  * @author Andrei Astrouski
@@ -40,7 +50,7 @@ public class TableBuilder {
     /**
      * The sheet to write tables to.
      */
-    private final XlsSheetGridModel gridModel;
+    private final IWritableGrid gridModel;
     /**
      * Current table region in excel sheet.
      */
@@ -87,11 +97,11 @@ public class TableBuilder {
      *
      * @param gridModel represents interface for operations with excel sheets
      */
-    public TableBuilder(XlsSheetGridModel gridModel) {
+    public TableBuilder(IWritableGrid gridModel) {
         this(gridModel, null);
     }
 
-    public TableBuilder(XlsSheetGridModel gridModel, MetaInfoWriter metaInfoWriter) {
+    public TableBuilder(IWritableGrid gridModel, MetaInfoWriter metaInfoWriter) {
         this.gridModel = Objects.requireNonNull(gridModel, "gridModel cannot be null");
         style2style = new IdentityHashMap<>();
         this.metaInfoWriter = metaInfoWriter;
@@ -135,7 +145,8 @@ public class TableBuilder {
             throw new IllegalStateException("beginTable() has already been called");
         }
         region = regionToWrite;
-        if (region == null || !GridRegionUtils.isValidRegion(region, gridModel.getSpreadsheetConstants())) {
+        if (region == null || gridModel instanceof XlsSheetGridModel sheet
+                && !GridRegionUtils.isValidRegion(region, sheet.getSpreadsheetConstants())) {
             throw new CreateTableException("Could not find appropriate region for writing");
         }
         currentRow = 0;
@@ -166,9 +177,8 @@ public class TableBuilder {
      *
      * @return cell style
      */
-    private CellStyle getDefaultCellStyle() {
+    private CellStyle getDefaultCellStyle(Workbook workbook) {
         if (defaultCellStyle == null) {
-            var workbook = gridModel.getWorkbookToWrite();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -181,9 +191,8 @@ public class TableBuilder {
         return defaultCellStyle;
     }
 
-    private CellStyle getDefaultDateCellStyle() {
+    private CellStyle getDefaultDateCellStyle(Workbook workbook) {
         if (defaultDateCellStyle == null) {
-            var workbook = gridModel.getWorkbookToWrite();
             CellStyle cellStyle = PoiExcelHelper.createCellStyle(workbook);
 
             cellStyle.setBorderBottom(BorderStyle.THIN);
@@ -226,29 +235,48 @@ public class TableBuilder {
      * @param style  cell style
      */
     private void writeCell(int x, int y, int width, int height, Object value, ICellStyle style) {
-        var source = style instanceof XlsCellStyle xlsStyle ? xlsStyle : null;
-        var cellStyle = source != null ? source.getXlsStyle() : getDefaultCellStyle();
         x += region.getLeft();
         y += region.getTop();
         var x2 = x + width - 1;
         var y2 = y + height - 1;
-        var sheet = gridModel.getSheetToWrite();
         if (width > 1 || height > 1) {
             gridModel.addMergedRegion(new GridRegion(y, x, y2, x2));
         }
         gridModel.setCellValue(x, y, value);
-        for (var col = x; col <= x2; col++) {
-            for (var row = y; row <= y2; row++) {
+        var sheet = sheetToWrite();
+        if (sheet != null) {
+            writeStyle(sheet, new GridRegion(y, x, y2, x2), value, style);
+        }
+    }
+
+    /**
+     * Gives the cells of a written value their style, a date its date format.
+     */
+    private void writeStyle(Sheet sheet, IGridRegion cells, Object value, ICellStyle style) {
+        var source = style instanceof XlsCellStyle xlsStyle ? xlsStyle : null;
+        var workbook = sheet.getWorkbook();
+        var cellStyle = source != null ? source.getXlsStyle() : getDefaultCellStyle(workbook);
+        for (var col = cells.getLeft(); col <= cells.getRight(); col++) {
+            for (var row = cells.getTop(); row <= cells.getBottom(); row++) {
                 setCellStyle(PoiExcelHelper.getOrCreateCell(col, row, sheet), cellStyle, source);
             }
         }
         if (value instanceof Date) {
             // Excel stores a date as a number, and it is read back as a date only while the cell holding it carries
             // a date format. A merged cell holds its value in the one it opens with.
-            var cell = PoiExcelHelper.getOrCreateCell(x, y, sheet);
-            var dateStyle = cellStyle == getDefaultCellStyle() ? getDefaultDateCellStyle() : getDateCellStyle(cell);
+            var cell = PoiExcelHelper.getOrCreateCell(cells.getLeft(), cells.getTop(), sheet);
+            var dateStyle = cellStyle == getDefaultCellStyle(workbook)
+                    ? getDefaultDateCellStyle(workbook)
+                    : getDateCellStyle(cell);
             setCellStyle(cell, dateStyle, null);
         }
+    }
+
+    /**
+     * Returns the sheet of the workbook the tables are written to, or {@code null} for a grid of no workbook.
+     */
+    private @Nullable Sheet sheetToWrite() {
+        return gridModel instanceof XlsSheetGridModel sheetGrid ? sheetGrid.getSheetToWrite() : null;
     }
 
     /**
@@ -286,15 +314,15 @@ public class TableBuilder {
             if (source == null) {
                 throw e;
             }
-            var carried = carrier().carry(source);
+            var carried = carrier(cell.getSheet().getWorkbook()).carry(source);
             style2style.put(cellStyle, carried);
             cell.setCellStyle(carried);
         }
     }
 
-    private CellStyleCarrier carrier() {
+    private CellStyleCarrier carrier(Workbook workbook) {
         if (styleCarrier == null) {
-            styleCarrier = new CellStyleCarrier(gridModel.getWorkbookToWrite());
+            styleCarrier = new CellStyleCarrier(workbook);
         }
         return styleCarrier;
     }
@@ -326,8 +354,10 @@ public class TableBuilder {
         currentRow += table.getHeight();
     }
 
+    /** Whether the table is written into the workbook it is read from. A grid of no workbook is never that one. */
     private boolean isSameWorkbook(XlsSheetGridModel grid) {
-        return grid.getSheetSource().getSheet().getWorkbook() == gridModel.getSheetSource().getSheet().getWorkbook();
+        return gridModel instanceof XlsSheetGridModel target
+                && grid.getSheetSource().getSheet().getWorkbook() == target.getSheetSource().getSheet().getWorkbook();
     }
 
     /**
@@ -344,21 +374,29 @@ public class TableBuilder {
         var row = currentRow + j + region.getTop();
         var area = cell.getAbsoluteRegion();
         var covered = isCovered(cell, area, table);
-        if (source != null) {
+        var sheet = sheetToWrite();
+        if (source != null && gridModel instanceof XlsSheetGridModel target) {
             writeCell(i, currentRow + j, cellWidth, cellHeight, null, style);
             if (!covered) {
                 // A merge reaching in from outside the table shows the value of its top-left cell here.
-                gridModel.copyCellValue(source, area.getLeft(), area.getTop(), column, row);
+                target.copyCellValue(source, area.getLeft(), area.getTop(), column, row);
             }
         } else {
-            var formula = covered ? null : cell.getFormula();
+            // Only a workbook computes a formula: a grid of no workbook takes the value the formula computed
+            var formula = covered || sheet == null ? null : cell.getFormula();
             writeCell(i, currentRow + j, cellWidth, cellHeight, covered || formula != null ? null : cell.getObjectValue(),
                     style);
             if (formula != null) {
                 writeFormula(column, row, formula, cell);
             }
         }
-        var newCell = PoiExcelHelper.getOrCreateCell(column, row, gridModel.getSheetToWrite());
+        if (sheet != null) {
+            writeWorkbookCell(cell, PoiExcelHelper.getOrCreateCell(column, row, sheet));
+        }
+    }
+
+    /** Writes what a cell of a workbook carries besides its value: its comment and its meta info. */
+    private void writeWorkbookCell(ICell cell, Cell newCell) {
         var iCellComment = cell.getComment();
         if (iCellComment != null) {
             var xlxComment = ((XlsCellComment) iCellComment).getXlxComment();

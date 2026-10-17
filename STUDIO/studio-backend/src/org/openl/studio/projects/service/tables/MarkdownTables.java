@@ -18,8 +18,7 @@ import org.openl.util.StringTool;
  *
  * <p>A Markdown file keeps the values of its table as text and keeps no formatting: the look of its table is drawn by
  * OpenL Studio alone. Its cells, rows, columns, merged cells and properties are written into the file, but a style is
- * refused, saying so. A copy is refused too: it reads the formatting of its source from a workbook, which the file is
- * not.
+ * refused, saying so.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MarkdownTables {
@@ -42,16 +41,6 @@ public final class MarkdownTables {
         if (actions.stream().anyMatch(RawTableSourceAction.Style.class::isInstance)) {
             refuse(table, "table.markdown.style.message");
         }
-    }
-
-    /**
-     * Refuses to copy a table of a Markdown module.
-     *
-     * @param table the table to copy
-     * @throws BadRequestException when the table comes from a Markdown module
-     */
-    public static void refuseCopy(IOpenLTable table) {
-        refuse(table, "table.markdown.copy.message");
     }
 
     private static void refuse(IOpenLTable table, String message) {

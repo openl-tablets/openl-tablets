@@ -16,6 +16,7 @@ import java.time.Month;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +29,12 @@ import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.GridTable;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.CellStyle;
+import org.openl.rules.table.xls.builder.TableBuilder;
 
 /**
  * A table of a Markdown file is written through the grid the table editor writes into, and saved into the file.
@@ -227,6 +230,44 @@ class MarkdownGridTest {
                 |---|---|
                 | 5 | 0.1 |
                 """, saved.get());
+    }
+
+    @Test
+    void tableBuiltOnTheSheetOfANewFileIsItsText() throws Exception {
+        var text = new String[1];
+        var sheet = MarkdownGrid.create("salutation.md", written -> text[0] = written);
+        // The body of the greeting with the afternoon and the evening under one hour, as the copy of a table reads it
+        grid.edit();
+        try {
+            var source = (IWritableGrid) grid.getGrid();
+            source.addMergedRegion(new GridRegion(4, 0, 5, 0));
+            var builder = new TableBuilder(sheet);
+            // The properties take three columns, as a workbook writes them
+            builder.beginTable(3, 6);
+            builder.writeHeader("SmartRules String salutation(Integer hour)", null);
+            builder.writeProperties(Map.of("description", "Greeting by the hour"), null);
+            builder.writeGridTable(new GridTable(new GridRegion(2, 0, 5, 1), source));
+            builder.endTable();
+        } finally {
+            grid.stopEditing();
+        }
+
+        sheet.save();
+
+        // The range is written once: the cell it covers takes no value of its own
+        assertEquals("""
+                ---
+                table: SmartRules String salutation(Integer hour)
+                description: Greeting by the hour
+                merges: [A3:A4]
+                ---
+
+                | Hour | Greeting |
+                |---|---|
+                | 0-11 | Good Morning |
+                | 12-17 | Good Afternoon |
+                |  | Good Evening |
+                """, text[0]);
     }
 
     @Test

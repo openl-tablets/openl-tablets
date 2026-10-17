@@ -26,26 +26,21 @@ vi.mock('antd', async () => {
         open,
         title,
         children,
-        okText,
         cancelText,
-        onOk,
         onCancel,
-        okButtonProps,
+        footer,
     }: {
         open?: boolean
         title?: React.ReactNode
         children?: React.ReactNode
-        okText?: React.ReactNode
         cancelText?: React.ReactNode
-        onOk?: () => void
         onCancel?: () => void
-        okButtonProps?: { disabled?: boolean }
+        footer: (origin: React.ReactNode, extra: { CancelBtn: React.FC }) => React.ReactNode
     }) => open ? (
         <div role="dialog">
             <div>{title}</div>
             {children}
-            <button onClick={onCancel}>{cancelText}</button>
-            <button disabled={okButtonProps?.disabled} onClick={onOk}>{okText}</button>
+            {footer(null, { CancelBtn: () => <button onClick={onCancel}>{cancelText}</button> })}
         </div>
     ) : null
     const MockAutoComplete = ({
@@ -503,6 +498,51 @@ describe('CopyTableModal', () => {
             sheetName: 'Eligibility',
         })
         expect(mockGetSheets).toHaveBeenCalledTimes(1)
+    })
+
+    it('copies into a new module of Markdown files from the arrow of the Copy button', async () => {
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+
+        await user.clear(screen.getByTestId('copy-table-name'))
+        await user.type(screen.getByTestId('copy-table-name'), 'EligibilityCopy')
+        await user.clear(screen.getByTestId('copy-table-module'))
+        await user.type(screen.getByTestId('copy-table-module'), 'Eligibility')
+        await user.clear(screen.getByTestId('copy-table-sheet'))
+        await user.type(screen.getByTestId('copy-table-sheet'), 'rates')
+        await user.click(screen.getByTestId('copy-table-more'))
+        await user.click(await screen.findByTestId('copy-table-markdown'))
+
+        // The sheet is the folder of the file in the module
+        await waitFor(() => expect(mockCopy).toHaveBeenCalledTimes(1))
+        expect(mockCopy.mock.calls[0]![2]).toMatchObject({
+            moduleName: 'Eligibility',
+            sheetName: 'rates',
+            modulePath: 'rules/Eligibility',
+        })
+    })
+
+    it('copies into a folder of Markdown files, its sheets being its folders', async () => {
+        mockGetModules.mockResolvedValueOnce([
+            { name: 'Main', path: 'rules/Main.xlsx' },
+            { name: 'Rating', path: 'rules/Rating' },
+        ])
+        const user = userEvent.setup({ delay: null })
+        render(<CopyTableModal />)
+        await openModal()
+        await waitFor(() => expect(screen.getByTestId('copy-table-module')).toHaveValue('Main'))
+
+        mockGetSheets.mockResolvedValue(['Rating', 'Factors'])
+        await user.clear(screen.getByTestId('copy-table-module'))
+        await user.type(screen.getByTestId('copy-table-module'), 'Rating')
+
+        // The copy goes into the folder of the module unless the author names another
+        await waitFor(() => expect(screen.getByTestId('copy-table-sheet')).toHaveValue('Rating'))
+        // The module is there already: its format is its own, which the button names
+        expect(screen.getByRole('button', { name: 'project:copy_table_modal.copy_markdown' })).toBeInTheDocument()
+        expect(screen.queryByTestId('copy-table-more')).toBeNull()
     })
 
     it('does not submit an incomplete or duplicated property row', async () => {

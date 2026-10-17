@@ -130,12 +130,12 @@ class TableCreatorServiceTest {
         when(included.getUri()).thenReturn("file:/projects/Example/rules/Rates.xlsx");
         var module = new Module();
         module.setName("Rating");
-        module.setRulesRootPath("rules/Rating");
+        module.setRulesRootPath("rules/Rating.md");
         when(model.getModuleInfo()).thenReturn(module);
 
         var error = assertThrows(BadRequestException.class, () -> service.sheetGridModel(model, "Sheet1"));
 
-        // A Markdown module is text, never a sheet POI writes on: a new table goes into it as a file of its own.
+        // A module of one Markdown file holds its one table, and is never a sheet POI writes on.
         assertEquals("openl.error.400.table.markdown.destination.message", error.getErrorCode());
         assertArrayEquals(new Object[]{"Rating"}, error.getArgs());
         verify(included, never()).getWorkbook();
@@ -744,6 +744,25 @@ class TableCreatorServiceTest {
                 The Excel formula '=TRUE()' cannot be written in a Markdown table, which holds values and OpenL \
                 formulas""", error.getMessage());
         verify(projectFilesService, never()).createResource(any(), anyString(), any(), anyBoolean());
+    }
+
+    @Test
+    void writesANewModuleOfMarkdownFilesWithItsFirstTable() throws Exception {
+        // The sheet of the module's own name is the module folder
+        var grid = service.newMarkdownModule(project, simpleDescriptor(), "Greetings", "rules/Greetings/", "Greetings",
+                "Greeting", TableKind.RULES);
+        grid.setCellValue(0, 0, "Rules Boolean Greeting()");
+        grid.setCellValue(0, 1, "Condition");
+        grid.setCellValue(0, 2, "true");
+
+        grid.save();
+
+        assertEquals(List.of("rules/Greetings/Greeting.md", ProjectDescriptor.FILE_NAME),
+                createdResources.keySet().stream().toList());
+        var descriptor = ProjectDescriptor.read(new ByteArrayInputStream(
+                createdResources.get(ProjectDescriptor.FILE_NAME)));
+        assertEquals(List.of("Main.xlsx", "rules/Greetings"),
+                descriptor.getModules().stream().map(Module::getRulesRootPath).toList());
     }
 
     @Test

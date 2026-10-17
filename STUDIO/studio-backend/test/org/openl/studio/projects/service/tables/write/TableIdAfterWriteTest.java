@@ -159,7 +159,6 @@ class TableIdAfterWriteTest {
         var grid = creator.sheetGridModel(model, SHEET);
         var copyId = copier.copyInto(source, "greet", List.of(new TableProperty("version", "0.0.2")), grid,
                 model.getTableSyntaxNodes());
-        creator.save(grid);
 
         var compiled = TableTestProjects.projectModel(dir);
         assertEquals(copyId, versionOf(compiled, "0.0.2").getId(), "the copy is known by the id it was given");
