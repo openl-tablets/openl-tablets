@@ -163,7 +163,7 @@ services:
 
   studio:
     container_name: studio
-    image: openltablets/webstudio:6.4.0
+    image: openltablets/webstudio:7.0.0
     ports:
       - "8081:8080"
     depends_on:
@@ -186,7 +186,7 @@ services:
 
       ## Repository config
       # This is a list of unique IDs for design repositories. Settings for this repository are going to look like
-      # REPOSITORY_<repo-id-in-caps>_<property-name>. Here repository name is "example", so its properties are specified as REPOSITORY_EXAMPL_<property-name>
+      # REPOSITORY_<repo-id-in-caps>_<property-name>. Here repository name is "example", so its properties are specified as REPOSITORY_EXAMPLE_<property-name>
       DESIGN-REPOSITORY-CONFIGS: example
 
       ## First, let's set default values. We are going to use two predefined repositories: repo-default.design and repo-git.
@@ -209,12 +209,8 @@ services:
       REPOSITORY_EXAMPLE_LOGIN: admin_user
       # "Password" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_PASSWORD: admin_password
-      # "Local path" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
-      REPOSITORY_EXAMPLE_LOCAL-REPOSITORY-PATH: /opt/openl/local/repositories/example
-      # "Default branch name" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
+      # "Branch" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_BRANCH: develop
-      # "Flat folder structure" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
-      REPOSITORY_EXAMPLE_FOLDER-STRUCTURE_FLAT: false
       # "Protected branches" as described at https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository
       REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
 

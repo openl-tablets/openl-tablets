@@ -28,7 +28,7 @@ public class LoggingConfiguration {
     }
 }
 ```
-or
+or in a `META-INF/openl/extension-*.xml` file, as described in [Spring Framework](spring.md):
 ```xml
 <?xml version='1.0'?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

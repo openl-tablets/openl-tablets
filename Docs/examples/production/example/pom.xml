@@ -17,8 +17,8 @@
     </modules>
 
     <properties>
-        <org.openl.version>5.27.13-jakarta</org.openl.version>
-        <spring.boot.version>3.5.3</spring.boot.version>
+        <org.openl.version>7.0.0</org.openl.version>
+        <spring.boot.version>3.5.16</spring.boot.version>
         <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
