@@ -191,13 +191,14 @@ To delete a token, in the tokens list, click the delete icon next to the token a
 
 To change how OpenL Studio looks, in the top-right corner, click the theme icon next to the user icon. The menu offers independent choices, and each choice applies at once. The menu stays open while you choose, so you can try several themes in a row. To close it, click the theme icon again or anywhere outside the menu.
 
-The first group selects the appearance:
+The first switch selects the appearance. Off, the default, OpenL Studio uses the appearance the operating system asks for and switches along with it. The switch is named after the other appearance:
 
--   **Light** — always use the light appearance
--   **Dark** — always use the dark appearance
--   **Follow System** — use the appearance the operating system asks for, and switch along with it
+-   **Dark** — shown while the operating system is light or does not tell its appearance; turning it on keeps OpenL Studio dark
+-   **Light** — shown while the operating system is dark; turning it on keeps OpenL Studio light
 
-Under the appearances, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
+Once turned on, the switch keeps its appearance even when the operating system later changes its own. Turning it off follows the operating system again, and the switch keeps its name. If the operating system has meanwhile switched to the appearance the switch keeps, clicking the switch leaves it on and turns it to the other appearance instead. The theme icon shows the choice in force: a half-filled circle while OpenL Studio follows the operating system, a sun for light, and a moon for dark.
+
+Under the appearance, the **Compact** switch controls how densely the screens are laid out. Turning it on tightens the spacing, the controls, and the text, so more rows and fields fit on a screen.
 
 Under **Compact**, the **Excel Formatting** switch controls how the tables of the Excel files are drawn. Off, the default, a table is drawn by what its cells mean, in the colours of the theme, light or dark. On, a table is drawn as the Excel file formats it. The switch changes only the screen: the Excel files and the projects are not changed. For more information, see [Viewing Tables](rules-editor.md#viewing-tables).
 
@@ -205,13 +206,13 @@ The second group selects the colour theme, shown beside a dot of its own main co
 
 With **Excel Formatting** on, the tables keep the colours Excel shows them in, whatever the theme: black text on white, unless the workbook colours a cell itself. A cell filled in the workbook therefore stays readable in a dark theme as well.
 
-![Theme menu opened next to the user icon, offering Light, Dark, Follow System, the Compact and Excel Formatting switches, and the colour themes](images/theme-switcher.png)
+![Theme menu opened next to the user icon, offering the Dark, Compact and Excel Formatting switches, and the colour themes](images/theme-switcher.png)
 
 *Choosing the appearance, the density, the look of the tables, and the theme*
 
 The choices are independent: every theme is displayed in either appearance, at either density, with the tables in either look.
 
-New users start with **Follow System**, the **Standard** theme, and the comfortable density. All three choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. Using a different browser or computer starts from the defaults again.
+New users start with the appearance of the operating system, the **Standard** theme, the comfortable density, and **Excel Formatting** off. The choices are stored in the web browser, so they apply to the same browser on the same computer and are restored on the next sign-in. An appearance is stored only while the appearance switch is on; with it off, nothing is stored, and OpenL Studio follows the operating system. Using a different browser or computer starts from the defaults again.
 
 ### Displaying the OpenL Studio Help
 
