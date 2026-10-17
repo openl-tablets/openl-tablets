@@ -67,7 +67,10 @@ flowchart TB
   table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
   value, as the OpenL compiler does whatever their style, and pairs them by their headers; a cell outside every
   table, styled but empty, is merged cell by cell,
-  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
+  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version; when
+  both versions moved tables and one of them only pushed its tables by rows it inserted or deleted above them, the
+  merged sheet follows the places of the other version, pushed by those rows (`Pushes`), and falls back to a
+  conflict per moved table when those places do not fit together; and
   **`XlsFormulaReferences`** keeps the sheet a conflict when a formula or a defined name refers to content that moves.
   A row, a table or a sheet one version removes while the other changes only its look is removed, and a table one
   version only formats is taken from the other version when their changes cannot be merged row by row.
