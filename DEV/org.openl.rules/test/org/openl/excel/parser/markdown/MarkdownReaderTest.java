@@ -214,6 +214,13 @@ class MarkdownReaderTest {
     }
 
     @Test
+    void tableWithNoBodyHasAHeaderAlone() {
+        var text = "---\ntable: Datatype Adult extends Driver\n---\n\nAn adult is a driver of no field of its own.\n";
+
+        assertArrayEquals(new Object[][]{{"Datatype Adult extends Driver"}}, cellsOf("Adult.md", text));
+    }
+
+    @Test
     void byteOrderMarkIsSkipped() {
         var text = BYTE_ORDER_MARK + "---\ntable: Data String values\n---\n| a |\n|---|\n";
 
@@ -223,7 +230,6 @@ class MarkdownReaderTest {
     // {h} opens the front matter of a table X, {/h} closes it, and \n is a line break.
     @ParameterizedTest(name = "{0}")
     @CsvSource(delimiter = ';', quoteCharacter = '"', textBlock = """
-            header without body; {h}{/h}\\nText; 1; must be followed by a table or a code block
             not closed;          {h}| a |\\n|---|\\n; 1; not closed
             nested value;   {h}state: {a: b}\\n{/h}| a |\\n|---|\\n; 3; text or a list
             complex key;    {h}[a]: b\\n{/h}| a |\\n|---|\\n; 3; single word

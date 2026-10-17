@@ -309,6 +309,38 @@ class MarkdownTableWriterTest {
     }
 
     @Test
+    void tableWithAHeaderAloneIsItsFrontMatter() {
+        var headerAlone = new SheetCells(new String[][]{{"Datatype Adult extends Driver"}}, List.of());
+        var written = """
+                ---
+                table: Datatype Adult extends Driver
+                ---
+                """;
+
+        assertEquals(written, MarkdownTableWriter.newFile(SheetLayout.tableOf(headerAlone)));
+        // A body written into the file follows the front matter, and a body taken away leaves it alone
+        var withBody = new SheetCells(new String[][]{{"Datatype Adult extends Driver"}, {"Integer", "age"}}, List.of());
+        assertEquals(written + "\n| Integer | age |\n|---|---|\n", write(written, withBody));
+        assertEquals(written + "\nNotes.\n", write(written + "\nNotes.\n", headerAlone));
+        assertEquals("""
+                ---
+                table: Datatype Adult extends Driver
+                ---
+
+                Notes.
+                """, write("""
+                ---
+                table: Datatype Adult extends Driver
+                ---
+
+                | Integer | age |
+                |---|---|
+
+                Notes.
+                """, headerAlone).replace("\n\n\n", "\n\n"));
+    }
+
+    @Test
     void newFileWritesTheCodeOfAMethodInACodeBlock() {
         assertEquals(HELLO, MarkdownTableWriter.newFile(parse(HELLO).table()));
     }
@@ -325,8 +357,6 @@ class MarkdownTableWriterTest {
                 merge(greeting, new CellRangeAddress(1, 2, 2, 2)));
         assertRefused(GREETING, "The cell A5 has a value, but the merged range A4:A5 covers it",
                 merge(greeting, new CellRangeAddress(3, 4, 0, 0)));
-        assertRefused(GREETING, "The table must have a row under its header",
-                new SheetCells(new String[][]{{"Data String values"}}, List.of()));
         assertRefused(GREETING, "The property 'merges' cannot be written: the name is taken",
                 set(greeting, 1, 1, "merges"));
         assertRefused(GREETING, "The property in row 2 must have a name in a cell of its own",

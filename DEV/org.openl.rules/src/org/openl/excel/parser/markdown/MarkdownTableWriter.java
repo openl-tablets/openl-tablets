@@ -71,14 +71,7 @@ final class MarkdownTableWriter {
             text.add(rendered(MERGES, RulesTable.mergesText(table.merges())));
         }
         text.add(DELIMITER);
-        text.add("");
-        var body = table.body();
-        if (table.header().startsWith(METHOD) && body.size() == 1 && body.getFirst().size() == 1
-                && table.merges().isEmpty()) {
-            text.addAll(codeBlock(NEW_CODE, body.getFirst().getFirst()));
-        } else {
-            text.addAll(gfmTable(null, table));
-        }
+        text.addAll(newBody(table));
         // The file ends with a line break, as a text file does
         text.add("");
         return String.join("\n", text);
@@ -186,12 +179,38 @@ final class MarkdownTableWriter {
         if (file.table().body().equals(table.body())) {
             return file.lines().subList(source.firstLine(), source.lastLine() + 1);
         }
+        if (table.body().isEmpty()) {
+            return List.of();
+        }
+        if (source instanceof TableFile.NoBody) {
+            return newBody(table);
+        }
         var body = table.body();
         if (source instanceof TableFile.CodeBody code && body.size() == 1 && body.getFirst().size() == 1
                 && table.merges().isEmpty()) {
             return codeBlock(code, body.getFirst().getFirst());
         }
         return gfmTable(file, table);
+    }
+
+    /**
+     * Returns the lines of the body of a new file after its front matter: none for a table with a header alone, a code
+     * block for the code of a Method table, and a GFM table otherwise, each after a blank line.
+     */
+    private static List<String> newBody(RulesTable table) {
+        var body = table.body();
+        if (body.isEmpty()) {
+            return List.of();
+        }
+        var text = new ArrayList<String>();
+        text.add("");
+        if (table.header().startsWith(METHOD) && body.size() == 1 && body.getFirst().size() == 1
+                && table.merges().isEmpty()) {
+            text.addAll(codeBlock(NEW_CODE, body.getFirst().getFirst()));
+        } else {
+            text.addAll(gfmTable(null, table));
+        }
+        return text;
     }
 
     private static List<String> codeBlock(TableFile.CodeBody code, @Nullable String value) {

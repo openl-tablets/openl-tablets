@@ -39,7 +39,8 @@ import org.openl.util.StringUtils;
  * {@code 2024-01-01} stays text, and a list is joined with commas.
  *
  * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
- * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}.
+ * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with
+ * neither holds a table of a header alone, such as a {@code Datatype} that adds no field to its parent.
  *
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
  * {@code \|} gives a vertical bar and {@code <br>} a line break.
@@ -109,11 +110,11 @@ final class MarkdownTableParser {
         while (node != null && !(node instanceof TableBlock) && !(node instanceof FencedCodeBlock)) {
             node = node.getNext();
         }
-        if (node == null) {
-            throw error(1, "The front matter must be followed by a table or a code block");
-        }
+        // A table with no table nor code block after its front matter has a header alone
         var table = readTable(header, node);
-        checkNotSplit(node);
+        if (node != null) {
+            checkNotSplit(node);
+        }
         var separator = LINE_SEPARATOR.matcher(text);
         return Optional.of(new TableFile(text,
                 lines,
@@ -121,7 +122,7 @@ final class MarkdownTableParser {
                 table,
                 end,
                 keysOf(header, table),
-                bodyOf(node),
+                node == null ? new TableFile.NoBody(end + 1) : bodyOf(node),
                 List.copyOf(problems)));
     }
 
@@ -225,10 +226,13 @@ final class MarkdownTableParser {
 
     // Body
 
-    private RulesTable readTable(Header header, Node body) {
-        var rows = body instanceof TableBlock table
-                ? readRows(table, header)
-                : List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body).getLiteral())));
+    private RulesTable readTable(Header header, @Nullable Node body) {
+        var rows = switch (body) {
+            case null -> List.<List<@Nullable String>>of();
+            case TableBlock table -> readRows(table, header);
+            default -> List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body)
+                    .getLiteral())));
+        };
         var written = new RulesTable(header.text(), header.properties(), rows, header.merges());
         return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(written, header));
     }

@@ -57,6 +57,8 @@ class MarkdownModuleWriterTest {
             row(model, 6, "Age", "Licensed");
             row(model, 7, 30.0, date(2010, 5, 1));
             row(model, 8, 40.0, 40299.0);
+            // A Datatype that adds no field to its parent is its header alone
+            row(model, 10, "Datatype Adult extends Driver");
             var constants = rules.createSheet("Rules");
             row(constants, 0, "Constants");
             row(constants, 1, "Integer", "MAX_AGE", 120.0);
@@ -66,7 +68,7 @@ class MarkdownModuleWriterTest {
         var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
 
         assertEquals(List.of(), written.leftOut());
-        assertEquals(List.of("Rates/rate.md", "Model/Driver.md", "Model/drivers.md", "Constants.md"),
+        assertEquals(List.of("Rates/rate.md", "Model/Driver.md", "Model/drivers.md", "Model/Adult.md", "Constants.md"),
                 written.files().stream().map(file -> module.relativize(file).toString().replace('\\', '/')).toList());
         assertEquals("""
                 ---
@@ -81,6 +83,8 @@ class MarkdownModuleWriterTest {
                 |  | AK | 0.2 |
                 | 18-120 | AL | 0.3 |
                 """, Files.readString(module.resolve("Rates/rate.md")));
+        assertEquals("---\ntable: Datatype Adult extends Driver\n---\n",
+                Files.readString(module.resolve("Model/Adult.md")));
         var factory = new RulesEngineFactory<>(module.toString());
         var compiled = factory.getCompiledOpenClass();
         assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
@@ -179,12 +183,16 @@ class MarkdownModuleWriterTest {
             row(totals, 12, "_res_");
             row(totals, 13, "Result");
             row(totals, 14, 1.0);
+            // A part the compiler cannot read
+            row(totals, 16, "TablePart Shares row one of 2");
+            row(totals, 17, "Data Integer shares");
         });
         var module = dir.resolve("md/Sums");
 
         var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
 
-        assertEquals(List.of("Totals/total.md", "Totals/total1.md", "Totals/totalTest.md", "Totals/missingCases.md"),
+        assertEquals(List.of("Totals/total.md", "Totals/total1.md", "Totals/totalTest.md", "Totals/missingCases.md",
+                "Totals/Shares.md"),
                 written.files().stream().map(file -> module.relativize(file).toString().replace('\\', '/')).toList());
         var messages = new RulesEngineFactory<>(module.toString()).getCompiledOpenClass().getAllMessages();
         var duplicates = messages.stream()

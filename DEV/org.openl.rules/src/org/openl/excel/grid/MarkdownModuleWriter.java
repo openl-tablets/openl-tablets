@@ -23,6 +23,7 @@ import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.excel.parser.markdown.MarkdownWriteException;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -49,8 +50,9 @@ import org.openl.util.StringUtils;
  * no formula: a cell keeps the value its formula computed. A number the compiler read as a date is written as the
  * date, and a file the Environment table includes is named from the folder the table is written in.
  *
- * <p>A table of no kind OpenL knows, such as a note, is no rule: one no table file can hold is written as text, a line
- * for each row, in the {@code notes.md} documentation of its sheet.
+ * <p>A table of no kind OpenL knows, such as a note, is no rule: it is written as text, a line for each row, in the
+ * {@code notes.md} documentation of its sheet. A table whose header names a kind OpenL knows is a table, even when it
+ * could not be read.
  *
  * <p>Any other table a file cannot hold is left out, and the result tells why: a TBasic or a ColumnMatch table, built
  * by the indent of its cells; a table written in parts; a second table set up for the whole module; a table whose
@@ -89,18 +91,20 @@ public final class MarkdownModuleWriter {
         Files.createDirectories(folder);
         var files = new ArrayList<Path>();
         var leftOut = new ArrayList<LeftOut>();
-        // The text of the tables of no kind OpenL knows that no table file can hold, by the sheet they stand on
+        // The text of the tables of no kind OpenL knows, by the sheet they stand on
         var notes = new LinkedHashMap<String, StringBuilder>();
         for (var table : workbook.getTableSyntaxNodes()) {
+            // A table of a kind OpenL knows that could not be read is a table still, its error kept
+            if (table.getNodeType() == XlsNodeTypes.XLS_OTHER && !XlsHelper.isKnownTableHeader(headerOf(table))) {
+                notes.computeIfAbsent(sheetOf(table), sheet -> new StringBuilder()).append(textOf(table));
+                continue;
+            }
             var reason = reasonToLeaveOut(table, folder);
             if (reason.isEmpty()) {
                 var file = fileFor(table, folder);
                 reason = write(table, file);
                 if (reason.isEmpty()) {
                     files.add(file);
-                } else if (table.getNodeType() == XlsNodeTypes.XLS_OTHER) {
-                    notes.computeIfAbsent(sheetOf(table), sheet -> new StringBuilder()).append(textOf(table));
-                    reason = Optional.empty();
                 }
             }
             reason.ifPresent(why -> leftOut.add(new LeftOut(table.getUri(), headerOf(table), why)));
@@ -320,7 +324,8 @@ public final class MarkdownModuleWriter {
 
     /**
      * The name of a table, as its header gives it: the name of the rule, of the type or of the data. A test with no
-     * name of its own is named after the rule it tests and its kind: {@code rateTest}, {@code rateRun}.
+     * name of its own is named after the rule it tests and its kind: {@code rateTest}, {@code rateRun}. A part of a
+     * table the compiler could not read is named as the table.
      * <p>
      * A table the compiler rejects, such as a second rule of the same signature, is named the same way, so that its
      * file gets a number after the file of the table it repeats.
@@ -333,6 +338,7 @@ public final class MarkdownModuleWriter {
             case XLS_TEST_METHOD, XLS_RUN_METHOD -> words.length > 2
                     ? words[2]
                     : String.join("", List.of(words).reversed());
+            case XLS_OTHER -> words.length > 1 ? words[1] : "";
             default -> TableSyntaxNodeUtils.str2name(header, table.getNodeType());
         };
         var fileName = NOT_IN_A_NAME.matcher(name).replaceAll("_");

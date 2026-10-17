@@ -22,7 +22,8 @@ policy.
 - The properties take three columns of the table, as in a workbook. A body narrower than that has the last cell of each
   of its rows merged over the columns it lacks; a body that keeps these columns apart writes them as empty columns.
 - The first table after the front matter is the body of the table: every row of it, its first row included, is a
-  row of the rules table.
+  row of the rules table. A table with no body, such as a `Datatype` that adds no field to its parent, is its front
+  matter alone.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
 - Everything else in a file is documentation. A file without front matter is documentation as a whole.
