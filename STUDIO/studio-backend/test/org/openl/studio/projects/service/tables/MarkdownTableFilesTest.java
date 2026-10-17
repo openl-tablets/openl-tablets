@@ -95,6 +95,9 @@ class MarkdownTableFilesTest {
                 MarkdownTableFiles.firstFileOf("rules/Rating", "rates", "Premium", TableKind.RULES));
         assertEquals("rules/Rating/Constants.md",
                 MarkdownTableFiles.firstFileOf("rules/Rating", "rates", "Rates", TableKind.CONSTANTS));
+        // The folder of a sheet holds no character a name of OpenL Studio refuses
+        assertEquals("rules/Rating/rates_ 50_/Premium.md",
+                MarkdownTableFiles.firstFileOf("rules/Rating", " rates; 50%.", "Premium", TableKind.RULES));
         var error = assertThrows(BadRequestException.class,
                 () -> MarkdownTableFiles.firstFileOf("rules/Rating", "rates/young", "Premium", null));
         assertEquals("openl.error.400.table.sheet-name.invalid.message", error.getErrorCode());
