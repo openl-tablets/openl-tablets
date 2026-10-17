@@ -172,7 +172,7 @@ final class XlsSheetMerger {
      * Plans the cell by cell merge of a sheet whose content neither revision moved.
      *
      * @return the cells and the merged cells the merged sheet takes from THEIR revision, or nothing if the changes
-     * conflict or a revision moved the content
+     * conflict, a revision moved the content, or both revisions created one table at different places
      */
     private static Optional<XlsTableMerger.Content> planCells(Cursor base, Cursor our, Cursor their, int lastRow) {
         var baseRegions = new HashSet<>(base.getMergedRegions());
@@ -183,8 +183,10 @@ final class XlsSheetMerger {
             return Optional.empty();
         }
         var cells = new TreeMap<CellAddress, Set<CellPart>>();
+        // the sheet is split into tables last: a sheet that fails before is merged table by table anyway
         if (!collectCells(base, our, their, lastRow, cells) || hidesValue(base, our, their, mergedRegions,
-                added(mergedRegions == Choice.THEIR ? theirRegions : ourRegions, baseRegions), cells)) {
+                added(mergedRegions == Choice.THEIR ? theirRegions : ourRegions, baseRegions), cells)
+                || XlsTableMerger.createdAlikeElsewhere(base, our, their)) {
             return Optional.empty();
         }
         var sources = new LinkedHashMap<CellAddress, CellSource>();
