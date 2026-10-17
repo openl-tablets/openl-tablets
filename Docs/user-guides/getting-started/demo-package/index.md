@@ -27,10 +27,10 @@ Once downloaded, **unzip the package** into a folder on your computer.
 The unzipped folder contains everything you need to run the OpenL Tablets Demo:
 
 * **Startup Files**: The scripts you will use to launch the application.
-    * `start.cmd` for Windows
+    * `start.cmd` for Windows, which runs the `start.ps1` PowerShell script
     * `start` for MacOS and Linux
 * **Settings Files**: Default configurations for the Demo applications. You generally won't need to change these.
-* **Application Folder (`webapps/`)**: This folder holds the core files that make the application run. It is best not to modify its contents.
+* **Application Folder (`webapps/`)**: This folder holds the welcome page of the Demo, and the first launch adds the applications to it. It is best not to modify its contents.
 * **Version File (`openl.version`)**: A text file that shows the version number of the Demo.
 
 ---
@@ -41,10 +41,10 @@ The first time you run the startup script, it will automatically download and co
 
 The script will create several new folders inside your Demo directory and download the following assets:
 
-* `jre/` → The specific **Java Runtime Environment (JRE)** required by the application.
+* `jre/` → The **Java Runtime Environment (JRE)** required by the application, when no suitable Java is installed on the computer.
 * `jetty-home/` → The **Jetty Web Server**, a lightweight server that hosts the OpenL web applications.
-* `webapps/` → The **OpenL Studio** and **Rule Services** applications themselves.
-* `jetty-home/lib/ext/` → **JDBC drivers** to enable connectivity with popular databases like MSSQL Server, Oracle, MariaDB, and PostgreSQL.
+* `webapps/webstudio.war` and `webapps/webservice.war` → The **OpenL Studio** and **Rule Services** applications themselves.
+* `jetty-home/lib/ext/` → **JDBC drivers** to enable connectivity with MS SQL Server, Oracle, and PostgreSQL.
 
 ---
 
@@ -174,7 +174,7 @@ Users can work with projects loaded in Repository in the Demo package and create
 
 The “Example 3 – Auto Policy Calculation” project is already deployed and can be used in two ways: directly via OpenL Tablets Rule Services, as described in [OpenL Tablets Rule Services in a Demo Project](#openl-rule-services-in-a-demo-project), or through the Rule Services Demo Client, as described in [OpenL Tablets Rule Services Demo Client in a Demo Package](#openl-rule-services-demo-client-in-a-demo-package).
 
-OpenL Studio is pre-configured in single-user mode, so all projects in the Repository are created and modified by the “openl” user.
+OpenL Studio is pre-configured in single-user mode, so all projects in the Repository are created and modified by the single user, who is named after the account of the operating system that runs the Demo.
 
 ![The whole list of rules projects in Repository of the Demo package](demo_studio_projects.png)
 
@@ -182,7 +182,7 @@ OpenL Studio is pre-configured in single-user mode, so all projects in the Repos
 
 ### OpenL Rule Services in a Demo Project
 
-By default, a project from the “Example 3 – Auto Policy Calculation” template is deployed to Deployment Repository from OpenL Studio by a startup script.
+By default, a project from the “Example 3 – Auto Policy Calculation” template is deployed to Deployment Repository by OpenL Studio on the first launch.
 
 The [OpenL Tablets Rule Services Demo Client](#openl-rule-services-demo-client-in-a-demo-package) demonstrates three methods of this project — `DriverRisk`, `DriverAgeType`, and `AccidentPremium` — which are wired into the client page.
 

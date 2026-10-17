@@ -130,21 +130,21 @@ Data that a cluster shares, written under `openl.home.shared` instead:
 
 Described in [Managing System Settings][system].
 
-| Section                | Field                                       | Property                     |
-|------------------------|---------------------------------------------|------------------------------|
-| Core                   | Dispatching Validation                      | `dispatching.validation`     |
-| Core                   | Verify on Edit                              | `compile.auto`               |
-| Testing                | Thread Number for Tests                     | `test.run.thread.count`      |
-| Projects               | Maximum count of saved changes per user     | `project.history.count`         |
-| Projects               | Detect projects by Excel files              | `project.detect-by-excel-files` |
-| Other                  | Format tables on save                       | `table.format-on-save`       |
-| Other                  | Update table properties                     | `update.system.properties`   |
-| Other                  | Date Format                                 | `data.format.date`           |
-| Other                  | Time Format                                 | `data.format.time`           |
-| Database Configuration | Database URL                                | `db.url`                     |
-| Database Configuration | Login                                       | `db.user`                    |
-| Database Configuration | Password                                    | `db.password`                |
-| Database Configuration | Maximum Pool Size                           | `db.maximumPoolSize`         |
+| Section                | Field                                                        | Property                        |
+|------------------------|--------------------------------------------------------------|---------------------------------|
+| Core                   | Dispatching Validation                                       | `dispatching.validation`        |
+| Core                   | Verify on Edit                                               | `compile.auto`                  |
+| Testing                | Thread Number for Tests                                      | `test.run.thread.count`         |
+| Projects               | The maximum count of saved changes for each project per user | `project.history.count`         |
+| Projects               | Detect projects by Excel files                               | `project.detect-by-excel-files` |
+| Other                  | Format tables on save                                        | `table.format-on-save`          |
+| Other                  | Update table properties                                      | `update.system.properties`      |
+| Other                  | Date Format                                                  | `data.format.date`              |
+| Other                  | Time Format                                                  | `data.format.time`              |
+| Database Configuration | Database URL                                                 | `db.url`                        |
+| Database Configuration | Login                                                        | `db.user`                       |
+| Database Configuration | Password                                                     | `db.password`                   |
+| Database Configuration | Maximum Pool Size                                            | `db.maximumPoolSize`            |
 
 The following related properties have no field in the UI:
 
@@ -196,28 +196,28 @@ Applies to all modes except `single`. See [Configuring Initial Users][initial-us
 
 See [Configuring Active Directory / LDAP Mode][ldap].
 
-| Field        | Property                     |
-|--------------|------------------------------|
-| Domain       | `security.ad.domain`         |
-| Server URL   | `security.ad.server-url`     |
-| User Filter  | `security.ad.search-filter`  |
-| Group Filter | `security.ad.group-filter`   |
+| Field                   | Property                    |
+|-------------------------|-----------------------------|
+| Active Directory Domain | `security.ad.domain`        |
+| Active Directory URL    | `security.ad.server-url`    |
+| User Filter             | `security.ad.search-filter` |
+| Group Filter            | `security.ad.group-filter`  |
 
 #### SSO: SAML
 
 See [Configuring SSO: SAML Mode][saml].
 
-| Field                      | Property                                  |
-|----------------------------|-------------------------------------------|
-| Entity ID                  | `security.saml.entity-id`                 |
-| Server Metadata URL        | `security.saml.saml-server-metadata-url`  |
-| Remote Server Certificate  | `security.saml.server-certificate`        |
-| Attribute for Username     | `security.saml.attribute.username`        |
-| Attribute for First Name   | `security.saml.attribute.first-name`      |
-| Attribute for Last Name    | `security.saml.attribute.last-name`       |
-| Attribute for Display Name | `security.saml.attribute.display-name`    |
-| Attribute for Email        | `security.saml.attribute.email`           |
-| Attribute for Groups       | `security.saml.attribute.groups`          |
+| Field                               | Property                                 |
+|-------------------------------------|------------------------------------------|
+| Entity ID                           | `security.saml.entity-id`                |
+| SAML Server Metadata URL            | `security.saml.saml-server-metadata-url` |
+| SAML Remote Server X509 Certificate | `security.saml.server-certificate`       |
+| Attribute for Username              | `security.saml.attribute.username`       |
+| Attribute for First Name            | `security.saml.attribute.first-name`     |
+| Attribute for Last Name             | `security.saml.attribute.last-name`      |
+| Attribute for Display Name          | `security.saml.attribute.display-name`   |
+| Attribute for Email                 | `security.saml.attribute.email`          |
+| Attribute for Groups                | `security.saml.attribute.groups`         |
 
 The `security.saml.forceAuthN` property additionally controls whether the identity provider must force a user to
 reauthenticate. All SAML attribute names are case-sensitive.
@@ -264,6 +264,10 @@ The **Type** field is set by `repository.<id>.$ref`, which points at the block o
 | Database JNDI        | `repo-jndi`                  |
 | AWS S3               | `repo-aws-s3`                |
 | Azure Blob Storage   | `repo-azure-blob`            |
+| Local                | `repo-file`                  |
+
+The **Local** type keeps the deployments in a folder of the file system and is offered for deployment repositories
+only.
 
 A `$ref` sets up inheritance: any `repository.<id>.<suffix>` left undefined falls back to `<ref>.<suffix>`. Defining
 `repository.design.$ref = repo-git` and then only `repository.design.uri` is enough — the remaining Git settings come
@@ -323,16 +327,16 @@ driver-specific parameter such as `sslmode` for PostgreSQL, in the driver, or in
 
 #### AWS S3
 
-| Field                  | Property suffix          |
-|------------------------|--------------------------|
-| Service endpoint       | `.service-endpoint`      |
-| Bucket name            | `.bucket-name`           |
-| Region name            | `.region-name`           |
-| Access key             | `.access-key`            |
-| Secret key             | `.secret-key`            |
-| Listener period        | `.listener-timer-period` |
-| SSE algorithm          | `.sse-algorithm`         |
-| KMS key ID             | `.sse-kms-key-id`        |
+| Field                       | Property suffix          |
+|-----------------------------|--------------------------|
+| Service endpoint            | `.service-endpoint`      |
+| Bucket name                 | `.bucket-name`           |
+| Region name                 | `.region-name`           |
+| Access key                  | `.access-key`            |
+| Secret key                  | `.secret-key`            |
+| Listener timer period (sec) | `.listener-timer-period` |
+| SSE algorithm               | `.sse-algorithm`         |
+| KMS key ID                  | `.sse-kms-key-id`        |
 
 ##### Server-Side Encryption
 

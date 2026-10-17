@@ -8,12 +8,12 @@ videos are downloaded).
 
 ---
 
-## OpenL Studio 6.0.0 Simplified Access Control
+## OpenL Studio Simplified Access Control
 
-This videocast covers the completely redesigned access control system in OpenL Studio 6.0.0 — a simplified three-role
-model, five core actions, and a modernized interface for managing users and groups.
+This videocast covers the access control system of OpenL Studio — a simplified three-role model, five core actions, and
+the interface for managing users and groups.
 
-<p><iframe width="420" height="315" src="https://www.youtube.com/embed/YVwvwU9FIzo" title="OpenL Studio 6.0.0 Simplified Access Control" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
+<p><iframe width="420" height="315" src="https://www.youtube.com/embed/YVwvwU9FIzo" title="OpenL Studio Simplified Access Control" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
 
 [Watch on YouTube](https://youtu.be/YVwvwU9FIzo)
 
@@ -27,19 +27,6 @@ useful for OpenL users to know about.
 <p><iframe width="420" height="315" src="https://www.youtube.com/embed/EhIzOBIZ4N8" title="OpenL 2022 2024 Sprints Overview" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></p>
 
 [Watch on YouTube](https://youtu.be/EhIzOBIZ4N8)
-
----
-
-## Overview of OpenL Tablets self-service infrastructure
-
-This videocast introduces the OpenL Studio application (version 5.11) and shows how an analyst can modify a rules
-project. The example used is an insurance rating plan. The videocast also introduces the Rules Repository, which stores
-rules projects, and demonstrates how to edit project rules using either the OpenL Studio Rules Editor or Microsoft
-Excel.
-
-<p><iframe src="https://www.youtube.com/embed/mZbPc-v_XpM" frameborder="0" width="420" height="315" allowfullscreen></iframe></p>
-
-[Watch on YouTube](https://youtu.be/mZbPc-v_XpM)
 
 ---
 
