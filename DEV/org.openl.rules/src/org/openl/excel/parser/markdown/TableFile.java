@@ -38,7 +38,7 @@ record TableFile(String text,
     /**
      * Where the body of the table stands.
      */
-    sealed interface Body permits GfmBody, CodeBody {
+    sealed interface Body permits GfmBody, CodeBody, NoBody {
 
         /** Returns the first line of the body. */
         int firstLine();
@@ -63,6 +63,20 @@ record TableFile(String text,
         @Override
         public int lastLine() {
             return Math.max(rowLines.getLast(), delimiterLine);
+        }
+    }
+
+    /**
+     * No body: a table with a header alone, such as a Datatype that adds no field to its parent. A body written into
+     * the file starts right after the front matter.
+     *
+     * @param firstLine the line after the front matter
+     */
+    record NoBody(int firstLine) implements Body {
+
+        @Override
+        public int lastLine() {
+            return firstLine - 1;
         }
     }
 

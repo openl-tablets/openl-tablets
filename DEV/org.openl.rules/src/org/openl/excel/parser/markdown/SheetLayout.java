@@ -63,7 +63,8 @@ final class SheetLayout {
      */
     static SheetCells cellsOf(RulesTable table) {
         var properties = table.properties();
-        var width = properties.isEmpty() ? table.width() : Math.max(table.width(), PROPERTIES_WIDTH);
+        // A table with a header alone is a column wide
+        var width = Math.max(table.width(), properties.isEmpty() ? 1 : PROPERTIES_WIDTH);
         var bodyTop = bodyTop(properties);
         var values = new @Nullable String[bodyTop + table.body().size()][width];
         var merges = new ArrayList<CellRangeAddress>();
@@ -132,10 +133,7 @@ final class SheetLayout {
         var bodyTop = bodyTop(properties);
         checkAboveBody(sheet, bodyTop, headerMerge);
 
-        var height = extent(sheet, true);
-        if (height <= bodyTop) {
-            throw refuse("The table must have a row under its header");
-        }
+        var height = Math.max(extent(sheet, true), bodyTop);
         var width = extent(sheet, false);
         if (!properties.isEmpty() && width < PROPERTIES_WIDTH) {
             // A workbook does not read such properties; a file would give each an empty value
