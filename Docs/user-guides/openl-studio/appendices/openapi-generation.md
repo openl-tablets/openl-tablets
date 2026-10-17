@@ -119,7 +119,7 @@ An OpenL Tablets project can be generated from any OpenAPI file. It is also poss
 
 -   project with enabled RuntimeContext
 
-    If any path in the OpenAPI document has an input parameter with a link to DefaultRulesRuntimeContext as \#/components/schemas/DefaultRulesRuntimeContext, the generated project will contain the corresponding setting and RuntimeContext will be enabled.
+    If any path in the OpenAPI document has an input parameter with a link to DefaultRulesRuntimeContext as \#/components/schemas/DefaultRulesRuntimeContext, the generated project will contain the corresponding setting and RuntimeContext will be enabled. Otherwise, the generated `rules-deploy.xml` has no `isProvideRuntimeContext` setting, so the file is already in its current form and the **Deploy Configuration** tab does not offer **Migrate**.
 
     ![](../images/openapi-gen-runtime-context-option.png)
 
