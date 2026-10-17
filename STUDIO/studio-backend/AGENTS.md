@@ -323,6 +323,10 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   reports the lines it draws itself (`TableViewer.setGrid`); the screen draws each shared line once, the wider one
   winning (`collapsedBorders` of `studio-ui`). The comparison sends each side with its own dictionary
   (`RawTableCells`, `ComparisonSideView.styles`).
+- **A Markdown table is read in the style, never written in it.** A Markdown file keeps no formatting, so a read with
+  the styles draws a table of a Markdown module through `StyledGrid`: each cell takes the look of its role, the lines
+  of `Edges.of` and the header pieces of `TableStyle.Piece` — the rules `ExcelTableFormatter` writes by, shared so the
+  two never part — in the Office colours (`ThemedColor.toOfficeRgb`). Nothing reaches the file.
 
 ## Regenerating OpenAPI Goldens
 

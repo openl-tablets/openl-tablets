@@ -2,6 +2,8 @@ package org.openl.studio.projects.service.tables.format;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -47,6 +49,61 @@ class DataLayoutTest {
         // The second case begins in the fourth column of the table, after the titles and the two columns of the first.
         assertEquals(List.of(), groups.rows());
         assertEquals(List.of(4), groups.columns());
+    }
+
+    @Test
+    void setsApartTheRowsOfADataTableOfAMarkdownFileAsOfAWorkbook(@TempDir Path project) throws IOException {
+        Files.writeString(project.resolve("rules.xml"), """
+                <project>
+                    <name>Policies</name>
+                    <modules>
+                        <module>
+                            <name>Policies</name>
+                            <rules-root path="rules/Policies"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var folder = Files.createDirectories(project.resolve("rules/Policies"));
+        Files.writeString(folder.resolve("Vehicle.md"), """
+                ---
+                table: Datatype Vehicle
+                ---
+
+                | String | name |
+                |--------|------|
+                """);
+        Files.writeString(folder.resolve("Policy.md"), """
+                ---
+                table: Datatype Policy
+                ---
+
+                | String    | name     |
+                |-----------|----------|
+                | Vehicle[] | vehicles |
+                """);
+        // The first policy holds two vehicles, one per row, its name merged over them.
+        Files.writeString(folder.resolve("policies.md"), """
+                ---
+                table: Data Policy policies
+                merges:
+                  - A3:A4
+                ---
+
+                | name   | vehicles.name |
+                |--------|---------------|
+                | Policy | Vehicle       |
+                | P1     | A             |
+                |        | B             |
+                | P2     | C             |
+                """);
+
+        var policies = TableTestProjects.table(TableTestProjects.projectModel(project), "policies");
+        var groups = Roles.of(policies).regions().groups();
+
+        // As in the workbook: the second policy begins five rows below the header.
+        assertEquals(List.of(5), groups.rows());
+        assertEquals(List.of(), groups.columns());
     }
 
     private static void fillSheet(Sheet sheet) {

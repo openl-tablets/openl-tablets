@@ -7,6 +7,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -34,6 +35,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STPatternType;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STVerticalAlignment;
 
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
+import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTextMarkColor;
 import org.openl.studio.projects.service.tables.format.TableStyle.Line;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -457,6 +459,48 @@ final class WorkbookStyles {
      * @param left   the line on the left of the cell, or {@code null} for none
      */
     record Edges(@Nullable Line top, @Nullable Line bottom, @Nullable Line left) {
+
+        /**
+         * The lines at the edges of a cell of a region: the lines of its role, the line above a group, and the line
+         * closing the table. No line is drawn on the left: a cell starting a group of columns takes
+         * {@link #grouped(TableStyle)}.
+         *
+         * @param style  the style of the role of the region
+         * @param region the region
+         * @param row    the row of the cell, in table coordinates
+         * @param groups the rows starting a group, in table coordinates
+         * @param bottom the last row of the table, in table coordinates
+         * @return the lines
+         */
+        static Edges of(TableStyle style, RawTableRegion region, int row, Set<Integer> groups, int bottom) {
+            return new Edges(topOf(style, region, row, groups), bottomOf(style, region, row, bottom), null);
+        }
+
+        /**
+         * The same lines for a cell of a column starting a group: a line on its left. The line starts at the titles:
+         * it does not cross the signature, the properties or the code.
+         *
+         * @param style the style of the role of the region of the cell
+         * @return the lines
+         */
+        Edges grouped(TableStyle style) {
+            return style.isHeaderPart() ? this : new Edges(top, bottom, Line.GROUP);
+        }
+
+        /** The line above a cell of a region: the line of its role on its first row, or the line above a group. */
+        private static @Nullable Line topOf(TableStyle style, RawTableRegion region, int row, Set<Integer> groups) {
+            var above = row == region.top() ? style.getLook().top() : null;
+            return above == null && groups.contains(row) ? Line.GROUP : above;
+        }
+
+        /**
+         * The line below a cell of a region: the line below its role at the bottom of the region, or the line closing
+         * the table.
+         */
+        private static @Nullable Line bottomOf(TableStyle style, RawTableRegion region, int row, int bottom) {
+            var below = row == region.bottom() ? style.getLook().bottom() : null;
+            return below == null && row == bottom ? Line.ROLE : below;
+        }
     }
 
     /**

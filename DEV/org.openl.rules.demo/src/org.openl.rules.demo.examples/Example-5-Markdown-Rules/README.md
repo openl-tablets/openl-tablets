@@ -28,7 +28,9 @@ policy.
 - Everything else in a file is documentation. A file without front matter is documentation as a whole.
 
 In OpenL Studio the tables of a Markdown module are shown, run, tested, traced and edited as any others, all but their
-look: a Markdown file keeps no formatting. A file is also edited as text, on the **Files** tab of the project.
+look: a Markdown file keeps no formatting. With **Excel Formatting** on, a table is drawn in the OpenL table style, as
+a table of a workbook formatted on save; the style is never written into the file. A file is also edited as text, on
+the **Files** tab of the project.
 
 ## Format errors
 

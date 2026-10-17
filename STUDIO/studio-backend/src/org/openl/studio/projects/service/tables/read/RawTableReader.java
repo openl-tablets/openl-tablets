@@ -48,7 +48,9 @@ import org.openl.studio.projects.model.tables.RawTableUsageKind;
 import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.model.tables.RawTableVerticalAlign;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.service.tables.MarkdownTables;
 import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.studio.projects.service.tables.format.StyledGrid;
 import org.openl.studio.projects.service.tables.format.TableRegionLayout;
 import org.openl.studio.projects.service.tables.format.TableRegions;
 import org.openl.util.StringUtils;
@@ -107,6 +109,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
      * A read with the styles names each style its cells use once, and reports the roles of the cells of the whole
      * table, its groups and the pieces of its header, which every window of its rows shares, laid out once for each
      * compilation of the table. A cell whose value is of another type than its region names its own type.
+     * <p>
+     * A Markdown file keeps no formatting, so a read with the styles reports a table of a Markdown module in the
+     * OpenL table style, as a table formatted on save is styled. The style is not written into the file.
      *
      * @param openLTable the table to read
      * @param read       the window of rows to read, and what to report besides the values of the cells
@@ -173,16 +178,17 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         builder.pos(openLTable.getUriParser().getRange());
         var metaInfoReader = metaInfoReaderOf(openLTable);
         var fullHeight = openLTable.getGridTable().getHeight();
+        var styled = read.withStyles() ? styledOf(openLTable) : null;
+        var drawn = drawnOf(openLTable, styled);
         // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
         // region, so rows outside the window are never materialised and cell addresses stay absolute.
         var window = read.cutMerges()
-                ? TableWindow.exact(openLTable.getGridTable(), read.startRow(), read.maxRows())
-                : TableWindow.of(openLTable.getGridTable(), read.startRow(), read.maxRows());
-        var gridTable = sliceFrom(openLTable.getGridTable(), window.startRow());
+                ? TableWindow.exact(drawn, read.startRow(), read.maxRows())
+                : TableWindow.of(drawn, read.startRow(), read.maxRows());
+        var gridTable = sliceFrom(drawn, window.startRow());
         var tableModel = gridTable == null ? null
                 : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
 
-        var styled = read.withStyles() ? styledOf(openLTable) : null;
         List<List<RawTableCell>> source = tableModel == null ? List.of()
                 : convertTableModelToMatrix(tableModel, metaInfoReader, read, styled);
         // The grid model keeps one extra row rather than hiding a single row; trim to exactly the window so
@@ -211,6 +217,20 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var regions = TableRegionLayout.regionsOf(openLTable);
         var region = openLTable.getGridTable().getRegion();
         return new Styled(regions == null ? null : new Layout(regions, region.getTop(), region.getLeft()));
+    }
+
+    /**
+     * The table as a read draws it. A read with the styles draws a table of a Markdown module, whose file keeps no
+     * formatting, in the OpenL table style, as if the table were formatted; any other table is drawn as its file
+     * formats it.
+     */
+    private static IGridTable drawnOf(IOpenLTable openLTable, @Nullable Styled styled) {
+        var table = openLTable.getGridTable();
+        return Optional.ofNullable(styled)
+                .map(read -> read.layout)
+                .filter(layout -> MarkdownTables.isMarkdown(openLTable))
+                .map(layout -> StyledGrid.of(table, layout.regions()))
+                .orElse(table);
     }
 
     /** What a read with the styles reports besides the values of the cells, gathered as the cells are read. */
