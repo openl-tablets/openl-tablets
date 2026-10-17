@@ -35,6 +35,7 @@ import org.apache.poi.ss.usermodel.FontScheme;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -216,6 +217,40 @@ class ExcelTableFormatterTest {
         }
     }
 
+    @Test
+    void mergesTheHeaderIntoOneCellAcrossTheTable() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet(SHEET);
+            row(sheet, 0, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            row(sheet, 3, 0, "Basic", "1", "2");
+            var table = new GridRegion(0, 0, 3, 2);
+
+            new ExcelTableFormatter().format(sheet, table, lookupRegions(List.of(
+                    new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 1, 1, 2, 2))));
+
+            assertEquals(List.of(new CellRangeAddress(0, 0, 0, 2)), sheet.getMergedRegions());
+        }
+    }
+
+    @Test
+    void widensAHeaderMergedOverAPartOfTheRowAndLeavesOneWithAValueBesideIt() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet(SHEET);
+            row(sheet, 0, 0, "SimpleLookup Double Fee(String plan, String term, String size)");
+            merge(sheet, 0, 0, 0, 1);
+            var table = new GridRegion(0, 0, 3, 2);
+            var regions = lookupRegions(List.of(new RawTableRegion(RawTableRole.OUTPUT_TITLE, null, 1, 1, 2, 2)));
+
+            new ExcelTableFormatter().format(sheet, table, regions);
+            assertEquals(List.of(new CellRangeAddress(0, 0, 0, 2)), sheet.getMergedRegions(), "The whole row");
+
+            var other = workbook.createSheet("Other");
+            row(other, 0, 0, "SimpleLookup Double Fee(String plan, String term, String size)", null, "note");
+            new ExcelTableFormatter().format(other, table, regions);
+            assertTrue(other.getMergedRegions().isEmpty(), "A value beside the header is kept");
+        }
+    }
+
     /** The regions of a lookup of two rows of horizontal values, which take the given titles. */
     private static TableRegions lookupRegions(List<RawTableRegion> titles) {
         var regions = new ArrayList<RawTableRegion>();
@@ -282,7 +317,8 @@ class ExcelTableFormatterTest {
         grid.edit();
         try {
             var lines = new ExcelTableFormatter.Lines(false, new TreeSet<>(Set.of(3)), new TreeSet<>(Set.of(2)));
-            new ExcelTableFormatter().format(((XlsSheetGridModel) grid.getGrid()).getSheetToWrite(), grid.getRegion(),
+            var model = (XlsSheetGridModel) grid.getGrid();
+            new ExcelTableFormatter().format(model.getSheetToWrite(), model, grid.getRegion(),
                     TableRegionLayout.compiledRegionsOf(table), lines);
             TableWriter.saveWorkbook((XlsSheetGridModel) grid.getGrid());
         } finally {

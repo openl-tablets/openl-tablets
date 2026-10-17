@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables.format;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -8,7 +9,9 @@ import java.util.NavigableSet;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
@@ -18,6 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
+import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -72,7 +76,8 @@ public final class ExcelTableFormatter {
      * @return whether the table was formatted: a table of an {@code .xls} workbook is not
      */
     public boolean format(IGridTable grid, TableRegions regions) {
-        return format(((XlsSheetGridModel) grid.getGrid()).getSheetToWrite(), grid.getRegion(), regions);
+        var model = (XlsSheetGridModel) grid.getGrid();
+        return format(model.getSheetToWrite(), model, grid.getRegion(), regions, Lines.WHOLE);
     }
 
     /**
@@ -85,16 +90,22 @@ public final class ExcelTableFormatter {
      * @return whether the table was formatted: a table of an {@code .xls} workbook is not
      */
     public boolean format(Sheet sheet, IGridRegion table, TableRegions regions) {
-        return format(sheet, table, regions, Lines.WHOLE);
+        return format(sheet, null, table, regions, Lines.WHOLE);
     }
 
-    /** Writes the style into the given lines of a table standing on a sheet. */
-    boolean format(Sheet sheet, IGridRegion table, TableRegions regions, Lines lines) {
+    /**
+     * Writes the style into the given lines of a table standing on a sheet.
+     *
+     * @param model the grid model the sheet is read through, which keeps the merged regions of the sheet, or
+     *              {@code null} for a sheet read through none
+     */
+    boolean format(Sheet sheet, @Nullable XlsSheetGridModel model, IGridRegion table, TableRegions regions,
+                   Lines lines) {
         if (!(sheet instanceof XSSFSheet xssf)) {
             return false;
         }
         var styles = workbooks.computeIfAbsent(xssf.getWorkbook(), WorkbookStyles::new);
-        new TableWrite(xssf, table, regions, styles, lines).write();
+        new TableWrite(xssf, model, table, regions, styles, lines).write();
         return true;
     }
 
@@ -130,8 +141,8 @@ public final class ExcelTableFormatter {
             var lines = formatted && !layout.bodyMoved()
                     ? new Lines(false, layout.touchedRows(), layout.touchedColumns())
                     : Lines.WHOLE;
-            var sheet = ((XlsSheetGridModel) grid.getGrid()).getSheetToWrite();
-            new ExcelTableFormatter().format(sheet, grid.getRegion(), regions, lines);
+            var model = (XlsSheetGridModel) grid.getGrid();
+            new ExcelTableFormatter().format(model.getSheetToWrite(), model, grid.getRegion(), regions, lines);
             return regions;
         } catch (RuntimeException e) {
             log.warn("The table at {} is saved unformatted.", grid.getUri(), e);
@@ -178,7 +189,8 @@ public final class ExcelTableFormatter {
      * @param styles  the style in the workbook
      * @param lines   the lines of the table to format
      */
-    private record TableWrite(XSSFSheet sheet, IGridRegion table, TableRegions regions, WorkbookStyles styles,
+    private record TableWrite(XSSFSheet sheet, @Nullable XlsSheetGridModel model, IGridRegion table,
+                              TableRegions regions, WorkbookStyles styles,
                               Lines lines) {
 
         void write() {
@@ -186,7 +198,75 @@ public final class ExcelTableFormatter {
                 writeCells();
             }
             // A value written into the header is plain text, which no line touched tells: it is written every time.
+            mergeSignature();
             writeSignature();
+        }
+
+        /**
+         * Merges the header into one cell across the table: the header is the whole first row of a table. A row whose
+         * other cells hold a value, or that a merged region reaches out of, is left as it is, so no value is lost and
+         * no other merge is cut; a merge of a part of the row is replaced by the whole row.
+         */
+        private void mergeSignature() {
+            var top = table.getTop();
+            var left = table.getLeft();
+            var right = table.getRight();
+            if (left == right || holdsValuesBesideHeader(top, left, right)) {
+                return;
+            }
+            var inRow = new ArrayList<CellRangeAddress>();
+            for (var merged : sheet.getMergedRegions()) {
+                if (merged.getFirstRow() <= top && top <= merged.getLastRow() && merged.getFirstColumn() <= right
+                        && left <= merged.getLastColumn()) {
+                    if (merged.getFirstRow() != top || merged.getLastRow() != top || merged.getFirstColumn() < left
+                            || merged.getLastColumn() > right) {
+                        return;
+                    }
+                    inRow.add(merged);
+                }
+            }
+            if (inRow.size() == 1 && inRow.getFirst().getFirstColumn() == left
+                    && inRow.getFirst().getLastColumn() == right) {
+                return;
+            }
+            var whole = new GridRegion(top, left, top, right);
+            if (model != null) {
+                // The grid model keeps the merged regions of the sheet: it is told of each change.
+                inRow.forEach(merged -> model.removeMergedRegion(merged.getFirstColumn(), merged.getFirstRow()));
+                model.addMergedRegion(whole);
+            } else {
+                for (var merged : inRow) {
+                    sheet.removeMergedRegion(indexOf(merged));
+                }
+                sheet.addMergedRegion(new CellRangeAddress(top, top, left, right));
+            }
+        }
+
+        /** Whether a cell of the header row after its first one holds a value. */
+        private boolean holdsValuesBesideHeader(int top, int left, int right) {
+            var row = sheet.getRow(top);
+            if (row == null) {
+                return false;
+            }
+            for (var column = left + 1; column <= right; column++) {
+                var cell = row.getCell(column);
+                if (cell != null && cell.getCellType() != CellType.BLANK
+                        && !(cell.getCellType() == CellType.STRING && cell.getStringCellValue().isBlank())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /** The index of a merged region of the sheet. */
+        private int indexOf(CellRangeAddress merged) {
+            var all = sheet.getMergedRegions();
+            for (var at = 0; at < all.size(); at++) {
+                if (all.get(at).equals(merged)) {
+                    return at;
+                }
+            }
+            return -1;
         }
 
         /** Gives the cells of the lines to format their cell formats, region by region. */

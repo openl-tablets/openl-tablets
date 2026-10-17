@@ -12,6 +12,7 @@ Content-Type: application/json
       {
         "cell": "B2",
         "value": "Datatype Second",
+        "colspan": 2,
         "style": 0,
         "runs": [
           {
@@ -25,8 +26,7 @@ Content-Type: application/json
         ]
       },
       {
-        "cell": "C2",
-        "style": 0
+        "covered": true
       }
     ],
     [

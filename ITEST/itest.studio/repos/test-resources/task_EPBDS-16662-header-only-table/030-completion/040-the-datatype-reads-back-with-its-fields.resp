@@ -11,10 +11,11 @@ Content-Type: application/json
     [
       {
         "cell": "B14",
-        "value": "Datatype Coverage"
+        "value": "Datatype Coverage",
+        "colspan": 2
       },
       {
-        "cell": "C14"
+        "covered": true
       }
     ],
     [

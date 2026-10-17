@@ -9,9 +9,9 @@ Content-Type: application/json
   "pos": "B2:D7",
   "source": [
     [
-      {"cell": "B2", "value": "Datatype MetaRows"},
-      {"cell": "C2"},
-      {"cell": "D2"}
+      {"cell": "B2", "value": "Datatype MetaRows", "colspan": 3},
+      {"covered": true},
+      {"covered": true}
     ],
     [
       {"cell": "B3", "value": "String"},
