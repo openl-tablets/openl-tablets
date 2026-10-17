@@ -995,7 +995,7 @@ If a project is not generated from the OpenAPI file, but it is required to add t
 1.  Open the **Overview** tab of the project page and click **Edit**.
 2.  In the **OpenAPI** section, select the OpenAPI file in the **File** field. The list offers the `.json`, `.yaml` and `.yml` files of the project. To use a file from the user's computer, click the upload icon ![](images/openapi-import-icon.png) and select the file. The file is added to the project when the changes are saved.
 
-    ![](images/openapi-generation-settings.jpeg)
+    ![](images/openapi-generation-settings.png)
 
     *Choosing the OpenAPI file and the mode*
 

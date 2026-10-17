@@ -32,13 +32,13 @@ In addition, **project dependency** enables accessing modules of other projects 
 
 *Example of a project dependency with all modules*
 
-The previous diagram displays that any module of **Project1** can execute any table of any module of **Project2**: thick gray arrow with the **All Modules** label is a project dependency with all dependency project modules included. This is equivalent to the following schema when each module of **Project1** has implicit dependency declaration to each module of **Project2**:
+The previous diagram displays that any module of **Project1** can execute any table of any module of **Project2**: thick gray arrow with the **Auto-included** label is a project dependency with all dependency project modules included. This is equivalent to the following schema when each module of **Project1** has implicit dependency declaration to each module of **Project2**:
 
 ![Interpretation of a project dependency (with all modules)](../ref-guide-images/interpretationProjectDependencyAllModules.png)
 
 *Interpretation of a project dependency (with all modules)*
 
-The project dependency with the **All Modules** setting switched on provides access to any module of a dependency project from the current root project.
+The project dependency with the **Auto-included** setting switched on provides access to any module of a dependency project from the current root project.
 
 Users may combine module and project dependencies if only a particular module of another project must be used. An example is as follows:
 
@@ -48,9 +48,9 @@ Users may combine module and project dependencies if only a particular module of
 
 In the example, for defined external **Project2**, only the content of **Module2_2** is accessible from **Project1**: thick gray arrow without label is a project dependency which defines other projects where dependency module can be located.
 
-If the project dependency does not have the **All Modules** setting enabled, dependencies are determined on the module level, and such project dependencies serve the isolation purpose thus enabling getting a dependency module from particular external projects.
+If the project dependency does not have the **Auto-included** setting enabled, dependencies are determined on the module level, and such project dependencies serve the isolation purpose thus enabling getting a dependency module from particular external projects.
 
-![Defining dependencies for projects in OpenL Studio](../ref-guide-images/definingDependenciesProjectsOpenlStudio.jpeg)
+![Defining dependencies for projects in OpenL Studio](../ref-guide-images/definingDependenciesProjectsOpenlStudio.png)
 
 *Defining dependencies for projects in OpenL Studio*
 
@@ -70,7 +70,7 @@ Dependencies can also be used to call a specific rule from another project that 
 
 *Example of calling a rule from another project*
 
-This syntax is applicable when there is a dependency on a project and the **All Modules** option is disabled. It allows accessing a specific rule of a different project while all the other tables remain invisible.
+This syntax is applicable when there is a dependency on a project and the **Auto-included** option is disabled. It allows accessing a specific rule of a different project while all the other tables remain invisible.
 
 ### Dependencies Configuration
 

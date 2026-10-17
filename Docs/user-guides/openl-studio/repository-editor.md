@@ -268,9 +268,9 @@ A custom project template can be created and then used during new projects defin
 
     For example, `\<OPENL_HOME>\project-templates\My Custom Templates\MyRule1\rating.xlsx` will be presented as the **MyRule1** template project in the `My Custom Templates` category containing the `rating.xlsx` file.
 
-    ![](images/create-custom-project-template.jpeg)
+    ![The MyRule1 custom template in the My Custom Templates category](images/create-custom-project-template.png)
 
-    *Creating a custom project template*
+    *A custom project template in the Create project dialog*
 
 #### Creating a Project from Excel Files
 

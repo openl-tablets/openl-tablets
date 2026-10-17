@@ -4,10 +4,10 @@ OpenL Studio supports sending emails for mailbox verification.
 
 To manage email server configuration, proceed as follows:
 
-1. In the **ADMIN** tab, click **Mail** on the left.
+1. In the administration area, click **Mail** on the left.
 2. Ensure that the **Enable email address verification** check box is selected.
 3. Specify the sender’s URL, username, and password for dispatching verification emails through this email server.
-4. Click **Apply All and Restart.**
+4. Click **Apply**.
 
    When a sender is defined for the specific server, it can be used to send emails for verification of the non-verified
    mailboxes manually defined by a user.

@@ -391,11 +391,27 @@ These values are used by the system for all published projects that do not have 
 
 For more information on serialization values, see <https://fasterxml.github.io/jackson-annotations/javadoc/2.6/com/fasterxml/jackson/annotation/JsonInclude.Include.html>.
 
-JSON payload of the same datatype with different `serializationInclusion` property values are as follows:
+For example, a rule returns the following datatype with `num` left unset, `str` set to an empty string, `intArr` set
+to an empty array, and `name` set to `John`:
 
-![JSON payload of the same datatype with different serializationInclusion values](images/01e96b672cddf6a2778693641109b4ab.jpeg)
+```openl
+Datatype MyType
+Long,num
+String,str
+Integer[],intArr
+int,count
+boolean,flag
+String,name
+```
 
-*JSON payload of the same datatype with different* `serializationInclusion` *values*
+JSON payloads of this value with different `serializationInclusion` property values are as follows:
+
+- **ALWAYS** — `{"num":null,"str":"","intArr":[],"count":0,"flag":false,"name":"John"}`
+- **NON_NULL** — `{"str":"","intArr":[],"count":0,"flag":false,"name":"John"}`
+- **NON_ABSENT** — `{"str":"","intArr":[],"count":0,"flag":false,"name":"John"}`
+- **NON_EMPTY** — `{"count":0,"flag":false,"name":"John"}`
+- **NON_DEFAULT** — `{"name":"John"}`
+- **USE_DEFAULTS** — `{"count":0,"flag":false,"name":"John"}`
 
 `ruleservice.jackson.caseInsensitiveProperties `is a JSON deserialization. The system matches JSON property names to a Java class ignoring case sensitivity if this property is enabled.
 
