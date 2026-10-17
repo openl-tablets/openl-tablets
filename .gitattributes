@@ -36,4 +36,5 @@
 **/test-resources*/**/*.xml text eol=lf
 **/test-resources*/**/*.groovy text eol=lf
 **/test-resources*/**/*.properties text eol=lf
+**/test-resources*/**/*.md text eol=lf
 **/openl-repository/workspace/**/*.xml text eol=lf

@@ -65,25 +65,28 @@ class UserGuidesServletTest {
         assertEquals("no-cache", response.getHeader("Cache-Control"));
         var json = new ObjectMapper();
         assertEquals(json.readTree("""
-                {"title": "User Guides", "file": "index.md", "children": [
-                  {"title": "Getting Started with OpenL Tablets", "file": "getting-started/index.md", "children": [
-                    {"title": "Videocasts", "file": "getting-started/videocasts.md"},
-                    {"title": "Demo Package Guide", "file": "getting-started/demo-package/index.md"}
+                {"title": "User Guides", "file": "index.md", "size": 77, "children": [
+                  {"title": "Getting Started with OpenL Tablets", "file": "getting-started/index.md", "size": 55,
+                   "children": [
+                    {"title": "Videocasts", "file": "getting-started/videocasts.md", "size": 51},
+                    {"title": "Demo Package Guide", "file": "getting-started/demo-package/index.md", "size": 22}
                   ]},
-                  {"title": "OpenL Studio User Guide", "file": "openl-studio/index.md", "children": [
-                    {"title": "Using Rules Editor", "file": "openl-studio/rules-editor.md"},
+                  {"title": "OpenL Studio User Guide", "file": "openl-studio/index.md", "size": 27, "children": [
+                    {"title": "Using Rules Editor", "file": "openl-studio/rules-editor.md", "size": 37},
                     {"title": "Administration", "children": [
                       {"title": "Managing Security Settings",
-                       "file": "openl-studio/administration/03-security/index.md", "children": [
-                        {"title": "Sso Saml", "file": "openl-studio/administration/03-security/05-sso-saml.md"}
+                       "file": "openl-studio/administration/03-security/index.md", "size": 31, "children": [
+                        {"title": "Sso Saml", "file": "openl-studio/administration/03-security/05-sso-saml.md",
+                         "size": 22}
                       ]}
                     ]},
                     {"title": "Appendices", "children": [
-                      {"title": "Appendix D: Error Pages", "file": "openl-studio/appendices/error-pages.md"}
+                      {"title": "Appendix D: Error Pages", "file": "openl-studio/appendices/error-pages.md", "size": 26}
                     ]}
                   ]},
                   {"title": "Reference Guide", "children": [
-                    {"title": "OpenL Tables Overview", "file": "reference-guide/01-openl-tables-overview.md"}
+                    {"title": "OpenL Tables Overview", "file": "reference-guide/01-openl-tables-overview.md",
+                     "size": 21}
                   ]}
                 ]}
                 """), json.readTree(response.getContentAsByteArray()));

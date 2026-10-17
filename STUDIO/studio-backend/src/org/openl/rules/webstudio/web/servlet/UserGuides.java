@@ -31,6 +31,8 @@ import org.jspecify.annotations.Nullable;
  * with, else by its file name. A folder takes the title of its {@code index.md}, else its name. A title made of a name
  * drops a number prefix such as {@code 01-} and capitalizes each word: {@code 05-sso-saml} is titled {@code Sso Saml}.
  *
+ * <p>An entry with a page tells the size of its file in bytes.
+ *
  * @param files the files of the guides, relative to the guides folder and starting with {@code /}
  * @param contents the table of contents, whose root entry is the guides folder
  * @author Yury Molchan
@@ -44,9 +46,10 @@ record UserGuides(Set<String> files, Entry contents) {
      * An entry of the table of contents: a page, or a folder with the entries inside it.
      *
      * @param file the page, relative to the guides folder; a folder without an {@code index.md} has none
+     * @param size the size of the page in bytes; none without a page
      */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    record Entry(String title, @Nullable String file, List<Entry> children) {
+    record Entry(String title, @Nullable String file, @Nullable Long size, List<Entry> children) {
     }
 
     /** Reads the guides kept in the given folder of the web application, such as {@code /docs/}. */
@@ -133,9 +136,7 @@ record UserGuides(Set<String> files, Entry contents) {
             pages.addAll(folders);
             var index = folder + "index.md";
             var name = folder.substring(folder.lastIndexOf('/', folder.length() - 2) + 1, folder.length() - 1);
-            return paths.contains(index)
-                    ? new Entry(requireNonNullElse(titleIn(index), titleOfName(name)), relative(index), pages)
-                    : new Entry(titleOfName(name), null, pages);
+            return paths.contains(index) ? page(index, name, pages) : new Entry(titleOfName(name), null, null, pages);
         }
 
         private static boolean isPage(String path) {
@@ -144,18 +145,26 @@ record UserGuides(Set<String> files, Entry contents) {
 
         private Entry page(String path) {
             var name = path.substring(path.lastIndexOf('/') + 1, path.length() - ".md".length());
-            return new Entry(requireNonNullElse(titleIn(path), titleOfName(name)), relative(path), List.of());
+            return page(path, name, List.of());
+        }
+
+        /** The entry of a page, titled by its name when its text gives no title. */
+        private Entry page(String path, String name, List<Entry> children) {
+            var text = read(path);
+            var title = text == null ? null : titleOf(new String(text, UTF_8));
+            var size = text == null ? null : (long) text.length;
+            return new Entry(requireNonNullElse(title, titleOfName(name)), relative(path), size, children);
         }
 
         private String relative(String path) {
             return path.substring(root.length());
         }
 
-        private @Nullable String titleIn(String path) {
+        private byte @Nullable [] read(String path) {
             try (var page = context.getResourceAsStream(path)) {
-                return page == null ? null : titleOf(new String(page.readAllBytes(), UTF_8));
+                return page == null ? null : page.readAllBytes();
             } catch (IOException e) {
-                log.warn("Failed to read the title of the guide '{}'.", path, e);
+                log.warn("Failed to read the guide '{}'.", path, e);
                 return null;
             }
         }
