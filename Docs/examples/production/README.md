@@ -15,7 +15,7 @@ Complete deployment examples demonstrating various patterns:
 
 #### auth-extension/
 Custom authentication extension example:
-- Spring Security integration
+- Spring configuration that registers the checker and the handler
 - Custom auth checker implementation
 - Access denied handler
 - OpenAPI configuration with auth

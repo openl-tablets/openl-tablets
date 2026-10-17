@@ -25,10 +25,10 @@ This sample Docker Compose setup runs a fully integrated environment for **OpenL
 
 ## Features
 
-- **Gitea pre-seeded with admin user and empty repo**
+- **Gitea pre-seeded with an admin user and a repository holding the projects of `../example`**
 - **OpenL Studio configured for Git-based rule projects**
 - **PostgreSQL database with prepared schemas**
-- **Support for protected branches and structured commits**
+- **Support for protected branches**
 
 ---
 
@@ -83,11 +83,8 @@ This will:
 
 ## OpenL Studio Git Repository Configuration
 
-This setup defines a repository named `example` in OpenL Studio using environment variables. It enforces:
-
-- A specific commit message format (e.g., `ABC-123: short message`)
-- Protected branches (`main`, `release-*`)
-- Git commit attribution with a named user and email
+This setup defines a repository named `example` in OpenL Studio using environment variables. It protects the `main`
+and `release-*` branches and commits to the `develop` branch.
 
 For a detailed explanation of configuration parameters, refer to the [OpenL Studio Git Integration Guide](https://openl-tablets.github.io/openl-tablets/user-guides/openl-studio/administration/01-repository-settings/02-git-repository-settings#setting-up-a-connection-to-a-git-repository).
 
@@ -109,9 +106,9 @@ There are several other options for user management other than default multi-use
 docker compose -f compose.yaml -f compose.ad.yaml up
 ```
 
-There are two more possible **USER_MODE** value: **oauth2** and **saml**.
-
-For all possible values please refer to [default properties file](/STUDIO/studio-backend/resources/openl-default.properties). Corresponding properties could be found under **security.<user-mode>.*** names. Please use [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config) configuration externalization practices.
+The other **USER_MODE** values and their properties are described in the
+[Security](https://openl-tablets.github.io/openl-tablets/user-guides/installation-guide/configuration#security) section
+of the OpenL Studio configuration guide.
 
 
 ---

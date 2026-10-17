@@ -32,8 +32,9 @@ or in `META-INF/openl/extension-my-configuration.xml` XML configuration file:
 </beans>
 ```
 
-Note: The location of the `META-INF/openl/extension-*.xml` files is different for the Web application.
-It should be located in `WEB-INF/classes/META-INF/openl/extension-my-configuration.xml`
+> [!Note]
+> A file added to the web application directly, not inside a JAR file, goes to
+> `WEB-INF/classes/META-INF/openl/extension-my-configuration.xml`.
 
 ## Spring configuration of a rules project
 

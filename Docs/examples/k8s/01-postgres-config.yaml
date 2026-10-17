@@ -1,10 +1,10 @@
-# 01-postgres.yaml — PostgreSQL instance for OpenL Studio (multi-user mode)
+# 01-postgres-config.yaml — PostgreSQL instance for OpenL Studio (multi-user mode)
 #
 # Apply this file FIRST:
 #   kubectl apply -f 01-postgres-config.yaml
 #   kubectl apply -f 02-openl-studio.yaml
 #
-# The Secret defined here is referenced by both this file and openl-studio.yaml.
+# The Secret defined here is referenced by both this file and 02-openl-studio.yaml.
 # In production, replace plain-text values with an external secrets manager
 # (e.g., Vault, External Secrets Operator, Sealed Secrets).
 

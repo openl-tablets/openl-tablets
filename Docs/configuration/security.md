@@ -39,6 +39,8 @@ public class BasicAuthorizationChecker implements AuthorizationChecker {
 There can be several Spring beans. The order of authorization can be defined by the `@Order` annotation.
 The authorization is successful if any of checkers returns `true`.
 A custom access denied handler can be registered to be called when no checkers return `true`.
+Only the handler with the lowest `@Order` value is called. The built-in handler has the lowest priority: it answers `401`
+with `WWW-Authenticate: Basic` to a request without the `Authorization` header, and `403` otherwise.
 
 ```java
 package org.openl.rules.ruleservice.spring;
@@ -53,7 +55,7 @@ import org.openl.rules.ruleservice.api.AccessDeniedHandler;
 
 @Order(0)
 @Component
-public class BasicAccessDeniedHandler implements AccessDeniedHandler {
+public class ForbiddenAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response) {

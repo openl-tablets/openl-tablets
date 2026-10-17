@@ -31,21 +31,23 @@ Access Studio at `http://localhost:8080` (Rancher Desktop routes the LoadBalance
 
 ## Design notes
 
-- **Single replica** — OpenL Studio stores session state in Jetty's in-memory session store, so only one pod is
-  supported. The Deployment strategy is set to `Recreate` to avoid PVC conflicts during rollout.
+- **Single replica** — the example runs one pod: its sessions stay in the memory of the pod, and its volumes are
+  ReadWriteOnce. Several instances need the setup of
+  [Cluster Mode Configuration](https://openl-tablets.github.io/openl-tablets/user-guides/installation-guide/configuration#cluster-mode-configuration).
+  The Deployment strategy is set to `Recreate` to avoid PVC conflicts during rollout.
 - **Rootless** — the container runs as UID 1000 (`openl` system user baked into the image). Pod and container security
   contexts enforce `runAsNonRoot` and drop all Linux capabilities.
 - **JDBC driver** — an init container using `busybox` downloads the PostgreSQL JDBC driver and places it in an
   `emptyDir` volume. The jar is mounted into `/opt/openl/lib/jdbc.jar`, where Jetty picks it up via `--lib`.
-- **Persistence** — `/opt/openl/local` (instance metadata) and `/opt/openl/shared` (shared rule projects) are backed by
-  separate ReadWriteOnce PVCs so data survives pod restarts.
+- **Persistence** — `/opt/openl/local` (instance data, repository clones) and `/opt/openl/shared` (user workspaces,
+  locks, saved settings) are backed by separate ReadWriteOnce PVCs so data survives pod restarts.
 - **Health checks** — the startup probe calls `/healthcheck/startup`; the readiness probe calls
   `/healthcheck/readiness`. Both endpoints are available without authentication. The readiness probe returns success
   only after the Spring context is initialized, while it is not being refreshed, and before shutdown begins.
 - **Credentials** — stored in a Kubernetes Secret (`openl-db-credentials`). Both the PostgreSQL pod and the Studio pod
   reference it. For production, replace it with an external secrets manager.
-- **Configuration** — OpenL Studio properties are set via environment variables using Spring Boot relaxed binding (
-  `USER_MODE` → `user.mode`, `DB_URL` → `db.url`, etc.). `JAVA_OPTS` is not overridden so the image default (
+- **Configuration** — OpenL Studio properties are set via environment variables in upper case with dots and dashes
+  replaced by underscores (`USER_MODE` → `user.mode`, `DB_URL` → `db.url`, etc.). `JAVA_OPTS` is not overridden so the image default (
   `-XX:MaxRAMPercentage=90.0`) applies; the JVM heap scales with the pod memory limit.
 
 ## Customisation

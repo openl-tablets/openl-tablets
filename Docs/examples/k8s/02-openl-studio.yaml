@@ -1,6 +1,6 @@
-# 02-openl-studio.yaml — OpenL Studio v6.0.0 (multi-user, PostgreSQL-backed)
+# 02-openl-studio.yaml — OpenL Studio (multi-user, PostgreSQL-backed)
 #
-# Prerequisites: apply 01-postgres.yaml first so the Secret and DB are ready.
+# Prerequisites: apply 01-postgres-config.yaml first so the Secret and DB are ready.
 #
 # Apply order:
 #   kubectl apply -f 01-postgres-config.yaml
@@ -25,9 +25,9 @@ spec:
       storage: 2Gi
 
 ---
-# PVC for the shared workspace (rule projects visible to all users).
+# PVC for the shared workspace (user workspaces, locks, saved settings).
 # Maps to OPENL_HOME_SHARED (/opt/openl/shared) inside the container.
-# Increase storage based on the size and number of rule projects.
+# Increase storage based on the number of users and the size of their projects.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -47,9 +47,9 @@ metadata:
   labels:
     app: openl-studio
 spec:
-  # Must be exactly 1. OpenL Studio stores session state in Jetty's in-memory
-  # session store. Running multiple replicas without a distributed session backend
-  # causes random authentication failures and data corruption.
+  # Must be exactly 1 here. OpenL Studio keeps sessions in the memory of the pod,
+  # and the volumes are ReadWriteOnce. Several replicas need the setup described in
+  # "Cluster Mode Configuration" of the OpenL Studio configuration guide.
   replicas: 1
   # Recreate ensures the old pod is fully terminated before the new one starts.
   # This prevents "Multi-Attach" errors on ReadWriteOnce PVCs and avoids two
@@ -105,7 +105,7 @@ spec:
 
       containers:
         - name: openl-studio
-          image: openltablets/webstudio:6.0.0
+          image: openltablets/webstudio:7.0.0
           ports:
             - containerPort: 8080
           env:
@@ -126,11 +126,11 @@ spec:
 
             # JDBC URL for the PostgreSQL Service.
             # "postgres" is resolved by K8s DNS to the ClusterIP Service defined
-            # in 01-postgres.yaml (no hardcoded IP needed).
+            # in 01-postgres-config.yaml (no hardcoded IP needed).
             - name: DB_URL
               value: "jdbc:postgresql://postgres:5432/openl"
 
-            # DB credentials from the shared Secret in 01-postgres.yaml.
+            # DB credentials from the shared Secret in 01-postgres-config.yaml.
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -190,7 +190,7 @@ spec:
             - name: local-volume
               mountPath: /opt/openl/local
 
-            # Shared workspace — persists rule projects accessible to all users.
+            # Shared workspace — persists user workspaces, locks and saved settings.
             # Corresponds to the OPENL_HOME_SHARED environment variable in the Docker image.
             - name: shared-volume
               mountPath: /opt/openl/shared

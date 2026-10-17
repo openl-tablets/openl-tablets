@@ -4,7 +4,7 @@ This folder contains an example with several simple OpenL Rule Services that:
 
 - Illustrates how a multi-module OpenL Tablets project can be structured.
 - Demonstrates how to containerize and expose the service via Docker.
-- Includes an extension for OpenAPI-based authorization using client ID/secret headers.
+- Includes an extension that authorizes requests by HTTP Basic credentials and declares the scheme in OpenAPI.
 
 ---
 
