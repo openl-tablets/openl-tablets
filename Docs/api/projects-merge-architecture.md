@@ -274,7 +274,10 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 - The reads are by project: asking for another project than the stored one finds nothing, so a client sees
   `404 Not Found` with `project.merge.result.not.found.message`.
 - `check` and `merge` refuse with `409` while the conflict of the project is stored.
-- A conflict ends when it is resolved, when `DELETE /merge/conflicts` cancels it, or with the client.
+- A conflict ends when it is resolved, when `DELETE /merge/conflicts` cancels it, or with the client, after the idle
+  time of its session (`session-timeout` in `web.xml`, 30 minutes).
+- While a save conflict is stored, its project id keeps resolving to the conflicted project, even after a workspace
+  refresh renamed the project (`MergeConflictProjectResolveStrategy`).
 - The holder stores two kinds of conflict. A **merge conflict** has the branches (`mergeBranchFrom`,
   `mergeBranchTo`, `currentBranch`). A **save conflict** has none: the project save found that another user changed
   the project, and `PATCH /rest/projects/{projectId}` answers `409` with `project.save.merge.conflict.message`.
@@ -287,8 +290,10 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 1. **Validation** — each file is in the conflict, no file is named twice, and a `CUSTOM` resolution has a non-empty
    uploaded file. An uploaded Excel or ZIP file is read to see that it is complete. A text file the client merged
    through `GET /merge/conflicts/text` comes as such an uploaded file.
-2. **Versions** — `BASE`, `OURS`, and `THEIRS` are read from the commits of the conflict, not from the working tree. A
-   version that does not hold the file deletes the file.
+2. **Versions** — `BASE`, `OURS`, and `THEIRS` are read from the commits of the conflict, not from the working tree:
+   the merge base, the commit of the current branch, and the commit of the other branch. In a `send` merge the
+   branches swap their Git roles, so `OURS` stays the current branch. A version that does not hold the file deletes
+   the file.
 3. **Workbooks** — a conflicted Excel file whose changes do not overlap is merged by `XlsWorkbookMerger` without a
    decision: a sheet changed in one branch only is taken from it, a sheet changed in both is merged table by table, row
    by row and cell by cell. The same merge completes a `POST /merge` and a project save without a conflict when every

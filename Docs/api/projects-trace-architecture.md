@@ -158,8 +158,10 @@ flowchart TD
 A **stack frame is one rule-table invocation** (decision table, spreadsheet, method table, column match,
 TBasic). All of these extend `ExecutableRulesMethod`, so one `Tracer.invoke(…, this)` is one frame.
 Spreadsheet cells, fired decision-table rules, conditions, and TBasic operations are **sub-steps** (the
-current line) inside the active frame, not separate frames. Only **executable** cells are steps — a cell
-whose formula is actually evaluated; constants, plain values, and section dividers never execute.
+current line) inside the active frame, not separate frames. Only **executable** cells are steps of a live frame — a
+cell whose formula is actually evaluated; constants, plain values, and section dividers never execute. The executed
+tree of profiling lists a spreadsheet's plain value and constant cells too, marked `constant`, so it shows the whole
+table.
 
 A table **overloaded by dimension properties** is dispatched transparently: the dispatcher creates no
 frame of its own; the chosen version appears in place, badged with the candidate versions and the choice.
@@ -186,8 +188,7 @@ Two refinements on top of the threshold:
   the error details. The stack view's `error` flag stays on the completed throwing frame only, so
   Advanced Trace still marks waiting callers distinctly from the failed frame.
 - **A stack overflow breaks at the root call.** Parking needs stack, and a `StackOverflowError` leaves the
-  worker none: an attempt to park on the throwing frame overflows again, and used to park a little higher
-  each time while the client read a stack that kept changing. The hook keeps the stack as it was where the
+  worker none: an attempt to park on the throwing frame overflows again. The hook keeps the stack as it was where the
   overflow surfaced, lets the error unwind to the root call, and parks there once, showing the kept stack.
   Every frame on it has failed by then, so each carries the `error` flag.
 
@@ -263,17 +264,8 @@ node count so one enormous run cannot balloon the heap; once the cap is hit, fur
 
 ## Breakpoints
 
-All breakpoints ride one set of string keys, matched at a frame enter or a current-line change:
-
-| Key | Granularity | Suspends |
-| --- | --- | --- |
-| `uri` | table | on the table's frame enter |
-| `name` | table | on the enter of **any** table with that name — every overloaded or dimensional version |
-| `<table>#R{r}C{c}` | spreadsheet cell | when the cell becomes the current line; `<table>` is the owning table's `uri` or `name` |
-| `<table>#rule` | decision table | when **any** rule fires (all its conditions matched), before its action runs |
-| `<table>#{ruleName}` | decision table | when that **specific** rule fires |
-| `<key>@N` | any of the above | only on the table's **N-th execution** (0-based); the number `DebugFrameView.instance` and a watch series carry, so a `uri#ref@N` or `name@N` key matched-and-built (never parsed) reaches one iteration of a table that runs many times |
-| `after:<key>` | any of the above | right **after** the target ran instead of before it: a table at its own exit, a sub-step on the next line, so its result is on the stack |
+All breakpoints ride one set of string keys, matched at a frame enter or a current-line change. The key forms are
+listed in [Breakpoint Keys](projects-trace-api.md#breakpoint-keys).
 
 Keys are matched by set membership, never parsed: the matcher builds `key` and `key@instance` for each
 candidate and asks the set: a sub-step builds `uri#ref` and `name#ref`, each also with `@instance`, so a
@@ -288,8 +280,8 @@ name so one key covers every version.
 
 Variables are **frozen lazily, on inspection, while the worker is parked**. Because the worker runs no
 code while parked, its object graph is stable, so the controller thread safely **deep-clones** a frame's
-parameters, context, and result (a fresh `Cloner` identity map under the captured classloader) — the same
-cloning the original trace used, but only for the frame you actually open, and only its own values.
+parameters, context, and result (a fresh `Cloner` identity map under the captured classloader) — only for the frame
+you actually open, and only its own values.
 **Nothing is retained between requests**: each inspection re-clones from the live graph, so no frozen
 snapshot outlives the call. Large cloned values go to the `TraceParameterRegistry` for lazy
 `GET /parameters/{id}` fetch. Memory is therefore bounded by **live stack depth**, never by total executed
@@ -324,7 +316,7 @@ cell (points in execution order), readable while suspended or after completion.
 ## Avoiding the ProjectModel monitor
 
 The service captures the compiled `IOpenClass` + classloader once, then runs the suspendable invocation
-**off the project monitor** via `testSuite.invokeSequentially(openClass, 1)` on the worker. Parking
+**off the project monitor** via `testSuite.invokeSequentially(openClass, 1, tracer)` on the worker. Parking
 inside a `synchronized` ProjectModel method would hold the project monitor for the whole session and
 block compilation and other reads (the EPBDS-16092 deadlock class). A `WorkspaceResetEvent` terminates
 the session.
@@ -349,32 +341,8 @@ rendering.
 
 ## REST API
 
-Base path `/rest/projects/{projectId}/trace`. See [Projects Trace API Documentation](projects-trace-api.md)
-for request/response details.
-
-| Method | Path | Purpose |
-| --- | --- | --- |
-| POST | `/` | Start a session; returns the initial stack |
-| GET | `/stack` | Current execution stack (root → current); the executed tree/profile after completion |
-| GET | `/status` | Lightweight status poll |
-| POST | `/step?type=into\|over\|out` | Step and return the new stack (`view=compact` trims to the active frame) |
-| POST | `/resume` | Run to the next breakpoint (async) |
-| POST | `/pause` | Request a suspend |
-| GET | `/frames/{i}/variables` | Freeze and return a frame's variables, steps, and decision outcome |
-| GET | `/frames/{i}/step-inputs` | The inputs, the result, and the cell of one spreadsheet step |
-| GET | `/frames/{i}/highlights` | A1-keyed highlight overlay for the client-rendered table |
-| GET | `/tree/children` | One page of the executed sub-calls of a step, for a large profiled run |
-| GET | `/export` | The executed tree of the run as plain text |
-| GET / PUT | `/breakpoints` | List / replace breakpoint keys |
-| GET | `/breakpoint-tables` | Breakpoint targets: reachable tables, deduplicated by name |
-| GET / PUT | `/watches` | List / replace watched cell names or refs |
-| GET | `/watch` | The watched cells' values across the run, one series per cell |
-| GET | `/parameters/{id}` | Lazy-load a large parameter value |
-| DELETE | `/` | Terminate the session |
-
-WebSocket: status changes (the lowercase `DebugStatus` wire codes `suspended`, `running`, `completed`,
-`error`, `terminated`) are pushed to `/user/topic/projects/{projectId}/tables/{tableId}/trace/status`; the
-client then reads the new stack.
+`ProjectsTraceDebugController` serves the base path `/rest/projects/{projectId}/trace`. The endpoints, the models, and
+the WebSocket status topic are described in [Projects Trace API Documentation](projects-trace-api.md).
 
 ## Concurrency and isolation
 

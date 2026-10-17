@@ -322,9 +322,9 @@ the OpenL table style, as [Reformatting the Excel Files](#reformatting-the-excel
 A table whose module was written to since its last compile, with automatic compilation off, is saved as it is written:
 its roles are not known until the module is compiled. A table of an `.xls` workbook is never formatted.
 
-An `.xlsx` file uploaded through the project files API, `POST` and `PUT /projects/{projectId}/files/{path}` and a ZIP
-archive expanded into a project folder, is formatted too, and so is a ZIP archive that overwrites a project,
-`PUT /repos/{repo-name}/projects/{project-name}?overwrite=true`. The upload is compiled once, with the project, to
+An `.xlsx` file uploaded through the project files API, `POST` and `PUT /rest/projects/{projectId}/files/{path}` and a
+ZIP archive expanded into a project folder, is formatted too, and so is a ZIP archive that overwrites a project,
+`PUT /rest/repos/{repo-name}/projects/{project-name}?overwrite=true`. The upload is compiled once, with the project, to
 learn the roles of its tables. A file that cannot be compiled is stored as it was uploaded.
 
 ### Blank Lines Are Refused
@@ -436,7 +436,7 @@ The `style` operation sets the style of every cell of a rectangle:
 - A style that names no attribute is refused.
 - The attributes are the ones of a styled read, except the borders and the vertical alignment, which are read-only.
 - While the system setting `table.format-on-save` is on, as it is by default, a style may name the `indent` alone:
-  the save writes the OpenL table style over any other styling. `GET /settings` tells whether it is on, as
+  the save writes the OpenL table style over any other styling. `GET /rest/settings` tells whether it is on, as
   `formatTablesOnSave`.
 
 A colour is one of the palette of Excel, given one way:

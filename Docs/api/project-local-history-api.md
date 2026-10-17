@@ -87,7 +87,7 @@ The endpoint removes the local edit history of every module in the named project
 not affect another project or another user's workspace. The project must be opened, and the caller must have write
 permission on it.
 
-Administrators can still clear local history for every user and project from the System settings screen. That global
+Administrators clear local history for every user and project from the System settings screen. That global
 operation is `DELETE /rest/admin/local-history`; it is separate from the project API.
 
 ## Errors

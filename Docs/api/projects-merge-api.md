@@ -18,8 +18,7 @@
 6. [Error Handling](#error-handling)
 7. [Examples](#examples)
 8. [Best Practices](#best-practices)
-9. [Technical Implementation Notes](#technical-implementation-notes)
-10. [Related APIs](#related-apis)
+9. [Related APIs](#related-apis)
 
 ---
 
@@ -53,97 +52,12 @@ resolves the conflicts with a chosen version or an uploaded file.
 - **Project State Management**: An opened project is reopened after the merge; a closed project is merged without
   being opened
 
-### Architecture Overview
-
-```mermaid
-flowchart TB
-    %% REST Controller Layer
-    subgraph REST["REST Controller Layer"]
-        C[ProjectsMergeController<br/>- Input validation<br/>- Request/response mapping<br/>- Session management]
-    end
-
-    %% Service Layer
-    subgraph SERVICE["Service Layer"]
-        S1[ProjectsMergeService<br/>- Check merge status<br/>- Refuse a merge that is not allowed<br/>- Perform merge]
-        S2[ProjectsMergeConflictsService<br/>- Describe conflicts<br/>- Group conflicts<br/>- Resolve conflicts]
-        S3[ComparisonLauncher<br/>- Compare a conflicted workbook]
-    end
-
-    %% Repository / Git Layer
-    subgraph GIT["Repository / Git Layer"]
-        G[GitRepository<br/>- merge / commit / push<br/>- Conflict detection<br/>- File versions]
-        X[XlsWorkbookMerger<br/>- Sheet and cell workbook merge]
-        T[TextMerge<br/>- Line-by-line text merge]
-    end
-
-    %% Connections
-    C --> S1
-    C --> S2
-    C --> S3
-    S1 --> G
-    S2 --> G
-    S2 --> X
-    S2 --> T
-    G --> X
-```
-
 ---
 
 ## API Architecture
 
-### Component Architecture
-
-#### 1. **ProjectsMergeController**
-**Location**: `org.openl.studio.projects.rest.controller.ProjectsMergeController`
-
-**Responsibilities**:
-- Expose REST endpoints for merge operations
-- Validate incoming requests
-- Manage conflict session lifecycle
-- Pause the compilation of an opened project for the length of a resolution, and reopen the project afterwards
-- Hand the two versions of a conflicted workbook to the Compare API
-- Coordinate with service layer
-
-**Dependencies**:
-- `ProjectsMergeService`: Core merge logic
-- `ProjectsMergeLauncher`: Runs a merge in the background and brings the editor up to date once it has ended
-- `ProjectsMergeConflictsService`: Conflict analysis and resolution
-- `WorkspaceProjectService`: Project lifecycle management
-- `ProjectsMergeConflictsSessionHolder`: Session-based conflict storage
-- `ProjectIdentifierMapper`: The project id a stored conflict is kept under
-- `ComparisonLauncher`: Starts the comparison of a conflicted workbook
-
-#### 2. **ProjectsMergeService**
-**Location**: `org.openl.studio.projects.service.merge.ProjectsMergeServiceImpl`
-
-**Responsibilities**:
-- Check where the branches stand and what prevents the user from merging them
-- Refuse a merge that must not be performed
-- Execute merge operations
-- Detect merge conflicts
-
-#### 3. **ProjectsMergeConflictsService**
-**Location**: `org.openl.studio.projects.service.merge.ProjectsMergeConflictsServiceImpl`
-
-**Responsibilities**:
-- Describe merge conflicts: revisions, file availability, default merge message
-- Group conflicts by project
-- Retrieve conflict file versions
-- Merge a conflicted text file line by line
-- Apply resolution strategies and merge the workbooks that resolve automatically
-- Generate conflict resolution results
-
-#### 4. **ProjectsMergeConflictsSessionHolder**
-**Location**: `org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder`
-
-**Responsibilities**:
-- Store the unresolved conflict of one client: the HTTP session of a browser, or the state kept for a credential
-  (see [Client Sessions](../architecture/client-sessions.md))
-- Maintain state between merge and resolution
-- Keep, with the conflict, which of its files are text, as far as `GET /conflicts` has read them
-- Clean up resolved and canceled conflicts
-
-The holder keeps one conflict at a time. A conflict stored for another project replaces it.
+The components behind the endpoints are described in
+[Projects Merge API - Architecture Design](projects-merge-architecture.md#components).
 
 ### Session Management
 
@@ -157,8 +71,6 @@ The API uses session-based storage for conflict information:
 4. User calls /conflicts/resolve → Applies resolutions
 5. On success, or on DELETE /conflicts → Clears session data
 ```
-
-**Session Key**: The project id (`ProjectIdModel`, the repository id and the project name)
 
 ### State Machine
 
@@ -1044,7 +956,7 @@ bound from the form fields of `org.openl.studio.projects.rest.model`.
 ### ConflictBase
 
 `base` (common ancestor version), `ours` (current branch version), `theirs` (merging branch version). The names in
-upper case that earlier versions of OpenL Studio took, `BASE`, `OURS` and `THEIRS`, are accepted as well.
+upper case, `BASE`, `OURS` and `THEIRS`, are accepted as well.
 
 ---
 
@@ -1650,58 +1562,6 @@ conflict as it was, so the client can fix the request and send it again.
 
 A stored conflict blocks the next check and merge of the project. Cancel it with `DELETE /conflicts` when the
 resolution is abandoned; otherwise it ends with the client session.
-
----
-
-## Technical Implementation Notes
-
-### Session Management
-
-**Storage**: `ProjectsMergeConflictsSessionHolder`, a `@ClientSessionScope` bean
-
-**Key**: The project id (`ProjectIdModel`)
-
-**Kept with the conflict**: which conflicted files are UTF-8 text, the `text` flag of `GET /merge/conflicts`. Each file
-is read for it once; a conflict stored anew starts with no file read.
-
-**Lifecycle**:
-1. Created: When a merge started by `POST /merge` ends with conflicts, or a project save detects them
-2. Accessed: During conflict retrieval and resolution
-3. Cleared: On successful resolution or explicit cancel
-4. Replaced: When a conflict of another project is stored for the same client
-5. Timeout: Ends with the client session, after 30 minutes of inactivity (`session-timeout` in `web.xml`)
-
-While a save conflict is stored, its project id keeps resolving to the conflicted project, even after a workspace
-refresh renamed the project (`MergeConflictProjectResolveStrategy`).
-
-### Project Lifecycle During Merge
-
-1. The same merge running already answers `202` at once. Otherwise the merge that ended before is brought to the
-   editor, unresolved conflicts refuse the merge, `validateMergeAllowed` refuses a merge that must not be performed,
-   and `POST /merge` answers `202` without waiting for the compilation of the project.
-2. On the `mergeExecutor` pool, the Git repository merges the source branch into the target branch — the branches as
-   they were validated; the merge waits up to 30 seconds for the project index to publish the target branch, and stays
-   a success when the index is late. An opened project stays open and compiled in the editor meanwhile, and
-   read-only for the client.
-3. The first request of the client about the project that finds the merge ended brings the editor up to date, and
-   requests that come meanwhile wait until it is done. On success, the project is read again from the workspace, the
-   compilation is paused (`WebStudioWorkspaceRelatedDependencyManager.pause()`), an opened project is closed, the
-   workspace refreshed, and the project reopened on its branch. `WebStudio` is reset, and the paused compilation is dropped with the editor model; a
-   failure on the way resumes it and is logged, while the result of the merge stays `success`. A project with changes
-   of its own, or switched to another branch meanwhile by another client of the user, is left as it is: closing it
-   would drop the changes.
-4. On conflicts the conflict is stored, and a failed or cancelled merge leaves the editor as it is.
-
-Resolving conflicts pauses the compilation for the length of its request.
-
-### Conflict File Retrieval
-
-Files are read from the commits of the conflict, not from the working tree:
-- `base`: Common ancestor from merge base
-- `ours`: Commit of the current branch
-- `theirs`: Commit of the other branch
-
-In a `send` merge, the branches swap their Git roles, so `ours` stays the current branch.
 
 ---
 
