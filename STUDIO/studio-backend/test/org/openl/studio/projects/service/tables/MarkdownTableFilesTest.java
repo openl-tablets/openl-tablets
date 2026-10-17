@@ -3,6 +3,11 @@ package org.openl.studio.projects.service.tables;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,8 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableKind;
+import org.openl.studio.projects.service.files.FileRoot;
+import org.openl.studio.projects.service.files.ProjectFileRootFactory;
+import org.openl.studio.projects.service.files.ProjectFilesService;
 
 /**
  * A new table of a Markdown module is a file named after the table, in the folder its sheet names.
@@ -88,6 +98,75 @@ class MarkdownTableFilesTest {
         var error = assertThrows(BadRequestException.class,
                 () -> MarkdownTableFiles.firstFileOf("rules/Rating", "rates/young", "Premium", null));
         assertEquals("openl.error.400.table.sheet-name.invalid.message", error.getErrorCode());
+    }
+
+    @Test
+    void tableIsDeletedWithItsFile(@TempDir Path project) throws IOException {
+        var model = greetings(project, true);
+        var projectFiles = mock(ProjectFilesService.class);
+        var rootFactory = mock(ProjectFileRootFactory.class);
+        var root = mock(FileRoot.class);
+        var rulesProject = mock(RulesProject.class);
+        when(rootFactory.of(rulesProject)).thenReturn(root);
+
+        new MarkdownTableFiles(projectFiles, rootFactory).delete(rulesProject, model.getModuleInfo(),
+                TableTestProjects.table(model, "discount"));
+
+        verify(projectFiles).deleteResource(root, "rules/Greetings/rates/discount.md");
+    }
+
+    @Test
+    void lastTableOfAModuleStays(@TempDir Path project) throws IOException {
+        var model = greetings(project, false);
+        var projectFiles = mock(ProjectFilesService.class);
+        var files = new MarkdownTableFiles(projectFiles, mock(ProjectFileRootFactory.class));
+        var module = model.getModuleInfo();
+        var greeting = TableTestProjects.table(model, "greeting");
+
+        // A module folder with no file does not compile
+        var error = assertThrows(BadRequestException.class, () -> files.delete(mock(RulesProject.class), module,
+                greeting));
+
+        assertEquals("openl.error.400.table.markdown.last-table.message", error.getErrorCode());
+        verify(projectFiles, never()).deleteResource(any(), any());
+    }
+
+    /** A compiled module of Markdown files: the greeting at its root and, when asked, a discount in a folder. */
+    private static ProjectModel greetings(Path project, boolean withDiscount) throws IOException {
+        Files.writeString(project.resolve("rules.xml"), """
+                <project>
+                    <name>Greetings</name>
+                    <modules>
+                        <module>
+                            <name>Greetings</name>
+                            <rules-root path="rules/Greetings"/>
+                        </module>
+                    </modules>
+                </project>
+                """);
+        var folder = Files.createDirectories(project.resolve("rules/Greetings/rates"));
+        Files.writeString(folder.resolveSibling("greeting.md"), """
+                ---
+                table: SmartRules String greeting(Integer hour)
+                ---
+
+                | Hour  | Greeting       |
+                |-------|----------------|
+                | 0-11  | Good Morning   |
+                | 12-23 | Good Afternoon |
+                """);
+        if (withDiscount) {
+            Files.writeString(folder.resolve("discount.md"), """
+                    ---
+                    table: SmartRules Double discount(Integer age)
+                    ---
+
+                    | Age   | Discount |
+                    |-------|----------|
+                    | 0-120 | 0.1      |
+                    """);
+        }
+        return TableTestProjects.projectModel(project);
     }
 
     private Path fileFor(String sheetName, String tableName) {

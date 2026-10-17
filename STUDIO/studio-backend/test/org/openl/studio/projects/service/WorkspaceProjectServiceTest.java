@@ -157,6 +157,7 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.MarkdownTableFiles;
 import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
@@ -1821,7 +1822,7 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void a_table_of_a_markdown_module_is_written_but_neither_styled_nor_copied() throws Exception {
+    void a_table_of_a_markdown_module_is_written_and_deleted_but_neither_styled_nor_copied() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var tableCopyService = mock(TableCopyService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
@@ -1848,6 +1849,20 @@ class WorkspaceProjectServiceTest {
         assertArrayEquals(new Object[]{"Base Rates.md"}, styled.getArgs());
         verifyNoInteractions(tableCopyService);
         verify(service, never()).openProject(project, "Rules");
+
+        when(source.getVersion()).thenReturn("current");
+        var files = (MarkdownTableFiles) ReflectionTestUtils.getField(service, "markdownTableFiles");
+        var stale = assertThrows(PreconditionFailedException.class,
+                () -> service.deleteTable(project, "src-id", null, "read-before"));
+
+        // A delete based on the table read before another change of it would drop that change: its file stays
+        assertEquals("openl.error.412.table.changed.since.read.message", stale.getErrorCode());
+        verify(files, never()).delete(any(), any(), any());
+
+        service.deleteTable(project, "src-id", null, "current");
+
+        // A table of a Markdown module is a file of its own, which goes with it
+        verify(files).delete(project, model.getModuleInfo(), source);
     }
 
     @Test
@@ -3360,7 +3375,7 @@ class WorkspaceProjectServiceTest {
                 new ProjectTagsCache(mock(CacheManager.class)),
                 new ProjectListingContext(),
                 moduleCompilationLauncher,
-                () -> userWorkspace, uploadFormatting) {
+                () -> userWorkspace, uploadFormatting, mock(MarkdownTableFiles.class)) {
 
             @Override
             public WebStudio getWebStudio() {

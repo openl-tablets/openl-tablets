@@ -19,12 +19,14 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.excel.parser.markdown.MarkdownGrid;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.GridRegionUtils;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.RawTableCell;
@@ -32,6 +34,7 @@ import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
 
 /**
@@ -43,7 +46,10 @@ import org.openl.util.StringUtils;
  * whole module — the Environment, the Properties, the Constants — is written in the file of its fixed name at the root
  * of the folder, which the module may hold once.
  *
- * <p>A file is created through the files of the project, so the project is marked modified as by any file written.
+ * <p>A table is deleted with its file. A module folder holds at least one file, so the last table of a module stays.
+ *
+ * <p>A file is created and deleted through the files of the project, so the project is marked modified as by any file
+ * written.
  */
 @Service
 @RequiredArgsConstructor
@@ -177,6 +183,21 @@ public class MarkdownTableFiles {
                 : folder + "/" + folderNamed(sheetName) + "/" + file;
     }
 
+    /**
+     * Deletes the file of a table of a Markdown module.
+     *
+     * @param module the module of the table
+     * @throws BadRequestException when the table is the last of its module
+     */
+    public void delete(RulesProject project, @Nullable Module module, IOpenLTable table) {
+        var known = Objects.requireNonNull(module, "The module is not known");
+        var folder = folderOf(known);
+        if (folder == null || markdownFiles(folder) < 2) {
+            throw new BadRequestException("table.markdown.last-table.message", new Object[]{known.getName()});
+        }
+        projectFilesService.deleteResource(projectFileRootFactory.of(project), inProject(known, fileOf(table)));
+    }
+
     private void create(RulesProject project, String path, String text) {
         projectFilesService.createResource(projectFileRootFactory.of(project),
                 path,
@@ -236,6 +257,23 @@ public class MarkdownTableFiles {
             throw new BadRequestException("table.sheet-name.invalid.message", new Object[]{sheetName});
         }
         return sheetName;
+    }
+
+    private static long markdownFiles(Path folder) {
+        try (var files = Files.find(folder, Integer.MAX_VALUE,
+                (path, attributes) -> attributes.isRegularFile() && FileTypeHelper.isMarkdownFile(path.toString()))) {
+            return files.count();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Path fileOf(IOpenLTable table) {
+        var file = Optional.ofNullable(table.getSyntaxNode().getXlsSheetSourceCodeModule())
+                .map(XlsSheetSourceCodeModule::getWorkbookSource)
+                .map(XlsWorkbookSourceCodeModule::getSourceFile)
+                .orElseThrow(() -> new IllegalStateException("The table is read from no file"));
+        return file.toPath().toAbsolutePath().normalize();
     }
 
     private static boolean isIn(XlsWorkbookSourceCodeModule workbook, Path folder) {
