@@ -18,6 +18,21 @@ export const useCellStyles = createStyles(({ css }) => ({
     changed: css`
         background: ${paperToken().colorWarningBg};
     `,
+    // A cell a branch of a merge changed: framed rather than filled, so its own formatting stays in sight.
+    changedFrame: css`
+        box-shadow: inset 0 0 0 2px ${paperToken().colorWarning};
+    `,
+    // A cell both branches of a merge changed differently: framed in red, so it stands out among the changed cells.
+    conflict: css`
+        box-shadow: inset 0 0 0 2px ${paperToken().colorError};
+    `,
+    // A version of a table whose formatting its branch changed: the whole table framed with a dashed line.
+    restyled: css`
+        width: fit-content;
+        max-width: 100%;
+        outline: 2px dashed ${paperToken().colorWarning};
+        outline-offset: 2px;
+    `,
     // A row of the table only the second file has.
     rowAdded: css`
         background: ${paperToken().colorSuccessBg};

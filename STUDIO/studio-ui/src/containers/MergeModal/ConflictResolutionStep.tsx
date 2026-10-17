@@ -12,6 +12,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import { apiCall, CONFIG } from '../../services'
 import { formatDateTime } from '../../utils/dateFormat'
+import { saveFile } from '../../utils/download'
+import { isWorkbookPath } from '../../utils/workbooks'
 import { basename } from '../projects/projectPaths'
 import {
     BranchInfo,
@@ -22,23 +24,31 @@ import {
     FileResolution,
     FileSide,
     MergedText,
+    MergedWorkbook,
     MergeSummary,
     ResolveConflictsResponse,
     RevisionInfo,
 } from './types'
 import { MergeBranchLabel } from './MergeBranchLabel'
 import { TextMergeEditor } from './TextMergeEditor'
+import { WorkbookMergeEditor } from './WorkbookMergeEditor'
 import { useStyles } from './ConflictResolutionStep.styles'
 
 const { TextArea } = Input
 
-/** The resolution of a text file merged line by line in the dialog; it is sent as a merged file. */
+/**
+ * The resolution of a file merged in the dialog, a text file line by line or a workbook table by table; it is sent as
+ * a merged file.
+ */
 const MERGE_IN_PLACE = 'MERGE' satisfies FileResolution
 
-/** The file a resolution sends: the one uploaded, or the text of a file merged line by line. */
+/** The file a resolution sends: the one uploaded, the text of a file merged line by line, or a merged workbook. */
 const fileOf = (res: ConflictFileState): File | undefined => {
     if (res.resolution === MERGE_IN_PLACE && res.merged) {
         return new File([res.merged.text], basename(res.filePath), { type: 'text/plain' })
+    }
+    if (res.resolution === MERGE_IN_PLACE && res.mergedWorkbook) {
+        return new File([res.mergedWorkbook.file], basename(res.filePath), { type: res.mergedWorkbook.file.type })
     }
     return res.resolution === 'CUSTOM' ? res.customFile : undefined
 }
@@ -52,6 +62,8 @@ interface ConflictResolutionStepProps {
     onResolveSuccess: (summary?: MergeSummary) => void
     onCancel: () => void
     onCompare: (filePath: string) => void
+    /** Called when the resolution starts and stops being saved, so that the dialog is not closed meanwhile. */
+    onSavingChange: (saving: boolean) => void
 }
 
 export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
@@ -61,6 +73,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     onResolveSuccess,
     onCancel,
     onCompare,
+    onSavingChange,
 }) => {
     const { notification } = App.useApp()
     const { t } = useTranslation()
@@ -153,6 +166,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 resolution: strategy,
                 customFile: strategy === 'CUSTOM' ? prev[filePath]?.customFile : undefined,
                 merged: undefined,
+                mergedWorkbook: undefined,
             },
         }))
     }
@@ -166,6 +180,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 resolution: 'CUSTOM',
                 customFile: file,
                 merged: undefined,
+                mergedWorkbook: undefined,
             },
         }))
         return false // Prevent default upload behavior
@@ -174,6 +189,12 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     /** Takes a text file merged line by line as its resolution. */
     const handleMerged = (filePath: string, merged: MergedText) => {
         setResolutions(prev => ({ ...prev, [filePath]: { filePath, resolution: MERGE_IN_PLACE, merged } }))
+        setEditing(null)
+    }
+
+    /** Takes a workbook merged table by table as its resolution. */
+    const handleMergedWorkbook = (filePath: string, mergedWorkbook: MergedWorkbook) => {
+        setResolutions(prev => ({ ...prev, [filePath]: { filePath, resolution: MERGE_IN_PLACE, mergedWorkbook } }))
         setEditing(null)
     }
 
@@ -220,6 +241,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
         }
 
         setIsSaving(true)
+        onSavingChange(true)
         setError(null)
 
         try {
@@ -262,30 +284,20 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             setError(err?.message || t('merge:errors.resolve_failed'))
         } finally {
             setIsSaving(false)
+            onSavingChange(false)
         }
-    }
-
-    const handleCancel = async () => {
-        try {
-            await apiCall(
-                `/projects/${projectId}/merge/conflicts`,
-                { method: 'DELETE' },
-                true
-            )
-            notification.info({
-                title: t('merge:notifications.merge_cancelled'),
-                description: t('merge:notifications.merge_cancelled_description'),
-            })
-        } catch (_err) {
-            // Ignore cancel errors
-        }
-        onCancel()
     }
 
     /** The branch a version comes from, marked as the dialog marks it; nothing for a version of no branch. */
     const branchLabelOf = (revision: RevisionInfo | undefined, testId?: string) => revision?.branch && (
         <MergeBranchLabel truncate branches={branches} name={revision.branch} testId={testId} />
     )
+
+    /** What names your and their version in a merge window: their branches. */
+    const versionLabels = {
+        ours: branchLabelOf(conflictDetails?.oursRevision),
+        theirs: branchLabelOf(conflictDetails?.theirsRevision),
+    }
 
     const renderRevisionInfo = (label: string, revision: RevisionInfo | undefined) => {
         if (!revision) return null
@@ -379,9 +391,12 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             render: (_: any, record: { filePath: string }) => {
                 const res = resolutions[record.filePath]
                 const isResolved = res?.resolution && (res.resolution !== 'CUSTOM' || res.customFile)
-                // A text file both versions hold is merged line by line; the server tells text from a binary file.
+                // A text file both versions hold is merged line by line; the server tells text from a binary file. A
+                // workbook is merged table by table against its base version, so every version has to hold it.
                 const availability = conflictDetails?.fileAvailability[record.filePath]
-                const mergeable = !!availability?.ours && !!availability.theirs && !!availability.text
+                const workbook = isWorkbookPath(record.filePath)
+                const mergeable = !!availability?.ours && !!availability.theirs
+                    && (workbook ? availability.base : availability.text)
 
                 return (
                     <Space orientation="vertical" size="small">
@@ -397,7 +412,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                                 <Radio value="BASE">{t('merge:resolution.use_base')}</Radio>
                                 {mergeable && (
                                     <Radio data-testid="merge-in-place" value={MERGE_IN_PLACE}>
-                                        {t('merge:resolution.merge_in_place')}
+                                        {t(workbook ? 'merge:resolution.merge_tables' : 'merge:resolution.merge_in_place')}
                                     </Radio>
                                 )}
                                 <Radio value="CUSTOM">
@@ -421,7 +436,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                         {res?.resolution === MERGE_IN_PLACE && (
                             <Space size="small">
                                 <Typography.Text type="success">
-                                    <CheckCircleOutlined /> {t('merge:resolution.merged_in_place')}
+                                    <CheckCircleOutlined />{' '}
+                                    {t(workbook ? 'merge:resolution.merged_tables' : 'merge:resolution.merged_in_place')}
                                 </Typography.Text>
                                 <Button
                                     data-testid="merge-in-place-edit"
@@ -431,6 +447,17 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                                 >
                                     {t('merge:resolution.edit_merge')}
                                 </Button>
+                                {res.mergedWorkbook && (
+                                    <Button
+                                        data-testid="merge-in-place-download"
+                                        icon={<DownloadOutlined />}
+                                        onClick={() => saveFile(res.mergedWorkbook!.file, basename(record.filePath))}
+                                        size="small"
+                                        type="link"
+                                    >
+                                        {t('merge:resolution.download_merged')}
+                                    </Button>
+                                )}
                             </Space>
                         )}
                         {res?.customFile && (
@@ -515,7 +542,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             <Space className={styles.actions}>
                 <Button
                     disabled={isSaving}
-                    onClick={handleCancel}
+                    onClick={onCancel}
                 >
                     {t('merge:buttons.cancel')}
                 </Button>
@@ -528,17 +555,24 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                     {t('merge:buttons.resolve')}
                 </Button>
             </Space>
-            {editing && (
+            {editing && !isWorkbookPath(editing) && (
                 <TextMergeEditor
                     filePath={editing}
                     merged={resolutions[editing]?.merged}
                     onApply={merged => handleMerged(editing, merged)}
                     onCancel={() => setEditing(null)}
                     projectId={projectId}
-                    versionLabels={{
-                        ours: branchLabelOf(conflictDetails?.oursRevision),
-                        theirs: branchLabelOf(conflictDetails?.theirsRevision),
-                    }}
+                    versionLabels={versionLabels}
+                />
+            )}
+            {editing && isWorkbookPath(editing) && (
+                <WorkbookMergeEditor
+                    filePath={editing}
+                    merged={resolutions[editing]?.mergedWorkbook}
+                    onApply={merged => handleMergedWorkbook(editing, merged)}
+                    onCancel={() => setEditing(null)}
+                    projectId={projectId}
+                    versionLabels={versionLabels}
                 />
             )}
         </div>

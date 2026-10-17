@@ -3,6 +3,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ConflictResolutionStep } from 'containers/MergeModal/ConflictResolutionStep'
 import * as services from 'services'
+import { saveFile } from 'utils/download'
 import { BranchInfo, ConflictDetails, ConflictFileAvailability, ConflictGroup } from 'containers/MergeModal/types'
 import type { MockedFunction } from 'vitest'
 
@@ -34,6 +35,28 @@ vi.mock('containers/MergeModal/TextMergeEditor', () => ({
         )
     },
 }))
+
+// The editor of a workbook merges it on the server; the step is asked here only what it opens it with and what it
+// does with the merged workbook.
+const workbookEditor = vi.fn()
+const MERGED_WORKBOOK = {
+    file: new Blob(['merged workbook'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+    decisions: { 'Rules/A1:B2': 'theirs' },
+    workbook: { sheets: [], palette: false },
+}
+vi.mock('containers/MergeModal/WorkbookMergeEditor', () => ({
+    WorkbookMergeEditor: (props: any) => {
+        workbookEditor(props)
+        return (
+            <div data-testid="workbook-merge-editor">
+                <button onClick={() => props.onApply(MERGED_WORKBOOK)}>apply</button>
+                <button onClick={props.onCancel}>leave</button>
+            </div>
+        )
+    },
+}))
+
+vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
 
 vi.mock('react-i18next', () => {
     const t = (key: string, params?: Record<string, string>) => {
@@ -195,6 +218,7 @@ const defaultProps = () => ({
     onResolveSuccess: vi.fn(),
     onCancel: vi.fn(),
     onCompare: vi.fn(),
+    onSavingChange: vi.fn(),
 })
 
 /**
@@ -488,6 +512,10 @@ describe('ConflictResolutionStep', () => {
             await waitFor(() => {
                 expect(props.onResolveSuccess).toHaveBeenCalled()
             })
+            // The dialog stays open while the resolution is saved.
+            await waitFor(() => {
+                expect(props.onSavingChange.mock.calls).toEqual([[true], [false]])
+            })
         })
 
         it('hands what the merge changed on to the dialog', async () => {
@@ -598,29 +626,13 @@ describe('ConflictResolutionStep', () => {
     })
 
     describe('cancel action', () => {
-        it('calls DELETE API and onCancel', async () => {
+        it('leaves the conflicts to the dialog, which discards the merge', async () => {
             const props = await renderAndLoad()
-
-            mockApiCall.mockResolvedValueOnce({}) // delete
 
             await userEvent.click(screen.getByText('merge:buttons.cancel'))
 
-            expect(mockApiCall).toHaveBeenCalledWith(
-                '/projects/proj-1/merge/conflicts',
-                { method: 'DELETE' },
-                true
-            )
-            await waitFor(() => expect(props.onCancel).toHaveBeenCalled())
-        })
-
-        it('calls onCancel even when DELETE fails', async () => {
-            const props = await renderAndLoad()
-
-            mockApiCall.mockRejectedValueOnce(new Error('Delete error'))
-
-            await userEvent.click(screen.getByText('merge:buttons.cancel'))
-
-            await waitFor(() => expect(props.onCancel).toHaveBeenCalled())
+            expect(props.onCancel).toHaveBeenCalled()
+            expect(mockApiCall).not.toHaveBeenCalledWith('/projects/proj-1/merge/conflicts', { method: 'DELETE' }, true)
         })
     })
 
@@ -660,10 +672,11 @@ describe('ConflictResolutionStep', () => {
             expect(screen.getByText('merge:resolution.merge_in_place')).toBeInTheDocument()
         })
 
-        it('does not offer it for a workbook', async () => {
+        it('does not offer it for a workbook, which is merged table by table instead', async () => {
             await renderAndLoad()
 
             expect(screen.queryByText('merge:resolution.merge_in_place')).toBeNull()
+            expect(screen.getByText('merge:resolution.merge_tables')).toBeInTheDocument()
         })
 
         it('does not offer it for a file that is not text, such as a library', async () => {
@@ -751,6 +764,81 @@ describe('ConflictResolutionStep', () => {
 
             expect(screen.getByText('merge:upload.select_file')).toBeInTheDocument()
             expect(screen.getByText('merge:buttons.resolve')).toBeDisabled()
+        })
+    })
+
+    describe('merging a workbook table by table', () => {
+        const withAvailability = (availability: ConflictFileAvailability): ConflictDetails => ({
+            ...conflictDetails,
+            fileAvailability: { 'rules/Main.xlsx': availability },
+        })
+
+        /** Picks merging the workbook table by table and applies what the editor merged. */
+        const mergeTables = async () => {
+            await userEvent.click(screen.getByDisplayValue('MERGE'))
+            await userEvent.click(within(screen.getByTestId('workbook-merge-editor')).getByText('apply'))
+        }
+
+        it('is offered for a workbook every version holds, and not for one a version no longer holds', async () => {
+            await renderAndLoad(defaultProps(), withAvailability({ ours: true, theirs: true, base: false, text: false }))
+
+            expect(screen.queryByText('merge:resolution.merge_tables')).toBeNull()
+        })
+
+        it('merges the workbook in the editor and sends it as the merged file', async () => {
+            const props = await renderAndLoad()
+
+            await userEvent.click(screen.getByDisplayValue('MERGE'))
+
+            expect(workbookEditor).toHaveBeenLastCalledWith(expect.objectContaining({
+                filePath: 'rules/Main.xlsx',
+                projectId: 'proj-1',
+                merged: undefined,
+            }))
+            const { versionLabels } = workbookEditor.mock.lastCall![0]
+            expect(versionLabels.ours.props.name).toBe(conflictDetails.oursRevision.branch)
+            expect(screen.queryByTestId('text-merge-editor')).toBeNull()
+            await userEvent.click(within(screen.getByTestId('workbook-merge-editor')).getByText('apply'))
+
+            expect(screen.getByText('merge:resolution.merged_tables')).toBeInTheDocument()
+            mockApiCall.mockResolvedValueOnce({})
+            await userEvent.click(screen.getByText('merge:buttons.resolve'))
+
+            await waitFor(() => expect(props.onResolveSuccess).toHaveBeenCalled())
+            const formData = resolvedForm()
+            expect(formData.get('resolutions[0].strategy')).toBe('CUSTOM')
+            const file = formData.get('resolutions[0].file') as File
+            expect(file.name).toBe('Main.xlsx')
+            expect(file.type).toBe(MERGED_WORKBOOK.file.type)
+            expect(await file.text()).toBe('merged workbook')
+        })
+
+        it('downloads the merged workbook before it is saved', async () => {
+            await renderAndLoad()
+            await mergeTables()
+
+            await userEvent.click(screen.getByText('merge:resolution.download_merged'))
+
+            expect(saveFile).toHaveBeenCalledWith(MERGED_WORKBOOK.file, 'Main.xlsx')
+        })
+
+        it('opens the editor again on the decisions made', async () => {
+            await renderAndLoad()
+            await mergeTables()
+
+            await userEvent.click(screen.getByText('merge:resolution.edit_merge'))
+
+            expect(workbookEditor).toHaveBeenLastCalledWith(expect.objectContaining({ merged: MERGED_WORKBOOK }))
+        })
+
+        it('lets another resolution take the place of the merged workbook', async () => {
+            await renderAndLoad()
+            await mergeTables()
+
+            await userEvent.click(screen.getByDisplayValue('THEIRS'))
+
+            expect(screen.queryByText('merge:resolution.merged_tables')).toBeNull()
+            expect(screen.queryByText('merge:resolution.download_merged')).toBeNull()
         })
     })
 })

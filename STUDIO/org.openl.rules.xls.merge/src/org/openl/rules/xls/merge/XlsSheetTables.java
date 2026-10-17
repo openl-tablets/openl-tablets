@@ -8,19 +8,21 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeUtil;
 import org.apache.poi.ss.util.SheetUtil;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Finds the tables of a sheet and pairs the tables of two revisions of it.
  *
- * <p>A table is a block of cells with something in them: a value, a style, a comment or a merged cell. It ends at a
- * fully empty row or column, the way OpenL reads a sheet, so cells that touch each other, the diagonal included,
- * belong to one table.
+ * <p>A table is a block of cells with values, merged cells over a value included. It ends at a row or a column with
+ * no value, the way OpenL reads a sheet: a style or a comment of an empty cell does not join two tables. Cells with
+ * values that touch each other, the diagonal included, belong to one table.
  */
 @NullMarked
 final class XlsSheetTables {
@@ -37,7 +39,7 @@ final class XlsSheetTables {
             var runStart = -1;
             var previous = -2;
             for (Cell cell : row) {
-                if (!XlsSheetsMatcher.isBlankAndUnstyled(cell)) {
+                if (hasValue(cell)) {
                     var column = cell.getColumnIndex();
                     if (column != previous + 1) {
                         addRun(tables, row.getRowNum(), runStart, previous);
@@ -48,8 +50,19 @@ final class XlsSheetTables {
             }
             addRun(tables, row.getRowNum(), runStart, previous);
         }
-        tables.addAll(sheet.getMergedRegions());
+        sheet.getMergedRegions()
+                .stream()
+                .filter(region -> hasValue(SheetUtil.getCell(sheet, region.getFirstRow(), region.getFirstColumn())))
+                .forEach(tables::add);
         return join(tables);
+    }
+
+    /**
+     * Tells whether a cell holds a value or a formula, which makes it a cell of a table.
+     */
+    static boolean hasValue(@Nullable Cell cell) {
+        return cell != null && cell.getCellType() != CellType.BLANK
+                && !(cell.getCellType() == CellType.STRING && cell.getStringCellValue().isEmpty());
     }
 
     private static void addRun(List<CellRangeAddress> tables, int row, int first, int last) {

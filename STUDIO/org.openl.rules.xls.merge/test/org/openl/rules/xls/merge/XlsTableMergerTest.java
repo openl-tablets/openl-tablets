@@ -6,14 +6,23 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import static org.openl.rules.xls.merge.MergeFixture.RULES;
+import static org.openl.rules.xls.merge.MergeFixture.bold;
 import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.cellOf;
+import static org.openl.rules.xls.merge.MergeFixture.deleteRow;
+import static org.openl.rules.xls.merge.MergeFixture.insertLine;
+import static org.openl.rules.xls.merge.MergeFixture.insertRow;
+import static org.openl.rules.xls.merge.MergeFixture.isBold;
+import static org.openl.rules.xls.merge.MergeFixture.move;
+import static org.openl.rules.xls.merge.MergeFixture.moveTable;
 import static org.openl.rules.xls.merge.MergeFixture.number;
+import static org.openl.rules.xls.merge.MergeFixture.regionIndex;
+import static org.openl.rules.xls.merge.MergeFixture.removeTable;
 import static org.openl.rules.xls.merge.MergeFixture.set;
+import static org.openl.rules.xls.merge.MergeFixture.tables;
 import static org.openl.rules.xls.merge.MergeFixture.text;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +33,6 @@ import java.util.stream.Stream;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.SpreadsheetVersion;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -46,59 +54,22 @@ import org.openl.rules.xls.merge.diff.DiffStatus;
 
 class XlsTableMergerTest {
 
-    private static final MergeFixture FIXTURE = new MergeFixture(XlsTableMergerTest::base);
+    private static final MergeFixture FIXTURE = new MergeFixture(MergeFixture::tables);
     /**
      * The base revision with a styled cell in the data table and a formula on another sheet that reads the rules
      * table.
      */
     private static final MergeFixture MATRIX = new MergeFixture(workbook -> {
-        base(workbook);
+        tables(workbook);
         fill(workbook.getSheet(RULES), 11, 2);
         cellOf(workbook.createSheet("Other"), 0, 0).setCellFormula("Rules!B4*2");
     });
 
     /**
-     * A rules table at A1, a datatype table at E1 beside it and a data table at A9 below it, each with a merged
-     * header.
-     */
-    private static void base(Workbook workbook) {
-        var sheet = workbook.createSheet(RULES);
-        set(sheet, 0, 0, "Rules String rate(String country)");
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:B1"));
-        set(sheet, 1, 0, "C1");
-        set(sheet, 1, 1, "RET1");
-        set(sheet, 2, 0, "country");
-        set(sheet, 2, 1, "rate");
-        set(sheet, 3, 0, "US");
-        set(sheet, 3, 1, 1);
-        set(sheet, 4, 0, "CA");
-        set(sheet, 4, 1, 2);
-        set(sheet, 5, 0, "MX");
-        set(sheet, 5, 1, 3);
-        set(sheet, 0, 4, "Datatype Car");
-        sheet.addMergedRegion(CellRangeAddress.valueOf("E1:F1"));
-        set(sheet, 1, 4, "String");
-        set(sheet, 1, 5, "model");
-        set(sheet, 2, 4, "Integer");
-        set(sheet, 2, 5, "year");
-        set(sheet, 8, 0, "Data Driver drivers");
-        sheet.addMergedRegion(CellRangeAddress.valueOf("A9:C9"));
-        set(sheet, 9, 0, "name");
-        set(sheet, 9, 1, "age");
-        set(sheet, 9, 2, "note");
-        set(sheet, 10, 0, "Ann");
-        set(sheet, 10, 1, 30);
-        set(sheet, 10, 2, "a");
-        set(sheet, 11, 0, "Bob");
-        set(sheet, 11, 1, 40);
-        set(sheet, 11, 2, "b");
-    }
-
-    /**
      * The base revision with a sheet whose formulas refer to the rules table and to the data table.
      */
     private static void baseWithFormulas(Workbook workbook) {
-        base(workbook);
+        tables(workbook);
         addFormulas(workbook.getSheet(RULES));
     }
 
@@ -162,6 +133,16 @@ class XlsTableMergerTest {
     }
 
     @Test
+    void sameRowInsertedInBothWithOtherFormatting_isMergedOnce() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            insertRow(sheet, 4, "UK", 4);
+            bold(sheet, 4, 0);
+        }, sheet -> insertRow(sheet, 4, "UK", 4));
+        assertRates(merged, "US", "UK", "CA", "MX");
+        assertTrue(isBold(merged, 4, 0));
+    }
+
+    @Test
     void differentRowsInsertedAtTheSamePlace_isConflict() throws IOException {
         FIXTURE.assertConflict(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> insertRow(sheet, 4, "DE", 5));
     }
@@ -172,6 +153,12 @@ class XlsTableMergerTest {
         assertRates(merged, "US", "MX");
         assertEquals(10, number(merged, 3, 1));
         assertNull(cell(merged, 5, 0));
+    }
+
+    @Test
+    void rowDeletedInTheirs_andFormattedInOurs_isDeleted() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> bold(sheet, 4, 1), sheet -> deleteRow(sheet, 4));
+        assertRates(merged, "US", "MX");
     }
 
     @Test
@@ -200,6 +187,59 @@ class XlsTableMergerTest {
         assertEquals("LA", text(merged, 11, 2));
         assertEquals("b", text(merged, 11, 3));
         assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A9:D9")));
+    }
+
+    @Test
+    void rowInsertedInTheirs_nextToARowWhoseEmptyCellsTheyFormatted_isMerged() throws IOException {
+        var fixture = new MergeFixture(workbook -> {
+            tables(workbook);
+            // Ann has a name alone, so the formatting of her empty cells must not make her row another one.
+            workbook.getSheet(RULES).getRow(10).getCell(1).setBlank();
+            workbook.getSheet(RULES).getRow(10).getCell(2).setBlank();
+        });
+        var merged = fixture.mergeXlsx(sheet -> set(sheet, 10, 0, "Anna"), sheet -> {
+            move(sheet, "A12:C12", 1, 0);
+            set(sheet, 11, 0, "Cid");
+            set(sheet, 11, 1, 50);
+            set(sheet, 11, 2, "c");
+            bold(sheet, 10, 1);
+            bold(sheet, 10, 2);
+        });
+        assertEquals("Anna", text(merged, 10, 0));
+        assertEquals("Cid", text(merged, 11, 0));
+        assertEquals("Bob", text(merged, 12, 0));
+        assertTrue(isBold(merged, 10, 1));
+        assertTrue(isBold(merged, 10, 2));
+    }
+
+    @Test
+    void rowsAndColumnsInOurs_andFormattingInTheirs_takeOurs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(XlsTableMergerTest::insertRowAndColumn, sheet -> bold(sheet, 10, 0));
+        assertEquals("NY", text(merged, 10, 2));
+        assertEquals("Cid", text(merged, 12, 0));
+    }
+
+    @Test
+    void formattingInOurs_andRowsAndColumnsInTheirs_takeTheirs() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> bold(sheet, 10, 0), XlsTableMergerTest::insertRowAndColumn);
+        assertEquals("NY", text(merged, 10, 2));
+        assertEquals("Cid", text(merged, 12, 0));
+    }
+
+    /**
+     * Inserts a column of cities and a row of a driver into the data table.
+     */
+    private static void insertRowAndColumn(Sheet sheet) {
+        move(sheet, "C10:C12", 0, 1);
+        sheet.removeMergedRegion(regionIndex(sheet, "A9:C9"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A9:D9"));
+        set(sheet, 9, 2, "city");
+        set(sheet, 10, 2, "NY");
+        set(sheet, 11, 2, "LA");
+        set(sheet, 12, 0, "Cid");
+        set(sheet, 12, 1, 50);
+        set(sheet, 12, 2, "SF");
+        set(sheet, 12, 3, "c");
     }
 
     @Test
@@ -256,6 +296,42 @@ class XlsTableMergerTest {
     void tableMovedToDifferentPlaces_isConflict() throws IOException {
         FIXTURE.assertConflict(sheet -> moveTable(sheet, "A9:C12", "A9:C9", 6, 0),
                 sheet -> moveTable(sheet, "A9:C12", "A9:C9", 0, 8));
+    }
+
+    @Test
+    void tableRemovedInTheirs_andFormattedInOurs_isRemoved() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            bold(sheet, 10, 1);
+            set(sheet, 3, 1, 10);
+        }, sheet -> removeTable(sheet, "A9:C12", "A9:C9"));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 8, 0)));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 10, 1)));
+        assertEquals(10, number(merged, 3, 1));
+    }
+
+    @Test
+    void sameTableAddedInBothWithOtherFormatting_isMergedOnce() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 0, 7, "Data X x");
+            bold(sheet, 0, 7);
+        }, sheet -> set(sheet, 0, 7, "Data X x"));
+        assertEquals("Data X x", text(merged, 0, 7));
+        assertTrue(isBold(merged, 0, 7));
+    }
+
+    @Test
+    void sameTableAddedInBothAtDifferentPlaces_isKeptOnceWhereOursHasIt() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 14, 0, "Data X x");
+            set(sheet, 15, 0, "x1");
+        }, sheet -> {
+            set(sheet, 0, 8, "Data X x");
+            set(sheet, 1, 8, "x1");
+        });
+        assertEquals("Data X x", text(merged, 14, 0));
+        assertEquals("x1", text(merged, 15, 0));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 0, 8)));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 1, 8)));
     }
 
     @Test
@@ -329,7 +405,7 @@ class XlsTableMergerTest {
     @Test
     void definedNameOverMovedRows_isConflict() throws IOException {
         var fixture = new MergeFixture(workbook -> {
-            base(workbook);
+            tables(workbook);
             var name = workbook.createName();
             name.setNameName("Rates");
             name.setRefersToFormula("Rules!$B$5:$B$6");
@@ -379,7 +455,7 @@ class XlsTableMergerTest {
     @Test
     void formulaOfTheirsReferringToMovedTableThroughName_isConflict() throws IOException {
         var fixture = new MergeFixture(workbook -> {
-            base(workbook);
+            tables(workbook);
             var name = workbook.createName();
             name.setNameName("Ages");
             name.setRefersToFormula("Rules!$B$11:$B$12");
@@ -398,7 +474,7 @@ class XlsTableMergerTest {
     @Test
     void formulaOfTheirsReferringToMovedTableThroughChainedNames_isConflict() throws IOException {
         var fixture = new MergeFixture(workbook -> {
-            base(workbook);
+            tables(workbook);
             // the name referring to another name comes first, so it is checked first
             var total = workbook.createName();
             total.setNameName("Total");
@@ -420,12 +496,17 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void rowHiddenInTheirsWhereOurRowsMove_isConflict() throws IOException {
+    void rowHiddenInTheirsWhereTheirRowsMove_isShown() throws IOException {
         // A hidden row is kept by its index, so it would hide the row of OUR revision that moves onto it.
-        FIXTURE.assertConflict(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> {
+        var merged = FIXTURE.mergeXlsx(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> {
             set(sheet, 3, 1, 10);
             sheet.getRow(5).setZeroHeight(true);
         });
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("UK", text(merged, 4, 0));
+        assertEquals("MX", text(merged, 6, 0));
+        assertFalse(merged.getRow(5).getZeroHeight());
+        assertFalse(merged.getRow(6).getZeroHeight());
     }
 
     @Test
@@ -448,7 +529,7 @@ class XlsTableMergerTest {
     @Test
     void pictureAwayFromMovedTable_isMerged() throws IOException {
         var fixture = new MergeFixture(workbook -> {
-            base(workbook);
+            tables(workbook);
             MergeFixture.addPicture(workbook.getSheet(RULES), "H1:I3");
         });
         var merged = fixture.mergeXlsx(
@@ -554,12 +635,40 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void columnWidthChangedWhereRowsMove_isConflict() throws IOException {
-        // A width is kept by its column, and the rows of the rules table move under it.
-        FIXTURE.assertConflict(sheet -> set(sheet, 3, 1, 10), sheet -> {
+    void columnWidthChangedInTheirsWhereOurRowsMove_isMerged() throws IOException {
+        // THEIR revision both inserts the row and widens the column, so its own content stays under the width.
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
             insertRow(sheet, 4, "UK", 4);
             sheet.setColumnWidth(1, 9000);
         });
+        assertEquals(9000, merged.getColumnWidth(1));
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("UK", text(merged, 4, 0));
+        assertEquals("CA", text(merged, 5, 0));
+    }
+
+    @Test
+    void rowHeightSetInTheirsWhereTheirRowMovedTo_isMerged() throws IOException {
+        // THEIR revision laid out the row MX moves up to, as THEIR revision has it.
+        var merged = FIXTURE.mergeXlsx(sheet -> set(sheet, 3, 1, 10), sheet -> {
+            deleteRow(sheet, 4);
+            sheet.getRow(4).setHeight((short) 600);
+        });
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("MX", text(merged, 4, 0));
+        assertEquals(600, merged.getRow(4).getHeight());
+    }
+
+    @Test
+    void rowHeightSetInOursWhereOurRowsMove_staysAtItsRow() throws IOException {
+        // OUR revision laid out the row of MX, which moves up when THEIR revision deletes CA.
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 3, 1, 10);
+            sheet.getRow(5).setHeight((short) 600);
+        }, sheet -> deleteRow(sheet, 4));
+        assertEquals(10, number(merged, 3, 1));
+        assertEquals("MX", text(merged, 4, 0));
+        assertEquals(600, merged.getRow(5).getHeight());
     }
 
     @Test
@@ -602,7 +711,7 @@ class XlsTableMergerTest {
     private static void assertConflictWhenDataTableMoves(Supplier<Workbook> format, Consumer<Sheet> extra)
             throws IOException {
         var fixture = new MergeFixture(workbook -> {
-            base(workbook);
+            tables(workbook);
             extra.accept(workbook.getSheet(RULES));
         });
         var diff = fixture.diff(format,
@@ -769,103 +878,6 @@ class XlsTableMergerTest {
         if (!name.isEmpty()) {
             set(sheet, row, 5, name);
         }
-    }
-
-    /**
-     * Inserts a row into the rules table the way OpenL Studio does: the rows of the table below it move down into
-     * the empty row under the table.
-     */
-    private static void insertRow(Sheet sheet, int row, String country, double rate) {
-        insertLine(sheet, row, 0);
-        set(sheet, row, 0, country);
-        set(sheet, row, 1, rate);
-    }
-
-    /**
-     * Moves the rows of a two-column table from a row down by one, freeing that row.
-     */
-    private static void insertLine(Sheet sheet, int row, int column) {
-        var last = row;
-        while (cell(sheet, last, column) != null) {
-            last++;
-        }
-        if (last > row) {
-            move(sheet, new CellRangeAddress(row, last - 1, column, column + 1).formatAsString(), 1, 0);
-        }
-    }
-
-    /**
-     * Deletes a row of the rules table the way OpenL Studio does: the rows of the table below it move up.
-     */
-    private static void deleteRow(Sheet sheet, int row) {
-        var sheetRow = sheet.getRow(row);
-        sheetRow.removeCell(sheetRow.getCell(0));
-        sheetRow.removeCell(sheetRow.getCell(1));
-        var last = row + 1;
-        while (cell(sheet, last, 0) != null) {
-            last++;
-        }
-        if (last > row + 1) {
-            move(sheet, "A" + (row + 2) + ":B" + last, -1, 0);
-        }
-    }
-
-    /**
-     * Moves a table with its merged header by rows and columns, the way OpenL Studio moves a table.
-     */
-    private static void moveTable(Sheet sheet, String table, String header, int rows, int columns) {
-        sheet.removeMergedRegion(regionIndex(sheet, header));
-        move(sheet, table, rows, columns);
-        var region = CellRangeAddress.valueOf(header);
-        sheet.addMergedRegion(new CellRangeAddress(region.getFirstRow() + rows,
-                region.getLastRow() + rows,
-                region.getFirstColumn() + columns,
-                region.getLastColumn() + columns));
-    }
-
-    private static void removeTable(Sheet sheet, String table, String header) {
-        sheet.removeMergedRegion(regionIndex(sheet, header));
-        for (var address : CellRangeAddress.valueOf(table)) {
-            var cell = cell(sheet, address.getRow(), address.getColumn());
-            if (cell != null) {
-                cell.getRow().removeCell(cell);
-            }
-        }
-    }
-
-    /**
-     * Moves the cells of a block, their values and styles, by rows and columns.
-     */
-    private static void move(Sheet sheet, String block, int rows, int columns) {
-        record Moved(int row, int column, CellType type, String text, double number, CellStyle style) {
-        }
-        var moved = new ArrayList<Moved>();
-        for (var address : CellRangeAddress.valueOf(block)) {
-            var cell = cell(sheet, address.getRow(), address.getColumn());
-            if (cell != null) {
-                var type = cell.getCellType();
-                moved.add(new Moved(address.getRow() + rows,
-                        address.getColumn() + columns,
-                        type,
-                        type == CellType.STRING ? cell.getStringCellValue() : "",
-                        type == CellType.NUMERIC ? cell.getNumericCellValue() : 0,
-                        cell.getCellStyle()));
-                cell.getRow().removeCell(cell);
-            }
-        }
-        for (Moved cell : moved) {
-            var target = cellOf(sheet, cell.row(), cell.column());
-            switch (cell.type()) {
-                case STRING -> target.setCellValue(cell.text());
-                case NUMERIC -> target.setCellValue(cell.number());
-                default -> target.setBlank();
-            }
-            target.setCellStyle(cell.style());
-        }
-    }
-
-    private static int regionIndex(Sheet sheet, String region) {
-        return sheet.getMergedRegions().indexOf(CellRangeAddress.valueOf(region));
     }
 
     private static void fill(Sheet sheet, int row, int column) {

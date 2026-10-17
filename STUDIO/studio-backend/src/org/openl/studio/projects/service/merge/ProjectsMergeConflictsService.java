@@ -12,6 +12,7 @@ import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictTextView;
+import org.openl.studio.projects.model.merge.ConflictWorkbookView;
 import org.openl.studio.projects.model.merge.FileConflictResolution;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
@@ -25,6 +26,7 @@ import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
  *   <li>Grouping and organizing conflicted files</li>
  *   <li>Retrieving specific versions of conflicted files (BASE, OURS, THEIRS)</li>
  *   <li>Merging a conflicted text file line by line, so that its conflicts are resolved in place</li>
+ *   <li>Merging a conflicted workbook table by table, each conflicting table or sheet taken from a version</li>
  *   <li>Applying various resolution strategies to resolve conflicts</li>
  * </ul>
  *
@@ -153,6 +155,46 @@ public interface ProjectsMergeConflictsService {
      * @throws org.openl.studio.common.exception.BadRequestException if a version of the file is no UTF-8 text
      */
     ConflictTextView getConflictText(MergeConflictInfo mergeConflictInfo, String path) throws IOException;
+
+    /**
+     * Reads a conflicted workbook as the merge of the branches reads it: the sheets either branch changed, how the
+     * merge takes each of them by itself, and the conflicts left, each conflicting table with its cells in every
+     * version.
+     *
+     * <p>A conflict is a table or a whole sheet both branches changed in ways the merge cannot combine, or the
+     * palette of an .xls workbook. It is resolved by taking it whole from one version, see
+     * {@link #mergeConflictWorkbook(MergeConflictInfo, String, Map)}.
+     *
+     * @param mergeConflictInfo conflict information containing Git repository references
+     * @param path              path of the conflicted workbook, as the conflict lists it
+     * @return the sheets either branch changed, with their conflicts
+     * @throws IOException if a version of the workbook cannot be read
+     * @throws org.openl.studio.common.exception.BadRequestException if the file is not an Excel workbook
+     * @throws org.openl.studio.common.exception.NotFoundException   if the file is not conflicted, or your, their or
+     *                                                               the base version does not hold it
+     */
+    ConflictWorkbookView getConflictWorkbook(MergeConflictInfo mergeConflictInfo, String path) throws IOException;
+
+    /**
+     * Merges a conflicted workbook, taking each conflict whole from the version decided for it and merging the rest
+     * as the merge of the branches merges it. Nothing is saved.
+     *
+     * @param mergeConflictInfo conflict information containing Git repository references
+     * @param path              path of the conflicted workbook, as the conflict lists it
+     * @param decisions         the version each conflict is taken from, by the identifier of the conflict: a table, a
+     *                          sheet taken whole with its tables, or the palette
+     * @return the merged workbook
+     * @throws IOException if a version of the workbook cannot be read
+     * @throws org.openl.studio.common.exception.BadRequestException if the file is not an Excel workbook, a conflict
+     *                                                               has no decision, or the decisions make the tables
+     *                                                               of a sheet touch each other or move content that
+     *                                                               something refers to
+     * @throws org.openl.studio.common.exception.NotFoundException   if the file is not conflicted, or your, their or
+     *                                                               the base version does not hold it
+     */
+    byte[] mergeConflictWorkbook(MergeConflictInfo mergeConflictInfo,
+                                 String path,
+                                 Map<String, ConflictBase> decisions) throws IOException;
 
     /**
      * Resolves merge conflicts using specified strategies.

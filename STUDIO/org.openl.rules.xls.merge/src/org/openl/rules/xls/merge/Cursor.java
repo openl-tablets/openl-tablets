@@ -1,5 +1,6 @@
 package org.openl.rules.xls.merge;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,12 @@ class Cursor {
     public XSSFPicture picture;
 
     public final Collection<Cell> formulas;
+
+    /**
+     * The cells of {@code sheet} that array formulas copied into it span. Each is written as plain formulas, cell by
+     * cell, and made an array formula again once all of its cells are written.
+     */
+    public final List<CellRangeAddress> arrayFormulas = new ArrayList<>();
 
     /**
      * Merged regions of current {@code sheet}, read on the first question about them and kept: ask only once the

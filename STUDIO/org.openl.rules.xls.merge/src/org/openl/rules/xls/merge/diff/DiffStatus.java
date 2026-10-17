@@ -24,6 +24,10 @@ public enum DiffStatus {
     /**
      * Sheet has changes in THEIR revision only comparing to BASE revision
      */
-    THEIR
+    THEIR,
+    /**
+     * Sheet is taken from BASE revision, without the changes of either revision, as a resolution decided
+     */
+    BASE
 
 }

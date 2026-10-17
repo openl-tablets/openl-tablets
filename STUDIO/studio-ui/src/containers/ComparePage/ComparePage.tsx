@@ -77,6 +77,21 @@ const VERSION_TITLES: Record<ConflictSide, string> = {
     theirs: 'their_version',
 }
 
+/** The keys of the names of the two versions a comparison shows, the first and the second. */
+interface TitleKeys {
+    first: string
+    second: string
+}
+
+/** A file at the revision the working copy was taken from against the working copy, as the Save dialog names it. */
+const SAVE_TITLES: TitleKeys = { first: 'saved_revision', second: 'your_changes' }
+
+/** A file at a revision against the same file at a later one, such as before and after a merge. */
+const REVISION_TITLES: TitleKeys = { first: 'earlier_revision', second: 'later_revision' }
+
+/** A file of the working copy against a file of the revision picked beside it. */
+const PICKED_TITLES: TitleKeys = { first: 'user_workspace', second: 'selected_revision' }
+
 /** What is known of a conflicted file whose versions cannot be read: the merge compared their two versions. */
 const UNKNOWN_VERSIONS: ConflictFileVersions = { base: false, ours: true, theirs: true }
 
@@ -105,12 +120,16 @@ const releaseComparison = (comparisonId: string) => {
 /** Two versions named by the screen that opened the window, and how their comparison is started. */
 interface VersionsRequest {
     start: () => Promise<string>
+    /** What the two versions are called, or nothing for a first and a second version. */
+    titles?: TitleKeys | undefined
 }
 
 /** A file that is not a workbook at two versions: it reads line by line. */
 interface TextVersionsRequest {
     path: string
     read: () => Promise<[string, string]>
+    /** What the two versions are called, or nothing for a first and a second version. */
+    titles?: TitleKeys | undefined
 }
 
 /** The versions the window was opened for: of a workbook, or of a file that reads line by line. */
@@ -133,7 +152,8 @@ const moduleVersionsOf = (params: URLSearchParams): VersionsRequest | null => {
  * another revision of the branch, as the summary of a merge names it before and after the merge, or
  * in the working copy, as the Save dialog names the changes it commits. A workbook is compared element
  * by element, any other file reads line by line. A revision is a commit of the repository, so it is
- * read whichever branch the project is on.
+ * read whichever branch the project is on. The two versions are named as what they are: the saved revision
+ * and your changes, or the earlier revision and the later one.
  */
 const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const projectId = params.get('projectId')
@@ -144,18 +164,19 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     }
     // A file named without a later revision is compared with the working copy.
     const after = params.get('after') ?? undefined
+    const titles = after ? REVISION_TITLES : SAVE_TITLES
     if (!isWorkbookPath(file)) {
         const read = () => Promise.all([
             getFileText(projectId, file, before),
             getFileText(projectId, file, after),
         ])
-        return { versions: null, textVersions: { path: file, read } }
+        return { versions: null, textVersions: { path: file, read, titles } }
     }
     const branch = params.get('branch') ?? undefined
     const start = () => startProjectComparison(projectId,
         { path: file, branch, revision: before },
         after ? { path: file, branch, revision: after } : { path: file })
-    return { versions: { start }, textVersions: null }
+    return { versions: { start, titles }, textVersions: null }
 }
 
 /**
@@ -538,11 +559,14 @@ export const ComparePage: React.FC = () => {
         </Button>
     )
 
-    // The two versions a view compares, as the window names them, and where it shows them.
+    // The two versions a view compares, as the window names them, and where it shows them. Versions the screen that
+    // opened the window named, and the files picked of a project, are named as what they are; only two files picked
+    // from the computer are a first and a second file.
     const shownView = conflictView ? CONFLICT_VIEWS[conflictView] : null
-    const conflictTitles = shownView
-        ? { first: t(VERSION_TITLES[shownView.compared[0]]), second: t(VERSION_TITLES[shownView.compared[1]]) }
-        : undefined
+    const titleKeys = shownView
+        ? { first: VERSION_TITLES[shownView.compared[0]], second: VERSION_TITLES[shownView.compared[1]] }
+        : (versions ?? textVersions)?.titles ?? (pickedProject ? PICKED_TITLES : undefined)
+    const titles = titleKeys && { first: t(titleKeys.first), second: t(titleKeys.second) }
     const secondOnLeft = !!shownView?.secondOnLeft
 
     const conflictHead = conflict && (
@@ -595,7 +619,7 @@ export const ComparePage: React.FC = () => {
                     key={conflictView}
                     read={text.read}
                     secondOnLeft={secondOnLeft}
-                    titles={conflictTitles}
+                    titles={titles}
                 />
             </div>
         )
@@ -739,7 +763,7 @@ export const ComparePage: React.FC = () => {
                             secondOnLeft={secondOnLeft}
                             showEqualRows={showEqualRows}
                             table={table}
-                            titles={conflictTitles}
+                            titles={titles}
                             view={view}
                             leading={treeHidden && (
                                 <>

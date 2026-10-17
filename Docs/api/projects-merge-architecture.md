@@ -28,7 +28,8 @@ flowchart TB
     MC --> Git
     CS --> Git
     CS --> MC
-    CS --> XM["XlsWorkbookMerger<br/>sheet and cell merge"]
+    CS --> XM["XlsWorkbookMerger<br/>sheet, table and cell merge,<br/>conflicts resolved as decided"]
+    CS --> WM["ConflictWorkbookMapper<br/>the conflicts of a workbook"]
     CS --> TM["TextMerge<br/>text file line by line"]
     Save["Project save"] -- SaveMergeConflictEvent --> Lst["SaveMergeConflictEventListener"]
     Lst --> SH
@@ -45,8 +46,9 @@ flowchart TB
 - **`ProjectsMergeRegistry`** — keeps the merge a client started last (`StartedMerge`): the merge itself and the
   editor state it found.
 - **`ProjectsMergeConflictsService`** — describes a conflict (revisions, file availability, default message), groups the
-  conflicted files by project, reads one version of a file, merges a conflicted text file line by line, and
-  resolves. A resolved merge is summed up by `MergeChangesService`, as a merge without conflicts is.
+  conflicted files by project, reads one version of a file, merges a conflicted text file line by line, reads the
+  conflicts of a conflicted workbook and merges it as decided, and resolves. A resolved merge is summed up by
+  `MergeChangesService`, as a merge without conflicts is.
 - **`ProjectsMergeConflictsSessionHolder`** — keeps the unresolved conflict of one client.
 - **`SaveMergeConflictEventListener`** — stores the conflict that a project save found in the same holder.
 - **`ComparisonLauncher`** (`org.openl.studio.compare.service`) — starts the comparison of two versions of a
@@ -54,11 +56,50 @@ flowchart TB
   changed; the comparison is read through the Compare API.
 - **`XlsWorkbookMerger`** (`org.openl.rules.xls.merge`) — merges two versions of a workbook against their base, sheet
   by sheet. A sheet both versions changed goes to **`XlsSheetMerger`**, which merges it cell by cell, the value, the
-  style and the comment of a cell each on its own, unless the changes overlap. When that fails, for instance because
+  style and the comment of a cell each on its own, unless the values or the comments overlap. A style both versions
+  changed differently keeps your version, as formatting does not change what OpenL reads. The height and the
+  visibility of a row, the width and the visibility of a column and the default sizes of the sheet are taken the same
+  way, and one both versions changed differently keeps your version too, and so do the frozen panes and the
+  conditional formatting; data validation and hyperlinks their version changed otherwise than yours leave the sheet
+  a conflict. When that fails, for instance because
   **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
-  table by table instead: **`XlsSheetTables`** splits each version into tables and pairs them by their headers,
-  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
+  table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
+  value, as the OpenL compiler does whatever their style, and pairs them by their headers; a table both versions
+  created with the same content is kept once, at the place of your version, and a sheet holding one at different
+  places is merged table by table even when nothing moved; a cell outside every table, styled but empty, is merged
+  cell by cell,
+  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version; when
+  both versions moved tables and one of them only pushed its tables by rows it inserted or deleted above them, the
+  merged sheet follows the places of the other version, pushed by those rows (`Pushes`), and falls back to a
+  conflict per moved table when those places do not fit together; and
   **`XlsFormulaReferences`** keeps the sheet a conflict when a formula or a defined name refers to content that moves.
+  A row, a table or a sheet one version removes while the other changes only its look is removed, and a table one
+  version only formats is taken from the other version when their changes cannot be merged row by row.
+  **`Conflicts`** tells the merge what to do with a place both versions changed in ways it cannot combine: a strict
+  merge, the one of a merge of branches, leaves the sheet a conflict at once (`getDiffResult`); a survey notes every
+  conflicting table and goes on with your version of it, so the conflicts after it are found too (`getConflicts`); a
+  resolution takes each conflict whole from the version decided (`resolve`). A conflict is a table of a sheet merged
+  table by table, the sheet itself when its conflict lies outside its tables, such as a sheet one version removed and
+  the other changed, or the palette of an .xls workbook. Tables their version added next to one table your version
+  added are one conflict. A table taken whole lands where the merge puts it, at the place one version moved it to,
+  and keeps its own place only when both moved it. A table taken from BASE revision is copied from it, which is why
+  `merge` reads the base workbook then. A resolution that leaves the tables of a sheet touching each other, or moves
+  content something refers to, a formula taken from BASE revision included, leaves the sheet to be taken whole
+  (`UnresolvedConflictsException`). A survey that refuses a sheet for moved content tries it with THEIR and with BASE
+  version of every conflicting table too, and lists the sheet as resolved only as a whole when every try is refused;
+  tables that touch may fit in another choice, so they stay listed. A sheet taken whole is copied by
+  `XlsSheetCopier`, the default sizes and the sizes and visibility of the rows and columns included.
+- **`MergedWorkbookFormatting`** — formats the workbooks of the merged project that a merge combines while
+  **Format tables on save** is on, as an upload into a closed project is formatted (`UploadFormatting`): staged with
+  the project the merge changes and compiled once. See
+  [Table Formatting](../architecture/table-formatting.md#merged-workbooks).
+- **`ConflictWorkbookMapper`** — tells the conflicts of a workbook the way `GET /merge/conflicts/workbook` answers
+  them: each conflicting table with its cells in every version, read from the revisions the merge compared through
+  `RawTableReader.readCells(Sheet, CellRangeAddress)`, the first 200 rows of a long table, and the cells a version
+  changed against the base: cell by cell in a table of the base size, leaving out a cell the other version changed
+  alike, or whole rows or columns, matched against the base ones as the longest common sequence, when the branch
+  inserted or deleted rows or columns. When all three versions hold the table at one size, it also tells the cells
+  both versions changed differently, which the editor frames and shows the rows around.
 - **`TextMerge`** (`org.openl.rules.repository.git.text`) — merges the three versions of a conflicted text file line
   by line, and tells the lines it takes by itself from the conflicts between them, part by part, each part with the
   lines every version holds in its place and their line breaks. It compares the base with each version by the diff
@@ -91,8 +132,12 @@ branch and the lock, and `status` says `up-to-date` for step 6. `merge` runs all
 
 - **`receive`** merges `otherBranch` into the current branch. **`send`** merges the current branch into `otherBranch`.
   The target of the merge is the branch that changes.
-- The Git repository merges the source into the target with the user as the author, and the service waits up to
-  30 seconds until the project index publishes the target branch. The merge is committed by then, so an index that
+- The Git repository merges the source into the target with the user as the author. While **Format tables on save**
+  is on, the workbooks of the project the merge combined by itself are then formatted and committed on the target
+  branch in a commit of their own, based on the merge commit, so the repository is not held while the project
+  compiles. A formatting that fails, or a commit that conflicts with a change the target took meanwhile, leaves the
+  merge as committed.
+- The service waits up to 30 seconds until the project index publishes the target branch. The merge is committed by then, so an index that
   is late is logged and the merge stays a `success`: a failure would have the user merge again what is already
   merged (EPBDS-16541). A resolution waits for the index the same way.
 - A conflict in Git gives a `MergeConflictInfo` with the details of the conflict. Otherwise the merge is `success`.
@@ -120,7 +165,8 @@ it, so the user sees what the merge takes in before it starts and what it change
   declares modules in again are written in a commit of their own after the merge, on the branch it merged into: the
   summary lists them as well, and its revision after the merge is the commit that wrote them, as their save answers
   it. A descriptor declaring every module already is not written again, and descriptors whose save answers no commit
-  are left out of the summary.
+  are left out of the summary. The workbooks a merge formats after its commit count the same way: the revision after
+  the merge is the commit that formatted them.
 - **Projects** — `MergeChangesService` puts each file under the project whose folder holds it, reading which projects
   each branch holds from the project index (`DesignTimeRepository.getBranchProjects`), which answers for the
   repository rather than for what the user may read. A project is added or deleted as a whole when one side holds it
@@ -286,13 +332,17 @@ session or the state kept for a credential (see [Client Sessions](../architectur
 
 1. **Validation** — each file is in the conflict, no file is named twice, and a `CUSTOM` resolution has a non-empty
    uploaded file. An uploaded Excel or ZIP file is read to see that it is complete. A text file the client merged
-   through `GET /merge/conflicts/text` comes as such an uploaded file.
+   through `GET /merge/conflicts/text` comes as such an uploaded file, and so does a workbook the client merged
+   through `POST /merge/conflicts/workbook`.
 2. **Versions** — `BASE`, `OURS`, and `THEIRS` are read from the commits of the conflict, not from the working tree. A
    version that does not hold the file deletes the file.
 3. **Workbooks** — a conflicted Excel file whose changes do not overlap is merged by `XlsWorkbookMerger` without a
    decision: a sheet changed in one branch only is taken from it, a sheet changed in both is merged table by table, row
    by row and cell by cell. The same merge completes a `POST /merge` and a project save without a conflict when every
-   conflicted file is such a workbook. Such files are not listed in the request or in `resolvedFiles`.
+   conflicted file is such a workbook. Such files are not listed in the request or in `resolvedFiles`. While
+   **Format tables on save** is on, they are formatted before the commit, and so is the workbook
+   `POST /merge/conflicts/workbook` answers: staged with the project as the branch the merge changes holds it, or with
+   the copy in the workspace in a save conflict.
 4. **Commit** — for a merge conflict the repository completes the merge with the resolved files and the message of the
    request. For a save conflict the project is saved with them. Without a message the service builds one: the commit of
    the other branch, the conflicted files, and the workbooks resolved automatically.
@@ -302,6 +352,12 @@ session or the state kept for a credential (see [Client Sessions](../architectur
    opened, as after a merge.
 
 A refused resolution leaves the stored conflict as it was, so the client can send the request again.
+
+A workbook is merged table by table in two requests that change nothing. `GET /merge/conflicts/workbook` compares the
+three versions as the merge of the branches does, but surveys the conflicts instead of stopping at the first one, and
+`POST /merge/conflicts/workbook` merges them again with each conflict resolved as the request decides, then answers
+the merged workbook. Both read the versions of the conflict as `GET /merge/conflicts/text` does: your version from its
+commit, also in a save conflict, and every version is needed, the base one included.
 
 ## Errors
 
@@ -322,7 +378,10 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
   read.
 - **Workbook merge** — `XlsSheetMergerTest`, `XlsTableMergerTest` and `XlsSheetShiftsTest` in
   `STUDIO/org.openl.rules.xls.merge`: the changes of the two branches, kind by kind, merged or kept a conflict;
-  `XlsTableMergerTest` crosses what each branch does with a table: leaves, creates, removes, changes or moves it.
+  `XlsTableMergerTest` crosses what each branch does with a table: leaves, creates, removes, changes or moves it;
+  `XlsConflictResolutionTest` surveys the conflicts of each kind, takes each from every version, and refuses a
+  resolution that leaves a conflict or makes tables touch. `ProjectsMergeConflictsServiceImplTest` reads the
+  conflicts of a workbook and merges it as decided, and `ConflictWorkbookViewTest` holds the JSON a screen reads.
 - **Text merge** — `TextMergeTest`: changes apart merged, a line both branches change, a change both make alike,
   lines both append, blocks both add at one place that start and end alike, the base a conflict replaced, line
   breaks kept, a last line without a line break, and content that is not UTF-8 text;
@@ -333,6 +392,7 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
   sheet changed in both branches through the table API, a reformat of the Excel files included;
   `task_EPBDS-16896-merge-scope` checks and merges a branch that changes three projects, as the administrator and as a
   user who may read one of them, so the scope and the summary name that project alone and count the two others;
-  `task_EPBDS-16637-text-merge` reads a conflicted message bundle merged line by line. A merge step is three
-  requests: the `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a `GET /merge` checking
-  its result.
+  `task_EPBDS-16637-text-merge` reads a conflicted message bundle merged line by line;
+  `task_EPBDS-16885-workbook-conflicts` reads the conflicting tables of a workbook and merges it as decided. A merge
+  step is three requests: the `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a
+  `GET /merge` checking its result.

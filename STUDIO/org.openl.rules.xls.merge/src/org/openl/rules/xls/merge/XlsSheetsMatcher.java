@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -355,6 +356,82 @@ public class XlsSheetsMatcher {
         baseCursor.cellStyle = baseCursor.cell.getCellStyle();
         cursor.cellStyle = cursor.cell.getCellStyle();
         return equalStylesInCell(baseCursor, cursor);
+    }
+
+    /**
+     * Tells whether two sheets hold the same: the same values, formulas, comments, merged cells and pictures, the same
+     * visibility, and the same data validation and hyperlinks, whatever their look: the formatting of their cells,
+     * their conditional formatting, their frozen panes and the sizes of their rows and columns.
+     */
+    static boolean equalContent(Cursor baseCursor, Cursor cursor) {
+        if (!Set.copyOf(baseCursor.getMergedRegions()).equals(Set.copyOf(cursor.getMergedRegions()))
+                || !equalDrawings(baseCursor, cursor)
+                || baseCursor.isSheetHidden() != cursor.isSheetHidden()
+                || !XlsSheetMerger.settingsOf(baseCursor.sheet).equals(XlsSheetMerger.settingsOf(cursor.sheet))) {
+            return false;
+        }
+        var first = Math.max(0, Math.min(baseCursor.sheet.getFirstRowNum(), cursor.sheet.getFirstRowNum()));
+        var last = Math.max(baseCursor.sheet.getLastRowNum(), cursor.sheet.getLastRowNum());
+        var equal = true;
+        for (var row = first; equal && row <= last; row++) {
+            equal = rowsHoldAlike(baseCursor, cursor, baseCursor.sheet.getRow(row), cursor.sheet.getRow(row));
+        }
+        return equal;
+    }
+
+    private static boolean rowsHoldAlike(Cursor baseCursor, Cursor cursor, @Nullable Row baseRow, @Nullable Row row) {
+        var first = Math.min(firstCellOf(baseRow), firstCellOf(row));
+        var last = Math.max(endOf(baseRow), endOf(row));
+        var equal = true;
+        for (var column = first; equal && column < last; column++) {
+            equal = holdAlike(baseCursor, cursor, cellOf(baseRow, column), cellOf(row, column));
+        }
+        return equal;
+    }
+
+    /** The column of the first cell of a row, or {@link Integer#MAX_VALUE} for a row with no cell. */
+    private static int firstCellOf(@Nullable Row row) {
+        return row == null || row.getFirstCellNum() < 0 ? Integer.MAX_VALUE : row.getFirstCellNum();
+    }
+
+    /** The column after the last cell of a row, or {@code -1} for a row with no cell. */
+    private static int endOf(@Nullable Row row) {
+        return row == null ? -1 : row.getLastCellNum();
+    }
+
+    private static @Nullable Cell cellOf(@Nullable Row row, int column) {
+        return row == null ? null : row.getCell(column);
+    }
+
+    private static boolean holdAlike(Cursor baseCursor, Cursor cursor, @Nullable Cell baseCell, @Nullable Cell cell) {
+        baseCursor.cell = baseCell;
+        cursor.cell = cell;
+        try {
+            return equalValues(baseCursor, cursor) && equalComments(baseCursor, cursor);
+        } finally {
+            baseCursor.cell = null;
+            cursor.cell = null;
+        }
+    }
+
+    /**
+     * Tells whether two cells are formatted alike, as the merge compares them: the number format, the alignment, the
+     * font, the borders and the fill.
+     *
+     * <p>The cells may come from different workbooks. A cell in the default font of its workbook takes another font
+     * when the workbook changes its default font. A missing cell has the default formatting.
+     */
+    public static boolean equalFormatting(@Nullable Cell cell, @Nullable Cell other) {
+        if (cell == null || other == null) {
+            return cell == other || isUnstyled(Objects.requireNonNullElse(cell, other));
+        }
+        return equalStyles(cursorAt(cell), cursorAt(other));
+    }
+
+    private static Cursor cursorAt(Cell cell) {
+        var cursor = new Cursor(cell.getSheet().getWorkbook(), cell.getSheet());
+        cursor.cell = cell;
+        return cursor;
     }
 
     /**
@@ -1111,13 +1188,6 @@ public class XlsSheetsMatcher {
         return cursor.cell == null || cursor.cell.getCellType() == CellType.BLANK
                 && cursor.cell.getCellComment() == null && isUnstyled(cursor.cell)
                 && cursor.getCellMergedRegion() == null;
-    }
-
-    /**
-     * Tells whether a cell is blank and has no comment and no style; merged cells are not looked at.
-     */
-    static boolean isBlankAndUnstyled(Cell cell) {
-        return cell.getCellType() == CellType.BLANK && cell.getCellComment() == null && isUnstyled(cell);
     }
 
     /**

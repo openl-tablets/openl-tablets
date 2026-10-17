@@ -35,6 +35,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictDetails;
 import org.openl.rules.repository.git.MergeConflictException;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -64,6 +65,8 @@ class ProjectsMergeServiceCheckTest {
     private ProtectedBranchBypassService bypassService;
     private UserWorkspace userWorkspace;
     private MergeChangesService mergeChangesService;
+    private MergedWorkbookFormatting mergedWorkbookFormatting;
+    private WebStudio studio;
     private ProjectsMergeServiceImpl service;
 
     @BeforeEach
@@ -94,7 +97,15 @@ class ProjectsMergeServiceCheckTest {
         bypassService = mock(ProtectedBranchBypassService.class);
 
         mergeChangesService = mock(MergeChangesService.class);
-        service = new ProjectsMergeServiceImpl(stateValidator, aclService, bypassService, mergeChangesService) {
+        mergedWorkbookFormatting = mock(MergedWorkbookFormatting.class);
+        lenient().when(mergedWorkbookFormatting.formatCommitted(any(), any(), any(), any()))
+                .thenAnswer(invocation -> invocation.getArgument(2));
+        studio = mock(WebStudio.class);
+        service = new ProjectsMergeServiceImpl(stateValidator,
+                aclService,
+                bypassService,
+                mergeChangesService,
+                mergedWorkbookFormatting) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return userWorkspace;
@@ -203,7 +214,7 @@ class ProjectsMergeServiceCheckTest {
         when(designTimeRepository.refreshBranch("design", OTHER))
                 .thenReturn(CompletableFuture.completedFuture(null));
 
-        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
 
         assertEquals(MergeResultStatus.SUCCESS, result.status());
         verify(designTimeRepository).refreshBranch("design", OTHER);
@@ -219,7 +230,7 @@ class ProjectsMergeServiceCheckTest {
         when(designTimeRepository.refreshBranch("design", OTHER))
                 .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("index is busy")));
 
-        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
 
         assertEquals(MergeResultStatus.SUCCESS, result.status());
         // An index that has not published the merge would tell the projects of the branch as they were before it.
@@ -235,7 +246,7 @@ class ProjectsMergeServiceCheckTest {
         when(lockEngine.getLockInfo("design", OTHER, "DESIGN/rules/P1")).thenReturn(lockInfo);
 
         assertThrows(ConflictException.class,
-                () -> service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace));
+                () -> service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio));
 
         verify(repository, never()).forBranch(any());
     }
@@ -245,7 +256,7 @@ class ProjectsMergeServiceCheckTest {
         when(repository.isMergedInto(CURRENT, OTHER)).thenReturn(true);
 
         assertThrows(ConflictException.class,
-                () -> service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace));
+                () -> service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio));
 
         verify(repository, never()).forBranch(any());
     }
@@ -264,7 +275,7 @@ class ProjectsMergeServiceCheckTest {
         var changes = mock(MergedChanges.class);
         when(mergeChangesService.changesOf("design", CURRENT, OTHER, outcome, before)).thenReturn(changes);
 
-        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
 
         assertEquals(changes, result.changes());
     }
@@ -277,11 +288,35 @@ class ProjectsMergeServiceCheckTest {
                 .thenReturn(CompletableFuture.completedFuture(null));
         when(mergeChangesService.projectsBefore("design", OTHER)).thenReturn(null);
 
-        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
 
         assertEquals(MergeResultStatus.SUCCESS, result.status());
         assertNull(result.changes());
         verify(repository.forBranch(OTHER)).merge(eq(CURRENT), any(), any());
+    }
+
+    /** The workbooks a merge combines are formatted once it is committed, and what it changed counts them. */
+    @Test
+    void aMergeFormatsTheWorkbooksItCombinesOnceItIsCommitted() throws IOException {
+        var designTimeRepository = givenMergeInto(OTHER);
+        when(designTimeRepository.refreshBranch("design", OTHER))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        var before = List.of(mock(AProject.class));
+        when(mergeChangesService.projectsBefore("design", OTHER)).thenReturn(before);
+        var merged = new MergeOutcome("b1", "a1", List.of(), List.of());
+        when(repository.forBranch(OTHER).merge(eq(CURRENT), any(), any())).thenReturn(merged);
+        var formatted = new MergeOutcome("b1", "a2", List.of(), List.of());
+        var author = userWorkspace.getUser().getUserInfo();
+        when(mergedWorkbookFormatting.formatCommitted(project,
+                repository,
+                merged,
+                new MergedWorkbookFormatting.CommittedMerge(CURRENT, OTHER, author, studio))).thenReturn(formatted);
+        var changes = mock(MergedChanges.class);
+        when(mergeChangesService.changesOf("design", CURRENT, OTHER, formatted, before)).thenReturn(changes);
+
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
+
+        assertEquals(changes, result.changes());
     }
 
     @Test
@@ -291,7 +326,7 @@ class ProjectsMergeServiceCheckTest {
         var details = mock(MergeConflictDetails.class);
         doThrow(new MergeConflictException(details)).when(targetRepository).merge(eq(OTHER), any(), any());
 
-        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.RECEIVE, userWorkspace);
+        var result = service.merge(project, CURRENT, OTHER, MergeOpMode.RECEIVE, userWorkspace, studio);
 
         assertEquals(MergeResultStatus.CONFLICTS, result.status());
         assertEquals(OTHER, result.conflictInfo().mergeBranchFrom());

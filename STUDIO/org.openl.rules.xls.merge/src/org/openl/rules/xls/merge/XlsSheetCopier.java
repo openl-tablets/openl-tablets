@@ -3,20 +3,28 @@ package org.openl.rules.xls.merge;
 import static org.openl.rules.xls.merge.XlsSheetsMatcher.getCommentAuthor;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Shape;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.ss.util.SheetUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
@@ -29,6 +37,8 @@ import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTAbsoluteA
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTOneCellAnchor;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTPicture;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTTwoCellAnchor;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTConditionalFormatting;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDxf;
 
 /**
  * This service copies all content from one sheet to another
@@ -70,6 +80,7 @@ public final class XlsSheetCopier {
      */
     private static void copySheet(Cursor src, Cursor dest) throws IOException {
         dest.workbook.setSheetHidden(dest.getSheetIndex(), src.isSheetHidden());
+        copyColumns(src.sheet, dest.sheet);
         for (var rowNum = src.sheet.getFirstRowNum(); rowNum <= src.sheet.getLastRowNum(); rowNum++) {
             if (rowNum < 0) {
                 break;
@@ -78,11 +89,82 @@ public final class XlsSheetCopier {
             if (!XlsSheetsMatcher.isNullOrEmpty(src.row)) {
                 dest.row = dest.sheet.createRow(rowNum);
                 copyRow(src, dest);
+            } else if (src.row != null && (src.row.getZeroHeight() || XlsSheetMerger.customHeight(src.row) >= 0)) {
+                // an empty row keeps the height a user set for it, and whether it is hidden
+                var row = dest.sheet.createRow(rowNum);
+                row.setHeight(src.row.getHeight());
+                row.setZeroHeight(src.row.getZeroHeight());
             }
             dest.row = src.row = null;
         }
+        restoreArrayFormulas(dest);
         replaceMergedRegions(src.sheet.getMergedRegions(), dest.sheet);
         copyDrawings(src, dest);
+        copyPanes(src.sheet, dest.sheet);
+        copyConditionalFormatting(src.sheet, dest.sheet);
+    }
+
+    /**
+     * Gives a sheet the frozen or split panes of another sheet, or none when the other sheet has none.
+     */
+    static void copyPanes(Sheet src, Sheet dest) {
+        var pane = src.getPaneInformation();
+        if (pane == null) {
+            dest.createFreezePane(0, 0);
+        } else if (pane.isFreezePane()) {
+            dest.createFreezePane(pane.getVerticalSplitPosition(),
+                    pane.getHorizontalSplitPosition(),
+                    pane.getVerticalSplitLeftColumn(),
+                    pane.getHorizontalSplitTopRow());
+        } else {
+            dest.createSplitPane(pane.getVerticalSplitPosition(),
+                    pane.getHorizontalSplitPosition(),
+                    pane.getVerticalSplitLeftColumn(),
+                    pane.getHorizontalSplitTopRow(),
+                    pane.getActivePaneType());
+        }
+    }
+
+    /**
+     * Gives a sheet the conditional formatting of another sheet in place of its own, with the formats its rules paint
+     * cells with. An .xls sheet keeps its own conditional formatting.
+     */
+    static void copyConditionalFormatting(Sheet src, Sheet dest) {
+        if (!(src instanceof XSSFSheet from) || !(dest instanceof XSSFSheet to)) {
+            return;
+        }
+        var fromStyles = from.getWorkbook().getStylesSource();
+        var toStyles = to.getWorkbook().getStylesSource();
+        var formattings = Arrays.stream(from.getCTWorksheet().getConditionalFormattingArray())
+                .map(formatting -> (CTConditionalFormatting) formatting.copy())
+                .toArray(CTConditionalFormatting[]::new);
+        for (var formatting : formattings) {
+            for (var rule : formatting.getCfRuleArray()) {
+                if (rule.isSetDxfId()) {
+                    var format = (CTDxf) fromStyles.getDxfAt((int) rule.getDxfId()).copy();
+                    // the size of the formats once one is added, which is one more than its index
+                    rule.setDxfId(toStyles.putDxf(format) - 1L);
+                }
+            }
+        }
+        to.getCTWorksheet().setConditionalFormattingArray(formattings);
+    }
+
+    /**
+     * Copies the default width of the columns and height of the rows, and the width and the visibility of every
+     * column either sheet lays out.
+     */
+    private static void copyColumns(Sheet src, Sheet dest) {
+        dest.setDefaultColumnWidth(src.getDefaultColumnWidth());
+        dest.setDefaultRowHeight(src.getDefaultRowHeight());
+        var last = Math.max(XlsSheetMerger.lastLaidOutColumn(src), XlsSheetMerger.lastLaidOutColumn(dest));
+        var columns = new TreeSet<Integer>();
+        for (var column = 0; column <= last; column++) {
+            if (XlsSheetMerger.columnLayout(dest, column) != XlsSheetMerger.columnLayout(src, column)) {
+                columns.add(column);
+            }
+        }
+        XlsSheetMerger.takeColumns(src, dest, columns);
     }
 
     /**
@@ -102,11 +184,19 @@ public final class XlsSheetCopier {
     }
 
     /**
-     * Removes all rows from sheet
+     * Removes all rows from sheet, its array formulas first: a row holding a part of an array formula cannot be
+     * removed.
      *
      * @param sheet sheet
      */
     private static void removeAllRows(Sheet sheet) {
+        for (var row : sheet) {
+            for (var cell : row) {
+                if (cell.isPartOfArrayFormulaGroup()) {
+                    sheet.removeArrayFormula(cell);
+                }
+            }
+        }
         for (var rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++) {
             var row = sheet.getRow(rowNum);
             if (row != null) {
@@ -123,6 +213,7 @@ public final class XlsSheetCopier {
      */
     private static void copyRow(Cursor src, Cursor dest) {
         dest.row.setHeight(src.row.getHeight());
+        dest.row.setZeroHeight(src.row.getZeroHeight());
         for (var cellNum = src.row.getFirstCellNum(); cellNum <= src.row.getLastCellNum(); cellNum++) {
             if (cellNum < 0) {
                 break;
@@ -130,7 +221,6 @@ public final class XlsSheetCopier {
             src.cell = src.row.getCell(cellNum);
             if (src.cell != null) {
                 dest.cell = dest.row.createCell(cellNum);
-                dest.sheet.setColumnWidth(cellNum, src.sheet.getColumnWidth(cellNum));
                 copyCell(src, dest);
                 dest.cellStyle = src.cellStyle = null;
             }
@@ -153,10 +243,20 @@ public final class XlsSheetCopier {
     /**
      * Copies the value or the formula of a cell. The destination cell keeps its style and comment.
      *
+     * <p>A formula comes with the value it keeps, which it goes on showing when it cannot be recalculated, such as a
+     * formula that reads another workbook. An array formula is written as a plain formula in its first cell, which
+     * notes the cells the formula spans where they land, for {@link #restoreArrayFormulas(Cursor)}; the other cells it
+     * spans get the values it gave them. A cell written over the first cell of an array formula copied before is no
+     * longer the first cell of that array formula.
+     *
      * @param src  source
      * @param dest destination
+     * @throws LinkedWorkbookMismatchException when the formula reads another workbook through a link the workbook of
+     *                                         the destination numbers differently; a link it lacks is brought along
      */
     static void copyValue(Cursor src, Cursor dest) {
+        dest.arrayFormulas.removeIf(range -> range.getFirstRow() == dest.cell.getRowIndex()
+                && range.getFirstColumn() == dest.cell.getColumnIndex());
         switch (src.cell.getCellType()) {
             case BLANK -> dest.cell.setBlank();
             case STRING -> dest.cell.setCellValue(src.cell.getRichStringCellValue());
@@ -164,11 +264,135 @@ public final class XlsSheetCopier {
             case BOOLEAN -> dest.cell.setCellValue(src.cell.getBooleanCellValue());
             case NUMERIC -> dest.cell.setCellValue(src.cell.getNumericCellValue());
             case FORMULA -> {
+                if (src.cell.isPartOfArrayFormulaGroup() && !startsArrayFormula(src.cell)) {
+                    valueOf(src.cell, src.cell.getCachedFormulaResultType()).accept(dest.cell);
+                    // the cell is a part of the array formula once it is restored
+                    dest.addFormulaCell(dest.cell);
+                    return;
+                }
+                XlsExternalLinks.linkWorkbooks(src.cell, dest.cell);
                 dest.cell.setCellFormula(src.cell.getCellFormula());
+                valueOf(src.cell, src.cell.getCachedFormulaResultType()).accept(dest.cell);
                 dest.addFormulaCell(dest.cell);
+                if (startsArrayFormula(src.cell)) {
+                    var range = src.cell.getArrayFormulaRange();
+                    var rows = dest.cell.getRowIndex() - src.cell.getRowIndex();
+                    var columns = dest.cell.getColumnIndex() - src.cell.getColumnIndex();
+                    dest.arrayFormulas.add(new CellRangeAddress(range.getFirstRow() + rows,
+                            range.getLastRow() + rows,
+                            range.getFirstColumn() + columns,
+                            range.getLastColumn() + columns));
+                }
             }
             default -> throw new IllegalStateException("Unexpected cell type: " + src.cell.getCellType());
         }
+    }
+
+    private static boolean startsArrayFormula(Cell cell) {
+        if (!cell.isPartOfArrayFormulaGroup()) {
+            return false;
+        }
+        var range = cell.getArrayFormulaRange();
+        return range.getFirstRow() == cell.getRowIndex() && range.getFirstColumn() == cell.getColumnIndex();
+    }
+
+    /**
+     * Makes the array formulas copied into a sheet array formulas again, once every cell they span is written: the
+     * first cell keeps the formula, and the other cells keep the values the formula gave them.
+     *
+     * <p>An array formula whose first cell no longer holds a formula, or that crosses an array formula restored
+     * before, was written over later, and is left as it was written.
+     */
+    static void restoreArrayFormulas(Cursor dest) {
+        dest.arrayFormulas.stream()
+                .filter(range -> isWhole(dest.sheet, range))
+                .forEach(range -> rewriteArray(dest.sheet,
+                        range,
+                        formula -> dest.sheet.setArrayFormula(formula, range)));
+        dest.arrayFormulas.clear();
+    }
+
+    private static boolean isWhole(Sheet sheet, CellRangeAddress range) {
+        var first = SheetUtil.getCell(sheet, range.getFirstRow(), range.getFirstColumn());
+        if (first == null || first.getCellType() != CellType.FORMULA) {
+            return false;
+        }
+        for (var address : range) {
+            var cell = SheetUtil.getCell(sheet, address.getRow(), address.getColumn());
+            if (cell != null && cell.isPartOfArrayFormulaGroup()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Turns the array formula a cell belongs to into plain content, so that each cell it spans can be written: the
+     * first cell keeps the formula as a plain one, and the other cells keep the values the formula gave them.
+     *
+     * <p>A cell of no array formula is left as it is.
+     */
+    static void releaseArrayFormula(Cell cell) {
+        if (!cell.isPartOfArrayFormulaGroup()) {
+            return;
+        }
+        var sheet = cell.getSheet();
+        var range = cell.getArrayFormulaRange();
+        rewriteArray(sheet, range, formula -> {
+            sheet.removeArrayFormula(cell);
+            cellAt(sheet, new CellAddress(range.getFirstRow(), range.getFirstColumn())).setCellFormula(formula);
+        });
+    }
+
+    /**
+     * Changes how the cells of a range hold an array formula, and keeps what they show: the change gets the formula of
+     * the first cell, and every cell gets back the value it showed, which an .xls workbook resets.
+     */
+    private static void rewriteArray(Sheet sheet, CellRangeAddress range, Consumer<String> change) {
+        var formula = cellAt(sheet, new CellAddress(range.getFirstRow(), range.getFirstColumn())).getCellFormula();
+        var values = new LinkedHashMap<CellAddress, Consumer<Cell>>();
+        for (var address : range) {
+            var cell = SheetUtil.getCell(sheet, address.getRow(), address.getColumn());
+            if (cell != null) {
+                values.put(address, valueOf(cell, cell.getCellType() == CellType.FORMULA
+                        ? cell.getCachedFormulaResultType()
+                        : cell.getCellType()));
+            }
+        }
+        change.accept(formula);
+        values.forEach((address, value) -> value.accept(cellAt(sheet, address)));
+    }
+
+    private static Cell cellAt(Sheet sheet, CellAddress address) {
+        return CellUtil.getCell(CellUtil.getRow(address.getRow(), sheet), address.getColumn());
+    }
+
+    /**
+     * Writes into another cell the value a cell holds as the given type: the type of a cell with a value, or the type
+     * of the value a formula cell keeps.
+     */
+    private static Consumer<Cell> valueOf(Cell cell, CellType type) {
+        return switch (type) {
+            case NUMERIC -> {
+                var value = cell.getNumericCellValue();
+                yield dest -> dest.setCellValue(value);
+            }
+            case STRING -> {
+                var value = cell.getRichStringCellValue();
+                yield dest -> dest.setCellValue(value);
+            }
+            case BOOLEAN -> {
+                var value = cell.getBooleanCellValue();
+                yield dest -> dest.setCellValue(value);
+            }
+            case ERROR -> {
+                var value = cell.getErrorCellValue();
+                yield dest -> dest.setCellErrorValue(value);
+            }
+            default -> dest -> {
+                // no value
+            };
+        };
     }
 
     /**

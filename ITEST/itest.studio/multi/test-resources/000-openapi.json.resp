@@ -110,6 +110,10 @@ Content-Type: application/json
       "name": "Settings: System"
     },
     {
+      "description": "***",
+      "name": "Table Themes (BETA)"
+    },
+    {
       "name": "Tags"
     },
     {
@@ -10480,6 +10484,215 @@ Content-Type: application/json
         ]
       }
     },
+    "/projects/{projectId}/merge/conflicts/workbook": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictWorkbookView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      },
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "path",
+            "name": "projectId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "file",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveConflictWorkbookRequest"
+              }
+            }
+          },
+          "description": "***",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Projects: Merge (BETA)"
+        ]
+      }
+    },
     "/projects/{projectId}/messages/{messageId}/stacktrace": {
       "get": {
         "description": "***",
@@ -19806,6 +20019,102 @@ Content-Type: application/json
         ]
       }
     },
+    "/table-themes": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TableThemeView"
+                  }
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Table Themes (BETA)"
+        ]
+      }
+    },
     "/tags/types": {
       "get": {
         "description": "***",
@@ -22824,6 +23133,144 @@ Content-Type: application/json
           }
         }
       },
+      "ConflictSheetView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "base": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "ours": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "reason": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "removedAndChanged",
+              "addedInBoth",
+              "visibility",
+              "pictures",
+              "settings",
+              "touchingTables",
+              "movedContent"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "ours",
+              "theirs",
+              "merged",
+              "conflict"
+            ]
+          },
+          "tables": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictTableView"
+            }
+          },
+          "theirs": {
+            "type": "boolean",
+            "description": "***"
+          }
+        }
+      },
+      "ConflictTableVersion": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RawTableCell"
+              }
+            }
+          },
+          "changedCells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conflictCells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "formattingChanged": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "range": {
+            "type": "string",
+            "description": "***"
+          },
+          "rows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "styles": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/RawTableCellStyle"
+            }
+          }
+        }
+      },
+      "ConflictTableView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/ConflictTableVersion"
+          },
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
+            "type": "string",
+            "description": "***"
+          },
+          "ours": {
+            "$ref": "#/components/schemas/ConflictTableVersion"
+          },
+          "reason": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "cells",
+              "rows",
+              "rowsAndColumns",
+              "moved",
+              "removedAndChanged",
+              "mergedCells",
+              "addedInBoth"
+            ]
+          },
+          "theirs": {
+            "$ref": "#/components/schemas/ConflictTableVersion"
+          }
+        }
+      },
       "ConflictTextBlock": {
         "type": "object",
         "description": "***",
@@ -22863,6 +23310,47 @@ Content-Type: application/json
             "description": "***",
             "items": {
               "$ref": "#/components/schemas/ConflictTextBlock"
+            }
+          }
+        }
+      },
+      "ConflictWorkbookDecision": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "side": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "base",
+              "ours",
+              "theirs"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "side"
+        ]
+      },
+      "ConflictWorkbookView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "palette": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "sheets": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictSheetView"
             }
           }
         }
@@ -28329,6 +28817,22 @@ Content-Type: application/json
           "name"
         ]
       },
+      "ResolveConflictWorkbookRequest": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "decisions": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictWorkbookDecision"
+            }
+          }
+        },
+        "required": [
+          "decisions"
+        ]
+      },
       "ResolveConflictsResponse": {
         "type": "object",
         "description": "***",
@@ -30222,6 +30726,20 @@ Content-Type: application/json
             "description": "***"
           },
           "projectId": {
+            "type": "string",
+            "description": "***"
+          }
+        }
+      },
+      "TableThemeView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "***"
+          },
+          "name": {
             "type": "string",
             "description": "***"
           }

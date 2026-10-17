@@ -4,8 +4,10 @@ import {
     comparisonStatusTopic,
     dropComparison,
     getConflictFileText,
+    getConflictWorkbook,
     getComparison,
     getComparisonTable,
+    mergeConflictWorkbook,
     startFileComparison,
 } from './compare'
 import { jsonResponse } from 'testing/responses'
@@ -93,5 +95,62 @@ describe('compare service', () => {
 
     it('names the topic the comparison reports its progress on', () => {
         expect(comparisonStatusTopic('cmp 1')).toBe('/user/topic/compare/cmp%201/status')
+    })
+
+    it('reads the conflicts of a conflicted workbook, each cell of a version carrying its own style', async () => {
+        const version = {
+            range: 'A1:A1',
+            cells: [[{ cell: 'A1', value: 'Rules rate', style: 0 }]],
+            styles: [{ font: { bold: true } }],
+            rows: 1,
+            changedCells: [],
+        }
+        vi.mocked(apiCall).mockResolvedValue({
+            sheets: [{
+                name: 'Rules',
+                status: 'conflict',
+                ours: true,
+                base: true,
+                theirs: false,
+                tables: [{ id: 'Rules/A1', name: 'Rules rate', reason: 'removedAndChanged', ours: version, base: version }],
+            }],
+            palette: false,
+        })
+
+        const workbook = await getConflictWorkbook('repo/project', 'p/rules/Rates.xlsx')
+
+        const table = workbook.sheets[0]!.tables[0]!
+        expect(table.ours).toEqual({
+            range: 'A1:A1',
+            cells: [[{ cell: 'A1', value: 'Rules rate', style: { font: { bold: true } } }]],
+            rows: 1,
+            changedCells: [],
+        })
+        expect(table.base?.cells).toEqual(table.ours?.cells)
+        expect(table).not.toHaveProperty('theirs')
+
+        expect(apiCall).toHaveBeenCalledWith('/projects/repo_project/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
+            undefined,
+            OPTIONS)
+    })
+
+    it('sends the version each conflict of a workbook is taken from and answers with the merged workbook', async () => {
+        const merged = new Blob(['merged'])
+        vi.mocked(apiCall).mockResolvedValue(merged)
+
+        await expect(mergeConflictWorkbook('repo/project', 'p/rules/Rates.xlsx', {
+            'Rules/A1:B6': 'theirs',
+            'Notes': 'base',
+        })).resolves.toBe(merged)
+
+        expect(apiCall).toHaveBeenCalledWith('/projects/repo_project/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    decisions: [{ id: 'Rules/A1:B6', side: 'theirs' }, { id: 'Notes', side: 'base' }],
+                }),
+            },
+            { ...OPTIONS, responseType: 'blob', skipWorkspaceEvent: true })
     })
 })
