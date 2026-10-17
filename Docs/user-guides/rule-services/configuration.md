@@ -15,8 +15,6 @@ OpenL Rule Services is configured by Spring configuration files and by propertie
 
 A running instance publishes the default values of all properties, with their descriptions, at `<context path>/admin/config/application.properties`. Use it as a reference of possible settings and redefine the required ones in your configuration file, such as the `application.properties` file located in a user’s home directory or in a working directory.
 
-All settings used in `application.properties` can also be defined as environment variables or JVM options. In this case, they override the settings defined in files.
-
 By default, OpenL Rule Services is configured as follows:
 
 1.  The data source is the `repo-jar` repository, which reads the OpenL projects from the JAR files in the classpath of the application (`production-repository.$ref = repo-jar`).
@@ -58,7 +56,7 @@ If the common approach is used, the following components must be configured:
 | Component                   | Description                                                                                     |
 |-----------------------------|-------------------------------------------------------------------------------------------------|
 | **Data source**             | Informs the OpenL Tablets system where to retrieve user’s rules.                                |
-| **Service exposing method** | Defines the way services are exposed, for example, as a web service or a simple Java framework. |
+| **Service exposing method** | Defines the way services are exposed, for example, as a REST service or a simple Java frontend. |
 
 The following sections describe how to configure these components:
 
@@ -84,13 +82,7 @@ The system supports the following data source implementations:
 -   [Azure Blob Storage](#azure-blob-storage)
 -   [GIT](#git)
 
-The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the OpenL Rule Services *all* web application only. Use the `ruleservices-all.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases), or the `openltablets/ws` Docker image with the `-all` suffix of the tag. To download the WAR, use the following command:
-
-```bash
-curl -fLO https://github.com/openl-tablets/openl-tablets/releases/download/<openl version here>/ruleservices-all.war
-```
-
-The properties of all repository types, with their descriptions, are published by a running instance at `<context path>/admin/config/application.properties`.
+The Git, Amazon AWS S3, and Azure Blob Storage repositories are included in the OpenL Rule Services *all* web application only. Use the `ruleservices-all.war` asset of the [OpenL Tablets release on GitHub](https://github.com/openl-tablets/openl-tablets/releases), as described in [Deploying OpenL Rule Services](../installation-guide/rule-services.md#download), or the `openltablets/ws` Docker image with the `-all` suffix of the tag.
 
 ##### Classpath JAR
 
@@ -283,7 +275,7 @@ When deploying a project to OpenL Rule Services, if the rules-deploy.xml file is
 | jackson.caseInsensitiveProperties | Deserialization option for JSON based services.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | No                  |
 | jackson.failOnUnknownProperties   | Deserialization option for JSON based services. <br/>For more information on this property, see [Configuring JSON Payload Serialization and Deserialization](#configuring-json-payload-serialization-and-deserialization).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | No                  |
 | jackson.propertyNamingStrategy    | Used to configure names of output spreadsheet attributes. <br/>Supported attribute name strategies are as follows: <br/><br/>**org.openl.rules.serialization.spr.LowerCamelCaseStrategy** <br/>All name elements, excluding the first one, start with a capitalized letter, followed by lowercase ones. <br/>The first letter is lowercased, and there are no separators.  <br/>**Example:** columnName. <br/><br/>**org.openl.rules.serialization.spr.SnakeCaseStrategy** <br/>All letters are lowercase with underscores used as separators between name elements. <br/>**Example:** columnname_rowname. <br/><br/>**org.openl.rules.serialization.spr.LowerCaseStrategy** <br/>All letters are lowercase with no separators. <br/>**Example:** columnname. <br/><br/>**org.openl.rules.serialization.spr.UpperCamelCaseStrategy** <br/>All name elements start with a capitalized letter, followed by lowercase ones, and there are no separators. <br/>**Example:** ColumnNameRowName. <br/><br/>When OpenL adds numeric suffixes to maintain unique field names in united spreadsheet results, it preserves the suffixes after applying the strategy. | No                  |
-| rootClassNamesBinding             | Defines a list of classes for automatically define inheritance between defined classes and properly registering them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | No                  |
+| databinding.rootClassNames        | Defines a list of classes for automatically define inheritance between defined classes and properly registering them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | No                  |
 
 ##### Service Description
 
@@ -292,7 +284,7 @@ Commonly each service is represented by rules and service interface and consists
 | Service                                | Description                                                                                                                                                                                                                                                    |
 |----------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Service name                           | Unique service identifier. <br/>If a service name is defined in the `rules-deploy.xml `file, it is displayed for the service in the embedded mode only. <br/>Otherwise, the service name is generated from the path as "{deployment_configuration_name}/{project_name}". |
-| Service URL                            | URL path for the service. It is absolute for the console start and relative to the context root for the `ws.war` case.                                                                                                                                         |
+| Service URL                            | URL path for the service. It is absolute for the console start and relative to the context root of the web application.                                                                                                                                    |
 | Service class                          | Interface of the service to be used at the server and the client side.                                                                                                                                                                                         |
 | Version                                | Number of the service version.                                                                                                                                                                                                                                 |
 | Rules                                  | Module or a set of modules to be combined as a single rules module.                                                                                                                                                                                            |
@@ -310,8 +302,8 @@ To enable the Deployment Filter, set the exact deployment names using a comma se
 
 The wildcard character “\*” matches any characters in the deployment name as follows:
 
--   If a single asterisk is used, any of the `foo-*`, `*deployment.single` wildcard character patterns detect `foo-deployment`.
--   If multiple asterisks are used, any of the `*deploy*, *deployment*` single wildcard character patterns detect `foo-deployment`.
+-   If a single asterisk is used, any of the `foo-*` and `*deployment` patterns detect `foo-deployment`.
+-   If multiple asterisks are used, any of the `*deploy*` and `*deployment*` patterns detect `foo-deployment`.
 
 #### Service Exposing Methods
 
@@ -350,7 +342,7 @@ Date format can be defined in the `ruleservice.jackson.defaultDateFormat `proper
 
 This value is used by the system for all published projects that do not have the date format defined in the deployment configuration `rules-deploy.xml` file.
 
-The `jackson.defaultDateFormat` value must be in the same syntax of the date time pattern as `SimpleDateFormat` described in <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html>.
+The `jackson.defaultDateFormat` value must be in the same syntax of the date time pattern as `SimpleDateFormat` described in <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/SimpleDateFormat.html>.
 
 Note that changing this setting affects all projects in the system. To change the date format for a particular project, modify the date format in the `rules-deploy.xml` deployment configuration file as follows:
 
@@ -434,8 +426,8 @@ JSON payloads of this value with different `serializationInclusion` property val
             <string>true</string>
         </entry>
         <entry>
-            <string>jackson.caseInsensitiveProperties </string>
-            <string>NON_ABSENT</string>
+            <string>jackson.caseInsensitiveProperties</string>
+            <string>true</string>
         </entry>
         <entry>
             <string>jackson.failOnEmptyBeans</string>
@@ -449,7 +441,7 @@ OpenL Rule Services uses a Jackson library to serialize an object to JSON and de
 
 To register MixIn classes for a project, annotate the MixIn class with the `org.openl.rules.ruleservice.databinding.annotation.MixInClass` annotation and add this class to the rules-deploy.xml deployment configuration file as described further in this section. The annotation expects the class names that are used for registering MixIn class in the object mapper.
 
-JAXB annotations is supported in the MixIn classes out of the box because the system is configured to use com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector as a secondary annotation interceptor in the object mapper for the deployed service.
+JAXB annotations is supported in the MixIn classes out of the box because the system is configured to use `com.fasterxml.jackson.module.jakarta.xmlbind.JakartaXmlBindAnnotationIntrospector` as a secondary annotation interceptor in the object mapper for the deployed service.
 
 Example of the Jackson MixIn class implementation is as follows:
 
@@ -479,7 +471,7 @@ Example of the deployment configuration file is as follows:
     …
     <configuration>
         <entry>
-            <string>rootClassNamesBinding</string>
+            <string>databinding.rootClassNames</string>
             <string>org.example.custom.mixin.CustomerMixIn</string>
         </entry>
     </configuration>
@@ -488,7 +480,7 @@ Example of the deployment configuration file is as follows:
 
 Every class named in `rules-deploy.xml` must be available on the project classpath. If a class is missing, OpenL
 Studio does not start Tests, Run, or Trace execution. The error identifies the missing class so the project
-configuration or classpath can be corrected. This includes `rootClassNamesBinding` and class-valued Jackson settings
+configuration or classpath can be corrected. This includes `databinding.rootClassNames` and class-valued Jackson settings
 such as `jackson.propertyNamingStrategy`.
 
 ##### Kafka Publisher
@@ -608,7 +600,8 @@ Configurations `out.topic.name` and `dlt.topic.name` are optional, and the syste
 | `kafka_replyDltPartition`        | Partition number on which to send the reply DLT topic.                                                                                                                                                                                                                                                  |
 | `kafka_replyDltTopic`            | Default reply DLT topic. If this header is defined, the DLT topic from a header is used by Kafka Publisher for this message.                                                                                                                                                                            |
 | `kafka_dlt-exception-fqcn`       | Exception class name for a record published sent to a dead-letter topic.                                                                                                                                                                                                                                |
-| `kafka_dlt-exception_message`    | Exception message for a record published to a dead-letter topic.                                                                                                                                                                                                                                        |
+| `kafka_dlt-exception-message`    | Exception message for a record published to a dead-letter topic.                                                                                                                                                                                                                                        |
+| `kafka_dlt-exception-stacktrace` | Exception stack trace for a record published to a dead-letter topic.                                                                                                                                                                                                                                    |
 | `kafka_dlt-original-offset`      | Original offset for a record published to a dead-letter topic.                                                                                                                                                                                                                                          |
 | `kafka_dlt-original-topic`       | Original topic for a record published to a dead-letter topic.                                                                                                                                                                                                                                           |
 | `kafka_dlt-original-partition`   | Original partition for a record published to a dead-letter topic.                                                                                                                                                                                                                                       |
@@ -684,7 +677,7 @@ ruleservice.instantiation.strategy.maxthreadsforcompile = 1
 
 ##### Enabling Logging to Console
 
-To enable logging all requests to OpenL Rule Services and their responds to standard output, set the `ruleservice.logging.enabled `property in the `application.properties` file to `true`. This feature is very valuable in development. By default, it is disabled.
+To log the runtime context, the arguments, and the result or the exception of every rules method call, set the `ruleservice.logging.enabled` property in the `application.properties` file to `true`. The records are written to the application log at the `INFO` level. This feature is very valuable in development. By default, it is disabled, and the records are written only when the `DEBUG` level is enabled for the `org.openl.rules.runtime.LoggingHandler` logger.
 
 #### CORS Filter Support
 

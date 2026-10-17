@@ -49,11 +49,10 @@ Spring configuration defined in the `openl-ruleservice-beans.xml` file registers
 | `Object execute(String serviceName, String ruleName, Class<?>[] inputParamsTypes, Object[] params)` | Invokes a rule with the defined parameter types and parameter values from the deployed OpenL Tablets service.                                     |
 | `Object execute(String serviceName, String ruleName, Object... params)`                             | Invokes a rule with the defined parameter values from the deployed OpenL service. <br/>Parameter types are automatically defined from sent parameters. |
 | `Object getValue(String serviceName, String fieldName)`                                             | Returns field value from the defined OpenL Tablets service.                                                                                       |
-| `Collection<String> getServiceNames()`                                                              | Returns a list of registered OpenL Tablets services.                                                                                              |
+| `Collection<String> getServiceNames()`                                                              | Returns the names of the registered OpenL Tablets services.                                                                                       |
+| `Collection<OpenLService> getServices()`                                                            | Returns the registered OpenL Tablets services.                                                                                                    |
 | `void registerService(OpenLService service)`                                                        | Registers the OpenL Tablets service.                                                                                                              |
 | `void unregisterService(String serviceName)`                                                        | Unregisters the OpenL Tablets service.                                                                                                            |
-| `<T> T buildServiceProxy(String serviceName, Class<T> proxyInterface)`                              | Builds a proxy for the OpenL Tablets service with a defined interface.                                                                            |
-| `<T> T buildServiceProxy(String serviceName, Class<T> proxyInterface, ClassLoader classLoader)`      | Builds a proxy for the OpenL Tablets service with a defined interface and defined class loader.                                                   |
 
 The `frontend` bean can be injected to user’s bean to interact with deployed OpenL Tablets services.
 
@@ -69,7 +68,7 @@ The `frontend` bean can be injected to user’s bean to interact with deployed O
 
 In this example, `serviceName` is a name of the deployed OpenL Tablets service and `proxyInterface` is an interface for building a proxy object. All invocations of proxy object methods are delegated to the `execute` method of the `frontend` bean. The invoked method name with its parameters is used as input parameters for the `execute` method.
 
-**Note:** Proxy beans and proxy objects created by `frontend` bean are automatically updated if the OpenL Tablets service is redeployed into a data source. Nevertheless, these objects are not working while the project is redeployed. To synchronize this process, use Service Publisher listeners described in further sections.
+**Note:** Proxy beans created by `OpenLServiceFactoryBean` are automatically updated if the OpenL Tablets service is redeployed into a data source. Nevertheless, these objects are not working while the project is redeployed. To synchronize this process, use [Service Publishing Listeners](advanced-configuration.md#service-publishing-listeners).
 
 ### Customizing and Configuring Rule Services Core
 

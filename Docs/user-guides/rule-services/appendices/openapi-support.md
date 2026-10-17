@@ -4,7 +4,7 @@
 
 In OpenL, Swagger v3 (OpenAPI) is used. It allows directly accessing project methods, data types, and methods, and enables simple, convenient, and quick running or testing of rules deployed as services.
 
-To use Swagger, in OpenL Rule Services, click the Swagger (UI) link, select the required rule, click **Try it out,** enter input parameters, and click **Try.**
+To use Swagger, on the OpenL Rule Services main page, click the project name, select the required rule, enter input parameters, and click **TRY**.
 
 ![Using Swagger UI](../images/09a5e4fecf604849af7681cd8771ed37.png)
 

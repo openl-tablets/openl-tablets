@@ -20,6 +20,23 @@ OpenL Rule Services is based on Rule Services Core and supports all features pro
 
 The following diagram identifies all components to be configured and customized.
 
-![Configurable and customizable components of Rule Services Core](images/5d0d09ff58045febcb4f99f179e5050b.jpeg)
-
-*Configurable and customizable components of Rule Services Core*
+```mermaid
+flowchart LR
+    subgraph Customization
+        annotations["Service interface annotations"]
+        dataSourceListener["Data source listener"]
+        configurer["Service Configurer: last version configurer or own configurer"]
+        publishingListener["Service publishing listener"]
+    end
+    subgraph Configuration
+        dataSource["Data source: classpath JAR, file system, relational database, AWS S3, Azure Blob Storage, Git"]
+        javaFrontend["Simple Java frontend"]
+        rest["REST publisher, OpenL Rule Services only"]
+        kafka["Kafka publisher, OpenL Rule Services only"]
+        logging["Logging: SLF4J logging, storing requests and responses, OpenL Rule Services only"]
+    end
+    dataSource --> dataSourceListener
+    javaFrontend --> publishingListener
+    rest --> publishingListener
+    kafka --> publishingListener
+```
