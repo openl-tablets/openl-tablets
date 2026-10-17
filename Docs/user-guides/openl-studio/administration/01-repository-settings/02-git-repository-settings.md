@@ -27,7 +27,7 @@ The following additional parameters are available for **Design Repositories** on
 
 | Parameter                            | Description                                                                                               |
 |--------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| **Default branch name**              | Pattern for a default branch name. The default value is `OpenL Studio/{project-name}/{username}/{current-date}`. |
+| **Default branch name**              | Pattern for a default branch name. The default value is `{project-name}/{username}/{current-date}`. |
 | **Branch name pattern**              | Additional regular expression used to validate new branch names.                                          |
 | **Invalid branch name message hint** | Error message displayed when a branch name does not match the additional regular expression.              |
 
@@ -37,11 +37,12 @@ The location where remote repositories are cloned is controlled by the following
 |------------------------------------|----------------------------|---------------------------------------------------------------|
 | repo-git.local-repositories-folder | ${openl.home}/repositories | Directory where cloned remote repositories are stored locally |
 
-If the password is changed on the server side, by default, OpenL Studio makes three attempts to log into the remote Git
-server, and then the **Problem communicating with "Design" Git server, will retry automatically in 5 minutes.** error is
-displayed. After that, OpenL Studio stops login attempts to prevent a user account from blocking, and the **Problem
-communicating with 'Design' Git server, please contact admin.** error is displayed. Define the following properties in
-the properties file to configure this behavior:
+If the password is changed on the server side, after a failed login to the remote Git server, OpenL Studio displays the
+**Problem communicating with 'Design' Git server, will retry automatically in 5 minutes.** error and waits before the
+next attempt to prevent a user account from blocking. By default, the number of attempts is unlimited. When the
+maximum number of attempts is reached, OpenL Studio stops login attempts, and the **Problem communicating with 'Design'
+Git server, please contact admin.** error is displayed. Define the following properties in the properties file to
+configure this behavior:
 
 | Property                               | Description                                                                                                                                                                                                                                                                                                                   |
 |----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

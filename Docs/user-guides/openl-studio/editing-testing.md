@@ -96,7 +96,7 @@ The following topics are included in this section:
 
 ##### Editing System Properties
 
-By default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the **Table Details** pane.
+When **Update table properties** is selected in [System Settings](administration/02-system-settings.md), which it is not by default, OpenL Studio applies system properties to each created or edited table. The values of the System properties are provided in the table and in the **Table Details** pane.
 
 The **modifiedBy** property value is set using the name of the currently logged in user. The **modifiedOn** property is set according to the current date. These properties are applied upon each save.
 
