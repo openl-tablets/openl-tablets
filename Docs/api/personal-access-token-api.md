@@ -145,11 +145,9 @@ The error body is `{"code": "openl.error.<status>.<key>", "message": "..."}`; se
 
 ## Security Notes
 
-- **Storage** — the database holds the public identifier and a hash of the secret. The hash is made by the password
-  encoder that `security.password.encoder` selects, the same one that hashes the passwords of internal users. It is
-  `bcrypt` by default. A token cannot be restored from the hash.
-- **Comparison** — a request for an unknown `publicId` is checked against a placeholder hash, so the time of the answer
-  does not tell whether the token exists.
+- **Storage and comparison** — the database holds only a hash of the secret, so a token cannot be restored from it,
+  and the time of an answer does not tell whether a token exists; see
+  [Design](personal-access-token-architecture.md#design).
 - **Length** — a token longer than 256 characters is rejected before any lookup.
 - **Removal** — deleting the user deletes the tokens of the user.
 - **Client** — store the token in a secret manager, send it only over HTTPS, and keep it out of logs and version control.
