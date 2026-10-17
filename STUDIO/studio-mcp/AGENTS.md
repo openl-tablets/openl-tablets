@@ -128,10 +128,10 @@ Operate on ANY file in a project by exact project-relative path (not just Excel 
 ### Trace Tools (9, BETA)
 An **interactive debugger** for rules: the rule runs on a server-side worker that
 suspends at breakpoints and step points, and the tools inspect that live, suspended
-execution. The debug session is bound to the MCP server's HTTP session — the whole
-flow must go through one server instance (or one CLI `--cookie-jar`). One active
-session per user (a new start terminates the previous); idle sessions are reaped
-after ~10 minutes.
+execution. Studio keeps the debug session for the client — its Personal Access Token,
+or the one user in single-user mode — so every call of the flow that comes with it
+finds the session. One active session per user (a new start terminates the
+previous); idle sessions are reaped after ~10 minutes.
 
 - `openl_start_trace` - Start a debug session for a table (test case via `testRanges`, or `inputJson`; omit both to replay the remembered input) and run to the first stop; optional initial `breakpoints`. With `profiling: true` + `stopAtEntry: false` it returns a constant-size `profile` overview (see below)
 - `openl_step_trace` - Step the current frame. `out` (run the frame to its exit so its result is inspectable) + breakpoints is the main move for declarative rules; `into`/`over` are advanced (imperative TBasic/loops). Returns a compact stack (steps for the active frame only); `withValues: true` bundles the active frame's variables so you don't need a separate inspect
@@ -226,7 +226,7 @@ anonymous (single-user Studio).
 - The server speaks the Streamable HTTP transport at `/mcp`: the modern `2026-07-28` protocol, and the sessionful protocol of legacy 2025 clients.
 - Streamable HTTP validates browser `Origin` values against `MCP_ALLOWED_ORIGINS`; requests without `Origin` are treated as non-browser clients. Every approved browser response exposes `Mcp-Session-Id` for legacy clients.
 - Every anonymous legacy MCP session owns a distinct `OpenLClient` and Studio cookie jar. Never reuse a credential-less client across MCP sessions.
-- Modern HTTP is stateless and constructs a fresh Studio client per request. Studio keeps the state of multi-call workflows (interactive trace, test results, and merge-conflict inspection) for the Personal Access Token a request carries, so they work over modern HTTP with a token. Without a token that state lives in Studio's HTTP session: use stdio or a legacy 2025 HTTP connection.
+- Modern HTTP is stateless and constructs a fresh Studio client per request. Studio keeps the state of multi-call workflows (interactive trace, test results, and merge-conflict inspection) for the Personal Access Token a request carries, and for the one user in single-user mode, so they work over modern HTTP.
 
 ## Response formatting
 

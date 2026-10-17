@@ -6,6 +6,9 @@ import jakarta.servlet.ServletContext;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+
+import org.openl.rules.webstudio.web.admin.security.UserMode;
 
 /**
  * Registers the scope of one client of OpenL Studio, {@link ClientSessionScope}.
@@ -15,11 +18,12 @@ public class ClientSessionConfig {
 
     /**
      * The state kept for the credentials of stateless requests, released after the idle time an HTTP session
-     * of this application has.
+     * of this application has. In single-user mode, it is the state of every request.
      */
     @Bean
-    public ClientSessions clientSessions(ServletContext servletContext) {
-        return new ClientSessions(Duration.ofMinutes(servletContext.getSessionTimeout()));
+    public ClientSessions clientSessions(ServletContext servletContext, Environment environment) {
+        var singleUser = UserMode.SINGLE.getValue().equals(environment.getProperty("user.mode"));
+        return new ClientSessions(Duration.ofMinutes(servletContext.getSessionTimeout()), singleUser);
     }
 
     @Bean

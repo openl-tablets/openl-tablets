@@ -105,11 +105,10 @@ Studio installation, so both always ship and version as one unit.
   - browser origins pass only through the `MCP_ALLOWED_ORIGINS` allow-list; `Host` is not checked.
 - **Talks to Studio** — REST under `<base-url>/rest` (the base URL may carry a context path), STOMP at `/ws` to
   wait for compilations, and the `JSESSIONID` cookie captured and replayed per `OpenLClient`.
-- **Open items**:
-  - the trace, test-result and merge-conflict flows keep state in Studio for the token of a request, so without one
-    they work only over a legacy HTTP session;
-  - standard MCP OAuth for the HTTP transport, including how upstream calls authenticate: a service PAT, token
-    exchange, or Studio and the MCP server declared one resource.
+- **State of the flows** — the trace, test-result and merge-conflict flows keep state in Studio for the token of a
+  request, or for the one user in `single` mode ([Client Sessions](client-sessions.md)).
+- **Open item** — standard MCP OAuth for the HTTP transport, including how upstream calls authenticate: a service PAT,
+  token exchange, or Studio and the MCP server declared one resource.
 
 ### 1.2 Goals
 
@@ -1159,8 +1158,9 @@ void authorizationServerMetadataConformance() throws Exception {
   to the issuer path, or Studio deployed as `ROOT` (A1).
 - **Public URL** — Studio has no public-URL setting; `mcp.public-url` is new, and the issuer must stay fixed.
 - **Client-bound Studio state** — Studio keeps a stateless client's state for its credential
-  ([Client Sessions](client-sessions.md)), so every MCP request with one token reaches one `WebStudio`. Tokens
-  exchanged per MCP session would each get state of their own; whether that is wanted is open.
+  ([Client Sessions](client-sessions.md)), so every MCP request with one token reaches one `WebStudio`; in `single`
+  mode every client shares the state of the one user. Tokens exchanged per MCP session would each get state of their
+  own; whether that is wanted is open.
 - **One debug session per client** — every MCP call with one token shares that token's trace (openl-mcp P1.1).
 - **bcrypt per PAT call** — stage 1 costs a bcrypt check for every REST call a tool makes, until token exchange lands.
 - **`@NotPatAuth`** — must refuse tokens minted for MCP before the REST chains accept them (§4.3.4).

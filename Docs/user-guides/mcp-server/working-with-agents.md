@@ -26,6 +26,10 @@ The tools lead the agent through the same steps a user takes in OpenL Studio:
 4.  A project of the `local` repository is changed directly: it is not opened, saved, or closed, and its changes are
     not committed.
 
+OpenL Studio keeps what the agent works on between its requests — the compiled project, the test results, the debug
+session, and the merge conflicts — for its token. Agents that send the same token share them; create a token for each
+agent that works in parallel. In single-user mode, every agent and every browser shares them.
+
 A table is read and written as the grid of its cells, so the agent edits any kind of table and keeps its layout,
 merged cells, and comments. The cell formatting, such as colors and fonts, is shown to the agent but cannot be changed
 by it. Long work, such as tests, a table run, a compilation, or a merge, is waited for inside one call: the agent gets

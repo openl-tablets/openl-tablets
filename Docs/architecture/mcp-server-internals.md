@@ -50,8 +50,8 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   callers share.
 - **In OpenL Studio** — the compiled project, test and run results, the debug session and merge conflicts live in
   the client scope of Studio ([Client Sessions](client-sessions.md)), kept per credential: per personal access
-  token, per sign-in of the identity provider, or per user. A request without an `Authorization` header keeps them in
-  its HTTP session.
+  token, per sign-in of the identity provider, or per user. In single-user mode they are kept for the one user, so
+  stateless requests without a token find them too.
 
 ## Waiting for Studio
 
@@ -93,8 +93,9 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 
 ## Known Limitations
 
-- **The compile wait needs a session cookie.** A request with a token opens no HTTP session, so while a compilation is
-  still running `openl_project_status` returns the current state instead of waiting for the end.
+- **The compile wait needs a session cookie.** A request with a token, and any request in single-user mode, opens no
+  HTTP session, so while a compilation is still running `openl_project_status` returns the current state instead of
+  waiting for the end.
 - **Concurrent table runs** — `openl_run_table` refuses a second run only within one client. Over 2026-07-28 every
   request has a client of its own, so two runs with one token share the single run slot Studio keeps for it.
 - **Legacy sessions** have no idle timeout and no limit, and keep the credential sent with `initialize`.
