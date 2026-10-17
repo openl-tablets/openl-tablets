@@ -343,7 +343,14 @@ final class MergeFixture {
      */
     static void removeTable(Sheet sheet, String table, String header) {
         sheet.removeMergedRegion(regionIndex(sheet, header));
-        for (var address : CellRangeAddress.valueOf(table)) {
+        clear(sheet, table);
+    }
+
+    /**
+     * Removes the cells of a block.
+     */
+    static void clear(Sheet sheet, String block) {
+        for (var address : CellRangeAddress.valueOf(block)) {
             var cell = cell(sheet, address.getRow(), address.getColumn());
             if (cell != null) {
                 cell.getRow().removeCell(cell);

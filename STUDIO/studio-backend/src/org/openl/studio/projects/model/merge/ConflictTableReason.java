@@ -33,9 +33,9 @@ public enum ConflictTableReason {
     ROWS_AND_COLUMNS,
 
     /**
-     * Both branches moved the table to different places.
+     * Both branches moved the table on purpose to different places, not only pushed it by rows inserted above it.
      */
-    @Schema(description = "Both branches moved the table to different places")
+    @Schema(description = "Both branches moved the table on purpose to different places")
     @JsonProperty("moved")
     MOVED,
 

@@ -100,6 +100,21 @@ final class Conflicts {
     }
 
     /**
+     * Marks what the merge of the current sheet noted so far, for {@link #rewind(int)}.
+     */
+    int mark() {
+        return unresolved.size();
+    }
+
+    /**
+     * Forgets what the merge of the current sheet noted since the mark, so that the sheet can be merged again.
+     */
+    void rewind(int mark) {
+        startSheet();
+        unresolved.subList(mark, unresolved.size()).clear();
+    }
+
+    /**
      * The resolution decided for a sheet or the palette as a whole.
      *
      * @return the resolution, or {@code null} when none is decided; only a resolution decides anything
