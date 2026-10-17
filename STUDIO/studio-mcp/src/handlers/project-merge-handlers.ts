@@ -11,7 +11,18 @@ import {
   normalizeMimeType,
 } from "../content-utils.js";
 import { formatResponse } from "../formatters.js";
-import { registerTool, type ToolResponse } from "./common.js";
+import { registerTool, waitForResult, type ToolResponse, type WaitOptions } from "./common.js";
+
+/** How long a merge may run in the background before the tool stops waiting: a large project takes minutes. */
+const MERGE_TIMEOUT_MS = 600_000;
+
+/** How the merge tool waits for the merge Studio runs in the background. */
+const MERGE_WAIT: WaitOptions = {
+  timeoutMs: MERGE_TIMEOUT_MS,
+  progressMessage: "The merge is still running…",
+  timeoutMessage: `The merge did not finish within ${MERGE_TIMEOUT_MS} ms. It may still be running in Studio: call ` +
+    "openl_get_merge_conflicts or open the project later to see how it ended.",
+};
 
 const CONFLICT_FILE_CHUNK_SIZE = 16_000;
 
@@ -89,13 +100,13 @@ export function registerProjectMergeHandlers(): void {
     category: "Project",
     title: "Merge Project Branches",
     description:
-      "Attempt to merge project branches. The tool first repeats the relationship and permission precheck: up-to-date returns without a write, and permission/lock blockers fail before merge. The precheck does not predict conflicts, so an allowed attempt can still return status='conflicts'. mode='receive' merges otherBranch into the current branch; mode='send' merges the current branch into otherBranch. A conflict result creates read-only, session-bound conflict state: inspect it on this same MCP server, then hand resolution to the user in Studio or cancel the pending state. Never choose OURS or THEIRS automatically. force is only for an eligible protected-target bypass and requires confirmForce=true.",
+      "Attempt to merge project branches. The tool first repeats the relationship and permission precheck: up-to-date returns without a write, and permission/lock blockers fail before merge. The precheck does not predict conflicts, so an allowed attempt can still return status='conflicts'. Studio runs the merge in the background; the tool waits until it ends, for up to 10 minutes. mode='receive' merges otherBranch into the current branch; mode='send' merges the current branch into otherBranch. A conflict result creates read-only, session-bound conflict state: inspect it on this same MCP server, then hand resolution to the user in Studio or cancel the pending state. Never choose OURS or THEIRS automatically. force is only for an eligible protected-target bypass and requires confirmForce=true.",
     schema: schemas.mergeProjectBranchesSchema,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
     },
-    handler: async (args, client): Promise<ToolResponse> => {
+    handler: async (args, client, extra): Promise<ToolResponse> => {
       const format = args.response_format;
       const request = mergeRequest(args);
       const check = await client.checkProjectMerge(args.projectId, request);
@@ -123,7 +134,12 @@ export function registerProjectMergeHandlers(): void {
         );
       }
 
-      const result = await client.mergeProjectBranches(args.projectId, request, args.force === true);
+      await client.mergeProjectBranches(args.projectId, request, args.force === true);
+      const result = await waitForResult(
+        (requestTimeoutMs) => client.getMergeResult(args.projectId, { signal: extra?.signal, timeoutMs: requestTimeoutMs }),
+        MERGE_WAIT,
+        extra,
+      );
       const response = {
         success: result.status === "success",
         ...result,

@@ -101,10 +101,13 @@ describe("project branch and merge handlers", () => {
     mockAxios.onPost("/projects/p1/merge").reply((config) => {
       mergeBody = JSON.parse(config.data);
       mergeParams = config.params;
-      return [200, {
-        status: "conflicts",
-        conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx"] }],
-      }];
+      return [202];
+    });
+    // Studio runs the merge in the background: the result is read until it is ready.
+    mockAxios.onGet("/projects/p1/merge").replyOnce(202, { status: "notReady" });
+    mockAxios.onGet("/projects/p1/merge").replyOnce(200, {
+      status: "conflicts",
+      conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx"] }],
     });
 
     const response = await executeTool("merge_project_branches", {
@@ -113,6 +116,7 @@ describe("project branch and merge handlers", () => {
 
     expect(mergeBody).toEqual({ mode: "receive", otherBranch: "feature" });
     expect(mergeParams).toEqual({ force: false });
+    expect(mockAxios.history.get.filter((request) => request.url === "/projects/p1/merge")).toHaveLength(2);
     const result = jsonResult<Record<string, unknown>>(response.content[0].text);
     expect(result).toMatchObject({
       success: false,
@@ -133,7 +137,8 @@ describe("project branch and merge handlers", () => {
       canMerge: true,
       blockedBy: null,
     });
-    mockAxios.onPost("/projects/p1/merge").reply(200, { status: "success" });
+    mockAxios.onPost("/projects/p1/merge").reply(202);
+    mockAxios.onGet("/projects/p1/merge").reply(200, { status: "success" });
 
     const response = await executeTool("merge_project_branches", {
       projectId: "p1",
@@ -179,7 +184,8 @@ describe("project branch and merge handlers", () => {
       sourceBranch: "feature", targetBranch: "main", status: "mergeable",
       canMerge: false, blockedBy: "bypass-required",
     });
-    mockAxios.onPost("/projects/p1/merge").reply(200, { status: "success" });
+    mockAxios.onPost("/projects/p1/merge").reply(202);
+    mockAxios.onGet("/projects/p1/merge").reply(200, { status: "success" });
 
     await executeTool("merge_project_branches", {
       projectId: "p1", otherBranch: "feature", mode: "receive", force: true, confirmForce: true,

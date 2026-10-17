@@ -1435,19 +1435,33 @@ export class OpenLClient {
     return response.data;
   }
 
-  /** Perform a branch merge, returning success or the created conflict session. */
+  /**
+   * Start a branch merge. Studio validates it and runs it in the background; read how it ended with
+   * {@link getMergeResult}.
+   */
   async mergeProjectBranches(
     projectId: string,
     request: Types.MergeRequest,
     force: boolean = false,
-  ): Promise<Types.MergeResultResponse> {
+  ): Promise<void> {
     const projectPath = this.buildProjectPath(projectId);
-    const response = await this.axiosInstance.post<Types.MergeResultResponse>(
+    await this.axiosInstance.post(`${projectPath}/merge`, request, { params: { force } });
+  }
+
+  /**
+   * Read the result of the merge this client started last: success, or the conflicts Studio stored for this client,
+   * or `notReady` while the merge is still running.
+   */
+  async getMergeResult(
+    projectId: string,
+    options?: { signal?: AbortSignal; timeoutMs?: number },
+  ): Promise<Types.MergeResultResponse | Types.ResultNotReadyView> {
+    const projectPath = this.buildProjectPath(projectId);
+    const response = await this.axiosInstance.get<Types.MergeResultResponse | Types.ResultNotReadyView>(
       `${projectPath}/merge`,
-      request,
-      { params: { force } },
+      { signal: options?.signal, timeout: options?.timeoutMs },
     );
-    return response.data;
+    return response.status === 202 ? { status: "notReady" } : response.data;
   }
 
   /** Read the pending merge conflict details stored in this HTTP session. */

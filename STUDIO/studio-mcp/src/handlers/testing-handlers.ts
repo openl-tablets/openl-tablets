@@ -3,112 +3,18 @@
  * (summary, full, and by-table views).
  */
 
-import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import * as schemas from "../schemas.js";
 import { formatResponse } from "../formatters.js";
-import { isAxiosError, isResultNotReady } from "../utils.js";
-import { registerTool, type ToolHandlerExtra, type ToolResponse } from "./common.js";
-import type * as Types from "../types.js";
+import { registerTool, waitForResult, type ToolResponse, type WaitOptions } from "./common.js";
 
 const TEST_RESULTS_DEFAULT_TIMEOUT_MS = 120_000;
-const TEST_RESULTS_POLL_INITIAL_INTERVAL_MS = 250;
-const TEST_RESULTS_POLL_MAX_INTERVAL_MS = 2_000;
 
-function makeTestResultsAbortError(): Error {
-  const error = new Error("test results wait aborted");
-  error.name = "AbortError";
-  return error;
-}
-
-function makeTestResultsTimeoutError(): ProtocolError {
-  return new ProtocolError(
-    ProtocolErrorCode.InvalidRequest,
-    `Test execution did not finish within the internal ${TEST_RESULTS_DEFAULT_TIMEOUT_MS} ms safety limit. The execution may still be running in Studio.`,
-  );
-}
-
-function remainingWaitTime(deadline: number): number {
-  const remainingMs = deadline - Date.now();
-  if (remainingMs <= 0) {
-    throw makeTestResultsTimeoutError();
-  }
-  return remainingMs;
-}
-
-function isRequestTimeout(error: unknown): boolean {
-  return isAxiosError(error) && (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT");
-}
-
-function delay(ms: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(makeTestResultsAbortError());
-      return;
-    }
-    const onAbort = (): void => {
-      clearTimeout(timer);
-      reject(makeTestResultsAbortError());
-    };
-    const timer = setTimeout(() => {
-      signal?.removeEventListener("abort", onAbort);
-      resolve();
-    }, ms);
-    if (typeof (timer as { unref?: () => void }).unref === "function") {
-      (timer as unknown as { unref: () => void }).unref();
-    }
-    signal?.addEventListener("abort", onAbort, { once: true });
-  });
-}
-
-async function waitForTestResults<T extends Types.TestResultsSummary | Types.TestsExecutionSummary>(
-  readResults: (requestTimeoutMs: number) => Promise<T | Types.ResultNotReadyView>,
-  extra?: ToolHandlerExtra,
-): Promise<T> {
-  const startedAt = Date.now();
-  const deadline = startedAt + TEST_RESULTS_DEFAULT_TIMEOUT_MS;
-  const progressToken = extra?._meta?.progressToken;
-  let pollIntervalMs = TEST_RESULTS_POLL_INITIAL_INTERVAL_MS;
-
-  for (;;) {
-    if (extra?.signal.aborted) {
-      throw makeTestResultsAbortError();
-    }
-
-    let result: T | Types.ResultNotReadyView;
-    try {
-      result = await readResults(remainingWaitTime(deadline));
-    } catch (error) {
-      if (extra?.signal.aborted) {
-        throw makeTestResultsAbortError();
-      }
-      if (Date.now() >= deadline || isRequestTimeout(error)) {
-        throw makeTestResultsTimeoutError();
-      }
-      throw error;
-    }
-    if (!isResultNotReady(result)) {
-      return result;
-    }
-
-    if (progressToken !== undefined && extra?.sendNotification) {
-      void extra.sendNotification({
-        method: "notifications/progress",
-        params: {
-          progressToken,
-          progress: Math.round((Date.now() - startedAt) / 1000),
-          message: "Test execution is still running…",
-        },
-      }).catch(() => { /* progress reporting is best-effort */ });
-    }
-
-    const remainingMs = deadline - Date.now();
-    if (remainingMs <= 0) {
-      continue;
-    }
-    await delay(Math.min(pollIntervalMs, remainingMs), extra?.signal);
-    pollIntervalMs = Math.min(pollIntervalMs * 2, TEST_RESULTS_POLL_MAX_INTERVAL_MS);
-  }
-}
+/** How the result tools wait while Studio is still running the tests. */
+const TEST_RESULTS_WAIT: WaitOptions = {
+  timeoutMs: TEST_RESULTS_DEFAULT_TIMEOUT_MS,
+  progressMessage: "Test execution is still running…",
+  timeoutMessage: `Test execution did not finish within the internal ${TEST_RESULTS_DEFAULT_TIMEOUT_MS} ms safety limit. The execution may still be running in Studio.`,
+};
 
 export function registerTestingHandlers(): void {
   registerTool({
@@ -155,7 +61,7 @@ export function registerTestingHandlers(): void {
 
       const format = typedArgs.response_format;
 
-      const summary = await waitForTestResults(
+      const summary = await waitForResult(
         (requestTimeoutMs) => client.getTestResultsSummary(typedArgs.projectId, {
           failuresOnly: typedArgs.failuresOnly,
           failures: typedArgs.failures,
@@ -163,6 +69,7 @@ export function registerTestingHandlers(): void {
           signal: extra?.signal,
           timeoutMs: requestTimeoutMs,
         }),
+        TEST_RESULTS_WAIT,
         extra,
       );
 
@@ -191,7 +98,7 @@ export function registerTestingHandlers(): void {
 
       const format = typedArgs.response_format;
 
-      const results = await waitForTestResults(
+      const results = await waitForResult(
         (requestTimeoutMs) => client.getTestResults(typedArgs.projectId, {
           failuresOnly: typedArgs.failuresOnly,
           failures: typedArgs.failures,
@@ -203,6 +110,7 @@ export function registerTestingHandlers(): void {
           signal: extra?.signal,
           timeoutMs: requestTimeoutMs,
         }),
+        TEST_RESULTS_WAIT,
         extra,
       );
 
@@ -240,7 +148,7 @@ export function registerTestingHandlers(): void {
 
       const format = typedArgs.response_format;
 
-      const results = await waitForTestResults(
+      const results = await waitForResult(
         (requestTimeoutMs) => client.getTestResultsByTable(typedArgs.projectId, typedArgs.tableId, {
           failuresOnly: typedArgs.failuresOnly,
           failures: typedArgs.failures,
@@ -252,6 +160,7 @@ export function registerTestingHandlers(): void {
           signal: extra?.signal,
           timeoutMs: requestTimeoutMs,
         }),
+        TEST_RESULTS_WAIT,
         extra,
       );
 

@@ -7,15 +7,16 @@
  * import from here and never the other way around, so this file has no
  * dependency on any handler module and the registry lives in exactly one place.
  */
+import { setTimeout as sleep } from "node:timers/promises";
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { ContentBlock, ProgressToken, ServerNotification } from "@modelcontextprotocol/server";
 import { z, type ZodType } from "zod";
 
 import type { OpenLClient } from "../client.js";
 import type { ToolCategory } from "../constants.js";
-import type { ExtractedErrorInfo } from "../types.js";
+import type { ExtractedErrorInfo, ResultNotReadyView } from "../types.js";
 import { logger } from "../logger.js";
-import { isAxiosError, sanitizeError, extractApiErrorInfo, sanitizeJson } from "../utils.js";
+import { isAxiosError, isResultNotReady, sanitizeError, extractApiErrorInfo, sanitizeJson } from "../utils.js";
 
 /**
  * Tool response structure
@@ -495,4 +496,89 @@ function handleToolError(error: unknown, toolName: string, toolArgs?: unknown): 
     `Error executing ${toolName}: ${sanitizedMessage}`,
     errorDetails
   );
+}
+
+const WAIT_POLL_INITIAL_INTERVAL_MS = 250;
+const WAIT_POLL_MAX_INTERVAL_MS = 2_000;
+
+/** How {@link waitForResult} waits for a result. */
+export interface WaitOptions {
+  /** The longest time to wait, in milliseconds. */
+  timeoutMs: number;
+  /** The progress notification sent while the result is not ready. */
+  progressMessage: string;
+  /** The message of the error thrown when the result is not ready in time. */
+  timeoutMessage: string;
+}
+
+function makeWaitAbortError(): Error {
+  const error = new Error("wait aborted");
+  error.name = "AbortError";
+  return error;
+}
+
+function isRequestTimeout(error: unknown): boolean {
+  return isAxiosError(error) && (error.code === "ECONNABORTED" || error.code === "ETIMEDOUT");
+}
+
+/**
+ * Reads a result Studio produces in the background, which it answers with `202 notReady` until the result is ready.
+ *
+ * The result is read again after a growing pause, and a progress notification tells the client the wait goes on.
+ * The wait ends with the result, with a `timeoutMessage` error once `timeoutMs` has passed, or with an `AbortError`
+ * when the client cancels the call.
+ *
+ * @param read - Reads the result, given how long one request may take.
+ */
+export async function waitForResult<T>(
+  read: (requestTimeoutMs: number) => Promise<T | ResultNotReadyView>,
+  options: WaitOptions,
+  extra?: ToolHandlerExtra,
+): Promise<T> {
+  const startedAt = Date.now();
+  const deadline = startedAt + options.timeoutMs;
+  const progressToken = extra?._meta?.progressToken;
+  let pollIntervalMs = WAIT_POLL_INITIAL_INTERVAL_MS;
+
+  for (;;) {
+    if (extra?.signal.aborted) {
+      throw makeWaitAbortError();
+    }
+    const remainingMs = deadline - Date.now();
+    if (remainingMs <= 0) {
+      throw new ProtocolError(ProtocolErrorCode.InvalidRequest, options.timeoutMessage);
+    }
+
+    let result: T | ResultNotReadyView;
+    try {
+      result = await read(remainingMs);
+    } catch (error) {
+      if (extra?.signal.aborted) {
+        throw makeWaitAbortError();
+      }
+      if (Date.now() >= deadline || isRequestTimeout(error)) {
+        throw new ProtocolError(ProtocolErrorCode.InvalidRequest, options.timeoutMessage);
+      }
+      throw error;
+    }
+    if (!isResultNotReady(result)) {
+      return result;
+    }
+
+    if (progressToken !== undefined && extra?.sendNotification) {
+      void extra.sendNotification({
+        method: "notifications/progress",
+        params: {
+          progressToken,
+          progress: Math.round((Date.now() - startedAt) / 1000),
+          message: options.progressMessage,
+        },
+      }).catch(() => { /* progress reporting is best-effort */ });
+    }
+
+    // An unreferenced timer does not keep the process alive; a cancelled call rejects with an AbortError
+    const pauseMs = Math.min(pollIntervalMs, Math.max(deadline - Date.now(), 0));
+    await sleep(pauseMs, undefined, { signal: extra?.signal, ref: false });
+    pollIntervalMs = Math.min(pollIntervalMs * 2, WAIT_POLL_MAX_INTERVAL_MS);
+  }
 }

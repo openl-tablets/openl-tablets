@@ -1390,6 +1390,14 @@ describe("OpenLClient", () => {
       expect(body).toContain("Hello audit");
     });
 
+    it("getMergeResult reads notReady while the merge runs and its result once it has ended", async () => {
+      mockAxios.onGet("/projects/p1/merge").replyOnce(202, { status: "notReady" });
+      mockAxios.onGet("/projects/p1/merge").replyOnce(200, { status: "success" });
+
+      await expect(client.getMergeResult("p1")).resolves.toEqual({ status: "notReady" });
+      await expect(client.getMergeResult("p1")).resolves.toEqual({ status: "success" });
+    });
+
     it("copyProject uses Studio's server-side project-copy endpoint", async () => {
       mockAxios.onPost("/repos/design/projects/Offer-CW/from-project").reply((config) => {
         expect(JSON.parse(config.data)).toEqual({
