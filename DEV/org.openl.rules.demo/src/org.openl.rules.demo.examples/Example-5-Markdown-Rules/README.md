@@ -26,6 +26,12 @@ policy.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
 - Everything else in a file is documentation. A file without front matter is documentation as a whole.
+- A module path with a wildcard, such as `rules/Auto-*`, makes a module of every folder of Markdown files it
+  matches, as it makes one of every file it matches.
+- The file name pattern of a project (`properties-file-name-pattern`) reads the properties of a module folder from
+  its path, as it reads those of a workbook from its file name, and every table of the module takes them. With the
+  pattern `%lob%-%state%`, the folders `rules/Auto-CA` and `rules/Auto-NY` are the versions of a module for two
+  states. The files inside a module folder are not matched: a table writes its own properties in its front matter.
 
 In OpenL Studio the tables of a Markdown module are shown, run, tested, traced and edited as any others, all but their
 look: a Markdown file keeps no formatting. With **Excel Formatting** on, a table is drawn in the OpenL table style, as
