@@ -86,7 +86,7 @@ class TableRegionLayoutTest {
         // The empty cells of a row of the properties, the field names and the titles take the role of the row.
         assertEquals(RawTableRole.PROPERTIES, roles.roleAt(5, 5));
         assertEquals(RawTableRole.CODE, roles.roleAt(6, 5));
-        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(7, 5));
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(7, 5));
     }
 
     @Test

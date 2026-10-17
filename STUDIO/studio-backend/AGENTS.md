@@ -212,8 +212,8 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
       (`code`), the row of references when `hasForeignKeysRow` finds one, the titles, then the values. The keys
       (`key`) are the column a reference reads the rows of a Data table by (`ITableModel.getKeyColumnIndex()`) unless
       it is a `_PK_` column, and in a Test and a Run table every column taken from a Data table
-      (`ColumnDescriptor.isReference()`). A Test column whose field starts with `_res_` or `_error_` is
-      `outputTitle`/`output`.
+      (`ColumnDescriptor.isReference()`). A Data table gives its rows: its titles and values are
+      `outputTitle`/`output`, as is a Test column whose field starts with `_res_` or `_error_`.
     - *Decision tables* (`DecisionLayout`): the places of the compiled `FunctionalRow`s — the code of a Rules table
       (`getInfoTable`, `getCodeTable`, `getParamsTable`), the titles (`getPresentationTable`) and the values. The column
       naming the rules is `key`. The titles of the vertical conditions of a lookup, in its corner, are `inputTitle`; its

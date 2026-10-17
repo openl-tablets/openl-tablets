@@ -225,9 +225,9 @@ class CompiledReadsTest {
 
         assertEquals(RawTableRole.CODE, roles.roleAt(ITEMS_ROW + 1, 1), "A field name");
         assertEquals(RawTableRole.CODE, roles.roleAt(ITEMS_ROW + 2, 1));
-        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(ITEMS_ROW + 1, 2));
+        assertEquals(RawTableRole.OUTPUT_TITLE, roles.roleAt(ITEMS_ROW + 1, 2), "A Data table gives its fields");
         assertEquals(RawTableRole.KEY, roles.roleAt(ITEMS_ROW + 1, 3), "The first field is the key");
-        assertEquals(RawTableRole.VALUE, roles.roleAt(ITEMS_ROW + 2, 3));
+        assertEquals(RawTableRole.OUTPUT, roles.roleAt(ITEMS_ROW + 2, 3));
     }
 
     @Test
