@@ -286,7 +286,8 @@ public final class ExcelTableFormatter {
         }
 
         /**
-         * Gives cells of one row of a region their cell formats, a line before each column starting a group.
+         * Gives cells of one row of a region their cell formats, a line before each column starting a group. The line
+         * starts at the titles: it does not cross the signature, the properties or the code.
          *
          * @param columns the columns of the cells, or {@code null} for every cell of the row
          */
@@ -295,7 +296,7 @@ public final class ExcelTableFormatter {
             var style = TableStyle.of(region.role());
             var bottom = table.getBottom() - table.getTop();
             var edges = new Edges(topOf(style, region, row, groupRows), bottomOf(style, region, row, bottom), null);
-            var grouped = new Edges(edges.top(), edges.bottom(), Line.GROUP);
+            var grouped = style.isHeaderPart() ? edges : new Edges(edges.top(), edges.bottom(), Line.GROUP);
             var sheetRow = rowOf(table.getTop() + row);
             if (columns == null) {
                 for (var column = region.left(); column <= region.right(); column++) {

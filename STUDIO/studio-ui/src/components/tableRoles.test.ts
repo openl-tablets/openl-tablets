@@ -123,7 +123,7 @@ describe('tableRoles', () => {
             .toEqual({ top: LINES.role, bottom: LINES.resultBelow, left: LINES.group })
     })
 
-    it('draws a group line above the first row of a group and left of the first column of one', () => {
+    it('draws a group line above the first row of a group and left of the first column of one, from the titles down', () => {
         const roles = spreadsheet!
 
         // The key of the last step starts a group of rows, and lies on the last row of the table.
@@ -134,6 +134,13 @@ describe('tableRoles', () => {
             .toEqual({ left: LINES.group })
         expect(roleLinesOf(roles, cellRoleOf(roles, 'C7', undefined)!, { rows: 1, columns: 1 }, LINES))
             .toBeUndefined()
+        // The line of a group column starts at the titles: it does not cross the header or the properties.
+        expect(roleLinesOf(roles, cellRoleOf(roles, 'D3', undefined)!, { rows: 1, columns: 1 }, LINES))
+            .toEqual({ top: LINES.role, bottom: LINES.role })
+        expect(roleLinesOf(roles, cellRoleOf(roles, 'D4', undefined)!, { rows: 1, columns: 1 }, LINES))
+            .toEqual({ top: LINES.role })
+        expect(roleLinesOf(roles, cellRoleOf(roles, 'D6', undefined)!, { rows: 1, columns: 1 }, LINES))
+            .toEqual({ top: LINES.role, left: LINES.group })
     })
 
     it('draws a table on the paper of its workbook while it has no roles or Excel Formatting is on', () => {

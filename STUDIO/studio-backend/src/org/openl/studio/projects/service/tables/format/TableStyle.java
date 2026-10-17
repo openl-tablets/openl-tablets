@@ -94,6 +94,11 @@ enum TableStyle {
         return Arrays.stream(values()).filter(style -> style.roles.contains(role)).findFirst().orElseThrow();
     }
 
+    /** Whether the style is of a part of the header: the signature, the properties or the code. */
+    boolean isHeaderPart() {
+        return this == SIGNATURE || this == PROPERTIES || this == CODE;
+    }
+
     /**
      * A colour of the theme of a workbook, by its slot.
      *
