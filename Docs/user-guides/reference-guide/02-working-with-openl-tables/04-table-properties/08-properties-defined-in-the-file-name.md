@@ -2,7 +2,7 @@
 
 **Module level properties**, or table properties applied to all tables of a module, can be defined in the module file name. These properties are usually specified when the logic of the whole project must be split by certain major parameters, such as country, state, or date. The following conditions must be met for such properties definition:
 
--   A file name pattern is configured directly in a rules project descriptor, in the `rules.xml` file, as the `properties-file-name-pattern `tag, or via OpenL Studio in the **Version patterns** section of the project **Overview** tab.
+-   A file name pattern is configured directly in a rules project descriptor, in the `rules.xml` file, as the `properties-file-name-pattern` tag, or in OpenL Studio, in the **Version patterns** section of the project **Overview** tab.
 -   The module file name matches the pattern.
 
 The file name pattern can include the following:
@@ -14,7 +14,7 @@ The file name pattern can include the following:
 
 -   wildcards, or characters that may be substituted for any of a defined subset of all possible characters
 
-For more information on wildcards that can be used in a pattern as regular expressions, see <https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html>.
+For the wildcards that can be used in a pattern, see [Properties Defined in the Folder Name](09-properties-defined-in-the-folder-name.md#properties-defined-in-the-folder-name).
 
 If a table property value is supposed to be a date, the **Date** format must be specified right after the property name and colon as follows:
 
@@ -56,7 +56,7 @@ To view detailed information about the properties added to the file name pattern
 
 The same property cannot be defined both in a file name and **Properties** table of the module.
 
-For the **lob, caProvinces, lang, country, currency, usregion**, and **state** properties, multiple comma-separated values can be defined in the file name for usage. An example for three LOB and two states is as follows:
+For the **lob, caProvinces, caRegions, lang, country, currency, region, usregion**, and **state** properties, multiple comma-separated values can be defined in the file name for usage. An example for three LOB and two states is as follows:
 
 `Product-CRV,MTH,STR-rules-01022018-01022018-OK,PR.xlsx`
 
@@ -64,7 +64,7 @@ A template for this example is as follows: `.*-%lob%-.*-%effectiveDate:ddMMyyyy%
 
 `Properties are stored not as single values, but as arrays of values.`
 
-**Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor. In OpenL Studio, enter the class in the **Properties processor** section of the project **Overview** tab.
+**Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor, as the `properties-file-name-processor` tag, or in OpenL Studio, in the **Properties processor** field of the project **Overview** tab.
 
 ![Custom file name processor class](../../ref-guide-images/customFileNameProcessorClass.png)
 

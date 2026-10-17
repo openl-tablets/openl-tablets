@@ -4,7 +4,7 @@ This section introduces project localization and describes how to enable it in t
 
 ### Introducing Project Localization
 
-To enable the i18n localization, the **msg(String code, Object... params)** function and new **locale** property are introduced.
+The i18n localization uses the **msg(String code, Object... params)** function and the **locale** property of the runtime context.
 
 The **msg(String code, Object... params)** function reads localization message bundles in the i18n format. All localization bundles are stored in the OpenL Tablets project, the **i18n** folder. The name of the localization bundle matches the following pattern:
 
@@ -21,7 +21,7 @@ Localization bundles files are key-value plain text files where keys and values 
 
 For more information on supported locales, see [JDK 21 Supported Locales](https://www.oracle.com/java/technologies/javase/jdk21-suported-locales.html).
 
-To support the i18n localization, a new **locale** property of the **java.lang.Locale** type is added to IRulesRuntimeContext to support i18n localization. When the **msg(String code, Object... params)** function is invoked, the current locale is retrieved from IRulesRuntimeContext and the list of message bundles is configured based on it.
+The **locale** property of IRulesRuntimeContext has the **java.util.Locale** type. When the **msg(String code, Object... params)** function is invoked, the current locale is retrieved from IRulesRuntimeContext and the list of message bundles is configured based on it.
 
 ### Enabling Localization in the OpenL Tablets Project
 
