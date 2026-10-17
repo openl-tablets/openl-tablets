@@ -16,9 +16,9 @@ import org.openl.util.StringTool;
 /**
  * What the table editor may not do to a table of a Markdown module.
  *
- * <p>A Markdown file keeps the values of its table as text and keeps no formatting: the look of its table is drawn by
- * OpenL Studio alone. Its cells, rows, columns, merged cells and properties are written into the file, but a style is
- * refused, saying so.
+ * <p>A Markdown file keeps the values of its table as text and keeps no formatting: OpenL Studio draws its table in
+ * the OpenL table style. Its cells, rows, columns, merged cells and properties are written into the file, but a style
+ * is refused, saying so.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MarkdownTables {
