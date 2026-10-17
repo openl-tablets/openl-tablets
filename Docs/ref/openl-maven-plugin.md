@@ -81,6 +81,29 @@ Notes:
 - The `deployment` archive is `<finalName>-deployment.zip`, named `<finalName>` in its `deployment.yaml`; `openl:deploy`
   uploads it instead of the main archive. The deprecated `deploymentName` has no effect and logs a warning.
 
+## Packaging workbooks as Markdown
+
+With `<markdown>true</markdown>` in the plugin configuration (or `-Dopenl.markdown=true`), the project is packaged
+with its workbooks written as Markdown. The setting is off by default.
+
+- `openl:compile` compiles the project as it is, then writes a copy of it into `target/openl-markdown`
+  (`markdownDirectory`): every module read from a workbook becomes a module folder of Markdown files, a table to a
+  file, at the path of the workbook without its extension, and the `rules.xml` of the copy names the folders.
+- The tables of a sheet go into the folder of its name. A character a name of OpenL Studio cannot hold, such as `%`
+  or `;`, is written as `_`, and the name loses a space at either end and a dot at its end.
+- A file is named after its table, whether the table compiles or not: the rule, the type or the data it declares,
+  `rate.md`, and a test with no name of its own after the rule it tests and its kind, `rateTest.md`. A name another
+  table of the folder holds gets a number, `rate1.md`, `rate2.md`, and these files are read after `rate.md` in the
+  order of the sheet.
+- `openl:test` runs the tests of the project as it is; `openl:package` packages the copy instead of the sources, and
+  `openl:verify` deploys it.
+- A workbook holding a table no Markdown file can hold stays a workbook in the copy, and the build log names the
+  table and the reason: a TBasic or a ColumnMatch table, built by the indent of its cells; a table written in parts;
+  a second Environment, Properties or Constants table of a module; a table whose layout has no Markdown form. The
+  log also gives the size of each workbook and of its folder.
+- A Markdown file keeps no formatting, comments or formulas: a cell keeps the value its formula computed. A table of
+  no kind OpenL knows, such as a note, is kept as text in the `notes.md` file of its sheet.
+
 ## Pom-less OpenL projects
 
 Anchor `pom.xml`:

@@ -3,6 +3,7 @@ package org.openl.rules.maven;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -24,6 +25,7 @@ import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
@@ -189,6 +191,29 @@ class PackageMojoTest {
         assertEquals(1, classesJars.length);
         assertEquals(FINAL_NAME + "-classes.jar", classesJars[0]);
         assertEquals(2, ((RecordingProjectHelper) mojo.projectHelper).attached.size());
+    }
+
+    @Test
+    void packagesTheMarkdownCopyOfTheProjectInsteadOfTheSources(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "zip");
+        mojo.markdown = true;
+        mojo.markdownDirectory = tmp.resolve("target/openl-markdown").toFile();
+        touch(mojo.markdownDirectory.toPath().resolve("rules/Main/main.md"));
+
+        mojo.execute(openlSources(tmp), false);
+
+        assertEquals(Set.of("rules/Main/main.md"), zipEntries(mojo.project.getArtifact().getFile()));
+    }
+
+    @Test
+    void markdownPackagingWithoutTheCopyFails(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "zip");
+        mojo.markdown = true;
+        mojo.markdownDirectory = tmp.resolve("target/openl-markdown").toFile();
+
+        var failure = assertThrows(MojoFailureException.class, () -> mojo.execute(openlSources(tmp), false));
+
+        assertTrue(failure.getMessage().contains("The 'compile' goal writes it"), failure::getMessage);
     }
 
     // The deprecated parameter is covered until it is removed.

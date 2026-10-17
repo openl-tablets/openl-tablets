@@ -17,6 +17,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.project.markdown.MarkdownProjectWriter;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.types.IOpenClass;
 
@@ -74,8 +75,37 @@ public final class CompileMojo extends BaseOpenLMojo {
             info("Methods      : ", openClass.getMethods().size());
             info("Warnings     : ", warnMessages.size());
             info("Time elapsed : ", (end - start) / 10_000_000L / 100.0, " s");
+            if (markdown) {
+                writeMarkdown(sourcePath, hasDependencies, classLoader);
+            }
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
+        }
+    }
+
+    /**
+     * Writes the copy of the project with its workbooks written as Markdown, compiled again with the tables kept, which
+     * the execution mode drops.
+     */
+    private void writeMarkdown(String sourcePath, boolean hasDependencies, ClassLoader classLoader) throws Exception {
+        var builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
+        var factory = builder.setProject(sourcePath)
+                .setClassLoader(classLoader)
+                .setExecutionMode(false)
+                .setExternalParameters(externalParameters)
+                .build();
+        var written = MarkdownProjectWriter.write(factory, markdownDirectory.toPath());
+        info("Markdown     : ", markdownDirectory);
+        for (var module : written.converted()) {
+            info("  module '", module.name(), "' ", module.workbook(), " (", module.workbookBytes(), " bytes) -> ",
+                    module.folder(), " (", module.files(), " files, ", module.markdownBytes(), " bytes)");
+        }
+        for (var module : written.kept()) {
+            warn("  module '", module.name(), "' stays a workbook ", module.path(), ": ",
+                    String.join("; ", module.reasons()));
         }
     }
 
