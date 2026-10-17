@@ -2,11 +2,10 @@
 
 ## Resume point
 
-- No PR is open: #2305 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- All 14 change types are exhausted repo-wide; the last delta sweep ran at `origin/main` 52d11b6c88. A run is:
-  maintain the open PR, sweep the delta since that SHA, then spend the rest on a NEW vein.
-- Only documentation, build config, i18n keys and dead TS imports have ever paid. The release-note vein is the best
-  one: re-run it whenever guides or release notes change.
+- PR #2348 (`dead-code/sweep`) is open with 1 commit; maintain it first. The delta since `origin/main` d7f23c8670
+  is unswept for Java: Error Prone and PMD did not run (container restart killed the reactor). Run them first.
+- All 14 change types are exhausted repo-wide; a run is: maintain the open PR, sweep the delta since d7f23c8670,
+  then spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
 
 ## Change-type queue
 
@@ -22,14 +21,15 @@
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
 | 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1 in #2212, 1,656 + 769 alive; re-run per delta |
-| 11 | TypeScript exports, types, components, imports | done; 0 dead exports, dead imports in #2184 and #2284 |
+| 11 | TypeScript exports, types, components, imports | done; 0 dead exports, dead imports in #2184, #2284, #2348 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
 | 14 | Documentation of settings and classes the code no longer has | done; 6 in #2212; re-run per new release note |
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2348 `dead-code/sweep`, head 57bd2eb9d0: `Remove the React import the JSX transform left unused in the execution
+  modal test` (studio-ui, tsc `TS6133`).
 
 ## Merged PRs
 
@@ -227,6 +227,8 @@
 - `.toDelete/` is gitignored: keep the PMD ruleset, scratch poms and detector scripts there. `~/.m2` and
   `STUDIO/studio-ui/node_modules` start COLD in a fresh container — check before budgeting.
 - Edit the ledger through `git worktree add` on `origin/dead-code/ledger`, never by switching the sweep branch.
+- A container restart mid-run resets `git config --global` (identity back to Claude, gpgsign back on) and kills
+  detached builds: re-set both and verify the author after every commit, not only the first.
 - The clone holds ~50 commits and a delta can far exceed that (one wave ran ~200): deepen until dates repeat.
 
 ## Exhausted veins
@@ -243,6 +245,8 @@
   pass over every delta touching studio-ui.
 - Merging a module into another leaves NOTHING dead in the build: after five STUDIO modules folded into webstudio,
   the module list, the merged pom's 65 deps and the per-vendor flyway resources were clean; only Docs went stale.
+- studio-ui module graph (every src file imported by another, `index.html`/`api-docs.html` entries): 0 orphans;
+  `.d.ts` files resolve as `./index` or ambient globals, so a resolver without `.d.ts` reports them falsely.
 - TS interface and type MEMBERS swept by identifier index: 1 candidate, an API payload FP. Closed.
 - antd-style `createStyles` keys (695 in 107 files): every key without a `.key` read is picked by `styles[KIND[k]]`
   or a string-union type naming it (HighlightState). Closed.
@@ -283,10 +287,9 @@
 
 ## Run log
 
-- 2026-10-08: delta was 89 commits — the studio-backend rename, table themes, trace, 7.0.0 migration notes. PMD
-  (57 hits), Error Prone, dependency:analyze (69), i18n (1,722 keys), bundles, npm, images, Docs settings and
-  release notes re-ran at zero. tsc found 7 dead React imports; #2284 MERGED (-7).
 - 2026-10-10: delta was 66 commits (xls cell merge, pending changes, restored operators). Reactor green in 29:10
   cold; Error Prone, PMD (29), tsc, i18n (1,729 keys), bundles, Docs tokens, imports re-ran at zero. No PR.
 - 2026-10-11: delta was 4 commits (index wait, thread count). Reactor green in 27:06 cold; Error Prone, tsc re-ran
   at zero. New vein, AGENTS.md names: 1 stale class, #2305 MERGED (-1 phrase).
+- 2026-10-17: delta was 61 commits (table themes removed, Excel-native formatting, merge conflicts). i18n
+  (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; tsc found 1 dead React import, #2348 opened.
