@@ -1,0 +1,22 @@
+<project>
+    <name>MD-POC_Folder_versions</name>
+    <modules>
+        <module>
+            <name>Auto</name>
+            <rules-root path="rules/Auto-*"/>
+        </module>
+        <module>
+            <name>Home-CA</name>
+            <rules-root path="rules/Home-CA"/>
+        </module>
+        <module>
+            <name>Home-NY</name>
+            <rules-root path="rules/Home-NY"/>
+        </module>
+        <module>
+            <name>Tests</name>
+            <rules-root path="rules/Tests"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>%lob%-%state%</properties-file-name-pattern>
+</project>
