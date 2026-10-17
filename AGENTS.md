@@ -42,10 +42,13 @@ generation.
 Multi-module Maven project. The version inherits from the root `pom.xml`.
 
 - **DEV/** — Core rules engine (type system, parser, binding, bytecode gen, project model)
-- **STUDIO/** — Web IDE (Spring Boot backend + React/TypeScript frontend)
+- **STUDIO/** — Web IDE (Spring backend + React/TypeScript frontend)
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
-- **Util/** — CLI tools and utilities
+- **Util/** — Maven plugin, project archetypes and shared libraries (OpenAPI, Excel builder, YAML, OpenTelemetry)
+- **DEMO/** — Demo package: `start`, `start.ps1` and `start.cmd` scripts that download a JRE, Jetty and JDBC drivers
+  and run OpenL Studio with OpenL Rule Services, plus their properties and the welcome page in `webapps/ROOT`
+- **jacoco-report/** — Aggregated JaCoCo coverage report; joins the reactor only with `-Dsonar`
 - **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/`, which OpenL
   Studio also ships and `STUDIO/studio-docs` validates; cross-cutting architecture notes under `Docs/architecture/`
 
@@ -65,21 +68,23 @@ mvn verify -Dsonar                         # Coverage: JaCoCo runs ONLY with -Ds
 docker compose up --build                  # Studio :8080, Rule Services :8081 (compose.yaml, NOT docker-compose.yaml)
 ```
 
-- **`-Dquick`** — skip heavy tests
+- **`-Dquick`** — skip heavy tests: Docker-based tests and all tests of the modules setting `skipTestsForQuick`
+  (the slow ITEST suites, the archetypes, openl-maven-plugin); the studio-ui vitest suite still runs
 - **`-DnoPerf`** — relax memory limits
 - **`-DnoDocker`** — skip Docker-based tests
 - **`-DskipTests`** — skip all tests and drop the integration-test modules (ITEST, the archetypes) from
   the reactor; openl-maven-plugin still builds with its tests skipped. `-Pitest` re-adds the dropped
   modules
 - **`-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip`** — leave out one studio-ui step at a time:
-  the vitest suite, the `tsc --noEmit` pass, the production bundle. `-DskipTests` and `-Dquick` already imply
-  the first
+  the vitest suite, the `tsc --noEmit` pass, the production bundle. `-DskipTests` already implies the
+  first
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
-- **Mirrored versions** — `Dockerfile` and the `DEMO/start*` launch scripts cannot read Maven properties, so they
-  spell out `log4j.version`, `opentelemetry.version`, `jetty.version`, `postgresql.version` and `mssql.version` a
-  second time. `mvn validate -N` fails when a copy drifts from its property; bump both sides together.
+- **Mirrored versions** — `Dockerfile` and the `DEMO/start` and `DEMO/start.ps1` launch scripts cannot read Maven
+  properties, so they spell out a second time `log4j.version` and `opentelemetry.version` (`Dockerfile`) and
+  `jetty.version`, `postgresql.version`, `mssql.version` and `ojdbc11.version` (both scripts). `mvn validate -N`
+  fails when a copy drifts from its property; bump both sides together.
 - Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.
   Coverage is measured on the diff, not the whole project — add tests until new lines reach ≥80%.
 
