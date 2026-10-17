@@ -312,7 +312,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     *Table opened in OpenL Studio*
 
-1.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formula** options as required.
+1.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formulas** options as required.
 2.  To switch the table to the edit mode, perform one of the following steps:
     -   Above the table, click **Edit**.
     -   Double click the cell to edit.
@@ -936,9 +936,8 @@ If the two files hold the same elements with the same contents, the **File eleme
 
 ### Viewing and Editing Project-Related OpenAPI Details
 
-When a project is created from an imported OpenAPI file, the normalized file in the project root is used for
-reconciliation by default. The generated `rules.xml` does not store OpenAPI generation settings, so OpenL Studio does
-not regenerate the workbooks automatically and overwrite later edits.
+How a project created from an OpenAPI file stores it is described in
+[Creating a Project from OpenAPI file](repository-editor.md#creating-a-project-from-openapi-file).
 
 The **OpenAPI** section of the **Overview** tab of the project page shows the specification of the project. A project that declares no specification shows the note **The project declares no OpenAPI specification**. A specification that is stored in the project root under the default name `openapi.yaml`, `openapi.yml` or `openapi.json` is found automatically and used for reconciliation even if `rules.xml` does not declare it.
 

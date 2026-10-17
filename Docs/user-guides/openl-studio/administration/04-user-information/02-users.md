@@ -148,18 +148,12 @@ A user is created in OpenL Studio automatically upon the user’s first login us
 provider. Users cannot be added manually. User information such as first name, last name, display name, and email
 address is retrieved from the identity provider and saved to OpenL Studio with those fields locked for editing. If some
 information is not available from the identity provider, the corresponding fields are editable in OpenL Studio. An
-exception applies to SSO with external user management, where user data cannot be edited in **Admin \> Users** and only
-partial data can be edited in the user profile section.
+exception applies to SSO with external user management, where user data cannot be edited in
+**Administration \> Users** and only partial data can be edited in the user profile section.
 
 On each login, OpenL Studio synchronizes user information with the identity provider and updates any fields that have
-changed.
-
-When the first or last name has changed:
-
-- If the display name was set to “first name + space + last name”, it is updated to reflect the new values.
-- If the display name was set to “last name + space + first name”, it is updated to reflect the new values.
-- If the display name is set to **Custom** and is non-empty in OpenL Studio but is empty in the identity provider, the
-  local value is preserved upon synchronization.
+changed, as described in
+[Synchronizing with a Third Party Service](../../getting-started.md#synchronizing-with-a-third-party-service).
 
 In integrated environments, the **Edit User** form shows read-only account and personal information synchronized from
 the identity provider. The form also displays the following:

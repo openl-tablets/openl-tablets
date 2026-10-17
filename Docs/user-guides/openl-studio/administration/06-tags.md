@@ -2,7 +2,7 @@
 
 In OpenL Tablets, tags can be assigned to a project. A **tag type** is a category holding tag values of the same group. An example is the **Product** tag that includes tags **Auto**, **Life**, and **Home**.
 
-**Note:** Starting with OpenL Tablets 6.0, project tags are stored inside the project structure rather than in a separate configuration. As a result, tag changes are version-controlled and visible in the project's Git history.
+**Note:** Project tags are stored inside the project, in the `tags.properties` file, so tag changes are version-controlled and visible in the project's history, as described in [Tagging a Project](../repository-editor.md#tagging-a-project).
 
 In the navigation menu, click **Tags** to open the tag management page.
 

@@ -6,10 +6,8 @@ modules, Algorithms and Models, with Excel files inside. By default, both files 
 are discovered through the standard project layout, so `rules.xml` does not repeat their module declarations. These two
 modules are always generated even if there are no rules or models in the project.
 
-When the project is created from an uploaded OpenAPI file, the file is stored in the project root as `openapi.json` or
-`openapi.yaml`, according to its format. The original file name is not retained. The generated `rules.xml` does not
-contain an `openapi` block. The normalized file is discovered automatically and used in the default reconciliation
-mode. OpenL Studio does not continue generating workbooks from it, so subsequent workbook edits are not overwritten.
+How the uploaded OpenAPI file is stored in the project is described in
+[Creating a Project from OpenAPI file](../repository-editor.md#creating-a-project-from-openapi-file).
 
 The following topics are included:
 

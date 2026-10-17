@@ -20,18 +20,20 @@ To sign in to OpenL Studio, proceed as follows:
 
     `http://<server>:<port>/webstudio`
 
-    In the single user mode, users are automatically signed in using the DEFAULT account. In the multi-user mode, the following form appears.
+    In the single user mode, users are automatically signed in as the single user, which is named after the operating
+    system account that runs OpenL Studio unless another username is configured. In the multi-user mode, the following
+    form appears.
 
-       <img src="images/login-page.png" width="400" alt="OpenL Studio login form with username and password fields and a Sign in button"/>
+       <img src="images/login-page.png" width="400" alt="OpenL Studio login form with username and password fields and a Log in button" title="OpenL Studio login form"/>
 
        *Login window*
 
-1.  Enter the user name and password provided by the system administrator and click **Sign in**.
+1.  Enter the user name and password provided by the system administrator and click **Log in**.
 
 If the user profile does not contain an email address or display name, the **Complete Your Profile** window opens after
 authentication. Enter the required details and click **Save** to continue to OpenL Studio. First Name and Last Name are
 optional. The display name can be entered directly or generated from them. The same check runs when OpenL Studio
-automatically signs in the DEFAULT account in single-user mode.
+automatically signs in the single user in single-user mode.
 
 For more information on OpenL Studio UI, see [Introducing Rules Editor](#introducing-rules-editor) and [Introducing the Projects Page](#introducing-the-projects-page). For more information on the single and multi-user modes, see [Security Overview](introduction.md#security-overview).
 
@@ -41,11 +43,14 @@ OpenL Studio provides a navigation panel accessible from the top-right corner of
 
 -   **My Profile** — update account details, name, and password
 -   **My Settings** — configure display and testing preferences
--   **Personal Access Tokens** — manage API authentication tokens (visible in all multi-user authentication modes; not shown in single-user mode)
+-   **Administration** — open the administration tools (shown to administrators only)
 -   **Help** — open the OpenL Studio help
 -   **About** — view the version, build date and license of OpenL Studio and the licenses of the third-party
     libraries it includes
--   **Sign Out** — end the current session
+-   **Sign Out** — end the current session (not shown in single-user mode)
+
+**My Profile** and **My Settings** open a page with a navigation menu on the left. The menu also lists **Personal
+Access Tokens**, which manages API authentication tokens in all multi-user authentication modes.
 
 ![User profile panel with the My Profile, My Settings, Help, About and Sign Out items](images/user-profile-dropdown.png "User profile panel")
 
@@ -115,7 +120,7 @@ An exception is the situation when the first or last name was changed.
 
 -   If the display name was set to “first name + space + last name”, it is updated to the new “first name + space + last name”.
 -   If the display name was set to the “last name + space + first name”, it is updated to the new “last name + space + first name”.
--   If the display name is set to **Other** and its value in OpenL Studio is not empty, and in the third party service, it is empty, upon synchronization, the display name set locally is not changed.
+-   If the display name is set to **Custom** and its value in OpenL Studio is not empty, and in the third party service, it is empty, upon synchronization, the display name set locally is not changed.
 -   If the display name value is empty in OpenL Studio and the third party service, but the first name and last name values are not empty, the display name is set to “first name + space + last name”, regardless of the pattern specified upon local user creation.
 
 If this user was not created as a local user previously but instead, created upon the external user logon, the display name value stays empty.
@@ -161,8 +166,8 @@ Personal access tokens are available in all multi-user authentication modes — 
 
 To create a personal access token, proceed as follows:
 
-1.  In OpenL Studio, in the top-right corner, click the user icon.
-2.  In the panel, click **Personal Access Tokens**.
+1.  In OpenL Studio, in the top-right corner, click the user icon, and in the panel, click **My Profile**.
+2.  In the navigation menu on the left, click **Personal Access Tokens**.
 
     ![](images/personal-access-tokens-view.png)
 
@@ -310,7 +315,7 @@ The **Projects** and **Deployments** links in the top bar lead back to the pages
 
 OpenL Studio provides different modes for displaying rule elements. In this guide, modes are contingently divided into a **simple view** and **extended view**.
 
-To switch between views, in the top right corner, select **My Settings** and use the **Show Header** and **Show Formula** options.
+To switch between views, in the top right corner, select **My Settings** and use the **Show Header** and **Show Formulas** options.
 
 When a table is opened in a simple view, OpenL Studio hides various technical table details, such as table header and MS Excel formulas. An example of a table opened in a simple view is as follows.
 
@@ -355,7 +360,7 @@ The two following modes display a project in a way convenient to experienced use
 
 ### Introducing the Projects Page
 
-The **Projects** page provides controls for browsing and managing Design repository. It opens right after the sign-in, and a user returns to it by clicking **Projects** in the top bar. The **Deployments** link next to it opens the page of deployments. The **Projects** page resembles the following:
+The **Projects** page provides controls for browsing and managing Design repository. After the sign-in, OpenL Studio opens the help page; a user opens the **Projects** page by clicking **Projects** or the **OpenL Studio** name in the top bar. The **Deployments** link next to it opens the page of deployments. The **Projects** page resembles the following:
 
 ![The Projects page with its filters and the list of projects](images/projects-page.png "The OpenL Studio Projects page")
 

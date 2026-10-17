@@ -12,7 +12,7 @@ The following topics are included in this section:
 ### Creating a Branch
 
 A repository branch can be selected or created while creating a project. This applies to projects created from a
-template, Excel files, an OpenAPI file, a ZIP archive, another project, or the user's workspace. Both configured and
+template, Excel files, an OpenAPI file, a ZIP archive, or another project. Both configured and
 user-defined names can be used. For more information on name patterns, see [Setting Up a Connection to a Git
 Repository](administration/01-repository-settings/02-git-repository-settings.md#setting-up-a-connection-to-a-git-repository).
 

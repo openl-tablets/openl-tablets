@@ -89,7 +89,7 @@ any other group. This means that if the Default Group has access to a resource, 
 access regardless of their individual group assignments.
 
 To change the Default Group, go to **Security → Default Group** in the administration settings as described
-in [Understanding the Default Group](#understanding-the-default-group).
+in [Configuring Initial Users](../03-security/07-initial-users.md#configuring-initial-users).
 
 ##### Viewing a List of Groups
 
