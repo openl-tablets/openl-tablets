@@ -9,7 +9,8 @@ and basic editing actions. Each tutorial is located in a separate project named 
 number. It is highly recommended to follow these tutorials in their natural order. Each tutorial contains a set of
 working examples. Good luck and have fun!
 
-**All these projects already exist in the OpenL DEMO.**
+**All these projects, except Example-4-Reference-Guide, already exist in the OpenL DEMO.** Every one of them can be
+created in OpenL Studio from a template of the **Tutorials** or **Examples** category.
 
 ## Tutorial 1 - Introduction to Decision Tables
 
