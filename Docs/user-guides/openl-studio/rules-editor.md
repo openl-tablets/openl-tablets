@@ -463,7 +463,12 @@ itself offers, so the tables look the same in Excel and change with the theme of
     and the punctuation are lighter.
 
 To format every table of the project, above the table, click **More**, select **Reformat Excel files**, and in the
-dialog, click **Reformat**. A tooltip on the menu item says what the action does.
+dialog, click **Reformat**. A tooltip on the menu item says what the action does. With Excel Formatting on, a table
+shows the formatting its Excel file gave it before the reformatting and the OpenL table style after it.
+
+![A Rules table drawn with Excel Formatting on, in the formatting its Excel file gave it](images/table-excel-formatting.png "Table before reformatting")
+
+*Table before reformatting*
 
 ![A Rules table of a reformatted Excel file, drawn with Excel Formatting on](images/table-reformatted.png "Table formatted with the OpenL table style")
 
