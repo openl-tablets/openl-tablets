@@ -81,10 +81,12 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
 - **Single test** — Java: `mvn test -pl <module-path> -Dtest=ClassName#method`; frontend:
   `cd STUDIO/studio-ui && npx vitest run src/<file>.test.tsx` (watch: `npm run test:watch`); one integration suite:
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
-- **Mirrored versions** — `Dockerfile` and the `DEMO/start` and `DEMO/start.ps1` launch scripts cannot read Maven
-  properties, so they spell out a second time `log4j.version` and `opentelemetry.version` (`Dockerfile`) and
-  `jetty.version`, `postgresql.version`, `mssql.version` and `ojdbc11.version` (both scripts). `mvn validate -N`
-  fails when a copy drifts from its property; bump both sides together.
+- **Mirrored versions** — `Dockerfile`, the `DEMO/start` and `DEMO/start.ps1` launch scripts and the compose and
+  Kubernetes files cannot read Maven properties, so they spell out a second time `log4j.version` and
+  `opentelemetry.version` (`Dockerfile`), `jetty.version`, `postgresql.version`, `mssql.version` and
+  `ojdbc11.version` (both scripts), and `postgresql.version` (`compose.yaml`,
+  `Docs/examples/production/studio-config/compose.yaml`, `Docs/examples/k8s/02-openl-studio.yaml`).
+  `mvn validate -N` fails when a copy drifts from its property; bump both sides together.
 - Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.
   Coverage is measured on the diff, not the whole project — add tests until new lines reach ≥80%.
 

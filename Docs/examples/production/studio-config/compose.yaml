@@ -215,7 +215,7 @@ services:
       REPOSITORY_EXAMPLE_PROTECTED-BRANCHES: main, release-*
 
   postgres:
-    image: postgres:17@sha256:0b6428e8c09651398137d2b3308a6ad87e73ac15fc38729891c16d942e947d3d
+    image: postgres:18@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
     container_name: postgres-db
     environment:
       POSTGRES_DB: openl_studio # Database name to create
@@ -223,7 +223,7 @@ services:
       POSTGRES_PASSWORD: openl_password # Replace with a strong password
     volumes:
       - initdb:/docker-entrypoint-initdb.d
-      - postgres-data:/var/lib/postgresql/data # Persist database data
+      - postgres-data:/var/lib/postgresql # Persist database data
     ports:
       - "5432:5432" # Expose PostgreSQL port (optional, for external access/debugging)
     restart: unless-stopped
@@ -242,7 +242,8 @@ services:
       - /bin/sh
       - -c
       - |
-        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.7.jar
+        f=/jars/postgresql-42.7.14.jar
+        [ -e $$f ] && echo $$f exists || { wget -O $$f.tmp https://jdbc.postgresql.org/download/postgresql-42.7.14.jar && rm -f /jars/postgresql*.jar && mv $$f.tmp $$f; }
         echo "--- Initialization of the DB
 
         CREATE SCHEMA openl_studio;

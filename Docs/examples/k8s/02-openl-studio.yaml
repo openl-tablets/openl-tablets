@@ -82,7 +82,8 @@ spec:
         #
         # NOTE: the init container requires outbound HTTPS to jdbc.postgresql.org.
         # In air-gapped clusters, host the jar in an internal registry and update
-        # the URL below. To upgrade the driver, change the version in the URL.
+        # the URL below. The version mirrors the postgresql.version property of the
+        # root pom.xml; `mvn validate -N` fails when they differ.
         - name: download-jdbc
           image: busybox:stable
           command:
@@ -92,7 +93,7 @@ spec:
               set -e
               echo "Downloading PostgreSQL JDBC driver..."
               wget -q -O /jdbc/jdbc.jar \
-                https://jdbc.postgresql.org/download/postgresql-42.7.3.jar
+                https://jdbc.postgresql.org/download/postgresql-42.7.14.jar
               echo "Done: $(ls -lh /jdbc/jdbc.jar)"
           volumeMounts:
             - name: jdbc-volume

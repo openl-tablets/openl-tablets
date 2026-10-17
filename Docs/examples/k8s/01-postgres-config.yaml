@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:15-alpine
+          image: postgres:18-alpine
           env:
             # Pull credentials from the Secret — avoids embedding sensitive values
             # in the Deployment manifest and allows credential rotation without
@@ -104,7 +104,7 @@ spec:
             failureThreshold: 3
           volumeMounts:
             - name: pgdata
-              mountPath: /var/lib/postgresql/data
+              mountPath: /var/lib/postgresql
       volumes:
         - name: pgdata
           persistentVolumeClaim:
