@@ -177,8 +177,9 @@ contain the project when it is opened. Proceed as follows:
     Sync merges the changes of both branches by itself where they do not overlap: a text file line by line, and a
     module workbook sheet by sheet. A sheet both branches changed is merged table by table, a table ending at a row
     or a column with no value, as OpenL reads it, even when its cells are filled or framed: a table added, removed,
-    changed or moved in one branch only takes the change of that branch. A table both branches changed is merged row
-    by row, the way lines of a text file are: rows inserted, deleted or changed in one branch are taken from it, and
+    changed or moved in one branch only takes the change of that branch. A table both branches added with the same
+    content is kept once, where your version has it. A table both branches changed is merged row by row, the way
+    lines of a text file are: rows inserted, deleted or changed in one branch are taken from it, and
     so are columns when a branch inserted or deleted columns of the table. A table that grew or moved in one branch
     keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that branch.
     The value, the style and the comment of a cell are merged separately, so one branch can change the text of a

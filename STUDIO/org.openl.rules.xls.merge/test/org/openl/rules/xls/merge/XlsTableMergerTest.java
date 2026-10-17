@@ -320,6 +320,21 @@ class XlsTableMergerTest {
     }
 
     @Test
+    void sameTableAddedInBothAtDifferentPlaces_isKeptOnceWhereOursHasIt() throws IOException {
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 14, 0, "Data X x");
+            set(sheet, 15, 0, "x1");
+        }, sheet -> {
+            set(sheet, 0, 8, "Data X x");
+            set(sheet, 1, 8, "x1");
+        });
+        assertEquals("Data X x", text(merged, 14, 0));
+        assertEquals("x1", text(merged, 15, 0));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 0, 8)));
+        assertFalse(XlsSheetsMatcher.hasValue(cell(merged, 1, 8)));
+    }
+
+    @Test
     void tableRemovedInTheirs_andEditedInOurs_isConflict() throws IOException {
         FIXTURE.assertConflict(sheet -> set(sheet, 10, 1, 31), sheet -> removeTable(sheet, "A9:C12", "A9:C9"));
     }
