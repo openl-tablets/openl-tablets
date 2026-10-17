@@ -1,6 +1,12 @@
 # STUDIO Module — Web IDE
 
-Spring Boot backend serving a REST API, and a React/TypeScript frontend that draws every screen.
+A Spring backend serving a REST API, and a React/TypeScript frontend that draws every screen.
+
+The backend is a Spring web application, not a Spring Boot one: `SpringInitializer`, a listener declared in
+`studio-backend/webapp/WEB-INF/web.xml`, builds an `XmlWebApplicationContext` from `/WEB-INF/spring/webstudio.xml`.
+From Spring Boot it takes only the condition annotations of `spring-boot-autoconfigure`, such as
+`@ConditionalOnExpression` — see
+[`mcp-server-jetty-architecture.md`](../Docs/architecture/mcp-server-jetty-architecture.md).
 
 ## Key Conventions
 
@@ -60,7 +66,7 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 ## Submodules
 
 **Core application**:
-- **studio-backend** — Main Spring Boot app (packages: `org.openl.studio.*`, `org.openl.rules.webstudio`, `org.openl.rules.rest`, `org.openl.rules.ui`).
+- **studio-backend** — the backend and its war (packages: see [Backend Packages](#backend-packages)).
   Its Maven artifact is `org.openl.rules.studio:studio-backend`. Its war is a GitHub release asset: the module is
   installed into the local repository but never deployed
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
@@ -74,35 +80,29 @@ Spring Boot backend serving a REST API, and a React/TypeScript frontend that dra
 - **org.openl.rules.repository.aws** — AWS S3 storage
 - **org.openl.rules.repository.azure** — Azure Blob storage
 
-**Security** (inside `studio-backend`):
-- `org.openl.rules.security` — Security abstractions
-- `org.openl.rules.security.standalone` — Standalone auth (form-based, DB-backed, Flyway migrations in `resources/db/flyway/`)
-- `org.openl.security.acl` — Access Control Lists
-
-**OpenAPI** (inside `studio-backend`):
-- `org.openl.rules.spring.openapi` — Spring OpenAPI integration
-
 **Supporting modules**:
 - **org.openl.rules.workspace** — Workspace management
 - **org.openl.rules.diff** — Rule diff/comparison
 - **org.openl.rules.jackson** / **org.openl.rules.jackson.configuration** — JSON serialization
 - **org.openl.rules.project.openapi** / **org.openl.rules.project.validation.openapi** — OpenAPI generation and validation
 - **org.openl.rules.xls.merge** — Excel merge utilities
+- **`../WSFrontend/org.openl.rules.ruleservice.annotation`**, **`.common`**, **`.ws.common`** — modules of OpenL Rule
+  Services that `STUDIO/pom.xml` builds as well
 
-## Backend Package Structure
+## Backend Packages
 
-```
-org.openl.studio
-├── config/          # Spring Boot configuration
-├── security/        # Auth: AD, OAuth2, SAML, PAT (personal access tokens)
-├── settings/        # System settings (rest/controller, service, model, converter)
-├── notification/    # WebSocket notifications
-├── projects/        # Project management and validation
-├── repositories/    # Repository management
-├── deployment/      # Deployment management
-├── users/           # User management
-├── tags/            # Tag management
-├── rest/            # REST controllers
-├── socket/          # WebSocket endpoints
-└── common/          # Shared utilities
-```
+The full map of `studio-backend/src/org/openl/` is in
+[`codebase-tour.md`](../Docs/onboarding/codebase-tour.md). To place new code:
+
+- **REST API of an area** — `org.openl.studio.<area>` (`projects`, `repositories`, `deployment`, `users`, `tags`,
+  `settings`, `compare`) keeps its controllers in `rest/controller` (`compare/rest`) beside its services and models.
+  `org.openl.studio.rest` holds only the argument resolvers of pagination; `org.openl.rules.rest` holds the mail,
+  management, user and ACL controllers.
+- **WebSocket** — configuration and handshake in `org.openl.studio.socket`; notifications to the clients in
+  `org.openl.rules.webstudio.notification`.
+- **Shared** — `org.openl.studio.common` (exception handling, error and page models, projection, validation),
+  `org.openl.studio.config`, `org.openl.studio.session` (client sessions).
+- **Security** — `org.openl.studio.security` (security chains, AD, OAuth2, SAML, PAT), `org.openl.rules.security`
+  (users and groups; `standalone` for the users of the database), `org.openl.security.acl` (access control lists).
+- **OpenAPI** — `org.openl.rules.spring.openapi` (the Spring OpenAPI integration), `org.openl.studio.openapi` (the
+  projection in the documentation).
