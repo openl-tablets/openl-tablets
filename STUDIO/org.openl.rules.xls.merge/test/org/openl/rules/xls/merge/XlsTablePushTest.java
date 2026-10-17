@@ -216,6 +216,27 @@ class XlsTablePushTest {
         assertEquals(TableConflictReason.MOVED, tables.getFirst().reason());
     }
 
+    @Test
+    void tableBothCreatedAtDifferentPlaces_isKeptOnceWhereOursPutIt() throws IOException {
+        // Our branch creates the plans above every table, which pushes them down; their branch creates them under the
+        // cars, where our cars land.
+        var merged = STACKED.mergeXlsx(GROW_RULES.andThen(sheet -> {
+            move(sheet, "A1:F30", 3, 0);
+            plans(sheet, 0);
+        }), GROW_RULES.andThen(sheet -> plans(sheet, 14)));
+
+        assertEquals("Data Plan plans", text(merged, 0, 0));
+        assertEquals("Data Driver drivers", text(merged, 9, 0));
+        assertEquals("Data Car cars", text(merged, 13, 0));
+        assertEquals("model", text(merged, 14, 0), "Their plans are left out");
+        assertNull(cell(merged, 16, 0));
+    }
+
+    private static void plans(Sheet sheet, int row) {
+        set(sheet, row, 0, "Data Plan plans");
+        set(sheet, row + 1, 0, "name");
+    }
+
     private static void stacked(Workbook workbook) {
         var sheet = workbook.createSheet(RULES);
         set(sheet, 0, 0, "Rules String rate(String country)");

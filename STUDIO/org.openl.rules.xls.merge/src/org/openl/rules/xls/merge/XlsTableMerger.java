@@ -47,10 +47,11 @@ import org.openl.rules.xls.merge.diff.TableConflictReason;
  * Merges a sheet changed in both revisions table by table against the base revision.
  *
  * <p>Each revision of the sheet is split into tables, and the tables of BASE revision are found in the other
- * revisions. A table added, removed, changed or moved in one revision only takes the change of that revision. A table
- * changed in both revisions is merged line by line, the way lines of text are merged: its rows, or its columns, are
- * aligned with BASE revision, and the lines inserted, deleted or changed in one revision only are taken from it. The
- * cells of a line changed in both revisions are merged part by part.
+ * revisions. A table added, removed, changed or moved in one revision only takes the change of that revision, and a
+ * table both revisions added holding the same is kept once, where OUR revision has it. A table changed in both
+ * revisions is merged line by line, the way lines of text are merged: its rows, or its columns, are aligned with BASE
+ * revision, and the lines inserted, deleted or changed in one revision only are taken from it. The cells of a line
+ * changed in both revisions are merged part by part.
  *
  * <p>A revision that only pushes its tables up or down, by rows it inserts into tables or between them, does not move
  * them on purpose: the merged sheet follows the places the other revision gives the tables, pushed by those rows.
@@ -188,22 +189,16 @@ final class XlsTableMerger {
                 return false;
             }
         }
-        var ourCreated = new ArrayList<>(ourTables);
-        ourCreated.removeAll(new HashSet<>(ourPairs.values()));
-        var theirCreated = new ArrayList<>(theirTables);
-        theirCreated.removeAll(new HashSet<>(theirPairs.values()));
-        // A table both revisions created alike at one place is merged already.
-        theirCreated.removeIf(table -> ourCreated.contains(table) && holdAlike(view(our, table), view(their, table)));
+        var ourCreated = created(ourTables, ourPairs);
+        var theirCreated = created(theirTables, theirPairs);
+        var createdAlike = leaveOutCreatedAlike(our, their, ourCreated, theirCreated);
         for (List<CellRangeAddress> group : createdGroups(theirCreated, ourCreated)) {
             if (!mergeCreated(group, ourCreated)) {
                 return false;
             }
         }
         for (CellRangeAddress table : ourCreated) {
-            var target = createdPlace(Side.OUR, table);
-            if (target.equals(table)) {
-                layout.add(table);
-            } else if (writeWhole(table, Side.OUR, view(our, table), null, target) != null) {
+            if (takeOurs(table, createdAlike.get(table), start(createdPlace(Side.OUR, table))) != null) {
                 return false;
             }
         }
@@ -250,6 +245,60 @@ final class XlsTableMerger {
         var theirView = view(their, theirTable);
         var alignments = alignments(new Views(baseView, ourView, theirView));
         return alignments == null ? 0 : new LineMerger(baseView, ourView, theirView, alignments).sharedLines(line);
+    }
+
+    /**
+     * Tells whether both revisions created a table holding the same at different places. Such a sheet is merged table
+     * by table, which keeps the table once.
+     */
+    static boolean createdAlikeElsewhere(Cursor base, Cursor our, Cursor their) {
+        var baseTables = XlsSheetTables.split(base.sheet);
+        var theirTables = XlsSheetTables.split(their.sheet);
+        var theirCreated = created(theirTables, XlsSheetTables.match(baseTables, base.sheet, theirTables, their.sheet));
+        if (theirCreated.isEmpty()) {
+            return false;
+        }
+        var ourTables = XlsSheetTables.split(our.sheet);
+        var ourCreated = created(ourTables, XlsSheetTables.match(baseTables, base.sheet, ourTables, our.sheet));
+        return !leaveOutCreatedAlike(our, their, ourCreated, theirCreated).isEmpty();
+    }
+
+    /**
+     * The tables of a revision that BASE revision has not got.
+     *
+     * @param pairs the table of the revision by the table of BASE revision
+     */
+    private static List<CellRangeAddress> created(List<CellRangeAddress> tables,
+                                                  Map<CellRangeAddress, CellRangeAddress> pairs) {
+        var created = new ArrayList<>(tables);
+        created.removeAll(new HashSet<>(pairs.values()));
+        return created;
+    }
+
+    /**
+     * Leaves out the tables THEIR revision created that OUR revision created too, holding the same: OUR revision has
+     * them already. A table both revisions created at one place is merged already.
+     *
+     * <p>A table OUR revision created at another place stands for one table of THEIR revision. A table that touches a
+     * table THEIR revision created stands for none: the tables that touch are resolved together.
+     *
+     * @return the table of THEIR revision left out by the table of OUR revision at another place that stands for it
+     */
+    private static Map<CellRangeAddress, CellRangeAddress> leaveOutCreatedAlike(Cursor our,
+                                                                                Cursor their,
+                                                                                List<CellRangeAddress> ourCreated,
+                                                                                List<CellRangeAddress> theirCreated) {
+        theirCreated.removeIf(table -> ourCreated.contains(table) && holdAlike(view(our, table), view(their, table)));
+        var pairs = new HashMap<CellRangeAddress, CellRangeAddress>();
+        ourCreated.stream()
+                .filter(ourTable -> theirCreated.stream().noneMatch(table -> XlsSheetTables.touch(ourTable, table)))
+                .forEach(ourTable -> theirCreated.stream()
+                        .filter(table -> !pairs.containsValue(table)
+                                && holdAlike(view(our, ourTable), view(their, table)))
+                        .findFirst()
+                        .ifPresent(table -> pairs.put(ourTable, table)));
+        theirCreated.removeAll(pairs.values());
+        return pairs;
     }
 
     /**

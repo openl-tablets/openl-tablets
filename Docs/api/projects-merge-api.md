@@ -473,10 +473,10 @@ committed anything, and the branches are as it found them:
 A merge whose conflicted files are all workbooks that resolve automatically answers `success`. A sheet changed in
 both branches is split into tables, each ending at a row or a column with no value the way OpenL reads it, whatever
 the style of its cells; the style and the comment of an empty cell between tables are merged cell by cell. A table
-added,
-removed, changed or moved in one branch takes the change of that branch; a table changed in both is merged row by
-row, or column by column when a branch inserted or deleted its columns, and a row changed in both cell by cell. A
-workbook resolves automatically when every such sheet merges:
+added, removed, changed or moved in one branch takes the change of that branch, and one both branches added with the
+same content is kept once, where your version has it; a table changed in both is merged row by row, or column by
+column when a branch inserted or deleted its columns, and a row changed in both cell by cell. A workbook resolves
+automatically when every such sheet merges:
 
 - no value or comment of a cell, merged cell of a table or picture of the sheet is changed differently in the two
   branches: one branch may change the value of a cell and the other its style. The style of a cell, the height or

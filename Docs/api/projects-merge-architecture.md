@@ -64,8 +64,10 @@ flowchart TB
   a conflict. When that fails, for instance because
   **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
   table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
-  value, as the OpenL compiler does whatever their style, and pairs them by their headers; a cell outside every
-  table, styled but empty, is merged cell by cell,
+  value, as the OpenL compiler does whatever their style, and pairs them by their headers; a table both versions
+  created with the same content is kept once, at the place of your version, and a sheet holding one at different
+  places is merged table by table even when nothing moved; a cell outside every table, styled but empty, is merged
+  cell by cell,
   **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version; when
   both versions moved tables and one of them only pushed its tables by rows it inserted or deleted above them, the
   merged sheet follows the places of the other version, pushed by those rows (`Pushes`), and falls back to a
