@@ -2,19 +2,27 @@ package org.openl.excel.parser.markdown;
 
 import java.io.Serial;
 
+import lombok.Getter;
+
 import org.openl.excel.parser.ExcelParseException;
 
 /**
- * A Markdown rules module breaks the format.
+ * A Markdown file breaks the format so that it holds no table.
  *
- * <p>The message names the file and the line of the file where the problem is.
+ * <p>The message tells what is wrong, in the words an error of a workbook would use. The line of the file where the
+ * problem is comes with the problem, apart from the message.
  */
+@Getter
 public class MarkdownFormatException extends ExcelParseException {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    MarkdownFormatException(String fileName, int line, String message) {
-        super("%s, line %d: %s".formatted(fileName, line, message));
+    /** The line of the file and what is wrong there. */
+    private final transient MarkdownProblem problem;
+
+    MarkdownFormatException(int line, String message) {
+        super(message);
+        this.problem = new MarkdownProblem(line, message, null);
     }
 }

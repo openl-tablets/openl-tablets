@@ -110,6 +110,21 @@ describe('CodeEditor', () => {
         expect(numbers(container)).not.toContain('41')
     })
 
+    it('puts the cursor on the line it is sent to, and on another one when the line changes', () => {
+        const text = 'a\nb\nc\nd'
+        const { container, rerender } = render(<CodeEditor readOnly line={3} path="t.md" value={text} />)
+        const current = () => container.querySelector('.cm-activeLine')?.textContent
+
+        expect(current()).toBe('c')
+
+        rerender(<CodeEditor readOnly line={2} path="t.md" value={text} />)
+        expect(current()).toBe('b')
+
+        // A line past the end of the file is its last line
+        rerender(<CodeEditor readOnly line={40} path="t.md" value={text} />)
+        expect(current()).toBe('d')
+    })
+
     it('says what it holds while it holds no text', () => {
         const { container } = render(<CodeEditor path="notes.txt" placeholder="No lines" value="" />)
 

@@ -34,7 +34,6 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
-import org.openl.util.FileUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 
@@ -58,8 +57,6 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     /** The sheet of the file the module compiles, or {@code null} for a file written outside a module. */
     @Getter
     private final @Nullable XlsSheetSourceCodeModule sheetSource;
-    /** The name of the file the error messages tell. */
-    private final String fileName;
     /** The text of the file when the sheet was opened, or {@code null} for a file that does not exist yet. */
     private final @Nullable String text;
     private final Saver saver;
@@ -68,13 +65,11 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
 
     private MarkdownGrid(String uri,
                          @Nullable XlsSheetSourceCodeModule sheetSource,
-                         String fileName,
                          @Nullable String text,
                          SheetCells cells,
                          Saver saver) {
         this.uri = uri;
         this.sheetSource = sheetSource;
-        this.fileName = fileName;
         this.text = text;
         this.saver = saver;
         for (var row = 0; row < cells.values().length; row++) {
@@ -106,12 +101,10 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var withoutMark = !text.isEmpty() && text.charAt(0) == MarkdownReader.BYTE_ORDER_MARK
                 ? text.substring(1)
                 : text;
-        var file = MarkdownTableParser.parse(withoutMark, workbook.getDisplayName())
-                .orElseThrow(() -> new MarkdownWriteException(
-                        "%s holds no table to write".formatted(workbook.getDisplayName())));
+        var file = MarkdownTableParser.parse(withoutMark)
+                .orElseThrow(() -> new MarkdownWriteException(MarkdownTableWriter.NO_TABLE));
         return new MarkdownGrid(sheetSource.getUri(),
                 sheetSource,
-                workbook.getDisplayName(),
                 text,
                 SheetLayout.cellsOf(file.table()),
                 written -> workbook.save(out -> out.write(written.getBytes(StandardCharsets.UTF_8))));
@@ -129,8 +122,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     public static MarkdownGrid create(String fileUri, Saver saver) {
         var path = StringTool.decodeURL(fileUri);
         var uri = fileUri + "?sheet=" + StringTool.encodeURL(MarkdownReader.sheetNameOf(path));
-        return new MarkdownGrid(uri, null, FileUtils.getName(path), null, new SheetCells(new String[0][], List.of()),
-                saver);
+        return new MarkdownGrid(uri, null, null, new SheetCells(new String[0][], List.of()), saver);
     }
 
     /**
@@ -149,8 +141,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var path = StringTool.decodeURL(fileUri);
         var workbook = new XlsWorkbookSourceCodeModule(new MarkdownFileSource(file, fileUri));
         var sheet = new XlsSheetSourceCodeModule(new UnwrittenSheet(MarkdownReader.sheetNameOf(path)), workbook);
-        return new MarkdownGrid(sheet.getUri(), sheet, FileUtils.getName(path), null,
-                new SheetCells(new String[0][], List.of()), saver);
+        return new MarkdownGrid(sheet.getUri(), sheet, null, new SheetCells(new String[0][], List.of()), saver);
     }
 
     /** The sheet of a file not written yet: it has a name, and nothing to read. */
@@ -233,7 +224,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var cells = new SheetCells(values, ranges);
         saver.save(text == null
                 ? MarkdownTableWriter.newFile(SheetLayout.tableOf(cells))
-                : MarkdownTableWriter.write(text, fileName, cells));
+                : MarkdownTableWriter.write(text, cells));
     }
 
     // Reading

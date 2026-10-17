@@ -39,6 +39,7 @@ import org.openl.source.impl.PathSourceCodeModule;
 class MarkdownModuleTest {
 
     private static final String GREETINGS = "test/rules/markdown/Greetings";
+    private static final String BROKEN = "test/rules/markdown/Broken";
 
     private static CompiledOpenClass compiled;
     private static Object rules;
@@ -114,10 +115,28 @@ class MarkdownModuleTest {
     }
 
     @Test
-    void formatErrorLosesTheTableOfItsFileOnly() {
-        var module = new RulesEngineFactory<>("test/rules/markdown/Broken").getCompiledOpenClass();
+    void formatErrorOfTheBodyKeepsTheTableAndPointsAtItsCell() {
+        var module = new RulesEngineFactory<>(BROKEN).getCompiledOpenClass();
 
-        assertEquals(List.of("broken.md, line 3: The merged range A1:C1 is outside the table"), errorsOf(module));
+        var error = errorOf(module, "broken.md");
+        assertEquals("The merged range A1:C1 is outside the table", error.getSummary());
+        // The range starts in the first cell of the body, which lies under the header
+        assertTrue(error.getSourceLocation().endsWith("Broken/broken.md?sheet=Broken&cell=A2"),
+                error::getSourceLocation);
+        assertTrue(hasMethod(module, "broken"));
+    }
+
+    @Test
+    void formatErrorOfTheFrontMatterLosesTheTableOfItsFileOnly() throws IOException {
+        var module = new RulesEngineFactory<>(BROKEN).getCompiledOpenClass();
+
+        // The error tells what is wrong, as an error of a workbook does, and points at the line of the file
+        var error = errorOf(module, "Folder/unread.md");
+        assertEquals("A value of the front matter must be text or a list", error.getSummary());
+        var text = Files.readString(Path.of(BROKEN, "Folder/unread.md"));
+        var line = text.indexOf("description:");
+        assertTrue(error.getSourceLocation().endsWith("Broken/Folder/unread.md?start=%d&end=%d".formatted(line,
+                line + "description:".length() - 1)), error::getSourceLocation);
         // The unreadable file stays in the group of its folder
         var sheets = Arrays.stream(((XlsMetaInfo) module.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
                         .getWorkbookSyntaxNodes())
@@ -125,12 +144,21 @@ class MarkdownModuleTest {
                 .map(sheet -> ((XlsSheetSourceCodeModule) sheet.getModule()).getSheetName())
                 .distinct()
                 .toList();
-        assertEquals(List.of("Broken"), sheets);
-        // The other files compile: the module has the method of one of them
-        assertTrue(module.getOpenClassWithErrors()
-                .getMethods()
-                .stream()
-                .anyMatch(method -> method.getName().equals("hello")));
+        assertEquals(List.of("Folder", "Broken"), sheets);
+        // The other files compile
+        assertFalse(hasMethod(module, "unread"));
+        assertTrue(hasMethod(module, "hello"));
+        assertEquals(2, errorsOf(module).size(), () -> errorsOf(module).toString());
+    }
+
+    @Test
+    void errorOfAFileReadOnItsOwnTellsWhatIsWrong(@TempDir Path dir) throws IOException {
+        var file = dir.resolve("My Rules/alone.md");
+        Files.createDirectories(file.getParent());
+        Files.writeString(file, "---\ndescription: x\n---\n\n| a |\n|---|\n");
+
+        assertEquals(List.of("The front matter has no 'table' key with the header of the table"),
+                errorsOf(file.toString()));
     }
 
     @Test
@@ -221,6 +249,21 @@ class MarkdownModuleTest {
             var base = module.getUri().endsWith("/") ? module.getUri() : module.getUri() + "/";
             assertEquals(List.of(base + "Sub%20Folder/hey.md", base + "hi.md"), workbooks);
         }
+    }
+
+    /** The error whose address points into the given file of the module folder. */
+    private static OpenLMessage errorOf(CompiledOpenClass module, String file) {
+        return module.getAllMessages()
+                .stream()
+                .filter(message -> message.getSeverity() == Severity.ERROR)
+                .filter(message -> message.getSourceLocation() != null
+                        && message.getSourceLocation().contains("/Broken/" + file + "?"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError(module.getAllMessages().toString()));
+    }
+
+    private static boolean hasMethod(CompiledOpenClass module, String name) {
+        return module.getOpenClassWithErrors().getMethods().stream().anyMatch(method -> method.getName().equals(name));
     }
 
     private static List<String> errorsOf(String module) {

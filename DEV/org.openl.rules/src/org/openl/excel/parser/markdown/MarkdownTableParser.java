@@ -11,8 +11,8 @@ import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.regex.Pattern;
 
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellReference;
 import org.commonmark.ext.gfm.tables.TableBlock;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.FencedCodeBlock;
@@ -45,6 +45,10 @@ import org.openl.util.StringUtils;
  * {@code \|} gives a vertical bar and {@code <br>} a line break.
  *
  * <p>Everything else in the file is documentation. A file without front matter is documentation as a whole.
+ *
+ * <p>A file that breaks the format in the front matter holds no table. One that breaks it in the body, or in the
+ * merged ranges, keeps the table without the part that breaks it: a merged range that does not fit, the cells of a
+ * row beyond those of the first row, the rows a blank line cuts off. The file tells each such problem.
  */
 final class MarkdownTableParser {
 
@@ -65,25 +69,23 @@ final class MarkdownTableParser {
     private static final String MERGES = "merges";
 
     private final String text;
-    private final String fileName;
     private final List<String> lines;
+    private final List<MarkdownProblem> problems = new ArrayList<>();
 
-    private MarkdownTableParser(String text, String fileName) {
+    private MarkdownTableParser(String text) {
         this.text = text;
-        this.fileName = fileName;
         this.lines = Arrays.asList(LINE_SEPARATOR.split(text, -1));
     }
 
     /**
      * Reads the table of a file, and where its parts stand in the text.
      *
-     * @param text     the text of the file
-     * @param fileName the file name the error messages tell
+     * @param text the text of the file
      * @return the table, or nothing for a file without front matter
-     * @throws MarkdownFormatException when the file breaks the format
+     * @throws MarkdownFormatException when the file breaks the format so that it holds no table
      */
-    static Optional<TableFile> parse(String text, String fileName) {
-        return new MarkdownTableParser(text, fileName).parse();
+    static Optional<TableFile> parse(String text) {
+        return new MarkdownTableParser(text).parse();
     }
 
     private Optional<TableFile> parse() {
@@ -110,15 +112,30 @@ final class MarkdownTableParser {
         if (node == null) {
             throw error(1, "The front matter must be followed by a table or a code block");
         }
+        var table = readTable(header, node);
         checkNotSplit(node);
         var separator = LINE_SEPARATOR.matcher(text);
         return Optional.of(new TableFile(text,
                 lines,
                 separator.find() ? separator.group() : "\n",
-                readTable(header, node),
+                table,
                 end,
-                header.keys(),
-                bodyOf(node)));
+                keysOf(header, table),
+                bodyOf(node),
+                List.copyOf(problems)));
+    }
+
+    /**
+     * Returns the keys of the front matter, the merged ranges among them as the table holds them: a range left out
+     * stays as written until the ranges change.
+     */
+    private static List<TableFile.Key> keysOf(Header header, RulesTable table) {
+        return header.keys()
+                .stream()
+                .map(key -> key.name().equals(MERGES)
+                        ? new TableFile.Key(MERGES, RulesTable.mergesText(table.merges()), key.line())
+                        : key)
+                .toList();
     }
 
     // Header
@@ -160,9 +177,8 @@ final class MarkdownTableParser {
                             .flatMap(range -> Arrays.stream(range.split(",")))
                             .map(String::strip)
                             .filter(range -> !range.isEmpty())
-                            .map(range -> range(range, keyLine))
+                            .flatMap(range -> range(range, keyLine).stream())
                             .toList();
-                    value = RulesTable.mergesText(merges);
                 }
                 default -> properties.put(key, value);
             }
@@ -189,15 +205,21 @@ final class MarkdownTableParser {
         };
     }
 
-    private CellRangeAddress range(String text, int line) {
+    /**
+     * Returns a merged range written in A1 notation, or nothing for one written otherwise, which is a problem.
+     */
+    private Optional<CellRangeAddress> range(String text, int line) {
         var range = text.toUpperCase(Locale.ROOT);
         if (!A1_RANGE.matcher(range).matches()) {
-            throw error(line, "'%s' is not a cell range such as A1:B2".formatted(text));
+            problem(line, "'%s' is not a cell range such as A1:B2".formatted(text), null);
+            return Optional.empty();
         }
         try {
-            return CellRangeAddress.valueOf(range);
+            return Optional.of(CellRangeAddress.valueOf(range));
         } catch (IllegalArgumentException e) {
-            throw error(line, "The range '%s' must go from its top left cell to its bottom right one".formatted(text));
+            problem(line, "The range '%s' must go from its top left cell to its bottom right one".formatted(text),
+                    null);
+            return Optional.empty();
         }
     }
 
@@ -205,11 +227,10 @@ final class MarkdownTableParser {
 
     private RulesTable readTable(Header header, Node body) {
         var rows = body instanceof TableBlock table
-                ? readRows(table)
+                ? readRows(table, header)
                 : List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body).getLiteral())));
-        var rulesTable = new RulesTable(header.text(), header.properties(), rows, header.merges());
-        checkMerges(rulesTable, header.mergesLine());
-        return rulesTable;
+        var written = new RulesTable(header.text(), header.properties(), rows, header.merges());
+        return new RulesTable(header.text(), header.properties(), rows, mergesThatFit(written, header));
     }
 
     private static TableFile.Body bodyOf(Node body) {
@@ -229,18 +250,22 @@ final class MarkdownTableParser {
     }
 
     /**
-     * Refuses table rows cut off from the body by a blank line: GFM reads them as a paragraph, so they would be lost.
+     * Tells of table rows cut off from the body by a blank line: GFM reads them as a paragraph, so they are lost.
      */
     private void checkNotSplit(Node body) {
         if (body instanceof TableBlock && body.getNext() instanceof Paragraph next) {
             var lineIndex = next.getSourceSpans().getFirst().getLineIndex();
             if (lines.get(lineIndex).strip().startsWith("|")) {
-                throw error(lineIndex + 1, "A blank line splits the table above. Remove it: a file holds one table");
+                problem(lineIndex + 1, "A blank line cuts these rows off the table above. Remove it: a file holds "
+                        + "one table", null);
             }
         }
     }
 
-    private List<List<@Nullable String>> readRows(TableBlock table) {
+    /**
+     * Reads the rows of a GFM table. A row keeps as many cells as the first row has, as GFM reads it.
+     */
+    private List<List<@Nullable String>> readRows(TableBlock table, Header header) {
         // A table has a source span per line: the first row, the delimiter row, then the other rows.
         var spans = table.getSourceSpans();
         var rows = new ArrayList<List<@Nullable String>>();
@@ -252,7 +277,8 @@ final class MarkdownTableParser {
                     cells.add(cellText(cell));
                 }
                 if (countCells(lines.get(lineIndex)) > cells.size()) {
-                    throw error(lineIndex + 1, "The row has more cells than the first row of the table");
+                    problem(lineIndex + 1, "The row has more cells than the first row of the table",
+                            header.cellOf(rows.size(), cells.size() - 1));
                 }
                 rows.add(cells);
             }
@@ -318,37 +344,72 @@ final class MarkdownTableParser {
         return cells;
     }
 
-    private void checkMerges(RulesTable table, int line) {
-        var merges = table.merges();
-        for (var i = 0; i < merges.size(); i++) {
-            var range = merges.get(i);
-            if (range.getLastRow() >= table.body().size() || range.getLastColumn() >= table.width()) {
-                throw error(line, "The merged range %s is outside the table".formatted(range.formatAsString()));
+    /**
+     * Returns the merged ranges of the table that fit it. A range outside the table, over a range before it or over
+     * a value is a problem, and the table is read without it.
+     */
+    private List<CellRangeAddress> mergesThatFit(RulesTable table, Header header) {
+        var fit = new ArrayList<CellRangeAddress>();
+        for (var range : table.merges()) {
+            if (fits(table, range, fit, header)) {
+                fit.add(range);
             }
-            for (var other : merges.subList(0, i)) {
-                if (range.intersects(other)) {
-                    throw error(line, "The merged ranges %s and %s overlap".formatted(other.formatAsString(),
-                            range.formatAsString()));
-                }
-            }
-            checkCovered(table.body(), range, line);
         }
+        return fit;
     }
 
-    private void checkCovered(List<List<@Nullable String>> rows, CellRangeAddress range, int line) {
+    private boolean fits(RulesTable table, CellRangeAddress range, List<CellRangeAddress> before, Header header) {
+        var line = header.mergesLine();
+        var height = table.body().size();
+        var width = table.width();
+        if (range.getLastRow() >= height || range.getLastColumn() >= width) {
+            // The problem shows in the first cell of the range, when the table has that cell
+            var first = range.getFirstRow() < height && range.getFirstColumn() < width
+                    ? header.cellOf(range.getFirstRow(), range.getFirstColumn())
+                    : null;
+            problem(line, "The merged range %s is outside the table".formatted(range.formatAsString()), first);
+            return false;
+        }
+        var overlapped = before.stream().filter(range::intersects).findFirst();
+        if (overlapped.isPresent()) {
+            var other = overlapped.get();
+            problem(line, "The merged ranges %s and %s overlap".formatted(other.formatAsString(),
+                            range.formatAsString()),
+                    header.cellOf(Math.max(range.getFirstRow(), other.getFirstRow()),
+                            Math.max(range.getFirstColumn(), other.getFirstColumn())));
+            return false;
+        }
+        var covered = coveredValue(table.body(), range);
+        if (covered != null) {
+            problem(line, "The cell %s has a value, but the merged range %s covers it".formatted(
+                    covered.formatAsString(), range.formatAsString()),
+                    header.cellOf(covered.getRow(), covered.getColumn()));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns the first cell of the body that holds a value and that the range covers but does not start with.
+     */
+    private static @Nullable CellAddress coveredValue(List<List<@Nullable String>> rows, CellRangeAddress range) {
         for (var row = range.getFirstRow(); row <= range.getLastRow(); row++) {
             for (var column = range.getFirstColumn(); column <= range.getLastColumn(); column++) {
                 var covered = row != range.getFirstRow() || column != range.getFirstColumn();
                 if (covered && rows.get(row).get(column) != null) {
-                    throw error(line, "The cell %s has a value, but the merged range %s covers it".formatted(
-                            new CellReference(row, column).formatAsString(), range.formatAsString()));
+                    return new CellAddress(row, column);
                 }
             }
         }
+        return null;
+    }
+
+    private void problem(int line, String problem, @Nullable CellAddress cell) {
+        problems.add(new MarkdownProblem(line, problem, cell));
     }
 
     private MarkdownFormatException error(int line, String message) {
-        return new MarkdownFormatException(fileName, line, message);
+        return new MarkdownFormatException(line, message);
     }
 
     /**
@@ -362,5 +423,12 @@ final class MarkdownTableParser {
                           List<CellRangeAddress> merges,
                           int mergesLine,
                           List<TableFile.Key> keys) {
+
+        /**
+         * Returns the cell of the sheet a cell of the body is laid out in.
+         */
+        CellAddress cellOf(int row, int column) {
+            return new CellAddress(SheetLayout.bodyTop(properties) + row, column);
+        }
     }
 }

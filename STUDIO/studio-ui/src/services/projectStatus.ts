@@ -40,6 +40,13 @@ export interface ProjectStatusModuleMessageSource {
     /** The project the module belongs to, which is not always the one compiled: a dependency is a project too */
     projectId?: string
     project?: string
+    /**
+     * The path in the project of the file the message points to, such as a Markdown file of a module folder that
+     * holds no table. Absent when the message points to no line of a file.
+     */
+    path?: string
+    /** The line of that file, counted from 1. */
+    line?: number
 }
 
 export interface ProjectStatusTableMessageSource {

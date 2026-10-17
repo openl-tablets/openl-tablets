@@ -9,10 +9,11 @@ import { useLiveProjectStatus } from '../../hooks/useLiveProjectStatus'
 import {
     type ProjectCompileState,
     type ProjectStatusDetailedMessage,
+    type ProjectStatusMessageSource,
     type ProjectStatusUpdate,
 } from '../../services/projectStatus'
 import { readStored, writeStored } from '../../utils/localStore'
-import { moduleRoute } from '../../services/projectId'
+import { moduleRoute, projectFileRoute } from '../../services/projectId'
 import { CompileMessages } from '../../components/CompileMessages'
 import { ResizeHandle, useDragSize } from '../../components/ResizeHandle'
 import { COMPILE_COLORS, MOCKUP } from './projectsTheme'
@@ -90,6 +91,21 @@ const warningMessagesOf = (status: ProjectStatusUpdate): ProjectStatusDetailedMe
     (status.compilation?.messages?.items ?? []).filter(message => message.severity === 'WARN')
 
 /**
+ * Where a message leads: the cell of the table it was raised against, the line of the file it points to, or else
+ * its module. A message that names none of them leads nowhere.
+ */
+const routeOf = (where: ProjectStatusMessageSource | undefined, projectId: string): string | null => {
+    const inProject = where?.projectId ?? projectId
+    if (where?.type === 'table') {
+        return where.module ? moduleRoute(inProject, where.module, where.id, where.cell) : null
+    }
+    if (where?.path) {
+        return projectFileRoute(inProject, where.path, where.line)
+    }
+    return where?.name ? moduleRoute(inProject, where.name) : null
+}
+
+/**
  * The compilation problems of the project, docked to the bottom of its screen the way the legacy editor
  * listed them: a header that always shows how many errors and warnings there are, above the messages
  * themselves, each marked by the colour stripe of its severity.
@@ -131,29 +147,17 @@ export const CompileProblemsPanel = ({ project, supportsBranches = true, statusR
     // Every message already says where it came from — the project, the module and the table — so opening one
     // costs no request: a project raising a thousand messages still asks the server nothing to be read.
     const open = useCallback((message: ProjectStatusDetailedMessage) => {
-        const where = message.location
-        if (!where) {
-            return
+        const route = routeOf(message.location, project.id)
+        if (route) {
+            void navigate(route)
         }
-        const module = where.type === 'table' ? where.module : where.name
-        if (!module) {
-            return
-        }
-        const inProject = where.projectId ?? project.id
-        void navigate(where.type === 'table'
-            ? moduleRoute(inProject, module, where.id, where.cell)
-            : moduleRoute(inProject, module))
     }, [navigate, project.id])
 
     // A module is compiled for one session at a time, so while that is running the reader is kept where they
     // are: opening another module would only queue behind it. The compiling screen offers to stop it.
-    const canOpen = useCallback((message: ProjectStatusDetailedMessage) => {
-        if (status.compileState === 'compiling') {
-            return false
-        }
-        const where = message.location
-        return !!where && !!(where.type === 'table' ? where.module : where.name)
-    }, [status.compileState])
+    const canOpen = useCallback((message: ProjectStatusDetailedMessage) =>
+        status.compileState !== 'compiling' && routeOf(message.location, project.id) !== null,
+    [status.compileState, project.id])
 
     const fold = (next: boolean) => {
         setCollapsed(next)

@@ -13,13 +13,14 @@ export const moduleRoute = (projectId: string, moduleName: string, tableId?: str
         + (tableId && cell ? `&errorCell=${encodeURIComponent(cell)}` : '')
 
 /**
- * The address of a project's Files tab, opened on one file of it.
+ * The address of a project's Files tab, opened on one file of it, and on one line of the file when it is given.
  *
  * <p>The path crosses as a query value, so a file in a folder reaches the screen whole rather than as a
  * path of its own.
  */
-export const projectFileRoute = (projectId: string, path: string): string =>
+export const projectFileRoute = (projectId: string, path: string, line?: number): string =>
     `/projects/${projectId}?tab=files&file=${encodeURIComponent(path)}`
+        + (line === undefined ? '' : `&line=${line}`)
 
 /**
  * Encodes a project-relative path for the `{*path}` mapping. The path keeps its `/` separators; each
