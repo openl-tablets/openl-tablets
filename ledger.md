@@ -2,8 +2,10 @@
 
 ## Resume point
 
-- PR #2348 (`dead-code/sweep`) is open with 1 commit; maintain it first. The delta since `origin/main` d7f23c8670
-  is unswept for Java: Error Prone and PMD did not run (container restart killed the reactor). Run them first.
+- PR #2348 (`dead-code/sweep`) is open with 1 commit, green, Sonar 0 new issues; maintain it first.
+- Everything up to `origin/main` d7f23c8670 is swept, Java included (Error Prone, PMD, whole-type index).
+- `dead-code/ledger` vanished from the remote mid-run and was re-pushed from local history; if it is gone again,
+  a human deletes it on purpose: stop and report instead of recreating it.
 - All 14 change types are exhausted repo-wide; a run is: maintain the open PR, sweep the delta since d7f23c8670,
   then spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
 
@@ -292,4 +294,5 @@
 - 2026-10-11: delta was 4 commits (index wait, thread count). Reactor green in 27:06 cold; Error Prone, tsc re-ran
   at zero. New vein, AGENTS.md names: 1 stale class, #2305 MERGED (-1 phrase).
 - 2026-10-17: delta was 61 commits (table themes removed, Excel-native formatting, merge conflicts). i18n
-  (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; tsc found 1 dead React import, #2348 opened.
+  (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; Error Prone, PMD (56,
+  all pre-delta), new-type index at zero; tsc found 1 dead React import, #2348 opened. Reactor 21:22 warm.
