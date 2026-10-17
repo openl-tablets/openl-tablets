@@ -62,10 +62,10 @@ compiled table.
 | `properties` | Properties | A table property, name and value | `effectiveDate`, `lob` |
 | `code` | Headers | A technical declaration the compiler reads | `C1`, `RET1`, `age >= min`, `policyNumber`, `>Policies` |
 | `inputTitle` | Headers | A title of what the table takes | **Driver Age**, **Step** |
-| `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title, a horizontal value of a lookup |
+| `outputTitle` | Headers | A title of what the table gives | **Premium**, **Formula**, `_res_` title, a Data title, a horizontal value of a lookup |
 | `key` | Body | What names a row or a column | a Data ID, a rule name |
-| `value` | Body | A value the table takes or holds | a condition value, a data value, a TBasic action, a Spreadsheet step name |
-| `output` | Body | A value the table gives | a returned value, an expected result, a Datatype field or a constant name |
+| `value` | Body | A value the table takes or holds | a condition value, a TBasic action, a Spreadsheet step name |
+| `output` | Body | A value the table gives | a returned value, an expected result, a data value, a Datatype field or a constant name |
 | `section` | Body | A heading inside the body | a merged Spreadsheet row, a TBasic `SUB` |
 | `result` | Body | What the table returns | the `RETURN` step, the steps marked `*` of a Spreadsheet |
 
@@ -144,7 +144,7 @@ with its lines of data. The table below lists the remaining roles per type.
 | Rules | `C`/`RET` row, expressions, parameters | condition titles | return and action titles | `RULE` column | condition values | return values | — |
 | SimpleRules, SmartRules | — | condition titles | return titles | rule names | condition values | return values | — |
 | SimpleLookup, SmartLookup | — | vertical titles in the corner | horizontal values | — | vertical values | the return grid | — |
-| Data | field row, `>` reference row | titles | — | IDs (not `_PK_`) | values | — | — |
+| Data | field row, `>` reference row | — | titles | IDs (not `_PK_`) | — | values | — |
 | Test | field row, `>` reference row | input titles | `_res_`, `_error_` titles | reference IDs | input values | expected results | — |
 | Run | field row, `>` reference row | input titles | — | reference IDs | input values | — | — |
 | TBasic | column IDs row | titles | — | labels | operations, conditions, actions | — | `SUB`, `FUNCTION`; `RETURN` |

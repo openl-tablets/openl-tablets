@@ -138,11 +138,13 @@ describe('buildTableRegions', () => {
         expect(roleAt(turned.regions, 2, 2)).toBe('output')
     })
 
-    it('keys a Data table by its first field', () => {
+    it('keys a Data table by its first field and gives the others', () => {
         const { regions } = built('data')
 
+        expect(roleAt(regions, 2, 0)).toBe('outputTitle')
+        expect(roleAt(regions, 2, 1)).toBe('outputTitle')
         expect(roleAt(regions, 3, 0)).toBe('key')
-        expect(roleAt(regions, 3, 1)).toBe('value')
+        expect(roleAt(regions, 3, 1)).toBe('output')
     })
 
     it('names a setting of an Environment table and a property of a Properties table as keys', () => {

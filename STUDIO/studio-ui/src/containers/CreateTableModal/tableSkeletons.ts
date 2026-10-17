@@ -833,20 +833,24 @@ const area = (role: RawTableRole, top: number, left: number, bottom: number, rig
 /** The columns of a Test table that hold the result it expects: OpenL knows them by their name. */
 const expectsResult = (name: string): boolean => name.startsWith(EXPECTED_RESULT) || name.startsWith('_error_')
 
-/** The role of the values of a field: what the table returns, its key, or a value. */
+/** The role of the values of a field: its key, what the table gives, or a value. */
 const valueRole = (result: boolean, key: boolean): RawTableRole => {
-    if (result) {
-        return 'output'
+    if (key) {
+        return 'key'
     }
-    return key ? 'key' : 'value'
+    return result ? 'output' : 'value'
 }
 
 /**
  * The regions of the body of a Test, a Run or a Data table, as its fields are written: their names, their titles,
  * then the values. Written transposed, each field is a row.
+ *
+ * <p>A Data table gives every field it holds, its first field being its key. A Test table gives the results it
+ * expects.
  */
 const fieldRegions = (
     fields: string[],
+    gives: (field: string) => boolean,
     keyed: boolean,
     height: number,
     width: number,
@@ -855,7 +859,7 @@ const fieldRegions = (
     const lines = transposed ? height - 1 : width
     const regions: RawTableRegion[] = []
     for (let field = 0; field < lines; field++) {
-        const result = expectsResult(fields[field] ?? '')
+        const result = gives(fields[field] ?? '')
         const title: RawTableRole = result ? 'outputTitle' : 'inputTitle'
         const value = valueRole(result, keyed && field === 0)
         regions.push(...(transposed
@@ -942,11 +946,11 @@ export const buildTableRegions = (
         }
         case 'test':
         case 'run':
-            return [...header, ...fieldRegions(context.targetColumns.map(column => column.name), false, height, width,
-                transposed)]
+            return [...header, ...fieldRegions(context.targetColumns.map(column => column.name), expectsResult, false,
+                height, width, transposed)]
         case 'data':
-            return [...header, ...fieldRegions(context.dataFields.map(field => field.name), true, height, width,
-                transposed)]
+            return [...header, ...fieldRegions(context.dataFields.map(field => field.name), () => true, true, height,
+                width, transposed)]
         case 'freeForm':
             return []
     }

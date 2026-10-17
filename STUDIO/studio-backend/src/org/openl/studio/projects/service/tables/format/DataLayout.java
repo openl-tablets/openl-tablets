@@ -22,8 +22,9 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  *
  * <p>The body names its fields before it holds any value, as the compiler reads it: a row of field names, a row of
  * the tables some fields take their values from when the table refers to any, and a row of titles. Each row under them
- * holds the values of one row of the table. The rows naming the fields are code the compiler reads, the titles are
- * titles of what the table takes, and every other value is a value the table takes.
+ * holds the values of one row of the table. The rows naming the fields are code the compiler reads. A Data table gives
+ * its rows, so its titles are titles of what the table gives and its values are what it gives. In a Test and a Run
+ * table the titles are titles of what the table takes, and every other value is a value the table takes.
  *
  * <p>The keys of the table are its keys, as the compiled table tells them. In a Data table they are the values of the
  * column a reference reads its rows by, unless the table names that column {@code _PK_}: such a column names the keys
@@ -97,7 +98,7 @@ final class DataLayout {
     private static BodyLayout.Placed layOut(TableBody body, boolean calls, Set<Integer> keys) {
         var fields = body.upright();
         var places = new Places(hasReferences(fields) ? REFERENCES + 1 : REFERENCES, keys,
-                calls ? resultColumns(fields) : Set.of());
+                calls ? resultColumns(fields)::contains : column -> true);
         return new BodyLayout.Placed(fields, places);
     }
 
@@ -181,9 +182,10 @@ final class DataLayout {
      *
      * @param titlesRow     the row of titles, which follows the rows naming the fields
      * @param idColumns     the columns whose values are keys of a Data table
-     * @param resultColumns the columns that hold the results a Test table expects
+     * @param gives         whether a column holds what the table gives: every column of a Data table, and the results
+     *                      a Test table expects
      */
-    private record Places(int titlesRow, Set<Integer> idColumns, Set<Integer> resultColumns)
+    private record Places(int titlesRow, Set<Integer> idColumns, IntPredicate gives)
             implements TableRegionLayout.PlaceRoles {
 
         private static final Place NAME = Place.of(RawTableRole.CODE);
@@ -199,7 +201,7 @@ final class DataLayout {
             if (row < titlesRow) {
                 return NAME;
             }
-            var result = resultColumns.contains(column);
+            var result = gives.test(column);
             if (row == titlesRow) {
                 return result ? RESULT_TITLE : TITLE;
             }

@@ -50,7 +50,7 @@ Content-Type: application/json
       "right": 0
     },
     {
-      "role": "inputTitle",
+      "role": "outputTitle",
       "top": 2,
       "left": 0,
       "bottom": 2,

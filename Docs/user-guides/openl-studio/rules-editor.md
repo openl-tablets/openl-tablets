@@ -267,8 +267,9 @@ described in [Switching the Theme](getting-started.md#switching-the-theme):
         colour.
     -   The titles of what a table takes, such as the conditions of a decision table, are bold, centered, and filled
         grey. The titles of what a table gives, such as what a decision table returns, the columns of a Spreadsheet,
-        or the horizontal values of a lookup, are filled in a tint of the accent colour of the theme, and the values it
-        gives, the names of the fields of a Datatype and of constants among them, in a lighter tint.
+        the fields of a Data table, or the horizontal values of a lookup, are filled in a tint of the accent colour of
+        the theme, and the values it gives, the rows of a Data table and the names of the fields of a Datatype and of
+        constants among them, in a lighter tint.
     -   The names of the rows and columns, such as the rule names of a Rules table or the keys of a Data table, are bold.
         What a Spreadsheet returns is bold, with a line above it and a double line below it.
     -   A heading inside the body, such as a merged step of a Spreadsheet, is centered and filled like a title.
@@ -438,11 +439,12 @@ itself offers, so the tables look the same in Excel and change with the theme of
     -   **Calculation** — the code the compiler reads, such as `C1` and `RET1` of a Rules table.
     -   **Heading 3** — the titles of what the table takes, such as the conditions of a decision table, and a heading
         inside the body, such as a subroutine of a TBasic table.
-    -   **Heading 2** — the titles of what the table gives, such as what a decision table returns or the horizontal
-        values of a lookup.
+    -   **Heading 2** — the titles of what the table gives, such as what a decision table returns, the fields of a
+        Data table, or the horizontal values of a lookup.
     -   **Heading 4** — the names of rows and columns, such as the rule names of a Rules table or the keys of a Data table.
     -   **Input** — the values the table takes, and the step names of a Spreadsheet.
-    -   **Output** — the values the table gives, and the names of the fields of a Datatype and of constants.
+    -   **Output** — the values the table gives, such as the rows of a Data table, and the names of the fields of a
+        Datatype and of constants.
     -   **Total** — what the table returns, such as the `RETURN` step of a TBasic table.
 
     OpenL Studio redefines these styles in the Excel file with the theme colours and the theme fonts, in the font
