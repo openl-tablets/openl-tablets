@@ -5,6 +5,8 @@ export interface GuideEntry {
     title: string
     /** The page, relative to the guides folder; a folder without an `index.md` has none. */
     file?: string
+    /** The size of the page in bytes; none without a page. */
+    size?: number
     children?: GuideEntry[]
 }
 

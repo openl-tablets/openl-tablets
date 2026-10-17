@@ -3,9 +3,14 @@ package org.openl.rules.webstudio.web.servlet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.mock.web.MockServletContext;
 
 /**
  * @author Yury Molchan
@@ -32,6 +37,33 @@ class UserGuidesTest {
         assertNull(UserGuides.titleOf("Text first.\n\n# Heading\n"));
         assertNull(UserGuides.titleOf("---\ntitle: Unclosed\n"));
         assertNull(UserGuides.titleOf(""));
+    }
+
+    @Test
+    void namesAPageThatCannotBeReadByItsFileAndGivesNoSize() {
+        var context = new MockServletContext("classpath:org/openl/rules/webstudio/web/servlet/pages") {
+            @Override
+            public InputStream getResourceAsStream(String path) {
+                return switch (path) {
+                    case "/docs/openl-studio/index.md" -> null;
+                    case "/docs/openl-studio/rules-editor.md" -> new InputStream() {
+                        @Override
+                        public int read() throws IOException {
+                            throw new IOException("boom");
+                        }
+                    };
+                    default -> super.getResourceAsStream(path);
+                };
+            }
+        };
+
+        var studio = UserGuides.read(context, "/docs/").contents().children().get(1);
+
+        assertEquals("OpenL Studio", studio.title());
+        assertEquals("openl-studio/index.md", studio.file());
+        assertNull(studio.size());
+        assertEquals(new UserGuides.Entry("Rules Editor", "openl-studio/rules-editor.md", null, List.of()),
+                studio.children().getFirst());
     }
 
     @ParameterizedTest
