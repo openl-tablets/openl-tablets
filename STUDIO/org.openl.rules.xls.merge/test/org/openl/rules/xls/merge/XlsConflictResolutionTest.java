@@ -358,6 +358,9 @@ class XlsConflictResolutionTest {
             toTheEnd.setCustomWidth(true);
             sheet.createRow(6).setZeroHeight(true);
             sheet.createFreezePane(0, 1);
+            var hyperlink = sheet.getWorkbook().getCreationHelper().createHyperlink(HyperlinkType.URL);
+            hyperlink.setAddress("https://openl-tablets.org");
+            CellUtil.getCell(CellUtil.getRow(10, sheet), 0).setHyperlink(hyperlink);
         };
 
         var sheet = FIXTURE.conflicts(XSSFWorkbook::new, our, their).sheets().getFirst();
@@ -371,10 +374,12 @@ class XlsConflictResolutionTest {
         assertEquals(20 * 256, theirs.getColumnWidth(16383));
         assertTrue(theirs.getRow(6).getZeroHeight());
         assertEquals(8, theirs.getDefaultColumnWidth());
+        assertEquals(1, theirs.getPaneInformation().getHorizontalSplitPosition());
         var base = FIXTURE.resolveXlsx(our, their, Map.of(RULES, Resolution.BASE)).getSheet(RULES);
         assertFalse(base.isColumnHidden(2));
         assertFalse(base.isColumnHidden(20));
         assertEquals(8, base.getDefaultColumnWidth());
+        assertNull(base.getPaneInformation());
     }
 
     @Test

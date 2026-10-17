@@ -360,8 +360,8 @@ public class XlsSheetsMatcher {
 
     /**
      * Tells whether two sheets hold the same: the same values, formulas, comments, merged cells and pictures, the same
-     * visibility, and the same data validation, conditional formatting, hyperlinks and frozen panes, whatever the
-     * formatting of their cells and the sizes of their rows and columns.
+     * visibility, and the same data validation and hyperlinks, whatever their look: the formatting of their cells,
+     * their conditional formatting, their frozen panes and the sizes of their rows and columns.
      */
     static boolean equalContent(Cursor baseCursor, Cursor cursor) {
         if (!Set.copyOf(baseCursor.getMergedRegions()).equals(Set.copyOf(cursor.getMergedRegions()))

@@ -59,7 +59,9 @@ flowchart TB
   style and the comment of a cell each on its own, unless the values or the comments overlap. A style both versions
   changed differently keeps your version, as formatting does not change what OpenL reads. The height and the
   visibility of a row, the width and the visibility of a column and the default sizes of the sheet are taken the same
-  way, and one both versions changed differently keeps your version too. When that fails, for instance because
+  way, and one both versions changed differently keeps your version too, and so do the frozen panes and the
+  conditional formatting; data validation and hyperlinks their version changed otherwise than yours leave the sheet
+  a conflict. When that fails, for instance because
   **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
   table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
   value, as the OpenL compiler does whatever their style, and pairs them by their headers; a cell outside every

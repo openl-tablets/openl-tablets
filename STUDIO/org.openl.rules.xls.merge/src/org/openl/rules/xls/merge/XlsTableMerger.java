@@ -697,8 +697,9 @@ final class XlsTableMerger {
     /**
      * Tells whether something the merged sheet keeps at its address refers to content that moves.
      *
-     * <p>The merged sheet keeps the data validation, the conditional formatting, the hyperlinks and the defined names
-     * of OUR revision, and THEIR revision has them as in BASE revision. It keeps the formulas of OUR revision, and a
+     * <p>The merged sheet keeps the data validation, the hyperlinks and the defined names of OUR revision, which THEIR
+     * revision has as in BASE revision or as OUR revision has them, and the conditional formatting of OUR revision,
+     * since content moves. It keeps the formulas of OUR revision, and a
      * formula of THEIR revision when it takes the value of the cell from THEIR revision, or takes a whole sheet THEIR
      * revision alone changed.
      */

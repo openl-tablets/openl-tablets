@@ -61,13 +61,14 @@ import org.openl.rules.xls.merge.diff.SheetMergePlan;
  *
  * <p>Row heights, column widths and the default row height and column width are taken the same way, except that one
  * both revisions changed differently keeps OUR value: they change how the sheet looks, not what OpenL reads from it.
- * A row or a column that content of THEIR revision moves through keeps OUR layout too.
+ * A row or a column that content of THEIR revision moves through keeps OUR layout too. The frozen panes and the
+ * conditional formatting of the sheet are taken that way as well; THEIR conditional formatting only while no content
+ * moves, since it names the rows of BASE revision.
  *
  * <p>The sheet cannot be merged, and stays a conflict, when a part of a cell or a property is changed differently in
  * both revisions, when either revision inserted or deleted rows or columns inside the content, when both revisions
  * filled empty cells next to each other, when merged cells of one revision cover a value the other revision wrote,
- * or when THEIR revision changed the data validation, the conditional formatting, the hyperlinks or the frozen panes
- * of the sheet.
+ * or when THEIR revision changed the data validation or the hyperlinks of the sheet otherwise than OUR revision did.
  */
 @Slf4j
 @NullMarked
@@ -108,9 +109,15 @@ final class XlsSheetMerger {
         var defaultLayout = choose(defaultLayout(base.sheet), defaultLayout(our.sheet), defaultLayout(their.sheet));
         var pictures = choose(base, our, their, XlsSheetsMatcher::equalDrawings);
         var refusal = refusalOf(visibility, pictures);
-        if (refusal == null && !settingsOf(base.sheet).equals(settingsOf(their.sheet))) {
+        var theirSettings = settingsOf(their.sheet);
+        if (refusal == null && !settingsOf(base.sheet).equals(theirSettings)
+                && !settingsOf(our.sheet).equals(theirSettings)) {
             refusal = SheetConflictReason.SETTINGS;
         }
+        var panes = choose(panesOf(base.sheet), panesOf(our.sheet), panesOf(their.sheet));
+        var conditionalFormatting = choose(conditionalFormattingOf(base.sheet),
+                conditionalFormattingOf(our.sheet),
+                conditionalFormattingOf(their.sheet));
         if (refusal != null) {
             return refuse(conflicts, refusal);
         }
@@ -130,7 +137,20 @@ final class XlsSheetMerger {
                         defaultLayout == Choice.THEIR,
                         content.mergedRegions(),
                         pictures == Choice.THEIR,
-                        visibility == Choice.THEIR));
+                        visibility == Choice.THEIR,
+                        panes == Choice.THEIR,
+                        // their conditional formatting names the rows of BASE revision, which moved content leaves
+                        conditionalFormatting == Choice.THEIR && movesNothing(content)));
+    }
+
+    /**
+     * Tells whether the merged sheet keeps every cell at its place: no content of either revision moves.
+     */
+    private static boolean movesNothing(XlsTableMerger.Content content) {
+        return content.theirMoved().isEmpty() && content.cells()
+                .entrySet()
+                .stream()
+                .allMatch(cell -> cell.getValue().our() == null || cell.getKey().equals(cell.getValue().our()));
     }
 
     /**
@@ -233,6 +253,12 @@ final class XlsSheetMerger {
         takeColumns(their.sheet, our.sheet, plan.columns());
         if (plan.visibility()) {
             our.workbook.setSheetHidden(our.getSheetIndex(), their.isSheetHidden());
+        }
+        if (plan.panes()) {
+            XlsSheetCopier.copyPanes(their.sheet, our.sheet);
+        }
+        if (plan.conditionalFormatting()) {
+            XlsSheetCopier.copyConditionalFormatting(their.sheet, our.sheet);
         }
     }
 
@@ -691,8 +717,8 @@ final class XlsSheetMerger {
     }
 
     /**
-     * The settings of a sheet a merge cannot take from one revision: data validation, conditional formatting,
-     * hyperlinks and frozen panes, as text that tells whether they changed. The order of the entries does not count.
+     * The settings of a sheet a merge cannot take from one revision: data validation and hyperlinks, as text that
+     * tells whether they changed. The order of the entries does not count.
      */
     static List<String> settingsOf(Sheet sheet) {
         var settings = new ArrayList<String>();
@@ -716,10 +742,6 @@ final class XlsSheetMerger {
                     String.valueOf(validation.getPromptBoxTitle()),
                     String.valueOf(validation.getPromptBoxText())));
         }
-        var formatting = sheet.getSheetConditionalFormatting();
-        for (var i = 0; i < formatting.getNumConditionalFormattings(); i++) {
-            settings.add(describe(formatting.getConditionalFormattingAt(i)));
-        }
         sheet.getHyperlinkList()
                 .stream()
                 .map(hyperlink -> String.join("|",
@@ -729,16 +751,34 @@ final class XlsSheetMerger {
                         String.valueOf(hyperlink.getType()),
                         String.valueOf(hyperlink.getAddress())))
                 .forEach(settings::add);
-        var pane = sheet.getPaneInformation();
-        if (pane != null) {
-            settings.add(String.join("|",
-                    "pane",
-                    String.valueOf(pane.isFreezePane()),
-                    String.valueOf(pane.getHorizontalSplitPosition()),
-                    String.valueOf(pane.getVerticalSplitPosition())));
-        }
         settings.sort(null);
         return settings;
+    }
+
+    /**
+     * The frozen or split panes of a sheet: the rows and the columns they keep in sight, whatever part of the sheet
+     * the other panes show. {@code null} for a sheet with no panes.
+     */
+    private static @Nullable String panesOf(Sheet sheet) {
+        var pane = sheet.getPaneInformation();
+        return pane == null ? null : String.join("|",
+                String.valueOf(pane.isFreezePane()),
+                String.valueOf(pane.getHorizontalSplitPosition()),
+                String.valueOf(pane.getVerticalSplitPosition()));
+    }
+
+    /**
+     * The conditional formatting of a sheet, as text that tells whether it changed. The order of the entries does not
+     * count.
+     */
+    private static List<String> conditionalFormattingOf(Sheet sheet) {
+        var formatting = sheet.getSheetConditionalFormatting();
+        var descriptions = new ArrayList<String>();
+        for (var i = 0; i < formatting.getNumConditionalFormattings(); i++) {
+            descriptions.add(describe(formatting.getConditionalFormattingAt(i)));
+        }
+        descriptions.sort(null);
+        return descriptions;
     }
 
     private static String describe(ConditionalFormatting formatting) {

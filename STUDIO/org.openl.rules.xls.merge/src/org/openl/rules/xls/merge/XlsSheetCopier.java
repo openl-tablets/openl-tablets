@@ -3,6 +3,7 @@ package org.openl.rules.xls.merge;
 import static org.openl.rules.xls.merge.XlsSheetsMatcher.getCommentAuthor;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,8 @@ import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTAbsoluteA
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTOneCellAnchor;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTPicture;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTTwoCellAnchor;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTConditionalFormatting;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDxf;
 
 /**
  * This service copies all content from one sheet to another
@@ -97,6 +100,54 @@ public final class XlsSheetCopier {
         restoreArrayFormulas(dest);
         replaceMergedRegions(src.sheet.getMergedRegions(), dest.sheet);
         copyDrawings(src, dest);
+        copyPanes(src.sheet, dest.sheet);
+        copyConditionalFormatting(src.sheet, dest.sheet);
+    }
+
+    /**
+     * Gives a sheet the frozen or split panes of another sheet, or none when the other sheet has none.
+     */
+    static void copyPanes(Sheet src, Sheet dest) {
+        var pane = src.getPaneInformation();
+        if (pane == null) {
+            dest.createFreezePane(0, 0);
+        } else if (pane.isFreezePane()) {
+            dest.createFreezePane(pane.getVerticalSplitPosition(),
+                    pane.getHorizontalSplitPosition(),
+                    pane.getVerticalSplitLeftColumn(),
+                    pane.getHorizontalSplitTopRow());
+        } else {
+            dest.createSplitPane(pane.getVerticalSplitPosition(),
+                    pane.getHorizontalSplitPosition(),
+                    pane.getVerticalSplitLeftColumn(),
+                    pane.getHorizontalSplitTopRow(),
+                    pane.getActivePaneType());
+        }
+    }
+
+    /**
+     * Gives a sheet the conditional formatting of another sheet in place of its own, with the formats its rules paint
+     * cells with. An .xls sheet keeps its own conditional formatting.
+     */
+    static void copyConditionalFormatting(Sheet src, Sheet dest) {
+        if (!(src instanceof XSSFSheet from) || !(dest instanceof XSSFSheet to)) {
+            return;
+        }
+        var fromStyles = from.getWorkbook().getStylesSource();
+        var toStyles = to.getWorkbook().getStylesSource();
+        var formattings = Arrays.stream(from.getCTWorksheet().getConditionalFormattingArray())
+                .map(formatting -> (CTConditionalFormatting) formatting.copy())
+                .toArray(CTConditionalFormatting[]::new);
+        for (var formatting : formattings) {
+            for (var rule : formatting.getCfRuleArray()) {
+                if (rule.isSetDxfId()) {
+                    var format = (CTDxf) fromStyles.getDxfAt((int) rule.getDxfId()).copy();
+                    // the size of the formats once one is added, which is one more than its index
+                    rule.setDxfId(toStyles.putDxf(format) - 1L);
+                }
+            }
+        }
+        to.getCTWorksheet().setConditionalFormattingArray(formattings);
     }
 
     /**
