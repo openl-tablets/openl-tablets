@@ -227,8 +227,10 @@ export const ProjectDetail = ({
     const { isUserManagementEnabled } = useContext(SystemContext)
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
-    // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded.
+    // The selected file lives in the URL (?file=…) so the exact view can be shared or reloaded, and so does the
+    // line of it a compilation message sent the reader to (?line=…).
     const selectedFile = searchParams.get('file')
+    const selectedLine = Number(searchParams.get('line')) || undefined
     // Folders created in the UI but not yet on the server — shown as empty folders until a file lands
     // inside them, at which point the create-file request persists the whole chain.
     const [virtualFolders, setVirtualFolders] = useState<string[]>([])
@@ -281,6 +283,7 @@ export const ProjectDetail = ({
         } else {
             params.delete('file')
         }
+        params.delete('line')
     }), [updateSearch])
     // A tree that comes back without the selected path no longer holds it — the project was closed and
     // dropped its local file, the file was deleted, a revision without it was opened. The selection is
@@ -408,6 +411,7 @@ export const ProjectDetail = ({
                 canWrite={canWriteFiles}
                 changedFiles={changedFiles}
                 folders={folders}
+                line={selectedLine}
                 modules={moduleFiles}
                 onChanged={() => onChanged?.()}
                 onDeleted={() => { setSelectedFile(null); void onChanged?.() }}

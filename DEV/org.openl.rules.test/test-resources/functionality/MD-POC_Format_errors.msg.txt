@@ -1,2 +1,2 @@
-ERROR: broken.md, line 9: The row has more cells than the first row of the table
+ERROR: The row has more cells than the first row of the table
 ERROR: The Environment table of a module is written in Environment.md at the root of the module folder

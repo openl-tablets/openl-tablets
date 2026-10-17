@@ -31855,7 +31855,16 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "path": {
                 "type": "string",
                 "description": "***"
               },
@@ -31880,7 +31889,16 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
+              "line": {
+                "type": "integer",
+                "format": "int32",
+                "description": "***"
+              },
               "name": {
+                "type": "string",
+                "description": "***"
+              },
+              "path": {
                 "type": "string",
                 "description": "***"
               },

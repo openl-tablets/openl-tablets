@@ -29,3 +29,14 @@ policy.
 
 In OpenL Studio the tables of a Markdown module are shown, run, tested, traced and edited as any others, all but their
 look: a Markdown file keeps no formatting. A file is also edited as text, on the **Files** tab of the project.
+
+## Format errors
+
+- An error of a Markdown file reads as the error of a workbook: its text tells what is wrong, and its link leads to the
+  place.
+- A file whose front matter breaks the format holds no table. The error points at the line of the file, and OpenL
+  Studio opens the file on that line, on the **Files** tab.
+- A table whose body breaks the format is read without the part that breaks it: a merged range over a value, over
+  another range or outside the table, the cells of a row beyond those of the first row, the rows a blank line cuts
+  off. The error points at the cell of the table that shows the problem, or at the line of the file when no cell
+  shows it.

@@ -20,6 +20,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.util.StringTool;
 
 /**
  * Says which module of a project a table belongs to.
@@ -46,12 +47,17 @@ public final class TableModules {
     }
 
     /**
-     * A module, the location its workbook sits at, and the project it belongs to.
+     * A module, the location its workbook sits at, its path in the project, and the project it belongs to.
      *
      * <p>Working the location out reads the file system, and a table read asks about every cell of a table, so
      * it is worked out once here rather than on each question.
      */
-    private record ModuleLocation(String name, String uri, @Nullable ProjectAddress project) {
+    private record ModuleLocation(String name, String uri, String path, @Nullable ProjectAddress project) {
+
+        /** Whether a file is the workbook of the module, or a file under the folder of a module written as one. */
+        boolean holds(String file) {
+            return file.equals(uri) || uri.endsWith("/") && file.startsWith(uri);
+        }
 
         TableLocation asTableLocation() {
             return new TableLocation(name, project == null ? null : project.id(), project == null ? null
@@ -89,7 +95,7 @@ public final class TableModules {
         return modules
                 .filter(module -> module.getName() != null && module.getRulesRootPath() != null)
                 .map(module -> new ModuleLocation(module.getName(), module.getRelativeUri(),
-                        addressing.apply(module)))
+                        module.getRulesRootPath(), addressing.apply(module)))
                 .toList();
     }
 
@@ -254,6 +260,27 @@ public final class TableModules {
      */
     public @Nullable String tableIdOf(String tableUri) {
         return ids.apply(tableUri);
+    }
+
+    /**
+     * The path in its project of the file at the given location: a workbook of one of these modules, or a file of
+     * a module written as a folder.
+     *
+     * @param location location the engine knows a place of the file at, such as a line of it
+     * @return path of the file, or {@code null} for a file none of these modules holds
+     */
+    public @Nullable String fileOf(String location) {
+        var query = location.indexOf('?');
+        var uri = query < 0 ? location : location.substring(0, query);
+        return modules.stream()
+                .filter(module -> module.holds(uri))
+                .findFirst()
+                .map(module -> inFolder(module.path(), StringTool.decodeURL(uri.substring(module.uri().length()))))
+                .orElse(null);
+    }
+
+    private static String inFolder(String folder, String path) {
+        return path.isEmpty() || folder.endsWith("/") ? folder + path : folder + "/" + path;
     }
 
     /**

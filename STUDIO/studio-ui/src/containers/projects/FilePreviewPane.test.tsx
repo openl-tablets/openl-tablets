@@ -51,8 +51,9 @@ vi.mock('./MoveFileModal', () => ({
 }))
 
 vi.mock('./CodeEditor', () => ({
-    CodeEditor: ({ onChange, readOnly, value }: Record<string, unknown>) => (
+    CodeEditor: ({ line, onChange, readOnly, value }: Record<string, unknown>) => (
         <textarea
+            data-line={line as number | undefined}
             data-testid="code-editor"
             onChange={event => (onChange as (value: string) => void)(event.target.value)}
             readOnly={readOnly as boolean}
@@ -270,6 +271,19 @@ describe('FilePreviewPane', () => {
         rerender(<FilePreviewPane {...baseProps} changedFiles={['rules']} path="rules/first.txt" reloadToken={1} />)
 
         await waitFor(() => expect(getFileContent).toHaveBeenCalledTimes(2))
+    })
+
+    it('shows the file at the line it is opened on, and no line for a file still shown while it is left', async () => {
+        const { rerender } = render(<FilePreviewPane {...baseProps} line={3} path="first.txt" reloadToken={0} />)
+
+        expect((await screen.findByDisplayValue('first content')).getAttribute('data-line')).toBe('3')
+
+        await userEvent.click(screen.getByTestId('file-edit'))
+        await userEvent.type(screen.getByTestId('code-editor'), '!')
+        rerender(<FilePreviewPane {...baseProps} line={5} path="second.txt" reloadToken={0} />)
+
+        // The switch waits for the changes to be discarded; the line is the next file's
+        expect(screen.getByTestId('code-editor').getAttribute('data-line')).toBeNull()
     })
 
     it('shows the empty state when no file is selected', () => {

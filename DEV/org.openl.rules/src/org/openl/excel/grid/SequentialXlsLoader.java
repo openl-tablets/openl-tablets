@@ -111,12 +111,18 @@ public class SequentialXlsLoader {
                 var tables = new ParsedGrid(path, sheetSource, sheet, cells, use1904Windowing).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
             }
+            // A Markdown file breaking the format in the body of its table still compiles the table
+            if (excelReader instanceof MarkdownReader markdown) {
+                markdown.getProblems()
+                        .forEach(problem -> addError(MarkdownFormatErrors.of(problem, workbookSourceModule,
+                                sheetNodes)));
+            }
 
             return sheetNodes;
         } catch (MarkdownFormatException e) {
-            // The file has nothing to compile; the error tells the line to fix. Its workbook keeps a sheet all the
-            // same: the compiler puts the table it builds to choose between rule versions on the first one.
-            addError(SyntaxNodeExceptionUtils.createError(e.getMessage(), workbookSourceModule));
+            // The file has nothing to compile; the error points at the line to fix. Its workbook keeps a sheet all
+            // the same: the compiler puts the table it builds to choose between rule versions on the first one.
+            addError(MarkdownFormatErrors.of(e.getProblem(), workbookSourceModule));
             var sheet = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
                     MarkdownReader.unreadSheet(StringTool.decodeURL(source.getUri())));
             return new WorksheetSyntaxNode[]{new WorksheetSyntaxNode(TableSyntaxNode.EMPTY_ARRAY, sheet)};

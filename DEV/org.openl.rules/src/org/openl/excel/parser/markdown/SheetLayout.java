@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SequencedMap;
 import java.util.stream.IntStream;
 
@@ -51,12 +52,19 @@ final class SheetLayout {
     }
 
     /**
+     * Returns the row of the sheet the body of a table with these properties starts in.
+     */
+    static int bodyTop(Map<String, String> properties) {
+        return 1 + properties.size();
+    }
+
+    /**
      * Returns the values and the merged ranges of a sheet holding the table.
      */
     static SheetCells cellsOf(RulesTable table) {
         var properties = table.properties();
         var width = properties.isEmpty() ? table.width() : Math.max(table.width(), PROPERTIES_WIDTH);
-        var bodyTop = 1 + properties.size();
+        var bodyTop = bodyTop(properties);
         var values = new @Nullable String[bodyTop + table.body().size()][width];
         var merges = new ArrayList<CellRangeAddress>();
 
@@ -121,7 +129,7 @@ final class SheetLayout {
             throw refuse("The header of the table takes one row");
         }
         var properties = propertiesOf(sheet);
-        var bodyTop = 1 + properties.size();
+        var bodyTop = bodyTop(properties);
         checkAboveBody(sheet, bodyTop, headerMerge);
 
         var height = extent(sheet, true);

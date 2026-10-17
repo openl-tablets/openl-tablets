@@ -211,6 +211,20 @@ class MarkdownTableWriterTest {
     }
 
     @Test
+    void rangeTheTableIsReadWithoutStaysAsWrittenUntilTheRangesChange() {
+        // A2:B2 covers the value of B2, so the table is read without the range
+        var broken = GREETING.replace("description: Greeting by the hour\n",
+                "description: Greeting by the hour\nmerges: [A2:B2]\n");
+        var renamed = set(cellsOf(broken), 0, 0, "SmartRules String greet(Integer hour)");
+
+        assertEquals(broken.replace("greeting(Integer hour)", "greet(Integer hour)"), write(broken, renamed));
+
+        var merged = merge(set(cellsOf(broken), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
+
+        assertTrue(write(broken, merged).contains("description: Greeting by the hour\nmerges: [A3:A4]\n---"));
+    }
+
+    @Test
     void codeBlockKeepsItsFence() {
         var cells = set(cellsOf(HELLO), 1, 0, "return \"Hi, \" + name;");
 
@@ -324,6 +338,7 @@ class MarkdownTableWriterTest {
                 new SheetCells(narrow, List.of()));
         assertRefused(GREETING, "The value 'a <br> b' cannot be written in a Markdown table",
                 set(greeting, 3, 1, "a <br> b"));
+        assertRefused("A file of documentation alone\n", "The file holds no table to write", greeting);
     }
 
     private static void assertRefused(String text, String message, SheetCells cells) {
@@ -334,7 +349,7 @@ class MarkdownTableWriterTest {
     // Helpers
 
     private static TableFile parse(String text) {
-        return MarkdownTableParser.parse(text, "t.md").orElseThrow(IllegalStateException::new);
+        return MarkdownTableParser.parse(text).orElseThrow(IllegalStateException::new);
     }
 
     private static SheetCells cellsOf(String text) {
@@ -342,7 +357,7 @@ class MarkdownTableWriterTest {
     }
 
     private static String write(String text, SheetCells cells) {
-        return MarkdownTableWriter.write(text, "t.md", cells);
+        return MarkdownTableWriter.write(text, cells);
     }
 
     private static SheetCells set(SheetCells cells, int row, int column, @Nullable String value) {

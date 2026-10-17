@@ -5,18 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
+import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
 import org.openl.studio.projects.service.tables.TableTestProjects;
 
 /**
  * Messages of a module written as Markdown files point at the cell of the table they are about, and at the piece
- * of its text, as for a workbook.
+ * of its text, as for a workbook. A file that breaks the format so that it holds no table is pointed at by its line.
  */
 class MarkdownMessageLocationTest {
 
@@ -100,11 +103,35 @@ class MarkdownMessageLocationTest {
                 return premium * rte;
                 ```
                 """);
+        write("covered.md", """
+                ---
+                table: SmartRules Double covered(Integer age)
+                merges: [A2:B2]
+                ---
+
+                | Age  | Rate |
+                |------|------|
+                | < 25 | 1.5  |
+                """);
+        write("Folder/unread.md", """
+                ---
+                table: Method String unread()
+                description:
+                  nested: value
+                ---
+
+                ```java
+                return "unread";
+                ```
+                """);
         var model = TableTestProjects.projectModel(project);
 
         var mapper = new DetailedMessageDescriptionMapperImpl();
-        var located = mapper.mapSorted(model.getModuleMessages(), model).stream()
-                .map(message -> (TableMessageSource) message.location())
+        var messages = mapper.mapSorted(model.getModuleMessages(), model);
+        var located = messages.stream()
+                .map(DetailedMessageDescription::location)
+                .filter(TableMessageSource.class::isInstance)
+                .map(TableMessageSource.class::cast)
                 .collect(Collectors.toMap(TableMessageSource::name,
                         at -> at.cell() + " " + at.start() + "-" + at.end()));
 
@@ -114,7 +141,16 @@ class MarkdownMessageLocationTest {
                 "people", "B5 0-6",
                 "grade", "A3 9-11",
                 "total", "B4 10-18",
-                "discount", "A2 60-63"), located);
+                "discount", "A2 60-63",
+                "covered", "B3 0-3"), located);
+        // A file holding no table is pointed at by the line its front matter breaks the format on
+        var unread = messages.stream()
+                .map(DetailedMessageDescription::location)
+                .filter(ModuleMessageSource.class::isInstance)
+                .map(ModuleMessageSource.class::cast)
+                .toList();
+        assertEquals(List.of("Errors rules/Errors/Folder/unread.md 3"),
+                unread.stream().map(at -> at.name() + " " + at.path() + " " + at.line()).toList());
     }
 
     private void write(String file, String text) throws IOException {

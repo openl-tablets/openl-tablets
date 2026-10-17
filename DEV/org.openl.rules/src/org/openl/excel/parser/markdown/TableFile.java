@@ -14,6 +14,7 @@ import java.util.List;
  * @param frontMatterEnd the line of the {@code ---} that closes the front matter
  * @param keys           the keys of the front matter, in the order they are written
  * @param body           where the body of the table stands
+ * @param problems       the problems of the file the table is read without
  */
 record TableFile(String text,
                  List<String> lines,
@@ -21,7 +22,8 @@ record TableFile(String text,
                  RulesTable table,
                  int frontMatterEnd,
                  List<Key> keys,
-                 Body body) {
+                 Body body,
+                 List<MarkdownProblem> problems) {
 
     /**
      * A key of the front matter.

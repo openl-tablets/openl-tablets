@@ -67,6 +67,8 @@ interface FilePreviewPaneProps {
     projectName: string
     branch?: string | null
     path: string | null
+    /** The line of the file to show the cursor at, counted from 1: the one a compilation message points to. */
+    line?: number | undefined
     canWrite: boolean
     canDelete: boolean
     onChanged: () => void
@@ -212,7 +214,7 @@ const fileMenuItems = (
  * (e.g. .xlsx) offer a download. File-level actions live here, grouped in one button bar, rather than on
  * each tree row.
  */
-export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule }: FilePreviewPaneProps) => {
+export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, path, line, folders, canWrite, canDelete, onChanged, onDeleted, onMoved, reloadToken, changedFiles = null, modules = {}, onOpenModule }: FilePreviewPaneProps) => {
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()
     const { styles, cx } = useStyles()
@@ -335,7 +337,14 @@ export const FilePreviewPane = ({ projectId, repositoryId, projectName, branch, 
         : (
             <div className={styles.body}>
                 <Suspense fallback={<Skeleton active paragraph={{ rows: 10 }} style={{ padding: 16 }} title={false} />}>
-                    <CodeEditor onChange={setContent} path={activePath} readOnly={!editing} value={content} />
+                    <CodeEditor
+                        // The line belongs to the file the URL names, not to one still shown while it is left
+                        line={activePath === path ? line : undefined}
+                        onChange={setContent}
+                        path={activePath}
+                        readOnly={!editing}
+                        value={content}
+                    />
                 </Suspense>
             </div>
         )

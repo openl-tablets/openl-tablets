@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 
 import lombok.AccessLevel;
@@ -38,21 +39,22 @@ final class MarkdownTableWriter {
     private static final String METHOD = "Method ";
     /** The fence a new file writes the code of a Method in. */
     private static final TableFile.CodeBody NEW_CODE = new TableFile.CodeBody(0, 0, "```", "java", 0);
+    /** The error of a file without front matter, which holds documentation alone. */
+    static final String NO_TABLE = "The file holds no table to write";
 
     /**
      * Writes the table laid out on a sheet into the text of its file.
      *
-     * @param text     the text of the file
-     * @param fileName the file name the error messages tell
-     * @param sheet    the cells of the sheet holding the table
+     * @param text  the text of the file
+     * @param sheet the cells of the sheet holding the table
      * @return the new text of the file
      * @throws MarkdownWriteException  when the cells or a value have no Markdown form
      * @throws MarkdownFormatException when the file does not hold a table
      */
-    static String write(String text, String fileName, SheetCells sheet) {
+    static String write(String text, SheetCells sheet) {
         var mark = !text.isEmpty() && text.charAt(0) == MarkdownReader.BYTE_ORDER_MARK ? text.substring(0, 1) : "";
-        var file = MarkdownTableParser.parse(text.substring(mark.length()), fileName)
-                .orElseThrow(() -> new MarkdownWriteException("%s holds no table to write".formatted(fileName)));
+        var file = MarkdownTableParser.parse(text.substring(mark.length()))
+                .orElseThrow(() -> new MarkdownWriteException(NO_TABLE));
         return mark + write(file, SheetLayout.tableOf(sheet));
     }
 
@@ -111,8 +113,10 @@ final class MarkdownTableWriter {
         text.addAll(lines.subList(0, keys.isEmpty() ? file.frontMatterEnd() : keys.getFirst().line()));
         text.addAll(key(file, TABLE, table.header()));
         table.properties().forEach((name, value) -> text.addAll(key(file, name, value)));
-        if (!table.merges().isEmpty()) {
-            text.addAll(key(file, MERGES, RulesTable.mergesText(table.merges())));
+        // Ranges the table is read without stay as written until the ranges change, even when no range is left
+        var merges = RulesTable.mergesText(table.merges());
+        if (!merges.isEmpty() || written(file, MERGES, merges).isPresent()) {
+            text.addAll(key(file, MERGES, merges));
         }
         text.add(lines.get(file.frontMatterEnd()));
         return text;
@@ -126,15 +130,22 @@ final class MarkdownTableWriter {
      * Returns the lines of a key: as written in the file when its value is the same, written anew otherwise.
      */
     private static List<String> key(TableFile file, String name, String value) {
+        return written(file, name, value).orElseGet(() -> List.of(rendered(name, value)));
+    }
+
+    /**
+     * Returns the lines of a key as written in the file, or nothing when the file holds no such key of that value.
+     */
+    private static Optional<List<String>> written(TableFile file, String name, String value) {
         var keys = file.keys();
         for (var i = 0; i < keys.size(); i++) {
             var key = keys.get(i);
             if (key.name().equals(name) && key.value().equals(value)) {
                 var end = i + 1 < keys.size() ? keys.get(i + 1).line() : file.frontMatterEnd();
-                return file.lines().subList(key.line(), end);
+                return Optional.of(file.lines().subList(key.line(), end));
             }
         }
-        return List.of(rendered(name, value));
+        return Optional.empty();
     }
 
     private static String rendered(String name, String value) {

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -224,16 +225,6 @@ class MarkdownReaderTest {
     @CsvSource(delimiter = ';', quoteCharacter = '"', textBlock = """
             header without body; {h}{/h}\\nText; 1; must be followed by a table or a code block
             not closed;          {h}| a |\\n|---|\\n; 1; not closed
-            extra cells;    {h}{/h}| a | b |\\n|---|---|\\n| 1 | 2 | 3 |\\n; 6; more cells
-            split table;    {h}{/h}| a |\\n|---|\\n| 1 |\\n\\n| 2 |\\n; 8; blank line splits
-            merge outside;  {h}merges: [A1:C1]\\n{/h}| a | b |\\n|---|---|\\n; 3; A1:C1 is outside
-            merge below;    {h}merges: A1:A2\\n{/h}| a |\\n|---|\\n; 3; A1:A2 is outside
-            merges overlap; {h}merges: [A1:B1, B1:B2]\\n{/h}| a | |\\n|---|---|\\n| 1 | |\\n; 3; A1:B1 and B1:B2 overlap
-            covered value;  {h}merges: [A1:B1]\\n{/h}| a | b |\\n|---|---|\\n; 3; B1 has a value
-            bad range;      {h}merges: [1A]\\n{/h}| a |\\n|---|\\n; 3; '1A' is not a cell range
-            reversed range; {h}merges: [B2:A1]\\n{/h}| a |\\n|---|\\n; 3; from its top left
-            row too far;    {h}merges: [A99999999999]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range
-            column too far; {h}merges: [ZZZZZZZZZ1]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range
             nested value;   {h}state: {a: b}\\n{/h}| a |\\n|---|\\n; 3; text or a list
             complex key;    {h}[a]: b\\n{/h}| a |\\n|---|\\n; 3; single word
             no table key;   ---\\ndescription: x\\n---\\n| a |\\n|---|\\n; 1; no 'table' key
@@ -241,15 +232,58 @@ class MarkdownReaderTest {
             list;            ---\\n- a\\n---\\n| a |\\n|---|\\n; 1; set of 'key: value' lines
             invalid yaml;    ---\\ntable: [a, b]\\n- c\\n---\\n| a |\\n|---|\\n; 3; Invalid YAML
             """)
-    void formatErrorsTellTheLine(String name, String text, int line, String message) {
-        var source = text.replace("{h}", "---\\ntable: Rules X()\\n")
-                .replace("{/h}", "---\\n")
-                .replace("\\n", "\n");
-
+    void formatErrorOfTheFrontMatterLosesTheTable(String name, String text, int line, String message) {
+        var source = source(text);
         var error = assertThrows(MarkdownFormatException.class, () -> read("Broken.md", source));
 
-        assertTrue(error.getMessage().startsWith("Broken.md, line %d: ".formatted(line)), error::getMessage);
         assertTrue(error.getMessage().contains(message), error::getMessage);
+        // The message tells what is wrong alone; the line comes apart from it
+        assertEquals(new MarkdownProblem(line, error.getMessage(), null), error.getProblem());
+    }
+
+    // The cell is the one of the sheet: the header takes the first row, and the body starts under it
+    @ParameterizedTest(name = "{0}")
+    @CsvSource(delimiter = ';', quoteCharacter = '"', textBlock = """
+            extra cells;    {h}{/h}| a | b |\\n|---|---|\\n| 1 | 2 | 3 |\\n; 6; more cells; B3
+            split table;    {h}{/h}| a |\\n|---|\\n| 1 |\\n\\n| 2 |\\n; 8; blank line cuts these rows off;
+            merge outside;  {h}merges: [A1:C1]\\n{/h}| a | b |\\n|---|---|\\n; 3; A1:C1 is outside; A2
+            merge below;    {h}merges: A1:A2\\n{/h}| a |\\n|---|\\n; 3; A1:A2 is outside; A2
+            merge away;     {h}merges: C3\\n{/h}| a |\\n|---|\\n; 3; C3 is outside;
+            overlap;        {h}merges: [A1:B1, B1:B2]\\n{/h}| a | |\\n|---|---|\\n| 1 | |\\n; 3; and B1:B2 overlap; B2
+            covered value;  {h}merges: [A1:B1]\\n{/h}| a | b |\\n|---|---|\\n; 3; B1 has a value; B2
+            bad range;      {h}merges: [1A]\\n{/h}| a |\\n|---|\\n; 3; '1A' is not a cell range;
+            reversed range; {h}merges: [B2:A1]\\n{/h}| a |\\n|---|\\n; 3; from its top left;
+            row too far;    {h}merges: [A99999999999]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range;
+            column too far; {h}merges: [ZZZZZZZZZ1]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range;
+            """)
+    void problemOfTheBodyLeavesTheTableReadable(String name, String text, int line, String message,
+                                                @Nullable String cell) {
+        try (var reader = read("Broken.md", source(text))) {
+            var problem = reader.getProblems().getFirst();
+
+            assertEquals(1, reader.getProblems().size(), reader.getProblems()::toString);
+            assertEquals(line, problem.line());
+            assertTrue(problem.problem().contains(message), problem::problem);
+            assertEquals(cell, problem.cell() == null ? null : problem.cell().formatAsString());
+            assertEquals("Rules X()", reader.getCells(reader.getSheets().getFirst())[0][0]);
+        }
+    }
+
+    @Test
+    void tableIsReadWithoutTheMergedRangesThatBreakTheFormat() {
+        // A1:B1 overlaps A1:A2, so it is left out; B1:B2 fits
+        var text = "---\ntable: Data String values\nmerges: [A1:A2, A1:B1, B1:B2]\n---\n| a | |\n|---|---|\n| | |\n";
+
+        assertArrayEquals(new Object[][]{
+                {"Data String values", MERGE_WITH_LEFT},
+                {"a", null},
+                {MERGE_WITH_UP, MERGE_WITH_UP}}, cellsOf("Merges.md", text));
+    }
+
+    private static String source(String text) {
+        return text.replace("{h}", "---\\ntable: Rules X()\\n")
+                .replace("{/h}", "---\\n")
+                .replace("\\n", "\n");
     }
 
     @Test

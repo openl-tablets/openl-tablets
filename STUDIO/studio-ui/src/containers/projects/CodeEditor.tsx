@@ -1,5 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import CodeMirror, { Compartment, lineNumbers, type Extension, type ReactCodeMirrorRef } from '@uiw/react-codemirror'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import CodeMirror, {
+    Compartment,
+    EditorView,
+    lineNumbers,
+    type Extension,
+    type ReactCodeMirrorRef,
+} from '@uiw/react-codemirror'
 import { xml } from '@codemirror/lang-xml'
 import { json } from '@codemirror/lang-json'
 import { yaml } from '@codemirror/lang-yaml'
@@ -86,6 +92,16 @@ const languageFor = (path: string): Extension[] => {
 /** Lines with the line breaks CodeMirror holds them with, which are those of Unix whatever a text is written with. */
 const unixLines = (text: string): string => text.replace(/\r\n?/g, '\n')
 
+/**
+ * Puts the cursor at the start of a line, counted from 1, and scrolls the line to the middle of the view. A number
+ * past the last line goes to the last one.
+ */
+const goToLine = (view: EditorView, number: number) => {
+    const doc = view.state.doc
+    const line = doc.line(Math.min(Math.max(number, 1), doc.lines))
+    view.dispatch({ selection: { anchor: line.from }, effects: EditorView.scrollIntoView(line.from, { y: 'center' }) })
+}
+
 /** Numbers the lines of a part of a file as the whole file numbers them, from the number of its first line. */
 const numbersFrom = (firstLine: number): Extension =>
     lineNumbers({ formatNumber: line => String(line + firstLine - 1) })
@@ -123,6 +139,11 @@ interface CodeEditorProps {
     firstLine?: number | undefined
     /** What the editor says while it holds no text. */
     placeholder?: string | undefined
+    /**
+     * The line to put the cursor at, counted from 1, such as the one a compilation message points to. The editor
+     * goes there when it opens and whenever the line changes, and leaves the cursor to the reader in between.
+     */
+    line?: number | undefined
 }
 
 /**
@@ -139,8 +160,11 @@ interface CodeEditorProps {
  *
  * The editor holds a text with the line breaks of Unix, as CodeMirror does: a text written with those of Windows is
  * shown as it reads, and the text {@link CodeEditorProps.onChange} is given has the line breaks of Unix.
+ *
+ * Given a {@link CodeEditorProps.line}, the editor puts the cursor at its start and scrolls it into the middle of the
+ * view, which marks it as the line the cursor is at.
  */
-export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeholder }: CodeEditorProps) => {
+export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeholder, line }: CodeEditorProps) => {
     const { styles, cx } = useStyles()
     const { isDarkMode } = useThemeMode()
     const { themeName } = useAppTheme()
@@ -165,6 +189,20 @@ export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeho
             numberedFrom.current = firstLine
         }
     }, [firstLine, numbering])
+    // The line the cursor was last sent to: the editor goes to a line once, not each time it is drawn
+    const shownLine = useRef<number | undefined>(undefined)
+    const showLine = useCallback((view: EditorView) => {
+        if (line !== undefined && line !== shownLine.current) {
+            goToLine(view, line)
+            shownLine.current = line
+        }
+    }, [line])
+    useEffect(() => {
+        const view = editor.current?.view
+        if (view) {
+            showLine(view)
+        }
+    }, [showLine])
     return (
         <CodeMirror
             ref={editor}
@@ -172,6 +210,7 @@ export const CodeEditor = ({ value, path, readOnly, onChange, firstLine, placeho
             editable={!readOnly}
             extensions={extensions}
             height="100%"
+            onCreateEditor={showLine}
             theme={theme}
             // The text is handed over with the line breaks the editor holds it with: a text with other line breaks
             // would differ from what the editor holds and be set anew whenever it is drawn, moving the cursor away.
