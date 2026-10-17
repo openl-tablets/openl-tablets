@@ -489,7 +489,12 @@ workbook resolves automatically when every such sheet merges:
   other deletes, and neither deletes a row the other changes; the same holds for columns;
 - one branch does not change the rows of a table while the other changes its columns, and no inserted or deleted row
   or column crosses merged cells the other branch keeps;
-- the branches do not move a table to different places, and neither removes a table the other changes;
+- the branches do not both move a table on purpose to different places, and neither removes a table the other
+  changes. A branch that only pushes its tables up or down, by rows it inserts into tables or between them, moves
+  none of them on purpose: the merged sheet takes the places the other branch gives the tables, pushed by those rows.
+  A table moved into another column, or by rows no table above it, or to its left on its row, moved or grew by, is
+  moved on purpose. A table beside another on its rows, such as a note, moves with the rows both branches inserted
+  alike into that table above it;
 - tables of the two branches do not touch each other, and neither branch merges cells over a value the other wrote;
 - no formula, defined name, data validation, conditional formatting or hyperlink refers to content that moves, no
   picture, chart, Excel table or autofilter lies over it;

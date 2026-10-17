@@ -196,7 +196,9 @@ contain the project when it is opened. Proceed as follows:
         the other branch deletes, or one branch deletes a row the other branch changes. Columns follow the same
         rule.
     -   One branch inserts or deletes rows of a table and the other branch inserts or deletes columns of it.
-    -   Both branches move the same table to different places, or one branch removes a table the other changes.
+    -   Both branches move the same table on purpose to different places, or one branch removes a table the other
+        changes. Tables a branch only pushes down or up, by inserting or deleting rows above them, are not moved on
+        purpose: Sync puts them where the other branch has them, pushed by those rows.
     -   A row or a column one branch inserts or deletes crosses merged cells the other branch keeps.
     -   Tables of the two branches would touch each other and be read as one: OpenL ends a table at an empty row
         or column.

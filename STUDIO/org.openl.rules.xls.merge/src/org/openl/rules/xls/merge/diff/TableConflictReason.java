@@ -21,7 +21,8 @@ public enum TableConflictReason {
      */
     ROWS_AND_COLUMNS,
     /**
-     * Both revisions moved the table to different places
+     * Both revisions moved the table on purpose to different places: into another column, or away from the table
+     * above it, which rows inserted above the table do not explain
      */
     MOVED,
     /**

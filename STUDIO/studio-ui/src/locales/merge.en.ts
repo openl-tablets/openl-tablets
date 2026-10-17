@@ -153,7 +153,7 @@ i18next.addResourceBundle('en', 'merge', {
                 + 'changed. Columns follow the same rule.',
             rowsAndColumns: 'One branch inserted or deleted rows of the table, and the other one columns, or so many '
                 + 'rows changed that they cannot be aligned.',
-            moved: 'Both branches moved the table to different places.',
+            moved: 'Both branches moved the table on purpose to different places.',
             removedAndChanged: 'One branch removed the table, and the other one changed it.',
             mergedCells: 'Both branches changed the merged cells of the table differently.',
             addedInBoth: 'Both branches added different tables at the same place.',

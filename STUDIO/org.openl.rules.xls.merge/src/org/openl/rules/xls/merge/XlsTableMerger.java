@@ -2,6 +2,7 @@ package org.openl.rules.xls.merge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import lombok.AccessLevel;
@@ -50,8 +52,12 @@ import org.openl.rules.xls.merge.diff.TableConflictReason;
  * aligned with BASE revision, and the lines inserted, deleted or changed in one revision only are taken from it. The
  * cells of a line changed in both revisions are merged part by part.
  *
+ * <p>A revision that only pushes its tables up or down, by rows it inserts into tables or between them, does not move
+ * them on purpose: the merged sheet follows the places the other revision gives the tables, pushed by those rows.
+ *
  * <p>The sheet stays a conflict when both revisions change the same lines differently, insert different lines at the
- * same place, move a table to different places, or delete a table the other revision changes. It stays a conflict as
+ * same place, both move a table on purpose to different places, or delete a table the other revision changes. It
+ * stays a conflict as
  * well when one revision changes the rows and the other the columns of one table, when a change crosses merged cells,
  * when merged tables would touch each other, and when moved content is referred to by a formula, a defined name, a
  * data validation, a conditional formatting or a hyperlink.
@@ -74,6 +80,15 @@ final class XlsTableMerger {
      * Resolves a table both revisions changed in ways the merge cannot combine, when anything resolves it.
      */
     private final Conflicts conflicts;
+    /**
+     * Whether the places both revisions gave a table may be combined, when one revision only pushed its tables.
+     */
+    private final boolean combinesPlaces;
+    /**
+     * The rows one revision pushed its tables by, carried over onto the places of the other revision, or
+     * {@code null} when the places are not combined.
+     */
+    private @Nullable Pushes pushes;
 
     /**
      * Tables of OUR revision whose cells are cleared before the merged tables are written.
@@ -133,7 +148,16 @@ final class XlsTableMerger {
                                   Cursor their,
                                   Predicate<String> changedInTheirs,
                                   Conflicts conflicts) {
-        var merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts);
+        var mark = conflicts.mark();
+        var merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts, true);
+        if (merger.merge()) {
+            return Optional.of(merger.content());
+        } else if (merger.pushes == null || conflicts.refusal() == null) {
+            return Optional.empty();
+        }
+        // The combined places do not fit together: the tables both revisions moved are conflicts of their own then.
+        conflicts.rewind(mark);
+        merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts, false);
         return merger.merge() ? Optional.of(merger.content()) : Optional.empty();
     }
 
@@ -146,6 +170,12 @@ final class XlsTableMerger {
         tables.addAll(theirTables);
         var ourPairs = XlsSheetTables.match(baseTables, base.sheet, ourTables, our.sheet);
         var theirPairs = XlsSheetTables.match(baseTables, base.sheet, theirTables, their.sheet);
+        if (combinesPlaces && movedApart(baseTables, ourPairs, theirPairs)) {
+            pushes = Pushes.of(baseTables,
+                    ourPairs,
+                    theirPairs,
+                    (table, line) -> sharedRows(table, line, ourPairs, theirPairs));
+        }
         for (CellRangeAddress baseTable : baseTables) {
             var ourTable = ourPairs.get(baseTable);
             var theirTable = theirPairs.get(baseTable);
@@ -169,7 +199,14 @@ final class XlsTableMerger {
                 return false;
             }
         }
-        layout.addAll(ourCreated);
+        for (CellRangeAddress table : ourCreated) {
+            var target = createdPlace(Side.OUR, table);
+            if (target.equals(table)) {
+                layout.add(table);
+            } else if (writeWhole(table, Side.OUR, view(our, table), null, target) != null) {
+                return false;
+            }
+        }
         if (!isSeparated()) {
             conflicts.refuse(SheetConflictReason.TOUCHING_TABLES);
             return false;
@@ -178,6 +215,49 @@ final class XlsTableMerger {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Tells whether both revisions moved a table of BASE revision, each to another place.
+     */
+    private static boolean movedApart(List<CellRangeAddress> baseTables,
+                                      Map<CellRangeAddress, CellRangeAddress> ourPairs,
+                                      Map<CellRangeAddress, CellRangeAddress> theirPairs) {
+        return baseTables.stream().anyMatch(table -> ourPairs.get(table) != null && theirPairs.get(table) != null
+                && XlsSheetMerger.choose(start(table),
+                start(ourPairs.get(table)),
+                start(theirPairs.get(table)),
+                Object::equals) == Choice.CONFLICT);
+    }
+
+    /**
+     * The rows both revisions inserted alike into a table of BASE revision above one of its rows, less the rows both
+     * deleted alike there.
+     *
+     * @param line the row of the table in BASE revision, counted from its first row
+     */
+    private int sharedRows(CellRangeAddress baseTable,
+                           int line,
+                           Map<CellRangeAddress, CellRangeAddress> ourPairs,
+                           Map<CellRangeAddress, CellRangeAddress> theirPairs) {
+        var ourTable = ourPairs.get(baseTable);
+        var theirTable = theirPairs.get(baseTable);
+        if (ourTable == null || theirTable == null) {
+            return 0;
+        }
+        var baseView = view(base, baseTable);
+        var ourView = view(our, ourTable);
+        var theirView = view(their, theirTable);
+        var alignments = alignments(new Views(baseView, ourView, theirView));
+        return alignments == null ? 0 : new LineMerger(baseView, ourView, theirView, alignments).sharedLines(line);
+    }
+
+    /**
+     * Where the merge puts a table only one revision created: at its place, which the rows the other revision pushed
+     * its tables by move when the merged sheet follows the places of this revision.
+     */
+    private CellRangeAddress createdPlace(Side side, CellRangeAddress table) {
+        return pushes != null && pushes.layout == side ? pushes.pushed(table) : table;
     }
 
     /**
@@ -247,7 +327,12 @@ final class XlsTableMerger {
      * @return {@code false} if the sheet stays a conflict
      */
     private boolean writeCreated(List<CellRangeAddress> tables) {
-        return tables.stream().allMatch(table -> writeWhole(null, Side.THEIR, view(their, table), null, table) == null);
+        return tables.stream()
+                .allMatch(table -> writeWhole(null,
+                        Side.THEIR,
+                        view(their, table),
+                        null,
+                        createdPlace(Side.THEIR, table)) == null);
     }
 
     private static CellRangeAddress enclosing(List<CellRangeAddress> tables) {
@@ -302,15 +387,31 @@ final class XlsTableMerger {
      * Where the merge puts a table both revisions kept: at the place a revision moved it to, or where both moved it
      * alike.
      *
-     * @return the top left cell of the table, or {@code null} when both revisions moved the table to different places
-     * or one of them removed it
+     * @return the top left cell of the table, or {@code null} when both revisions moved the table on purpose to
+     * different places or one of them removed it
      */
-    private static @Nullable CellAddress mergedStart(TableConflict conflict) {
+    private @Nullable CellAddress mergedStart(TableConflict conflict) {
         var baseTable = conflict.base();
         var ourTable = conflict.ours();
         var theirTable = conflict.theirs();
         if (baseTable == null || ourTable == null || theirTable == null) {
             return null;
+        }
+        return mergedStart(baseTable, ourTable, theirTable);
+    }
+
+    /**
+     * Where the merge puts a table both revisions kept: at the place a revision moved it to, where both moved it
+     * alike, or where the rows one revision pushed its tables by take the place the other revision gives it.
+     *
+     * @return the top left cell of the table, or {@code null} when both revisions moved it to places that cannot be
+     * combined
+     */
+    private @Nullable CellAddress mergedStart(CellRangeAddress baseTable,
+                                              CellRangeAddress ourTable,
+                                              CellRangeAddress theirTable) {
+        if (pushes != null && !pushes.movedByBoth.contains(baseTable)) {
+            return pushes.start(pushes.layout == Side.THEIR ? theirTable : ourTable);
         }
         return switch (XlsSheetMerger.choose(start(baseTable), start(ourTable), start(theirTable), Object::equals)) {
             case OUR -> start(ourTable);
@@ -486,11 +587,10 @@ final class XlsTableMerger {
         }
         var ourView = view(our, ourTable);
         var theirView = view(their, theirTable);
-        var place = XlsSheetMerger.choose(start(baseTable), start(ourTable), start(theirTable), Object::equals);
-        if (place == Choice.CONFLICT) {
+        var start = mergedStart(baseTable, ourTable, theirTable);
+        if (start == null) {
             return TableConflictReason.MOVED;
         }
-        var start = start(place == Choice.THEIR ? theirTable : ourTable);
         if (equalTables(baseView, theirView) || equalTables(ourView, theirView)) {
             return takeOurs(ourTable, theirTable, start);
         } else if (equalTables(baseView, ourView)) {
@@ -870,6 +970,233 @@ final class XlsTableMerger {
     }
 
     /**
+     * The rows one revision, the pusher, inserted or deleted above its tables, carried over onto the places the other
+     * revision, the layout, gives the tables.
+     *
+     * <p>A revision only pushes its tables when it moves none of them across another or to another column: it grows or
+     * shrinks tables, or adds or removes rows between them. The merged sheet then follows the layout, each table moved
+     * down or up by the rows the pusher added above it: the rows a table above grew or shrank by, less those the layout
+     * inserted or deleted alike, and the rows added or removed between tables where the layout kept the rows between
+     * them as BASE revision has them. A table only the pusher created keeps its place, which the pusher has pushed
+     * already.
+     *
+     * <p>THEIR revision is the pusher when it only pushes its tables, and OUR revision otherwise. A table both
+     * revisions moved on purpose stays a conflict: a revision moves a table on purpose when it puts the table into
+     * another column, or moves it by rows that no table above it, or to its left on its row, explains. A table beside
+     * another, on its rows, moves with the rows both revisions inserted alike into that table above it.
+     */
+    private static final class Pushes {
+
+        private final Side layout;
+        /**
+         * The rows the pusher added below a row of the layout, by the last row of the table they follow; {@code -1}
+         * for the rows above every table.
+         */
+        private final List<Step> steps;
+        /**
+         * The tables of BASE revision both revisions moved on purpose.
+         */
+        private final Set<CellRangeAddress> movedByBoth;
+
+        private Pushes(Side layout, List<Step> steps, Set<CellRangeAddress> movedByBoth) {
+            this.layout = layout;
+            this.steps = steps;
+            this.movedByBoth = movedByBoth;
+        }
+
+        /**
+         * @param shared the rows both revisions inserted alike into a table of BASE revision above one of its rows
+         * @return the pushes, or {@code null} when neither revision only pushes its tables
+         */
+        static @Nullable Pushes of(List<CellRangeAddress> baseTables,
+                                   Map<CellRangeAddress, CellRangeAddress> ourPairs,
+                                   Map<CellRangeAddress, CellRangeAddress> theirPairs,
+                                   SharedRows shared) {
+            var movedByBoth = movedOnPurpose(baseTables, ourPairs, shared);
+            movedByBoth.retainAll(movedOnPurpose(baseTables, theirPairs, shared));
+            var theirSteps = steps(baseTables, theirPairs, ourPairs, shared);
+            if (theirSteps != null) {
+                return new Pushes(Side.OUR, theirSteps, movedByBoth);
+            }
+            var ourSteps = steps(baseTables, ourPairs, theirPairs, shared);
+            return ourSteps == null ? null : new Pushes(Side.THEIR, ourSteps, movedByBoth);
+        }
+
+        /**
+         * The tables a revision moved on purpose: into another column, or by rows no table before it explains. A table
+         * before it starts above it, or on its row to its left.
+         */
+        private static Set<CellRangeAddress> movedOnPurpose(List<CellRangeAddress> baseTables,
+                                                            Map<CellRangeAddress, CellRangeAddress> pairs,
+                                                            SharedRows shared) {
+            var kept = kept(baseTables, pairs);
+            var moved = new HashSet<CellRangeAddress>();
+            for (var i = 0; i < kept.size(); i++) {
+                var table = kept.get(i);
+                // the tables before it from top to bottom, and from left to right on its row
+                var pushed = shift(table, pairs) == 0 || kept.subList(0, i)
+                        .stream()
+                        .anyMatch(other -> pushedBy(table, other, pairs, shared));
+                if (pairs.get(table).getFirstColumn() != table.getFirstColumn() || !pushed) {
+                    moved.add(table);
+                }
+            }
+            return moved;
+        }
+
+        /**
+         * Tells whether a table before it explains the rows a table moved by: that table moved as far, or as far once
+         * grown or shrunk.
+         *
+         * <p>A table beside it, on its rows, moves by the rows both revisions inserted alike into it above its first
+         * row too. Rows only one revision inserted there leave the place of the table to that revision.
+         */
+        private static boolean pushedBy(CellRangeAddress table,
+                                        CellRangeAddress other,
+                                        Map<CellRangeAddress, CellRangeAddress> pairs,
+                                        SharedRows shared) {
+            var shift = shift(table, pairs);
+            var otherShift = shift(other, pairs);
+            return shift == otherShift || shift == otherShift + height(pairs.get(other)) - height(other)
+                    || table.getFirstRow() <= other.getLastRow()
+                    && shift == otherShift + shared.above(other, table.getFirstRow() - other.getFirstRow());
+        }
+
+        /**
+         * The tables of BASE revision a revision keeps, from top to bottom.
+         */
+        private static List<CellRangeAddress> kept(List<CellRangeAddress> baseTables,
+                                                   Map<CellRangeAddress, CellRangeAddress> pairs) {
+            return baseTables.stream()
+                    .filter(table -> pairs.get(table) != null)
+                    .sorted(Comparator.comparingInt(CellRangeAddress::getFirstRow)
+                            .thenComparingInt(CellRangeAddress::getFirstColumn))
+                    .toList();
+        }
+
+        private static int shift(CellRangeAddress table, Map<CellRangeAddress, CellRangeAddress> pairs) {
+            return pairs.get(table).getFirstRow() - table.getFirstRow();
+        }
+
+        /**
+         * The rows a pusher added below each table, as the layout puts the table. The rows a table grew or shrank by
+         * count less those the layout inserted or deleted alike, which the layout has already.
+         *
+         * @return the steps, or {@code null} when the revision moved a table across another or to another column, or
+         * pushed the tables under one the layout removed
+         */
+        private static @Nullable List<Step> steps(List<CellRangeAddress> baseTables,
+                                                  Map<CellRangeAddress, CellRangeAddress> pusher,
+                                                  Map<CellRangeAddress, CellRangeAddress> layout,
+                                                  SharedRows shared) {
+            var kept = kept(baseTables, pusher);
+            if (!pushesOnly(kept, pusher)) {
+                return null;
+            }
+            var steps = new ArrayList<Step>();
+            CellRangeAddress previous = null;
+            var previousShift = 0;
+            for (CellRangeAddress table : kept) {
+                var shift = shift(table, pusher);
+                var growth = previous == null ? 0 : height(pusher.get(previous)) - height(previous);
+                var between = shift - previousShift - growth;
+                var added = previous == null || growth == 0 ? 0 : growth - shared.above(previous, height(previous));
+                var rows = added + (keepsRowsBetween(layout, previous, table) ? between : 0);
+                var anchor = previous == null ? null : layout.get(previous);
+                if (rows != 0 && previous != null && anchor == null) {
+                    return null;
+                } else if (rows != 0) {
+                    steps.add(new Step(anchor == null ? -1 : anchor.getLastRow(), rows));
+                }
+                previous = table;
+                previousShift = shift;
+            }
+            return steps;
+        }
+
+        /**
+         * Tells whether a revision keeps every table in its column and in its order from top to bottom.
+         */
+        private static boolean pushesOnly(List<CellRangeAddress> kept, Map<CellRangeAddress, CellRangeAddress> pusher) {
+            return kept.stream().allMatch(table -> pusher.get(table).getFirstColumn() == table.getFirstColumn())
+                    && IntStream.range(1, kept.size())
+                    .allMatch(i -> Integer.signum(kept.get(i).getFirstRow() - kept.get(i - 1).getFirstRow())
+                            == Integer.signum(pusher.get(kept.get(i)).getFirstRow()
+                            - pusher.get(kept.get(i - 1)).getFirstRow()));
+        }
+
+        /**
+         * Tells whether the layout keeps the rows between a table and the one above it as BASE revision has them.
+         *
+         * @param previous the table above, or {@code null} for the rows above every table
+         */
+        private static boolean keepsRowsBetween(Map<CellRangeAddress, CellRangeAddress> layout,
+                                                @Nullable CellRangeAddress previous,
+                                                CellRangeAddress table) {
+            var laid = layout.get(table);
+            if (laid == null) {
+                return false;
+            } else if (previous == null) {
+                return laid.getFirstRow() == table.getFirstRow();
+            }
+            var laidPrevious = layout.get(previous);
+            return laidPrevious != null
+                    && laid.getFirstRow() - laidPrevious.getLastRow() == table.getFirstRow() - previous.getLastRow();
+        }
+
+        private static int height(CellRangeAddress table) {
+            return table.getLastRow() - table.getFirstRow() + 1;
+        }
+
+        /**
+         * The rows the pusher added above a row of the layout.
+         */
+        private int rowsAbove(int row) {
+            return steps.stream().filter(step -> step.anchor() < row).mapToInt(Step::rows).sum();
+        }
+
+        /**
+         * Where a table of the layout lands.
+         *
+         * @return the top left cell, or {@code null} when the rows taken off would take the table off the sheet
+         */
+        @Nullable CellAddress start(CellRangeAddress laidTable) {
+            var row = laidTable.getFirstRow() + rowsAbove(laidTable.getFirstRow());
+            return row < 0 ? null : new CellAddress(row, laidTable.getFirstColumn());
+        }
+
+        /**
+         * Where a table only the layout created lands.
+         */
+        CellRangeAddress pushed(CellRangeAddress laidTable) {
+            var start = start(laidTable);
+            return start == null ? laidTable : place(start, laidTable);
+        }
+    }
+
+    /**
+     * The rows both revisions inserted alike into a table of BASE revision above one of its rows, less the rows both
+     * deleted alike there.
+     */
+    @FunctionalInterface
+    private interface SharedRows {
+
+        /**
+         * @param line the row of the table in BASE revision, counted from its first row
+         */
+        int above(CellRangeAddress baseTable, int line);
+    }
+
+    /**
+     * Rows a revision added below the given row of the layout, or removed when negative.
+     *
+     * @param anchor the last row of the table the rows follow in the layout, or {@code -1} for the rows above every
+     *               table
+     */
+    private record Step(int anchor, int rows) {
+    }
+
+    /**
      * A table of a revision seen as lines: its rows, or its columns when it is transposed. A position is the place of a
      * cell along its line.
      */
@@ -1136,6 +1463,21 @@ final class XlsTableMerger {
                     Arrays.fill(covered, hunk.baseFrom(), hunk.baseTo(), true);
                 }
             }
+        }
+
+        /**
+         * The lines both revisions inserted alike before a line of BASE revision, less the lines both deleted alike
+         * there.
+         */
+        int sharedLines(int line) {
+            var theirHunks = alignments.their().hunks();
+            return alignments.our()
+                    .hunks()
+                    .stream()
+                    .filter(hunk -> hunk.baseTo() <= line
+                            && theirHunks.stream().anyMatch(theirHunk -> sameHunk(hunk, theirHunk)))
+                    .mapToInt(hunk -> hunk.sideTo() - hunk.sideFrom() - hunk.baseTo() + hunk.baseFrom())
+                    .sum();
         }
 
         /**
