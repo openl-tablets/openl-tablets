@@ -150,6 +150,7 @@ import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.GeneratedTables;
+import org.openl.studio.projects.service.tables.MarkdownTableFiles;
 import org.openl.studio.projects.service.tables.MarkdownTables;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
 import org.openl.studio.projects.service.tables.StaleTableIds;
@@ -242,6 +243,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final ProjectListingContext listingContext;
     private final ObjectFactory<UserWorkspace> userWorkspaceFactory;
     private final UploadFormatting uploadFormatting;
+    private final MarkdownTableFiles markdownTableFiles;
 
     public WorkspaceProjectService(
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -277,7 +279,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ProjectListingContext listingContext,
             ModuleCompilationLauncher moduleCompilationLauncher,
             ObjectFactory<UserWorkspace> userWorkspaceFactory,
-            UploadFormatting uploadFormatting) {
+            UploadFormatting uploadFormatting,
+            MarkdownTableFiles markdownTableFiles) {
         super(designRepositoryAclService, projectAccessService);
         this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
@@ -299,6 +302,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableWriterExecutor = tableWriterExecutor;
         this.tableWritersFactory = tableWritersFactory;
         this.uploadFormatting = uploadFormatting;
+        this.markdownTableFiles = markdownTableFiles;
         this.eventPublisher = eventPublisher;
         this.auditor = auditor;
         this.bypassService = bypassService;
@@ -2841,6 +2845,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * The whole table area is cleared from the sheet regardless of the table type. The table no longer exists once the
      * project is recompiled. Its id, and every id it had before, answer that the table is gone.
      *
+     * <p>A table of a Markdown module is a file of its own, and the file is deleted. The last table of such a module
+     * is refused: a module folder holds at least one file.
+     *
      * @param project project
      * @param tableId table id
      * @throws ConflictException if the project is held by another user
@@ -2851,11 +2858,20 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                             @Nullable String moduleName,
                             @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
-        var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        writing(context, expectedVersion, () -> {
-            writer.delete();
-            return null;
-        });
+        Supplier<Void> delete;
+        if (MarkdownTables.isMarkdown(context.table())) {
+            delete = () -> {
+                markdownTableFiles.delete(project, context.module().getModuleInfo(), context.table());
+                return null;
+            };
+        } else {
+            var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
+            delete = () -> {
+                writer.delete();
+                return null;
+            };
+        }
+        writing(context, expectedVersion, delete);
         StaleTableIds.deleted(context.module(), context.table().getId());
     }
 
