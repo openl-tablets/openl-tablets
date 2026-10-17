@@ -119,7 +119,8 @@ services:
       - /bin/sh
       - -c
       - |
-        [ -e /jars/postgresql.jar ] && echo /jars/postgresql.jar exists || wget -O /jars/postgresql.jar https://jdbc.postgresql.org/download/postgresql-42.7.7.jar
+        f=/jars/postgresql-42.7.14.jar
+        [ -e $$f ] && echo $$f exists || { wget -O $$f.tmp https://jdbc.postgresql.org/download/postgresql-42.7.14.jar && rm -f /jars/postgresql*.jar && mv $$f.tmp $$f; }
         echo "--- Initialization of the DB
 
         CREATE SCHEMA studio;

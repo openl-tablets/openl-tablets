@@ -1716,6 +1716,9 @@
                                 <require-version file="DEMO/start.ps1" property="postgresql.version" snippet="$POSTGRES_VERSION = &quot;${postgresql.version}&quot;" />
                                 <require-version file="DEMO/start.ps1" property="mssql.version" snippet="$MSSQL_VERSION = &quot;${mssql.version}&quot;" />
                                 <require-version file="DEMO/start.ps1" property="ojdbc11.version" snippet="$ORACLE_VERSION = &quot;${ojdbc11.version}&quot;" />
+                                <require-version file="compose.yaml" property="postgresql.version" snippet="postgresql-${postgresql.version}.jar" />
+                                <require-version file="Docs/examples/production/studio-config/compose.yaml" property="postgresql.version" snippet="postgresql-${postgresql.version}.jar" />
+                                <require-version file="Docs/examples/k8s/02-openl-studio.yaml" property="postgresql.version" snippet="postgresql-${postgresql.version}.jar" />
                             </target>
                         </configuration>
                     </execution>
