@@ -18,132 +18,17 @@ The following topics are included in this chapter:
 OpenL Rules project can easily use rules from other projects via dependency functionality.
 
 ### Rules Project Descriptor
-A rules project descriptor is an XML file that contains information about the project and configuration details used by OpenL to load and compile the rules project. The predefined name that is used for a rules project descriptor is *rules.xml.*
+A rules project descriptor is the `rules.xml` file in the project root. It defines the project name, the modules, the
+dependencies on other projects, the classpath, and the other settings that OpenL uses to load and compile the project.
+All its elements are optional.
 
-This section includes the following topics:
-
--   [Quick Overview](#quick-overview)
--   [Descriptor Elements](#descriptor-elements)
-
-#### Quick Overview
-The following code fragment is an example of the rules project descriptor:
-
-```
-<project>
-    <!-- Project name. -->
-    <name>Project name</name>
-    <!-- Optional. Comment string to project. -->
-    <comment>comment</comment>
-
-    <!-- OpenL project includes one or more rules modules.  -->
-    <modules>
-
-        <module>
-            <name>MyModule1</name>
-
-<!--
-                Rules document which is usually an excel file in the project.
-            -->
-            <rules-root path="MyModule1.xls"/>
-
-        </module>
-
-        <module>
-            <name>MyModule2</name>
-
-<!--
-                Rules document which is usually an excel file in the project.
-            -->
-            <rules-root path="MyModule2.xls"/>
-        </module>
-    </modules>
-    <exposed-methods>
-        <include>get*</include>
-        <include>calc</include>
-        <exclude>*Test</exclude>
-        <exclude>getN?</exclude>
-    </exposed-methods>
-    <dependencies>
-        <dependency>
-            <name>projectName</name>
-            <autoIncluded>false</autoIncluded>
-        </dependency>
-    </dependencies>
-    <properties-file-name-pattern>{lob}</properties-file-name-pattern>
-    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>
-    <!-- Project's classpath (list of all source dependencies). -->
-    <classpath>
-        <entry path="path1"/>
-        <entry path="path2"/>
-    </classpath>
-
-</project>
-```
-
-#### Descriptor Elements
-The descriptor file contains several sections that describe project configuration:
-
--   [Project Configurations](#project-configurations)
--   [Module Configurations](#module-configurations)
--   [Dependency Configurations](#dependency-configurations)
--   [Classpath Configurations](#classpath-configurations)
-
-##### Project Configurations
-The project configurations are as follows:
-
-| Tag                            | Required | Description                                                                                                                                     |
-|--------------------------------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| name                           | no       | Project name. It is a string value which defines a user-friendly project name. <br/>If omitted, the project folder name is used. |
-| comment                        | no       | Comment for project.                                                                                                                            |
-| dependency                     | no       | Dependencies to projects.                                                                                                                       |
-| modules                        | no       | Project modules. A project can have one or several modules. <br/>If omitted, the `rules/**/*.xlsx` and `tests/**/*.xlsx` workbooks are used. |
-| classpath                      | no       | Project relative classpath.                                                                                                                     |
-| exposed-methods                | no       | The ant-style pattern (* and ?) filters of the allowed methods in the generated interface.                                                      |
-| properties-file-name-pattern   | no       | File name pattern to be used by the file name processor. <br/>The file name processor adds extracted module properties from a module file name. |
-| properties-file-name-processor | no       | Custom implementation of `org.openl.rules.project.resolving.PropertiesFileNameProcessor` used instead of default implementation.                          |
-
-##### Module Configurations
-The module configurations are as follows:
-
-| Tag          | Required | Description                                                                                                                                                                                                                                              |
-|--------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| name         | yes/no   | Module name. It is a string value which defines a user-friendly module name.  <br/>**Note:** It is used by OpenL Studio application as a module display name. It is not required for modules defined via wildcard.                                       |
-| rules-root   | yes/no   | Path to the main file of a rules module. It is used together with **type**. Ant pattern can be used to define multiple modules via wildcard. <br/>For more information on Ant patterns, see [Ant patterns](https://ant.apache.org/manual/dirtasks.html). |
-
-When working with a large project that, for example, includes huge amounts of tests, you may want to avoid loading modules that the current module does not depend on. To do this, the compileThisModuleOnly attribute must be added to the rules.xml file, <module> section as follows:
-
-```
-<modules>
-  <module>
-    <name>Tests</name>
-    <rules-root path="rules/Test*.xlsx"/>
-    <webstudioConfiguration>
-      <compileThisModuleOnly>true</compileThisModuleOnly>
-    </webstudioConfiguration>
-  </module>
-</modules>
-```
-
-In OpenL Studio, the same flag is set per module in the **Modules** section of the project **Overview**, with the
-**Compile this module only** check box. A module declared this way is marked **This Module Only** in the list.
-
-##### Dependency Configurations
-The dependency configurations are as follows:
-
-| Tag          | Required | Description                                                                                                                                                                                                                                                                                               |
-|--------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| name         | yes      | Dependency project name.                                                                                                                                                                                                                                                                                  |
-| autoIncluded | yes      | Identifier, which, if set to **true**, that all modules from the dependency project will be used in this project module. <br/>If it is set to **false**, modules from the dependency project can be used in this project as dependencies, <br/>and each module will define its own list of used dependency modules. |
-
-##### Classpath Configurations
-The classpath configurations are as follows:
-
-| Tag   | Required | Description                                                 |
-|-------|----------|-------------------------------------------------------------|
-| entry | no       | Path for the classpath entry, that is, classes or jar file. |
+The elements, their defaults and an example are described in
+[Rules Project Descriptor (`rules.xml`)](../ref/rules.xml.md). OpenL Studio edits the descriptor on the **Overview** tab
+of the project, as described in
+[OpenL Studio Guide > Editing and Saving a Project](../user-guides/openl-studio/rules-editor.md#editing-and-saving-a-project).
 
 ### Project Resolving
-The `org.openl.rules.project.resolving.ProjectResolver` resolves OpenL Tablets projects in folders sent to the method for scanning and tries to detect OpenL Tablets projects by predefined strategies. To use ProjectResolver, call the `instance` static method that returns an instance of ProjectResolver.
+The `org.openl.rules.project.resolving.ProjectResolver` resolves OpenL Tablets projects in folders sent to the method for scanning and tries to detect OpenL Tablets projects by predefined strategies. To use ProjectResolver, call the `getInstance()` static method that returns an instance of ProjectResolver.
 
 Resolving strategies are defined via `org.openl.rules.project.resolving.ResolvingStrategy` SPI.
 
@@ -179,11 +64,10 @@ To create a project using the Maven archetype, proceed as follows:
     `mvn archetype:generate`
     Maven runs the archetype console wizard.
 1.  Select the **openl-simple-project-archetype** menu item.
-    As an alternative way is using the following command:
-    `mvn archetype:generate
-    –DarchetypeGroupId=org.openl.rules
-    –DarchetypeArtifactId=openl-simple-project-archetype
-    -DarchetypeVersion=5.X.X`
+    As an alternative way is using the following command, where `<version>` is the version of OpenL Tablets:
+    ```
+    mvn archetype:generate -DarchetypeGroupId=org.openl.rules -DarchetypeArtifactId=openl-simple-project-archetype -DarchetypeVersion=<version>
+    ```
 1.  Follow with the Maven creation wizard.
     After all steps are completed, a new Maven based project appears in the file system. It is an OpenL Rules project which has one module with simple rules in it.
 1.  Execute the following command in the command line from the root of the project folder to compile the project:
@@ -191,19 +75,17 @@ To create a project using the Maven archetype, proceed as follows:
     mvn install
     ```
     After executing this command, the following files can be found in the target folder:
-1.  zip file with "-deployable" suffix for importing the project to OpenL Studio.
+1.  zip file of the OpenL Tablets project for importing the project to OpenL Studio.
     For more information, see [OpenL Studio Guide](../user-guides/openl-studio/index.md).
 1.  zip file (with "-runnable" suffix) that can be executed after extracting it.
     It demonstrates how OpenL Tablets rules can be invoked from Java code.
-1.  jar file that contains only compiled Java classes.
+1.  jar file (with "-classes" suffix) that contains only compiled Java classes.
     This jar can be put in classpath of the project and used as a depended library.
 
 #### Creating a Project in OpenL Studio
-OpenL Studio allows users to create new rule projects in the Repository in one of the following ways:
-
--   creating a rule project from template
--   creating a rule project from Excel files
--   creating a rule project from zip archive
+OpenL Studio creates a rule project in Design Repository from a template, a ZIP archive, Excel files or an OpenAPI
+file, as described in
+[OpenL Studio Guide > Creating Projects in Design Repository](../user-guides/openl-studio/repository-editor.md#creating-projects-in-design-repository).
 
 The following diagram explains how projects are stored in OpenL Studio and then deployed and used by OpenL Rule Services:
 
@@ -213,7 +95,7 @@ The following diagram explains how projects are stored in OpenL Studio and then 
 
 When a user starts editing a project, it is extracted from Design Repository and placed in the file system, in a user workspace. The project becomes locked in Design Repository for editing by other users. After editing is finished, the user saves the project. An updated version of the project is saved to Design Repository and becomes available for editing by other users.
 
-OpenL Rule Services use separate repository instance, Production Repository. OpenL Studio can be configured to deploy complete and tested rules projects to that repository.
+OpenL Rule Services use a separate repository instance, Deployment Repository. OpenL Studio can be configured to deploy complete and tested rules projects to that repository.
 
 For more information, see [OpenL Studio Guide](../user-guides/openl-studio/index.md).
 
@@ -252,7 +134,7 @@ Proceed as follows:
                     new RulesEngineFactory<Simple>("TemplateRules.xls",
                                         Simple.class);
 
-                Simple rules = (Simple) rulesFactory.newInstance();
+                Simple rules = rulesFactory.newEngineInstance();
                 rules.hello1(12);
 
             }
@@ -269,16 +151,16 @@ public static void callRulesWithGeneratedInterface(){
     RulesEngineFactory<?> rulesFactory =
 new RulesEngineFactory<Object>("TemplateRules.xls");
                 //Creates new instance of dynamic Java Wrapper for our lesson
-Object rules = rulesFactory.newInstance();
+Object rules = rulesFactory.newEngineInstance();
 
        //Get current hour
-    Calendar = Calendar.getInstance();
+    Calendar calendar = Calendar.getInstance();
     int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
     Class<?> clazz = rulesFactory.getInterfaceClass();
 
 try{
-Method method = clazz.getMethod("hello1”, int.class);
+Method method = clazz.getMethod("hello1", int.class);
 out.println("* Executing OpenL rules...\n");
 method.invoke(rules, hour);
 }catch(NoSuchMethodException e){
@@ -329,7 +211,7 @@ public class ExampleOfUsingRuntimeContext {
     public static void main(String[] args) {
         //define the interface
         var rulesFactory = new RulesEngineFactory<Simple>("TemplateRules.xls", Simple.class);
-        var rules = rulesFactory.newInstance();
+        var rules = rulesFactory.newEngineInstance();
 
         // Create runtime context
         var context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
@@ -404,26 +286,19 @@ To generate datatype classes, proceed as follows:
 1.  For Maven, configure the OpenL Maven plugin as described in [Configuring the OpenL Maven Plugin](#configuring-the-openl-maven-plugin) and run the Maven script.
 
 ###### Configuring the OpenL Maven Plugin
-To generate an interface for rules and datatype classes defined in the MS Excel file, add the following Maven configuration to the `pom.xml` file:
+To generate an interface for rules and datatype classes of the project, add the `generate` goal of the OpenL Maven
+plugin to the `pom.xml` file:
 
-```
+```xml
 <build>
-  [...]
   <plugins>
-      [...]
       <plugin>
           <groupId>org.openl.rules</groupId>
           <artifactId>openl-maven-plugin</artifactId>
-          <version>${openl.rules.version}</version>
+          <version>${openl.version}</version>
+          <extensions>true</extensions>
           <configuration>
-              <generateInterfaces>
-                  <generateInterface>
-                      <srcFile>src/main/openl/rules/TemplateRules.xls</srcFile>
-                      <targetClass>
-                        org.company.gen.TemplateRulesInterface
-                      </targetClass>
-                  </generateInterface>
-              </generateInterfaces>
+              <interfaceClass>org.company.gen.TemplateRulesInterface</interfaceClass>
           </configuration>
           <executions>
               <execution>
@@ -433,25 +308,24 @@ To generate an interface for rules and datatype classes defined in the MS Excel 
               </execution>
           </executions>
       </plugin>
-
   </plugins>
-  [...]
 </build>
 ```
 
-In this case, classes and rules project descriptor, `rules.xml`, is generated on each Maven run on generate-sources phase.
+The goal runs in the `generate-sources` phase on each Maven build. It reads the project from `sourceDirectory`, which is
+`src/main/openl` by default, writes the classes of the Datatype tables to `target/classes`, and writes the interface to
+`target/generated-sources/openl`.
 
-Each `<generateInterface>` section has a number of parameters described in the following table.
+The `generate` goal has the following parameters:
 
-| Name                   | Type      | Required | Description                                                                                                                                                                                                                                                       |
-|------------------------|-----------|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `srcFile`              | `String`  | `true`   | Reference to the Excel file for which an interface class must be generated.                                                                                                                                                                                       |
-| `targetClass`          | `String`  | `true`   | Full name of the interface class to be generated. <br/>OpenL Studio recognizes modules in projects by interface classes and uses their names in UI. <br/>If there are multiple wrappers with identical names, only one is recognized as a module in OpenL Studio. |
-| `displayName`          | `String`  | `false`  | End user-oriented title of the file that appears in OpenL Studio. <br/>A default value is Excel file name without extension.                                                                                                                                      |
-| `targetSrcDir`         | `String`  | `false`  | Folder where the generated interface class must be placed. An example is src/main/java. <br/>The default value is ${project.build.sourceDirectory}.                                                                                                               |
-| `openlName`            | `String`  | `false`  | OpenL Tablets configuration to be used. For OpenL Tablets, the org.openl.xls value must always be used.<br/>The default value is org.openl.xls.                                                                                                                   |
-| `userHome`             | `String`  | `false`  | Location of user-defined resources relative to the current OpenL Tablets project. The default value is ..                                                                                                                                                         |
-| `userClassPath`        | `String`  | `false`  | Reference to the folder with additional compiled classes imported by the module when the interface is generated. <br/>The default value is null.                                                                                                                  |
+- **`interfaceClass`** — full name of the interface to generate. If it is empty, no interface is generated.
+- **`superInterface`** — comma-separated list of interfaces that the generated interface extends.
+- **`moduleName`** — the module to generate the classes and the interface from, usually the Excel file name without
+  an extension. If it is not defined, the whole project is used.
+- **`generateSpreadsheetResultBeans`** — `true` also generates the classes of the custom spreadsheet results.
+- **`outputDirectory`** — the folder of the generated interface, `target/generated-sources/openl` by default.
+- **`externalParameters`** — additional compilation options, such as external dependencies and overridden system
+  properties.
 
 For more configuration options, see [OpenL Tablets Maven Plugin](../ref/openl-maven-plugin.md).
 
@@ -480,10 +354,10 @@ The constructor with all fields of the child datatype contains all fields from t
 ##### Byte Code Generation at Runtime
 At runtime, when OpenL Tablets engine instance is being built, for each datatype component, Java byte code is generated as described in [Java Files Generation](#java-files-generation) in case there are no previously generated Java files on classpath. It represents a simple Java bean for this datatype. This byte code is loaded to classloader so the object of type `Class<?>` can be accessed. When using this object through reflections, new instances are created and fields of datatypes are initialized. For more information, see the `DatatypeOpenClass` and `DatatypeOpenField` classes.
 
-**Attention!** If Java class files for the datatypes on classpath are previously generated, they are used at runtime, regardless of changes made in Excel. To apply these changes, remove Java files and generate Java classes from the Datatype tables as described in [Generating Java Classes from Datatype Tables](#generating-java-classes-from-datatype-tables).
+**Attention!** If Java class files for the datatypes on classpath are previously generated, they are used at runtime instead of the generated byte code. A class that no longer matches its Datatype table, for example, misses a field, its getter or setter, or extends another parent, fails the compilation with an error that asks to update the class so that it is compatible with the datatype. To apply changes made in Excel, generate Java classes from the Datatype tables again as described in [Generating Java Classes from Datatype Tables](#generating-java-classes-from-datatype-tables).
 
 ##### Java Files Generation
-As generation of datatypes is performed at runtime and developers cannot access these classes in their code, the mechanism described at [Generating Java Classes from Datatype Tables](#generating-java-classes-from-datatype-tables) is introduced. It allows generating Java files and putting them on the file system so users can use these data types in their code.
+As generation of datatypes is performed at runtime and developers cannot access these classes in their code, the mechanism described at [Generating Java Classes from Datatype Tables](#generating-java-classes-from-datatype-tables) is introduced. It writes the classes of the datatypes to the file system so users can use these data types in their code.
 
 ##### OpenL Internals: Accessing a Datatype at Runtime and After Building an OpenL Wrapper
 After parsing, each data type is put to compilation context and becomes accessible for rules during binding. All data types are placed to `IOpenClass` of the whole module and are accessible from `CompiledOpenClass#getTypes` when the OpenL Tablets wrapper is generated.
@@ -575,7 +449,7 @@ To add a property validator, proceed as follows:
 2.  Define constraint in `TablePropertyDefinition.xlsx`, in the constraints field.
 3.  Create constraint class and add it to `ConstraintFactory`.
 4.  Create a validator as follows:
-5.  Create a class of the validator and define it in the method `org.openl.codegen.tools.type.TablePropertyValidatorsWrapper.init() `constraint associated with the validator.
+5.  Create a class of the validator and associate it with the constraint in the constructor of `org.openl.codegen.tools.type.TablePropertyValidatorsWrapper`.
 6.  If necessary, modify the velocity script `RulesCompileContext-validators.vm` in project `org.openl.rules.gen` that generates `org.openl.xls.RulesCompileContext`*.*
 7.  To generate new `org.openl.xls.RulesCompileContext` with the validator, run `org.openl.codegen.tools.GenRulesCode.main(String[])`.
 8.  Write unit tests.
@@ -591,6 +465,8 @@ There can be only one active table validator per active table.
 -   **Regular expression validator** verifies string properties matching against the predefined regex pattern.
 -   **Gap/overlap validator** makes gap and overlap analysis for decision tables with the **validateDT** property set to **on**.
 -   **Dimension properties validator**.
+-   **Unique method parameter names validator** warns when overloaded versions of a table name the same parameter differently.
+-   **Unreachable statement validator** warns about a statement that is never executed.
 
 ### Module Dependencies: Classloaders
 The dependency class resolution mechanism is implemented using specialized classloading.
@@ -632,8 +508,8 @@ As a result, a `GridTable` is received. It works as a decision table structure. 
 
 | Format                                         | Description                                                                  |
 |------------------------------------------------|------------------------------------------------------------------------------|
-| `new IntRange(int min_number, int max_number)` | Covers all numbers between `min_number` and `max_number`, including borders. |
-| `new IntRange(Integer value)`                  | Covers only a given value as the beginning and the end of the range.         |
+| `new IntRange(long min_number, long max_number)` | Covers all numbers between `min_number` and `max_number`, including borders. |
+| `new IntRange(long value)`                     | Covers only a given value as the beginning and the end of the range.         |
 | `new IntRange(String rangeExpression)`         | Borders are parsed by formats of `rangeExpression`.                          |
 
 The same formats and restrictions are used in `DoubleRange`.

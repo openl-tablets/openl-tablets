@@ -54,7 +54,7 @@ There can be situations where OpenL Tablets projects are used in the development
 #### Wrapper
 A **wrapper** is a Java object that exposes rule tables via Java methods and data tables as Java objects and allows developers to access table information from code. Wrappers are essential for solutions where compiled OpenL Tablets project code is embedded in solution applications. If tables are accessed through web services, client applications are not aware of wrappers but they are still used on the server.
 
-For more information on wrappers, see [Using OpenL Tablets Rules from Java Code](#using-openl-tablets-rules-from-java-code).
+For more information on wrappers, see [Using OpenL Tablets Rules from Java Code](rules-projects.md#using-openl-tablets-rules-from-java-code).
 
 #### Execution Mode for OpenL Project
 Execution mode for OpenL project is a light weight compilation mode that enables only evaluating of rules; but editing, tracing and search are not available. Since the Engine will not load test tables and keep debug information in memory in this mode, memory consumption is up to 5 times less than for debug mode.
@@ -64,6 +64,7 @@ OpenL Rule Services compile projects in the execution mode (`executionMode=true`
 To compile an OpenL Tablets project in execution mode, proceed as follows:
 
 -   If `SimpleProjectEngineFactory` is used, call the `setExecutionMode(boolean)` method of its builder.
+-   If `RulesEngineFactory` is used, call its `setExecutionMode(boolean)` method.
 -   If a dependency manager is created directly, pass the flag to its constructor. The manager reports it with the `isExecutionMode()` method.
 
 ### System Overview
@@ -93,4 +94,4 @@ OpenL Studio creates a project from a template, a ZIP archive, Excel files or an
 
 OpenL Studio provides convenient UI to work with rules. However, its usage can be avoided by working with rules from IDE only using the OpenL Tablets Maven plugin. The plugin provides compilation and testing of rules and wrapper generation support.
 
-Also, OpenL Tablets has OpenL Tablet Demo Package available at <https://openl-tablets.org/>. A demo is a zip file that contains Jetty with configured OpenL Studio and OpenL Rule Services applications. It can be used to effectively start using OpenL Tablets products.
+Also, the OpenL Tablets Demo Package starts OpenL Studio and OpenL Rule Services on one computer. For more information, see the [Demo Package Guide](../user-guides/getting-started/demo-package/index.md).

@@ -32,18 +32,18 @@ openl-tablets/
 ```
 
 A folder-specific `AGENTS.md` describes the conventions of `DEV/`, `STUDIO/`, `STUDIO/studio-backend/`,
-`STUDIO/studio-ui/`, `WSFrontend/` and `ITEST/`; read it before changing a folder.
+`STUDIO/studio-ui/`, `WSFrontend/`, `ITEST/`, `Docs/` and `Docs/ref/`; read it before changing a folder.
 
 ## DEV — Rules Engine
 
 | Module                       | Content                                                                         |
 |------------------------------|---------------------------------------------------------------------------------|
 | `org.openl.rules`            | The engine: type system, parser, binder, bytecode generation, runtime, tables   |
-| `org.openl.commons`          | Shared utilities (`org.openl.util`, `org.openl.message`)                        |
+| `org.openl.commons`          | Shared utilities (`org.openl.util`, `org.openl.domain`, `org.openl.info`)       |
 | `org.openl.rules.project`    | Project model (`rules.xml`, `rules-deploy.xml`), instantiation strategies        |
 | `org.openl.rules.util`       | Functions that rules call                                                       |
 | `org.openl.rules.annotations`| Annotations for extending rules                                                 |
-| `org.openl.rules.gen`        | Code generation for bindings                                                    |
+| `org.openl.rules.gen`        | Code generation of the table properties from `TablePropertyDefinition.xlsx`     |
 | `org.openl.rules.test`       | Functional tests of the engine                                                  |
 | `org.openl.rules.demo`       | The demo projects of OpenL Studio: templates, examples and tutorials, tested in the build |
 | `org.openl.spring`           | Spring integration: property sources, conditional beans                         |
@@ -91,7 +91,7 @@ Packages of `studio-backend` (`STUDIO/studio-backend/src/org/openl/`):
 
 The Flyway scripts of the user database are in `STUDIO/studio-backend/resources/db/flyway/`. The folders of
 `STUDIO/studio-ui/src` are `components`, `containers`, `pages`, `layouts`, `routes`, `services`, `store`, `hooks`,
-`contexts`, `locales`, `types` and `utils`.
+`contexts`, `providers`, `locales`, `constants`, `styles`, `types`, `utils` and `testing`.
 
 ## WSFrontend — Rule Services
 
@@ -116,7 +116,8 @@ The Flyway scripts of the user database are in `STUDIO/studio-backend/resources/
 - **`openl-openapi-parser`**, **`openl-openapi-model-scaffolding`**, **`openl-excel-builder`** — read an OpenAPI file and
   scaffold the model and the workbook of a project.
 - **`openl-rules-opentelemetry`** — the OpenTelemetry agent extension that traces rules.
-- **`openl-yaml`** — YAML data format for rules.
+- **`openl-yaml`** — the shared YAML mapper (`YamlMapperFactory`) of OpenL Studio, OpenL Rule Services and the
+  repositories.
 
 ## ITEST
 
