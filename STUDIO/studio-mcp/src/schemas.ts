@@ -281,10 +281,10 @@ const rawCellInputSchema = z.object({
 }).strict();
 
 const rowCellsSchema = z.array(rawCellInputSchema).min(1).describe(
-  "Row cells, left to right. Required and non-empty — provide one cell per column (use { value: null } for a blank cell). A cell may set colspan/rowspan to merge. Must not be wider than the table.",
+  "Row cells, left to right. Required and non-empty — provide one cell per column (use { value: null } for a blank cell, { covered: true } for a position an existing merged cell covers, as openl_get_table marks it). A cell may set colspan/rowspan to merge. Must not be wider than the table.",
 );
 const columnCellsSchema = z.array(rawCellInputSchema).min(1).describe(
-  "Column cells, top to bottom. Required and non-empty — provide one cell per row (use { value: null } for a blank cell). A cell may set colspan/rowspan to merge. Must not be taller than the table.",
+  "Column cells, top to bottom. Required and non-empty — provide one cell per row (use { value: null } for a blank cell, { covered: true } for a position an existing merged cell covers, such as row 0 under a title that spans the table, as openl_get_table marks it). A cell may set colspan/rowspan to merge. Must not be taller than the table.",
 );
 
 /** One or more lines (rows or columns), each a non-empty list of cells — the 2D block shared by the rows/columns/range tools. */
