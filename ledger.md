@@ -2,12 +2,11 @@
 
 ## Resume point
 
-- PR #2348 (`dead-code/sweep`) is open with 1 commit, green, Sonar 0 new issues, awaiting review; maintain it first.
-- Everything up to `origin/main` 9dcb1642e3 is swept, Java included (Error Prone, PMD, whole-type index).
-- `dead-code/ledger` vanished from the remote mid-run and was re-pushed from local history; if it is gone again,
+- No PR is open: #2348 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
+- Everything up to `origin/main` d7f23c8670 is swept, Java included. A run is: sweep the delta since that SHA, then
+  spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
+- `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
-- All 14 change types are exhausted repo-wide; a run is: maintain the open PR, sweep the delta since 9dcb1642e3,
-  then spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
 
 ## Change-type queue
 
@@ -30,12 +29,11 @@
 
 ## Open PR
 
-- #2348 `dead-code/sweep`, head 57bd2eb9d0: `Remove the React import the JSX transform left unused in the execution
-  modal test` (studio-ui, tsc `TS6133`).
+- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
 
 ## Merged PRs
 
-- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1)
+- #2120 (-487), #2129 (-1), #2134 (-87), #2135 (-54), #2145 (-2), #2152 (-4), #2166 (-8), #2184 (-7), #2212 (-72), #2257 (-2), #2284 (-7), #2305 (-1), #2348 (-1)
   — each merged the day it opened on the PR body's evidence alone; a removal proven by unreachable behaviour
   rather than non-reference is accepted. The maintainer never merges red: rebase, wait for green, rebase-merge, branch
   auto-deletes.
@@ -294,6 +292,6 @@
   at zero. New vein, AGENTS.md names: 1 stale class, #2305 MERGED (-1 phrase).
 - 2026-10-17: delta was 61 commits (table themes removed, Excel-native formatting, merge conflicts). i18n
   (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; Error Prone, PMD (56,
-  all pre-delta), new-type index at zero; tsc found 1 dead React import, #2348 opened. Reactor 21:22 warm.
+  all pre-delta), new-type index at zero; tsc found 1 dead React import, #2348 MERGED (-1). Reactor 21:22 warm.
 - 2026-10-17 (2nd): delta was 8 commits (EPBDS-7164 table formatting). Reactor green 29:17 cold; Error Prone, PMD
   (studio-backend), tsc, removed-name index, Docs images and tokens at zero; no locale or bundle change. No commit.
