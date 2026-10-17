@@ -3,7 +3,7 @@
 
 To simplify integration with OpenL rules, customize serialization output of SpreadsheetResult objects by adding or removing steps or columns from spreadsheet result output.
 
-- To identify steps or columns to be returned in the SOAP/REST response, mark them using the \* asterisk symbol.
+- To identify steps or columns to be returned in the REST response, mark them using the \* asterisk symbol.
 - To ensure that certain steps or columns are not included in output, mark them with the ~ tilde symbol.
 
 Consider the following spreadsheets.
@@ -221,7 +221,7 @@ If the [description column](01-parsing-a-spreadsheet-table.md#parsing-a-spreadsh
 
 *Step descriptions added via `//<ColumnName>` column*
 
-**Note:** Rule descriptions included in API-exposed rules will appear in the OpenL Tablets Rule Services. If multiple versions of a rule are available, the selection is made randomly from those that contain non-empty descriptions.
+**Note:** Rule descriptions included in API-exposed rules will appear in OpenL Rule Services. If multiple versions of a rule are available, the selection is made randomly from those that contain non-empty descriptions.
 
 ![Spreadsheet result description in OpenL Studio](../../../ref-guide-images/SRDescriptionInOpenLStudio.png)
 

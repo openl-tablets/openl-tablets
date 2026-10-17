@@ -110,8 +110,8 @@ The ROUND function syntax is as follows:
 |----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `round(number)`            | Rounds to the whole number and returns Integer or BigInteger.                                                                                                                                                                                                                                                                                                                            |
 | `round(number,int)`        | Rounds to the fractional number. `int` is a number of digits after decimal point. A whole number is returned as Double.                                                                                                                                                                                                                                                                  |
-| `round(number,String)`     | Rounds to the whole number considering the specified rounding mode. The result is Integer or BigInteger. <br/>An example of a string value is `round_DOWN, ROUND_HALF_UP`.                                                                                                                                                                                                                    |
-| `round(number,int,int)`    | Rounds to the fractional number and enables to get results different from usual mathematical rules: <br/>- The first `int` stands for a number of digits after decimal point. <br/>- The second `int` stands for a rounding mode represented by a constant, for example, `1- round_DOWN, 4-` `ROUND_HALF_UP`. <br/>The corresponding string value, such as `DOWN`, can be used instead of the second `int`. |
+| `round(number,String)`     | Rounds to the whole number considering the specified rounding mode. The result is Integer or BigInteger. <br/>An example of a string value is `DOWN`, `HALF_UP`.                                                                                                                                                                                                                    |
+| `round(number,int,int)`    | Rounds to the fractional number and enables to get results different from usual mathematical rules: <br/>- The first `int` stands for a number of digits after decimal point. <br/>- The second `int` stands for a rounding mode represented by a constant, for example, `1` - `DOWN`, `4` - `HALF_UP`. <br/>The corresponding string value, such as `DOWN`, can be used instead of the second `int`. |
 | `round(number,int,String)` | Rounds to the fractional number considering the specified rounding mode.                                                                                                                                                                                                                                                                                                                 |
 
 An empty number gives an empty result. An empty number of digits after the decimal point counts as 0, and an empty rounding mode constant counts as 0, which is UP: when `s` and `r` are empty, `round(2.567, s)` is 3.0 and `round(2.561, 2, r)` is 2.57. An empty rounding mode string, such as an empty variable of the RoundingMode type, stops the calculation with an error.
@@ -181,7 +181,7 @@ This function allows rounding to a fractional number and get results by applying
 
 -   Number to round
 -   The first `int` stands for a number of digits after decimal point.
--   The second `int` stands for a rounding mode represented by a constant, for example, `1`- round\_`DOWN`, `4`- `ROUND_HALF_UP`.
+-   The second `int` stands for a rounding mode represented by a constant, for example, `1` - `DOWN`, `4` - `HALF_UP`.
 
 The following table contains a list of the constants and their descriptions:
 
@@ -236,7 +236,7 @@ OpenL Tablets supports a wide range of date functions that can be applied in the
 | **Date**  | Returns the date. The following options are available:<br/> - Date(year, month, day, hours, minutes)<br/> - Date(year, month, day, hours, minutes, seconds)<br/> - Date(year, month, day, hours, minutes, seconds, milliseconds)                                                                                                                      |
 | **dayOfWeek**   | Takes a date as input and returns the day of the week on which that date falls. <br/>Days in a week are numbered from 1 to 7 as follows: 1=Sunday, 2=Monday, 3 = Tuesday, and so on. <br/>`dayOfWeek(Date d)` |
 | **dayOfMonth**  | Takes a date as input and returns the day of the month on which that date falls. Days in a month are numbered from 1 to 31. <br/>`dayOfMonth(Date d)`                                    |
-| **dayOfYear**   | Takes a date as input and returns the day of the year on which that date falls. Days in a year are numbered from 1 to 365. <br/>`dayOfYear(Date d)`                                      |
+| **dayOfYear**   | Takes a date as input and returns the day of the year on which that date falls. Days in a year are numbered from 1 to 366. <br/>`dayOfYear(Date d)`                                      |
 | **hour**        | Returns the hour of the day in 12 hour format for an input date. <br/>`hour(Date d)`                                                                                                     |
 | **hourOfDay**   | Returns the hour of the day in 24 hour format for an input date. <br/>`hourOfDay(Date d)`                                                                                                |
 | **isLeap**   | Identifies whether the year is a leap year. The following options are available: <br/> - isLeap(Date) - checks whether the provided date is in the leap year.<br/> - isLeap(Integer) - checks whether the provided year is a leap year.                                                                                                              |
@@ -250,7 +250,7 @@ The following date function returns a String data type:
 
 | Function         | Description                                                  |
 |------------------|--------------------------------------------------------------|
-| **amPm(Date d)** | Returns `Am` or `Pm` value for an input date. `amPm(Date d)` |
+| **amPm(Date d)** | Returns `AM` or `PM` value for an input date. `amPm(Date d)` |
 
 The following figure displays values returned by date functions for a particular input date specified in the **MyDate** field.
 

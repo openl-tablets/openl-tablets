@@ -1,6 +1,6 @@
 ##### Auto Type Discovery Usage
 
-OpenL Tablets determines the cell data type automatically without its definition for a row or column. A user can turn on or off this behavior using the **autotype** property. If any row or column contains explicit data type definition, it supersedes automatically determined data type. The following example demonstrates that any data type can be correctly determined in auto mode. A user can put the mouse cursor over the “=” symbol to check the type of the cell value in OpenL Studio.
+OpenL Tablets determines the cell data type automatically without its definition for a row or column. A user can turn on or off this behavior using the **autoType** property. If any row or column contains explicit data type definition, it supersedes automatically determined data type. The following example demonstrates that any data type can be correctly determined in auto mode. A user can put the mouse cursor over the “=” symbol to check the type of the cell value in OpenL Studio.
 
 ![Auto Type Discovery Property Usage inside Spreadsheet table](../../../ref-guide-images/autoTypeDiscoveryPropertyUsageInside.png)
 

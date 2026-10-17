@@ -33,7 +33,7 @@ A new project is created containing simple template files that users can apply a
 
 ### Project Sources
 
-Project sources can be added from developer created artifacts, such as jars, Java classes, and Groovy scripts, which contain a reference to the folder with additional compiled classes to be imported by the module. For that, a rules project must contain the `rules.xml` file created in the project root folder.
+Project sources can be added from developer created artifacts, such as jars, Java classes, and Groovy scripts, which contain a reference to the folder with additional compiled classes to be imported by the module. The `groovy/` folder and the `lib/*.jar` files of the project are on the classpath by default. Other sources are listed in the classpath of the `rules.xml` file created in the project root folder, which then replaces the default classpath.
 
 Saved classpath is automatically added to the `rules.xml` file. After that, classpath can be used in rules. Classpath can indicate both specific jar and folder with libraries. The asterisk \* symbol can be used for the varying part in the classpath.
 
