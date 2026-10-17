@@ -39,6 +39,15 @@ public class OpenAPIHelper {
         }
     }
 
+    /**
+     * Writes the deployment descriptor of a project generated from an OpenAPI file.
+     *
+     * <p>The descriptor names the generated annotation template class and publishes the project over REST unless it
+     * already lists publishers. It is written in its minimal form, so OpenL Studio does not offer to migrate it.
+     *
+     * <p>The runtime-context flag is written only when the OpenAPI file uses the runtime context. Otherwise the
+     * flag is left out, also when the existing descriptor had it set.
+     */
     public InputStream editOrCreateRulesDeploy(final ProjectModel projectModel,
                                                final OpenAPIGeneratedClasses generated,
                                                RulesDeploy exitingRulesDeploy) {
@@ -51,7 +60,7 @@ public class OpenAPIHelper {
                 rd.setAnnotationTemplateClassName(null);
             }
         }
-        rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+        rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided() ? Boolean.TRUE : null);
         if (CollectionUtils.isEmpty(rd.getPublishers())) {
             rd.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
         }
