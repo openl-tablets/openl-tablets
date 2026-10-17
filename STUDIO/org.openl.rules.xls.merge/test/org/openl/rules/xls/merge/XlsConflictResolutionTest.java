@@ -15,6 +15,7 @@ import static org.openl.rules.xls.merge.MergeFixture.deleteRow;
 import static org.openl.rules.xls.merge.MergeFixture.insertRow;
 import static org.openl.rules.xls.merge.MergeFixture.isBold;
 import static org.openl.rules.xls.merge.MergeFixture.layOut;
+import static org.openl.rules.xls.merge.MergeFixture.link;
 import static org.openl.rules.xls.merge.MergeFixture.moveTable;
 import static org.openl.rules.xls.merge.MergeFixture.number;
 import static org.openl.rules.xls.merge.MergeFixture.removeTable;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,7 +37,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
@@ -276,9 +275,7 @@ class XlsConflictResolutionTest {
         Consumer<Sheet> remove = sheet -> sheet.getWorkbook().removeSheetAt(sheet.getWorkbook().getSheetIndex(sheet));
         Consumer<Sheet> link = sheet -> {
             bold(sheet, 3, 1);
-            var hyperlink = sheet.getWorkbook().getCreationHelper().createHyperlink(HyperlinkType.URL);
-            hyperlink.setAddress("https://openl-tablets.org");
-            CellUtil.getCell(CellUtil.getRow(3, sheet), 1).setHyperlink(hyperlink);
+            link(sheet, 3, 1);
         };
         Consumer<Sheet> hide = sheet -> {
             bold(sheet, 3, 1);
@@ -358,6 +355,7 @@ class XlsConflictResolutionTest {
             toTheEnd.setCustomWidth(true);
             sheet.createRow(6).setZeroHeight(true);
             sheet.createFreezePane(0, 1);
+            link(sheet, 10, 0);
         };
 
         var sheet = FIXTURE.conflicts(XSSFWorkbook::new, our, their).sheets().getFirst();
@@ -371,10 +369,12 @@ class XlsConflictResolutionTest {
         assertEquals(20 * 256, theirs.getColumnWidth(16383));
         assertTrue(theirs.getRow(6).getZeroHeight());
         assertEquals(8, theirs.getDefaultColumnWidth());
+        assertEquals(1, theirs.getPaneInformation().getHorizontalSplitPosition());
         var base = FIXTURE.resolveXlsx(our, their, Map.of(RULES, Resolution.BASE)).getSheet(RULES);
         assertFalse(base.isColumnHidden(2));
         assertFalse(base.isColumnHidden(20));
         assertEquals(8, base.getDefaultColumnWidth());
+        assertNull(base.getPaneInformation());
     }
 
     @Test

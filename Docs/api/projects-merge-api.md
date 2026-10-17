@@ -404,8 +404,11 @@ workbook resolves automatically when every such sheet merges:
 - tables of the two branches do not touch each other, and neither branch merges cells over a value the other wrote;
 - no formula, defined name, data validation, conditional formatting or hyperlink refers to content that moves, no
   picture, chart, Excel table or autofilter lies over it;
-- the branch merged in leaves the data validation, the conditional formatting, the hyperlinks and the frozen panes of
-  the sheet as they were: `otherBranch` for `receive`, the current branch for `send`;
+- the branch merged in leaves the data validation and the hyperlinks of the sheet as they were, or changes them the
+  way your branch does: `otherBranch` for `receive`, the current branch for `send`. The frozen panes and the
+  conditional formatting are taken like the style of a cell: from the branch that changed them, your version when
+  both changed them differently; the conditional formatting of the branch merged in only while no content moves,
+  and only into an `.xlsx` workbook: an `.xls` workbook keeps the conditional formatting of your version;
 - a formula taken from the branch merged in that reads another workbook finds, under the number of each link it
   reads, the workbook its own branch links there. The links such a formula reads come along, and no other; links of
   one number that name different workbooks matter only to a formula that reads them.
@@ -771,7 +774,7 @@ changed in ways the merge cannot combine. A client resolves each conflict by tak
 - A conflicting sheet is resolved table by table and lists its conflicting tables in `tables`, from top to bottom. A
   sheet whose conflict lies outside its tables tells the `reason` instead, and is resolved only as a whole:
   `removedAndChanged`, `addedInBoth`, `visibility`, `pictures`, `settings` (their branch changed the data
-  validation, the conditional formatting, the hyperlinks or the frozen panes, which the merge does not take),
+  validation or the hyperlinks otherwise than your branch did, which the merge does not take),
   `touchingTables` or `movedContent`.
   A sheet whose tables would move content something refers to, whether they are taken from your, their or the base
   version, is resolved only as a whole too. `ours`, `base` and `theirs` tell which versions have the sheet. A sheet

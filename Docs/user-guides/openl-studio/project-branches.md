@@ -204,9 +204,12 @@ contain the project when it is opened. Proceed as follows:
     -   Content that moves is referred to by a formula, a defined name, a data validation, a conditional formatting
         or a hyperlink, which would refer to other cells after the merge, or lies under a picture, a chart, an Excel
         table or an autofilter, which would stay where it was.
-    -   The branch whose changes are merged in changes the data validation, the conditional formatting, the
-        hyperlinks or the frozen panes of the sheet. It is the selected branch for **Receive their updates** and the
-        current branch for **Send your updates**.
+    -   The branch whose changes are merged in changes the data validation or the hyperlinks of the sheet
+        otherwise than your branch does. It is the selected branch for **Receive their updates** and the current
+        branch for **Send your updates**. The frozen panes and the conditional formatting never conflict: they are
+        taken like formatting, from the branch that changed them, or from your version when both changed them. The
+        conditional formatting of the branch merged in is taken only while no content of the sheet moves, and never
+        into an `.xls` workbook: otherwise the sheet keeps the conditional formatting of your version.
     -   Both branches add a sheet with the same name and different content, or one branch removes a sheet the other
         changes.
 

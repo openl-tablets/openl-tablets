@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
@@ -176,6 +177,15 @@ final class MergeFixture {
     /**
      * Adds a picture over an area of cells.
      */
+    /**
+     * Links a cell to the OpenL Tablets site.
+     */
+    static void link(Sheet sheet, int row, int column) {
+        var hyperlink = sheet.getWorkbook().getCreationHelper().createHyperlink(HyperlinkType.URL);
+        hyperlink.setAddress("https://openl-tablets.org");
+        CellUtil.getCell(CellUtil.getRow(row, sheet), column).setHyperlink(hyperlink);
+    }
+
     static void addPicture(Sheet sheet, String area) {
         var workbook = sheet.getWorkbook();
         var index = workbook.addPicture(PNG, Workbook.PICTURE_TYPE_PNG);

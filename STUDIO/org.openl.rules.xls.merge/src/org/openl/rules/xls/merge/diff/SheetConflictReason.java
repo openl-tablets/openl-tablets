@@ -22,8 +22,8 @@ public enum SheetConflictReason {
      */
     PICTURES,
     /**
-     * THEIR revision changed the data validation, the conditional formatting, the hyperlinks or the frozen panes of
-     * the sheet, which the merge does not take
+     * THEIR revision changed the data validation or the hyperlinks of the sheet otherwise than OUR revision did,
+     * which the merge does not take
      */
     SETTINGS,
     /**
