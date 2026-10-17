@@ -67,7 +67,6 @@ i18next.addResourceBundle('en', 'common', {
         title: 'Theme',
         light: 'Light',
         dark: 'Dark',
-        system: 'Follow System',
         compact: 'Compact',
         excel_formatting: 'Excel Formatting',
         names: {

@@ -1,22 +1,35 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ThemeSwitch } from './ThemeSwitch'
 import { accentOf, THEME_ORDER } from '../../styles/themes'
 
-const { appThemeRef, setCompact, setExcelFormatting, setThemeMode, setThemeName, themeModeRef } = vi.hoisted(() => ({
+const {
+    appThemeRef,
+    setCompact,
+    setExcelFormatting,
+    setThemeMode,
+    setThemeName,
+    systemDarkRef,
+    themeModeRef,
+} = vi.hoisted(() => ({
     appThemeRef: { current: { compact: false, excelFormatting: false, themeName: 'standard' } },
     setCompact: vi.fn(),
     setExcelFormatting: vi.fn(),
     setThemeMode: vi.fn(),
     setThemeName: vi.fn(),
+    systemDarkRef: { current: false },
     themeModeRef: { current: 'auto' },
 }))
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
 vi.mock('antd-style', () => ({
-    useThemeMode: () => ({ isDarkMode: themeModeRef.current === 'dark', setThemeMode, themeMode: themeModeRef.current }),
+    useThemeMode: () => ({
+        isDarkMode: themeModeRef.current === 'dark' || (themeModeRef.current === 'auto' && systemDarkRef.current),
+        setThemeMode,
+        themeMode: themeModeRef.current,
+    }),
 }))
 
 vi.mock('../../providers/AppThemeProvider', () => ({
@@ -68,51 +81,121 @@ vi.mock('antd', async () => {
     return { Button, Dropdown, Switch, theme }
 })
 
+/** Whoever listens for the system to switch its appearance. */
+const systemListeners = new Set<() => void>()
+
 describe('ThemeSwitch', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         themeModeRef.current = 'auto'
+        systemDarkRef.current = false
+        systemListeners.clear()
+        vi.spyOn(window, 'matchMedia').mockImplementation(media => ({
+            addEventListener: (_: string, listener: () => void) => systemListeners.add(listener),
+            matches: systemDarkRef.current,
+            media,
+            removeEventListener: (_: string, listener: () => void) => systemListeners.delete(listener),
+        }) as unknown as MediaQueryList)
         appThemeRef.current = { compact: false, excelFormatting: false, themeName: 'standard' }
     })
 
-    it('offers the three appearances and marks the one in force', () => {
+    it('follows a light system and offers to switch it to dark', () => {
         render(<ThemeSwitch />)
 
-        expect(screen.getByTestId('theme-option-light').textContent).toContain('common:theme.light')
-        expect(screen.getByTestId('theme-option-dark').textContent).toContain('common:theme.dark')
-        expect(screen.getByTestId('theme-option-auto').textContent).toContain('common:theme.system')
-        expect(screen.getByTestId('theme-option-auto').getAttribute('data-selected')).toBe('true')
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.dark')
+        expect(screen.getByTestId('theme-option-appearance').querySelector('[data-testid="icon-dark"]')).toBeTruthy()
+        expect(screen.getByTestId('theme-appearance').getAttribute('aria-checked')).toBe('false')
+        expect(screen.getByTestId('theme-option-appearance').getAttribute('data-selected')).toBeNull()
     })
 
-    it('offers the density and the Excel formatting right under the appearances, and the themes after them', () => {
+    it('stores dark when switched on over a light system', async () => {
+        render(<ThemeSwitch />)
+
+        await userEvent.click(screen.getByTestId('theme-option-appearance'))
+
+        expect(setThemeMode).toHaveBeenCalledWith('dark')
+    })
+
+    it('stores light when switched on over a dark system', async () => {
+        systemDarkRef.current = true
+
+        render(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.light')
+
+        await userEvent.click(screen.getByTestId('theme-option-appearance'))
+
+        expect(setThemeMode).toHaveBeenCalledWith('light')
+    })
+
+    it('follows the system again under the same name when the kept appearance is the opposite one', async () => {
+        systemDarkRef.current = true
+        themeModeRef.current = 'light'
+
+        const { rerender } = render(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.light')
+        expect(screen.getByTestId('theme-appearance').getAttribute('aria-checked')).toBe('true')
+        expect(screen.getByTestId('theme-option-appearance').getAttribute('data-selected')).toBe('true')
+
+        await userEvent.click(screen.getByTestId('theme-option-appearance'))
+
+        expect(setThemeMode).toHaveBeenCalledWith('auto')
+
+        themeModeRef.current = 'auto'
+        rerender(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.light')
+        expect(screen.getByTestId('theme-appearance').getAttribute('aria-checked')).toBe('false')
+    })
+
+    it('stays on and turns to the other appearance once the system has caught up with the kept one', async () => {
+        systemDarkRef.current = true
+        themeModeRef.current = 'dark'
+
+        render(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.dark')
+
+        await userEvent.click(screen.getByTestId('theme-option-appearance'))
+
+        expect(setThemeMode).toHaveBeenCalledWith('light')
+    })
+
+    it('renames the switch when the followed system switches its appearance', () => {
+        render(<ThemeSwitch />)
+
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.dark')
+
+        systemDarkRef.current = true
+        act(() => systemListeners.forEach(listener => listener()))
+
+        expect(screen.getByTestId('theme-option-appearance').textContent).toContain('common:theme.light')
+    })
+
+    it('offers the density and the Excel formatting right under the appearance, and the themes after them', () => {
         render(<ThemeSwitch />)
 
         const order = screen.getAllByTestId(/^theme-option-/).map(option => option.getAttribute('data-testid'))
 
-        expect(order.slice(0, 6)).toEqual([
-            'theme-option-light',
-            'theme-option-dark',
-            'theme-option-auto',
+        expect(order.slice(0, 4)).toEqual([
+            'theme-option-appearance',
             'theme-option-compact',
             'theme-option-excelFormatting',
             'theme-option-theme-standard',
         ])
     })
 
-    it('wears the icon of the appearance in force', () => {
-        themeModeRef.current = 'dark'
+    it.each([
+        ['auto', 'icon-auto'],
+        ['light', 'icon-light'],
+        ['dark', 'icon-dark'],
+    ])('wears the icon of the picked appearance %s', (mode, icon) => {
+        themeModeRef.current = mode
 
         render(<ThemeSwitch />)
 
-        expect(screen.getByTestId('theme-switch').querySelector('[data-testid="icon-dark"]')).toBeTruthy()
-    })
-
-    it('applies the picked appearance', async () => {
-        render(<ThemeSwitch />)
-
-        await userEvent.click(screen.getByTestId('theme-option-light'))
-
-        expect(setThemeMode).toHaveBeenCalledWith('light')
+        expect(screen.getByTestId('theme-switch').querySelector(`[data-testid="${icon}"]`)).toBeTruthy()
     })
 
     it('offers every theme in order, marking the one in force and showing each in its own colour', () => {

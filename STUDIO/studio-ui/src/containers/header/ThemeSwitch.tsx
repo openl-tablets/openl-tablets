@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { Button, Dropdown, Switch, type MenuProps } from 'antd'
 import Icon, {
     BgColorsOutlined,
@@ -29,15 +29,37 @@ const MODE_ICONS: Record<ThemeMode, ReactNode> = {
     light: <SunOutlined />,
 }
 
-const MODE_LABELS: Record<ThemeMode, string> = {
-    auto: 'common:theme.system',
+/** An appearance picked in place of the system's: light or dark. */
+type Appearance = Exclude<ThemeMode, 'auto'>
+
+const MODE_LABELS: Record<Appearance, string> = {
     dark: 'common:theme.dark',
     light: 'common:theme.light',
 }
 
-const MODE_ORDER: readonly ThemeMode[] = ['light', 'dark', 'auto']
+const SYSTEM_DARK = '(prefers-color-scheme: dark)'
 
-/** The density entry is not an appearance, so it carries a key no {@link ThemeMode} can collide with. */
+const subscribeToSystem = (onChange: () => void): (() => void) => {
+    const query = globalThis.matchMedia?.(SYSTEM_DARK)
+    query?.addEventListener('change', onChange)
+    return () => query?.removeEventListener('change', onChange)
+}
+
+/**
+ * The appearance the operating system asks for: dark, or light when it asks for light or does not say.
+ *
+ * Read from the system itself rather than from the appearance in force, which lags behind for a moment after the
+ * system is followed again.
+ */
+const useSystemAppearance = (): Appearance =>
+    useSyncExternalStore(subscribeToSystem, () => (globalThis.matchMedia?.(SYSTEM_DARK).matches ? 'dark' : 'light'))
+
+const opposite = (appearance: Appearance): Appearance => appearance === 'dark' ? 'light' : 'dark'
+
+/** The appearance entry is not a {@link ThemeMode} either: it turns one on and off rather than names it. */
+const APPEARANCE_KEY = 'appearance'
+
+/** Nor is the density entry, which carries a key of its own as well. */
 const COMPACT_KEY = 'compact'
 
 /** Nor is the entry that shows the tables in the formatting of their Excel files. */
@@ -51,12 +73,16 @@ const isThemeKey = (key: string): boolean => key.startsWith('theme:')
 const themeOf = (key: string): ThemeName => key.slice('theme:'.length) as ThemeName
 
 /**
- * Picks how OpenL Studio looks: the appearance — light, dark, or the one the operating system asks for —
+ * Picks how OpenL Studio looks: the appearance — the one the operating system asks for, or the opposite one —
  * the density it is laid out in, how the tables are formatted, and the theme its colours come from.
  *
- * The button wears the icon of the appearance in force and opens the menu: the appearances with the density and
- * the formatting of the tables under them, then the themes. The tables are drawn in the colours of the theme by
- * what each of their cells means, unless **Excel Formatting** shows them in the formatting of their Excel files.
+ * The button wears the icon of the appearance picked — following the system, light, or dark — and opens the menu:
+ * the appearance, the density and the formatting of the tables, then the themes. The appearance is one switch,
+ * named after the appearance the system does not ask for: **Dark** while the system is light or does not say,
+ * **Light** while it is dark. Turning it on keeps that appearance even when the system later switches; turning it
+ * off follows the system again, under the same name. When the system has meanwhile switched to the kept appearance,
+ * a click keeps the switch on and turns it to the other appearance instead. The tables are drawn in the colours of the theme by what each of their cells means,
+ * unless **Excel Formatting** shows them in the formatting of their Excel files.
  *
  * Picking anything applies it at once and remembers it for the next visit. The menu stays open meanwhile, so one
  * choice after another can be tried and compared on the screen behind it; it closes the way it opened, by its
@@ -65,9 +91,9 @@ const themeOf = (key: string): ThemeName => key.slice('theme:'.length) as ThemeN
  * combinations.
  *
  * Each theme is shown beside a dot of its own accent, in the variant of the appearance in force, so the
- * choice is made by looking rather than by reading. The compact and the Excel formatting rows carry a switch that
- * shows the choice rather than takes the click — the row itself is the control, so the menu stays one list of
- * choices to a keyboard and a screen reader.
+ * choice is made by looking rather than by reading. The appearance, the compact and the Excel formatting rows carry
+ * a switch that shows the choice rather than takes the click — the row itself is the control, so the menu stays one
+ * list of choices to a keyboard and a screen reader.
  */
 export const ThemeSwitch = () => {
     const { t } = useTranslation()
@@ -75,12 +101,18 @@ export const ThemeSwitch = () => {
     const { compact, excelFormatting, setCompact, setExcelFormatting, setThemeName, themeName } = useAppTheme()
     const [open, setOpen] = useState(false)
 
+    const system = useSystemAppearance()
+    // Off, the entry offers the appearance the system does not ask for; on, it names the one kept.
+    const overridden = themeMode !== 'auto'
+    const override: Appearance = overridden ? themeMode : opposite(system)
+
     const items: MenuProps['items'] = useMemo(() => [
-        ...MODE_ORDER.map(mode => ({
-            icon: MODE_ICONS[mode],
-            key: mode,
-            label: t(MODE_LABELS[mode]),
-        })),
+        {
+            extra: <Switch checked={overridden} data-testid="theme-appearance" size="small" tabIndex={-1} />,
+            icon: MODE_ICONS[override],
+            key: APPEARANCE_KEY,
+            label: t(MODE_LABELS[override]),
+        },
         {
             extra: <Switch checked={compact} data-testid="theme-compact" size="small" tabIndex={-1} />,
             icon: <CompressOutlined />,
@@ -99,17 +131,18 @@ export const ThemeSwitch = () => {
             key: themeKey(name),
             label: t(`common:theme.names.${name}`),
         })),
-    ], [compact, excelFormatting, isDarkMode, t])
+    ], [compact, excelFormatting, isDarkMode, override, overridden, t])
 
     const onPick = ({ key }: { key: string }): void => {
-        if (key === COMPACT_KEY) {
+        if (key === APPEARANCE_KEY) {
+            // An override the system has caught up with stays on, switched to the other appearance.
+            setThemeMode(themeMode === opposite(system) ? 'auto' : opposite(system))
+        } else if (key === COMPACT_KEY) {
             setCompact(!compact)
         } else if (key === EXCEL_FORMATTING_KEY) {
             setExcelFormatting(!excelFormatting)
         } else if (isThemeKey(key)) {
             setThemeName(themeOf(key))
-        } else {
-            setThemeMode(key as ThemeMode)
         }
     }
 
@@ -124,7 +157,7 @@ export const ThemeSwitch = () => {
                 items,
                 onClick: onPick,
                 selectedKeys: [
-                    themeMode,
+                    ...(overridden ? [APPEARANCE_KEY] : []),
                     themeKey(themeName),
                     ...(compact ? [COMPACT_KEY] : []),
                     ...(excelFormatting ? [EXCEL_FORMATTING_KEY] : []),

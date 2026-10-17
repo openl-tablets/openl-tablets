@@ -46,6 +46,14 @@ describe('themeMode', () => {
         expect(readThemeMode()).toBe('dark')
     })
 
+    it('stores nothing when the system is followed again', () => {
+        storeThemeMode('dark')
+        storeThemeMode('auto')
+
+        expect(localStorage.getItem(THEME_MODE_KEY)).toBeNull()
+        expect(readThemeMode()).toBe('auto')
+    })
+
     it('falls back to the system when the stored appearance is not one it knows', () => {
         localStorage.setItem(THEME_MODE_KEY, 'sepia')
 

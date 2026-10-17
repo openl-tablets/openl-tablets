@@ -1,5 +1,5 @@
 import type { ThemeAppearance, ThemeMode } from 'antd-style'
-import { readStored, writeStored } from './localStore'
+import { readStored, removeStored, writeStored } from './localStore'
 import { THEMES, type ThemeName } from '../styles/themes'
 
 /** Where the picked appearance is remembered between visits. */
@@ -23,8 +23,13 @@ export const readThemeMode = (): ThemeMode => {
     return isThemeMode(stored) ? stored : DEFAULT_THEME_MODE
 }
 
-/** Remembers the picked appearance for the next visit. */
-export const storeThemeMode = (mode: ThemeMode): void => writeStored(THEME_MODE_KEY, mode)
+/**
+ * Remembers the picked appearance for the next visit.
+ *
+ * Following the system is the default, so `auto` is remembered by storing nothing at all.
+ */
+export const storeThemeMode = (mode: ThemeMode): void =>
+    mode === 'auto' ? removeStored(THEME_MODE_KEY) : writeStored(THEME_MODE_KEY, mode)
 
 /**
  * The appearance a mode stands for right now: itself, or the one the operating system asks for under `auto`.
