@@ -37,10 +37,10 @@ public enum ConflictSheetReason {
     PICTURES,
 
     /**
-     * Their branch changed the data validation, the conditional formatting, the hyperlinks or the frozen panes.
+     * Their branch changed the data validation or the hyperlinks otherwise than your branch did.
      */
-    @Schema(description = "Their branch changed the data validation, the conditional formatting, the hyperlinks or "
-            + "the frozen panes, which the merge does not take")
+    @Schema(description = "Their branch changed the data validation or the hyperlinks otherwise than your branch "
+            + "did, which the merge does not take")
     @JsonProperty("settings")
     SETTINGS,
 
