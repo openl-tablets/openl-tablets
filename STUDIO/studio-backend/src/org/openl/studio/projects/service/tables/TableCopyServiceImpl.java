@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.CreateTableException;
@@ -27,11 +29,15 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.TableProperty;
 import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.RegionShift;
+import org.openl.studio.projects.service.tables.write.TableWriter;
 import org.openl.util.BooleanUtils;
 
 /**
  * Copies a table by rebuilding it on the destination sheet with {@link TableBuilder}, the way the table editor writes a
  * new table.
+ *
+ * <p>A destination of Markdown files takes the values and the merged cells of the copy, and a Markdown source gives
+ * them: the formatting stays with workbooks.
  * <p>
  * The body is copied as a live grid, so it keeps its styles, merged cells and comments. The header is written with the
  * source header's style and renamed after the copy; the properties are written with the source properties' style. The
@@ -52,7 +58,7 @@ public class TableCopyServiceImpl implements TableCopyService {
 
     @Override
     public String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
-            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables) {
+            IWritableGrid destGrid, TableSyntaxNode[] moduleTables) {
         var declared = properties == null ? null : stamped(toPropertyMap(properties));
         if (declared != null) {
             requireReadableVersion(source, declared.get(TableVersionService.VERSION_PROPERTY));
@@ -64,13 +70,21 @@ public class TableCopyServiceImpl implements TableCopyService {
         // it, pairing edit()/stopEditing() the way the table writers do.
         original.edit();
         try {
-            // The copy takes the regions of its source, laid out as its last compile read it.
-            var layout = formatting.onSave() ? RegionShift.ofCompiled(source) : null;
+            // The copy takes the regions of its source, laid out as its last compile read it. A file of text keeps no
+            // formatting.
+            var layout = formatting.onSave() && destGrid instanceof XlsSheetGridModel
+                    ? RegionShift.ofCompiled(source)
+                    : null;
             // The copy is numbered among the tables of the module it is written to, as its next compile numbers it.
             var module = moduleTables.length == 0 ? null : TableIds.moduleOf(moduleTables[0]);
             var copyId = build(source, original, newName, declared, destGrid, layout, module);
             if (replacesTheSource) {
                 standDown(source);
+            }
+            TableWriter.saveWorkbook(destGrid);
+            if (replacesTheSource && MarkdownTables.isMarkdown(source)) {
+                // A Markdown file holds one table, so the source stands down in a file of its own
+                TableWriter.saveWorkbook((IWritableGrid) original.getGrid());
             }
             return copyId;
         } finally {
@@ -87,10 +101,12 @@ public class TableCopyServiceImpl implements TableCopyService {
      *
      * <p>Both must be compiled together, which is taken here as the same workbook. A module may hold more than one
      * workbook, so a copy into an included workbook of the same module is left alone rather than answered wrongly.
-     * The version, on the other hand, has to be free of every version in the module, whichever workbook holds it.
+     * The files of a Markdown module are compiled together, so a copy of a table of the module into it is compiled
+     * with the source. The version, on the other hand, has to be free of every version in the module, whichever
+     * workbook holds it.
      */
     private boolean supersedes(IOpenLTable source, String newName, @Nullable Map<String, Object> declared,
-            XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables) {
+            IWritableGrid destGrid, TableSyntaxNode[] moduleTables) {
         if (!newName.equals(source.getName())) {
             return false;
         }
@@ -104,7 +120,7 @@ public class TableCopyServiceImpl implements TableCopyService {
         if (version != null) {
             requireFreeVersion(source, version.toString(), dimensions, moduleTables);
         }
-        if (!source.isVersionable() || declaredInactive(declared) || !sameWorkbook(source, destGrid)
+        if (!source.isVersionable() || declaredInactive(declared) || !compiledTogether(source, destGrid, moduleTables)
                 || !versionService.sameGroup(source.getProperties(), dimensions)) {
             return false;
         }
@@ -135,6 +151,16 @@ public class TableCopyServiceImpl implements TableCopyService {
         var active = declared.get(TableVersionService.ACTIVE_PROPERTY);
         // Read the way the engine reads the cell, which takes 'no', 'off' and 'f' for false as well.
         return active != null && Boolean.FALSE.equals(BooleanUtils.toBooleanObject(active.toString().trim()));
+    }
+
+    private static boolean compiledTogether(IOpenLTable source, IWritableGrid destGrid,
+            TableSyntaxNode[] moduleTables) {
+        if (destGrid instanceof XlsSheetGridModel sheet) {
+            return sameWorkbook(source, sheet);
+        }
+        var uri = source.getUri();
+        return MarkdownTables.isMarkdown(source)
+                && Arrays.stream(moduleTables).anyMatch(table -> uri.equals(table.getUri()));
     }
 
     private static boolean sameWorkbook(IOpenLTable source, XlsSheetGridModel destGrid) {
@@ -182,7 +208,7 @@ public class TableCopyServiceImpl implements TableCopyService {
     }
 
     private static String build(IOpenLTable source, IGridTable original, String newName,
-            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, @Nullable RegionShift layout,
+            @Nullable Map<String, Object> declared, IWritableGrid destGrid, @Nullable RegionShift layout,
             @Nullable XlsModuleSyntaxNode module) {
         var node = source.getSyntaxNode();
         var type = node.getNodeType();

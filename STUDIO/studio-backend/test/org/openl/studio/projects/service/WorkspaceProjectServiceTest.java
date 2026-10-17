@@ -68,6 +68,7 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.common.ProjectException;
@@ -1478,6 +1479,36 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void copy_table_into_a_new_module_of_markdown_files_writes_the_copy_as_its_first_file() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tableCreatorService = mock(TableCreatorService.class);
+        var tableCopyService = mock(TableCopyService.class);
+        var service = spy(newCopyService(acl, webStudio, tableCreatorService, tableCopyService,
+                mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var descriptor = emptyModulesDescriptor();
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(project.isOpened()).thenReturn(true);
+        when(webStudio.getProjectByName("design", "PricingProject")).thenReturn(descriptor);
+        var source = mock(IOpenLTable.class);
+        when(source.getType()).thenReturn(XlsNodeTypes.XLS_DT.toString());
+        stubResolvedSource(service, project, source);
+        var grid = mock(MarkdownGrid.class);
+        when(tableCreatorService.newMarkdownModule(project, descriptor, "Rates", "rules/Rates", "rates", "CopyName",
+                TableKind.RULES)).thenReturn(grid);
+        var request = new CopyTableRequest("Rates", "rates", "rules/Rates", "CopyName", null);
+
+        var copyId = service.copyTable(project, "src-id", request);
+
+        // The module is made by the file of the copy, so there is no module to compile before the copy is written
+        assertNull(copyId);
+        verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(grid), any());
+        verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
+        verify(service, never()).openProject(project, "Rates");
+    }
+
+    @Test
     void copy_table_into_a_new_module_writes_the_copy_and_returns_no_identifier() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var webStudio = mock(WebStudio.class);
@@ -1508,7 +1539,6 @@ class WorkspaceProjectServiceTest {
         verify(tableCreatorService).createEmptyModule(project, descriptor, "NewModule", "rules/NewModule.xlsx",
                 "CopyName");
         verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
-        verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).deleteModule(any(), any(), any());
     }
 
@@ -1822,7 +1852,7 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
-    void a_table_of_a_markdown_module_is_written_and_deleted_but_neither_styled_nor_copied() throws Exception {
+    void a_table_of_a_markdown_module_is_written_and_deleted_but_not_styled() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var tableCopyService = mock(TableCopyService.class);
         var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
@@ -1836,19 +1866,14 @@ class WorkspaceProjectServiceTest {
         when(model.getModuleInfo().containsTable(uri)).thenReturn(true);
         var bold = List.<RawTableSourceAction>of(new RawTableSourceAction.Style(new StyleTarget.Cells(0, 0, 1, 1,
                 new RawCellStyleInput(null, null, null, true, null, null, null))));
-        var request = new CopyTableRequest("Rules", null, null, "CopyName", null);
 
         var styled = assertThrows(BadRequestException.class,
                 () -> service.editTableSource(project, "src-id", bold, null, null));
-        var copy = assertThrows(BadRequestException.class, () -> service.copyTable(project, "src-id", request));
 
-        // The file keeps the values of its table as text and no formatting, so neither a style nor a copy, which
-        // reads the formatting of its source, reaches a writer: refused, naming the file.
+        // The file keeps the values of its table as text and no formatting, so a style reaches no writer: refused,
+        // naming the file.
         assertEquals("openl.error.400.table.markdown.style.message", styled.getErrorCode());
-        assertEquals("openl.error.400.table.markdown.copy.message", copy.getErrorCode());
         assertArrayEquals(new Object[]{"Base Rates.md"}, styled.getArgs());
-        verifyNoInteractions(tableCopyService);
-        verify(service, never()).openProject(project, "Rules");
 
         when(source.getVersion()).thenReturn("current");
         var files = (MarkdownTableFiles) ReflectionTestUtils.getField(service, "markdownTableFiles");
@@ -1990,7 +2015,6 @@ class WorkspaceProjectServiceTest {
         // The module is already compiled, so the copy's own identifier is known and returned.
         assertEquals("copy-id", copyId);
         verify(tableCopyService).copyInto(eq(source), eq("CopyName"), isNull(), eq(destGrid), any());
-        verify(tableCreatorService).save(destGrid);
         verify(tableCreatorService, never()).createEmptyModule(any(), any(), any(), any(), any());
     }
 

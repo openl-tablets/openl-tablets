@@ -29357,7 +29357,7 @@ Content-Type: application/json
           "modulePath": {
             "type": "string",
             "description": "***",
-            "pattern": "(?i).+\\.xlsx$"
+            "pattern": "(?i).+\\.xlsx|[^.]+"
           },
           "name": {
             "type": "string",

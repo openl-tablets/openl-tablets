@@ -109,6 +109,7 @@ i18next.addResourceBundle('en', 'project', {
         version_variant: 'Variant',
         version_current: 'Current: {{version}}',
         copy: 'Copy',
+        copy_markdown: 'Copy as Markdown',
         copied: 'Table copied',
         copied_description: 'The "{{table}}" table was copied successfully.',
         copy_failed: 'Failed to copy the table',

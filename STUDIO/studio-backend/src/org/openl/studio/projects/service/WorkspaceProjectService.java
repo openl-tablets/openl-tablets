@@ -83,6 +83,7 @@ import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.GridTableUtils;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.ui.ProjectModel;
@@ -2932,6 +2933,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     /**
      * Copy a table into a module of the currently opened project, preserving its formatting.
+     *
+     * <p>The copy takes the format of its destination: a sheet of a workbook, or a file of its own in a module of
+     * Markdown files, in the folder its sheet names, which keeps no formatting. A new module is a workbook for a path
+     * of one, and a folder of Markdown files for any other path.
      * <p>
      * The table stays on the server, resolved by its id. It is rebuilt on the destination sheet the way the table
      * editor writes a new table: the body is copied with its styles, merged cells and comments, the header is renamed
@@ -2958,26 +2963,52 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var source = resolved.table();
         // A copy of the table the compiler built would be a rule nobody wrote.
         GeneratedTables.refuseAction(resolved.module(), source);
-        MarkdownTables.refuseCopy(source);
         var requestedSheet = request.sheetName();
         var sheetName = requestedSheet != null && StringUtils.isNotBlank(requestedSheet)
                 ? requestedSheet
                 : request.name();
-        if (StringUtils.isNotBlank(request.modulePath())) {
-            return copyIntoNewModule(project, source, request, sheetName);
+        var modulePath = request.modulePath();
+        if (modulePath != null && !modulePath.isBlank()) {
+            return FileTypeHelper.isExcelFile(modulePath)
+                    ? copyIntoNewModule(project, source, request, sheetName)
+                    : copyIntoNewMarkdownModule(project, source, request, modulePath);
         }
         var projectModel = openProject(project, request.moduleName()).awaitCompiled();
         return writing(() -> writeCopy(projectModel, source, request, sheetName));
     }
 
-    /** Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. */
+    /**
+     * Rebuild the copy on {@code sheetName} of the already-compiled destination module and persist it. A module of
+     * Markdown files takes it as a file of its own, in the folder the requested sheet names.
+     */
     private String writeCopy(ProjectModel projectModel, IOpenLTable source, CopyTableRequest request,
                              String sheetName) {
-        var destGrid = tableCreatorService.sheetGridModel(projectModel, sheetName);
-        var copyId = tableCopyService.copyInto(source, request.name(), request.properties(), destGrid,
+        var folder = MarkdownTableFiles.folderOf(projectModel.getModuleInfo());
+        IWritableGrid destGrid = folder == null
+                ? tableCreatorService.sheetGridModel(projectModel, sheetName)
+                : markdownTableFiles.newFile(projectModel, folder, request.sheetName(), request.name(),
+                        OpenLTableUtils.kindOf(source));
+        return tableCopyService.copyInto(source, request.name(), request.properties(), destGrid,
                 projectModel.getTableSyntaxNodes());
-        tableCreatorService.save(destGrid);
-        return copyId;
+    }
+
+    /**
+     * Copy a table into a new module of Markdown files: the copy is the first file of the module, in the folder the
+     * requested sheet names, and the module is registered once the file is written.
+     *
+     * @return {@code null}, so the caller resolves the copy by name
+     */
+    private @Nullable String copyIntoNewMarkdownModule(RulesProject project,
+                                                       IOpenLTable source,
+                                                       CopyTableRequest request,
+                                                       String modulePath) throws ProjectException {
+        var projectDescriptor = getProjectDescriptor(project);
+        requireModuleAbsent(projectDescriptor.getModules(), request.moduleName(), modulePath);
+        var grid = tableCreatorService.newMarkdownModule(project, projectDescriptor, request.moduleName(),
+                modulePath, request.sheetName(), request.name(), OpenLTableUtils.kindOf(source));
+        writing(() -> tableCopyService.copyInto(source, request.name(), request.properties(), grid,
+                new TableSyntaxNode[0]));
+        return null;
     }
 
     /**

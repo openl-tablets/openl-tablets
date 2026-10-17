@@ -18,7 +18,8 @@ import org.jspecify.annotations.Nullable;
  *
  * @param moduleName name of the module the copy is created in
  * @param sheetName  name of the sheet the copy is created in; defaults to the copy's name
- * @param modulePath project-relative path for a new module; when absent, the module must already exist
+ * @param modulePath project-relative path for a new module: an .xlsx workbook, or a folder for a module of
+ *                   Markdown files; when absent, the module must already exist
  * @param name       name of the copied table
  * @param properties the copy's properties; when omitted, the source table's properties are kept
  * @author Vladyslav Pikus
@@ -31,8 +32,9 @@ public record CopyTableRequest(
         @Parameter(description = "Name of the sheet the copy is created in; defaults to the copy's name")
         @Nullable String sheetName,
 
-        @Parameter(description = "Project-relative path for a new module. When absent, the module must already exist.")
-        @Pattern(regexp = "(?i).+\\.xlsx$")
+        @Parameter(description = "Project-relative path for a new module: an .xlsx workbook, or a folder for a module "
+                + "of Markdown files. When absent, the module must already exist.")
+        @Pattern(regexp = "(?i).+\\.xlsx|[^.]+")
         @Nullable String modulePath,
 
         @Parameter(description = "Name of the copied table")
