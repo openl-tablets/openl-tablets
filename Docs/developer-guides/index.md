@@ -44,7 +44,7 @@ This guide is organized into the following sections:
 - [Installation Guide](../user-guides/installation-guide/index.md) - Installation and deployment
 
 ### Conventions
-- [Root AGENTS.md](/AGENTS.md) - Repository-wide development conventions
-- [DEV/AGENTS.md](/DEV/AGENTS.md) - Core engine conventions
-- [STUDIO/AGENTS.md](/STUDIO/AGENTS.md) - Studio conventions
-- [WSFrontend/AGENTS.md](/WSFrontend/AGENTS.md) - Rule services conventions
+- [Root AGENTS.md](https://github.com/openl-tablets/openl-tablets/blob/main/AGENTS.md) - Repository-wide development conventions
+- [DEV/AGENTS.md](https://github.com/openl-tablets/openl-tablets/blob/main/DEV/AGENTS.md) - Core engine conventions
+- [STUDIO/AGENTS.md](https://github.com/openl-tablets/openl-tablets/blob/main/STUDIO/AGENTS.md) - Studio conventions
+- [WSFrontend/AGENTS.md](https://github.com/openl-tablets/openl-tablets/blob/main/WSFrontend/AGENTS.md) - Rule services conventions

@@ -68,8 +68,8 @@ npm install
 npm run start
 ```
 
-The Vite dev server listens on <http://localhost:3100> and proxies `/rest`, `/ws`, `/login`, `/logout` and `/docs` to
-`http://localhost:8080`.
+The Vite dev server listens on <http://localhost:3100> and proxies `/rest`, `/ws`, `/login`, `/logout`, `/licenses` and
+`/docs` to `http://localhost:8080`.
 
 ### The DEMO package
 

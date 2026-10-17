@@ -13,7 +13,7 @@ This class is located in the following Maven dependency:
 
 `openl.version` stands for the version of OpenL Tablets.
 
-Here's a Java example of how to invoke OpenL rules::
+Here's a Java example of how to invoke OpenL rules:
 
 ```java
 import org.openl.rules.ruleservice.OpenLService;
@@ -43,7 +43,7 @@ The above Java example uses a filesystem as a repository of OpenL Rules deployme
 any way described in [Externalized Configuration](../developer-guides/externalized-config.md).
 
 In some cases, it can introduce complexity due to dependency on the filesystem. OpenL supports different repositories
-where deployments can be stored. One of these is `repo-jar`, which is the default repository of the OpenL Rule Service.
+where deployments can be stored. One of these is `repo-jar`, which is the default repository of OpenL Rule Services.
 Therefore, you can simply place a JAR file containing the OpenL project, and it will be automatically loaded.
 
 This feature can be useful in serverless solutions, such as:
