@@ -71,6 +71,7 @@ page of the React application for every other address.
 | `studio-backend`                         | The backend and the WAR; security, ACL, OpenAPI and table packages   |
 | `studio-ui`                              | The React and TypeScript frontend                                    |
 | `studio-docs`                            | The user guides packed for the viewer at `/docs`                     |
+| `studio-mcp`                             | The built-in MCP server, run on Node.js and served at `/mcp`         |
 | `org.openl.rules.repository`             | The repository abstraction; JDBC repositories                        |
 | `org.openl.rules.repository.git`, `.aws`, `.azure` | Git, AWS S3 and Azure Blob repositories                    |
 | `org.openl.rules.workspace`              | Workspaces and project management                                    |

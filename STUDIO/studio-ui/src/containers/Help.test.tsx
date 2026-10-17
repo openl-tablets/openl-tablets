@@ -40,6 +40,7 @@ const guideLinks = () => Object.fromEntries(
         'Installation Guide',
         'Reference Guide',
         'OpenL Studio User Guide',
+        'MCP Server Guide',
         'Rule Services Usage and Customization Guide',
     ].map(title => [title, screen.getByRole('link', { name: title }).getAttribute('href')])
 )
@@ -53,6 +54,7 @@ describe('Help', () => {
             'Installation Guide': '/docs/installation-guide/',
             'Reference Guide': '/docs/reference-guide/',
             'OpenL Studio User Guide': '/docs/openl-studio/',
+            'MCP Server Guide': '/docs/mcp-server/',
             'Rule Services Usage and Customization Guide': '/docs/rule-services/',
         })
     })

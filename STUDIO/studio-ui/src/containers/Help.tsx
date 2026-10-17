@@ -11,6 +11,7 @@ const documentationItems = [
     { path: 'installation-guide', title: 'Installation Guide' },
     { path: 'reference-guide', title: 'Reference Guide' },
     { path: 'openl-studio', title: 'OpenL Studio User Guide' },
+    { path: 'mcp-server', title: 'MCP Server Guide' },
     { path: 'rule-services', title: 'Rule Services Usage and Customization Guide' }
 ]
 

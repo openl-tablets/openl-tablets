@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Branch 'feature' has commits that are not merged into base branch 'master'. No branch was deleted. Review the risk, then either make the branch safe or call again with confirmDataLoss=true to explicitly accept possible data loss."
+      }
+    ],
+    "isError": true,
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -28,11 +28,14 @@
                                 <include>jetty-home/</include>
                                 <include>webapps/**</include>
                                 <include>jre/</include>
+                                <include>node/</include>
                                 <include>openl-demo/</include>
                                 <include>logs/</include>
                             </includes>
                             <excludes>
                                 <exclude>webapps/ROOT/</exclude>
+                                <exclude>webapps/mcp.xml</exclude>
+                                <exclude>webapps/mcp.properties</exclude>
                             </excludes>
                             <followSymlinks>false</followSymlinks>
                         </fileset>

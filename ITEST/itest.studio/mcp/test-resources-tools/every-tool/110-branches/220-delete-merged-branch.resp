@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"branch\": \"hotfix\",\n    \"forced\": false,\n    \"safety\": {\n      \"currentBranch\": \"hotfix\",\n      \"divergenceStatus\": \"up-to-date\",\n      \"projectStatus\": \"OPENED\",\n      \"unsavedChanges\": false,\n      \"baseBranch\": \"master\",\n      \"mergeCheck\": {\n        \"sourceBranch\": \"hotfix\",\n        \"targetBranch\": \"master\",\n        \"status\": \"up-to-date\",\n        \"canMerge\": true\n      }\n    },\n    \"dataLossConfirmed\": false,\n    \"message\": \"Deleted branch 'hotfix'.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

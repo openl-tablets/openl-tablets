@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": [\n    {\n      \"id\": \"ZGVzaWduOk1jcFRvb2xzQ29weToyYzFjYjg2NTdkNjAwMjgwNjc0Zjk2Y2FiOWQ3NWZlYjZlNjUwYjU4ZGQ0NDczNjY2Mjk1OWU4ODMzMjI2YmVh\",\n      \"name\": \"McpToolsCopy\",*\n  \"pagination\": {\n    \"limit\": 50,\n    \"offset\": 0,\n    \"has_more\": false,\n    \"total_count\": 1\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

@@ -1,0 +1,71 @@
+{
+  "name": "openl-mcp",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The MCP server built into OpenL Studio",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "openl-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "clean": "node -e \"for (const p of ['dist','build-info.json']) require('fs').rmSync(p,{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc && node dist/generate-build-info.js && node dist/build-guides.js",
+    "licenses": "node dist/build-licenses.js --onlyAllow \"MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause;BlueOak-1.0.0;ISC;Python-2.0;0BSD;Unlicense;EPL-2.0\"",
+    "clean:build-info": "node -e \"require('fs').rmSync('build-info.json',{force:true})\"",
+    "start": "node dist/index.js",
+    "start:http": "node dist/index.js --http",
+    "dev": "npm run build && node dist/index.js",
+    "dev:http": "npm run build && node dist/index.js --http",
+    "watch": "npm run clean:build-info && tsc --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --testPathIgnorePatterns=integration",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand tests/integration",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix"
+  },
+  "keywords": [
+    "mcp",
+    "openl-studio",
+    "rules-engine",
+    "brms"
+  ],
+  "author": "",
+  "license": "LGPL-3.0",
+  "dependencies": {
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
+    "@stomp/stompjs": "^7.3.0",
+    "axios": "^1.18.1",
+    "express": "^5.2.1",
+    "form-data": "^4.0.6",
+    "ws": "^8.21.3",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.4.1",
+    "@modelcontextprotocol/client": "^2.0.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.2.0",
+    "@types/ws": "^8.18.1",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.63.0",
+    "axios-mock-adapter": "^2.1.0",
+    "eslint": "^10.8.1",
+    "jest": "^30.4.2",
+    "nock": "^14.0.17",
+    "ts-jest": "^29.4.12",
+    "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "^4.3.1"
+    }
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

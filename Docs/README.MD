@@ -44,9 +44,10 @@ Studio.
   [Decision Table Condition Indexing](architecture/decision-table-condition-indexing.md),
   [Upload Integrity](architecture/upload-integrity.md),
   [Embedded User Guides](architecture/embedded-user-guides.md), the design of the
-  [Built-in MCP Server](architecture/mcp-server-jetty-architecture.md), and
-  [Table Formatting](architecture/table-formatting.md).
+  [Built-in MCP Server](architecture/mcp-server-jetty-architecture.md) and its
+  [internals](architecture/mcp-server-internals.md), and [Table Formatting](architecture/table-formatting.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),
-  [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md), and
+  [STUDIO](../STUDIO/AGENTS.md), [studio-ui](../STUDIO/studio-ui/AGENTS.md),
+  [studio-mcp](../STUDIO/studio-mcp/AGENTS.md), and
   [WSFrontend](../WSFrontend/AGENTS.md). The conventions of this folder are in [AGENTS.md](AGENTS.md).

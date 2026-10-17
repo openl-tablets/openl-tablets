@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"status\": \"completed\",\n    \"frames\": [],\n    \"tree\": {\n      \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12\",\n      \"name\": \"Premium\",\n      \"instance\": 0,\n      \"kind\": \"spreadsheet\",\n      \"durationMillis\": #.#,\n      \"selfMillis\": #.#,\n      \"steps\": [\n        {\n          \"ref\": \"R0C0\",\n          \"label\": \"$Base\",\n          \"constant\": true,\n          \"status\": \"executed\"\n        },\n        {\n          \"ref\": \"R1C0\",\n          \"label\": \"$Factor\",\n          \"status\": \"executed\",\n          \"childrenTotal\": 1,\n          \"durationMillis\": #.#,\n          \"selfMillis\": #.#\n        },\n        {\n          \"ref\": \"R2C0\",\n          \"label\": \"$Total\",\n          \"status\": \"executed\",\n          \"childrenTotal\": 1,\n          \"durationMillis\": #.#,\n          \"selfMillis\": #.#\n        }\n      ]\n    },\n    \"profile\": {\n      \"hotspots\": [\n        {\n          \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12\",\n          \"name\": \"Premium\",\n          \"kind\": \"spreadsheet\",\n          \"selfMillis\": #.#,\n          \"totalMillis\": #.#,\n          \"count\": 1\n        },\n        {\n          \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B2:C6\",\n          \"name\": \"AgeFactor\",\n          \"kind\": \"decisionTable\",\n          \"selfMillis\": #.#,\n          \"totalMillis\": #.#,\n          \"count\": 1\n        }\n      ],\n      \"distinctTables\": 2,\n      \"nodeCount\": 2,\n      \"totalMillis\": #.#,\n      \"truncated\": false\n    },\n    \"sessionId\": \"@-@-@-@-@\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

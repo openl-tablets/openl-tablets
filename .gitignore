@@ -50,5 +50,8 @@ bun.lock
 /DEMO/logs/
 /DEMO/openl-demo/
 /DEMO/jetty-home/
+/DEMO/node/
 /DEMO/webapps/*
 !/DEMO/webapps/ROOT/
+!/DEMO/webapps/mcp.xml
+!/DEMO/webapps/mcp.properties

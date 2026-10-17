@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/notes.txt\",\n    \"action\": \"overwritten\",\n    \"bytesWritten\": 37,\n    \"committed\": true,\n    \"branch\": \"feature\",\n    \"message\": \"Overwrote 37 byte(s) in 'docs/notes.txt' and committed the project to Git: \\\"Raise the base premium on feature\\\".\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

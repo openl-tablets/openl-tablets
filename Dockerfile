@@ -56,6 +56,13 @@ done
 apk del wget gnupg
 EOT
 
+# The Node.js runtime of the built-in MCP server. The major version follows node.version of the root pom.xml, which
+# builds the server, and the Alpine version follows the eclipse-temurin image below. The image carries no license
+# text, so the LICENSE of the same release is fetched for the About dialog.
+FROM node:24-alpine3.23 AS node
+
+RUN wget -q -O /node-LICENSE "https://raw.githubusercontent.com/nodejs/node/$(node --version)/LICENSE"
+
 FROM eclipse-temurin:25-jre-alpine-3.23 AS openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
@@ -170,9 +177,15 @@ fi
 
 JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"
 
+MODULES=http,ext,ee10-deploy,ee10-websocket-jakarta
+if [ -f "$OPENL_APP/webapps/mcp.xml" ]; then
+    # The core context that serves the MCP server of OpenL Studio at /mcp
+    MODULES="$MODULES,core-deploy,proxy"
+fi
+
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -javaagent:"$OTEL_DIR/opentelemetry-javaagent.jar" \
--jar "$OPENL_APP/start.jar" --module=http,ext,ee10-deploy,ee10-websocket-jakarta  --lib="$OPENL_LIB/*.jar" "$@"
+-jar "$OPENL_APP/start.jar" --module="$MODULES"  --lib="$OPENL_LIB/*.jar" "$@"
 EOT
 
 # Create setenv.sh file for configuration customization purpose
@@ -280,17 +293,37 @@ COPY $APP $OPENL_APP/webapps/ROOT
 # .war (which stays cloud-agnostic); the image supplies it so the webapp can use the shared configuration.
 COPY --from=log4j /log4j-layout-template-json-*.jar $OPENL_APP/webapps/ROOT/WEB-INF/lib/
 
+# Only the OpenL Studio image runs the MCP server its webapp carries in WEB-INF/mcp, so only it gets Node.js with its
+# C++ runtime, and the core context that proxies /mcp to the port OpenL Studio starts the server on. The context answers
+# outside the webapp, so the filters and the security chains of OpenL Studio never see MCP traffic, and the responses
+# stream; start.sh deploys it with the 'core-deploy' and 'proxy' modules. The Rule Services images get none of them.
+USER root
+RUN --mount=type=bind,from=node,source=/usr/local/bin/node,target=/tmp/node \
+    --mount=type=bind,source=DEMO/webapps,target=/tmp/demo-webapps <<'EOT'
+set -eu
+if [ -d "$OPENL_APP/webapps/ROOT/WEB-INF/mcp" ]; then
+    apk add --no-cache libstdc++
+    cp /tmp/node /usr/local/bin/node
+    # The core context of the DEMO package, which deploys it too
+    cp /tmp/demo-webapps/mcp.xml /tmp/demo-webapps/mcp.properties "$OPENL_APP/webapps/"
+fi
+EOT
+USER openl
+
 WORKDIR $OPENL_DIR
 
 CMD ["/opt/openl/start.sh"]
 
 # The software the image runs the webapp on, listed for the About dialog of OpenL Studio in the shape of the lists the
-# webapp carries: the JRE, Jetty, Log4j, the OpenTelemetry agent and Alpine Linux. jq is installed in this stage only.
+# webapp carries: the JRE, Jetty, Log4j, the OpenTelemetry agent, Node.js in the OpenL Studio image, and Alpine Linux.
+# jq is installed in this stage only.
 FROM openl AS licenses
 
 USER root
 
 ARG LOG4J_VER
+
+COPY --from=node /node-LICENSE /tmp/node-license
 
 RUN <<'EOT'
 set -eu
@@ -318,6 +351,9 @@ unzip -p "$OTEL" META-INF/licenses/licenses.md > /tmp/otel-notice
     entry 'OpenTelemetry Java agent' \
         "$(unzip -p "$OTEL" META-INF/MANIFEST.MF | sed -n 's/^Implementation-Version: //p' | tr -d '\r')" Apache-2.0 \
         /dev/null /tmp/otel-notice
+    if [ -x /usr/local/bin/node ]; then
+        entry 'Node.js' "$(node --version | cut -c 2-)" MIT /tmp/node-license /dev/null
+    fi
     # Alpine Linux is a set of packages, each under its own license: its package index names them.
     ALPINE=$(cat /etc/alpine-release)
     jq -n --arg version "$ALPINE" --arg url "https://pkgs.alpinelinux.org/packages?branch=v${ALPINE%.*}" \

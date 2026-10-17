@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"status\": \"completed\",\n    \"frames\": [\n      {\n        \"index\": 0,\n        \"depth\": 1,\n        \"instance\": 0,\n        \"uri\": \"McpTools/Main.xlsx?sheet=Rules&range=B8:C12\",\n        \"tableId\": \"@\",\n        \"name\": \"Premium\",\n        \"kind\": \"spreadsheet\",\n        \"active\": true,\n        \"completed\": true,\n        \"error\": false,\n        \"steps\": [\n          {\n            \"ref\": \"R1C0\",\n            \"label\": \"$Factor\",\n            \"cell\": \"C11\",\n            \"status\": \"executed\",\n            \"durationMillis\": #.#\n          },\n          {\n            \"ref\": \"R2C0\",\n            \"label\": \"$Total\",\n            \"cell\": \"C12\",\n            \"status\": \"executed\",\n            \"durationMillis\": #.#\n          }\n        ],\n        \"durationMillis\": #.#,\n        \"selfMillis\": #.#\n      }\n    ],\n    \"sessionId\": \"@-@-@-@-@\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

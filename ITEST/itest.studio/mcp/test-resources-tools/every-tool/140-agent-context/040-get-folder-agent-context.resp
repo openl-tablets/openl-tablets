@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "*Important note about this document*\nThis is the aggregated content of all AGENTS.md files, ordered from the root folder to the project folder.\nIn case of conflicting instructions, each later AGENTS.md file takes precedence over the earlier ones. The root file has the lowest priority.\n\n-----\n## /McpTools/AGENTS.md\n\n# McpTools\n\nPremium rules: keep `AgeFactor` in sync with `PremiumTest`.\n\n-----\n## /McpTools/docs/AGENTS.md\n\n# Notes\n\nNotes are plain text.\n"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

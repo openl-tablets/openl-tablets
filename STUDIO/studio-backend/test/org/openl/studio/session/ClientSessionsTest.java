@@ -18,8 +18,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -37,7 +39,7 @@ class ClientSessionsTest {
     private static final Duration IDLE = Duration.ofMinutes(30);
 
     private final AtomicLong now = new AtomicLong(1_000_000);
-    private final ClientSessions scope = new ClientSessions(IDLE, now::get);
+    private final ClientSessions scope = new ClientSessions(IDLE, false, now::get);
 
     @AfterEach
     void tearDown() {
@@ -60,6 +62,38 @@ class ClientSessionsTest {
         assertEquals(session.getId(), scope.getConversationId());
         assertSame(session, request.getSession(false));
         assertEquals(0, scope.size());
+    }
+
+    @Test
+    void inSingleUserModeEveryRequestKeepsItsBeansForTheOneUser() {
+        var single = new ClientSessions(IDLE, true, now::get);
+        signIn(new AnonymousAuthenticationToken("key", "DEFAULT", AuthorityUtils.createAuthorityList("ADMIN")));
+        var browser = new MockHttpServletRequest();
+        browser.setSession(new MockHttpSession());
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(browser));
+        var bean = single.get("studio", Object::new);
+        complete();
+
+        var cookieless = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(cookieless));
+
+        assertSame(bean, single.get("studio", Object::new));
+        assertNull(browser.getSession(false).getAttribute("studio"));
+        assertNull(cookieless.getSession(false));
+        assertEquals("DEFAULT", single.getConversationId());
+        assertEquals(1, single.size());
+    }
+
+    @Test
+    void inSingleUserModeARequestNotSignedInYetKeepsToItsSession() {
+        var single = new ClientSessions(IDLE, true, now::get);
+        var request = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        var bean = single.get("studio", Object::new);
+
+        assertSame(bean, request.getSession(false).getAttribute("studio"));
+        assertEquals(0, single.size());
     }
 
     @Test
@@ -194,7 +228,7 @@ class ClientSessionsTest {
 
     @Test
     void aClientIsKeptForGoodWhenSessionsNeverExpire() {
-        var forGood = new ClientSessions(Duration.ZERO, now::get);
+        var forGood = new ClientSessions(Duration.ZERO, false, now::get);
         forGood.afterPropertiesSet();
         var destroyed = keepStudio(forGood);
         complete();
@@ -236,7 +270,7 @@ class ClientSessionsTest {
 
     @Test
     void aStartedScopeStopsSweepingAndEndsItsClientsWithTheApplication() {
-        var started = new ClientSessions(IDLE);
+        var started = new ClientSessions(IDLE, false);
         started.afterPropertiesSet();
         var destroyed = keepStudio(started);
 

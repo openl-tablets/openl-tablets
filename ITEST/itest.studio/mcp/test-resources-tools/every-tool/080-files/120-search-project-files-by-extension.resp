@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "```json\n[\n  {\n    \"path\": \"docs/notes.txt\",\n    \"name\": \"notes.txt\",\n    \"type\": \"file\",\n    \"basePath\": \"docs\",\n    \"extension\": \"txt\",\n    \"size\": 37,\n    \"lastModified\": \"#-#-#T#:#:#.#Z\"\n  },\n  {\n    \"path\": \"archive/notes.txt\",\n    \"name\": \"notes.txt\",\n    \"type\": \"file\",\n    \"basePath\": \"archive\",\n    \"extension\": \"txt\",\n    \"size\": 37,\n    \"lastModified\": \"#-#-#T#:#:#.#Z\"\n  }\n]\n```\n\n---\n**Pagination**\n- Showing items 1-2\n- Total: 2"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "openl-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

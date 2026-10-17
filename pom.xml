@@ -410,6 +410,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-proxy</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-home</artifactId>
                 <version>${jetty.version}</version>
                 <type>zip</type>
@@ -1062,6 +1067,11 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules.studio</groupId>
+                <artifactId>studio-mcp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.studio</groupId>
                 <artifactId>studio-backend</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
@@ -1709,10 +1719,12 @@
                                 <require-version file="Dockerfile" property="log4j.version" snippet="ARG LOG4J_VER=${log4j.version}" />
                                 <require-version file="Dockerfile" property="opentelemetry.version" snippet="ENV OTEL_VER ${opentelemetry.version}" />
                                 <require-version file="DEMO/start" property="jetty.version" snippet="JETTY_VERSION=&quot;${jetty.version}&quot;" />
+                                <require-version file="DEMO/start" property="node.version" snippet="NODE_VERSION=&quot;${node.version}&quot;" />
                                 <require-version file="DEMO/start" property="postgresql.version" snippet="POSTGRES_VERSION=&quot;${postgresql.version}&quot;" />
                                 <require-version file="DEMO/start" property="mssql.version" snippet="MSSQL_VERSION=&quot;${mssql.version}&quot;" />
                                 <require-version file="DEMO/start" property="ojdbc11.version" snippet="ORACLE_VERSION=&quot;${ojdbc11.version}&quot;" />
                                 <require-version file="DEMO/start.ps1" property="jetty.version" snippet="$JETTY_VERSION = &quot;${jetty.version}&quot;" />
+                                <require-version file="DEMO/start.ps1" property="node.version" snippet="$NODE_VERSION = &quot;${node.version}&quot;" />
                                 <require-version file="DEMO/start.ps1" property="postgresql.version" snippet="$POSTGRES_VERSION = &quot;${postgresql.version}&quot;" />
                                 <require-version file="DEMO/start.ps1" property="mssql.version" snippet="$MSSQL_VERSION = &quot;${mssql.version}&quot;" />
                                 <require-version file="DEMO/start.ps1" property="ojdbc11.version" snippet="$ORACLE_VERSION = &quot;${ojdbc11.version}&quot;" />

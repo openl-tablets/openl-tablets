@@ -18,8 +18,9 @@ export interface License {
 /**
  * Where the standard licenses are published, by SPDX identifier: the text of the license on the site of its steward.
  *
- * Every license the build accepts is listed: the frontend build accepts the licenses `npm run build` allows, the war
- * build the ones `license-maven-plugin` includes in `studio-backend/pom.xml`.
+ * Every license the build accepts is listed: the frontend build accepts the licenses `npm run build` allows, the MCP
+ * server the ones `npm run licenses` of `studio-mcp` allows, the war build the ones `license-maven-plugin` includes in
+ * `studio-backend/pom.xml`.
  */
 const PUBLIC_LICENSES: Readonly<Record<string, string>> = {
     '0BSD': 'https://opensource.org/license/0bsd',
@@ -49,8 +50,11 @@ export const publicLicense = (identifier: string): string | undefined => PUBLIC_
 /** Splits an SPDX expression into its licenses, operators, spaces and parentheses, in their order. */
 export const expressionParts = (expression: string): string[] => expression.split(/(\s+|[()])/).filter(Boolean)
 
-/** The libraries bundled into the pages, the libraries of the webapp, and the software the Docker image runs it on. */
-export type LicenseSide = 'frontend' | 'backend' | 'server'
+/**
+ * The libraries bundled into the pages, the libraries of the webapp, the libraries of its MCP server, and the software
+ * the Docker image runs it on.
+ */
+export type LicenseSide = 'frontend' | 'backend' | 'mcp' | 'server'
 
 /**
  * The libraries of one side with their licenses.
