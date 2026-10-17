@@ -52,7 +52,7 @@ The `org.openl.rules.ruleservice.publish.RuleServicePublisherListener` interface
 | Inceptor                         | Description                                                                                               |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------|
 | onDeploy(OpenLService)         | Invoked each time when the OpenL Tablets service is deployed with the publisher that fires this listener. |
-| onUndeploy(String serviceName) | Invoked each time when the service with the defined name is undeployed.                                   |
+| onUndeploy(String deployPath)  | Invoked each time when the service with the defined deployment path is undeployed.                        |
 
 ### Dynamic Interface Support
 
@@ -88,15 +88,13 @@ This configuration can be applied to projects using the `rules.xml` file. An exa
 </project>
 ```
 
-For filtering methods, define the `method`-filter tag in the `rules.xml` file. This tag contains the `includes` and `excludes` tags. The algorithm is as follows:
+For filtering methods, define the `exposed-methods` tag in the `rules.xml` file. This tag contains the `include` and `exclude` tags with method name patterns, where `*` matches any characters and `?` matches one character. The algorithm is as follows:
 
--   If the `method`-filter tag is not defined in the `rules.xml`, the system generates a dynamic interface with all methods provided in the module or modules for multimodule.
--   If the `includes` tag is defined for method filtering, the system uses the methods which names match a regular expression of defined patterns.
--   If the `includes` tag is not defined, the system includes all methods.
--   If the `excludes` tag is defined for method filtering, the system uses methods which method names do not match a regular expression for defined patterns.
--   If the excludes tag is not defined, the system does not exclude the methods.
-
-If OpenL Tablets Dynamic Interface feature is used, a client interface can also be generated dynamically at runtime. Apache CXF supports the dynamic client feature. For more information on dynamic interface support by Apache CXF, see <https://cxf.apache.org/docs/dynamic-clients.html>.
+-   If the `exposed-methods` tag is not defined in the `rules.xml`, the system generates a dynamic interface with all methods provided in the module or modules for multimodule.
+-   If the `include` tag is defined for method filtering, the system uses the methods which names match any of the defined patterns.
+-   If the `include` tag is not defined, the system includes all methods.
+-   If the `exclude` tag is defined for method filtering, the system uses methods which names do not match the defined patterns.
+-   If the `exclude` tag is not defined, the system does not exclude the methods.
 
 Note: If a project is empty and does not contain any method, it is unavailable as a service.
 
@@ -136,7 +134,7 @@ public class RequestModelValidator implements ServiceMethodBeforeAdvice {
 To use the “before” interceptor, proceed as follows:
 
 ```java
-@ServiceMethodBeforeAdvice({ RequestModelValidator.class })
+@ServiceCallBeforeInterceptor({ RequestModelValidator.class })
 Result doSomething(RequestModel requestModel);
 ```
 
@@ -183,7 +181,7 @@ public class SpreadsheetResultConverter extends
     @Override
     public ResponseDTO afterReturning(Method interfaceMethod,
                                       Object result, Object... args) {
-        SpreadsheetResult = (SpreadsheetResult) result;
+        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) result;
         return mapSpreadsheetResultToResponseDTO(spreadsheetResult);
     }
 
@@ -233,7 +231,7 @@ The advice class uses the same class loader that is used to compile the OpenL Ta
             // MyBean is Datatype defined in OpenL
             Class<?> myBeanClass = Thread.currentThread().getContextClassLoader()
                         .loadClass("org.openl.generated.beans.MyBean");
-            Object myBean = myBeanClass.newInstance();
+            Object myBean = myBeanClass.getDeclaredConstructor().newInstance();
             // … Do some mapping below and then return result
             return myBean;
         }
@@ -358,7 +356,7 @@ The `@RulesType` annotation value accepts the following:
 
 Use this annotation if more details are required to define a template method.
 
-**Note:** A user can also use class level annotations for a dynamically generated class. It can be useful for JAX-WS or JAX-RS interface customization.
+**Note:** A user can also use class level annotations for a dynamically generated class. It can be useful for JAX-RS interface customization.
 
 ### Customization of Log Requests to OpenL Rule Services and Their Responds in a Storage
 
@@ -441,7 +439,7 @@ The following annotations located in the org.openl.rules.ruleservice.storelogdat
 | `OutcomingTime`      | `ZonedDateTime` | Outgoing response time.                                                                                                                                            |
 | `MethodName`         | `String`        | Method of a service that is called.                                                                                                                                |
 | `ServiceName`        | `String`        | Deployment service name that is called.                                                                                                                            |
-| `Publisher`          | `String`        | Request source, such as web service or REST service or Kafka.                                                                                                      |
+| `Publisher`          | `String`        | Request source, such as REST service or Kafka.                                                                                                                     |
 | `Request`            | `String`        | Request body, such as JSON for the REST service, and message body for Kafka.                                                                                       |
 | `Response`           | `String`        | Response body, such as JSON for REST service, and message body for Kafka.                                                                                          |
 | `Url`                | `String`        | URL of the request if available.                                                                                                                                   |
