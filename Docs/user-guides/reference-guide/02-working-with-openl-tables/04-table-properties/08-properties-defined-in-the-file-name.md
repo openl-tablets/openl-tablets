@@ -2,7 +2,7 @@
 
 **Module level properties**, or table properties applied to all tables of a module, can be defined in the module file name. These properties are usually specified when the logic of the whole project must be split by certain major parameters, such as country, state, or date. The following conditions must be met for such properties definition:
 
--   A file name pattern is configured directly in a rules project descriptor, in the `rules.xml` file, as the `properties-file-name-pattern `tag, or via OpenL Studio as **Properties pattern for a file name** in the **Project** page.
+-   A file name pattern is configured directly in a rules project descriptor, in the `rules.xml` file, as the `properties-file-name-pattern `tag, or via OpenL Studio in the **Version patterns** section of the project **Overview** tab.
 -   The module file name matches the pattern.
 
 The file name pattern can include the following:
@@ -48,7 +48,7 @@ For instance, for the **Bank Rating** project module with the file name `AUTO-FL
 
 If a file name does not match the pattern, module properties are not defined.
 
-To view detailed information about the properties added to the file name pattern, click information icon next to the **Properties pattern for a file name** field.
+To view detailed information about the properties added to the file name pattern, click the question mark next to the **Version patterns** section name.
 
 ![Properties file name pattern description](../../ref-guide-images/propertiesFileNamePatternDescription.png)
 
@@ -64,7 +64,7 @@ A template for this example is as follows: `.*-%lob%-.*-%effectiveDate:ddMMyyyy%
 
 `Properties are stored not as single values, but as arrays of values.`
 
-**Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor. When the **Custom file name processor** check box is selected, the **File name processor class** field is displayed.
+**Note for experienced users:** This section describes default implementation of properties definition in the file name. To use a custom implementation, specify the required file name processor class in a rules project descriptor. In OpenL Studio, enter the class in the **Properties processor** section of the project **Overview** tab.
 
 ![Custom file name processor class](../../ref-guide-images/customFileNameProcessorClass.png)
 

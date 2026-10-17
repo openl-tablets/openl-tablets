@@ -122,25 +122,25 @@ in the previous step.
 
 To do it:
 
-1. Switch to the Repository Editor by clicking the **Repository** link.
+1. Click **Projects** in the top menu to open the Projects page.
 
-   ![Figure 4: Repository Editor](images/repository-editor.png)
+   ![Figure 4: Projects page](images/projects-page.png)
 
-   *Figure 4: Repository Editor*
+   *Figure 4: Projects page*
 
-   **Repository** provides the following main features:
+   The **Projects** page provides the following main features:
 
     - Organizing collaborative work within the company
     - Modifying project structure and properties
     - Managing project deployments and project revisions
 
-2. Click the **Create Project** button. The **Create Project from** window will appear. Select the **Excel Files** tab.
+2. Click **New Project**. The **Create project** window appears. Click **From Excel files**.
 
-   ![Figure 5: Create Project from.. window](images/create-project-from-window.png)
+   ![Figure 5: Create project window](images/create-project-from-window.png)
 
-   *Figure 5: Create Project from.. window*
+   *Figure 5: Create project window*
 
-3. **Add** and **Upload** the **TicketsPrice.xlsx** file.
+3. Click the upload area, or drag the **TicketsPrice.xlsx** file to it. The file is listed under the upload area.
 
    ![Figure 6: Upload Excel file](images/upload-excel-file.png)
 
@@ -152,24 +152,26 @@ To do it:
 
    *Figure 7: Creating project from Excel file*
 
-5. Your new project **Air Ticket Price** appears in the Projects tree with the `Editing` status. This means that you can
-   change your project and rules in it in the Rules Editor.
+5. Your new project **Air Ticket Price** opens with the **No Changes** status. You can change the project and its rules
+   in the Rules Editor right away.
 
-   OpenL Studio creates `rules.xml` in the project root and stores **TicketsPrice.xlsx** in the `rules/` folder.
+   OpenL Studio creates `rules.xml` in the project root and stores **TicketsPrice.xlsx** in the `rules/` folder. The
+   workbook is listed in the **Modules** section as the **TicketsPrice** module.
 
    ![Figure 8: Created Air Ticket Price project](images/created-air-ticket-price-project.png)
 
    *Figure 8: Created Air Ticket Price project*
 
 > [!Note]
-> OpenL Studio also allows creating projects with Tutorials and Examples quickly from the **Create Project** dialog.
+> OpenL Studio also allows creating projects with Tutorials and Examples quickly: in the **Create project** window, click
+> **From template**.
 
 ---
 
 ## Editing a Rule
 
-1. Switch to the **Rules Editor** using the top-level menu and select the created Decision rule from the tree on the
-   left.
+1. In the **Modules** section of the project, click **TicketsPrice** to open the module in the Rules Editor, and select
+   the `AirTicketsPrice` rule in the tree on the left.
 
    ![Figure 9: Air Tickets Price Decision table in Rules Editor](images/air-tickets-price-decision-table-rules-editor.png)
 
@@ -183,26 +185,28 @@ To do it:
 
 2. Now you can edit the `AirTicketsPrice` rule directly in OpenL Studio.
 
-3. Click the **Edit** ![Edit](images/icon-edit.png) button to edit the Decision Table and update the ticket price for
-   Atlanta/London.
+3. Click the **Edit** ![Edit](images/icon-edit.png) button above the table. Double-click the ticket price for
+   Atlanta/London, enter `700`, and press **Enter**.
 
    ![Figure 10: Air Tickets Price Decision table update](images/air-tickets-price-decision-table-update.png)
 
    *Figure 10: Air Tickets Price Decision table update*
 
-4. Save the updated Decision Table.
+4. Click **Save** in the table editor toolbar, the first button of the row under the table toolbar. The **Save** button
+   appears at the top of the page: click it, and then click **Save** in the **Save project** window to store the change
+   in the repository.
 
 ---
 
 ## Testing a Rule
 
-OpenL Studio does not highlight the rule we created in red and the problem pane at the bottom of the page is empty. This
-means we have created the rule correctly.
+OpenL Studio does not report any error for the rule we created. This means we have created the rule correctly.
 
 Now let's ensure that the rule logic is correct.
 
-OpenL Studio has an ad hoc rule testing feature. To use it, click the **Run** button on the menu, input values for the
-test, and click the **Run** button in the popup.
+OpenL Studio has an ad hoc rule testing feature. To use it, click the **Run** button above the table. In the panel, click
+the edit icon next to each parameter and enter its value, `Chicago` for `departureCity` and `Madrid` for
+`destinationCity`, and then click **Run** in the panel.
 
 ![Figure 11: Running ad hoc test](images/running-adhoc-test.png)
 
@@ -224,31 +228,26 @@ Let's create a test table for our rule in OpenL Studio.
 
 To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
 
-1. Click the **Create Test** button to create a new test while viewing the rule table.
+1. Click the **Create Test** button above the rule table.
 
    ![Figure 13: Create Test](images/create-test.png)
 
    *Figure 13: Create Test*
 
-2. The Test Name is prefilled automatically with the decision table name and the word `Test` appended at the end. Click
-   **Next**.
+2. The **Create Table** window opens with the **Test** table type and the tested table selected. The **Table Name** is
+   prefilled automatically with the decision table name and the word `Test` appended at the end. Click **Create**,
+   accepting the default values of **Module** and **Sheet** for the destination where the test table will be placed.
 
-   ![Figure 14: Create test window](images/create-test-window.png)
+   ![Figure 14: Create Table window for a test](images/create-test-window.png)
 
-   *Figure 14: Create test window*
+   *Figure 14: Create Table window for a test*
 
-3. Click **Save**, accepting the default values for the destination where the test table will be placed.
+3. The Test Table is created with one sample test case. Now you can edit the table by updating column titles (if
+   needed) and adding test data (as with rule tables, this can be done in OpenL Studio or in the Excel file).
 
-   ![Figure 15: Select destination window](images/select-destination-window.png)
+   ![Figure 15: Initial Test Table](images/initial-test-table.png)
 
-   *Figure 15: Select destination window*
-
-4. The Test Table is created. Now you can edit the table by updating column titles (if needed) and adding test data (as
-   with rule tables, this can be done in OpenL Studio or in the Excel file).
-
-   ![Figure 16: Initial Test Table](images/initial-test-table.png)
-
-   *Figure 16: Initial Test Table*
+   *Figure 15: Initial Test Table*
 
 ### Editing a Test in OpenL Studio
 
@@ -256,40 +255,44 @@ To create a table for testing the `AirTicketsPrice` rule, proceed as follows:
 
 2. Add test data:
 
-   a. Click on any table cell. The table editor menu becomes enabled.
+   a. Double-click a cell of the sample test case, enter the value, and press **Enter**. Replace the sample values with
+   `Boston`, `Paris`, and `850`.
 
-   b. In the table editor menu, select the ![Insert row](images/icon-insert-row.png) button to insert a row after the
-   selected one. Insert two rows.
+   b. Click a cell of the test case, and in the table editor toolbar, click the
+   ![Insert row](images/icon-insert-row.png) **Insert Row After** button to insert a row after the selected one. Insert
+   two rows.
 
-   ![Figure 17: Table editor menu](images/table-editor-menu.png)
+   ![Figure 16: Table editor toolbar](images/table-editor-menu.png)
 
-   *Figure 17: Table editor menu*
+   *Figure 16: Table editor toolbar*
 
-   c. Add test data and **Save** your changes.
+   c. Add test data and click **Save** in the table editor toolbar.
 
-   ![Figure 18: Add test data](images/add-test-data.png)
+   ![Figure 17: Add test data](images/add-test-data.png)
 
-   *Figure 18: Add test data*
+   *Figure 17: Add test data*
 
 ### Test Execution
 
-1. Run the test table. To execute all test cases, click the **Run** button.
+1. Run the test table. Click the **Run** button above the table. The panel lists the test cases, every one of them
+   selected. To execute all test cases, click **Run** in the panel.
 
-   ![Figure 19: Run Test](images/run-test.png)
+   ![Figure 18: Run Test](images/run-test.png)
 
-   *Figure 19: Run Test*
+   *Figure 18: Run Test*
 
 2. OpenL Studio will display the test results.
 
-   ![Figure 20: Test results window](images/test-results-window.png)
+   ![Figure 19: Test results window](images/test-results-window.png)
 
-   *Figure 20: Test results window*
+   *Figure 19: Test results window*
 
 Failed test cases are marked by the ![Failed](images/icon-failed.png) icon.
 
 Passed test cases are marked by the ![Passed](images/icon-passed.png) icon.
 
-All test cases passed. Hence, our rule `AirTicketsPrice` works correctly.
+All test cases passed. Hence, our rule `AirTicketsPrice` works correctly. Click **Save** at the top of the page to store
+the test table in the repository.
 
 ---
 

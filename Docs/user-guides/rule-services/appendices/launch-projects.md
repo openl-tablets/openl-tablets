@@ -2,7 +2,7 @@
 
 When OpenL Rule Services is launched using the `openl:port/webservice` link, the system displays a list of deployed projects.
 
-![List of projects displayed upon OpenL Rule Services launch](../images/3ea704f1152d2ec3c40eeda6d2ee51af.jpg)
+![List of projects displayed upon OpenL Rule Services launch](../images/launch-projects-list.png)
 
 *List of projects displayed upon OpenL Rule Services launch*
 
@@ -14,6 +14,6 @@ The successfully deployed projects appear with the green check mark that can be 
 
 Projects deployed with errors are marked with the red cross mark that is clickable and displays the error message.
 
-![Viewing error message for a project](../images/ade13adaf033517e5a0f641f1cb54cde.png)
+![Viewing error message for a project](../images/launch-projects-error.png)
 
 *Viewing error message for a project*

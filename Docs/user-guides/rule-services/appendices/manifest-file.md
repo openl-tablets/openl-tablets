@@ -31,7 +31,7 @@ If the project is deployed in OpenL Studio, the manifest file contains the follo
 
 The manifest file is available in OpenL Rule Services, on the main page, for each deployed service.
 
-![Manifest file available for the deployed project](../images/989c0347237015276cece6779d16e9a8.png)
+![Manifest file available for the deployed project](../images/manifest-file-link.png)
 
 *Manifest file available for the deployed project*
 
