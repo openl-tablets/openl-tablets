@@ -133,11 +133,19 @@ public final class XlsSheetCopier {
     }
 
     /**
-     * Removes all rows from sheet
+     * Removes all rows from sheet, its array formulas first: a row holding a part of an array formula cannot be
+     * removed.
      *
      * @param sheet sheet
      */
     private static void removeAllRows(Sheet sheet) {
+        for (var row : sheet) {
+            for (var cell : row) {
+                if (cell.isPartOfArrayFormulaGroup()) {
+                    sheet.removeArrayFormula(cell);
+                }
+            }
+        }
         for (var rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++) {
             var row = sheet.getRow(rowNum);
             if (row != null) {
@@ -187,7 +195,8 @@ public final class XlsSheetCopier {
      * <p>A formula comes with the value it keeps, which it goes on showing when it cannot be recalculated, such as a
      * formula that reads another workbook. An array formula is written as a plain formula in its first cell, which
      * notes the cells the formula spans where they land, for {@link #restoreArrayFormulas(Cursor)}; the other cells it
-     * spans get the values it gave them.
+     * spans get the values it gave them. A cell written over the first cell of an array formula copied before is no
+     * longer the first cell of that array formula.
      *
      * @param src  source
      * @param dest destination
@@ -195,6 +204,8 @@ public final class XlsSheetCopier {
      *                                         the destination numbers differently; a link it lacks is brought along
      */
     static void copyValue(Cursor src, Cursor dest) {
+        dest.arrayFormulas.removeIf(range -> range.getFirstRow() == dest.cell.getRowIndex()
+                && range.getFirstColumn() == dest.cell.getColumnIndex());
         switch (src.cell.getCellType()) {
             case BLANK -> dest.cell.setBlank();
             case STRING -> dest.cell.setCellValue(src.cell.getRichStringCellValue());
@@ -237,25 +248,72 @@ public final class XlsSheetCopier {
     /**
      * Makes the array formulas copied into a sheet array formulas again, once every cell they span is written: the
      * first cell keeps the formula, and the other cells keep the values the formula gave them.
+     *
+     * <p>An array formula whose first cell no longer holds a formula, or that crosses an array formula restored
+     * before, was written over later, and is left as it was written.
      */
     static void restoreArrayFormulas(Cursor dest) {
-        for (var range : dest.arrayFormulas) {
-            var first = new CellAddress(range.getFirstRow(), range.getFirstColumn());
-            var formula = CellUtil.getCell(CellUtil.getRow(first.getRow(), dest.sheet), first.getColumn())
-                    .getCellFormula();
-            // An .xls workbook resets the values of the cells an array formula spans, so they are written back.
-            var values = new LinkedHashMap<CellAddress, Consumer<Cell>>();
-            for (var address : range) {
-                var cell = SheetUtil.getCell(dest.sheet, address.getRow(), address.getColumn());
-                if (cell != null && !address.equals(first)) {
-                    values.put(address, valueOf(cell, cell.getCellType()));
-                }
-            }
-            dest.sheet.setArrayFormula(formula, range);
-            values.forEach((address, value) -> value.accept(
-                    CellUtil.getCell(CellUtil.getRow(address.getRow(), dest.sheet), address.getColumn())));
-        }
+        dest.arrayFormulas.stream()
+                .filter(range -> isWhole(dest.sheet, range))
+                .forEach(range -> rewriteArray(dest.sheet,
+                        range,
+                        formula -> dest.sheet.setArrayFormula(formula, range)));
         dest.arrayFormulas.clear();
+    }
+
+    private static boolean isWhole(Sheet sheet, CellRangeAddress range) {
+        var first = SheetUtil.getCell(sheet, range.getFirstRow(), range.getFirstColumn());
+        if (first == null || first.getCellType() != CellType.FORMULA) {
+            return false;
+        }
+        for (var address : range) {
+            var cell = SheetUtil.getCell(sheet, address.getRow(), address.getColumn());
+            if (cell != null && cell.isPartOfArrayFormulaGroup()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Turns the array formula a cell belongs to into plain content, so that each cell it spans can be written: the
+     * first cell keeps the formula as a plain one, and the other cells keep the values the formula gave them.
+     *
+     * <p>A cell of no array formula is left as it is.
+     */
+    static void releaseArrayFormula(Cell cell) {
+        if (!cell.isPartOfArrayFormulaGroup()) {
+            return;
+        }
+        var sheet = cell.getSheet();
+        var range = cell.getArrayFormulaRange();
+        rewriteArray(sheet, range, formula -> {
+            sheet.removeArrayFormula(cell);
+            cellAt(sheet, new CellAddress(range.getFirstRow(), range.getFirstColumn())).setCellFormula(formula);
+        });
+    }
+
+    /**
+     * Changes how the cells of a range hold an array formula, and keeps what they show: the change gets the formula of
+     * the first cell, and every cell gets back the value it showed, which an .xls workbook resets.
+     */
+    private static void rewriteArray(Sheet sheet, CellRangeAddress range, Consumer<String> change) {
+        var formula = cellAt(sheet, new CellAddress(range.getFirstRow(), range.getFirstColumn())).getCellFormula();
+        var values = new LinkedHashMap<CellAddress, Consumer<Cell>>();
+        for (var address : range) {
+            var cell = SheetUtil.getCell(sheet, address.getRow(), address.getColumn());
+            if (cell != null) {
+                values.put(address, valueOf(cell, cell.getCellType() == CellType.FORMULA
+                        ? cell.getCachedFormulaResultType()
+                        : cell.getCellType()));
+            }
+        }
+        change.accept(formula);
+        values.forEach((address, value) -> value.accept(cellAt(sheet, address)));
+    }
+
+    private static Cell cellAt(Sheet sheet, CellAddress address) {
+        return CellUtil.getCell(CellUtil.getRow(address.getRow(), sheet), address.getColumn());
     }
 
     /**

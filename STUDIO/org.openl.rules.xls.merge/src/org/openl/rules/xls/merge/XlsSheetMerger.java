@@ -274,6 +274,10 @@ final class XlsSheetMerger {
      * Writes the content a cell of the merged sheet takes: a copy of a cell of BASE revision, or a copy of another cell
      * of OUR revision, or nothing, and then the parts of a cell of THEIR revision. A part a revision has not got is
      * cleared, and a cell left with nothing in it is removed.
+     *
+     * <p>An array formula of OUR revision the cell belongs to becomes plain content first when the value of the cell is
+     * written. A revision that changed the formula changed every cell it spans, so each of them is written. A cell
+     * that takes only the style or the comment of THEIR revision stays in the array formula.
      */
     private static void copyCell(Cursor their,
                                  Cursor our,
@@ -283,6 +287,9 @@ final class XlsSheetMerger {
                                  CellSource source) {
         our.row = CellUtil.getRow(address.getRow(), our.sheet);
         our.cell = CellUtil.getCell(our.row, address.getColumn());
+        if (writesValue(address, source)) {
+            XlsSheetCopier.releaseArrayFormula(our.cell);
+        }
         var from = source.our();
         if (source.base() != null) {
             copyWhole(Objects.requireNonNull(base), source.base(), our);
@@ -299,6 +306,16 @@ final class XlsSheetMerger {
             our.row.removeCell(our.cell);
         }
         their.cell = our.cell = null;
+    }
+
+    /**
+     * Whether a cell of the merged sheet takes a value: a copy of a cell of BASE revision, a cell of OUR revision moved
+     * there or cleared, or the value of a cell of THEIR revision.
+     */
+    private static boolean writesValue(CellAddress address, CellSource source) {
+        return source.base() != null
+                || !address.equals(source.our())
+                || source.their() != null && source.parts().contains(CellPart.VALUE);
     }
 
     /**
