@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.excel.grid.MarkdownModuleWriter;
 import org.openl.excel.parser.markdown.MarkdownGrid;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
@@ -35,7 +35,6 @@ import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.util.FileTypeHelper;
-import org.openl.util.StringUtils;
 
 /**
  * The files of the tables of a Markdown module, a table to a file.
@@ -59,7 +58,6 @@ public class MarkdownTableFiles {
     private static final Map<TableKind, String> MODULE_TABLES = Map.of(TableKind.ENVIRONMENT, "Environment",
             TableKind.PROPERTIES, "Properties",
             TableKind.CONSTANTS, "Constants");
-    private static final Set<String> RESERVED = Set.copyOf(MODULE_TABLES.values());
 
     private final ProjectFilesService projectFilesService;
     private final ProjectFileRootFactory projectFileRootFactory;
@@ -176,11 +174,14 @@ public class MarkdownTableFiles {
                                      String tableName,
                                      @Nullable TableKind kind) {
         var moduleTable = kind == null ? null : MODULE_TABLES.get(kind);
-        var file = (moduleTable == null ? tableName : moduleTable) + EXTENSION;
+        if (moduleTable != null) {
+            return folder + "/" + moduleTable + EXTENSION;
+        }
+        var sheetFolder = folderNamed(sheetName);
         var folderName = folder.substring(folder.lastIndexOf('/') + 1);
-        return moduleTable != null || namesTheModuleFolder(folderName, sheetName)
-                ? folder + "/" + file
-                : folder + "/" + folderNamed(sheetName) + "/" + file;
+        return MarkdownModuleWriter.namesTheFolder(folderName, sheetFolder)
+                ? folder + "/" + tableName + EXTENSION
+                : folder + "/" + sheetFolder + "/" + tableName + EXTENSION;
     }
 
     /**
@@ -214,49 +215,20 @@ public class MarkdownTableFiles {
             }
             return file;
         }
-        var directory = directoryOf(folder, sheetName);
-        var file = directory.resolve(tableName + EXTENSION);
-        // A table named as a table of the whole module would be read as one at the root of the folder
-        var taken = directory.equals(folder) && RESERVED.contains(tableName);
-        for (var number = 1; taken || Files.exists(file); number++) {
-            file = directory.resolve(tableName + number + EXTENSION);
-            taken = false;
-        }
-        return file;
+        return MarkdownModuleWriter.fileOf(folder, folderNamed(sheetName), tableName);
     }
 
     /**
-     * Returns the folder a sheet of a module names: the module folder for its own name or none, a folder of that name
-     * in it, or a new one at its root.
-     */
-    private static Path directoryOf(Path folder, @Nullable String sheetName) {
-        if (namesTheModuleFolder(String.valueOf(folder.getFileName()), sheetName)) {
-            return folder;
-        }
-        var name = folderNamed(sheetName);
-        try (var paths = Files.find(folder, Integer.MAX_VALUE,
-                (path, attributes) -> attributes.isDirectory() && name.equals(String.valueOf(path.getFileName())))) {
-            return paths.sorted().findFirst().orElse(folder.resolve(name));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /** Whether a sheet names the module folder itself: by its name, or by none. */
-    private static boolean namesTheModuleFolder(String folderName, @Nullable String sheetName) {
-        return StringUtils.isBlank(sheetName) || sheetName.equals(folderName);
-    }
-
-    /**
-     * Returns the name of the folder a sheet names.
+     * Returns the name of the folder a sheet names, see {@link MarkdownModuleWriter#folderNameOf}.
      *
+     * @return the name, empty for no sheet
      * @throws BadRequestException when the sheet names a path
      */
-    private static String folderNamed(String sheetName) {
-        if (sheetName.contains("/") || sheetName.contains("\\") || sheetName.contains("..")) {
+    private static String folderNamed(@Nullable String sheetName) {
+        if (sheetName != null && (sheetName.contains("/") || sheetName.contains("\\") || sheetName.contains(".."))) {
             throw new BadRequestException("table.sheet-name.invalid.message", new Object[]{sheetName});
         }
-        return sheetName;
+        return MarkdownModuleWriter.folderNameOf(sheetName);
     }
 
     private static long markdownFiles(Path folder) {
