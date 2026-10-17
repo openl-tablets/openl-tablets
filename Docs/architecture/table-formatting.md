@@ -312,6 +312,14 @@ The signature is the only cell written as rich text. Its pieces are read from th
 
 Every other cell is written as plain text. Rich text found in it is replaced by the same text in the cell's font.
 
+The signature is the whole first row of a table, so the formatter merges that row into one cell across the table. A
+merge of a part of the row is widened to the whole row. A row holding a value beside the header, or one a merge
+reaches out of, is left as it is, so no value is lost and no other merge is cut. The merge goes through the grid
+model of the sheet when the table is read through one, so the merged regions it keeps stay those of the sheet.
+
+The rows of the properties, and the rows of the code and of the titles of a table written the usual way round, take
+their role in every cell up to the right edge of the table, the empty ones included.
+
 ### Regions, not cells
 
 A role is laid out as a rectangle of cells: a **region**. A Data table of 10,000 rows is about six regions,

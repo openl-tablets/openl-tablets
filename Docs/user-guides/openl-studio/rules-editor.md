@@ -456,8 +456,9 @@ itself offers, so the tables look the same in Excel and change with the theme of
     values of a lookup, and a line closes the table; a fine line sets apart the rules that share a merged value of
     a condition, and what a table returns has a line above it and a double line below it. There are no vertical
     lines.
--   **Header** — the name of the table is bold, the names of the parameters are in the text colour, and the keyword,
-    the types, and the punctuation are lighter.
+-   **Header** — the header is merged into one cell across the table, unless another cell of its row holds a value.
+    The name of the table is bold, the names of the parameters are in the text colour, and the keyword, the types,
+    and the punctuation are lighter.
 
 To format every table of the project, above the table, click **More**, select **Reformat Excel files**, and in the
 dialog, click **Reformat**. A tooltip on the menu item says what the action does.

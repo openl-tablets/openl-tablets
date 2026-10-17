@@ -8,7 +8,7 @@ Content-Type: application/json
   "name": "attributesTest",
   "pos": "B2:C5",
   "source": [
-    [{"cell": "B2", "value": "Test first attributesTest"}, {"cell": "C2"}],
+    [{"cell": "B2", "value": "Test first attributesTest", "colspan": 2}, {"covered": true}],
     [{"cell": "B3", "value": "attributes"}, {"cell": "C3", "value": "_res_"}],
     [{"cell": "B4", "value": "Attributes"}, {"cell": "C4", "value": "Result"}],
     [{"cell": "B5", "value": ["column-a", "column-b"]}, {"cell": "C5", "value": "row-a"}]

@@ -70,6 +70,26 @@ class TableRegionLayoutTest {
     }
 
     @Test
+    void givesTheRowsOfTheHeadersTheirRoleUpToTheEndOfTheTable() throws IOException {
+        var model = TableTestProjects.projectModel(dir, SHEET, sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Person");
+            TableTestProjects.row(sheet, 2, 1, "String", "name");
+            TableTestProjects.row(sheet, 4, 1, "Data Person people");
+            TableTestProjects.merge(sheet, 4, 4, 1, 5);
+            TableTestProjects.row(sheet, 5, 1, "properties", "description", "the people");
+            TableTestProjects.row(sheet, 6, 1, "name");
+            TableTestProjects.row(sheet, 7, 1, "Name");
+            TableTestProjects.row(sheet, 8, 1, "Ann");
+        });
+        var roles = Roles.of(TableTestProjects.table(model, "people"));
+
+        // The empty cells of a row of the properties, the field names and the titles take the role of the row.
+        assertEquals(RawTableRole.PROPERTIES, roles.roleAt(5, 5));
+        assertEquals(RawTableRole.CODE, roles.roleAt(6, 5));
+        assertEquals(RawTableRole.INPUT_TITLE, roles.roleAt(7, 5));
+    }
+
+    @Test
     void splitsTheHeaderTextIntoItsParts() throws IOException {
         assertEquals(List.of(new RawTableSignaturePiece(RawTableSignaturePart.KEYWORD, 8),
                 new RawTableSignaturePiece(RawTableSignaturePart.NAME, 15)), regionsOf(person(1)).signature());
