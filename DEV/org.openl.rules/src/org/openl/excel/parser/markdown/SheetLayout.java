@@ -45,7 +45,7 @@ final class SheetLayout {
         var sheet = cellsOf(table);
         // Copied into rows of objects, which hold the merge marks a row of strings cannot
         var cells = Arrays.stream(sheet.values())
-                .map(row -> Arrays.copyOf(row, row.length, Object[].class))
+                .map(row -> Arrays.stream(row).map(MarkdownValues::of).toArray())
                 .toArray(Object[][]::new);
         sheet.merges().forEach(range -> mark(cells, range));
         return cells;

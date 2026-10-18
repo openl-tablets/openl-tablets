@@ -9,10 +9,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -24,9 +28,12 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.rules.TestUtils;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.types.IOpenField;
 
 /**
  * The tables of a workbook written into a module folder of Markdown files are compiled back into the same tables, a
@@ -236,6 +243,65 @@ class MarkdownModuleWriterTest {
     }
 
     @Test
+    void valuesOfSpreadsheetAreWrittenAsTextAndReadBackOfTheTypesTheirCellsGaveThem() throws IOException {
+        var started = Date.from(LocalDateTime.of(2011, Month.JANUARY, 1, 10, 30, 15)
+                .atZone(ZoneId.systemDefault())
+                .toInstant());
+        var workbook = workbook("Terms.xlsx", rules -> {
+            var sheet = rules.createSheet("Terms");
+            row(sheet, 0, "Spreadsheet SpreadsheetResult terms()");
+            row(sheet, 1, "Step", "Value", "Next");
+            row(sheet, 2, "Count", 5.0, -6.0);
+            row(sheet, 3, "Flag", true, false);
+            row(sheet, 4, "Start", date(2010, 5, 1), started);
+            row(sheet, 5, "Rate", 0.5, "high");
+            row(sheet, 6, "Total", "=$Value$Count + 1");
+            row(sheet, 7, "Single", 7.0);
+            row(sheet, 8, "Limit : Double", 7.0, 8.0);
+            row(sheet, 10, "Spreadsheet SpreadsheetResult wait()");
+            row(sheet, 11, "Step", "Description", "Formula");
+            row(sheet, 12, "Delay", null, 60.0);
+            row(sheet, 13, "Due", "The day after", "=$Formula$Delay + 1");
+        });
+        var module = dir.resolve("md/Terms");
+
+        MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        // A file names no type: a whole number, a boolean and a date read back as the values a workbook holds
+        assertEquals("""
+                | Step | Value | Next |
+                |---|---|---|
+                | Count | 5 | -6 |
+                | Flag | true | false |
+                | Start | 2010-05-01 | 2011-01-01T10:30:15 |
+                | Rate | 0.5 | high |
+                | Total | =$Value$Count + 1 |  |
+                | Single | 7 |  |
+                | Limit : Double | 7 | 8 |
+                """, bodyOf(module.resolve("terms.md")));
+        assertEquals("""
+                | Step | Description | Formula |
+                |---|---|---|
+                | Delay |  | 60 |
+                | Due | The day after | =$Formula$Delay + 1 |
+                """, bodyOf(module.resolve("wait.md")));
+        var factory = new RulesEngineFactory<>(module.toString());
+        var compiled = factory.getCompiledOpenClass();
+        assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
+        SpreadsheetResult terms = TestUtils.invoke(factory.newEngineInstance(), "terms");
+        assertEquals(List.of(5, -6, true, false, date(2010, 5, 1), started, 0.5, "high", 6, 7, 7.0, 8.0),
+                Arrays.asList(terms.getValue(0, 0), terms.getValue(0, 1), terms.getValue(1, 0), terms.getValue(1, 1),
+                        terms.getValue(2, 0), terms.getValue(2, 1), terms.getValue(3, 0), terms.getValue(3, 1),
+                        terms.getValue(4, 0), terms.getValue(5, 0), terms.getValue(6, 0), terms.getValue(6, 1)));
+        assertEquals(resultFields(workbook, "terms"), resultFields(module, "terms"));
+        // The empty explanation beside the value of a step gives the result no field
+        var wait = resultFields(module, "wait");
+        assertEquals(resultFields(workbook, "wait"), wait);
+        assertEquals("java.lang.Integer", wait.get("$Formula$Delay"));
+        assertFalse(wait.containsKey("$Description$Delay"), wait::toString);
+    }
+
+    @Test
     void tableNamedAsAnotherIsNumberedAndSheetNamedAsTheFolderIsItsRoot() throws IOException {
         var folder = Files.createDirectories(dir.resolve("Rates"));
         Files.writeString(folder.resolve("rate.md"), "");
@@ -336,6 +402,26 @@ class MarkdownModuleWriterTest {
                 .orElseThrow();
     }
 
+    /** The fields of the result of a Spreadsheet table of a module and their types, as a service gives them. */
+    private static Map<String, String> resultFields(Path module, String table) {
+        var compiled = new RulesEngineFactory<>(module.toString()).getCompiledOpenClass();
+        return compiled.getOpenClassWithErrors().getTypes().stream()
+                .filter(type -> type.getName().equals("SpreadsheetResult" + table))
+                .map(CustomSpreadsheetResultOpenClass.class::cast)
+                .findFirst()
+                .orElseThrow()
+                .getFields().stream()
+                // An empty cell is of no type and gives the service no field
+                .filter(field -> field.getType().getInstanceClass() != null)
+                .collect(Collectors.toMap(IOpenField::getName, field -> field.getType().getName()));
+    }
+
+    /** The table of a file without its front matter. */
+    private static String bodyOf(Path file) throws IOException {
+        var text = Files.readString(file);
+        return text.substring(text.indexOf("\n|") + 1);
+    }
+
     private static Row row(Sheet sheet, int index, Object... values) {
         var row = sheet.createRow(index);
         for (var column = 0; column < values.length; column++) {
@@ -344,6 +430,7 @@ class MarkdownModuleWriterTest {
                     // A blank cell is no cell of the row
                 }
                 case Double number -> row.createCell(column).setCellValue(number);
+                case Boolean flag -> row.createCell(column).setCellValue(flag);
                 case Date date -> {
                     var cell = row.createCell(column);
                     cell.setCellValue(date);

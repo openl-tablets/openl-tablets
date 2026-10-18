@@ -16,6 +16,9 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jspecify.annotations.Nullable;
@@ -55,7 +58,7 @@ class MarkdownReaderTest {
         assertArrayEquals(new Object[][]{
                 {"Rules String Greeting(Integer hour)", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
                 {"properties", "description", "Greeting by the hour of the day"},
-                {MERGE_WITH_UP, "effectiveDate", "2024-01-01"},
+                {MERGE_WITH_UP, "effectiveDate", day(2024, 1, 1)},
                 {MERGE_WITH_UP, "state", "CA,NY"},
                 {"Hour", "Greeting", MERGE_WITH_LEFT},
                 {"0-11", "Good Morning", MERGE_WITH_LEFT},
@@ -104,11 +107,12 @@ class MarkdownReaderTest {
                 | 25  | 64 |         |
                 """;
 
+        // A whole number reads as the Integer a cell of a workbook holds
         assertArrayEquals(new Object[][]{
                 {"Rules Double BasePremium(Integer age)", MERGE_WITH_LEFT, MERGE_WITH_LEFT},
                 {"Age", MERGE_WITH_LEFT, "Premium"},
-                {"16", "24", "1200"},
-                {"25", "64", MERGE_WITH_UP}}, cellsOf("BasePremium.md", text));
+                {16, 24, 1200},
+                {25, 64, MERGE_WITH_UP}}, cellsOf("BasePremium.md", text));
     }
 
     @Test
@@ -313,5 +317,10 @@ class MarkdownReaderTest {
 
     private static MarkdownReader read(String name, String text) {
         return new MarkdownReader(new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)), name);
+    }
+
+    /** A day at midnight in the time zone of the reader, as a cell of a workbook holds a date. */
+    private static Date day(int year, int month, int dayOfMonth) {
+        return Date.from(LocalDate.of(year, month, dayOfMonth).atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

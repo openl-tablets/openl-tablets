@@ -104,6 +104,9 @@ with its workbooks written as Markdown. The setting is off by default.
   tables in `Constants.md`; a Properties table is written as any other table, in the folder of its sheet.
 - A Markdown file keeps no formatting, comments or formulas: a cell keeps the value its formula computed. A table of
   no kind OpenL knows, such as a note, is kept as text in the `notes.md` file of its sheet.
+- A value is written as its text, and a whole number, a boolean and a date read back as the values of the types the
+  cells of the workbook hold: a `Spreadsheet` step keeps the type its value took from its cell, and its result keeps
+  its fields, with no type named in the file.
 
 ## Pom-less OpenL projects
 

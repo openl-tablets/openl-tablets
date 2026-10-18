@@ -1,0 +1,8 @@
+<project>
+    <name>MD-POC_Value_types</name>
+    <modules>
+        <module>
+            <rules-root path="rules/Main"/>
+        </module>
+    </modules>
+</project>

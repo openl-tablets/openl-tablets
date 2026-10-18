@@ -51,7 +51,9 @@ import org.openl.util.StringUtils;
  *
  * <p>A file keeps the values of a table as text, its merged cells and its properties. It keeps no look, no comment and
  * no formula: a cell keeps the value its formula computed. A number the compiler read as a date is written as the
- * date, and a file the Environment table includes is named from the folder the table is written in.
+ * date, and a file the Environment table includes is named from the folder the table is written in. A whole number,
+ * a boolean and a date are read back from their text as the values of the same types, as the cells of a workbook hold
+ * them.
  *
  * <p>A table of no kind OpenL knows, such as a note, is no rule: it is written as text, a line for each row, in the
  * {@code notes.md} documentation of its sheet. A table whose header names a kind OpenL knows is a table, even when it
@@ -323,9 +325,12 @@ public final class MarkdownModuleWriter {
         for (var row = first; row < cells.getHeight(); row++) {
             for (var column = 0; column < cells.getWidth(); column++) {
                 var cell = cells.getCell(column, row);
-                var value = environment && column == 1 && isInclude(cells.getCell(0, row))
-                        ? includeFromTheFolder(cell.getStringValue())
-                        : valueOf(cell, metaInfo);
+                Object value;
+                if (environment && column == 1 && isInclude(cells.getCell(0, row))) {
+                    value = includeFromTheFolder(cell.getStringValue());
+                } else {
+                    value = valueOf(cell, metaInfo);
+                }
                 write(grid, cell, value, region, shift);
             }
         }
