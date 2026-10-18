@@ -929,6 +929,9 @@ public class ProjectsController {
                                              @RequestParam(value = "lazyValues", defaultValue = "false")
                                              @Parameter(description = "projects.tests.summary.param.lazy-values.desc")
                                              boolean lazyValues,
+                                             @RequestParam(value = "tableId", required = false)
+                                             @Parameter(description = "projects.tests.summary.param.table-id.desc")
+                                             @Nullable String tableId,
                                              @PaginationDefault Pageable page,
                                              @Parameter(required = true, schema = @Schema(allowableValues = {MediaType.APPLICATION_JSON_VALUE, APPLICATION_XLSX_MEDIATYPE}))
                                              @RequestHeader(name = HttpHeaders.ACCEPT)
@@ -944,7 +947,7 @@ public class ProjectsController {
                     allFailures ? TestUnitsResults.ALL_FAILURES : failures,
                     compoundResult,
                     lazyValues);
-            return ResponseEntity.ok(mapper.mapExecutionSummary(run.tables(), run.notRun(), query, page));
+            return ResponseEntity.ok(mapper.mapExecutionSummary(tablesOf(run, tableId), run.notRun(), query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             // A client that asked for a workbook is told by the status alone: it did not ask for JSON.
             if (completed.isEmpty()) {
@@ -952,7 +955,7 @@ public class ProjectsController {
             }
             // A case that gave back to free memory a value the workbook writes runs again while its row is written.
             var output = new ByteArrayOutputStream();
-            var tables = completed.get().tables().toArray(new TestUnitsResults[0]);
+            var tables = tablesOf(completed.get(), tableId).toArray(new TestUnitsResults[0]);
             new TestResultExport().export(output, page.getPageSize(), tables);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
@@ -1057,10 +1060,23 @@ public class ProjectsController {
 
     /** The test table of the run with the given id. */
     private static TestUnitsResults tableOf(TestRun run, String tableId, String caseId) {
-        return run.tables().stream()
-                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
+        return tablesOf(run, tableId).stream()
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
+    }
+
+    /**
+     * The results of the test tables of the run, or of the test table with the given id alone.
+     *
+     * <p>An id that no test table of the run has leaves no results. A blank id is no filter.
+     */
+    private static List<TestUnitsResults> tablesOf(TestRun run, @Nullable String tableId) {
+        if (StringUtils.isBlank(tableId)) {
+            return run.tables();
+        }
+        return run.tables().stream()
+                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
+                .toList();
     }
 
     /** The case of the test table with the given id. */

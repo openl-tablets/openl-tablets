@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.testmethod.ITestUnit;
@@ -130,8 +133,16 @@ class ProjectsControllerTestsSummaryTest {
     }
 
     private ResponseEntity<?> summary(String acceptMediaType) throws Exception {
-        return controller.getTestsSummary(
-                project, false, 5, false, false, false, Pageable.unpaged(), acceptMediaType);
+        return summary(acceptMediaType, null);
+    }
+
+    private ResponseEntity<?> summary(String acceptMediaType, @Nullable String tableId) throws Exception {
+        return summary(acceptMediaType, tableId, Pageable.unpaged());
+    }
+
+    private ResponseEntity<?> summary(String acceptMediaType, @Nullable String tableId, Pageable page)
+            throws Exception {
+        return controller.getTestsSummary(project, false, 5, false, false, false, tableId, page, acceptMediaType);
     }
 
     /** Runs no case again: the project was compiled again since the run. */
@@ -155,6 +166,46 @@ class ProjectsControllerTestsSummaryTest {
 
         assertEquals(HttpStatus.OK, answer.getStatusCode());
         assertEquals(0, ((TestsExecutionSummary) answer.getBody()).getNumberOfTests());
+    }
+
+    /**
+     * A summary asked for one test table reports, counts and pages that table alone. An id no test table of the run
+     * has reports nothing, and a blank one is no filter.
+     */
+    @Test
+    void getTestsSummary_ofOneTestTable() throws Exception {
+        var driver = runTableOf(testSuiteNamed("DriverRun"), retained(returning("1", 100)));
+        var vehicleSuite = testSuiteNamed("VehicleRun");
+        var vehicleUri = "file://test.xlsx#Sheet1!A20";
+        when(vehicleSuite.getUri()).thenReturn(vehicleUri);
+        var vehicle = runTableOf(vehicleSuite, retained(returning("1", 200)), retained(returning("2", 300)));
+        when(driver.getName()).thenReturn("DriverRun");
+        when(vehicle.getName()).thenReturn("VehicleRun");
+        when(driver.getNumberOfTests()).thenReturn(1);
+        when(vehicle.getNumberOfTests()).thenReturn(2);
+        when(projectService.getTableModules(project)).thenReturn(TableModules.none());
+        ended(List.of(driver, vehicle));
+
+        var one = (TestsExecutionSummary) summary(JSON, TABLE_ID).getBody();
+        var none = (TestsExecutionSummary) summary(JSON, "unknown").getBody();
+        var all = (TestsExecutionSummary) summary(JSON, " ").getBody();
+        // Pages are cut from the results of the table alone: the second table of the run is the first page of its own.
+        var vehiclePage = (TestsExecutionSummary) summary(JSON, TableUtils.makeTableId(vehicleUri), Page.of(0, 1))
+                .getBody();
+        var pastTheTable = (TestsExecutionSummary) summary(JSON, TABLE_ID, Page.of(1, 1)).getBody();
+
+        assertEquals(1L, one.getTotal());
+        assertEquals(1, one.getNumberOfTests());
+        assertEquals(TABLE_ID, one.getContent().iterator().next().tableId());
+        assertEquals(0L, none.getTotal());
+        assertEquals(0, none.getNumberOfTests());
+        assertEquals(2L, all.getTotal());
+        assertEquals(3, all.getNumberOfTests());
+        assertEquals(1L, vehiclePage.getTotal());
+        assertEquals(List.of(TableUtils.makeTableId(vehicleUri)),
+                vehiclePage.getContent().stream().map(TestCaseExecutionResult::tableId).toList());
+        assertEquals(1L, pastTheTable.getTotal());
+        assertEquals(List.of(), List.copyOf(pastTheTable.getContent()));
     }
 
     /**
@@ -196,18 +247,42 @@ class ProjectsControllerTestsSummaryTest {
 
         var answer = summary(XLSX);
 
-        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream((byte[]) answer.getBody()))) {
-            var formatter = new DataFormatter();
-            var written = StreamSupport.stream(workbook.getSheet("Result 1").spliterator(), false)
-                    .flatMap(row -> StreamSupport.stream(row.spliterator(), false))
-                    .map(formatter::formatCellValue)
-                    .toList();
-            assertTrue(written.stream().anyMatch(cell -> cell.contains("100")), written::toString);
-            assertTrue(written.stream().anyMatch(cell -> cell.contains("150")), written::toString);
-        }
+        var written = writtenResults(answer);
+        assertTrue(written.stream().anyMatch(cell -> cell.contains("100")), written::toString);
+        assertTrue(written.stream().anyMatch(cell -> cell.contains("150")), written::toString);
         assertEquals(List.of(released.getTest()), ranAgain);
         assertTrue(RetainedTestUnit.isReleased(released.getActualResult()), "the run keeps what it kept");
         Reference.reachabilityFence(premium);
+    }
+
+    /** A workbook asked for one test table writes the results of that table alone. */
+    @Test
+    void getTestsSummary_workbookOfOneTestTable() throws Exception {
+        var driverPremium = Map.of("premium", 4242);
+        var vehiclePremium = Map.of("premium", 9797);
+        var driver = runTableOf(testSuiteNamed("DriverRun"), retained(returning("1", driverPremium)));
+        var vehicleSuite = testSuiteNamed("VehicleRun");
+        when(vehicleSuite.getUri()).thenReturn("file://test.xlsx#Sheet1!A20");
+        var vehicle = runTableOf(vehicleSuite, retained(returning("1", vehiclePremium)));
+        ended(List.of(driver, vehicle));
+
+        var written = writtenResults(summary(XLSX, TABLE_ID));
+
+        assertTrue(written.stream().anyMatch(cell -> cell.contains("4242")), written::toString);
+        assertTrue(written.stream().noneMatch(cell -> cell.contains("9797")), written::toString);
+        Reference.reachabilityFence(driverPremium);
+        Reference.reachabilityFence(vehiclePremium);
+    }
+
+    /** The cells of the first results sheet of the workbook answered, as they read. */
+    private static List<String> writtenResults(ResponseEntity<?> answer) throws IOException {
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream((byte[]) answer.getBody()))) {
+            var formatter = new DataFormatter();
+            return StreamSupport.stream(workbook.getSheet("Result 1").spliterator(), false)
+                    .flatMap(row -> StreamSupport.stream(row.spliterator(), false))
+                    .map(formatter::formatCellValue)
+                    .toList();
+        }
     }
 
     /**
