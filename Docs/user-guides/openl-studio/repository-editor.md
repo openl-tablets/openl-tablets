@@ -789,6 +789,8 @@ A text file, such as `rules.xml`, `rules-deploy.xml` or a Groovy script, opens i
 2.  Change the content.
 3.  Click **Save** to keep the changes in the workspace copy, or **Cancel** to discard them.
 
+A Markdown file of a module written as a folder of Markdown files holds one table of the module. **Open in Editor** opens the module in the editor on that table, to edit it as a table rather than as text.
+
 An Excel workbook or another binary file cannot be viewed here. Its pane offers **Export**, and for a module of the project, **Open in Editor** opens the tables of the module in the editor.
 
 #### Renaming, Moving and Copying a File

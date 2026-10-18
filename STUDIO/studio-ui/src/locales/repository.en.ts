@@ -295,6 +295,7 @@ i18next.addResourceBundle('en', 'repository', {
             binary_hint: 'This file type cannot be previewed here. Download it to view.',
             module_hint: 'This file is a module of the project. Its tables are read in the editor.',
             open_in_editor: 'Open in Editor',
+            no_table: 'The file "{{name}}" holds no table to open in the editor.',
         },
         select_project_hint: 'Select a project to see its details',
         locked_by: 'Locked by {{by}} · {{at}}',
