@@ -15079,6 +15079,14 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "tableId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "offset",
             "schema": {
               "type": "integer",
