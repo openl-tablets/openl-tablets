@@ -69,10 +69,8 @@ class MarkdownProjectWriterTest {
             row(sheet, 7, 40.0, 1.0);
         });
         workbook(project.resolve("rules/Algorithms.xlsx"), "Algorithms", sheet -> {
-            row(sheet, 0, "Constants");
-            row(sheet, 1, "Integer", "ONE", 1.0);
-            row(sheet, 3, "Constants");
-            row(sheet, 4, "Integer", "TWO", 2.0);
+            row(sheet, 0, "Method Integer three()", "a note beside the header");
+            row(sheet, 1, "return 3;");
         });
         var copy = dir.resolve("copy");
 
@@ -82,7 +80,9 @@ class MarkdownProjectWriterTest {
                 written.converted().stream()
                         .map(module -> module.name() + " " + module.workbook() + " -> " + module.folder())
                         .toList());
-        assertEquals(List.of("Algorithms rules/Algorithms.xlsx: Constants: A module folder holds one Constants table"),
+        assertEquals(List.of("""
+                        Algorithms rules/Algorithms.xlsx: Method Integer three(): Only the header and the \
+                        properties stand above the body, but B1 holds a value"""),
                 written.kept().stream()
                         .map(module -> module.name() + " " + module.path() + ": " + String.join("; ", module.reasons()))
                         .toList());

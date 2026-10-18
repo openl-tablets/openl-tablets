@@ -34,15 +34,15 @@ import org.openl.util.FileTypeHelper;
  * sub-folder groups its tables.
  *
  * <p>The tables that set up the whole module are written once, each in a file of a fixed name at the root of the
- * folder: the Environment table in {@code Environment.md}, the Properties table in {@code Properties.md} and the
- * Constants table in {@code Constants.md}.
+ * folder: the Environment table in {@code Environment.md} and the Constants table in {@code Constants.md}. A Properties
+ * table is a table like any other: one of a category stands in the folder of its category, as on its sheet in a
+ * workbook.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class MarkdownFolderModule {
 
     private static final List<ModuleTable> MODULE_TABLES = List.of(
             new ModuleTable(XlsNodeTypes.XLS_ENVIRONMENT, "Environment"),
-            new ModuleTable(XlsNodeTypes.XLS_PROPERTIES, "Properties"),
             new ModuleTable(XlsNodeTypes.XLS_CONSTANTS, "Constants"));
 
     /** The order the files of a folder are read in, the same on every file system. */

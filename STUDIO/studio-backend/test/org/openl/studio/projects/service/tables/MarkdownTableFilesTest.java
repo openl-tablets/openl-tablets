@@ -67,7 +67,10 @@ class MarkdownTableFilesTest {
 
     @Test
     void tableOfTheWholeModuleIsWrittenInTheFileOfItsFixedName() {
-        assertEquals(folder.resolve("Properties.md"),
+        assertEquals(folder.resolve("Constants.md"),
+                MarkdownTableFiles.fileFor(folder, "rates", "Settings", TableKind.CONSTANTS));
+        // A Properties table stands in the folder of its sheet, as one of a category takes the category of its folder
+        assertEquals(folder.resolve("rates/Settings.md"),
                 MarkdownTableFiles.fileFor(folder, "rates", "Settings", TableKind.PROPERTIES));
 
         var error = assertThrows(BadRequestException.class,

@@ -15,7 +15,8 @@ policy.
 - A sub-folder groups the tables in it: OpenL Studio shows them under a category named after the sub-folder. The
   tables at the root of the module are under a category named after the module folder.
 - The tables that set up the whole module are written once, at the root of the module folder: the Environment table
-  in `Environment.md`, the Properties table in `Properties.md` and the Constants table in `Constants.md`.
+  in `Environment.md` and the Constants table in `Constants.md`. A Properties table is a table like any other: one of a
+  category stands in the folder of the category, as it stands on the sheet of the category in a workbook.
 - The front matter of a file is the header of its table: the `table` key holds the text of the first table cell.
   The other keys are table properties, such as `description`. The `merges` key lists the merged cells of the table,
   such as `[A1:B1]`, counted from the first row of the table.

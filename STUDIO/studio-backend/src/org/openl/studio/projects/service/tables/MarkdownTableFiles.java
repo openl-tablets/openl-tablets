@@ -42,8 +42,9 @@ import org.openl.util.FileTypeHelper;
  * <p>A new table of a module folder is a new file named after the table, in the folder its sheet names: the module
  * folder itself, by its name or by none, or a folder in it, made when it does not exist yet. The first table of a new
  * module goes the same way. A name taken by another file gets a number, {@code premium1.md}. A table set up for the
- * whole module — the Environment, the Properties, the Constants — is written in the file of its fixed name at the root
- * of the folder, which the module may hold once.
+ * whole module — the Environment, the Constants — is written in the file of its fixed name at the root of the folder,
+ * which the module may hold once. A Properties table is a table like any other: one of a category stands in the folder
+ * of the category.
  *
  * <p>A table is deleted with its file. A module folder holds at least one file, so the last table of a module stays.
  *
@@ -56,7 +57,6 @@ public class MarkdownTableFiles {
 
     private static final String EXTENSION = ".md";
     private static final Map<TableKind, String> MODULE_TABLES = Map.of(TableKind.ENVIRONMENT, "Environment",
-            TableKind.PROPERTIES, "Properties",
             TableKind.CONSTANTS, "Constants");
 
     private final ProjectFilesService projectFilesService;
