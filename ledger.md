@@ -3,7 +3,7 @@
 ## Resume point
 
 - No PR is open: #2348 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- Everything up to `origin/main` d7f23c8670 is swept, Java included. A run is: sweep the delta since that SHA, then
+- Everything up to `origin/main` fc9f15ea10 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
@@ -222,8 +222,7 @@
 - Container presets `gpg.format=ssh` and `commit.gpgsign=true` globally (unset both) but no `GIT_AUTHOR_*`
   variables; a plain `git config --global user.*` holds, and passing the identity inline as well costs nothing.
 - Error Prone IS enabled and its unused checks DO fire, so `mvn clean install` is a free Java detector: grep the
-  log for `[UnusedVariable|UnusedMethod|UnusedNestedClass|EffectivelyPrivate]` (now 4, three `EffectivelyPrivate`
-  barred by 8.7 plus BeanA.getAB) before paying for PMD; ignore `[NullAway]`.
+  log for `[UnusedVariable|UnusedMethod|UnusedNestedClass|EffectivelyPrivate]` (now only BeanA.getAB) before paying for PMD; ignore `[NullAway]`.
 - 4 cores, 15 GB RAM: `-T2` for the reactor, ~27 min with a warm `~/.m2`. `npx tsc` runs beside Maven, vitest not.
 - `.toDelete/` is gitignored: keep the PMD ruleset, scratch poms and detector scripts there. `~/.m2` and
   `STUDIO/studio-ui/node_modules` start COLD in a fresh container — check before budgeting.
@@ -264,20 +263,16 @@
   navigation and plugin list, duplicate sibling entries in non-pom XML and JSON, duplicate keys over properties and
   ignore files, per-package logger categories, image references across poms, the Jekyll `_includes`/`_layouts`/`_data` and main-nav targets, studio-docs'
   `allowed-links.txt` prefixes (all 24 used), the Docs link graph outside the `nav: auto` scopes, and Spring
-  `@Profile` values, backticked names in every AGENTS.md, `.claude/**/*.md` and `Docs/architecture` (paid 1 in
+  `@Profile` values, `@ts-ignore` (all 7 live: `@ts-expect-error` probe plus canary), `eslint-disable` (none),
+  backticked names in every AGENTS.md, `.claude/**/*.md` and `Docs/architecture` (paid 1 in
   #2305; re-run per delta touching them). The duplicate-entry scan paid once,
   on three `**/*.sql` Spotless includes; the `.aj`/`.apt`/`.scss` ones are prophylactic and KEPT — settled.
 
 ## Human follow-ups
 
-- Docs names a human must fix, re-verified at HEAD (maintainer doc waves keep clearing entries, so re-verify this
-  list every run before reporting it): rules-projects.md documents a `generateInterfaces` configuration found nowhere else and
-  seven parameters GenerateMojo lacks (its real ones: superInterface, interfaceClass, moduleName,
-  generateSpreadsheetResultBeans, externalParameters).
 - Bugs only a human may fix: `v14__Create_Index_ExternalGroups.sql` is the only lowercase-`v` of 17 flyway/common
   scripts and nothing sets `sqlMigrationPrefix`, so Flyway skips it and its index is never created; `CorsFilter` is
-  registered twice (`@WebFilter` and web.xml), doubling each `Access-Control-*` header; `compose.yaml` pins a
-  postgresql jar the antrun guard does not cover, so it drifts from the pom unnoticed.
+  registered twice (`@WebFilter` and web.xml), doubling each `Access-Control-*` header.
 - `OpenAPIConverterTest` (640 lines) and `RulesDeployerServiceTest` (354 lines) carry a bare class-level `@Disabled`
   over live code. Restore or delete is a maintainer's call.
 - Flake fixes a human could make: pin `apache/kafka-native:latest` in itest.kafka.smoke or move to `apache/kafka:4.3.1`; fix
@@ -288,10 +283,10 @@
 
 ## Run log
 
-- 2026-10-11: delta was 4 commits (index wait, thread count). Reactor green in 27:06 cold; Error Prone, tsc re-ran
-  at zero. New vein, AGENTS.md names: 1 stale class, #2305 MERGED (-1 phrase).
 - 2026-10-17: delta was 61 commits (table themes removed, Excel-native formatting, merge conflicts). i18n
   (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; Error Prone, PMD (56,
   all pre-delta), new-type index at zero; tsc found 1 dead React import, #2348 MERGED (-1). Reactor 21:22 warm.
 - 2026-10-17 (2nd): delta was 8 commits (EPBDS-7164 table formatting). Reactor green 29:17 cold; Error Prone, PMD
   (studio-backend), tsc, removed-name index, Docs images and tokens at zero; no locale or bundle change. No commit.
+- 2026-10-18: delta was 15 commits (doc waves, guide sizes, postgres guard). Reactor green 25:09 cold; Error Prone,
+  tsc, Docs images and tokens, AGENTS/README names at zero; new veins `@ts-ignore`, `eslint-disable` closed. No commit.
