@@ -40,8 +40,11 @@ import org.openl.util.StringUtils;
  *
  * <p>A table goes into a file named after it, in the folder its sheet names: the module folder itself for a sheet named
  * as the folder, or a folder of the name of the sheet in it. A name taken by another file gets a number,
- * {@code premium1.md}. A table set up for the whole module — the Environment, the Properties, the Constants — goes
- * into the file of its fixed name at the root of the folder.
+ * {@code premium1.md}. A table set up for the whole module — the Environment, the Constants — goes into the file of
+ * its fixed name at the root of the folder. The Environment tables of a workbook are joined in that one file, the rows
+ * of each after the rows of the one before, and so are its Constants tables: the engine reads the rows of all of them
+ * alike. A Properties table is a table like any other, in the folder of its sheet, so one of a category keeps its
+ * category.
  *
  * <p>A folder or a file holds no character a name of OpenL Studio cannot hold: such a character is written as
  * {@code _}, and the name of a sheet loses a space at either end and a dot at its end.
@@ -55,8 +58,7 @@ import org.openl.util.StringUtils;
  * could not be read.
  *
  * <p>Any other table a file cannot hold is left out, and the result tells why: a TBasic or a ColumnMatch table, built
- * by the indent of its cells; a table written in parts; a second table set up for the whole module; a table whose
- * layout has no Markdown form.
+ * by the indent of its cells; a table written in parts; a table whose layout has no Markdown form.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MarkdownModuleWriter {
@@ -65,6 +67,13 @@ public final class MarkdownModuleWriter {
 
     /** The name of the file of the text of the tables of no kind OpenL knows on a sheet. */
     private static final String NOTES = "notes";
+
+    /**
+     * The kinds of tables set up for the whole module whose tables are joined in one file, the rows of each after the
+     * rows of the one before: the engine reads the rows of every such table of a module alike, in that order.
+     */
+    private static final Set<XlsNodeTypes> JOINED = EnumSet.of(XlsNodeTypes.XLS_ENVIRONMENT,
+            XlsNodeTypes.XLS_CONSTANTS);
 
     /** The kinds of tables built by the indent of their cells, which a Markdown file does not keep. */
     private static final Set<XlsNodeTypes> INDENTED = EnumSet.of(XlsNodeTypes.XLS_TBASIC,
@@ -93,21 +102,34 @@ public final class MarkdownModuleWriter {
         var leftOut = new ArrayList<LeftOut>();
         // The text of the tables of no kind OpenL knows, by the sheet they stand on
         var notes = new LinkedHashMap<String, StringBuilder>();
+        // The Environment and the Constants tables, each kind joined in the one file of the module
+        var joined = new LinkedHashMap<Path, List<TableSyntaxNode>>();
         for (var table : workbook.getTableSyntaxNodes()) {
             // A table of a kind OpenL knows that could not be read is a table still, its error kept
             if (table.getNodeType() == XlsNodeTypes.XLS_OTHER && !XlsHelper.isKnownTableHeader(headerOf(table))) {
                 notes.computeIfAbsent(sheetOf(table), sheet -> new StringBuilder()).append(textOf(table));
-                continue;
-            }
-            var reason = reasonToLeaveOut(table, folder);
-            if (reason.isEmpty()) {
-                var file = fileFor(table, folder);
-                reason = write(table, file);
+            } else if (JOINED.contains(table.getNodeType())) {
+                joined.computeIfAbsent(fileFor(table, folder), file -> new ArrayList<>()).add(table);
+            } else {
+                var reason = reasonToLeaveOut(table);
                 if (reason.isEmpty()) {
-                    files.add(file);
+                    var file = fileFor(table, folder);
+                    reason = write(List.of(table), file);
+                    if (reason.isEmpty()) {
+                        files.add(file);
+                    }
                 }
+                reason.ifPresent(why -> leftOut.add(new LeftOut(table.getUri(), headerOf(table), why)));
             }
-            reason.ifPresent(why -> leftOut.add(new LeftOut(table.getUri(), headerOf(table), why)));
+        }
+        for (var tables : joined.entrySet()) {
+            var reason = write(tables.getValue(), tables.getKey());
+            if (reason.isEmpty()) {
+                files.add(tables.getKey());
+            } else {
+                tables.getValue().forEach(table -> leftOut.add(new LeftOut(table.getUri(), headerOf(table),
+                        reason.get())));
+            }
         }
         for (var sheetNotes : notes.entrySet()) {
             var file = fileOf(folder, sheetNotes.getKey(), NOTES);
@@ -206,11 +228,8 @@ public final class MarkdownModuleWriter {
         }
     }
 
-    /**
-     * Why a table gets no file for its kind: a table built by the indent of its cells, or a second table set up for
-     * the whole module.
-     */
-    private static Optional<String> reasonToLeaveOut(TableSyntaxNode table, Path folder) {
+    /** Why a table gets no file for its kind: a table built by the indent of its cells or written in parts. */
+    private static Optional<String> reasonToLeaveOut(TableSyntaxNode table) {
         if (INDENTED.contains(table.getNodeType())) {
             return Optional.of("The table is built by the indent of its cells, which a Markdown file does not keep");
         }
@@ -218,9 +237,7 @@ public final class MarkdownModuleWriter {
                 || table.getGridTable().getGrid() instanceof CompositeGrid) {
             return Optional.of("The table is written in parts, which a Markdown file does not keep");
         }
-        return MarkdownFolderModule.moduleTableOf(table)
-                .filter(moduleTable -> Files.exists(folder.resolve(moduleTable.file())))
-                .map(moduleTable -> "A module folder holds one %s table".formatted(moduleTable.name()));
+        return Optional.empty();
     }
 
     /** The file a table goes into. */
@@ -233,30 +250,21 @@ public final class MarkdownModuleWriter {
     }
 
     /**
-     * Writes a table into its file.
+     * Writes tables into a file: the first one whole, and the rows under the header of each one after it, which follow
+     * the rows of the one before.
      *
-     * @return why the table has no Markdown form, or nothing when the file is written
+     * @return why the tables have no Markdown form, or nothing when the file is written
      */
-    private static Optional<String> write(TableSyntaxNode table, Path file) throws IOException {
+    private static Optional<String> write(List<TableSyntaxNode> tables, Path file) throws IOException {
         var grid = MarkdownGrid.create(file.toUri().toString(), text -> {
             Files.createDirectories(file.getParent());
             Files.writeString(file, text, StandardCharsets.UTF_8);
         });
-        var cells = table.getGridTable();
-        var region = cells.getRegion();
-        var environment = table.getNodeType() == XlsNodeTypes.XLS_ENVIRONMENT;
-        var metaInfo = table.getMetaInfoReader();
-        if (metaInfo != null) {
-            metaInfo.prepare(region);
-        }
-        for (var row = 0; row < cells.getHeight(); row++) {
-            for (var column = 0; column < cells.getWidth(); column++) {
-                var cell = cells.getCell(column, row);
-                var value = environment && column == 1 && isInclude(cells.getCell(0, row))
-                        ? includeFromTheFolder(cell.getStringValue())
-                        : valueOf(cell, metaInfo);
-                write(grid, cell, value, region);
-            }
+        var shift = 0;
+        for (var table : tables) {
+            var first = shift == 0 ? 0 : 1;
+            write(grid, table, first, shift - first);
+            shift += table.getGridTable().getHeight() - first;
         }
         try {
             grid.save();
@@ -301,10 +309,35 @@ public final class MarkdownModuleWriter {
         return "../" + include;
     }
 
-    /** Writes a cell of a table, and its merged range when the cell starts one. A cell a range covers is not. */
-    private static void write(MarkdownGrid grid, ICell cell, @Nullable Object value, IGridRegion region) {
+    /**
+     * Writes the rows of a table from the given one, each moved down by the given number of rows.
+     */
+    private static void write(MarkdownGrid grid, TableSyntaxNode table, int first, int shift) {
+        var cells = table.getGridTable();
+        var region = cells.getRegion();
+        var environment = table.getNodeType() == XlsNodeTypes.XLS_ENVIRONMENT;
+        var metaInfo = table.getMetaInfoReader();
+        if (metaInfo != null) {
+            metaInfo.prepare(region);
+        }
+        for (var row = first; row < cells.getHeight(); row++) {
+            for (var column = 0; column < cells.getWidth(); column++) {
+                var cell = cells.getCell(column, row);
+                var value = environment && column == 1 && isInclude(cells.getCell(0, row))
+                        ? includeFromTheFolder(cell.getStringValue())
+                        : valueOf(cell, metaInfo);
+                write(grid, cell, value, region, shift);
+            }
+        }
+    }
+
+    /**
+     * Writes a cell of a table, and its merged range when the cell starts one, moved down by the given number of rows.
+     * A cell a range covers is not written.
+     */
+    private static void write(MarkdownGrid grid, ICell cell, @Nullable Object value, IGridRegion region, int shift) {
         var merged = cell.getRegion();
-        var row = cell.getAbsoluteRow() - region.getTop();
+        var row = cell.getAbsoluteRow() - region.getTop() + shift;
         var column = cell.getAbsoluteColumn() - region.getLeft();
         if (merged != null && !startsAt(merged, cell)) {
             return;
@@ -313,7 +346,7 @@ public final class MarkdownModuleWriter {
         if (merged != null) {
             grid.addMergedRegion(new GridRegion(row,
                     column,
-                    Math.min(merged.getBottom(), region.getBottom()) - region.getTop(),
+                    Math.min(merged.getBottom(), region.getBottom()) - region.getTop() + shift,
                     Math.min(merged.getRight(), region.getRight()) - region.getLeft()));
         }
     }

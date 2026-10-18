@@ -104,10 +104,10 @@ class MarkdownModuleWriterTest {
             row(sheet, 0, "TBasic Integer count()");
             row(sheet, 1, "Operation", "Action");
             row(sheet, 2, "RETURN", "1");
-            row(sheet, 4, "Constants");
-            row(sheet, 5, "Integer", "ONE", 1.0);
-            row(sheet, 7, "Constants");
-            row(sheet, 8, "Integer", "TWO", 2.0);
+            row(sheet, 4, "Properties");
+            row(sheet, 5, "scope", "Module");
+            row(sheet, 7, "Properties");
+            row(sheet, 8, "scope", "Global");
             row(sheet, 10, "Method Integer three()", "a note beside the header");
             row(sheet, 11, "return 3;");
             row(sheet, 13, "A note: the algorithms count to three");
@@ -116,19 +116,102 @@ class MarkdownModuleWriterTest {
 
         var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
 
-        assertEquals(List.of(module.resolve("Constants.md"), module.resolve("notes.md")), written.files());
+        // A module holds a Properties table of each scope, each a table like any other
+        assertEquals(List.of(module.resolve("Properties.md"), module.resolve("Properties1.md"),
+                module.resolve("notes.md")), written.files());
         assertEquals("# Notes\n\nA note: the algorithms count to three\n\n",
                 Files.readString(module.resolve("notes.md")));
         assertEquals(List.of(
                 "TBasic Integer count(): The table is built by the indent of its cells, which a Markdown file does not "
                         + "keep",
-                "Constants: A module folder holds one Constants table",
                 "Method Integer three(): Only the header and the properties stand above the body, but B1 holds a "
                         + "value"),
                 written.leftOut()
                         .stream()
                         .map(table -> table.header() + ": " + table.reason())
                         .toList());
+    }
+
+    @Test
+    void environmentAndConstantsTablesOfAWorkbookAreJoinedInTheFileOfTheModule() throws IOException {
+        workbook("Common.xlsx", rules -> row(rules.createSheet("Common"), 0, "Method Integer one()")
+                .getSheet().createRow(1).createCell(0).setCellValue("return 1;"));
+        var workbook = workbook("Main.xlsx", rules -> {
+            var main = rules.createSheet("Main");
+            row(main, 0, "Environment");
+            row(main, 1, "import", "java.time");
+            row(main, 3, "Constants");
+            row(main, 4, "Integer", "ONE", 1.0);
+            row(main, 6, "Method Integer three()");
+            row(main, 7, "return one() + ONE + TWO;");
+            var trace = rules.createSheet("Trace");
+            row(trace, 0, "Environment");
+            row(trace, 1, "include", "Common.xlsx");
+            row(trace, 3, "Constants");
+            row(trace, 4, "Integer", "TWO", 2.0);
+        });
+        var module = dir.resolve("Main");
+
+        var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        assertEquals(List.of(), written.leftOut());
+        // The rows of each table follow the rows of the one before, as the engine reads them
+        assertEquals("""
+                ---
+                table: Environment
+                ---
+
+                | import | java.time |
+                |---|---|
+                | include | ../Common.xlsx |
+                """, Files.readString(module.resolve("Environment.md")));
+        assertEquals("""
+                ---
+                table: Constants
+                ---
+
+                | Integer | ONE | 1 |
+                |---|---|---|
+                | Integer | TWO | 2 |
+                """, Files.readString(module.resolve("Constants.md")));
+        var factory = new RulesEngineFactory<>(module.toString());
+        assertFalse(factory.getCompiledOpenClass().hasErrors(), () -> factory.getCompiledOpenClass().getAllMessages()
+                .toString());
+        assertEquals(4, TestUtils.<Integer>invoke(factory.newEngineInstance(), "three"));
+    }
+
+    @Test
+    void propertiesTableOfACategoryKeepsItsCategoryInTheFolderOfItsSheet() throws IOException {
+        var workbook = workbook("Rating.xlsx", rules -> {
+            var young = rules.createSheet("Young");
+            row(young, 0, "Properties");
+            row(young, 1, "scope", "Category");
+            row(young, 2, "lob", "young");
+            row(young, 4, "Method String youngRate()");
+            row(young, 5, "return \"young\";");
+            var adult = rules.createSheet("Adult");
+            row(adult, 0, "Properties");
+            row(adult, 1, "scope", "Module");
+            row(adult, 2, "lob", "adult");
+            row(adult, 4, "Method String adultRate()");
+            row(adult, 5, "return \"adult\";");
+        });
+        var module = dir.resolve("Rating");
+
+        var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        assertEquals(List.of("Young/Properties.md", "Young/youngRate.md", "Adult/Properties.md", "Adult/adultRate.md"),
+                written.files().stream().map(file -> module.relativize(file).toString().replace('\\', '/')).toList());
+        var compiled = new RulesEngineFactory<>(module.toString()).getCompiledOpenClass();
+        assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
+        // The category is the sheet, which is the folder: the module properties reach every table
+        var lobs = Arrays.stream(((XlsMetaInfo) compiled.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
+                        .getXlsTableSyntaxNodes())
+                .filter(table -> table.getMember() != null && table.getMember().getName().endsWith("Rate"))
+                .map(table -> table.getMember().getName() + "=" + String.join(",", table.getTableProperties().getLob()))
+                .sorted()
+                .toList();
+        assertEquals(List.of("adultRate=adult", "youngRate=young"), lobs);
     }
 
     @Test
