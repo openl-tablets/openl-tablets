@@ -1330,8 +1330,13 @@ describe('TableEditor', () => {
         expect(await offered()).toEqual(['indent'])
         cleanup()
 
-        // A Markdown file keeps no formatting, nor an indent: the look of its table is OpenL Studio's own.
+        // A Markdown file keeps no formatting: the look of its table is OpenL Studio's own. It keeps the indent of a
+        // TBasic table, its structure, as non-breaking spaces.
         drawFormatting({ kind: 'TBasic', plainText: true })
+        expect(await offered()).toEqual(['indent'])
+        cleanup()
+
+        drawFormatting({ kind: 'Rules', plainText: true })
         expect(await offered()).toEqual([])
     })
 

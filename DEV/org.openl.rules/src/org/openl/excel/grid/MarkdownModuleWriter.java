@@ -59,8 +59,12 @@ import org.openl.util.StringUtils;
  * {@code notes.md} documentation of its sheet. A table whose header names a kind OpenL knows is a table, even when it
  * could not be read.
  *
- * <p>Any other table a file cannot hold is left out, and the result tells why: a TBasic or a ColumnMatch table, built
- * by the indent of its cells; a table written in parts; a table whose layout has no Markdown form.
+ * <p>The indent of a cell of a TBasic or a ColumnMatch table, which carries the structure of the table, is written as
+ * non-breaking spaces before its text, {@code &nbsp;&nbsp;SET} for one level; elsewhere the indent is a look, which a
+ * file does not keep.
+ *
+ * <p>Any other table a file cannot hold is left out, and the result tells why: a table written in parts; a table whose
+ * layout has no Markdown form.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MarkdownModuleWriter {
@@ -77,7 +81,7 @@ public final class MarkdownModuleWriter {
     private static final Set<XlsNodeTypes> JOINED = EnumSet.of(XlsNodeTypes.XLS_ENVIRONMENT,
             XlsNodeTypes.XLS_CONSTANTS);
 
-    /** The kinds of tables built by the indent of their cells, which a Markdown file does not keep. */
+    /** The kinds of tables built by the indent of their cells, which a file keeps as non-breaking spaces. */
     private static final Set<XlsNodeTypes> INDENTED = EnumSet.of(XlsNodeTypes.XLS_TBASIC,
             XlsNodeTypes.XLS_COLUMN_MATCH);
 
@@ -230,11 +234,8 @@ public final class MarkdownModuleWriter {
         }
     }
 
-    /** Why a table gets no file for its kind: a table built by the indent of its cells or written in parts. */
+    /** Why a table gets no file for its kind: a table written in parts. */
     private static Optional<String> reasonToLeaveOut(TableSyntaxNode table) {
-        if (INDENTED.contains(table.getNodeType())) {
-            return Optional.of("The table is built by the indent of its cells, which a Markdown file does not keep");
-        }
         if (table.getNodeType() == XlsNodeTypes.XLS_TABLEPART
                 || table.getGridTable().getGrid() instanceof CompositeGrid) {
             return Optional.of("The table is written in parts, which a Markdown file does not keep");
@@ -322,25 +323,38 @@ public final class MarkdownModuleWriter {
         if (metaInfo != null) {
             metaInfo.prepare(region);
         }
+        // The indent carries the structure of these tables; elsewhere it is a look, which a file does not keep
+        var indented = INDENTED.contains(table.getNodeType());
         for (var row = first; row < cells.getHeight(); row++) {
             for (var column = 0; column < cells.getWidth(); column++) {
                 var cell = cells.getCell(column, row);
+                var indent = indented ? indentOf(cell) : 0;
                 Object value;
                 if (environment && column == 1 && isInclude(cells.getCell(0, row))) {
                     value = includeFromTheFolder(cell.getStringValue());
                 } else {
                     value = valueOf(cell, metaInfo);
                 }
-                write(grid, cell, value, region, shift);
+                write(grid, cell, value, indent, region, shift);
             }
         }
+    }
+
+    private static int indentOf(ICell cell) {
+        var style = cell.getStyle();
+        return style == null ? 0 : style.getIndent();
     }
 
     /**
      * Writes a cell of a table, and its merged range when the cell starts one, moved down by the given number of rows.
      * A cell a range covers is not written.
      */
-    private static void write(MarkdownGrid grid, ICell cell, @Nullable Object value, IGridRegion region, int shift) {
+    private static void write(MarkdownGrid grid,
+                              ICell cell,
+                              @Nullable Object value,
+                              int indent,
+                              IGridRegion region,
+                              int shift) {
         var merged = cell.getRegion();
         var row = cell.getAbsoluteRow() - region.getTop() + shift;
         var column = cell.getAbsoluteColumn() - region.getLeft();
@@ -348,6 +362,9 @@ public final class MarkdownModuleWriter {
             return;
         }
         grid.setCellValue(column, row, value);
+        if (indent > 0) {
+            grid.setCellIndent(column, row, indent);
+        }
         if (merged != null) {
             grid.addMergedRegion(new GridRegion(row,
                     column,

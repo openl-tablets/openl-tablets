@@ -433,7 +433,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     Marks are offered for a text, an expression and a text of several lines, in every cell of a table but its
     header. A value written as a number, a date, a value chosen from a list, or an Excel formula keeps no marks.
-    Marks are saved to `.xlsx` files only: a table of an `.xls` file offers no marks.
+    Marks are saved to `.xlsx` files only: a table of an `.xls` file or of a Markdown file offers no marks.
 3.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell. A formula entered here is an OpenL formula, such as

@@ -98,8 +98,10 @@ with its workbooks written as Markdown. The setting is off by default.
 - `openl:test` runs the tests of the project as it is; `openl:package` packages the copy instead of the sources, and
   `openl:verify` deploys it.
 - A workbook holding a table no Markdown file can hold stays a workbook in the copy, and the build log names the
-  table and the reason: a TBasic or a ColumnMatch table, built by the indent of its cells; a table written in parts;
-  a table whose layout has no Markdown form. The log also gives the size of each workbook and of its folder.
+  table and the reason: a table written in parts; a table whose layout has no Markdown form. The log also gives the
+  size of each workbook and of its folder.
+- The indent of a cell of a TBasic or a ColumnMatch table, which builds the table, is written as two `&nbsp;` before
+  the text for each level, `&nbsp;&nbsp;SET`.
 - The Environment tables of a workbook are joined in the one `Environment.md` of its module, and so are its Constants
   tables in `Constants.md`; a Properties table is written as any other table, in the folder of its sheet.
 - A Markdown file keeps no formatting, comments or formulas: a cell keeps the value its formula computed. A table of

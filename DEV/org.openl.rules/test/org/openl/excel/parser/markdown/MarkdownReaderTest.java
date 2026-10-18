@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.FolderUtils;
@@ -222,6 +223,27 @@ class MarkdownReaderTest {
         var text = "---\ntable: Datatype Adult extends Driver\n---\n\nAn adult is a driver of no field of its own.\n";
 
         assertArrayEquals(new Object[][]{{"Datatype Adult extends Driver"}}, cellsOf("Adult.md", text));
+    }
+
+    @Test
+    void cellIndentedByNonBreakingSpacesIsAnAlignedValue() {
+        var text = """
+                ---
+                table: TBasic Integer bonus(Integer age)
+                ---
+
+                | Operation |
+                |---|
+                | IF |
+                | &nbsp;&nbsp;RETURN |
+                | &nbsp;SET |
+                | &nbsp; &nbsp;&nbsp;&nbsp;RETURN |
+                """;
+
+        // Two non-breaking spaces make a level, an odd one left over makes one, and spaces between them do not count
+        assertArrayEquals(new Object[][]{{"TBasic Integer bonus(Integer age)"}, {"Operation"}, {"IF"},
+                {new AlignedValue("RETURN", (short) 1)}, {new AlignedValue("SET", (short) 1)},
+                {new AlignedValue("RETURN", (short) 2)}}, cellsOf("bonus.md", text));
     }
 
     @Test

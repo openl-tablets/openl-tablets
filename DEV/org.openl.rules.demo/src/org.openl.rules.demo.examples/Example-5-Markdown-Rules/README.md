@@ -27,6 +27,8 @@ policy.
   matter alone.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
+- A cell is indented by two `&nbsp;` before its text for each level, as a workbook indents it: `&nbsp;&nbsp;Fee` is
+  `Fee` one level in.
 - A whole number, `true` and `false`, and a date written as `2026-03-02` or `2026-03-02T10:30:15` read as the
   number, the boolean and the date a cell of a workbook holds, so a `Spreadsheet` step of such a value takes the type
   it takes in a workbook. Any other text stays text, such as `007`, `3.0`, `TRUE` or `03/02/2026`: the type a table

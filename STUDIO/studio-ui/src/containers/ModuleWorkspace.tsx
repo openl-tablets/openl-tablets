@@ -1014,7 +1014,7 @@ export const ModuleWorkspace = () => {
                 />
                 <TableEditor
                     ref={editor}
-                    canMark={!modulePath?.toLowerCase().endsWith('.xls')}
+                    canMark={!markdownTable && !modulePath?.toLowerCase().endsWith('.xls')}
                     canvasClassName={styles.canvas}
                     canWrite={canWriteTable}
                     editing={editing}
