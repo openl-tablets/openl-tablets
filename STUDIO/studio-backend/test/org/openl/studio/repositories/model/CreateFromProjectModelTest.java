@@ -15,7 +15,15 @@ class CreateFromProjectModelTest {
     void sourceProjectIsRequired() {
         var violations = propertyViolations(new CreateFromProjectModel(null, " ", null, null, null));
 
-        assertEquals(Set.of("sourceRepositoryId", "sourceProject"), violations);
+        assertEquals(Set.of("sourceProject"), violations);
+    }
+
+    @Test
+    void sourceRepositoryIsOptional() {
+        // A project id names its repository, and a name is looked for in every repository.
+        var violations = propertyViolations(new CreateFromProjectModel(null, "Source", null, null, null));
+
+        assertTrue(violations.isEmpty());
     }
 
     @Test

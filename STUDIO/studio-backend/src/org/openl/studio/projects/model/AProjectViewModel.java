@@ -22,7 +22,7 @@ public abstract class AProjectViewModel {
     public final String branch;
 
     @Parameter(description = "Project identifier", required = true)
-    @JsonView(GenericView.Full.class)
+    @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
     public final ProjectIdModel id;
 
     @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",

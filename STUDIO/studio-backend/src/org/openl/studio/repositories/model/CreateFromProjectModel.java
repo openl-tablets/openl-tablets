@@ -3,14 +3,19 @@ package org.openl.studio.repositories.model;
 import jakarta.validation.constraints.NotBlank;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Request to copy an existing project into a design repository under a new name.
  */
 public record CreateFromProjectModel(
-        @Parameter(description = "Repository id of the source project")
-        @NotBlank String sourceRepositoryId,
-        @Parameter(description = "Identifier of the source project to copy: its id, or its name when one project of the source repository carries that name")
+        @Parameter(description = """
+                Repository id of the source project. The source project is looked for in every repository when it \
+                is omitted""")
+        @Nullable String sourceRepositoryId,
+        @Parameter(description = """
+                Identifier of the source project to copy: its id, or its name when one project of the source \
+                repository, or of all repositories when none is given, carries that name""")
         @NotBlank String sourceProject,
         @Parameter(description = "Path within the repository (non-flat repositories only)") String path,
         @Parameter(description = "Commit comment") String comment,
@@ -19,7 +24,7 @@ public record CreateFromProjectModel(
         @Parameter(description = "Target branch. An absent branch is created from the repository base branch")
         String branch) {
 
-    public CreateFromProjectModel(String sourceRepositoryId,
+    public CreateFromProjectModel(@Nullable String sourceRepositoryId,
                                   String sourceProject,
                                   String path,
                                   String comment,

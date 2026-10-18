@@ -2,5 +2,6 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "id": "ZGVzaWduOkVQQkRTXzE0NTg0X1Byb2plY3Q=",
   "revision": "*"
 }

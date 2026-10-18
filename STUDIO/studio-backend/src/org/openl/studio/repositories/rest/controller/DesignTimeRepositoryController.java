@@ -40,7 +40,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
@@ -55,6 +54,7 @@ import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.converter.ProjectIdentityConverter;
 import org.openl.studio.projects.model.ProjectViewModel;
+import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
@@ -95,6 +95,7 @@ public class DesignTimeRepositoryController {
     private final ProjectCreationTargetResolver projectCreationTargetResolver;
     private final RepositoryConfigService repositoryConfigService;
     private final ProjectIdentityConverter projectIdentityConverter;
+    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Autowired
     public DesignTimeRepositoryController(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -109,7 +110,8 @@ public class DesignTimeRepositoryController {
                                           ProjectCreationService projectCreationService,
                                           ProjectCreationTargetResolver projectCreationTargetResolver,
                                           RepositoryConfigService repositoryConfigService,
-                                          ProjectIdentityConverter projectIdentityConverter) {
+                                          ProjectIdentityConverter projectIdentityConverter,
+                                          ProjectIdentifierMapper projectIdentifierMapper) {
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
@@ -123,6 +125,7 @@ public class DesignTimeRepositoryController {
         this.projectCreationTargetResolver = projectCreationTargetResolver;
         this.repositoryConfigService = repositoryConfigService;
         this.projectIdentityConverter = projectIdentityConverter;
+        this.projectIdentifierMapper = projectIdentifierMapper;
     }
 
     @Lookup("commentService")
@@ -212,7 +215,7 @@ public class DesignTimeRepositoryController {
         var effectiveStatus = status == null && !archiveUpload ? ProjectStatus.VIEWING : status;
         projectCreationService.applyStatusAfterCreate(targetRepository, FileUtils.getName(data.getName()),
                 effectiveStatus);
-        return mapFileDataResponse(data, targetRepository.supports());
+        return mapFileDataResponse(data, targetRepository);
     }
 
     private void checkOverwritePermission(Repository targetRepository, String path, String projectName) {
@@ -308,7 +311,7 @@ public class DesignTimeRepositoryController {
         // identifier the request happened to address it by. Reading it is the copy's own check to make, so that a
         // refusal carries the endpoint's message.
         var source = projectIdentityConverter.resolveProjectIdentity(request.sourceProject(),
-                request.sourceRepositoryId());
+                StringUtils.trimToNull(request.sourceRepositoryId()));
         if (source == null) {
             throw new NotFoundException("project.identifier.message");
         }
@@ -322,7 +325,7 @@ public class DesignTimeRepositoryController {
         allowedToPush(targetRepository, false);
         var data = projectCreationService.copyProject(targetRepository, model.getProjectName(),
                 request.path(), source, model.getComment(), request.revision());
-        return mapFileDataResponse(data, repository.supports());
+        return mapFileDataResponse(data, targetRepository);
     }
 
     private void requireCreatePermission(Repository repository) {
@@ -362,9 +365,13 @@ public class DesignTimeRepositoryController {
         return lockManager.getLock(lockId.toString());
     }
 
-    private ProjectViewModel mapFileDataResponse(FileData src, Features features) {
-        var builder = ProjectViewModel.builder();
-        if (features.branches()) {
+    /**
+     * The answer to a project create or copy: the id the project lists under, and the branch and the revision the
+     * write made.
+     */
+    private ProjectViewModel mapFileDataResponse(FileData src, Repository repository) {
+        var builder = ProjectViewModel.builder().id(projectIdentifierMapper.map(new AProject(repository, src)));
+        if (repository.supports().branches()) {
             builder.branch(src.getBranch());
         }
         builder.revision(src.getVersion());
