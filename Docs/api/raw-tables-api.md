@@ -277,8 +277,9 @@ Content-Type: application/json
 }
 ```
 
-The rows are added to the end of the table and have the cells of the same shape as the `source`. A row must not be wider
-than the table: `400` with `openl.error.400.table.append.column.count.message`.
+The rows are added to the end of the table and have the cells of the same shape as the `source`. A row has one cell per
+column of the table, a blank `{"value": null}` or a `{"covered": true}` one included: a shorter or a wider row answers
+`400` with `openl.error.400.table.action.row.width.message`, and nothing is appended.
 
 ### Create a Table
 

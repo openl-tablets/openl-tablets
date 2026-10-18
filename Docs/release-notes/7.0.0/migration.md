@@ -335,6 +335,11 @@ from Maven.
   on the failing step under `breakOnErrors`; it is refused with the same `409` now, so a client that traced it to find
   the error reads it from the answer. A table that only calls a table that does not compile is still traced and halts
   on the failing step.
+* **A row appended to a raw table needs a cell for every column.** `POST /rest/projects/{id}/tables/{tableId}/lines`
+  with the `RawSource` table type used to fill the missing trailing cells of a short row with blanks. It now answers
+  `400` with `openl.error.400.table.action.row.width.message` and appends nothing, as the raw table actions do. A row
+  wider than the table answers this code too, instead of `openl.error.400.table.append.column.count.message`. Send
+  `{"value": null}` for a blank cell.
 * **`treeView` and `profiles` are gone from `/rest/users/profile`.** `GET` no longer returns them, and a `PUT` that
   still sends `treeView` answers `400` with `Unknown field 'treeView'`. Drop the field from the body.
 * **A `PUT /rest/users/profile` that leaves a field out keeps the stored value**, for a name, the e-mail and the display
