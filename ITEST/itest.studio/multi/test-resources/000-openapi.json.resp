@@ -8506,6 +8506,9 @@ Content-Type: application/json
           "201": {
             "description": "***"
           },
+          "204": {
+            "description": "***"
+          },
           "400": {
             "content": {
               "application/json": {
@@ -19193,6 +19196,9 @@ Content-Type: application/json
         },
         "responses": {
           "201": {
+            "description": "***"
+          },
+          "204": {
             "description": "***"
           },
           "400": {

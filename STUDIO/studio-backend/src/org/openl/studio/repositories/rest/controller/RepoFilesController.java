@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,9 +69,10 @@ public class RepoFilesController extends AbstractFilesController {
     }
 
     @PostMapping(value = "/{*path}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
-    public void createResource(
+    @ApiResponse(responseCode = "201", description = "projects.files.create.201.desc")
+    @ApiResponse(responseCode = "204", description = "projects.files.create.204.desc")
+    public ResponseEntity<Void> createResource(
             @DesignRepository("repo-name") Repository repository,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") List<MultipartFile> files,
@@ -80,21 +82,24 @@ public class RepoFilesController extends AbstractFilesController {
             @Parameter(description = "projects.files.param.conflict-policy.desc") ConflictPolicy conflictPolicy,
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
-        handleCreate(fileRootFactory.of(repository, branch), path, files, createFolders, conflictPolicy);
+        return handleCreate(fileRootFactory.of(repository, branch), path, files, createFolders, conflictPolicy);
     }
 
     @PostMapping("/{*path}")
-    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "projects.files.create.summary", description = "projects.files.create.desc")
-    public void createResourceRaw(
+    @ApiResponse(responseCode = "201", description = "projects.files.create.201.desc")
+    @ApiResponse(responseCode = "204", description = "projects.files.create.204.desc")
+    public ResponseEntity<Void> createResourceRaw(
             @DesignRepository("repo-name") Repository repository,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam(value = "createFolders", defaultValue = "false")
             @Parameter(description = "projects.files.param.create-folders.desc") boolean createFolders,
+            @RequestParam(value = "conflictPolicy", defaultValue = "FAIL")
+            @Parameter(description = "projects.files.param.conflict-policy.desc") ConflictPolicy conflictPolicy,
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch,
             InputStream content) {
-        handleCreateRaw(fileRootFactory.of(repository, branch), path, createFolders, content);
+        return handleCreateRaw(fileRootFactory.of(repository, branch), path, createFolders, conflictPolicy, content);
     }
 
     @PostMapping(value = "/{*path}", consumes = "application/zip")

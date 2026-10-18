@@ -319,6 +319,12 @@ from Maven.
   with the code `openl.error.409.project.status.update.failed.message`. It now answers `409` with
   `openl.error.409.file.project.locked.message`, naming the project and the user, or with
   `openl.error.409.file.project.branch.protected.message`, naming the project and the branch.
+* **A single file posted to the files API follows `conflictPolicy`.** `POST /rest/projects/{id}/files/{path}` and
+  `POST /rest/repos/{repo}/files/{path}` used to ignore it for a file and answer `409` with
+  `openl.error.409.file.create.failed.message` whenever a file was already there. `OVERWRITE` and `REPLACE` now
+  replace the file and `SKIP` leaves it as it is, both answering `204` instead of `201`. `FAIL`, the default, answers
+  `409` with `openl.error.409.file.archive.entry.exists.message`, naming the file. The raw `application/octet-stream`
+  form takes `conflictPolicy` too.
 * **`POST /rest/projects/{id}/run` refuses a table that does not compile.** It used to start the run, and
   `GET /rest/projects/{id}/run/result` answered `200` with no `errors` and a result worked out as if the cells that
   could not be read were empty, or with no result at all. It now answers `409` with the code

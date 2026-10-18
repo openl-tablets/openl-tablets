@@ -118,8 +118,18 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         root.requireModifiable();
         lockIfClosed(root);
         try {
-            var resource = findFileArtefact(root.readFolder(null), path);
-            requirePermission(resource, BasePermission.WRITE);
+            replaceFile(root, findFileArtefact(root.readFolder(null), path), path, content);
+        } finally {
+            unlockIfClosed(root);
+        }
+    }
+
+    /**
+     * Replaces the content of a file. The caller has checked the mount and reserved a closed project.
+     */
+    private void replaceFile(FileRoot root, AProjectResource resource, String path, InputStream content) {
+        requirePermission(resource, BasePermission.WRITE);
+        try {
             // Validated before the project is reserved, so a rejected write leaves no lock behind. The
             // validated content is closed here as well, so a write that never happens leaves nothing behind.
             try (InputStream validatedContent = validateContent(root, path, content)) {
@@ -129,8 +139,6 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.update.failed.message");
-        } finally {
-            unlockIfClosed(root);
         }
     }
 
@@ -216,6 +224,17 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         validateResourcePath(path);
         lockIfClosed(root);
         try {
+            addFile(root, path, content, createFolders);
+        } finally {
+            unlockIfClosed(root);
+        }
+    }
+
+    /**
+     * Adds a new file. The caller has checked the mount and the path and reserved a closed project.
+     */
+    private void addFile(FileRoot root, String path, InputStream content, boolean createFolders) {
+        try {
             // An opened project is reserved only once the content is known to be writable, so a rejected
             // write leaves no lock behind. A closed project is reserved beforehand, as it is for the other
             // modifications, so the content is not validated against a state another user is changing.
@@ -228,6 +247,33 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.create.failed.message");
+        }
+    }
+
+    @Override
+    public FileWriteOutcome writeResource(@NotNull FileRoot root,
+                                          @NotBlank String path,
+                                          @NotNull InputStream content,
+                                          boolean createFolders,
+                                          @NotNull ConflictPolicy conflictPolicy) {
+        root.requireModifiable();
+        validateResourcePath(path);
+        // A closed project is reserved before the path is looked at, so the policy decides on the state it writes.
+        lockIfClosed(root);
+        try {
+            var existing = findArtefactByPath(root.readFolder(null), path);
+            if (existing == null) {
+                addFile(root, path, content, createFolders);
+                return FileWriteOutcome.CREATED;
+            }
+            if (existing.isFolder()) {
+                throw new ConflictException("file.path.is.folder.message", path);
+            }
+            if (skipsExisting(conflictPolicy, path)) {
+                return FileWriteOutcome.KEPT;
+            }
+            replaceFile(root, (AProjectResource) existing, path, content);
+            return FileWriteOutcome.REPLACED;
         } finally {
             unlockIfClosed(root);
         }
@@ -396,16 +442,21 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * Applies the per-entry conflict policy to an entry whose target file already exists: reports
-     * a conflict for {@code FAIL}, drops the entry for {@code SKIP}, and keeps it for
-     * {@code OVERWRITE} and {@code REPLACE}.
+     * Applies the per-entry conflict policy to an entry whose target file already exists, as
+     * {@link #skipsExisting} does. An entry whose target is not there is never skipped.
      */
     private boolean isEntrySkipped(AProjectFolder current, FileEntry entry, ConflictPolicy conflictPolicy) {
-        if (findArtefactByPath(current, entry.fullPath()) == null) {
-            return false;
-        }
+        return findArtefactByPath(current, entry.fullPath()) != null
+                && skipsExisting(conflictPolicy, entry.fullPath());
+    }
+
+    /**
+     * Applies the conflict policy to a file that already exists: reports a conflict for {@code FAIL},
+     * skips the write for {@code SKIP}, and lets it replace the file for {@code OVERWRITE} and {@code REPLACE}.
+     */
+    private static boolean skipsExisting(ConflictPolicy conflictPolicy, String path) {
         return switch (conflictPolicy) {
-            case FAIL -> throw new ConflictException("file.archive.entry.exists.message", entry.fullPath());
+            case FAIL -> throw new ConflictException("file.archive.entry.exists.message", path);
             case SKIP -> true;
             case OVERWRITE, REPLACE -> false;
         };

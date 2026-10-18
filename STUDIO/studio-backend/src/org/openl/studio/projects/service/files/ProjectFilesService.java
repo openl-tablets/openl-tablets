@@ -109,6 +109,31 @@ public interface ProjectFilesService {
                         boolean createFolders);
 
     /**
+     * Write a single file, following the conflict policy when a file is already there.
+     *
+     * <p>A file that is not there is created as {@link #createResource} creates it. A file that is there fails the
+     * write for {@link ConflictPolicy#FAIL}, is left as it is for {@link ConflictPolicy#SKIP}, and has its content
+     * replaced, as {@link #updateResource} replaces it, for {@link ConflictPolicy#OVERWRITE} and
+     * {@link ConflictPolicy#REPLACE}. A folder at the path fails the write whatever the policy.
+     *
+     * <p>A closed project stays reserved from the look at the path to the write, so a write made in between by
+     * another request cannot turn the decision of the policy into a failed create.
+     *
+     * @param root           the file root
+     * @param path           relative path within the mount for the file (e.g. "folder/newFile.xlsx")
+     * @param content        file content
+     * @param createFolders  if {@code true}, intermediate folders of a new file are created automatically;
+     *                       if {@code false}, the parent folder must already exist
+     * @param conflictPolicy what to do with a file that is already there
+     * @return what the write did with the file
+     */
+    FileWriteOutcome writeResource(@NotNull FileRoot root,
+                                   @NotBlank String path,
+                                   @NotNull InputStream content,
+                                   boolean createFolders,
+                                   @NotNull ConflictPolicy conflictPolicy);
+
+    /**
      * Create a folder at the given path. The operation is idempotent — an existing folder
      * is left unchanged.
      *

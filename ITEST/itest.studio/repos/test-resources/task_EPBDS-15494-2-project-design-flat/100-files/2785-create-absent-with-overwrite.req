@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/gaps/created.txt?createFolders=true&conflictPolicy=OVERWRITE HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: text/plain
+
+created, as nothing was there
