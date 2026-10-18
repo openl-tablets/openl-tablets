@@ -42,7 +42,7 @@ policy.
 In OpenL Studio the tables of a Markdown module are shown, run, tested, traced and edited as any others, all but their
 look: a Markdown file keeps no formatting. With **Excel Formatting** on, a table is drawn in the OpenL table style, as
 a table of a workbook formatted on save; the style is never written into the file. A file is also edited as text, on
-the **Files** tab of the project.
+the **Files** tab of the project, where **Open in Editor** opens the table of the file in the editor.
 
 ## Format errors
 

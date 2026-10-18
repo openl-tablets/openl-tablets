@@ -417,6 +417,7 @@ export const ProjectDetail = ({
                 onDeleted={() => { setSelectedFile(null); void onChanged?.() }}
                 onMoved={newPath => { setSelectedFile(newPath); void onChanged?.() }}
                 onOpenModule={moduleName => navigate(moduleRoute(project.id, moduleName))}
+                onOpenTable={(moduleName, tableId) => navigate(moduleRoute(project.id, moduleName, tableId))}
                 path={selectedFile}
                 projectId={project.id}
                 projectName={project.name}
