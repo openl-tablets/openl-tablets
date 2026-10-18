@@ -24,7 +24,9 @@ public record TestCaseExecutionResult(
         @Parameter(description = "Execution time of the test case in milliseconds")
         double executionTimeMs,
 
-        @Parameter(description = "Total number of tests in the test case")
+        @Parameter(description = """
+                Total number of tests in the test case. Every test of a test table whose tested rules do not \
+                compile is counted, and counted as failed""")
         int numberOfTests,
 
         @Parameter(description = "Number of failed tests in the test case")

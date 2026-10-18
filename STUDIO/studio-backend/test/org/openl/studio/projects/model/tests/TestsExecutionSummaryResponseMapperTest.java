@@ -49,7 +49,7 @@ class TestsExecutionSummaryResponseMapperTest {
         var test = mock(TestDescription.class);
         mockTestTable(results);
 
-        when(results.getNumberOfTestUnits()).thenReturn(1);
+        when(results.getNumberOfTests()).thenReturn(1);
         when(results.getNumberOfFailures()).thenReturn(1);
         when(results.getFilteredTestUnits(true, 5)).thenReturn(List.of(testUnit));
         when(results.getTestDataColumnDisplayNames()).thenReturn(new String[0]);
@@ -106,6 +106,32 @@ class TestsExecutionSummaryResponseMapperTest {
         assertEquals(List.of("Check", "Doubled"), assertions.stream().map(e -> e.description()).toList());
         assertEquals("234", assertions.getFirst().expectedValue().toString());
         assertEquals("\"Too big\"", assertions.getFirst().actualValue().toString());
+    }
+
+    /**
+     * A test table whose tested rules do not compile runs none of its cases. Every one of them counts as a test and
+     * as a failure, so the table and the summary never report more failures than tests.
+     */
+    @Test
+    void countsEveryCaseOfATableWhoseTestedRulesDoNotCompileAsAFailedTest() {
+        var testSuite = mockTestSuite();
+        var tests = new TestDescription[]{mock(TestDescription.class), mock(TestDescription.class),
+                mock(TestDescription.class)};
+        when(testSuite.getTests()).thenReturn(tests);
+        var results = new TestUnitsResults(testSuite);
+        results.setTestedRulesHaveErrors(true);
+        var mapper = new TestsExecutionSummaryResponseMapper(new ObjectMapper(), mock(SchemaGenerator.class), null,
+                TableModules.none());
+
+        var table = mapper.mapToTestCaseResult(results, TestExecutionSummaryQuery.lazy());
+        var summary = mapper.mapExecutionSummary(List.of(results), List.of(), TestExecutionSummaryQuery.lazy(),
+                Page.of(0, 10));
+
+        assertEquals(3, table.numberOfTests());
+        assertEquals(3, table.numberOfFailures());
+        assertTrue(table.testUnits().isEmpty(), "No case has run");
+        assertEquals(3, summary.getNumberOfTests());
+        assertEquals(3, summary.getNumberOfFailures());
     }
 
     /**
@@ -382,13 +408,17 @@ class TestsExecutionSummaryResponseMapperTest {
     }
 
     private static void mockTestTable(TestUnitsResults results) {
+        var testSuite = mockTestSuite();
+        when(results.getTestSuite()).thenReturn(testSuite);
+    }
+
+    private static TestSuite mockTestSuite() {
         var testSuite = mock(TestSuite.class);
         var testMethod = mock(TestSuiteMethod.class);
         var methodInfo = mock(IMemberMetaInfo.class);
         var syntaxNode = mock(TableSyntaxNode.class);
         var properties = mock(ITableProperties.class);
 
-        when(results.getTestSuite()).thenReturn(testSuite);
         when(testSuite.getTestSuiteMethod()).thenReturn(testMethod);
         when(testSuite.getUri()).thenReturn("file://test.xlsx#Sheet1!A1");
         when(testMethod.getInfo()).thenReturn(methodInfo);
@@ -396,6 +426,7 @@ class TestsExecutionSummaryResponseMapperTest {
         when(methodInfo.getSyntaxNode()).thenReturn(syntaxNode);
         when(syntaxNode.getTableProperties()).thenReturn(properties);
         when(properties.getName()).thenReturn("BrokenTest");
+        return testSuite;
     }
 
     /** The case as a run keeps it, holding its values through the references the holder makes. */

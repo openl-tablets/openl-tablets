@@ -7,7 +7,7 @@ Content-Type: application/json
   "numberOfElements": 14,
   "total": 14,
   "executionTimeMs": "*",
-  "numberOfTests": 33,
+  "numberOfTests": 34,
   "numberOfFailures": 1,
   "testCases": [
     {
@@ -15,7 +15,7 @@ Content-Type: application/json
       "tableId": "*",
       "module": "*",
       "executionTimeMs": "*",
-      "numberOfTests": 0,
+      "numberOfTests": 1,
       "numberOfFailures": 1
     },
     {

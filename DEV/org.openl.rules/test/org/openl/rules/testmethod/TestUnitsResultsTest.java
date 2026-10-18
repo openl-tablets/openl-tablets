@@ -49,6 +49,25 @@ class TestUnitsResultsTest {
         assertEquals(List.of(), results.getFilteredTestUnits(true, -2));
     }
 
+    @Test
+    void countsTheCasesThatRan() {
+        assertEquals(4, results.getNumberOfTests());
+        assertEquals(3, results.getNumberOfFailures());
+    }
+
+    @Test
+    void countsEveryDeclaredCaseAsAFailedTestWhenTheTestedRulesDoNotCompile() {
+        var suite = mock(TestSuite.class);
+        when(suite.getTests()).thenReturn(new TestDescription[]{mock(TestDescription.class),
+                mock(TestDescription.class)});
+        var notRun = new TestUnitsResults(suite);
+        notRun.setTestedRulesHaveErrors(true);
+
+        assertEquals(0, notRun.getNumberOfTestUnits());
+        assertEquals(2, notRun.getNumberOfTests());
+        assertEquals(2, notRun.getNumberOfFailures());
+    }
+
     private static ITestUnit unit(TestStatus status) {
         var unit = mock(ITestUnit.class);
         when(unit.getResultStatus()).thenReturn(status);
