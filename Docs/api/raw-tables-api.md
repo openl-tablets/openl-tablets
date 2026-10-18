@@ -472,8 +472,8 @@ the table or the request named the table by an id it had before.
   [Formulas](#formulas).
 - `openl.error.400.table.cell.formula.invalid.message` — a `formula` that Excel cannot read or OpenL Studio cannot
   compute; see [Formulas](#formulas).
-- `openl.error.400.table.markdown.style.message` — a `style` on a table of a Markdown module, whose file keeps no
-  formatting.
+- `openl.error.400.table.markdown.style.message` — `marks`, or a `style` naming an attribute other than `indent`, on
+  a table of a Markdown module, whose file keeps no formatting.
 - `openl.error.400.table.markdown.layout.message` — the edit leaves a table of a Markdown module in a shape its file
   cannot hold, or writes an Excel `formula` into it; the message tells why.
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array

@@ -378,8 +378,9 @@ inside a marked piece takes its mark; one without is written in the plain field.
 
 - `marks` absent — a new value is written as plain text, and an unchanged value keeps the marks it has.
 - `marks: []` — the value is written with no marks.
-- Marks are refused with `400` on the header, on a value that is not a text, out of the text or overlapping, and in
-  an `.xls` workbook, whose tables the editor offers no marks for. A text the cell type turns into a number, or an Excel formula, keeps no marks.
+- Marks are refused with `400` on the header, on a value that is not a text, out of the text or overlapping, in
+  an `.xls` workbook and in a Markdown file, whose tables the editor offers no marks for. A text the cell type turns
+  into a number, or an Excel formula, keeps no marks.
 
 The read returns the marks as the `runs` of the cell, like any other rich text; a client tells a mark by its bold
 and its colour.

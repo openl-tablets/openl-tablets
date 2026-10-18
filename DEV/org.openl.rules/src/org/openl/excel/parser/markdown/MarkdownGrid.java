@@ -286,12 +286,12 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
 
     @Override
     public void setCellValue(int col, int row, @Nullable Object value) {
-        put(col, row, textOf(value));
+        putKeepingIndent(col, row, textOf(value));
     }
 
     @Override
     public void setCellStringValue(int col, int row, @Nullable String value) {
-        put(col, row, value);
+        putKeepingIndent(col, row, value);
     }
 
     /**
@@ -309,6 +309,16 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
                         .formatted(excelFormula));
     }
 
+    /**
+     * Writes the text of a cell. As a value written into a workbook keeps the style of its cell, the text keeps the
+     * indent of the cell, unless it is indented itself.
+     */
+    private void putKeepingIndent(int column, int row, @Nullable String text) {
+        var indented = MarkdownIndent.of(text);
+        var level = indented.level() > 0 ? indented.level() : MarkdownIndent.of(valueAt(column, row)).level();
+        put(column, row, MarkdownIndent.write(indented.text(), level));
+    }
+
     @Override
     public void createCell(int col,
                            int row,
@@ -321,6 +331,9 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
             setCellFormula(col, row, formula);
         } else {
             setCellValue(col, row, value);
+        }
+        if (style != null && style.getIndent() > 0) {
+            setCellIndent(col, row, style.getIndent());
         }
     }
 
@@ -450,7 +463,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         return number.stripTrailingZeros().toPlainString();
     }
 
-    // The file keeps no formatting
+    // The file keeps no formatting but the indent
 
     @Override
     public void setCellStyle(int col, int row, @Nullable ICellStyle style) {
@@ -467,9 +480,13 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         // Not kept
     }
 
+    /**
+     * Indents the text of a cell, written as non-breaking spaces before it, see {@link MarkdownIndent}. A cell without
+     * text keeps no indent.
+     */
     @Override
     public void setCellIndent(int col, int row, int indent) {
-        // Not kept
+        put(col, row, MarkdownIndent.write(MarkdownIndent.of(valueAt(col, row)).text(), indent));
     }
 
     @Override

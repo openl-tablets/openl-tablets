@@ -15,6 +15,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.MergedCell;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.util.StringUtils;
@@ -39,13 +40,14 @@ final class SheetLayout {
     /**
      * Returns the cells of a sheet holding the table.
      *
-     * <p>All rows have the same length. Merged cells are marked as {@link MergedCell} values.
+     * <p>All rows have the same length. Merged cells are marked as {@link MergedCell} values, and an indented cell
+     * holds an {@link AlignedValue}, as a workbook gives one, see {@link MarkdownIndent}.
      */
     static @Nullable Object[][] layOut(RulesTable table) {
         var sheet = cellsOf(table);
         // Copied into rows of objects, which hold the merge marks a row of strings cannot
         var cells = Arrays.stream(sheet.values())
-                .map(row -> Arrays.stream(row).map(MarkdownValues::of).toArray())
+                .map(row -> Arrays.stream(row).map(SheetLayout::valueOf).toArray())
                 .toArray(Object[][]::new);
         sheet.merges().forEach(range -> mark(cells, range));
         return cells;
@@ -281,6 +283,14 @@ final class SheetLayout {
             }
         }
         return width;
+    }
+
+    /** The value of a cell as a workbook gives it: its text, and its indent when it has one. */
+    private static @Nullable Object valueOf(@Nullable String cell) {
+        var indented = MarkdownIndent.of(cell);
+        return indented.level() == 0 || indented.text() == null
+                ? MarkdownValues.of(indented.text())
+                : new AlignedValue(indented.text(), (short) indented.level());
     }
 
     private static @Nullable String valueOf(SheetCells sheet, int row, int column) {

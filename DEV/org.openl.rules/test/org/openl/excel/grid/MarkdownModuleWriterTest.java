@@ -108,9 +108,6 @@ class MarkdownModuleWriterTest {
     void tableAFileCannotHoldIsLeftOutWithTheReason() throws IOException {
         var workbook = workbook("Algorithms.xlsx", rules -> {
             var sheet = rules.createSheet("Algorithms");
-            row(sheet, 0, "TBasic Integer count()");
-            row(sheet, 1, "Operation", "Action");
-            row(sheet, 2, "RETURN", "1");
             row(sheet, 4, "Properties");
             row(sheet, 5, "scope", "Module");
             row(sheet, 7, "Properties");
@@ -129,14 +126,52 @@ class MarkdownModuleWriterTest {
         assertEquals("# Notes\n\nA note: the algorithms count to three\n\n",
                 Files.readString(module.resolve("notes.md")));
         assertEquals(List.of(
-                "TBasic Integer count(): The table is built by the indent of its cells, which a Markdown file does not "
-                        + "keep",
                 "Method Integer three(): Only the header and the properties stand above the body, but B1 holds a "
                         + "value"),
                 written.leftOut()
                         .stream()
                         .map(table -> table.header() + ": " + table.reason())
                         .toList());
+    }
+
+    @Test
+    void indentThatBuildsATBasicTableIsWrittenAsNonBreakingSpaces() throws IOException {
+        var workbook = workbook("Bonus.xlsx", rules -> {
+            var sheet = rules.createSheet("Bonus");
+            row(sheet, 0, "TBasic Integer bonus(Integer age)");
+            row(sheet, 1, "Description", "Operation", "Condition", "Action");
+            row(sheet, 2, "Description", "Operation", "Condition", "Action");
+            row(sheet, 3, "Young", "IF", "age < 25");
+            row(sheet, 4, "Bonus", "RETURN", "10");
+            row(sheet, 5, "Default", "RETURN", "0");
+            // The return of the bonus is a step of the IF: without the indent it would be returned whatever the age
+            var indented = rules.createCellStyle();
+            indented.setIndention((short) 1);
+            sheet.getRow(4).getCell(1).setCellStyle(indented);
+        });
+        var module = dir.resolve("md/Bonus");
+
+        var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        assertEquals(List.of(), written.leftOut());
+        assertEquals("""
+                ---
+                table: TBasic Integer bonus(Integer age)
+                ---
+
+                | Description | Operation | Condition | Action |
+                |---|---|---|---|
+                | Description | Operation | Condition | Action |
+                | Young | IF | age < 25 |  |
+                | Bonus | &nbsp;&nbsp;RETURN | 10 |  |
+                | Default | RETURN | 0 |  |
+                """, Files.readString(module.resolve("bonus.md")));
+        var factory = new RulesEngineFactory<>(module.toString());
+        assertFalse(factory.getCompiledOpenClass().hasErrors(), () -> factory.getCompiledOpenClass().getAllMessages()
+                .toString());
+        var rules = factory.newEngineInstance();
+        assertEquals(10, TestUtils.<Integer>invoke(rules, "bonus", 20));
+        assertEquals(0, TestUtils.<Integer>invoke(rules, "bonus", 40));
     }
 
     @Test

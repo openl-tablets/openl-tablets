@@ -212,8 +212,8 @@ interface TableEditorProps {
     /** The kind of the table, `Rules`, `TBasic`, `ColumnMatch` and so on, which tells whether its indent is structure. */
     kind?: string | undefined
     /**
-     * Set on a table of a Markdown file, which keeps its values as text and no formatting: the look of a cell and its
-     * indent are not the reader's to set.
+     * Set on a table of a Markdown file, which keeps its values as text and no formatting: the look of a cell is not the
+     * reader's to set. The indent of a TBasic and a ColumnMatch table is, written in the file as non-breaking spaces.
      * The file holds no Excel formulas either, so a cell is not offered to be written as one.
      */
     plainText?: boolean | undefined
@@ -289,9 +289,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     const paper = onPaper(roles, excelFormatting)
     // The look of a cell is the reader's to set only where it is kept and seen: a save that formats the table would
     // write the OpenL table style over it, the Studio look would not show it, and a Markdown file does not keep it.
+    // The indent of a TBasic and a ColumnMatch table is their structure, which a Markdown file keeps too.
     const formattedOnSave = useContext(SystemContext).systemSettings?.formatTablesOnSave !== false
     const formatting = !plainText && !formattedOnSave && excelFormatting
-    const indenting = !plainText && (formatting || INDENTED_KINDS.has(kind ?? ''))
+    const indenting = formatting || INDENTED_KINDS.has(kind ?? '')
     const { styles, cx } = useStyles(paper)
     // Never more than the table has: a table read as fewer rows than its header takes is drawn whole.
     const hidden = Math.min(Math.max(hiddenRows ?? 0, 0), rows.length)

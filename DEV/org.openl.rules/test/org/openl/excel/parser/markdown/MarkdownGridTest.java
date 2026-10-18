@@ -103,6 +103,36 @@ class MarkdownGridTest {
     }
 
     @Test
+    void indentIsSavedAsNonBreakingSpacesAndKeptByAValueWrittenOverIt() throws Exception {
+        grid.edit();
+        var writable = (IWritableGrid) grid.getGrid();
+
+        writable.setCellIndent(1, 3, 1);
+        writable.setCellValue(1, 3, "Morning");
+        writable.setCellIndent(1, 4, 2);
+        writable.setCellIndent(1, 4, 0);
+        writable.save();
+
+        assertEquals(GREETING.replace("| 0-11  | Good Morning   |", "| 0-11  | &nbsp;&nbsp;Morning |"),
+                Files.readString(file, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void indentMovesWithTheTextOfACell() throws Exception {
+        grid.edit();
+        var writable = (IWritableGrid) grid.getGrid();
+
+        // A row removed above an indented cell moves the cell up, as a TBasic step: its indent goes with its text
+        writable.setCellIndent(1, 4, 1);
+        writable.copyCellValue(1, 4, 1, 3);
+        writable.save();
+
+        assertEquals(GREETING.replace("| 0-11  | Good Morning   |", "| 0-11  | &nbsp;&nbsp;Good Afternoon |")
+                        .replace("| 12-17 | Good Afternoon |", "| 12-17 | &nbsp;&nbsp;Good Afternoon |"),
+                Files.readString(file, StandardCharsets.UTF_8));
+    }
+
+    @Test
     void cellsReadAsTheyAreWritten() {
         grid.edit();
         var writable = (IWritableGrid) grid.getGrid();

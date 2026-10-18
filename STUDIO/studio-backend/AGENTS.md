@@ -326,7 +326,9 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
 - **A Markdown table is read in the style, never written in it.** A Markdown file keeps no formatting, so a read with
   the styles draws a table of a Markdown module through `StyledGrid`: each cell takes the look of its role, the lines
   of `Edges.of` and the header pieces of `TableStyle.Piece` — the rules `ExcelTableFormatter` writes by, shared so the
-  two never part — in the Office colours (`ThemedColor.toOfficeRgb`). Nothing reaches the file.
+  two never part — in the Office colours (`ThemedColor.toOfficeRgb`). Nothing reaches the file but the indent, the
+  structure of a TBasic and a ColumnMatch table: it is written as two `&nbsp;` before the text of a cell for each
+  level, and `MarkdownTables.refuseStyle` refuses any other style edit.
 
 ## Regenerating OpenAPI Goldens
 
