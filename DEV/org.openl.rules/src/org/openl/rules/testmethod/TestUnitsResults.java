@@ -73,6 +73,16 @@ public class TestUnitsResults implements INamedThing {
         testUnits.add(testUnit);
     }
 
+    /**
+     * The cases of the test table.
+     *
+     * <p>A test table whose tested rules do not compile runs none of its cases. Every case it declares counts then,
+     * and counts as failed in {@link #getNumberOfFailures()}, so the table never reports more failures than cases.
+     */
+    public int getNumberOfTests() {
+        return testedRulesHaveErrors ? getTestSuite().getTests().length : getNumberOfTestUnits();
+    }
+
     public int getNumberOfFailures() {
         if (testedRulesHaveErrors) {
             return getTestSuite().getTests().length;

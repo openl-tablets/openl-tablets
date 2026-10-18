@@ -72,7 +72,7 @@ public class TestsExecutionSummaryResponseMapper {
         var numberOfFailures = 0;
         for (TestUnitsResults testCase : testUnitsResults) {
             executionTimeMs += testCase.getExecutionTime() / NANOS_IN_MILLISECOND;
-            numberOfTests += testCase.getNumberOfTestUnits();
+            numberOfTests += testCase.getNumberOfTests();
             numberOfFailures += testCase.getNumberOfFailures();
         }
         builder.executionTimeMs(executionTimeMs)
@@ -87,7 +87,7 @@ public class TestsExecutionSummaryResponseMapper {
                 .module(tableModules.moduleOf(testCase.getTestSuite().getUri()))
                 .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)
-                .numberOfTests(testCase.getNumberOfTestUnits())
+                .numberOfTests(testCase.getNumberOfTests())
                 .numberOfFailures(testCase.getNumberOfFailures())
                 // A Run table states no expected values, so its cases neither pass nor fail.
                 .runTable(testCase.getTestSuite().getTestSuiteMethod().isRunMethod() ? Boolean.TRUE : null);

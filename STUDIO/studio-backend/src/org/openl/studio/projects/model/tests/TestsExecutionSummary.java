@@ -18,7 +18,9 @@ public class TestsExecutionSummary extends PageResponse<TestCaseExecutionResult>
     private final double executionTimeMs;
 
     @Getter
-    @Parameter(description = "Total number of tests executed")
+    @Parameter(description = """
+            Total number of tests of the test tables run. Every test of a test table whose tested rules do not \
+            compile is counted, and counted as failed""")
     private final int numberOfTests;
 
     @Getter
