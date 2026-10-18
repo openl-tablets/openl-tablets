@@ -36,14 +36,16 @@ import org.openl.util.StringUtils;
  * <p>The header of the table is the front matter of the file: the {@code table} key holds the text of the first table
  * cell, such as {@code Rules String Greeting(Integer hour)}. The other keys are table properties, except
  * {@code merges}, which lists the merged ranges of the body in A1 notation. Values are read as written:
- * {@code 2024-01-01} stays text, and a list is joined with commas.
+ * {@code NO} stays {@code NO}, and a list is joined with commas.
  *
  * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
  * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with
  * neither holds a table of a header alone, such as a {@code Datatype} that adds no field to its parent.
  *
  * <p>A cell is taken as written, not rendered as Markdown. A cell wrapped in backticks as a whole is unwrapped,
- * {@code \|} gives a vertical bar and {@code <br>} a line break.
+ * {@code \|} gives a vertical bar and {@code <br>} a line break. A whole number, {@code true} and {@code false}, and a
+ * date, in a cell or a property, read as the values a cell of a workbook holds, and any other text as a text, see
+ * {@link MarkdownValues}.
  *
  * <p>Everything else in the file is documentation. A file without front matter is documentation as a whole.
  *

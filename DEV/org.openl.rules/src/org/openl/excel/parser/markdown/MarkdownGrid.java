@@ -421,7 +421,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     /**
      * Returns the text a value is written as, which the table reads back as the same value.
      */
-    static @Nullable String textOf(@Nullable Object value) {
+    public static @Nullable String textOf(@Nullable Object value) {
         return switch (value) {
             case null -> null;
             case String text -> text;

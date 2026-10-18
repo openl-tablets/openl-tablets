@@ -27,6 +27,10 @@ policy.
   matter alone.
 - A cell is taken as written. A cell wrapped in backticks as a whole is unwrapped, `\|` is a vertical bar and `<br>`
   a line break.
+- A whole number, `true` and `false`, and a date written as `2026-03-02` or `2026-03-02T10:30:15` read as the
+  number, the boolean and the date a cell of a workbook holds, so a `Spreadsheet` step of such a value takes the type
+  it takes in a workbook. Any other text stays text, such as `007`, `3.0`, `TRUE` or `03/02/2026`: the type a table
+  declares reads it, and a number reads as a `Double` where none is declared.
 - Everything else in a file is documentation. A file without front matter is documentation as a whole.
 - A module path with a wildcard, such as `rules/Auto-*`, makes a module of every folder of Markdown files it
   matches, as it makes one of every file it matches.
