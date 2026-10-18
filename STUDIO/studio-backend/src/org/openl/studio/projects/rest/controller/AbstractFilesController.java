@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.FileViewMode;
+import org.openl.studio.projects.service.files.FileWriteOutcome;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.files.ProjectFilesService.UploadedFile;
 import org.openl.studio.projects.validator.file.FileCriteriaQueryValidator;
@@ -66,36 +68,49 @@ public abstract class AbstractFilesController {
 
     /**
      * Handles a multipart create: a folder path uploads its files as one operation, a file path
-     * creates a single resource.
+     * writes a single resource as {@link #handleCreateRaw} does.
+     *
+     * @return {@code 201 Created} for a folder upload and a created file, {@code 204 No Content} for a file that
+     *         was already there
      */
-    protected void handleCreate(FileRoot root, String path, List<MultipartFile> files,
-                                boolean createFolders, ConflictPolicy conflictPolicy) throws IOException {
-        List<String> uploaded;
-        try {
-            if (isFolderPath(path)) {
+    protected ResponseEntity<Void> handleCreate(FileRoot root, String path, List<MultipartFile> files,
+                                                boolean createFolders, ConflictPolicy conflictPolicy)
+            throws IOException {
+        if (isFolderPath(path)) {
+            List<String> uploaded;
+            try {
                 uploaded = filesService.uploadFiles(root, stripSlashes(path), toUploadedFiles(files), conflictPolicy);
-            } else if (files == null || files.isEmpty()) {
-                throw new BadRequestException("file.path.requires.content.message");
-            } else {
-                filesService.createResource(root, stripLeadingSlash(path), files.getFirst().getInputStream(), createFolders);
-                uploaded = List.of(stripLeadingSlash(path));
+            } finally {
+                postWrite();
             }
-        } finally {
-            postWrite();
+            postUpload(root, uploaded);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
-        postUpload(root, uploaded);
+        if (files == null || files.isEmpty()) {
+            throw new BadRequestException("file.path.requires.content.message");
+        }
+        return handleCreateRaw(root, path, createFolders, conflictPolicy, files.getFirst().getInputStream());
     }
 
     /**
-     * Handles a raw octet-stream create of a single resource.
+     * Handles a create of a single resource, following the conflict policy when a file is already there.
+     *
+     * @return {@code 201 Created} for a created file, {@code 204 No Content} for a file that was already there:
+     *         replaced, or left as it is for {@link ConflictPolicy#SKIP}
      */
-    protected void handleCreateRaw(FileRoot root, String path, boolean createFolders, InputStream content) {
+    protected ResponseEntity<Void> handleCreateRaw(FileRoot root, String path, boolean createFolders,
+                                                   ConflictPolicy conflictPolicy, InputStream content) {
+        var filePath = stripLeadingSlash(path);
+        FileWriteOutcome outcome;
         try {
-            filesService.createResource(root, stripLeadingSlash(path), content, createFolders);
+            outcome = filesService.writeResource(root, filePath, content, createFolders, conflictPolicy);
         } finally {
             postWrite();
         }
-        postUpload(root, List.of(stripLeadingSlash(path)));
+        // A file left as it is was not uploaded, so nothing of it is followed up.
+        postUpload(root, outcome == FileWriteOutcome.KEPT ? List.of() : List.of(filePath));
+        return ResponseEntity.status(outcome == FileWriteOutcome.CREATED ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
+                .build();
     }
 
     /**

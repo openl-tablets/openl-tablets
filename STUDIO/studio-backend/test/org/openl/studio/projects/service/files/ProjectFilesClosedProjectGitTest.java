@@ -3,6 +3,7 @@ package org.openl.studio.projects.service.files;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -46,6 +47,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableFormatting;
@@ -176,6 +178,73 @@ class ProjectFilesClosedProjectGitTest {
         try (var previous = service.getResource(root, "data.txt", seedCommit).getContent()) {
             assertEquals("Previous content", new String(previous.readAllBytes(), StandardCharsets.UTF_8));
         }
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeCreatesAFileThatIsNotThereWhateverTheConflictPolicy() throws Exception {
+        var outcome = service.writeResource(root, "notes/readme.txt", IOUtils.toInputStream("Hello"), true,
+                ConflictPolicy.FAIL);
+
+        assertEquals(FileWriteOutcome.CREATED, outcome);
+        assertEquals(List.of(CURRENT_USER + "Save readme.txt"), newCommits());
+        assertEquals("Hello", read("notes/readme.txt"));
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeReplacesAFileThatIsThereForOverwriteAndReplace() throws Exception {
+        var overwritten = service.writeResource(root, "docs/guide/intro.txt",
+                IOUtils.toInputStream("New introduction"), false, ConflictPolicy.OVERWRITE);
+        var replaced = service.writeResource(root, "data.txt", IOUtils.toInputStream("New content"), false,
+                ConflictPolicy.REPLACE);
+
+        assertEquals(FileWriteOutcome.REPLACED, overwritten);
+        assertEquals(FileWriteOutcome.REPLACED, replaced);
+        assertEquals(List.of(CURRENT_USER + "Save data.txt", CURRENT_USER + "Save intro.txt"), newCommits());
+        assertEquals("New introduction", read("docs/guide/intro.txt"));
+        assertEquals("New content", read("data.txt"));
+        // REPLACE of a single file replaces the file alone, not the folder it is in.
+        assertEquals(DESCRIPTOR, read("rules.xml"));
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeLeavesAFileThatIsThereAsItIsForSkip() throws Exception {
+        var outcome = service.writeResource(root, "data.txt", IOUtils.toInputStream("New content"), false,
+                ConflictPolicy.SKIP);
+
+        assertEquals(FileWriteOutcome.KEPT, outcome);
+        assertEquals(List.of(), newCommits());
+        assertEquals("Previous content", read("data.txt"));
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeRefusesAFileThatIsThereForFail() throws Exception {
+        var content = IOUtils.toInputStream("New content");
+
+        var refused = assertThrows(ConflictException.class,
+                () -> service.writeResource(root, "data.txt", content, false, ConflictPolicy.FAIL));
+
+        assertEquals("openl.error.409.file.archive.entry.exists.message", refused.getErrorCode());
+        assertEquals(List.of(), newCommits());
+        assertEquals("Previous content", read("data.txt"));
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeRefusesAFolderAtThePathWhateverTheConflictPolicy() throws Exception {
+        for (var policy : ConflictPolicy.values()) {
+            var content = IOUtils.toInputStream("New content");
+
+            var refused = assertThrows(ConflictException.class,
+                    () -> service.writeResource(root, "docs/guide", content, false, policy));
+
+            assertEquals("openl.error.409.file.path.is.folder.message", refused.getErrorCode(), policy.name());
+        }
+        assertEquals(List.of(), newCommits());
+        assertEquals("Previous introduction", read("docs/guide/intro.txt"));
         assertLeftClosedAndUnlocked(project);
     }
 

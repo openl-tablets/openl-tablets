@@ -26,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -37,6 +38,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.files.ConflictPolicy;
+import org.openl.studio.projects.service.files.FileWriteOutcome;
 import org.openl.studio.projects.service.files.ProjectFileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
@@ -129,6 +131,7 @@ class ProjectFilesControllerTest {
                 .thenReturn(List.of("rules/Main.xlsx"));
         when(files.uploadArchive(any(), eq(""), any(), eq(true), eq(ConflictPolicy.REPLACE)))
                 .thenReturn(List.of("Main.xlsx", "rules.xml"));
+        when(files.writeResource(any(), any(), any(), anyBoolean(), any())).thenReturn(FileWriteOutcome.CREATED);
         var workspace = mock(WorkspaceProjectService.class);
         var studio = mock(WebStudio.class);
         var controller = controller(files, project, workspace, studio);
@@ -136,7 +139,8 @@ class ProjectFilesControllerTest {
 
         controller.createResource(project, "/rules/", List.of(workbook), false, ConflictPolicy.FAIL, null);
         controller.createResource(project, "/Main.xlsx", List.of(workbook), false, ConflictPolicy.FAIL, null);
-        controller.createResourceRaw(project, "/Raw.xlsx", false, null, new ByteArrayInputStream(new byte[]{1}));
+        controller.createResourceRaw(project, "/Raw.xlsx", false, ConflictPolicy.FAIL, null,
+                new ByteArrayInputStream(new byte[]{1}));
         controller.uploadArchive(project, "/", true, ConflictPolicy.REPLACE, null,
                 new ByteArrayInputStream(new byte[]{1}));
         controller.updateResource(project, "/Main.xlsx", workbook, null);
@@ -161,11 +165,45 @@ class ProjectFilesControllerTest {
     void leavesAnUploadIntoAClosedProjectFormattedBeforeItsCommit() {
         var project = mock(RulesProject.class);
         var workspace = mock(WorkspaceProjectService.class);
-        var controller = controller(mock(ProjectFilesService.class), project, workspace, mock(WebStudio.class));
+        var files = mock(ProjectFilesService.class);
+        when(files.writeResource(any(), any(), any(), anyBoolean(), any())).thenReturn(FileWriteOutcome.CREATED);
+        var controller = controller(files, project, workspace, mock(WebStudio.class));
 
-        controller.createResourceRaw(project, "/Raw.xlsx", false, null, new ByteArrayInputStream(new byte[]{1}));
+        controller.createResourceRaw(project, "/Raw.xlsx", false, ConflictPolicy.FAIL, null,
+                new ByteArrayInputStream(new byte[]{1}));
 
         verify(workspace, never()).formatUploaded(any(), any());
+    }
+
+    @Test
+    void answersWhetherTheFileWasCreatedOrWasAlreadyThere() throws IOException {
+        var project = mock(RulesProject.class);
+        when(project.isOpened()).thenReturn(true);
+        var files = mock(ProjectFilesService.class);
+        when(files.writeResource(any(), eq("New.xlsx"), any(), eq(true), eq(ConflictPolicy.SKIP)))
+                .thenReturn(FileWriteOutcome.CREATED);
+        when(files.writeResource(any(), eq("Main.xlsx"), any(), eq(false), eq(ConflictPolicy.OVERWRITE)))
+                .thenReturn(FileWriteOutcome.REPLACED);
+        when(files.writeResource(any(), eq("Kept.xlsx"), any(), eq(false), eq(ConflictPolicy.SKIP)))
+                .thenReturn(FileWriteOutcome.KEPT);
+        var workspace = mock(WorkspaceProjectService.class);
+        var controller = controller(files, project, workspace, mock(WebStudio.class));
+        var workbook = new MockMultipartFile("file", "Main.xlsx", null, new byte[]{1});
+
+        var created = controller.createResourceRaw(project, "/New.xlsx", true, ConflictPolicy.SKIP, null,
+                new ByteArrayInputStream(new byte[]{1}));
+        var replaced = controller.createResource(project, "/Main.xlsx", List.of(workbook), false,
+                ConflictPolicy.OVERWRITE, null);
+        var kept = controller.createResourceRaw(project, "/Kept.xlsx", false, ConflictPolicy.SKIP, null,
+                new ByteArrayInputStream(new byte[]{1}));
+
+        assertEquals(HttpStatus.CREATED, created.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, replaced.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, kept.getStatusCode());
+        // A file left as it is was not uploaded, so it is not formatted either.
+        verify(workspace).formatUploaded(project, List.of("New.xlsx"));
+        verify(workspace).formatUploaded(project, List.of("Main.xlsx"));
+        verify(workspace).formatUploaded(project, List.of());
     }
 
     @Test
@@ -173,15 +211,15 @@ class ProjectFilesControllerTest {
         var project = mock(RulesProject.class);
         when(project.isOpened()).thenReturn(true);
         var files = mock(ProjectFilesService.class);
-        doThrow(new ConflictException("file.create.failed.message"))
-                .when(files).createResource(any(), any(), any(), anyBoolean());
+        doThrow(new ConflictException("file.archive.entry.exists.message", "Raw.xlsx"))
+                .when(files).writeResource(any(), any(), any(), anyBoolean(), any());
         var workspace = mock(WorkspaceProjectService.class);
         var studio = mock(WebStudio.class);
         var controller = controller(files, project, workspace, studio);
         var content = new ByteArrayInputStream(new byte[]{1});
 
         assertThrows(ConflictException.class,
-                () -> controller.createResourceRaw(project, "/Raw.xlsx", false, null, content));
+                () -> controller.createResourceRaw(project, "/Raw.xlsx", false, ConflictPolicy.FAIL, null, content));
 
         verify(studio).reset();
         verify(workspace, never()).formatUploaded(any(), any());
