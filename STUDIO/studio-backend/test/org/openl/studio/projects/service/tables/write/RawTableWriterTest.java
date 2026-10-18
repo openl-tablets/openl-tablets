@@ -47,6 +47,7 @@ import org.openl.studio.projects.model.tables.MergeTarget;
 import org.openl.studio.projects.model.tables.RawCellColor;
 import org.openl.studio.projects.model.tables.RawCellInput;
 import org.openl.studio.projects.model.tables.RawCellStyleInput;
+import org.openl.studio.projects.model.tables.RawTableAppend;
 import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableCellStyle;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
@@ -1154,6 +1155,37 @@ class RawTableWriterTest {
     }
 
     @Test
+    void appendsRawRowsWithACellForEveryColumn() {
+        appendRaw(List.of(cell("double"), cell("rate"), cell(null)), List.of(cell("long"), cell("id"), cell("delta")));
+
+        var source = reload(mainProject);
+        assertEquals(6, source.size());
+        assertEquals("rate", value(source, 4, 1));
+        assertNull(value(source, 4, 2));
+        assertEquals("delta", value(source, 5, 2));
+    }
+
+    @Test
+    void rejectsAppendedRawRowNarrowerThanTable() {
+        // A missing trailing cell is refused rather than written blank, and the rows before it are not written either
+        assertRefusedForWidth(List.of(cell("double"), cell("rate"), cell("delta")), List.of(cell("long"), cell("id")));
+
+        assertEquals(4, reload(mainProject).size(), "Nothing is written");
+    }
+
+    @Test
+    void rejectsABlankAppendedRawRowNarrowerThanTableForItsWidth() {
+        assertRefusedForWidth(List.of(cell(null), cell("")));
+    }
+
+    @Test
+    void rejectsAppendedRawRowWiderThanTable() {
+        assertRefusedForWidth(List.of(cell("double"), cell("rate"), cell("delta"), cell("extra")));
+
+        assertEquals(3, width(reload(mainProject)), "The table keeps its width");
+    }
+
+    @Test
     void rejectsEmptyCells() {
         // an empty block (no lines) is rejected
         assertBadRequest(appendRows(List.of()));
@@ -1407,6 +1439,22 @@ class RawTableWriterTest {
 
     private void apply(Path project, List<RawTableSourceAction> actions) {
         new RawTableWriter(load(project)).apply(actions);
+    }
+
+    /** Append the rows the way {@code POST /tables/{tableId}/lines} does. */
+    @SafeVarargs
+    private void appendRaw(List<RawTableCell>... rows) {
+        var append = new RawTableAppend();
+        append.setRows(List.of(rows));
+        new RawTableWriter(load(mainProject)).append(append);
+    }
+
+    /** Append the rows and expect the refusal of a row that has not one cell per column of the table. */
+    @SafeVarargs
+    private void assertRefusedForWidth(List<RawTableCell>... rows) {
+        var refused = assertThrows(BadRequestException.class, () -> appendRaw(rows));
+
+        assertEquals("openl.error.400.table.action.row.width.message", refused.getErrorCode());
     }
 
     private void write(Path project, List<List<RawTableCell>> source) {

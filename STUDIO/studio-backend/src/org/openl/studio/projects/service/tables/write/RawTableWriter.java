@@ -207,6 +207,10 @@ public class RawTableWriter extends TableWriter<RawTableView> {
      * Appends rows in raw matrix format to the table's developer view without
      * affecting existing content. Covered cells are skipped (they are masked by
      * their origin cell's span). Also applies merge regions for appended cells.
+     * <p>
+     * Every row carries one cell per column of the table, a blank or covered one included. A shorter row would
+     * leave its trailing cells empty and a longer one would widen the table, so both are refused before anything
+     * is written.
      *
      * @param tableAppend The append request containing rows to add
      */
@@ -216,8 +220,9 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         }
         var tableColumns = table.getGridTable(IXlsTableNames.VIEW_DEVELOPER).getWidth();
         for (var row : tableAppend.getRows()) {
+            // The width comes first, as for the raw actions: a short row is refused for its width even when blank.
+            requireLineLength(row, tableColumns, ROW_WIDTH_MESSAGE);
             requireWritableRow(row);
-            requireColumnsWithinTable(row.size(), tableColumns);
         }
         try {
             table.getGridTable().edit();
@@ -859,7 +864,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         requireSomeContent(cells);
     }
 
-    private static void requireLineLength(List<RawCellInput> cells, int limit, String messageKey) {
+    private static void requireLineLength(@Nullable List<?> cells, int limit, String messageKey) {
         if (cells == null) {
             throw new BadRequestException("table.action.cells.required.message");
         }
