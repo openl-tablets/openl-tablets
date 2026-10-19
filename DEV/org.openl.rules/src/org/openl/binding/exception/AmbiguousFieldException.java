@@ -15,6 +15,7 @@ import lombok.Getter;
 import org.openl.base.INamedThing;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 
 /**
  * @author snshor
@@ -44,13 +45,23 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
                 if (!first) {
                     sb.append(", ");
                 }
-                sb.append(declaringClasses == 1 ? "" : f.getDeclaringClass().getDisplayName(INamedThing.SHORT) + ".").append(f.getDisplayName(INamedThing.SHORT));
+                sb.append(declaringClasses == 1 ? "" : qualifierOf(f)).append(f.getDisplayName(INamedThing.SHORT));
                 first = false;
             }
         } else {
             sb.append(".");
         }
         return sb.toString();
+    }
+
+    /**
+     * Names the type that declares the field, as {@code Runner.} for {@code Runner.age}. A variable, such as the
+     * element an array index operator names, belongs to no type, so it is named alone.
+     */
+    private static String qualifierOf(IOpenField field) {
+        var declaringClass = field.getDeclaringClass();
+        return declaringClass == null || NullOpenClass.isAnyNull(declaringClass) ? ""
+                : declaringClass.getDisplayName(INamedThing.SHORT) + ".";
     }
 
 }
