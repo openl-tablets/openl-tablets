@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: text/csv;charset=UTF-8
+Content-Disposition: attachment; filename=audit-log.csv; filename*=UTF-8''audit-log.csv
+
+﻿id,time,actor,authentication,clientAddress,category,action,outcome,targetType,target,subjectType,subject,details
+***,***,,token,***,authentication,signIn,failure,,,,,"{""reason"":""badCredentials""}"
+***,***,,token,***,authentication,signIn,failure,,,,,"{""reason"":""badCredentials"",""token"":""abc123DEF4567890""}"
+***,***,EPBDS_14601_user,basic,***,authentication,signIn,failure,,,,,"{""reason"":""badCredentials""}"

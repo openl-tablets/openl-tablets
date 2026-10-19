@@ -35,6 +35,9 @@ Content-Type: application/json
       "name": "ACL Management: Roles"
     },
     {
+      "name": "Audit Log"
+    },
+    {
       "name": "Compare"
     },
     {
@@ -1836,6 +1839,285 @@ Content-Type: application/json
         "summary": "***",
         "tags": [
           "ACL Management: Roles"
+        ]
+      }
+    },
+    "/admin/audit": {
+      "get": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "actor",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "authentication",
+                  "audit"
+                ]
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "action",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "***",
+                "enum": [
+                  "signIn",
+                  "signOut",
+                  "auditLogRead",
+                  "auditLogPurged"
+                ]
+              },
+              "uniqueItems": true
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "outcome",
+            "schema": {
+              "type": "string",
+              "description": "***",
+              "enum": [
+                "success",
+                "failure",
+                "denied"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "authentication",
+            "schema": {
+              "type": "string",
+              "description": "***",
+              "enum": [
+                "form",
+                "basic",
+                "token",
+                "bearer",
+                "oauth2",
+                "saml"
+              ]
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "target",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "subject",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "clientAddress",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 1
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "unpaged",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEventsPage"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "***",
+            "headers": {
+              "Content-Disposition": {
+                "description": "***",
+                "schema": {
+                  "type": "string"
+                },
+                "style": "simple"
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "406": {
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Audit Log"
         ]
       }
     },
@@ -23938,6 +24220,146 @@ Content-Type: application/json
           }
         }
       },
+      "AuditEventView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "signIn",
+              "signOut",
+              "auditLogRead",
+              "auditLogPurged"
+            ]
+          },
+          "actor": {
+            "type": "string",
+            "description": "***"
+          },
+          "authentication": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "form",
+              "basic",
+              "token",
+              "bearer",
+              "oauth2",
+              "saml"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "authentication",
+              "audit"
+            ]
+          },
+          "clientAddress": {
+            "type": "string",
+            "description": "***"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            },
+            "description": "***"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          },
+          "outcome": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "success",
+              "failure",
+              "denied"
+            ]
+          },
+          "subject": {
+            "type": "string",
+            "description": "***"
+          },
+          "subjectType": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "user",
+              "group"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "description": "***"
+          },
+          "targetType": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "user",
+              "group",
+              "token",
+              "root",
+              "repository",
+              "project"
+            ]
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          }
+        }
+      },
+      "AuditEventsPage": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/AuditEventView"
+            }
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***"
+          },
+          "totalLimited": {
+            "type": "boolean",
+            "description": "***"
+          }
+        },
+        "required": [
+          "numberOfElements",
+          "pageNumber",
+          "pageSize"
+        ]
+      },
       "AuthenticationSettings": {
         "type": "object",
         "discriminator": {
@@ -31935,6 +32357,10 @@ Content-Type: application/json
       "SupportedFeaturesModel": {
         "type": "object",
         "properties": {
+          "auditLog": {
+            "type": "boolean",
+            "description": "***"
+          },
           "emailVerification": {
             "type": "boolean",
             "description": "***"

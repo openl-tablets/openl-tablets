@@ -1,0 +1,5 @@
+GET /rest/admin/audit?category=authentication&outcome=failure&size=1 HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+Accept: application/json
+

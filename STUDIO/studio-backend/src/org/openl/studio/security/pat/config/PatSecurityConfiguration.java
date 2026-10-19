@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -120,11 +121,13 @@ public class PatSecurityConfiguration {
      * </p>
      *
      * @param patAuthService the PAT authentication service
+     * @param eventPublisher publishes every refused token, which the audit log records
      * @return configured PAT authentication filter
      */
     @Bean
-    public PatAuthenticationFilter patAuthenticationFilter(PatAuthService patAuthService) {
-        return new PatAuthenticationFilter(patAuthService);
+    public PatAuthenticationFilter patAuthenticationFilter(PatAuthService patAuthService,
+                                                           AuthenticationEventPublisher eventPublisher) {
+        return new PatAuthenticationFilter(patAuthService, eventPublisher);
     }
 
 }

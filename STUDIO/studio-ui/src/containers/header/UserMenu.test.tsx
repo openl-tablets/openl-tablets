@@ -39,6 +39,7 @@ const renderMenu = ({ admin = false, userMode = true } = {}) => {
                     isUserManagementEnabled: false,
                     isGroupsManagementEnabled: false,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                 }}
             >
                 <UserMenu isOpen onClose={onClose} />

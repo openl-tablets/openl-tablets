@@ -6,6 +6,7 @@ export interface SystemSettings {
         groupsManagement: boolean
         userManagement: boolean
         personalAccessToken: boolean
+        auditLog: boolean
     },
     userMode?: SystemUserMode,
     scripts?: string | string[]

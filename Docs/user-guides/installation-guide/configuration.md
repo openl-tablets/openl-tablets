@@ -414,6 +414,34 @@ Email address verification is active while these three properties hold valid val
 
 These are set in `application.properties` only.
 
+### Audit Log
+
+OpenL Studio keeps the audit log in its database in every user mode but Single-User. Two settings control it:
+
+- **`audit.retention`** — how long an event is kept, with its unit: `90d` (days), `2w` (weeks), `6m` (months) or `1y`
+  (years), or in ISO 8601, such as `P1Y6M`. Empty, the default, keeps the events forever. OpenL Studio does not start
+  with a period that cannot be read or is not longer than zero, such as `0d` or `365` without its unit.
+- **`audit.outputs.console`** — `true` also writes every event to the console, by the `OpenL.audit` logger. Off by
+  default. The database keeps the events either way.
+
+With a retention period, the events older than it are removed a few minutes after the start and then once a day; in
+a cluster, one node removes them. The log records each removal, and a run that finds no event to remove records
+none. The console receives a line per event at the `INFO` level, ready for a log collector:
+
+```properties
+audit.retention = 1y
+audit.outputs.console = true
+```
+
+A line of the server log names the action and the outcome of an event, then its other fields, as the columns of an
+export name them, such as `signIn failure id=7 actor=jdoe clientAddress=10.0.0.7 details={"reason":"badCredentials"}`.
+A JSON layout, such as the `ecs` format of the OpenL Studio Docker image, also writes each field of its own:
+`audit.id`, `audit.action`, `audit.actor` and the others. A copy of the events a log collector keeps elsewhere stays as
+it was recorded, whatever happens to the database of OpenL Studio.
+
+The events themselves are described in
+[Reviewing the Audit Log](../openl-studio/administration/08-audit-log.md#reviewing-the-audit-log).
+
 ### Azure Blob Storage Credentials
 
 An Azure Blob Storage repository authenticates with the access key of a storage account. Both settings take the

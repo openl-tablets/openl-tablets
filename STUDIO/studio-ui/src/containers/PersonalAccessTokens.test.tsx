@@ -108,6 +108,7 @@ const writeText = vi.fn()
 
 const systemContextValue = {
     isPersonalAccessTokenEnabled: true,
+    isAuditLogEnabled: false,
 } as React.ContextType<typeof SystemContext>
 
 const renderPat = (contextValue = systemContextValue) => render(

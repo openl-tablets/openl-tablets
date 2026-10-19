@@ -9,7 +9,8 @@ Content-Type: application/json
     "groupsManagement": false,
     "userManagement": false,
     "emailVerification": false,
-    "personalAccessToken": false
+    "personalAccessToken": false,
+    "auditLog": false
   },
   "formatTablesOnSave": true
 }

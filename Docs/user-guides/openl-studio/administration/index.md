@@ -21,3 +21,4 @@ The following topics are included:
 -   [Managing Notifications](05-notifications.md#managing-notifications)
 -   [Managing Tags](06-tags.md#managing-tags)
 -   [Managing Email Server Configuration](07-email-server.md#managing-email-server-configuration)
+-   [Reviewing the Audit Log](08-audit-log.md#reviewing-the-audit-log)

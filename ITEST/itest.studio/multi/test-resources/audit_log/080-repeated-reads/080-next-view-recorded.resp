@@ -1,0 +1,39 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "audit",
+      "action": "auditLogRead",
+      "outcome": "success",
+      "details": {
+        "format": "json",
+        "subject": "third-view"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "audit",
+      "action": "auditLogRead",
+      "outcome": "success",
+      "details": {
+        "format": "json",
+        "subject": "first-view"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 2,
+  "numberOfElements": 2,
+  "total": "###"
+}

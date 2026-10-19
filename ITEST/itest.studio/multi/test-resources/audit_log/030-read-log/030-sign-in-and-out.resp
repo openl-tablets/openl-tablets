@@ -1,0 +1,31 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "form",
+      "clientAddress": "***",
+      "category": "authentication",
+      "action": "signOut",
+      "outcome": "success"
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "form",
+      "clientAddress": "***",
+      "category": "authentication",
+      "action": "signIn",
+      "outcome": "success"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 2,
+  "numberOfElements": 2,
+  "total": "###"
+}

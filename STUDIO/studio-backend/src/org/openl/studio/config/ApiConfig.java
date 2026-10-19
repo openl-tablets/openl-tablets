@@ -36,6 +36,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
+import org.openl.studio.audit.service.SignInAuditor;
 import org.openl.studio.common.projection.FieldProjectionInterceptor;
 import org.openl.studio.projects.rest.MergeInProgressInterceptor;
 
@@ -67,6 +68,8 @@ public class ApiConfig implements WebMvcConfigurer {
 
     private final MergeInProgressInterceptor mergeInProgressInterceptor;
 
+    private final SignInAuditor signInAuditor;
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new ByteArrayHttpMessageConverter());
@@ -80,6 +83,7 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(signInAuditor);
         registry.addInterceptor(fieldProjectionInterceptor);
         registry.addInterceptor(mergeInProgressInterceptor);
     }
@@ -101,7 +105,7 @@ public class ApiConfig implements WebMvcConfigurer {
     @Bean
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static MethodValidationPostProcessor getMethodValidationPostProcessor(ApplicationContext context) {
-        MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
+        var processor = new MethodValidationPostProcessor();
         ObjectProvider validatorBeanProvider = context.getBeanProvider(LocalValidatorFactoryBean.class);
         processor.setValidatorProvider(validatorBeanProvider);
         return processor;
@@ -114,7 +118,7 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Bean
     public ViewResolver internalResourceViewResolver() {
-        InternalResourceViewResolver bean = new InternalResourceViewResolver();
+        var bean = new InternalResourceViewResolver();
         bean.setPrefix("/pages/");
         bean.setSuffix(".html");
         return bean;

@@ -59,6 +59,18 @@ abstract class AbstractKeycloakTest {
     }
 
     /**
+     * Asserts that the newest event of an action in the audit log is the {@code admin} user's, signed in the given
+     * way.
+     */
+    protected void assertAudited(SsoBrowser browser, String action, String authentication) throws Exception {
+        var answer = browser.get("/rest/admin/audit?action=" + action + "&size=1");
+        assertEquals(HttpStatus.SC_OK, answer.statusCode());
+        var event = mapper.readTree(answer.body()).get("content").get(0);
+        assertEquals("admin", event.get("actor").asText());
+        assertEquals(authentication, event.get("authentication").asText());
+    }
+
+    /**
      * Asserts that the REST API rejects the current client as unauthenticated.
      */
     protected void assertRestUnauthorized(SsoBrowser browser) throws Exception {

@@ -32,6 +32,7 @@ import { Security } from '../containers/Security'
 import { Help } from '../containers/Help'
 import { EmailVerification } from '../containers/EmailVerification'
 import { PersonalAccessTokens } from '../containers/PersonalAccessTokens'
+import { AuditLog } from '../containers/AuditLog'
 import TraceView from '../containers/TraceView'
 import { ComparePage } from '../containers/ComparePage'
 import { CONFIG } from '../services'
@@ -156,6 +157,10 @@ const router = createBrowserRouter([
                     {
                         path: 'security',
                         element: <Security />
+                    },
+                    {
+                        path: 'audit',
+                        element: <AuditLog />,
                     },
                     {
                         path: 'user',

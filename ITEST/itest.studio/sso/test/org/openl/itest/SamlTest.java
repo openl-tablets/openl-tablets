@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
+import org.openl.itest.core.HttpClient;
+
 /**
  * Verifies the SAML 2.0 login and SP-initiated Single Logout lifecycle against a real Keycloak Identity
  * Provider. Mirrors the OAuth2 scenario in {@link OAuthTest#singleLogout()}.
@@ -36,6 +38,7 @@ class SamlTest extends AbstractKeycloakTest {
                 // Log in; the session resolves to admin.
                 browser.loginViaSaml("admin", "admin");
                 assertAdminSession(browser);
+                assertAudited(browser, "signIn", "saml");
 
                 // SP-initiated logout sends a SAML LogoutRequest to the IdP Single Logout Service.
                 var logoutDestination = browser.logoutViaSaml();
@@ -46,11 +49,15 @@ class SamlTest extends AbstractKeycloakTest {
                 assertRestUnauthorized(browser);
                 assertTrue(browser.samlChallengesForLogin(),
                         "Keycloak must require re-authentication after logout");
+
+                // The sign-out is in the audit log.
+                browser.loginViaSaml("admin", "admin");
+                assertAudited(browser, "signOut", "saml");
             }
         }
     }
 
-    private void initStudio(org.openl.itest.core.HttpClient httpClient, String authServerUrl) {
+    private void initStudio(HttpClient httpClient, String authServerUrl) {
         var samlConfig = (ObjectNode) httpClient.readTree("test-resources-saml/set-authentication-template.json");
         samlConfig.put("metadataUrl", authServerUrl + "/realms/openlstudio/protocol/saml/descriptor");
         samlConfig.put("entityId", ENTITY_ID);

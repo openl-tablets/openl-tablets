@@ -85,6 +85,7 @@ describe('UserDetailsTab', () => {
                     isUserManagementEnabled: true,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     systemSettings: { supportedFeatures: { emailVerification: true } } as SystemSettings,
                 }}
             >

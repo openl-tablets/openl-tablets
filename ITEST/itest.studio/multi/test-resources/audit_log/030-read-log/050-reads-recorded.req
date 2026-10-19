@@ -1,0 +1,4 @@
+GET /rest/admin/audit?action=auditLogRead&size=1 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Accept: application/json
+

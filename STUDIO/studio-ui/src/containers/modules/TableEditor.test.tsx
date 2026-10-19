@@ -76,6 +76,7 @@ const NOT_FORMATTING_ON_SAVE = {
     isUserManagementEnabled: false,
     isGroupsManagementEnabled: false,
     isPersonalAccessTokenEnabled: false,
+    isAuditLogEnabled: false,
     systemSettings: { formatTablesOnSave: false },
 }
 

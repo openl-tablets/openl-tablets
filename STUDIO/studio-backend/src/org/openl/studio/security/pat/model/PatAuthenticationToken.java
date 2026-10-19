@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -22,14 +23,24 @@ import org.springframework.security.core.GrantedAuthority;
 @EqualsAndHashCode(callSuper = true)
 public class PatAuthenticationToken extends UsernamePasswordAuthenticationToken {
 
-    /** The public id of the token the user signed in with. */
-    private final String publicId;
+    /** The public id of the token the user signed in with, or tried to. */
+    private final @Nullable String publicId;
 
     public PatAuthenticationToken(Object principal,
                                   Object credentials,
                                   Collection<? extends GrantedAuthority> authorities,
                                   String publicId) {
         super(principal, credentials, authorities);
+        this.publicId = publicId;
+    }
+
+    /**
+     * Creates the token of a sign-in attempt that was refused. It is not authenticated and names no user.
+     *
+     * @param publicId the public id of the token presented, or {@code null} when the token could not be read
+     */
+    public PatAuthenticationToken(@Nullable String publicId) {
+        super(null, null);
         this.publicId = publicId;
     }
 }

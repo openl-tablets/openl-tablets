@@ -130,6 +130,7 @@ const defaultSystemCtx = {
     isUserManagementEnabled: true,
     isGroupsManagementEnabled: true,
     isPersonalAccessTokenEnabled: false,
+    isAuditLogEnabled: false,
 }
 
 // Mock repo data — must be non-empty to prevent infinite re-fetch loop in the component's useEffect

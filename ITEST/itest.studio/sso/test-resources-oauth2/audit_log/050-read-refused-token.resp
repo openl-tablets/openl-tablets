@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "authentication": "bearer",
+      "clientAddress": "***",
+      "category": "authentication",
+      "action": "signIn",
+      "outcome": "failure",
+      "details": {
+        "reason": "invalidToken"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": "###"
+}

@@ -246,6 +246,7 @@ const projectDetailElement = ({
             isExternalAuthSystem: false,
             isGroupsManagementEnabled: true,
             isPersonalAccessTokenEnabled: false,
+            isAuditLogEnabled: false,
             isUserManagementEnabled: userManagementEnabled,
         }}
     >
@@ -668,6 +669,7 @@ describe('ProjectDetail', () => {
                     isExternalAuthSystem: false,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     isUserManagementEnabled: false,
                 }}
             >
@@ -695,6 +697,7 @@ describe('ProjectDetail', () => {
                     isExternalAuthSystem: false,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     isUserManagementEnabled: false,
                 }}
             >
@@ -730,6 +733,7 @@ describe('ProjectDetail', () => {
                     isExternalAuthSystem: false,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     isUserManagementEnabled: false,
                 }}
             >
@@ -756,6 +760,7 @@ describe('ProjectDetail', () => {
                     isExternalAuthSystem: false,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     isUserManagementEnabled: false,
                 }}
             >
@@ -786,6 +791,7 @@ describe('ProjectDetail', () => {
                     isExternalAuthSystem: false,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     isUserManagementEnabled: false,
                 }}
             >

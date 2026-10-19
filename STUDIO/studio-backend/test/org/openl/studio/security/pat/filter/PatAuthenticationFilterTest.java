@@ -2,6 +2,7 @@ package org.openl.studio.security.pat.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Stream;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +30,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -65,13 +70,16 @@ class PatAuthenticationFilterTest {
     @Mock
     private FilterChain filterChain;
 
+    @Mock
+    private AuthenticationEventPublisher eventPublisher;
+
     private PatAuthenticationFilter filter;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
     @BeforeEach
     void setUp() {
-        filter = new PatAuthenticationFilter(patAuthService, securityContextHolderStrategy);
+        filter = new PatAuthenticationFilter(patAuthService, eventPublisher, securityContextHolderStrategy);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
 
@@ -152,6 +160,8 @@ class PatAuthenticationFilterTest {
 
         assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
         assertEquals("Unauthorized", response.getErrorMessage());
+        // A token that cannot be read is refused without naming a token.
+        assertNull(refusedToken().getPublicId());
     }
 
     @Test
@@ -173,6 +183,11 @@ class PatAuthenticationFilterTest {
 
         assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
         assertEquals("Unauthorized", response.getErrorMessage());
+        // A refused token is published by its public id, never by its secret, and names no user.
+        var refused = refusedToken();
+        assertEquals(TEST_PUBLIC_ID, refused.getPublicId());
+        assertFalse(refused.isAuthenticated());
+        assertEquals("", refused.getName());
     }
 
     @Test
@@ -286,7 +301,7 @@ class PatAuthenticationFilterTest {
         var anonymousAuth = new AnonymousAuthenticationToken(
                 "key",
                 "anonymousUser",
-                java.util.List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
+                List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
         );
         when(securityContext.getAuthentication()).thenReturn(anonymousAuth);
 
@@ -375,7 +390,7 @@ class PatAuthenticationFilterTest {
         var anonymousAuth = new AnonymousAuthenticationToken(
                 "key",
                 "anonymousUser",
-                java.util.List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
+                List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
         );
         when(securityContext.getAuthentication()).thenReturn(anonymousAuth);
 
@@ -452,8 +467,14 @@ class PatAuthenticationFilterTest {
                 "password",
                 Stream.of(authorities)
                         .map(SimpleGrantedAuthority::new)
-                        .map(a -> (org.springframework.security.core.GrantedAuthority) a)
+                        .map(GrantedAuthority.class::cast)
                         .toList()
         );
+    }
+
+    private PatAuthenticationToken refusedToken() {
+        var token = ArgumentCaptor.forClass(Authentication.class);
+        verify(eventPublisher).publishAuthenticationFailure(any(BadCredentialsException.class), token.capture());
+        return (PatAuthenticationToken) token.getValue();
     }
 }

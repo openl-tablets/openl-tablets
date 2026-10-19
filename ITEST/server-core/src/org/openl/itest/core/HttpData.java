@@ -46,9 +46,12 @@ import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
-class HttpData {
+final class HttpData {
     private static final String BOUNDARY = "boundary=";
 
     static final ObjectMapper OBJECT_MAPPER;
@@ -80,6 +83,8 @@ class HttpData {
     private final Map<String, String> settings = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
     private final String pathToResource;
+    @Getter
+    @Setter(AccessLevel.PRIVATE)
     private String cookie;
 
     private HttpData(String firstLine, Map<String, String> headers, byte[] body, String pathToResource) {
@@ -100,17 +105,17 @@ class HttpData {
         if (firstLine == null) {
             return 200; // OK
         }
-        String[] status = firstLine.split(" ", 3);
+        var status = firstLine.split(" ", 3);
         return Integer.parseInt(status[1]);
     }
 
     private String getHttpMethod() {
-        String[] status = firstLine.split(" ", 3);
+        var status = firstLine.split(" ", 3);
         return status[0];
     }
 
     private String getUrl() {
-        String[] status = firstLine.split(" ", 3);
+        var status = firstLine.split(" ", 3);
         return status[1];
     }
 
@@ -151,13 +156,13 @@ class HttpData {
             request.header("Cookie", cookie);
         }
 
-        long start = System.nanoTime();
+        var start = System.nanoTime();
         try {
             return readData(client.sendAsync(request.build(), HttpResponse.BodyHandlers.ofByteArray()).join());
         } catch (CompletionException e) {
             if (e.getCause() instanceof HttpTimeoutException timeout) {
                 var missing = timeout instanceof HttpConnectTimeoutException ? "connection" : "response";
-                long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+                var elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
                 throw new AssertionError("Timeout ==> no " + missing + " in " + elapsed + " ms", timeout);
             }
             throw e;
@@ -169,8 +174,8 @@ class HttpData {
 
         var result = new StringBuilder();
         while (matcher.find()) {
-            String placeholder = matcher.group(1);
-            String replacement = env.get(placeholder);
+            var placeholder = matcher.group(1);
+            var replacement = env.get(placeholder);
             if (replacement == null) {
                 throw new IllegalArgumentException("Undefined environment variable: " + placeholder);
             }
@@ -282,8 +287,8 @@ class HttpData {
 
         var result = new StringBuilder();
         while (matcher.find()) {
-            String variableName = matcher.group(1);
-            String replacement = env.get(variableName);
+            var variableName = matcher.group(1);
+            var replacement = env.get(variableName);
             if (replacement != null) {
                 matcher.appendReplacement(result, replacement);
             }
@@ -303,7 +308,8 @@ class HttpData {
 
     void writeBodyTo(String responseFile) throws IOException {
         try (var rf = new RandomAccessFile(responseFile, "rw")) {
-            while (!rf.readLine().isEmpty()) ; // find the first empty string
+            while (!rf.readLine().isEmpty()) { // find the first empty string
+            }
             rf.setLength(rf.getFilePointer()); // truncate
             var masked = VOLATILE_FIELDS.matcher(new String(body, StandardCharsets.UTF_8)).replaceAll("$1\"***\"")
                     .replace("\r\n", "\n").replace("\n", "\r\n"); // keep the golden in CRLF like the rest of the file
@@ -319,8 +325,8 @@ class HttpData {
     void assertTo(HttpData expected) throws IOException, AssertionError {
         assertEquals(expected.getResponseCode(), this.getResponseCode(), "Status code");
         for (Map.Entry<String, String> r : expected.headers.entrySet()) {
-            String headerName = r.getKey();
-            String value = r.getValue();
+            var headerName = r.getKey();
+            var value = r.getValue();
             Comparators.txt("Header " + headerName, value, this.headers.get(headerName));
         }
 
@@ -328,7 +334,7 @@ class HttpData {
             return; // No body expected
         }
         var expectedText = new String(expected.body, StandardCharsets.ISO_8859_1).trim();
-        if (expectedText.equals("***")) {
+        if ("***".equals(expectedText)) {
             return; // Whole-body wildcard skips content comparison for any content type (json, zip, xml, ...)
         }
         // A body that declares its own framing is read literally, so a reference in it is resolved
@@ -337,14 +343,15 @@ class HttpData {
                 ? readFileRef(expected.pathToResource, expectedText)
                 : expected.body;
         var decoder = contentDecoder();
-        String contentType = headers.get(CONTENT_TYPE_HEADER);
+        var contentType = headers.get(CONTENT_TYPE_HEADER);
         contentType = contentType == null ? "null" : contentType;
-        int sep = contentType.indexOf(';');
+        var sep = contentType.indexOf(';');
         if (sep > 0) {
             contentType = contentType.substring(0, sep);
         }
         switch (contentType) {
             case "text/css",
+                 "text/csv",
                  "text/event-stream",
                  "text/javascript",
                  "text/html",
@@ -381,8 +388,8 @@ class HttpData {
     }
 
     private static byte[] decodeGzipBytes(byte[] bytes) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes))) {
+        var out = new ByteArrayOutputStream();
+        try (var gis = new GZIPInputStream(new ByteArrayInputStream(bytes))) {
             byte[] buffer = new byte[64 * 1024];
             int len;
             while ((len = gis.read(buffer)) > 0) {
@@ -401,8 +408,8 @@ class HttpData {
             System.err.println("--------------------");
             System.err.println(firstLine);
             for (Map.Entry<String, String> r : headers.entrySet()) {
-                String headerName = r.getKey();
-                String value = r.getValue();
+                var headerName = r.getKey();
+                var value = r.getValue();
                 System.err.println(headerName + ": " + value);
             }
             System.err.println();
@@ -410,7 +417,7 @@ class HttpData {
             System.err.write(body);
             System.err.println("\n--------------------");
 
-            String path = System.getProperty("server.responses") + resourceName + ".body";
+            var path = System.getProperty("server.responses") + resourceName + ".body";
             Path responsePath = Path.of(path);
             Files.createDirectories(responsePath.getParent());
             Files.write(responsePath, body);
@@ -420,19 +427,19 @@ class HttpData {
     }
 
     private static HttpData readData(HttpResponse<byte[]> connection) {
-        String firstLine = "HTTP/1.1 " + connection.statusCode();
+        var firstLine = "HTTP/1.1 " + connection.statusCode();
         String cookie = null;
-        Map<String, String> headers = new HashMap<>();
+        var headers = new HashMap<String, String>();
         for (Map.Entry<String, List<String>> entries : connection.headers().map().entrySet()) {
             if (entries.getKey() != null) {
-                if (entries.getKey().equalsIgnoreCase("Set-Cookie")) {
+                if ("Set-Cookie".equalsIgnoreCase(entries.getKey())) {
                     cookie = String.join("; ", entries.getValue());
                 }
                 headers.put(entries.getKey(), String.join(", ", entries.getValue()));
             }
         }
 
-        HttpData httpData = new HttpData(firstLine, headers, connection.body(), null);
+        var httpData = new HttpData(firstLine, headers, connection.body(), null);
         httpData.setCookie(cookie);
         return httpData;
     }
@@ -445,10 +452,10 @@ class HttpData {
         Map<String, String> headers = readHeaders(input);
 
         byte[] body;
-        String cl = headers.get("Content-Length");
-        String te = headers.get("Transfer-Encoding");
-        String ct = headers.get(CONTENT_TYPE_HEADER);
-        String ce = headers.get(CONTENT_ENCODING_HEADER);
+        var cl = headers.get("Content-Length");
+        var te = headers.get("Transfer-Encoding");
+        var ct = headers.get(CONTENT_TYPE_HEADER);
+        var ce = headers.get(CONTENT_ENCODING_HEADER);
 
         if (ct != null && ct.startsWith("multipart/form-data") && ct.contains(BOUNDARY)) {
             body = readMultipartBody(input, resource, ct);
@@ -456,7 +463,7 @@ class HttpData {
             body = readBlobBody(input, resource);
         } else if (cl != null) {
             body = readBody(input, cl);
-        } else if (te != null && te.equalsIgnoreCase("chunked")) {
+        } else if ("chunked".equalsIgnoreCase(te)) {
             body = readChunckedBody(input);
         } else if (NO_CONTENT_STATUS_PATTERN.matcher(firstLine).matches()) {
             // Depending on the implementation of InputStream, reading it can hang if no data is available.
@@ -474,10 +481,10 @@ class HttpData {
      * content of the file.
      */
     private static byte[] readMultipartBody(InputStream input, String resource, String ct) throws IOException {
-        String boundary = ct.substring(ct.indexOf(BOUNDARY) + BOUNDARY.length());
-        String boundaryEnd = "--" + boundary + "--";
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (PrintWriter writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {
+        var boundary = ct.substring(ct.indexOf(BOUNDARY) + BOUNDARY.length());
+        var boundaryEnd = "--" + boundary + "--";
+        var os = new ByteArrayOutputStream();
+        try (var writer = new PrintWriter(os, false, StandardCharsets.UTF_8)) {
             while (true) {
                 String line = readLine(input);
                 if (isFileRef(line)) {
@@ -510,14 +517,13 @@ class HttpData {
                 throw new IllegalStateException("Unexpected content");
             }
             return body;
-        } else {
-            // Inline text: a *** wildcard or a multi-line zip entry spec.
-            StringBuilder sb = new StringBuilder(line);
-            while (input.available() != 0) {
-                sb.append('\n').append(readLine(input));
-            }
-            return sb.toString().getBytes(StandardCharsets.UTF_8);
         }
+        // Inline text: a *** wildcard or a multi-line zip entry spec.
+        var sb = new StringBuilder(line);
+        while (input.available() != 0) {
+            sb.append('\n').append(readLine(input));
+        }
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -526,8 +532,8 @@ class HttpData {
      * for one - be kept in a file of its own instead of being inlined into the request.
      */
     private static byte[] readInlineOrFileRef(InputStream input, String resource) throws IOException {
-        byte[] content = input.readAllBytes();
-        String line = new String(content, StandardCharsets.UTF_8).trim();
+        var content = input.readAllBytes();
+        var line = new String(content, StandardCharsets.UTF_8).trim();
         if (!isFileRef(line) || line.indexOf('\n') >= 0) {
             return content;
         }
@@ -565,13 +571,13 @@ class HttpData {
     }
 
     private static Map<String, String> readHeaders(InputStream input) throws IOException {
-        TreeMap<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        var headers = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
 
         String header = readLine(input);
         while (!header.isEmpty()) {
-            int separator = header.indexOf(":");
-            String name = header.substring(0, separator);
-            String value = header.substring(separator + 1).trim();
+            var separator = header.indexOf(":");
+            var name = header.substring(0, separator);
+            var value = header.substring(separator + 1).trim();
             value = value.isEmpty() ? null : value;
             headers.put(name, value);
             header = readLine(input);
@@ -581,9 +587,9 @@ class HttpData {
 
     private static byte[] readBody(InputStream input, String length) throws IOException {
         byte[] body;
-        int size = Integer.parseInt(length);
+        var size = Integer.parseInt(length);
         body = new byte[size];
-        int actual = input.read(body);
+        var actual = input.read(body);
         if (actual != size) {
             throw new IOException("Unexpected size of the body.");
         }
@@ -591,7 +597,7 @@ class HttpData {
     }
 
     private static byte[] readChunckedBody(InputStream input) throws IOException {
-        ByteArrayOutputStream body = new ByteArrayOutputStream(1024);
+        var body = new ByteArrayOutputStream(1024);
         byte[] chunk = readChunck(input);
 
         while (chunk.length > 0) {
@@ -603,9 +609,9 @@ class HttpData {
 
     private static byte[] readChunck(InputStream input) throws IOException {
         String hexSize = readLine(input);
-        int size = Integer.parseInt(hexSize, 16);
+        var size = Integer.parseInt(hexSize, 16);
         byte[] body = new byte[size];
-        int actual = input.read(body);
+        var actual = input.read(body);
         if (actual != size) {
             throw new IOException("Unexpected size of the chunk.");
         }
@@ -617,8 +623,8 @@ class HttpData {
     }
 
     private static String readLine(InputStream input) throws IOException {
-        StringBuilder line = new StringBuilder(120);
-        boolean eol = false;
+        var line = new StringBuilder(120);
+        var eol = false;
         int n;
         while (!eol && (n = input.read()) > 0) {
 
@@ -632,13 +638,5 @@ class HttpData {
             throw new IOException("Unexpected end of the stream. Expected CRLF in the end of the line.");
         }
         return line.toString();
-    }
-
-    public String getCookie() {
-        return cookie;
-    }
-
-    private void setCookie(String cookie) {
-        this.cookie = cookie;
     }
 }

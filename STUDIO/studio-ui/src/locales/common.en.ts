@@ -60,6 +60,7 @@ i18next.addResourceBundle('en', 'common', {
         security: 'Security',
         groups: 'Groups',
         users: 'Users',
+        audit_log: 'Audit Log',
         notification: 'Notification',
         tags: 'Tags',
         mail: 'Mail',

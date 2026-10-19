@@ -82,7 +82,8 @@ page of the React application for every other address.
 Packages of `studio-backend` (`STUDIO/studio-backend/src/org/openl/`):
 
 - **`studio`** — the REST controllers, services and models by area: `projects`, `repositories`, `deployment`, `users`,
-  `tags`, `settings`, `security`, `socket` (WebSocket), `session`, `compare`, `openapi`, `config`, `common`.
+  `tags`, `settings`, `security`, `audit` (the audit log), `socket` (WebSocket), `session`, `compare`, `openapi`,
+  `config`, `common`.
 - **`rules/webstudio`** — the application core: configuration and services.
 - **`rules/rest`** — models and handlers of the REST API.
 - **`rules/spring`** — the OpenAPI integration of Spring.

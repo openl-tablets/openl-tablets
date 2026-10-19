@@ -1,0 +1,3 @@
+GET /rest/users/profile HTTP/1.1
+Authorization: Token openl_pat_abc123DEF4567890.secret456ABCDEF78901234567890ABA
+
