@@ -122,7 +122,7 @@ const renderModal = async (onFilled = vi.fn(), onClose = vi.fn()) => {
 
 /** Fills the picked projects, the backend answering with the given results. */
 const fillWith = async (results: TagFillResult[]) => {
-    vi.mocked(apiCall).mockResolvedValue(results as never)
+    vi.mocked(apiCall).mockResolvedValue(results)
     await userEvent.click(screen.getByTestId('fill-apply'))
     await waitFor(() => expect(screen.getByTestId('fill-result-table')).toBeInTheDocument())
 }
@@ -130,7 +130,7 @@ const fillWith = async (results: TagFillResult[]) => {
 describe('FillTagsModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(apiCall).mockResolvedValue(previews as never)
+        vi.mocked(apiCall).mockResolvedValue(previews)
     })
 
     it('colors every derived tag by what filling does with it', async () => {

@@ -1,6 +1,6 @@
-import React, { FC, ReactNode, useEffect, useState } from 'react'
-import { Form, Input, TooltipProps } from 'antd'
-import type { FormRule } from 'antd'
+import React, { FC, useEffect, useState } from 'react'
+import { Form, Input } from 'antd'
+import type { FormItemProps, FormRule } from 'antd'
 import { useRules } from './hooks'
 
 const { TextArea: AntdTextArea } = Input
@@ -9,7 +9,7 @@ type TextAreaProps = {
     name: string | (string | number)[]
     label?: string
     disabled?: boolean,
-    tooltip?: ReactNode | TooltipProps & { icon: any }
+    tooltip?: FormItemProps['tooltip']
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties,
     placeholder?: string

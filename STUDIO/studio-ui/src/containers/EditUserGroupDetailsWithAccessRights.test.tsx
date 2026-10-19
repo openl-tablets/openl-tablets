@@ -853,7 +853,7 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
         })
 
         // Type into firstName while ACL endpoints are still pending.
-        const firstNameInput = screen.getByTestId('input-firstName') as HTMLInputElement
+        const firstNameInput = screen.getByTestId<HTMLInputElement>('input-firstName')
         await userEvent.clear(firstNameInput)
         await userEvent.type(firstNameInput, 'EditedName')
         expect(firstNameInput.value).toBe('EditedName')
@@ -869,6 +869,6 @@ describe('EditUserGroupDetailsWithAccessRights', () => {
             await rootRolesDeferred
         })
 
-        expect((screen.getByTestId('input-firstName') as HTMLInputElement).value).toBe('EditedName')
+        expect(screen.getByTestId<HTMLInputElement>('input-firstName').value).toBe('EditedName')
     })
 })

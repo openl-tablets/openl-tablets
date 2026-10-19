@@ -10,7 +10,7 @@ cytoscape.use(dagre)
 const runLayout = (nodes: GraphNode[]) => {
     const model = buildGraphModel(nodes)
     const cy = cytoscape({ headless: true, styleEnabled: false, elements: model.elements })
-    cy.layout(GRAPH_LAYOUT as unknown as cytoscape.LayoutOptions).run()
+    cy.layout(GRAPH_LAYOUT).run()
     return cy
 }
 

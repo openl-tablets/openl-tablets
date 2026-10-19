@@ -37,7 +37,7 @@ export const useRepositoryConfiguration = (repositoryDataType: RepositoryDataTyp
         })
     }
 
-    const updateRepositoryConfiguration = async (values: any) => {
+    const updateRepositoryConfiguration = async (values: unknown) => {
         return await apiCall(`/admin/settings/repos/${repositoryDataType}`, {
             method: 'PATCH',
             headers: {

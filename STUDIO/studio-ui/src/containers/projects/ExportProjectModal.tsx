@@ -148,7 +148,7 @@ export const ExportProjectModal = ({ open, project, onClose, filePath }: ExportP
                 <Select
                     data-testid="export-project-revision"
                     loading={revisions === null}
-                    onChange={value => setChosen(value as string)}
+                    onChange={value => setChosen(value)}
                     options={options}
                     // A revision reads whole in the list: the field is narrower than the label it holds.
                     popupMatchSelectWidth={false}

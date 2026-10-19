@@ -29,7 +29,7 @@ const editorHandle = vi.hoisted(() => ({ current: null as { write: () => Promise
 // What the search hands over as the table it found, and the editor as the table a cell names.
 const handed = vi.hoisted(() => ({
     found: undefined as ModuleTable | undefined,
-    usage: {} as { tableId?: string, module?: string, projectId?: string },
+    usage: {},
 }))
 
 vi.mock('react-i18next', () => {
@@ -258,7 +258,7 @@ describe('ModuleWorkspace', () => {
             id: 't-1',
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Bank' }]],
-        } as never)
+        })
     })
 
     it('writes the cells before the properties, and answers the table that write leaves', async () => {
@@ -379,7 +379,7 @@ describe('ModuleWorkspace', () => {
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Rules' }], [{ cell: 'A2', value: 'C1' }], [{ cell: 'A3', value: '1' }]],
             headerHeight: 2,
-        } as never)
+        })
 
         render(<ModuleWorkspace />)
 
@@ -395,7 +395,7 @@ describe('ModuleWorkspace', () => {
             name: 'BankRating',
             source: [[{ cell: 'A1', value: 'Rules' }], [{ cell: 'A2', value: '1' }]],
             headerHeight: 1,
-        } as never)
+        })
 
         render(<ModuleWorkspace />)
 
@@ -487,7 +487,7 @@ describe('ModuleWorkspace', () => {
 
     describe('a table its save moved under a new id', () => {
         const pricing = { id: 't-first', name: 'Pricing', kind: 'Rules', tableType: 'SimpleRules' } as ModuleTable
-        const moved = { ...bankRating, id: 't-3' } as ModuleTable
+        const moved = { ...bankRating, id: 't-3' }
         const tablesReadCount = () => vi.mocked(getModuleTables).mock.calls.length
 
         const saveMovingTable = async () => {
@@ -584,7 +584,7 @@ describe('ModuleWorkspace', () => {
         ['another project', { module: 'Rates', projectId: 'p2' }, '/projects/p2/modules/Rates?table=t-6'],
     ])('opens a table the search found in another module of %s, on that module', async (_, where, route) => {
         workspace.opened = true
-        handed.found = { ...bankRating, id: 't-6', ...where } as ModuleTable
+        handed.found = { ...bankRating, id: 't-6', ...where }
         render(<ModuleWorkspace />)
         await waitFor(() => expect(getModuleTables).toHaveBeenCalled())
 
@@ -718,7 +718,7 @@ describe('ModuleWorkspace', () => {
             id: 't-dispatch',
             name: 'validateGapOverlap_Hello',
             source: [[{ cell: 'A1', value: 'Rules' }]],
-        } as never)
+        })
         searchParams.set('table', 't-dispatch')
         render(<ModuleWorkspace />)
 
@@ -902,11 +902,11 @@ describe('ModuleWorkspace', () => {
         vi.mocked(getRawTable)
             .mockResolvedValueOnce({
                 id: 't-1', name: 'BankRating', source: [[{ cell: 'A1', value: '1' }]], totalRows: 3,
-            } as never)
+            })
             .mockImplementationOnce(() => new Promise(resolve => {
                 releaseMore = resolve
             }) as never)
-            .mockResolvedValue({ id: 't-2', name: 'Limit', source: [[{ cell: 'A1', value: '2' }]]} as never)
+            .mockResolvedValue({ id: 't-2', name: 'Limit', source: [[{ cell: 'A1', value: '2' }]]})
         const { rerender } = render(<ModuleWorkspace />)
         await waitFor(() => expect(screen.getByTestId('module-table')).toHaveTextContent('rows:1'))
 

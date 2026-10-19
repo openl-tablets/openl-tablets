@@ -62,7 +62,7 @@ describe('MoveFileModal', () => {
         render(<MoveFileModal {...props} mode="rename" />)
 
         expect(screen.getByRole('heading')).toHaveTextContent('browser.files.rename_title')
-        expect((screen.getByTestId('file-move-name') as HTMLInputElement).value).toBe('Main.xlsx')
+        expect(screen.getByTestId<HTMLInputElement>('file-move-name').value).toBe('Main.xlsx')
         expect(screen.queryByTestId('file-move-path')).toBeNull()
 
         fireEvent.change(screen.getByTestId('file-move-name'), { target: { value: 'Rates.xlsx' } })
@@ -76,7 +76,7 @@ describe('MoveFileModal', () => {
         render(<MoveFileModal {...props} mode="move" />)
 
         expect(screen.getByRole('heading')).toHaveTextContent('browser.files.move_title')
-        expect((screen.getByTestId('file-move-path') as HTMLInputElement).value).toBe('rules')
+        expect(screen.getByTestId<HTMLInputElement>('file-move-path').value).toBe('rules')
         expect(screen.queryByTestId('file-move-name')).toBeNull()
 
         fireEvent.change(screen.getByTestId('file-move-path'), { target: { value: 'rules/nested' } })

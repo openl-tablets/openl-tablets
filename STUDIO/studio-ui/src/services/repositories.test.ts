@@ -78,7 +78,7 @@ describe('getProjects', () => {
 
         const firstCall = vi.mocked(apiCall).mock.calls[0]
         expect(firstCall).toBeDefined()
-        const url = firstCall![0] as string
+        const url = firstCall![0]
         const query = new URLSearchParams(url.slice(url.indexOf('?') + 1))
 
         expect(url.startsWith('/projects?')).toBe(true)

@@ -63,11 +63,11 @@ vi.mock('antd', async () => {
     const Dropdown = ({ children, menu, popupRender, onOpenChange }: Record<string, unknown>) => {
         const list = (
             <ul>
-                {(menu as unknown as Menu).items.map(item => (
+                {(menu as Menu).items.map(item => (
                     <li key={item.key}>
                         <button
                             data-testid={`option-${item.key}`}
-                            onClick={() => (menu as unknown as Menu).onClick({ key: item.key })}
+                            onClick={() => (menu as Menu).onClick({ key: item.key })}
                         >
                             {item.label as never}
                         </button>

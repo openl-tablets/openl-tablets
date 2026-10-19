@@ -6,7 +6,7 @@ import SimpleTraceTree from './SimpleTraceTree'
 // A single mutable store snapshot the selector-based useTraceStore reads from.
 const { store } = vi.hoisted(() => ({
     store: {
-        current: {} as Record<string, unknown>,
+        current: {},
     },
 }))
 

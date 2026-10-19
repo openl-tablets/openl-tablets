@@ -6,10 +6,11 @@ import { RepositoryAzureBlobConfiguration } from './RepositoryAzureBlobConfigura
 import { RepositoryGitConfiguration } from './RepositoryGitConfiguration'
 import { Input, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
+import type { RepositoryResponse } from './index'
 
 interface RepositoryConfigurationComponentProps {
     onChangeType?: (type: string) => void
-    configuration?: any
+    configuration?: RepositoryResponse | null
     repositoryType?: typeof RepositoryType
     repositoryDataType?: RepositoryDataType
 }

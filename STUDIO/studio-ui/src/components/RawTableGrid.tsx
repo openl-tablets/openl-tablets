@@ -96,7 +96,7 @@ const PLAIN: React.CSSProperties = {}
  * of its own and keeps the top of the grid.
  */
 const verticalAlignOf = (valign: string | undefined): React.CSSProperties['verticalAlign'] =>
-    valign === 'center' ? 'middle' : valign as React.CSSProperties['verticalAlign']
+    valign === 'center' ? 'middle' : valign
 
 /**
  * The edges of the table a cell lies along, or undefined for a cell inside it. A cell draws the line of the grid

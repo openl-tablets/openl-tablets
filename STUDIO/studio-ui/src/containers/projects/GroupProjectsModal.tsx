@@ -66,7 +66,7 @@ export const GroupProjectsModal = ({ open, levels, tagTypes, onApply, onClose }:
                     <Select
                         data-testid={`grouping-level-${index + 1}`}
                         disabled={index > 0 && !draft[index - 1]}
-                        onChange={value => setLevel(index, value as string)}
+                        onChange={value => setLevel(index, value)}
                         options={optionsFor(index)}
                         style={{ width: '100%' }}
                         value={draft[index] ?? GROUP_BY_NONE}

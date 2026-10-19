@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import type { RawTableCell } from 'types/tables'
 import { TableEditToolbar } from './TableEditToolbar'
 
 vi.mock('react-i18next', () => {
@@ -40,7 +39,7 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
             whole
             blocked={null}
             canRedo={false}
-            cell={{ value: 'Good Morning' } as RawTableCell}
+            cell={{ value: 'Good Morning' }}
             picked={{ row: 1, column: 1 }}
             saving={false}
             {...acted}
@@ -166,7 +165,7 @@ describe('TableEditToolbar', () => {
     })
 
     it('turns off what the cell already carries', async () => {
-        const { onStyle } = draw({ cell: { value: 'x', style: { bold: true } } as RawTableCell })
+        const { onStyle } = draw({ cell: { value: 'x', style: { bold: true } } })
 
         await userEvent.click(screen.getByTestId('table-edit-bold'))
 
@@ -174,7 +173,7 @@ describe('TableEditToolbar', () => {
     })
 
     it('indents the picked cell one step at a time', async () => {
-        const { onStyle } = draw({ cell: { value: 'x', style: { indent: 2 } } as RawTableCell })
+        const { onStyle } = draw({ cell: { value: 'x', style: { indent: 2 } } })
 
         await userEvent.click(screen.getByTestId('table-edit-indent'))
         expect(onStyle).toHaveBeenCalledWith({ indent: 3 })

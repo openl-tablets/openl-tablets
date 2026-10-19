@@ -17,7 +17,7 @@ import { notification } from 'antd'
 const { copyModalMock, navigateMock, routeParams, searchParamsMock, setSearchParamsMock, liveHandlers } = vi.hoisted(() => ({
     copyModalMock: vi.fn(),
     navigateMock: vi.fn(),
-    routeParams: { projectId: 'p1' } as { projectId: string },
+    routeParams: { projectId: 'p1' },
     searchParamsMock: new URLSearchParams(),
     setSearchParamsMock: vi.fn(),
     // The change ping captured from the screen, plus whether the screen asks the hook to hold it.
@@ -322,7 +322,7 @@ describe('ProjectWorkspace', () => {
         for (const key of Array.from(searchParamsMock.keys())) {
             searchParamsMock.delete(key)
         }
-        vi.mocked(getDesignRepositories).mockResolvedValue(repositories as never)
+        vi.mocked(getDesignRepositories).mockResolvedValue(repositories)
         vi.mocked(getProject).mockResolvedValue(project() as never)
         vi.mocked(getProjectFiles).mockResolvedValue([])
         vi.mocked(setProjectStatus).mockResolvedValue()
@@ -605,7 +605,7 @@ describe('ProjectWorkspace', () => {
         }) as never)
         vi.mocked(getProjectBranches).mockResolvedValue([{ name: 'main', base: true }, { name: 'dev' }] as never)
         const switched = deferred<void>()
-        vi.mocked(switchProjectBranch).mockReturnValue(switched.promise as never)
+        vi.mocked(switchProjectBranch).mockReturnValue(switched.promise)
         await renderWorkspace()
 
         await userEvent.click(screen.getByTestId('crumb-branch-trigger'))
@@ -634,7 +634,7 @@ describe('ProjectWorkspace', () => {
             repositoryInfo: { id: 'design', name: 'Design', type: 'repo-git', features: { branches: true } },
         }) as never)
         const opened = deferred<void>()
-        vi.mocked(setProjectStatus).mockReturnValue(opened.promise as never)
+        vi.mocked(setProjectStatus).mockReturnValue(opened.promise)
         await renderWorkspace()
 
         await userEvent.click(screen.getByTestId('open-p1'))

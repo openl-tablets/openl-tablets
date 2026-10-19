@@ -150,7 +150,7 @@ describe('SaveProjectModal', () => {
     it('commits without generating a default comment when the repository suggests none', async () => {
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
-        const comment = screen.getByTestId('save-project-comment') as HTMLTextAreaElement
+        const comment = screen.getByTestId<HTMLTextAreaElement>('save-project-comment')
         expect(comment.value).toBe('')
         await userEvent.click(screen.getByTestId('save-project-submit'))
 
@@ -163,7 +163,7 @@ describe('SaveProjectModal', () => {
         })
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={project} />)
 
-        await waitFor(() => expect((screen.getByTestId('save-project-comment') as HTMLTextAreaElement).value)
+        await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('save-project-comment').value)
             .toBe('Project Alpha was modified'))
     })
 
@@ -174,7 +174,7 @@ describe('SaveProjectModal', () => {
         const viewing = { ...project as object, status: 'VIEWING_VERSION', revision: 'abc123', modifiedBy: 'john' } as never
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={viewing} />)
 
-        await waitFor(() => expect((screen.getByTestId('save-project-comment') as HTMLTextAreaElement).value)
+        await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('save-project-comment').value)
             .toBe('Restored from abc123 by john'))
     })
 

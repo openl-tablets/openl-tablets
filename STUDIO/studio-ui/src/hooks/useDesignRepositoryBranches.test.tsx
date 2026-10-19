@@ -41,7 +41,7 @@ describe('useDesignRepositoryBranches', () => {
 
     it('reads again for another repository and never shows the previous branches', async () => {
         const { result, rerender } = renderHook(({ id }) => useDesignRepositoryBranches(id), {
-            initialProps: { id: 'design' as string | null },
+            initialProps: { id: 'design' },
         })
         await waitFor(() => expect(result.current.branches).toEqual(['main', 'release']))
 
@@ -81,7 +81,7 @@ describe('useDesignRepositoryBranches', () => {
             })
             : Promise.resolve(['prod-only']))
         const { result, rerender } = renderHook(({ id }) => useDesignRepositoryBranches(id), {
-            initialProps: { id: 'design' as string | null },
+            initialProps: { id: 'design' },
         })
 
         rerender({ id: 'prod' })

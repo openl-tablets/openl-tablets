@@ -324,7 +324,7 @@ export const ModuleTablesTree = ({
                 onExpand={keys => setExpanded(keys as string[])}
                 scrollWidth={rowWidth}
                 selectedKeys={selectedTableId ? [selectedTableId] : []}
-                treeData={treeData as never}
+                treeData={treeData}
                 onSelect={(_keys, info) => {
                     // Only a table is selectable, and a table row is keyed by its own id.
                     const table = shown.find(candidate => candidate.id === String(info.node.key))

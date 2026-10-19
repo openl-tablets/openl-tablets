@@ -1,10 +1,11 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react'
-import { App, Button, Divider, Form, Row, Tabs, Spin } from 'antd'
+import { App, Button, Divider, Form, Row, Tabs, Spin, type TabsProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { isFormValuesEqual } from './formComparison'
 import { RepositoryDataType, RepositoryType } from './constants'
 import { WIDTH_OF_FORM_LABEL } from '../../constants'
 import { Input, Select } from '../../components'
+import { fieldValue } from '../../components/form/utils'
 import { DesignRepositoryCommentsConfiguration } from './DesignRepositoryCommentsConfiguration'
 import { RepositoryConfigurationComponent } from './RepositoryConfigurationComponent'
 import { useRepositoryConfiguration } from './hooks'
@@ -263,7 +264,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         })
     }
 
-    const onApplyConfiguration = async (values: any) => {
+    const onApplyConfiguration = async (values: unknown) => {
         setIsLoading(true)
         try {
             await updateRepositoryConfiguration(values)
@@ -274,7 +275,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         }
     }
 
-    const handleApplyConfiguration = (values: any) => {
+    const handleApplyConfiguration = (values: unknown) => {
         modal.confirm({
             title: t('repository:confirm_apply_configuration'),
             content: t('repository:confirm_apply_configuration_message'),
@@ -284,17 +285,17 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
         })
     }
 
-    const onEdit = (targetKey: any, action: string) => {
-        if (action === 'remove') {
+    const onEdit: TabsProps['onEdit'] = (targetKey, action) => {
+        if (action === 'remove' && typeof targetKey === 'string') {
             handleDeleteRepository(targetKey)
         }
     }
 
-    const onFinish = (values: any) => {
+    const onFinish = (values: unknown) => {
         handleApplyConfiguration(values)
     }
 
-    const onChangeType = (value: any) => {
+    const onChangeType = (value: string) => {
         if (activeRepository
             && repositoryType
             && activeRepository.type !== value)
@@ -451,7 +452,7 @@ export const DesignRepositoriesConfiguration = forwardRef<FormRefProps, DesignRe
                 tabPlacement="start"
                 type={tabType}
                 items={configuration?.map((repository) => ({
-                    label: typeof repository.name === 'string' ? repository.name : repository?.name?.value,
+                    label: fieldValue(repository.name),
                     key: repository.id,
                     children: (
                         <Spin spinning={isLoadingForm}>

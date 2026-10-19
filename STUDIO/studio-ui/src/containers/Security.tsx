@@ -12,6 +12,20 @@ import { SAMLMode } from './security/SAMLMode'
 import { OAuth2Mode } from './security/OAuth2Mode'
 import InfoFieldModal from '../components/modal/InfoFieldModal'
 import { SingleMode } from './security/SingleMode'
+import { fieldValue } from '../components/form/utils'
+import type { InputTextField } from '../global'
+
+/** The authentication settings as the server sends them, each field alone or wrapped with its flags. */
+interface SecuritySettings {
+    userMode?: InputTextField
+    [field: string]: unknown
+}
+
+/** The authentication settings a save sends: the fields of the form unwrap what they are given, so each goes alone. */
+interface SecuritySettingsRequest {
+    userMode?: string
+    [field: string]: unknown
+}
 
 const radioGroupStyle: React.CSSProperties = {
     display: 'flex',
@@ -82,14 +96,12 @@ export const Security = () => {
     const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const [form] = Form.useForm()
-    const [securitySettings, setSecuritySettings] = React.useState<any>(undefined)
+    const [securitySettings, setSecuritySettings] = React.useState<SecuritySettings | undefined>(undefined)
     const [userGroups, setUserGroups] = React.useState<{ label: string, value: string }[]>([])
     const [loadingUserGroups, setLoadingUserGroups] = React.useState<boolean>(false)
     const userMode = Form.useWatch('userMode', form)
-    const mode = typeof userMode === 'object' ? userMode?.value : userMode
-    const settingsMode = typeof securitySettings?.userMode === 'object'
-        ? securitySettings?.userMode?.value
-        : securitySettings?.userMode
+    const mode = fieldValue(userMode)
+    const settingsMode = fieldValue(securitySettings?.userMode)
 
     const userModeOptions = [
         { label: t('security:user_modes.single'), value: SecurityUserMode.SINGLE },
@@ -105,8 +117,8 @@ export const Security = () => {
         form.setFieldsValue(response)
     }
 
-    const saveSecuritySettings = async (values: any) => {
-        const submittedMode = typeof values.userMode === 'object' ? values.userMode?.value : values.userMode
+    const saveSecuritySettings = async (values: SecuritySettingsRequest) => {
+        const submittedMode = values.userMode
         const requestMethod = submittedMode === settingsMode ? 'PATCH' : 'POST'
 
         await apiCall('/admin/settings/authentication', {
@@ -158,7 +170,7 @@ export const Security = () => {
         }
     }
 
-    const onFinish = (values: any) => {
+    const onFinish = (values: SecuritySettingsRequest) => {
         modal.confirm({
             title: t('security:confirm_apply_configuration'),
             content: t('security:confirm_apply_configuration_message'),
@@ -175,7 +187,7 @@ export const Security = () => {
     useEffect(() => {
         if (typeof userMode !== 'object' && mode !== settingsMode) {
             void fetchSecuritySettingsTemplate()
-        } else if (!securitySettings?.userMode?.readOnly) {
+        } else if (typeof securitySettings?.userMode !== 'object' || !securitySettings.userMode.readOnly) {
             form.resetFields()
         }
     }, [userMode])
@@ -210,7 +222,7 @@ export const Security = () => {
         <Form
             labelWrap
             form={form}
-            initialValues={securitySettings}
+            initialValues={securitySettings ?? {}}
             labelAlign="right"
             labelCol={{ flex: WIDTH_OF_FORM_LABEL }}
             onFinish={onFinish}

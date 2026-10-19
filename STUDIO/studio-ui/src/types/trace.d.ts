@@ -295,7 +295,7 @@ export interface TraceParameterValue {
      */
     key?: string | null
     /** Full JSON value (null if lazy=true) */
-    value?: any
+    value?: unknown
     /** JSON Schema for the type */
     schema?: object
 }

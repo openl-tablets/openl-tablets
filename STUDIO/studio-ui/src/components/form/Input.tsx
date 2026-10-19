@@ -1,6 +1,6 @@
-import React, { FC, ReactNode, useEffect, useState } from 'react'
-import { Input as AntdInput, Form, TooltipProps } from 'antd'
-import type { FormRule } from 'antd'
+import React, { FC, useEffect, useState } from 'react'
+import { Input as AntdInput, Form } from 'antd'
+import type { FormItemProps, FormRule } from 'antd'
 import { useRules } from './hooks'
 import { getFieldValueProps } from './utils'
 
@@ -8,7 +8,7 @@ type InputProps = {
     name: string | (string | number)[]
     label?: string
     disabled?: boolean,
-    tooltip?: ReactNode | TooltipProps & { icon: any }
+    tooltip?: FormItemProps['tooltip']
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties,
     placeholder?: string

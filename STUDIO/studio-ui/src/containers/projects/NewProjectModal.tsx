@@ -765,7 +765,7 @@ export const NewProjectModal = ({
                             // every file of one pick, so this simply replaces the previous folder.
                             beforeUpload={(_file, batch) => {
                                 setError(null)
-                                setFolderFiles(batch as File[])
+                                setFolderFiles(batch)
                                 return Upload.LIST_IGNORE
                             }}
                         >

@@ -485,7 +485,7 @@ describe('MergeModal', () => {
             const storeModule = await import('store')
             const useUserStoreSpy = vi
                 .spyOn(storeModule, 'useUserStore')
-                .mockReturnValue({ userProfile: { username: null } } as ReturnType<typeof storeModule.useUserStore>)
+                .mockReturnValue({ userProfile: { username: null } })
             let unmount: (() => void) | undefined
             try {
                 mockApiCall.mockRejectedValue(new MockNotFoundError())

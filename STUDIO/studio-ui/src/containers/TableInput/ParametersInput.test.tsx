@@ -100,7 +100,7 @@ describe('ParametersInput', () => {
         await userEvent.click(screen.getByTestId('edit-age'))
         await userEvent.type(screen.getByTestId('input-age'), '7{enter}')
         await userEvent.click(screen.getByText('input.json'))
-        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
         expect(JSON.parse(text.value)).toEqual({ params: { age: 7, policy: {} } })
         expect(lastValue(onChange).error).toBeUndefined()
 
@@ -123,7 +123,7 @@ describe('ParametersInput', () => {
             schema: { type: 'object', properties: { amount: { type: 'number' }, days: { type: 'array', items: { type: 'string' } } } } }]
         render(<ParametersInput onChange={onChange} parameters={schedule} />)
         await userEvent.click(screen.getByText('input.json'))
-        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
 
         // A request copied from a service log holds the value itself, without the params and the parameter name.
         await userEvent.clear(text)
@@ -132,7 +132,7 @@ describe('ParametersInput', () => {
 
         expect(parsed(onChange)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last']} } })
         await userEvent.click(screen.getByText('input.json'))
-        const shown = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        const shown = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
         expect(JSON.parse(shown.value)).toEqual({ params: { scheduleInput: { amount: 110.42, days: ['Last']} } })
     })
 
@@ -144,7 +144,7 @@ describe('ParametersInput', () => {
         const { rerender } = render(<ParametersInput onChange={onChange} parameters={greet} />)
         const readBack = async (json: string) => {
             await userEvent.click(screen.getByText('input.json'))
-            const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+            const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
             await userEvent.clear(text)
             await userEvent.type(text, json.replaceAll('{', '{{').replaceAll('[', '[['))
             await userEvent.click(screen.getByText('input.form'))
@@ -162,7 +162,7 @@ describe('ParametersInput', () => {
         const onChange = vi.fn()
         render(<ParametersInput onChange={onChange} parameters={parameters} />)
         await userEvent.click(screen.getByText('input.json'))
-        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
         await userEvent.clear(text)
         await userEvent.type(text, '[[6, {{"number": "P-6"}, "extra"]')
 
@@ -179,7 +179,7 @@ describe('ParametersInput', () => {
             const { rerender } = render(<ParametersInput onChange={onChange} parameters={named} />)
             const readBack = async (json: string) => {
                 await userEvent.click(screen.getByText('input.json'))
-                const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+                const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
                 await userEvent.clear(text)
                 await userEvent.type(text, json.replaceAll('{', '{{').replaceAll('[', '[['))
                 await userEvent.click(screen.getByText('input.form'))
@@ -202,7 +202,7 @@ describe('ParametersInput', () => {
         render(<ParametersInput onChange={onChange} parameters={parameters} runtimeContext={runtimeContext} />)
         const readBack = async (json: string) => {
             await userEvent.click(screen.getByText('input.json'))
-            const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+            const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
             await userEvent.clear(text)
             await userEvent.type(text, json.replaceAll('{', '{{').replaceAll('[', '[['))
             await userEvent.click(screen.getByText('input.form'))
@@ -271,7 +271,7 @@ describe('ParametersInput', () => {
         const { rerender } = render(<ParametersInput onChange={onChange} parameters={parameters} />)
 
         await userEvent.click(screen.getByText('input.json'))
-        const text = await screen.findByTestId('json-editor') as HTMLTextAreaElement
+        const text = await screen.findByTestId<HTMLTextAreaElement>('json-editor')
         await userEvent.clear(text)
         await userEvent.type(text, '{{"params": {{"age": 42')
         expect(lastValue(onChange).error).toBe('input.jsonInvalid')
@@ -283,7 +283,7 @@ describe('ParametersInput', () => {
         // with it.
         expect(parsed(onChange)).toEqual({ params: { limit: 7 } })
         expect(lastValue(onChange).error).toBeUndefined()
-        expect((screen.getByTestId('json-editor') as HTMLTextAreaElement).value).toBe(
+        expect(screen.getByTestId<HTMLTextAreaElement>('json-editor').value).toBe(
             JSON.stringify({ params: { limit: 7 } }, null, 2)
         )
     })

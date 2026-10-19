@@ -5,10 +5,10 @@ import TraceView from './TraceView'
 
 // A single mutable store snapshot the selector-based useTraceStore reads from, plus the launch URL params
 // (the trace mode is read from `advanced` there, chosen at launch on the JSF page).
-const { store, search } = vi.hoisted(() => ({
-    store: { current: {} as Record<string, unknown> },
-    search: { current: new URLSearchParams({ tableId: 't1' }) },
-}))
+const { store, search } = vi.hoisted(() => {
+    const current: Record<string, unknown> = {}
+    return { store: { current }, search: { current: new URLSearchParams({ tableId: 't1' }) } }
+})
 
 const launchWith = (advanced?: boolean): void => {
     search.current = new URLSearchParams({ tableId: 't1', ...(advanced ? { advanced: 'true' } : {}) })

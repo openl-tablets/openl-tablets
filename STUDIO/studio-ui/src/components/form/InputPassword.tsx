@@ -1,6 +1,6 @@
-import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
-import { Input as AntdInput, Form, TooltipProps } from 'antd'
-import type { FormRule } from 'antd'
+import React, { FC, useEffect, useMemo, useState } from 'react'
+import { Input as AntdInput, Form } from 'antd'
+import type { FormItemProps, FormRule } from 'antd'
 import { usePasswordRules } from './hooks'
 import { getFieldValueProps } from './utils'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 type InputProps = {
     name: string | (string | number)[]
     label?: string
-    tooltip?: ReactNode | TooltipProps & { icon: any }
+    tooltip?: FormItemProps['tooltip']
     disabled?: boolean,
     style?: React.CSSProperties
     formItemStyle?: React.CSSProperties,

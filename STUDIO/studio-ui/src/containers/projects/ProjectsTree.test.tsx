@@ -26,7 +26,7 @@ vi.mock('react-i18next', () => {
 // antd-style hands out new styles and a new token on every render, and so does this mock: only their values follow
 // the appearance. Every tree the Tree is handed is kept, to tell a tree rebuilt from one kept.
 const { appearance, drawnTrees } = vi.hoisted(() => ({
-    appearance: { current: 'light' as 'light' | 'dark' },
+    appearance: { current: 'light' },
     drawnTrees: [] as unknown[],
 }))
 

@@ -13,7 +13,6 @@ import { buildFileNodes, type FileNode } from './fileNodes'
 import { iconFor } from './fileIcons'
 import type { Repository } from '../../types/repositories'
 import { STATUS_META } from '../../constants/projectStatusMeta'
-import type { ProjectStatus } from '../../constants/project'
 import { useSharedStyles } from './sharedStyles'
 import { RepoIcon } from './RepoBadge'
 import { BranchMarks } from './BranchMarks'
@@ -484,7 +483,7 @@ export const ProjectsTree = ({
         if (node.project) {
             const project = node.project
             const current = project.id === currentProjectId
-            const status = project.status as ProjectStatus
+            const status = project.status
             const meta = STATUS_META[status]
             const Icon = meta.icon
             const held = contentsOf(project)
@@ -613,7 +612,7 @@ export const ProjectsTree = ({
                     motion={false}
                     onExpand={keys => setExpanded(keys as string[])}
                     selectedKeys={selected}
-                    treeData={treeData as never}
+                    treeData={treeData}
                     loadData={node => {
                         const project = findNode(nodes, String(node.key))?.project
                         return project ? loadContents(project) : Promise.resolve()

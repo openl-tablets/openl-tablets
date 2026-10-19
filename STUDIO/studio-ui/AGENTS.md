@@ -21,8 +21,12 @@ Use almost the latest versions when possible.
 - **i18next + react-i18next** for internationalization
 - **@stomp/stompjs** for WebSocket notifications (reconnecting singleton)
 - **Vite** + `@vitejs/plugin-react` (`vite.config.ts`)
-- **ESLint** (flat config: `eslint.config.js`) — formatting through `@stylistic`, the Rules of Hooks as errors and
-  missing hook dependencies as warnings (`eslint-plugin-react-hooks`), JSX props sorted by `perfectionist`
+- **ESLint** (flat config: `eslint.config.js`) — formatting through `@stylistic`, JSX props sorted by `perfectionist`:
+    - `eslint-plugin-react-hooks`: the Rules of Hooks and a pure render (`static-components`, `immutability`,
+      `purity`) as errors, missing hook dependencies as warnings.
+    - `typescript-eslint`: no unused name, no needless type assertion, and no explicit `any` outside the tests.
+    - The rules that read types see them through TypeScript 6, so `npm run typecheck` (TypeScript 7) has the last
+      word: an assertion the linter calls needless may still be one `tsc` needs.
 - **antd-style** for CSS-in-JS (`createStyles`, `createGlobalStyle`) — no SCSS/CSS files
 - **Vitest** + React Testing Library (`jsdom` environment)
 - **CodeMirror** through **`@uiw/react-codemirror`** for the code editor (`CodeEditor`), with the colour schemes of
@@ -231,6 +235,8 @@ Maven: `mvn clean install` runs `npm install` + `npm run typecheck` + `npm run b
 `frontend-maven-plugin`. Bundled UI is published relative to `CONFIG.CONTEXT`. Each step after the install has a
 switch of its own — `-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip` — for a build that needs only
 some of them.
+
+The build does not run ESLint: run `npm run lint` after a change and leave no error behind.
 
 ## Testing
 

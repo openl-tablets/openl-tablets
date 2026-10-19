@@ -140,7 +140,7 @@ export interface FieldError {
 /** The fields an answer names as refused, each with its message. */
 const fieldsOf = (payload: unknown): FieldError[] => {
     const fields = payload && typeof payload === 'object' && 'fields' in payload
-        ? (payload as { fields: unknown }).fields
+        ? payload.fields
         : undefined
     return (Array.isArray(fields) ? fields : [])
         .map(({ field, message }: { field?: unknown, message?: unknown }) => ({
@@ -251,9 +251,6 @@ const apiCall = async (
                 // What went wrong, without the name of the class that carries it.
                 notification.error({ title: error.message })
             }
-        })
-        .finally((result: any = false) => {
-            return result
         })
 }
 

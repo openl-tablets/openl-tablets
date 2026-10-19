@@ -100,7 +100,7 @@ function App() {
             <AppStyles />
             {(showLogin || isLoggedIn) && (
                 <ErrorBoundary
-                    onError={(error: Error, errorInfo: any) => {
+                    onError={(error, errorInfo) => {
                         errorHandler.logError(error, {
                             componentStack: errorInfo?.componentStack || undefined,
                             message: `App Level Error: ${error.message}`,

@@ -399,7 +399,7 @@ describe('ProjectsHome', () => {
         vi.clearAllMocks()
         // The snapshot of the workspace is shared by the screens, so each test starts without one.
         invalidateProjectIndex()
-        vi.mocked(getDesignRepositories).mockResolvedValue(repositories as never)
+        vi.mocked(getDesignRepositories).mockResolvedValue(repositories)
         mockProjectSearch()
     })
 
@@ -930,7 +930,7 @@ describe('ProjectsHome row actions', () => {
         vi.clearAllMocks()
         // The snapshot of the workspace is shared by the screens, so each test starts without one.
         invalidateProjectIndex()
-        vi.mocked(getDesignRepositories).mockResolvedValue(repositories as never)
+        vi.mocked(getDesignRepositories).mockResolvedValue(repositories)
     })
 
     const single = (capabilities: NonNullable<Project['capabilities']>, over: Partial<Project> = {}) =>
@@ -938,7 +938,7 @@ describe('ProjectsHome row actions', () => {
 
     it('opens a project and reloads the list', async () => {
         mockProjectSearch(single({ canOpen: true }))
-        vi.mocked(setProjectStatus).mockResolvedValue(undefined as never)
+        vi.mocked(setProjectStatus).mockResolvedValue(undefined)
         await renderHome()
 
         await userEvent.click(screen.getByTestId('project-action-open-p1'))
@@ -948,7 +948,7 @@ describe('ProjectsHome row actions', () => {
 
     it('hides the loading overlay when a ping echoes the action the user is still waiting for', async () => {
         mockProjectSearch(single({ canOpen: true }))
-        vi.mocked(setProjectStatus).mockResolvedValue(undefined as never)
+        vi.mocked(setProjectStatus).mockResolvedValue(undefined)
         await renderHome()
 
         // The re-read the action starts is held, so the backend's echo of that same action lands while
@@ -984,7 +984,7 @@ describe('ProjectsHome row actions', () => {
 
     it('asks before closing a project with unsaved changes and closes discarding them', async () => {
         mockProjectSearch(single({ canClose: true }, { status: ProjectStatus.Editing }))
-        vi.mocked(setProjectStatus).mockResolvedValue(undefined as never)
+        vi.mocked(setProjectStatus).mockResolvedValue(undefined)
         await renderHome()
 
         await userEvent.click(screen.getByTestId('project-action-close-p1'))
@@ -1022,7 +1022,7 @@ describe('ProjectsHome row actions', () => {
         mockProjectSearch(single({ canOpen: true }))
         vi.mocked(getProjectBranches).mockResolvedValue([{ name: 'main', base: true }, { name: 'dev' }])
         const switched = Promise.withResolvers<void>()
-        vi.mocked(switchProjectBranch).mockReturnValue(switched.promise as never)
+        vi.mocked(switchProjectBranch).mockReturnValue(switched.promise)
         await renderHome()
 
         await userEvent.click(screen.getByTestId('row-branch-p1-trigger'))
@@ -1069,7 +1069,7 @@ describe('ProjectsHome row actions', () => {
     it('blocks the branch switch of a row that is busy with an action', async () => {
         mockProjectSearch(single({ canOpen: true }))
         const opened = Promise.withResolvers<void>()
-        vi.mocked(setProjectStatus).mockReturnValue(opened.promise as never)
+        vi.mocked(setProjectStatus).mockReturnValue(opened.promise)
         await renderHome()
 
         await userEvent.click(screen.getByTestId('project-action-open-p1'))

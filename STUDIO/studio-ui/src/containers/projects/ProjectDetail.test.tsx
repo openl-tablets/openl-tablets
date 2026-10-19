@@ -76,8 +76,8 @@ vi.mock('antd', () => {
         <div data-active-key={activeKey}>
             {items?.map(item => (
                 <div key={item.key}>
-                    <button data-testid={`tab-${item.key}`} onClick={() => onChange?.(item.key as string)} type="button">
-                        {item.key as string}
+                    <button data-testid={`tab-${item.key}`} onClick={() => onChange?.(item.key)} type="button">
+                        {item.key}
                     </button>
                     {item.children as never}
                 </div>

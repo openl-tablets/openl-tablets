@@ -274,7 +274,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             <FieldRow required label={t('browser.copy_dialog.target_repository')} labelWidth={LABEL_WIDTH}>
                 <Select
                     data-testid="copy-project-repository"
-                    onChange={value => setTargetRepositoryId(value as string)}
+                    onChange={value => setTargetRepositoryId(value)}
                     options={repositories.map(repo => ({ value: repo.id, label: repo.name }))}
                     style={{ width: '100%' }}
                     value={targetRepositoryId}
@@ -334,7 +334,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                     <Select
                         data-testid="copy-project-revision"
                         loading={revisions === null}
-                        onChange={value => setChosen(value as string)}
+                        onChange={value => setChosen(value)}
                         options={revisionOptions}
                         // A revision reads whole in the list: the field is narrower than the label it holds.
                         popupMatchSelectWidth={false}

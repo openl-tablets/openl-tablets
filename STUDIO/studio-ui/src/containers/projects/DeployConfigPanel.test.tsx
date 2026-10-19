@@ -159,7 +159,7 @@ describe('DeployConfigPanel', () => {
         await waitFor(() => expect(screen.getByTestId('deploy-service-name')).toHaveTextContent('svc'))
 
         await userEvent.click(screen.getByTestId('deploy-config-edit'))
-        expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('svc')
+        expect(screen.getByTestId<HTMLInputElement>('deploy-service-name').value).toBe('svc')
 
         await userEvent.clear(screen.getByTestId('deploy-service-name'))
         await userEvent.type(screen.getByTestId('deploy-service-name'), 'changed')
@@ -208,7 +208,7 @@ describe('DeployConfigPanel', () => {
 
         // The fields never gave way to a skeleton, and they still hold what was typed into them.
         expect(screen.getByTestId('deploy-config-save')).toBeInTheDocument()
-        expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('typed')
+        expect(screen.getByTestId<HTMLInputElement>('deploy-service-name').value).toBe('typed')
     })
 
     it('keeps the way out of an edit when a reload cannot read the descriptor', async () => {
@@ -222,7 +222,7 @@ describe('DeployConfigPanel', () => {
         // The read failed, but the form it failed under keeps its fields and the buttons that end it.
         expect(screen.getByTestId('deploy-config-save')).toBeInTheDocument()
         expect(screen.getByTestId('deploy-config-cancel')).toBeInTheDocument()
-        expect((screen.getByTestId('deploy-service-name') as HTMLInputElement).value).toBe('typed')
+        expect(screen.getByTestId<HTMLInputElement>('deploy-service-name').value).toBe('typed')
     })
 
     it('creates a missing descriptor even when a reload could not read it', async () => {

@@ -24,7 +24,7 @@ vi.mock('../../services/modules', async importOriginal => ({
 
 const blocker = vi.hoisted(() => ({ state: 'unblocked', proceed: vi.fn(), reset: vi.fn() }))
 // What the editor asks the router to hold a leaving reader back by.
-const holdBack = vi.hoisted(() => ({ when: undefined as unknown }))
+const holdBack = vi.hoisted((): { when: unknown } => ({ when: undefined }))
 vi.mock('react-router', () => ({
     useBlocker: (when: unknown) => {
         holdBack.when = when
@@ -107,7 +107,7 @@ const cellOf = (row: number, column: number): HTMLElement => {
     if (drawn === undefined) {
         throw new Error(`No cell at row ${row}, column ${column}`)
     }
-    return drawn as HTMLElement
+    return drawn
 }
 
 /** Opens the cell holding the given text and writes something else into it. */
@@ -1209,7 +1209,7 @@ describe('TableEditor', () => {
     })
 
     /** The value of the cell that is open for writing, which says where the keyboard landed. */
-    const openValue = () => (screen.getByTestId('table-cell-input') as HTMLInputElement).value
+    const openValue = () => screen.getByTestId<HTMLInputElement>('table-cell-input').value
 
     it.each([
         ['moves between cells with the arrows, and opens one with Enter', '0', '{ArrowRight}{Enter}', 'Good Morning'],
@@ -1236,7 +1236,7 @@ describe('TableEditor', () => {
         await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
 
         await userEvent.dblClick(screen.getByText('Good Morning'))
-        const input = screen.getByTestId('table-cell-input') as HTMLInputElement
+        const input = screen.getByTestId<HTMLInputElement>('table-cell-input')
         await userEvent.keyboard('{F2}')
         expect(input.selectionStart).toBe(0)
 

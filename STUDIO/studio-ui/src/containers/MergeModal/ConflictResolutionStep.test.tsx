@@ -703,8 +703,8 @@ describe('ConflictResolutionStep', () => {
             }))
             // The columns of the editor name the branches the versions come from.
             const { versionLabels } = mergeEditor.mock.lastCall![0]
-            expect(versionLabels.ours.props.name).toBe(textDetails().oursRevision!.branch)
-            expect(versionLabels.theirs.props.name).toBe(textDetails().theirsRevision!.branch)
+            expect(versionLabels.ours.props.name).toBe(textDetails().oursRevision.branch)
+            expect(versionLabels.theirs.props.name).toBe(textDetails().theirsRevision.branch)
             await userEvent.click(within(screen.getByTestId('text-merge-editor')).getByText('apply'))
 
             expect(screen.queryByTestId('text-merge-editor')).toBeNull()
