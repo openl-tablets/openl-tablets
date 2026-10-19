@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -138,6 +139,7 @@ import org.openl.studio.projects.service.project.compile.ModuleCompilationLaunch
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
+import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -1468,6 +1470,56 @@ class WorkspaceProjectServiceTest {
         verify(webStudio).rebuildCurrentModule();
     }
 
+    @Test
+    void a_write_that_renames_a_table_leaves_its_old_id_naming_it() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        when(webStudio.getCurrentProject()).thenReturn(mock(RulesProject.class));
+        var model = stubResolvedSource(service, project, mock(IOpenLTable.class));
+        var folder = tempDir.resolve("renamed");
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(folder);
+        when(model.getModuleInfo().getProject()).thenReturn(descriptor);
+        var properties = List.of(new TableProperty("id", "greet"));
+        when(tablePropertiesService.write(any(), eq(properties))).thenReturn("new-id");
+
+        assertEquals("new-id", service.updateTableProperties(project, "src-id", properties, null));
+        assertEquals("new-id", StaleTableIds.currentIdOf(folder, "src-id"));
+    }
+
+    @Test
+    void a_moved_workbook_leaves_the_old_ids_of_its_tables_naming_them() throws Exception {
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(mock(RepositoryAclService.class), webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var folder = tempDir.resolve("moved");
+        var model = TableTestProjects.projectModel(folder, "Main", sheet -> {
+            TableTestProjects.row(sheet, 1, 1, "Datatype Greeting");
+            TableTestProjects.row(sheet, 2, 1, "String", "text");
+        });
+        var id = TableTestProjects.table(model, "Greeting").getId();
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(project.isOpened()).thenReturn(true);
+        doReturn(model.getModuleInfo().getProject()).when(service).getProjectDescriptor(project);
+        when(webStudio.getModel()).thenReturn(model);
+
+        var renames = service.tableRenamesOfMove(project, "Main.xlsx", "Moved.xlsx");
+        Files.move(folder.resolve("Main.xlsx"), folder.resolve("Moved.xlsx"));
+        renames.run();
+
+        var moved = TableTestProjects.table(TableTestProjects.projectModel(folder), "Greeting").getId();
+        assertNotEquals(id, moved);
+        assertEquals(moved, StaleTableIds.currentIdOf(folder, id));
+        when(webStudio.getModel()).thenReturn(null);
+        service.tableRenamesOfMove(project, "Moved.xlsx", "Main.xlsx").run();
+        assertEquals(moved, StaleTableIds.currentIdOf(folder, id), "a session with no project open learns nothing");
+    }
+
     // The pause stands for a long write, so an overlapping second write would be caught in it.
     @SuppressWarnings("java:S2925")
     @Test
@@ -2049,6 +2101,7 @@ class WorkspaceProjectServiceTest {
         when(handle.awaitCompiled()).thenReturn(model);
         when(model.getTableById("src-id")).thenReturn(source);
         when(model.getTableSyntaxNodes()).thenReturn(new TableSyntaxNode[0]);
+        when(source.getId()).thenReturn("src-id");
         when(source.getUri()).thenReturn("src-uri");
         var moduleInfo = mock(Module.class);
         when(model.getModuleInfo()).thenReturn(moduleInfo);

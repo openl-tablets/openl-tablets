@@ -3,8 +3,10 @@ package org.openl.studio.projects.rest.controller;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.service.tables.GeneratedTables;
+import org.openl.studio.projects.service.tables.StaleTableIds;
 
 /**
  * Finds the table a run, a trace, a benchmark or a test run is started from.
@@ -18,16 +20,18 @@ final class RunnableTables {
     }
 
     /**
-     * The table with the given identifier, to be run.
+     * The table with the given identifier, to be run. An identifier the table had before a rename names it too, as
+     * {@link StaleTableIds} tells.
      *
      * @param projectModel the compiled project
      * @param tableId      the identifier the Tables API addresses the table by
      * @return the table
      * @throws NotFoundException   when no table has the identifier
+     * @throws GoneException       when the table was deleted
      * @throws BadRequestException when the compiler built the table
      */
     static IOpenLTable require(ProjectModel projectModel, String tableId) {
-        var table = projectModel.getTableById(tableId);
+        var table = StaleTableIds.tableOf(projectModel, tableId);
         if (table == null) {
             throw new NotFoundException("table.message");
         }

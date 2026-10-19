@@ -1,0 +1,7 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "JX76_fctFAJIL9Nf",
+  "name": "Greeting"
+}

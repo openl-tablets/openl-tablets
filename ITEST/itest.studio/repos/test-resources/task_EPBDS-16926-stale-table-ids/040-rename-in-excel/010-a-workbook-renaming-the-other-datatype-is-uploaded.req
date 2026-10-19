@@ -1,0 +1,5 @@
+PUT /rest/projects/EPBDS-16926/files/rules/Rates.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/octet-stream
+
+&../Rates-renamed.xlsx

@@ -93,6 +93,7 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
+import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -135,6 +136,8 @@ public class ProjectModel {
     private volatile XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
+    /** Learns the tables a compilation of a module finds renamed. */
+    private final StaleTableIds.Compilations tableIdChanges = new StaleTableIds.Compilations();
     /** The node the last compilation of each project answers for it with. See {@link #replaceProjectNode}. */
     private final Map<String, XlsModuleSyntaxNode> projectSyntaxNodes = new ConcurrentHashMap<>();
 
@@ -1111,6 +1114,8 @@ public class ProjectModel {
         // Cleared once the manager is shut down: until then a module it finishes still adds its nodes here.
         xlsModuleSyntaxNodesPerProject.clear();
         projectSyntaxNodes.clear();
+        // The manager lets go of its modules without a word: the ids of their tables are taken here.
+        xlsModuleSyntaxNodes.forEach(tableIdChanges::dropped);
         xlsModuleSyntaxNodes.clear();
     }
 
@@ -1144,6 +1149,7 @@ public class ProjectModel {
                 if (!(dependencySyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
                     xlsModuleSyntaxNodes.add(dependencySyntaxNode);
                 }
+                tableIdChanges.compiled(dependencySyntaxNode);
             }
         }
         if (!dependencyLoader.isProjectLoader()) {
@@ -1161,6 +1167,7 @@ public class ProjectModel {
                 if (!(dependencySyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
                     xlsModuleSyntaxNodes.remove(dependencySyntaxNode);
                 }
+                tableIdChanges.dropped(dependencySyntaxNode);
             }
         }
     }
@@ -1526,6 +1533,18 @@ public class ProjectModel {
     }
 
     /**
+     * The modules compiled for the project open: its own and the modules of the projects it depends on.
+     *
+     * <p>Answered without taking the lock of the model, as what was compiled may be asked while a module is being
+     * compiled.
+     */
+    public Collection<XlsModuleSyntaxNode> getCompiledModules() {
+        return Stream.concat(Stream.ofNullable(xlsModuleSyntaxNode), xlsModuleSyntaxNodes.stream())
+                .distinct()
+                .toList();
+    }
+
+    /**
      * Whether a workbook the session compiled was written to since it was compiled.
      *
      * <p>What the compiler read from such a workbook is what it held before the write: a part the write added, such
@@ -1540,7 +1559,7 @@ public class ProjectModel {
      * compiled.
      */
     public boolean isWrittenSinceCompiled() {
-        return Stream.concat(Stream.ofNullable(xlsModuleSyntaxNode), xlsModuleSyntaxNodes.stream())
+        return getCompiledModules().stream()
                 .map(XlsModuleSyntaxNode::getWorkbookSyntaxNodes)
                 .filter(Objects::nonNull)
                 .flatMap(Arrays::stream)

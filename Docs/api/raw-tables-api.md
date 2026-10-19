@@ -308,8 +308,9 @@ The answer is `201 Created` with the summary of the new table.
 
 ### Responses
 
-A replacement and an append answer `204 No Content`, or `200 OK` with the new table id and the `Location` header when
-the write renamed the table; see [Data Tables API](data-tables-api.md#responses).
+A replacement and an append answer `204 No Content`, or `200 OK` with the current table id and the `Location` header
+when the write renamed the table or the request named the table by an id it had before; see
+[Data Tables API](data-tables-api.md#responses).
 
 ### Formatted on Save
 
@@ -375,8 +376,8 @@ A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covere
 {"operation": "merge", "target": {"type": "cells", "row": 3, "column": 0, "rowspan": 1, "colspan": 2}}
 ```
 
-The answer is `204 No Content`, or `200 OK` with the new table id and the `Location` header when the edit renamed
-the table.
+The answer is `204 No Content`, or `200 OK` with the current table id and the `Location` header when the edit renamed
+the table or the request named the table by an id it had before.
 
 **Refusals** (`400`):
 

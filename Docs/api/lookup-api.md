@@ -103,8 +103,8 @@ Content-Type: application/json
 The titles of the rows are matched with the headers of the table in the workbook, not with headers of the request. A
 key that is not in a row leaves the cell empty.
 
-A write answers `204 No Content`, or `200 OK` with the new table id when it renamed the table; see
-[Data Tables API](data-tables-api.md#responses).
+A write answers `204 No Content`, or `200 OK` with the current table id when it renamed the table or the request
+named the table by an id it had before; see [Data Tables API](data-tables-api.md#responses).
 
 ## Models
 
