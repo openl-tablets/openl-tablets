@@ -45,8 +45,8 @@ import org.openl.util.formatters.FileNameFormatter;
  * on a disk is part of an id, so a table has one id for every user and machine.
  *
  * <p>Tables of a module that share all three are numbered in the order the module holds them: by workbook, by sheet,
- * then from top to bottom. A table OpenL Studio moves keeps the number it had until the server restarts; see
- * {@link #idAfterWrite}.
+ * then from top to bottom. A table OpenL Studio moves keeps the number it had until the server restarts, and so do
+ * the tables sharing what a table OpenL Studio deletes; see {@link #idAfterWrite} and {@link #deleting}.
  *
  * <p>An id is 16 characters of URL-safe base64: 96 bits of the SHA-256 digest of what the table is. Case matters.
  *
@@ -61,12 +61,12 @@ public final class TableIds {
     private static final int ID_BYTES = 12;
     /** Neither {@code /} nor {@code +}: an id stays one segment of a URL path and needs no escaping in a query. */
     private static final Base64.Encoder BASE64 = Base64.getUrlEncoder().withoutPadding();
-    /** How many moved tables keep their numbers. */
+    /** How many tables keep their numbers. */
     private static final int PINS = 1000;
     private static final String ID_PROPERTY = "id";
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
-    /** Where a moved table stands now, and what it is and the number it keeps there. */
+    /** Where a table that keeps its number stands, and what it is and the number it keeps there. */
     private static final Map<String, Numbered> PINNED = Collections.synchronizedMap(new LRUMap<>(PINS));
 
     private TableIds() {
@@ -248,6 +248,112 @@ public final class TableIds {
         return numbered.id();
     }
 
+    /**
+     * Keeps the ids of the tables that share what a table is, as OpenL Studio deletes that table.
+     *
+     * <p>The tables after it keep their numbers until the server restarts, instead of each taking the id of the one
+     * before it. The id of the deleted table names no table then, until a table that is what it was takes it.
+     *
+     * @param table the table as last compiled, before it is deleted
+     */
+    public static void deleting(TableSyntaxNode table) {
+        var module = moduleOf(table);
+        if (module == null) {
+            return;
+        }
+        var identity = numberedOf(table).identity();
+        for (var entry : entries(module, table)) {
+            if (entry.pin() != null && entry.identity().equals(identity)) {
+                PINNED.put(entry.pin(), numberedOf(entry.table()));
+            }
+        }
+    }
+
+    /**
+     * The ids the tables of a module are known by once a file or a folder of their project moves.
+     *
+     * <p>A table of a workbook that moves keeps its kind, its key and its number, under the new place of the
+     * workbook; it keeps a number OpenL Studio pinned it to as well. A table the compiler built for a module whose
+     * workbook moves is named after the new place. The tables of the other workbooks keep their ids.
+     *
+     * @param module the module as last compiled
+     * @param from   the file or the folder that moves
+     * @param to     where it moves
+     * @return the new id of each table of the moved workbooks, by the id it has now
+     */
+    public static Map<String, String> idsAfterMove(XlsModuleSyntaxNode module, Path from, Path to) {
+        var source = from.toAbsolutePath().normalize();
+        var target = to.toAbsolutePath().normalize();
+        var folder = Folder.of(module);
+        var moduleFile = fileOf(module.getModule());
+        var ids = new LinkedHashMap<String, String>();
+        for (var entry : entries(module, null)) {
+            var file = fileOfTable(entry.table());
+            var moved = movedTo(file != null ? file : moduleFile, source, target);
+            if (moved != null) {
+                var numbered = numberedOf(entry.table());
+                var identity = numbered.identity();
+                var renamed = new Numbered(new Identity(pathOf(moved, folder.project()), identity.kind(),
+                        identity.key()), numbered.number());
+                ids.put(numbered.id(), renamed.id());
+                movePin(entry, moved, renamed);
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * Whether the tables of a module have their ids: whether an id of any of them was asked for.
+     *
+     * @param module a compiled module
+     * @return {@code true} when {@link #idsByCell} reads no table to answer
+     */
+    public static boolean isNumbered(XlsModuleSyntaxNode module) {
+        return Arrays.stream(module.getWorkbookSyntaxNodes())
+                .flatMap(workbook -> Arrays.stream(workbook.getTableSyntaxNodes()))
+                .anyMatch(table -> table.numbered() != null);
+    }
+
+    /**
+     * The ids of the tables written on the sheets of a module, by the cell each table starts at.
+     *
+     * <p>A cell is told by its workbook file, its sheet, its row and its column. The tables gathered from parts and
+     * the tables the compiler built stand at no cell and are left out.
+     *
+     * @param module a compiled module
+     * @return the id of each table, by the cell its header starts at
+     */
+    public static Map<String, String> idsByCell(XlsModuleSyntaxNode module) {
+        var ids = new LinkedHashMap<String, String>();
+        for (var workbook : module.getWorkbookSyntaxNodes()) {
+            for (var sheet : workbook.getWorksheetSyntaxNodes()) {
+                for (var table : sheet.getTableSyntaxNodes()) {
+                    var cell = pinOf(table);
+                    if (cell != null) {
+                        ids.put(cell, table.getId());
+                    }
+                }
+            }
+        }
+        return ids;
+    }
+
+    /** Where a file is once a file or a folder moves, or {@code null} for a file the move leaves where it is. */
+    private static @Nullable Path movedTo(@Nullable Path file, Path from, Path to) {
+        if (file == null || !file.startsWith(from)) {
+            return null;
+        }
+        return to.resolve(from.relativize(file)).normalize();
+    }
+
+    /** Pins a table that keeps its number at its place in a moved workbook. */
+    private static void movePin(Entry entry, Path file, Numbered renamed) {
+        var pin = entry.pin() == null ? null : PINNED.remove(entry.pin());
+        if (pin != null && pin.equals(entry.table().numbered())) {
+            PINNED.put(pinAt(file, entry.table()), renamed);
+        }
+    }
+
     /** Whether a table stands elsewhere than the cell it was compiled at. */
     private static boolean isMoved(TableSyntaxNode table, IGridRegion region) {
         var compiled = table.getGridLocation().getStart();
@@ -299,18 +405,16 @@ public final class TableIds {
     }
 
     /**
-     * The numbers of the tables sharing one identity, in the order the module holds them. A moved table keeps the
+     * The numbers of the tables sharing one identity, in the order the module holds them. A pinned table keeps the
      * number it was pinned to, and the others take the numbers left, in order.
      */
     private static int[] numbers(List<Entry> group) {
         var numbers = new int[group.size()];
         Set<Integer> taken = new HashSet<>();
-        if (group.size() > 1) {
-            for (var i = 0; i < group.size(); i++) {
-                var number = pinnedNumber(group.get(i), group.size());
-                if (number > 0 && taken.add(number)) {
-                    numbers[i] = number;
-                }
+        for (var i = 0; i < group.size(); i++) {
+            var number = pinnedNumber(group.get(i));
+            if (number > 0 && taken.add(number)) {
+                numbers[i] = number;
             }
         }
         var next = 1;
@@ -326,10 +430,10 @@ public final class TableIds {
         return numbers;
     }
 
-    /** The number a moved table was pinned to, or 0 when it has none among the numbers of its identity. */
-    private static int pinnedNumber(Entry entry, int count) {
+    /** The number a table was pinned to, or 0 when it has none: a pin of a table that is no more what it was. */
+    private static int pinnedNumber(Entry entry) {
         var pin = entry.pin() == null ? null : PINNED.get(entry.pin());
-        return pin != null && pin.identity().equals(entry.identity()) && pin.number() <= count ? pin.number() : 0;
+        return pin != null && pin.identity().equals(entry.identity()) ? pin.number() : 0;
     }
 
     /** The tables of a module, with what each is and where it stands, but the excluded one. */

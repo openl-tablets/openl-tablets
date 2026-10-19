@@ -24,8 +24,8 @@ Excel, merges, recompiles, restarts and other Studio instances.
 - **Old ids** — the position ids of earlier versions are an implementation detail, not a public contract. They are
   not accepted and not migrated: such an id answers `404`.
 - **Workbooks** — nothing is written into them: no anchor, no hidden name.
-- **Renamed and deleted tables** — planned: the server remembers the ids it saw change and serves an old id under
-  the current one, and an id of a deleted table answers `410 Gone`; see [Stale-Id Ledger](#stale-id-ledger).
+- **Renamed and deleted tables** — the server remembers the ids it saw change and serves an old id under the current
+  one, and an id of a deleted table answers `410 Gone`; see [Stale-Id Ledger](#stale-id-ledger).
 
 ## The Identity Id
 
@@ -111,11 +111,13 @@ They are numbered in the order the module holds them — by workbook, by sheet, 
 tables gathered from parts after the tables of the sheets and the tables the compiler built last. The first keeps
 the bare identity; the next ones add `~2`, `~3` as the last field.
 
-- **Studio's own moves swap nothing.** A Studio write that moves such a table — appending cases to an unnamed test,
-  or retiring the version a copy keeping its name replaces, which takes the rows of its `version` and `active`
-  properties — pins the table at its new place to the id it had, and the numbering honors the pins: the pinned
-  tables keep their numbers, and the others are numbered around them. `TableIds` keeps the 1,000 most recent
-  pins in memory, so they last until Studio restarts; the numbering after a restart follows the order again.
+- **Studio's own moves and deletes shift nothing.** A Studio write that moves such a table — appending cases to an
+  unnamed test, or retiring the version a copy keeping its name replaces, which takes the rows of its `version` and
+  `active` properties — pins the table at its new place to the number it had. A Studio delete of such a table pins
+  the others at their places (`TableIds.deleting`), so the tables after it do not each take the id of the one
+  before. The numbering honors the pins: the pinned tables keep their numbers, and the others are numbered around
+  them. `TableIds` keeps the 1,000 most recent pins in memory, so they last until Studio restarts; the numbering
+  after a restart follows the order again.
 - **Reordering outside Studio can swap ids.** Tables of one identity moved past each other in Excel, or by a merge,
   exchange their numbers, and an id held from before names the other table. The `id` property, or distinct names,
   give such tables ids of their own.
@@ -141,6 +143,9 @@ the bare identity; the next ones add `~2`, `~3` as the last field.
 | The table moved to another module: a copy and a delete | New |
 | The table copied | New table, new id |
 | Tables that share an identity reordered outside Studio | Their numbers may swap |
+
+A new id does not end the old one at once: the [Stale-Id Ledger](#stale-id-ledger) serves the old id of a renamed
+table, and of the tables of a module file moved in Studio, while the server runs.
 
 ### Uniqueness
 
@@ -168,7 +173,8 @@ the bare identity; the next ones add `~2`, `~3` as the last field.
     table at;
   - cell usages — the table at the location a word leads to, looked up once per read in the compiled project
     (`TableModules.tableIdOf`).
-- **Lookups** — `ProjectModel.getTableById` compares the ids of the tables of the compiled project.
+- **Lookups** — `StaleTableIds.tableOf` asks `ProjectModel.getTableById`, which compares the ids of the tables of the
+  compiled project, and the ledger for an id no table has.
 - **Cost** — one SHA-256 of a short string per table and compile, a few milliseconds for ten thousand tables.
 
 ## Where Ids Are Taken and Given
@@ -178,14 +184,14 @@ Paths are under `/rest`.
 | Area | Takes an id | Gives an id | Resolved by |
 |---|---|---|---|
 | Table list and search, `GET /projects/{projectId}/tables` | — | `id` of each table, with `file`, `sheet`, `pos` | `TableSyntaxNode.getId()` |
-| Table read, `GET .../tables/{tableId}` and its `tests`, `targets`, `properties`, `details`, `input`, `input/cases` | Path | `id`; `metaInfo` usages `tableId`; `messages[].location.id`; `inheritedTableId`; target and test `id` | `getTableById`, scoped by `?module=` when given |
-| Table writes, `PUT .../tables/{tableId}`, `POST .../lines`, `.../actions`, `.../actions/batch`, `PATCH .../properties` | Path | `204`, or `200 {"id"}` and `Location` when the write renamed the table | `getTableById` for a writable table |
+| Table read, `GET .../tables/{tableId}` and its `tests`, `targets`, `properties`, `details`, `input`, `input/cases` | Path | `id`; `metaInfo` usages `tableId`; `messages[].location.id`; `inheritedTableId`; target and test `id` | `StaleTableIds.tableOf`, scoped by `?module=` when given |
+| Table writes, `PUT .../tables/{tableId}`, `POST .../lines`, `.../actions`, `.../actions/batch`, `PATCH .../properties` | Path | `204`, or `200 {"id"}` and `Location` when the write renamed the table or the request named it by an old id | `StaleTableIds.tableOf` for a writable table |
 | Create and copy, `POST .../tables`, `POST .../tables/{tableId}/copy` | Path of the source | `201` with the `id` of the new table | The new table is read back by id, or by name in a new module |
-| Delete, `DELETE .../tables/{tableId}`; editors, `GET` and `DELETE .../tables/{tableId}/editors` | Path; ignored by the `DELETE` of editors | — | `getTableById` |
-| Dependency graph, `GET .../tables/graph`, `GET .../tables/{tableId}/graph` | Path | Node `id`, `dependencies`, `dependents`; a dispatcher node is `dispatcher:<id>`, which no lookup resolves | `getTableById` |
+| Delete, `DELETE .../tables/{tableId}`; editors, `GET` and `DELETE .../tables/{tableId}/editors` | Path; ignored by the `DELETE` of editors | — | `StaleTableIds.tableOf` |
+| Dependency graph, `GET .../tables/graph`, `GET .../tables/{tableId}/graph` | Path | Node `id`, `dependencies`, `dependents`; a dispatcher node is `dispatcher:<id>`, which no lookup resolves | `StaleTableIds.tableOf` |
 | Format, `POST /projects/{projectId}/format` | — | `formatted`, `skipped` | — |
-| Run, tests, benchmark, `POST .../run`, `.../tests/run`, `.../benchmarks` with `?tableId=` | Query | `tableId` of the results | `RunnableTables.require`, through `getTableById` |
-| Tests summary, `GET .../tests/summary` and `.../tests/summary/{tableId}/cases/...` | Path | `testCases[].tableId` | The retained run, by `TestSuite.getTableId()` |
+| Run, tests, benchmark, `POST .../run`, `.../tests/run`, `.../benchmarks` with `?tableId=` | Query | `tableId` of the results | `RunnableTables.require`, through `StaleTableIds.tableOf` |
+| Tests summary, `GET .../tests/summary` and `.../tests/summary/{tableId}/cases/...` | Query and path | `testCases[].tableId` | The retained run, by `TestSuite.getTableId()`, then `StaleTableIds.currentIdOf` |
 | Trace, `POST .../trace?tableId=` and the stack, step and watch answers | Query | `uri` and `tableId` of every frame | `RunnableTables.require`; the tree children and the breakpoints take table URIs or names, not ids |
 | Project status, `GET /projects/{projectId}?include=status` | — | `messages[].location.id` | — |
 | WebSocket | Destinations `/user/topic/projects/{projectId}/tables/{tableId}/{tests,run,trace,benchmarks}/...` | `tableId` in test results; `location.id` in the status stream | Keyed by the id of the request that started the run |
@@ -196,7 +202,8 @@ Paths are under `/rest`.
 - **Not persisted.** No database table, user setting, project file or metainfo record holds a table id.
 - **Not a table id.** The `tableId` of `GET /compare/{comparisonId}/tables/{tableId}` is the position of a table in
   a comparison, `<sheet index>-<table index>`.
-- **An unknown id** answers `404` with `table.message`, or `table.in.module.message` when `?module=` is given.
+- **An unknown id** answers `404` with `table.message`, or `table.in.module.message` when `?module=` is given. An id of
+  a table OpenL Studio deleted answers `410` with `table.deleted.message`.
 
 ## Why Not the Position
 
@@ -215,22 +222,42 @@ Clients compensated: the MCP server kept an alias map of its own, learned from i
 
 ## Stale-Id Ledger
 
-Planned in EPBDS-16926. The server remembers the ids it saw change, so that a client holding an id from before a
-rename is served instead of answered `404`:
+`StaleTableIds` remembers the ids it saw change, so that a client holding an id from before a rename is served
+instead of answered `404`, and a client holding the id of a deleted table is told so.
 
-- **Where** — one ledger per project of a user's workspace, in memory: the most recent 1,000 changes, lost on
-  restart.
-- **What feeds it** — a Studio write that renames a table or changes its `id` property; a module file moved through
-  `POST /rest/projects/{projectId}/file-move`; a recompile, where a table whose id vanished and a table whose id
-  appeared at the same sheet and top-left cell are one table renamed; a delete, whose id then answers `410 Gone`
-  with "The table was deleted".
-- **Served, not redirected** — the request is answered for the current table, with the current id in the body and in
-  a `Content-Location` header. A redirect would turn every write into a `307` or `308` that some clients replay and
+- **Where** — one ledger per project folder of a user's workspace, shared by every session and client of the user,
+  in memory: the most recent 1,000 changes of the project, lost on restart. After a restart an old id answers `404`.
+- **What feeds it**
+  - a Studio write that renames a table or changes its `id` property: the old id leads to the one the write answers;
+  - a module file or folder moved through `POST /rest/projects/{projectId}/file-move`, for the project open in the
+    session: the tables of the moved workbooks keep their kinds, keys and numbers under the new place of their
+    workbook (`TableIds.idsAfterMove`), worked out before the move and learned once it is done;
+  - a compilation: `StaleTableIds.Compilations`, held by `ProjectModel`, takes the ids of a module when its
+    compilation is dropped — a reset of the module, or a reload that lets go of every module — and compares them
+    when the module is compiled again. A table whose id no table has any more and a table under an id the module did
+    not have, starting at one cell (workbook file, sheet, top-left cell), are one table renamed. The ids are taken
+    only when one of them was asked for, as nobody holds the others, and are kept for the 1,000 most recent modules;
+  - a Studio delete: the id of the table, and every id that led to it, answer `410 Gone` with "The table was
+    deleted."
+- **Rules**
+  - a live id always wins: the ledger is asked only for an id no table has;
+  - chains are compressed: every old id leads straight to the current one;
+  - a deleted table stays deleted: a table a compilation finds later at its cell does not take its old id over,
+    while a Studio write that renames a table which took the deleted id again is learned as any rename;
+  - an id a table takes again leaves the ledger, so it never leads elsewhere once that table goes.
+- **Served, not redirected** — the request is answered for the current table, with the current id in the body and
+  the address of the request, the old id replaced in its path or in its `tableId` query parameter, in a
+  `Content-Location` header. A redirect would turn every write into a `307` or `308` that some clients replay and
   others drop, and would collide with the `Location` header a write already answers.
-- **One resolver** — the `{tableId}` of every path and the `tableId` query parameter of run, trace, tests and
-  benchmarks.
+- **One resolver** — `StaleTableIds.tableOf` resolves the `{tableId}` of every table path, the graph and, through
+  `RunnableTables.require`, the `tableId` query parameter of run, trace, tests and benchmarks. The tests summary asks
+  `StaleTableIds.currentIdOf` when the retained run holds no test table of the id. A run started by an old id keeps
+  that id for its WebSocket destinations and its result registry.
+- **Not covered** — a table renamed outside Studio and moved to another cell at once; a table moved to another
+  module; a module file moved outside Studio or in a project the session does not have open; a table deleted
+  outside Studio, which answers `404`.
 
-With the ledger on the server, the MCP server drops its alias map.
+With the ledger on the server, the MCP server can drop its alias map.
 
 ## Rejected Alternatives
 

@@ -1,0 +1,7 @@
+HTTP/1.1 410
+Content-Type: application/json
+
+{
+  "code": "openl.error.410.table.deleted.message",
+  "message": "The table was deleted."
+}

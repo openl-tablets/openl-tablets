@@ -99,13 +99,15 @@ A row must not have more values than the table has columns.
 ### Responses
 
 - **`204 No Content`** — the table was written and keeps its id, also when it had no room to grow and moved.
-- **`200 OK`** — the write renamed the table or changed its `id` property, which gives it a new id. The body is
-  `{"id": "<new id>"}`, and the `Location` header is the address of the table under the new id.
+- **`200 OK`** — the write renamed the table or changed its `id` property, which gives it a new id, or the request
+  named the table by an id it had before. The body is `{"id": "<new id>"}`, and the `Location` header is the address
+  of the table under the new id.
 - **`400 Bad Request`** — the request is refused:
     - `openl.error.400.table.column.required.message` — the request has no column;
     - `openl.error.400.table.column-title.required.message` — no column has a `displayName`;
     - `openl.error.400.table.append.column.count.message` — an appended row is wider than the table.
 - **`409 Conflict`** — the project is locked by another user, or is not opened.
+- **`410 Gone`** — the table was deleted: `openl.error.410.table.deleted.message`.
 
 A title row left blank would end the table and leave every row below it out, so a table without any `displayName` is
 refused. One untitled column among titled ones is accepted, and a `GET` reports such a table the same way, so what is

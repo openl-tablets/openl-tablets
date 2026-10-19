@@ -48,6 +48,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.AProject;
@@ -146,6 +147,7 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.GeneratedTables;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.SystemPropertiesService;
 import org.openl.studio.projects.service.tables.TableCopyService;
 import org.openl.studio.projects.service.tables.TableCreatorService;
@@ -2373,7 +2375,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return getOpenLTable(project, tableId, false);
         }
         var moduleModel = openProject(project, moduleName).project();
-        var table = moduleModel.getTableById(tableId);
+        var table = StaleTableIds.tableOf(moduleModel, tableId);
         if (table == null || !moduleModel.holdsTable(table.getUri())) {
             throw new NotFoundException("table.in.module.message", moduleName);
         }
@@ -2450,7 +2452,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     private OpenLTableContext getOpenLTable(RulesProject project, String tableId, boolean editable) {
         var moduleModel = openProject(project).awaitCompiled();
-        var table = moduleModel.getTableById(tableId);
+        var table = StaleTableIds.tableOf(moduleModel, tableId);
         if (table == null) {
             throw new NotFoundException("table.message");
         }
@@ -2465,7 +2467,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // cannot be edited here, where the lock and the ACL check apply to the current project, not its owner.
             if (owningModule != null) {
                 moduleModel = openProject(pd, project, owningModule).awaitCompiled();
-                table = moduleModel.getTableById(tableId);
+                table = moduleModel.getTableById(table.getId());
                 if (table == null) {
                     throw new NotFoundException("table.message");
                 }
@@ -2492,7 +2494,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return writing(() -> tableWriterExecutor.executeWrite(writer, tableView));
+        return renamed(context, writing(() -> tableWriterExecutor.executeWrite(writer, tableView)));
     }
 
     /**
@@ -2512,7 +2514,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return writing(() -> tableWriterExecutor.executeAppend(writer, tableView));
+        return renamed(context, writing(() -> tableWriterExecutor.executeAppend(writer, tableView)));
     }
 
     /**
@@ -2538,7 +2540,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return writing(() -> tableWriterExecutor.executeSourceAction(writer, actions));
+        return renamed(context, writing(() -> tableWriterExecutor.executeSourceAction(writer, actions)));
     }
 
     /**
@@ -2723,14 +2725,14 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                         List<TableProperty> properties,
                                         @Nullable String moduleName) {
         var context = getWritableTable(project, tableId, moduleName);
-        return writing(() -> tablePropertiesService.write(context.table(), properties));
+        return renamed(context, writing(() -> tablePropertiesService.write(context.table(), properties)));
     }
 
     /**
      * Delete a table from the currently opened project.
      * <p>
      * The whole table area is cleared from the sheet regardless of the table type. The table no longer exists once the
-     * project is recompiled.
+     * project is recompiled. Its id, and every id it had before, answer that the table is gone.
      *
      * @param project project
      * @param tableId table id
@@ -2744,6 +2746,43 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             writer.delete();
             return null;
         });
+        StaleTableIds.deleted(context.module(), context.table().getId());
+    }
+
+    /**
+     * The id a write of a table answers. The ledger of stale ids learns it when it is not the id the table had: the
+     * write renamed the table or changed its {@code id} property.
+     */
+    private static String renamed(OpenLTableContext context, String written) {
+        StaleTableIds.renamed(context.module(), context.table().getId(), written);
+        return written;
+    }
+
+    /**
+     * What a move of a file or a folder of a project renames, to be learned by the ledger of stale ids once the move
+     * is done: the tables of the workbooks it moves take ids named after their new place.
+     *
+     * <p>Only the tables compiled in the session for the project it has open are known; a move of a file of any
+     * other project renames nothing the session gave an id to.
+     *
+     * @param project         the project whose file moves
+     * @param sourcePath      the file or the folder that moves, from the project root
+     * @param destinationPath where it moves, from the project root
+     * @return the action that teaches the ledger the renames
+     */
+    public Runnable tableRenamesOfMove(RulesProject project, String sourcePath, String destinationPath) {
+        var model = getWebStudio().getModel();
+        var module = model == null ? null : model.getModuleInfo();
+        var folder = module == null ? null : module.getProject().getProjectFolder();
+        if (folder == null || !project.isOpened() || !folder.equals(getProjectDescriptor(project).getProjectFolder())) {
+            return () -> {
+            };
+        }
+        var renames = new LinkedHashMap<String, String>();
+        for (var compiled : model.getCompiledModules()) {
+            renames.putAll(TableIds.idsAfterMove(compiled, folder.resolve(sourcePath), folder.resolve(destinationPath)));
+        }
+        return () -> renames.forEach((from, to) -> StaleTableIds.renamed(folder, from, to));
     }
 
     /**

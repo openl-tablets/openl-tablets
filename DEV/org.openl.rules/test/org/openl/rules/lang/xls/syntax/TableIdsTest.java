@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -195,6 +196,76 @@ class TableIdsTest {
 
         assertEquals(ids.get("first"), TableIds.idAfterWrite(first, written));
         assertEquals(ids, byFirstBodyCell(parse(project, RULES)));
+    }
+
+    @Test
+    void theTablesAfterADeletedOneKeepTheirIds() throws IOException {
+        var project = project("a", sheet -> {
+            put(sheet, 1, 1, "Test calc", "first|_res_");
+            put(sheet, 5, 1, "Test calc", "second|_res_");
+            put(sheet, 9, 1, "Test calc", "third|_res_");
+        });
+        var module = parse(project, RULES);
+        var ids = byFirstBodyCell(module);
+
+        TableIds.deleting(module.getXlsTableSyntaxNodes()[0]);
+        workbook(project.resolve(RULES), workbook -> {
+            var sheet = workbook.createSheet("Rules");
+            put(sheet, 5, 1, "Test calc", "second|_res_");
+            put(sheet, 9, 1, "Test calc", "third|_res_");
+        });
+
+        var after = byFirstBodyCell(parse(project, RULES));
+        assertEquals(ids.get("second"), after.get("second"));
+        assertEquals(ids.get("third"), after.get("third"));
+        assertFalse(after.containsValue(ids.get("first")), "no table takes the id of the deleted one");
+    }
+
+    @Test
+    void aMovedWorkbookGivesItsTablesTheIdsTheyHaveAtItsNewPlace() throws IOException {
+        var project = project("a", sheet -> {
+            put(sheet, 1, 1, "Test calc", "first|_res_");
+            put(sheet, 5, 1, "Test calc", "second|_res_");
+            put(sheet, 9, 1, "Rules String rate(String state)", "C1|RET1");
+        });
+        var file = project.resolve(RULES);
+        var first = parse(project, RULES).getXlsTableSyntaxNodes()[0];
+        // OpenL Studio moved the first test below the others, where it keeps its number.
+        workbook(file, workbook -> {
+            var sheet = workbook.createSheet("Rules");
+            put(sheet, 5, 1, "Test calc", "second|_res_");
+            put(sheet, 9, 1, "Rules String rate(String state)", "C1|RET1");
+            put(sheet, 13, 1, "Test calc", "first|_res_", "added|1");
+        });
+        TableIds.idAfterWrite(first, new GridTable(13, 1, 15, 2, grid(project, file)));
+        var module = parse(project, RULES);
+        var ids = byFirstBodyCell(module);
+
+        var moved = TableIds.idsAfterMove(module, project.resolve("rules"), project.resolve("lib/rates"));
+        Files.createDirectories(project.resolve("lib"));
+        Files.move(project.resolve("rules"), project.resolve("lib/rates"));
+
+        var after = byFirstBodyCell(parse(project, "lib/rates/Main.xlsx"));
+        assertEquals(3, moved.size());
+        ids.forEach((cell, id) -> assertEquals(after.get(cell), moved.get(id), cell));
+        assertTrue(TableIds.idsAfterMove(module, project.resolve("other"), project.resolve("lib")).isEmpty(),
+                "a move of another file renames no table");
+    }
+
+    @Test
+    void theIdsOfAModuleAreToldByTheCellsTheirTablesStartAt() throws IOException {
+        var module = parse(project("a", sheet -> {
+            put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1");
+            put(sheet, 5, 2, "Datatype Car", "String|model");
+        }), RULES);
+
+        assertFalse(TableIds.isNumbered(module));
+        var ids = TableIds.idsByCell(module);
+
+        assertTrue(TableIds.isNumbered(module));
+        var tables = module.getXlsTableSyntaxNodes();
+        var sheet = dir.resolve("a").resolve(RULES).toAbsolutePath().normalize() + "!Rules!";
+        assertEquals(Map.of(sheet + "1!1", tables[0].getId(), sheet + "5!2", tables[1].getId()), ids);
     }
 
     @Test

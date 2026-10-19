@@ -238,9 +238,10 @@ public abstract class TableWriter<T extends TableView> {
      * Removes the table from the sheet.
      * <p>
      * Clears the merged regions and the content of every cell in the table area, then saves the workbook. The table no
-     * longer exists once the project is recompiled.
+     * longer exists once the project is recompiled, and the tables that share what it is keep their ids.
      */
     public void delete() {
+        TableIds.deleting(table.getSyntaxNode());
         var gridTable = getGridTable(IXlsTableNames.VIEW_DEVELOPER);
         try {
             gridTable.edit();

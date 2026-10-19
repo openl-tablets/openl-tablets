@@ -1,0 +1,15 @@
+PUT /rest/projects/EPBDS-16926/tables/JX76_fctFAJIL9Nf HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "Datatype",
+  "kind": "Datatype",
+  "name": "Salute",
+  "fields": [
+    {
+      "name": "text",
+      "type": "String"
+    }
+  ]
+}

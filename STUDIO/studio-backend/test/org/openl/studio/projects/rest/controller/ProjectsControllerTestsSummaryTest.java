@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.WebDataBinder;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.table.properties.ITableProperties;
@@ -52,6 +55,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
@@ -70,6 +74,7 @@ import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
+import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.TableModules;
 import org.openl.studio.projects.service.tables.graph.ProjectTablesGraphService;
@@ -315,6 +320,31 @@ class ProjectsControllerTestsSummaryTest {
         assertThrows(NotFoundException.class, () -> controller.getTestCaseResult(project, "table", "case", false));
     }
 
+    /** An id the test table had before a rename names it under the id it has now. */
+    @Test
+    void getTestCaseResult_byAnIdTheTableHadBeforeARename(@TempDir Path folder) {
+        var premium = Map.of("premium", 150);
+        ended(List.of(runTableOf(testSuiteNamed("DriverRun"), retained(returning(premium)))));
+        openedIn(folder);
+        StaleTableIds.renamed(folder, "renamedtableidxx", TABLE_ID);
+
+        var answer = (TestUnitExecutionResult) controller.getTestCaseResult(project, "renamedtableidxx", "1", false)
+                .getBody();
+
+        assertEquals(150, answer.result().value().get("premium").asInt());
+        Reference.reachabilityFence(premium);
+    }
+
+    @Test
+    void getTestCaseResult_ofADeletedTable(@TempDir Path folder) {
+        ended(List.of());
+        openedIn(folder);
+        StaleTableIds.deleted(folder, "deletedtableidxx");
+
+        assertThrows(GoneException.class,
+                () -> controller.getTestCaseResult(project, "deletedtableidxx", "case", false));
+    }
+
     /** A case that still holds its values is read as it is kept, and nothing is run again. */
     @Test
     void getTestCaseResult_ofACaseThatHoldsItsValues() {
@@ -506,6 +536,14 @@ class ProjectsControllerTestsSummaryTest {
         when(test.getExecutionParams()).thenReturn(new ParameterWithValueDeclaration[]{
                 new ParameterWithValueDeclaration("driver", input, mock(IOpenClass.class))});
         return results;
+    }
+
+    /** Opens the project in a workspace folder. */
+    private void openedIn(Path folder) {
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(folder);
+        when(project.isOpened()).thenReturn(true);
+        when(projectService.getProjectDescriptor(project)).thenReturn(descriptor);
     }
 
     /** A test table of the given name, known by {@link #TABLE_ID}. */

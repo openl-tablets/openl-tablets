@@ -92,8 +92,9 @@ Content-Type: application/json
 }
 ```
 
-A write answers `204 No Content`, or `200 OK` with the new table id when it renamed the table, and refuses a request
-without a column title or with a row wider than the table; see [Data Tables API](data-tables-api.md#responses).
+A write answers `204 No Content`, or `200 OK` with the current table id when it renamed the table or the request
+named the table by an id it had before, and refuses a request without a column title or with a row wider than the
+table; see [Data Tables API](data-tables-api.md#responses).
 
 ## Models
 

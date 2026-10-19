@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Location: http://example.com/rest/projects/EPBDS-16926/tables/BDsO8zJUVMCv4wN_
+Content-Location: /rest/projects/EPBDS-16926/tables/BDsO8zJUVMCv4wN_
+Content-Type: application/json
+
+{
+  "id": "BDsO8zJUVMCv4wN_"
+}

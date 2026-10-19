@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Location: /rest/projects/EPBDS-16926/tables/QOwXniedKTm-TryV?fields=id,name
+Content-Type: application/json
+
+{
+  "id": "QOwXniedKTm-TryV",
+  "name": "Salute"
+}

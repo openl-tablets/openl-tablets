@@ -31,6 +31,7 @@ import org.openl.studio.projects.model.files.FilePathPairRequest;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
+import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.files.FileSearchQuery;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
@@ -58,15 +59,18 @@ public class ProjectFileOperationsController extends AbstractFileOperationsContr
 
     private final ProjectFileRootFactory fileRootFactory;
     private final ProjectRevisionService projectRevisionService;
+    private final WorkspaceProjectService projectService;
 
     public ProjectFileOperationsController(ProjectFilesService filesService,
                                            ProjectFileRootFactory fileRootFactory,
                                            BeanValidationProvider validationProvider,
                                            FileSearchQueryValidator searchValidator,
-                                           ProjectRevisionService projectRevisionService) {
+                                           ProjectRevisionService projectRevisionService,
+                                           WorkspaceProjectService projectService) {
         super(filesService, validationProvider, searchValidator);
         this.fileRootFactory = fileRootFactory;
         this.projectRevisionService = projectRevisionService;
+        this.projectService = projectService;
     }
 
     @Lookup
@@ -115,7 +119,10 @@ public class ProjectFileOperationsController extends AbstractFileOperationsContr
                          @Parameter(description = "projects.files.param.branch.desc") String branch,
                          @RequestBody @Valid FilePathPairRequest request) {
         BranchGuard.requireBranch(project, branch);
+        // The tables of a workbook that moves are known by new ids, worked out while the workbook is where it was.
+        var renames = projectService.tableRenamesOfMove(project, request.sourcePath(), request.destinationPath());
         handleMove(fileRootFactory.of(project), request);
+        renames.run();
     }
 
     @ChangesNothing

@@ -127,6 +127,7 @@ import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.ProjectTableCriteriaQuery;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsSessionHolder;
+import org.openl.studio.projects.service.tables.StaleTableIds;
 import org.openl.studio.projects.service.tables.TableInputService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
 import org.openl.studio.projects.service.tables.graph.GraphLayer;
@@ -713,10 +714,11 @@ public class ProjectsController {
                                              @RequestParam(value = "direction", defaultValue = "BOTH") @Parameter(description = "project.table.graph.direction.desc") GraphDirection direction,
                                              @RequestParam(value = "depth", required = false) @Min(1) @Parameter(description = "project.table.graph.depth.desc") Integer depth) {
         var model = projectService.openProject(project).awaitCompiled();
-        if (model.getTableById(tableId) == null) {
+        var table = StaleTableIds.tableOf(model, tableId);
+        if (table == null) {
             throw new NotFoundException("table.message");
         }
-        return graphService.buildTableGraph(model, tableId, direction, depth);
+        return graphService.buildTableGraph(model, table.getId(), direction, depth);
     }
 
     @Operation(summary = "project.table.update.summary", description = "project.table.update.desc")
@@ -946,7 +948,7 @@ public class ProjectsController {
                     allFailures ? TestUnitsResults.ALL_FAILURES : failures,
                     compoundResult,
                     lazyValues);
-            return ResponseEntity.ok(mapper.mapExecutionSummary(tablesOf(run, tableId), run.notRun(), query, page));
+            return ResponseEntity.ok(mapper.mapExecutionSummary(tablesOf(project, run, tableId), run.notRun(), query, page));
         } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
             // A client that asked for a workbook is told by the status alone: it did not ask for JSON.
             if (completed.isEmpty()) {
@@ -954,7 +956,7 @@ public class ProjectsController {
             }
             // A case that gave back to free memory a value the workbook writes runs again while its row is written.
             var output = new ByteArrayOutputStream();
-            var tables = tablesOf(completed.get(), tableId).toArray(new TestUnitsResults[0]);
+            var tables = tablesOf(project, completed.get(), tableId).toArray(new TestUnitsResults[0]);
             new TestResultExport().export(output, page.getPageSize(), tables);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
@@ -986,7 +988,7 @@ public class ProjectsController {
             return ResultNotReadyView.accepted();
         }
         var run = completed.get();
-        var testCase = tableOf(run, tableId, caseId);
+        var testCase = tableOf(project, run, tableId, caseId);
         var testUnit = caseOf(testCase, caseId);
 
         // What the case holds is held while it is written. A case that gave a value back to free memory runs again
@@ -1031,7 +1033,7 @@ public class ProjectsController {
             return ResultNotReadyView.accepted();
         }
         var run = completed.get();
-        var testUnit = caseOf(tableOf(run, tableId, caseId), caseId);
+        var testUnit = caseOf(tableOf(project, run, tableId, caseId), caseId);
         // A value the case gave back to free memory is had by running the case again. The case holds it softly
         // again, so that the next level of it runs nothing.
         var root = valueOf(testUnit, of, index);
@@ -1058,8 +1060,8 @@ public class ProjectsController {
     }
 
     /** The test table of the run with the given id. */
-    private static TestUnitsResults tableOf(TestRun run, String tableId, String caseId) {
-        return tablesOf(run, tableId).stream()
+    private TestUnitsResults tableOf(RulesProject project, TestRun run, String tableId, String caseId) {
+        return tablesOf(project, run, tableId).stream()
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("tests.execution.case.message", caseId));
     }
@@ -1067,12 +1069,23 @@ public class ProjectsController {
     /**
      * The results of the test tables of the run, or of the test table with the given id alone.
      *
-     * <p>An id that no test table of the run has leaves no results. A blank id is no filter.
+     * <p>An id that no test table of the run has leaves no results, unless a test table had it before a rename, as
+     * {@link StaleTableIds} tells: the table is then found by the id it has now. A blank id is no filter.
      */
-    private static List<TestUnitsResults> tablesOf(TestRun run, @Nullable String tableId) {
+    private List<TestUnitsResults> tablesOf(RulesProject project, TestRun run, @Nullable String tableId) {
         if (StringUtils.isBlank(tableId)) {
             return run.tables();
         }
+        var tables = tablesWithId(run, tableId);
+        if (!tables.isEmpty() || !project.isOpened()) {
+            return tables;
+        }
+        var current = StaleTableIds.currentIdOf(projectService.getProjectDescriptor(project).getProjectFolder(),
+                tableId);
+        return current.equals(tableId) ? tables : tablesWithId(run, current);
+    }
+
+    private static List<TestUnitsResults> tablesWithId(TestRun run, String tableId) {
         return run.tables().stream()
                 .filter(candidate -> tableId.equals(candidate.getTestSuite().getTableId()))
                 .toList();
