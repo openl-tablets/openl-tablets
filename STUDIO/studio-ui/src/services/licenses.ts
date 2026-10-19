@@ -18,8 +18,8 @@ export interface License {
 /**
  * Where the standard licenses are published, by SPDX identifier: the text of the license on the site of its steward.
  *
- * Every license the build accepts is listed: the frontend build accepts the licenses `npm run build` allows, the war
- * build the ones `license-maven-plugin` includes in `studio-backend/pom.xml`.
+ * Every license the build accepts is listed: the frontend build and the build of the MCP server accept the licenses
+ * `npm run build` allows, the war build the ones `license-maven-plugin` includes in `studio-backend/pom.xml`.
  */
 const PUBLIC_LICENSES: Readonly<Record<string, string>> = {
     '0BSD': 'https://opensource.org/license/0bsd',

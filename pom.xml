@@ -1062,6 +1062,11 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules.studio</groupId>
+                <artifactId>studio-mcp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules.studio</groupId>
                 <artifactId>studio-backend</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>

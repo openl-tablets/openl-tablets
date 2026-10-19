@@ -8,14 +8,15 @@
 #              tests with the archetypes) running against the artifacts from 'build'
 #   demo     - a matrix that starts demo.zip on Linux, Windows and macOS and checks its endpoints
 #   tests    - the whole build with unit tests but without integration tests, in parallel with the 'build' track
-#   frontend - the studio-ui vitest suite, in parallel with the 'tests' track
+#   frontend - the vitest suites of studio-ui and studio-mcp, in parallel with the 'tests' track
 #   sonar    - waits for 'tests', 'itest' and 'frontend', combines their coverage into one JaCoCo
 #              report and runs the SonarCloud analysis
 #
 # The studio-ui suite runs in a job of its own because it dominated 'tests': vitest took some 11 of that
 # job's 19 minutes while sharing four cores with the -T1C reactor, and the whole Java side fitted inside
 # it. 'tests' still builds the module - openl-studio.war carries its bundle - but leaves the suite to
-# 'frontend' (-Dnpm.test.skip=true), which runs it alone on its own runner.
+# 'frontend' (-Dnpm.test.skip=true), which runs it alone on its own runner. The flag skips the studio-mcp
+# suite too, so 'frontend' runs that one as well.
 #
 # Coverage: 'tests', 'frontend' and every 'itest' leg upload what they measured - target/*.exec from the
 # JaCoCo agent (-Psonar), lcov.info from vitest - and 'tests' and the 'itest' legs add the class files
@@ -79,13 +80,13 @@ jobs:
           java-version: 25
           cache: 'maven'
 
-        # studio-ui's packages are fetched by every job that builds it, and the Maven cache does not
-        # cover the npm one. All of them share this entry, keyed by the lockfile.
+        # The packages of studio-ui and studio-mcp are fetched by every job that builds them, and the Maven
+        # cache does not cover the npm one. All of them share this entry, keyed by the lockfiles.
       - name: Cache npm packages
         uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json', 'STUDIO/studio-mcp/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
       - name: Maven version
@@ -146,13 +147,13 @@ jobs:
           java-version: 25
           cache: 'maven'
 
-        # studio-ui's packages are fetched by every job that builds it, and the Maven cache does not
-        # cover the npm one. All of them share this entry, keyed by the lockfile.
+        # The packages of studio-ui and studio-mcp are fetched by every job that builds them, and the Maven
+        # cache does not cover the npm one. All of them share this entry, keyed by the lockfiles.
       - name: Cache npm packages
         uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json', 'STUDIO/studio-mcp/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
         # -P '!itest' drops the ITEST suites and the archetypes: their tests run in the 'itest' matrix.
@@ -160,8 +161,8 @@ jobs:
         # invoker tests, so running them here would only clobber that leg's coverage data.
         # jacoco-report is deselected because it depends on the dropped ITEST modules;
         # the aggregate report is built by the 'sonar' job instead.
-        # -Dnpm.test.skip=true leaves the studio-ui suite to the 'frontend' job; the module itself is
-        # still built here, because openl-studio.war carries its bundle.
+        # -Dnpm.test.skip=true leaves the studio-ui and studio-mcp suites to the 'frontend' job; the modules
+        # themselves are still built here, because openl-studio.war carries their bundles.
       - name: Build and Verify
         run: mvn -B "-Dstyle.color=always" -T1C verify -P 'sonar,!itest' "-Dnpm.test.skip=true" -pl '!jacoco-report,!Util/openl-maven-plugin'
 
@@ -208,7 +209,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json', 'STUDIO/studio-mcp/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
         # 'ci' rather than 'install': the runner starts without node_modules, and the lockfile alone
@@ -224,6 +225,14 @@ jobs:
         working-directory: STUDIO/studio-ui
         run: npm run test
 
+      - name: Install studio-mcp dependencies
+        working-directory: STUDIO/studio-mcp
+        run: npm ci --ignore-scripts
+
+      - name: Run studio-mcp tests
+        working-directory: STUDIO/studio-mcp
+        run: npm run test
+
         # The root pom.xml anchors the artifact at the repository root - see the itest job.
       - name: Share coverage data
         uses: actions/upload-artifact@v7
@@ -232,6 +241,7 @@ jobs:
           path: |
             pom.xml
             STUDIO/studio-ui/coverage/lcov.info
+            STUDIO/studio-mcp/coverage/lcov.info
           retention-days: 7
 
   itest:
@@ -515,7 +525,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('STUDIO/studio-ui/package-lock.json', 'STUDIO/studio-mcp/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
       - name: Install studio-ui dependencies

@@ -258,8 +258,6 @@ instead of answered `404`, and a client holding the id of a deleted table is tol
   module; a module file moved outside Studio or in a project the session does not have open; a table deleted
   outside Studio, which answers `404`.
 
-With the ledger on the server, the MCP server can drop its alias map.
-
 ## Rejected Alternatives
 
 - **Anchors in the workbook** — a hidden defined name on each table's header cell would carry the id through
