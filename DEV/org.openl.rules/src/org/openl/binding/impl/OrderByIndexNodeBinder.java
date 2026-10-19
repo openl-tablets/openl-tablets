@@ -2,8 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.NullOpenClass;
 
@@ -16,12 +14,11 @@ import org.openl.types.NullOpenClass;
 public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
-    protected IBoundNode createBoundNode(ISyntaxNode node,
-                                         IBoundNode targetNode,
-                                         IBoundNode expressionNode,
-                                         ILocalVar localVar,
-                                         IOpenCast openCast,
-                                         IBindingContext bindingContext) {
+    IBoundNode createBoundNode(ISyntaxNode node,
+                               IBoundNode targetNode,
+                               IBoundNode expressionNode,
+                               ElementVariables variables,
+                               IBindingContext bindingContext) {
         var type = expressionNode.getType();
         if (expressionNode.getType() == NullOpenClass.the) {
             var message = "Expected a parameter for 'Order By' expression.";
@@ -35,7 +32,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
                     bindingContext);
         }
         var isDecreasing = node.getType().contains("decreasing");
-        return new OrderByIndexNode(node, targetNode, expressionNode, localVar, openCast, isDecreasing);
+        return new OrderByIndexNode(node, targetNode, expressionNode, variables, isDecreasing);
     }
 
 }

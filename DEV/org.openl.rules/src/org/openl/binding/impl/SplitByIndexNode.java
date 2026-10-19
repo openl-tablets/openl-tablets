@@ -7,18 +7,15 @@ import java.util.HashMap;
 import lombok.Getter;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 class SplitByIndexNode extends ABoundNode {
 
-    private final ILocalVar tempVar;
+    private final ElementVariables variables;
     private final IBoundNode splitBy;
     private final IBoundNode targetNode;
-    private final IOpenCast openCast;
     @Getter
     private final IOpenClass type;
     private final IOpenClass componentType;
@@ -26,19 +23,17 @@ class SplitByIndexNode extends ABoundNode {
     SplitByIndexNode(ISyntaxNode syntaxNode,
                      IBoundNode targetNode,
                      IBoundNode splitBy,
-                     ILocalVar tempVar,
-                     IOpenCast openCast) {
-        super(syntaxNode, targetNode, splitBy);
-        this.tempVar = tempVar;
+                     ElementVariables variables) {
+        super(syntaxNode, variables.children(targetNode, splitBy));
+        this.variables = variables;
         this.targetNode = targetNode;
         this.splitBy = splitBy;
-        this.openCast = openCast;
 
         if (targetNode.getType().isArray()) {
             this.componentType = targetNode.getType().getComponentClass();
             this.type = targetNode.getType().getAggregateInfo().getIndexedAggregateType(targetNode.getType());
         } else {
-            this.componentType = tempVar.getType();
+            this.componentType = variables.element().getType();
             // the first dimension
             var ct = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
             // the second dimension
@@ -53,22 +48,12 @@ class SplitByIndexNode extends ABoundNode {
             return null;
         }
 
-        var containerType = targetNode.getType();
-        var aggregateInfo = containerType.getAggregateInfo();
-        var elementsIterator = aggregateInfo.getIterator(target);
-
         var tempKey = new Object();
 
         var map = new HashMap<Object, ArrayList<Object>>();
         var list2d = new ArrayList<ArrayList<Object>>();
 
-        while (elementsIterator.hasNext()) {
-            var element = elementsIterator.next();
-            if (element == null) {
-                continue;
-            }
-            Object converted = openCast != null ? openCast.convert(element) : element;
-            tempVar.set(null, converted, env);
+        variables.forEach(targetNode.getType().getAggregateInfo().getIterator(target), env, (element, value) -> {
             var key = splitBy.evaluate(env);
 
             if (key == null) {
@@ -84,7 +69,7 @@ class SplitByIndexNode extends ABoundNode {
             }
 
             list.add(element);
-        }
+        });
 
         var size = list2d.size();
 

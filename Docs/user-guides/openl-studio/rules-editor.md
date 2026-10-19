@@ -552,6 +552,8 @@ All fields of the datatype tables are also linked and contain tooltips.
 
 *A link to the field of the Corporate datatype table*
 
+Pointing at a name an array index operator declares, such as `m` or `i` in `members[(m, i) select all having i > 0]`, shows where its value comes from and its type, for example **Element of Member[]** and **Member m**. For more information on naming the element and its index, see [OpenL Tablets Reference Guide > Element Index in Array Index Operators](../reference-guide/03-functions-and-data-types/04-working-with-arrays.md#element-index-in-array-index-operators).
+
 ### Managing Range Data Types
 
 OpenL Studio provides a special tool, **Range Editor**, for adding and editing range data types, such as IntRange and DoubleRange, in rule tables and test tables.

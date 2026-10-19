@@ -1336,24 +1336,45 @@ void ArrayDimsAndInits() :
   }
 }
 
-void IndexTypeExpression() :
+/*
+ * The names of the element and of its index in an array index operator: "(x)", "(Type x)", "(x, i)" or
+ * "(Type x, Integer i)". Returns the number of the names.
+ */
+int IndexTypeExpression() :
 {
-  Token x1, x2;
+  int count = 1;
 }
 {
-  LOOKAHEAD(3)
-  (
-    x1 = < LPAREN > Type() VariableDeclaratorId() x2 = < RPAREN >
+  < LPAREN > IndexParameter()
+  [
+    < COMMA > IndexParameter()
     {
-      nop("index.parameter.declaration", pos(x1, x2), 2);
+      count++;
+    }
+  ]
+  < RPAREN >
+  {
+    return count;
+  }
+}
+
+void IndexParameter() :
+{
+  Token x1 = getToken(1);
+}
+{
+  LOOKAHEAD(2)
+  (
+    Type() identifier()
+    {
+      nop("index.parameter.declaration", pos(x1, token), 2);
     }
   )
-| 
-  LOOKAHEAD(3)
+|
   (
-    x1 = < LPAREN > VariableDeclaratorId() x2 = < RPAREN >
+    identifier()
     {
-      nop("index.parameter.declaration", pos(x1, x2), 1);
+      nop("index.parameter.declaration", pos(x1, token), 1);
     }
   )
 }
@@ -1362,7 +1383,7 @@ void IndexOperator() :
 {
   Token x1, x2;
   String prefix = "op.index";
-  boolean hasTypeExpression = false;
+  int parameters = 0;
 }
 {
   (
@@ -1371,10 +1392,7 @@ void IndexOperator() :
       LOOKAHEAD(4)
 
       [
-        IndexTypeExpression()
-        {
-          hasTypeExpression = true;
-        }
+        parameters = IndexTypeExpression()
       ]
       (
         (
@@ -1441,13 +1459,13 @@ void IndexOperator() :
     Expression()
     x2 = < RBRACKET >
     {
-      if (hasTypeExpression)
+      if (parameters == 0)
       {
-        nop(prefix, pos(x1, x2), 2);
+        uop(prefix, pos(x1, x2));
       }
       else
       {
-        uop(prefix, pos(x1, x2));
+        nop(prefix, pos(x1, x2), parameters + 1);
       }
     }
   )

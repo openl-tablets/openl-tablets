@@ -1,0 +1,16 @@
+ERROR: Cannot convert an index of type 'Integer' to type 'java.lang.String'.
+ERROR: Cannot convert an index of type 'Integer' to type 'short'.
+ERROR: Cannot convert an index of type 'Integer' to type 'float'.
+ERROR: Cannot convert an index of type 'Integer' to type 'java.lang.Integer[]'.
+ERROR: Cannot convert an index of type 'Integer' to type 'Position'.
+ERROR: Field 'code' is ambiguous:
+ERROR: Type 'Foo' is not found.
+ERROR: Encountered " "[" "[ "" at line 1, column 23.
+ERROR: Variable 's' is already defined.
+ERROR: Cannot cast 'java.lang.String' to 'java.util.Date'.
+ERROR: Encountered " "," ", "" at line 1, column 15.
+ERROR: Encountered " "," ", "" at line 1, column 12.
+ERROR: Identifier 's' is not found.
+ERROR: Encountered " "," ", "" at line 1, column 11.
+ERROR: Variable 'i' is already defined.
+ERROR: Variable 'i' is already defined.

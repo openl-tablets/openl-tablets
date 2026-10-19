@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import lombok.Getter;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.BooleanUtils;
@@ -14,10 +12,9 @@ import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class SelectAllIndexNode extends ABoundNode {
-    private final ILocalVar tempVar;
+    private final ElementVariables variables;
     private final IBoundNode condition;
     private final IBoundNode targetNode;
-    private final IOpenCast openCast;
     private final Class<?> componentClass;
     @Getter
     private final IOpenClass type;
@@ -25,21 +22,19 @@ class SelectAllIndexNode extends ABoundNode {
     SelectAllIndexNode(ISyntaxNode syntaxNode,
                        IBoundNode targetNode,
                        IBoundNode condition,
-                       ILocalVar tempVar,
-                       IOpenCast openCast) {
-        super(syntaxNode, targetNode, condition);
-        this.tempVar = tempVar;
+                       ElementVariables variables) {
+        super(syntaxNode, variables.children(targetNode, condition));
+        this.variables = variables;
         this.targetNode = targetNode;
         this.condition = condition;
-        this.openCast = openCast;
 
         if (targetNode.getType().isArray()) {
             this.componentClass = targetNode.getType().getComponentClass().getInstanceClass();
             this.type = targetNode.getType();
         } else {
             // Collection
-            this.componentClass = tempVar.getType().getInstanceClass();
-            var componentType = tempVar.getType();
+            var componentType = variables.element().getType();
+            this.componentClass = componentType.getInstanceClass();
             this.type = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
         }
     }
@@ -50,20 +45,12 @@ class SelectAllIndexNode extends ABoundNode {
         if (target == null) {
             return null;
         }
-        var aggregateInfo = targetNode.getType().getAggregateInfo();
-        var elementsIterator = aggregateInfo.getIterator(target);
         var firedElements = new ArrayList<Object>();
-        while (elementsIterator.hasNext()) {
-            var element = elementsIterator.next();
-            if (element == null) {
-                continue;
-            }
-            Object converted = openCast != null ? openCast.convert(element) : element;
-            tempVar.set(null, converted, env);
+        variables.forEach(targetNode.getType().getAggregateInfo().getIterator(target), env, (element, value) -> {
             if (BooleanUtils.toBoolean(condition.evaluate(env))) {
                 firedElements.add(element);
             }
-        }
+        });
         return CollectionUtils.toArray(firedElements, componentClass);
     }
 }

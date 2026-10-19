@@ -61,15 +61,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             return Optional.empty();
         }
 
-        var tableHeaderText = new TextInfo(sourceString);
-        var usage = describe(boundField, type, boundNode.getSyntaxNode());
-        var typeLocation = usage.syntaxNode().getSourceLocation();
-        if (typeLocation != null) {
-            var start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
-            var end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
-            return Optional.of(new SimpleNodeUsage(start, end, usage.description(), usage.uri(), NodeType.FIELD));
-        }
-        return Optional.empty();
+        return describe(boundField, type, boundNode.getSyntaxNode()).toNodeUsage(sourceString, startPosition);
     }
 
     /**
@@ -77,7 +69,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
      *
      * @param type the type the field is accessed from
      */
-    private static FieldUsage describe(IOpenField boundField, IOpenClass type, ISyntaxNode syntaxNode) {
+    static FieldUsage describe(IOpenField boundField, IOpenClass type, ISyntaxNode syntaxNode) {
         if (boundField instanceof IOriginalDeclaredClassesOpenField combinedOpenField) {
             var description = describeCombinedField(combinedOpenField, boundField);
             return new FieldUsage(getIdentifierSyntaxNode(syntaxNode), description, getSourceUrl(type, boundField));
@@ -261,7 +253,21 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
     /**
      * The node a field usage covers, its hover text and the source of the field declaration.
      */
-    private record FieldUsage(ISyntaxNode syntaxNode, String description, String uri) {
+    record FieldUsage(ISyntaxNode syntaxNode, String description, String uri) {
+
+        /**
+         * Makes the hint over the text of the node, or nothing when the node has no place in the text.
+         */
+        Optional<NodeUsage> toNodeUsage(String sourceString, int startPosition) {
+            var location = syntaxNode.getSourceLocation();
+            if (location == null) {
+                return Optional.empty();
+            }
+            var text = new TextInfo(sourceString);
+            var start = startPosition + location.getStart().getAbsolutePosition(text);
+            var end = startPosition + location.getEnd().getAbsolutePosition(text) + 1; // the location ends inclusively
+            return Optional.of(new SimpleNodeUsage(start, end, description, uri, NodeType.FIELD));
+        }
     }
 
     private static class Holder {

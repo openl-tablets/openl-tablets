@@ -2,8 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.NullOpenClass;
 
@@ -16,17 +14,16 @@ import org.openl.types.NullOpenClass;
 public class TransformIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
-    protected IBoundNode createBoundNode(ISyntaxNode node,
-                                         IBoundNode targetNode,
-                                         IBoundNode expressionNode,
-                                         ILocalVar localVar,
-                                         IOpenCast openCast,
-                                         IBindingContext bindingContext) {
+    IBoundNode createBoundNode(ISyntaxNode node,
+                               IBoundNode targetNode,
+                               IBoundNode expressionNode,
+                               ElementVariables variables,
+                               IBindingContext bindingContext) {
         if (expressionNode.getType() == NullOpenClass.the) {
             var message = "Null cannot be used as expression for array index operator.";
             return makeErrorNode(message, expressionNode.getSyntaxNode(), bindingContext);
         }
         var isUnique = node.getType().contains("unique");
-        return new TransformIndexNode(node, targetNode, expressionNode, localVar, openCast, isUnique);
+        return new TransformIndexNode(node, targetNode, expressionNode, variables, isUnique);
     }
 }
