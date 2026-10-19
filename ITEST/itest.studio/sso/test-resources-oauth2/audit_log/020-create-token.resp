@@ -1,0 +1,10 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "publicId": "***",
+  "name": "EPBDS-14601 token",
+  "loginName": "admin",
+  "token": "***",
+  "createdAt": "***"
+}

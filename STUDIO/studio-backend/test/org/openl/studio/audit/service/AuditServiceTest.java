@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -76,6 +77,9 @@ class AuditServiceTest {
 
     @Autowired
     private AuditRecordDao auditRecordDao;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     @Qualifier("flywayDBReset")
@@ -156,6 +160,19 @@ class AuditServiceTest {
 
         var tokens = AuditQuery.builder().authentication(AuditAuthentication.TOKEN).build();
         assertEquals(List.of("agent"), actors(tokens));
+    }
+
+    @Test
+    void recordsAnEventAServicePublishes() {
+        eventPublisher.publishEvent(AuditEvent.builder()
+                .action(AuditAction.GROUP_DELETED)
+                .targetType(AuditTargetType.GROUP)
+                .target("Billing")
+                .build());
+
+        var event = only(all());
+        assertEquals(AuditCategory.GROUP, event.category());
+        assertEquals("Billing", event.target());
     }
 
     @Test

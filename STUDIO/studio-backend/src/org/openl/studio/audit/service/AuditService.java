@@ -18,6 +18,7 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -87,7 +88,11 @@ public class AuditService {
      * <p>The event is recorded for the signed-in user when it names no actor, and with the address of the client
      * of the current request. The target and the details are kept whole; a longer name or address than the
      * log keeps is cut.
+     *
+     * <p>An event published as an application event is recorded the same way, in the thread and the transaction of
+     * its publisher: the services that change users, groups and tokens announce their changes so.
      */
+    @EventListener
     @Transactional
     public void recordEvent(AuditEvent event) {
         append(event);

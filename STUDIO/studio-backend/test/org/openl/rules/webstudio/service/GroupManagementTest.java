@@ -47,6 +47,12 @@ class GroupManagementTest {
 
     private static final String RND_GROUP = "GROUP_%s";
 
+    /**
+     * The queries each merge of the external groups of a user makes for the audit log: it reads the groups the user
+     * had.
+     */
+    private static final int AUDIT_QUERIES = 1;
+
     @Autowired
     private ExternalGroupService externalGroupService;
     @Autowired
@@ -78,7 +84,7 @@ class GroupManagementTest {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(3, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
-        assertEquals(6, queryCount.getTotal());
+        assertEquals(6 + AUDIT_QUERIES, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
@@ -90,7 +96,7 @@ class GroupManagementTest {
         assertEquals(1, queryCount.getTotal());
 
         QueryCountHolder.clear();
-        long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        var cntExternalGroups = externalGroupService.countAllForUser("jdoe");
         assertEquals(privileges.size(), cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
@@ -106,7 +112,7 @@ class GroupManagementTest {
         assertEquals(3, queryCount.getTotal());
 
         QueryCountHolder.clear();
-        long cntMatchedExternalGroups = externalGroupService.countMatchedForUser("jdoe");
+        var cntMatchedExternalGroups = externalGroupService.countMatchedForUser("jdoe");
         assertEquals(2, cntMatchedExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
@@ -123,7 +129,7 @@ class GroupManagementTest {
         assertEquals(1, queryCount.getTotal());
 
         QueryCountHolder.clear();
-        long cntNotMatchedExternalGroups = externalGroupService.countNotMatchedForUser("jdoe");
+        var cntNotMatchedExternalGroups = externalGroupService.countNotMatchedForUser("jdoe");
         assertEquals(51, cntNotMatchedExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
@@ -159,14 +165,14 @@ class GroupManagementTest {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
-        assertEquals(5, queryCount.getTotal());
+        assertEquals(5 + AUDIT_QUERIES, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
         assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
-        long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        var cntExternalGroups = externalGroupService.countAllForUser("jdoe");
         assertEquals(privileges.size(), cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
@@ -191,14 +197,14 @@ class GroupManagementTest {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
-        assertEquals(5, queryCount.getTotal());
+        assertEquals(5 + AUDIT_QUERIES, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
         assertCollectionEquals(privileges.stream().map(GrantedAuthority::getAuthority).toList(),
                 extGroups,
                 Group::getAuthority);
-        long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        var cntExternalGroups = externalGroupService.countAllForUser("jdoe");
         assertEquals(12, cntExternalGroups);
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
@@ -211,7 +217,7 @@ class GroupManagementTest {
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
-        assertEquals(5, queryCount.getTotal());
+        assertEquals(5 + AUDIT_QUERIES, queryCount.getTotal());
 
         QueryCountHolder.clear();
         extGroups = externalGroupService.findAllForUser("jdoe");
@@ -229,11 +235,11 @@ class GroupManagementTest {
     void testMerge_async() throws InterruptedException {
         initOneUser();
         Set<GrantedAuthority> privileges = generatePrivilege(10);
-        AtomicInteger successCnt = new AtomicInteger(0);
+        var successCnt = new AtomicInteger(0);
 
-        final int workersCnt = 10;
+        final var workersCnt = 10;
         var threadExecutor = Executors.newFixedThreadPool(workersCnt);
-        for (int i = 0; i < workersCnt; i++) {
+        for (var i = 0; i < workersCnt; i++) {
             threadExecutor.execute(() -> {
                 try {
                     externalGroupService.mergeAllForUser("jdoe", privileges);
@@ -322,7 +328,7 @@ class GroupManagementTest {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(4, queryCount.getInsert());
         assertEquals(4, queryCount.getDelete());
-        assertEquals(10, queryCount.getTotal());
+        assertEquals(10 + 2 * AUDIT_QUERIES, queryCount.getTotal());
 
         QueryCountHolder.clear();
         List<Group> extGroups = externalGroupService.findAllByName("GROUP_1", 10);
@@ -350,7 +356,7 @@ class GroupManagementTest {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getInsert());
         assertEquals(2, queryCount.getDelete());
-        assertEquals(5, queryCount.getTotal());
+        assertEquals(5 + AUDIT_QUERIES, queryCount.getTotal());
 
         QueryCountHolder.clear();
         groupService.addGroup("foo-bar".repeat(9), "Long Group Name");
@@ -375,7 +381,7 @@ class GroupManagementTest {
                 .map(SimpleGrantedAuthority::new)
                 .toList());
 
-        externalGroupService.mergeAllForUser("jsmith", Stream.of( "baz")
+        externalGroupService.mergeAllForUser("jsmith", Stream.of("baz")
                 .map(SimpleGrantedAuthority::new)
                 .toList());
 
@@ -490,10 +496,10 @@ class GroupManagementTest {
     }
 
     private Set<GrantedAuthority> generatePrivilege(int count, String... defaultGroups) {
-        Set<GrantedAuthority> res = new HashSet<>();
+        var res = new HashSet<GrantedAuthority>();
         Stream.of(defaultGroups).map(SimpleGrantedAuthority::new).forEach(res::add);
-        for (int i = 0; i < count; i++) {
-            String name = RND_GROUP.formatted(i);
+        for (var i = 0; i < count; i++) {
+            var name = RND_GROUP.formatted(i);
             res.add(new SimpleGrantedAuthority(name));
         }
         return Collections.unmodifiableSet(res);

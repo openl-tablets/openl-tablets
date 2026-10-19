@@ -1,5 +1,6 @@
 package org.openl.studio.users.service.pat;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,7 +13,8 @@ import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 public class PersonalAccessTokenTestConfiguration {
 
     @Bean
-    public PersonalAccessTokenService personalAccessTokenService(PersonalAccessTokenDao tokenDao) {
-        return new PersonalAccessTokenServiceImpl(tokenDao);
+    public PersonalAccessTokenService personalAccessTokenService(PersonalAccessTokenDao tokenDao,
+                                                                     ApplicationEventPublisher eventPublisher) {
+        return new PersonalAccessTokenServiceImpl(tokenDao, eventPublisher);
     }
 }

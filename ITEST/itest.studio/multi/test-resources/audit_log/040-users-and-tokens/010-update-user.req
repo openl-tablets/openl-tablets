@@ -1,0 +1,8 @@
+PUT /rest/users/EPBDS_14601_user HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "displayName": "Audit User Renamed",
+  "email": "audit.user@example.com"
+}

@@ -6,6 +6,17 @@ import apiCall from './apiCall'
  */
 export const AUDIT_ACTIONS = {
     authentication: ['signIn', 'signOut'],
+    user: [
+        'userCreated',
+        'userUpdated',
+        'passwordChanged',
+        'userDeleted',
+        'groupMemberAdded',
+        'groupMemberRemoved',
+        'externalGroupsChanged',
+    ],
+    group: ['groupCreated', 'groupUpdated', 'groupPrivilegesChanged', 'groupDeleted'],
+    token: ['tokenCreated', 'tokenDeleted'],
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const
 export const AUDIT_OUTCOMES = ['success', 'failure', 'denied'] as const

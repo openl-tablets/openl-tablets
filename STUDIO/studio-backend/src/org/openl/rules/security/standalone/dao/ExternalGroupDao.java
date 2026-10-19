@@ -33,6 +33,15 @@ public interface ExternalGroupDao extends Dao<ExternalGroup> {
     List<ExternalGroup> findAllForUser(String loginName);
 
     /**
+     * Finds the names of the external groups of a user. The groups are not kept by the session, so they can be
+     * replaced in the same transaction.
+     *
+     * @param loginName username
+     * @return the names of the external groups of the user
+     */
+    List<String> findGroupNamesForUser(String loginName);
+
+    /**
      * Count all external groups for user
      *
      * @param loginName username

@@ -1,11 +1,17 @@
 package org.openl.studio.users.service.pat;
 
 import java.util.List;
+import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.users.model.pat.PersonalAccessTokenResponse;
 
@@ -27,18 +33,11 @@ import org.openl.studio.users.model.pat.PersonalAccessTokenResponse;
  *
  * @since 6.0.0
  */
+@RequiredArgsConstructor
 public class PersonalAccessTokenServiceImpl implements PersonalAccessTokenService {
 
     private final PersonalAccessTokenDao tokenDao;
-
-    /**
-     * Constructs a new PersonalAccessTokenServiceImpl.
-     *
-     * @param tokenDao the DAO for accessing Personal Access Token entities (must not be null)
-     */
-    public PersonalAccessTokenServiceImpl(PersonalAccessTokenDao tokenDao) {
-        this.tokenDao = tokenDao;
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * {@inheritDoc}
@@ -102,13 +101,23 @@ public class PersonalAccessTokenServiceImpl implements PersonalAccessTokenServic
     /**
      * {@inheritDoc}
      * <p>
-     * This implementation delegates to the DAO to remove the token from the database.
+     * This implementation delegates to the DAO to remove the token from the database, and announces the removal to
+     * the audit log by the public id and the name of the token.
      * </p>
      */
     @Transactional
     @Override
     public void deleteByPublicId(String publicId) {
+        var token = tokenDao.getByPublicId(publicId);
         tokenDao.deleteByPublicId(publicId);
+        if (token != null) {
+            eventPublisher.publishEvent(AuditEvent.builder()
+                    .action(AuditAction.TOKEN_DELETED)
+                    .targetType(AuditTargetType.TOKEN)
+                    .target(publicId)
+                    .details(Map.of("name", token.getName()))
+                    .build());
+        }
     }
 
     /**

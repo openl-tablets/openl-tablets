@@ -6,6 +6,7 @@ import java.util.function.BiFunction;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
@@ -68,13 +69,15 @@ public class PatSecurityConfiguration {
      * @param crudService the PAT CRUD service
      * @param passwordEncoder the password encoder for hashing secrets
      * @param clock the clock for generating timestamps
+     * @param eventPublisher the publisher the audit events go to
      * @return configured PAT generator service
      */
     @Bean
     public PatGeneratorServiceImpl patGeneratorService(PersonalAccessTokenService crudService,
                                                        PasswordEncoder passwordEncoder,
-                                                       Clock clock) {
-        return new PatGeneratorServiceImpl(crudService, passwordEncoder, clock);
+                                                       Clock clock,
+                                                       ApplicationEventPublisher eventPublisher) {
+        return new PatGeneratorServiceImpl(crudService, passwordEncoder, clock, eventPublisher);
     }
 
     /**

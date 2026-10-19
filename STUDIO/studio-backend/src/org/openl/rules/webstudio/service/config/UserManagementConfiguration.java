@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -45,22 +46,27 @@ public class UserManagementConfiguration {
                                                        SessionRegistry sessionRegistry,
                                                        PasswordEncoder passwordEncoder,
                                                        @Autowired(required = false)
-                                                       JdbcSidManagingAclService aclService) {
-        return new UserManagementService(userDao, groupDao, sessionRegistry, passwordEncoder, aclService);
+                                                       JdbcSidManagingAclService aclService,
+                                                       ApplicationEventPublisher eventPublisher) {
+        return new UserManagementService(userDao, groupDao, sessionRegistry, passwordEncoder, aclService,
+                eventPublisher);
     }
 
     @Bean("externalGroupService")
     public ExternalGroupService externalGroupService(ExternalGroupDao externalGroupDao,
                                                      LockRegistry lockRegistry,
-                                                     PlatformTransactionManager txManager) {
-        return new ExternalGroupServiceImpl(externalGroupDao, lockRegistry, new TransactionTemplate(txManager));
+                                                     PlatformTransactionManager txManager,
+                                                     ApplicationEventPublisher eventPublisher) {
+        return new ExternalGroupServiceImpl(externalGroupDao, lockRegistry, new TransactionTemplate(txManager),
+                eventPublisher);
     }
 
     @Bean("groupManagementService")
     public GroupManagementService groupManagementService(GroupDao groupDao,
                                                          @Autowired(required = false)
-                                                         JdbcSidManagingAclService aclService) {
-        return new GroupManagementService(groupDao, aclService);
+                                                         JdbcSidManagingAclService aclService,
+                                                         ApplicationEventPublisher eventPublisher) {
+        return new GroupManagementService(groupDao, aclService, eventPublisher);
     }
 
     @Bean("privilegeMapper")

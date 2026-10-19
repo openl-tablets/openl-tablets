@@ -3,12 +3,14 @@ package org.openl.rules.webstudio.service;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +21,10 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.ExternalGroupDao;
 import org.openl.rules.security.standalone.persistence.ExternalGroup;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditChanges;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditTargetType;
 
 /**
  * External groups service implementation
@@ -33,6 +39,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private final ExternalGroupDao externalGroupDao;
     private final LockRegistry lockRegistry;
     private final TransactionTemplate txTemplate;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -51,8 +58,14 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
             }
             // transaction must be started after lock is acquired
             txTemplate.execute(status -> {
-                externalGroupDao.deleteAllForUser(loginName);
-                externalGroupDao.save(new BatchCreateExternalGroupCursor(loginName, externalGroups));
+                var groups = externalGroups.stream().map(GrantedAuthority::getAuthority).toList();
+                var changes = AuditChanges.addedAndRemoved(externalGroupDao.findGroupNamesForUser(loginName), groups);
+                // The groups are written again only when the identity provider reports others.
+                if (!changes.isEmpty()) {
+                    externalGroupDao.deleteAllForUser(loginName);
+                    externalGroupDao.save(new BatchCreateExternalGroupCursor(loginName, externalGroups));
+                    announceChange(loginName, changes);
+                }
                 return null;
             });
         } catch (InterruptedException e) {
@@ -63,6 +76,18 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
                 lock.unlock();
             }
         }
+    }
+
+    /**
+     * Announces the groups the identity provider added to the user and took away.
+     */
+    private void announceChange(String loginName, Map<String, Set<String>> changes) {
+        eventPublisher.publishEvent(AuditEvent.builder()
+                .action(AuditAction.EXTERNAL_GROUPS_CHANGED)
+                .targetType(AuditTargetType.USER)
+                .target(loginName)
+                .details(changes)
+                .build());
     }
 
     @Override
