@@ -55,6 +55,8 @@ class HttpData {
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String CONTENT_ENCODING_HEADER = "Content-Encoding";
     private static final String BODY_SUBJECT = "Body";
+    /** The prefix of a {@code .env} entry that captures a response header instead of a JSONPath value. */
+    private static final String HEADER_FIELD = "header:";
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{(.*?)}");
     private static final Pattern PATH_VARIABLE_PATTERN = Pattern.compile("\\{(.*?)}");
     private static final Pattern CHARSET_PATTERN = Pattern.compile(
@@ -208,38 +210,59 @@ class HttpData {
         return mediaType.startsWith("text/") || TEXT_BODY_TYPES.contains(mediaType);
     }
 
+    /**
+     * Captures the values the {@code .env} file selects from this response into the environment. An entry selects a
+     * value of the JSON body by a JSONPath expression, or a response header by {@code header:<name>}. The body is read
+     * as JSON only when an entry selects from it.
+     */
     void saveFieldsToEnvironment(String envFile, Map<String, String> env) {
-        var fields = EnvironmentFileLoader.parseEnvFile(Path.of(envFile));
-        if (fields.isEmpty()) {
-            return;
+        var captured = new HashMap<String, String>();
+        DocumentContext json = null;
+        for (var field : EnvironmentFileLoader.parseEnvFile(Path.of(envFile)).entrySet()) {
+            var name = field.getKey();
+            var expression = field.getValue();
+            if (expression.startsWith(HEADER_FIELD)) {
+                captured.put(name, header(name, expression.substring(HEADER_FIELD.length())));
+            } else {
+                json = json == null ? readJson(envFile) : json;
+                captured.put(name, field(json, name, expression));
+            }
         }
+        env.putAll(captured);
+    }
 
-        final DocumentContext response;
+    private String header(String name, String header) {
+        var value = headers.get(header);
+        if (value == null) {
+            throw new IllegalStateException("Header '%s' for '%s' is missing in the response".formatted(header, name));
+        }
+        return value;
+    }
+
+    private DocumentContext readJson(String envFile) {
         try {
-            response = JsonPath.parse(new String(contentDecoder().apply(body), StandardCharsets.UTF_8));
+            return JsonPath.parse(new String(contentDecoder().apply(body), StandardCharsets.UTF_8));
         } catch (InvalidJsonException e) {
             throw new IllegalStateException("Failed to read the JSON response for " + envFile, e);
         }
+    }
 
-        var captured = new HashMap<String, String>();
-        fields.forEach((name, expression) -> {
-            final Object value;
-            try {
-                value = response.read(expression);
-            } catch (PathNotFoundException e) {
-                throw new IllegalStateException("JSONPath '%s' for '%s' is missing in the response"
-                        .formatted(expression, name), e);
-            } catch (InvalidPathException e) {
-                throw new IllegalStateException("JSONPath '%s' for '%s' is invalid"
-                        .formatted(expression, name), e);
-            }
-            if (value instanceof Map<?, ?> || value instanceof Collection<?>) {
-                throw new IllegalStateException("JSONPath '%s' for '%s' must select a scalar value"
-                        .formatted(expression, name));
-            }
-            captured.put(name, String.valueOf(value));
-        });
-        env.putAll(captured);
+    private static String field(DocumentContext json, String name, String expression) {
+        final Object value;
+        try {
+            value = json.read(expression);
+        } catch (PathNotFoundException e) {
+            throw new IllegalStateException("JSONPath '%s' for '%s' is missing in the response"
+                    .formatted(expression, name), e);
+        } catch (InvalidPathException e) {
+            throw new IllegalStateException("JSONPath '%s' for '%s' is invalid"
+                    .formatted(expression, name), e);
+        }
+        if (value instanceof Map<?, ?> || value instanceof Collection<?>) {
+            throw new IllegalStateException("JSONPath '%s' for '%s' must select a scalar value"
+                    .formatted(expression, name));
+        }
+        return String.valueOf(value);
     }
 
     /**
@@ -322,6 +345,7 @@ class HttpData {
         }
         switch (contentType) {
             case "text/css",
+                 "text/event-stream",
                  "text/javascript",
                  "text/html",
                  "text/plain",

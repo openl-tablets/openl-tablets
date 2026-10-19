@@ -67,6 +67,20 @@ class HttpDataTest {
         assertEquals("Body ==> array lengths differ, expected: <6> but was: <7>", failure(actual, expected));
     }
 
+    /** An event stream is compared as text, so its events match the wildcards of the expected one. */
+    @Test
+    void eventStreamBodyIsComparedAsText(@TempDir Path tempDir) throws IOException {
+        var actual = createResponse(tempDir.resolve("actual.resp"), "text/event-stream",
+                "event: message\ndata: {\"result\":{\"version\":\"1.2.3\"},\"id\":1}\n");
+        var expected = createResponse(tempDir.resolve("expected.resp"), "text/event-stream",
+                "event: message\r\ndata: {\"result\":{\"version\":\"*\"},\"id\":1}");
+        var otherId = createResponse(tempDir.resolve("other.resp"), "text/event-stream",
+                "event: message\r\ndata: {\"result\":{\"version\":\"*\"},\"id\":2}");
+
+        actual.assertTo(expected);
+        assertThrows(AssertionError.class, () -> actual.assertTo(otherId));
+    }
+
     private static @Nullable String failure(HttpData actual, HttpData expected) {
         return assertThrows(AssertionError.class, () -> actual.assertTo(expected)).getMessage();
     }
@@ -217,6 +231,43 @@ class HttpDataTest {
         response.saveFieldsToEnvironment("test-resources/absent.env", environment);
 
         assertEquals(Map.of(), environment);
+    }
+
+    /** A header is captured whatever the body is: an event stream is not read as JSON. */
+    @Test
+    void responseHeaderIsSavedToEnvironment(@TempDir Path tempDir) throws IOException {
+        var responseFile = tempDir.resolve("session.resp");
+        Files.writeString(responseFile,
+                String.join("\r\n",
+                        "HTTP/1.1 200",
+                        "Content-Type: text/event-stream",
+                        "Mcp-Session-Id: abc-123",
+                        "",
+                        "event: message",
+                        "data: {}",
+                        ""),
+                StandardCharsets.UTF_8);
+        var environmentFile = tempDir.resolve("session.env");
+        Files.writeString(environmentFile, "SESSION=header:mcp-session-id", StandardCharsets.UTF_8);
+        var environment = new HashMap<String, String>();
+
+        HttpData.readFile(responseFile.toString()).saveFieldsToEnvironment(environmentFile.toString(), environment);
+
+        assertEquals(Map.of("SESSION", "abc-123"), environment);
+    }
+
+    @Test
+    void missingResponseHeaderIsRejected(@TempDir Path tempDir) throws IOException {
+        var response = createResponse(tempDir.resolve("session.resp"), "text/event-stream", "event: message");
+        var environmentFile = tempDir.resolve("session.env");
+        Files.writeString(environmentFile, "SESSION=header:Mcp-Session-Id", StandardCharsets.UTF_8);
+
+        var environment = environmentFile.toString();
+        var values = new HashMap<String, String>();
+
+        var error = assertThrows(IllegalStateException.class, () -> response.saveFieldsToEnvironment(environment, values));
+
+        assertEquals("Header 'Mcp-Session-Id' for 'SESSION' is missing in the response", error.getMessage());
     }
 
     @Test
