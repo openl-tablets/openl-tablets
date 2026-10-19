@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Server: OpenL Studio *\nURL: http://example.com/\nBuild#: @\nStart Time: *\nCurrent Time: *\nOS: *\nArch: @\nJava: *\nCPU: # (load: *%)\nThreads: # (daemon: #)\nRAM:\n\n* total: *\n* free: *\n\nJVM Memory:\n\n* max: *\n* total: *\n* free: *"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

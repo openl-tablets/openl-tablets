@@ -27,9 +27,11 @@
         <mime-type>text/markdown;charset=UTF-8</mime-type>
     </mime-mapping>
 
+    <!-- Every filter supports asynchronous requests: the MCP server at /mcp streams its answers through them. -->
     <filter>
         <filter-name>CorsFilter</filter-name>
         <filter-class>org.openl.rules.webstudio.web.servlet.CorsFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
     <filter-mapping>
         <filter-name>CorsFilter</filter-name>
@@ -39,6 +41,7 @@
     <filter>
         <filter-name>ForwardedFilter</filter-name>
         <filter-class>de.qaware.xff.filter.ForwardedHeaderFilter</filter-class>
+        <async-supported>true</async-supported>
         <init-param>
             <param-name>xForwardedPrefixStrategy</param-name>
             <param-value>PREPEND</param-value>
@@ -52,6 +55,7 @@
     <filter>
         <filter-name>SecurityFilter</filter-name>
         <filter-class>org.openl.studio.security.SecurityFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
     <filter-mapping>
         <filter-name>SecurityFilter</filter-name>
@@ -63,6 +67,7 @@
     <filter>
         <filter-name>changeOriginFilter</filter-name>
         <filter-class>org.openl.studio.projects.messaging.ChangeOriginFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>
 
     <filter-mapping>

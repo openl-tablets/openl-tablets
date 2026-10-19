@@ -1,0 +1,26 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "supportedVersions": [
+      "2026-07-28"
+    ],
+    "capabilities": {
+      "tools": {
+        "listChanged": false
+      }
+    },
+    "resultType": "complete",
+    "ttlMs": 0,
+    "cacheScope": "private",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

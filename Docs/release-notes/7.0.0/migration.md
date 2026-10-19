@@ -542,6 +542,11 @@ from Maven.
   the context path from the file name, so deploy `openl-studio.war` as `webstudio.war` to keep the `/webstudio`
   path. The Docker images and the DEMO package need nothing.
 
+* **OpenL Studio starts its MCP server on a free port of the loopback interface.** OpenL Studio serves the server at
+  `/mcp` of its own address; the Docker image carries Node.js, and a WAR deployment starts the server when Node.js is
+  on the `PATH`. Set `mcp.enabled=false` to keep the server off. A reverse proxy in front of OpenL Studio that forwards
+  only the paths of the application needs `/mcp` too, so that AI agents reach the server.
+
 ## Testing Recommendations
 
 After upgrading, verify in a non-production environment:

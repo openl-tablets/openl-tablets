@@ -49,8 +49,11 @@ export const publicLicense = (identifier: string): string | undefined => PUBLIC_
 /** Splits an SPDX expression into its licenses, operators, spaces and parentheses, in their order. */
 export const expressionParts = (expression: string): string[] => expression.split(/(\s+|[()])/).filter(Boolean)
 
-/** The libraries bundled into the pages, the libraries of the webapp, and the software the Docker image runs it on. */
-export type LicenseSide = 'frontend' | 'backend' | 'server'
+/**
+ * The libraries bundled into the pages, the libraries of the webapp, the libraries of its MCP server, and the software
+ * the Docker image runs it on.
+ */
+export type LicenseSide = 'frontend' | 'backend' | 'mcp' | 'server'
 
 /**
  * The libraries of one side with their licenses.

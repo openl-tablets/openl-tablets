@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"sourceBranch\": \"feature\",\n    \"targetBranch\": \"master\",\n    \"status\": \"mergeable\",\n    \"canMerge\": true,\n    \"scope\": {\n      \"projects\": [\n        {\n          \"id\": \"0FPBaGP6vUeW\",\n          \"name\": \"McpTools\",\n          \"path\": \"McpTools\",\n          \"current\": true,\n          \"status\": \"modified\",\n          \"changedFiles\": 1,\n          \"changedInBoth\": [\n            \"McpTools/docs/notes.txt\"\n          ]\n        }\n      ],\n      \"hiddenProjects\": 0\n    }\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

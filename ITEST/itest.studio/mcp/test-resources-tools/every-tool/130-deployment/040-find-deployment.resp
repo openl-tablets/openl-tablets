@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+
+[
+  {
+    "id": "cHJvZHVjdGlvbjpNY3BUb29scw==",
+    "name": "McpTools",
+    "repository": "production"
+  }
+]

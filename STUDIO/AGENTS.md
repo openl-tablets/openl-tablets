@@ -6,7 +6,7 @@ The backend is a Spring web application, not a Spring Boot one: `SpringInitializ
 `studio-backend/webapp/WEB-INF/web.xml`, builds an `XmlWebApplicationContext` from `/WEB-INF/spring/webstudio.xml`.
 From Spring Boot it takes only the condition annotations of `spring-boot-autoconfigure`, such as
 `@ConditionalOnExpression` — see
-[`mcp-server-jetty-architecture.md`](../Docs/architecture/mcp-server-jetty-architecture.md).
+[`mcp-server.md`](../Docs/architecture/mcp-server.md).
 
 ## Key Conventions
 
@@ -28,17 +28,20 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   condition that weighs it (`ProjectAccessService.computeCapabilities` is the worked example). The same
   applies in the large: never ask per branch, per file or per artefact what one question about the project
   answers, and never repeat a question a pass over the same set has already answered.
-- **Third-party licenses**: the About dialog of the user menu lists the libraries OpenL Studio ships from two files
+- **Third-party licenses**: the About dialog of the user menu lists the libraries OpenL Studio ships from three files
   under `/licenses`. Vite writes `frontend-licenses.json` (`build.license`: the libraries bundled into the pages, with
   their license texts); the war build writes `backend-licenses.json` (`license-maven-plugin` `add-third-party` through
   `studio-backend/license/backend-licenses.json.ftl`: the third-party jars of `WEB-INF/lib`, with the license text a
-  jar ships and the address its POM gives). Both share one shape — `name`, `version`, `identifier` (an SPDX
-  expression), `text`, `url`, then `notice`.
-    - **Every license is an SPDX identifier.** npm packages declare one already, and `npm run build` accepts only the
-      licenses its `--onlyAllow` lists. A POM names its license as it likes, so the `licenseMerges` of
-      `studio-backend/pom.xml` turn each name into its identifier, and `includedLicenses` fails the war build on a
-      name no merge turns: a new name is merged there, never shown as it is. A license either build accepts needs its
-      public text in `PUBLIC_LICENSES` of `studio-ui/src/services/licenses.ts`, which a test holds both lists to.
+  jar ships and the address its POM gives); `studio-mcp` writes `mcp-licenses.json` (a plugin of its bundler,
+  `src/build-licenses.ts`: the npm packages the bundle takes code of, with the license file and the NOTICE each
+  ships), which its jar carries in `licenses/` and the war unpacks beside the backend list.
+  All share one shape — `name`, `version`, `identifier` (an SPDX expression), `text`, `url`, then `notice`.
+    - **Every license is an SPDX identifier.** npm packages declare one already, and `npm run build` of `studio-ui` and
+      of `studio-mcp` accept only the licenses the `--onlyAllow` of `studio-ui` lists. A POM names its license as it
+      likes, so the `licenseMerges` of `studio-backend/pom.xml` turn each name into its identifier, and
+      `includedLicenses` fails the war build on a name no merge turns: a new name is merged there, never shown as it
+      is. A license either build accepts needs its public text in `PUBLIC_LICENSES` of
+      `studio-ui/src/services/licenses.ts`, which a test holds both lists to.
     - **`notice` is the NOTICE a library ships**, the attribution a license such as Apache-2.0 (§4(d)) asks a
       redistribution to carry. Bundling leaves the NOTICE of an npm package behind, so `libraryNotices` in
       `vite.config.ts` adds it to the frontend list.
@@ -73,6 +76,10 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
 - **studio-docs/** — packs `Docs/user-guides`, and `Docs/ref` under `ref/`, into a jar the war serves at `/docs`;
   never deployed to a remote repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib`
   itself. Its tests validate the guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
+- **studio-mcp/** — the built-in MCP server, in TypeScript (see `studio-mcp/AGENTS.md`). Its jar carries
+  the server, bundled with its dependencies into one file, in a non-public `mcp/` folder; never deployed to a remote
+  repository, so the war depends on it as `optional` and unpacks the folder into `WEB-INF/mcp`. `McpServerProcess`
+  (`org.openl.studio.mcp`) runs it with Node.js on the loopback interface, and `McpProxyServlet` serves it at `/mcp`
 
 **Repository & storage**:
 - **org.openl.rules.repository** — Repository abstraction layer

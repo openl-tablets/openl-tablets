@@ -18,12 +18,14 @@ https://www.oracle.com/java/
 
 # Libraries and tools
 https://cxf.apache.org/docs/
+https://developers.openai.com/api/docs/
 https://docs.aws.amazon.com/
 https://docs.jboss.org/hibernate/
 https://fasterxml.github.io/jackson-annotations/
 https://git-lfs.github.com/
 https://git-scm.com/
 https://github.com/FasterXML/
+https://github.com/punkpeye/mcp-remote
 https://kafka.apache.org/documentation/
 https://swagger.io/docs/
 https://tomcat.apache.org/
@@ -33,4 +35,5 @@ https://creativecommons.org/licenses/
 https://en.wikipedia.org/wiki/
 https://fetch.spec.whatwg.org/
 https://jakarta.ee/specifications/
+https://modelcontextprotocol.io/
 https://tools.ietf.org/html/

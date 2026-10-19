@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Mcp-Session-Id: *
+
+event: message
+data: {"result":{"protocolVersion":"2025-11-25","capabilities":{"tools":{"listChanged":false}},"serverInfo":{"name":"studio-mcp","version":"*","description":"The MCP server built into OpenL Studio"}},"jsonrpc":"2.0","id":1}

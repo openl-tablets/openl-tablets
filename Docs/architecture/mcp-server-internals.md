@@ -2,7 +2,7 @@
 
 The MCP server built into OpenL Studio is the TypeScript program of `STUDIO/studio-mcp`. This page maps its sources,
 the path of a request from `/mcp` to the OpenL Studio REST API, and where the server keeps state. How OpenL Studio
-runs and secures the server is in [Built-in MCP Server for OpenL Studio](mcp-server-jetty-architecture.md); how users
+runs and secures the server is in [Built-in MCP Server](mcp-server.md); how users
 connect agents is in the [OpenL Studio MCP Server Guide](../user-guides/mcp-server/index.md); the conventions for
 changing the server are in [`STUDIO/studio-mcp/AGENTS.md`](../../STUDIO/studio-mcp/AGENTS.md).
 

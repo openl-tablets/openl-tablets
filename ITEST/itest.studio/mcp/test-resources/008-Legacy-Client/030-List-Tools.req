@@ -1,0 +1,11 @@
+POST /mcp HTTP/1.1
+Content-Type: application/json
+Accept: application/json, text/event-stream
+Mcp-Session-Id: ${MCP_SESSION_ID}
+MCP-Protocol-Version: 2025-11-25
+
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list"
+}
