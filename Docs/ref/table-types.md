@@ -34,7 +34,7 @@ belongs to a merge is marked with the direction it continues from:
 - `←` — merged with the cell to its **left** (the merge runs across columns)
 - `↑` — merged with the cell **above** (the merge runs down rows)
 
-```text
+```
 | Datatype Policy | ←   | ←  |  <- the header, one cell merged across the whole table
 | String          | id  |    |  <- body: one field per row
 | Integer         | age | 18 |
@@ -45,7 +45,7 @@ without repeating the `←`.
 
 ## Header Syntax
 
-```text
+```
 TBasic <returnType> <tableName>(<param1Type> <param1>, <param2Type> <param2>, ...)
 Method <returnType> <tableName>(<param1Type> <param1>, <param2Type> <param2>, ...)
 Spreadsheet <returnType> <tableName>(<param1Type> <param1>, <param2Type> <param2>, ...)
@@ -117,7 +117,7 @@ Evaluates multiple conditions and returns a result. The most common table type.
 - Supports merged cells for multi-row grouping
 - Supports `Collect` keyword to collect all matching results into an array
 
-```text
+```
 | Rules String Greeting1(Integer hour)                                |
 | C1                         | ←           | RET1                    |  <- roles; C1 covers two columns
 | min <= hour and hour < max | ←           | greeting + ", World!"   |  <- expressions
@@ -139,7 +139,7 @@ Decision table with auto-inferred equality conditions. No explicit `C1`/`RET` co
 - Only equality matching (`==`) is supported
 - Ideal for flat lookup-style tables with simple inputs
 
-```text
+```
 | SimpleRules Integer AmPmTo24(Integer ampmHr, String ampm) |
 | AM/PM hour | AM or PM | 24 hour                           |  <- titles only, roles are inferred
 | 12         | AM       | 0                                 |
@@ -156,7 +156,7 @@ Decision table with smart condition matching — supports ranges, collections, a
 - No explicit condition row declarations needed
 - Best for human-authored tables with natural value expressions
 
-```text
+```
 | SmartRules String Greeting4(Integer hour) |
 | Hour | ←  | Greeting                      |  <- one argument merged over two columns: a range
 | 0    | 12 | Good Morning                  |
@@ -174,13 +174,13 @@ Decision table with both vertical (left) and horizontal (top) conditions.
 - **One argument has no second axis, so the table carries no title row**: every row from the first is a rule,
   the argument value on the left and the result beside it. A title row written above them is read as a rule too.
 
-```text
+```
 | SimpleLookup Integer OneArg(String a) |
 | Text1 | 1 |  <- already rule R1, not a header
 | Text2 | 2 |
 ```
 
-```text
+```
 | SimpleLookup Double IsAdequate(CountryCode country, Boolean adequate) |
 | Country Code/Adequate | True | False |  <- corner caption; a Simple table binds by position, not by title
 | DE                    | 1    | 1     |
@@ -199,7 +199,7 @@ Same as Simple Lookup but with smart condition matching (ranges, wildcards, coll
   three arguments work as one down and two across, or as two down and one across
 - A corner title of the form `<vertical>/<horizontal>` names both axes in one cell
 
-```text
+```
 | SmartLookup Double CoverageRate(CoverageForm form, Integer staff, String area) |
 | Coverage Type | Limit    | <= 14 | ←        | >= 15 | ←        |  <- staff, each value over its two areas
 | ↑             | ↑        | Low   | High     | Low   | High     |  <- area; the two titles reach down to here
@@ -217,7 +217,7 @@ Calculation table with named rows and columns; cells reference each other via `$
 - Return type can be `SpreadsheetResult` (full result object) or a specific cell type
 - `autoType` property (default `true`) infers cell types from values
 
-```text
+```
 | Spreadsheet SpreadsheetResult Premium(Double base) |
 | Steps    | Formula                                 |  <- column names, written by the author
 | BaseRate | = base                                  |
@@ -240,7 +240,7 @@ Relational data table — defines a named collection of typed records.
 - Supports nested structures and foreign-key-style references to other Data tables
 - `Collect` keyword chains multiple Data tables into one result
 
-```text
+```
 | Data Address addressBook          |
 | city   | zip   | country.code     |  <- field names, nested by path
 | City   | ZIP   | Country          |  <- titles
@@ -259,7 +259,7 @@ Defines a custom Java-like data type (generates a Java class at compile time).
 - Types can be primitive, Java types, or other Datatypes
 - Default column header row is omitted when only Type and Name are used
 
-```text
+```
 | Datatype USState |
 | String | name    |  <- Type and Name only: no column header row needed
 | String | code    |
@@ -267,7 +267,7 @@ Defines a custom Java-like data type (generates a Java class at compile time).
 
 With more than two columns the roles are named in a header row:
 
-```text
+```
 | Datatype Policy                                       |
 | Type    | Name  | Default | Mandatory | Description   |
 | String  | id    |         | true      | Policy number |
@@ -288,7 +288,7 @@ type in angle brackets; OpenL Studio calls this table type `Vocabulary`.
 - Used as a type anywhere a simple type is: a field of a datatype, a rule argument, a return type
 - A value outside the list is a compilation error wherever it is written
 
-```text
+```
 | Datatype CountryCode <String> |
 | DE                            |
 | BE                            |
@@ -306,7 +306,7 @@ Declares module-level imports and inter-module dependencies.
     - `import <package.*>` — wildcard package import
     - `language <ruleSetName>` — parsed and ignored; support was dropped
 
-```text
+```
 | Environment                          |
 | dependency | AutoPolicyCalculation   |
 | import     | org.openl.rules.helpers |
@@ -324,7 +324,7 @@ Executes a block of OpenL/Java code and returns a result.
 - Can call any other rule table or Java method
 - Useful for helper logic too complex for a decision table
 
-```text
+```
 | Method String formatAddress(Address a)  |
 | a.city + ", " + a.country               |
 ```
@@ -342,7 +342,7 @@ Unit test table for any rule table. Executed by the Maven plugin's `test` goal a
     - `_context_` — runtime context values (date, locale, etc.)
 - Rows without `_res_` are skipped in validation but still execute
 
-```text
+```
 | Test IsAdequate IsAdequateTest       |
 | countryCode | isAdequate | _res_    |  <- argument paths, then the expectation
 | Country     | Adequate   | Score    |  <- titles
@@ -360,7 +360,7 @@ Executes a rule table multiple times with different inputs; no result validation
 - Same column structure as Test but without `_res_`
 - Used for batch execution, benchmarking, and integration scenarios
 
-```text
+```
 | Run IsAdequate IsAdequateBatch |
 | countryCode | isAdequate      |
 | Country     | Adequate        |
@@ -377,7 +377,7 @@ Decision tree that scores or matches inputs against weighted criteria.
 - `SCORE` and `WEIGHTED` also require a `Weight` column
 - `MATCH` maps conditions to a single return; `SCORE` computes a weighted sum
 
-```text
+```
 | ColumnMatch SCORE Double assessRisk(RiskInput input) |
 | Names        | Operations | Values | Weight         |
 | input.age    | match      | 18-25  | 10             |
@@ -393,7 +393,7 @@ Structured programming table with explicit control flow (loops, conditionals) in
 - Supports user-defined subroutines and precondition/postcondition sections
 - Best for complex iterative algorithms that cannot be expressed as a decision table
 
-```text
+```
 | TBasic Double Amortize(Double principal, Integer n) |
 | Operation | Condition | Action    | Return          |
 | WHILE     | n > 0     | n = n - 1 |                 |
@@ -410,7 +410,7 @@ Sets inherited properties for a scope: worksheet, workbook, or module.
 - At most **one** Module-scoped Properties table per module
 - Properties cascade: Module → Workbook → Worksheet → Table
 
-```text
+```
 | Properties                  |
 | scope         | Module      |  <- required: the scope the properties apply to
 | effectiveDate | 2024-01-01  |
@@ -429,7 +429,7 @@ Defines named constants of non-custom types accessible across the module.
 - Types must be primitive or standard Java types (not user-defined Datatypes)
 - Use `_DEFAULT_` as the value to represent an empty string constant
 
-```text
+```
 | Constants                     |
 | Integer | MAX_AGE     | 65    |
 | String  | DEFAULT_LOB | Auto  |
@@ -445,7 +445,7 @@ Splits a large table across multiple worksheets in the **same workbook**.
 - Applicable to: Decision Table, Data, Test, Run tables
 - For `column` splits, the header row is repeated in each part
 
-```text
+```
 | TablePart myLargeTable row 1 of 3 |
 | ... the first slice of rows ...   |
 ```

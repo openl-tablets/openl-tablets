@@ -70,9 +70,9 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   Its Maven artifact is `org.openl.rules.studio:studio-backend`. Its war is a GitHub release asset: the module is
   installed into the local repository but never deployed
 - **studio-ui/** — React/TypeScript frontend (see `studio-ui/AGENTS.md`)
-- **studio-docs/** — packs `Docs/user-guides` into a jar the war serves at `/docs`; never deployed to a remote
-  repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib` itself. Its tests validate the
-  guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
+- **studio-docs/** — packs `Docs/user-guides`, and `Docs/ref` under `ref/`, into a jar the war serves at `/docs`;
+  never deployed to a remote repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib`
+  itself. Its tests validate the guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
 
 **Repository & storage**:
 - **org.openl.rules.repository** — Repository abstraction layer

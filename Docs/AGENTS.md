@@ -32,12 +32,13 @@ Auto-generated from folder structure. Triggered by `nav: "auto"` in `_config.yml
 
 ## User Guides Inside OpenL Studio
 
-OpenL Studio ships `user-guides/` (the `STUDIO/studio-docs` jar) and shows it at `/docs`. The tests of that module
-validate the guides; run them after every change: `mvn test -pl STUDIO/studio-docs`. The decision and the formats
-are recorded in [`architecture/embedded-user-guides.md`](architecture/embedded-user-guides.md).
+OpenL Studio ships `user-guides/` (the `STUDIO/studio-docs` jar) and shows it at `/docs`, with `ref/` at `/docs/ref`.
+The tests of that module validate both; run them after every change: `mvn test -pl STUDIO/studio-docs`. The decision
+and the formats are recorded in [`architecture/embedded-user-guides.md`](architecture/embedded-user-guides.md).
 
-- **Links stay inside `user-guides/`** — the jar holds nothing else. Link any other page with an absolute address on
-  the site: `https://openl-tablets.github.io/openl-tablets/<path>`.
+- **Links stay inside `user-guides/`**, and a page of `ref/` links only the pages beside it — the jar holds nothing
+  else. Link any other page with an absolute address on the site:
+  `https://openl-tablets.github.io/openl-tablets/<path>`.
 - **External links** — the prefix must be listed in `STUDIO/studio-docs/test-resources/allowed-links.txt`. Write an
   example address (`localhost`, `example.com`) as code, not as a link.
 - **Names are case-sensitive** — a link and an image must match the file name exactly, even on macOS.

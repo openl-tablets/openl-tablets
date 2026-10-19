@@ -142,11 +142,12 @@ A `rules.xml` `<dependency>` becomes a Maven dependency:
 
 `<mavenArtifact>` wins when both present. Every `<dependency>` needs a `<name>` (OpenL loader requirement).
 
-A <mavenArtifact> resolving to a reactor OpenL artefact (pom-less under any anchor, or a classic openl module) takes the
-reactor version, whatever the coordinate declares. Precedence: anchor <dependencyManagement> > reactor-sibling version >
-literal <mavenArtifact> version. Management is the opt-out — pin a sibling to a published version on purpose.
+A `<mavenArtifact>` resolving to a reactor OpenL artefact (pom-less under any anchor, or a classic openl module) takes
+the reactor version, whatever the coordinate declares. Precedence: anchor `<dependencyManagement>` > reactor-sibling
+version > literal `<mavenArtifact>` version. Management is the opt-out — pin a sibling to a published version on
+purpose.
 
-openl:sync-versions (bound to validate) rewrites each <mavenArtifact> version in rules.xml in place to that resolved
+openl:sync-versions (bound to validate) rewrites each `<mavenArtifact>` version in rules.xml in place to that resolved
 value — managed coordinates and reactor siblings alike, same precedence.
 
 ### Discovery rules
