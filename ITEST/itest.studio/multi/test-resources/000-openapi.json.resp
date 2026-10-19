@@ -1889,6 +1889,8 @@ Content-Type: application/json
                   "token",
                   "permission",
                   "access",
+                  "project",
+                  "deployment",
                   "audit"
                 ]
               },
@@ -1924,6 +1926,16 @@ Content-Type: application/json
                   "roleChanged",
                   "roleRevoked",
                   "accessDenied",
+                  "projectCreated",
+                  "projectCopied",
+                  "projectSaved",
+                  "projectDeleted",
+                  "projectUnlocked",
+                  "branchCreated",
+                  "branchDeleted",
+                  "branchMerged",
+                  "protectionBypassed",
+                  "projectDeployed",
                   "auditLogRead",
                   "auditLogPurged"
                 ]
@@ -24269,6 +24281,16 @@ Content-Type: application/json
               "roleChanged",
               "roleRevoked",
               "accessDenied",
+              "projectCreated",
+              "projectCopied",
+              "projectSaved",
+              "projectDeleted",
+              "projectUnlocked",
+              "branchCreated",
+              "branchDeleted",
+              "branchMerged",
+              "protectionBypassed",
+              "projectDeployed",
               "auditLogRead",
               "auditLogPurged"
             ]
@@ -24299,6 +24321,8 @@ Content-Type: application/json
               "token",
               "permission",
               "access",
+              "project",
+              "deployment",
               "audit"
             ]
           },
@@ -24353,7 +24377,8 @@ Content-Type: application/json
               "root",
               "repository",
               "project",
-              "request"
+              "request",
+              "deployment"
             ]
           },
           "time": {

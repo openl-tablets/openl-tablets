@@ -67,7 +67,8 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   The sign-ins come from the
   events of Spring Security, so a new way of signing in publishes them. A new writer of the ACL reads the role it
   replaces and announces both through `AclRoleAuditor`. A `403` of the REST API is recorded by
-  `ApiExceptionControllerAdvice`, so a refusal needs no event of its own. See
+  `ApiExceptionControllerAdvice`, so a refusal needs no event of its own. An action on a project is announced
+  through `ProjectAuditor` once it is done, since no transaction covers a repository. See
   [`audit-log.md`](../Docs/architecture/audit-log.md).
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`. A time is a `${timestamp}` column that

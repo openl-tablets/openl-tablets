@@ -126,10 +126,11 @@ public class AuditRecordDaoImpl extends BaseHibernateDao<AuditRecord> implements
         if (query.authentication() != null) {
             predicates.add(cb.equal(root.get("authentication"), query.authentication()));
         }
-        addContains(cb, root, "actor", query.actor(), predicates);
-        addContains(cb, root, "target", query.target(), predicates);
-        addContains(cb, root, "subject", query.subject(), predicates);
-        addContains(cb, root, "clientAddress", query.clientAddress(), predicates);
+        addContains(cb, root, query.actor(), predicates, "actor");
+        // An event made on a project, though on its branch or its deployment, is found by the name of the project.
+        addContains(cb, root, query.target(), predicates, "target", "project");
+        addContains(cb, root, query.subject(), predicates, "subject");
+        addContains(cb, root, query.clientAddress(), predicates, "clientAddress");
         return predicates;
     }
 
@@ -149,13 +150,19 @@ public class AuditRecordDaoImpl extends BaseHibernateDao<AuditRecord> implements
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Adds the criterion of a text one of the fields contains, in any case.
+     */
     private static void addContains(CriteriaBuilder cb,
                                     Root<AuditRecord> root,
-                                    String field,
                                     @Nullable String text,
-                                    List<Predicate> predicates) {
+                                    List<Predicate> predicates,
+                                    String... fields) {
         if (text != null && !text.isBlank()) {
-            predicates.add(cb.like(cb.lower(root.get(field)), "%" + escape(text.trim()) + "%", ESCAPE_CHAR));
+            var pattern = "%" + escape(text.trim()) + "%";
+            predicates.add(cb.or(Arrays.stream(fields)
+                    .map(field -> cb.like(cb.lower(root.get(field)), pattern, ESCAPE_CHAR))
+                    .toArray(Predicate[]::new)));
         }
     }
 }

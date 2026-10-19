@@ -8,11 +8,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.PostConstruct;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +44,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -55,7 +56,8 @@ import org.openl.util.StringUtils;
 /**
  * Creates projects the same way the legacy repository tab does, wrapping the reusable creation
  * primitives (template resolvers + {@link ExcelFilesProjectCreator}). The project is built in the
- * current user's workspace, granted a CONTRIBUTOR ACL, and the resulting file data is returned.
+ * current user's workspace, granted a CONTRIBUTOR ACL, and the resulting file data is returned. Each creation, copy
+ * and grant is recorded in the audit log.
  */
 @Slf4j
 @Service
@@ -74,6 +76,7 @@ public class ProjectCreationService {
     private final ZipCharsetDetector zipCharsetDetector;
     @Value("${openl.home:}")
     private final String openlHome;
+    private final ProjectAuditor auditor;
 
     private final TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
     private TemplatesResolver customTemplatesResolver;
@@ -97,11 +100,34 @@ public class ProjectCreationService {
 
     /**
      * Grants the current user the CONTRIBUTOR role on a freshly created project, unless an ACL already
-     * exists. Shared with create paths that build the project outside this service.
+     * exists.
+     *
+     * @return whether the role was granted
      */
-    public static void grantContributorAclIfAbsent(RepositoryAclService acl, AProject project) {
-        if (!acl.hasAcl(project)) {
-            acl.createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+    private static boolean grantContributorAclIfAbsent(RepositoryAclService acl, AProject project) {
+        if (acl.hasAcl(project)) {
+            return false;
+        }
+        acl.createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+        return true;
+    }
+
+    /**
+     * Finishes a project written from an uploaded archive outside this service: grants the current user the
+     * CONTRIBUTOR role on it, unless an ACL already exists, and records the write in the audit log.
+     *
+     * @param overwrite whether the archive was uploaded to overwrite a project, which records a save rather than a
+     *                  creation, even when no project had the name yet
+     */
+    public void finishArchiveUpload(AProject project, boolean overwrite) {
+        var granted = grantContributorAclIfAbsent(aclServiceProvider.getDesignRepoAclService(), project);
+        if (overwrite) {
+            auditor.saved(project, null, "archive");
+        } else {
+            auditor.created(project, "archive");
+        }
+        if (granted) {
+            auditor.creatorRole(project);
         }
     }
 
@@ -261,7 +287,7 @@ public class ProjectCreationService {
         if (files.length == 0) {
             throw new NotFoundException("project.template.not-found.message");
         }
-        return createFromFiles(repository, projectName, path, new ArrayList<>(List.of(files)), comment,
+        return upload("template", repository, projectName, path, new ArrayList<>(List.of(files)), comment,
                 "rules/Models.xlsx", "rules/Algorithms.xlsx", "Models", "Algorithms", tags);
     }
 
@@ -293,6 +319,20 @@ public class ProjectCreationService {
     public FileData createFromFiles(Repository repository, String projectName, String path, List<ProjectFile> files,
                                     String comment, String modelsPath, String algorithmsPath, String modelsModuleName,
                                     String algorithmsModuleName, Map<String, String> tags) {
+        return upload("files", repository, projectName, path, files, comment, modelsPath, algorithmsPath,
+                modelsModuleName, algorithmsModuleName, tags);
+    }
+
+    /**
+     * Creates a project from files, grants the creator a CONTRIBUTOR ACL and records the creation.
+     *
+     * @param source what the files are, as the audit log names it: {@code template} or {@code files}
+     */
+    // The method takes every field of the project creation request.
+    @SuppressWarnings("java:S107")
+    private FileData upload(String source, Repository repository, String projectName, String path,
+                            List<ProjectFile> files, String comment, String modelsPath, String algorithmsPath,
+                            String modelsModuleName, String algorithmsModuleName, Map<String, String> tags) {
         var repositoryId = repository.getId();
         requireCreatePermission(repositoryId);
         try {
@@ -301,6 +341,9 @@ public class ProjectCreationService {
                     zipCharsetDetector, modelsPath, algorithmsPath, modelsModuleName, algorithmsModuleName,
                     tags != null ? tags : Map.of(), this::registerExtensibleTags,
                     () -> awaitProjectVisibility(repository)).uploadProject();
+            auditor.created(created, source);
+            // The uploader always grants the creator the role: it fails the creation when it cannot.
+            auditor.creatorRole(created);
             return created.getFileData();
         } catch (ProjectException e) {
             throw new ConflictException("project.create.failed.message");
@@ -452,7 +495,11 @@ public class ProjectCreationService {
             targetProject.setResourceTransformer(null);
             var copied = new RulesProject(user, workspace.getLocalWorkspace().getRepository(targetRepositoryId),
                     null, targetRepository, targetProject.getFileData(), workspace.getProjectsLockEngine());
-            grantContributorAclIfAbsent(designRepoAclService, copied);
+            var granted = grantContributorAclIfAbsent(designRepoAclService, copied);
+            auditor.copied(copied, source, revision);
+            if (granted) {
+                auditor.creatorRole(copied);
+            }
             registerExtensibleTags(copied);
             awaitProjectVisibility(targetRepository);
             refreshWorkspaceAfterDesignChange();

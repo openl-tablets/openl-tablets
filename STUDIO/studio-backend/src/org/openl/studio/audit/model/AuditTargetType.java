@@ -32,5 +32,9 @@ public enum AuditTargetType {
 
     @Schema(description = "A request to the REST API, named by its path; the details name its method.")
     @JsonProperty("request")
-    REQUEST
+    REQUEST,
+
+    @Schema(description = "A deployment, named by its name; the details name its production repository.")
+    @JsonProperty("deployment")
+    DEPLOYMENT
 }

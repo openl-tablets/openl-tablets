@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -17,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,6 +46,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -94,6 +95,7 @@ public class DesignTimeRepositoryController {
     private final ProjectCreationTargetResolver projectCreationTargetResolver;
     private final RepositoryConfigService repositoryConfigService;
     private final ProjectIdConverter projectIdConverter;
+    private final ProjectAuditor auditor;
 
     @Autowired
     public DesignTimeRepositoryController(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -108,7 +110,8 @@ public class DesignTimeRepositoryController {
                                           ProjectCreationService projectCreationService,
                                           ProjectCreationTargetResolver projectCreationTargetResolver,
                                           RepositoryConfigService repositoryConfigService,
-                                          ProjectIdConverter projectIdConverter) {
+                                          ProjectIdConverter projectIdConverter,
+                                          ProjectAuditor auditor) {
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
@@ -122,6 +125,7 @@ public class DesignTimeRepositoryController {
         this.projectCreationTargetResolver = projectCreationTargetResolver;
         this.repositoryConfigService = repositoryConfigService;
         this.projectIdConverter = projectIdConverter;
+        this.auditor = auditor;
     }
 
     @Lookup("commentService")
@@ -195,7 +199,7 @@ public class DesignTimeRepositoryController {
             checkOverwritePermission(targetRepository, path, projectName);
         }
 
-        allowedToPush(targetRepository, force);
+        allowedToPush(targetRepository, branch, force);
 
         FileData data;
         // An uploaded archive keeps the robust create/overwrite path (locking, overwrite).
@@ -206,6 +210,7 @@ public class DesignTimeRepositoryController {
                     templateType, templateCategory, templateName, modelsPath, algorithmsPath, modelsModuleName,
                     algorithmsModuleName);
         }
+        recordBypass(targetRepository, model.getProjectName());
         // Content-based creation historically leaves a project opened. An archive stays closed unless the caller
         // explicitly requests otherwise.
         var effectiveStatus = status == null && !archiveUpload ? ProjectStatus.VIEWING : status;
@@ -238,7 +243,7 @@ public class DesignTimeRepositoryController {
             validationProvider.validate(archiveTmp, zipArchiveValidator);
             var data = zipProjectSaveStrategy.save(repository, model, archiveTmp);
             var project = new AProject(repository, data);
-            ProjectCreationService.grantContributorAclIfAbsent(designRepositoryAclService, project);
+            projectCreationService.finishArchiveUpload(project, model.isOverwrite());
             projectCreationService.registerExtensibleTags(project);
             projectCreationService.awaitProjectVisibility(repository);
             projectCreationService.refreshWorkspaceAfterDesignChange();
@@ -316,9 +321,10 @@ public class DesignTimeRepositoryController {
         var model = validatedCreateModel(repository, projectName, request.path(), comment, request.branch());
         allowedToPushRequestedBranch(repository, request.branch(), false);
         var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
-        allowedToPush(targetRepository, false);
+        allowedToPush(targetRepository, request.branch(), false);
         var data = projectCreationService.copyProject(targetRepository, model.getProjectName(),
                 request.path(), source, model.getComment(), request.revision());
+        recordBypass(targetRepository, model.getProjectName());
         return mapFileDataResponse(data, targetRepository);
     }
 
@@ -377,10 +383,29 @@ public class DesignTimeRepositoryController {
         return auth.getName();
     }
 
-    private void allowedToPush(Repository repo, boolean force) {
+    /**
+     * Refuses a write to a protected branch unless the user may bypass its protection and confirmed it.
+     *
+     * <p>A branch the request named is checked before it is resolved, so it is not checked again when it resolves to
+     * the same name: a bypass is asked for once. A name the resolution spells otherwise, such as
+     * {@code MAIN} for the branch {@code main}, is checked as it resolves, since protection patterns can tell case.
+     */
+    private void allowedToPush(Repository repo, @Nullable String checkedBranch, boolean force) {
         if (repo.supports().branches()) {
             var branchRepo = (BranchRepository) repo;
-            bypassService.requireBypassOrThrow(branchRepo, branchRepo.getBranch(), repo.getId(), force);
+            if (checkedBranch == null || !checkedBranch.trim().equals(branchRepo.getBranch())) {
+                bypassService.requireBypassOrThrow(branchRepo, branchRepo.getBranch(), repo.getId(), force);
+            }
+        }
+    }
+
+    /**
+     * Records the bypass of the protection of the branch a project was just written to, when the branch is protected.
+     */
+    private void recordBypass(Repository repo, String projectName) {
+        if (repo.supports().branches()) {
+            var branchRepo = (BranchRepository) repo;
+            auditor.bypassed(branchRepo, branchRepo.getBranch(), projectName);
         }
     }
 

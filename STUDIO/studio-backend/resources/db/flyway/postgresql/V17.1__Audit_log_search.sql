@@ -22,7 +22,7 @@ BEGIN
              JOIN pg_namespace n ON n.oid = e.extnamespace
     WHERE e.extname = 'pg_trgm';
     IF trgm_schema IS NOT NULL THEN
-        FOREACH field IN ARRAY ARRAY ['actor', 'target', 'subject', 'clientAddress']
+        FOREACH field IN ARRAY ARRAY ['actor', 'target', 'project', 'subject', 'clientAddress']
             LOOP
                 EXECUTE format('CREATE INDEX ix_OpenL_Audit_Log_%s_search ON OpenL_Audit_Log'
                                    || ' USING gin (lower(%s) %I.gin_trgm_ops)', field, field, trgm_schema);

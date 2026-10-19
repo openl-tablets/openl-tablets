@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -15,11 +16,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -41,14 +46,20 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.tags.service.TagAssignmentValidator;
 
 class ProjectCreationServiceTest {
+
+    private final List<AuditEvent> events = new ArrayList<>();
 
     private AclProjectsHelper aclProjectsHelper;
     private RepositoryAclServiceProvider aclServiceProvider;
@@ -61,7 +72,53 @@ class ProjectCreationServiceTest {
         aclServiceProvider = mock(RepositoryAclServiceProvider.class);
         tagAssignmentValidator = mock(TagAssignmentValidator.class);
         service = new ProjectCreationService(aclProjectsHelper, aclServiceProvider,
-                tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "");
+                tagAssignmentValidator, mock(PathFilter.class), mock(ZipCharsetDetector.class), "",
+                new ProjectAuditor(event -> events.add((AuditEvent) event)));
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void an_archive_upload_grants_the_creator_role_and_records_the_creation() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("jdoe", "secret"));
+        var acl = mock(RepositoryAclService.class);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+        var project = uploadedProject();
+
+        service.finishArchiveUpload(project, false);
+
+        verify(acl).createAcl(project, List.of(AclRole.CONTRIBUTOR.getCumulativePermission()), true);
+        assertEquals(List.of(AuditAction.PROJECT_CREATED, AuditAction.ROLE_GRANTED),
+                events.stream().map(AuditEvent::action).toList());
+        assertEquals("archive", events.getFirst().details().get("source"));
+        assertEquals("jdoe", events.getLast().subject());
+    }
+
+    @Test
+    void an_archive_over_a_project_records_a_save_and_keeps_its_access_rights() {
+        var acl = mock(RepositoryAclService.class);
+        when(aclServiceProvider.getDesignRepoAclService()).thenReturn(acl);
+        var project = uploadedProject();
+        when(acl.hasAcl(project)).thenReturn(true);
+
+        service.finishArchiveUpload(project, true);
+
+        verify(acl, never()).createAcl(any(AProject.class), anyList(), anyBoolean());
+        assertEquals(List.of(AuditAction.PROJECT_SAVED), events.stream().map(AuditEvent::action).toList());
+        assertEquals("archive", events.getFirst().details().get("source"));
+    }
+
+    private static AProject uploadedProject() {
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
+        var project = mock(AProject.class);
+        when(project.getRepository()).thenReturn(repository);
+        when(project.getBusinessName()).thenReturn("Pricing");
+        return project;
     }
 
     @Test
@@ -443,7 +500,9 @@ class ProjectCreationServiceTest {
                                    ZipCharsetDetector zipCharsetDetector,
                                    String openlHome,
                                    UserWorkspace workspace) {
-            super(aclProjectsHelper, aclServiceProvider, tagAssignmentValidator, zipFilter, zipCharsetDetector, openlHome);
+            super(aclProjectsHelper, aclServiceProvider, tagAssignmentValidator, zipFilter, zipCharsetDetector,
+                    openlHome, new ProjectAuditor(event -> {
+                    }));
             this.workspace = workspace;
         }
 

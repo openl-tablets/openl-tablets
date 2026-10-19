@@ -6,4 +6,5 @@ reads the log, as JSON or as a CSV file; an export is recorded every time, a vie
 change of the details and of the password of a user, and a personal access token created and deleted, are recorded
 with the values before and after. So are a
 role on the design repositories granted to the user, changed and revoked, and the change of a role the user may not
-make is recorded as a refused request.
+make is recorded as a refused request. A project created from an archive and deleted is recorded with the
+role its creator got on it and lost with it.

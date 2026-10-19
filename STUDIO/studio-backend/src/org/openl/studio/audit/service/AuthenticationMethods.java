@@ -27,8 +27,8 @@ import org.openl.studio.security.pat.model.PatAuthenticationToken;
  * name and a password come the same way from the login form and from Basic authentication, so the request tells them
  * apart: a Basic {@code Authorization} header sends the password with the request itself.
  *
- * <p>Outside a request, as in a merge running in a thread of its own, a user name and a password tell nothing, and so
- * does an authentication of any other kind.
+ * <p>Outside a request a user name and a password tell nothing, and so does an authentication of any other kind. A task
+ * that a request hands to a thread of its own is told by that request: see {@link AuditClient}.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class AuthenticationMethods {

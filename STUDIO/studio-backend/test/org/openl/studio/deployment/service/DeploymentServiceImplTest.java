@@ -2,19 +2,26 @@ package org.openl.studio.deployment.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -22,10 +29,15 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
+import org.openl.rules.webstudio.web.repository.DeploymentRequest;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
+import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 
@@ -57,7 +69,9 @@ class DeploymentServiceImplTest {
                 (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class),
                 mock(ProjectStateValidator.class),
                 mock(AclProjectsHelper.class),
-                projectVersionCacheManager);
+                projectVersionCacheManager,
+                new ProjectAuditor(event -> {
+                }));
 
         broken = config("broken");
         when(deploymentManager.getDeployRepository("broken"))
@@ -137,5 +151,43 @@ class DeploymentServiceImplTest {
                 .thenThrow(new NullPointerException());
 
         assertTrue(service.findDesignRevision(deployedProject).isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void a_deployment_is_recorded_in_the_audit_log() throws Exception {
+        var stateValidator = mock(ProjectStateValidator.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var workspaceProvider = (ObjectProvider<UserWorkspace>) mock(ObjectProvider.class);
+        var workspace = mock(UserWorkspace.class);
+        when(workspaceProvider.getObject()).thenReturn(workspace);
+        var events = new ArrayList<AuditEvent>();
+        var deploying = new DeploymentServiceImpl(mock(ProjectDependencyResolver.class),
+                deploymentRepositoryService,
+                deploymentManager,
+                workspaceProvider,
+                stateValidator,
+                aclProjectsHelper,
+                projectVersionCacheManager,
+                new ProjectAuditor(event -> events.add((AuditEvent) event)));
+        var project = mock(RulesProject.class);
+        var design = mock(Repository.class);
+        when(design.getId()).thenReturn("design");
+        when(design.supports()).thenReturn(new FeaturesBuilder(design).build());
+        when(project.getRepository()).thenReturn(design);
+        when(project.getDesignRepository()).thenReturn(design);
+        when(project.getBusinessName()).thenReturn("Pricing");
+        when(stateValidator.canDeploy(project)).thenReturn(true);
+        when(aclProjectsHelper.hasCreateDeploymentPermission("production")).thenReturn(true);
+        when(aclProjectsHelper.hasPermission(any(DeploymentRequest.class), eq(BasePermission.WRITE))).thenReturn(true);
+
+        deploying.deploy(new DeploymentId("production", "Pricing Rules"), project, "Release 7");
+
+        verify(deploymentManager).deploy(any(DeploymentRequest.class));
+        var event = events.getFirst();
+        assertEquals(AuditAction.PROJECT_DEPLOYED, event.action());
+        assertEquals("Pricing Rules", event.target());
+        assertEquals(Map.of("repository", "production", "project", "Pricing", "projectRepository", "design",
+                "comment", "Release 7"), event.details());
     }
 }

@@ -24,8 +24,6 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.security.standalone.dao.AuditRecordDao;
@@ -34,6 +32,7 @@ import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditEventView;
 import org.openl.studio.audit.model.AuditEventsPage;
 import org.openl.studio.audit.model.AuditQuery;
+import org.openl.studio.audit.model.AuditTargetType;
 
 /**
  * Records the events of the audit log and reads them back.
@@ -86,8 +85,8 @@ public class AuditService {
      * Puts an event into the audit log.
      *
      * <p>The event is recorded for the signed-in user when it names no actor, and with the address of the client
-     * of the current request. The target and the details are kept whole; a longer name or address than the
-     * log keeps is cut.
+     * of the current request, or of the request that started the task recording it. The target and the details are
+     * kept whole; a longer name, address or project than the log keeps is cut.
      *
      * <p>An event published as an application event is recorded the same way, in the thread and the transaction of
      * its publisher: the services that change users, groups and tokens announce their changes so.
@@ -123,18 +122,20 @@ public class AuditService {
         if (!isEnabled()) {
             return;
         }
+        var client = AuditClient.current();
         var auditRecord = new AuditRecord();
         auditRecord.setEventTime(Instant.now());
         auditRecord.setActor(actorOf(event));
         auditRecord.setAuthentication(event.authentication() != null || event.actor() != null
                 ? event.authentication()
-                : AuthenticationMethods.of(SecurityContextHolder.getContext().getAuthentication()));
-        auditRecord.setClientAddress(cut(clientAddress(), AuditRecord.ADDRESS_LENGTH));
+                : client.authentication());
+        auditRecord.setClientAddress(cut(client.address(), AuditRecord.ADDRESS_LENGTH));
         auditRecord.setCategory(event.action().getCategory());
         auditRecord.setAction(event.action());
         auditRecord.setOutcome(event.outcome());
         auditRecord.setTargetType(event.targetType());
         auditRecord.setTarget(event.target());
+        auditRecord.setProject(cut(projectOf(event), AuditRecord.PROJECT_LENGTH));
         auditRecord.setSubjectType(event.subjectType());
         auditRecord.setSubject(cut(event.subject(), AuditRecord.NAME_LENGTH));
         auditRecord.setDetails(event.details().isEmpty() ? null : toJson(event.details()));
@@ -142,6 +143,20 @@ public class AuditService {
         if (consoleOutput && AUDIT_LOGGER.isInfoEnabled()) {
             copyToConsole(auditRecord);
         }
+    }
+
+    /**
+     * The project an action was made on, or nothing for an action on no project: the target of an action on a
+     * project, or the project a branch, a bypass of a branch protection or a deployment was made from.
+     */
+    private static @Nullable String projectOf(AuditEvent event) {
+        if (event.targetType() == AuditTargetType.PROJECT) {
+            return event.target();
+        }
+        if (event.details().get(ProjectAuditor.PROJECT) instanceof String project) {
+            return project;
+        }
+        return null;
     }
 
     /**
@@ -295,12 +310,6 @@ public class AuditService {
     private static @Nullable String signedInUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         return TRUST_RESOLVER.isAuthenticated(authentication) ? authentication.getName() : null;
-    }
-
-    private static @Nullable String clientAddress() {
-        return RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
-                ? attributes.getRequest().getRemoteAddr()
-                : null;
     }
 
     private static @Nullable String cut(@Nullable String value, int length) {

@@ -10,6 +10,7 @@ CREATE TABLE OpenL_Audit_Log
     outcome        ${varchar}(10) NOT NULL,
     targetType     ${varchar}(20),
     target         ${text},
+    project        ${varchar}(2000),
     subjectType    ${varchar}(10),
     subject        ${varchar}(100),
     details        ${text},

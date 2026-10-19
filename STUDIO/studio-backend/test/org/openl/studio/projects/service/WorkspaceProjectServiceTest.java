@@ -37,6 +37,7 @@ import java.sql.SQLTransientConnectionException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,8 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.ChangedOutsideException;
 import org.openl.rules.project.abstraction.LockEngine;
@@ -110,6 +113,9 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -854,7 +860,7 @@ class WorkspaceProjectServiceTest {
         when(designTimeRepository.refreshBranch("design", "feature/rates"))
                 .thenReturn(CompletableFuture.completedFuture(null));
         var surviving = mock(BranchedProject.class);
-        var survivingProject = mock(org.openl.rules.project.abstraction.AProject.class);
+        var survivingProject = mock(AProject.class);
         var survivingEntry = mock(BranchedProject.BranchEntry.class);
         when(survivingEntry.project()).thenReturn(survivingProject);
         when(surviving.entries()).thenReturn(Map.of("main", survivingEntry));
@@ -1809,14 +1815,57 @@ class WorkspaceProjectServiceTest {
 
     @Test
     void a_lock_of_another_user_is_broken_by_an_administrator() throws Exception {
-        var acl = mock(RepositoryAclService.class);
-        var service = newService(acl, mock(ProtectedBranchBypassService.class));
         var project = project(repository(), "PricingProject", "PricingProject");
+
+        var eventPublisher = unlockAsAdministrator(project, lockOf("jsmith"));
+
+        var captor = forClass(AuditEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        assertEquals(AuditAction.PROJECT_UNLOCKED, captor.getValue().action());
+        assertEquals("PricingProject", captor.getValue().target());
+        assertEquals("jsmith", captor.getValue().details().get("lockedBy"));
+    }
+
+    @Test
+    void an_administrator_releasing_their_own_lock_breaks_no_lock() throws Exception {
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var lock = lockOf("admin");
+        when(project.isLockedByMe(lock)).thenReturn(true);
+
+        verify(unlockAsAdministrator(project, lock), never()).publishEvent(any());
+    }
+
+    @Test
+    void a_project_nobody_holds_is_unlocked_without_an_event() throws Exception {
+        var project = project(repository(), "PricingProject", "PricingProject");
+
+        verify(unlockAsAdministrator(project, LockInfo.NO_LOCK), never()).publishEvent(any());
+    }
+
+    /**
+     * Breaks the lock on a project as an administrator and checks that it is gone. Answers the publisher the service
+     * announces its audit events to.
+     */
+    private static ApplicationEventPublisher unlockAsAdministrator(RulesProject project, LockInfo lock)
+            throws ProjectException {
+        var acl = mock(RepositoryAclService.class);
+        var eventPublisher = mock(ApplicationEventPublisher.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), null, mock(ProjectStateValidator.class),
+                mock(WebStudio.class), mock(AclProjectsHelper.class), eventPublisher);
+        when(project.getLockInfo()).thenReturn(lock);
         when(acl.isGranted(project, List.of(BasePermission.ADMINISTRATION))).thenReturn(true);
 
         service.unlockProject(project);
 
         verify(project).forceUnlock();
+        return eventPublisher;
+    }
+
+    private static LockInfo lockOf(String userName) {
+        var lock = mock(LockInfo.class);
+        when(lock.isLocked()).thenReturn(true);
+        when(lock.getLockedBy()).thenReturn(userName);
+        return lock;
     }
 
     @Test
@@ -3033,6 +3082,7 @@ class WorkspaceProjectServiceTest {
                 mock(TableWritersFactory.class),
                 mock(SystemPropertiesService.class),
                 eventPublisher,
+                new ProjectAuditor(eventPublisher),
                 bypassService,
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
@@ -3257,7 +3307,7 @@ class WorkspaceProjectServiceTest {
     }
 
     private static void mockMembership(UserWorkspace workspace, RulesProject project, String... branches) {
-        var entries = new java.util.LinkedHashMap<String, BranchedProject.BranchEntry>();
+        var entries = new LinkedHashMap<String, BranchedProject.BranchEntry>();
         for (String branch : branches) {
             entries.put(branch, mock(BranchedProject.BranchEntry.class));
         }

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doThrow;
@@ -16,7 +15,9 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import jakarta.validation.Valid;
 
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +39,9 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -55,6 +59,8 @@ import org.openl.studio.repositories.validator.CreateUpdateProjectModelValidator
 import org.openl.studio.repositories.validator.ZipArchiveValidator;
 
 class DesignTimeRepositoryControllerTest {
+
+    private final List<AuditEvent> events = new ArrayList<>();
 
     private static final String REPOSITORY_ID = "design";
     private static final String BRANCH = "main";
@@ -107,7 +113,8 @@ class DesignTimeRepositoryControllerTest {
                 projectCreationService,
                 projectCreationTargetResolver,
                 repositoryConfigService,
-                projectIdConverter) {
+                projectIdConverter,
+                new ProjectAuditor(event -> events.add((AuditEvent) event))) {
             // The comment service is a @Lookup bean, absent outside a Spring context.
             @Override
             protected Comments getCommentsService(String repoName) {
@@ -142,6 +149,54 @@ class DesignTimeRepositoryControllerTest {
                 new CreateFromProjectModel(sourceId("Source"), null, "comment", "rev-1"));
 
         verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
+    }
+
+    @Test
+    void aCopyOnAProtectedBranchRecordsTheBypassOnceItIsMade() {
+        var source = sourceProject("Source");
+        when(repository.isBranchProtected(BRANCH)).thenReturn(true);
+        when(projectCreationService.copyProject(repository, "Copy", null, source, "comment", null))
+                .thenReturn(created("Copy"));
+
+        controller.createProjectFromProject(repository, "Copy",
+                new CreateFromProjectModel(sourceId("Source"), null, "comment", null));
+
+        var bypass = events.getFirst();
+        assertEquals(AuditAction.PROTECTION_BYPASSED, bypass.action());
+        assertEquals(REPOSITORY_ID, bypass.target());
+        assertEquals(Map.of("branch", BRANCH, "project", "Copy"), bypass.details());
+    }
+
+    @Test
+    void aCopyThatFailedOnAProtectedBranchRecordsNoBypass() {
+        var source = sourceProject("Source");
+        when(repository.isBranchProtected(BRANCH)).thenReturn(true);
+        when(projectCreationService.copyProject(repository, "Copy", null, source, "comment", null))
+                .thenThrow(new ConflictException("project.exists.message"));
+        var model = new CreateFromProjectModel(sourceId("Source"), null, "comment", null);
+
+        assertThrows(ConflictException.class, () -> controller.createProjectFromProject(repository, "Copy", model));
+
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
+    void aBranchTheResolutionSpellsOtherwiseIsCheckedAsItResolves() {
+        var source = sourceProject("Source");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());
+        var resolved = mock(BranchRepository.class);
+        when(resolved.getId()).thenReturn(REPOSITORY_ID);
+        when(resolved.getBranch()).thenReturn(BRANCH);
+        when(resolved.supports()).thenReturn(new FeaturesBuilder(resolved).setBranches(true).build());
+        when(projectCreationTargetResolver.resolve(repository, "MAIN")).thenReturn(resolved);
+        when(projectCreationService.copyProject(resolved, "Copy", null, source, "comment", null))
+                .thenReturn(created("Copy"));
+
+        controller.createProjectFromProject(repository, "Copy",
+                new CreateFromProjectModel(sourceId("Source"), null, "comment", null, "MAIN"));
+
+        verify(bypassService).requireBypassOrThrow(repository, "MAIN", REPOSITORY_ID, false);
+        verify(bypassService).requireBypassOrThrow(resolved, BRANCH, REPOSITORY_ID, false);
     }
 
     @Test
@@ -231,8 +286,8 @@ class DesignTimeRepositoryControllerTest {
         controller.createProject(repository, "Project", null, "comment", List.of(archive), null, null, null,
                 "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx", false, null, null, false);
 
-        var order = inOrder(designRepositoryAclService, projectCreationService);
-        order.verify(designRepositoryAclService).createAcl(any(AProject.class), anyList(), eq(true));
+        var order = inOrder(projectCreationService);
+        order.verify(projectCreationService).finishArchiveUpload(any(AProject.class), eq(false));
         order.verify(projectCreationService).registerExtensibleTags(any(AProject.class));
         order.verify(projectCreationService).awaitProjectVisibility(repository);
         order.verify(projectCreationService).refreshWorkspaceAfterDesignChange();
@@ -307,7 +362,7 @@ class DesignTimeRepositoryControllerTest {
                         null, null, "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx",
                         false, null, null, false));
 
-        verify(designRepositoryAclService).createAcl(any(AProject.class), anyList(), eq(true));
+        verify(projectCreationService).finishArchiveUpload(any(AProject.class), eq(false));
         verify(projectCreationService).registerExtensibleTags(any(AProject.class));
         verify(projectCreationService, never()).refreshWorkspaceAfterDesignChange();
     }
