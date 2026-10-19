@@ -719,6 +719,7 @@ flowchart LR
 | Reformat Excel files | one compile of the project, one pass per table, one save per workbook |
 | Upload with format on save | one compile of the staged project, one pass per uploaded table, one write or commit |
 | Workbook growth | bounded by roles × edges × number formats; unused formats removed on reformat |
+| Named styles | one pass over them per workbook formatted, whatever their number |
 
 ### Measured
 
@@ -753,6 +754,15 @@ upload compiles within its request what an upload without formatting leaves to t
 - **Before this step** a value save of these tables took 24–30% longer with formatting on, and 36–43% more CPU: every
   save formatted every cell. The pass itself was made cheaper too: a cell format is read once and written only when
   it changes, and the header is written one run per piece.
+- **A workbook naming many styles** — Excel copies the named styles of a sheet along with it, so a workbook built
+  from the sheets of others can name tens of thousands. Formatting looks the role styles up among them in 50 ms for
+  50,000 styles, measured with POI alone. The list XMLBeans hands out reads the XML from its first element at each
+  access: walked over that list instead of the array, the same lookup made a one-cell save take 72 s, and 284 s the
+  next time (EPBDS-16931). The suite `task_EPBDS-16931-many-named-styles` of `ITEST/itest.studio/repos` formats two
+  saves of a workbook naming 20,000 styles within the 10 s a response may take in the `perf` profile; before the fix
+  both ran out of it. POI writes the cell styles of a workbook in a time that grows with the square of their
+  number, formatted or not: 0.7 s for 25,000, 2.5 s for 50,000 and 10 s for 100,000. **Reformat Excel files**
+  removes the unused ones.
 - **Not formatting's own limit** — POI refuses a record larger than 100 MB, so a 100 × 30,000 table cannot be opened
   for editing, and a 100 × 25,000 one saves once and then cannot be opened again, with formatting off as well.
 

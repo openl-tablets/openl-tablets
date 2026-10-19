@@ -73,8 +73,8 @@ final class UnusedStyles {
     }
 
     private static void markCellXfs(CTWorksheet worksheet, boolean[] used) {
-        for (var cols : worksheet.getColsList()) {
-            for (var col : cols.getColList()) {
+        for (var cols : worksheet.getColsArray()) {
+            for (var col : cols.getColArray()) {
                 if (col.isSetStyle()) {
                     mark(used, col.getStyle());
                 }
@@ -84,7 +84,7 @@ final class UnusedStyles {
             if (row.isSetS()) {
                 mark(used, row.getS());
             }
-            for (var cell : row.getCList()) {
+            for (var cell : row.getCArray()) {
                 if (cell.isSetS()) {
                     mark(used, cell.getS());
                 }
@@ -93,8 +93,8 @@ final class UnusedStyles {
     }
 
     private static void renumberCellXfs(CTWorksheet worksheet, int[] renumbered) {
-        for (var cols : worksheet.getColsList()) {
-            for (var col : cols.getColList()) {
+        for (var cols : worksheet.getColsArray()) {
+            for (var col : cols.getColArray()) {
                 if (col.isSetStyle()) {
                     col.setStyle(renumber(renumbered, col.getStyle()));
                 }
@@ -104,7 +104,7 @@ final class UnusedStyles {
             if (row.isSetS()) {
                 row.setS(renumber(renumbered, row.getS()));
             }
-            for (var cell : row.getCList()) {
+            for (var cell : row.getCArray()) {
                 if (cell.isSetS()) {
                     cell.setS(renumber(renumbered, cell.getS()));
                 }
@@ -112,9 +112,9 @@ final class UnusedStyles {
         }
     }
 
-    private static List<CTRow> rowsOf(CTWorksheet worksheet) {
+    private static CTRow[] rowsOf(CTWorksheet worksheet) {
         var data = worksheet.getSheetData();
-        return data == null ? List.of() : data.getRowList();
+        return data == null ? new CTRow[0] : data.getRowArray();
     }
 
     /**
@@ -142,7 +142,7 @@ final class UnusedStyles {
         }
         var named = sheet.getCellStyles();
         var kept = new ArrayList<CTCellStyle>();
-        for (var style : named.getCellStyleList()) {
+        for (var style : named.getCellStyleArray()) {
             var at = style.getXfId();
             if (at < used.length && used[(int) at]) {
                 style.setXfId(renumbered[(int) at]);

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -19,7 +20,9 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +49,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyle;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCellStyles;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
@@ -91,6 +95,9 @@ class ExcelTableFormatterTest {
     private static final ThemedColor TEXT = new ThemedColor(1, 0);
     private static final ThemedColor MUTED = new ThemedColor(1, 500);
     private static final ThemedColor LT2 = new ThemedColor(2, 0);
+
+    /** The named styles Excel leaves in a workbook whose sheets were copied from other workbooks. */
+    private static final int MANY_STYLES = 20_000;
 
     @TempDir
     Path dir;
@@ -411,12 +418,7 @@ class ExcelTableFormatterTest {
             input.setFillId(0);
             input.setBorderId(0);
             var at = styles.putCellStyleXf(input) - 1;
-            var named = styles.getCTStylesheet().addNewCellStyles();
-            var normal = named.addNewCellStyle();
-            normal.setName("Normal");
-            normal.setXfId(0);
-            normal.setBuiltinId(0);
-            var entry = named.addNewCellStyle();
+            var entry = namedStyles(sheet).addNewCellStyle();
             entry.setName("Input");
             entry.setXfId(at);
             entry.setBuiltinId(20);
@@ -429,6 +431,45 @@ class ExcelTableFormatterTest {
             var font = workbook.getStylesSource().getFontAt((int) definition.getFontId());
             assertEquals(FontScheme.MINOR, font.getScheme());
         }
+    }
+
+    /**
+     * A workbook naming tens of thousands of styles, as Excel leaves one whose sheets were copied from other workbooks,
+     * is formatted at once. The role styles are looked for among them whether the workbook names them or not.
+     */
+    @Test
+    void formatsAWorkbookNamingManyStylesAtOnce() throws IOException {
+        var model = TableTestProjects.projectModel(dir, SHEET, sheet -> {
+            fillSheet(sheet);
+            var named = namedStyles(sheet);
+            for (var at = 0; at < MANY_STYLES; at++) {
+                var copied = named.addNewCellStyle();
+                copied.setName("Copied style " + at);
+                copied.setXfId(0);
+            }
+        });
+
+        assertTimeout(Duration.ofSeconds(5), () -> format(model), "The role styles are added after the others");
+        var again = TableTestProjects.projectModel(dir);
+        assertTimeout(Duration.ofSeconds(5), () -> format(again), "The role styles are found after the others");
+
+        try (var workbook = read()) {
+            assertEquals("Title", namedStyleAt(workbook, RATE_ROW, 1).getName());
+            assertEquals("Input", namedStyleAt(workbook, RATE_ROW + 3, 2).getName());
+            assertEquals(1 + MANY_STYLES + 9,
+                    workbook.getStylesSource().getCTStylesheet().getCellStyles().sizeOfCellStyleArray(),
+                    "Normal, the copied styles and the nine role styles, each once");
+        }
+    }
+
+    /** Gives a workbook the list of named styles, naming its Normal style, as Excel writes the list. */
+    private static CTCellStyles namedStyles(Sheet sheet) {
+        var named = ((XSSFWorkbook) sheet.getWorkbook()).getStylesSource().getCTStylesheet().addNewCellStyles();
+        var normal = named.addNewCellStyle();
+        normal.setName("Normal");
+        normal.setXfId(0);
+        normal.setBuiltinId(0);
+        return named;
     }
 
     @Test
@@ -495,7 +536,7 @@ class ExcelTableFormatterTest {
     /** The named style a cell links. */
     private static CTCellStyle namedStyleAt(XSSFWorkbook workbook, int row, int column) {
         var xfId = styleAt(workbook, row, column).getCoreXf().getXfId();
-        return workbook.getStylesSource().getCTStylesheet().getCellStyles().getCellStyleList().stream()
+        return Arrays.stream(workbook.getStylesSource().getCTStylesheet().getCellStyles().getCellStyleArray())
                 .filter(named -> named.getXfId() == xfId)
                 .findFirst()
                 .orElseThrow();

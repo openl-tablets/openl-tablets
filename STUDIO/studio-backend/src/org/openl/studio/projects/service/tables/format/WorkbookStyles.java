@@ -260,7 +260,7 @@ final class WorkbookStyles {
 
     /** The named style of a built-in style, or {@code null} when the workbook names none. */
     private static @Nullable CTCellStyle builtIn(CTCellStyles named, long builtinId) {
-        for (var entry : named.getCellStyleList()) {
+        for (var entry : named.getCellStyleArray()) {
             if (entry.isSetBuiltinId() && entry.getBuiltinId() == builtinId) {
                 return entry;
             }
