@@ -54,6 +54,10 @@ import org.openl.studio.security.pat.model.PatAuthenticationToken;
  * <p>A request that brings credentials together with the session cookie of a browser the same user signed in
  * to belongs to that browser: it is the browser calling, the API documentation page for one.
  *
+ * <p>In single-user mode everything is kept for the one user, under its name: every browser and every other
+ * client acts as that user, and they share what it is kept for. A client that keeps no cookie, as a stateless
+ * MCP client, then finds the tests it ran in its previous request.
+ *
  * <p>What a credential is kept for ends once its requests have stopped for as long as an HTTP session would
  * last — never while one of them is running, and never at all when sessions never expire — and with the
  * application. Its beans are then destroyed, the latest created first, as they are when a session ends.
@@ -75,20 +79,22 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
     private final Scope httpSessions = new SessionScope();
     private final Map<String, Client> clients = new ConcurrentHashMap<>();
     private final long idleTimeoutNanos;
+    private final boolean singleUser;
     private final LongSupplier nanoClock;
     private @Nullable ScheduledExecutorService sweeper;
 
     /**
      * Keeps a credential's state for the given idle time; a time of zero or less keeps it for good, as a session
-     * timeout of zero or less does.
+     * timeout of zero or less does. In single-user mode, the state of every request is kept for the one user.
      */
-    public ClientSessions(Duration idleTimeout) {
-        this(idleTimeout, System::nanoTime);
+    public ClientSessions(Duration idleTimeout, boolean singleUser) {
+        this(idleTimeout, singleUser, System::nanoTime);
     }
 
     /** Tells the time by the given clock of nanoseconds; nothing is swept until the bean is started. */
-    ClientSessions(Duration idleTimeout, LongSupplier nanoClock) {
+    ClientSessions(Duration idleTimeout, boolean singleUser, LongSupplier nanoClock) {
         this.idleTimeoutNanos = idleTimeout.toNanos();
+        this.singleUser = singleUser;
         this.nanoClock = nanoClock;
     }
 
@@ -211,7 +217,7 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
             return found instanceof Client client ? client : null;
         }
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        var credential = credentialOf(attributes.getRequest(), authentication);
+        var credential = singleUser ? userOf(authentication) : credentialOf(attributes.getRequest(), authentication);
         if (credential == null) {
             // Settled only once the request is signed in: before that, it may still turn out to carry credentials.
             if (authentication != null && authentication.isAuthenticated()) {
@@ -257,6 +263,11 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
                     signedIn(user, opaque.getTokenAttributes().get(LogoutTokenClaimNames.SID));
             default -> user;
         };
+    }
+
+    /** The user the request is signed in as, or null before it is signed in. */
+    private static @Nullable String userOf(@Nullable Authentication authentication) {
+        return authentication != null && authentication.isAuthenticated() ? authentication.getName() : null;
     }
 
     private static String signedIn(String user, @Nullable Object signIn) {
