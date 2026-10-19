@@ -1,0 +1,10 @@
+HTTP/1.1 404 Not Found
+
+{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32000,
+    "message": "Invalid or missing MCP session ID"
+  },
+  "id": null
+}

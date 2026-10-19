@@ -1,0 +1,10 @@
+PUT /rest/users/profile HTTP/1.1
+Authorization: Token ${PAT}
+Content-Type: application/json
+
+{
+  "firstName": "Ada",
+  "lastName": "Admin",
+  "email": "admin@example.com",
+  "displayName": "Ada Admin"
+}

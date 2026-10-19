@@ -9,6 +9,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
 import org.openl.rules.webstudio.web.servlet.UserGuidesServlet;
+import org.openl.studio.mcp.McpProxyServlet;
 
 public final class RequestMatchers {
 
@@ -29,12 +30,19 @@ public final class RequestMatchers {
         return new OrRequestMatcher(matchers);
     }
 
-    /** The patterns of the addresses that answer a caller with data, not a page: the REST API and the handshake. */
+    /**
+     * The patterns of the addresses that answer a caller with data, not a page: the REST API, the WebSocket handshake
+     * and the MCP server.
+     */
     public static String[] apiPatterns() {
-        return new String[]{StudioDispatcherServlet.REST_PATH + "/**", StudioDispatcherServlet.WEB_SOCKET_PATH};
+        return new String[]{StudioDispatcherServlet.REST_PATH + "/**", StudioDispatcherServlet.WEB_SOCKET_PATH,
+                McpProxyServlet.PATH + "/**"};
     }
 
-    /** Matches the addresses that answer a caller with data, not a page: the REST API and the WebSocket handshake. */
+    /**
+     * Matches the addresses that answer a caller with data, not a page: the REST API, the WebSocket handshake and the
+     * MCP server.
+     */
     public static RequestMatcher api() {
         return anyOf(apiPatterns());
     }

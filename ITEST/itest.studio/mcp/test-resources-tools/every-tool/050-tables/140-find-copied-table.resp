@@ -1,0 +1,24 @@
+HTTP/1.1 200 OK
+
+{
+  "content": [
+    {
+      "id": "*",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "AgeFactorCopy",
+      "returnType": "Double",
+      "signature": "AgeFactorCopy(Integer age)",
+      "file": "McpTools/rules/Main.xlsx",
+      "sheet": "Copies",
+      "pos": "B2:C6",
+      "module": "Main",
+      "project": "McpTools",
+      "projectId": "0FPBaGP6vUeW"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

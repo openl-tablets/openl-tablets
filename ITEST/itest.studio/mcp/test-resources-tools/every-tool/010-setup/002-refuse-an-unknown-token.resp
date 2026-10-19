@@ -1,0 +1,8 @@
+HTTP/1.1 401 Unauthorized
+
+{
+  "origin": "org.openl.studio.mcp.McpProxyServlet",
+  "message": "Unauthorized",
+  "url": "http://example.com/mcp",
+  "status": "401"
+}

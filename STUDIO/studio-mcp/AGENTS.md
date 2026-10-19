@@ -4,7 +4,7 @@ This is the runtime reference for AI agents using the server — its tools and
 behaviour — and the conventions for changing it, in
 [Working in this module](#working-in-this-module) at the end. OpenL Studio carries
 the server in its war and serves it at `/mcp`; the design is
-[Built-in MCP Server for OpenL Studio](../../Docs/architecture/mcp-server-jetty-architecture.md).
+[Built-in MCP Server](../../Docs/architecture/mcp-server.md).
 
 ## Overview
 

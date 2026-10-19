@@ -135,6 +135,9 @@ A WAR runs in a Jakarta EE 10 servlet container with WebSocket support: Eclipse 
 - **Context path** — the context path of the application gives the name of its settings file. The `ROOT` application
   uses `.properties`; the application deployed as `/webstudio` uses `webstudio.properties`.
 - **Home directories** — `openl.home` and `openl.home.shared` are Java system properties or environment variables.
+- **MCP server** — the war carries the built-in MCP server, and OpenL Studio starts it on the loopback interface when
+  Node.js is on the `PATH` or in `mcp.node`, and serves it at `/mcp` under the context path of the application; set
+  `mcp.enabled=false` to keep it off.
 
 ## Production Setup
 

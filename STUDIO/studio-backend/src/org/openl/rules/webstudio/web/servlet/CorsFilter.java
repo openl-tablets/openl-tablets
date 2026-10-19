@@ -24,6 +24,7 @@ public class CorsFilter implements Filter {
     private boolean allowedAny;
     private String allowedMethods;
     private String allowedHeaders;
+    private String exposedHeaders;
     private String maxAge;
 
     @Override
@@ -38,6 +39,9 @@ public class CorsFilter implements Filter {
             httpResponse.addHeader("Access-Control-Max-Age", maxAge);
             httpResponse.addHeader("Access-Control-Allow-Methods", allowedMethods);
             httpResponse.addHeader("Access-Control-Allow-Headers", allowedHeaders);
+            if (StringUtils.isNotBlank(exposedHeaders)) {
+                httpResponse.addHeader("Access-Control-Expose-Headers", exposedHeaders);
+            }
             if ("OPTIONS".equals(httpRequest.getMethod())) {
                 httpResponse.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return;
@@ -70,6 +74,7 @@ public class CorsFilter implements Filter {
         allowedOrigins = StringUtils.split(allowed, ',');
         allowedMethods = env.getProperty("cors.allowed.methods");
         allowedHeaders = env.getProperty("cors.allowed.headers");
+        exposedHeaders = env.getProperty("cors.exposed.headers");
         maxAge = env.getProperty("cors.preflight.maxage");
     }
 }

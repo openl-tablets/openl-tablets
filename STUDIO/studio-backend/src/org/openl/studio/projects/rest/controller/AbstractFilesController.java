@@ -170,10 +170,9 @@ public abstract class AbstractFilesController {
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(filesService.getNode(root, filePath, version));
         }
-        // Stream the content synchronously to the response. The servlet filter chain is not declared
-        // async-supported (see web.xml), so an asynchronous StreamingResponseBody would fail; writing in
-        // the request thread streams without buffering the whole file in memory. Existence and
-        // permissions are resolved first, so a missing or forbidden file fails before anything is written.
+        // Stream the content to the response in the request thread, without buffering the whole file in memory.
+        // Existence and permissions are resolved first, so a missing or forbidden file fails before anything is
+        // written.
         var resource = filesService.getResource(root, filePath, version);
         var fileName = resource.getName();
         response.setContentType(MediaTypeFactory.getMediaType(fileName)

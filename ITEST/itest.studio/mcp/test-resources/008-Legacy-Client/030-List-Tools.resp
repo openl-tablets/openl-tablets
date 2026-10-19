@@ -1,0 +1,5 @@
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+
+event: message
+data: {"result":{"tools":[*"name":"openl_list_repositories"*]},"jsonrpc":"2.0","id":2}

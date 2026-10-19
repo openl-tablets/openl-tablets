@@ -1,0 +1,9 @@
+HTTP/1.1 201 Created
+
+{
+  "publicId": "*",
+  "name": "mcp-tools",
+  "loginName": "admin",
+  "token": "openl_pat_*",
+  "createdAt": "#-#-#T#:#:#.#Z"
+}

@@ -39,10 +39,10 @@ public class CommonAuthenticationConfig {
     /**
      * Finds who signed in to a browser session for an API request, and never saves who a request signed in as.
      *
-     * <p>An API request — a REST call or the WebSocket handshake — either belongs to a browser session, whose
-     * sign-in the login filters have already saved in it, or carries its own credentials — a bearer token, a
-     * personal access token — that hold for that request alone. Saving those would open an HTTP session for every
-     * such request.
+     * <p>An API request — a REST call, the WebSocket handshake or an MCP call — either belongs to a browser session,
+     * whose sign-in the login filters have already saved in it, or carries its own credentials — a bearer token, a
+     * personal access token — that hold for that request alone. Saving those would open an HTTP session for every such
+     * request.
      */
     @Bean
     public SecurityContextHolderFilter restSecurityContextFilter() {

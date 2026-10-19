@@ -1,12 +1,14 @@
 # Technology Stack
 
 This page lists the technologies the build declares. The versions are the properties of the root `pom.xml` and the
-dependencies of `STUDIO/studio-ui/package.json`; they are not repeated here.
+dependencies of `STUDIO/studio-ui/package.json` and `STUDIO/studio-mcp/package.json`; they are not repeated here.
 
 ## Language and Build
 
 - **Java** — the code compiles with `--release 21`; the nightly build runs on Java 21, 25 and 27.
-- **Maven** — one multi-module build. `frontend-maven-plugin` installs Node.js and npm and builds `studio-ui`.
+- **Maven** — one multi-module build. `frontend-maven-plugin` installs Node.js and npm and builds `studio-ui` and
+  `studio-mcp`.
+- **Node.js** — runs the built-in MCP server of OpenL Studio; the Docker image carries the runtime.
 - **Lombok** and **JSpecify** — generated accessors and constructors, and nullness annotations.
 - **Spotless** — formatting, applied locally and checked in CI. **JaCoCo** — coverage, enabled with `-Dsonar`.
 

@@ -439,20 +439,23 @@ repository.production.listener-timer-period = 10
 
 ### Cross-Origin Requests
 
-Needed when a browser application served from another origin calls the OpenL Studio REST API. No value for
-`cors.allowed.origins` means the API cannot be called cross-origin at all.
+Needed when a browser application served from another origin calls the OpenL Studio REST API or its MCP server. No
+value for `cors.allowed.origins` means neither can be called cross-origin at all. The default allowed and exposed
+headers include the ones of the MCP protocol.
 
 | Property                | Description                                                                    |
 |-------------------------|--------------------------------------------------------------------------------|
 | `cors.allowed.origins`  | Comma-separated allowed origins. An asterisk allows any origin.                |
 | `cors.allowed.methods`  | Comma-separated allowed HTTP methods.                                          |
 | `cors.allowed.headers`  | Comma-separated allowed request headers.                                       |
+| `cors.exposed.headers`  | Comma-separated response headers a page of an allowed origin may read.         |
 | `cors.preflight.maxage` | Seconds a browser may cache a pre-flight response.                             |
 
 ```properties
 cors.allowed.origins = https://apps.example.com
 cors.allowed.methods = GET,OPTIONS,HEAD,PUT,POST
-cors.allowed.headers = Content-Type,Accept,api_key,Authorization
+cors.allowed.headers = Content-Type,Accept,api_key,Authorization,Mcp-Session-Id,MCP-Protocol-Version,Mcp-Method,Mcp-Name,Last-Event-ID
+cors.exposed.headers = Mcp-Session-Id
 cors.preflight.maxage = 7200
 ```
 
@@ -475,6 +478,31 @@ webstudio.bcrypt.strength = 10
 
 Each algorithm verifies only its own hashes: `bcrypt` rejects plain-text values, and `noop` rejects bcrypt hashes.
 Passwords and tokens stored under one value therefore stop working after a switch to the other.
+
+### Built-in MCP Server
+
+OpenL Studio runs an MCP server, through which AI agents and IDEs work with OpenL projects, and serves it at `/mcp` of
+its own address, behind its own security. The server is a Node.js program: OpenL Studio starts it on the loopback
+interface when Node.js is installed, and starts it again whenever the settings change. Without Node.js, OpenL Studio
+runs without the server and logs a warning. For connecting and using AI agents, see the [OpenL Studio MCP Server
+Guide](../mcp-server/index.md).
+
+| Property         | Description                                                                                      |
+|------------------|--------------------------------------------------------------------------------------------------|
+| `mcp.enabled`    | Starts the server. The default is `true`.                                                        |
+| `mcp.node`       | Node.js executable: a name on the `PATH`, the default `node`, or an absolute path.               |
+
+```properties
+mcp.enabled = true
+mcp.node = node
+```
+
+A web page of another origin calls the server from a browser only when `cors.allowed.origins` lists its origin, as for
+the REST API; see [Cross-Origin Requests](#cross-origin-requests). An MCP client picks which of the tools of the server
+its agent uses.
+
+The server calls OpenL Studio back over HTTP at the local address and port a request to `/mcp` comes in through. For
+OpenL Studio that accepts only HTTPS, end TLS in front of it, at a reverse proxy or a load balancer.
 
 ### Migration Attribution
 

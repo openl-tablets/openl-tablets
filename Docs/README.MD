@@ -44,7 +44,7 @@ Studio.
   [Decision Table Condition Indexing](architecture/decision-table-condition-indexing.md),
   [Upload Integrity](architecture/upload-integrity.md),
   [Embedded User Guides](architecture/embedded-user-guides.md), the design of the
-  [Built-in MCP Server](architecture/mcp-server-jetty-architecture.md) and its
+  [Built-in MCP Server](architecture/mcp-server.md) and its
   [internals](architecture/mcp-server-internals.md), [Table Formatting](architecture/table-formatting.md),
   [Stable Table Ids](architecture/table-ids.md), and [Stable Project Ids](architecture/project-ids.md).
 - [Release Checklist](release.md) — the steps of a release.

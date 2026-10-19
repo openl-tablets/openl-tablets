@@ -1,0 +1,4 @@
+DELETE /mcp HTTP/1.1
+Mcp-Session-Id: ${MCP_SESSION_ID}
+MCP-Protocol-Version: 2025-11-25
+

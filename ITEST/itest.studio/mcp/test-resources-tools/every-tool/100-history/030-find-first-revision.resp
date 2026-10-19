@@ -1,0 +1,33 @@
+HTTP/1.1 200 OK
+
+{
+  "content": [
+    {
+      "revisionNo": "@",
+      "shortRevisionNo": "@",
+      "createdAt": "#-#-#T#:#:#-#:#",
+      "fullComment": "Build the rules",
+      "author": {
+        "email": "admin@example.com",
+        "displayName": "Ada Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "@",
+      "shortRevisionNo": "@",
+      "createdAt": "#-#-#T#:#:#-#:#",
+      "fullComment": "Create the project",
+      "author": {
+        "email": "admin@example.com",
+        "displayName": "Ada Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2
+}
