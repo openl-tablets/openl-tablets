@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,9 @@ import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.ConflictBase;
@@ -80,6 +84,8 @@ import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 class ProjectsMergeConflictsServiceImplTest {
+
+    private final List<AuditEvent> events = new ArrayList<>();
 
     private static final String FIRST_FILE = "rules/DeletedOurs.xlsx";
     private static final String SECOND_FILE = "rules/DeletedTheirs.xlsx";
@@ -1087,6 +1093,11 @@ class ProjectsMergeConflictsServiceImplTest {
         verify(target).save(any(FileData.class), any(), eq(ChangesetType.DIFF));
         verify(repository, never()).read("rules/rules.xml");
         verify(repository, never()).save(any(FileData.class), any(), any());
+        var merged = events.getFirst();
+        assertEquals(AuditAction.BRANCH_MERGED, merged.action());
+        assertEquals("main", merged.details().get("branch"));
+        assertEquals("feature", merged.details().get("sourceBranch"));
+        assertEquals(true, merged.details().get("conflictsResolved"));
     }
 
     private static String descriptor(String module) {
@@ -1176,7 +1187,8 @@ class ProjectsMergeConflictsServiceImplTest {
         var service = new ProjectsMergeConflictsServiceImpl(mergeChangesService,
                 conflictsSessionHolder,
                 new ConflictWorkbookMapper(new RawTableReader()),
-                formatting) {
+                formatting,
+                new ProjectAuditor(event -> events.add((AuditEvent) event))) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return workspace;

@@ -1,5 +1,7 @@
 package org.openl.studio.repositories.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
@@ -10,7 +12,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
@@ -19,6 +23,9 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -29,8 +36,9 @@ class ProjectCreationTargetResolverTest {
     private final BeanValidationProvider validationProvider = mock(BeanValidationProvider.class);
     @SuppressWarnings("unchecked")
     private final Function<BranchRepository, NewBranchValidator> validatorFactory = mock(Function.class);
+    private final List<Object> events = new ArrayList<>();
     private final ProjectCreationTargetResolver resolver =
-            new ProjectCreationTargetResolver(validationProvider, validatorFactory);
+            new ProjectCreationTargetResolver(validationProvider, validatorFactory, new ProjectAuditor(events::add));
 
     @Test
     void omittedBranchKeepsConfiguredRepositoryView() {
@@ -88,11 +96,16 @@ class ProjectCreationTargetResolverTest {
         when(repository.getBaseBranch()).thenReturn("main");
         when(repository.forBranch("feature/rates")).thenReturn(target);
         when(validatorFactory.apply(repository)).thenReturn(validator);
+        when(repository.getId()).thenReturn("design");
 
         assertSame(target, resolver.resolve(repository, "feature/rates"));
 
         verify(validationProvider).validate("feature/rates", validator);
         verify(repository).createRepositoryBranch("feature/rates", "main");
+        var event = assertInstanceOf(AuditEvent.class, events.getFirst());
+        assertEquals(AuditAction.BRANCH_CREATED, event.action());
+        assertEquals("design", event.target());
+        assertEquals(Map.of("branch", "feature/rates", "startPoint", "main"), event.details());
     }
 
     @Test

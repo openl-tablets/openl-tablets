@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -15,13 +16,13 @@ import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 
@@ -38,6 +39,9 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -76,6 +80,7 @@ class WorkspaceProjectServiceDeleteBranchTest {
     private RulesProject project;
     private BranchRepository repository;
     private WorkspaceProjectService service;
+    private final List<Object> events = new ArrayList<>();
 
     @BeforeEach
     void init() throws IOException {
@@ -123,7 +128,8 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(TableWriterExecutor.class),
                 mock(TableWritersFactory.class),
                 mock(SystemPropertiesService.class),
-                mock(ApplicationEventPublisher.class),
+                events::add,
+                new ProjectAuditor(events::add),
                 mock(ProtectedBranchBypassService.class),
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
@@ -184,6 +190,34 @@ class WorkspaceProjectServiceDeleteBranchTest {
         doThrow(new AccessDeniedException(BRANCH)).when(repository).deleteRepositoryBranch(BRANCH);
 
         assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, false));
+    }
+
+    @Test
+    void aProtectedBranchDeletedRecordsTheBypassAfterTheDeletion() {
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+        when(repository.isBranchProtected(BRANCH)).thenReturn(true);
+
+        service.deleteBranch(project, BRANCH, true);
+
+        assertEquals(List.of(AuditAction.BRANCH_DELETED, AuditAction.PROTECTION_BYPASSED), auditActions());
+    }
+
+    @Test
+    void aProtectedBranchThatFailedToBeDeletedRecordsNoBypass() throws IOException {
+        when(lockEngine.getLockInfo("design", BRANCH, "DESIGN/rules/P1")).thenReturn(LockInfo.NO_LOCK);
+        when(repository.isBranchProtected(BRANCH)).thenReturn(true);
+        doThrow(new AccessDeniedException(BRANCH)).when(repository).deleteRepositoryBranch(BRANCH);
+
+        assertThrows(ForbiddenException.class, () -> service.deleteBranch(project, BRANCH, true));
+
+        assertEquals(List.of(), auditActions());
+    }
+
+    private List<AuditAction> auditActions() {
+        return events.stream()
+                .filter(AuditEvent.class::isInstance)
+                .map(event -> ((AuditEvent) event).action())
+                .toList();
     }
 
     @Test

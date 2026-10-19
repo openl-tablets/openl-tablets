@@ -24,14 +24,14 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.ParametersAreNonnullByDefault;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,6 +39,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.stereotype.Service;
 
 import org.openl.message.OpenLMessage;
@@ -61,9 +62,7 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RepositoryWriteException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
-import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
-import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -100,6 +99,7 @@ import org.openl.rules.workspace.dtr.BranchedProjectIndexService.IndexState;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -186,7 +186,7 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 @Service
-@ParametersAreNonnullByDefault
+@NullMarked
 @Slf4j
 public class WorkspaceProjectService extends AbstractProjectService<RulesProject> {
 
@@ -225,6 +225,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private final TableWritersFactory tableWritersFactory;
     private final SystemPropertiesService systemPropertiesService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ProjectAuditor auditor;
     private final ProtectedBranchBypassService bypassService;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
     private final LocalWorkspaceManager localWorkspaceManager;
@@ -258,6 +259,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             TableWritersFactory tableWritersFactory,
             SystemPropertiesService systemPropertiesService,
             ApplicationEventPublisher eventPublisher,
+            ProjectAuditor auditor,
             ProtectedBranchBypassService bypassService,
             DetailedMessageDescriptionMapper detailedMessageDescriptionMapper,
             LocalWorkspaceManager localWorkspaceManager,
@@ -293,6 +295,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         this.tableWritersFactory = tableWritersFactory;
         this.uploadFormatting = uploadFormatting;
         this.eventPublisher = eventPublisher;
+        this.auditor = auditor;
         this.bypassService = bypassService;
         this.detailedMessageDescriptionMapper = detailedMessageDescriptionMapper;
         this.localWorkspaceManager = localWorkspaceManager;
@@ -335,8 +338,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * @return the naming strategy of the project, or {@code null} when the project names steps as they are written
      */
-    @Nullable
-    public SpreadsheetResultBeanPropertyNamingStrategy getSpreadsheetResultNamingStrategy() {
+    public @Nullable SpreadsheetResultBeanPropertyNamingStrategy getSpreadsheetResultNamingStrategy() {
         var studio = getWebStudio();
         var namingStrategy = ProjectJacksonObjectMapperFactoryBean.extractPropertyNamingStrategy(
                 studio.getCurrentProjectRulesDeploy(),
@@ -788,19 +790,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     @Override
     protected Stream<RulesProject> getProjects0(ProjectCriteriaQuery query) {
         var workspace = getUserWorkspace();
-        Collection<RulesProject> projects;
         if (query.hasRepositoryFilter() && !query.localRepositorySelected()) {
             return query.designRepositoryIds().stream()
                     .map(workspace::getProjects)
                     .flatMap(Collection::stream);
-        } else {
-            // FIXME: the no-arg getProjects() force-refreshes the whole user workspace (rebuilds all ~160 RulesProject
-            //  instances on every request — the dominant cost of the list and its facet-count scan). getProjects(false)
-            //  is far cheaper but serves stale cross-session state (deleted repos still listed, fresh ACL grants stay
-            //  invisible), so it is reverted until workspace-cache invalidation is fixed.
-            projects = workspace.getProjects();
         }
-        return projects.stream();
+        // FIXME: the no-arg getProjects() force-refreshes the whole user workspace (rebuilds all ~160 RulesProject
+        //  instances on every request — the dominant cost of the list and its facet-count scan). getProjects(false)
+        //  is far cheaper but serves stale cross-session state (deleted repos still listed, fresh ACL grants stay
+        //  invisible), so it is reverted until workspace-cache invalidation is fixed.
+        return workspace.getProjects().stream();
     }
 
     @Override
@@ -828,7 +827,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected Predicate<AProject> buildStatusFilterCriteria(ProjectCriteriaQuery query,
                                                             Map<AProject, ProjectStatus> statuses) {
         if (query.hasStatusFilter()) {
@@ -839,7 +838,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     @Override
-    @Nonnull
+    @NonNull
     protected Predicate<AProject> buildFilterCriteria(ProjectCriteriaQuery query) {
         Predicate<AProject> filter = super.buildFilterCriteria(query);
 
@@ -872,11 +871,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     @Override
     protected Map<String, IndexHealth> projectIndexHealth() {
-        var workspace = getUserWorkspace();
-        if (workspace == null) {
-            return Map.of();
-        }
-        var designRepository = workspace.getDesignTimeRepository();
+        var designRepository = getUserWorkspace().getDesignTimeRepository();
         return designRepository.getRepositories()
                 .stream()
                 .flatMap(repository -> designRepository.getProjectIndexHealth(repository.getId())
@@ -928,13 +923,18 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Forcibly release the lock held on a project.
+     * Forcibly release the lock held on a project. Releasing the lock of another user is recorded in the audit log;
+     * releasing one's own is not.
      *
      * @param project locked project to unlock
      */
     public void unlockProject(RulesProject project) {
         requireGranted(project, BasePermission.ADMINISTRATION);
+        var lock = project.getLockInfo();
         project.forceUnlock();
+        if (lock.isLocked() && !project.isLockedByMe(lock)) {
+            auditor.unlocked(project, lock.getLockedBy());
+        }
     }
 
     /**
@@ -942,7 +942,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * <p>A project of a repository with branches is saved once the project index publishes the saved revision, so
      * the next read of the project sees it. When the index does not publish it in time, the saved revision stays
-     * committed and the save reports incomplete indexing.
+     * committed and the save reports incomplete indexing. The save is recorded in the audit log either way.
      *
      * @param project project
      * @param model   project status update model
@@ -961,6 +961,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         validateComment(project, comment);
         project.getFileData().setComment(comment);
         commit(project);
+        auditor.saved(project, comment, null);
         // The next read of the project is served from the index, which must hold the saved revision by then.
         var indexPublished = !project.isSupportsBranches()
                 || refreshProjectIndex(project.getDesignRepository(), project.getBranch());
@@ -1118,8 +1119,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.delete.message");
         }
         var indexPublished = localOnly || refreshProjectIndex(repository, branch);
+        Map<Sid, List<Permission>> removedPermissions = Map.of();
         if (!localOnly && indexPublished && !isAclPathStillUsed(repository, projectName, aclPath)) {
+            removedPermissions = designRepositoryAclService.listPermissions(repository.getId(), aclPath);
             designRepositoryAclService.deleteAcl(repository.getId(), aclPath);
+        }
+        if (!localOnly) {
+            auditor.deleted(project, normalizedComment, removedPermissions);
         }
         workspaceManager.refreshWorkspaces();
         getWebStudio().reset();
@@ -1191,8 +1197,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             log.warn("Failed to close project '{}' before deletion", businessName, e);
         }
 
-        File workspacesRoot = getUserWorkspace().getLocalWorkspace().getLocation().getParentFile();
-        File[] files = workspacesRoot.listFiles();
+        var workspacesRoot = getUserWorkspace().getLocalWorkspace().getLocation().getParentFile();
+        var files = workspacesRoot.listFiles();
         if (files == null) {
             return;
         }
@@ -1209,16 +1215,16 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             return;
         }
         try {
-            LocalRepository repository = localWorkspaceManager.getWorkspace(file.getName()).getRepository(repoId);
+            var repository = localWorkspaceManager.getWorkspace(file.getName()).getRepository(repoId);
             repository.initialize();
 
-            ProjectState projectState = repository.getProjectState(businessName);
+            var projectState = repository.getProjectState(businessName);
             var savedRepoId = projectState.getRepositoryId();
-            FileData savedData = projectState.getFileData();
+            var savedData = projectState.getFileData();
             var savedBranch = savedData == null ? null : savedData.getBranch();
 
             if (Objects.equals(savedRepoId, repoId) && Objects.equals(savedBranch, branch)) {
-                FileData fileData = new FileData();
+                var fileData = new FileData();
                 fileData.setName(businessName);
                 repository.delete(fileData);
             }
@@ -1252,7 +1258,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
 
         if (StringUtils.isNotBlank(model.revision())) {
-            AProject historic = new AProject(project.getDesignRepository(),
+            var historic = new AProject(project.getDesignRepository(),
                     project.getDesignFolderName(),
                     model.revision());
             if (workspace.isOpenedOtherProject(historic)) {
@@ -1340,9 +1346,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 deleteProjectHistory(previousBusinessName);
                 if (workspace.isOpenedOtherProject(project)) {
                     throw new ConflictException("open.duplicated.project");
-                } else {
-                    project.open();
                 }
+                project.open();
             }
         }
         publishStateChanged(project);
@@ -1372,7 +1377,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
-     * Create a new branch
+     * Create a new branch, recorded in the audit log.
      *
      * @param project project
      * @param model   branch creation model
@@ -1392,6 +1397,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         try {
             var startPoint = StringUtils.isNotBlank(model.getRevision()) ? model.getRevision() : project.getBranch();
             securedRepository.createRepositoryBranch(model.getBranch(), startPoint);
+            auditor.branchCreated(repository.getId(), model.getBranch(), startPoint, project.getBusinessName());
         } catch (AccessDeniedException e) {
             throw new ForbiddenException("default.message");
         } catch (IOException e) {
@@ -1412,8 +1418,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * <p>The configured type is read once per repository per request: a page of projects repeats the same
      * few repositories.
      */
-    @Nullable
-    private ProjectRepositoryModel mapRepositoryInfo(RulesProject project) {
+    private @Nullable ProjectRepositoryModel mapRepositoryInfo(RulesProject project) {
         if (project.isLocalOnly()) {
             return null;
         }
@@ -1498,16 +1503,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private List<String> projectBranches(RulesProject project) {
-        var workspace = getUserWorkspace();
-        if (workspace != null) {
-            var entries = workspace.getDesignTimeRepository()
-                    .getBranchedProject(project.getDesignRepository().getId(),
-                            project.getDesignProjectName())
-                    .map(branchedProject -> branchedProject.entries().keySet())
-                    .orElse(Set.of());
-            if (!entries.isEmpty()) {
-                return entries.stream().sorted(String.CASE_INSENSITIVE_ORDER).toList();
-            }
+        var entries = getUserWorkspace().getDesignTimeRepository()
+                .getBranchedProject(project.getDesignRepository().getId(), project.getDesignProjectName())
+                .map(branchedProject -> branchedProject.entries().keySet())
+                .orElse(Set.of());
+        if (!entries.isEmpty()) {
+            return entries.stream().sorted(String.CASE_INSENSITIVE_ORDER).toList();
         }
         return StringUtils.isBlank(project.getBranch()) ? List.of() : List.of(project.getBranch());
     }
@@ -1517,7 +1518,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      *
      * <p>The repository main branch cannot be deleted, and a missing branch is reported as not found. When the project
      * is currently opened on the branch being deleted, it is released first. Deleting a protected branch requires an
-     * eligible user and the {@code force} flag.
+     * eligible user and the {@code force} flag. The deletion is recorded in the audit log.
      *
      * <p>A branch on which the project is locked by another user cannot be deleted: the lock means the user
      * is editing the project there. The lock owner can delete the branch.
@@ -1551,6 +1552,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             bypassService.requireBypassOrThrow(repository, branch, project, force);
             var restoreOpenedState = releaseProjectOnBranch(project, branch);
             securedRepository.deleteRepositoryBranch(branch);
+            auditor.branchDeleted(repositoryId, branch, projectName);
+            auditor.bypassed(repository, branch, projectName);
             if (!refreshRepositoryIndex(repository)) {
                 throw new ProjectException("The deleted branch was not published by the project index.");
             }
@@ -1846,7 +1849,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @return handle exposing the project model and its compilation job
      */
     public ProjectHandle openProject(RulesProject project) {
-        return openProject(project, (String) null);
+        return openProject(project, null);
     }
 
     /**
@@ -2639,7 +2642,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var formatter = new ExcelTableFormatter();
         var formatted = new ArrayList<String>();
         var edited = new ArrayList<IGridTable>();
-        Map<XlsWorkbookSourceCodeModule, XlsSheetGridModel> saved = new IdentityHashMap<>();
+        var saved = new IdentityHashMap<XlsWorkbookSourceCodeModule, XlsSheetGridModel>();
         try {
             for (var table : tables) {
                 var grid = GridTableUtils.getOriginalTable(table.getGridTable());
@@ -2864,7 +2867,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                                                IOpenLTable source,
                                                CopyTableRequest request,
                                                String sheetName) throws ProjectException {
-        boolean moduleCreated = false;
+        var moduleCreated = false;
         try {
             var projectDescriptor = getProjectDescriptor(project);
             requireModuleAbsent(projectDescriptor.getModules(), request.moduleName(), request.modulePath());

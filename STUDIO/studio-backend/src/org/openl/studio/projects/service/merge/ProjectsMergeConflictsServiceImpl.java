@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -57,6 +58,7 @@ import org.openl.rules.xls.merge.diff.SheetConflictReason;
 import org.openl.rules.xls.merge.diff.UnresolvedConflictsException;
 import org.openl.rules.xls.merge.diff.WorkbookConflicts;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.FileIntegrityValidator;
@@ -87,6 +89,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ConflictWorkbookMapper workbookMapper;
     private final MergedWorkbookFormatting mergedWorkbookFormatting;
+    private final ProjectAuditor auditor;
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -172,8 +175,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         return files;
     }
 
-    @Nullable
-    private FileData getFirstFile(Map<String, FileData> files, Iterable<String> conflictedFiles) {
+    private @Nullable FileData getFirstFile(Map<String, FileData> files, Iterable<String> conflictedFiles) {
         for (var path : conflictedFiles) {
             var file = files.get(path);
             if (file != null) {
@@ -194,7 +196,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 .map(UserInfo::getName)
                 .orElse(null);
         var modifiedAt = Optional.ofNullable(fileData.getModifiedAt())
-                .map(java.util.Date::toInstant)
+                .map(Date::toInstant)
                 .orElse(null);
         return RevisionDetails.of(commit, branch, author, modifiedAt);
     }
@@ -208,16 +210,15 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         var groups = new TreeMap<String, ConflictGroup>((p1, p2) -> {
             if (p1.equals(p2)) {
                 return 0;
-            } else {
-                // Put empty project name to be latest.
-                if (p1.isEmpty()) {
-                    return 1;
-                }
-                if (p2.isEmpty()) {
-                    return -1;
-                }
-                return p1.compareToIgnoreCase(p2);
             }
+            // Put empty project name to be latest.
+            if (p1.isEmpty()) {
+                return 1;
+            }
+            if (p2.isEmpty()) {
+                return -1;
+            }
+            return p1.compareToIgnoreCase(p2);
         });
         var workspace = getUserWorkspace();
         var repositoryId = mergeConflictInfo.getRepositoryId();
@@ -515,11 +516,10 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         var project = mergeConflict.project();
         if (!mergeConflict.isMerging()) {
             return project.getDesignRepository();
-        } else {
-            var id = mergeConflict.getRepositoryId();
-            return ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(id))
-                    .forBranch(mergeConflict.mergeBranchTo());
         }
+        var id = mergeConflict.getRepositoryId();
+        return ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(id))
+                .forBranch(mergeConflict.mergeBranchTo());
     }
 
     @Override
@@ -574,12 +574,16 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
             MergeOutcome outcome = null;
             if (isMerging) {
                 targetProjectsBefore = mergeChangesService.projectsBefore(repositoryId, branch);
-                outcome = ((BranchRepository) designRepository).forBranch(branch)
+                var branchRepository = (BranchRepository) designRepository;
+                outcome = branchRepository.forBranch(branch)
                         .merge(mergeConflictInfo.mergeBranchFrom(),
                                 workspace.getUser().getUserInfo(),
                                 conflictResolveData);
+                auditor.merged(project, mergeConflictInfo.mergeBranchFrom(), branch, true);
+                auditor.bypassed(branchRepository, branch, project.getBusinessName());
             } else {
                 project.save(conflictResolveData);
+                auditor.saved(project, mergeMessage, "conflictResolution");
             }
 
             var descriptors = updateRulesXmlFiles(mergeConflictInfo, modulesToAppend, branch, mergeMessage);
@@ -807,7 +811,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
                 var moduleInternalPath = name.substring(projectPath.length() + 1);
                 var repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
 
-                Module module = findResolvedModule(mergeConflictInfo, repository, rulesXmlFile, moduleInternalPath);
+                var module = findResolvedModule(mergeConflictInfo, repository, rulesXmlFile, moduleInternalPath);
 
                 if (module != null) {
                     var modules = modulesToAppend.computeIfAbsent(projectPath, k -> new ArrayList<>());

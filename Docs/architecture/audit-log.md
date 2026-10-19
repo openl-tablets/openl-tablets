@@ -1,9 +1,10 @@
 # Audit Log
 
-OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who
-changed users, groups, personal access tokens and access rights, whose request was refused for lack of permission, and
-who read the log. Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page
-describes where the events come from, how they are kept and how they are read. The user guide describes the page:
+OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who changed
+users, groups, personal access tokens and access rights, whose request was refused for lack of permission, who created,
+saved, deleted and deployed projects and changed the branches of their repositories, and who read the log.
+Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes where the
+events come from, how they are kept and how they are read. The user guide describes the page:
 [Reviewing the Audit Log](../user-guides/openl-studio/administration/08-audit-log.md).
 
 ## An Event
@@ -17,6 +18,9 @@ on Oracle in `V17.1`, the search indexes of PostgreSQL in `V17.1` of its own), m
   `bearer`, `oauth2`, `saml`);
 - **category**, **action** and **outcome** (`success`, `failure`, `denied`) — `AuditAction` names its category;
 - **target** — the kind and the name of the object the action was done to, kept whole however long it is;
+- **project** — the project the action was made on: the target of an action on a project, or the project a branch,
+  a bypass of a branch protection or a deployment was made from (`AuditService` reads it from the `project` detail
+  `ProjectAuditor` writes). It is not shown: a search by the target matches it too;
 - **subject** — the user or the group whose access or membership the action changed;
 - **details** — a JSON object of what else tells the action apart, kept whole however long it is.
 
@@ -27,11 +31,11 @@ is never recorded; a personal access token is named by its public id.
 
 `AuditService.recordEvent(AuditEvent)` puts an event into the log. An event that names no actor is recorded for the
 signed-in user, or for no one when OpenL Studio acts by itself, and with the way that user signed in
-(`AuthenticationMethods`). The address of the client comes from the current request: behind a proxy, it is the
-address the proxy forwards only when the container reads the forwarded headers, as the OpenL Studio image does (see
-[Deployment](../DEPLOYMENT.md)). The event is saved in the
-transaction of the caller, so a change and its event are saved together, and an event of a change that is rolled back is
-rolled back too. Outside a transaction the event is saved at once.
+(`AuthenticationMethods`). The address of the client comes from the current request, or from the request that started
+the task recording the event (`AuditClient`): behind a proxy, it is the address the proxy forwards only when the
+container reads the forwarded headers, as the OpenL Studio image does (see [Deployment](../DEPLOYMENT.md)). The event is
+saved in the transaction of the caller, so a change and its event are saved together, and an event of a change that is
+rolled back is rolled back too. Outside a transaction the event is saved at once.
 
 In the Single-User mode `recordEvent` does nothing: there is no sign-in and no access control to account for.
 
@@ -99,8 +103,10 @@ Security holds:
   header is `basic`, a session is `form`.
 
 A sign-in event names the way of the attempt itself. An event that names its actor otherwise names no way, as the
-signed-in user is not that actor. Outside a request, as in a task running in a thread of its own, a user name and a
-password tell nothing, so such an event names no way.
+signed-in user is not that actor. A task that a request hands to a thread of its own, such as a merge, records its
+events for the client of that request: the thread pools of OpenL Studio (`AsyncExecutors`) carry its address and its
+way of sign-in to the task along with the user. Outside a request and such a task, a user name and a password tell
+nothing, so such an event names no way.
 
 ## Users, Groups and Tokens
 
@@ -156,11 +162,61 @@ A request without a sign-in is answered `401` by the security chain and is not r
 The WebSocket channel refuses only the messages of a client that is not signed in, so its refusals are not recorded
 either.
 
+## Projects
+
+`ProjectAuditor` announces the activity on projects (category `project`) and their deployments (category
+`deployment`). A project lives in its repository, which no transaction covers, so an action is announced once it is
+done, and a failure to record it is logged and never fails the action. `ProjectAuditor` is a bean the services that
+act on projects are constructed with.
+
+Where each action is announced, and what it targets:
+
+- `projectCreated` (project) — `ProjectCreationService`: a template, files, and an archive upload
+  (`finishArchiveUpload`).
+- `projectCopied` (project) — `ProjectCreationService.copyProject`.
+- `projectSaved` (project) — `WorkspaceProjectService.save`, an archive uploaded over a project, and the files chosen
+  to resolve the conflicts of a save (`ProjectsMergeConflictsServiceImpl`).
+- `projectDeleted` (project) — `WorkspaceProjectService.delete`.
+- `projectUnlocked` (project) — `WorkspaceProjectService.unlockProject`, when another user held the lock.
+- `branchCreated` (repository) — `WorkspaceProjectService.createBranch`, and `ProjectCreationTargetResolver` for a
+  project created on a new branch.
+- `branchDeleted` (repository) — `WorkspaceProjectService.deleteBranch`.
+- `branchMerged` (repository) — `ProjectsMergeServiceImpl.merge`, and `ProjectsMergeConflictsServiceImpl` for a merge
+  whose conflicts were resolved.
+- `protectionBypassed` (repository) — `DesignTimeRepositoryController` for a project created, `deleteBranch` and the
+  merges, once the change a confirmed bypass let through is made.
+- `projectDeployed` (deployment) — `DeploymentServiceImpl.deploy`.
+
+What the events tell, and what they leave out:
+
+- **An event of a project names its design repository and branch**, and its revision when the action made one. A
+  project is named by its business name, as the access rights of a project are. In a repository with mapped folders
+  its folder is named too: `path`, and `sourcePath` of the project copied, `projectPath` of the project deployed.
+- **A branch belongs to its repository**: creating, deleting or merging one changes every project on it, so the target
+  is the repository, and the details name the branch and the project the action was made from. The log keeps that
+  project in the `project` column, as it keeps the project a bypass and a deployment were made from, so a search by
+  the target finds every event of a project by its name.
+- **The role of the creator** is a `roleGranted` event, announced where the creator gets it; a copy or an archive
+  upload grants it only to a project without access rights. A deleted project that no branch holds any longer loses
+  its access rights, and each role on it is a `roleRevoked` event.
+- **A merge runs in a thread of its own**, and its events name the user, the way of sign-in and the client address of
+  the request that started it, which the thread pool carries to the merge.
+- **An archive uploaded with `overwrite`** records a save, as the request asks to update the project.
+- **A bypass is recorded once the change it let through is made**, after the event of the change, so a change that
+  fails, such as a merge that meets conflicts, records none. `ProtectedBranchBypassService` only checks; the change
+  announces the bypass when the branch it changed is protected (`ProjectAuditor.bypassed`), since only a confirmed
+  bypass changes a protected branch there. A user allowed to bypass the protection saves and deletes on a protected
+  branch without confirming it: that is recorded as the save or the deletion.
+- **Not recorded**: a file written to a closed project through the files API, or to a design repository through its
+  files mount, is a revision of the repository with its author (`AuthoringRepository`); the commit that formats the
+  workbooks a merge combined belongs to the merge.
+
 ## Reading
 
 `AuditLogController` answers `GET /rest/admin/audit` to administrators (`@AdminPrivilege`, not with a personal access
 token). The criteria are a period, an actor, categories, actions, an outcome, the way the actor signed in, a target,
-a subject and a client address; the texts match in any case. The events come the newest first, by id.
+a subject and a client address; the texts match in any case, and the target matches the project of an event too. The
+events come the newest first, by id.
 
 A page counts the events its query matches up to 10,000 (`AuditService.TOTAL_LIMIT`): `total` stops there and
 `totalLimited` tells that more match, so a search of a large log never counts it to the end. The screen shows the
@@ -171,10 +227,10 @@ What the search reads the table by:
 - **The period** — the index of `eventTime`, which the removal of the old events reads by too.
 - **The actions and the categories** — the index of `action` and `eventTime`. A category is searched by its actions
   (`AuditRecordDaoImpl.actionsOf`), so the one index serves both, with a period or without.
-- **The texts** — the actor, the target, the subject and the client address are matched by what they contain
-  (`lower(field) LIKE '%text%'`), which no ordinary index serves. On PostgreSQL, `V17.1` creates a trigram index of
-  each of them (`pg_trgm`, GIN, on `lower(field)`) when the database user may create the extension; if not, it
-  notes that and goes on, and the search reads the table, as it does on the other databases. The target is a
+- **The texts** — the actor, the target, the project, the subject and the client address are matched by what they
+  contain (`lower(field) LIKE '%text%'`), which no ordinary index serves. On PostgreSQL, `V17.1` creates a trigram
+  index of each of them (`pg_trgm`, GIN, on `lower(field)`) when the database user may create the extension; if not,
+  it notes that and goes on, and the search reads the table, as it does on the other databases. The target is a
   `${text}` column, a large object on Oracle and SQL Server, which no ordinary index could hold anyway.
 
 The `Accept` header chooses the form, on one URL: `application/json` answers a page (`AuditEventsPage`), `text/csv`

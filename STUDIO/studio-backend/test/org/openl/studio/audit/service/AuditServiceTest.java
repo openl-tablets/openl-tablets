@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,6 +53,7 @@ import org.openl.studio.audit.model.AuditOutcome;
 import org.openl.studio.audit.model.AuditQuery;
 import org.openl.studio.audit.model.AuditSubjectType;
 import org.openl.studio.audit.model.AuditTargetType;
+import org.openl.studio.config.AsyncExecutors;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AuditServiceTest.Config.class})
@@ -118,6 +122,34 @@ class AuditServiceTest {
         assertEquals(AuditOutcome.SUCCESS, event.outcome());
         assertEquals(Map.of("reason", "expired"), event.details());
         assertTrue(event.time().isAfter(Instant.now().minusSeconds(60)));
+    }
+
+    @Test
+    void recordsATaskOfAPoolForTheClientOfTheRequestThatStartedIt() throws Exception {
+        var pool = AsyncExecutors.create("async-audit-test-", 1, 1);
+        pool.afterPropertiesSet();
+        try {
+            signIn("jdoe");
+            var request = new MockHttpServletRequest();
+            request.setRemoteAddr("10.0.0.7");
+            RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+            recordIn(pool, AuditAction.BRANCH_MERGED);
+            // The same thread of the pool runs a task that no request started.
+            RequestContextHolder.resetRequestAttributes();
+            recordIn(pool, AuditAction.BRANCH_DELETED);
+        } finally {
+            pool.destroy();
+        }
+
+        var events = all();
+        assertEquals(List.of(AuditAction.BRANCH_DELETED, AuditAction.BRANCH_MERGED),
+                events.stream().map(AuditEventView::action).toList());
+        assertEquals("jdoe", events.getLast().actor());
+        assertEquals(AuditAuthentication.FORM, events.getLast().authentication());
+        assertEquals("10.0.0.7", events.getLast().clientAddress());
+        assertEquals("jdoe", events.getFirst().actor());
+        assertNull(events.getFirst().authentication());
+        assertNull(events.getFirst().clientAddress());
     }
 
     @Test
@@ -207,7 +239,7 @@ class AuditServiceTest {
     }
 
     @Test
-    void leavesOutDetailsWithoutValueAndKeepsALongTargetAndDetailsWhole() {
+    void leavesOutDetailsWithoutValueKeepsALongTargetAndDetailsWholeAndCutsALongProject() {
         var details = new HashMap<String, Object>();
         details.put("kept", "value");
         details.put("dropped", null);
@@ -229,6 +261,9 @@ class AuditServiceTest {
         var whole = events.get(1);
         assertEquals(Map.of("kept", "value"), whole.details());
         assertEquals(longTarget, whole.target());
+        var project = auditRecordDao.find(ALL, 1, 1).getFirst().getProject();
+        assertEquals(AuditRecord.PROJECT_LENGTH, project.length());
+        assertTrue(project.endsWith("…"));
         assertEquals(1, events(AuditQuery.builder().target("MAIL.URL").build()).size(),
                 "A long target is searched whole");
     }
@@ -287,6 +322,35 @@ class AuditServiceTest {
         assertEquals(List.of("admin"), actors(AuditQuery.builder().subject("analyst").build()));
         assertEquals(List.of("jdoe"), actors(AuditQuery.builder().clientAddress("10.0.0").build()));
         assertEquals(3, actors(AuditQuery.builder().actor(" ").build()).size(), "A blank text matches everything");
+    }
+
+    @Test
+    void findsTheEventsMadeOnAProjectByItsName() {
+        auditService.recordEvent(AuditEvent.builder()
+                .action(AuditAction.PROJECT_SAVED)
+                .actor("jdoe")
+                .targetType(AuditTargetType.PROJECT)
+                .target("Demo-Rates")
+                .build());
+        auditService.recordEvent(AuditEvent.builder()
+                .action(AuditAction.BRANCH_CREATED)
+                .actor("jsmith")
+                .targetType(AuditTargetType.REPOSITORY)
+                .target("design")
+                .details(Map.of("branch", "release", "project", "Demo-Rates"))
+                .build());
+        auditService.recordEvent(AuditEvent.builder()
+                .action(AuditAction.PROJECT_DEPLOYED)
+                .actor("admin")
+                .targetType(AuditTargetType.DEPLOYMENT)
+                .target("Rates")
+                .details(Map.of("project", "Other"))
+                .build());
+
+        assertEquals(List.of("jsmith", "jdoe"), actors(AuditQuery.builder().target("demo-rates").build()),
+                "A branch created from the project is found by its name");
+        assertEquals(List.of("jsmith"), actors(AuditQuery.builder().target("design").build()));
+        assertEquals(List.of("admin"), actors(AuditQuery.builder().target("other").build()));
     }
 
     @Test
@@ -397,6 +461,11 @@ class AuditServiceTest {
         assertEquals("signIn failure actor=x\\r\\nSIGN_IN SUCCESS actor=admin\\u2028\\u0007",
                 AuditService.describe(AuditService.fieldsOf(forged)),
                 "The name a client typed stays on the line of its event");
+    }
+
+    private void recordIn(Executor pool, AuditAction action) throws Exception {
+        CompletableFuture.runAsync(() -> auditService.recordEvent(AuditEvent.builder().action(action).build()), pool)
+                .get(5, TimeUnit.SECONDS);
     }
 
     private void signIn(String name) {

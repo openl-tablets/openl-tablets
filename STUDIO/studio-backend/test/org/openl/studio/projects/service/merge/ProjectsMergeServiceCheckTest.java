@@ -17,7 +17,9 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +42,9 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.model.merge.CheckMergeStatus;
 import org.openl.studio.projects.model.merge.MergeBlockedBy;
@@ -55,6 +60,8 @@ import org.openl.studio.projects.validator.ProjectStateValidator;
  * them is reported next to the answer, never in place of it.
  */
 class ProjectsMergeServiceCheckTest {
+
+    private final List<AuditEvent> events = new ArrayList<>();
 
     private static final String CURRENT = "dev";
     private static final String OTHER = "master";
@@ -105,7 +112,8 @@ class ProjectsMergeServiceCheckTest {
                 aclService,
                 bypassService,
                 mergeChangesService,
-                mergedWorkbookFormatting) {
+                mergedWorkbookFormatting,
+                new ProjectAuditor(event -> events.add((AuditEvent) event))) {
             @Override
             public UserWorkspace getUserWorkspace() {
                 return userWorkspace;
@@ -213,11 +221,43 @@ class ProjectsMergeServiceCheckTest {
         var designTimeRepository = givenMergeInto(OTHER);
         when(designTimeRepository.refreshBranch("design", OTHER))
                 .thenReturn(CompletableFuture.completedFuture(null));
+        when(repository.getId()).thenReturn("design");
 
         var result = service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
 
         assertEquals(MergeResultStatus.SUCCESS, result.status());
         verify(designTimeRepository).refreshBranch("design", OTHER);
+        var merged = events.getFirst();
+        assertEquals(AuditAction.BRANCH_MERGED, merged.action());
+        assertEquals("design", merged.target());
+        assertEquals(Map.of("branch", OTHER, "sourceBranch", CURRENT), merged.details());
+    }
+
+    @Test
+    void aMergeIntoAProtectedBranchRecordsTheBypassOnceItIsMerged() throws IOException {
+        var designTimeRepository = givenMergeInto(OTHER);
+        when(designTimeRepository.refreshBranch("design", OTHER))
+                .thenReturn(CompletableFuture.completedFuture(null));
+        when(repository.getId()).thenReturn("design");
+        when(repository.isBranchProtected(OTHER)).thenReturn(true);
+
+        service.merge(project, CURRENT, OTHER, MergeOpMode.SEND, userWorkspace, studio);
+
+        assertEquals(List.of(AuditAction.BRANCH_MERGED, AuditAction.PROTECTION_BYPASSED),
+                events.stream().map(AuditEvent::action).toList());
+    }
+
+    @Test
+    void aConflictingMergeIntoAProtectedBranchRecordsNoBypass() throws IOException {
+        givenMergeInto(CURRENT);
+        when(repository.isBranchProtected(CURRENT)).thenReturn(true);
+        var targetRepository = repository.forBranch(CURRENT);
+        doThrow(new MergeConflictException(mock(MergeConflictDetails.class))).when(targetRepository)
+                .merge(eq(OTHER), any(), any());
+
+        service.merge(project, CURRENT, OTHER, MergeOpMode.RECEIVE, userWorkspace, studio);
+
+        assertTrue(events.isEmpty());
     }
 
     /**

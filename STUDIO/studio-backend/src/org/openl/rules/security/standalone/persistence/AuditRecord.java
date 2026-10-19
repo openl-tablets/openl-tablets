@@ -33,9 +33,10 @@ import org.openl.studio.audit.model.AuditTargetType;
 @Setter
 public class AuditRecord {
 
-    /** Longest actor, subject and client address the log keeps. */
+    /** Longest actor, subject, client address and project the log keeps. */
     public static final int NAME_LENGTH = 100;
     public static final int ADDRESS_LENGTH = 45;
+    public static final int PROJECT_LENGTH = 2000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,6 +75,13 @@ public class AuditRecord {
     /** The object the action was done to, kept whole, however long it is. */
     @Column(name = "target")
     private @Nullable String target;
+
+    /**
+     * The project the action was made on: the target of an action on a project, or the project a branch, a bypass
+     * of a branch protection or a deployment was made from. A search by the target finds the event by it too.
+     */
+    @Column(name = "project", length = PROJECT_LENGTH)
+    private @Nullable String project;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "subjectType", length = 10)

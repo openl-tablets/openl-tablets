@@ -21,7 +21,7 @@ public interface DeploymentService {
     List<Deployment> getDeployments(DeploymentCriteriaQuery query);
 
     /**
-     * Deploys a project to the specified deployment ID
+     * Deploys a project to the specified deployment ID and records the deployment in the audit log.
      *
      * @param deploymentId the ID of the deployment target
      * @param project      the project to be deployed

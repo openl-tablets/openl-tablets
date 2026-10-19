@@ -1,0 +1,28 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "project",
+      "action": "branchMerged",
+      "outcome": "success",
+      "targetType": "repository",
+      "target": "design-flat",
+      "details": {
+        "branch": "EPBDS-15439_MergeWithoutConflicts_one",
+        "project": "EPBDS-15439",
+        "sourceBranch": "EPBDS-15439_MergeWithoutConflicts_two"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": "###"
+}

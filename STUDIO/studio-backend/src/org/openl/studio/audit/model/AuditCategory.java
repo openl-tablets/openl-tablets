@@ -30,6 +30,14 @@ public enum AuditCategory {
     @JsonProperty("access")
     ACCESS,
 
+    @Schema(description = "Projects and the branches of their repositories.")
+    @JsonProperty("project")
+    PROJECT,
+
+    @Schema(description = "Deployments of projects to production repositories.")
+    @JsonProperty("deployment")
+    DEPLOYMENT,
+
     @Schema(description = "Reading and cleaning the audit log itself.")
     @JsonProperty("audit")
     AUDIT

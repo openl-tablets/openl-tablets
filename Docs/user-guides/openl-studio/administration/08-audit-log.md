@@ -1,9 +1,10 @@
 ### Reviewing the Audit Log
 
 The audit log records who signed in to OpenL Studio and when, whose sign-in was refused, who signed out, who changed
-users, groups, personal access tokens and access rights, which requests were refused for lack of permission, and who
-read the log itself. OpenL Studio keeps it in its database in every
-user mode but Single-User, which has no sign-in. Only users with administrator privileges see it.
+users, groups, personal access tokens and access rights, which requests were refused for lack of permission, who
+created, saved, deleted and deployed projects and changed the branches of their repositories, and who read the log
+itself. OpenL Studio keeps it in its database in every user mode but Single-User, which has no sign-in. Only users
+with administrator privileges see it.
 
 In the navigation menu, click **Audit Log**. The page lists the events, the newest first, a page at a time. The list
 counts up to 10,000 events: when more match, it shows `10000+` and pages through the newest 10,000. Narrow the
@@ -70,6 +71,23 @@ The log records these actions:
 - **Access denied** — a request refused because the user may not do what it asks, such as a change of the access
   rights of a project the user does not manage. The object is the path of the request; the details hold its method
   and the reason given to the user.
+- **Project created**, **Project copied** — a project created from a template, from files or from an archive, or as
+  a copy of another project, with its repository, branch and revision. Its creator gets the **Contributor** role on
+  it, recorded as **Role granted**, unless the project already had access rights.
+- **Project saved** — the changes of a project saved to its repository, with the revision and the comment. An archive
+  uploaded over a project and the files chosen to resolve the conflicts of a save are recorded as a save too. A file
+  written to a closed project through the REST API is a revision of the repository with its author, not an event of
+  the log.
+- **Project deleted** — a project deleted, with the comment. When no branch holds the project any longer, its access
+  rights go with it, and each role it had is recorded as **Role revoked**.
+- **Project unlocked** — the lock of another user released by force, naming that user.
+- **Branch created**, **Branch deleted** — a branch of a design repository, which is the object, created from a branch
+  or a revision, or deleted with the projects only it held.
+- **Branches merged** — a branch merged into another one, also when the conflicts of the merge were resolved first.
+- **Branch protection bypassed** — a protected branch changed by a user allowed to bypass its protection, who
+  confirmed it.
+- **Project deployed** — a project deployed to a production repository: the deployment is the object, and the details
+  name the project, its repository, branch and revision, and the comment.
 - **Audit log read** — a view or an export of the log, with the filters it was made with. Every export is recorded.
   A view is recorded once, when it starts: searching, filtering and turning the pages, with nothing else done in
   between, add no event. Any other action of the user, a new sign-in included, makes the next view recorded again.
@@ -84,7 +102,8 @@ the filters of all the columns, from its first page:
 
 - **Time** — the first and the last second of the events, both included. Either one can be left open.
 - **User**, **Object**, **Subject** and **Client Address** — text the name or the address contains, in any case.
-  Type the text and press Enter; clear it to drop the filter.
+  Type the text and press Enter; clear it to drop the filter. **Object** finds an event made on a project by the name
+  of the project too, such as a branch created from it or its deployment, so it finds everything done to a project.
 - **Signed in with** — how the users who did the actions signed in, such as **Personal access token**.
 - **Action** — the actions, each one by itself or all the actions of an area, such as **Sign-in**. Type in the
   search of the filter to find an action.

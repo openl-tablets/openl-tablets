@@ -89,6 +89,46 @@ public enum AuditAction {
     @JsonProperty("accessDenied")
     ACCESS_DENIED(AuditCategory.ACCESS),
 
+    @Schema(description = "A project was created in a design repository.")
+    @JsonProperty("projectCreated")
+    PROJECT_CREATED(AuditCategory.PROJECT),
+
+    @Schema(description = "A project was created as a copy of another one.")
+    @JsonProperty("projectCopied")
+    PROJECT_COPIED(AuditCategory.PROJECT),
+
+    @Schema(description = "The changes of a project were saved to its design repository.")
+    @JsonProperty("projectSaved")
+    PROJECT_SAVED(AuditCategory.PROJECT),
+
+    @Schema(description = "A project was deleted.")
+    @JsonProperty("projectDeleted")
+    PROJECT_DELETED(AuditCategory.PROJECT),
+
+    @Schema(description = "The lock another user held on a project was released by force.")
+    @JsonProperty("projectUnlocked")
+    PROJECT_UNLOCKED(AuditCategory.PROJECT),
+
+    @Schema(description = "A branch was created in a design repository.")
+    @JsonProperty("branchCreated")
+    BRANCH_CREATED(AuditCategory.PROJECT),
+
+    @Schema(description = "A branch was deleted from a design repository.")
+    @JsonProperty("branchDeleted")
+    BRANCH_DELETED(AuditCategory.PROJECT),
+
+    @Schema(description = "A branch was merged into another one.")
+    @JsonProperty("branchMerged")
+    BRANCH_MERGED(AuditCategory.PROJECT),
+
+    @Schema(description = "The protection of a branch was bypassed to change it.")
+    @JsonProperty("protectionBypassed")
+    PROTECTION_BYPASSED(AuditCategory.PROJECT),
+
+    @Schema(description = "A project was deployed to a production repository.")
+    @JsonProperty("projectDeployed")
+    PROJECT_DEPLOYED(AuditCategory.DEPLOYMENT),
+
     @Schema(description = "The audit log was read or exported.")
     @JsonProperty("auditLogRead")
     AUDIT_LOG_READ(AuditCategory.AUDIT),

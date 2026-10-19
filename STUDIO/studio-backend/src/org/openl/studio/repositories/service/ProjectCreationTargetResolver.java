@@ -3,14 +3,15 @@ package org.openl.studio.repositories.service;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.function.Function;
-import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.validation.BeanValidationProvider;
@@ -30,6 +31,7 @@ public class ProjectCreationTargetResolver {
 
     private final BeanValidationProvider validationProvider;
     private final Function<BranchRepository, NewBranchValidator> newBranchValidatorFactory;
+    private final ProjectAuditor auditor;
 
     public Repository resolve(Repository repository, @Nullable String requestedBranch) {
         return resolve(repository, requestedBranch, true);
@@ -59,6 +61,7 @@ public class ProjectCreationTargetResolver {
                 validationProvider.validate(branch, newBranchValidatorFactory.apply(rawRepository));
                 if (!rawRepository.listBranches().isEmpty()) {
                     branchRepository.createRepositoryBranch(branch, rawRepository.getBaseBranch());
+                    auditor.branchCreated(rawRepository.getId(), branch, rawRepository.getBaseBranch(), null);
                 }
             }
             return branchRepository.forBranch(branch);

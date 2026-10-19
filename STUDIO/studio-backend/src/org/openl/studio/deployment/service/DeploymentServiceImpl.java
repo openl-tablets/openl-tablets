@@ -28,6 +28,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.deployment.model.DeploymentId;
@@ -48,6 +49,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final ProjectStateValidator projectStateValidator;
     private final AclProjectsHelper aclProjectsHelper;
     private final ProjectVersionCacheManager projectVersionCacheManager;
+    private final ProjectAuditor auditor;
 
     @Override
     public List<Deployment> getDeployments(DeploymentCriteriaQuery query) {
@@ -178,6 +180,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             throw new ForbiddenException("default.message");
         }
         deploymentManager.deploy(request);
+        auditor.deployed(deploymentId.repository(), deploymentId.name(), project, comment);
     }
 
     /**

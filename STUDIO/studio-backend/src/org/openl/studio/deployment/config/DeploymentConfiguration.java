@@ -9,6 +9,7 @@ import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.deployment.service.DeploymentService;
 import org.openl.studio.deployment.service.DeploymentServiceImpl;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
@@ -24,14 +25,16 @@ public class DeploymentConfiguration {
                                                ObjectProvider<UserWorkspace> userWorkspaceProvider,
                                                ProjectStateValidator projectStateValidator,
                                                AclProjectsHelper aclProjectsHelper,
-                                               ProjectVersionCacheManager projectVersionCacheManager) {
+                                               ProjectVersionCacheManager projectVersionCacheManager,
+                                               ProjectAuditor auditor) {
         return new DeploymentServiceImpl(projectDependencyResolver,
                 deploymentRepositoryService,
                 deploymentManager,
                 userWorkspaceProvider,
                 projectStateValidator,
                 aclProjectsHelper,
-                projectVersionCacheManager);
+                projectVersionCacheManager,
+                auditor);
     }
 
 }

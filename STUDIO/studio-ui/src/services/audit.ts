@@ -19,6 +19,18 @@ export const AUDIT_ACTIONS = {
     token: ['tokenCreated', 'tokenDeleted'],
     permission: ['roleGranted', 'roleChanged', 'roleRevoked'],
     access: ['accessDenied'],
+    project: [
+        'projectCreated',
+        'projectCopied',
+        'projectSaved',
+        'projectDeleted',
+        'projectUnlocked',
+        'branchCreated',
+        'branchDeleted',
+        'branchMerged',
+        'protectionBypassed',
+    ],
+    deployment: ['projectDeployed'],
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const
 export const AUDIT_OUTCOMES = ['success', 'failure', 'denied'] as const

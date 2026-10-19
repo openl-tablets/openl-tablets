@@ -16,12 +16,12 @@ import org.springframework.validation.annotation.Validated;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
@@ -45,6 +45,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     private final ProtectedBranchBypassService bypassService;
     private final MergeChangesService mergeChangesService;
     private final MergedWorkbookFormatting mergedWorkbookFormatting;
+    private final ProjectAuditor auditor;
 
     @Override
     @NotNull
@@ -146,7 +147,7 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
     }
 
     private BranchRepository getBranchRepository(RulesProject project) {
-        Repository repository = project.getDesignRepository();
+        var repository = project.getDesignRepository();
         while (repository instanceof RepositoryDelegate delegate) {
             repository = delegate.getOriginal();
         }
@@ -187,6 +188,8 @@ public class ProjectsMergeServiceImpl implements ProjectsMergeService {
                             branchPair.target(),
                             author,
                             studio));
+            auditor.merged(project, branchPair.source(), branchPair.target(), false);
+            auditor.bypassed(branchRepository, branchPair.target(), project.getBusinessName());
             // The merge is committed by now. An index that publishes it late is logged and leaves it a success:
             // reporting a failure would have the user merge again what is already merged — see EPBDS-16541. A cancel
             // that comes now can no longer undo the merge, so it does not cut the wait short either.

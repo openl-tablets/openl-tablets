@@ -146,7 +146,7 @@ public interface ProjectsMergeService {
      *
      * <p><b>Atomicity:</b>
      * <p>This operation is atomic: either the merge completes successfully and is committed,
-     * or it fails/conflicts and no changes are made to the repository.
+     * or it fails/conflicts and no changes are made to the repository. A committed merge is recorded in the audit log.
      *
      * <p><b>Implementation Note:</b>
      * <p>Implementations should use Git's three-way merge algorithm and properly handle
