@@ -18,7 +18,7 @@ public enum AuditTargetType {
     @JsonProperty("token")
     TOKEN,
 
-    @Schema(description = "All the design or all the production repositories, named `design` or `production`.")
+    @Schema(description = "All the design or all the production repositories, named `design` or `prod`.")
     @JsonProperty("root")
     ROOT,
 
@@ -26,7 +26,11 @@ public enum AuditTargetType {
     @JsonProperty("repository")
     REPOSITORY,
 
-    @Schema(description = "A project, named by the repository id and the path of the project in it.")
+    @Schema(description = "A project, named by its name; the details name its repository.")
     @JsonProperty("project")
-    PROJECT
+    PROJECT,
+
+    @Schema(description = "A request to the REST API, named by its path; the details name its method.")
+    @JsonProperty("request")
+    REQUEST
 }

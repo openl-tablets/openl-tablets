@@ -22,6 +22,14 @@ public enum AuditCategory {
     @JsonProperty("token")
     TOKEN,
 
+    @Schema(description = "Access rights: the roles of users and groups on repositories and projects.")
+    @JsonProperty("permission")
+    PERMISSION,
+
+    @Schema(description = "Requests refused for lack of permission.")
+    @JsonProperty("access")
+    ACCESS,
+
     @Schema(description = "Reading and cleaning the audit log itself.")
     @JsonProperty("audit")
     AUDIT

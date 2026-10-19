@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -41,6 +43,8 @@ import org.openl.rules.rest.acl.model.AclProjectModel.AclProjectSource;
 import org.openl.rules.rest.acl.model.AclSubject;
 import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
+import org.openl.rules.rest.acl.service.AclRoleAuditor;
+import org.openl.rules.rest.acl.service.AclRoleAuditor.Place;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.service.GroupManagementService;
@@ -65,14 +69,17 @@ public class AclProjectsController {
     private final GroupManagementService groupManagementService;
     private final TransactionTemplate txTemplate;
     private final CurrentUserInfo currentUserInfo;
+    private final AclRoleAuditor aclRoleAuditor;
 
     public AclProjectsController(SecureDesignTimeRepository designTimeRepository,
                                  RepositoryAclServiceProvider aclServiceProvider,
                                  UserManagementService userManagementService,
                                  GroupManagementService groupManagementService,
                                  PlatformTransactionManager txManager,
-                                 CurrentUserInfo currentUserInfo) {
+                                 CurrentUserInfo currentUserInfo,
+                                 AclRoleAuditor aclRoleAuditor) {
         this.currentUserInfo = currentUserInfo;
+        this.aclRoleAuditor = aclRoleAuditor;
         this.aclServiceProvider = aclServiceProvider;
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
@@ -131,13 +138,7 @@ public class AclProjectsController {
     public void updateAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid,
                                             @Valid @RequestBody SetAclRoleModel requestBody) {
-        requireOtherSubject(sid);
-        var aclService = aclServiceProvider.getDesignRepoAclService();
-        txTemplate.execute(status -> {
-            aclService.removePermissions(project, sid);
-            aclService.addPermissions(project, sid, requestBody.getRole().getCumulativePermission());
-            return null;
-        });
+        setProjectRole(project, sid, requestBody.getRole());
     }
 
     @Operation(summary = "acls.delete-project-rule.summary", description = "acls.delete-project-rule.desc")
@@ -147,9 +148,27 @@ public class AclProjectsController {
     @DeleteMapping("/{project-id}")
     public void deleteAclProjectRulesForSid(@ProjectIdPathParameter @PathVariable("project-id") AProject project,
                                             @NotNull @SidExistsConstraint Sid sid) {
+        setProjectRole(project, sid, null);
+    }
+
+    /**
+     * Gives another subject than the caller a role on a project in place of the one it held, and announces the
+     * change.
+     *
+     * @param role the role to give, or {@code null} to take the role away
+     */
+    private void setProjectRole(AProject project, Sid sid, @Nullable AclRole role) {
         requireOtherSubject(sid);
         var aclService = aclServiceProvider.getDesignRepoAclService();
-        aclService.removePermissions(project, sid);
+        txTemplate.executeWithoutResult(status -> {
+            var before = AclRoleAuditor.roleOf(aclService.listPermissions(project, sid));
+            aclService.removePermissions(project, sid);
+            if (role != null) {
+                aclService.addPermissions(project, sid, role.getCumulativePermission());
+            }
+            aclRoleAuditor.announce(Place.project(project), sid, before,
+                    Optional.ofNullable(role).map(AclRole::name).orElse(null));
+        });
     }
 
     /**

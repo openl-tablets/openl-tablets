@@ -3,26 +3,95 @@ package org.openl.studio.common;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.InvalidPathException;
+import java.util.ArrayList;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditOutcome;
+import org.openl.studio.audit.model.AuditTargetType;
+import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.BaseError;
 
 class ApiExceptionControllerAdviceTest {
+
+    @Test
+    void forbiddenRequest_isRecordedInTheAuditLog() {
+        var events = new ArrayList<Object>();
+        var httpRequest = new MockHttpServletRequest("DELETE", "/studio/rest/users/jdoe");
+        httpRequest.setContextPath("/studio");
+
+        var response = advice(events::add).handleAllRestRuntimeExceptions(
+                new ForbiddenException("users.cannot-delete-yourself.message"), new ServletWebRequest(httpRequest));
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        var event = assertInstanceOf(AuditEvent.class, events.getFirst());
+        assertEquals(AuditAction.ACCESS_DENIED, event.action());
+        assertEquals(AuditOutcome.DENIED, event.outcome());
+        assertEquals(AuditTargetType.REQUEST, event.targetType());
+        assertEquals("/rest/users/jdoe", event.target());
+        assertEquals(Map.of("method", "DELETE", "reason", "Cannot delete your own account."), event.details());
+    }
+
+    @Test
+    void securityError_isRecordedInTheAuditLog() {
+        var events = new ArrayList<Object>();
+        var httpRequest = new MockHttpServletRequest("GET", "/rest/admin/settings");
+
+        var response = advice(events::add).handleSecurityErrors(new AccessDeniedException("Access Denied"),
+                new ServletWebRequest(httpRequest));
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        var event = assertInstanceOf(AuditEvent.class, events.getFirst());
+        assertEquals(AuditAction.ACCESS_DENIED, event.action());
+        assertEquals("/rest/admin/settings", event.target());
+        assertEquals("GET", event.details().get("method"));
+        assertEquals("Access Denied", event.details().get("reason"));
+    }
+
+    @Test
+    void failureToRecord_keepsTheAnswer() {
+        var advice = advice(event -> {
+            throw new IllegalStateException("The database is gone");
+        });
+
+        var response = advice.handleSecurityErrors(new AccessDeniedException("Access Denied"),
+                new ServletWebRequest(new MockHttpServletRequest("GET", "/rest/admin/settings")));
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+    }
+
+    @Test
+    void otherErrors_areNotRecordedInTheAuditLog() {
+        var events = new ArrayList<Object>();
+        var request = new ServletWebRequest(new MockHttpServletRequest("GET", "/rest/users/nobody"));
+
+        var response = advice(events::add).handleAllRestRuntimeExceptions(new NotFoundException("users.message"),
+                request);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertTrue(events.isEmpty());
+    }
 
     @Test
     void invalidPath_isMappedToBadRequest() {
@@ -155,10 +224,15 @@ class ApiExceptionControllerAdviceTest {
     }
 
     private static ApiExceptionControllerAdvice advice() {
+        return advice(event -> {
+        });
+    }
+
+    private static ApiExceptionControllerAdvice advice(ApplicationEventPublisher eventPublisher) {
         var messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:ValidationMessages");
         messageSource.setDefaultEncoding("UTF-8");
-        return new ApiExceptionControllerAdvice(new ExceptionMappingService(messageSource));
+        return new ApiExceptionControllerAdvice(new ExceptionMappingService(messageSource), eventPublisher);
     }
 
     private enum Color {

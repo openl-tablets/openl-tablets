@@ -1,8 +1,9 @@
 # Audit Log
 
 OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who
-changed users, groups and personal access tokens, and who read the log. Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes
-where the events come from, how they are kept and how they are read. The user guide describes the page:
+changed users, groups, personal access tokens and access rights, whose request was refused for lack of permission, and
+who read the log. Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page
+describes where the events come from, how they are kept and how they are read. The user guide describes the page:
 [Reviewing the Audit Log](../user-guides/openl-studio/administration/08-audit-log.md).
 
 ## An Event
@@ -122,6 +123,38 @@ methods that change a user or a group are transactional for it.
   "identityProvider"`.
 - **Secrets stay out**: a password set is a `passwordChanged` event with no details; a token is named by its public id
   and its name.
+
+## Access Rights
+
+A role (`AclRole`) is held by a user or a group on a place: all the design or all the production repositories
+(target `root`, named `design` or `prod`), a repository (`repository`, the details name its type) or a project
+(`project`, the details name its repository). A repository with mapped folders can hold several projects of one name,
+so there the details of a project name its folder too (`path`, `AclRoleAuditor.Place.pathOf`). `AclRoleAuditor`
+announces a role granted, changed or revoked, with the role before and after in `from` and `to`; the subject is the
+user or the group.
+
+- **Every writer reads the role before it changes it**, in the transaction of the change: the ACL controllers of
+  projects and repositories (`AclProjectsController`, `AclRepositoriesController`, the roots included), the roles of
+  a group saved in its editor (`ManagementController.saveGroup`) and the bulk overwrite
+  (`BulkAclOverwriteServiceImpl`). A role set again as it was announces nothing.
+- **The bulk overwrite compares two snapshots.** It reads the roles on every root, repository and project before it
+  runs and again after it, inside its transaction, and announces each difference, so a role a removed subject loses
+  is a `roleRevoked` too. A role inside a project, on a folder or a file, is not compared: the overwrite never sets
+  one.
+- **The roles a deleted user or group held are not announced one by one**: the deletion itself is the event.
+- **Permissions that make no role** are named by their mask, such as `mask 2`.
+
+## Refused Requests
+
+`ApiExceptionControllerAdvice` records every `403 Forbidden` answer of the REST API as an `accessDenied` event with
+the `denied` outcome: a `ForbiddenException`, or an `AccessDeniedException` of method security such as
+`@AdminPrivilege`. The target is the path of the request inside the application (type `request`), and the details
+hold its method and the message the client got. A failure to record the refusal is logged and leaves the answer as
+it is.
+
+A request without a sign-in is answered `401` by the security chain and is not recorded here; a refused sign-in is.
+The WebSocket channel refuses only the messages of a client that is not signed in, so its refusals are not recorded
+either.
 
 ## Reading
 

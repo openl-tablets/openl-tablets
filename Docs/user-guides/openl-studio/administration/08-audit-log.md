@@ -1,7 +1,8 @@
 ### Reviewing the Audit Log
 
 The audit log records who signed in to OpenL Studio and when, whose sign-in was refused, who signed out, who changed
-users, groups and personal access tokens, and who read the log itself. OpenL Studio keeps it in its database in every
+users, groups, personal access tokens and access rights, which requests were refused for lack of permission, and who
+read the log itself. OpenL Studio keeps it in its database in every
 user mode but Single-User, which has no sign-in. Only users with administrator privileges see it.
 
 In the navigation menu, click **Audit Log**. The page lists the events, the newest first, a page at a time. The list
@@ -37,6 +38,8 @@ is, under **Changed**, and pointing at a mark names the change:
 - **`-` on red** — a value removed, or a group or privilege taken away.
 
 The details never hold a password or a token: a personal access token is named by its public identifier.
+A repository that keeps projects in folders of their own can hold several projects of one name, so there the details
+of a project also name its folder.
 
 The log records these actions:
 
@@ -59,6 +62,14 @@ The log records these actions:
 - **Group created**, **Group changed**, **Group deleted** — a group created, deleted, renamed or described anew.
 - **Group privileges changed** — a privilege, such as the administrator privilege, given to a group or taken from it.
 - **Token created**, **Token deleted** — a personal access token, named by its public identifier and its name.
+- **Role granted**, **Role changed**, **Role revoked** — a role, such as **Viewer** or **Manager**, given to a user or
+  a group, replaced or taken away, with the roles before and after. The object is where the role is held: all the
+  design or all the production repositories, a repository or a project. The subject is the user or the group. The
+  roles a group gets in its editor and the access rights overwritten all at once through the REST API are recorded
+  the same way.
+- **Access denied** — a request refused because the user may not do what it asks, such as a change of the access
+  rights of a project the user does not manage. The object is the path of the request; the details hold its method
+  and the reason given to the user.
 - **Audit log read** — a view or an export of the log, with the filters it was made with. Every export is recorded.
   A view is recorded once, when it starts: searching, filtering and turning the pages, with nothing else done in
   between, add no event. Any other action of the user, a new sign-in included, makes the next view recorded again.

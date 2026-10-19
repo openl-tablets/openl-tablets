@@ -1,8 +1,8 @@
 package org.openl.rules.rest.acl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
-import jakarta.annotation.Nonnull;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -31,6 +33,8 @@ import org.openl.rules.rest.acl.model.AclRepositoryModel;
 import org.openl.rules.rest.acl.model.AclSubject;
 import org.openl.rules.rest.acl.model.AclView;
 import org.openl.rules.rest.acl.model.SetAclRoleModel;
+import org.openl.rules.rest.acl.service.AclRoleAuditor;
+import org.openl.rules.rest.acl.service.AclRoleAuditor.Place;
 import org.openl.rules.rest.acl.validation.SidExistsConstraint;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
@@ -49,12 +53,15 @@ public class AclRepositoriesController {
     private final TransactionTemplate txTemplate;
     private final SecureDesignTimeRepository designTimeRepository;
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
+    private final AclRoleAuditor aclRoleAuditor;
 
     public AclRepositoriesController(RepositoryAclServiceProvider aclServiceProvider,
                                      PlatformTransactionManager txManager,
                                      SecureDesignTimeRepository designTimeRepository,
-                                     SecureDeploymentRepositoryService deploymentRepositoryService) {
+                                     SecureDeploymentRepositoryService deploymentRepositoryService,
+                                     AclRoleAuditor aclRoleAuditor) {
         this.aclServiceProvider = aclServiceProvider;
+        this.aclRoleAuditor = aclRoleAuditor;
         this.txTemplate = new TransactionTemplate(txManager);
         this.designTimeRepository = designTimeRepository;
         this.deploymentRepositoryService = deploymentRepositoryService;
@@ -91,12 +98,7 @@ public class AclRepositoriesController {
     public void updateAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid,
                                                @Valid @RequestBody SetAclRoleModel requestBody) {
-        var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
-        txTemplate.execute(status -> {
-            aclService.removePermissions(aclRepoId.getId(), null, sid);
-            aclService.addPermissions(aclRepoId.getId(), null, sid, requestBody.getRole().getCumulativePermission());
-            return null;
-        });
+        setRepositoryRole(aclRepoId, sid, requestBody.getRole());
     }
 
     @Operation(summary = "Delete an ACL rule for the repository by the requested criteria")
@@ -106,8 +108,7 @@ public class AclRepositoriesController {
     @DeleteMapping("/{repo-id}")
     public void deleteAclRepositoryRulesForSid(@PathVariable("repo-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
-        var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
-        aclService.removePermissions(aclRepoId.getId(), null, sid);
+        setRepositoryRole(aclRepoId, sid, null);
     }
 
     @Operation(summary = "Get ACL rules for all repository roots")
@@ -130,12 +131,7 @@ public class AclRepositoriesController {
     public void updateAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
                                                 @Valid @RequestBody SetAclRoleModel requestBody,
                                                 @NotNull @SidExistsConstraint Sid sid) {
-        var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
-        txTemplate.execute(status -> {
-            aclService.removeRootPermissions(sid);
-            aclService.addRootPermissions(sid, requestBody.getRole().getCumulativePermission());
-            return null;
-        });
+        setRootRole(aclRepoId.getType(), sid, requestBody.getRole());
     }
 
     @Operation(summary = "Delete an ACL rule for the repository root by the requested criteria")
@@ -145,11 +141,47 @@ public class AclRepositoriesController {
     @DeleteMapping("/roots/{root-id}")
     public void deleteAclRepositoryRulesForRoot(@PathVariable("root-id") AclRepositoryId aclRepoId,
                                                @NotNull @SidExistsConstraint Sid sid) {
-        var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
-        aclService.removeRootPermissions(sid);
+        setRootRole(aclRepoId.getType(), sid, null);
     }
 
-    private Stream<AclRepositoryModel> mapAclRepositoryModelForRoot(AclRepositoryType type, @Nonnull Sid sid) {
+    /**
+     * Gives a subject a role on a repository in place of the one it held, and announces the change.
+     *
+     * @param role the role to give, or {@code null} to take the role away
+     */
+    private void setRepositoryRole(AclRepositoryId aclRepoId, Sid sid, @Nullable AclRole role) {
+        var aclService = aclServiceProvider.getAclService(aclRepoId.getType().getType());
+        txTemplate.executeWithoutResult(status -> {
+            var before = AclRoleAuditor.roleOf(aclService.listPermissions(aclRepoId.getId(), null, sid));
+            aclService.removePermissions(aclRepoId.getId(), null, sid);
+            if (role != null) {
+                aclService.addPermissions(aclRepoId.getId(), null, sid, role.getCumulativePermission());
+            }
+            aclRoleAuditor.announce(Place.repository(aclRepoId.getType(), aclRepoId.getId()), sid, before,
+                    Optional.ofNullable(role).map(AclRole::name).orElse(null));
+        });
+    }
+
+    /**
+     * Gives a subject a role on all the design or all the production repositories in place of the one it held, and
+     * announces the change.
+     *
+     * @param role the role to give, or {@code null} to take the role away
+     */
+    private void setRootRole(AclRepositoryType repositoryType, Sid sid, @Nullable AclRole role) {
+        var aclService = aclServiceProvider.getAclService(repositoryType.getType());
+        txTemplate.executeWithoutResult(status -> {
+            var before = AclRoleAuditor.roleOf(aclService.listRootPermissions(sid));
+            aclService.removeRootPermissions(sid);
+            if (role != null) {
+                aclService.addRootPermissions(sid, role.getCumulativePermission());
+            }
+            aclRoleAuditor.announce(Place.root(repositoryType), sid, before,
+                    Optional.ofNullable(role).map(AclRole::name).orElse(null));
+        });
+    }
+
+    private Stream<AclRepositoryModel> mapAclRepositoryModelForRoot(AclRepositoryType type, @NonNull Sid sid) {
         return aclServiceProvider.getAclService(type.getType()).listRootPermissions(sid).stream()
                 .map(permission -> AclRepositoryModel.rootRepositoryBuilder()
                         .id(AclRepositoryId.builder().type(type).build())
@@ -158,7 +190,7 @@ public class AclRepositoriesController {
                         .build());
     }
 
-    private Stream<AclRepositoryModel> mapAclRepositoryModelForSid(AclRepositoryType type, @Nonnull String repoId) {
+    private Stream<AclRepositoryModel> mapAclRepositoryModelForSid(AclRepositoryType type, @NonNull String repoId) {
         return aclServiceProvider.getAclService(type.getType()).listPermissions(repoId, null).entrySet().stream()
                 .map(entry -> Pair.of(AclSubject.of(entry.getKey()), entry.getValue()))
                 .flatMap(entry -> entry.getValue().stream()
@@ -168,7 +200,7 @@ public class AclRepositoriesController {
                                 .build()));
     }
 
-    private Stream<AclRepositoryModel> mapAclRepositoryModel(AclRepositoryType type, @Nonnull String repoId, @Nonnull Sid sid) {
+    private Stream<AclRepositoryModel> mapAclRepositoryModel(AclRepositoryType type, @NonNull String repoId, @NonNull Sid sid) {
         return aclServiceProvider.getAclService(type.getType()).listPermissions(repoId, null, sid).stream()
                 .map(permission -> AclRepositoryModel.repositoryBuilder()
                         .id(AclRepositoryId.builder()

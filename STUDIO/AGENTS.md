@@ -65,7 +65,9 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   constructed with, which `AuditService.recordEvent` listens to; a controller may call `recordEvent` itself. Only a
   change is announced, with the values before and after (`AuditChanges`). An event never holds a password or a token.
   The sign-ins come from the
-  events of Spring Security, so a new way of signing in publishes them. See
+  events of Spring Security, so a new way of signing in publishes them. A new writer of the ACL reads the role it
+  replaces and announces both through `AclRoleAuditor`. A `403` of the REST API is recorded by
+  `ApiExceptionControllerAdvice`, so a refusal needs no event of its own. See
   [`audit-log.md`](../Docs/architecture/audit-log.md).
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`. A time is a `${timestamp}` column that

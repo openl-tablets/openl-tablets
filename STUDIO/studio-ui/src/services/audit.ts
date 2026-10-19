@@ -17,6 +17,8 @@ export const AUDIT_ACTIONS = {
     ],
     group: ['groupCreated', 'groupUpdated', 'groupPrivilegesChanged', 'groupDeleted'],
     token: ['tokenCreated', 'tokenDeleted'],
+    permission: ['roleGranted', 'roleChanged', 'roleRevoked'],
+    access: ['accessDenied'],
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const
 export const AUDIT_OUTCOMES = ['success', 'failure', 'denied'] as const

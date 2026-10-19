@@ -1,6 +1,8 @@
 package org.openl.studio.common;
 
+import java.nio.file.InvalidPathException;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import jakarta.validation.ConstraintViolationException;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpHeaders;
@@ -25,12 +28,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.util.WebUtils;
 
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditOutcome;
+import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.common.model.BaseError;
@@ -52,6 +61,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     private static final String JETTY_TOO_MANY_PARTS_MESSAGE_PREFIX = "Form with too many keys [";
 
     private final ExceptionMappingService exceptionMappingService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ValidationError> handleAllRestRuntimeExceptions(ValidationException e, WebRequest request) {
@@ -79,16 +89,15 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     public ResponseEntity<BaseError> handleAllRestRuntimeExceptions(RestRuntimeException e, WebRequest request) {
         var httpStatus = e.getHttpStatus();
         if (httpStatus != null) {
-            return buildErrorResponse(e,
-                    exceptionMappingService.processException(e),
-                    new HttpHeaders(),
-                    httpStatus,
-                    request);
-        } else {
-            var code = HttpStatus.INTERNAL_SERVER_ERROR;
-            log.error(e.getMessage(), e);
-            return buildErrorResponse(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
+            var error = exceptionMappingService.processException(e);
+            if (httpStatus == HttpStatus.FORBIDDEN) {
+                recordDenial(request, error);
+            }
+            return buildErrorResponse(e, error, new HttpHeaders(), httpStatus, request);
         }
+        var code = HttpStatus.INTERNAL_SERVER_ERROR;
+        log.error(e.getMessage(), e);
+        return buildErrorResponse(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
     }
 
     /**
@@ -101,16 +110,44 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     })
     public ResponseEntity<Object> handleSecurityErrors(Exception e, WebRequest request) {
         log.debug(e.getMessage(), e);
-        var code = HttpStatus.FORBIDDEN;
-        return handleExceptionInternal(e, exceptionMappingService.processException(e), new HttpHeaders(), code, request);
+        var error = exceptionMappingService.processException(e);
+        recordDenial(request, error);
+        return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+
+    /**
+     * Records a refused request in the audit log: its path, its method and the reason given to the client.
+     *
+     * <p>A failure to record it is logged and leaves the answer as it is.
+     */
+    private void recordDenial(WebRequest request, BaseError error) {
+        if (request instanceof ServletWebRequest servletRequest) {
+            var httpRequest = servletRequest.getRequest();
+            var path = UrlPathHelper.defaultInstance.getPathWithinApplication(httpRequest);
+            var details = new LinkedHashMap<String, Object>();
+            details.put("method", httpRequest.getMethod());
+            details.put("reason", error.message);
+            try {
+                eventPublisher.publishEvent(AuditEvent.builder()
+                        .action(AuditAction.ACCESS_DENIED)
+                        .outcome(AuditOutcome.DENIED)
+                        .targetType(AuditTargetType.REQUEST)
+                        .target(path)
+                        .details(details)
+                        .build());
+            } catch (RuntimeException e) {
+                log.error("Failed to record the refused request '{} {}' in the audit log.", httpRequest.getMethod(),
+                        path, e);
+            }
+        }
     }
 
     /**
      * A malformed file path (absolute, or with illegal characters) is a client error, not a server
      * fault — answer 400 instead of letting it fall through to a 500.
      */
-    @ExceptionHandler(java.nio.file.InvalidPathException.class)
-    public ResponseEntity<Object> handleInvalidPath(java.nio.file.InvalidPathException e, WebRequest request) {
+    @ExceptionHandler(InvalidPathException.class)
+    public ResponseEntity<Object> handleInvalidPath(InvalidPathException e, WebRequest request) {
         log.debug(e.getMessage(), e);
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
@@ -203,21 +240,19 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                         .code(exceptionMappingService.buildDefaultErrorCode(status))
                         .message(problemDetailMessage(problemDetail, status));
                 return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
-            } else {
-                var builder = BaseError.builder()
-                        .code(exceptionMappingService.buildDefaultErrorCode(status))
-                        .message(Optional.ofNullable(handledBody)
-                                .map(Object::toString)
-                                .filter(StringUtils::isNotBlank)
-                                .orElseGet(() -> reasonPhrase(status)));
-                return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
             }
-        } else {
             var builder = BaseError.builder()
                     .code(exceptionMappingService.buildDefaultErrorCode(status))
-                    .message(e.getMessage());
+                    .message(Optional.ofNullable(handledBody)
+                            .map(Object::toString)
+                            .filter(StringUtils::isNotBlank)
+                            .orElseGet(() -> reasonPhrase(status)));
             return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
         }
+        var builder = BaseError.builder()
+                .code(exceptionMappingService.buildDefaultErrorCode(status))
+                .message(e.getMessage());
+        return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
     }
 
     private static String problemDetailMessage(ProblemDetail problemDetail, HttpStatusCode status) {
@@ -248,7 +283,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                                                                        HttpHeaders headers,
                                                                        HttpStatusCode status,
                                                                        WebRequest request) {
-        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
+        if (HttpStatus.INTERNAL_SERVER_ERROR == status) {
             request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, e, RequestAttributes.SCOPE_REQUEST);
         }
         return new ResponseEntity<>(body, headers, status);

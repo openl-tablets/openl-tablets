@@ -2,16 +2,20 @@ package org.openl.rules.rest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.openl.rules.rest.acl.service.AclRoleAuditor;
+import org.openl.rules.rest.acl.service.AclRoleAuditor.Place;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -29,6 +35,7 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.permission.AclRole;
+import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -54,6 +61,7 @@ public class ManagementController {
     private final UserManagementService userManagementService;
     private final JdbcSidManagingAclService aclService;
     private final RepositoryAclServiceProvider aclServiceProvider;
+    private final AclRoleAuditor aclRoleAuditor;
 
     @Autowired
     public ManagementController(GroupDao groupDao,
@@ -61,13 +69,15 @@ public class ManagementController {
                                 ExternalGroupService extGroupService,
                                 UserManagementService userManagementService,
                                 @Autowired(required = false) JdbcSidManagingAclService aclService,
-                                RepositoryAclServiceProvider aclServiceProvider) {
+                                RepositoryAclServiceProvider aclServiceProvider,
+                                AclRoleAuditor aclRoleAuditor) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.extGroupService = extGroupService;
         this.userManagementService = userManagementService;
         this.aclService = aclService;
         this.aclServiceProvider = aclServiceProvider;
+        this.aclRoleAuditor = aclRoleAuditor;
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
@@ -153,17 +163,23 @@ public class ManagementController {
         }
 
         var sid = new GrantedAuthoritySid(name);
-        var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
-        designRepoAclService.removeRootPermissions(sid);
-        var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
-        prodRepoAclService.removeRootPermissions(sid);
-        if (designRole != null) {
-            designRepoAclService.addRootPermissions(sid, designRole.getCumulativePermission());
+        setRootRole(AclRepositoryType.DESIGN, sid, designRole);
+        setRootRole(AclRepositoryType.PROD, sid, prodRole);
+    }
+
+    /**
+     * Gives a group a role on all the design or all the production repositories, or takes it away when the role is
+     * {@code null}.
+     */
+    private void setRootRole(AclRepositoryType repositoryType, Sid sid, @Nullable AclRole role) {
+        var repoAclService = aclServiceProvider.getAclService(repositoryType.getType());
+        var before = AclRoleAuditor.roleOf(repoAclService.listRootPermissions(sid));
+        repoAclService.removeRootPermissions(sid);
+        if (role != null) {
+            repoAclService.addRootPermissions(sid, role.getCumulativePermission());
         }
-        if (prodRole != null) {
-            var prodPermission = prodRole.getCumulativePermission();
-            prodRepoAclService.addRootPermissions(sid, prodPermission);
-        }
+        aclRoleAuditor.announce(Place.root(repositoryType), sid, before,
+                Optional.ofNullable(role).map(AclRole::name).orElse(null));
     }
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
@@ -177,7 +193,7 @@ public class ManagementController {
                 .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
-    public static class UIGroup {
+    public static final class UIGroup {
         private UIGroup(Group group) {
             id = group.getId();
             description = group.getDescription();
@@ -201,6 +217,7 @@ public class ManagementController {
             @Parameter(description = "mgmt.schema.group.user.display-name") String displayName) {
     }
 
+    @RequiredArgsConstructor
     public static class NumberOfMembers {
 
         @Parameter(description = "mgmt.schema.group.internal-number-of-users")
@@ -211,11 +228,5 @@ public class ManagementController {
 
         @Parameter(description = "mgmt.schema.group.total-number-of-users")
         public final long total;
-
-        public NumberOfMembers(long internal, long external, long total) {
-            this.internal = internal;
-            this.external = external;
-            this.total = total;
-        }
     }
 }
