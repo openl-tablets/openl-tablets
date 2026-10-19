@@ -23,6 +23,7 @@ OpenL Studio ships the user guides of its own version and shows them inside the 
 ```mermaid
 flowchart LR
     MD["Docs/user-guides"] -->|copied by| DOCS["studio-docs.jar"]
+    REF["Docs/ref"] -->|copied to ref/ by| DOCS
     DOCS -->|validated by| VAL["UserGuidesTest"]
     DOCS -->|packaged into| WAR["openl-studio.war"]
     WAR --> SERVLET["UserGuidesServlet /docs/*"]
@@ -38,6 +39,8 @@ It turns `Docs/user-guides` into a jar.
 
 - **Content** — every file of `Docs/user-guides`, except OS junk such as `.DS_Store`, is copied to
   `META-INF/resources/docs/` of the jar, keeping the folder structure.
+- **Specifications** — the files of `Docs/ref`, except its `AGENTS.md`, are copied to `META-INF/resources/docs/ref/`.
+  OpenL Studio shows them as one more guide, and its MCP server hands them to AI agents.
 - **Not deployed** — the module sets `maven.deploy.skip=true`. The root `pom.xml` derives `maven.install.skip`
   from it, so the module sets `maven.install.skip=false` back. The jar still reaches the local repository, and a
   build of the OpenL Studio war alone, outside the reactor, still resolves it.

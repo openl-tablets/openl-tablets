@@ -49,8 +49,9 @@ Multi-module Maven project. The version inherits from the root `pom.xml`.
 - **DEMO/** — Demo package: `start`, `start.ps1` and `start.cmd` scripts that download a JRE, Jetty and JDBC drivers
   and run OpenL Studio with OpenL Rule Services, plus their properties and the welcome page in `webapps/ROOT`
 - **jacoco-report/** — Aggregated JaCoCo coverage report; joins the reactor only with `-Dsonar`
-- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/`, which OpenL
-  Studio also ships and `STUDIO/studio-docs` validates; cross-cutting architecture notes under `Docs/architecture/`
+- **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/` and the
+  specifications of the project files under `Docs/ref/`, which OpenL Studio also ships and `STUDIO/studio-docs`
+  validates; cross-cutting architecture notes under `Docs/architecture/`
 
 Dependency versions are managed in the root `pom.xml` (Java/Maven) and `STUDIO/studio-ui/package.json` (frontend).
 Read those files for current versions, prefer the latest ones, and do not hardcode versions in documentation or

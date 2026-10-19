@@ -48,6 +48,18 @@
             <resource>
                 <targetPath>META-INF/resources/docs</targetPath>
                 <directory>${project.basedir}/../../Docs/user-guides</directory>
+                <!-- The conventions for writing a folder are not a page of it -->
+                <excludes>
+                    <exclude>**/AGENTS.md</exclude>
+                </excludes>
+            </resource>
+            <!-- The specifications of the project files, which the MCP server of OpenL Studio reads from there. -->
+            <resource>
+                <targetPath>META-INF/resources/docs/ref</targetPath>
+                <directory>${project.basedir}/../../Docs/ref</directory>
+                <excludes>
+                    <exclude>AGENTS.md</exclude>
+                </excludes>
             </resource>
         </resources>
     </build>
