@@ -125,7 +125,6 @@ class WorkspaceProjectServiceDeleteBranchTest {
                 mock(SystemPropertiesService.class),
                 mock(ApplicationEventPublisher.class),
                 mock(ProtectedBranchBypassService.class),
-                mock(ProjectIdentifierMapper.class),
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
                 mock(MultiUserWorkspaceManager.class),

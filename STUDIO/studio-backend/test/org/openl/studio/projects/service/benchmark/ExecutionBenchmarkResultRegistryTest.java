@@ -12,13 +12,14 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 
 class ExecutionBenchmarkResultRegistryTest {
 
     private ExecutionBenchmarkResultRegistry registry;
-    private ProjectIdModel projectId;
-    private ProjectIdModel otherProjectId;
+    private ProjectId projectId;
+    private ProjectId otherProjectId;
 
     private static BenchmarkMeasurement measurement(String id) {
         return new BenchmarkMeasurement(id, "table1", "Main", "Table", true, null, 1, 10, 3_000_000_000L, List.of());
@@ -31,14 +32,8 @@ class ExecutionBenchmarkResultRegistryTest {
     @BeforeEach
     void setUp() {
         registry = new ExecutionBenchmarkResultRegistry();
-        projectId = ProjectIdModel.builder()
-                .repository("design")
-                .projectName("TestProject")
-                .build();
-        otherProjectId = ProjectIdModel.builder()
-                .repository("design")
-                .projectName("OtherProject")
-                .build();
+        projectId = ProjectIds.of("design", "TestProject");
+        otherProjectId = ProjectIds.of("design", "OtherProject");
     }
 
     @Test

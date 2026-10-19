@@ -1,4 +1,4 @@
-GET /rest/projects/{PROJECT_ID}?include=status&fields=compileStatus(compileState,compilation(messages(errors))) HTTP/1.1
+GET /rest/projects/Jh1mxDjHQBbm?include=status&fields=compileStatus(compileState,compilation(messages(errors))) HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 X-OpenL-Test-Retry: yes
 

@@ -12,31 +12,26 @@ import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 
 class AbstractExecutionResultRegistryTest {
 
     private static class TestRegistry extends AbstractExecutionResultRegistry<String> {
-        public void setTask(ProjectIdModel projectId, String tableId, CompletableFuture<String> task) {
+        public void setTask(ProjectId projectId, String tableId, CompletableFuture<String> task) {
             registerTask(projectId, tableId, task);
         }
     }
 
     private TestRegistry registry;
-    private ProjectIdModel projectId;
-    private ProjectIdModel otherProjectId;
+    private ProjectId projectId;
+    private ProjectId otherProjectId;
 
     @BeforeEach
     void setUp() {
         registry = new TestRegistry();
-        projectId = ProjectIdModel.builder()
-                .repository("design")
-                .projectName("TestProject")
-                .build();
-        otherProjectId = ProjectIdModel.builder()
-                .repository("design")
-                .projectName("OtherProject")
-                .build();
+        projectId = ProjectIds.of("design", "TestProject");
+        otherProjectId = ProjectIds.of("design", "OtherProject");
     }
 
     // --- registerTask ---

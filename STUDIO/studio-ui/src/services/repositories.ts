@@ -209,21 +209,21 @@ interface CopyProjectOptions {
  *
  * The source is addressed by its id: a repository may hold the same project name in more than one
  * folder, and only the id tells those folders apart.
+ *
+ * @returns the id of the copy
  */
 export async function copyProject(
-    sourceRepositoryId: string,
     sourceProjectId: string,
     targetRepositoryId: string,
     newName: string,
     { comment, path, revision, branch }: CopyProjectOptions = {}
-): Promise<void> {
-    await apiCall(
+): Promise<string> {
+    const created = await apiCall(
         `/repos/${encodeURIComponent(targetRepositoryId)}/projects/${encodeURIComponent(newName)}/from-project`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                sourceRepositoryId,
                 sourceProject: sourceProjectId,
                 ...(comment?.trim() ? { comment: comment.trim() } : {}),
                 ...(path?.trim() ? { path: path.trim() } : {}),
@@ -233,7 +233,8 @@ export async function copyProject(
         },
         // The dialog shows a refusal itself, such as a protected branch, rather than the full-page error.
         LOCAL_LOAD_API_OPTIONS
-    )
+    ) as { id: string }
+    return created.id
 }
 
 /**
@@ -263,12 +264,14 @@ interface CreateProjectOptions {
  * Create a project in a design repository. The backend picks the strategy from the request content:
  * a ZIP archive, Excel files, an OpenAPI file (all uploaded as {@link CreateProjectOptions.files}), or a
  * named template. Overwrite applies only to a single ZIP upload.
+ *
+ * @returns the id of the new project
  */
 export async function createProject(
     repositoryId: string,
     projectName: string,
     options: CreateProjectOptions
-): Promise<void> {
+): Promise<string> {
     const form = new FormData()
     for (const file of options.files ?? []) {
         form.append('template', file, file.name)
@@ -300,12 +303,13 @@ export async function createProject(
         params.set('branch', options.branch.trim())
     }
     const query = params.toString() ? `?${params.toString()}` : ''
-    await apiCall(
+    const created = await apiCall(
         `/repos/${encodeURIComponent(repositoryId)}/projects/${encodeURIComponent(projectName)}${query}`,
         { method: 'PUT', body: form },
         // The dialog shows a refusal itself, such as a protected branch, rather than the full-page error.
         LOCAL_LOAD_API_OPTIONS
-    )
+    ) as { id: string }
+    return created.id
 }
 
 export interface ProjectTemplateGroup {
@@ -455,7 +459,6 @@ export interface ProjectRevision {
     author?: RevisionAuthor
     deleted: boolean
     technicalRevision: boolean
-    commentParts?: string[]
 }
 
 export interface RevisionPage {

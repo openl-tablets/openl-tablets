@@ -1,5 +1,5 @@
 import apiCall, { isApiHttpError, LOCAL_LOAD_API_OPTIONS } from './apiCall'
-import { encodeProjectPath, toUrlSafeId } from './projectId'
+import { encodeProjectPath } from './projectId'
 import CONFIG from './config'
 import { getProjectFiles, revisionQueryParams, toRevisionPage, type RevisionPage, type RevisionQuery } from './repositories'
 import { decodeText } from '../utils/decodeText'
@@ -22,7 +22,7 @@ export function isEditableTextFile(name: string): boolean {
 
 /** Build the files-API URL for a single file, encoding each path segment while keeping the separators. */
 const fileUrl = (projectId: string, path: string): string =>
-    `/projects/${toUrlSafeId(projectId)}/files/${encodeProjectPath(path)}`
+    `/projects/${projectId}/files/${encodeProjectPath(path)}`
 
 /**
  * The answer to a read of a project file, optionally at a specific historical revision: the file bytes with the
@@ -119,7 +119,7 @@ export async function rootFileExists(projectId: string, name: string): Promise<b
 /** Move or rename a file within a project. */
 export async function moveFile(projectId: string, sourcePath: string, destinationPath: string): Promise<void> {
     await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/file-move`,
+        `/projects/${projectId}/file-move`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourcePath, destinationPath }) },
         { throwError: true }
     )
@@ -128,7 +128,7 @@ export async function moveFile(projectId: string, sourcePath: string, destinatio
 /** Copy a file within a project to a new path. */
 export async function copyFile(projectId: string, sourcePath: string, destinationPath: string): Promise<void> {
     await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/file-copy`,
+        `/projects/${projectId}/file-copy`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sourcePath, destinationPath }) },
         { throwError: true }
     )
@@ -148,7 +148,7 @@ export async function getFileRevisions(
     path: string,
     query: RevisionQuery = {}
 ): Promise<RevisionPage> {
-    const url = `/projects/${toUrlSafeId(projectId)}/file-history/${encodeProjectPath(path)}?${revisionQueryParams(query)}`
+    const url = `/projects/${projectId}/file-history/${encodeProjectPath(path)}?${revisionQueryParams(query)}`
     return toRevisionPage(await apiCall(url, undefined, { throwError: true }), query)
 }
 

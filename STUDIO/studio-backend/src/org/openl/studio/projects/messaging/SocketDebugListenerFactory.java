@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.service.trace.DebugListener;
 
 /**
@@ -21,7 +21,7 @@ public class SocketDebugListenerFactory {
 
     private final ProjectSocketNotificationService socketNotificationService;
 
-    public DebugListener create(CommonUser user, ProjectIdModel projectId, String tableId, String sessionId) {
+    public DebugListener create(CommonUser user, ProjectId projectId, String tableId, String sessionId) {
         return status -> socketNotificationService.notifyTraceDebugStatus(user, projectId, tableId,
                 status.getCode(), sessionId);
     }

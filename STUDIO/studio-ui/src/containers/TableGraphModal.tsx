@@ -373,8 +373,7 @@ export const TableGraphModal: React.FC = () => {
         if (!hasDetails || !detail) {
             return
         }
-        // The id may arrive in the standard Base64 alphabet; normalize to the URL-safe form (the backend decodes both).
-        projectIdRef.current = detail.projectId.replaceAll('+', '-').replaceAll('/', '_')
+        projectIdRef.current = detail.projectId
         moduleRef.current = detail.module
         projectNameRef.current = detail.projectName
         // Preselect the table the user is editing; default to the opened module's slice when one is known.

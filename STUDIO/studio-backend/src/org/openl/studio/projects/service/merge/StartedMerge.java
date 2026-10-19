@@ -11,8 +11,8 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResult;
 
@@ -29,7 +29,7 @@ import org.openl.studio.projects.model.merge.MergeResult;
 final class StartedMerge {
 
     /** The project being merged. */
-    private final ProjectIdModel projectId;
+    private final ProjectId projectId;
 
     /** The branch the project was on when the merge started. */
     private final String currentBranch;
@@ -73,7 +73,7 @@ final class StartedMerge {
     }
 
     /** Whether this is the merge of the same branches of the project, in the same direction. */
-    boolean isSameAs(ProjectIdModel otherProjectId, String branch, MergeOpMode otherMode) {
+    boolean isSameAs(ProjectId otherProjectId, String branch, MergeOpMode otherMode) {
         return projectId.equals(otherProjectId) && otherBranch.equals(branch) && mode == otherMode;
     }
 

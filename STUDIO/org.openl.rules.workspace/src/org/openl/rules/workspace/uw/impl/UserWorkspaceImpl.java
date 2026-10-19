@@ -31,6 +31,8 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.BranchedProject;
@@ -59,6 +61,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
     private final HashMap<String, List<ProjectKey>> rulesProjectKeysByName;
+    private Map<ProjectId, RulesProject> rulesProjectsById = Map.of();
 
     private volatile boolean projectsRefreshNeeded = true;
     private volatile boolean syncNeeded = true;
@@ -193,11 +196,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public Collection<RulesProject> getProjectsByName(String name) {
-        return getProjectsByName(name, true);
-    }
-
-    @Override
     public Collection<RulesProject> getProjectsByName(String name, boolean refreshBefore) {
         if (refreshBefore || projectsRefreshNeeded) {
             refreshRulesProjects();
@@ -221,6 +219,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 .filter(p -> !p.isLocalOnly() && repositoryId.equals(p.getDesignRepository()
                         .getId()) && ((realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/")))
                 .findFirst();
+    }
+
+    @Override
+    public Optional<RulesProject> getProjectById(ProjectId id, boolean refreshBefore) {
+        if (refreshBefore || projectsRefreshNeeded) {
+            refreshRulesProjects();
+        }
+        synchronized (userRulesProjects) {
+            return Optional.ofNullable(rulesProjectsById.get(id));
+        }
     }
 
     @Override
@@ -306,18 +314,40 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private void clearRulesProjectsCache() {
         userRulesProjects.clear();
         rulesProjectKeysByName.clear();
+        rulesProjectsById = Map.of();
     }
 
     private static ProjectKey projectKey(String repositoryId, String projectName) {
         return new ProjectKey(repositoryId, projectName.toLowerCase(Locale.ROOT));
     }
 
-    private void putRulesProject(RulesProject project) {
+    /**
+     * Adds a project to the listing.
+     *
+     * @param location  where the project is stored, which its id is computed from
+     * @param locations where each listed project is stored: the design folder, or the workspace one
+     */
+    private void putRulesProject(RulesProject project, String location, Map<ProjectKey, ProjectKey> locations) {
         var repoId = project.getRepository().getId();
         var key = projectKey(repoId, project.getName());
         userRulesProjects.put(key, project);
+        locations.put(key, new ProjectKey(repoId, location));
         var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
         rulesProjectKeysByName.computeIfAbsent(businessNameKey, k -> new ArrayList<>()).add(key);
+    }
+
+    /**
+     * Keys the listed projects by their ids, and addresses each project by the id it is keyed by: an opened copy is
+     * addressed by the id of its design folder, though its workspace records where the folder was.
+     */
+    private void indexById(Map<ProjectKey, ProjectKey> locations) {
+        var entries = ProjectIds.index(userRulesProjects.entrySet(), entry -> locations.get(entry.getKey()));
+        var byId = HashMap.<ProjectId, RulesProject>newHashMap(entries.size());
+        entries.forEach((id, entry) -> {
+            entry.getValue().setProjectId(id);
+            byId.put(id, entry.getValue());
+        });
+        rulesProjectsById = byId;
     }
 
     private void scheduleProjectsRefresh() {
@@ -361,9 +391,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     .collect(Collectors.groupingBy(project -> project.getRepository().getId(),
                             Collectors.mapping(AProject::getRealPath, Collectors.toSet())));
 
+            var locations = new HashMap<ProjectKey, ProjectKey>();
             // add new
             for (DesignProject designProject : designProjects) {
-                addDesignProject(designProject, designFolders);
+                addDesignProject(designProject, designFolders, locations);
             }
 
             // Workspace projects that have no corresponding project in the main branch of the
@@ -376,10 +407,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)))) {
                     var project = resolveUnmatchedProject(repoId, lp);
                     if (project != null) {
-                        putRulesProject(project);
+                        putRulesProject(project, project.getRealPath(), locations);
                     }
                 }
             }
+            indexById(locations);
 
             projectsRefreshNeeded = false;
             cleanUpOnActivation = false;
@@ -394,7 +426,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
      * Adds the project the user works on for the design project: the one of the branch the workspace copy is on,
      * or else of the branch last chosen for the project.
      */
-    private void addDesignProject(DesignProject designProject, Map<String, Set<String>> designFolders) {
+    private void addDesignProject(DesignProject designProject,
+                                  Map<String, Set<String>> designFolders,
+                                  Map<ProjectKey, ProjectKey> locations) {
         var rp = designProject.project();
         var repoId = rp.getRepository().getId();
         var localRepository = localWorkspace.getRepository(repoId);
@@ -443,7 +477,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (closeProject) {
             closeProject(project);
         }
-        putRulesProject(project);
+        // Every branch keeps the project in one folder; the design entry tells it without reading the mapping again.
+        putRulesProject(project, rp.getRealPath(), locations);
     }
 
     /**

@@ -25,9 +25,9 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergedWorkbook;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.FileChangeView;
 import org.openl.studio.projects.model.merge.MergeScopeView;
@@ -38,7 +38,6 @@ import org.openl.studio.projects.model.merge.ProjectScopeView;
 import org.openl.studio.projects.model.merge.SheetChangeView;
 import org.openl.studio.projects.model.merge.SheetOrigin;
 import org.openl.studio.projects.model.project.status.ChangeType;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.files.FilePaths;
 
 /**
@@ -68,7 +67,6 @@ public class MergeChangesService {
 
     private final DesignTimeRepository designTimeRepository;
     private final RepositoryAclService designRepositoryAclService;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     /**
      * What a merge of one branch into another would bring in, or nothing when it cannot be told.
@@ -279,7 +277,7 @@ public class MergeChangesService {
             } else {
                 var project = projectsByFolder.get(folder);
                 if (readable.contains(project)) {
-                    groups.add(new ChangedProject(projectIdentifierMapper.map(project),
+                    groups.add(new ChangedProject(project.getProjectId(),
                             project.getBusinessName(),
                             folder,
                             folder.equals(current.getRealPath()),
@@ -365,7 +363,7 @@ public class MergeChangesService {
      * @param current whether it is the project the merge is asked for
      * @param status  what the merge does to the project
      */
-    private record ChangedProject(@Nullable ProjectIdModel id,
+    private record ChangedProject(@Nullable ProjectId id,
                                   @Nullable String name,
                                   @Nullable String path,
                                   boolean current,

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY0MjEtWGxzeA==",
+  "id": "WEP-U29Pd-wD",
   "branch": "master",
   "revision": "*"
 }

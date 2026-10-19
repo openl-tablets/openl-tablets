@@ -1,3 +1,3 @@
-GET /rest/projects/{PROJECT_NAME}/merge/conflicts/text?file=EPBDS-16637-Messages%2Fi18n%2Fmessage_de.properties HTTP/1.1
+GET /rest/projects/Fas6xMSUqqrp/merge/conflicts/text?file=EPBDS-16637-Messages%2Fi18n%2Fmessage_de.properties HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

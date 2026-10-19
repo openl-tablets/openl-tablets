@@ -13,6 +13,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -48,10 +49,10 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     /**
      * Checks the read access to the project and evicts the inaccessible copy from the workspace.
      *
-     * <p>A revoked permission hides the project from all listings, and the copied data must not stay
-     * on the server either. The opened copy is closed: the local files and the registry record are
-     * removed. A genuinely local project has no source repository to control the access, so it is
-     * kept as is.
+     * <p>A revoked permission hides the project from all listings and lookups by id, and the copied data
+     * must not stay on the server either. The opened copy is closed: the local files and the registry
+     * record are removed. A genuinely local project has no source repository to control the access, so
+     * it is kept as is.
      */
     private boolean hasReadAccess(RulesProject project) {
         if (designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))) {
@@ -129,6 +130,11 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
+    public Optional<RulesProject> getProjectById(ProjectId id, boolean refreshBefore) {
+        return userWorkspace.getProjectById(id, refreshBefore).filter(this::hasReadAccess);
+    }
+
+    @Override
     public WorkspaceUser getUser() {
         return userWorkspace.getUser();
     }
@@ -167,14 +173,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public Collection<RulesProject> getProjects(boolean refreshBefore) {
         return userWorkspace.getProjects(refreshBefore)
-                .stream()
-                .filter(this::hasReadAccess)
-                .toList();
-    }
-
-    @Override
-    public Collection<RulesProject> getProjectsByName(String name) {
-        return userWorkspace.getProjectsByName(name)
                 .stream()
                 .filter(this::hasReadAccess)
                 .toList();

@@ -54,20 +54,20 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ValueLevel;
 import org.openl.studio.projects.model.ValueLine;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.model.tests.TestCaseValue;
 import org.openl.studio.projects.model.tests.TestUnitExecutionResult;
 import org.openl.studio.projects.model.tests.TestsExecutionSummary;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -103,7 +103,7 @@ class ProjectsControllerTestsSummaryTest {
     private static final String TABLE_ID = "k3q7v2m5xahd4r2b";
 
     private final RulesProject project = mock(RulesProject.class);
-    private final ProjectIdModel projectId = ProjectIdModel.builder().repository("design").projectName("Test").build();
+    private final ProjectId projectId = ProjectIds.of("design", "Test");
     private final ExecutionTestsResultRegistry registry = new ExecutionTestsResultRegistry();
     private final WorkspaceProjectService projectService = mock(WorkspaceProjectService.class);
     private final SocketProjectAllTestsExecutionProgressListenerFactory listeners =
@@ -113,8 +113,7 @@ class ProjectsControllerTestsSummaryTest {
 
     @BeforeEach
     void init() {
-        var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        when(project.getProjectId()).thenReturn(projectId);
         when(objectMapperService.createObjectMapper()).thenReturn(new ObjectMapper());
         controller = new ProjectsController(projectService,
                 mock(TestsExecutorService.class),
@@ -122,7 +121,6 @@ class ProjectsControllerTestsSummaryTest {
                 listeners,
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
-                projectIdentifierMapper,
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),

@@ -13,7 +13,7 @@ Content-Type: application/json
       "pos": "B11:C15",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "projectId": "7oss6nV6bUHe",
       "signature": "TypeA"
     },
     {
@@ -26,7 +26,7 @@ Content-Type: application/json
       "pos": "B5:C6",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "projectId": "7oss6nV6bUHe",
       "signature": "TypeB"
     },
     {
@@ -39,7 +39,7 @@ Content-Type: application/json
       "pos": "B8:C9",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "ZGVzaWduOkVQQkRTLTE2MDg2",
+      "projectId": "7oss6nV6bUHe",
       "signature": "TypeC"
     }
   ],

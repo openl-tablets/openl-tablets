@@ -211,7 +211,8 @@ interface NewProjectModalProps {
      * A project was created. Carries the created project's repository, name and, on a branch-capable
      * repository, the branch it was created on, so the caller can open its page.
      */
-    onCreated: (created: { repositoryId: string, name: string, branch?: string }) => void
+    /** Takes the id of the new project. */
+    onCreated: (id: string) => void
 }
 
 /** The file an upload field shows as picked: the one chosen, or none. */
@@ -517,18 +518,22 @@ export const NewProjectModal = ({
         return null
     }
 
-    /** Creates the project from the chosen source: a copy of another project, a template, or what was uploaded. */
-    const createFromSource = async (repository: Repository, trimmedName: string) => {
+    /**
+     * Creates the project from the chosen source: a copy of another project, a template, or what was uploaded.
+     *
+     * @returns the id of the new project
+     */
+    const createFromSource = async (repository: Repository, trimmedName: string): Promise<string> => {
         if (mode === 'copy') {
             const source = copyableProjectSources.find(candidate => candidate.id === copySource)!
-            await copyProject(source.repository, source.id, repository.id, trimmedName, {
+            return await copyProject(source.id, repository.id, trimmedName, {
                 comment: comment.trim() || undefined,
                 path: repositoryPath(),
                 branch: repositorySupportsBranches ? branch.trim() : undefined,
             })
         } else if (mode === 'template') {
             const [type, category, name_] = JSON.parse(template!) as [string, string, string]
-            await createProject(repository.id, trimmedName, {
+            return await createProject(repository.id, trimmedName, {
                 template: { type, category, name: name_ },
                 path: repositoryPath(),
                 comment: comment.trim() || undefined,
@@ -536,7 +541,7 @@ export const NewProjectModal = ({
                 ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
             })
         } else {
-            await createProject(repository.id, trimmedName, {
+            return await createProject(repository.id, trimmedName, {
                 files: contentFiles(),
                 ...(mode === 'openapi' ? { openApi } : {}),
                 path: mode === 'archive' ? archivePath() : repositoryPath(),
@@ -579,16 +584,12 @@ export const NewProjectModal = ({
             setSubmitting(true)
             setError(null)
             try {
-                await createFromSource(repository, trimmedName)
+                const id = await createFromSource(repository, trimmedName)
                 // The dialog closes onto the new project's page, so the confirmation is the one thing that says
                 // the action went through — the way a copy or a deletion is confirmed.
                 const confirmation = mode === 'copy' ? 'browser.copy_dialog.success' : 'browser.create.success'
                 notification.success({ title: t(confirmation, { name: trimmedName }) })
-                onCreated({
-                    repositoryId: repository.id,
-                    name: trimmedName,
-                    ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
-                })
+                onCreated(id)
                 close()
             } catch (e) {
                 setError(errorMessage(e))

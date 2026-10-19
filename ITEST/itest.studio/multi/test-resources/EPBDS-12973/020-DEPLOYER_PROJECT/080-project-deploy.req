@@ -5,6 +5,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production",
   "deploymentName": "EPBDS-12973",
-  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "projectId": "fIiIGKTVd0re",
   "comment": "Deploy project EPBDS-12973"
 }

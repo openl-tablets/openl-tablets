@@ -39,6 +39,7 @@ import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
@@ -262,6 +263,26 @@ class SecureDesignTimeRepositoryImplTest {
 
         assertNull(designProject.branches());
         assertNotSame(plain.getRepository(), designProject.project().getRepository());
+    }
+
+    @Test
+    void aProjectIsFoundByItsIdOnlyWhenItIsReadable() {
+        var readable = project("main", "DESIGN/Readable/Rates");
+        var denied = project("main", "DESIGN/Denied/Rates");
+        var readableId = ProjectIds.of("design", "DESIGN/Readable/Rates");
+        var deniedId = ProjectIds.of("design", "DESIGN/Denied/Rates");
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getProjectById(readableId)).thenReturn(Optional.of(readable));
+        when(delegate.getProjectById(deniedId)).thenReturn(Optional.of(denied));
+        var aclService = mock(RepositoryAclService.class);
+        when(aclService.isGranted(readable, List.of(BasePermission.READ))).thenReturn(true);
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, aclService);
+
+        var found = secured.getProjectById(readableId).orElseThrow();
+
+        assertNotSame(readable.getRepository(), found.getRepository(), "The project is handed out as a secured view.");
+        assertTrue(secured.getProjectById(deniedId).isEmpty());
+        assertTrue(secured.getProjectById(ProjectIds.of("design", "DESIGN/Other")).isEmpty());
     }
 
     @Test

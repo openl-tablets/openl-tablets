@@ -8,6 +8,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -34,6 +35,15 @@ public interface UserWorkspace extends ProjectsContainer {
 
     Optional<RulesProject> getProjectByPath(String repositoryId, String realPath);
 
+    /**
+     * The project the given id names, when the workspace holds it.
+     *
+     * @param id            the id the project is addressed by
+     * @param refreshBefore whether the projects are to be listed again first; they are when nothing listed them yet
+     * @see org.openl.rules.workspace.ProjectIds
+     */
+    Optional<RulesProject> getProjectById(ProjectId id, boolean refreshBefore);
+
     WorkspaceUser getUser();
 
     @Override
@@ -53,19 +63,6 @@ public interface UserWorkspace extends ProjectsContainer {
     Collection<RulesProject> getProjects();
 
     Collection<RulesProject> getProjects(boolean refreshBefore);
-
-    /**
-     * Returns all projects in the workspace whose business name matches the given name (case-insensitive). Since project
-     * names are unique only within a single design repository, multiple projects with the same business name may exist
-     * across repositories and are all returned.
-     * <p>
-     * Refreshes the workspace before lookup. Equivalent to {@link #getProjectsByName(String, boolean)} with
-     * {@code refreshBefore = true}.
-     *
-     * @param name project business name to match (case-insensitive)
-     * @return matching projects, sorted by business name, repository id, then real path; empty if none found
-     */
-    Collection<RulesProject> getProjectsByName(String name);
 
     /**
      * Returns all projects in the workspace whose business name matches the given name (case-insensitive). Since project

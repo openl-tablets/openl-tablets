@@ -9,6 +9,8 @@ import jakarta.validation.Validation;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.workspace.ProjectIds;
+
 class CreateFromProjectModelTest {
 
     @Test
@@ -19,16 +21,10 @@ class CreateFromProjectModelTest {
     }
 
     @Test
-    void sourceRepositoryIsOptional() {
-        // A project id names its repository, and a name is looked for in every repository.
-        var violations = propertyViolations(new CreateFromProjectModel(null, "Source", null, null, null));
-
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
     void validSourceProjectFieldsPassValidation() {
-        var violations = propertyViolations(new CreateFromProjectModel("design", "Source", null, null, null));
+        // The id names the repository of the source project too.
+        var violations = propertyViolations(
+                new CreateFromProjectModel(ProjectIds.of("design", "Source"), null, null, null));
 
         assertTrue(violations.isEmpty());
     }

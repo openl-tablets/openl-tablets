@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectStateChangedEvent;
 
 /**
@@ -30,7 +29,6 @@ import org.openl.studio.projects.service.ProjectStateChangedEvent;
 public class WorkspaceChangesWebSocketPublisher {
 
     private final ProjectSocketNotificationService notificationService;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final NotificationDebouncer debouncer;
     private final ChangeOriginResolver changeOrigin;
 
@@ -44,8 +42,8 @@ public class WorkspaceChangesWebSocketPublisher {
         debouncer.debounce(userName, ChangeNotes.of(Set.of(), origin),
                 notes -> notificationService.notifyWorkspaceChanged(userName, notes));
         try {
-            var projectId = projectIdentifierMapper.map(event.project());
-            var key = userName + "|" + projectId.encode();
+            var projectId = event.project().getProjectId();
+            var key = userName + "|" + projectId.value();
             // The debouncer merges the notes of a burst and drains them atomically with the window.
             debouncer.debounce(key, ChangeNotes.of(event.paths(), origin),
                     notes -> notificationService.notifyProjectChanged(userName, projectId, notes));

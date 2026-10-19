@@ -33,14 +33,14 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFactory;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.service.ExecutionProgressListener;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
@@ -67,7 +67,7 @@ class ProjectsRunControllerTest {
     private static final String INPUT = "{\"hour\":10}";
 
     private final RulesProject project = mock(RulesProject.class);
-    private final ProjectIdModel projectId = ProjectIdModel.builder().repository("design").projectName("Test").build();
+    private final ProjectId projectId = ProjectIds.of("design", "Test");
     private final ExecutionRunResultRegistry registry = new ExecutionRunResultRegistry();
     private final WorkspaceProjectService projectService = mock(WorkspaceProjectService.class);
     private final RunExecutorService runExecutorService = mock(RunExecutorService.class);
@@ -80,8 +80,7 @@ class ProjectsRunControllerTest {
 
     @BeforeEach
     void init() {
-        var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        when(project.getProjectId()).thenReturn(projectId);
         var userWorkspace = mock(UserWorkspace.class);
         when(projectService.getUserWorkspace()).thenReturn(userWorkspace);
         controller = new ProjectsRunController(projectService,
@@ -89,8 +88,7 @@ class ProjectsRunControllerTest {
                 registry,
                 listenerFactory,
                 inputParserService,
-                mock(ProjectObjectMapperService.class),
-                projectIdentifierMapper);
+                mock(ProjectObjectMapperService.class));
     }
 
     /**

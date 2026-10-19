@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.model.project.status.ChangeType;
 
 /**
@@ -19,7 +19,7 @@ import org.openl.studio.projects.model.project.status.ChangeType;
 @Schema(description = "A project the merge would change, or the files outside any project")
 public record ProjectScopeView(
         @Parameter(description = "Id of the project; absent for the files outside any project")
-        @Nullable ProjectIdModel id,
+        @Nullable ProjectId id,
 
         @Parameter(description = "Name of the project; absent for the files outside any project")
         @Nullable String name,

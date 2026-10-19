@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
+      "id": "vIEe7hHKLO1g",
       "name": "EPBDS-14095",
       "status": "VIEWING_VERSION",
       "repository": "design",
@@ -35,7 +35,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOlByb2plY3Q=",
+      "id": "ym3IH0b7iU-7",
       "name": "Project",
       "status": "CLOSED",
       "repository": "design",
@@ -63,7 +63,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOlByb2plY3Qy",
+      "id": "_EJervrhpkur",
       "name": "Project2",
       "status": "CLOSED",
       "repository": "design",

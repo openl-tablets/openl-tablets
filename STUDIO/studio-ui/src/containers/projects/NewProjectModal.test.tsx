@@ -229,8 +229,8 @@ const toConfig = async (methodId = 'template') => {
 describe('NewProjectModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(copyProject).mockResolvedValue()
-        vi.mocked(createProject).mockResolvedValue()
+        vi.mocked(copyProject).mockResolvedValue('sZIiCSgPtIfe')
+        vi.mocked(createProject).mockResolvedValue('sZIiCSgPtIfe')
         vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 } as never)
         vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
         vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
@@ -544,9 +544,8 @@ describe('NewProjectModal', () => {
 
         await waitFor(() => expect(createProject).toHaveBeenCalledTimes(1))
         expect(vi.mocked(createProject).mock.calls[0]![2].branch).toBe('feature/new-project')
-        // The caller opens the created project by that branch: a same-named project may sit on another one.
-        await waitFor(() => expect(onCreated).toHaveBeenCalledWith(
-            { repositoryId: 'design', name: 'InBranch', branch: 'feature/new-project' }))
+        // The caller opens the created project by the id the create answered, whatever branch holds it.
+        await waitFor(() => expect(onCreated).toHaveBeenCalledWith('sZIiCSgPtIfe'))
     })
 
     it('ignores a stale branch response after the target repository changes', async () => {
@@ -694,7 +693,6 @@ describe('NewProjectModal', () => {
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledTimes(1))
         expect(copyProject).toHaveBeenCalledWith(
-            'sourceRepo',
             'source',
             'design',
             'Copied',

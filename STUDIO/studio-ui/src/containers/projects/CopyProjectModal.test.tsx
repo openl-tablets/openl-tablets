@@ -162,7 +162,7 @@ const asNewProject = async () => {
 describe('CopyProjectModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(copyProject).mockResolvedValue()
+        vi.mocked(copyProject).mockResolvedValue('sZIiCSgPtIfe')
         vi.mocked(createProjectBranch).mockResolvedValue()
         vi.mocked(switchProjectBranch).mockResolvedValue()
         vi.mocked(getRepositoryConfig).mockResolvedValue({
@@ -256,7 +256,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'master' }
+            'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'master' }
         ))
         expect(createProjectBranch).not.toHaveBeenCalled()
     })
@@ -271,7 +271,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'release/rates' }
+            'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'release/rates' }
         ))
     })
 
@@ -329,7 +329,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'master' }
+            'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', branch: 'master' }
         ))
     })
 
@@ -359,7 +359,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', revision: 'rev-1', branch: 'master' }
+            'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', revision: 'rev-1', branch: 'master' }
         ))
     })
 
@@ -387,7 +387,7 @@ describe('CopyProjectModal', () => {
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
         await waitFor(() => expect(copyProject).toHaveBeenCalledWith(
-            'design', 'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', path: 'folder' }
+            'p1', 'design', 'Beta', { comment: 'Copied from: Alpha.', path: 'folder' }
         ))
     })
 

@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16253-acl-editing/files/lock-probe/ HTTP/1.1
+POST /rest/projects/kPwGfrwKepsV/files/lock-probe/ HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Cookie: NO_JSESSIONID=noAuth
 Content-Type: multipart/form-data; boundary=MULTIBOUND

@@ -1,3 +1,3 @@
-DELETE /rest/projects/EPBDS-16253-acl-opened?comment=Cleanup HTTP/1.1
+DELETE /rest/projects/zF5wJSeNEhM2?comment=Cleanup HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

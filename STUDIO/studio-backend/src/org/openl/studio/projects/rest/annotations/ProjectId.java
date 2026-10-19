@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Parameter(description = "projects.param.project-identity.desc", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
+@Parameter(description = "projects.param.project-id.desc", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
 public @interface ProjectId {
 
 }

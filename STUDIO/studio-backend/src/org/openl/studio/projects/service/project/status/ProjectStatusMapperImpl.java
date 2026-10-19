@@ -24,7 +24,6 @@ import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ModifiedBy;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
@@ -33,7 +32,6 @@ import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
 @RequiredArgsConstructor
 public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final CompilationJobRegistry compilationJobRegistry;
     private final PendingChangesResolver pendingChangesResolver;
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
@@ -92,14 +90,14 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     // report whatever is already registered in the client-scoped compilation registry.
     @Nullable
     private ProjectModel resolveModel(RulesProject project) {
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         return compilationJobRegistry.find(projectId, project.getBranch())
                 .map(CompilationJob::project)
                 .orElse(null);
     }
 
     private ProjectStatusViewModel map(RulesProject project, @Nullable ProjectModel model, Detail detail) {
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         var builder = ProjectStatusViewModel.builder()
                 .projectId(projectId);
         if (project.isSupportsBranches()) {

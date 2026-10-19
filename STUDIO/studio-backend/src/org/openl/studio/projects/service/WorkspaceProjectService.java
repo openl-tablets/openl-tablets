@@ -259,7 +259,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             SystemPropertiesService systemPropertiesService,
             ApplicationEventPublisher eventPublisher,
             ProtectedBranchBypassService bypassService,
-            ProjectIdentifierMapper projectIdentifierMapper,
             DetailedMessageDescriptionMapper detailedMessageDescriptionMapper,
             LocalWorkspaceManager localWorkspaceManager,
             MultiUserWorkspaceManager workspaceManager,
@@ -272,7 +271,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             ModuleCompilationLauncher moduleCompilationLauncher,
             ObjectFactory<UserWorkspace> userWorkspaceFactory,
             UploadFormatting uploadFormatting) {
-        super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
+        super(designRepositoryAclService, projectAccessService);
         this.moduleCompilationLauncher = moduleCompilationLauncher;
         this.projectStateValidator = projectStateValidator;
         this.projectDependencyResolver = projectDependencyResolver;
@@ -777,7 +776,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     protected ProjectDependencyViewModel.Builder mapProjectDependency(RulesProject src) {
         var repository = src.getRepository();
         var builder = ProjectDependencyViewModel.builder().name(src.getBusinessName())
-                .id(projectIdentifierMapper.map(src))
+                .id(src.getProjectId())
                 .repository(repository.getId());
         builder.status(src.getStatus()).branch(src.getBranch());
         builder.branchProtected(src.isBranchProtected()).branchDefault(src.isBranchDefault());
@@ -855,7 +854,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 var rulesProject = (RulesProject) project;
                 var dependencies = projectDependencyResolver.getProjectDependencies(rulesProject);
                 return dependencies.stream().anyMatch(dependency -> {
-                    var dependencyId = projectIdentifierMapper.map(dependency);
+                    var dependencyId = dependency.getProjectId();
                     return dependencyId.equals(query.dependsOn());
                 });
             });
@@ -1698,7 +1697,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         // A search that reaches past the module it was asked through answers with tables of other modules, and of
         // other projects — so each of them says where it lives, or nothing could be opened from the answer.
         var locations = scope == SearchScope.CURRENT_MODULE ? null
-                : TableModules.ofWorkspace(moduleModel, projectIdentifierMapper);
+                : TableModules.ofWorkspaceAddressed(moduleModel);
 
         // What the compilation made of each table — its errors, and whether anything tests it — read once for
         // the whole list rather than worked out again for every row of it.
@@ -2005,7 +2004,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
 
     private ProjectHandle openProject(ProjectDescriptor projectDescriptor, RulesProject project, @Nullable Module module) {
         var moduleModel = openModule(getWebStudio(), projectDescriptor, project, module);
-        return ProjectHandle.of(moduleModel, getCompilationJobRegistry().acquire(projectIdentifierMapper.map(project),
+        return ProjectHandle.of(moduleModel, getCompilationJobRegistry().acquire(project.getProjectId(),
                 moduleModel));
     }
 
@@ -2133,7 +2132,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             @Nullable String moduleName) {
         var context = getOpenLTableInModule(project, tableId, moduleName);
         var tableView = rawTableReader.read(context.table(), read.toBuilder()
-                .modules(TableModules.ofWorkspace(context.module(), projectIdentifierMapper))
+                .modules(TableModules.ofWorkspaceAddressed(context.module()))
                 .build());
         // Only a screen drawing the cells has anything to do with where they sit, so only the grid is told.
         tableView.layout = TableLayouts.of(context.module(), context.table());
@@ -2298,7 +2297,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (tests.length == 0) {
             return List.of();
         }
-        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
+        var modules = TableModules.ofWorkspaceAddressed(context.module());
         return Arrays.stream(tests)
                 .map(test -> {
                     var node = (TableSyntaxNode) test.getInfo().getSyntaxNode();
@@ -2339,7 +2338,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         if (targets.isEmpty()) {
             return List.of();
         }
-        var modules = TableModules.ofWorkspace(context.module(), projectIdentifierMapper);
+        var modules = TableModules.ofWorkspaceAddressed(context.module());
         return targets.stream()
                 .map(target -> {
                     var where = modules.locationOf(target.uri());

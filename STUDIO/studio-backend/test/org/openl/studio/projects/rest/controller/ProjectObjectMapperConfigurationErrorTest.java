@@ -25,15 +25,14 @@ import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.ExceptionMappingService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFactory;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.trace.StackViewMode;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -62,7 +61,6 @@ class ProjectObjectMapperConfigurationErrorTest {
     private static final String MISSING_CLASS = "org.example.project.MissingType";
 
     private final Environment environment = mock(Environment.class);
-    private final ProjectIdentifierMapper projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
     private final ProjectModel projectModel = mock(ProjectModel.class);
     private final RulesProject project = mock(RulesProject.class);
     private final WorkspaceProjectService projectService = mock(WorkspaceProjectService.class);
@@ -121,7 +119,6 @@ class ProjectObjectMapperConfigurationErrorTest {
                 mock(SocketProjectAllTestsExecutionProgressListenerFactory.class),
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
-                projectIdentifierMapper,
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),
@@ -163,8 +160,8 @@ class ProjectObjectMapperConfigurationErrorTest {
     }
 
     private ProjectsRunController createRunController(RunExecutorService runExecutorService) {
-        var projectId = ProjectIdModel.builder().repository("design").projectName("project").build();
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        var projectId = ProjectIds.of("design", "project");
+        when(project.getProjectId()).thenReturn(projectId);
         var table = mock(IOpenLTable.class);
         when(table.getUri()).thenReturn("table-uri");
         when(projectModel.getTableById("table-id")).thenReturn(table);
@@ -176,8 +173,7 @@ class ProjectObjectMapperConfigurationErrorTest {
                 mock(ExecutionRunResultRegistry.class),
                 mock(SocketRunExecutionProgressListenerFactory.class),
                 mock(TableInputParserService.class),
-                objectMapperService,
-                projectIdentifierMapper);
+                objectMapperService);
     }
 
     @Test
@@ -220,7 +216,6 @@ class ProjectObjectMapperConfigurationErrorTest {
         when(projectModel.getMethod("table-uri")).thenReturn(method);
         return new ProjectsTraceDebugController(
                 projectService,
-                projectIdentifierMapper,
                 traceDebugService,
                 mock(DebugSessionRegistry.class),
                 mock(SocketDebugListenerFactory.class),

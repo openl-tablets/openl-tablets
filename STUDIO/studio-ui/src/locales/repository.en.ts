@@ -74,8 +74,6 @@ i18next.addResourceBundle('en', 'repository', {
         clear_all_filters: 'Clear all filters',
         retry: 'Retry',
         not_found: 'This project does not exist or is not visible to you.',
-        ambiguous_title: 'Several projects are named "{{name}}"',
-        ambiguous_hint: 'Choose the project to open.',
         back_to_projects: 'Back to projects',
         filters: 'Filters',
         facet_status: 'Status',

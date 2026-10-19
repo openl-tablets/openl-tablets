@@ -9,8 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
+import org.openl.rules.workspace.ProjectId;
 import org.openl.security.acl.permission.AclRole;
-import org.openl.studio.projects.model.ProjectIdModel;
 
 @Schema(description = "ACL Project Model")
 @Getter
@@ -19,7 +19,7 @@ public class AclProjectModel {
 
     @JsonView(AclView.Project.class)
     @Parameter(description = "Project ID")
-    private final ProjectIdModel id;
+    private final ProjectId id;
 
     @JsonView(AclView.Project.class)
     @Parameter(description = "Project Name")

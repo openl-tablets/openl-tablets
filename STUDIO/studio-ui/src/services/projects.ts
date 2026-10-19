@@ -2,14 +2,14 @@ import { notification } from './popups'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray, type ApiCallOptions } from './apiCall'
 import i18n from '../i18n'
-import { encodeProjectPath as encodePath, toUrlSafeId } from './projectId'
+import { encodeProjectPath as encodePath } from './projectId'
 import type { ProjectModule } from 'types/projects'
 import type { ProjectProperty } from 'types/tables'
 
 const PROJECT_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages: true }
 
 const projectResource = async <T>(projectId: string, resource: string): Promise<T[]> => asArray(
-    await apiCall(`/projects/${toUrlSafeId(projectId)}/${resource}`, undefined, PROJECT_API_OPTIONS)
+    await apiCall(`/projects/${projectId}/${resource}`, undefined, PROJECT_API_OPTIONS)
 )
 
 /** Modules the project declares, patterns already resolved to the files they matched. */
@@ -67,14 +67,14 @@ async function uploadToProject(
  * expanded at the project root: entries overwrite the files with the same path, new entries are
  * added, and project files absent from the archive are deleted.
  *
- * @param projectId   project identifier provided by the backend, in either Base64 alphabet
+ * @param projectId   the project id, as the server issued it
  * @param projectName project name used in the notification text
  * @param archive     the zip archive content
  * @returns {@code true} when the project was updated, {@code false} otherwise
  */
 export async function updateProjectFromZip(projectId: string, projectName: string, archive: Blob): Promise<boolean> {
     return uploadToProject(
-        `/projects/${toUrlSafeId(projectId)}/files/?conflictPolicy=REPLACE`,
+        `/projects/${projectId}/files/?conflictPolicy=REPLACE`,
         { method: 'POST', headers: { 'Content-Type': 'application/zip' }, body: archive },
         {
             title: i18n.t('project:notifications.project_updated'),
@@ -90,7 +90,7 @@ export async function updateProjectFromZip(projectId: string, projectName: strin
  * created, files with the same path are overwritten, and project files absent from the upload
  * are deleted.
  *
- * @param projectId   project identifier provided by the backend, in either Base64 alphabet
+ * @param projectId   the project id, as the server issued it
  * @param projectName project name used in the notification text
  * @param entries     the files together with their project-relative paths
  * @returns {@code true} when the project was updated, {@code false} otherwise
@@ -103,7 +103,7 @@ export async function updateProjectFromFiles(
     const formData = new FormData()
     entries.forEach(({ path, file }) => formData.append('file', file, path))
     return uploadToProject(
-        `/projects/${toUrlSafeId(projectId)}/files/?conflictPolicy=REPLACE`,
+        `/projects/${projectId}/files/?conflictPolicy=REPLACE`,
         { method: 'POST', body: formData },
         {
             title: i18n.t('project:notifications.project_updated'),

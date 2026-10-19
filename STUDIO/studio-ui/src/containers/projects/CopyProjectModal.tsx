@@ -241,7 +241,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         if (targetBranchError) {
             throw new Error(targetBranchError)
         }
-        await copyProject(source.repository, source.id, targetRepositoryId, trimmed, {
+        await copyProject(source.id, targetRepositoryId, trimmed, {
             comment: comment.trim() || undefined,
             path: targetSupportsFolders ? path : undefined,
             revision: fromOldRevision ? revision : undefined,

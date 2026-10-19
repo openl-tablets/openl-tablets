@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDE6ZDUyMjg0YjVmMzk5N2Y4N2I5MTNmNzAyN2ZlN2ZlMTE2MjI1MzM1N2M0M2ZkNmY5ZTlhM2NmZmI0OWVjN2E2Mg==",
+      "id": "rUUUH3G03j0j",
       "name": "EPBDS-15425_Project1",
       "branch": "master",
       "status": "CLOSED",
@@ -16,7 +16,7 @@ Content-Type: application/json
       "comment": "Project EPBDS-15425_Project1 is created.",
       "dependencies": [
         {
-          "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+          "id": "appPPtXdd0lT",
           "name": "EPBDS-15425_Project2",
           "branch": "master",
           "status": "CLOSED",
@@ -50,7 +50,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+      "id": "appPPtXdd0lT",
       "name": "EPBDS-15425_Project2",
       "branch": "master",
       "status": "CLOSED",
@@ -86,7 +86,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOlByb2plY3Q=",
+      "id": "ym3IH0b7iU-7",
       "name": "Project",
       "status": "CLOSED",
       "repository": "design",
@@ -116,7 +116,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "id": "c5HtC2wdN8fO",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",
@@ -152,7 +152,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+      "id": "bWwb43n8VPU7",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",

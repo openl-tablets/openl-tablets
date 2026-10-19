@@ -3,8 +3,7 @@ Authorization: Basic RVBCRFNfODUzN19jcmVhdG9yOkVQQkRTXzg1MzdfY3JlYXRvcg==
 Content-Type: application/json
 
 {
-  "sourceRepositoryId": "design-flat",
-  "sourceProject": "EPBDS_8537_SOURCE",
+  "sourceProject": "cXCiTagS8QTg",
   "comment": "Copied from: EPBDS_8537_SOURCE.",
   "branch": "EPBDS-8537-copy-feature"
 }

@@ -19,11 +19,11 @@ import {
 } from '../services/modules'
 import { LOCAL_LOAD_API_OPTIONS, NotFoundError, isApiHttpError, notifyLoadFailure } from '../services/apiCall'
 import { isCompiled, type ProjectStatusDetailedMessage } from '../services/projectStatus'
-import { moduleRoute, toUrlSafeId } from '../services/projectId'
-import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
+import { moduleRoute } from '../services/projectId'
+import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
-import { useCanonicalProjectAddress, useLoadGeneration, useReleaseOnClose } from '../hooks'
+import { useLoadGeneration, useReleaseOnClose } from '../hooks'
 import { useUserStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
@@ -164,8 +164,8 @@ export const ModuleWorkspace = () => {
     const project = projectReadFor(projectRead, projectId)
     const [statusReadAt, setStatusReadAt] = useState(0)
     const [loadError, setLoadError] = useState<string | null>(null)
-    // Why the link leads to no project, or to several: shown in place of the module.
-    const [linkProblem, setLinkProblem] = useState<ProjectLinkProblem | null>(null)
+    // Whether the link leads to no project: shown in place of the module.
+    const [linkProblem, setLinkProblem] = useState(false)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
     const [loaded, setLoaded] = useState<{ at: string, other: boolean, tables: ModuleTable[] } | null>(null)
@@ -258,12 +258,6 @@ export const ModuleWorkspace = () => {
         [tables, selectedId]
     )
 
-    // This screen's address for a project id: it keeps the module, and the table and the cell the address opens.
-    const routeOf = useCallback(
-        (id: string) => moduleRoute(id, moduleName, selectedId ?? undefined, raisedCell ?? undefined),
-        [moduleName, raisedCell, selectedId]
-    )
-    const readdress = useCanonicalProjectAddress(projectId, routeOf)
     const projectLoads = useLoadGeneration()
 
     const load = useCallback(() => {
@@ -273,9 +267,8 @@ export const ModuleWorkspace = () => {
         const { generation, startedAt } = projectLoads.start(true)
         getProject(projectId, { includes: ['status']}, LOCAL_LOAD_API_OPTIONS)
             .then(loaded => {
-                // An older read may be for an address the screen has left. A link by name moves on to the
-                // project's id before the module is read.
-                if (!projectLoads.isLatest(generation) || readdress(loaded.id)) {
+                // An older read may be for an address the screen has left.
+                if (!projectLoads.isLatest(generation)) {
                     return
                 }
                 setProjectRead({ address: projectId, project: loaded })
@@ -283,25 +276,24 @@ export const ModuleWorkspace = () => {
                 // A read that answers puts the last failure behind it: one error while a module compiles
                 // would otherwise leave the screen on a dead end until the browser is reloaded.
                 setLoadError(null)
-                setLinkProblem(null)
+                setLinkProblem(false)
             })
             .catch((error: unknown) => {
                 if (!projectLoads.isLatest(generation)) {
                     return
                 }
-                const problem = projectLinkProblemOf(error)
-                if (problem === null) {
-                    setLoadError(errorMessage(error))
+                if (isUnresolvedProjectLink(error)) {
+                    setLinkProblem(true)
                 } else {
-                    setLinkProblem(problem)
+                    setLoadError(errorMessage(error))
                 }
             })
-    }, [projectId, projectLoads, readdress])
+    }, [projectId, projectLoads])
 
     // A new address starts afresh: what went wrong with the previous one is no longer this screen's.
     useEffect(() => {
         setLoadError(null)
-        setLinkProblem(null)
+        setLinkProblem(false)
         load()
     }, [load])
 
@@ -333,7 +325,7 @@ export const ModuleWorkspace = () => {
     // reader goes to the project. Both may find it out, and the reader is told once.
     const leaveGoneModule = useCallback(() => {
         notification.warning({ key: `module-gone ${moduleName}`, title: t('browser.module.gone', { module: moduleName }) })
-        void navigate(`/projects/${toUrlSafeId(projectId)}`, { replace: true })
+        void navigate(`/projects/${projectId}`, { replace: true })
     }, [moduleName, navigate, notification, projectId, t])
 
     // Followed by the id the server issued, not the one the address carries: a link written elsewhere may
@@ -560,7 +552,7 @@ export const ModuleWorkspace = () => {
      * would be the wrong one as often as not, and the project screen is where its modules are listed.
      */
     const openProject = useCallback((picked: string) => {
-        void navigate(`/projects/${toUrlSafeId(picked)}`)
+        void navigate(`/projects/${picked}`)
     }, [navigate])
 
     /** The modules of this project, which the name in the header opens one of. */
@@ -759,7 +751,7 @@ export const ModuleWorkspace = () => {
         return (
             <div className={shared.workspacePage}>
                 <div className={styles.centered}>
-                    <UnresolvedProjectLink addressed={projectId} problem={linkProblem} routeOf={routeOf} />
+                    <UnresolvedProjectLink />
                 </div>
             </div>
         )

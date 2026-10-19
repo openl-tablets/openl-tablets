@@ -1,4 +1,4 @@
-PUT /rest/projects/ZGVzaWduOkVQQkRTLTE0NDE4/tables/G9Yo_-R-RP92Vc7z HTTP/1.1
+PUT /rest/projects/D7EeYCWcTJXt/tables/G9Yo_-R-RP92Vc7z HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

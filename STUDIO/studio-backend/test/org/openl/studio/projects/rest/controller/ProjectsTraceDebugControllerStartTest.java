@@ -25,13 +25,13 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.trace.StackViewMode;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.project.compile.ProjectHandle;
@@ -55,7 +55,7 @@ class ProjectsTraceDebugControllerStartTest {
     private static final String INPUT = "{\"hour\":10}";
 
     private final RulesProject project = mock(RulesProject.class);
-    private final ProjectIdModel projectId = ProjectIdModel.builder().repository("design").projectName("Test").build();
+    private final ProjectId projectId = ProjectIds.of("design", "Test");
     private final WorkspaceProjectService projectService = mock(WorkspaceProjectService.class);
     private final TraceDebugService traceDebugService = mock(TraceDebugService.class);
     private final ProjectModel projectModel = mock(ProjectModel.class);
@@ -66,15 +66,13 @@ class ProjectsTraceDebugControllerStartTest {
 
     @BeforeEach
     void init() {
-        var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        when(project.getProjectId()).thenReturn(projectId);
         var workspace = mock(UserWorkspace.class);
         when(projectService.getUserWorkspace()).thenReturn(workspace);
         when(table.getUri()).thenReturn(TABLE_URI);
         when(traceDebugService.startSession(any())).thenThrow(sessionStarted);
         controller = new ProjectsTraceDebugController(
                 projectService,
-                projectIdentifierMapper,
                 traceDebugService,
                 mock(DebugSessionRegistry.class),
                 mock(SocketDebugListenerFactory.class),

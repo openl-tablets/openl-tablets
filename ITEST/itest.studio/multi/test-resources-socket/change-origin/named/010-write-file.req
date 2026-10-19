@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT}/files/named-by-the-client.txt HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/files/named-by-the-client.txt HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 X-OpenL-Client-Id: tab-1
 Content-Type: text/plain

@@ -26,6 +26,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 
 /**
@@ -174,6 +175,26 @@ class RulesProjectLifecycleTest {
         assertEquals("design content", Files.readString(localFile),
                 "A revision that cannot be opened must not touch the opened copy.");
         assertFalse(project.isModified(), "A refused open must leave no pending changes behind.");
+    }
+
+    @Test
+    void aProjectKeepsTheIdOfItsFolderWhenItIsOpenedAndClosed() throws Exception {
+        var id = ProjectIds.of("design", PROJECT);
+        var project = createProject();
+
+        assertEquals(id, project.getProjectId());
+        project.open();
+        assertEquals(id, project.getProjectId());
+        // A copy listed anew from the workspace computes the id of the folder it was taken from.
+        var opened = new RulesProject(new WorkspaceUserImpl("jdoe", userId -> new UserInfo("jdoe")),
+                localRepository,
+                localRepository.check(PROJECT),
+                designRepository,
+                designRepository.check(PROJECT),
+                new DummyLockEngine());
+        assertEquals(id, opened.getProjectId());
+        project.close();
+        assertEquals(id, createProject().getProjectId());
     }
 
     @Test

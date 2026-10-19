@@ -1,3 +1,3 @@
-DELETE /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUwOTM6NTEzOWQ4MjQ2Yjg1MGExM2QwMDM0NmVhMDIzNGE4MzcxMWJhOGM5YjExZmI2ZTdkNGJhNTk5ZDRmNTdjMDBiNA==?comment=Foo%20Bar HTTP/1.1
+DELETE /rest/projects/zNRqEfVOwRS-?comment=Foo%20Bar HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

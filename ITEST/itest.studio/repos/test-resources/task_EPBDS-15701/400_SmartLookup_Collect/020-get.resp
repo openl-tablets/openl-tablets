@@ -15,7 +15,7 @@ Content-Type: application/json
         "type": "table",
         "id": "zW8osSs3B6Ld7aUh",
         "name": "collectSmartLookup",
-        "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3MDE6MGI5NGE2YWMxZWNlMGZkMzZhNDBlMTgyZjJiYzE2ZDZmY2M3YzZkNmIyZjc1NTMwMGNiMTk5MTYyODBkYzcxYw==",
+        "projectId": "8kvYXWmyZgpY",
         "project": "EPBDS-15701",
         "module": "Main",
         "cell": "B2"

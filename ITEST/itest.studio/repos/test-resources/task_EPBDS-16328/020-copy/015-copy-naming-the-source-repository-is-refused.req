@@ -1,0 +1,10 @@
+POST /rest/repos/design-non-flat/projects/EPBDS16328_WithRepository/from-project HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "sourceProject": "8N00NtBC95bi",
+  "sourceRepositoryId": "design-non-flat",
+  "comment": "EPBDS-16328: Copy the source naming its repository"
+}
+

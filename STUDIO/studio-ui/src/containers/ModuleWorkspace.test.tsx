@@ -46,7 +46,6 @@ vi.mock('react-router', () => ({
 
 vi.mock('../hooks', async () => ({
     ...(await vi.importActual<typeof import('../hooks/useLoadGeneration')>('../hooks/useLoadGeneration')),
-    ...(await vi.importActual<typeof import('../hooks/useCanonicalProjectAddress')>('../hooks/useCanonicalProjectAddress')),
     ...(await vi.importActual<typeof import('../hooks/useReleaseOnClose')>('../hooks/useReleaseOnClose')),
 }))
 
@@ -1067,44 +1066,6 @@ describe('ModuleWorkspace', () => {
 
         await waitFor(() => expect(screen.getByTestId('project-workspace-missing')).toBeInTheDocument())
         expect(screen.queryByTestId('module-workspace-error')).toBeNull()
-    })
-
-    it('lists the projects a name leads to, and opens the one picked on the same module and table', async () => {
-        routeParams.projectId = 'Example 1 - Bank Rating'
-        vi.mocked(getProject).mockRejectedValue(new ApiHttpError(409, 'The project name is ambiguous.', {
-            code: 'openl.error.409.project.identifier.ambiguous.message',
-            candidates: [
-                { id: 'ZGVzaWduOkJhbms=', name: 'Example 1 - Bank Rating', repositoryName: 'Design' },
-                { id: 'ZGVzaWduMTpCYW5r', name: 'Example 1 - Bank Rating', repositoryName: 'Design1' },
-            ],
-        }))
-        render(<ModuleWorkspace />)
-
-        await waitFor(() => expect(screen.getByTestId('project-link-ambiguous')).toBeInTheDocument())
-        expect(screen.queryByTestId('module-workspace-error')).toBeNull()
-
-        await userEvent.click(screen.getAllByTestId('project-link-candidate')[1]!)
-        expect(navigateMock).toHaveBeenCalledWith('/projects/ZGVzaWduMTpCYW5r/modules/Bank%20Rating?table=t-1')
-    })
-
-    it('replaces a project name in the address with the project id before reading the module', async () => {
-        workspace.opened = true
-        routeParams.projectId = 'Example 1 - Bank Rating'
-        const { rerender } = render(<ModuleWorkspace />)
-
-        await waitFor(() => expect(navigateMock)
-            .toHaveBeenCalledWith('/projects/p1/modules/Bank%20Rating?table=t-1', { replace: true }))
-        // Nothing of the module is read under the name.
-        expect(screen.getByTestId('module-workspace-loading')).toBeInTheDocument()
-        expect(listModules).not.toHaveBeenCalled()
-
-        // The router moves the address on to the id, and the project is read again by it.
-        routeParams.projectId = 'p1'
-        rerender(<ModuleWorkspace />)
-        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', { includeOther: false }))
-        expect(getModuleTables).toHaveBeenCalledTimes(1)
-        expect(getProject).toHaveBeenLastCalledWith('p1', expect.anything(), expect.anything())
-        expect(listModules).toHaveBeenCalledExactlyOnceWith('p1')
     })
 
     it('shows nothing of the project it left while the next project is read, nor reads the module for it', async () => {

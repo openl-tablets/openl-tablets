@@ -17,11 +17,11 @@ describe('migration service', () => {
             rulesDeploy: { migratable: false },
         })
 
-        await expect(getProjectMigration('repo/project')).resolves.toEqual({
+        await expect(getProjectMigration('Ab3_dE9-xY0z')).resolves.toEqual({
             rulesXml: { movableRootModules: ['Pricing.xlsx'], migratable: true, newModules: []},
             rulesDeploy: { migratable: false },
         })
-        expect(apiCall).toHaveBeenCalledWith('/projects/repo_project/migration', undefined, { throwError: true })
+        expect(apiCall).toHaveBeenCalledWith('/projects/Ab3_dE9-xY0z/migration', undefined, { throwError: true })
     })
 
     it('defaults the omitted movableRootModules and flags', async () => {
@@ -49,10 +49,10 @@ describe('migration service', () => {
     it('posts the migrate action with the scope', async () => {
         vi.mocked(apiCall).mockResolvedValue(undefined)
 
-        await migrateProject('repo/project', 'rulesDeploy')
+        await migrateProject('Ab3_dE9-xY0z', 'rulesDeploy')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/repo_project/migrate?scope=rulesDeploy',
+            '/projects/Ab3_dE9-xY0z/migrate?scope=rulesDeploy',
             { method: 'POST' },
             { throwError: true }
         )

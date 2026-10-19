@@ -1,34 +1,12 @@
-import { ForbiddenError, isApiHttpError, NotFoundError } from './apiCall'
-import type { ProjectCandidate } from '../types/projects'
-
-/** What the server answers when a project name that several projects carry is used to address one. */
-const AMBIGUOUS_NAME = 'openl.error.409.project.identifier.ambiguous.message'
+import { ForbiddenError, NotFoundError } from './apiCall'
 
 /**
- * Why a link does not lead to one project.
+ * Whether reading the project a link names failed because the link leads to no project the reader may see: no
+ * project has the id, or the reader may not see the one that has it. A link that names a project by its name, or
+ * by an id of an earlier version of OpenL Studio, leads to none.
  *
- * `missing`: no project the reader may see answers to it. None carries that id or name, or the reader may not
- * see the one that does.
- *
- * `ambiguous`: several projects carry the name the link gives, listed as candidates to choose from.
+ * Any other failure, a server error for instance, is none of the link's doing, and the screen reports it as a
+ * failure to read the project.
  */
-export type ProjectLinkProblem =
-    | { kind: 'missing' }
-    | { kind: 'ambiguous', candidates: ProjectCandidate[] }
-
-/**
- * Tells why reading the project a link names failed, when the link itself is the reason.
- *
- * Any other failure, a server error for instance, is none of the link's doing: it answers null, and the screen
- * reports it as a failure to read the project.
- */
-export const projectLinkProblemOf = (error: unknown): ProjectLinkProblem | null => {
-    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
-        return { kind: 'missing' }
-    }
-    const payload = isApiHttpError(error) ? error.payload as { code?: unknown, candidates?: unknown } | undefined : null
-    if (payload?.code === AMBIGUOUS_NAME && Array.isArray(payload.candidates)) {
-        return { kind: 'ambiguous', candidates: payload.candidates as ProjectCandidate[] }
-    }
-    return null
-}
+export const isUnresolvedProjectLink = (error: unknown): boolean =>
+    error instanceof NotFoundError || error instanceof ForbiddenError

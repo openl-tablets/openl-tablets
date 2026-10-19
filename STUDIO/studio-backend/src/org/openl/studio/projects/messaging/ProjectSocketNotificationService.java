@@ -15,7 +15,7 @@ import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.service.ExecutionStatus;
@@ -54,9 +54,9 @@ public class ProjectSocketNotificationService {
      * @param projectId project id
      * @param status new test execution status
      */
-    public void notifyProjectTestsExecutionStatus(CommonUser user, ProjectIdModel projectId, TestExecutionStatus status) {
+    public void notifyProjectTestsExecutionStatus(CommonUser user, ProjectId projectId, TestExecutionStatus status) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TESTS.formatted(encodePathSegment(projectId.encode())) + STATUS,
+                TOPIC_PROJECTS_TESTS.formatted(projectId.value()) + STATUS,
                 status.name());
     }
 
@@ -68,9 +68,9 @@ public class ProjectSocketNotificationService {
      * @param tableId tableId
      * @param status status
      */
-    public void notifyProjectTestsExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, TestExecutionStatus status) {
+    public void notifyProjectTestsExecutionStatus(CommonUser user, ProjectId projectId, String tableId, TestExecutionStatus status) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TABLES_TESTS.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                TOPIC_PROJECTS_TABLES_TESTS.formatted(projectId.value(), encodePathSegment(tableId)) + STATUS,
                 status.name());
     }
 
@@ -81,9 +81,9 @@ public class ProjectSocketNotificationService {
      * @param projectId project id
      * @param testCaseExecutionResult executed test case result
      */
-    public void notifyProjectTestsExecutionResults(CommonUser user, ProjectIdModel projectId, TestCaseExecutionResult testCaseExecutionResult) {
+    public void notifyProjectTestsExecutionResults(CommonUser user, ProjectId projectId, TestCaseExecutionResult testCaseExecutionResult) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TESTS.formatted(encodePathSegment(projectId.encode())) + RESULTS,
+                TOPIC_PROJECTS_TESTS.formatted(projectId.value()) + RESULTS,
                 testCaseExecutionResult);
     }
 
@@ -95,9 +95,9 @@ public class ProjectSocketNotificationService {
      * @param tableId tableId
      * @param testCaseExecutionResult testCaseExecutionResult
      */
-    public void notifyProjectTestsExecutionResults(CommonUser user, ProjectIdModel projectId, String tableId, TestCaseExecutionResult testCaseExecutionResult) {
+    public void notifyProjectTestsExecutionResults(CommonUser user, ProjectId projectId, String tableId, TestCaseExecutionResult testCaseExecutionResult) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TABLES_TESTS.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + RESULTS,
+                TOPIC_PROJECTS_TABLES_TESTS.formatted(projectId.value(), encodePathSegment(tableId)) + RESULTS,
                 testCaseExecutionResult);
     }
 
@@ -112,10 +112,10 @@ public class ProjectSocketNotificationService {
      * @param tableId   table id
      * @param status    new debug session status
      */
-    public void notifyTraceDebugStatus(CommonUser user, ProjectIdModel projectId, String tableId, String status,
+    public void notifyTraceDebugStatus(CommonUser user, ProjectId projectId, String tableId, String status,
                                        String sessionId) {
         messagingTemplate.convertAndSendToUser(user.getUserName(),
-                TOPIC_PROJECTS_TABLES_TRACE.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)) + STATUS,
+                TOPIC_PROJECTS_TABLES_TRACE.formatted(projectId.value(), encodePathSegment(tableId)) + STATUS,
                 new TraceDebugStatusMessage(status, sessionId));
     }
 
@@ -127,7 +127,7 @@ public class ProjectSocketNotificationService {
      * @param tableId   table id
      * @param status    new run execution status
      */
-    public void notifyRunExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
+    public void notifyRunExecutionStatus(CommonUser user, ProjectId projectId, String tableId, ExecutionStatus status) {
         notifyExecutionStatus(user, TOPIC_PROJECTS_TABLES_RUN, projectId, tableId, status);
     }
 
@@ -139,7 +139,7 @@ public class ProjectSocketNotificationService {
      * @param tableId   table id
      * @param status    new benchmark execution status
      */
-    public void notifyBenchmarkExecutionStatus(CommonUser user, ProjectIdModel projectId, String tableId, ExecutionStatus status) {
+    public void notifyBenchmarkExecutionStatus(CommonUser user, ProjectId projectId, String tableId, ExecutionStatus status) {
         notifyExecutionStatus(user, TOPIC_PROJECTS_TABLES_BENCHMARKS, projectId, tableId, status);
     }
 
@@ -151,7 +151,7 @@ public class ProjectSocketNotificationService {
      * @param tableId      table id
      * @param errorMessage error message
      */
-    public void notifyBenchmarkExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+    public void notifyBenchmarkExecutionError(CommonUser user, ProjectId projectId, String tableId, String errorMessage) {
         notifyExecutionError(user, TOPIC_PROJECTS_TABLES_BENCHMARKS, projectId, tableId, errorMessage);
     }
 
@@ -163,27 +163,27 @@ public class ProjectSocketNotificationService {
      * @param tableId      table id
      * @param errorMessage error message
      */
-    public void notifyRunExecutionError(CommonUser user, ProjectIdModel projectId, String tableId, String errorMessage) {
+    public void notifyRunExecutionError(CommonUser user, ProjectId projectId, String tableId, String errorMessage) {
         notifyExecutionError(user, TOPIC_PROJECTS_TABLES_RUN, projectId, tableId, errorMessage);
     }
 
     /**
      * Sends the status of an execution of a table on the topic that execution is reported on.
      */
-    private void notifyExecutionStatus(CommonUser user, String topic, ProjectIdModel projectId, String tableId,
+    private void notifyExecutionStatus(CommonUser user, String topic, ProjectId projectId, String tableId,
                                        ExecutionStatus status) {
         sendStatus(user.getUserName(),
-                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)),
+                topic.formatted(projectId.value(), encodePathSegment(tableId)),
                 status);
     }
 
     /**
      * Sends the reason an execution of a table failed on the topic that execution is reported on.
      */
-    private void notifyExecutionError(CommonUser user, String topic, ProjectIdModel projectId, String tableId,
+    private void notifyExecutionError(CommonUser user, String topic, ProjectId projectId, String tableId,
                                       String errorMessage) {
         sendError(user.getUserName(),
-                topic.formatted(encodePathSegment(projectId.encode()), encodePathSegment(tableId)),
+                topic.formatted(projectId.value(), encodePathSegment(tableId)),
                 errorMessage);
     }
 
@@ -232,8 +232,8 @@ public class ProjectSocketNotificationService {
      * @param projectId the project being merged
      * @param status    new merge status
      */
-    public void notifyMergeStatus(String userName, ProjectIdModel projectId, ExecutionStatus status) {
-        sendStatus(userName, TOPIC_PROJECTS_MERGE.formatted(encodePathSegment(projectId.encode())), status);
+    public void notifyMergeStatus(String userName, ProjectId projectId, ExecutionStatus status) {
+        sendStatus(userName, TOPIC_PROJECTS_MERGE.formatted(projectId.value()), status);
     }
 
     /**
@@ -243,8 +243,8 @@ public class ProjectSocketNotificationService {
      * @param projectId    the project being merged
      * @param errorMessage what went wrong
      */
-    public void notifyMergeError(String userName, ProjectIdModel projectId, String errorMessage) {
-        sendError(userName, TOPIC_PROJECTS_MERGE.formatted(encodePathSegment(projectId.encode())), errorMessage);
+    public void notifyMergeError(String userName, ProjectId projectId, String errorMessage) {
+        sendError(userName, TOPIC_PROJECTS_MERGE.formatted(projectId.value()), errorMessage);
     }
 
     /**
@@ -265,13 +265,12 @@ public class ProjectSocketNotificationService {
      * @param status    full status view to push
      */
     public void notifyProjectStatus(String userName,
-                                    ProjectIdModel projectId,
+                                    ProjectId projectId,
                                     @Nullable String branch,
                                     ProjectStatusViewModel status) {
-        var encodedProjectId = encodePathSegment(projectId.encode());
         var destination = branch == null || branch.isBlank()
-                ? TOPIC_PROJECTS_STATUS.formatted(encodedProjectId)
-                : TOPIC_PROJECTS_BRANCHES_STATUS.formatted(encodedProjectId, encodePathSegment(branch));
+                ? TOPIC_PROJECTS_STATUS.formatted(projectId.value())
+                : TOPIC_PROJECTS_BRANCHES_STATUS.formatted(projectId.value(), encodePathSegment(branch));
         messagingTemplate.convertAndSendToUser(userName, destination, status);
     }
 
@@ -336,9 +335,9 @@ public class ProjectSocketNotificationService {
      * @param projectId the project that changed
      * @param notes     the files the change touched and the clients that asked for it
      */
-    public void notifyProjectChanged(String userName, ProjectIdModel projectId, ChangeNotes notes) {
+    public void notifyProjectChanged(String userName, ProjectId projectId, ChangeNotes notes) {
         messagingTemplate.convertAndSendToUser(userName,
-                TOPIC_PROJECT_CHANGED.formatted(encodePathSegment(projectId.encode())),
+                TOPIC_PROJECT_CHANGED.formatted(projectId.value()),
                 Map.of("files", sorted(notes.files()), ORIGINS, sorted(notes.origins())));
     }
 

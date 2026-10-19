@@ -98,7 +98,7 @@ session for this user is terminated and the parameter registry is cleared. Activ
 via `PUT /breakpoints`) apply immediately.
 
 **Path parameters**:
-- `projectId` (string, required) — project identifier.
+- `projectId` (string, required) — the project id the API hands out.
 
 **Query parameters**:
 - `tableId` (string, required) — table to debug.

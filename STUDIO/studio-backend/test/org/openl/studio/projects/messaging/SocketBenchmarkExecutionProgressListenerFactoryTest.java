@@ -10,7 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.service.ExecutionStatus;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,15 +26,12 @@ class SocketBenchmarkExecutionProgressListenerFactoryTest {
     private CommonUser user;
 
     private SocketBenchmarkExecutionProgressListenerFactory factory;
-    private ProjectIdModel projectId;
+    private ProjectId projectId;
 
     @BeforeEach
     void setUp() {
         factory = new SocketBenchmarkExecutionProgressListenerFactory(notificationService);
-        projectId = ProjectIdModel.builder()
-                .repository("design")
-                .projectName("TestProject")
-                .build();
+        projectId = ProjectIds.of("design", "TestProject");
     }
 
     @Test

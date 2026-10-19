@@ -15,15 +15,12 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RegisteredCompilation;
 import org.openl.rules.ui.WebStudio;
-import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 
 class CompilationJobRegistryImplTest {
 
-    private static final ProjectIdModel PROJECT = ProjectIdModel.builder()
-            .repository("design")
-            .projectName("Rating")
-            .build();
+    private static final ProjectId PROJECT = ProjectIds.of("design", "Rating");
 
     private WebStudio webStudio;
     private CompilationJobRegistryImpl registry;
@@ -31,15 +28,14 @@ class CompilationJobRegistryImplTest {
     @BeforeEach
     void setUp() {
         webStudio = mock(WebStudio.class);
-        var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-        registry = new CompilationJobRegistryImpl(webStudio, projectIdentifierMapper);
+        registry = new CompilationJobRegistryImpl(webStudio);
 
         var project = mock(RulesProject.class);
         when(project.getBranch()).thenReturn("main");
         when(webStudio.getCurrentProject()).thenReturn(project);
         var module = mock(Module.class);
         when(webStudio.getCurrentModule()).thenReturn(module);
-        when(projectIdentifierMapper.map(project)).thenReturn(PROJECT);
+        when(project.getProjectId()).thenReturn(PROJECT);
 
         var compilation = mock(RegisteredCompilation.class);
         when(compilation.future()).thenReturn(CompletableFuture.completedFuture(null));

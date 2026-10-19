@@ -24563,11 +24563,6 @@ Content-Type: application/json
           },
           "sourceProject": {
             "type": "string",
-            "description": "***",
-            "minLength": 1
-          },
-          "sourceRepositoryId": {
-            "type": "string",
             "description": "***"
           }
         },

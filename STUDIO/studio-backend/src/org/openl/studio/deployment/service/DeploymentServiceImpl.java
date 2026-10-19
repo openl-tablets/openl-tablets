@@ -30,7 +30,7 @@ import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.projects.service.ProjectDependencyResolver;
 import org.openl.studio.projects.validator.ProjectStateValidator;
 import org.openl.util.StringUtils;
@@ -134,7 +134,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     @Override
-    public void deploy(ProjectIdModel deploymentId, RulesProject project, String comment) throws ProjectException {
+    public void deploy(DeploymentId deploymentId, RulesProject project, String comment) throws ProjectException {
         if (!projectStateValidator.canDeploy(project)) {
             if (project.isDeleted()) {
                 throw new ConflictException("project.deploy.deleted.message");
@@ -143,24 +143,24 @@ public class DeploymentServiceImpl implements DeploymentService {
         }
 
         var query = DeploymentCriteriaQuery.builder()
-                .repository(deploymentId.getRepository())
-                .name(deploymentId.getProjectName())
+                .repository(deploymentId.repository())
+                .name(deploymentId.name())
                 .build();
 
         var deployments = getDeployments(query);
         if (deployments.size() > 1) {
             throw new ProjectException(
-                    "Multiple deployments found for name '%s' in repository '%s'.".formatted(deploymentId.getProjectName(),
-                            deploymentId.getRepository()));
+                    "Multiple deployments found for name '%s' in repository '%s'.".formatted(deploymentId.name(),
+                            deploymentId.repository()));
         }
 
-        if (deployments.isEmpty() && !aclProjectsHelper.hasCreateDeploymentPermission(deploymentId.getRepository())) {
+        if (deployments.isEmpty() && !aclProjectsHelper.hasCreateDeploymentPermission(deploymentId.repository())) {
             throw new ForbiddenException("default.message");
         }
 
         var deploymentRequest = DeploymentRequest.builder()
-                .productionRepositoryId(deploymentId.getRepository())
-                .name(deploymentId.getProjectName())
+                .productionRepositoryId(deploymentId.repository())
+                .name(deploymentId.name())
                 .currentUser(getUserWorkspace().getUser())
                 .comment(comment);
 

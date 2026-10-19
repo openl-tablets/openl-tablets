@@ -1,34 +1,16 @@
-import { encodeProjectId, encodeProjectPath, toUrlSafeId } from './projectId'
+import { encodeProjectPath, moduleRoute, projectFileRoute } from './projectId'
 
-describe('toUrlSafeId', () => {
-    it('maps the standard alphabet onto the URL-safe one', () => {
-        expect(toUrlSafeId('ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L/Qu9Cw0L0=')).toBe(
-            'ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0='
-        )
-        expect(toUrlSafeId('ZGVzaWduOtCU0L7Qs9C+0LLQvtGA')).toBe('ZGVzaWduOtCU0L7Qs9C-0LLQvtGA')
-    })
-
-    it('leaves an already URL-safe id untouched', () => {
-        expect(toUrlSafeId('ZGVzaWduOlByb2plY3Q=')).toBe('ZGVzaWduOlByb2plY3Q=')
+describe('moduleRoute', () => {
+    it('puts the project id in the address as the server issued it', () => {
+        expect(moduleRoute('FeZdnMnl3XRa', 'Main Module', 'tbl-1', 'D101'))
+            .toBe('/projects/FeZdnMnl3XRa/modules/Main%20Module?table=tbl-1&errorCell=D101')
     })
 })
 
-describe('encodeProjectId', () => {
-    it('encodes an ASCII name the way the server does', () => {
-        expect(encodeProjectId('design', 'Project')).toBe('ZGVzaWduOlByb2plY3Q=')
-    })
-
-    // EPBDS-16402: btoa() throws on a name outside Latin-1, so the name must be read as UTF-8 first.
-    it('encodes a non-ASCII name as UTF-8 without a slash', () => {
-        const id = encodeProjectId('design', 'Тарифный план')
-
-        expect(id).toBe('ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0=')
-        expect(id).not.toContain('/')
-        expect(id).not.toContain('+')
-    })
-
-    it('encodes a name whose standard form would carry a plus', () => {
-        expect(encodeProjectId('design', 'Договор')).toBe('ZGVzaWduOtCU0L7Qs9C-0LLQvtGA')
+describe('projectFileRoute', () => {
+    it('opens the Files tab on the file', () => {
+        expect(projectFileRoute('FeZdnMnl3XRa', 'rules/Main.xlsx'))
+            .toBe('/projects/FeZdnMnl3XRa?tab=files&file=rules%2FMain.xlsx')
     })
 })
 

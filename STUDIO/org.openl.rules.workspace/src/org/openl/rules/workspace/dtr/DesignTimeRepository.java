@@ -11,6 +11,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 /**
@@ -47,6 +48,13 @@ public interface DesignTimeRepository extends ProjectsContainer {
     AProject getProject(String repositoryId, String name, CommonVersion version);
 
     AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException;
+
+    /**
+     * Returns the project the given id names, as the home branch of the project shows it.
+     *
+     * @see org.openl.rules.workspace.ProjectIds
+     */
+    Optional<AProject> getProjectById(ProjectId id);
 
     /**
      * Returns the project entry verified in the requested branch.

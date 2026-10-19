@@ -17,7 +17,7 @@ const BRANCH_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPage
  * carrying the backend message on failure. Returns whether the deletion succeeded, so
  * callers can react (e.g. close a dialog and refresh) without rendering feedback themselves.
  *
- * @param projectId URL-path-safe project identifier (URL-safe Base64 id or a plain business name)
+ * @param projectId the project id, as the server issued it
  * @param branch    branch to delete; may contain '/' separators
  * @param force     bypass protected-branch restrictions for eligible users
  * @returns {@code true} when the branch was deleted, {@code false} otherwise

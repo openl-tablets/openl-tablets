@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import org.openl.studio.common.model.GenericView;
-import org.openl.studio.projects.model.ProjectIdModel;
 
 @Schema(description = "Deployment view model")
 @Builder
@@ -16,7 +15,7 @@ public class DeploymentViewModel {
 
     @JsonView({GenericView.Full.class, GenericView.Short.class})
     @Parameter(description = "Deployment identifier", required = true)
-    public final ProjectIdModel id;
+    public final DeploymentId id;
 
     @JsonView({GenericView.Full.class, GenericView.Short.class})
     @Parameter(description = "Deployment name", required = true)

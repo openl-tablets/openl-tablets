@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16379/files/rules/Multipart.xlsx?createFolders=true HTTP/1.1
+POST /rest/projects/PZ_FZH5zjHLw/files/rules/Multipart.xlsx?createFolders=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 

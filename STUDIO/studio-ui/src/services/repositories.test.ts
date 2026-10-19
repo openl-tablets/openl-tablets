@@ -231,13 +231,14 @@ describe('getProjects', () => {
     })
 
     it('copies projects into another repository', async () => {
-        vi.mocked(apiCall).mockResolvedValue(undefined)
+        vi.mocked(apiCall).mockResolvedValue({ id: 'sZIiCSgPtIfe', revision: 'r1' })
 
-        await copyProject('source', 'c291cmNlOkFscGhh', 'target', 'Beta', {
+        // The source is named by its id alone, which names its repository too.
+        await expect(copyProject('FeZdnMnl3XRa', 'target', 'Beta', {
             comment: '  copied  ',
             path: ' folder ',
             branch: 'feature/rates',
-        })
+        })).resolves.toBe('sZIiCSgPtIfe')
 
         expect(apiCall).toHaveBeenCalledWith(
             '/repos/target/projects/Beta/from-project',
@@ -245,8 +246,7 @@ describe('getProjects', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sourceRepositoryId: 'source',
-                    sourceProject: 'c291cmNlOkFscGhh',
+                    sourceProject: 'FeZdnMnl3XRa',
                     comment: 'copied',
                     path: 'folder',
                     branch: 'feature/rates',
@@ -257,17 +257,18 @@ describe('getProjects', () => {
     })
 
     it('creates projects from uploads, templates and overwrite flags', async () => {
-        vi.mocked(apiCall).mockResolvedValue(undefined)
+        vi.mocked(apiCall).mockResolvedValue({ id: 'sZIiCSgPtIfe', revision: 'r1' })
         const file = new File(['zip'], 'Project.zip', { type: 'application/zip' })
 
-        await createProject('design', 'Rules', {
+        // The create answers the id of the new project, which the dialog opens.
+        await expect(createProject('design', 'Rules', {
             files: [file],
             comment: 'Create Rules',
             path: 'folder',
             overwrite: true,
             branch: 'feature/rates',
             openApi: { modelsPath: 'rules/Models.xlsx' },
-        })
+        })).resolves.toBe('sZIiCSgPtIfe')
 
         const [url, request] = vi.mocked(apiCall).mock.calls[0]!
         expect(url).toContain('/repos/design/projects/Rules?')

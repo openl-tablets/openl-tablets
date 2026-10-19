@@ -20,8 +20,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.projects.converter.ProjectIdentityConverter;
+import org.openl.studio.projects.converter.ProjectIdConverter;
 import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.controller.ProjectsController;
 import org.openl.studio.projects.rest.controller.ProjectsMergeController;
@@ -32,20 +33,20 @@ import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
  */
 class MergeInProgressInterceptorTest {
 
-    private static final String PROJECT_ID = "ZGVzaWduOlJhdGVDYWxjdWxhdG9y";
+    private static final String PROJECT_ID = ProjectIds.of("design", "RateCalculator").value();
 
     private ProjectsMergeLauncher mergeLauncher;
-    private ProjectIdentityConverter projectIdentityConverter;
+    private ProjectIdConverter projectIdConverter;
     private RulesProject project;
     private MergeInProgressInterceptor interceptor;
 
     @BeforeEach
     void init() {
         mergeLauncher = mock(ProjectsMergeLauncher.class);
-        projectIdentityConverter = mock(ProjectIdentityConverter.class);
+        projectIdConverter = mock(ProjectIdConverter.class);
         project = mock(RulesProject.class);
-        when(projectIdentityConverter.convert(PROJECT_ID)).thenReturn(project);
-        interceptor = new MergeInProgressInterceptor(mergeLauncher, projectIdentityConverter);
+        when(projectIdConverter.convert(PROJECT_ID)).thenReturn(project);
+        interceptor = new MergeInProgressInterceptor(mergeLauncher, projectIdConverter);
     }
 
     private static MockHttpServletRequest request(String method, String projectId) {
@@ -129,7 +130,7 @@ class MergeInProgressInterceptorTest {
     void resolvesNoProjectWhileNoMergeRuns() {
         assertTrue(preHandle("PATCH", ProjectsController.class));
 
-        verify(projectIdentityConverter, never()).convert(any());
+        verify(projectIdConverter, never()).convert(any());
     }
 
     /** Any request about a project finds the conflicts of an ended merge kept, before it reads or changes anything. */

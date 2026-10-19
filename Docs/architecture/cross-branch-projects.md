@@ -53,7 +53,7 @@ The components must have these responsibilities:
 
 A logical project is identified by `(repositoryId, internal folder path)`. Every branch agrees on the folder; the
 name does not, because the descriptor may name the same folder differently on another branch. `ProjectKey` and the
-Base64 `projectId` must remain branchless.
+`projectId`, a hash of that pair ([Stable Project Ids](project-ids.md)), must remain branchless.
 
 The name is what a branch shows, not what identifies. A project is displayed under the name of its home branch,
 and a lookup by name must find it whichever branch the caller took the name from: a mapped name carries the folder

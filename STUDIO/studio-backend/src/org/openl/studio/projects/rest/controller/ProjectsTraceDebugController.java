@@ -70,7 +70,6 @@ import org.openl.studio.projects.model.trace.WatchView;
 import org.openl.studio.projects.model.trace.WatchesRequest;
 import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.tables.graph.GraphDirection;
@@ -103,7 +102,6 @@ public class ProjectsTraceDebugController {
     private static final long STEP_TIMEOUT_MILLIS = 30_000;
 
     private final WorkspaceProjectService projectService;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final TraceDebugService traceDebugService;
     private final DebugSessionRegistry sessionRegistry;
     private final SocketDebugListenerFactory listenerFactory;
@@ -141,7 +139,7 @@ public class ProjectsTraceDebugController {
         parameterRegistry.clear();
         sessionRegistry.clear();
 
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         var user = projectService.getUserWorkspace().getUser();
         var projectModel = projectService.openProject(project, fromModule).awaitCompiled();
         var currentOpenedModule = fromModule != null;
@@ -377,7 +375,7 @@ public class ProjectsTraceDebugController {
         // Offer only the tables reachable from the table being traced, so a breakpoint is suggested only
         // where it could fire. With no active session (or a root outside the dependency graph, e.g. a test
         // table), fall back to every table.
-        var session = sessionRegistry.find(projectIdentifierMapper.map(project));
+        var session = sessionRegistry.find(project.getProjectId());
         Set<String> reachable = session == null ? Set.of()
                 : tablesGraphService.reachableTableIds(projectModel, session.getTableId(),
                         GraphDirection.DEPENDENCIES, null);
@@ -463,7 +461,7 @@ public class ProjectsTraceDebugController {
     }
 
     private DebugSession requireSession(RulesProject project) {
-        var session = sessionRegistry.find(projectIdentifierMapper.map(project));
+        var session = sessionRegistry.find(project.getProjectId());
         if (session == null) {
             throw new NotFoundException("trace.execution.task.message");
         }

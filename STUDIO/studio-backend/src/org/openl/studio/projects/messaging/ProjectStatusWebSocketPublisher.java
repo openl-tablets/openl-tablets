@@ -6,7 +6,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.ui.ProjectStatusChangedEvent;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 
 /**
@@ -24,7 +23,6 @@ import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 public class ProjectStatusWebSocketPublisher {
 
     private final ProjectStatusMapper projectStatusMapper;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectSocketNotificationService notificationService;
 
     @EventListener
@@ -40,7 +38,7 @@ public class ProjectStatusWebSocketPublisher {
             var status = event.isProgressOnly()
                     ? projectStatusMapper.mapProgress(project, event.getProjectModel())
                     : projectStatusMapper.map(project, event.getProjectModel());
-            var projectId = projectIdentifierMapper.map(project);
+            var projectId = project.getProjectId();
             notificationService.notifyProjectStatus(event.getUserName(), projectId, project.getBranch(), status);
             // The same status also rides the user's workspace-wide stream, so the projects list holds
             // one subscription for all its rows.

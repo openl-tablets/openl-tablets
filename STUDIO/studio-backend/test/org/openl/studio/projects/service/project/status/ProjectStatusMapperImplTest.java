@@ -25,10 +25,9 @@ import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.service.DetailedMessageDescriptionMapper;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.changes.PendingChangesResolver;
 import org.openl.studio.projects.service.project.compile.CompilationJob;
 import org.openl.studio.projects.service.project.compile.CompilationJobRegistry;
@@ -45,11 +44,10 @@ class ProjectStatusMapperImplTest {
 
     @BeforeEach
     void setUp() {
-        var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
         compilationJobRegistry = mock(CompilationJobRegistry.class);
         pendingChangesResolver = mock(PendingChangesResolver.class);
         detailedMessageDescriptionMapper = mock(DetailedMessageDescriptionMapper.class);
-        mapper = new ProjectStatusMapperImpl(projectIdentifierMapper, compilationJobRegistry, pendingChangesResolver,
+        mapper = new ProjectStatusMapperImpl(compilationJobRegistry, pendingChangesResolver,
                 detailedMessageDescriptionMapper);
 
         project = mock(RulesProject.class);
@@ -78,8 +76,7 @@ class ProjectStatusMapperImplTest {
         when(model.isOpenedModuleCompiled()).thenReturn(true);
         when(model.getModuleInfo()).thenReturn(module);
 
-        var projectId = mock(ProjectIdModel.class);
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        when(project.getProjectId()).thenReturn(ProjectIds.of("design", "Rating"));
         when(detailedMessageDescriptionMapper.mapSorted(any(), any())).thenReturn(List.of());
     }
 

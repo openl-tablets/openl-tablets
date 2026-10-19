@@ -27,14 +27,13 @@ import org.openl.rules.repository.api.FileChange;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.MergedWorkbook;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.repository.RepositoryAclService;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.FileChangeView;
 import org.openl.studio.projects.model.merge.SheetChangeView;
 import org.openl.studio.projects.model.merge.SheetOrigin;
 import org.openl.studio.projects.model.project.status.ChangeType;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 
 /**
  * A merge changes whole branches: the changed files are told under the project whose folder holds them, the project
@@ -78,13 +77,7 @@ class MergeChangesServiceTest {
             granted.removeAll(unreadable);
             return granted;
         });
-        var idMapper = mock(ProjectIdentifierMapper.class);
-        when(idMapper.map(any())).thenAnswer(invocation -> ProjectIdModel.builder()
-                .repository(REPOSITORY)
-                .projectName(invocation.<AProject>getArgument(0).getBusinessName())
-                .build());
-
-        service = new MergeChangesService(designRepository, aclService, idMapper);
+        service = new MergeChangesService(designRepository, aclService);
     }
 
     @Test
@@ -107,7 +100,7 @@ class MergeChangesServiceTest {
         var first = projects.getFirst();
         assertEquals("Pricing", first.name());
         assertEquals(PRICING, first.path());
-        assertEquals("Pricing", first.id().getProjectName());
+        assertEquals(ProjectIds.of(REPOSITORY, PRICING), first.id());
         assertTrue(first.current());
         assertEquals(ChangeType.MODIFIED, first.status());
         assertEquals(2, first.changedFiles());
@@ -272,6 +265,7 @@ class MergeChangesServiceTest {
         var project = mock(AProject.class);
         when(project.getBusinessName()).thenReturn(name);
         when(project.getRealPath()).thenReturn(path);
+        when(project.getProjectId()).thenReturn(ProjectIds.of(REPOSITORY, path));
         return project;
     }
 }

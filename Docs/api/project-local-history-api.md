@@ -9,8 +9,7 @@ in OpenL Studio. It is separate from the committed project revisions stored in t
 GET /rest/projects/{projectId}/local-history?module={moduleName}
 ```
 
-- **projectId** — the project id the API hands out, or the project name. The project must be opened in the caller's
-  workspace.
+- **projectId** — the project id the API hands out. The project must be opened in the caller's workspace.
 - **module** — optional module name. A missing or blank value selects the first module in the project descriptor.
 
 The project and module are resolved from the request. The endpoint does not use the project or module selected

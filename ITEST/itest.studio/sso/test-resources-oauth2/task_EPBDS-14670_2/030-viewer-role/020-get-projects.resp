@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduOkVQQkRTLTEyOTcz",
+      "id": "fIiIGKTVd0re",
       "name": "EPBDS-12973",
       "status": "CLOSED",
       "repository": "design",
@@ -30,7 +30,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOkVQQkRTXzE0NjcwX1Byb2plY3Q=",
+      "id": "G1j1WDwJoejn",
       "name": "EPBDS_14670_Project",
       "status": "OPENED",
       "repository": "design",
@@ -56,7 +56,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "id": "c5HtC2wdN8fO",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",
@@ -86,7 +86,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+      "id": "4sLLGxT9DBma",
       "name": "ProjectUser1",
       "branch": "master",
       "status": "CLOSED",

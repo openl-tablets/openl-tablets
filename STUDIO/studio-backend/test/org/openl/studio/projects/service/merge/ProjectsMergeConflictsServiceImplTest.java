@@ -55,6 +55,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.git.MergeConflictDetails;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -63,7 +64,6 @@ import org.openl.rules.xls.merge.XlsWorkbookMerger;
 import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
@@ -1167,7 +1167,7 @@ class ProjectsMergeConflictsServiceImplTest {
                 .build();
         // The conflict is kept for the project, as a merge or a save keeps it.
         var conflictsSessionHolder = new ProjectsMergeConflictsSessionHolder();
-        conflictsSessionHolder.store(ProjectIdModel.builder().repository("design").projectName("Project").build(),
+        conflictsSessionHolder.store(ProjectIds.of("design", "Project"),
                 conflict);
         // A workbook a merge combines is left as it is, unless a test formats it.
         var formatting = mock(MergedWorkbookFormatting.class);

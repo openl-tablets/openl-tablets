@@ -3,12 +3,12 @@ package org.openl.studio.projects.model.project.status;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 
 @Builder
 public record ProjectStatusViewModel (
         @Parameter(description = "Project identifier.")
-        ProjectIdModel projectId,
+        ProjectId projectId,
 
         @Parameter(description = "Branch name the project is currently opened on. Applicable only to repositories that support branches.")
         String branch,

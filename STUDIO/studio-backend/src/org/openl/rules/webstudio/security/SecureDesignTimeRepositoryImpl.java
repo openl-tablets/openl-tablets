@@ -15,6 +15,7 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignProject;
@@ -98,6 +99,11 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
             return secureProject(project);
         }
         throw new ProjectException("Access denied");
+    }
+
+    @Override
+    public Optional<AProject> getProjectById(ProjectId id) {
+        return designTimeRepository.getProjectById(id).flatMap(this::secureVisibleProject);
     }
 
     @Override

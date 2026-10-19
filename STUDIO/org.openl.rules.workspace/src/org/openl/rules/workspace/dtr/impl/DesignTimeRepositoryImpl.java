@@ -36,6 +36,8 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
@@ -68,6 +70,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final HashMap<ProjectKey, AProject> projectsVersions = new HashMap<>();
     private final HashMap<ProjectKey, BranchedProject> branchedProjects = new HashMap<>();
     private final Map<String, Map<ProjectKey, AProject>> configuredBranchFallbacks = new HashMap<>();
+    /** The cached projects by their ids, rebuilt with them. */
+    private Map<ProjectId, AProject> projectsById = Map.of();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
@@ -229,6 +233,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 }
                 throw new ProjectException("Project '{0}' is not found.", null, name);
             }
+        }
+    }
+
+    @Override
+    public Optional<AProject> getProjectById(ProjectId id) {
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+            return Optional.ofNullable(projectsById.get(id));
         }
     }
 
@@ -506,6 +520,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 projects.putAll(scanProjects(repository));
             }
         }
+        // A design project is listed from what the repository lists, which tells its folder at once.
+        projectsById = ProjectIds.index(projects.values(),
+                project -> new ProjectKey(project.getRepository().getId(), project.getRealPath()));
 
         projectsRefreshNeeded = false;
     }
@@ -627,6 +644,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projectsVersions.clear();
             branchedProjects.clear();
             configuredBranchFallbacks.clear();
+            projectsById = Map.of();
         }
     }
 

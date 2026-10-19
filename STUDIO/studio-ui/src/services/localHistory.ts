@@ -1,5 +1,4 @@
 import apiCall, { LOCAL_LOAD_API_OPTIONS, asArray } from './apiCall'
-import { toUrlSafeId } from './projectId'
 
 export interface LocalHistoryItem {
     id: string
@@ -10,7 +9,7 @@ export interface LocalHistoryItem {
 export const getLocalHistory = async (projectId: string, moduleName?: string): Promise<LocalHistoryItem[]> => {
     const query = moduleName ? `?module=${encodeURIComponent(moduleName)}` : ''
     const response = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/local-history${query}`,
+        `/projects/${projectId}/local-history${query}`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     )
@@ -23,7 +22,7 @@ export const restoreLocalHistory = async (
     version: string
 ): Promise<void> => {
     const query = moduleName ? `?module=${encodeURIComponent(moduleName)}` : ''
-    await apiCall(`/projects/${toUrlSafeId(projectId)}/local-history/restore${query}`, {
+    await apiCall(`/projects/${projectId}/local-history/restore${query}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ version }),

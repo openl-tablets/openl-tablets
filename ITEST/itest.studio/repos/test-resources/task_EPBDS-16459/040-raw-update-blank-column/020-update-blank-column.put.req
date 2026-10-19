@@ -1,4 +1,4 @@
-PUT /rest/projects/EPBDS-16459-Blank/tables/5CpPD1KmygMBt9h0 HTTP/1.1
+PUT /rest/projects/tP7VfBbIQx80/tables/5CpPD1KmygMBt9h0 HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

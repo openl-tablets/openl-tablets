@@ -3,7 +3,6 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "sourceRepositoryId": "design-non-flat",
   "sourceProject": "EPBDS16328 Rates Lookup",
   "comment": "EPBDS-16328: Copy the source by name"
 }

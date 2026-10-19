@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production-git",
   "deploymentName": "EPBDS-14589-git",
-  "projectId": "ZGVzaWduOkVQQkRTXzE0NTg5",
+  "projectId": "C1KqVwsv4nZ_",
   "comment": "EPBDS-14589 Deploy a project of a database repository"
 }
 

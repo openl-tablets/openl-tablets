@@ -68,6 +68,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -82,7 +83,6 @@ import org.openl.studio.projects.model.ExecutionValueLevels;
 import org.openl.studio.projects.model.MigrationScope;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectMigrationView;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
@@ -120,7 +120,6 @@ import org.openl.studio.projects.model.tests.TestsExecutionSummaryResponseMapper
 import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.ProjectCriteriaQuery;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -171,7 +170,6 @@ public class ProjectsController {
     private final SocketProjectAllTestsExecutionProgressListenerFactory socketProjectAllTestsExecutionProgressListenerFactory;
     private final ProjectObjectMapperService objectMapperService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectTablesGraphService graphService;
     private final RepositoryConfigService repositoryConfigService;
     private final ProjectMetadataService metadataService;
@@ -266,7 +264,8 @@ public class ProjectsController {
                 .includes(ProjectInclude.normalize(includes));
 
         if (StringUtils.isNotEmpty(dependsOn)) {
-            queryBuilder.dependsOn(decodeDependsOn(dependsOn));
+            queryBuilder.dependsOn(ProjectIds.parse(dependsOn)
+                    .orElseThrow(() -> new BadRequestException("projects.depends-on.invalid.message")));
         }
 
         var tagValues = new LinkedHashMap<String, Set<String>>();
@@ -310,7 +309,7 @@ public class ProjectsController {
     @Operation(summary = "projects.status.update.summary")
     public void updateProjectStatus(@ProjectId @PathVariable("projectId") RulesProject project,
                                     @Valid @RequestBody ProjectStatusUpdateModel request) {
-        conflictsSessionHolder.requireResolved(projectIdentifierMapper.map(project));
+        conflictsSessionHolder.requireResolved(project.getProjectId());
         var normalized = normalize(request);
         try {
             projectService.updateProjectStatus(project, normalized);
@@ -856,7 +855,7 @@ public class ProjectsController {
             TestCaseRanges.requireKnownCases(testSuite, testRanges);
         }
         executionTestsResultRegistry.cancelIfAny();
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         var user = projectService.getUserWorkspace().getUser();
         CompletableFuture<TestRun> testTask;
         var mapper = testsSummaryMapper(project);
@@ -1147,7 +1146,7 @@ public class ProjectsController {
      * @throws NotFoundException when no test run is remembered for the project
      */
     private Optional<TestRun> completedTests(RulesProject project) {
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         if (!executionTestsResultRegistry.hasTask(projectId)) {
             throw new NotFoundException("tests.execution.task.message");
         }
@@ -1176,19 +1175,5 @@ public class ProjectsController {
                 .discardChanges(raw.discardChanges())
                 .openDependencies(raw.openDependencies())
                 .build();
-    }
-
-    /**
-     * Reads the project the listed projects depend on.
-     *
-     * <p>The value is a project identifier as the projects list returns it. A project name or any other text is a
-     * client error.
-     */
-    private static ProjectIdModel decodeDependsOn(String dependsOn) {
-        try {
-            return ProjectIdModel.decode(dependsOn);
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("projects.depends-on.invalid.message");
-        }
     }
 }

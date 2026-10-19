@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.service.ExecutionProgressListener;
 import org.openl.studio.projects.service.ExecutionStatus;
 
@@ -25,7 +25,7 @@ public class SocketBenchmarkExecutionProgressListenerFactory {
      * @param tableId   the table ID
      * @return an ExecutionProgressListener instance
      */
-    public ExecutionProgressListener create(CommonUser user, ProjectIdModel projectId, String tableId) {
+    public ExecutionProgressListener create(CommonUser user, ProjectId projectId, String tableId) {
         return new ExecutionProgressListener() {
             @Override
             public void onStatusChanged(ExecutionStatus status) {

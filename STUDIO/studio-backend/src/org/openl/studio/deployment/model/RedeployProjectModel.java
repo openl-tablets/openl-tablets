@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 
 @JsonDeserialize(builder = RedeployProjectModel.Builder.class)
 @Schema(description = "Redeploy project request model")
@@ -16,7 +16,7 @@ public class RedeployProjectModel {
     private static final String FIELD_DEPLOYMENT_COMMENT_DESC = "Redeployment reason comment";
 
     @Parameter(description = FIELD_PROJECT_ID_DESC, required = true)
-    public final ProjectIdModel projectId;
+    public final ProjectId projectId;
 
     @Parameter(description = FIELD_DEPLOYMENT_COMMENT_DESC)
     public final String comment;
@@ -33,10 +33,10 @@ public class RedeployProjectModel {
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
-        private ProjectIdModel projectId;
+        private ProjectId projectId;
         private String comment;
 
-        public Builder projectId(ProjectIdModel projectId) {
+        public Builder projectId(ProjectId projectId) {
             this.projectId = projectId;
             return this;
         }

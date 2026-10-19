@@ -1,5 +1,4 @@
 import apiCall from './apiCall'
-import { toUrlSafeId } from './projectId'
 
 /** Which project descriptor a migrate targets. Matches the backend MigrationScope wire codes. */
 export type MigrationScope = 'rulesXml' | 'rulesDeploy'
@@ -39,7 +38,7 @@ export const EMPTY_MIGRATION: ProjectMigration = {
 export async function getProjectMigration(projectId: string): Promise<ProjectMigration> {
     // The API omits movableRootModules when it is empty (a project with a rules.xml), so default it here to
     // keep every caller array-safe.
-    const data = await apiCall(`/projects/${toUrlSafeId(projectId)}/migration`, undefined, { throwError: true }) as {
+    const data = await apiCall(`/projects/${projectId}/migration`, undefined, { throwError: true }) as {
         rulesXml?: Partial<RulesXmlMigration>
         rulesDeploy?: Partial<RulesDeployMigration>
     }
@@ -61,7 +60,7 @@ export async function getProjectMigration(projectId: string): Promise<ProjectMig
  */
 export async function migrateProject(projectId: string, scope: MigrationScope): Promise<void> {
     await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/migrate?scope=${scope}`,
+        `/projects/${projectId}/migrate?scope=${scope}`,
         { method: 'POST' },
         { throwError: true }
     )

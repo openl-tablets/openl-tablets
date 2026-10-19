@@ -1,5 +1,4 @@
 import apiCall from './apiCall'
-import { toUrlSafeId } from './projectId'
 
 /** Where a project's specification was written, and whether the file was added or written over. */
 interface OpenApiSchema {
@@ -39,7 +38,7 @@ export interface OpenApiGeneration {
 /** Where the generation writes its two modules, once the reader has settled it. */
 export type OpenApiTargets = Pick<OpenApiGeneration, 'algorithmModulePath' | 'modelModulePath'>
 
-const openApiUrl = (projectId: string, what: string) => `/projects/${toUrlSafeId(projectId)}/openapi/${what}`
+const openApiUrl = (projectId: string, what: string) => `/projects/${projectId}/openapi/${what}`
 
 /**
  * Writes the project's own specification, generated from the rules it compiled.

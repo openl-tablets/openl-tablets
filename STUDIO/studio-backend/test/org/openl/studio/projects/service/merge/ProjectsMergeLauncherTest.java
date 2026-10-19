@@ -42,18 +42,18 @@ import org.openl.rules.repository.api.MergePublishing;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.ProjectSocketNotificationService;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResult;
 import org.openl.studio.projects.model.merge.MergeResultStatus;
 import org.openl.studio.projects.service.ExecutionStatus;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 
 /**
@@ -71,7 +71,7 @@ class ProjectsMergeLauncherTest {
 
     private ProjectsMergeLauncher launcher;
     private RulesProject project;
-    private ProjectIdModel projectId;
+    private ProjectId projectId;
     private ProjectsMergeService mergeService;
     private WorkspaceProjectService projectService;
     private UserWorkspace workspace;
@@ -81,7 +81,6 @@ class ProjectsMergeLauncherTest {
     private ProjectsMergeRegistry registry;
     private ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private ProjectSocketNotificationService notifications;
-    private ProjectIdentifierMapper projectIdentifierMapper;
 
     @BeforeEach
     void init() {
@@ -109,9 +108,8 @@ class ProjectsMergeLauncherTest {
         lenient().when(projectService.getUserWorkspace()).thenReturn(workspace);
         lenient().when(projectService.getWebStudio()).thenReturn(studio);
 
-        projectId = ProjectIdModel.builder().repository("design").projectName("RateCalculator").build();
-        projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-        lenient().when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        projectId = ProjectIds.of("design", "RateCalculator");
+        lenient().when(project.getProjectId()).thenReturn(projectId);
 
         mergeService = mock(ProjectsMergeService.class);
         registry = new ProjectsMergeRegistry();
@@ -132,7 +130,6 @@ class ProjectsMergeLauncherTest {
                 projectService,
                 registry,
                 conflictsSessionHolder,
-                projectIdentifierMapper,
                 notifications,
                 executor);
     }
@@ -148,8 +145,7 @@ class ProjectsMergeLauncherTest {
 
     private RulesProject otherProject() {
         var other = mock(RulesProject.class);
-        when(projectIdentifierMapper.map(other))
-                .thenReturn(ProjectIdModel.builder().repository("design").projectName("Other").build());
+        when(other.getProjectId()).thenReturn(ProjectIds.of("design", "Other"));
         return other;
     }
 

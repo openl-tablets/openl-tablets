@@ -20,9 +20,9 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.utils.DateTimes;
+import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.deployment.service.DeploymentService;
-import org.openl.studio.projects.converter.ProjectIdentityConverter;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.converter.ProjectIdConverter;
 
 class DeploymentsControllerTest {
 
@@ -30,8 +30,8 @@ class DeploymentsControllerTest {
     void get_deployment_reports_not_found_when_no_deployment_matches() {
         var service = mock(DeploymentService.class);
         when(service.getDeployments(any())).thenReturn(List.of());
-        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
-        var id = ProjectIdModel.builder().repository("prod").projectName("Missing").build().encode();
+        var controller = new DeploymentsController(service, mock(ProjectIdConverter.class));
+        var id = new DeploymentId("prod", "Missing").encode();
 
         assertThrows(NotFoundException.class, () -> controller.getDeployment(id));
     }
@@ -43,7 +43,7 @@ class DeploymentsControllerTest {
                 deployment("prod", "Service One", "Alpha", "Beta"),
                 deployment("prod", "Service Two", "Beta"));
         when(service.getDeployments(any())).thenReturn(deployments);
-        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
+        var controller = new DeploymentsController(service, mock(ProjectIdConverter.class));
 
         var result = controller.getDeployments("prod", "Alpha");
 
@@ -62,8 +62,8 @@ class DeploymentsControllerTest {
         when(project.getFileData()).thenThrow(new IllegalStateException("metadata failed"));
         var deployments = List.of(deployment("prod", "Service One", project));
         when(service.getDeployments(any())).thenReturn(deployments);
-        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
-        var id = ProjectIdModel.builder().repository("prod").projectName("Service One").build().encode();
+        var controller = new DeploymentsController(service, mock(ProjectIdConverter.class));
+        var id = new DeploymentId("prod", "Service One").encode();
 
         var result = controller.getDeployment(id);
 
@@ -84,8 +84,8 @@ class DeploymentsControllerTest {
         when(service.getDeployments(any())).thenReturn(deployments);
         when(service.findDesignRevision(project)).thenReturn(Optional
                 .of(new CachedProjectVersion("design-revision-1", new Date(1_721_000_000_000L), "john")));
-        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
-        var id = ProjectIdModel.builder().repository("prod").projectName("Service One").build().encode();
+        var controller = new DeploymentsController(service, mock(ProjectIdConverter.class));
+        var id = new DeploymentId("prod", "Service One").encode();
 
         var item = controller.getDeployment(id).items.getFirst();
 
@@ -100,8 +100,8 @@ class DeploymentsControllerTest {
         var deployments = List.of(deployment("prod", "Service One", "Alpha"));
         when(service.getDeployments(any())).thenReturn(deployments);
         when(service.findDesignRevision(any())).thenReturn(Optional.empty());
-        var controller = new DeploymentsController(service, mock(ProjectIdentityConverter.class));
-        var id = ProjectIdModel.builder().repository("prod").projectName("Service One").build().encode();
+        var controller = new DeploymentsController(service, mock(ProjectIdConverter.class));
+        var id = new DeploymentId("prod", "Service One").encode();
 
         assertNull(controller.getDeployment(id).items.getFirst().designRevision);
     }

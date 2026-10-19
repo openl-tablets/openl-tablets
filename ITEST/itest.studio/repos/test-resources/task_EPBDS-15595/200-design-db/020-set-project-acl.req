@@ -1,4 +1,4 @@
-PUT /rest/acls/projects/ZGVzaWduOkVQQkRTXzE1NTk1?sid=user1&principal=true HTTP/1.1
+PUT /rest/acls/projects/rd894y78q0-9?sid=user1&principal=true HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

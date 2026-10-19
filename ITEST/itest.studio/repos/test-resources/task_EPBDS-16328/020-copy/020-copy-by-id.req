@@ -3,8 +3,7 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "sourceRepositoryId": "design-non-flat",
-  "sourceProject": "ZGVzaWduLW5vbi1mbGF0OkVQQkRTMTYzMjggUmF0ZXMgTG9va3VwOmZlNDAzNTQwMTY3MzA4NTQzZDg1Y2YwZTMyYzczYmFhNGQ4NzI0Nzc1MWM3ODczYThhYTAwMjdkYWZhYzEyYTE=",
+  "sourceProject": "8N00NtBC95bi",
   "comment": "EPBDS-16328: Copy the source by identifier"
 }
 

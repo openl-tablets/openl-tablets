@@ -11,8 +11,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResult;
 
@@ -21,10 +22,7 @@ import org.openl.studio.projects.model.merge.MergeResult;
  */
 class ProjectsMergeRegistryTest {
 
-    private static final ProjectIdModel PROJECT = ProjectIdModel.builder()
-            .repository("design")
-            .projectName("RateCalculator")
-            .build();
+    private static final ProjectId PROJECT = ProjectIds.of("design", "RateCalculator");
 
     private final ProjectsMergeRegistry registry = new ProjectsMergeRegistry();
 
@@ -58,7 +56,7 @@ class ProjectsMergeRegistryTest {
     @Test
     void refusesAnotherMergeWhileOneRuns() {
         registry.set(merge("master", MergeOpMode.SEND));
-        var otherProject = ProjectIdModel.builder().repository("design").projectName("Other").build();
+        var otherProject = ProjectIds.of("design", "Other");
 
         assertThrows(ConflictException.class, () -> registry.isRunning(PROJECT, "master", MergeOpMode.RECEIVE));
         assertThrows(ConflictException.class, () -> registry.isRunning(PROJECT, "release", MergeOpMode.SEND));
@@ -71,7 +69,7 @@ class ProjectsMergeRegistryTest {
         var merge = merge("master", MergeOpMode.SEND);
         registry.set(merge);
 
-        registry.forget(ProjectIdModel.builder().repository("design").projectName("Other").build());
+        registry.forget(ProjectIds.of("design", "Other"));
         registry.forget(PROJECT);
         assertSame(merge, registry.current().orElseThrow());
 

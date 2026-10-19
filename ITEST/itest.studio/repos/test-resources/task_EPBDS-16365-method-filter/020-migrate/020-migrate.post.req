@@ -1,3 +1,3 @@
-POST /rest/projects/ZGVzaWduLWZsYXQ6TWV0aG9kRmlsdGVyUHJvamVjdDplMDUyZmJkYmExMjI5MjFiOTJjZmI5MTJhNGRmNTRlMTFmOWU3YWM4MzNjYWFlMDQxZWNhZWJjYjg5MWYzMzk2/migrate?scope=rulesXml HTTP/1.1
+POST /rest/projects/3Eq3UD8ikXeK/migrate?scope=rulesXml HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

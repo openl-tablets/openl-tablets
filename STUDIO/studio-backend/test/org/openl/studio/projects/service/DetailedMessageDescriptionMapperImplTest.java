@@ -34,8 +34,8 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
 import org.openl.syntax.ISyntaxNode;
@@ -43,9 +43,7 @@ import org.openl.util.text.LocationUtils;
 
 class DetailedMessageDescriptionMapperImplTest {
 
-    private final ProjectIdentifierMapper projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-    private final DetailedMessageDescriptionMapperImpl mapper = new DetailedMessageDescriptionMapperImpl(
-            projectIdentifierMapper);
+    private final DetailedMessageDescriptionMapperImpl mapper = new DetailedMessageDescriptionMapperImpl();
 
     private ProjectModel model;
 
@@ -273,8 +271,7 @@ class DetailedMessageDescriptionMapperImplTest {
         when(studio.getProjects()).thenReturn(Map.of("design", List.of(dependency)));
         when(studio.getProject("design", "Shared Rules")).thenReturn(project);
         when(model.getStudio()).thenReturn(studio);
-        when(projectIdentifierMapper.map(project))
-                .thenReturn(ProjectIdModel.builder().repository("design").projectName("Shared Rules").build());
+        when(project.getProjectId()).thenReturn(ProjectIds.of("design", "Shared Rules"));
 
         var result = mapper.mapSorted(List.of(message("uri")), model);
 
@@ -282,8 +279,7 @@ class DetailedMessageDescriptionMapperImplTest {
         var location = (ModuleMessageSource) result.getFirst().location();
         assertEquals("Shared", location.name());
         assertEquals("Shared Rules", location.project());
-        assertEquals(ProjectIdModel.builder().repository("design").projectName("Shared Rules").build().encode(),
-                location.projectId());
+        assertEquals(ProjectIds.of("design", "Shared Rules").value(), location.projectId());
     }
 
     @Test

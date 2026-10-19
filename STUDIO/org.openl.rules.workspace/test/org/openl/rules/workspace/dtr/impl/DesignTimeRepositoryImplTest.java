@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -42,7 +43,9 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 
 class DesignTimeRepositoryImplTest {
@@ -137,6 +140,11 @@ class DesignTimeRepositoryImplTest {
                     ((BranchRepository) repository.getProject("design", "Rates", "feature/rates")
                             .getRepository()).getBranch());
             assertTrue(repository.hasProject("design", "Rates"));
+            // The cached projects are found by their ids, which their folders tell.
+            assertEquals("Rates", repository.getProjectById(ProjectIds.of("design", "DESIGN/Rates"))
+                    .orElseThrow()
+                    .getBusinessName());
+            assertTrue(repository.getProjectById(ProjectIds.of("design", "DESIGN/Other")).isEmpty());
             // What a merge changes is told by the projects each branch holds.
             assertEquals(List.of("DESIGN/Rates"),
                     repository.getBranchProjects("design", "feature/rates").stream().map(AProject::getRealPath).toList());

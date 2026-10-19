@@ -3,8 +3,7 @@ package org.openl.itest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -47,11 +46,17 @@ class WebSocketProjectStatusTest {
     private static final HttpClient client = JettyServer.get().start();
 
     /**
-     * Minimal projection of {@code ProjectStatusViewModel}. {@code projectId} is the encoded
-     * {@code ProjectIdModel} (base64 of {@code repo:name}); {@code compileState} is the lowercase
-     * {@code CompileState}.
+     * Minimal projection of {@code ProjectStatusViewModel}. {@code projectId} is the id of the project;
+     * {@code compileState} is the lowercase {@code CompileState}.
      */
     record StatusUpdate(String projectId, String compileState) {
+    }
+
+    /** The project list, reduced to the ids of the projects it holds. */
+    record ProjectPage(List<ProjectRef> content) {
+    }
+
+    record ProjectRef(String id) {
     }
 
     /** The project response, reduced to the compilation status it carries on request. */
@@ -64,22 +69,23 @@ class WebSocketProjectStatusTest {
         //      from localEnv).
         client.localEnv.put("PROJECT", PROJECT);
         client.test(SETUP_RESOURCES);
+        // A project is addressed by its id, which the project list gives.
+        var projectId = client.getForObject("/rest/projects?name=" + PROJECT, ProjectPage.class, 200,
+                "Authorization", ADMIN_BASIC).content().getFirst().id();
 
-        var statusUrl = "/rest/projects/" + PROJECT + "?include=status";
-        var tablesUrl = "/rest/projects/" + PROJECT + "/tables";
+        var statusUrl = "/rest/projects/" + projectId + "?include=status";
+        var tablesUrl = "/rest/projects/" + projectId + "/tables";
 
-        // 3. Status is idle before any compilation is triggered. Reuse the encoded project id
-        //    from the response so the WebSocket topic always matches what the server publishes.
+        // 3. Status is idle before any compilation is triggered. Reuse the project id from the response so
+        //    the WebSocket topic always matches what the server publishes.
         var initial = client.getForObject(statusUrl, ProjectWithStatus.class, 200, "Authorization", ADMIN_BASIC)
                 .compileStatus();
         assertEquals("idle", initial.compileState(), "Project must be idle before compilation");
 
-        // 4. Subscribe to the per-user project status topic. The server URL-encodes the project id in
-        //    the destination, so mirror that here.
+        // 4. Subscribe to the per-user project status topic, which the project id names as it is.
         try (var stomp = new StompTester(client, client.getWebSocketBaseURL(),
                 Map.of("Authorization", ADMIN_BASIC))) {
-            var statusTopic = "/user/topic/projects/"
-                    + URLEncoder.encode(initial.projectId(), StandardCharsets.UTF_8) + "/status";
+            var statusTopic = "/user/topic/projects/" + initial.projectId() + "/status";
             var compiled = stomp.awaitMatching(statusTopic, StatusUpdate.class,
                     u -> TERMINAL_STATES.contains(u.compileState()));
 

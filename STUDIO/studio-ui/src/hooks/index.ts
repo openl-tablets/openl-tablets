@@ -1,5 +1,4 @@
 export { useAppNavigate } from './useAppNavigate'
-export { useCanonicalProjectAddress } from './useCanonicalProjectAddress'
 export { useCopyToClipboard } from './useCopyToClipboard'
 export { useCommitInfoGuard } from './useCommitInfoGuard'
 export { useEventProject } from './useEventProject'

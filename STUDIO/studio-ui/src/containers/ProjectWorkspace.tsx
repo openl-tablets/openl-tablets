@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { errorMessage } from '../utils/errorMessage'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { App, Alert, Skeleton } from 'antd'
 import { createStyles } from 'antd-style'
@@ -11,9 +11,9 @@ import {
     setProjectStatus,
     unlockProject,
 } from '../services/repositories'
-import { projectLinkProblemOf, type ProjectLinkProblem } from '../services/projectLink'
+import { isUnresolvedProjectLink } from '../services/projectLink'
 import { invalidateProjectIndex, PROJECT_INDEX_TTL_MS, projectSignature } from '../services/projectIndex'
-import { useCanonicalProjectAddress, useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
+import { useLiveProjectChanges, useLoadGeneration, useWindowFocus } from '../hooks'
 import { ProjectStatus } from '../constants/project'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { useSharedStyles } from './projects/sharedStyles'
@@ -37,7 +37,7 @@ import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
 import type { NodeFilters } from './projects/projectGrouping'
 import { clearStoredPicks, loadStoredPicks } from './projects/filterStorage'
 import { listingQueryOf } from './projects/projectListing'
-import { moduleRoute, projectFileRoute, toUrlSafeId } from '../services/projectId'
+import { moduleRoute, projectFileRoute } from '../services/projectId'
 
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -91,10 +91,9 @@ export const ProjectWorkspace = () => {
     const { styles: shared } = useSharedStyles()
     const navigate = useNavigate()
     const { projectId } = useParams()
-    const [searchParams] = useSearchParams()
     const [project, setProject] = useState<Project | null>(null)
-    // Why the link leads to no project, or to several: shown in place of the project.
-    const [linkProblem, setLinkProblem] = useState<ProjectLinkProblem | null>(null)
+    // Whether the link leads to no project: shown in place of the project.
+    const [linkProblem, setLinkProblem] = useState(false)
     // When the read behind the shown project started, so the compile dot can tell a pushed status
     // that is newer than this answer from one this answer has already overtaken.
     const [statusReadAt, setStatusReadAt] = useState(0)
@@ -119,12 +118,6 @@ export const ProjectWorkspace = () => {
     const fileLoads = useLoadGeneration()
     // When the page last read its project — the staleness policy behind the pings counts from here.
     const loadedAt = useRef(0)
-    // This screen's address for a project id: it keeps the tab and the file the address opens.
-    const routeOf = useCallback((id: string) => {
-        const query = searchParams.toString()
-        return query ? `/projects/${id}?${query}` : `/projects/${id}`
-    }, [searchParams])
-    const readdress = useCanonicalProjectAddress(projectId, routeOf)
 
     const reducedMotion = useMemo(
         () => typeof window !== 'undefined'
@@ -156,8 +149,7 @@ export const ProjectWorkspace = () => {
         }
         try {
             const loaded = await getProject(projectId, { includes: ['status', 'descriptor']}, LOCAL_LOAD_API_OPTIONS)
-            // A link by name moves on to the project's id, and the project is shown there.
-            if (!loads.isLatest(generation) || readdress(loaded.id)) {
+            if (!loads.isLatest(generation)) {
                 return null
             }
             if (skipUnchangedFor !== undefined && touched === null && projectSignature(loaded) === skipUnchangedFor) {
@@ -184,18 +176,18 @@ export const ProjectWorkspace = () => {
             loadedAt.current = Date.now()
             setFiles(undefined)
             setError(null)
-            setLinkProblem(null)
+            setLinkProblem(false)
             return loaded
         } catch (e) {
-            const problem = projectLinkProblemOf(e)
+            const unresolved = isUnresolvedProjectLink(e)
             // A reload the user waits for reports its own failure even when a quiet one has overtaken
             // it: the quiet one reports nothing, so the action would look as if it had succeeded.
-            if (problem === null && loads.ownsSpinner(generation)) {
+            if (!unresolved && loads.ownsSpinner(generation)) {
                 setError(errorMessage(e))
-            } else if (problem !== null && loads.isLatest(generation)) {
+            } else if (unresolved && loads.isLatest(generation)) {
                 setProject(null)
                 setError(null)
-                setLinkProblem(problem)
+                setLinkProblem(true)
             }
         } finally {
             // The spinner is hidden by the reload it belongs to, even when a quiet re-read has started
@@ -205,7 +197,7 @@ export const ProjectWorkspace = () => {
             }
         }
         return null
-    }, [loads, projectId, readdress])
+    }, [loads, projectId])
 
     // Only the copy dialog's target picker needs the repository list — the screen itself lives off the
     // project's own repositoryInfo. So the list is read once, when the dialog first opens, and never at
@@ -214,7 +206,7 @@ export const ProjectWorkspace = () => {
     // nor does the failure to read it.
     useEffect(() => {
         setProject(null)
-        setLinkProblem(null)
+        setLinkProblem(false)
         setError(null)
         void load()
     }, [load])
@@ -407,7 +399,7 @@ export const ProjectWorkspace = () => {
         setTreeFilters(listingQueryOf(new URLSearchParams()))
     }
 
-    // Nothing to show yet: the first read is on its way, or the address is moving on to the id it answered with.
+    // Nothing to show yet: the first read is on its way.
     if (!project && !error && !linkProblem) {
         return (
             <div className={shared.workspacePage}>
@@ -430,7 +422,7 @@ export const ProjectWorkspace = () => {
                     onOpenFile={(other, path) => navigate(projectFileRoute(other.id, path))}
                     onOpenGroup={filters => navigate(`/projects?${groupQuery(filters)}`)}
                     onOpenModule={(other, moduleName) => navigate(moduleRoute(other.id, moduleName))}
-                    onOpenProject={other => navigate(`/projects/${toUrlSafeId(other.id)}`)}
+                    onOpenProject={other => navigate(`/projects/${other.id}`)}
                     onShowAll={() => navigate('/projects')}
                     reloadToken={reloadToken}
                 />
@@ -482,7 +474,7 @@ export const ProjectWorkspace = () => {
                                     type="error"
                                 />
                             ) : linkProblem && (
-                                <UnresolvedProjectLink addressed={projectId ?? ''} problem={linkProblem} routeOf={routeOf} />
+                                <UnresolvedProjectLink />
                             )}
                         </div>
                     )}

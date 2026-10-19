@@ -140,23 +140,17 @@ describe('RevisionsPanel', () => {
         expect(screen.getByText('Second')).toBeTruthy()
     })
 
-    it('links the project a copy was made from, and only that part of the comment', async () => {
+    it('shows the comment of a copy as text, linking nowhere', async () => {
         vi.mocked(getProjectRevisions).mockResolvedValue(page([
-            {
-                ...REVS[0]!,
-                fullComment: 'Copied from: Bank Rating #2.',
-                commentParts: ['Copied from: ', 'Bank Rating #2', '.'],
-            },
+            { ...REVS[0]!, fullComment: 'Copied from: Bank Rating #2.' },
             REVS[1]!,
         ]))
         await renderPanel()
 
         const comment = screen.getByTestId(`revision-comment-${REVS[0]!.revisionNo}`)
         expect(comment).toHaveTextContent('Copied from: Bank Rating #2.')
-        expect(within(comment).getByRole('link', { name: 'Bank Rating #2' }))
-            .toHaveAttribute('href', '/projects/Bank%20Rating%20%232')
-        // A comment no template wrote links nowhere.
-        expect(within(screen.getByTestId(`revision-comment-${REVS[1]!.revisionNo}`)).queryByRole('link')).toBeNull()
+        // A project is addressed by its id only, which a comment does not carry.
+        expect(within(comment).queryByRole('link')).toBeNull()
     })
 
     it('opens a chosen revision for viewing', async () => {

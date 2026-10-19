@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,6 +41,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
@@ -431,6 +433,44 @@ class UserWorkspaceRefreshTest {
 
         assertEquals("feature/rates", project.getBranch());
         assertEquals(DESIGN_PATH, project.getRealPath());
+    }
+
+    @Test
+    void anOpenedCopyIsFoundByTheIdOfItsDesignFolderOnEveryBranch() {
+        var main = mappedBranchProjectRepository("main", DESIGN_PATH);
+        var feature = mappedBranchProjectRepository("feature/rates", DESIGN_PATH);
+        var mainData = new FileData();
+        mainData.setName("DESIGN/P1");
+        var featureData = new FileData();
+        featureData.setName("DESIGN/P1");
+        var mainProject = new AProject(main, mainData);
+        var featureProject = new AProject(feature, featureData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        when(designTimeRepository.getBranchedProject("design", PROJECT))
+                .thenReturn(java.util.Optional.of(
+                        branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
+        seedOpenedCopy("design", "feature/rates", false);
+        var id = ProjectIds.of("design", DESIGN_PATH);
+
+        var project = userWorkspace.getProjectById(id, true).orElseThrow();
+
+        assertEquals("feature/rates", project.getBranch());
+        assertTrue(project.isOpened());
+        assertEquals(id, project.getProjectId(), "The project answers the id it is found by.");
+        assertTrue(userWorkspace.getProjectById(ProjectIds.of("design", "DESIGN/other"), false).isEmpty());
+    }
+
+    @Test
+    void aLocalProjectIsFoundByTheIdItAnswers() {
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of());
+        seedOpenedCopy("local", null, false);
+        var listed = userWorkspace.getProjects(true).iterator().next();
+
+        var project = userWorkspace.getProjectById(listed.getProjectId(), false).orElseThrow();
+
+        assertSame(listed, project);
+        assertTrue(project.isLocalOnly());
     }
 
     @Test
