@@ -100,9 +100,9 @@ itest.module/                      # OpenL integration tests (main)
 │   ├── RuleExecutionTest.java
 │   └── ...
 ├── test-resources/                # HTTP request/response files for tests
-│   ├── EPBDS-10027.req            # Standalone test
-│   ├── EPBDS-10027.resp
-│   └── EPBDS-13489/
+│   ├── rule_execution.req         # Standalone test
+│   ├── rule_execution.resp
+│   └── EPBDS-NNNNN_no_access_for_admin/
 │       ├── 00.req                 # Grouped tests (alphabetical order)
 │       ├── 00.resp
 │       ├── 01.req
@@ -246,16 +246,26 @@ These work in both plain text and JSON responses. In JSON, wildcards are matched
 
 ### Naming Conventions
 
-- File pairs: same name, different extension (`EPBDS-13489.req` + `EPBDS-13489.resp`)
+- File pairs: same name, different extension (`rule_execution.req` + `rule_execution.resp`)
 - Numeric prefixes for ordering: `00-login.req`, `01-get-data.req`
 - Group related tests in subdirectories
+- **A suite folder names what it verifies**, in lowercase words joined by `_`: `stable_project_id`. A suite that
+  verifies a bug fix starts with the ticket key and goes on with the defect it guards against:
+  `EPBDS-NNNNN_no_access_for_admin`. A bare `task_EPBDS-NNNNN` tells the reader nothing without Jira. The folders
+  already named that way keep their names. The resources of a Java-driven test are named the same way:
+  `test-resources-stable-project-id`.
+- **Extend a scenario before adding one.** When an existing scenario already brings the system to the state a check
+  needs — it creates, copies, opens or deletes the project — add the requests to it, at the step where that state
+  holds. A suite of its own, with a setup and a tierdown to check a few requests, multiplies fixtures that test the
+  same thing.
 
 ### Suite Folder Structure
 
-Each test suite (typically one `task_EPBDS-NNNNN/` folder per ticket) **MUST** follow this three-phase layout:
+Each test suite (one folder, named as [Naming Conventions](#naming-conventions) tells) **MUST** follow this
+three-phase layout:
 
 ```
-task_EPBDS-NNNNN/
+stable_project_id/
 ├── README.md                    # Brief test-case description (optional)
 ├── itest.env                    # Per-suite environment variables
 ├── 010-setup/                   # Bring the system to the state under test
