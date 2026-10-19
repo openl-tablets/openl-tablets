@@ -48,6 +48,18 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
     }
 
     @Override
+    public List<String> findGroupNamesForUser(String loginName) {
+        var session = getSession();
+        var cb = session.getCriteriaBuilder();
+        var query = cb.createQuery(String.class);
+        var root = query.from(ExternalGroup.class);
+
+        query.select(root.get(GROUP_NAME)).where(getPredicatesAllForUser(root, cb, loginName));
+
+        return session.createQuery(query).getResultList();
+    }
+
+    @Override
     public long countAllForUser(String loginName) {
         var session = getSession();
         var cb = session.getCriteriaBuilder();

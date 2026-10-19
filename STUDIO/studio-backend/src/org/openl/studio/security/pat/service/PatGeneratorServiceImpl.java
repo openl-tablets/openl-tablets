@@ -2,13 +2,20 @@ package org.openl.studio.security.pat.service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Optional;
 import jakarta.validation.constraints.NotBlank;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.security.pat.Base62Generator;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.users.model.pat.CreatedPersonalAccessTokenResponse;
@@ -27,27 +34,14 @@ import org.openl.studio.users.service.pat.PersonalAccessTokenService;
  *
  * @since 6.0.0
  */
+@RequiredArgsConstructor
 @Validated
 public class PatGeneratorServiceImpl implements PatGeneratorService {
 
     private final PersonalAccessTokenService crudService;
     private final PasswordEncoder passwordEncoder;
     private final Clock clock;
-
-    /**
-     * Constructs a new PatGeneratorServiceImpl.
-     *
-     * @param crudService     the PAT CRUD service for database operations
-     * @param passwordEncoder the password encoder for hashing secrets
-     * @param clock           the clock for generating timestamps
-     */
-    public PatGeneratorServiceImpl(PersonalAccessTokenService crudService,
-                                   PasswordEncoder passwordEncoder,
-                                   Clock clock) {
-        this.crudService = crudService;
-        this.passwordEncoder = passwordEncoder;
-        this.clock = clock;
-    }
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * {@inheritDoc}
@@ -86,6 +80,15 @@ public class PatGeneratorServiceImpl implements PatGeneratorService {
         token.setExpiresAt(expiresAt);
 
         crudService.save(token);
+        var details = new LinkedHashMap<String, Object>();
+        details.put("name", name);
+        details.put("expiresAt", Optional.ofNullable(expiresAt).map(Instant::toString).orElse(null));
+        eventPublisher.publishEvent(AuditEvent.builder()
+                .action(AuditAction.TOKEN_CREATED)
+                .targetType(AuditTargetType.TOKEN)
+                .target(publicId)
+                .details(details)
+                .build());
 
         var pat = new PatToken(publicId, secret);
 

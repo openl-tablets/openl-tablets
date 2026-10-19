@@ -197,8 +197,15 @@ vi.mock('antd', async () => {
         Input,
         notification: { error: vi.fn() },
         Table,
-        Tag: ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
+        Tag: ({ children, color, style }: {
+            children?: React.ReactNode,
+            color?: string,
+            style?: React.CSSProperties,
+        }) => <span data-color={color} style={style}>{children}</span>,
         theme: { useToken: () => ({ token: { paddingXS: 8 } }) },
+        Tooltip: ({ children, title }: { children?: React.ReactNode, title?: string }) => (
+            <span data-title={title}>{children}</span>
+        ),
         Typography,
     })
 })
@@ -237,6 +244,16 @@ const renderAuditLog = (enabled = true) => render(
 )
 
 const loaded = () => waitFor(() => expect(screen.queryByTestId('spin')).not.toBeInTheDocument())
+
+/** Expects a tag of the given colour that holds the given text. */
+const expectTag = (text: string, color: string) => expect(screen.getByText(text)).toHaveAttribute('data-color', color)
+
+/** Expects the text to name the given change when it is pointed at. */
+const expectHint = (text: string, hint: string) => expect(screen.getByText(text).closest('[data-title]'))
+    .toHaveAttribute('data-title', hint)
+
+/** The texts of the tags that mark changes, in the order they are shown. */
+const changeTags = () => screen.getAllByText(/^[+~-] /).map(tag => tag.textContent)
 
 /** Types a text into the search of the filter of a column and starts the search. */
 const search = (column: string, text: string) => userEvent.type(
@@ -279,6 +296,73 @@ describe('AuditLog', () => {
         expect(rows.getByText('audit:types.project')).toBeInTheDocument()
         expect(rows.getByText('design:/rules/Sales')).toBeInTheDocument()
         expect(rows.getByText('3')).toBeInTheDocument()
+    })
+
+    it('shows each field a change made as a diff: changed from before to after, added or removed', async () => {
+        const update: audit.AuditEvent = {
+            id: 4,
+            time: '2026-10-19T10:25:00Z',
+            actor: 'admin',
+            category: 'user',
+            action: 'userUpdated',
+            outcome: 'success',
+            targetType: 'user',
+            target: 'jwilliams',
+            details: {
+                changed: {
+                    displayName: { from: 'John Williams', to: 'John Williams Jr.' },
+                    firstName: { from: 'John' },
+                    lastName: { to: 'Williams' },
+                    emailVerified: { from: false, to: true },
+                },
+            },
+        }
+        mockGetEvents.mockResolvedValue({ content: [update], pageNumber: 0, pageSize: 50, total: 1 })
+
+        renderAuditLog()
+        await loaded()
+
+        expect(screen.getByText('audit:detail_names.changed')).toBeInTheDocument()
+        expect(changeTags()).toEqual([
+            '~ audit:detail_names.displayName: John Williams → John Williams Jr.',
+            '- audit:detail_names.firstName: John',
+            '+ audit:detail_names.lastName: Williams',
+            '~ audit:detail_names.emailVerified: audit:no → audit:yes',
+        ])
+        expectTag('~ audit:detail_names.displayName: John Williams → John Williams Jr.', 'warning')
+        expectTag('- audit:detail_names.firstName: John', 'error')
+        expectTag('+ audit:detail_names.lastName: Williams', 'success')
+        expectHint('~ audit:detail_names.displayName: John Williams → John Williams Jr.', 'audit:changes.changed')
+        expectHint('- audit:detail_names.firstName: John', 'audit:changes.removed')
+        expectHint('+ audit:detail_names.lastName: Williams', 'audit:changes.added')
+        // A long value wraps inside its tag rather than running past the page.
+        expect(screen.getByText('~ audit:detail_names.displayName: John Williams → John Williams Jr.'))
+            .toHaveStyle({ whiteSpace: 'normal', overflowWrap: 'anywhere' })
+    })
+
+    it('shows the names a change added and removed together, in the order of the names', async () => {
+        const privileges: audit.AuditEvent = {
+            id: 7,
+            time: '2026-10-19T10:40:00Z',
+            actor: 'admin',
+            category: 'group',
+            action: 'groupPrivilegesChanged',
+            outcome: 'success',
+            targetType: 'group',
+            target: 'Analysts',
+            details: { added: ['VIEW_PROJECTS', 'DEPLOY_PROJECTS'], removed: ['EDIT_PROJECTS']},
+        }
+        mockGetEvents.mockResolvedValue({ content: [privileges], pageNumber: 0, pageSize: 50, total: 1 })
+
+        renderAuditLog()
+        await loaded()
+
+        expect(screen.getAllByText('audit:detail_names.changed')).toHaveLength(1)
+        expect(screen.queryByText('audit:detail_names.added')).not.toBeInTheDocument()
+        expect(screen.queryByText('audit:detail_names.removed')).not.toBeInTheDocument()
+        expectTag('- EDIT_PROJECTS', 'error')
+        expectHint('- EDIT_PROJECTS', 'audit:changes.removed')
+        expect(changeTags()).toEqual(['+ DEPLOY_PROJECTS', '- EDIT_PROJECTS', '+ VIEW_PROJECTS'])
     })
 
     it('names the codes of the details in words and leaves free text as it is', async () => {

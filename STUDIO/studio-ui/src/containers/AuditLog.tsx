@@ -10,6 +10,7 @@ import {
     type TableColumnsType,
     Tag,
     theme,
+    Tooltip,
     Typography,
 } from 'antd'
 import type { FilterDropdownProps, FilterValue } from 'antd/es/table/interface'
@@ -136,6 +137,7 @@ const CODE = /^[A-Za-z]+$/
 
 /** The keys of the details whose values are codes, by the dictionary of the audit log that names them in words. */
 const CODED_DETAILS: Record<string, string> = {
+    origin: 'origins',
     action: 'actions',
     authentication: 'authentications',
     category: 'categories',
@@ -168,21 +170,145 @@ const detailText = (t: TFunction, key: string, value: unknown): string => {
     return JSON.stringify(value)
 }
 
-/** The details of an event, each under its name. */
-const EventDetails = ({ details }: { details: Record<string, unknown> }) => {
+/** What a change did to a value: added one where there was none, removed it, or changed it to another. */
+type ChangeKind = 'added' | 'removed' | 'changed'
+
+/** Each kind of change as git marks the lines of a diff, on a tag of its colour. */
+const CHANGE_MARKS: Record<ChangeKind, { mark: string, color: string }> = {
+    added: { mark: '+', color: 'success' },
+    removed: { mark: '-', color: 'error' },
+    changed: { mark: '~', color: 'warning' },
+}
+
+/**
+ * A tag keeps its text on one line, and none of its properties changes that. A change shows its values in full, so its
+ * text wraps inside the tag rather than running past the page, a long word included.
+ */
+const WRAPPED_TEXT: React.CSSProperties = { whiteSpace: 'normal', overflowWrap: 'anywhere' }
+
+/** A value a change added, removed or changed, marked as git marks a line of a diff; pointing at it shows the hint. */
+const ChangeTag = ({ kind, text, hint }: { kind: ChangeKind, text: string, hint: string }) => (
+    <Tooltip title={hint}>
+        <Tag color={CHANGE_MARKS[kind].color} style={WRAPPED_TEXT}>{`${CHANGE_MARKS[kind].mark} ${text}`}</Tag>
+    </Tooltip>
+)
+
+/** A name a change added or removed, such as a privilege of a group. */
+interface NameChange {
+    name: string
+    kind: ChangeKind
+}
+
+/** Orders changes by the names they changed. */
+const byName = (one: NameChange, other: NameChange) => one.name.localeCompare(other.name)
+
+/** Whether a value of the details lists names. */
+const isNames = (value: unknown): value is string[] => (
+    Array.isArray(value) && value.every(item => typeof item === 'string')
+)
+
+/** Whether a detail lists the names a change added or removed: its key is the kind of the change. */
+const isListedChange = (detail: [string, unknown]): detail is [ChangeKind, string[]] => (
+    Object.hasOwn(CHANGE_MARKS, detail[0]) && isNames(detail[1])
+)
+
+/** The names the details list as added or removed, in the order of the names. */
+const nameChangesOf = (details: Record<string, unknown>): NameChange[] => Object.entries(details)
+    .filter(isListedChange)
+    .flatMap(([kind, names]) => names.map(name => ({ name, kind })))
+    .sort(byName)
+
+/** The names a change added or removed, a line each, naming the change when pointed at. */
+const NameChanges = ({ changes }: { changes: NameChange[] }) => {
     const { t } = useTranslation()
     return (
-        <Descriptions
-            column={1}
-            size="small"
-            title={t('common:details')}
-            items={Object.entries(details).map(([key, value]) => ({
-                key,
-                label: t(`audit:detail_names.${key}`, { defaultValue: key }),
-                children: detailText(t, key, value),
-            }))}
-        />
+        <Flex vertical align="flex-start" gap={4}>
+            {changes.map(({ name, kind }) => (
+                <ChangeTag key={`${kind} ${name}`} hint={t(`audit:changes.${kind}`)} kind={kind} text={name} />
+            ))}
+        </Flex>
     )
+}
+
+/** The values a field had before a change and after it, either one missing. */
+interface FieldChange {
+    from?: unknown
+    to?: unknown
+}
+
+/** Whether a value of the details names the fields a change made, each with its values before and after. */
+const isFieldChanges = (value: unknown): value is Record<string, FieldChange> => (
+    typeof value === 'object' && value !== null && !Array.isArray(value)
+    && Object.values(value).every(change => typeof change === 'object' && change !== null
+        && ('from' in change || 'to' in change))
+)
+
+/** Whether a field had a value before a change or after it. */
+const hasValue = (value: unknown) => value !== undefined && value !== null
+
+/** What a change did to a field: added a value where there was none, removed it, or changed it to another. */
+const fieldChangeKind = ({ from, to }: FieldChange): ChangeKind => {
+    if (hasValue(from) && hasValue(to)) {
+        return 'changed'
+    }
+    return hasValue(to) ? 'added' : 'removed'
+}
+
+/**
+ * The fields a change made, a line each, marked as git marks the lines of a diff. A value changed reads as the value
+ * before the change, an arrow and the value after; a value added or removed reads as that value alone.
+ */
+const FieldChanges = ({ changes }: { changes: Record<string, FieldChange> }) => {
+    const { t } = useTranslation()
+    return (
+        <Flex vertical align="flex-start" gap={4}>
+            {Object.entries(changes).map(([field, change]) => {
+                const name = t(`audit:detail_names.${field}`, { defaultValue: field })
+                const values = [change.from, change.to].filter(hasValue).map(value => detailText(t, field, value))
+                const kind = fieldChangeKind(change)
+                return (
+                    <ChangeTag
+                        key={field}
+                        hint={t(`audit:changes.${kind}`)}
+                        kind={kind}
+                        text={`${name}: ${values.join(' → ')}`}
+                    />
+                )
+            })}
+        </Flex>
+    )
+}
+
+/** A detail of an event: what it holds under its name. */
+interface Detail {
+    key: string
+    label: string
+    children: React.ReactNode
+}
+
+/**
+ * The details of an event, each under its name. The names a change added and removed are shown together, under
+ * the name of the changes, where the first of their lists was.
+ */
+const EventDetails = ({ details }: { details: Record<string, unknown> }) => {
+    const { t } = useTranslation()
+    const label = (key: string) => t(`audit:detail_names.${key}`, { defaultValue: key })
+    const entries = Object.entries(details)
+    const firstList = entries.findIndex(isListedChange)
+    const changes = <NameChanges changes={nameChangesOf(details)} />
+    const items = entries.flatMap(([key, value], index): Detail[] => {
+        if (isListedChange([key, value])) {
+            return index === firstList ? [{ key: 'changes', label: label('changed'), children: changes }] : []
+        }
+        return [{
+            key,
+            label: label(key),
+            children: key === 'changed' && isFieldChanges(value)
+                ? <FieldChanges changes={value} />
+                : detailText(t, key, value),
+        }]
+    })
+    return <Descriptions column={1} items={items} size="small" title={t('common:details')} />
 }
 
 /** The panels the table draws: the details of an event and the filters of the columns. */

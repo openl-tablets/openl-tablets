@@ -1,7 +1,7 @@
 # Audit Log
 
-OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, and who
-read the log. Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes
+OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who
+changed users, groups and personal access tokens, and who read the log. Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes
 where the events come from, how they are kept and how they are read. The user guide describes the page:
 [Reviewing the Audit Log](../user-guides/openl-studio/administration/08-audit-log.md).
 
@@ -100,6 +100,28 @@ Security holds:
 A sign-in event names the way of the attempt itself. An event that names its actor otherwise names no way, as the
 signed-in user is not that actor. Outside a request, as in a task running in a thread of its own, a user name and a
 password tell nothing, so such an event names no way.
+
+## Users, Groups and Tokens
+
+The services that change users and groups announce each change as an `AuditEvent` application event:
+`UserManagementService`, `GroupManagementService`, `ExternalGroupServiceImpl`, `PatGeneratorServiceImpl` and
+`PersonalAccessTokenServiceImpl`. They are constructed with the publisher. `AuditService.recordEvent` listens to the
+event and runs in the thread and the transaction of the publisher, so the change and its event are saved together; the
+methods that change a user or a group are transactional for it.
+
+- **The values before a change** are read where the service reads the row anyway: the details of a user, the
+  description and the privileges of a group. The groups of a user and its external groups cost one query more, the
+  group to delete and the token to delete one each.
+- **Only a change is announced.** A save that keeps every value, a sign-in that brings the same details and external
+  groups, and the same privileges set again announce nothing. A blank text counts as no value (`AuditChanges`). The
+  external groups of a sign-in are written again only when they change.
+- **A membership event names the group as the target and the user as the subject**, so a filter by subject finds every
+  group a user joined or left.
+- **A change made at sign-in** — a user created or updated from an identity provider, its external groups — is made
+  before anyone is signed in, so it names no actor; a user created or changed so is marked `"origin":
+  "identityProvider"`.
+- **Secrets stay out**: a password set is a `passwordChanged` event with no details; a token is named by its public id
+  and its name.
 
 ## Reading
 

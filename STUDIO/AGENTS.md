@@ -59,10 +59,13 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   no security filters at all. A page is never listed: the application page answers a page of a guide too, so
   `RequestMatchers.userGuideFiles()` admits an address below `/docs` only when its last part ends with an extension,
   the rule by which `UserGuidesServlet` never answers it with the page.
-- **The audit log records who did what.** An action worth accounting for records an `AuditEvent` through
-  `AuditService.recordEvent` — a new kind of action is a constant of `AuditAction`, with its category and its wire code —
-  in the transaction of the change it records, so the two are saved together. An event never holds a password or a
-  token. The sign-ins come from the events of Spring Security, so a new way of signing in publishes them. See
+- **The audit log records who did what.** An action worth accounting for records an `AuditEvent` — a new kind of
+  action is a constant of `AuditAction`, with its category and its wire code — in the transaction of the change it
+  records, so the two are saved together. A service publishes the event through the `ApplicationEventPublisher` it is
+  constructed with, which `AuditService.recordEvent` listens to; a controller may call `recordEvent` itself. Only a
+  change is announced, with the values before and after (`AuditChanges`). An event never holds a password or a token.
+  The sign-ins come from the
+  events of Spring Security, so a new way of signing in publishes them. See
   [`audit-log.md`](../Docs/architecture/audit-log.md).
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`. A time is a `${timestamp}` column that

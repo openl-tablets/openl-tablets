@@ -166,10 +166,11 @@ class UserManagementTest {
                 .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(4, queryCount.getSelect());
+        // The synchronization is one transaction, so the user it reads is read once.
+        assertEquals(3, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getUpdate());
-        assertEquals(6, queryCount.getTotal());
+        assertEquals(5, queryCount.getTotal());
     }
 
     @Test
@@ -199,10 +200,11 @@ class UserManagementTest {
                 .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(6, queryCount.getSelect());
+        // The synchronization is one transaction, so the user it reads is read once.
+        assertEquals(5, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getUpdate());
-        assertEquals(8, queryCount.getTotal());
+        assertEquals(7, queryCount.getTotal());
     }
 
     @Test
@@ -231,10 +233,11 @@ class UserManagementTest {
                 .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
-        assertEquals(6, queryCount.getSelect());
+        // The synchronization is one transaction, so the user it reads is read once.
+        assertEquals(5, queryCount.getSelect());
         assertEquals(1, queryCount.getInsert());
         assertEquals(1, queryCount.getUpdate());
-        assertEquals(8, queryCount.getTotal());
+        assertEquals(7, queryCount.getTotal());
     }
 
     @Test

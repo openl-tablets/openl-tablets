@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import net.ttddyy.dsproxy.QueryCount;
 import net.ttddyy.dsproxy.QueryCountHolder;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -25,6 +28,8 @@ import org.openl.rules.webstudio.service.AclServiceTestConfiguration;
 import org.openl.rules.webstudio.service.DBTestConfiguration;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
+import org.openl.studio.audit.AuditEventsCollector;
+import org.openl.studio.audit.model.AuditAction;
 
 /**
  * Unit tests for {@link PersonalAccessTokenServiceImpl}.
@@ -33,12 +38,25 @@ import org.openl.rules.webstudio.service.config.UserManagementConfiguration;
 @SpringJUnitConfig(classes = {DBTestConfiguration.class,
         UserManagementConfiguration.class,
         AclServiceTestConfiguration.class,
-        PersonalAccessTokenTestConfiguration.class})
+        PersonalAccessTokenTestConfiguration.class,
+        PersonalAccessTokenServiceImplTest.Config.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
         "db.user =",
         "db.password =",
         "db.maximumPoolSize = 3"})
 class PersonalAccessTokenServiceImplTest {
+
+    @Configuration
+    static class Config {
+
+        @Bean
+        AuditEventsCollector auditEventsCollector() {
+            return new AuditEventsCollector();
+        }
+    }
+
+    @Autowired
+    private AuditEventsCollector audit;
 
     // Valid test publicIds matching validation requirements (exactly 16 Base62 chars)
     private static final String TEST_PUBLIC_ID_1 = "publicId12345678"; // 16 chars
@@ -186,11 +204,23 @@ class PersonalAccessTokenServiceImplTest {
         assertTrue(tokenService.existsByPublicId(TEST_PUBLIC_ID_4));
 
         QueryCountHolder.clear();
+        audit.clear();
         tokenService.deleteByPublicId(TEST_PUBLIC_ID_4);
 
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getDelete());
-        assertEquals(1, queryCount.getTotal());
+        // The token is read first, so the audit log can name it.
+        assertEquals(1, queryCount.getSelect());
+        assertEquals(2, queryCount.getTotal());
+        var deleted = audit.events();
+        assertEquals(1, deleted.size());
+        assertEquals(AuditAction.TOKEN_DELETED, deleted.getFirst().action());
+        assertEquals(TEST_PUBLIC_ID_4, deleted.getFirst().target());
+        assertEquals(Map.of("name", "My Token"), deleted.getFirst().details());
+
+        audit.clear();
+        tokenService.deleteByPublicId(TEST_PUBLIC_ID_4);
+        assertTrue(audit.events().isEmpty(), "A token that is gone is not announced again");
 
         QueryCountHolder.clear();
         assertFalse(tokenService.existsByPublicId(TEST_PUBLIC_ID_4));

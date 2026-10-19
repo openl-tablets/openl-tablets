@@ -3,11 +3,13 @@ package org.openl.rules.webstudio.service;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
@@ -25,19 +27,34 @@ import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.security.acl.JdbcSidManagingAclService;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditChanges;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditSubjectType;
+import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.util.StringUtils;
 
 /**
+ * Keeps the users of OpenL Studio and their groups.
+ *
+ * <p>Every change of a user is announced as an {@link AuditEvent}, which the audit log records in the transaction of
+ * the change: a user created, its details changed, its password set, a group joined or left, the user deleted. A change
+ * that leaves a value as it was announces nothing.
+ *
  * @author Andrei Astrouski
  */
 @RequiredArgsConstructor
 public class UserManagementService {
+
+    private static final String ORIGIN = "origin";
+    private static final String IDENTITY_PROVIDER = "identityProvider";
 
     private final UserDao userDao;
     private final GroupDao groupDao;
     private final SessionRegistry sessionRegistry;
     private final PasswordEncoder passwordEncoder;
     private final JdbcSidManagingAclService aclService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<org.openl.rules.security.User> getAllUsers() {
@@ -88,6 +105,7 @@ public class UserManagementService {
         return userDao.existsByName(name);
     }
 
+    @Transactional
     public void addUser(String user,
                         String firstName,
                         String lastName,
@@ -103,11 +121,15 @@ public class UserManagementService {
         persistUser.setDisplayName(displayName);
 
         userDao.save(persistUser);
+        announce(AuditAction.USER_CREATED, user, Map.of());
     }
 
     /**
      * Update user info in Db by external data from the 3rd party identity providers (AD, SAML, CAS, OAuth2 etc.)
+     *
+     * <p>A user created or changed so is announced as coming from the identity provider.
      */
+    @Transactional
     public void syncUserData(String user, String firstName, String lastName, String email, String displayName) {
 
         // Get
@@ -130,13 +152,38 @@ public class UserManagementService {
             displayName = syncDisplayName(persistUser, flags, firstName, lastName);
         }
 
-        persistUser.setFirstName(flags.isFirstNameExternal() ? firstName : persistUser.getFirstName());
-        persistUser.setSurname(flags.isLastNameExternal() ? lastName : persistUser.getSurname());
-        persistUser.setEmail(flags.isEmailExternal() ? email : persistUser.getEmail());
-        persistUser.setDisplayName(displayName);
+        var newFirstName = flags.isFirstNameExternal() ? firstName : persistUser.getFirstName();
+        var newLastName = flags.isLastNameExternal() ? lastName : persistUser.getSurname();
+        var newEmail = flags.isEmailExternal() ? email : persistUser.getEmail();
+        var changes = applyDetails(persistUser, newFirstName, newLastName, newEmail, displayName);
         persistUser.setPasswordHash(null); // No password is kept from the 3rd parties.
         persistUser.setFlags(UserExternalFlags.builder(flags).getRawFeatures());
         userDao.saveOrUpdate(persistUser);
+        if (isNewUser) {
+            announce(AuditAction.USER_CREATED, user, Map.of(ORIGIN, IDENTITY_PROVIDER));
+        } else if (!changes.isEmpty()) {
+            announce(AuditAction.USER_UPDATED, user, Map.of(ORIGIN, IDENTITY_PROVIDER, "changed", changes.asMap()));
+        }
+    }
+
+    /**
+     * Gives a user new details, and tells which of them changed.
+     */
+    private static AuditChanges applyDetails(User persistUser,
+                                             String firstName,
+                                             String lastName,
+                                             String email,
+                                             String displayName) {
+        var changes = new AuditChanges()
+                .compare("firstName", persistUser.getFirstName(), firstName)
+                .compare("lastName", persistUser.getSurname(), lastName)
+                .compare("email", persistUser.getEmail(), email)
+                .compare("displayName", persistUser.getDisplayName(), displayName);
+        persistUser.setFirstName(firstName);
+        persistUser.setSurname(lastName);
+        persistUser.setEmail(email);
+        persistUser.setDisplayName(displayName);
+        return changes;
     }
 
     /**
@@ -167,6 +214,7 @@ public class UserManagementService {
         return StringUtils.trimToEmpty(displayName);
     }
 
+    @Transactional
     public void updateUserData(String user,
                                String firstName,
                                String lastName,
@@ -176,36 +224,48 @@ public class UserManagementService {
                                boolean emailVerified) {
         var persistUser = userDao.getUserByName(user);
         final var currentFlags = persistUser.getUserExternalFlags();
-        persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
-        persistUser.setSurname(currentFlags.isLastNameExternal() ? persistUser.getSurname() : lastName);
-        persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
-        persistUser.setDisplayName(currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
+        var newFirstName = currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName;
+        var newLastName = currentFlags.isLastNameExternal() ? persistUser.getSurname() : lastName;
+        var newEmail = currentFlags.isEmailExternal() ? persistUser.getEmail() : email;
+        var newDisplayName = currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName;
+        var changes = applyDetails(persistUser, newFirstName, newLastName, newEmail, newDisplayName)
+                .compare("emailVerified", currentFlags.isEmailVerified(), emailVerified);
         persistUser.setFlags(UserExternalFlags.builder(persistUser.getFlags())
                 .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
                 .getRawFeatures());
-        if (StringUtils.isNotBlank(password)) {
+        var passwordChanged = StringUtils.isNotBlank(password);
+        if (passwordChanged) {
             persistUser.setPasswordHash(passwordEncoder.encode(password));
         }
         userDao.update(persistUser);
+        if (!changes.isEmpty()) {
+            announce(AuditAction.USER_UPDATED, user, Map.of("changed", changes.asMap()));
+        }
+        if (passwordChanged) {
+            announce(AuditAction.PASSWORD_CHANGED, user, Map.of());
+        }
     }
 
     @Transactional
     public void updateAuthorities(String user, Set<String> authorities) {
-        doUpdateAuthorities(user, authorities);
+        doUpdateAuthorities(user, authorities, userDao.getGroupsForUser(user));
     }
 
     @Transactional
     public void updateAuthorities(final String user, final Set<String> authorities, final boolean leaveAdminGroups) {
         var fullAuthorities = new HashSet<String>(authorities);
+        var currentGroups = userDao.getGroupsForUser(user);
         if (leaveAdminGroups) {
-            var currentGroups = userDao.getGroupsForUser(user);
             var currentAdminGroups = getCurrentAdminGroups(currentGroups);
             fullAuthorities.addAll(currentAdminGroups);
         }
-        doUpdateAuthorities(user, fullAuthorities);
+        doUpdateAuthorities(user, fullAuthorities, currentGroups);
     }
 
-    private void doUpdateAuthorities(String user, Set<String> authorities) {
+    /**
+     * Puts the user into the named groups that exist, and announces each group the user joined or left.
+     */
+    private void doUpdateAuthorities(String user, Set<String> authorities, Set<Group> currentGroups) {
         var groups = new HashSet<Group>();
         if (authorities != null) {
             for (String auth : authorities) {
@@ -216,6 +276,12 @@ public class UserManagementService {
             }
         }
         userDao.updateGroupsForUser(user, groups);
+        var before = currentGroups.stream().map(Group::getName).toList();
+        var after = groups.stream().map(Group::getName).toList();
+        AuditChanges.added(before, after)
+                .forEach(group -> announceMembership(AuditAction.GROUP_MEMBER_ADDED, user, group));
+        AuditChanges.removed(before, after)
+                .forEach(group -> announceMembership(AuditAction.GROUP_MEMBER_REMOVED, user, group));
     }
 
     public Set<String> getCurrentAdminGroups(final Set<Group> groups) {
@@ -231,11 +297,32 @@ public class UserManagementService {
         return groupNames;
     }
 
+    @Transactional
     public void deleteUser(String username) {
         userDao.deleteUserByName(username);
         if (aclService != null) {
             aclService.deleteSid(new PrincipalSid(username));
         }
+        announce(AuditAction.USER_DELETED, username, Map.of());
+    }
+
+    private void announce(AuditAction action, String user, Map<String, ?> details) {
+        eventPublisher.publishEvent(AuditEvent.builder()
+                .action(action)
+                .targetType(AuditTargetType.USER)
+                .target(user)
+                .details(details)
+                .build());
+    }
+
+    private void announceMembership(AuditAction action, String user, String group) {
+        eventPublisher.publishEvent(AuditEvent.builder()
+                .action(action)
+                .targetType(AuditTargetType.GROUP)
+                .target(group)
+                .subjectType(AuditSubjectType.USER)
+                .subject(user)
+                .build());
     }
 
     /**

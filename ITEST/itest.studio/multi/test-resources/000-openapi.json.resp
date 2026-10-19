@@ -1884,6 +1884,9 @@ Content-Type: application/json
                 "description": "***",
                 "enum": [
                   "authentication",
+                  "user",
+                  "group",
+                  "token",
                   "audit"
                 ]
               },
@@ -1902,6 +1905,19 @@ Content-Type: application/json
                 "enum": [
                   "signIn",
                   "signOut",
+                  "userCreated",
+                  "userUpdated",
+                  "passwordChanged",
+                  "userDeleted",
+                  "groupMemberAdded",
+                  "groupMemberRemoved",
+                  "externalGroupsChanged",
+                  "groupCreated",
+                  "groupUpdated",
+                  "groupPrivilegesChanged",
+                  "groupDeleted",
+                  "tokenCreated",
+                  "tokenDeleted",
                   "auditLogRead",
                   "auditLogPurged"
                 ]
@@ -24230,6 +24246,19 @@ Content-Type: application/json
             "enum": [
               "signIn",
               "signOut",
+              "userCreated",
+              "userUpdated",
+              "passwordChanged",
+              "userDeleted",
+              "groupMemberAdded",
+              "groupMemberRemoved",
+              "externalGroupsChanged",
+              "groupCreated",
+              "groupUpdated",
+              "groupPrivilegesChanged",
+              "groupDeleted",
+              "tokenCreated",
+              "tokenDeleted",
               "auditLogRead",
               "auditLogPurged"
             ]
@@ -24255,6 +24284,9 @@ Content-Type: application/json
             "description": "***",
             "enum": [
               "authentication",
+              "user",
+              "group",
+              "token",
               "audit"
             ]
           },

@@ -21,6 +21,58 @@ public enum AuditAction {
     @JsonProperty("signOut")
     SIGN_OUT(AuditCategory.AUTHENTICATION),
 
+    @Schema(description = "A user was created.")
+    @JsonProperty("userCreated")
+    USER_CREATED(AuditCategory.USER),
+
+    @Schema(description = "The details of a user changed, such as the name or the e-mail.")
+    @JsonProperty("userUpdated")
+    USER_UPDATED(AuditCategory.USER),
+
+    @Schema(description = "The password of a user was set.")
+    @JsonProperty("passwordChanged")
+    PASSWORD_CHANGED(AuditCategory.USER),
+
+    @Schema(description = "A user was deleted.")
+    @JsonProperty("userDeleted")
+    USER_DELETED(AuditCategory.USER),
+
+    @Schema(description = "A user was added to a group.")
+    @JsonProperty("groupMemberAdded")
+    GROUP_MEMBER_ADDED(AuditCategory.USER),
+
+    @Schema(description = "A user was removed from a group.")
+    @JsonProperty("groupMemberRemoved")
+    GROUP_MEMBER_REMOVED(AuditCategory.USER),
+
+    @Schema(description = "The groups the identity provider reports for a user changed.")
+    @JsonProperty("externalGroupsChanged")
+    EXTERNAL_GROUPS_CHANGED(AuditCategory.USER),
+
+    @Schema(description = "A group was created.")
+    @JsonProperty("groupCreated")
+    GROUP_CREATED(AuditCategory.GROUP),
+
+    @Schema(description = "A group was renamed or its description changed.")
+    @JsonProperty("groupUpdated")
+    GROUP_UPDATED(AuditCategory.GROUP),
+
+    @Schema(description = "The privileges of a group changed, such as the administrator privilege.")
+    @JsonProperty("groupPrivilegesChanged")
+    GROUP_PRIVILEGES_CHANGED(AuditCategory.GROUP),
+
+    @Schema(description = "A group was deleted.")
+    @JsonProperty("groupDeleted")
+    GROUP_DELETED(AuditCategory.GROUP),
+
+    @Schema(description = "A personal access token was created.")
+    @JsonProperty("tokenCreated")
+    TOKEN_CREATED(AuditCategory.TOKEN),
+
+    @Schema(description = "A personal access token was deleted.")
+    @JsonProperty("tokenDeleted")
+    TOKEN_DELETED(AuditCategory.TOKEN),
+
     @Schema(description = "The audit log was read or exported.")
     @JsonProperty("auditLogRead")
     AUDIT_LOG_READ(AuditCategory.AUDIT),

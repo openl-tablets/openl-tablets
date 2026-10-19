@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +26,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
+import org.openl.studio.audit.model.AuditAction;
+import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.users.service.pat.PersonalAccessTokenService;
 
@@ -43,9 +48,11 @@ class PatGeneratorServiceImplTest {
 
     @Mock
     private PersonalAccessTokenService crudService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private PasswordEncoder passwordEncoder;
-    private PatGeneratorService generatorService;
+    private PatGeneratorServiceImpl generatorService;
 
     @BeforeEach
     void setUp() {
@@ -56,7 +63,22 @@ class PatGeneratorServiceImplTest {
         Clock clock = Clock.fixed(FIXED_TIME, ZoneId.of("UTC"));
 
         // Create service with mocked CRUD service
-        generatorService = new PatGeneratorServiceImpl(crudService, passwordEncoder, clock);
+        generatorService = new PatGeneratorServiceImpl(crudService, passwordEncoder, clock, eventPublisher);
+    }
+
+    @Test
+    void announcesTheTokenToTheAuditLogByItsPublicId() {
+        when(crudService.existsByPublicId(anyString())).thenReturn(false);
+
+        var response = generatorService.generateToken("jdoe", "CI Token", FIXED_TIME.plusSeconds(3600));
+
+        var event = ArgumentCaptor.forClass(AuditEvent.class);
+        verify(eventPublisher).publishEvent(event.capture());
+        assertEquals(AuditAction.TOKEN_CREATED, event.getValue().action());
+        assertEquals(AuditTargetType.TOKEN, event.getValue().targetType());
+        assertEquals(response.publicId(), event.getValue().target());
+        assertEquals(Map.of("name", "CI Token", "expiresAt", FIXED_TIME.plusSeconds(3600).toString()),
+                event.getValue().details(), "The token itself is never announced");
     }
 
     @Test
