@@ -8,8 +8,6 @@ import java.util.TreeMap;
 import lombok.Getter;
 
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
@@ -17,11 +15,10 @@ import org.openl.vm.IRuntimeEnv;
 
 class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
 
-    private final ILocalVar tempVar;
+    private final ElementVariables variables;
     private final boolean isDecreasing;
     private final IBoundNode orderBy;
     private final IBoundNode targetNode;
-    private final IOpenCast openCast;
     private final Class<?> componentClass;
     @Getter
     private final IOpenClass type;
@@ -29,23 +26,21 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
     OrderByIndexNode(ISyntaxNode syntaxNode,
                      IBoundNode targetNode,
                      IBoundNode orderBy,
-                     ILocalVar tempVar,
-                     IOpenCast openCast,
+                     ElementVariables variables,
                      boolean isDecreasing) {
-        super(syntaxNode, targetNode, orderBy);
-        this.tempVar = tempVar;
+        super(syntaxNode, variables.children(targetNode, orderBy));
+        this.variables = variables;
         this.isDecreasing = isDecreasing;
         this.orderBy = orderBy;
         this.targetNode = targetNode;
-        this.openCast = openCast;
 
         if (targetNode.getType().isArray()) {
             this.componentClass = targetNode.getType().getComponentClass().getInstanceClass();
             this.type = targetNode.getType();
         } else {
             // Collection
-            this.componentClass = tempVar.getType().getInstanceClass();
-            var componentType = tempVar.getType();
+            var componentType = variables.element().getType();
+            this.componentClass = componentType.getInstanceClass();
             this.type = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
         }
     }
@@ -57,22 +52,12 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
             return null;
         }
 
-        var aggregateInfo = targetNode.getType().getAggregateInfo();
-        var elementsIterator = aggregateInfo.getIterator(target);
-
         var map = new TreeMap<T, Object>(
                 Comparator.<T>nullsLast(isDecreasing ? Comparator.reverseOrder() : Comparator.naturalOrder()));
 
-        while (elementsIterator.hasNext()) {
-            var element = elementsIterator.next();
-            if (element == null) {
-                continue;
-            }
-            element = openCast != null ? openCast.convert(element) : element;
-            tempVar.set(null, element, env);
-            var key = (T) orderBy.evaluate(env);
-            putElement(map, key, element);
-        }
+        variables.forEach(targetNode.getType().getAggregateInfo().getIterator(target),
+                env,
+                (element, value) -> putElement(map, (T) orderBy.evaluate(env), value));
 
         var objects = new ArrayList<Object>();
         for (Object element : map.values()) {

@@ -1,6 +1,9 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
@@ -27,12 +30,26 @@ import org.openl.vm.IRuntimeEnv;
 public class TypeBindingContext extends BindingContextDelegator {
     private final VariableInContextFinder context;
     private final ILocalVar localVar;
+    private final @Nullable ILocalVar variable;
 
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar) {
         return create(delegate, localVar, 1);
     }
 
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar, int maxDepthLevel) {
+        return create(delegate, localVar, maxDepthLevel, null);
+    }
+
+    /**
+     * Creates the context where the expression reads by name the fields of the type of the local variable, and the
+     * other given variable, such as the index of an array index operator.
+     * <p>
+     * A field with the name of the other variable is ambiguous, as a field with the name of the local variable is.
+     */
+    static TypeBindingContext create(IBindingContext delegate,
+                                     ILocalVar localVar,
+                                     int maxDepthLevel,
+                                     @Nullable ILocalVar variable) {
         Class<?> instanceClass = localVar.getType().getInstanceClass();
         CustomJavaOpenClass annotation = instanceClass == null ? null
                 : instanceClass.getAnnotation(CustomJavaOpenClass.class);
@@ -43,7 +60,7 @@ public class TypeBindingContext extends BindingContextDelegator {
             context = new RootDictionaryContext(new IOpenField[]{localVar}, maxDepthLevel);
         }
 
-        return new TypeBindingContext(delegate, localVar, context);
+        return new TypeBindingContext(delegate, localVar, context, variable);
     }
 
     private static VariableInContextFinder createCustomVariableFinder(CustomJavaOpenClass annotation,
@@ -72,10 +89,14 @@ public class TypeBindingContext extends BindingContextDelegator {
 
     }
 
-    private TypeBindingContext(IBindingContext delegate, ILocalVar localVar, VariableInContextFinder context) {
+    private TypeBindingContext(IBindingContext delegate,
+                               ILocalVar localVar,
+                               VariableInContextFinder context,
+                               @Nullable ILocalVar variable) {
         super(delegate);
         this.context = context;
         this.localVar = localVar;
+        this.variable = variable;
     }
 
     @Override
@@ -84,8 +105,14 @@ public class TypeBindingContext extends BindingContextDelegator {
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = context.findVariable(name, strictMatch);
         }
-
-        return res != null ? res : super.findVar(namespace, name, strictMatch);
+        if (res == null) {
+            return super.findVar(namespace, name, strictMatch);
+        }
+        if (variable != null && (strictMatch ? variable.getName().equals(name)
+                : variable.getName().equalsIgnoreCase(name))) {
+            throw new AmbiguousFieldException(name, List.of(variable, res));
+        }
+        return res;
     }
 
     @Override

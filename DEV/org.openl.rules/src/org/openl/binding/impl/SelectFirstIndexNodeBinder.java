@@ -2,8 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 
 /**
@@ -15,13 +13,12 @@ import org.openl.syntax.ISyntaxNode;
 public class SelectFirstIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
-    protected IBoundNode createBoundNode(ISyntaxNode node,
-                                         IBoundNode targetNode,
-                                         IBoundNode expressionNode,
-                                         ILocalVar localVar,
-                                         IOpenCast openCast,
-                                         IBindingContext bindingContext) {
+    IBoundNode createBoundNode(ISyntaxNode node,
+                               IBoundNode targetNode,
+                               IBoundNode expressionNode,
+                               ElementVariables variables,
+                               IBindingContext bindingContext) {
         expressionNode = BindHelper.checkConditionBoundNode(expressionNode, bindingContext);
-        return new SelectFirstIndexNode(node, targetNode, expressionNode, localVar, openCast);
+        return new SelectFirstIndexNode(node, targetNode, expressionNode, variables);
     }
 }

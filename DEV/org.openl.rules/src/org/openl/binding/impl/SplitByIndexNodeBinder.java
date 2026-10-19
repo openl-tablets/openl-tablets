@@ -2,8 +2,6 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.ILocalVar;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 
 /**
@@ -15,12 +13,11 @@ import org.openl.syntax.ISyntaxNode;
 public class SplitByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
 
     @Override
-    protected IBoundNode createBoundNode(ISyntaxNode node,
-                                         IBoundNode targetNode,
-                                         IBoundNode expressionNode,
-                                         ILocalVar localVar,
-                                         IOpenCast openCast,
-                                         IBindingContext bindingContext) {
-        return new SplitByIndexNode(node, targetNode, expressionNode, localVar, openCast);
+    IBoundNode createBoundNode(ISyntaxNode node,
+                               IBoundNode targetNode,
+                               IBoundNode expressionNode,
+                               ElementVariables variables,
+                               IBindingContext bindingContext) {
+        return new SplitByIndexNode(node, targetNode, expressionNode, variables);
     }
 }

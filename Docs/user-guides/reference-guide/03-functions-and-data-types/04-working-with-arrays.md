@@ -38,6 +38,7 @@ This section provides detailed description of index operators along with example
 -   [Empty Elements in Array Index Operators](#empty-elements-in-array-index-operators)
 -   [Array Index Operators and Arrays of the SpreadsheetResult Type](#array-index-operators-and-arrays-of-the-spreadsheetresult-type)
 -   [Advanced Usage of Array Index Operators](#advanced-usage-of-array-index-operators)
+-   [Element Index in Array Index Operators](#element-index-in-array-index-operators)
 
 #### SELECT Operators
 
@@ -140,6 +141,31 @@ Consider a case when the name of the array element needs to be referred explicit
 
     -   List claims = policy.getClaims(); claims[(Claim claim) order by claim.date]
     -   List claims = policy.getClaims(); claims[(Claim claim) ^@ date]
+
+#### Element Index in Array Index Operators
+
+Sometimes a condition or a result depends on where the element stands in the array: the first three rates, every second driver, a line number in a report. For this, name the index of the element next to the element itself. The index is the position of the element, starting from 0 for the first one.
+
+**Syntax:** `array[(element, index) <operator> <expression>]` or `array[(Type element, Integer index) <operator> <expression>]`
+
+Every array index operator accepts the index, the short forms too, such as `rates[(rate, i) @ i > 0]`. The types are optional, and each name can have its own: `(element, Integer index)` and `(Type element, index)` are valid too.
+
+For example, for `rates = new Double[] {1.5, 2.5, 3.5, 4.5}`:
+
+| Expression                                                    | Result                                                                    |
+|---------------------------------------------------------------|---------------------------------------------------------------------------|
+| `rates[(rate, i) transform to i < 3 ? rate : 0.0]`            | `{1.5, 2.5, 3.5, 0.0}` — the first three rates, the rest become 0         |
+| `rates[(rate, i) select all having i > 0]`                    | `{2.5, 3.5, 4.5}` — all the rates but the first one                       |
+| `rates[(rate, i) select first having i > 0 and rate > 3]`     | `3.5` — the first rate above 3 after the first one                        |
+| `rates[(rate, i) order decreasing by i]`                      | `{4.5, 3.5, 2.5, 1.5}` — the rates in reverse order                       |
+| `rates[(rate, i) split by i < 2]`                             | `{{1.5, 2.5}, {3.5, 4.5}}` — the first two rates and the rest             |
+| `rates[(Double rate, Integer i) transform to rate * (i + 1)]` | `{1.5, 5.0, 10.5, 18.0}` — each rate multiplied by its number in the list |
+
+An empty element keeps its place in the count: for `values = new Integer[] {3, null, 1}`, `values[(x, i) transform to i]` returns `{0, 2}`. So `values[i]` is always the element itself.
+
+The index is an Integer. When a calculation needs another number type, declare the index as one, such as `Long`, `Double` or `BigDecimal`. A type that can lose part of the value, such as `Short` or `Float`, or a type that is not a number, such as `String`, is an error.
+
+The names of the element and of the index must differ from each other, from the other variables of the rule and from the fields of the element. For example, if a driver has the `age` field, `drivers[(driver, age) select all having age > 0]` is an error: `age` would mean both the index and the field.
 
 ### Operators and Functions to Work with Arrays
 
