@@ -70,6 +70,10 @@ A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both trav
     user's workspace, which holds only the projects the user may read; `AProjectConverter` resolves it in the design
     repositories, for the ACL endpoints. A project name and a Base64 id of OpenL Studio 6.x answer `404`
     `project.identifier.message`.
+  - **An old id leads on.** While the server runs, the design repositories remember the ids that stopped naming a
+    project (`StaleProjectIds`, learned from the listings read whole). Both converters ask `StaleProjects.find` only
+    once the live lookup misses, so a live id always wins: a moved project is served under its current id, which
+    `ContentLocation.servedAs` names, and a deleted one answers `410` `project.deleted.message`.
   - **A body names a project as a path does.** A design project named in a request body goes through
     `ProjectIdConverter` too (EPBDS-16328), never `UserWorkspace.getProjectsByName`; leave reading the project to the
     endpoint, so its own refusal message survives.

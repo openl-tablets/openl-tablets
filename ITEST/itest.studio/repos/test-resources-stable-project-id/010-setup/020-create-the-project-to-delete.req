@@ -1,0 +1,15 @@
+PUT /rest/repos/design-file/projects/EPBDS-16946-Removed HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="Sample Project.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&../../test-resources/task_EPBDS-15993/010-setup/Sample Project.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+EPBDS-16946 Create the project to delete
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

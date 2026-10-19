@@ -12,6 +12,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
 
 /**
@@ -55,6 +56,18 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @see org.openl.rules.workspace.ProjectIds
      */
     Optional<AProject> getProjectById(ProjectId id);
+
+    /**
+     * What became of the project an id named, for an id no project has.
+     *
+     * <p>A project whose folder moved outside OpenL Studio is known by the id of its new folder, and a deleted project
+     * is known as deleted, while the server runs.
+     *
+     * @param id the id a request names a project by
+     * @return the change, or nothing when no change of the id is known
+     * @see org.openl.rules.workspace.StaleProjectIds
+     */
+    Optional<StaleIds.Change<ProjectId>> getProjectIdChange(ProjectId id);
 
     /**
      * Returns the project entry verified in the requested branch.

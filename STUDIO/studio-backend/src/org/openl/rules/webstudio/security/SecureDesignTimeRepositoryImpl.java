@@ -16,6 +16,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
 import org.openl.rules.workspace.dtr.DesignProject;
@@ -104,6 +105,12 @@ public class SecureDesignTimeRepositoryImpl implements SecureDesignTimeRepositor
     @Override
     public Optional<AProject> getProjectById(ProjectId id) {
         return designTimeRepository.getProjectById(id).flatMap(this::secureVisibleProject);
+    }
+
+    @Override
+    public Optional<StaleIds.Change<ProjectId>> getProjectIdChange(ProjectId id) {
+        // A moved project is read under its current id, which the access to it is checked for.
+        return designTimeRepository.getProjectIdChange(id);
     }
 
     @Override

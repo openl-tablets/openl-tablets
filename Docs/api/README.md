@@ -49,7 +49,10 @@ OpenL Studio publishes a REST API under `{context-path}/rest`, and OpenL Rule Se
 `{projectId}` in a path is the project id `GET /rest/projects` hands out: 12 characters of URL-safe Base64, computed
 from the repository and the folder that hold the project, so it stays the same when the project is opened, closed,
 renamed in `rules.xml` or switched to another branch. An id that matches no project answers `404 Not Found`, and so do
-a project name and an id of OpenL Studio 6.x. See [Stable Project Ids](../architecture/project-ids.md).
+a project name and an id of OpenL Studio 6.x. While the server runs, the id a project had before its folder moved
+outside OpenL Studio still names it: the request is served for the project, and the `Content-Location` header gives
+the address under its current id. The id of a deleted project answers `410` with
+`openl.error.410.project.deleted.message`. See [Stable Project Ids](../architecture/project-ids.md).
 
 ### Pages of Results
 
@@ -85,6 +88,7 @@ An error answers with a body of this form, where `<key>` is the message code, an
 - **`404 Not Found`** — the project, the table, or another resource does not exist.
 - **`409 Conflict`** — the state of the project does not allow it: the project is not opened, is locked by another user,
   or has unresolved merge conflicts.
+- **`410 Gone`** — the project or the table an id named was deleted.
 
 ## Table Endpoints
 

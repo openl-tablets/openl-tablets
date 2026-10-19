@@ -15,10 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.acls.domain.BasePermission;
 
 import org.openl.rules.project.abstraction.AProject;
@@ -28,10 +30,13 @@ import org.openl.rules.project.impl.local.ProjectMetainfo;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.studio.common.CurrentRequest;
+import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
 
 class ProjectIdConverterTest {
@@ -51,6 +56,11 @@ class ProjectIdConverterTest {
             return workspace;
         }
     };
+
+    @AfterEach
+    void tearDown() {
+        CurrentRequest.reset();
+    }
 
     @BeforeEach
     void setUp() {
@@ -137,6 +147,64 @@ class ProjectIdConverterTest {
     @Test
     void findAnswersNothingForAnUnknownId() {
         assertNull(converter.find(ID));
+    }
+
+    @Test
+    void anIdOfAMovedProjectServesTheProjectUnderItsCurrentId() {
+        var current = ProjectIds.of(REPOSITORY_ID, "rules/archive/Bank");
+        var project = closedProject();
+        when(designTimeRepository.getProjectIdChange(ID)).thenReturn(Optional.of(new StaleIds.Moved<>(current)));
+        when(workspace.getProjectById(current, false)).thenReturn(Optional.of(project));
+        readable(project);
+        var response = CurrentRequest.bind("/rest/projects/" + ID.value() + "/tables", null);
+
+        assertSame(project, converter.convert(ID.value()));
+        assertEquals("/rest/projects/" + current.value() + "/tables",
+                response.getHeader(HttpHeaders.CONTENT_LOCATION));
+        // The project listed under its current id is served without listing every project again.
+        verify(workspace, never()).getProjectById(ID, true);
+    }
+
+    @Test
+    void anIdOfAMovedProjectTheUserMayNotSeeAnswersNotFound() {
+        var current = ProjectIds.of(REPOSITORY_ID, "rules/archive/Bank");
+        when(designTimeRepository.getProjectIdChange(ID)).thenReturn(Optional.of(new StaleIds.Moved<>(current)));
+        var response = CurrentRequest.bind("/rest/projects/" + ID.value(), null);
+
+        var ex = assertThrows(NotFoundException.class, () -> converter.convert(ID_TEXT));
+
+        assertEquals("openl.error.404.project.identifier.message", ex.getErrorCode());
+        assertNull(response.getHeader(HttpHeaders.CONTENT_LOCATION));
+    }
+
+    @Test
+    void anIdOfADeletedProjectAnswersGone() {
+        when(designTimeRepository.getProjectIdChange(ID)).thenReturn(Optional.of(new StaleIds.Deleted<>()));
+
+        var ex = assertThrows(GoneException.class, () -> converter.convert(ID_TEXT));
+
+        assertEquals("openl.error.410.project.deleted.message", ex.getErrorCode());
+    }
+
+    @Test
+    void aListedIdIsServedWhateverTheLedgerKnows() {
+        var project = closedProject();
+        listed(project);
+        when(designTimeRepository.getProjectById(ID)).thenReturn(Optional.of(mock(AProject.class)));
+        readable(project);
+
+        assertSame(project, converter.convert(ID.value()));
+        verify(designTimeRepository, never()).getProjectIdChange(any());
+    }
+
+    @Test
+    void anIdTheLedgerKnowsAsDeletedIsServedWhenTheRefreshedWorkspaceListsIt() {
+        var project = closedProject();
+        when(designTimeRepository.getProjectIdChange(ID)).thenReturn(Optional.of(new StaleIds.Deleted<>()));
+        when(workspace.getProjectById(ID, true)).thenReturn(Optional.of(project));
+        readable(project);
+
+        assertSame(project, converter.convert(ID.value()));
     }
 
     private void listed(RulesProject project) {

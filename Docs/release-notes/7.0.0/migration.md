@@ -367,7 +367,9 @@ from Maven.
   for a text that is not an id. Read the id from `id` of `GET /rest/projects` — filter it with `repository` and
   `name` — or from the answer of the request that created or copied the project, and do not build or decode it. The
   id is computed from the repository and the folder of the project, so it survives a rename in `rules.xml`, a branch
-  switch, an open, a close and a restart. A deployment keeps its id.
+  switch, an open, a close and a restart. While the server runs, the id of a project whose folder moved outside OpenL
+  Studio still serves the project, naming the new id in the body and in `Content-Location`, and the id of a deleted
+  project answers `410`. A deployment keeps its id.
 * **A name shared by several projects no longer answers `409` with candidates.** The answer, with the code
   `openl.error.409.project.identifier.ambiguous.message` and a `candidates` list, is gone: an id names one project.
 * **`sourceRepositoryId` of a project copy is gone.** `POST /rest/repos/{repo}/projects/{name}/from-project` takes the
