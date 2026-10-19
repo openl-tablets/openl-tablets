@@ -7,13 +7,17 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.openl.util.StringUtils;
 
-@WebFilter("/*")
+/**
+ * Answers the cross-origin requests of the browser pages whose origins {@code cors.allowed.origins} lists.
+ *
+ * <p>{@code web.xml} registers the filter, first of all the filters. An annotation would register it a second time,
+ * and every CORS header would be sent twice, which a browser refuses.
+ */
 public class CorsFilter implements Filter {
 
     private String[] allowedOrigins;
