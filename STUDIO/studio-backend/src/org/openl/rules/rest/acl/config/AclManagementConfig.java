@@ -15,6 +15,7 @@ import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.rest.acl.service.AclProjectsHelperImpl;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelper;
 import org.openl.rules.rest.acl.service.AclRepositoriesHelperImpl;
+import org.openl.rules.rest.acl.service.AclRoleAuditor;
 import org.openl.rules.rest.acl.service.BulkAclOverwriteService;
 import org.openl.rules.rest.acl.service.BulkAclOverwriteServiceImpl;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
@@ -70,7 +71,8 @@ public class AclManagementConfig {
                                                            PlatformTransactionManager txManager,
                                                            SecureDesignTimeRepository designTimeRepository,
                                                            SecureDeploymentRepositoryService deploymentRepositoryService,
-                                                           JdbcSidManagingAclService aclService) {
+                                                           JdbcSidManagingAclService aclService,
+                                                           AclRoleAuditor aclRoleAuditor) {
         return new BulkAclOverwriteServiceImpl(
                 userManagementService,
                 groupManagementService,
@@ -79,7 +81,8 @@ public class AclManagementConfig {
                 new TransactionTemplate(txManager),
                 designTimeRepository,
                 deploymentRepositoryService,
-                aclService
+                aclService,
+                aclRoleAuditor
         );
     }
 

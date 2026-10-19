@@ -25,12 +25,15 @@ i18next.addResourceBundle('en', 'audit', {
         root: 'All repositories',
         repository: 'Repository',
         project: 'Project',
+        request: 'Request',
     },
     categories: {
         authentication: 'Sign-in',
         user: 'Users',
         group: 'Groups',
         token: 'Personal access tokens',
+        permission: 'Access rights',
+        access: 'Refused requests',
         audit: 'Audit log',
     },
     actions: {
@@ -49,6 +52,10 @@ i18next.addResourceBundle('en', 'audit', {
         groupDeleted: 'Group deleted',
         tokenCreated: 'Token created',
         tokenDeleted: 'Token deleted',
+        roleGranted: 'Role granted',
+        roleChanged: 'Role changed',
+        roleRevoked: 'Role revoked',
+        accessDenied: 'Access denied',
         auditLogRead: 'Audit log read',
         auditLogPurged: 'Old events removed',
     },
@@ -88,7 +95,20 @@ i18next.addResourceBundle('en', 'audit', {
     origins: {
         identityProvider: 'Identity provider',
     },
+    roles: {
+        MANAGER: 'Manager',
+        CONTRIBUTOR: 'Contributor',
+        VIEWER: 'Viewer',
+    },
+    repository_types: {
+        design: 'Design',
+        prod: 'Production',
+    },
     detail_names: {
+        method: 'Method',
+        repository: 'Repository',
+        type: 'Repository type',
+        path: 'Folder',
         origin: 'Origin',
         changed: 'Changed',
         firstName: 'First name',

@@ -1,0 +1,7 @@
+PUT /rest/acls/repositories/roots/REVTSUdO?sid=EPBDS_14601_user&principal=true HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ2MDFfdXNlcjpFUEJEU18xNDYwMV9uZXc=
+Content-Type: application/json
+
+{
+  "role": "MANAGER"
+}

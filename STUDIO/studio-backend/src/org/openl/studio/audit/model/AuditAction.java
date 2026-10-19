@@ -73,6 +73,22 @@ public enum AuditAction {
     @JsonProperty("tokenDeleted")
     TOKEN_DELETED(AuditCategory.TOKEN),
 
+    @Schema(description = "A user or a group was given a role it did not hold.")
+    @JsonProperty("roleGranted")
+    ROLE_GRANTED(AuditCategory.PERMISSION),
+
+    @Schema(description = "The role of a user or a group changed.")
+    @JsonProperty("roleChanged")
+    ROLE_CHANGED(AuditCategory.PERMISSION),
+
+    @Schema(description = "The role of a user or a group was taken away.")
+    @JsonProperty("roleRevoked")
+    ROLE_REVOKED(AuditCategory.PERMISSION),
+
+    @Schema(description = "A request was refused as forbidden: the user may not do what it asks.")
+    @JsonProperty("accessDenied")
+    ACCESS_DENIED(AuditCategory.ACCESS),
+
     @Schema(description = "The audit log was read or exported.")
     @JsonProperty("auditLogRead")
     AUDIT_LOG_READ(AuditCategory.AUDIT),

@@ -1,9 +1,12 @@
 package org.openl.rules.rest.acl.service;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
@@ -11,18 +14,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.integration.support.locks.LockRegistry;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.model.AclResourceAccess;
 import org.openl.rules.rest.acl.model.BulkAclOverwriteRequest;
+import org.openl.rules.rest.acl.service.AclRoleAuditor.Place;
 import org.openl.rules.webstudio.security.SecureDeploymentRepositoryService;
 import org.openl.rules.webstudio.security.SecureDesignTimeRepository;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.security.acl.JdbcSidManagingAclService;
+import org.openl.security.acl.repository.AclRepositoryType;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 
 @RequiredArgsConstructor
@@ -40,6 +48,7 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
     private final SecureDesignTimeRepository designTimeRepository;
     private final SecureDeploymentRepositoryService deploymentRepositoryService;
     private final JdbcSidManagingAclService aclService;
+    private final AclRoleAuditor aclRoleAuditor;
 
     @Override
     public void process(BulkAclOverwriteRequest request) {
@@ -63,14 +72,41 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
     }
 
     private void processInTransaction(BulkAclOverwriteRequest request) {
-        txTemplate.execute(status -> {
+        txTemplate.executeWithoutResult(status -> {
+            var projects = designTimeRepository.getProjects();
+            var places = placesOf(projects);
+            var before = new LinkedHashMap<Place, Map<Sid, String>>();
+            places.forEach((place, permissions) -> before.put(place, AclRoleAuditor.rolesOf(permissions.get())));
+
             syncGroups(request.getGroups());
             syncUsers(request.getUsers());
             syncRepositoryRootsPermissions(request.getResources());
             syncRepositoriesPermissions(request.getResources());
-            syncProjectPermissions(request.getResources());
-            return null;
+            syncProjectPermissions(projects, request.getResources());
+
+            places.forEach((place, permissions) -> aclRoleAuditor
+                    .announce(place, before.get(place), AclRoleAuditor.rolesOf(permissions.get())));
         });
+    }
+
+    /**
+     * The places the overwrite gives roles on, each with the way to read the permissions held there.
+     */
+    private Map<Place, Supplier<Map<Sid, List<Permission>>>> placesOf(Collection<? extends AProject> projects) {
+        var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
+        var prodRepoAclService = aclServiceProvider.getProdRepoAclService();
+        var places = new LinkedHashMap<Place, Supplier<Map<Sid, List<Permission>>>>();
+        places.put(Place.root(AclRepositoryType.DESIGN), designRepoAclService::listRootPermissions);
+        places.put(Place.root(AclRepositoryType.PROD), prodRepoAclService::listRootPermissions);
+        designTimeRepository.getRepositories().forEach(repo -> places.put(
+                Place.repository(AclRepositoryType.DESIGN, repo.getId()),
+                () -> designRepoAclService.listPermissions(repo.getId(), null)));
+        deploymentRepositoryService.getRepositories().forEach(repo -> places.put(
+                Place.repository(AclRepositoryType.PROD, repo.getId()),
+                () -> prodRepoAclService.listPermissions(repo.getId(), null)));
+        projects.forEach(project -> places.put(Place.project(project),
+                () -> designRepoAclService.listPermissions(project)));
+        return places;
     }
 
     private void syncGroups(Set<String> groupNames) {
@@ -79,16 +115,12 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
         // Create a new group for each name in groupNames that does not already exist
         groupNames.stream()
                 .filter(groupName -> !existingGroupNames.contains(groupName))
-                .forEach(groupName -> {
-                    groupManagementService.addGroup(groupName, null);
-                });
+                .forEach(groupName -> groupManagementService.addGroup(groupName, null));
 
         // Delete sids from ACL that are in existingGroupNames but not in groupNames
         existingGroupNames.stream()
                 .filter(groupName -> !groupNames.contains(groupName))
-                .forEach(toDelete -> {
-                    aclService.deleteSid(new GrantedAuthoritySid(toDelete));
-                });
+                .forEach(toDelete -> aclService.deleteSid(new GrantedAuthoritySid(toDelete)));
     }
 
     private void syncUsers(Set<String> userNames) {
@@ -155,10 +187,11 @@ public class BulkAclOverwriteServiceImpl implements BulkAclOverwriteService {
         }
     }
 
-    private void syncProjectPermissions(List<AclResourceAccess> resourceAccesses) {
+    private void syncProjectPermissions(Collection<? extends AProject> projects,
+                                        List<AclResourceAccess> resourceAccesses) {
         // Delete all permissions first
         var designRepoAclService = aclServiceProvider.getDesignRepoAclService();
-        designTimeRepository.getProjects().forEach(designRepoAclService::removePermissions);
+        projects.forEach(designRepoAclService::removePermissions);
 
         // Add permissions for repositories
         for (var resourceAccess : resourceAccesses) {

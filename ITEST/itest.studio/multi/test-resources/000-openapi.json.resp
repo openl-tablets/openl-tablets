@@ -1887,6 +1887,8 @@ Content-Type: application/json
                   "user",
                   "group",
                   "token",
+                  "permission",
+                  "access",
                   "audit"
                 ]
               },
@@ -1918,6 +1920,10 @@ Content-Type: application/json
                   "groupDeleted",
                   "tokenCreated",
                   "tokenDeleted",
+                  "roleGranted",
+                  "roleChanged",
+                  "roleRevoked",
+                  "accessDenied",
                   "auditLogRead",
                   "auditLogPurged"
                 ]
@@ -24259,6 +24265,10 @@ Content-Type: application/json
               "groupDeleted",
               "tokenCreated",
               "tokenDeleted",
+              "roleGranted",
+              "roleChanged",
+              "roleRevoked",
+              "accessDenied",
               "auditLogRead",
               "auditLogPurged"
             ]
@@ -24287,6 +24297,8 @@ Content-Type: application/json
               "user",
               "group",
               "token",
+              "permission",
+              "access",
               "audit"
             ]
           },
@@ -24340,7 +24352,8 @@ Content-Type: application/json
               "token",
               "root",
               "repository",
-              "project"
+              "project",
+              "request"
             ]
           },
           "time": {

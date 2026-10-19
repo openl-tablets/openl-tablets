@@ -137,6 +137,9 @@ const CODE = /^[A-Za-z]+$/
 
 /** The keys of the details whose values are codes, by the dictionary of the audit log that names them in words. */
 const CODED_DETAILS: Record<string, string> = {
+    from: 'roles',
+    to: 'roles',
+    type: 'repository_types',
     origin: 'origins',
     action: 'actions',
     authentication: 'authentications',

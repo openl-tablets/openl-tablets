@@ -1,0 +1,79 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "EPBDS_14601_user",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "access",
+      "action": "accessDenied",
+      "outcome": "denied",
+      "targetType": "request",
+      "target": "/rest/acls/repositories/roots/REVTSUdO",
+      "details": {
+        "method": "PUT",
+        "reason": "Access Denied"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleRevoked",
+      "outcome": "success",
+      "targetType": "root",
+      "target": "design",
+      "subjectType": "user",
+      "subject": "EPBDS_14601_user",
+      "details": {
+        "from": "CONTRIBUTOR"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleChanged",
+      "outcome": "success",
+      "targetType": "root",
+      "target": "design",
+      "subjectType": "user",
+      "subject": "EPBDS_14601_user",
+      "details": {
+        "from": "VIEWER",
+        "to": "CONTRIBUTOR"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleGranted",
+      "outcome": "success",
+      "targetType": "root",
+      "target": "design",
+      "subjectType": "user",
+      "subject": "EPBDS_14601_user",
+      "details": {
+        "to": "VIEWER"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 4,
+  "numberOfElements": 4,
+  "total": "###"
+}
