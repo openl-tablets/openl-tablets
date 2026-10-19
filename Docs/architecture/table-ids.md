@@ -247,8 +247,9 @@ instead of answered `404`, and a client holding the id of a deleted table is tol
   - an id a table takes again leaves the ledger, so it never leads elsewhere once that table goes.
 - **Served, not redirected** — the request is answered for the current table, with the current id in the body and
   the address of the request, the old id replaced in its path or in its `tableId` query parameter, in a
-  `Content-Location` header. A redirect would turn every write into a `307` or `308` that some clients replay and
-  others drop, and would collide with the `Location` header a write already answers.
+  `Content-Location` header; an old project id in the same address is replaced too (see
+  [Stable Project Ids](project-ids.md#stale-id-ledger)). A redirect would turn every write into a `307` or `308` that
+  some clients replay and others drop, and would collide with the `Location` header a write already answers.
 - **One resolver** — `StaleTableIds.tableOf` resolves the `{tableId}` of every table path, the graph and, through
   `RunnableTables.require`, the `tableId` query parameter of run, trace, tests and benchmarks. The tests summary asks
   `StaleTableIds.currentIdOf` when the retained run holds no test table of the id. A run started by an old id keeps

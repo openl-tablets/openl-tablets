@@ -1,0 +1,7 @@
+HTTP/1.1 410
+Content-Type: application/json
+
+{
+  "code": "openl.error.410.project.deleted.message",
+  "message": "The project was deleted."
+}

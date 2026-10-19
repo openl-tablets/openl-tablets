@@ -13,6 +13,9 @@ import org.openl.studio.common.exception.NotFoundException;
 
 /**
  * Resolves the design project an id names, as its home branch shows it.
+ *
+ * <p>A project whose folder moved is resolved under the id it has now, and a deleted project answers
+ * {@code 410 Gone}, while the server runs.
  */
 @Component
 @ParametersAreNonnullByDefault
@@ -23,7 +26,9 @@ public class AProjectConverter implements Converter<String, AProject> {
 
     @Override
     public AProject convert(String source) {
-        return designTimeRepository.getProjectById(ProjectId.of(source))
+        var id = ProjectId.of(source);
+        return designTimeRepository.getProjectById(id)
+                .or(() -> StaleProjects.find(designTimeRepository, id, designTimeRepository::getProjectById))
                 .orElseThrow(() -> new NotFoundException("project.identifier.message"));
     }
 }

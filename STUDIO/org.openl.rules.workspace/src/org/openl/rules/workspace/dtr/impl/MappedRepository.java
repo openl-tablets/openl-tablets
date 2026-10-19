@@ -273,27 +273,56 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                 delegate.copyHistory(toInternal(mapping, srcName), toInternal(mapping, destData), version)));
     }
 
+    /**
+     * Lists the projects the mapping places directly in the folder.
+     *
+     * <p>A project folder the mapping names and the repository no longer has was moved or deleted outside OpenL
+     * Studio since the mapping was built, and a folder the change created is not mapped yet. The mapping is rebuilt
+     * then, so the listing shows the projects as the repository holds them. A folder being saved under a new mapping
+     * is not written yet, and is no sign of such a change.
+     */
     @Override
     public List<FileData> listFolders(String path) throws IOException {
         var mapping = getUpToDateMapping();
+        var listing = mappedFolders(mapping, path);
+        if (!listing.complete()) {
+            rebuildIndex();
+            mapping = getUpToDateMapping();
+            listing = mappedFolders(mapping, path);
+        }
+        return toExternal(mapping, listing.folders());
+    }
 
+    /**
+     * The project folders the mapping places directly in the folder, and whether the repository has every one of them
+     * but the folders being saved.
+     */
+    private MappedFolders mappedFolders(ProjectIndex mapping, String path) throws IOException {
         var internal = new ArrayList<FileData>();
+        var complete = true;
         for (ProjectInfo project : mapping.getProjects()) {
             var external = baseFolder + getMappedName(project);
             if (external.startsWith(path) && !external.substring(path.length()).contains("/")) {
                 // "external" is direct child of "path"
                 var data = delegate.check(project.getPath());
                 if (data == null) {
-                    // It can be intermediate state: project is added to index, but not still committed.
-                    // Or project could be removed from repository, but index is not updated. Will be updated later.
                     log.debug("Project {} is not found.", project.getPath());
+                    complete &= isBeingMapped(project);
                 } else {
                     internal.add(data);
                 }
             }
         }
+        return new MappedFolders(internal, complete);
+    }
 
-        return toExternal(mapping, internal);
+    private boolean isBeingMapped(ProjectInfo project) {
+        return foldersBeingMapped.stream()
+                .map(folder -> folder.getAdditionalData(FileMappingData.class))
+                .anyMatch(mapping -> mapping != null && project.getPath().equals(mapping.getInternalPath()));
+    }
+
+    private record MappedFolders(List<FileData> folders, boolean complete) {
     }
 
     @Override

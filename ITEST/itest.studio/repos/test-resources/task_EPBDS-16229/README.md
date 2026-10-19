@@ -13,5 +13,5 @@ The test requires the id the listing hands out to keep working:
 
 The delete runs in `999-tierdown`, so the assertion and the cleanup of the shared `design-flat` repository belong to
 the same teardown phase: `010-delete-project` removes the project, `020-verify-deleted` requires the id to answer
-404 afterwards, and `030-verify-repository-clean` requires the repository to hold nothing under that name. That
+`410 Gone` afterwards, and `030-verify-repository-clean` requires the repository to hold nothing under that name. That
 closing listing asks for deleted projects too, so an archived leftover is not read as a clean repository.

@@ -8,6 +8,12 @@ describe('isUnresolvedProjectLink', () => {
         expect(isUnresolvedProjectLink(new ForbiddenError())).toBe(true)
     })
 
+    it('reads a project that was deleted as a link to nothing', () => {
+        expect(isUnresolvedProjectLink(new ApiHttpError(410, 'The project was deleted.', {
+            code: 'openl.error.410.project.deleted.message',
+        }))).toBe(true)
+    })
+
     it('leaves any other failure to be reported as a failure to read the project', () => {
         expect(isUnresolvedProjectLink(new ApiHttpError(409, 'Modified', { code: 'openl.error.409.project.close.modified.message' })))
             .toBe(false)

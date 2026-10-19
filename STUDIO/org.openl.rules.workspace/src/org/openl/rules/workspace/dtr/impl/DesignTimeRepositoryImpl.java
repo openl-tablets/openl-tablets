@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,6 +41,8 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.ProjectKey;
+import org.openl.rules.workspace.StaleIds;
+import org.openl.rules.workspace.StaleProjectIds;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
@@ -72,6 +76,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private final Map<String, Map<ProjectKey, AProject>> configuredBranchFallbacks = new HashMap<>();
     /** The cached projects by their ids, rebuilt with them. */
     private Map<ProjectId, AProject> projectsById = Map.of();
+    /** The ids that stopped naming a project, learned from the listings of the projects. */
+    private final StaleProjectIds staleProjectIds = new StaleProjectIds();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
@@ -113,7 +119,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
                 repositoryList.add(repository);
                 if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
-                    configuredBranchFallbacks.put(repository.getId(), scanProjects(repository));
+                    configuredBranchFallbacks.put(repository.getId(),
+                            Objects.requireNonNullElse(scanProjects(repository), Map.of()));
                     // The callback runs after both the early default-branch snapshot and the complete one, so the
                     // workspace refreshes as soon as the default branch's projects are mapped across their branches.
                     indexService.register(branchRepository, rulesLocation, this::indexPublished);
@@ -243,6 +250,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             return Optional.ofNullable(projectsById.get(id));
+        }
+    }
+
+    @Override
+    public Optional<StaleIds.Change<ProjectId>> getProjectIdChange(ProjectId id) {
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+            return staleProjectIds.changeOf(id);
         }
     }
 
@@ -513,21 +530,48 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         projectsVersions.clear();
         branchedProjects.clear();
         exceptions.clear();
+        var listedWhole = new HashSet<String>();
         for (Repository repository : repositories.get()) {
             if (isBranchRepository(repository) && repository instanceof BranchRepository branchRepository) {
-                addIndexedProjects(branchRepository);
+                if (addIndexedProjects(branchRepository)) {
+                    listedWhole.add(repository.getId());
+                }
             } else {
-                projects.putAll(scanProjects(repository));
+                var scanned = scanProjects(repository);
+                if (scanned != null) {
+                    projects.putAll(scanned);
+                    listedWhole.add(repository.getId());
+                }
             }
         }
         // A design project is listed from what the repository lists, which tells its folder at once.
         projectsById = ProjectIds.index(projects.values(),
                 project -> new ProjectKey(project.getRepository().getId(), project.getRealPath()));
+        learnStaleProjectIds(listedWhole);
 
         projectsRefreshNeeded = false;
     }
 
-    private void addIndexedProjects(BranchRepository repository) {
+    /**
+     * Compares the projects of each repository listed whole with its listing before. A listing that misses projects
+     * — a failed scan, an index still building or failing on some branches — would tell of deletions that did not
+     * happen, so it teaches nothing.
+     */
+    private void learnStaleProjectIds(Set<String> listedWhole) {
+        var names = new HashMap<String, Map<ProjectId, String>>();
+        projectsById.forEach((id, project) -> names
+                .computeIfAbsent(project.getRepository().getId(), repositoryId -> new HashMap<>())
+                .put(id, project.getBusinessName()));
+        listedWhole.forEach(repositoryId -> staleProjectIds.listed(repositoryId,
+                names.getOrDefault(repositoryId, Map.of())));
+    }
+
+    /**
+     * Adds the projects the index of a repository lists.
+     *
+     * @return whether the index listed every project of the repository
+     */
+    private boolean addIndexedProjects(BranchRepository repository) {
         var snapshot = indexService.getSnapshot(repository.getId());
         if (!snapshot.published()) {
             // Nothing indexed yet: fall back to the default branch until the first snapshot is published.
@@ -544,6 +588,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         if (error != null) {
             exceptions.add("Repository '%s' : %s".formatted(repository.getName(), error));
         }
+        return snapshot.published() && snapshot.health().state() == BranchedProjectIndexService.IndexState.READY;
     }
 
     private void addSnapshotProjects(BranchRepository repository,
@@ -568,8 +613,13 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         });
     }
 
-    private Map<ProjectKey, AProject> scanProjects(Repository repository) {
-        Collection<FileData> fileDatas = List.of();
+    /**
+     * Lists the projects of a repository.
+     *
+     * @return the projects, or {@code null} when the repository cannot be read
+     */
+    private @Nullable Map<ProjectKey, AProject> scanProjects(Repository repository) {
+        Collection<FileData> fileDatas;
         try {
             fileDatas = repository.supports().folders()
                     ? repository.listFolders(rulesLocation)
@@ -577,6 +627,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             exceptions.add("Repository '%s' : %s".formatted(repository.getName(), e.getMessage()));
+            return null;
         }
 
         var result = new LinkedHashMap<ProjectKey, AProject>();

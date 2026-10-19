@@ -112,6 +112,40 @@ class MappedRepositoryTest {
         }
     }
 
+    /**
+     * A folder moved or deleted outside OpenL Studio after the mapping was built is listed as the repository holds it,
+     * though the repository never told of the change: the moved project at its new folder, the deleted one not at all.
+     */
+    @Test
+    void foldersChangedOutsideStudioAreListedAsTheRepositoryHoldsThem() throws IOException {
+        writeProject("catalog/quoting", "<project><name>Quoting</name></project>");
+        writeProject("catalog/pricing", "<project><name>Pricing</name></project>");
+        writeProject("catalog/rating", "<project><name>Rating</name></project>");
+
+        var delegate = new FileSystemRepository();
+        delegate.setRoot(root);
+        delegate.initialize();
+
+        var mapped = MappedRepository.create(delegate, "DESIGN/");
+        try {
+            assertEquals(3, mapped.listFolders("DESIGN/").size());
+            Files.createDirectories(root.resolve("archive"));
+            Files.move(root.resolve("catalog/quoting"), root.resolve("archive/quoting"));
+            Files.delete(root.resolve("catalog/pricing/rules.xml"));
+            Files.delete(root.resolve("catalog/pricing"));
+
+            var folders = mapped.listFolders("DESIGN/").stream()
+                    .map(FileData::getName)
+                    .map(((FolderMapper) mapped)::getRealPath)
+                    .sorted()
+                    .toList();
+
+            assertEquals(List.of("archive/quoting", "catalog/rating"), folders);
+        } finally {
+            ((Closeable) mapped).close();
+        }
+    }
+
     /** A folder that is gone is no longer one of the projects the repository maps. */
     @Test
     void aDeletedProjectIsNoLongerMapped() throws IOException {

@@ -40,6 +40,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
@@ -283,6 +284,17 @@ class SecureDesignTimeRepositoryImplTest {
         assertNotSame(readable.getRepository(), found.getRepository(), "The project is handed out as a secured view.");
         assertTrue(secured.getProjectById(deniedId).isEmpty());
         assertTrue(secured.getProjectById(ProjectIds.of("design", "DESIGN/Other")).isEmpty());
+    }
+
+    @Test
+    void whatBecameOfAnIdIsAskedOfTheDesignRepositories() {
+        var stale = ProjectIds.of("design", "DESIGN/Rates");
+        var change = new StaleIds.Moved<>(ProjectIds.of("design", "DESIGN/archive/Rates"));
+        var delegate = mock(DesignTimeRepository.class);
+        when(delegate.getProjectIdChange(stale)).thenReturn(Optional.of(change));
+        var secured = new SecureDesignTimeRepositoryImpl(delegate, mock(RepositoryAclService.class));
+
+        assertEquals(Optional.of(change), secured.getProjectIdChange(stale));
     }
 
     @Test

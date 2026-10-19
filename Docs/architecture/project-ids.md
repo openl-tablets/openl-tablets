@@ -31,6 +31,9 @@ whichever branch, after a rename, across restarts and on every Studio instance.
 - **Old ids** — not accepted and not migrated: an old id answers `404`, as an old table id does. Neither a link
   saved from OpenL Studio 6.4 nor a link by name is translated, by the REST API or in the browser.
 - **Renamed projects** — a rename in `rules.xml` keeps the folder, and so the id.
+- **Moved and deleted projects** — while the server runs, the id of a project whose folder moved outside Studio
+  serves the project under its new id, and the id of a deleted project answers `410 Gone` (see
+  [Stale-Id Ledger](#stale-id-ledger)).
 
 ## The Identity Id
 
@@ -113,12 +116,12 @@ What was weighed and left out:
 | Studio restarted; the project read through another Studio instance | Kept |
 | The rules location changed, in a repository with folders | Kept |
 | The rules location changed, in a repository without folders | New: the projects are read from other keys |
-| The folder moved or renamed outside Studio (`git mv`, the file system) | New |
+| The folder moved or renamed outside Studio (`git mv`, the file system) | New; the old one leads to it while the server runs |
 | The repository id changed in the configuration | New, as the ACL of its projects |
 | The project copied | New project, new id |
 | A local project published to a design repository | New project, new id |
 | The project deleted from one branch while other branches hold it | Kept |
-| The project deleted from its last branch | No project has it: `404` |
+| The project deleted from its last branch | No project has it: `410 Gone` while the server runs, `404` after a restart |
 | A project created again in the folder of a deleted one | Takes the old id again |
 
 The last row follows the table precedent: an identity names a place, and a project created there again is addressed
@@ -197,7 +200,8 @@ configuration and the same folders. Nothing needs to be stored, synchronized or 
   template, an OpenAPI file — and a copy answer the id the project list then gives.
 - **A value type, not a string.** `ProjectId` is a record of the 12 characters with Jackson's `@JsonValue`, used by
   every controller, model, registry and publisher, so a name can no longer pass where an id is expected.
-- **One resolver.** `ProjectIdConverter` looks the id up; anything else answers `404`.
+- **One resolver.** `ProjectIdConverter` looks the id up, then asks the stale-id ledger, and `AProjectConverter` does
+  the same for the ACL endpoints; anything else answers `404`.
 
 ## Where Ids Are Taken and Given
 
@@ -219,7 +223,47 @@ Paths are under `/rest`.
   tables store `(repositoryId, internal path)`, which the id is computed from, so the ACL needs no migration.
 - **Not a project id.** The `{id}` of `/deployments/{id}` names a deployment; the `{comparisonId}` of `/compare` names
   a comparison; `/acls/repositories/{repo-id}` names a repository.
-- **An unknown id**, a project name and an id of OpenL Studio 6.x answer `404` with `project.identifier.message`.
+- **An unknown id**, a project name and an id of OpenL Studio 6.x answer `404` with `project.identifier.message`; the
+  id of a deleted project answers `410` with `project.deleted.message`.
+
+## Stale-Id Ledger
+
+`StaleProjectIds` remembers the ids that stopped naming a project, so that a client holding the id of a project whose
+folder moved outside Studio is served the project, and a client holding the id of a deleted project is told so.
+
+- **Where** — one ledger per design repository, held by `DesignTimeRepositoryImpl` and shared by every user, in
+  memory: the most recent 1,000 changes of the repository, lost on restart. After a restart an old id answers `404`,
+  never another project. Each instance of a cluster learns from its own listings of the same repositories.
+- **What feeds it** — every listing of a repository's projects that was read whole, compared with the one before:
+  - a listing read whole is a publication of the cross-branch index in the `READY` state, or a scan of a repository
+    without branches that raised no error. An index still building, an index that failed on some branches and a
+    failed scan would tell of deletions that did not happen, so they teach nothing: the next listing read whole is
+    compared with the last one;
+  - a repository with folders lists its projects through its mapping of folders to projects, which follows a change
+    made outside Studio only once the repository tells of it. A listing that meets a mapped folder the repository no
+    longer has rebuilds the mapping first (`MappedRepository.listFolders`), so a folder moved on disk shows at its new
+    place in the same listing that misses it at the old one;
+  - a folder whose project the listing no longer shows lost its project. When exactly one folder lost a project of
+    some name and exactly one new folder shows a project of that name — the name `rules.xml` declares, else the
+    folder name, regardless of case — the project moved; any other lost project was deleted;
+  - a Studio delete of a project, or of the branch that held the last membership of a project, waits for the index
+    to publish the change, so the listing it publishes teaches the deletion, as it teaches one made through another
+    instance or pushed to the repository directly.
+- **Rules**
+  - a live id always wins: the ledger is asked only for an id no project of the user's workspace has, once the
+    workspace has listed its projects again;
+  - chains are compressed: every old id leads straight to the current one;
+  - an id a project takes again — a project created again in the folder, or moved back — leaves the ledger.
+- **Served, not redirected** — the request is answered for the current project, with the current id in the body and
+  the address of the request, the old id replaced in its path, in a `Content-Location` header (`ContentLocation`,
+  which the table ids use too, so a request by an old project id and an old table id names both current ids). A
+  request that names the project in its body — the source of a copy, a deployment — is served alike, with no header.
+  A moved project the user may not read answers `404` under its old id as under the new one.
+- **Deleted** — the id of a deleted project, and every id that led to it, answer `410 Gone` with "The project was
+  deleted." The ACL endpoints answer the same: `AProjectConverter` asks the ledger too.
+- **Not covered** — a folder moved together with a rename in `rules.xml`; several projects of one name moved at once,
+  which read as deleted; a folder copied and then deleted, two changes the index publishes apart, which reads as a
+  deletion; a deleted local project, whose id answers `404`.
 
 ## Old Ids
 
@@ -245,6 +289,8 @@ taken.
     answers `400`, as for any unknown field.
   - Answers name a project by `id` (project models, merge scope, ACL) or `projectId` (status, table views and
     messages).
+  - While the server runs, an id of a project whose folder moved outside Studio is served with `Content-Location`,
+    and the id of a deleted project answers `410` (see [Stale-Id Ledger](#stale-id-ledger)).
 - **WebSocket** — the destinations keep their shape and carry the new id, which needs no URL encoding. A subscription
   by an old id receives nothing.
 - **Studio UI**
@@ -253,7 +299,8 @@ taken.
   - The routes keep their shape — `/projects/:projectId`, `/projects/:projectId/modules/:moduleName`,
     `/trace/:projectId` — with the new id. A route takes an id only: a link by name, or by an id of the old alphabet,
     is no longer moved on to the id the server issued, and the revisions panel names the project a copy came from as
-    text instead of linking it by name.
+    text instead of linking it by name. A link to a deleted project, answered `410`, shows the same page as a link
+    to no project.
   - Browser storage holding an old id names no project any more; it is ignored, as a stale entry is.
 
 ## Rejected Alternatives

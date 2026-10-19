@@ -21,16 +21,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.studio.common.CurrentRequest;
 import org.openl.studio.common.exception.GoneException;
 
 class StaleTableIdsTest {
@@ -42,14 +39,14 @@ class StaleTableIdsTest {
 
     @AfterEach
     void unbindRequest() {
-        RequestContextHolder.resetRequestAttributes();
+        CurrentRequest.reset();
     }
 
     @Test
     void aRenamedTableIsServedUnderTheIdItHasNow() {
         var renamed = mock(IOpenLTable.class);
         var model = model(Map.of("b", renamed));
-        var response = request(TABLES + "a/tests", null);
+        var response = CurrentRequest.bind(TABLES + "a/tests", null);
 
         StaleTableIds.renamed(project, "a", "b");
 
@@ -73,7 +70,7 @@ class StaleTableIdsTest {
     void anIdATableHasNowNamesThatTable() {
         var live = mock(IOpenLTable.class);
         var model = model(Map.of("a", live, "b", mock(IOpenLTable.class)));
-        var response = request(TABLES + "a", null);
+        var response = CurrentRequest.bind(TABLES + "a", null);
 
         StaleTableIds.renamed(project, "a", "b");
 
@@ -163,7 +160,7 @@ class StaleTableIdsTest {
 
     @Test
     void theIdOfAQueryNamesTheTableAsTheAddressDoes() {
-        var response = request("/rest/projects/cHJvamVjdA/run", "tableId=a&fromModule=a");
+        var response = CurrentRequest.bind("/rest/projects/cHJvamVjdA/run", "tableId=a&fromModule=a");
 
         StaleTableIds.renamed(project, "a", "b");
 
@@ -226,14 +223,6 @@ class StaleTableIdsTest {
         when(module.getProject()).thenReturn(descriptor);
         when(descriptor.getProjectFolder()).thenReturn(project);
         return model;
-    }
-
-    private static MockHttpServletResponse request(String uri, String query) {
-        var request = new MockHttpServletRequest("GET", uri);
-        request.setQueryString(query);
-        var response = new MockHttpServletResponse();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
-        return response;
     }
 
     private void workbook(Consumer<Sheet> content) throws IOException {

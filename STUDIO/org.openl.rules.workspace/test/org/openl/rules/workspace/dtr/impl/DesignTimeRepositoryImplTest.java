@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -44,8 +44,8 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.dtr.BranchedProjectIndexService;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 
 class DesignTimeRepositoryImplTest {
@@ -320,24 +320,11 @@ class DesignTimeRepositoryImplTest {
     @Test
     void retainsNonBranchRepositoryBehaviourAndReportsRefreshFailure() throws Exception {
         var repositoryListener = new AtomicReference<Listener>();
-        var root = mock(BranchRepository.class);
-        when(root.getId()).thenReturn("design");
-        when(root.getName()).thenReturn("Design");
-        when(root.supports()).thenReturn(new FeaturesBuilder(root).setBranches(false).setVersions(true).build());
+        var root = repositoryWithoutBranches(repositoryListener);
         when(root.list("DESIGN/"))
                 .thenReturn(List.of(fileData("DESIGN/Rates")))
                 .thenThrow(new IOException("Repository unavailable"));
-        doAnswer(invocation -> {
-            repositoryListener.set(invocation.getArgument(0));
-            return null;
-        }).when(root).setListener(org.mockito.ArgumentMatchers.nullable(Listener.class));
-
-        var properties = mock(PropertyResolver.class);
-        when(properties.getProperty("design-repository-configs")).thenReturn("design");
-        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
-        var designRepository = new TestDesignTimeRepository(properties,
-                new BranchedProjectIndexService(),
-                root);
+        var designRepository = designRepositoryOf(root);
         var notifications = new AtomicInteger();
         designRepository.addListener(notifications::incrementAndGet);
         designRepository.init();
@@ -364,6 +351,55 @@ class DesignTimeRepositoryImplTest {
         designRepository.destroy();
         verify(root).setListener(isNull());
         verify(root).close();
+    }
+
+    @Test
+    void learnsWhatBecameOfTheProjectsAListingNoLongerShows() throws Exception {
+        var repositoryListener = new AtomicReference<Listener>();
+        var root = repositoryWithoutBranches(repositoryListener);
+        when(root.list("DESIGN/"))
+                .thenReturn(List.of(fileData("DESIGN/Rates"), fileData("DESIGN/Auto")))
+                .thenThrow(new IOException("Repository unavailable"))
+                .thenReturn(List.of(fileData("DESIGN/archive/Rates")));
+        var designRepository = designRepositoryOf(root);
+        designRepository.init();
+        var rates = designRepository.getProject("design", "Rates").getProjectId();
+        var auto = designRepository.getProject("design", "Auto").getProjectId();
+
+        // A listing that cannot be read tells of no deletion.
+        repositoryListener.get().onChange();
+        assertTrue(designRepository.getProjectIdChange(rates).isEmpty());
+        assertTrue(designRepository.getProjectIdChange(auto).isEmpty());
+
+        repositoryListener.get().onChange();
+        var moved = designRepository.getProjects("design").getFirst().getProjectId();
+        assertEquals(Optional.of(new StaleIds.Moved<>(moved)), designRepository.getProjectIdChange(rates));
+        assertEquals(Optional.of(new StaleIds.Deleted<>()), designRepository.getProjectIdChange(auto));
+        assertTrue(designRepository.getProjectIdChange(moved).isEmpty());
+
+        designRepository.destroy();
+    }
+
+    /** A repository without branches or folders, which hands its listener to the test. */
+    private static BranchRepository repositoryWithoutBranches(AtomicReference<Listener> listener) {
+        var repository = mock(BranchRepository.class);
+        when(repository.getId()).thenReturn("design");
+        when(repository.getName()).thenReturn("Design");
+        when(repository.supports())
+                .thenReturn(new FeaturesBuilder(repository).setBranches(false).setVersions(true).build());
+        doAnswer(invocation -> {
+            listener.set(invocation.getArgument(0));
+            return null;
+        }).when(repository).setListener(org.mockito.ArgumentMatchers.nullable(Listener.class));
+        return repository;
+    }
+
+    /** The design repositories of the one repository, whose projects lie under {@code DESIGN/}. */
+    private static TestDesignTimeRepository designRepositoryOf(Repository repository) {
+        var properties = mock(PropertyResolver.class);
+        when(properties.getProperty("design-repository-configs")).thenReturn("design");
+        when(properties.getProperty("repository.design.base.path")).thenReturn("DESIGN");
+        return new TestDesignTimeRepository(properties, new BranchedProjectIndexService(), repository);
     }
 
     private static BranchRepository branchRepository(String branch) {

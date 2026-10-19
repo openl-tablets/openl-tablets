@@ -13,7 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
 
 class AProjectConverterTest {
@@ -28,6 +30,30 @@ class AProjectConverterTest {
         when(designTimeRepository.getProjectById(id)).thenReturn(Optional.of(project));
 
         assertSame(project, converter.convert(id.value()));
+    }
+
+    @Test
+    void anIdOfAMovedProjectNamesTheProjectOfItsNewFolder() {
+        var id = ProjectIds.of("design", "DESIGN/rules/Bank");
+        var current = ProjectIds.of("design", "DESIGN/rules/archive/Bank");
+        var project = mock(AProject.class);
+        when(designTimeRepository.getProjectById(id)).thenReturn(Optional.empty());
+        when(designTimeRepository.getProjectIdChange(id)).thenReturn(Optional.of(new StaleIds.Moved<>(current)));
+        when(designTimeRepository.getProjectById(current)).thenReturn(Optional.of(project));
+
+        assertSame(project, converter.convert(id.value()));
+    }
+
+    @Test
+    void anIdOfADeletedProjectAnswersGone() {
+        var id = ProjectIds.of("design", "DESIGN/rules/Bank");
+        when(designTimeRepository.getProjectById(id)).thenReturn(Optional.empty());
+        when(designTimeRepository.getProjectIdChange(id)).thenReturn(Optional.of(new StaleIds.Deleted<>()));
+
+        var text = id.value();
+        var ex = assertThrows(GoneException.class, () -> converter.convert(text));
+
+        assertEquals("openl.error.410.project.deleted.message", ex.getErrorCode());
     }
 
     @Test

@@ -1,25 +1,21 @@
 package org.openl.studio.projects.service.tables;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.LRUMap;
 import org.jspecify.annotations.Nullable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.workspace.StaleIds;
 import org.openl.source.IProjectSourceCodeModule;
+import org.openl.studio.common.ContentLocation;
 import org.openl.studio.common.exception.GoneException;
 
 /**
@@ -45,7 +41,7 @@ public final class StaleTableIds {
     private static final int MODULES = 1000;
     private static final String TABLE_ID = "tableId";
 
-    private static final Map<Path, Ledger> LEDGERS = new ConcurrentHashMap<>();
+    private static final Map<Path, StaleIds<String>> LEDGERS = new ConcurrentHashMap<>();
 
     private StaleTableIds() {
     }
@@ -61,9 +57,7 @@ public final class StaleTableIds {
      * @param to      the id the table has now
      */
     public static void renamed(Path project, String from, String to) {
-        if (!from.equals(to)) {
-            ledgerOf(project).renamed(from, to);
-        }
+        ledgerOf(project).moved(from, to);
     }
 
     /**
@@ -123,10 +117,10 @@ public final class StaleTableIds {
         if (table != null || project == null) {
             return table;
         }
-        var current = ledgerOf(project).currentOf(tableId);
+        var current = currentOf(project, tableId);
         table = current == null ? null : model.getTableById(current);
         if (table != null) {
-            servedAs(tableId, current);
+            ContentLocation.servedAs(tableId, current, TABLE_ID);
         }
         return table;
     }
@@ -143,11 +137,11 @@ public final class StaleTableIds {
      * @throws GoneException when the table was deleted
      */
     public static String currentIdOf(Path project, String tableId) {
-        var current = ledgerOf(project).currentOf(tableId);
+        var current = currentOf(project, tableId);
         if (current == null) {
             return tableId;
         }
-        servedAs(tableId, current);
+        ContentLocation.servedAs(tableId, current, TABLE_ID);
         return current;
     }
 
@@ -158,81 +152,22 @@ public final class StaleTableIds {
         return project == null ? null : project.getProjectFolder();
     }
 
-    private static Ledger ledgerOf(Path project) {
-        return LEDGERS.computeIfAbsent(project.toAbsolutePath().normalize(), folder -> new Ledger());
+    private static StaleIds<String> ledgerOf(Path project) {
+        return LEDGERS.computeIfAbsent(project.toAbsolutePath().normalize(), folder -> new StaleIds<>(CHANGES));
     }
 
     /**
-     * Names the address of what the answer serves: the address of the request, with the id it named the table by
-     * replaced by the id the table has now.
+     * Where a stale id of a table of a project leads.
+     *
+     * @return the id the table has now, or {@code null} when the ledger knows nothing of the id
+     * @throws GoneException when the table was deleted
      */
-    private static void servedAs(String stale, String current) {
-        if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes)
-                || attributes.getResponse() == null) {
-            return;
-        }
-        var request = attributes.getRequest();
-        var path = Arrays.stream(request.getRequestURI().split("/", -1))
-                .map(segment -> segment.equals(stale) ? current : segment)
-                .collect(Collectors.joining("/"));
-        var query = request.getQueryString();
-        if (query != null) {
-            path += Arrays.stream(query.split("&", -1))
-                    .map(parameter -> parameter.equals(TABLE_ID + "=" + stale) ? TABLE_ID + "=" + current : parameter)
-                    .collect(Collectors.joining("&", "?", ""));
-        }
-        attributes.getResponse().setHeader(HttpHeaders.CONTENT_LOCATION, path);
-    }
-
-    /** The changes of the tables of one project: where each stale id leads, {@code null} for a deleted table. */
-    private static final class Ledger extends LinkedHashMap<String, @Nullable String> {
-
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, @Nullable String> eldest) {
-            return size() > CHANGES;
-        }
-
-        /** A rename of a table that had the old id until now. */
-        synchronized void renamed(String from, String to) {
-            replaceAll((stale, current) -> from.equals(current) ? to : current);
-            // The new id names a table now, which no change of before leads elsewhere.
-            remove(to);
-            remove(from);
-            put(from, to);
-        }
-
-        /**
-         * A rename a compilation found. A deleted table takes no part in it, though a table later stood where it
-         * stood.
-         */
-        synchronized void found(String from, String to) {
-            if (!containsKey(from) || get(from) != null) {
-                renamed(from, to);
-            }
-        }
-
-        synchronized void deleted(String id) {
-            replaceAll((stale, current) -> id.equals(current) ? null : current);
-            remove(id);
-            put(id, null);
-        }
-
-        /**
-         * Where a stale id leads.
-         *
-         * @return the id the table has now, or {@code null} when the ledger knows nothing of the id
-         * @throws GoneException when the table was deleted
-         */
-        synchronized @Nullable String currentOf(String id) {
-            if (!containsKey(id)) {
-                return null;
-            }
-            var current = get(id);
-            if (current == null) {
-                throw new GoneException("table.deleted.message");
-            }
-            return current;
-        }
+    private static @Nullable String currentOf(Path project, String tableId) {
+        return switch (ledgerOf(project).changeOf(tableId).orElse(null)) {
+            case null -> null;
+            case StaleIds.Moved<String>(var current) -> current;
+            case StaleIds.Deleted<String> deleted -> throw new GoneException("table.deleted.message");
+        };
     }
 
     /**
@@ -281,7 +216,8 @@ public final class StaleTableIds {
             before.forEach((cell, id) -> {
                 var now = after.get(cell);
                 if (now != null && !kept.contains(id) && !known.contains(now)) {
-                    ledgerOf(project).found(id, now);
+                    // A deleted table takes no part in a rename a compilation found.
+                    ledgerOf(project).movedUnlessDeleted(id, now);
                 }
             });
         }
