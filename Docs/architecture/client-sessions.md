@@ -43,6 +43,13 @@ A credential is told apart by what it stands for, never by the token value:
 
 Controllers and services get the beans as before; the scope finds the right instance.
 
+## Single-User Mode
+
+In single-user mode every request acts as the one user, so the scope keeps the state of every request for that user,
+whatever the request carries: every browser and every other client share it. A client that keeps no cookie, as the
+MCP server built into OpenL Studio does for each stateless request, finds the project it compiled and the tests it
+ran in its previous request. No HTTP session is opened for that state.
+
 ## Lifecycle
 
 - **Idle timeout** — a credential's state ends after the idle time of an HTTP session (`session-timeout` in
