@@ -527,7 +527,7 @@ class TraceDebugMapperTest {
     }
 
     private static DebugFrame debugFrame(FrameKind kind, String uri, String name, int depth) {
-        return new DebugFrame(new SourceClassifier.FrameDescriptor(kind, uri, name),
+        return new DebugFrame(new SourceClassifier.FrameDescriptor(kind, uri, name, null),
                 new Object(), null, new Object[0], null, depth);
     }
 

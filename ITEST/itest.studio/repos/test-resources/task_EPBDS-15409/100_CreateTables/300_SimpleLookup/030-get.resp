@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "486ad8912c803f93bf850cfcd8ae4ba0",
+  "id": "--7O7dSeuVnYKY8U",
   "tableType": "SimpleLookup",
   "kind": "Rules",
   "name": "IsAdequateMaxCreditRiskScore",

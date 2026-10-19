@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "843b84e0f05307a211ad426793632bb2",
+  "id": "u9rnKYW9njTKIlQH",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "ZipCode",

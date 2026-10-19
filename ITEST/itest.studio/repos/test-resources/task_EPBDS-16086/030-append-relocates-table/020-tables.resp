@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "618e0fae196e9a3dc759e30ef8661d44",
+      "id": "CKUlKyMgevrsc2KU",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "TypeA",
@@ -17,7 +17,7 @@ Content-Type: application/json
       "signature": "TypeA"
     },
     {
-      "id": "91e1b83d71ebd6206c0bff53079bdcb1",
+      "id": "oS1XZhBZevEtlu1m",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "TypeB",
@@ -30,7 +30,7 @@ Content-Type: application/json
       "signature": "TypeB"
     },
     {
-      "id": "dec94b5ec4595b84a118532580fdb200",
+      "id": "Yte23AmHynStA-68",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "TypeC",

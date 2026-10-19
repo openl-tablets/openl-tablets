@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "a16d6bcf9c9df034fc4882a519a8d705",
+  "id": "ad6W8M0mo225VKJh",
   "tableType": "Data",
   "kind": "Data",
   "name": "LossFreeDiscountCalc",

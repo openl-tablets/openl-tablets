@@ -11,10 +11,12 @@ import java.util.stream.IntStream;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.syntax.TableIds;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.CellKey;
@@ -80,6 +82,17 @@ public abstract class TableWriter<T extends TableView> {
      */
     @Getter(AccessLevel.PROTECTED)
     private boolean formattingOnSave;
+
+
+    /**
+     * The module a new table is written to, as last compiled: the new table is numbered among its tables. Absent for
+     * a table that was there before the write, which knows its module.
+     */
+    @Setter
+    private @Nullable XlsModuleSyntaxNode module;
+
+    /** The id of the table as the save left it, read while the table was still open for writing. */
+    private @Nullable String writtenId;
 
     protected TableWriter(IOpenLTable table) {
         this.table = table;
@@ -252,27 +265,23 @@ public abstract class TableWriter<T extends TableView> {
     }
 
     /**
-     * Returns the identifier of the table reflecting its current position.
+     * Returns the identifier of the table as written: the one it is known by once its module is compiled again.
      * <p>
-     * The identifier is derived from the table location, so it changes when the table is relocated during a write (for
-     * example, when there was no room to grow at the original position). Call after the write completes to obtain the
-     * up-to-date identifier.
+     * A table that is still what it was keeps its identifier, also when the write moved it because there was no room
+     * to grow at its place. A write that renames the table, or changes its {@code id} property, gives it a new one.
+     * Call after the write completes.
      *
-     * @return current table identifier
+     * @return the identifier of the written table
      */
     public String getTableId() {
-        return tableIdOf(originalTable);
+        return writtenId != null ? writtenId : idAsWritten();
     }
 
-    /**
-     * The identifier of a table as it stands now: a table an edit moved is named by its new place.
-     *
-     * @param table the table, header included
-     * @return the identifier of the table
-     */
-    public static String tableIdOf(IGridTable table) {
-        table.resetUri();
-        return TableUtils.makeTableId(table.getUri());
+    /** The id of the table as it stands in the grid, which only a writer still writing reads as written. */
+    private String idAsWritten() {
+        return table == null
+                ? TableIds.idOfWritten(originalTable, module)
+                : TableIds.idAfterWrite(table.getSyntaxNode(), originalTable);
     }
 
     protected abstract void updateHeader(T tableView);
@@ -419,6 +428,8 @@ public abstract class TableWriter<T extends TableView> {
         // Read while the table is open for writing: the save closes it.
         var position = layout == null ? null : FormattedTables.positionOf(originalTable);
         var formatted = formatTable(position);
+        // Read while the table is open for writing too: once saved, the sheet is read as it was compiled.
+        writtenId = idAsWritten();
         saveWorkbook((XlsSheetGridModel) getGridTable().getGrid());
         if (formatted != null) {
             FormattedTables.formatted(position, formatted);

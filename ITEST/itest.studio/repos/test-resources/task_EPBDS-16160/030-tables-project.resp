@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "197f9ad992135f46198fd44e540f0c7f",
+      "id": "6FcmzI4JzvWjssA2",
       "tableType": "SimpleSpreadsheet",
       "kind": "Spreadsheet",
       "name": "MyRule",

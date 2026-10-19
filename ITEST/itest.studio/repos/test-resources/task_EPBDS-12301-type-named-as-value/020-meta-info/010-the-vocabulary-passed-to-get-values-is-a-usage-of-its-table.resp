@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "d3c12e32d0cd048ad2efb288e440d4ca",
+  "id": "w0iBe3jBHg57RPt8",
   "tableType": "RawSource",
   "kind": "Spreadsheet",
   "name": "colors",
@@ -47,7 +47,7 @@ Content-Type: application/json
               "start": 11,
               "end": 16,
               "description": "Datatype Color <String>",
-              "tableId": "d3a495ee81a0c52ba039078acb02e171",
+              "tableId": "Nc5cN6pyLoP40XP1",
               "module": "Rules",
               "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTIzMDE6ZWMyZTJiMjI5NTg5ZDdkZGMxMDBkZjc3NjU3NzZmN2RjOGNjZGYzMTAxMDkzMjJhZmJhMmQ4MzZkMjBjMmZmNw==",
               "kind": "datatype"

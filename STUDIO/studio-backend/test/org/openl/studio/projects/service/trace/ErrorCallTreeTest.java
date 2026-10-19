@@ -102,7 +102,7 @@ class ErrorCallTreeTest {
         // A TBasic operation is not a spreadsheet cell, so it has no resolvable cell name; the failing step
         // must still fall back to the operation's own label and carry the "= ERROR" marker in the detailed
         // (business) view — otherwise it renders as a plain, unmarked line off the error trail.
-        var descriptor = new SourceClassifier.FrameDescriptor(FrameKind.TBASIC, "uAlgo", "Algo");
+        var descriptor = new SourceClassifier.FrameDescriptor(FrameKind.TBASIC, "uAlgo", "Algo", null);
         var frame = new DebugFrame(descriptor, new Object(), null, new Object[0], null, 0);
         frame.setLocation(CurrentLocation.operation("Step1"));
         frame.markError(new RuntimeException("boom"));

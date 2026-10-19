@@ -1,2 +1,7 @@
-HTTP/1.1 204
+HTTP/1.1 200
+Location: http://example.com/rest/projects/ZGVzaWduLWZpbGU6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi/tables/e0bzesjcgQNIcL6k
+Content-Type: application/json
 
+{
+  "id": "e0bzesjcgQNIcL6k"
+}

@@ -33,7 +33,7 @@ public interface TablePropertiesService {
      *
      * @param table      the table to write to
      * @param properties the properties to write, each with the text its value is written as
-     * @return the table's identifier after the write, which changes when the table had to be moved to grow
+     * @return the table's identifier after the write, which changes when the write changes its {@code id} property
      */
     String write(IOpenLTable table, List<TableProperty> properties);
 }

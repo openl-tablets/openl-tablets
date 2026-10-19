@@ -98,9 +98,9 @@ A row must not have more values than the table has columns.
 
 ### Responses
 
-- **`204 No Content`** — the table was written and keeps its id.
-- **`200 OK`** — the table had no room to grow and moved. The body is `{"id": "<new id>"}`, and the `Location` header
-  is the address of the table under the new id.
+- **`204 No Content`** — the table was written and keeps its id, also when it had no room to grow and moved.
+- **`200 OK`** — the write renamed the table or changed its `id` property, which gives it a new id. The body is
+  `{"id": "<new id>"}`, and the `Location` header is the address of the table under the new id.
 - **`400 Bad Request`** — the request is refused:
     - `openl.error.400.table.column.required.message` — the request has no column;
     - `openl.error.400.table.column-title.required.message` — no column has a `displayName`;

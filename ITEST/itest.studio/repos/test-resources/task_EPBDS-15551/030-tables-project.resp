@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ecbdd3752cd6916e883e10cd08eb57cf",
+      "id": "aEtzfXEiwn8g1OlT",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BalanceDynamicIndexCalculation",
@@ -22,7 +22,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "8fcce0713a8f382c1ca4c377e460a9db",
+      "id": "jSs7DDZ8FLGXfE99",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BalanceQualityIndexCalculation",
@@ -40,7 +40,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "22e8f36e89414443dd3592aa6d339da6",
+      "id": "O3XCLRJXWm1t0kk7",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Bank",
@@ -53,7 +53,7 @@ Content-Type: application/json
       "signature": "Bank"
     },
     {
-      "id": "a154a52096b215265fa7a2c1008cb626",
+      "id": "qwamAzbWPT2g-HEt",
       "tableType": "Data",
       "kind": "Data",
       "name": "bankData",
@@ -66,7 +66,7 @@ Content-Type: application/json
       "signature": "Bank bankData"
     },
     {
-      "id": "776353bf2d1e879e14756903b78ccf84",
+      "id": "3GcuLrLIytywVL69",
       "tableType": "Data",
       "kind": "Data",
       "name": "bankFinancialData",
@@ -79,7 +79,7 @@ Content-Type: application/json
       "signature": "FinancialData bankFinancialData"
     },
     {
-      "id": "5bc906fd3f8ae26adccf9b114dca90d2",
+      "id": "SLS0KUPH8Eb16-2X",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndex",
@@ -94,7 +94,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "f207e7d3a6483c1d22a74d45a96a21b0",
+      "id": "_aZ41wyLNB9PsKYf",
       "tableType": "Test",
       "kind": "Test",
       "name": "BankLimitIndexTest",
@@ -107,7 +107,7 @@ Content-Type: application/json
       "signature": "BankLimitIndex BankLimitIndexTest"
     },
     {
-      "id": "4f2d9724ae03624a554ad2a73c5814c8",
+      "id": "A9kaXt62KZalu3ow",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BankQualitativeIndexCalculation",
@@ -125,7 +125,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "b744102658a823f249590bec533c53e7",
+      "id": "GfkSq45fJbhXZQ5S",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BankRatingCalculation",
@@ -146,7 +146,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "4d8eb238ff687745c805f69724a3c60e",
+      "id": "etzMSGqMmmvCYLuF",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "BankRatingGroup",
@@ -161,7 +161,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "49cc8d006b430348ffb4fdc7d5c27923",
+      "id": "xqhs_BeG4jcnfPIQ",
       "tableType": "Test",
       "kind": "Test",
       "name": "BankRatingGroupTest",
@@ -174,7 +174,7 @@ Content-Type: application/json
       "signature": "BankRatingGroup BankRatingGroupTest"
     },
     {
-      "id": "ee962cbf154fcc68e143e2035282048a",
+      "id": "0GHln71UGAVt1NVg",
       "tableType": "Data",
       "kind": "Data",
       "name": "bankRatingList",
@@ -187,7 +187,7 @@ Content-Type: application/json
       "signature": "Rating bankRatingList"
     },
     {
-      "id": "c8404f1b4595e81436c81daa741ed3a1",
+      "id": "lEmSGDeRGlvoEv9y",
       "tableType": "Test",
       "kind": "Test",
       "name": "BankRatingTest",
@@ -200,7 +200,7 @@ Content-Type: application/json
       "signature": "BankRatingCalculation BankRatingTest"
     },
     {
-      "id": "ce972641c9362a30f464f9a2a520e2f8",
+      "id": "_nc3ePtRlTjqyHxt",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "CapitalAdequacyScore",
@@ -215,7 +215,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "783b112b0375cf89727c14ac4101a3d3",
+      "id": "x7ht2m231W3COX5x",
       "tableType": "Test",
       "kind": "Test",
       "name": "CapitalAdequacyScoreTest",
@@ -228,7 +228,7 @@ Content-Type: application/json
       "signature": "CapitalAdequacyScore CapitalAdequacyScoreTest"
     },
     {
-      "id": "ab08e24437790a6894f57546e9733e1a",
+      "id": "s18zm7dSnOprFdVD",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "CapitalDynamicScore",
@@ -242,7 +242,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "c983bef263b50ec15e06d34a6d8de9f1",
+      "id": "N_K0BlUto7sBC5Xn",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "ClaimsOnCustomerRatioScore",
@@ -256,7 +256,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "86383514bbbad0ce2333e76f47ad87de",
+      "id": "4jYDRCUma_ZuBPCG",
       "tableType": "Constants",
       "kind": "Constants",
       "name": "Constants",
@@ -268,7 +268,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "09f5610970f7113ba804da3dd925c9ea",
+      "id": "-cSEEN17HrAWKOxq",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "CountryCode",
@@ -281,7 +281,7 @@ Content-Type: application/json
       "signature": "CountryCode <String>"
     },
     {
-      "id": "8bf286a2daed6ad15dfc4d5fdd3951dd",
+      "id": "ki9Gyx1o84zqdl4l",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "CreditPortfolioQualityScore",
@@ -295,7 +295,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "1bb36ca79f5c7a287b3ea2065c2b4ef2",
+      "id": "RHKL53mJxTWrxCnZ",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "DowngradesOfBankRatingScore",
@@ -309,7 +309,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "52cb15d2524c56975439f185c390227c",
+      "id": "kMTO_LR22gSfZTd0",
       "tableType": "Test",
       "kind": "Test",
       "name": "DynamicIndexTest",
@@ -322,7 +322,7 @@ Content-Type: application/json
       "signature": "BalanceDynamicIndexCalculation DynamicIndexTest"
     },
     {
-      "id": "6c2c9e0dba6f75c571c01faddb6e269b",
+      "id": "mp3SmoeV5N_4b9Hy",
       "tableType": "SimpleLookup",
       "kind": "Rules",
       "name": "EquityScore",
@@ -337,7 +337,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "433d3a222cbf3f2bdd9a8bf87c64e9dd",
+      "id": "5sI54FlRtghu6rVM",
       "tableType": "Test",
       "kind": "Test",
       "name": "EquityScoreTest",
@@ -350,7 +350,7 @@ Content-Type: application/json
       "signature": "EquityScore EquityScoreTest"
     },
     {
-      "id": "c57b609dc9774d901da43f6c920d55eb",
+      "id": "_ICUy0zQQueam8_F",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "FinancialData",
@@ -363,7 +363,7 @@ Content-Type: application/json
       "signature": "FinancialData"
     },
     {
-      "id": "68200caec29bbef9153d4a191bd11b1a",
+      "id": "ChRoCg3twTXwUaZX",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "HighLiquidityRatioScore",
@@ -377,7 +377,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "5e48f8df45db3cc1851e1fd85434723a",
+      "id": "N06ZrEXiJmaIJcGG",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "IsAdequateCoreCapitalRatioScore",
@@ -391,7 +391,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "9494290f06047d026907dbeddf568b72",
+      "id": "PqeoPsBcVUkv0Lpn",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "IsAdequateLiquidityRatioScore",
@@ -405,7 +405,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "aacf9f2f43a44cfef5d462777c7f76b4",
+      "id": "ZgzgIXsgnUy2bdCt",
       "tableType": "SimpleLookup",
       "kind": "Rules",
       "name": "IsAdequateMaxCreditRiskScore",
@@ -420,7 +420,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "42c6654a8128359285209b613a155391",
+      "id": "wWP4XX2I5DieV_2U",
       "tableType": "Test",
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",
@@ -433,7 +433,7 @@ Content-Type: application/json
       "signature": "IsAdequateMaxCreditRiskScore  IsAdequateMaxCreditRiskScoreTest"
     },
     {
-      "id": "e51b333690dca0cb39595358724b1cd7",
+      "id": "jPf925x6w5C75QF0",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "IsAdequateNormativeIndexCalculation",
@@ -451,7 +451,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "26dab024f36ce48f57d18ebdbce4f3de",
+      "id": "5GCYTB74KAfMzOIK",
       "tableType": "Test",
       "kind": "Test",
       "name": "IsAdequateNormativeIndexTest",
@@ -464,7 +464,7 @@ Content-Type: application/json
       "signature": "IsAdequateNormativeIndexCalculation IsAdequateNormativeIndexTest"
     },
     {
-      "id": "5a587b8620e06da5a922fcca0877cef2",
+      "id": "h0c0IEZEiEqcotjk",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiabilitiesToCustomersDynamicScore",
@@ -478,7 +478,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "c74d2a0d42a733377480b2a9e3799149",
+      "id": "q4wzksOtzqphdaOl",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiabilitiesToCustomersOnDemandRatioScore",
@@ -492,7 +492,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "869426b38398b5d2321b0c8f4d8fb7ae",
+      "id": "AnQu1FgWl1hu6DRn",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiquidityDynamicScore",
@@ -506,7 +506,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "7f5cff66fda0cde2dbd308f3fd2dd4ff",
+      "id": "WEq5nPMcxcCQXpXi",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiquidityRatioScore",
@@ -520,7 +520,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "3a4d22a28da3cafa9a50837fcc7fcc6a",
+      "id": "0kP01Cy5ShSwvbEd",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "LongTermRating",
@@ -533,7 +533,7 @@ Content-Type: application/json
       "signature": "LongTermRating <String>"
     },
     {
-      "id": "7ad34ef50c01faedc53395c30d9c666f",
+      "id": "ee1i1GAKRm_9Lqeo",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LossesInThisYearScore",
@@ -548,7 +548,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "6e084ad272c2afeb58ec879beff9950a",
+      "id": "q1EiDycyl2dcDNZd",
       "tableType": "Test",
       "kind": "Test",
       "name": "LossesInThisYearScoreTest",
@@ -561,7 +561,7 @@ Content-Type: application/json
       "signature": "LossesInThisYearScore LossesInThisYearScoreTest"
     },
     {
-      "id": "35c82476a67125b04032adb6044d1a66",
+      "id": "tCViALZ7gutIfTRh",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NegativeHistoryRelationsScore",
@@ -575,7 +575,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "301f682f2f235e821cc61d0d66bb417a",
+      "id": "ddW9wegAxkWi1QAH",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NegativeInfoShareHoldersOrManagementScore",
@@ -589,7 +589,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "e178c841abf08a1e3fc0abc23c358cb2",
+      "id": "BrbRhb8dCQzWEa3b",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NegativeMassMediaScore",
@@ -603,7 +603,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "97603ce70c2c59600267091243f287c1",
+      "id": "9E55kYfojDcLh7R7",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NetMoneyMarketLiabilitiesScore",
@@ -617,7 +617,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "8b8c881c1edb762510ad659774d3420a",
+      "id": "MHcjMCscCdxbwDos",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "NonZeroValues",
@@ -631,7 +631,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "d01c5e521680a21c5097ea7e697b3b8f",
+      "id": "SFb5Lm6OeYvtYqB5",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "OtherAssetsRatioScore",
@@ -645,7 +645,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "ec6dc87517f5700dcbe41d6a6c30cd36",
+      "id": "MpkADbkBmqTk20fO",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "ProfitDynamicScore",
@@ -660,7 +660,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU1NTE6YjlkMjA1NmYyZDk4NjU2Y2ZiOTBlYWRhZjExYzAzZjQ1MjU1YWFiYzk4YmMwMTBhMjg0ZDA5MTc2ZjM2NDIwMQ=="
     },
     {
-      "id": "71444c2b6fba8c43a43d83a844b66c12",
+      "id": "_4Qe0peyb0pIz1Cf",
       "tableType": "Test",
       "kind": "Test",
       "name": "ProfitDynamicScoreTest",
@@ -673,7 +673,7 @@ Content-Type: application/json
       "signature": "ProfitDynamicScore ProfitDynamicScoreTest"
     },
     {
-      "id": "5335b137eac0df657900ad1a6b85e0b2",
+      "id": "L7GzGqqJr4wJZ5cW",
       "tableType": "Test",
       "kind": "Test",
       "name": "QualitativeIndexTest",
@@ -686,7 +686,7 @@ Content-Type: application/json
       "signature": "BankQualitativeIndexCalculation QualitativeIndexTest"
     },
     {
-      "id": "bfb5972b32b01ced4995e5de9b4effde",
+      "id": "srvOZFlfL5iVtrOs",
       "tableType": "Test",
       "kind": "Test",
       "name": "QualityIndexTest",
@@ -699,7 +699,7 @@ Content-Type: application/json
       "signature": "BalanceQualityIndexCalculation QualityIndexTest"
     },
     {
-      "id": "5284e0151697866752d0a94e3f699fb4",
+      "id": "0PqyBgEOBBYY3fRK",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "QualityIndicators",

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "5198ca5f5384c0b1a36801c4a785261f",
+  "id": "vd3FaKTEiAyHoSAG",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "LegacyType",

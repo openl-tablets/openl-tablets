@@ -16,9 +16,18 @@ public class WorkbookSyntaxNode extends NaryNode {
                               XlsWorkbookSourceCodeModule module) {
         super(XlsNodeTypes.XLS_WORKBOOK.toString(), null, nodes, module);
         this.mergedTableParts = mergedTableParts;
+        // A table gathered from its parts belongs to the workbook, as the tables of its sheets do.
+        for (var table : mergedTableParts) {
+            table.setParent(this);
+        }
     }
 
     private TableSyntaxNode[] tableSyntaxNodes;
+
+    /** The tables gathered from parts written on several sheets of the workbook. */
+    public TableSyntaxNode[] getMergedTableParts() {
+        return mergedTableParts;
+    }
 
     public TableSyntaxNode[] getTableSyntaxNodes() {
         if (tableSyntaxNodes == null) {

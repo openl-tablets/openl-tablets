@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "WrapperTest",
-      "tableId": "f1552629c7b9999283c19b9092f79399",
+      "tableId": "ehpJz0lFItktrH2V",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -61,7 +61,7 @@ Content-Type: application/json
     },
     {
       "name": "PolicyOverrideCalculationTest",
-      "tableId": "2ff5dc4c24660d5a98036ed71cb26293",
+      "tableId": "7rRkskX8wJb-0WK0",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,

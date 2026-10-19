@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "ProfitDynamicScoreTest",
-      "tableId": "3204477e4a9815606f0cbb42284237f2",
+      "tableId": "_4Qe0peyb0pIz1Cf",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
@@ -154,7 +154,7 @@ Content-Type: application/json
     },
     {
       "name": "QualitativeIndexTest",
-      "tableId": "8363076eb1ec04e8d7aeb84a06db44e1",
+      "tableId": "L7GzGqqJr4wJZ5cW",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -403,7 +403,7 @@ Content-Type: application/json
     },
     {
       "name": "QualityIndexTest",
-      "tableId": "22dbcb4d8a67e8f4c6ec4267534bddc6",
+      "tableId": "srvOZFlfL5iVtrOs",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -509,7 +509,7 @@ Content-Type: application/json
     },
     {
       "name": "SetNonZeroValuesTest",
-      "tableId": "e4ba33fb5e210b214a613ca1f14ff98c",
+      "tableId": "bhNxSLRNK9xRuwYF",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,

@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "SmartRules",
-  "id": "39abced710a1a6bc6b4d31fc8a3cd1fd",
+  "id": "oF0-9El4ZIZLMOBl",
   "kind": "Rules",
   "name": "Hello",
   "returnType": "String",

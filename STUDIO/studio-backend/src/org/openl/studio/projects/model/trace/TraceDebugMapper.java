@@ -35,7 +35,6 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetCellType;
 import org.openl.rules.cloner.Cloner;
 import org.openl.rules.dt.IDecisionTable;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.table.xls.XlsUtil;
@@ -123,7 +122,7 @@ public class TraceDebugMapper {
                     .depth(frame.getDepth())
                     .instance(frame.getInvocationIndex())
                     .uri(frame.getUri())
-                    .tableId(TableUtils.makeTableId(frame.getUri()))
+                    .tableId(frame.getTableId())
                     .name(frame.getName())
                     .kind(frame.getKind())
                     .location(toLocationView(frame.getLocation()))

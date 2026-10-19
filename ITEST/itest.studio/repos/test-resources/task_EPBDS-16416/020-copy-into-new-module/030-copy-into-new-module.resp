@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "25ab7192462d177acabc1aded16d26b7",
+  "id": "JyXTk0pN1IxUODai",
   "tableType": "Rules",
   "kind": "Rules",
   "name": "BankLimitIndexCopy",

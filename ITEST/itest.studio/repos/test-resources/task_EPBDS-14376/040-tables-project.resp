@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "5cff64b989fa6f416c2ba143cc959320",
+      "id": "GMrY6pNw_--8HNSt",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "FicaDetails",

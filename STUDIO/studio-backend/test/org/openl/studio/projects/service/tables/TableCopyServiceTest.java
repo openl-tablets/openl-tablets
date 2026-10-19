@@ -60,10 +60,12 @@ class TableCopyServiceTest {
         var sourceView = reader.read(source.table(), RawTableRead.builder().withStyles(true).build());
 
         var destGrid = creator.sheetGridModel(source.model(), "Copies");
-        service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source));
+        var copyId = service.copyInto(source.table(), "BankLimitIndexCopy", null, destGrid, tables(source));
         creator.save(destGrid);
 
-        var copyView = reader.read(resolve(projectDir, "BankLimitIndexCopy").table(), RawTableRead.builder()
+        var copy = resolve(projectDir, "BankLimitIndexCopy").table();
+        assertEquals(copy.getId(), copyId, "the copy is known by the id its compile gives it");
+        var copyView = reader.read(copy, RawTableRead.builder()
                 .withStyles(true)
                 .build());
 

@@ -46,7 +46,11 @@ public class TableSyntaxNode extends NaryNode {
 
     private MetaInfoReader metaInfoReader = EmptyMetaInfoReader.getInstance();
 
-    private volatile String tableId;
+    /**
+     * Read without a lock: the record is immutable, so its final fields are seen whole, and a reader that misses it
+     * asks {@link TableIds}, which numbers the module under its lock.
+     */
+    private TableIds.Numbered numbered;
 
     public TableSyntaxNode(String type,
                            GridLocation pos,
@@ -131,15 +135,26 @@ public class TableSyntaxNode extends NaryNode {
         return getGridTable().getUriParser();
     }
 
+    /**
+     * The id of the table, made of what the table is rather than of where it stands.
+     *
+     * <p>The id is kept while the table moves, on its sheet or to another sheet of its workbook, and changes when the
+     * table is renamed. See {@link TableIds}.
+     *
+     * @return the id of the table
+     */
     public String getId() {
-        if (tableId == null) {
-            synchronized (this) {
-                if (tableId == null) {
-                    tableId = TableUtils.makeTableId(getUri());
-                }
-            }
-        }
-        return tableId;
+        var given = numbered;
+        return given != null ? given.id() : TableIds.idOf(this);
+    }
+
+    /** What the table is and its number among the tables sharing it, or {@code null} until its module is numbered. */
+    TableIds.Numbered numbered() {
+        return numbered;
+    }
+
+    void number(TableIds.Numbered numbered) {
+        this.numbered = numbered;
     }
 
     public Object getValidationResult() {

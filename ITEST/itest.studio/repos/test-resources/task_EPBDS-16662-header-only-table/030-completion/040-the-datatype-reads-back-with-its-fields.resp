@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "c88df8c6ce367c4a26a5469bf28860fd",
+  "id": "WtCBC1kF-tlvGgcS",
   "tableType": "RawSource",
   "kind": "Datatype",
   "name": "Coverage",

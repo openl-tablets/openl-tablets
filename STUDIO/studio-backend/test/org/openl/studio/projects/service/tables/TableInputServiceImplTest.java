@@ -71,6 +71,7 @@ class TableInputServiceImplTest {
     @Test
     void describesRuleTableParametersBySchema() {
         var method = ruleMethod();
+        when(table.getId()).thenReturn("k3q7v2m5xahd4r2b");
         when(projectModel.getMethod(TABLE_URI)).thenReturn(method);
         when(projectService.getWebStudio()).thenReturn(webStudio);
         when(webStudio.getCurrentProjectRulesDeploy()).thenReturn(null);
@@ -78,7 +79,7 @@ class TableInputServiceImplTest {
         var view = service.describe(projectModel, table, false, objectMapper, schemaGenerator);
 
         assertEquals("Premium", view.name());
-        assertNotNull(view.tableId());
+        assertEquals("k3q7v2m5xahd4r2b", view.tableId());
         assertEquals(List.of("age", "since"), view.parameters().stream().map(ParameterValue::name).toList());
         var age = view.parameters().getFirst();
         assertEquals("int", age.description());

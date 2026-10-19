@@ -2482,7 +2482,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project   project
      * @param tableId   table id
      * @param tableView new table data
-     * @return table id after the write; differs from {@code tableId} when the table was relocated to grow
+     * @return table id after the write; differs from the id the table had when the write renamed it or changed its
+     * {@code id} property
      * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
@@ -2500,7 +2501,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project   project
      * @param tableId   table id
      * @param tableView lines to append
-     * @return table id after the append; differs from {@code tableId} when the table was relocated to grow
+     * @return table id after the append, which keeps the id the table had
      * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
@@ -2525,7 +2526,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project project
      * @param tableId table id
      * @param actions the edits to apply, in order
-     * @return table id after the edits; differs from {@code tableId} when the table was relocated to grow
+     * @return table id after the edits; differs from the id the table had when the edits renamed it or changed its
+     * {@code id} property
      * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
@@ -2713,7 +2715,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @param project    project owning the table
      * @param tableId    table to write to
      * @param properties the properties to write, each with the text its value is written as
-     * @return the table's identifier after the write, which changes when the table had to be moved to grow
+     * @return the table's identifier after the write, which changes when the write changes its {@code id} property
      * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
@@ -2773,7 +2775,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * duplicate.
      *
      * <p>The returned identifier is the copy's own, even when it shares the source's name — a copy kept under the same
-     * name is a new version told apart by its properties, and its identifier reflects its position, not its name.
+     * name is a new version, numbered among the tables sharing that name by where it is written.
      *
      * @param project       project
      * @param sourceTableId id of the table to copy

@@ -57,7 +57,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Pageable;
@@ -809,9 +808,9 @@ public class ProjectsController {
     /**
      * Builds the response for a table write.
      * <p>
-     * When the table ID is unchanged, returns 204 No Content with no headers. When the table was relocated and its ID
-     * changed, returns 200 OK with the new ID in the body and a Location header pointing to the table resource under its
-     * new ID.
+     * When the table ID is unchanged, returns 204 No Content with no headers. When the write renamed the table or changed
+     * its {@code id} property, returns 200 OK with the new ID in the body and a Location header pointing to the table
+     * resource under its new ID.
      *
      * @param requestedTableId table ID from the request path
      * @param currentTableId   table ID after the write
@@ -1075,7 +1074,7 @@ public class ProjectsController {
             return run.tables();
         }
         return run.tables().stream()
-                .filter(candidate -> tableId.equals(TableUtils.makeTableId(candidate.getTestSuite().getUri())))
+                .filter(candidate -> tableId.equals(candidate.getTestSuite().getTableId()))
                 .toList();
     }
 

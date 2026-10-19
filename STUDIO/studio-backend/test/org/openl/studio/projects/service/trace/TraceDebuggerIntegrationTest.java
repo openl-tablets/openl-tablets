@@ -102,7 +102,7 @@ class TraceDebuggerIntegrationTest {
     private static final SourceClassifier CLASSIFIER = new SourceClassifier() {
         @Override
         public FrameDescriptor describeFrame(Object source) {
-            return source instanceof FakeTable t ? new FrameDescriptor(FrameKind.METHOD, t.uri, t.uri) : null;
+            return source instanceof FakeTable t ? new FrameDescriptor(FrameKind.METHOD, t.uri, t.uri, null) : null;
         }
 
         @Override

@@ -39,10 +39,11 @@ public interface SourceClassifier {
     /**
      * Identity and display data of a table frame.
      *
-     * @param kind frame kind
-     * @param uri  source URI of the table, used for breakpoints and table rendering
-     * @param name display name of the table
+     * @param kind    frame kind
+     * @param uri     source URI of the table, used for breakpoints and table rendering
+     * @param name    display name of the table
+     * @param tableId id of the table, or {@code null} when no table of the project holds it
      */
-    record FrameDescriptor(FrameKind kind, String uri, String name) {
+    record FrameDescriptor(FrameKind kind, String uri, String name, @Nullable String tableId) {
     }
 }

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "f7e9e48351f56988a3847fd05446f305",
+  "id": "jRztmW2BNURKNPPb",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "BaseRate",

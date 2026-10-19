@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "greetingTest",
-      "tableId": "60f531b134e0aa44b82efa46a0461a97",
+      "tableId": "XnogkN_PsuLviUrW",
       "module": "Greeting",
       "executionTimeMs": "##.##",
       "numberOfTests": 7,

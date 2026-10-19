@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "BankRatingGroupTest",
-      "tableId": "94c99ffff3a802b2adad89c3ddd3ab6a",
+      "tableId": "xqhs_BeG4jcnfPIQ",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 5,

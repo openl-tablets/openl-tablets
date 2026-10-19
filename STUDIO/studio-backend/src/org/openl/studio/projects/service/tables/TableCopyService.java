@@ -37,7 +37,7 @@ public interface TableCopyService {
      * @param properties   the copy's properties, or {@code null} to keep the source's
      * @param destGrid     the sheet the copy is written to
      * @param moduleTables the tables compiled together with the copy, which a new version is checked against
-     * @return the copy's identifier at its written position
+     * @return the identifier the copy is known by once its module is compiled again
      */
     String copyInto(IOpenLTable source, String newName, @Nullable List<TableProperty> properties,
             XlsSheetGridModel destGrid, TableSyntaxNode[] moduleTables);

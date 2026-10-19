@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "900c5129d77d17c8bbbed7e79ef44757",
+  "id": "D--uD87p_JqwdLfu",
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "MyRules4",

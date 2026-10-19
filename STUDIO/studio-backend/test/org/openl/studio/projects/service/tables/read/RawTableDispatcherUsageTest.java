@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.projects.model.tables.RawTableView;
 import org.openl.studio.projects.service.tables.TableModules;
@@ -46,7 +45,7 @@ class RawTableDispatcherUsageTest {
 
         var usage = TableTestProjects.cellOf(read.source, CALL).metaInfo().usages().getFirst();
         var dispatcher = TableTestProjects.dispatcherTable(projectModel);
-        assertEquals(TableUtils.makeTableId(dispatcher.getUri()), usage.tableId());
+        assertEquals(dispatcher.getId(), usage.tableId());
         // It is read through the module the word is read in: no workbook holds it to name another one.
         assertEquals(projectModel.getModuleInfo().getName(), usage.module());
         assertNotNull(usage.description());
