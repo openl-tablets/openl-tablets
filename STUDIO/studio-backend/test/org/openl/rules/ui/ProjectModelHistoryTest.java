@@ -14,8 +14,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
@@ -25,6 +29,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -33,6 +38,20 @@ class ProjectModelHistoryTest {
 
     @TempDir
     Path workspace;
+
+    private Environment previousEnvironment;
+
+    @BeforeEach
+    void useSettings() {
+        // A write to the history reads from the settings how many versions to keep: no limit here.
+        previousEnvironment = Props.getEnvironment();
+        Props.setEnvironment(new MockEnvironment());
+    }
+
+    @AfterEach
+    void restoreSettings() {
+        Props.setEnvironment(previousEnvironment);
+    }
 
     @Test
     void keepsTheWritesToAWorkbookOfAnotherModuleInTheHistoryOfThatModule() throws IOException {
