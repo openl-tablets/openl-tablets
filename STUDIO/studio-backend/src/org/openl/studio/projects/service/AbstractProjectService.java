@@ -63,7 +63,6 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
             .build();
 
     protected final RepositoryAclService designRepositoryAclService;
-    protected final ProjectIdentifierMapper projectIdentifierMapper;
     protected final ProjectAccessService projectAccessService;
 
     @Override
@@ -363,7 +362,7 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
         var repository = src.getRepository();
         var builder = ProjectViewModel.builder()
                 .name(src.getBusinessName())
-                .id(projectIdentifierMapper.map(src))
+                .id(src.getProjectId())
                 .repository(repository.getId());
         var fileData = fileDataOf(src);
         fileData.ifPresent(metadata -> {

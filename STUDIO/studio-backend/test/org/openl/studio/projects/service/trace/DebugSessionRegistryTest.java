@@ -11,15 +11,16 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.ui.WorkspaceResetEvent;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 
 class DebugSessionRegistryTest {
 
-    private static ProjectIdModel projectId(String name) {
-        return ProjectIdModel.builder().repository("repo").projectName(name).build();
+    private static ProjectId projectId(String name) {
+        return ProjectIds.of("repo", name);
     }
 
-    private static DebugSession session(ProjectIdModel projectId) {
+    private static DebugSession session(ProjectId projectId) {
         return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, Map.of(),
                 "session-1");
     }

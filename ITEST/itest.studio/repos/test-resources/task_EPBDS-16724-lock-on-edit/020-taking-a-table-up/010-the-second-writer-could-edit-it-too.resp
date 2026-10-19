@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ZGVzaWduOkVQQkRTLTE2NzI0",
+  "id": "7uQFIYDBN6wF",
   "name": "EPBDS-16724",
   "status": "OPENED",
   "repository": "design",

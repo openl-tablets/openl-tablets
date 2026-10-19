@@ -11,7 +11,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,12 +35,13 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
-import org.openl.studio.projects.converter.ProjectIdentityConverter;
-import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.studio.projects.service.ProjectIdentifierMapperImpl;
+import org.openl.studio.projects.converter.ProjectIdConverter;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
@@ -68,7 +68,7 @@ class DesignTimeRepositoryControllerTest {
     private ProjectCreationService projectCreationService;
     private ProjectCreationTargetResolver projectCreationTargetResolver;
     private RepositoryConfigService repositoryConfigService;
-    private ProjectIdentityConverter projectIdentityConverter;
+    private ProjectIdConverter projectIdConverter;
     private Comments comments;
     private DesignTimeRepositoryController controller;
 
@@ -79,7 +79,7 @@ class DesignTimeRepositoryControllerTest {
         validationProvider = mock(BeanValidationProvider.class);
         zipProjectSaveStrategy = mock(ZipProjectSaveStrategy.class);
         repositoryConfigService = mock(RepositoryConfigService.class);
-        projectIdentityConverter = mock(ProjectIdentityConverter.class);
+        projectIdConverter = mock(ProjectIdConverter.class);
         comments = mock(Comments.class);
         aclProjectsHelper = mock(AclProjectsHelper.class);
         bypassService = mock(ProtectedBranchBypassService.class);
@@ -107,8 +107,7 @@ class DesignTimeRepositoryControllerTest {
                 projectCreationService,
                 projectCreationTargetResolver,
                 repositoryConfigService,
-                projectIdentityConverter,
-                new ProjectIdentifierMapperImpl()) {
+                projectIdConverter) {
             // The comment service is a @Lookup bean, absent outside a Spring context.
             @Override
             protected Comments getCommentsService(String repoName) {
@@ -140,24 +139,24 @@ class DesignTimeRepositoryControllerTest {
                 .thenReturn(created("Copy"));
 
         controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", "rev-1"));
+                new CreateFromProjectModel(sourceId("Source"), null, "comment", "rev-1"));
 
         verify(bypassService).requireBypassOrThrow(repository, BRANCH, REPOSITORY_ID, false);
     }
 
     @Test
     void anOmittedCommentNamesTheProjectThatIsActuallyCopied() {
-        // The request may address its source by an identifier, which is no name to put in a commit comment.
-        var source = sourceProject("ZGVzaWduOlNvdXJjZTpoYXNo");
-        when(source.getBusinessName()).thenReturn("Source");
-        when(comments.copiedFrom("Source")).thenReturn("Copied from: Source.");
-        when(projectCreationService.copyProject(repository, "Copy", null, source, "Copied from: Source.", null))
+        // The request addresses its source by an id, which is no name to put in a commit comment.
+        var source = sourceProject("Source");
+        when(source.getBusinessName()).thenReturn("Source Rules");
+        when(comments.copiedFrom("Source Rules")).thenReturn("Copied from: Source Rules.");
+        when(projectCreationService.copyProject(repository, "Copy", null, source, "Copied from: Source Rules.", null))
                 .thenReturn(created("Copy"));
 
         controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(REPOSITORY_ID, "ZGVzaWduOlNvdXJjZTpoYXNo", null, null, null));
+                new CreateFromProjectModel(sourceId("Source"), null, null, null));
 
-        verify(comments).copiedFrom("Source");
+        verify(comments).copiedFrom("Source Rules");
     }
 
     @Test
@@ -171,7 +170,7 @@ class DesignTimeRepositoryControllerTest {
         when(projectCreationService.copyProject(target, "Copy", null, source, "comment", null)).thenReturn(data);
 
         controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", null, "feature/rates"));
+                new CreateFromProjectModel(sourceId("Source"), null, "comment", null, "feature/rates"));
 
         verify(projectCreationTargetResolver).resolve(repository, "feature/rates");
         verify(projectCreationService).copyProject(target, "Copy", null, source, "comment", null);
@@ -181,12 +180,7 @@ class DesignTimeRepositoryControllerTest {
     void copyChecksBranchProtectionBeforeResolvingTheTarget() {
         rejectRequestedBranch("protected/new");
         sourceProject("Source");
-        var request = new CreateFromProjectModel(REPOSITORY_ID,
-                "Source",
-                null,
-                "comment",
-                null,
-                "protected/new");
+        var request = new CreateFromProjectModel(sourceId("Source"), null, "comment", null, "protected/new");
 
         assertThrows(ConflictException.class,
                 () -> controller.createProjectFromProject(repository, "Copy", request));
@@ -252,13 +246,15 @@ class DesignTimeRepositoryControllerTest {
         when(projectCreationService.createFromTemplate(repository, "Project", null,
                 "predefined", "templates", "Sample Project", "comment", null)).thenReturn(data);
 
+        var id = idOfWritten(repository, data);
+
         var created = controller.createProject(repository, "Project", null, "comment", null, "predefined",
                 "templates", "Sample Project", "Models", "rules/Models.xlsx", "Algorithms", "rules/Algorithms.xlsx",
                 false, null, null, false);
 
         verify(projectCreationService).applyStatusAfterCreate(repository, "Project:hash", ProjectStatus.VIEWING);
-        // The answer names the project by the id the project list reports for it, its indexed name included.
-        assertEquals(projectId("Project:hash"), created.id);
+        // The answer names the project by the id of the folder written, which the project list reports for it.
+        assertEquals(id, created.id);
     }
 
     @Test
@@ -269,29 +265,27 @@ class DesignTimeRepositoryControllerTest {
         data.setBranch(BRANCH);
         data.setVersion("rev-2");
         when(projectCreationService.copyProject(repository, "Copy", null, source, "comment", null)).thenReturn(data);
+        var id = idOfWritten(repository, data);
 
         var copy = controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(REPOSITORY_ID, "Source", null, "comment", null));
+                new CreateFromProjectModel(sourceId("Source"), null, "comment", null));
 
-        assertEquals(projectId("Copy:hash"), copy.id);
+        assertEquals(id, copy.id);
         assertEquals(BRANCH, copy.branch);
         assertEquals("rev-2", copy.revision);
     }
 
+    /** An id no project of the workspace has, a name or an id of an earlier OpenL Studio among them. */
     @Test
-    void copyLooksForTheSourceInEveryRepositoryWhenTheRequestNamesNone() {
-        var source = mock(RulesProject.class);
-        when(projectIdentityConverter.resolveProjectIdentity("Source", null)).thenReturn(source);
-        when(projectCreationService.copyProject(repository, "Copy", null, source, "comment", null))
-                .thenReturn(created("Copy"));
+    void copyOfAnUnknownSourceIsNotFound() {
+        var request = new CreateFromProjectModel(sourceId("Missing"), null, "comment", null);
 
-        controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(null, "Source", null, "comment", null));
-        // A blank repository names none either.
-        controller.createProjectFromProject(repository, "Copy",
-                new CreateFromProjectModel(" ", "Source", null, "comment", null));
+        var error = assertThrows(NotFoundException.class,
+                () -> controller.createProjectFromProject(repository, "Copy", request));
 
-        verify(projectCreationService, times(2)).copyProject(repository, "Copy", null, source, "comment", null);
+        assertEquals("openl.error.404.project.identifier.message", error.getErrorCode());
+        verify(projectCreationService, never()).copyProject(any(Repository.class), any(), any(),
+                any(RulesProject.class), any(), any());
     }
 
     @Test
@@ -334,17 +328,25 @@ class DesignTimeRepositoryControllerTest {
         return data;
     }
 
-    private static ProjectIdModel projectId(String indexedName) {
-        return ProjectIdModel.builder().repository(REPOSITORY_ID).projectName(indexedName).build();
+    /** The id the creation service tells for what a write answered. */
+    private ProjectId idOfWritten(Repository target, FileData data) {
+        var id = ProjectIds.of(REPOSITORY_ID, data.getName());
+        when(projectCreationService.idOfWritten(target, data)).thenReturn(id);
+        return id;
     }
 
-    /** The project the request names as its source, as the identity converter resolves it. */
-    private RulesProject sourceProject(String identifier) {
+    /** The id of the project in the given design folder. */
+    private static ProjectId sourceId(String folder) {
+        return ProjectIds.of(REPOSITORY_ID, "DESIGN/rules/" + folder);
+    }
+
+    /** The project the request names as its source, as the id converter finds it. */
+    private RulesProject sourceProject(String folder) {
         var source = mock(RulesProject.class);
-        when(projectIdentityConverter.resolveProjectIdentity(identifier, REPOSITORY_ID)).thenReturn(source);
+        when(source.getBusinessName()).thenReturn(folder);
+        when(projectIdConverter.find(sourceId(folder))).thenReturn(source);
         return source;
     }
-
 
     private void rejectRequestedBranch(String branch) {
         when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setBranches(true).build());

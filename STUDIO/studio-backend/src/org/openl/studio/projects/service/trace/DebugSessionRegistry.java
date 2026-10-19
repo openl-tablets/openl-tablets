@@ -13,7 +13,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.ui.WorkspaceResetEvent;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.session.ClientSessionScope;
 
 /**
@@ -59,7 +59,7 @@ public class DebugSessionRegistry {
     }
 
     /** The active session if it belongs to the given project, otherwise {@code null}. */
-    public @Nullable DebugSession find(ProjectIdModel projectId) {
+    public @Nullable DebugSession find(ProjectId projectId) {
         var session = ref.get();
         if (session == null || !session.getProjectId().equals(projectId)) {
             return null;

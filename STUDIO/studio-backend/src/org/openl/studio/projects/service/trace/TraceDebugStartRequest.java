@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -35,7 +35,7 @@ public record TraceDebugStartRequest(
         ProjectModel projectModel,
         IOpenLTable table,
         IOpenMethod method,
-        ProjectIdModel projectId,
+        ProjectId projectId,
         String tableId,
         @Nullable String testRanges,
         boolean currentOpenedModule,

@@ -16,6 +16,10 @@ from Maven.
 * **The OpenL Studio screens need nothing from you for the API prefix change.** They call the new address
   on their own.
 
+* **A bookmark of a project from OpenL Studio 6.4 opens nothing.** A project is addressed by a new id, so an address
+  saved before the upgrade, and one that names a project by its name, leads to no project. Open the project from the
+  **Projects** tab and bookmark it again.
+
 * **The Default Order is gone from My Settings.** The module tree opens on the view last picked in the browser, and on
   **By Excel Sheet** until one is picked. A Default Order saved before the upgrade is not used.
 
@@ -355,6 +359,19 @@ from Maven.
   and a request that fails now changes nothing.
 * **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
   `400`.
+* **A project id is an opaque 12-character value.** Every project id of the REST API and of the WebSocket
+  destinations used to be the Base64 of `repository:name`, and a project name was accepted in its place: the
+  `{projectId}` of every `/rest/projects/{projectId}/...` path, `{project-id}` of `/rest/acls/projects/{project-id}`,
+  `projectId` of `POST /rest/deployments` and `POST /rest/deployments/{id}`, `sourceProject` of a project copy and
+  `dependsOn` of `GET /rest/projects`. An old id and a project name answer `404` now, and `dependsOn` answers `400`
+  for a text that is not an id. Read the id from `id` of `GET /rest/projects` — filter it with `repository` and
+  `name` — or from the answer of the request that created or copied the project, and do not build or decode it. The
+  id is computed from the repository and the folder of the project, so it survives a rename in `rules.xml`, a branch
+  switch, an open, a close and a restart. A deployment keeps its id.
+* **A name shared by several projects no longer answers `409` with candidates.** The answer, with the code
+  `openl.error.409.project.identifier.ambiguous.message` and a `candidates` list, is gone: an id names one project.
+* **`sourceRepositoryId` of a project copy is gone.** `POST /rest/repos/{repo}/projects/{name}/from-project` takes the
+  source by its id, which names its repository too. A request that still sends the field answers `400`.
 * **Deprecated REST endpoints are removed.** Call their replacements:
   - **`GET /rest/users/options`** — `GET /rest/settings`, where `emailVerification` is
     `supportedFeatures.emailVerification`. `userMode` there is `INTERNAL` for `multi`, `EXTERNAL` for `ad`, `oauth2`

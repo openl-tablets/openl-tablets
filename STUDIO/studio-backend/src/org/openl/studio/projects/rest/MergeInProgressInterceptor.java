@@ -13,7 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.projects.converter.ProjectIdentityConverter;
+import org.openl.studio.projects.converter.ProjectIdConverter;
 import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.controller.ProjectsMergeController;
 import org.openl.studio.projects.service.merge.ProjectsMergeLauncher;
@@ -41,7 +41,7 @@ public class MergeInProgressInterceptor implements HandlerInterceptor {
     private static final Set<String> READS = Set.of("GET", "HEAD", "OPTIONS");
 
     private final ProjectsMergeLauncher mergeLauncher;
-    private final ProjectIdentityConverter projectIdentityConverter;
+    private final ProjectIdConverter projectIdConverter;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -49,7 +49,7 @@ public class MergeInProgressInterceptor implements HandlerInterceptor {
         if (identity != null) {
             mergeLauncher.settleFinished();
             if (!READS.contains(request.getMethod()) && !isLetThrough(handler)
-                    && mergeLauncher.isRunning(() -> projectIdentityConverter.convert(identity))) {
+                    && mergeLauncher.isRunning(() -> projectIdConverter.convert(identity))) {
                 throw new ConflictException("project.merge.running.message");
             }
         }

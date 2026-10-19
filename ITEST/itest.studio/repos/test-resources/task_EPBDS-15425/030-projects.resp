@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==",
+      "id": "mZkhLzsWf3Ze",
       "name": "EPBDS-13931",
       "branch": "EPBDS-13931_1",
       "status": "OPENED",
@@ -41,7 +41,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOkVQQkRTLTE0MDk1",
+      "id": "vIEe7hHKLO1g",
       "name": "EPBDS-14095",
       "status": "CLOSED",
       "repository": "design",
@@ -75,7 +75,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTQzNzY6N2I3NDE1MjZhYjJhOTI3NDEyYzA2YTZhZTUzYzg4YTBlZTJjNWU0MzY5NWQ3ZjZhNmFlZjFmMTg5ZGJlMjE0ZQ==",
+      "id": "0a6T2HC1wE7P",
       "name": "EPBDS-14376",
       "branch": "EPBDS-14376_1",
       "status": "EDITING",
@@ -111,7 +111,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOkVQQkRTLTE0NDE4",
+      "id": "D7EeYCWcTJXt",
       "name": "EPBDS-14418",
       "status": "CLOSED",
       "repository": "design",
@@ -141,7 +141,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
+      "id": "pWq5DvI4Bfr2",
       "name": "EPBDS-15409",
       "branch": "EPBDS-15409_1",
       "status": "EDITING",
@@ -177,7 +177,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDE6ZDUyMjg0YjVmMzk5N2Y4N2I5MTNmNzAyN2ZlN2ZlMTE2MjI1MzM1N2M0M2ZkNmY5ZTlhM2NmZmI0OWVjN2E2Mg==",
+      "id": "rUUUH3G03j0j",
       "name": "EPBDS-15425_Project1",
       "branch": "master",
       "status": "CLOSED",
@@ -189,7 +189,7 @@ Content-Type: application/json
       "comment": "Project EPBDS-15425_Project1 is created.",
       "dependencies": [
         {
-          "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+          "id": "appPPtXdd0lT",
           "name": "EPBDS-15425_Project2",
           "branch": "master",
           "status": "CLOSED",
@@ -223,7 +223,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MjVfUHJvamVjdDI6NzgxMDMzNTk2ODBlOTI4NTI3ODEwZDY4N2RmOTQ4NmM4NWUzNThiODBjMjAxNjY2NjIyYWM3N2MzMjMxNDQ0ZA==",
+      "id": "appPPtXdd0lT",
       "name": "EPBDS-15425_Project2",
       "branch": "master",
       "status": "CLOSED",
@@ -259,7 +259,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOlByb2plY3Q=",
+      "id": "ym3IH0b7iU-7",
       "name": "Project",
       "status": "CLOSED",
       "repository": "design",
@@ -289,7 +289,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "id": "c5HtC2wdN8fO",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",
@@ -325,7 +325,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+      "id": "bWwb43n8VPU7",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",
@@ -361,7 +361,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduOlByb2plY3Qy",
+      "id": "_EJervrhpkur",
       "name": "Project2",
       "status": "CLOSED",
       "repository": "design",
@@ -391,7 +391,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI6Y2Y1Yjc0NzY1NmU3MjBhMDZiZWUyMzQ2NGQ1YTJkZmY5M2Q0NDdjODU1Mzc1ODFmOTc5YzNhMzhhZDYzZTQxMA==",
+      "id": "wflbBkr7CfKV",
       "name": "Project2",
       "branch": "master",
       "status": "CLOSED",
@@ -427,7 +427,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3QyOmNmNWI3NDc2NTZlNzIwYTA2YmVlMjM0NjRkNWEyZGZmOTNkNDQ3Yzg1NTM3NTgxZjk3OWMzYTM4YWQ2M2U0MTA=",
+      "id": "QDlNbDEpcEZc",
       "name": "Project2",
       "branch": "master",
       "status": "CLOSED",
@@ -463,7 +463,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q0OjRjMjg2ZTU2MjQ2NDU4ZWE0ZTRhMzQyMGEyODQyOTI0ZmYyN2UxODczZmU1MGMyMWMyMGM4YjNlM2JlMzg0YWM=",
+      "id": "t0MQuQezVKKm",
       "name": "Project4",
       "branch": "master",
       "status": "CLOSED",
@@ -499,7 +499,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q3OjU3MjQxODIwZGNmYjAzMjdhYjgzM2M2MzAyMTQ5ZTk3NjcwNzczZTkxNzc5YzdhZjlkODJmZWUyNjA4ZjFkZWI=",
+      "id": "J3yR3-xfpIL2",
       "name": "Project7",
       "branch": "master",
       "status": "CLOSED",

@@ -18,15 +18,14 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.MergePublishing;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.messaging.ProjectSocketNotificationService;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.projects.model.merge.MergeResult;
 import org.openl.studio.projects.service.ExecutionLifecycle;
 import org.openl.studio.projects.service.ExecutionStatus;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -58,7 +57,6 @@ public class ProjectsMergeLauncher {
     private final WorkspaceProjectService projectService;
     private final ProjectsMergeRegistry registry;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ProjectSocketNotificationService notifications;
     @Qualifier("mergeExecutor")
     private final Executor mergeExecutor;
@@ -82,7 +80,7 @@ public class ProjectsMergeLauncher {
      * @throws IOException       when the repository cannot tell whether the merge may be performed
      */
     public void start(RulesProject project, String otherBranch, MergeOpMode mode, boolean force) throws IOException {
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         StartedMerge merge;
         // Two requests of the client never start merges at once: the second finds the merge the first has taken.
         var lock = registry.startLock();
@@ -159,7 +157,7 @@ public class ProjectsMergeLauncher {
     public boolean isRunning(Supplier<RulesProject> project) {
         return registry.current()
                 .filter(StartedMerge::isRunning)
-                .filter(merge -> merge.projectId().equals(projectIdentifierMapper.map(project.get())))
+                .filter(merge -> merge.projectId().equals(project.get().getProjectId()))
                 .isPresent();
     }
 
@@ -203,12 +201,12 @@ public class ProjectsMergeLauncher {
      *
      * @param projectId the merged project
      */
-    public void forget(ProjectIdModel projectId) {
+    public void forget(ProjectId projectId) {
         registry.forget(projectId);
     }
 
     private Optional<StartedMerge> find(RulesProject project) {
-        return registry.find(projectIdentifierMapper.map(project));
+        return registry.find(project.getProjectId());
     }
 
     /**
@@ -221,7 +219,7 @@ public class ProjectsMergeLauncher {
                 settle(merge);
             } catch (ProjectException | RuntimeException e) {
                 log.error("Failed to bring the editor up to date after the merge of the project '{}'.",
-                        merge.projectId().getProjectName(),
+                        merge.editor().realPath(),
                         e);
             }
         });
@@ -278,11 +276,10 @@ public class ProjectsMergeLauncher {
     }
 
     private void fail(StartedMerge merge, Exception e) {
-        var projectId = merge.projectId();
         log.error("Failed to merge the branch '{}' of the project '{}' in the repository '{}'.",
                 merge.otherBranch(),
-                projectId.getProjectName(),
-                projectId.getRepository(),
+                merge.editor().realPath(),
+                merge.editor().repositoryId(),
                 e);
         merge.task().completeExceptionally(e);
         reportError(merge, ExecutionLifecycle.reasonOf(e));
@@ -312,7 +309,7 @@ public class ProjectsMergeLauncher {
             report.run();
         } catch (RuntimeException e) {
             log.warn("Failed to report the progress of the merge of the project '{}'.",
-                    merge.projectId().getProjectName(),
+                    merge.editor().realPath(),
                     e);
         }
     }
@@ -330,7 +327,7 @@ public class ProjectsMergeLauncher {
             case SUCCESS -> reopen(merge);
             case CONFLICTS -> conflictsSessionHolder.store(merge.projectId(), result.conflictInfo());
             case CANCELLED -> log.debug("The merge of the project '{}' is cancelled.",
-                    merge.projectId().getProjectName());
+                    merge.editor().realPath());
         }
     }
 

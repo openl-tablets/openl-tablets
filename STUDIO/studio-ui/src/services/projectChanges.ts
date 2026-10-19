@@ -12,9 +12,8 @@ import { subscribeWorkspaceChanges } from './workspaceChanges'
  * the REST API either way; the files let it refresh an open one precisely. Every ping names the
  * clients whose requests caused it, so a page can tell its own echo from a real change.
  *
- * The workspace-wide pings are watched too (the same pair the projects list watches): a project's id
- * mutates when it opens or turns local (it hashes the path), so a ping addressed to the new id would
- * slip past a subscription keyed by the old one — the id-free pings cannot miss.
+ * The workspace-wide pings are watched too (the same pair the projects list watches): they back the
+ * project's own ping up, as the id-free pings cannot miss a change of the workspace.
  */
 export function subscribeProjectChanges(projectId: string, onChange: (ping: ChangePing) => void): TopicSubscription {
     const own = subscribeTopic(`/user/topic/projects/${encodeURIComponent(projectId)}/changed`,

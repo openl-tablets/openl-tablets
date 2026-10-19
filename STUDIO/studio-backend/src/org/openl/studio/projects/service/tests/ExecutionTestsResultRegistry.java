@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.springframework.stereotype.Component;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
 import org.openl.studio.session.ClientSessionScope;
 
@@ -26,7 +26,7 @@ public class ExecutionTestsResultRegistry extends AbstractExecutionResultRegistr
      * @param projectId the project identifier
      * @param task      the test execution future
      */
-    public void setTask(ProjectIdModel projectId, CompletableFuture<TestRun> task) {
+    public void setTask(ProjectId projectId, CompletableFuture<TestRun> task) {
         registerTask(projectId, null, task);
     }
 }

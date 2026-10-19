@@ -64,7 +64,6 @@ import org.openl.studio.projects.model.merge.ResolveConflictsResponse;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.rest.model.ResolveConflictWorkbookRequest;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.MergeChangesService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
@@ -93,7 +92,6 @@ public class ProjectsMergeController {
     private final WorkspaceProjectService projectService;
     private final ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private final ProjectsMergeConflictsService mergeConflictsService;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
     private final ComparisonLauncher comparisonLauncher;
     private final ProjectsMergeLauncher mergeLauncher;
     private final MergeChangesService mergeChangesService;
@@ -109,7 +107,7 @@ public class ProjectsMergeController {
     public CheckMergeResult check(@ProjectId @PathVariable("projectId") RulesProject project,
                                   @Parameter(description = "projects.merge.check.request.desc")
                                   @RequestBody @Valid MergeRequest request) throws IOException {
-        conflictsSessionHolder.requireResolved(projectIdentifierMapper.map(project));
+        conflictsSessionHolder.requireResolved(project.getProjectId());
         return mergeService.checkMerge(project, request.otherBranch(), request.mode());
     }
 
@@ -235,7 +233,7 @@ public class ProjectsMergeController {
     }
 
     private MergeConflictInfo getMergeConflictInfo0(RulesProject project) {
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         if (!conflictsSessionHolder.hasConflictInfo(projectId)) {
             throw new NotFoundException("project.merge.result.not.found.message");
         }
@@ -316,7 +314,7 @@ public class ProjectsMergeController {
             var result = mergeConflictsService.resolveConflicts(mergeConflictInfo, resolutions, customFiles, request.message());
             if (result.status() == ConflictResolutionStatus.SUCCESS) {
                 // Clear conflict info from session if resolved successfully
-                var projectId = projectIdentifierMapper.map(project);
+                var projectId = project.getProjectId();
                 conflictsSessionHolder.remove(projectId);
                 mergeLauncher.forget(projectId);
                 refreshResolvedProject(project, wasOpened, mergeOperation, repositoryId, realPath, currentBranch);
@@ -384,7 +382,7 @@ public class ProjectsMergeController {
         // A merge that ended a moment ago keeps its conflicts only once it reaches the editor: they are what is
         // cancelled.
         mergeLauncher.settleFinished();
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         if (!conflictsSessionHolder.hasConflictInfo(projectId)) {
             throw new NotFoundException("project.merge.result.not.found.message");
         }

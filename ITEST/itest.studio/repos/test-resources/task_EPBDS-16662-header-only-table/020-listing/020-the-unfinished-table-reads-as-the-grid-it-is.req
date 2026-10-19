@@ -1,3 +1,3 @@
-GET /rest/projects/EPBDS-16662/tables/bhAAY8X5NdqyDqwq?module=Rates HTTP/1.1
+GET /rest/projects/QZcb1EpRq6gY/tables/bhAAY8X5NdqyDqwq?module=Rates HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

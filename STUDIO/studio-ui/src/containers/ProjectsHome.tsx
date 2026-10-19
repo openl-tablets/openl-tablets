@@ -532,28 +532,12 @@ export const ProjectsHome = () => {
         [leaveTo]
     )
 
-    // After a create, land on the new project's page. Its server id is not known here (the create
-    // response omits it), so a freshly read index is searched by repository, name and — where one was
-    // chosen — branch, since a same-named project may already live on another branch; if the project
-    // cannot be resolved the screen just refreshes its list instead.
-    const openCreated = useCallback(async (created: { repositoryId: string, name: string, branch?: string }) => {
+    // After a create, land on the new project's page, addressed by the id the create answered.
+    const openCreated = useCallback((id: string) => {
         setCreateOpen(false)
         invalidateProjectIndex()
-        try {
-            const index = await getProjectIndex()
-            const match = index.projects.find(
-                project => project.repository === created.repositoryId && project.name === created.name
-                    && (created.branch === undefined || project.branch === created.branch)
-            )
-            if (match) {
-                leaveTo(`/projects/${encodeURIComponent(match.id)}`)
-                return
-            }
-        } catch {
-            // Fall back to refreshing the list below.
-        }
-        void load(true)
-    }, [leaveTo, load])
+        leaveTo(`/projects/${id}`)
+    }, [leaveTo])
 
     // A group picked in the tree is the same thing as ticking its facets: the list shows its projects, and the
     // tree, which follows the facets, narrows to the group.

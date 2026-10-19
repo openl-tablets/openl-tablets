@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.stereotype.Component;
 
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
 import org.openl.studio.session.ClientSessionScope;
 
@@ -29,7 +29,7 @@ public class ExecutionRunResultRegistry extends AbstractExecutionResultRegistry<
      * @param tableId   the table identifier
      * @param task      the run execution future
      */
-    public void setTask(ProjectIdModel projectId,
+    public void setTask(ProjectId projectId,
                         String tableId,
                         CompletableFuture<TestUnitsResults> task) {
         Objects.requireNonNull(tableId, "tableId");

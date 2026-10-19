@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdFVzZXIxOjY4ZjhlN2QzN2MzMDQ4M2Q3OTFhOTU3ZWJiNDc5ZThlMzgxMTc5ZjMxOWQzMDdmN2NjZjYzYmU4NDgwN2YxMjA=",
+  "id": "4sLLGxT9DBma",
   "name": "ProjectUser1",
   "branch": "master",
   "status": "OPENED",

@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT_NAME}/tests/run HTTP/1.1
+POST /rest/projects/0hSBn97ycZ9p/tests/run HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

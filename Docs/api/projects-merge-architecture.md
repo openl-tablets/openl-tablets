@@ -313,7 +313,7 @@ merge ended, and the result of the merge stays what it is.
 `ProjectsMergeConflictsSessionHolder` is a `@ClientSessionScope` bean: it lives as long as the client, whether a browser
 session or the state kept for a credential (see [Client Sessions](../architecture/client-sessions.md)).
 
-- It keeps **one** conflict, with the `ProjectIdModel` of the project. A conflict that is stored for another project
+- It keeps **one** conflict, with the `ProjectId` of the project. A conflict that is stored for another project
   replaces it.
 - It keeps with the conflict which of its files are UTF-8 text (`textFilesOf`), the `text` flag of
   `GET /merge/conflicts`: the versions of a stored conflict do not change, so each file is read once. A conflict

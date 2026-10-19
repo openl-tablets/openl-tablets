@@ -12,7 +12,7 @@ import lombok.Builder;
 import lombok.Singular;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.model.ProjectInclude;
 
 /**
@@ -34,8 +34,8 @@ public record ProjectCriteriaQuery(
         @Schema(description = "Statuses of the projects to filter by.")
         List<ProjectStatus> statuses,
 
-        @Schema(description = "Identifier of the project that the returned projects depend on.")
-        ProjectIdModel dependsOn,
+        @Schema(description = "Id of the project that the returned projects depend on.")
+        ProjectId dependsOn,
 
         @Schema(description = "Set of tags to filter projects by.")
         @Singular

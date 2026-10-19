@@ -1,4 +1,4 @@
-DELETE /rest/projects/EPBDS_14670_Project?comment=Foo%20Bar HTTP/1.1
+DELETE /rest/projects/G1j1WDwJoejn?comment=Foo%20Bar HTTP/1.1
 Authorization: Basic anNtaXRoOmpzbWl0aA==
 Cookie: NO_JSESSIONID=noAuth
 

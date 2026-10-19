@@ -9,7 +9,7 @@ Content-Type: application/json
   "scope": {
     "projects": [
       {
-        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtT3duOjI4ZDdhMzA2NDVjNTkyZTI3NTcxYzhmMGRhODEyYTkzOGQ0ZDk3YTA4MzEyYmJhYjA5MjU0MWFkNzY2Y2Q5OTU=",
+        "id": "AQWGsdcNsKSz",
         "name": "EPBDS-16896-Own",
         "path": "EPBDS-16896-Own",
         "current": true,

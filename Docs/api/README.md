@@ -46,9 +46,10 @@ OpenL Studio publishes a REST API under `{context-path}/rest`, and OpenL Rule Se
 
 ### Projects
 
-`{projectId}` in a path is the project id that `GET /rest/projects` hands out, or the project name. A name that matches
-several projects answers `409 Conflict` with `openl.error.409.project.identifier.ambiguous.message` and the list of the
-candidates. An id that matches no project answers `404 Not Found`.
+`{projectId}` in a path is the project id `GET /rest/projects` hands out: 12 characters of URL-safe Base64, computed
+from the repository and the folder that hold the project, so it stays the same when the project is opened, closed,
+renamed in `rules.xml` or switched to another branch. An id that matches no project answers `404 Not Found`, and so do
+a project name and an id of OpenL Studio 6.x. See [Stable Project Ids](../architecture/project-ids.md).
 
 ### Pages of Results
 
@@ -83,7 +84,7 @@ An error answers with a body of this form, where `<key>` is the message code, an
   security rule answers `{"message": "Access Denied"}`.
 - **`404 Not Found`** — the project, the table, or another resource does not exist.
 - **`409 Conflict`** — the state of the project does not allow it: the project is not opened, is locked by another user,
-  has unresolved merge conflicts, or the name is ambiguous.
+  or has unresolved merge conflicts.
 
 ## Table Endpoints
 

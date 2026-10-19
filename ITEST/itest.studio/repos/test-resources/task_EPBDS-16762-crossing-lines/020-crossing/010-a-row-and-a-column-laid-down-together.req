@@ -1,4 +1,4 @@
-POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NzYy/tables/botZ_tfRyL31z7-Z/actions/batch HTTP/1.1
+POST /rest/projects/mch-wL10UqKO/tables/botZ_tfRyL31z7-Z/actions/batch HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

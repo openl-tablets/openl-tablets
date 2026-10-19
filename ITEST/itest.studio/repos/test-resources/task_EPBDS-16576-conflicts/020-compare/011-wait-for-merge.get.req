@@ -1,4 +1,4 @@
-GET /rest/projects/{PROJECT_NAME}/merge HTTP/1.1
+GET /rest/projects/GmBJwUf2fhHs/merge HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 X-OpenL-Test-Retry: yes
 

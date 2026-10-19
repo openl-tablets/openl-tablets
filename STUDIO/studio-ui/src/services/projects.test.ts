@@ -103,14 +103,14 @@ describe('projects service', () => {
         expect(successSpy).not.toHaveBeenCalled()
     })
 
-    it('POSTs the zip archive to the project root with the replace policy and a URL-safe id', async () => {
+    it('POSTs the zip archive to the project root with the replace policy', async () => {
         mockApiCall.mockResolvedValueOnce(true)
         const archive = new Blob(['zip-bytes'], { type: 'application/zip' })
 
-        await expect(updateProjectFromZip('id+with/chars', 'My Project', archive)).resolves.toBe(true)
+        await expect(updateProjectFromZip('Ab3_dE9-xY0z', 'My Project', archive)).resolves.toBe(true)
 
         expect(mockApiCall).toHaveBeenCalledWith(
-            '/projects/id-with_chars/files/?conflictPolicy=REPLACE',
+            '/projects/Ab3_dE9-xY0z/files/?conflictPolicy=REPLACE',
             { method: 'POST', headers: { 'Content-Type': 'application/zip' }, body: archive },
             { throwError: true, suppressErrorPages: true }
         )
@@ -150,13 +150,13 @@ describe('projects service', () => {
         it('asks each resource for itself, and a module for its own sheets', async () => {
             mockApiCall.mockResolvedValue([])
 
-            await getProjectModules('project/id')
+            await getProjectModules('project-id')
             await getProjectProperties('project-id')
             await getProjectProperties('project-id', 'Column Match')
             await getModuleSheets('project-id', 'Main Rules')
 
             expect(mockApiCall.mock.calls.map(call => call[0])).toEqual([
-                '/projects/project_id/modules',
+                '/projects/project-id/modules',
                 '/projects/project-id/properties',
                 '/projects/project-id/properties?tableType=Column%20Match',
                 '/projects/project-id/modules/Main%20Rules/sheets',

@@ -13,9 +13,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.ui.ProjectStatusChangedEvent;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.project.status.ProjectStatusMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,9 +22,6 @@ class ProjectStatusWebSocketPublisherTest {
 
     @Mock
     private ProjectStatusMapper projectStatusMapper;
-
-    @Mock
-    private ProjectIdentifierMapper projectIdentifierMapper;
 
     @Mock
     private ProjectSocketNotificationService notificationService;
@@ -42,8 +38,8 @@ class ProjectStatusWebSocketPublisherTest {
         when(event.getProject()).thenReturn(project);
         var status = mock(ProjectStatusViewModel.class);
         when(projectStatusMapper.map(project, event.getProjectModel())).thenReturn(status);
-        var projectId = ProjectIdModel.builder().repository("design").projectName("Alpha").build();
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        var projectId = ProjectIds.of("design", "Alpha");
+        when(project.getProjectId()).thenReturn(projectId);
 
         publisher.onProjectStatusChanged(event);
 

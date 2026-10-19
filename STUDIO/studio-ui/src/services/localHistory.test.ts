@@ -16,9 +16,9 @@ describe('localHistory', () => {
         const items = [{ id: '100_current', modifiedOn: 'now', current: true }]
         vi.mocked(apiCall).mockResolvedValue(items)
 
-        await expect(getLocalHistory('design:My/Project', 'Pricing & Rules')).resolves.toEqual(items)
+        await expect(getLocalHistory('Ab3_dE9-xY0z', 'Pricing & Rules')).resolves.toEqual(items)
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/design:My_Project/local-history?module=Pricing%20%26%20Rules',
+            '/projects/Ab3_dE9-xY0z/local-history?module=Pricing%20%26%20Rules',
             undefined,
             LOCAL_LOAD_API_OPTIONS
         )
@@ -39,10 +39,10 @@ describe('localHistory', () => {
     it('restores the selected version as JSON', async () => {
         vi.mocked(apiCall).mockResolvedValue(true)
 
-        await restoreLocalHistory('design:My/Project', 'Pricing & Rules', '100_current')
+        await restoreLocalHistory('Ab3_dE9-xY0z', 'Pricing & Rules', '100_current')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/design:My_Project/local-history/restore?module=Pricing%20%26%20Rules',
+            '/projects/Ab3_dE9-xY0z/local-history/restore?module=Pricing%20%26%20Rules',
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

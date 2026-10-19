@@ -5,6 +5,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production",
   "deploymentName": "EPBDS-12973-viewer",
-  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "projectId": "fIiIGKTVd0re",
   "comment": "Viewer tries to deploy"
 }

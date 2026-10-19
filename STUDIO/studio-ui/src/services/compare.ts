@@ -1,5 +1,4 @@
 import apiCall, { asArray, readTaskResult } from './apiCall'
-import { toUrlSafeId } from './projectId'
 import { decodeText } from '../utils/decodeText'
 import { expandCells } from './rawTables'
 import type { Comparison, ComparisonSide, ComparisonSideData, ComparisonTable, ComparisonTableData } from 'types/compare'
@@ -43,7 +42,7 @@ export const startLocalHistoryComparison = async (
     second: string
 ): Promise<string> => {
     const query = moduleName ? `?module=${encodeURIComponent(moduleName)}` : ''
-    const response = await apiCall(`/projects/${toUrlSafeId(projectId)}/local-history/compare${query}`, {
+    const response = await apiCall(`/projects/${projectId}/local-history/compare${query}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first, second }),
@@ -81,7 +80,7 @@ export const getProjectCompareFiles = async (
     }
     const suffix = query.size > 0 ? `?${query}` : ''
     const response = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/compare/files${suffix}`,
+        `/projects/${projectId}/compare/files${suffix}`,
         undefined,
         API_OPTIONS
     )
@@ -98,7 +97,7 @@ export const startProjectComparison = async (
     first: ProjectFileSide,
     second: ProjectFileSide
 ): Promise<string> => {
-    const response = await apiCall(`/projects/${toUrlSafeId(projectId)}/compare`, {
+    const response = await apiCall(`/projects/${projectId}/compare`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ first, second }),
@@ -126,7 +125,7 @@ export const startConflictComparison = async (
     second: ConflictSide
 ): Promise<string> => {
     const response = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/compare?file=${encodeURIComponent(path)}`
+        `/projects/${projectId}/merge/conflicts/compare?file=${encodeURIComponent(path)}`
             + `&first=${first}&second=${second}`,
         { method: 'POST' },
         API_OPTIONS
@@ -150,7 +149,7 @@ export const getConflictFileVersions = async (
     path: string
 ): Promise<ConflictFileVersions> => {
     const conflicts = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts`,
+        `/projects/${projectId}/merge/conflicts`,
         undefined,
         API_OPTIONS
     ) as { fileAvailability?: Record<string, { base?: boolean; ours?: boolean; theirs?: boolean }> }
@@ -201,7 +200,7 @@ export interface ConflictText {
 /** A conflicted text file merged line by line, for the conflicts of its lines to be resolved in place. */
 export const getConflictText = async (projectId: string, path: string): Promise<ConflictText> =>
     await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/text?file=${encodeURIComponent(path)}`,
+        `/projects/${projectId}/merge/conflicts/text?file=${encodeURIComponent(path)}`,
         undefined,
         API_OPTIONS
     ) as ConflictText
@@ -313,7 +312,7 @@ const expandVersion = ({ cells, styles, ...rest }: ConflictTableVersionData): Co
 /** A conflicted workbook as the merge reads it, for its conflicts to be resolved table by table. */
 export const getConflictWorkbook = async (projectId: string, path: string): Promise<ConflictWorkbook> => {
     const workbook = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
+        `/projects/${projectId}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
         undefined,
         API_OPTIONS
     ) as ConflictWorkbookData
@@ -343,7 +342,7 @@ export const mergeConflictWorkbook = async (
     decisions: Record<string, ConflictSide>
 ): Promise<Blob> =>
     await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
+        `/projects/${projectId}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -363,7 +362,7 @@ export const getConflictFileText = async (
     side: ConflictSide
 ): Promise<string> => {
     const file = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/merge/conflicts/files`
+        `/projects/${projectId}/merge/conflicts/files`
             + `?file=${encodeURIComponent(path)}&side=${side}`,
         undefined,
         { ...API_OPTIONS, responseType: 'blob' }

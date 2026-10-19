@@ -150,9 +150,8 @@ flowchart LR
   skeleton.
 - `subscribeProjectChanges` watches the open project's own ping, the user's workspace ping and the
   repository one; the project page re-reads itself (`useLiveProjectChanges`), and drops the snapshot so
-  the tree beside it follows. The id-free workspace ping backs the id-keyed one up: a project's id
-  mutates when it opens or turns local (it hashes the path), and a ping addressed to the new id
-  would slip past a subscription keyed by the old one.
+  the tree beside it follows. The id-free workspace ping backs the id-keyed one up: it cannot miss a
+  change of the workspace.
 - The open file of the Files tab re-fetches with the page reload (`reloadToken`); an editor holding
   unsaved changes parks the refresh instead of overwriting them (`FilePreviewPane`).
 - Bursts coalesce again on the client (`useCoalescedChanges`, 500 ms), merging the named files.

@@ -21,7 +21,8 @@ import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.service.ExecutionStatus;
@@ -45,17 +46,14 @@ class ProjectSocketNotificationServiceTest {
     private SimpUserRegistry userRegistry;
 
     private ProjectSocketNotificationService service;
-    private ProjectIdModel projectId;
+    private ProjectId projectId;
 
     @BeforeEach
     void setUp() {
         // Lenient: the workspace-ping tests never read the user mock.
         lenient().when(user.getUserName()).thenReturn(USER_NAME);
         service = new ProjectSocketNotificationService(messagingTemplate, userRegistry);
-        projectId = ProjectIdModel.builder()
-                .repository(REPO_ID)
-                .projectName(PROJECT_NAME)
-                .build();
+        projectId = ProjectIds.of(REPO_ID, PROJECT_NAME);
     }
 
     @Test
@@ -64,7 +62,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tests/status".formatted(encodedProjectId()),
+                "/topic/projects/%s/tests/status".formatted(projectId.value()),
                 "STARTED");
     }
 
@@ -74,7 +72,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/merge/status".formatted(encodedProjectId()),
+                "/topic/projects/%s/merge/status".formatted(projectId.value()),
                 "STARTED");
     }
 
@@ -84,7 +82,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/merge/status".formatted(encodedProjectId()),
+                "/topic/projects/%s/merge/status".formatted(projectId.value()),
                 Map.of("status", "ERROR", "message", "Repository is not available"));
     }
 
@@ -94,7 +92,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tests/status".formatted(encodedProjectId()),
+                "/topic/projects/%s/tests/status".formatted(projectId.value()),
                 "COMPLETED");
     }
 
@@ -104,7 +102,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tables/%s/tests/status".formatted(encodedProjectId(), encodedTableId()),
+                "/topic/projects/%s/tables/%s/tests/status".formatted(projectId.value(), encodedTableId()),
                 "PENDING");
     }
 
@@ -122,7 +120,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tests/results".formatted(encodedProjectId()),
+                "/topic/projects/%s/tests/results".formatted(projectId.value()),
                 result);
     }
 
@@ -140,7 +138,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tables/%s/tests/results".formatted(encodedProjectId(), encodedTableId()),
+                "/topic/projects/%s/tables/%s/tests/results".formatted(projectId.value(), encodedTableId()),
                 result);
     }
 
@@ -150,7 +148,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
+                "/topic/projects/%s/tables/%s/run/status".formatted(projectId.value(), encodedTableId()),
                 "PENDING");
     }
 
@@ -160,7 +158,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
+                "/topic/projects/%s/tables/%s/run/status".formatted(projectId.value(), encodedTableId()),
                 "COMPLETED");
     }
 
@@ -170,7 +168,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/tables/%s/run/status".formatted(encodedProjectId(), encodedTableId()),
+                "/topic/projects/%s/tables/%s/run/status".formatted(projectId.value(), encodedTableId()),
                 Map.of("status", "ERROR", "message", "Execution failed"));
     }
 
@@ -231,7 +229,7 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/changed".formatted(encodedProjectId()),
+                "/topic/projects/%s/changed".formatted(projectId.value()),
                 Map.of("files", List.of("rules/A.xlsx", "rules/B.xlsx"), "origins", List.of("tab-1")));
     }
 
@@ -241,12 +239,8 @@ class ProjectSocketNotificationServiceTest {
 
         verify(messagingTemplate).convertAndSendToUser(
                 USER_NAME,
-                "/topic/projects/%s/changed".formatted(encodedProjectId()),
+                "/topic/projects/%s/changed".formatted(projectId.value()),
                 Map.of("files", List.of(), "origins", List.of()));
-    }
-
-    private String encodedProjectId() {
-        return URLEncoder.encode(projectId.encode(), StandardCharsets.UTF_8);
     }
 
     private String encodedTableId() {

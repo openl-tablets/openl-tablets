@@ -52,9 +52,8 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.validation.FileIntegrityValidator;
-import org.openl.studio.projects.converter.ProjectIdentityConverter;
+import org.openl.studio.projects.converter.ProjectIdConverter;
 import org.openl.studio.projects.model.ProjectViewModel;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.repositories.model.CreateFromProjectModel;
 import org.openl.studio.repositories.model.CreateUpdateProjectModel;
@@ -94,8 +93,7 @@ public class DesignTimeRepositoryController {
     private final ProjectCreationService projectCreationService;
     private final ProjectCreationTargetResolver projectCreationTargetResolver;
     private final RepositoryConfigService repositoryConfigService;
-    private final ProjectIdentityConverter projectIdentityConverter;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
+    private final ProjectIdConverter projectIdConverter;
 
     @Autowired
     public DesignTimeRepositoryController(@Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
@@ -110,8 +108,7 @@ public class DesignTimeRepositoryController {
                                           ProjectCreationService projectCreationService,
                                           ProjectCreationTargetResolver projectCreationTargetResolver,
                                           RepositoryConfigService repositoryConfigService,
-                                          ProjectIdentityConverter projectIdentityConverter,
-                                          ProjectIdentifierMapper projectIdentifierMapper) {
+                                          ProjectIdConverter projectIdConverter) {
         this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
@@ -124,8 +121,7 @@ public class DesignTimeRepositoryController {
         this.projectCreationService = projectCreationService;
         this.projectCreationTargetResolver = projectCreationTargetResolver;
         this.repositoryConfigService = repositoryConfigService;
-        this.projectIdentityConverter = projectIdentityConverter;
-        this.projectIdentifierMapper = projectIdentifierMapper;
+        this.projectIdConverter = projectIdConverter;
     }
 
     @Lookup("commentService")
@@ -307,11 +303,9 @@ public class DesignTimeRepositoryController {
                                                      @Parameter(description = "repos.create-from-project.param.project-name.desc") @PathVariable("project-name") String projectName,
                                                      @Valid @RequestBody CreateFromProjectModel request) {
         requireCreatePermission(repository);
-        // The source is resolved first: the default comment names the project that is actually copied, not the
-        // identifier the request happened to address it by. Reading it is the copy's own check to make, so that a
-        // refusal carries the endpoint's message.
-        var source = projectIdentityConverter.resolveProjectIdentity(request.sourceProject(),
-                StringUtils.trimToNull(request.sourceRepositoryId()));
+        // The source is resolved first: the default comment names the project that is actually copied. Reading it is
+        // the copy's own check to make, so that a refusal carries the endpoint's message.
+        var source = projectIdConverter.find(request.sourceProject());
         if (source == null) {
             throw new NotFoundException("project.identifier.message");
         }
@@ -370,7 +364,7 @@ public class DesignTimeRepositoryController {
      * write made.
      */
     private ProjectViewModel mapFileDataResponse(FileData src, Repository repository) {
-        var builder = ProjectViewModel.builder().id(projectIdentifierMapper.map(new AProject(repository, src)));
+        var builder = ProjectViewModel.builder().id(projectCreationService.idOfWritten(repository, src));
         if (repository.supports().branches()) {
             builder.branch(src.getBranch());
         }

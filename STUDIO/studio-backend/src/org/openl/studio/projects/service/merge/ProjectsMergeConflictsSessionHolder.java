@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.session.ClientSessionScope;
 
@@ -21,14 +21,14 @@ public class ProjectsMergeConflictsSessionHolder {
      *
      * @param textFiles which files of the conflict are text, by their paths, as far as they were asked about
      */
-    private record Entry(ProjectIdModel projectId,
+    private record Entry(ProjectId projectId,
                          MergeConflictInfo mergeConflictInfo,
                          Map<String, Boolean> textFiles) {
     }
 
     private final AtomicReference<Entry> ref = new AtomicReference<>();
 
-    public void store(ProjectIdModel projectId, MergeConflictInfo mergeConflictInfo) {
+    public void store(ProjectId projectId, MergeConflictInfo mergeConflictInfo) {
         ref.set(new Entry(projectId, mergeConflictInfo, new ConcurrentHashMap<>()));
     }
 
@@ -41,7 +41,7 @@ public class ProjectsMergeConflictsSessionHolder {
         return e != null && e.mergeConflictInfo() == mergeConflictInfo ? e.textFiles() : new HashMap<>();
     }
 
-    public boolean hasConflictInfo(ProjectIdModel projectId) {
+    public boolean hasConflictInfo(ProjectId projectId) {
         var e = ref.get();
         return e != null && e.projectId().equals(projectId);
     }
@@ -52,13 +52,13 @@ public class ProjectsMergeConflictsSessionHolder {
      * @param projectId the project
      * @throws ConflictException when the project has unresolved merge conflicts
      */
-    public void requireResolved(ProjectIdModel projectId) {
+    public void requireResolved(ProjectId projectId) {
         if (hasConflictInfo(projectId)) {
             throw new ConflictException("project.unresolved.merge.conflicts.message");
         }
     }
 
-    public MergeConflictInfo getConflictInfo(ProjectIdModel projectId) {
+    public MergeConflictInfo getConflictInfo(ProjectId projectId) {
         var e = ref.get();
         if (e != null && e.projectId().equals(projectId)) {
             return e.mergeConflictInfo();
@@ -66,7 +66,7 @@ public class ProjectsMergeConflictsSessionHolder {
         return null;
     }
 
-    public void remove(ProjectIdModel projectId) {
+    public void remove(ProjectId projectId) {
         var e = ref.get();
         if (e != null && e.projectId().equals(projectId)) {
             ref.set(null);

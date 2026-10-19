@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduLWZpbGU6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "id": "5B0GdFcBUcfe",
       "name": "Project",
       "status": "CLOSED",
       "repository": "design-file",
@@ -34,7 +34,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZpbGU6UHJvamVjdDI6MmMyNmI0NmI2OGZmYzY4ZmY5OWI0NTNjMWQzMDQxMzQxMzQyMmQ3MDY0ODNiZmEwZjk4YTVlODg2MjY2ZTdhZQ==",
+      "id": "2am5jJ35tmoF",
       "name": "Project2",
       "status": "CLOSED",
       "repository": "design-file",

@@ -1,4 +1,4 @@
-PATCH /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg== HTTP/1.1
+PATCH /rest/projects/pWq5DvI4Bfr2 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

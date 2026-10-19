@@ -28,6 +28,7 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -55,6 +56,15 @@ public class RulesProject extends UserWorkspaceProject {
     @Getter
     @Setter
     private boolean inDefaultBranch;
+    /**
+     * The id: the one the listing of the workspace gave the project, else computed once. Every branch and every state
+     * of the project keeps it in the one folder.
+     *
+     * <p>The workspace gives its listed projects their ids and hands them out under one lock, so every thread sees the
+     * id the listing gave. An id is immutable, so reading it needs no lock of its own.
+     */
+    @Setter
+    private @Nullable ProjectId projectId;
 
     public RulesProject(WorkspaceUser user,
                         LocalRepository localRepository,
@@ -696,6 +706,16 @@ public class RulesProject extends UserWorkspaceProject {
         setHistoryVersion(null);
         refresh();
         getFileData();
+    }
+
+    @Override
+    public ProjectId getProjectId() {
+        var id = projectId;
+        if (id == null) {
+            id = super.getProjectId();
+            projectId = id;
+        }
+        return id;
     }
 
     @Override

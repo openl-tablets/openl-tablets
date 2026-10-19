@@ -1,4 +1,4 @@
-POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NzI0/tables/ruLOSLOkVRjL532w/actions/batch HTTP/1.1
+POST /rest/projects/7uQFIYDBN6wF/tables/ruLOSLOkVRjL532w/actions/batch HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Cookie: NO_JSESSIONID=noAuth
 Content-Type: application/json

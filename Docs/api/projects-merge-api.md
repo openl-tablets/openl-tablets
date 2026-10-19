@@ -3,8 +3,7 @@
 **Status**: BETA — the endpoints form the **Projects: Merge (BETA)** group of the OpenAPI spec (`/rest/openapi.json`)
 **Base Path**: `/rest/projects/{projectId}/merge`
 
-`{projectId}` is the project id the API hands out, or the project name. A name that matches several projects answers
-`409 Conflict` (`project.identifier.ambiguous.message`) and lists the candidates.
+`{projectId}` is the project id the API hands out.
 
 ---
 
@@ -138,7 +137,7 @@ data and does not look for conflicts: only the merge itself finds them.
   "scope": {
     "projects": [
       {
-        "id": "ZGVzaWduOlByaWNpbmc",
+        "id": "Jq-o4wRqHuAG",
         "name": "Pricing",
         "path": "DESIGN/rules/Pricing",
         "current": true,
@@ -149,7 +148,7 @@ data and does not look for conflicts: only the merge itself finds them.
         ]
       },
       {
-        "id": "ZGVzaWduOlJhdGluZw",
+        "id": "kZwsAuDSO2f4",
         "name": "Rating",
         "path": "DESIGN/rules/Rating",
         "current": false,
@@ -306,7 +305,7 @@ not follow the topic asks again while the answer is `202`.
     "after": "4f0c2d9a7b1e3c5d8f6a2b4c6d8e0f1a3b5c7d9e",
     "projects": [
       {
-        "id": "ZGVzaWduOlByaWNpbmc",
+        "id": "Jq-o4wRqHuAG",
         "name": "Pricing",
         "path": "DESIGN/rules/Pricing",
         "current": true,

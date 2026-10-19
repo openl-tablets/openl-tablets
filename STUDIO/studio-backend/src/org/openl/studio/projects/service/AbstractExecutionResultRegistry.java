@@ -10,7 +10,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.context.event.EventListener;
 
 import org.openl.rules.ui.WorkspaceResetEvent;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -25,7 +25,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 @Slf4j
 public abstract class AbstractExecutionResultRegistry<T> {
 
-    private record Entry<T>(ProjectIdModel projectId,
+    private record Entry<T>(ProjectId projectId,
                             String tableId,
                             CompletableFuture<T> task) {
     }
@@ -39,7 +39,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * @param tableId   the table identifier (may be null)
      * @param task      the execution future (must not be null)
      */
-    protected void registerTask(ProjectIdModel projectId,
+    protected void registerTask(ProjectId projectId,
                                 String tableId,
                                 CompletableFuture<T> task) {
         Objects.requireNonNull(projectId, "projectId");
@@ -91,7 +91,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * @param projectId the project identifier
      * @return true if a task exists for this project
      */
-    public boolean hasTask(ProjectIdModel projectId) {
+    public boolean hasTask(ProjectId projectId) {
         Entry<T> e = ref.get();
         return e != null && e.projectId().equals(projectId);
     }
@@ -102,7 +102,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * @param projectId the project identifier
      * @return true if the task is completed
      */
-    public boolean isDone(ProjectIdModel projectId) {
+    public boolean isDone(ProjectId projectId) {
         Entry<T> e = ref.get();
         return e != null && e.projectId().equals(projectId) && e.task().isDone();
     }
@@ -114,7 +114,7 @@ public abstract class AbstractExecutionResultRegistry<T> {
      * @param projectId the project identifier
      * @return the result, or null
      */
-    public T getResultIfDone(ProjectIdModel projectId) {
+    public T getResultIfDone(ProjectId projectId) {
         Entry<T> e = ref.get();
         if (e == null || !e.projectId().equals(projectId)) {
             return null;

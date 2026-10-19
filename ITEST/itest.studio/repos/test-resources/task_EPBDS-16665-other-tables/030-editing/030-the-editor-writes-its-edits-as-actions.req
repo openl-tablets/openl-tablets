@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16665/tables/gC5XG5F2KGzzxG81/actions/batch?module=Notes HTTP/1.1
+POST /rest/projects/GxrRioM42xnT/tables/gC5XG5F2KGzzxG81/actions/batch?module=Notes HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

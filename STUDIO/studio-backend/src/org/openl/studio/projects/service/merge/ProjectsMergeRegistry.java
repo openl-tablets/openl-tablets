@@ -7,8 +7,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.springframework.stereotype.Component;
 
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.common.exception.ConflictException;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.MergeOpMode;
 import org.openl.studio.session.ClientSessionScope;
 
@@ -45,7 +45,7 @@ public class ProjectsMergeRegistry {
      * @return {@code true} while the same merge runs; {@code false} when no merge of this client runs
      * @throws ConflictException when another merge of this client is still running
      */
-    boolean isRunning(ProjectIdModel projectId, String otherBranch, MergeOpMode mode) {
+    boolean isRunning(ProjectId projectId, String otherBranch, MergeOpMode mode) {
         var merge = current.get();
         if (merge == null || !merge.isRunning()) {
             return false;
@@ -71,7 +71,7 @@ public class ProjectsMergeRegistry {
      *
      * @param projectId the project
      */
-    void forget(ProjectIdModel projectId) {
+    void forget(ProjectId projectId) {
         current.updateAndGet(merge -> merge != null && !merge.isRunning() && merge.projectId().equals(projectId)
                 ? null
                 : merge);
@@ -83,7 +83,7 @@ public class ProjectsMergeRegistry {
      * @param projectId the project
      * @return the merge, or nothing when the last merge of this client was of another project, or there was none
      */
-    Optional<StartedMerge> find(ProjectIdModel projectId) {
+    Optional<StartedMerge> find(ProjectId projectId) {
         return current().filter(merge -> merge.projectId().equals(projectId));
     }
 

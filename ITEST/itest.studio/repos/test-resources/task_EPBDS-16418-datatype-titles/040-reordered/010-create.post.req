@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16418-Titles/tables HTTP/1.1
+POST /rest/projects/wkR1813HZdQi/tables HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

@@ -29,6 +29,8 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
@@ -194,6 +196,18 @@ public class AProject extends AProjectFolder implements IProject {
         return getHistoryFileDatas().stream()
                 .map(this::createProjectVersion)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * The id the project is addressed by: its repository and the folder it is stored in, hashed.
+     *
+     * <p>A project opened in the workspace has the id of its folder in the design repository, and a local project the
+     * id of its workspace folder.
+     *
+     * @see ProjectIds
+     */
+    public ProjectId getProjectId() {
+        return ProjectIds.of(getRepository().getId(), getRealPath());
     }
 
     public String getBusinessName() {

@@ -20,7 +20,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 
 /**
  * Says which module of a project a table belongs to.
@@ -139,14 +138,13 @@ public final class TableModules {
      * <p>A screen that sends a reader to a table has to name both: the module reads the table, and the project
      * is the one the module belongs to, which for a table of a dependency is not the project being read.
      *
-     * @param model                  the compiled project
-     * @param projectIdentifierMapper how a project is addressed by the Projects API
+     * @param model the compiled project
      * @return the modules to ask, answering nothing for a project that has not been compiled
      */
-    public static TableModules ofWorkspace(ProjectModel model, ProjectIdentifierMapper projectIdentifierMapper) {
+    public static TableModules ofWorkspaceAddressed(ProjectModel model) {
         var studio = model.getStudio();
         Function<Module, ProjectAddress> addressing = studio == null ? module -> null
-                : addressing(studio, projectIdentifierMapper);
+                : addressing(studio);
         return located(model, addressing);
     }
 
@@ -210,8 +208,7 @@ public final class TableModules {
      *
      * <p>A project is looked up by the repository it sits in, which the studio knows by the project's name.
      */
-    private static Function<Module, ProjectAddress> addressing(WebStudio studio,
-                                                               ProjectIdentifierMapper projectIdentifierMapper) {
+    private static Function<Module, ProjectAddress> addressing(WebStudio studio) {
         var repositoryOfProject = new HashMap<String, String>();
         studio.getProjects()
                 .forEach((repositoryId, descriptors) -> descriptors
@@ -223,12 +220,11 @@ public final class TableModules {
                 return null;
             }
             return addressOfProject.computeIfAbsent(descriptor.getName(),
-                    name -> address(studio, projectIdentifierMapper, repositoryOfProject.get(name), descriptor));
+                    name -> address(studio, repositoryOfProject.get(name), descriptor));
         };
     }
 
     private static @Nullable ProjectAddress address(WebStudio studio,
-                                                    ProjectIdentifierMapper projectIdentifierMapper,
                                                     @Nullable String repositoryId,
                                                     ProjectDescriptor descriptor) {
         if (repositoryId == null || descriptor.getProjectFolder() == null) {
@@ -236,7 +232,7 @@ public final class TableModules {
         }
         var project = studio.getProject(repositoryId, descriptor.getProjectFolder().getFileName().toString());
         return project == null ? null
-                : new ProjectAddress(projectIdentifierMapper.map(project).encode(), descriptor.getName());
+                : new ProjectAddress(project.getProjectId().value(), descriptor.getName());
     }
 
     /**

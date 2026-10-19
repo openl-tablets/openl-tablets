@@ -8,7 +8,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.cache.CachedProjectVersion;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.deployment.model.DeploymentId;
 
 public interface DeploymentService {
 
@@ -28,7 +28,7 @@ public interface DeploymentService {
      * @param comment      an optional comment for the deployment
      * @throws ProjectException if there is an error during deployment
      */
-    void deploy(ProjectIdModel deploymentId, RulesProject project, String comment) throws ProjectException;
+    void deploy(DeploymentId deploymentId, RulesProject project, String comment) throws ProjectException;
 
     /**
      * Finds the design repository revision a deployed project was built from.

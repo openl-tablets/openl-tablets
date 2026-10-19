@@ -162,8 +162,9 @@ Other unmatched projects are handled as follows:
 
 A local-only project has two names with different purposes when the `<name>` in `rules.xml` differs from its folder:
 
-- Its project id encodes `local:{workspace-folder}`. The folder identifies the project in the workspace and keeps
-  REST links stable and resolvable.
+- Its project id is computed from the repository `local` and its workspace folder
+  ([Stable Project Ids](project-ids.md)). The folder identifies the project in the workspace and keeps REST links
+  stable and resolvable.
 - Project dependencies use the logical name declared in `rules.xml`. OpenL Studio matches a dependency by that name,
   displays it, and attaches the folder-based id of the project it resolved. The Overview links
   therefore open the target instead of treating the folder name as a logical name.

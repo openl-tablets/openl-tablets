@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.WorkspaceResetEvent;
-import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.session.ClientSessionScope;
 
 /**
@@ -24,13 +23,13 @@ import org.openl.studio.session.ClientSessionScope;
  *
  * <p>Holds at most one active job at a time, matching the WebStudio session
  * model where only the current project/module is compiled. Each
- * {@link #acquire(ProjectIdModel, ProjectModel)} call replaces the current
+ * {@link #acquire(ProjectId, ProjectModel)} call replaces the current
  * entry with a fresh job so that the returned future always observes the model
  * state from now on; the previous job's future is cancelled if it was still
  * polling.
  *
- * <p>{@link #find(ProjectIdModel, String)} additionally adopts compilations initiated
- * outside of {@link #acquire(ProjectIdModel, ProjectModel)} — JSF flows
+ * <p>{@link #find(ProjectId, String)} additionally adopts compilations initiated
+ * outside of {@link #acquire(ProjectId, ProjectModel)} — JSF flows
  * (Project Tree → {@code WebStudio.init} → {@code setModuleInfo}) drive
  * {@link ProjectModel#compileProject(boolean, boolean)} directly without going through
  * the REST {@code openProject} path. Such compilations register a {@code RegisteredCompilation}
@@ -47,17 +46,16 @@ import org.openl.studio.session.ClientSessionScope;
 public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 
     private final WebStudio webStudio;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     private record Entry(
             @NotNull
-            ProjectIdModel projectId,
+            ProjectId projectId,
             @Nullable
             String branch,
             @NotNull
             CompilationJobImpl job) {
 
-        public boolean canReuse(ProjectIdModel projectId, ProjectModel model) {
+        public boolean canReuse(ProjectId projectId, ProjectModel model) {
             return this.projectId.equals(projectId)
                     && Objects.equals(this.branch, branchOf(model))
                     && this.job.project() == model
@@ -75,7 +73,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 
     @Override
     @NotNull
-    public synchronized CompilationJob acquire(@NotNull ProjectIdModel projectId, @NotNull ProjectModel model) {
+    public synchronized CompilationJob acquire(@NotNull ProjectId projectId, @NotNull ProjectModel model) {
         var previous = ref.get();
         if (previous != null && previous.canReuse(projectId, model)) {
             return previous.job();
@@ -92,7 +90,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
     /**
      * Drop the cached compilation job so the project status no longer reports a stale
      * compile state after the workspace is reset. Cancels the tracked future if it is
-     * still running. The next {@link #acquire(ProjectIdModel, ProjectModel)} registers a
+     * still running. The next {@link #acquire(ProjectId, ProjectModel)} registers a
      * fresh job.
      */
     @Override
@@ -114,7 +112,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
 
     @Override
     @NotNull
-    public synchronized Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch) {
+    public synchronized Optional<CompilationJob> find(@NotNull ProjectId projectId, @Nullable String branch) {
         var entry = ref.get();
         if (entry != null
                 && entry.projectId().equals(projectId)
@@ -126,7 +124,7 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
     }
 
     /**
-     * Wrap a compilation that was started outside of {@link #acquire(ProjectIdModel, ProjectModel)}
+     * Wrap a compilation that was started outside of {@link #acquire(ProjectId, ProjectModel)}
      * (typically via the JSF Project Tree flow, which calls {@code WebStudio.init} →
      * {@code setModuleInfo} → {@code compileProject} directly). Returns empty when the
      * WebStudio session has no current project, the current project does not match the
@@ -136,12 +134,12 @@ public class CompilationJobRegistryImpl implements CompilationJobRegistry {
      * meaning no compilation has actually started. Returns empty as well while a write is waiting to be
      * compiled: what the session holds then was worked out from the workbook as it stood before the write.
      */
-    private Optional<CompilationJob> adoptFromSession(ProjectIdModel projectId, @Nullable String branch) {
+    private Optional<CompilationJob> adoptFromSession(ProjectId projectId, @Nullable String branch) {
         var currentProject = webStudio.getCurrentProject();
         if (currentProject == null || webStudio.getCurrentModule() == null) {
             return Optional.empty();
         }
-        if (!projectIdentifierMapper.map(currentProject).equals(projectId)
+        if (!currentProject.getProjectId().equals(projectId)
                 || !Objects.equals(currentProject.getBranch(), branch)) {
             return Optional.empty();
         }

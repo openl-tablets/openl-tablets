@@ -9,7 +9,7 @@ Content-Type: application/json
   "scope": {
     "projects": [
       {
-        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtT3duOjI4ZDdhMzA2NDVjNTkyZTI3NTcxYzhmMGRhODEyYTkzOGQ0ZDk3YTA4MzEyYmJhYjA5MjU0MWFkNzY2Y2Q5OTU=",
+        "id": "AQWGsdcNsKSz",
         "name": "EPBDS-16896-Own",
         "path": "EPBDS-16896-Own",
         "current": true,
@@ -17,7 +17,7 @@ Content-Type: application/json
         "changedFiles": 1
       },
       {
-        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtQWRkZWQ6OWUyNWQyNzY2Y2IxODNlYjgzMjMwNDNmMzYxZGY0YzlkMjcwNzhlYWYwNmI1Mzg3YWUyMjYwNWE4NzRkOWJkMg==",
+        "id": "9ir8zZKvl7Y6",
         "name": "EPBDS-16896-Added",
         "path": "EPBDS-16896-Added",
         "current": false,
@@ -25,7 +25,7 @@ Content-Type: application/json
         "changedFiles": 2
       },
       {
-        "id": "ZGVzaWduLWZsYXQ6RVBCRFMtMTY4OTYtSGlkZGVuOjY1ZTI0OTk5M2RlODAwYzE1MjlkNmZlZTEyMjRkMWM4MDc4ZmE5OGZjNjI1Y2VjZmU5NjYwMDZiYjdlZjUyNjc=",
+        "id": "o0NkTqkHyjC1",
         "name": "EPBDS-16896-Hidden",
         "path": "EPBDS-16896-Hidden",
         "current": false,

@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduLW5vbi1mbGF0OlByb2plY3Q6OTg1OTU5Nzg1MzE5NzQ3NjY4MzczY2M2ZGVlMjk0YjExZGI3ODJiMDNjZGQ5MGEyODUxZmJkYzA2MzdjNmI3Yg==",
+      "id": "bWwb43n8VPU7",
       "name": "Project",
       "branch": "master",
       "status": "OPENED",
@@ -41,7 +41,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI6Y2Y1Yjc0NzY1NmU3MjBhMDZiZWUyMzQ2NGQ1YTJkZmY5M2Q0NDdjODU1Mzc1ODFmOTc5YzNhMzhhZDYzZTQxMA==",
+      "id": "wflbBkr7CfKV",
       "name": "Project2",
       "branch": "EPBDS-13930_Project2",
       "status": "OPENED",

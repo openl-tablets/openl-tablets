@@ -5,7 +5,7 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import org.openl.rules.ui.ProjectModel;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 
 /**
  * Client-scoped registry that owns the current {@link CompilationJob} for a
@@ -25,7 +25,7 @@ public interface CompilationJobRegistry {
      * @return the current compilation job for the supplied project
      */
     @NotNull
-    CompilationJob acquire(@NotNull ProjectIdModel projectId, @NotNull ProjectModel model);
+    CompilationJob acquire(@NotNull ProjectId projectId, @NotNull ProjectModel model);
 
     /**
      * Look up the current compilation job for the given project and branch without
@@ -39,7 +39,7 @@ public interface CompilationJobRegistry {
      *         matching compilation has been registered
      */
     @NotNull
-    Optional<CompilationJob> find(@NotNull ProjectIdModel projectId, @Nullable String branch);
+    Optional<CompilationJob> find(@NotNull ProjectId projectId, @Nullable String branch);
 
     /**
      * Drop the cached compilation job so that read-only callers no longer observe a stale

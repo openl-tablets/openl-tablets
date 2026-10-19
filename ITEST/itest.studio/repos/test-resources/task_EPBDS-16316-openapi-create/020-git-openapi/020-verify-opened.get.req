@@ -1,3 +1,3 @@
-GET /rest/projects/OpenApiGit?fields=status HTTP/1.1
+GET /rest/projects/B4WYZ_5vyenj?fields=status HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

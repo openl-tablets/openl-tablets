@@ -3,6 +3,6 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "projectId": "ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0=",
+  "projectId": "-lhtqkwnJ_K5",
   "comment": "Redeploy into the existing deployment configuration"
 }

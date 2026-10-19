@@ -18,8 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.studio.projects.model.ProjectIdModel;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.service.ProjectStateChangedEvent;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,9 +27,6 @@ class WorkspaceChangesWebSocketPublisherTest {
 
     @Mock
     private ProjectSocketNotificationService notificationService;
-
-    @Mock
-    private ProjectIdentifierMapper projectIdentifierMapper;
 
     @Mock
     private NotificationDebouncer debouncer;
@@ -43,10 +40,7 @@ class WorkspaceChangesWebSocketPublisherTest {
     @InjectMocks
     private WorkspaceChangesWebSocketPublisher publisher;
 
-    private final ProjectIdModel projectId = ProjectIdModel.builder()
-            .repository("design")
-            .projectName("Alpha")
-            .build();
+    private final ProjectId projectId = ProjectIds.of("design", "Alpha");
 
     @BeforeEach
     @SuppressWarnings("unchecked")
@@ -57,7 +51,7 @@ class WorkspaceChangesWebSocketPublisherTest {
             invocation.getArgument(2, Consumer.class).accept(invocation.getArgument(1, ChangeNotes.class));
             return null;
         }).when(debouncer).debounce(any(), any(ChangeNotes.class), any());
-        lenient().when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        lenient().when(project.getProjectId()).thenReturn(projectId);
     }
 
     @Test
@@ -70,7 +64,7 @@ class WorkspaceChangesWebSocketPublisherTest {
         verify(notificationService).notifyProjectChanged("jane", projectId, new ChangeNotes(Set.of(), Set.of()));
         // Workspace and per-project pings coalesce independently of each other.
         verify(debouncer).debounce(eq("jane"), any(ChangeNotes.class), any());
-        verify(debouncer).debounce(eq("jane|" + projectId.encode()), any(ChangeNotes.class), any());
+        verify(debouncer).debounce(eq("jane|" + projectId.value()), any(ChangeNotes.class), any());
     }
 
     @Test
@@ -97,7 +91,7 @@ class WorkspaceChangesWebSocketPublisherTest {
     @Test
     void the_workspace_ping_survives_a_project_that_cannot_be_identified() {
         var event = new ProjectStateChangedEvent(project, "jane");
-        when(projectIdentifierMapper.map(project)).thenThrow(new IllegalStateException("gone"));
+        when(project.getProjectId()).thenThrow(new IllegalStateException("gone"));
 
         publisher.onProjectStateChanged(event);
 

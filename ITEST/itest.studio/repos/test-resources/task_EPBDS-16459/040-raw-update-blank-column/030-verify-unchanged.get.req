@@ -1,3 +1,3 @@
-GET /rest/projects/EPBDS-16459-Blank/tables/5CpPD1KmygMBt9h0?raw=true HTTP/1.1
+GET /rest/projects/tP7VfBbIQx80/tables/5CpPD1KmygMBt9h0?raw=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

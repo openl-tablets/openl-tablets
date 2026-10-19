@@ -15,7 +15,6 @@ import type {
 } from 'types/tables'
 import { errorMessage } from 'utils/errorMessage'
 import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './apiCall'
-import { toUrlSafeId } from './projectId'
 
 /**
  * The module a write is made through, as the address says it.
@@ -79,7 +78,7 @@ const writeTable = async <T>(
 export const getProjectTables = async (projectId: string, kinds: string[]): Promise<ProjectTable[]> => {
     const filter = kinds.map(kind => `kind=${encodeURIComponent(kind)}`).join('&')
     const page = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables?${filter}&unpaged=true`,
+        `/projects/${projectId}/tables?${filter}&unpaged=true`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as { content?: ProjectTable[] } | null
@@ -95,7 +94,7 @@ export const getProjectTables = async (projectId: string, kinds: string[]): Prom
  */
 export const getDatatype = async (projectId: string, tableId: string): Promise<ProjectDatatype> => {
     const table = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`,
+        `/projects/${projectId}/tables/${encodeURIComponent(tableId)}`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as {
@@ -118,7 +117,7 @@ export const getDatatype = async (projectId: string, tableId: string): Promise<P
 export const createTable = async (
     projectId: string,
     request: CreateTableRequest
-): Promise<SummaryTable | null> => writeTable(`/projects/${toUrlSafeId(projectId)}/tables`, request, {
+): Promise<SummaryTable | null> => writeTable(`/projects/${projectId}/tables`, request, {
     successTitle: i18n.t('project:create_table_modal.created'),
     successDescription: table => i18n.t('project:create_table_modal.created_description', { table }),
     failureTitle: i18n.t('project:create_table_modal.create_failed'),
@@ -135,7 +134,7 @@ export const getTableCopyInfo = async (
     projectId: string,
     tableId: string
 ): Promise<TableCopyInfo> => apiCall(
-    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`,
+    `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/properties`,
     undefined,
     LOCAL_LOAD_API_OPTIONS
 ) as Promise<TableCopyInfo>
@@ -146,7 +145,7 @@ export const copyTable = async (
     tableId: string,
     request: CopyTableRequest
 ): Promise<SummaryTable | null> => writeTable(
-    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/copy`,
+    `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/copy`,
     request,
     {
         successTitle: i18n.t('project:copy_table_modal.copied'),
@@ -173,7 +172,7 @@ export const updateTableProperties = async (
 ): Promise<string | null> => {
     try {
         const written = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/properties`
+            `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/properties`
             + inModule(moduleName),
             {
                 method: 'PATCH',
@@ -208,7 +207,7 @@ export const applyTableActions = async (
 ): Promise<string | null> => {
     try {
         const written = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/actions/batch`
+            `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/actions/batch`
             + inModule(moduleName),
             {
                 method: 'POST',
@@ -243,7 +242,7 @@ export const deleteTable = async (
 ): Promise<boolean> => {
     try {
         await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}`
+            `/projects/${projectId}/tables/${encodeURIComponent(tableId)}`
             + inModule(moduleName),
             { method: 'DELETE' },
             LOCAL_LOAD_API_OPTIONS
@@ -275,7 +274,7 @@ export interface TableFormatResult {
 export const formatProject = async (projectId: string): Promise<TableFormatResult | null> => {
     try {
         const result = await apiCall(
-            `/projects/${toUrlSafeId(projectId)}/format`,
+            `/projects/${projectId}/format`,
             { method: 'POST' },
             LOCAL_LOAD_API_OPTIONS
         ) as TableFormatResult
@@ -293,7 +292,7 @@ export const formatProject = async (projectId: string): Promise<TableFormatResul
 
 /** The address of a table's input, and of the cases and single case under it. */
 const inputUrl = (projectId: string, tableId: string, suffix = ''): string =>
-    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/input${suffix}`
+    `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/input${suffix}`
 
 /**
  * Reads the input a table takes to be executed.

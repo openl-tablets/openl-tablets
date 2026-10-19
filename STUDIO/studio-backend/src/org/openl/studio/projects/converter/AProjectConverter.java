@@ -6,12 +6,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.NotFoundException;
-import org.openl.studio.projects.model.ProjectIdModel;
 
+/**
+ * Resolves the design project an id names, as its home branch shows it.
+ */
 @Component
 @ParametersAreNonnullByDefault
 @RequiredArgsConstructor
@@ -21,13 +23,7 @@ public class AProjectConverter implements Converter<String, AProject> {
 
     @Override
     public AProject convert(String source) {
-        try {
-            var projectId = ProjectIdModel.decode(source);
-            return designTimeRepository.getProject(projectId.getRepository(), projectId.getProjectName());
-        } catch (ProjectException | IllegalArgumentException e) {
-            var ex = new NotFoundException("project.identifier.message");
-            ex.initCause(e);
-            throw ex;
-        }
+        return designTimeRepository.getProjectById(ProjectId.of(source))
+                .orElseThrow(() -> new NotFoundException("project.identifier.message"));
     }
 }

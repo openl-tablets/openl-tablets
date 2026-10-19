@@ -10,15 +10,13 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.git.MergeConflictDetails;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 
 class ProjectsMergeConflictsSessionHolderTest {
 
-    private static final ProjectIdModel PROJECT = ProjectIdModel.builder()
-            .repository("design")
-            .projectName("Project")
-            .build();
+    private static final ProjectId PROJECT = ProjectIds.of("design", "Project");
 
     @Test
     void whatIsFoundAboutTheFilesOfAConflictIsKeptWithItUntilAConflictIsStoredAnew() {

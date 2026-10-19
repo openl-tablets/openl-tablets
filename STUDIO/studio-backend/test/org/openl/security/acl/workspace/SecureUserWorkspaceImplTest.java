@@ -1,5 +1,6 @@
 package org.openl.security.acl.workspace;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -11,12 +12,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 
@@ -89,6 +92,30 @@ class SecureUserWorkspaceImplTest {
         when(delegate.getProjects("design")).thenReturn(List.of(project));
 
         assertTrue(secureWorkspace.getProjects("design").isEmpty());
+
+        verify(project).close();
+    }
+
+    @Test
+    void aProjectIsFoundByItsIdOnlyWhenItIsReadable() {
+        var id = ProjectIds.of("design", "P1");
+        var project = project(false, false, true);
+        when(delegate.getProjectById(id, true)).thenReturn(Optional.of(project));
+
+        assertEquals(Optional.of(project), secureWorkspace.getProjectById(id, true));
+
+        var denied = project(false, false, false);
+        when(delegate.getProjectById(id, false)).thenReturn(Optional.of(denied));
+        assertTrue(secureWorkspace.getProjectById(id, false).isEmpty());
+    }
+
+    @Test
+    void lookupByIdEvictsTheRevokedCopy() throws ProjectException {
+        var id = ProjectIds.of("design", "P1");
+        var project = project(true, false, false);
+        when(delegate.getProjectById(id, false)).thenReturn(Optional.of(project));
+
+        assertTrue(secureWorkspace.getProjectById(id, false).isEmpty());
 
         verify(project).close();
     }

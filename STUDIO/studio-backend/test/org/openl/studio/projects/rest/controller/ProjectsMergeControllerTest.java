@@ -39,6 +39,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
@@ -47,7 +48,6 @@ import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonContent;
 import org.openl.studio.compare.service.ComparisonLauncher;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.merge.ConflictBase;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictTextView;
@@ -63,7 +63,6 @@ import org.openl.studio.projects.model.merge.MergeSummaryView;
 import org.openl.studio.projects.model.merge.MergedChanges;
 import org.openl.studio.projects.rest.model.ResolveConflictWorkbookRequest;
 import org.openl.studio.projects.rest.model.ResolveConflictsRequest;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.merge.MergeChangesService;
 import org.openl.studio.projects.service.merge.ProjectsMergeConflictsService;
@@ -85,7 +84,6 @@ class ProjectsMergeControllerTest {
     private ProjectsMergeService mergeService;
     private ProjectsMergeConflictsSessionHolder conflictsSessionHolder;
     private ProjectsMergeConflictsService mergeConflictsService;
-    private ProjectIdentifierMapper projectIdentifierMapper;
     private ProjectModel model;
     private ComparisonLauncher comparisonLauncher;
     private MergeChangesService mergeChangesService;
@@ -118,7 +116,6 @@ class ProjectsMergeControllerTest {
         mergeLauncher = mock(ProjectsMergeLauncher.class);
         conflictsSessionHolder = new ProjectsMergeConflictsSessionHolder();
         mergeConflictsService = mock(ProjectsMergeConflictsService.class);
-        projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
 
         comparisonLauncher = mock(ComparisonLauncher.class);
         mergeChangesService = mock(MergeChangesService.class);
@@ -127,7 +124,6 @@ class ProjectsMergeControllerTest {
                 projectService,
                 conflictsSessionHolder,
                 mergeConflictsService,
-                projectIdentifierMapper,
                 comparisonLauncher,
                 mergeLauncher,
                 mergeChangesService);
@@ -284,8 +280,8 @@ class ProjectsMergeControllerTest {
 
     /** A conflict of the project this session is holding. */
     private MergeConflictInfo givenConflict() {
-        var projectId = ProjectIdModel.builder().repository("design").projectName("RateCalculator").build();
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        var projectId = ProjectIds.of("design", "RateCalculator");
+        when(project.getProjectId()).thenReturn(projectId);
         var conflictInfo = mock(MergeConflictInfo.class);
         conflictsSessionHolder.store(projectId, conflictInfo);
         return conflictInfo;
@@ -384,14 +380,14 @@ class ProjectsMergeControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertThrows(NotFoundException.class, () -> controller.getMergeConflictInfo(project));
         // The merge has nothing left to report once its conflicts are cancelled.
-        verify(mergeLauncher).forget(projectIdentifierMapper.map(project));
+        verify(mergeLauncher).forget(project.getProjectId());
     }
 
     /** A merge that ends just after the request was let in keeps its conflicts once it reaches the editor. */
     @Test
     void cancelDropsTheConflictOfAMergeThatEndsMeanwhile() {
-        var projectId = ProjectIdModel.builder().repository("design").projectName("RateCalculator").build();
-        when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        var projectId = ProjectIds.of("design", "RateCalculator");
+        when(project.getProjectId()).thenReturn(projectId);
         doAnswer(invocation -> {
             conflictsSessionHolder.store(projectId, mock(MergeConflictInfo.class));
             return null;
@@ -405,8 +401,7 @@ class ProjectsMergeControllerTest {
 
     @Test
     void cancelFindsNothingToCancel() {
-        when(projectIdentifierMapper.map(project))
-                .thenReturn(ProjectIdModel.builder().repository("design").projectName("RateCalculator").build());
+        when(project.getProjectId()).thenReturn(ProjectIds.of("design", "RateCalculator"));
 
         assertThrows(NotFoundException.class, () -> controller.cancelMergeConflicts(project));
     }

@@ -19,7 +19,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "jSs7DDZ8FLGXfE99",
@@ -37,7 +37,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "O3XCLRJXWm1t0kk7",
@@ -49,7 +49,7 @@ Content-Type: application/json
       "pos": "C5:E12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "Bank"
     },
     {
@@ -62,7 +62,7 @@ Content-Type: application/json
       "pos": "B5:H9",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "Bank bankData"
     },
     {
@@ -75,7 +75,7 @@ Content-Type: application/json
       "pos": "B12:S16",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "FinancialData bankFinancialData"
     },
     {
@@ -91,7 +91,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "_aZ41wyLNB9PsKYf",
@@ -103,7 +103,7 @@ Content-Type: application/json
       "pos": "C5:E9",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "BankLimitIndex BankLimitIndexTest"
     },
     {
@@ -122,7 +122,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "GfkSq45fJbhXZQ5S",
@@ -140,7 +140,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "etzMSGqMmmvCYLuF",
@@ -155,7 +155,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "xqhs_BeG4jcnfPIQ",
@@ -167,7 +167,7 @@ Content-Type: application/json
       "pos": "C6:D13",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "BankRatingGroup BankRatingGroupTest"
     },
     {
@@ -180,7 +180,7 @@ Content-Type: application/json
       "pos": "B25:D90",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "Rating bankRatingList"
     },
     {
@@ -193,7 +193,7 @@ Content-Type: application/json
       "pos": "C6:E10",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "BankRatingCalculation BankRatingTest"
     },
     {
@@ -209,7 +209,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "x7ht2m231W3COX5x",
@@ -221,7 +221,7 @@ Content-Type: application/json
       "pos": "C6:D12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "CapitalAdequacyScore CapitalAdequacyScoreTest"
     },
     {
@@ -236,7 +236,7 @@ Content-Type: application/json
       "pos": "C8:D13",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "N_K0BlUto7sBC5Xn",
@@ -250,7 +250,7 @@ Content-Type: application/json
       "pos": "C19:D25",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "4jYDRCUma_ZuBPCG",
@@ -262,7 +262,7 @@ Content-Type: application/json
       "pos": "C7:E8",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "-cSEEN17HrAWKOxq",
@@ -274,7 +274,7 @@ Content-Type: application/json
       "pos": "D59:D77",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "CountryCode <String>"
     },
     {
@@ -289,7 +289,7 @@ Content-Type: application/json
       "pos": "C29:D36",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "RHKL53mJxTWrxCnZ",
@@ -303,7 +303,7 @@ Content-Type: application/json
       "pos": "C36:D39",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "kMTO_LR22gSfZTd0",
@@ -315,7 +315,7 @@ Content-Type: application/json
       "pos": "C22:E26",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "BalanceDynamicIndexCalculation DynamicIndexTest"
     },
     {
@@ -331,7 +331,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "5sI54FlRtghu6rVM",
@@ -343,7 +343,7 @@ Content-Type: application/json
       "pos": "C16:E22",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "EquityScore EquityScoreTest"
     },
     {
@@ -356,7 +356,7 @@ Content-Type: application/json
       "pos": "C15:E32",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "FinancialData"
     },
     {
@@ -371,7 +371,7 @@ Content-Type: application/json
       "pos": "C75:D82",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "N06ZrEXiJmaIJcGG",
@@ -385,7 +385,7 @@ Content-Type: application/json
       "pos": "C8:D11",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "PqeoPsBcVUkv0Lpn",
@@ -399,7 +399,7 @@ Content-Type: application/json
       "pos": "C15:D18",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "ZgzgIXsgnUy2bdCt",
@@ -414,7 +414,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "wWP4XX2I5DieV_2U",
@@ -426,7 +426,7 @@ Content-Type: application/json
       "pos": "C6:E12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "IsAdequateMaxCreditRiskScore  IsAdequateMaxCreditRiskScoreTest"
     },
     {
@@ -445,7 +445,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "5GCYTB74KAfMzOIK",
@@ -457,7 +457,7 @@ Content-Type: application/json
       "pos": "C38:D42",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "IsAdequateNormativeIndexCalculation IsAdequateNormativeIndexTest"
     },
     {
@@ -472,7 +472,7 @@ Content-Type: application/json
       "pos": "C37:D42",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "q4wzksOtzqphdaOl",
@@ -486,7 +486,7 @@ Content-Type: application/json
       "pos": "C97:D105",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "AnQu1FgWl1hu6DRn",
@@ -500,7 +500,7 @@ Content-Type: application/json
       "pos": "C17:D22",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "WEq5nPMcxcCQXpXi",
@@ -514,7 +514,7 @@ Content-Type: application/json
       "pos": "C63:D71",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "0kP01Cy5ShSwvbEd",
@@ -526,7 +526,7 @@ Content-Type: application/json
       "pos": "D12:D56",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "LongTermRating <String>"
     },
     {
@@ -542,7 +542,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "q1EiDycyl2dcDNZd",
@@ -554,7 +554,7 @@ Content-Type: application/json
       "pos": "C6:D10",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "LossesInThisYearScore LossesInThisYearScoreTest"
     },
     {
@@ -569,7 +569,7 @@ Content-Type: application/json
       "pos": "C15:D18",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "ddW9wegAxkWi1QAH",
@@ -583,7 +583,7 @@ Content-Type: application/json
       "pos": "C29:D32",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "BrbRhb8dCQzWEa3b",
@@ -597,7 +597,7 @@ Content-Type: application/json
       "pos": "C22:D25",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "9E55kYfojDcLh7R7",
@@ -611,7 +611,7 @@ Content-Type: application/json
       "pos": "C86:D93",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "MHcjMCscCdxbwDos",
@@ -625,7 +625,7 @@ Content-Type: application/json
       "pos": "C17:D20",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "SFb5Lm6OeYvtYqB5",
@@ -639,7 +639,7 @@ Content-Type: application/json
       "pos": "C109:D116",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "MpkADbkBmqTk20fO",
@@ -654,7 +654,7 @@ Content-Type: application/json
       "hasTests": true,
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
+      "projectId": "dIqfZtxMJuJR"
     },
     {
       "id": "_4Qe0peyb0pIz1Cf",
@@ -666,7 +666,7 @@ Content-Type: application/json
       "pos": "C6:E12",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "ProfitDynamicScore ProfitDynamicScoreTest"
     },
     {
@@ -679,7 +679,7 @@ Content-Type: application/json
       "pos": "C30:D34",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "BankQualitativeIndexCalculation QualitativeIndexTest"
     },
     {
@@ -692,7 +692,7 @@ Content-Type: application/json
       "pos": "C14:D18",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "BalanceQualityIndexCalculation QualityIndexTest"
     },
     {
@@ -705,7 +705,7 @@ Content-Type: application/json
       "pos": "C35:E44",
       "module": "Bank Rating",
       "project": "EPBDS-15998-db",
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "signature": "QualityIndicators"
     }
   ],

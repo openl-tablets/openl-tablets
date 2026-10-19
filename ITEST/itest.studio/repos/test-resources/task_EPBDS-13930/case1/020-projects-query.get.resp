@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+      "id": "c5HtC2wdN8fO",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",
@@ -40,7 +40,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDI6Y2Y1Yjc0NzY1NmU3MjBhMDZiZWUyMzQ2NGQ1YTJkZmY5M2Q0NDdjODU1Mzc1ODFmOTc5YzNhMzhhZDYzZTQxMA==",
+      "id": "wflbBkr7CfKV",
       "name": "Project2",
       "branch": "master",
       "status": "CLOSED",

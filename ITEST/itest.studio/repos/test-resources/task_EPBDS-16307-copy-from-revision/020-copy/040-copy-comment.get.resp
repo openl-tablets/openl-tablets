@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ZGVzaWduOkVQQkRTX0NvcHlSZXZPbGQ=",
+  "id": "UFTE7DQCa7aE",
   "name": "EPBDS_CopyRevOld",
   "status": "CLOSED",
   "repository": "design",

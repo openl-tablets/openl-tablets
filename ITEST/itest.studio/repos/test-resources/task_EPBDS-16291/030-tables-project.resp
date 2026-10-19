@@ -15,7 +15,7 @@ Content-Type: application/json
       "tableType": "SimpleSpreadsheet",
       "module": "arrayCallProject",
       "project": "EPBDS-16291-profiling",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYyOTEtcHJvZmlsaW5nOjc1MjUzYTRiMTYyMmY1ZWJmYTEwMjE4MzlmMTA1YWY4NzQzNTg2YjU2MTkzOGU5MDMyMTE3OGVlZTNlMTBjYWU="
+      "projectId": "mblzocQ0ru25"
     },
     {
       "file": "EPBDS-16291-profiling/arrayCallProject.xlsx",
@@ -29,7 +29,7 @@ Content-Type: application/json
       "tableType": "SimpleSpreadsheet",
       "module": "arrayCallProject",
       "project": "EPBDS-16291-profiling",
-      "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTYyOTEtcHJvZmlsaW5nOjc1MjUzYTRiMTYyMmY1ZWJmYTEwMjE4MzlmMTA1YWY4NzQzNTg2YjU2MTkzOGU5MDMyMTE3OGVlZTNlMTBjYWU="
+      "projectId": "mblzocQ0ru25"
     }
   ],
   "numberOfElements": 2,

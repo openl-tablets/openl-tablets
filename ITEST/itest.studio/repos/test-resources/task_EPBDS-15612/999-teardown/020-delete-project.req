@@ -1,4 +1,4 @@
-DELETE /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTU2MTI6NTAzZjIzODYwMDhhOTFkYjdlMjQ2ODJjYjRjNWE0YTRlNjMyYTUzYjllMzkzZDZhMzk5MzYwZjQxNzg0ZDkyOQ==?comment=Cleanup HTTP/1.1
+DELETE /rest/projects/rqTcwFEKjoHF?comment=Cleanup HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Cookie: NO_JSESSIONID=noAuth
 

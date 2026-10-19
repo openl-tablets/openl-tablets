@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ZGVzaWduLWZsYXQ6RVBCRFNfODUzN19DT1BZOjg3MGZkNzQ2ZWI5MzVjNTk5MTkxYzY5ZmE4ZWI4NDQwODY0MjMxNWQ5MzMxZGYxZGNmNjEzMmUzMWFiNmQ4NDA=",
+  "id": "-R5d5PHJKotQ",
   "branch": "EPBDS-8537-copy-feature",
   "revision": "*"
 }

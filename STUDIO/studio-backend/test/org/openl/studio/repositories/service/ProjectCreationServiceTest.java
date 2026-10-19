@@ -1,6 +1,7 @@
 package org.openl.studio.repositories.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,8 +34,10 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -386,6 +389,32 @@ class ProjectCreationServiceTest {
         service = serviceWithWorkspace(workspace);
         assertThrows(ConflictException.class,
                 () -> service.awaitProjectVisibility(repository));
+    }
+
+    @Test
+    void the_id_of_a_project_written_to_a_repository_with_folders_is_the_id_of_its_folder() {
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn("design");
+        var written = new FileData();
+        written.setName("DESIGN/rules/Rating");
+        written.addAdditionalData(new FileMappingData("DESIGN/rules/Rating", "Products/Rating"));
+
+        assertEquals(ProjectIds.of("design", "Products/Rating"), service.idOfWritten(repository, written));
+    }
+
+    @Test
+    void the_id_of_a_project_written_to_a_flat_repository_is_the_id_of_the_key_it_is_stored_under() {
+        var designTimeRepository = mock(DesignTimeRepository.class);
+        when(designTimeRepository.getRulesLocation()).thenReturn("DESIGN/rules/");
+        var workspace = mock(UserWorkspace.class);
+        when(workspace.getDesignTimeRepository()).thenReturn(designTimeRepository);
+        service = serviceWithWorkspace(workspace);
+        var repository = mock(Repository.class);
+        when(repository.getId()).thenReturn("design");
+        var written = new FileData();
+        written.setName("DESIGN/rules/Rating");
+
+        assertEquals(ProjectIds.of("design", "DESIGN/rules/Rating"), service.idOfWritten(repository, written));
     }
 
     private ProjectCreationService serviceWithWorkspace(UserWorkspace workspace) {

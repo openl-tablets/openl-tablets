@@ -1,4 +1,4 @@
-GET /rest/projects/{PROJECT_BUSINESS_NAME}/tests/summary?failuresOnly=true HTTP/1.1
+GET /rest/projects/5Z_odFh5hN-t/tests/summary?failuresOnly=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Accept: application/json
 

@@ -1,3 +1,3 @@
-DELETE /rest/projects/EPBDS-16926/tables/QOwXniedKTm-TryV HTTP/1.1
+DELETE /rest/projects/bgm2PMYJX3ZX/tables/QOwXniedKTm-TryV HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

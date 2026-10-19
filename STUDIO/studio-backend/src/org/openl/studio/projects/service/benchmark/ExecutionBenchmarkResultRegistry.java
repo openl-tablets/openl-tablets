@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.service.AbstractExecutionResultRegistry;
 import org.openl.studio.session.ClientSessionScope;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -32,7 +32,7 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultRegistry<List<BenchmarkMeasurement>> {
 
     private final List<BenchmarkMeasurement> measurements = new ArrayList<>();
-    private @Nullable ProjectIdModel measuredProject;
+    private @Nullable ProjectId measuredProject;
     private @Nullable CompletableFuture<List<BenchmarkMeasurement>> pending;
 
     /**
@@ -42,7 +42,7 @@ public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultReg
      * @param tableId   the table identifier
      * @param task      the benchmark execution future
      */
-    public synchronized void setTask(ProjectIdModel projectId,
+    public synchronized void setTask(ProjectId projectId,
                                      String tableId,
                                      CompletableFuture<List<BenchmarkMeasurement>> task) {
         Objects.requireNonNull(tableId, "tableId");
@@ -72,7 +72,7 @@ public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultReg
      * @return the measurements of the project
      * @throws RuntimeException the reason the benchmark that has just ended failed
      */
-    public synchronized List<BenchmarkMeasurement> collect(ProjectIdModel projectId) {
+    public synchronized List<BenchmarkMeasurement> collect(ProjectId projectId) {
         if (!projectId.equals(measuredProject)) {
             return List.of();
         }
@@ -93,7 +93,7 @@ public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultReg
      * @param projectId the project identifier
      * @return the reason the benchmark failed, or {@code null} when it did not
      */
-    private @Nullable Throwable harvest(ProjectIdModel projectId) {
+    private @Nullable Throwable harvest(ProjectId projectId) {
         var task = pending;
         if (task == null || !task.isDone()) {
             return null;
@@ -122,7 +122,7 @@ public class ExecutionBenchmarkResultRegistry extends AbstractExecutionResultReg
      * @param projectId the project identifier
      * @param ids       identifiers of the measurements to forget, empty for all of them
      */
-    public synchronized void forget(ProjectIdModel projectId, Collection<String> ids) {
+    public synchronized void forget(ProjectId projectId, Collection<String> ids) {
         if (!projectId.equals(measuredProject)) {
             return;
         }

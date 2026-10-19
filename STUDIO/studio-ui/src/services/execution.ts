@@ -1,7 +1,6 @@
 import type { BenchmarkResult, RunResult, TestsSummary, ValueLevel } from 'types/execution'
 import { ALL_FAILURES, ALL_TESTS_ON_A_PAGE, FAILURES_PER_TEST, TESTS_PAGE_SIZE } from 'constants/tests'
 import apiCall, { asArray, readTaskResult } from './apiCall'
-import { toUrlSafeId } from './projectId'
 import { isStillRunning } from './taskResult'
 
 const EXECUTION_API_OPTIONS = { throwError: true, suppressErrorPages: true }
@@ -65,7 +64,7 @@ const readSettled = async <T, >(read: () => Promise<T>, attemptsLeft = SETTLE_AT
 }
 
 const projectUrl = (projectId: string, suffix: string): string =>
-    `/projects/${toUrlSafeId(projectId)}${suffix}`
+    `/projects/${projectId}${suffix}`
 
 const withModule = (params: URLSearchParams, fromModule?: string | undefined): URLSearchParams => {
     if (fromModule) {

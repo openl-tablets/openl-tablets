@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.testmethod.TestUnitsResults;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.model.tests.TestCaseExecutionResult;
 import org.openl.studio.projects.service.tests.ProjectTestsExecutionProgressListener;
 import org.openl.studio.projects.service.tests.TestExecutionStatus;
@@ -26,7 +26,7 @@ public class SocketProjectAllTestsExecutionProgressListenerFactory {
      * @param mapper a function to map {@link TestUnitsResults} to {@link TestCaseExecutionResult}
      * @return a ProjectTestsExecutionProgressListener instance
      */
-    public ProjectTestsExecutionProgressListener create(CommonUser user, ProjectIdModel projectId, Function<TestUnitsResults, TestCaseExecutionResult> mapper) {
+    public ProjectTestsExecutionProgressListener create(CommonUser user, ProjectId projectId, Function<TestUnitsResults, TestCaseExecutionResult> mapper) {
         return new ProjectTestsExecutionProgressListener() {
             @Override
             public void onStatusChanged(TestExecutionStatus status) {
@@ -50,7 +50,7 @@ public class SocketProjectAllTestsExecutionProgressListenerFactory {
      * @param mapper a function to map {@link TestUnitsResults} to {@link TestCaseExecutionResult}
      * @return a ProjectTestsExecutionProgressListener instance
      */
-    public ProjectTestsExecutionProgressListener create(CommonUser user, ProjectIdModel projectId, String tableId, Function<TestUnitsResults, TestCaseExecutionResult> mapper) {
+    public ProjectTestsExecutionProgressListener create(CommonUser user, ProjectId projectId, String tableId, Function<TestUnitsResults, TestCaseExecutionResult> mapper) {
         return new ProjectTestsExecutionProgressListener() {
             @Override
             public void onStatusChanged(TestExecutionStatus status) {

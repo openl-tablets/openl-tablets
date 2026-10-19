@@ -17,13 +17,13 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
 
 class DebugSessionTest {
 
     private static DebugSession session() {
-        var projectId = ProjectIdModel.builder().repository("repo").projectName("A").build();
+        var projectId = ProjectIds.of("repo", "A");
         return new DebugSession(projectId, "table", new TraceDebugger(DebugListener.NOOP), null, null, Map.of(), "session-1");
     }
 

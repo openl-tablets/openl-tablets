@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16492-ErrorLocation/tables HTTP/1.1
+POST /rest/projects/iv5GK07vhhGC/tables HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

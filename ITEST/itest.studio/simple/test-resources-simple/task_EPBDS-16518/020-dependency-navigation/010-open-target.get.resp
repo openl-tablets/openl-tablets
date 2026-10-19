@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "bG9jYWw6ZXBiZHMtMTY1MTgtdGFyZ2V0",
+  "id": "f40g5dsnC-vJ",
   "name": "epbds-16518-target",
   "status": "LOCAL",
   "repository": "local",

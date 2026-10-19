@@ -48,7 +48,6 @@ import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclServiceProvider;
 import org.openl.studio.common.exception.BadRequestException;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.security.CurrentUserInfo;
 import org.openl.util.StringUtils;
 
@@ -169,10 +168,7 @@ public class AclProjectsController {
         var aclService = aclServiceProvider.getDesignRepoAclService();
         return projects.stream()
                 .map(project -> Pair.of(project, AclProjectModel.builder()
-                        .id(ProjectIdModel.builder()
-                                .repository(project.getRepository().getId())
-                                .projectName(project.getName())
-                                .build())
+                        .id(project.getProjectId())
                         .name(project.getName()))
                 )
                 .flatMap(entry -> aclService.listPermissions(entry.getKey(), sid).stream()

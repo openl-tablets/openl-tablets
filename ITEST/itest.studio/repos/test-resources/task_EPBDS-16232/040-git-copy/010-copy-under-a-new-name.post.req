@@ -2,4 +2,4 @@ POST /rest/repos/design-non-flat/projects/EPBDS-16232-git-copy/from-project HTTP
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
-{"sourceProject":"ZGVzaWduLW5vbi1mbGF0OkVQQkRTLTE2MjMyLWdpdDpmMWI3MzIyMTg2NTIyZjlhYTU2OWJjMjY0ODY1ZTMyYTdjZTliNDk5ZmRhYzRmMjdiZjZkY2IzNjBiYTE3NGJk","comment":"EPBDS-16232 Copy a project renamed but not saved"}
+{"sourceProject":"lCr1AMZB6OPV","comment":"EPBDS-16232 Copy a project renamed but not saved"}

@@ -31,14 +31,14 @@ import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.utils.AuditFields;
 import org.openl.studio.common.utils.DateTimes;
 import org.openl.studio.deployment.model.DeployProjectModel;
+import org.openl.studio.deployment.model.DeploymentId;
 import org.openl.studio.deployment.model.DeploymentItemViewModel;
 import org.openl.studio.deployment.model.DeploymentViewModel;
 import org.openl.studio.deployment.model.DesignRevisionViewModel;
 import org.openl.studio.deployment.model.RedeployProjectModel;
 import org.openl.studio.deployment.service.DeploymentCriteriaQuery;
 import org.openl.studio.deployment.service.DeploymentService;
-import org.openl.studio.projects.converter.ProjectIdentityConverter;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.studio.projects.converter.ProjectIdConverter;
 import org.openl.studio.security.CommitInfoRequired;
 import org.openl.util.StringUtils;
 
@@ -50,7 +50,7 @@ import org.openl.util.StringUtils;
 public class DeploymentsController {
 
     private final DeploymentService deploymentService;
-    private final ProjectIdentityConverter projectConverter;
+    private final ProjectIdConverter projectConverter;
 
     @Operation(
             summary = "deployments.get-list.summary",
@@ -93,10 +93,10 @@ public class DeploymentsController {
             @Parameter(description = "deployments.get.param.id.desc") @PathVariable("id") String id) {
         var deploymentId = decodeDeploymentId(id);
         var query = DeploymentCriteriaQuery.builder()
-                .repository(deploymentId.getRepository())
+                .repository(deploymentId.repository())
                 .build();
         return deploymentService.getDeployments(query).stream()
-                .filter(deployment -> deployment.getDeploymentName().equals(deploymentId.getProjectName()))
+                .filter(deployment -> deployment.getDeploymentName().equals(deploymentId.name()))
                 .findFirst()
                 .map(this::mapToFullViewModel)
                 .orElseThrow(() -> new NotFoundException("deployment.not-found.message"));
@@ -106,11 +106,8 @@ public class DeploymentsController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @CommitInfoRequired
     public void deploy(@Valid @RequestBody DeployProjectModel deployProject) throws ProjectException {
-        var deploymentId = ProjectIdModel.builder()
-                .repository(deployProject.productionRepositoryId)
-                .projectName(deployProject.deploymentName)
-                .build();
-        var projectToDeploy = projectConverter.convert(deployProject.projectId.encode());
+        var deploymentId = new DeploymentId(deployProject.productionRepositoryId, deployProject.deploymentName);
+        var projectToDeploy = projectConverter.resolve(deployProject.projectId);
         deploymentService.deploy(deploymentId, projectToDeploy, deployProject.comment);
     }
 
@@ -120,7 +117,7 @@ public class DeploymentsController {
     public void redeploy(@Parameter(description = "deployments.redeploy.param.id.desc") @PathVariable("id") String id,
                          @Valid @RequestBody RedeployProjectModel redeployProject) throws ProjectException {
         var deploymentId = decodeDeploymentId(id);
-        var projectToDeploy = projectConverter.convert(redeployProject.projectId.encode());
+        var projectToDeploy = projectConverter.resolve(redeployProject.projectId);
         deploymentService.deploy(deploymentId, projectToDeploy, redeployProject.comment);
     }
 
@@ -130,9 +127,9 @@ public class DeploymentsController {
      * <p>A truncated or hand-edited id is a client error, so it answers "not found" instead of failing
      * the request as a server fault.
      */
-    private static ProjectIdModel decodeDeploymentId(String id) {
+    private static DeploymentId decodeDeploymentId(String id) {
         try {
-            return ProjectIdModel.decode(id);
+            return DeploymentId.decode(id);
         } catch (IllegalArgumentException e) {
             log.debug("Malformed deployment id '{}'", id, e);
             throw new NotFoundException("deployment.not-found.message");
@@ -159,10 +156,7 @@ public class DeploymentsController {
 
     private DeploymentViewModel.DeploymentViewModelBuilder builder(Deployment deployment) {
         return DeploymentViewModel.builder()
-                .id(ProjectIdModel.builder()
-                        .repository(deployment.getRepository().getId())
-                        .projectName(deployment.getDeploymentName())
-                        .build())
+                .id(new DeploymentId(deployment.getRepository().getId(), deployment.getDeploymentName()))
                 .name(deployment.getName())
                 .repository(deployment.getRepository().getId());
     }

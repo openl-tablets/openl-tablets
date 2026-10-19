@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "id": "dIqfZtxMJuJR",
       "name": "EPBDS-15998-db",
       "status": "EDITING",
       "repository": "design",
@@ -41,7 +41,7 @@ Content-Type: application/json
   "total": 1,
   "statuses": [
     {
-      "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi",
+      "projectId": "dIqfZtxMJuJR",
       "revision": "*",
       "compileState": "errors",
       "lastModifiedBy": {

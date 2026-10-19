@@ -29,16 +29,16 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.projects.messaging.SocketBenchmarkExecutionProgressListenerFactory;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.benchmark.BenchmarkResult;
 import org.openl.studio.projects.service.ExecutionProgressListener;
 import org.openl.studio.projects.service.ExecutionStatus;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.benchmark.BenchmarkExecutorService;
@@ -60,7 +60,7 @@ class ProjectsBenchmarkControllerTest {
     private ExecutionBenchmarkResultRegistry registry;
     private TableInputParserService inputParserService;
     private ExecutionProgressListener listener;
-    private ProjectIdModel projectId;
+    private ProjectId projectId;
     private ProjectsBenchmarkController controller;
 
     private static BenchmarkMeasurement measurement() {
@@ -100,9 +100,8 @@ class ProjectsBenchmarkControllerTest {
         lenient().when(projectService.openProject(eq(project), any())).thenReturn(handle);
         lenient().when(projectService.getUserWorkspace()).thenReturn(userWorkspace);
 
-        projectId = ProjectIdModel.builder().repository("design").projectName("TestProject").build();
-        var projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
-        lenient().when(projectIdentifierMapper.map(project)).thenReturn(projectId);
+        projectId = ProjectIds.of("design", "TestProject");
+        lenient().when(project.getProjectId()).thenReturn(projectId);
 
         listener = mock(ExecutionProgressListener.class);
         var listenerFactory = mock(SocketBenchmarkExecutionProgressListenerFactory.class);
@@ -122,8 +121,7 @@ class ProjectsBenchmarkControllerTest {
                 registry,
                 listenerFactory,
                 inputParserService,
-                objectMapperService,
-                projectIdentifierMapper) {
+                objectMapperService) {
             @Override
             protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
                 return mock(SchemaGenerator.class);

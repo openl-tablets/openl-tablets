@@ -3034,7 +3034,6 @@ class WorkspaceProjectServiceTest {
                 mock(SystemPropertiesService.class),
                 eventPublisher,
                 bypassService,
-                mock(ProjectIdentifierMapper.class),
                 mock(DetailedMessageDescriptionMapper.class),
                 mock(LocalWorkspaceManager.class),
                 workspaceManager,

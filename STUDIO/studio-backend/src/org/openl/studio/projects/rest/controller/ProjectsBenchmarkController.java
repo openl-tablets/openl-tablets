@@ -39,7 +39,6 @@ import org.openl.studio.projects.rest.annotations.ChangesNothing;
 import org.openl.studio.projects.rest.annotations.ProjectId;
 import org.openl.studio.projects.service.DispatchedVersionCheck;
 import org.openl.studio.projects.service.ExecutionStatus;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.benchmark.BenchmarkExecutorService;
@@ -68,7 +67,6 @@ public class ProjectsBenchmarkController {
     private final SocketBenchmarkExecutionProgressListenerFactory listenerFactory;
     private final TableInputParserService inputParserService;
     private final ProjectObjectMapperService objectMapperService;
-    private final ProjectIdentifierMapper projectIdentifierMapper;
 
     @Lookup
     protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
@@ -91,7 +89,7 @@ public class ProjectsBenchmarkController {
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "benchmark.param.from-module.desc") String fromModule,
             @Parameter(description = "benchmark.param.input-json.desc") @RequestBody(required = false) String inputJson) {
 
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         var user = projectService.getUserWorkspace().getUser();
         // a blank `?fromModule=` means the whole project, not a module named "" (which would fail to resolve)
         var moduleName = StringUtils.trimToNull(fromModule);
@@ -146,7 +144,7 @@ public class ProjectsBenchmarkController {
     // The endpoint answers with another body while the result is not ready yet.
     @SuppressWarnings("java:S1452")
     public ResponseEntity<?> getBenchmarks(@ProjectId @PathVariable("projectId") RulesProject project) {
-        var projectId = projectIdentifierMapper.map(project);
+        var projectId = project.getProjectId();
         if (benchmarkResultRegistry.hasTask(projectId) && !benchmarkResultRegistry.isDone(projectId)) {
             // The measurement goes on: the request is accepted, and there is nothing to report until it has ended.
             return ResultNotReadyView.accepted();
@@ -171,6 +169,6 @@ public class ProjectsBenchmarkController {
     public void deleteBenchmarks(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam(value = "id", required = false) @Parameter(description = "benchmark.param.id.desc") List<String> ids) {
-        benchmarkResultRegistry.forget(projectIdentifierMapper.map(project), ids == null ? List.of() : ids);
+        benchmarkResultRegistry.forget(project.getProjectId(), ids == null ? List.of() : ids);
     }
 }

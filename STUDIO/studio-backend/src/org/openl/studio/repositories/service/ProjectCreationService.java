@@ -35,6 +35,8 @@ import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.workspace.ProjectId;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.filter.PathFilter;
@@ -47,6 +49,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.repositories.model.ProjectTemplateGroup;
 import org.openl.studio.tags.service.TagAssignmentValidator;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -115,6 +118,23 @@ public class ProjectCreationService {
             // successful create or copy as failed.
             log.warn("The user workspace could not be refreshed after a design repository change.", e);
         }
+    }
+
+    /**
+     * The id of the project a create or a copy wrote.
+     *
+     * <p>It is computed from the folder written: the internal path a repository with folders keeps the project in,
+     * which the written data carries whether it is the design data or the data of the workspace copy, or else the key
+     * the project is stored under, the rules location followed by the project name.
+     *
+     * @param repository the repository written to
+     * @param written    what the write answered
+     */
+    public ProjectId idOfWritten(Repository repository, FileData written) {
+        var mapping = written.getAdditionalData(FileMappingData.class);
+        var folder = mapping != null ? mapping.getInternalPath()
+                : getUserWorkspace().getDesignTimeRepository().getRulesLocation() + FileUtils.getName(written.getName());
+        return ProjectIds.of(repository.getId(), folder);
     }
 
     /**

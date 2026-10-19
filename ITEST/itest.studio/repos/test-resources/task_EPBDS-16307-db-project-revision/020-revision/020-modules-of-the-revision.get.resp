@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ZGVzaWduMTpEQkhpc3Rvcnk=",
+  "id": "nYQ7A4pHuEo6",
   "name": "DBHistory",
   "status": "OPENED",
   "repository": "design1",

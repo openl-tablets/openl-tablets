@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.projects.converter.ProjectStatusSerializer;
 
@@ -23,7 +24,7 @@ public abstract class AProjectViewModel {
 
     @Parameter(description = "Project identifier", required = true)
     @JsonView({GenericView.CreateOrUpdate.class, GenericView.Full.class})
-    public final ProjectIdModel id;
+    public final ProjectId id;
 
     @Parameter(description = "Project Status", schema = @Schema(allowableValues = {"LOCAL",
             "DELETED",
@@ -50,7 +51,7 @@ public abstract class AProjectViewModel {
     public abstract static class ABuilder<T extends ABuilder<T>> {
         private String name;
         private String branch;
-        private ProjectIdModel id;
+        private ProjectId id;
         private ProjectStatus status;
         private String repository;
 
@@ -68,7 +69,7 @@ public abstract class AProjectViewModel {
             return self();
         }
 
-        public T id(ProjectIdModel id) {
+        public T id(ProjectId id) {
             this.id = id;
             return self();
         }

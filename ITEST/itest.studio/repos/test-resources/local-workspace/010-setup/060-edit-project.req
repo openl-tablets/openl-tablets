@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16253-removed-editing/files/unsaved/ HTTP/1.1
+POST /rest/projects/0KGUppiRZQ6V/files/unsaved/ HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: multipart/form-data; boundary=MULTIBOUND
 

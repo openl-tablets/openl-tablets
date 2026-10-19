@@ -53,55 +53,40 @@ Java `UPPER_SNAKE` `.name()`.
 
 ## Ids in a URL Path
 
-A project and a deployment configuration are both addressed by `ProjectIdModel` — `repositoryId:name` in Base64 — and
-that id travels as a **path segment**, so it **MUST** stay within one.
+A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both travel as a **path segment**, so both
+**MUST** stay within one.
 
-- `encode()` (the `@JsonValue`, so every id the API hands out) uses the **URL-safe** alphabet and reads the name as
-  UTF-8. The standard alphabet is forbidden here: its `/` is read as a path separator (404), and percent-encoding it
-  to `%2F` is rejected as an ambiguous separator (400). A name outside US-ASCII makes that `/` likely — Cyrillic
-  names hit it about a quarter of the time.
-- `decode()` accepts both alphabets, so an id kept in a bookmark or a script keeps working. Never tighten it to one
-  alphabet.
-- Never hand a caller an id from anything but `encode()`. A hand-rolled `Base64.getEncoder()` reintroduces the slash.
-- A browser that has to build an id itself uses `encodeProjectId` from `studio-ui`'s `services/projectId.ts`. Never
-  call `btoa` directly: it reads a string as Latin-1, so it throws above U+00FF and mis-encodes the range below it,
-  and it emits the standard alphabet.
-- **The name inside a project id is its storage folder, not the logical name declared in `rules.xml`.** A design
-  project's id uses its design folder; a local-only project's id uses its workspace folder. The names differ when a
-  project is renamed in `rules.xml` or when EDT loads a folder whose project declares a friendlier name. A local-only
-  dependency matches that logical name because it has no Design repository identity, but the resolved dependency
-  carries the folder-based id so following its link addresses the actual project (EPBDS-16518).
-
-  A repository-backed project keeps its stable business name for dependency lookup. Do not index it by the logical
-  name read from the currently selected branch: an unsaved rename there must not hide the original name from another
-  branch that still contains and declares it. Branch membership remains the deciding scope as documented in
-  `Docs/architecture/cross-branch-projects.md`.
-
-  Before a mapped-project rename is saved, the workspace copy already sits in a folder named after the new name while
-  the design repository still holds the old one. An id **MUST** keep resolving across that gap, otherwise the project
-  becomes unaddressable and can be neither closed, reverted nor deleted (EPBDS-16229).
-  `Base64ProjectResolveStrategy` therefore resolves a mapped id by its folder first — the id's name prefixed with
-  `DesignTimeRepository.getRulesLocation()`, through `FolderMapper.getRealPath` and
-  `UserWorkspace.getProjectByPath`. **Resolve by folder before resolving by business name**: a business name is
-  carried by more than one project, so it can answer with a different project and let a destructive endpoint act on
-  the wrong one. While a save-time merge conflict is unresolved, `MergeConflictProjectResolveStrategy` keeps the
-  session's project addressable by that same id. The conflict dialog makes several requests after the failed save;
-  each must resolve even when a workspace refresh has removed the transient renamed key (EPBDS-16269).
-
-- **A design project named in a request body goes through the same resolver as one named in the path.** A non-flat
-  repository tells its projects apart by the folder they live in, so it may carry one name in several folders;
-  resolving a body field by business name therefore picks the wrong folder or none at all (EPBDS-16328). Call
-  `ProjectIdentityConverter.resolveProjectIdentity(identity, repositoryId)` — the same strategy chain the
-  `@ProjectId` path parameter uses, narrowed to one repository — instead of reaching for
-  `UserWorkspace.getProjectsByName` or for a single `ProjectResolveStrategy`. Leave reading the project to the
-  endpoint, so its own refusal message survives. An identity more than one project answers to is reported as
-  `project.identifier.ambiguous.message`, naming the ids to choose from.
-- **An ambiguous identity is a choice, not a failure.** `ProjectIdentityConverter` raises it as an
-  `AmbiguityException`, and the 409 body (`AmbiguityError`) lists every match in `candidates` — its id, name,
-  repository and, in a repository with mapped folders, the folder (`ProjectCandidateModel`) — so a client can offer
-  the choice instead of parsing the message. The folder matters: one such repository may hold a name in several
-  folders. Studio's project and module screens show that choice for a link by name (EPBDS-16702); a name that
-  resolves moves the address on to the project's id.
+- **A project id is a hash of where the project is stored** — 12 characters of URL-safe Base64 of the SHA-256 of the
+  repository id and the project folder (`ProjectIds`; the design is `Docs/architecture/project-ids.md`). The alphabet
+  keeps it within one segment as it is, so it needs no encoding.
+  - **Take the id from the project** — `AProject.getProjectId()`, which `RulesProject` computes once. Never build one
+    from a name, a `FileData` or a request value: a create or a copy answers `ProjectCreationService.idOfWritten`, the
+    id of the folder it wrote. A client never builds or decodes an id either.
+  - **The folder, not the name.** A design project's folder is its internal path in a repository with folders, or the
+    key it is stored under in JDBC and AWS S3; a local-only project's folder is its workspace folder. The id survives a
+    rename in `rules.xml`, saved or not, a branch switch, an open and a close.
+  - **An id only.** A project path variable (`@ProjectId`), `{project-id}` of the ACL endpoints, `sourceProject` of a
+    copy, `projectId` of the deploy requests and `dependsOn` take an id. `ProjectIdConverter` resolves it in the
+    user's workspace, which holds only the projects the user may read; `AProjectConverter` resolves it in the design
+    repositories, for the ACL endpoints. A project name and a Base64 id of OpenL Studio 6.x answer `404`
+    `project.identifier.message`.
+  - **A body names a project as a path does.** A design project named in a request body goes through
+    `ProjectIdConverter` too (EPBDS-16328), never `UserWorkspace.getProjectsByName`; leave reading the project to the
+    endpoint, so its own refusal message survives.
+  - **Dependencies match by name.** A local-only dependency matches the logical name its `rules.xml` declares,
+    because it has no design identity, and the resolved dependency carries the folder-based id, so following its link
+    addresses the actual project (EPBDS-16518). A repository-backed project keeps its stable business name for
+    dependency lookup; do not index it by the logical name read from the currently selected branch, as described in
+    `Docs/architecture/cross-branch-projects.md`.
+- **A deployment id is `repositoryId:name` in Base64.**
+  - `encode()` (the `@JsonValue`) uses the **URL-safe** alphabet and reads the name as UTF-8. The standard alphabet is
+    forbidden here: its `/` is read as a path separator (404), and percent-encoding it to `%2F` is rejected as an
+    ambiguous separator (400). A name outside US-ASCII makes that `/` likely — Cyrillic names hit it about a quarter
+    of the time.
+  - `decode()` accepts both alphabets, so an id kept in a bookmark or a script keeps working. Never tighten it to one
+    alphabet. Never hand a caller an id from anything but `encode()`: a hand-rolled `Base64.getEncoder()`
+    reintroduces the slash. A browser normalizes one with `toUrlSafeDeploymentId` of `studio-ui`'s
+    `services/deployments.ts`.
 
 ## State Kept Between Requests
 

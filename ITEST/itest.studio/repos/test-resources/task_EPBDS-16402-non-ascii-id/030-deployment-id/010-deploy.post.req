@@ -5,6 +5,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production",
   "deploymentName": "Тарифный план",
-  "projectId": "ZGVzaWduOtCi0LDRgNC40YTQvdGL0Lkg0L_Qu9Cw0L0=",
+  "projectId": "-lhtqkwnJ_K5",
   "comment": "Deploy a project whose name is not US-ASCII"
 }

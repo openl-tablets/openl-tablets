@@ -8,7 +8,7 @@ Content-Type: application/json
   "branch": "admin/feature-1",
   "revision": "*",
   "path": "Project",
-  "id": "ZGVzaWduLWZsYXQ6UHJvamVjdDo5ODU5NTk3ODUzMTk3NDc2NjgzNzNjYzZkZWUyOTRiMTFkYjc4MmIwM2NkZDkwYTI4NTFmYmRjMDYzN2M2Yjdi",
+  "id": "c5HtC2wdN8fO",
   "status": "OPENED",
   "comment": "Project Project is created.",
   "repository": "design-flat",

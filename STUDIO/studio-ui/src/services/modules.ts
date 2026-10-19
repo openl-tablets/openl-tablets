@@ -1,14 +1,13 @@
 import type { ModuleTable, RawTableView, RawTableViewData } from 'types/tables'
 import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS } from './apiCall'
 import { expandRawTable } from './rawTables'
-import { toUrlSafeId } from './projectId'
 
 const moduleUrl = (projectId: string, moduleName: string): string =>
-    `/projects/${toUrlSafeId(projectId)}/modules/${encodeURIComponent(moduleName)}`
+    `/projects/${projectId}/modules/${encodeURIComponent(moduleName)}`
 
 /** Both ends of editing a table live at this one address: the GET begins it, the DELETE ends it. */
 const editorsUrl = (projectId: string, tableId: string): string =>
-    `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/editors`
+    `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/editors`
 
 /** A module of the project, as the project resolves it: the name it is known by and the workbook it is written in. */
 export interface ModuleInfo {
@@ -24,7 +23,7 @@ export interface ModuleInfo {
  */
 export const listModules = async (projectId: string): Promise<ModuleInfo[]> =>
     asArray(await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/modules`,
+        `/projects/${projectId}/modules`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as ModuleInfo[] | null)
@@ -121,7 +120,7 @@ export const getRawTable = async (
         params.set('maxRows', String(options.maxRows))
     }
     return expandRawTable(await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}?${params}`,
+        `/projects/${projectId}/tables/${encodeURIComponent(tableId)}?${params}`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as RawTableViewData)
@@ -278,7 +277,7 @@ export const getMessageStacktrace = async (
     }
     const query = params.size > 0 ? `?${params}` : ''
     return await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/messages/${messageId}/stacktrace${query}`,
+        `/projects/${projectId}/messages/${messageId}/stacktrace${query}`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as string
@@ -306,7 +305,7 @@ export interface TableTest {
  */
 export const getTableTests = async (projectId: string, tableId: string, module?: string): Promise<TableTest[]> =>
     asArray(await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/tests`
+        `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/tests`
         + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
         undefined,
         LOCAL_LOAD_API_OPTIONS
@@ -337,7 +336,7 @@ export const getTableTargets = async (
     module?: string
 ): Promise<TableTarget[]> =>
     asArray(await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/targets`
+        `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/targets`
         + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
         undefined,
         LOCAL_LOAD_API_OPTIONS
@@ -406,7 +405,7 @@ export const searchTables = async (projectId: string, criteria: TableSearchCrite
     }
     add('sort', criteria.sort)
     const page = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables?${params}`,
+        `/projects/${projectId}/tables?${params}`,
         undefined,
         LOCAL_LOAD_API_OPTIONS
     ) as { content?: ModuleTable[] } | null
@@ -476,7 +475,7 @@ export const getTableDetails = async (
     module?: string
 ): Promise<TableDetails> => {
     const read = await apiCall(
-        `/projects/${toUrlSafeId(projectId)}/tables/${encodeURIComponent(tableId)}/details`
+        `/projects/${projectId}/tables/${encodeURIComponent(tableId)}/details`
         + (module === undefined ? '' : `?module=${encodeURIComponent(module)}`),
         undefined,
         LOCAL_LOAD_API_OPTIONS

@@ -5,6 +5,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production-s3",
   "deploymentName": "EPBDS-12973-editor",
-  "projectId": "ZGVzaWduOkVQQkRTLTEyOTcz",
+  "projectId": "fIiIGKTVd0re",
   "comment": "Editor tries to deploy"
 }

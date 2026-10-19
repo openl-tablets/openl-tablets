@@ -1,4 +1,4 @@
-POST /rest/projects/ZGVzaWduOkVQQkRTLTE2NTc2LVJldmlzaW9ucw==/compare HTTP/1.1
+POST /rest/projects/mW5iL8nYA_Hy/compare HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

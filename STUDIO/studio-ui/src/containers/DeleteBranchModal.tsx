@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { useCommitInfoGuard, useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { deleteBranch } from '../services/branches'
-import { encodeProjectId, toUrlSafeId } from '../services/projectId'
 import { ProjectStatus } from '../constants/project'
 
 // Only reads here — a project fetch and a merge check — so the merge-check POST must not drop the snapshot.
@@ -20,7 +19,7 @@ const CHECK_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages
  */
 export interface DeleteBranchModalDetail {
     /** The project's own id, as the server issued it. */
-    projectId?: string
+    projectId: string
     repositoryId: string
     projectName: string
     branch: string
@@ -31,17 +30,6 @@ export interface DeleteBranchModalDetail {
     lastBranch?: boolean
     onSuccess?: () => void
 }
-
-/**
- * The project id every request of this dialog puts in its URL path, in the URL-safe Base64 alphabet.
- *
- * An id saved before the server switched to that alphabet is normalized here, as it is everywhere else. An
- * opener that knows only the repository and the project name gets the id rebuilt from them.
- */
-const resolveProjectId = (detail: DeleteBranchModalDetail): string =>
-    detail.projectId
-        ? toUrlSafeId(detail.projectId)
-        : encodeProjectId(detail.repositoryId, detail.projectName)
 
 /**
  * DeleteBranchModal component.
@@ -60,7 +48,7 @@ export const DeleteBranchModal: React.FC = () => {
     const [modified, setModified] = useState(false)
     const [mergedIntoMain, setMergedIntoMain] = useState(true)
 
-    const projectId = detail ? resolveProjectId(detail) : ''
+    const projectId = detail ? detail.projectId : ''
 
     // Resolve the deletion warnings when the modal opens: `modified` from the project status,
     // `mergedIntoMain` from a merge check (send current branch into main). The check answers whether the
@@ -78,7 +66,7 @@ export const DeleteBranchModal: React.FC = () => {
         setModified(false)
         setMergedIntoMain(true)
         setLoading(true)
-        const id = resolveProjectId(detail)
+        const id = detail.projectId
         const resolve = async () => {
             const project = (await apiCall(`/projects/${id}`, { method: 'GET' }, CHECK_API_OPTIONS)) as { status?: ProjectStatus }
             if (cancelled) {

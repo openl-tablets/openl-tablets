@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 import org.openl.studio.projects.model.trace.TraceDebugMapper;
 
 /**
@@ -23,7 +23,7 @@ public final class DebugSession {
 
     private static final long TERMINATE_JOIN_MILLIS = 2_000;
 
-    private final ProjectIdModel projectId;
+    private final ProjectId projectId;
     private final String tableId;
     private final TraceDebugger debugger;
     private final @Nullable ClassLoader classLoader;

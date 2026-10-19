@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.util.LinkedMultiValueMap;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -33,6 +34,7 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
@@ -55,7 +57,7 @@ import org.openl.studio.projects.model.tables.TablePropertiesView;
 import org.openl.studio.projects.model.tables.TableSort;
 import org.openl.studio.projects.model.tables.TestCaseView;
 import org.openl.studio.projects.model.tables.UpdateTarget;
-import org.openl.studio.projects.service.ProjectIdentifierMapper;
+import org.openl.studio.projects.service.ProjectCriteriaQuery;
 import org.openl.studio.projects.service.ProjectMetadataService;
 import org.openl.studio.projects.service.ProjectMigrationService;
 import org.openl.studio.projects.service.ProjectObjectMapperService;
@@ -118,6 +120,38 @@ class ProjectsControllerTest {
         controller.deleteProject(project, "comment");
 
         verify(projectService).delete(project, "comment");
+    }
+
+    @Test
+    void getProjectsFiltersByTheIdOfTheProjectTheyDependOn() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService);
+        var dependency = ProjectIds.of("design", "Library");
+
+        getProjectsDependingOn(controller, dependency.value());
+
+        var captor = ArgumentCaptor.forClass(ProjectCriteriaQuery.class);
+        verify(projectService).getProjects(captor.capture(), any());
+        assertEquals(dependency, captor.getValue().dependsOn());
+    }
+
+    /** Only an id names the dependency: a project name or an id of an earlier OpenL Studio is a client error. */
+    @Test
+    void getProjectsRefusesADependencyNamedByAnythingButAnId() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService);
+
+        for (var dependsOn : List.of("Library", "ZGVzaWduOkxpYnJhcnk")) {
+            var error = assertThrows(BadRequestException.class, () -> getProjectsDependingOn(controller, dependsOn),
+                    dependsOn);
+            assertEquals("openl.error.400.projects.depends-on.invalid.message", error.getErrorCode(), dependsOn);
+        }
+        verify(projectService, never()).getProjects(any(), any());
+    }
+
+    private static void getProjectsDependingOn(ProjectsController controller, String dependsOn) {
+        controller.getProjects(new LinkedMultiValueMap<>(), null, null, dependsOn, null, null, null, null, null,
+                Pageable.unpaged());
     }
 
     @Test
@@ -346,7 +380,6 @@ class ProjectsControllerTest {
                 mock(SocketProjectAllTestsExecutionProgressListenerFactory.class),
                 mock(ProjectObjectMapperService.class),
                 mock(ProjectsMergeConflictsSessionHolder.class),
-                mock(ProjectIdentifierMapper.class),
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 mock(ProjectMetadataService.class),
@@ -408,7 +441,6 @@ class ProjectsControllerTest {
                 listeners,
                 objectMapperService,
                 mock(ProjectsMergeConflictsSessionHolder.class),
-                mock(ProjectIdentifierMapper.class),
                 mock(ProjectTablesGraphService.class),
                 mock(RepositoryConfigService.class),
                 metadataService,

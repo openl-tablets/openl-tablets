@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import org.openl.rules.rest.validation.ProjectNameConstraint;
-import org.openl.studio.projects.model.ProjectIdModel;
+import org.openl.rules.workspace.ProjectId;
 
 @JsonDeserialize(builder = DeployProjectModel.Builder.class)
 @Schema(description = "Deploy project request model")
@@ -26,7 +26,7 @@ public class DeployProjectModel {
     public final String deploymentName;
 
     @Parameter(description = FIELD_PROJECT_ID_DESC, required = true)
-    public final ProjectIdModel projectId;
+    public final ProjectId projectId;
 
     @Parameter(description = FIELD_DEPLOYMENT_COMMENT_DESC)
     public final String comment;
@@ -47,7 +47,7 @@ public class DeployProjectModel {
     public static class Builder {
         private String productionRepositoryId;
         private String deploymentName;
-        private ProjectIdModel projectId;
+        private ProjectId projectId;
         private String comment;
 
         public Builder productionRepositoryId(String productionRepositoryId) {
@@ -60,7 +60,7 @@ public class DeployProjectModel {
             return this;
         }
 
-        public Builder projectId(ProjectIdModel projectId) {
+        public Builder projectId(ProjectId projectId) {
             this.projectId = projectId;
             return this;
         }

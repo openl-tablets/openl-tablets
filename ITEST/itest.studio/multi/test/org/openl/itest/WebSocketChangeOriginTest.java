@@ -3,8 +3,6 @@ package org.openl.itest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -63,7 +61,10 @@ class WebSocketChangeOriginTest {
         }
     }
 
-    /** Just enough of the project response to learn the encoded project id the topics are keyed by. */
+    /** The project list, reduced to the ids the topics are keyed by. */
+    record ProjectPage(List<ProjectRef> content) {
+    }
+
     record ProjectRef(String id) {
     }
 
@@ -71,11 +72,11 @@ class WebSocketChangeOriginTest {
     void names_the_client_behind_a_change_and_never_lets_a_tab_skip_another_client_s() throws Exception {
         client.localEnv.put("PROJECT", PROJECT);
         client.test(SETUP_RESOURCES);
-        var project = client.getForObject("/rest/projects/" + PROJECT + "?fields=id", ProjectRef.class, 200,
-                "Authorization", ADMIN_BASIC);
-        // The server URL-encodes the project id in the destination, so mirror that here.
-        var topic = "/user/topic/projects/"
-                + URLEncoder.encode(project.id(), StandardCharsets.UTF_8) + "/changed";
+        // A project is addressed by its id, which the project list gives; the topic names it as it is.
+        var projectId = client.getForObject("/rest/projects?name=" + PROJECT, ProjectPage.class, 200,
+                "Authorization", ADMIN_BASIC).content().getFirst().id();
+        client.localEnv.put("PROJECT_ID", projectId);
+        var topic = "/user/topic/projects/" + projectId + "/changed";
 
         try (var stomp = new StompTester(client, client.getWebSocketBaseURL(),
                 Map.of("Authorization", ADMIN_BASIC))) {

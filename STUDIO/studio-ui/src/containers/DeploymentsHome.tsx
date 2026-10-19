@@ -4,17 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { Alert, Button, Empty, Pagination, Skeleton, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../utils/errorMessage'
-import {
-    getDeployments,
-    getProductionRepositories,
-    type Deployment,
-} from '../services/deployments'
+import { getDeployments, getProductionRepositories, type Deployment } from '../services/deployments'
 import type { Repository } from '../types/repositories'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import { useSharedStyles } from './projects/sharedStyles'
 import { RepoBadge } from './projects/RepoBadge'
 import { SearchInput } from '../components/SearchInput'
-import { toUrlSafeId } from '../services/projectId'
 
 type DeploymentsState = Deployment[] | 'error' | 'loading'
 
@@ -164,7 +159,7 @@ export const DeploymentsHome = () => {
         setParam('repo', repo.id)
     }
 
-    const openDeployment = (deployment: Deployment) => navigate(`/deployments/${toUrlSafeId(deployment.id)}`)
+    const openDeployment = (deployment: Deployment) => navigate(`/deployments/${deployment.id}`)
 
     const content = () => {
         if (repositories !== null && repositories.length === 0) {

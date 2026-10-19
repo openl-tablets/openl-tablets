@@ -31,9 +31,9 @@ import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.workspace.ProjectIds;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.projects.model.FacetCount;
-import org.openl.studio.projects.model.ProjectIdModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.project.status.CompileState;
 import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
@@ -41,16 +41,14 @@ import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 class AbstractProjectServiceTest {
 
     private RepositoryAclService designRepositoryAclService;
-    private ProjectIdentifierMapper projectIdentifierMapper;
     private ProjectAccessService projectAccessService;
     private TestProjectService service;
 
     @BeforeEach
     void setUp() {
         designRepositoryAclService = mock(RepositoryAclService.class);
-        projectIdentifierMapper = mock(ProjectIdentifierMapper.class);
         projectAccessService = mock(ProjectAccessService.class);
-        service = new TestProjectService(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
+        service = new TestProjectService(designRepositoryAclService, projectAccessService);
     }
 
     @Test
@@ -58,16 +56,14 @@ class AbstractProjectServiceTest {
         var project = project("Project");
         service.projects = List.of(project);
         when(designRepositoryAclService.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
-        when(projectIdentifierMapper.map(project)).thenReturn(ProjectIdModel.builder()
-                .repository("design")
-                .projectName("Project")
-                .build());
+        when(project.getProjectId()).thenReturn(ProjectIds.of("design", "Project"));
         when(projectAccessService.computeCapabilities(project)).thenThrow(new IllegalStateException("Repository failed"));
 
         var response = service.getProjects(ProjectCriteriaQuery.builder().build(), Pageable.unpaged());
 
         assertEquals(1, response.getNumberOfElements());
         var view = response.getContent().iterator().next();
+        assertEquals(ProjectIds.of("design", "Project"), view.id);
         assertNotNull(view.capabilities);
         assertNotNull(view.capabilities.project());
         assertNull(view.capabilities.project().canWrite());
@@ -228,7 +224,7 @@ class AbstractProjectServiceTest {
 
         assertEquals(List.of("Beta"), service.statusedNames);
         assertEquals(1, response.getStatuses().size());
-        assertEquals("Beta", response.getStatuses().getFirst().projectId().getProjectName());
+        assertEquals(ProjectIds.of("design", "Beta"), response.getStatuses().getFirst().projectId());
         assertEquals(CompileState.IDLE, response.getStatuses().getFirst().compileState());
     }
 
@@ -274,10 +270,7 @@ class AbstractProjectServiceTest {
     private void stubProjectId(AProject project) {
         var repositoryId = project.getRepository().getId();
         var projectName = project.getBusinessName();
-        when(projectIdentifierMapper.map(project)).thenReturn(ProjectIdModel.builder()
-                .repository(repositoryId)
-                .projectName(projectName)
-                .build());
+        when(project.getProjectId()).thenReturn(ProjectIds.of(repositoryId, projectName));
     }
 
     private AProject project(String name) {
@@ -324,9 +317,8 @@ class AbstractProjectServiceTest {
         private List<String> statusedNames = List.of();
 
         private TestProjectService(RepositoryAclService designRepositoryAclService,
-                                   ProjectIdentifierMapper projectIdentifierMapper,
                                    ProjectAccessService projectAccessService) {
-            super(designRepositoryAclService, projectIdentifierMapper, projectAccessService);
+            super(designRepositoryAclService, projectAccessService);
         }
 
         @Override
@@ -357,10 +349,7 @@ class AbstractProjectServiceTest {
                     .toList();
             return pageProjects.stream()
                     .map(project -> ProjectStatusViewModel.builder()
-                            .projectId(ProjectIdModel.builder()
-                                    .repository(project.getRepository().getId())
-                                    .projectName(project.getBusinessName())
-                                    .build())
+                            .projectId(project.getProjectId())
                             .compileState(CompileState.IDLE)
                             .build())
                     .toList();

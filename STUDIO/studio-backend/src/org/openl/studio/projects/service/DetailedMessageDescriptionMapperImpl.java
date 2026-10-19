@@ -30,8 +30,6 @@ import org.openl.util.text.TextInfo;
 @RequiredArgsConstructor
 public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDescriptionMapper {
 
-    private final ProjectIdentifierMapper projectIdentifierMapper;
-
     private static final Comparator<DetailedMessageDescription> BY_SEVERITY_AND_ID = Comparator
             .<DetailedMessageDescription, org.openl.message.Severity>comparing(m -> m.source().severity())
             .thenComparingLong(m -> m.source().id());
@@ -41,7 +39,7 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         // A big project raises thousands of messages. Resolving each one against the model's tables and
         // modules independently rescanned every table twice per message; instead, index the tables and
         // modules once and look each message up against those indexes.
-        var locator = new MessageLocator(model, projectIdentifierMapper);
+        var locator = new MessageLocator(model);
         return messages.stream()
                 .map(message -> map(message, locator))
                 .sorted(BY_SEVERITY_AND_ID)
@@ -84,9 +82,9 @@ public class DetailedMessageDescriptionMapperImpl implements DetailedMessageDesc
         /** Where a table lives — a message can come from a module of a project this one depends on. */
         private final TableModules tableModules;
 
-        MessageLocator(ProjectModel model, ProjectIdentifierMapper projectIdentifierMapper) {
+        MessageLocator(ProjectModel model) {
             tables = TablesByLocation.of(model);
-            tableModules = TableModules.ofWorkspace(model, projectIdentifierMapper);
+            tableModules = TableModules.ofWorkspaceAddressed(model);
         }
 
         MessageSource resolve(OpenLMessage message) {
