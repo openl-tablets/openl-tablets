@@ -278,7 +278,12 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   attribute, about 0.5 µs a cell on a freshly loaded workbook, so `ExcelTableFormatter` reads `getS()` (never
   `isSetS()`), writes `setS()` only when the format changes, looks a row up once, and `WorkbookStyles` keeps the last
   format asked for. The header is built one run per piece (`XSSFRichTextString.append`): `applyFont` rebuilds every run
-  of the text at each call, which cost a formatted upload of 1,000 tables a tenth of its time. A table its previous save
+  of the text at each call, which cost a formatted upload of 1,000 tables a tenth of its time. A list XMLBeans hands
+  out (`getCellStyleList()`, `getRowList()`, `getCList()`) reads the XML from its first element at each `get` and
+  `size`, so a walk over it is quadratic: `WorkbookStyles` and `UnusedStyles` walk the arrays (`getCellStyleArray()`,
+  `getRowArray()`, `getCArray()`), each read in one pass. A workbook whose sheets were copied in Excel names tens of
+  thousands of styles, and the lookups of the role styles over the list made a save of it take minutes
+  (EPBDS-16931). A table its previous save
   left formatted in the same regions (`FormattedTables`: the table's workbook file, sheet and corner, the regions, and
   the file's timestamp and length right after that save; any other write of the file formats the table in full again)
   has only the lines an edit touched formatted: `RegionShift.touchedRows`/`touchedColumns`, the lines inserted or

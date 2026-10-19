@@ -1,0 +1,215 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "b96cd914df3748c93bf5d5b3bb4b63cb",
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "adults",
+  "pos": "B7:C11",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "Data Person adults",
+        "colspan": 2,
+        "style": 0,
+        "runs": [
+          {
+            "to": 4,
+            "style": 1
+          },
+          {
+            "to": 11,
+            "style": 1
+          },
+          {
+            "to": 18,
+            "style": 2
+          }
+        ]
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "name",
+        "style": 3
+      },
+      {
+        "cell": "C8",
+        "value": "age",
+        "style": 3
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "Name",
+        "style": 4
+      },
+      {
+        "cell": "C9",
+        "value": "Age",
+        "style": 4
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "Anna",
+        "style": 5
+      },
+      {
+        "cell": "C10",
+        "value": 36,
+        "style": 6
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": "Boris",
+        "style": 7
+      },
+      {
+        "cell": "C11",
+        "value": 41,
+        "style": 8
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "color": "#808080"
+    },
+    {
+      "bold": true
+    },
+    {
+      "color": "#808080",
+      "valign": "center",
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        },
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#b8cce4",
+      "align": "center",
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "top": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "valign": "center",
+      "bold": true
+    },
+    {
+      "background": "#dce6f1",
+      "align": "right",
+      "valign": "center"
+    },
+    {
+      "valign": "center",
+      "bold": true,
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    },
+    {
+      "background": "#dce6f1",
+      "align": "right",
+      "valign": "center",
+      "border": {
+        "bottom": {
+          "style": "solid",
+          "width": 1
+        }
+      }
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "key",
+      "top": 3,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 3,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 4
+    },
+    {
+      "part": "type",
+      "to": 11
+    },
+    {
+      "part": "name",
+      "to": 18
+    }
+  ],
+  "headerHeight": 2
+}

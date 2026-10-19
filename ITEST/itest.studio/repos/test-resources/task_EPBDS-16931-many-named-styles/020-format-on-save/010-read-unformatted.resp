@@ -1,0 +1,121 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "b96cd914df3748c93bf5d5b3bb4b63cb",
+  "tableType": "RawSource",
+  "kind": "Data",
+  "name": "adults",
+  "pos": "B7:C11",
+  "source": [
+    [
+      {
+        "cell": "B7",
+        "value": "Data Person adults"
+      },
+      {
+        "cell": "C7"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "name"
+      },
+      {
+        "cell": "C8",
+        "value": "age"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "Name"
+      },
+      {
+        "cell": "C9",
+        "value": "Age"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "Anna"
+      },
+      {
+        "cell": "C10",
+        "value": 34,
+        "style": 0
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": "Boris"
+      },
+      {
+        "cell": "C11",
+        "value": 41,
+        "style": 0
+      }
+    ]
+  ],
+  "styles": [
+    {
+      "align": "right"
+    }
+  ],
+  "regions": [
+    {
+      "role": "signature",
+      "top": 0,
+      "left": 0,
+      "bottom": 0,
+      "right": 1
+    },
+    {
+      "role": "code",
+      "top": 1,
+      "left": 0,
+      "bottom": 1,
+      "right": 1
+    },
+    {
+      "role": "outputTitle",
+      "top": 2,
+      "left": 0,
+      "bottom": 2,
+      "right": 1
+    },
+    {
+      "role": "key",
+      "top": 3,
+      "left": 0,
+      "bottom": 4,
+      "right": 0
+    },
+    {
+      "role": "output",
+      "type": "number",
+      "top": 3,
+      "left": 1,
+      "bottom": 4,
+      "right": 1
+    }
+  ],
+  "signature": [
+    {
+      "part": "keyword",
+      "to": 4
+    },
+    {
+      "part": "type",
+      "to": 11
+    },
+    {
+      "part": "name",
+      "to": 18
+    }
+  ],
+  "headerHeight": 2
+}
