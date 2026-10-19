@@ -280,12 +280,21 @@ COPY $APP $OPENL_APP/webapps/ROOT
 # .war (which stays cloud-agnostic); the image supplies it so the webapp can use the shared configuration.
 COPY --from=log4j /log4j-layout-template-json-*.jar $OPENL_APP/webapps/ROOT/WEB-INF/lib/
 
+# Only the OpenL Studio image runs the MCP server its webapp carries in WEB-INF/mcp and serves at /mcp, so only it gets
+# Node.js: the nodejs package of Alpine, which links the libraries of the system and holds the English locale data
+# only, about half the size of the official build. Alpine 3.23 packages the major version node.version of the root
+# pom.xml names. The Rule Services images get none.
+USER root
+RUN if [ -d "$OPENL_APP/webapps/ROOT/WEB-INF/mcp" ]; then apk add --no-cache nodejs; fi
+USER openl
+
 WORKDIR $OPENL_DIR
 
 CMD ["/opt/openl/start.sh"]
 
 # The software the image runs the webapp on, listed for the About dialog of OpenL Studio in the shape of the lists the
-# webapp carries: the JRE, Jetty, Log4j, the OpenTelemetry agent and Alpine Linux. jq is installed in this stage only.
+# webapp carries: the JRE, Jetty, Log4j, the OpenTelemetry agent, Node.js in the OpenL Studio image, and Alpine Linux.
+# jq is installed in this stage only.
 FROM openl AS licenses
 
 USER root
@@ -318,6 +327,11 @@ unzip -p "$OTEL" META-INF/licenses/licenses.md > /tmp/otel-notice
     entry 'OpenTelemetry Java agent' \
         "$(unzip -p "$OTEL" META-INF/MANIFEST.MF | sed -n 's/^Implementation-Version: //p' | tr -d '\r')" Apache-2.0 \
         /dev/null /tmp/otel-notice
+    if command -v node > /dev/null; then
+        # Alpine packages Node.js without its license text: it is the LICENSE of the same release.
+        wget -q -O /tmp/node-license "https://raw.githubusercontent.com/nodejs/node/$(node --version)/LICENSE"
+        entry 'Node.js' "$(node --version | cut -c 2-)" MIT /tmp/node-license /dev/null
+    fi
     # Alpine Linux is a set of packages, each under its own license: its package index names them.
     ALPINE=$(cat /etc/alpine-release)
     jq -n --arg version "$ALPINE" --arg url "https://pkgs.alpinelinux.org/packages?branch=v${ALPINE%.*}" \

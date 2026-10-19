@@ -171,9 +171,12 @@ webapps/ROOT/
 
 ### 3.4 Node.js runtime
 
-- **Docker image** — copy the musl build from the official Node.js Alpine image of the major version that
-  `node.version` names, the same way the image takes Jetty home from the official Jetty image, and add its runtime
-  library `libstdc++`. A multi-platform build picks the binary of each architecture.
+- **Docker image** — one `Dockerfile` builds the OpenL Studio and the Rule Services images. Only the image whose webapp
+  carries `WEB-INF/mcp`, the OpenL Studio one, installs the `nodejs` package of Alpine, of the major version
+  `node.version` names; the Rule Services images carry no Node.js. The package links the libraries of the system and
+  holds the English locale data only: it takes about half the size of the official build and about 10 MB less
+  memory, and its minor version follows the updates of Alpine. A multi-platform build installs the package of each
+  architecture. The About dialog lists Node.js with the `LICENSE` of the same release.
 - **`DEMO`** — `start*` takes Node.js 24 or later from the `PATH`, or downloads the release `node.version` names into
   `DEMO/node` next to the JRE and the servlet container it already downloads, and passes it in `mcp.node`. A failed
   download leaves the MCP server off and the Demo running.
