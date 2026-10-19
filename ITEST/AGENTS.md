@@ -191,19 +191,23 @@ This lets one shared `.req`/`.resp` folder drive several projects/users by chang
 
 ### Capturing Response Values
 
-An optional `.env` file with the same basename as a `.req`/`.resp` pair captures scalar values from a successful JSON
-response. Each entry maps an environment variable to a JSONPath expression:
+An optional `.env` file with the same basename as a `.req`/`.resp` pair captures scalar values from a successful
+response. Each entry maps an environment variable to a JSONPath expression into the JSON body, or to `header:<name>`
+for a response header:
 
 ```properties
 # 040-get-history.env accompanies 040-get-history.req and 040-get-history.resp
 INITIAL_REVISION=$.content[0].revisionNo
+# a header is captured whatever the body is, an event stream included
+MCP_SESSION_ID=header:Mcp-Session-Id
 ```
 
 The captured value is available to later requests in the same first-level test folder. Captured values override
 hierarchical `itest.env` values, while programmatic `HttpClient.localEnv` values keep the highest priority. A missing
-value or an expression selecting an object or array fails the test instead of leaving a stale variable in use.
-Response content encoding is decoded before evaluating JSONPath, including layered, case-insensitive `gzip` and
-`x-gzip` JSON responses whose comma-separated encoding names contain surrounding whitespace.
+value, a missing header or an expression selecting an object or array fails the test instead of leaving a stale variable
+in use. The body is read as JSON only when an entry selects from it. Response content encoding is decoded before
+evaluating JSONPath, including layered, case-insensitive `gzip` and `x-gzip` JSON responses whose comma-separated
+encoding names contain surrounding whitespace.
 
 ### Cookie/Session Handling
 
@@ -228,7 +232,7 @@ opens no session, so the reset belongs on the request after it.
 - **Headers**: case-insensitive (Content-Type, etc.)
 - **JSON body**: structural comparison with wildcard support (whitespace ignored)
 - **XML**: normalized comparison
-- **Plain text**: regex-based matching
+- **Plain text** and **event streams** (`text/event-stream`): regex-based matching
 - **Binary**: byte array comparison
 
 ### Wildcard Patterns in Response Files
