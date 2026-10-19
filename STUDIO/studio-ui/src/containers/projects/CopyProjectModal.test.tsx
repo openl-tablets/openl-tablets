@@ -193,7 +193,7 @@ describe('CopyProjectModal', () => {
             comment: { templates: {} },
         })
         await renderModal()
-        await waitFor(() => expect((screen.getByTestId('copy-project-branch') as HTMLInputElement).value).toBe('Alpha'))
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('copy-project-branch').value).toBe('Alpha'))
 
         // The repository words the rejection itself, and the field says so before the dialog is submitted.
         await waitFor(() => expect(screen.getByTestId('copy-project-branch-error')).toHaveTextContent('Use release/<name>'))
@@ -228,7 +228,7 @@ describe('CopyProjectModal', () => {
     it('offers a new branch built from the repository pattern', async () => {
         await renderModal()
 
-        await waitFor(() => expect((screen.getByTestId('copy-project-branch') as HTMLInputElement).value)
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('copy-project-branch').value)
             .toBe('Alpha/jdoe'))
         expect(screen.getByTestId('copy-project-current-branch')).toHaveTextContent('master')
         expect(screen.queryByTestId('copy-project-name')).toBeNull()
@@ -236,7 +236,7 @@ describe('CopyProjectModal', () => {
 
     it('creates the branch and moves the project onto it', async () => {
         const props = await renderModal()
-        await waitFor(() => expect((screen.getByTestId('copy-project-branch') as HTMLInputElement).value).not.toBe(''))
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('copy-project-branch').value).not.toBe(''))
 
         await userEvent.click(screen.getByTestId('copy-project-submit'))
 
@@ -249,7 +249,7 @@ describe('CopyProjectModal', () => {
     it('copies into a new project with the suggested comment when asked', async () => {
         await renderModal()
         await asNewProject()
-        await waitFor(() => expect((screen.getByTestId('copy-project-target-branch') as HTMLInputElement).value)
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('copy-project-target-branch').value)
             .toBe('master'))
 
         fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })

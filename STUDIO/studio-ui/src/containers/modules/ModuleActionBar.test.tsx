@@ -55,7 +55,7 @@ const project = (capabilities: Project['capabilities']): Project => ({
     capabilities,
 } as Project)
 
-const bar = async (capabilities: Project['capabilities'] = { canViewHistory: true } as Project['capabilities']) => {
+const bar = async (capabilities: Project['capabilities'] = { canViewHistory: true }) => {
     render(<ModuleActionBar moduleName="Claims" project={project(capabilities)} />)
     await act(async () => {
         await Promise.resolve()
@@ -66,7 +66,7 @@ describe('ModuleActionBar', () => {
     it('offers the project\'s tests through the launch panel, module-only until the project is compiled', async () => {
         const opened = vi.fn()
         window.addEventListener('openTestsLaunch', opened)
-        render(<ModuleActionBar moduleName="Claims" project={project({} as Project['capabilities'])} testCount={3} />)
+        render(<ModuleActionBar moduleName="Claims" project={project({})} testCount={3} />)
         await act(async () => {
             await Promise.resolve()
         })
@@ -81,7 +81,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('offers the project\'s own actions by the rules the project screen offers them', async () => {
-        await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true } as Project['capabilities'])
+        await bar({ canSave: true, canMerge: true, canDeploy: true, canCopy: true })
 
         expect(screen.getByTestId('module-save')).toBeInTheDocument()
         expect(screen.getByTestId('module-sync')).toBeInTheDocument()
@@ -93,7 +93,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('withholds what the project does not allow', async () => {
-        await bar({ canViewHistory: true } as Project['capabilities'])
+        await bar({ canViewHistory: true })
 
         // Saving, syncing, deploying, copying and replacing the workbook are the project's to allow.
         expect(screen.queryByTestId('module-save')).toBeNull()
@@ -104,7 +104,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('copies the project from the editor, through the project\'s own dialog', async () => {
-        await bar({ canCopy: true } as Project['capabilities'])
+        await bar({ canCopy: true })
 
         await userEvent.click(screen.getByTestId('module-copy'))
 
@@ -112,7 +112,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('syncs the project from the editor, through the dialog that reads its branches', async () => {
-        await bar({ canMerge: true } as Project['capabilities'])
+        await bar({ canMerge: true })
 
         await userEvent.click(screen.getByTestId('module-sync'))
 
@@ -126,7 +126,7 @@ describe('ModuleActionBar', () => {
             <ModuleActionBar
                 moduleName="Claims"
                 modulePath="rules/Claims.xlsx"
-                project={project({ canWrite: true } as Project['capabilities'])}
+                project={project({ canWrite: true })}
             />
         )
         await act(async () => {
@@ -142,7 +142,7 @@ describe('ModuleActionBar', () => {
 
     it('offers Verify only while the module is waiting to be compiled', async () => {
         const onVerify = vi.fn()
-        render(<ModuleActionBar verifyNeeded moduleName="Claims" onVerify={onVerify} project={project({} as Project['capabilities'])} />)
+        render(<ModuleActionBar verifyNeeded moduleName="Claims" onVerify={onVerify} project={project({})} />)
         await act(async () => {
             await Promise.resolve()
         })
@@ -153,7 +153,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('carries no Verify where compilation follows every edit on its own', async () => {
-        render(<ModuleActionBar moduleName="Claims" project={project({} as Project['capabilities'])} />)
+        render(<ModuleActionBar moduleName="Claims" project={project({})} />)
         await act(async () => {
             await Promise.resolve()
         })
@@ -169,7 +169,7 @@ describe('ModuleActionBar', () => {
             <ModuleActionBar
                 moduleName="Claims"
                 onTableCreated={onTableCreated}
-                project={project({ canWrite: true } as Project['capabilities'])}
+                project={project({ canWrite: true })}
             />
         )
         await act(async () => {
@@ -209,7 +209,7 @@ describe('ModuleActionBar', () => {
             <ModuleActionBar
                 moduleName="Claims"
                 onRevisionOpened={onRevisionOpened}
-                project={project({ canViewHistory: true } as Project['capabilities'])}
+                project={project({ canViewHistory: true })}
             />
         )
         await act(async () => {
@@ -249,7 +249,7 @@ describe('ModuleActionBar', () => {
                 <ModuleActionBar
                     moduleName="Claims"
                     onProjectChanged={changed}
-                    project={project({ canWrite: true } as Project['capabilities'])}
+                    project={project({ canWrite: true })}
                 />
             </App>
         )
@@ -263,7 +263,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('tells what reformatting does before the reader chooses it', async () => {
-        await bar({ canWrite: true } as Project['capabilities'])
+        await bar({ canWrite: true })
 
         await userEvent.click(screen.getByTestId('module-more'))
         await userEvent.hover(await screen.findByTestId('module-reformat'))
@@ -272,7 +272,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('offers Reformat Excel files only to a reader who may write the project', async () => {
-        await bar({ canViewHistory: true } as Project['capabilities'])
+        await bar({ canViewHistory: true })
 
         await userEvent.click(screen.getByTestId('module-more'))
 
@@ -281,7 +281,7 @@ describe('ModuleActionBar', () => {
     })
 
     it('offers no history to a reader who may not read it', async () => {
-        await bar({ canViewHistory: false } as Project['capabilities'])
+        await bar({ canViewHistory: false })
 
         await userEvent.click(screen.getByTestId('module-more'))
 

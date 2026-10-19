@@ -499,7 +499,7 @@ export function revisionQueryParams(query: RevisionQuery): URLSearchParams {
 }
 
 /** Shapes a history response, whose paging is the same whether a project or one of its files was asked about. */
-export function toRevisionPage(response: any, query: RevisionQuery): RevisionPage {
+export function toRevisionPage(response: Partial<RevisionPage> | undefined, query: RevisionQuery): RevisionPage {
     return {
         content: asArray(response?.content),
         pageNumber: response?.pageNumber ?? (query.page ?? 0),

@@ -308,7 +308,7 @@ const readFields = (parent: Element, fields: AnyFields): Model =>
 
 /** The model a descriptor holds, field by field. */
 export const readXml = <T>(mapping: XmlMapping<T>, root: Element): T =>
-    readFields(root, mapping.fields as AnyFields) as T
+    readFields(root, mapping.fields) as T
 
 /** What a write needs besides the model: the document written into, and the elements carried over verbatim. */
 interface Writing {
@@ -440,7 +440,7 @@ const layOut = (element: Element, depth: number, verbatim: Set<Element>): void =
 export const writeXml = <T>(mapping: XmlMapping<T>, model: T): string => {
     const doc = document.implementation.createDocument(null, mapping.root)
     const writing: Writing = { doc, verbatim: new Set() }
-    doc.documentElement.append(...fieldElements(writing, mapping.fields as AnyFields, model))
+    doc.documentElement.append(...fieldElements(writing, mapping.fields, model))
     layOut(doc.documentElement, 0, writing.verbatim)
     return `${serialize(doc)}\n`
 }

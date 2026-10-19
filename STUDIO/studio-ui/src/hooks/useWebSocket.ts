@@ -5,7 +5,7 @@ interface UseWebSocketOptions {
     autoConnect?: boolean
     onConnect?: () => void
     onDisconnect?: () => void
-    onError?: (error: any) => void
+    onError?: (error: unknown) => void
 }
 
 interface UseWebSocketReturn {

@@ -83,7 +83,7 @@ class WebSocketService {
         this.isConnected = false
     }
 
-    private onError(_error: any) {
+    private onError() {
         this.isConnected = false
 
         if (this.reconnectAttempts < this.maxReconnectAttempts) {

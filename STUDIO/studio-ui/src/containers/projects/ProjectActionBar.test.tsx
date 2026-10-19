@@ -94,7 +94,7 @@ describe('ProjectActionBar', () => {
             pendingId={null}
             project={project({
                 canClose: true, canExport: true,
-            } as Project['capabilities'])}
+            })}
         />)
 
         expect(screen.getByTestId('close-p1')).toHaveAttribute('data-primary', 'true')
@@ -120,7 +120,7 @@ describe('ProjectActionBar', () => {
 
     it('renders nothing when no action is available', () => {
         const { container } = render(
-            <ProjectActionBar handlers={noHandlers} pendingId={null} project={project({} as Project['capabilities'])} />
+            <ProjectActionBar handlers={noHandlers} pendingId={null} project={project({})} />
         )
         expect(container).toBeEmptyDOMElement()
     })

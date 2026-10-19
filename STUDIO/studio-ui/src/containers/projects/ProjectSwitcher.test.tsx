@@ -55,7 +55,7 @@ const draw = (onSelect = vi.fn()) => {
 describe('ProjectSwitcher', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(getProjects).mockResolvedValue(listed('Bank Rating', 'Car Rating') as never)
+        vi.mocked(getProjects).mockResolvedValue(listed('Bank Rating', 'Car Rating'))
     })
 
     it('asks for no project until the reader opens the list', async () => {

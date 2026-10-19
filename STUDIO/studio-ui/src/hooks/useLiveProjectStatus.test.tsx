@@ -40,7 +40,7 @@ const captureUpdates = () => {
     let onUpdate!: (update: ProjectStatusUpdate) => void
     vi.mocked(subscribeProjectStatus).mockImplementation((_id, _branch, listener) => {
         onUpdate = listener
-        return { unsubscribe: vi.fn() } as never
+        return { unsubscribe: vi.fn() }
     })
     return (update: ProjectStatusUpdate) => onUpdate(update)
 }
@@ -48,7 +48,7 @@ const captureUpdates = () => {
 describe('useLiveProjectStatus', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe: vi.fn() } as never)
+        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe: vi.fn() })
     })
 
     it('subscribes, seeds from the initial status and applies pushed updates when enabled', async () => {
@@ -153,8 +153,9 @@ describe('useLiveProjectStatus', () => {
         // Every value the hook answers with, including the render committed before the resubscribe
         // effect runs - that one is painted, so the branch left behind must not show through it.
         const answered: string[] = []
+        const readAt = Date.now() - 1_000
         const Branch = ({ branch, initial }: { branch: string, initial: ProjectStatusUpdate }) => {
-            const live = useLiveProjectStatus('p1', branch, true, initial, Date.now() - 1_000)
+            const live = useLiveProjectStatus('p1', branch, true, initial, readAt)
             answered.push(live?.compilation?.messages?.items?.[0]?.summary ?? 'none')
             return null
         }
@@ -185,7 +186,7 @@ describe('useLiveProjectStatus', () => {
 
     it('unsubscribes on unmount', async () => {
         const unsubscribe = vi.fn()
-        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe } as never)
+        vi.mocked(subscribeProjectStatus).mockReturnValue({ unsubscribe })
 
         const { unmount } = render(<Probe enabled initial={status('ok')} />)
         await act(async () => {

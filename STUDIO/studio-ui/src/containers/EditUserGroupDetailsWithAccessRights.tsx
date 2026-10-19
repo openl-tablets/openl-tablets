@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useEffect, useState, ReactNode } from 'react'
-import { App, Form, Tabs, TabsProps, Divider, Button, Drawer, theme } from 'antd'
+import { App, Form, type FormProps, Tabs, TabsProps, Divider, Button, Drawer, theme } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { DisplayUserName, RepositoryType, Role, ROOT_REPOSITORY_ID_MAP } from 'constants/'
 import { deriveDisplayNameMode } from 'utils/displayName'
@@ -106,7 +106,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     const [selectedProjects, setSelectedProjects] = useState<string[]>([])
     const [designRepositories, setDesignRepositories] = React.useState<Repository[]>([])
     const [loadingDesignRepositories, setLoadingDesignRepositories] = React.useState<boolean>(false)
-    const [hasErrorOnTab, setHasErrorOnTab] = useState<Record<any, boolean>>({})
+    const [hasErrorOnTab, setHasErrorOnTab] = useState<Partial<Record<TabKeys, boolean>>>({})
 
     const [isOpen, setIsOpen] = React.useState(false)
 
@@ -134,7 +134,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
             const response: RepositoryRootRole[] = await apiCall(`/acls/repositories/roots?sid=${sid}${isPrincipal ? '&principal=true' : ''}`)
             if (response) {
                 const mappedRoles = response.reduce((acc, rootRole) => {
-                    acc[rootRole.type as RepositoryType] = rootRole
+                    acc[rootRole.type] = rootRole
                     return acc
                 }, {} as Partial<Record<RepositoryType, RepositoryRootRole>>)
                 setRootRepositoryRoles(mappedRoles)
@@ -229,8 +229,8 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }, [isUser, newUser, user, group])
 
     const accessRightsInitialValues = useMemo(() => {
-        const designRootRole = (rootRepositoryRoles[RepositoryType.DESIGN]?.role ?? NONE_ROLE_VALUE) as RootRoleFormValue
-        const deployRootRole = (rootRepositoryRoles[RepositoryType.PROD]?.role ?? NONE_ROLE_VALUE) as RootRoleFormValue
+        const designRootRole = (rootRepositoryRoles[RepositoryType.DESIGN]?.role ?? NONE_ROLE_VALUE)
+        const deployRootRole = (rootRepositoryRoles[RepositoryType.PROD]?.role ?? NONE_ROLE_VALUE)
         return {
             designRepos,
             deployRepos,
@@ -273,9 +273,9 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     const saveReposRoles = async (repositories: RepositoryRole[], repoType: RepositoryType, sid: string) => {
         const initialRoles = repoType === RepositoryType.DESIGN ? designRepos : deployRepos
 
-        const addedRoles = repositories.filter((role: any) => !initialRoles.some((r: any) => r.id === role.id))
-        const deletedRoles = initialRoles.filter((role: any) => !repositories.some((r: any) => r.id === role.id))
-        const updatedRoles = repositories.filter((role: any) => initialRoles.find((r: any) => r.id === role.id && r.role !== role.role))
+        const addedRoles = repositories.filter(role => !initialRoles.some(r => r.id === role.id))
+        const deletedRoles = initialRoles.filter(role => !repositories.some(r => r.id === role.id))
+        const updatedRoles = repositories.filter(role => initialRoles.find(r => r.id === role.id && r.role !== role.role))
 
         const headers = new Headers()
         headers.append('Content-Type', 'application/json')
@@ -343,7 +343,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
 
         const syncRootRole = async (type: RepositoryType, value?: RootRoleFormValue): Promise<void> => {
             const currentRole = rootRepositoryRoles[type]?.role
-            const nextRole = value && value !== NONE_ROLE_VALUE ? value as Role : undefined
+            const nextRole = value && value !== NONE_ROLE_VALUE ? value : undefined
 
             if (!nextRole && currentRole) {
                 await apiCall(generateRootURL(type), {
@@ -386,15 +386,15 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
     }
 
     const saveProjectRoles = async (values: FormValues, sid: string) => {
-        const projectRoles = values.projects.map((item: any) => ({
+        const projectRoles = values.projects.map(item => ({
             id: item.id,
             name: item.name,
             role: item.role
         }))
 
-        const addedRoles = projectRoles.filter((role: any) => !projects.some((r: any) => r.id === role.id))
-        const deletedRoles = projects.filter((role: any) => !projectRoles.some((r: any) => r.id === role.id))
-        const updatedRoles = projectRoles.filter((role: any) => projects.find((r: any) => r.id === role.id && r.role !== role.role))
+        const addedRoles = projectRoles.filter(role => !projects.some(r => r.id === role.id))
+        const deletedRoles = projects.filter(role => !projectRoles.some(r => r.id === role.id))
+        const updatedRoles = projectRoles.filter(role => projects.find(r => r.id === role.id && r.role !== role.role))
 
         const headers = new Headers()
         headers.append('Content-Type', 'application/json')
@@ -471,7 +471,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         try {
             let sid
             if (isUser) {
-                sid = await saveUser(values)
+                sid = await saveUser(values as UserFormValues)
             } else {
                 // @ts-ignore
                 sid = await saveGroup(values)
@@ -517,19 +517,19 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         }
     }
 
-    const onFinishFailed = (errorInfo: any) => {
-        const tabsWithErrors = errorInfo.errorFields.reduce((acc: any, field: any) => {
+    const onFinishFailed: FormProps<FormValues>['onFinishFailed'] = errorInfo => {
+        const tabsWithErrors = errorInfo.errorFields.reduce<Partial<Record<TabKeys, boolean>>>((acc, field) => {
             const tabKey = field.name[0] as TabKeys
             if (!acc[tabKey]) {
                 acc[tabKey] = true
             }
             return acc
-        }, {} as TabKeys[])
+        }, {})
         setHasErrorOnTab(tabsWithErrors)
         notification.error({ title: t('common:please_fix_errors_on_highlighted_tabs_before_saving') })
     }
 
-    const onValuesChange = (changedValues: any, allValues: FormValues) => {
+    const onValuesChange = (changedValues: Partial<FormValues>, allValues: FormValues) => {
         const selectedDesignRepos = allValues.designRepos.filter(Boolean).map(repo => repo.id)
         const selectedDeployRepos = allValues.deployRepos.filter(Boolean).map(repo => repo.id)
 
@@ -555,7 +555,7 @@ export const EditUserGroupDetailsWithAccessRights: React.FC<EditUserGroupDetails
         return isNewGroup ? t('groups:invite_group') : t('groups:edit_group')
     }, [isUser, newUser, isNewGroup, t])
 
-    const saveUser = async (userData: any) => {
+    const saveUser = async (userData: UserFormValues) => {
         // Form seeds `password` to '' (empty string — React-safe for controlled inputs);
         // coerce back to null before hitting the API so the "no password change"
         // wire contract is preserved.

@@ -224,7 +224,7 @@ describe('traceStore race hardening', () => {
     })
 
     it('clears the raw table cache on reset', async () => {
-        getRawTable.mockResolvedValue({ id: 'tbl', name: 'BaseRate', source: []} as any)
+        getRawTable.mockResolvedValue({ id: 'tbl', name: 'BaseRate', source: []})
         await useTraceStore.getState().loadRawTable('tbl')
 
         useTraceStore.getState().reset()
@@ -285,7 +285,7 @@ describe('traceStore actions', () => {
 
     it('attaches to a session the launcher already created', async () => {
         getStack.mockResolvedValue(suspended([{ index: 0 } as any]))
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         await useTraceStore.getState().start()
 
@@ -317,7 +317,7 @@ describe('traceStore actions', () => {
     })
 
     it('loads the root frame variables when inspecting a completed run, so the final result stays readable', async () => {
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
         useTraceStore.setState({ status: 'completed' })
 
         await useTraceStore.getState().selectFrame(0)
@@ -331,7 +331,7 @@ describe('traceStore actions', () => {
         // the root call, so index 0 must be selected rather than the deepest frame at the top of the stack.
         getStack.mockResolvedValue({ status: 'completed', frames: [{ index: 0 } as any, { index: 1 } as any],
             tree: null, profile: null } as any)
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         await useTraceStore.getState().start()
 
@@ -366,7 +366,7 @@ describe('traceStore actions', () => {
     it('still fetches variables for a table node in the business view (no step focus)', async () => {
         // Clicking a table (frame) node, not a step, keeps the frame view: its parameters and result come
         // from the variables payload as usual, so the skip must not swallow it.
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
         useTraceStore.setState({ status: 'suspended', advanced: false, simpleFocus: null })
 
         await useTraceStore.getState().selectFrame(0)
@@ -376,7 +376,7 @@ describe('traceStore actions', () => {
 
     it('applies the returned stack on a successful step', async () => {
         step.mockResolvedValue(suspended([{ index: 0 } as any]))
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
         useTraceStore.setState({ status: 'suspended' })
 
         await useTraceStore.getState().stepInto()
@@ -477,7 +477,7 @@ describe('traceStore actions', () => {
     })
 
     it('clears variables without fetching when selecting a frame on a non-suspended session', async () => {
-        useTraceStore.setState({ status: 'running', variables: { parameters: [], steps: [], errors: []} as any })
+        useTraceStore.setState({ status: 'running', variables: { parameters: [], steps: [], errors: []} })
 
         await useTraceStore.getState().selectFrame(0)
 
@@ -510,7 +510,7 @@ describe('traceStore actions', () => {
                 result: null,
                 steps: [],
                 errors: [],
-            } as any,
+            },
         })
 
         const result = await useTraceStore.getState().fetchLazyParameter(7)
@@ -676,7 +676,7 @@ describe('traceStore simple mode', () => {
         // The full tree arrives in the start response as one list of every call.
         startTrace.mockResolvedValue({ status: 'completed', frames: [], treeNodes: sampleTreeNodes(),
             profile: { nodeCount: 3 } } as any)
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         await useTraceStore.getState().simpleRun()
 
@@ -698,7 +698,7 @@ describe('traceStore simple mode', () => {
         // tree — with the failed branch — so the business view opens the failed run instead of showing nothing.
         startTrace.mockResolvedValue({ status: 'error', error: { summary: 'rule boom' }, frames: [],
             treeNodes: sampleTreeNodes(), profile: { nodeCount: 3 } } as any)
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         await useTraceStore.getState().simpleRun()
 
@@ -804,7 +804,7 @@ describe('traceStore simple mode', () => {
             { index: 0, uri: 'uR', instance: 0, completed: false } as any,
             { index: 1, uri: 'uChild', instance: 0, completed: false } as any,
             { index: 2, uri: 'uBoom', instance: 0, completed: false, error: { summary: 'boom' } } as any]))
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         const inspect = useTraceStore.getState().simpleInspect(
             { key: 'uR@0', frameUri: 'uR', frameInstance: 0, stepType: 'out', label: 'uR' })
@@ -842,7 +842,7 @@ describe('traceStore simple mode', () => {
         primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
         step.mockResolvedValue(suspended([
             { index: 0, uri: 'uR', instance: 0, completed: false, location: { kind: 'cell', ref: 'S1' } } as any]))
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
         useTraceStore.setState({ frames: [
             { index: 0, uri: 'uR', instance: 0, completed: false, location: { kind: 'cell', ref: 'S1' } } as any]})
 
@@ -908,7 +908,7 @@ describe('traceStore simple mode', () => {
             { index: 0, uri: 'uR', instance: 0, completed: false } as any]))
         step.mockResolvedValue({ status: 'suspended', frames: [
             { index: 0, uri: 'uR', instance: 0, completed: true } as any]} as any)
-        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []} as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         await useTraceStore.getState().simpleInspect(
             { key: 'uR@0', frameUri: 'uR', frameInstance: 0, stepType: 'out', label: 'uR' })

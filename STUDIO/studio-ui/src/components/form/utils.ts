@@ -1,3 +1,10 @@
+import type { Field } from '../../global'
+
+/** The value of a setting the server sends alone or wrapped with its flags (`FieldObject`). */
+export const fieldValue = <T extends string | number | boolean>(field: Field<T> | undefined): T | undefined => (
+    typeof field === 'object' ? field.value : field
+)
+
 /**
  * Unwraps FieldObject values (e.g. { value: "...", readOnly: true }) for Form.Item getValueProps.
  * Prevents [object Object] from being displayed in form inputs when the backend returns

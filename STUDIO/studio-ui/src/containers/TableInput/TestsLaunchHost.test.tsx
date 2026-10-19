@@ -24,7 +24,7 @@ vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
 // otherwise. The panel forgets what the last run reported before it starts another one.
 const { reset, reported } = vi.hoisted(() => ({
     reset: vi.fn(),
-    reported: { status: 'COMPLETED' as string | null, subscribed: true, quietSpells: 0 },
+    reported: { status: 'COMPLETED', subscribed: true, quietSpells: 0 },
 }))
 
 vi.mock('containers/execution/useExecutionProgress', () => ({

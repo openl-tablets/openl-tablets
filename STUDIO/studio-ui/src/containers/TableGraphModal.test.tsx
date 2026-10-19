@@ -445,6 +445,20 @@ describe('TableGraphModal', () => {
         await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     })
 
+    it('opens a table tapped twice on the graph', async () => {
+        mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A', module: 'My Module' }] as never)
+        render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
+        await dispatchOpen({ projectId: 'proj-1', projectName: 'proj-1' })
+        await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
+        const tapNode = cyMocks.on.mock.calls.findLast(([event, selector]) => event === 'tap' && selector === 'node')?.[2]
+        const tap = { target: { id: () => 'a' } }
+
+        act(() => tapNode(tap))
+        act(() => tapNode(tap))
+
+        expect(navigate).toHaveBeenCalledWith('/projects/proj-1/modules/My%20Module?table=a')
+    })
+
     it('cannot open a table no module of the project holds', async () => {
         mockApiCall.mockResolvedValueOnce([{ id: 'a', name: 'A' }] as never)
 

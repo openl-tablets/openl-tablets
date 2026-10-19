@@ -13,12 +13,6 @@ const { apiCallMock, fetchUserProfileMock, userProfileMock } = vi.hoisted(() => 
             lastName: '',
             displayName: '',
             email: '',
-        } as {
-            username?: string
-            firstName?: string
-            lastName?: string
-            displayName?: string
-            email?: string
         },
     },
 }))

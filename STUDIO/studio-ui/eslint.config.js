@@ -16,6 +16,9 @@ export default [
                 ecmaVersion: 'latest',
                 sourceType: 'module',
                 ecmaFeatures: { jsx: true },
+                // The types of tsconfig.json, for the rules that read them
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
             },
         },
         plugins: {
@@ -26,7 +29,7 @@ export default [
         },
         rules: {
             'no-unused-vars': 'off',
-            '@typescript-eslint/no-unused-vars': ['warn', {
+            '@typescript-eslint/no-unused-vars': ['error', {
                 vars: 'all',
                 args: 'after-used',
                 ignoreRestSiblings: true,
@@ -47,6 +50,12 @@ export default [
             'no-console': 'error',
             'react-hooks/rules-of-hooks': 'error',
             'react-hooks/exhaustive-deps': 'warn',
+            // A render stays pure: no component declared inside another, no value changed and no impure call
+            'react-hooks/static-components': 'error',
+            'react-hooks/immutability': 'error',
+            'react-hooks/purity': 'error',
+            '@typescript-eslint/no-unnecessary-type-assertion': 'error',
+            '@typescript-eslint/no-explicit-any': 'error',
             // Static Ant Design pop-ups render outside React and ignore the theme — use services/popups
             'no-restricted-imports': ['error', {
                 'paths': [{
@@ -132,6 +141,13 @@ export default [
         rules: {
             'no-restricted-imports': 'off',
             'no-restricted-syntax': 'off',
+        },
+    },
+    {
+        // A mock stands in for a module or a component, so a test may type it loosely
+        files: ['./src/**/*.test.{ts,tsx}'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
         },
     },
     {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import { Button, Divider, Empty, Modal, Segmented, Select, Space, Spin, Tag, Tooltip, Typography, theme } from 'antd'
 import {
     AimOutlined,
@@ -441,6 +441,22 @@ export const TableGraphModal: React.FC = () => {
         [model, hiddenKinds]
     )
 
+    const handleClose = useCallback(() => {
+        globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
+    }, [])
+
+    /** Leaves the graph for the table itself, in the module the editor reads it through. */
+    const openTable = useCallback((node?: GraphNode) => {
+        const address = tableAddress(projectIdRef.current ?? '', node)
+        if (address !== null) {
+            handleClose()
+            void navigate(address)
+        }
+    }, [handleClose, navigate])
+
+    // The graph itself is built once and its taps are wired there, so the way out is read when a tap happens.
+    const onOpenTable = useEffectEvent(openTable)
+
     // Create the Cytoscape instance whenever the graph changes; wire selection and open-on-double-tap.
     useEffect(() => {
         if (!visible || loading || !cytoscape || !containerRef.current || model.elements.length === 0) {
@@ -470,7 +486,7 @@ export const TableGraphModal: React.FC = () => {
             // Double-tap opens the table, but only when it lives in the active project — foreign tables cannot be opened.
             if (id === lastTap.id && now - lastTap.time < 350) {
                 if (canOpenTable(model.byId.get(id), projectNameRef.current)) {
-                    openTableRef.current(model.byId.get(id))
+                    onOpenTable(model.byId.get(id))
                 }
                 lastTap = { id: '', time: 0 }
             } else {
@@ -550,23 +566,6 @@ export const TableGraphModal: React.FC = () => {
     useEffect(() => {
         cyRef.current?.resize()
     }, [cycles, nameMatches])
-
-    const handleClose = useCallback(() => {
-        globalThis.dispatchEvent(new CustomEvent('openTableGraphModal', { detail: null }))
-    }, [])
-
-    /** Leaves the graph for the table itself, in the module the editor reads it through. */
-    const openTable = useCallback((node?: GraphNode) => {
-        const address = tableAddress(projectIdRef.current ?? '', node)
-        if (address !== null) {
-            handleClose()
-            void navigate(address)
-        }
-    }, [handleClose, navigate])
-
-    // The graph itself is built once and its taps are wired there, so the way out is read when a tap happens.
-    const openTableRef = useRef(openTable)
-    openTableRef.current = openTable
 
     const toggleKind = useCallback((kind: string) => {
         setHiddenKinds(prev => {

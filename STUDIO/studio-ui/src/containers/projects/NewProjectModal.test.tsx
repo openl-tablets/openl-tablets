@@ -231,7 +231,7 @@ describe('NewProjectModal', () => {
         vi.clearAllMocks()
         vi.mocked(copyProject).mockResolvedValue('sZIiCSgPtIfe')
         vi.mocked(createProject).mockResolvedValue('sZIiCSgPtIfe')
-        vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 } as never)
+        vi.mocked(getProjects).mockResolvedValue({ content: [], pageNumber: 0, pageSize: 0, numberOfElements: 0 })
         vi.mocked(getProjectTemplates).mockResolvedValue([{ type: 'predefined', category: 'General', templates: ['Example']}])
         vi.mocked(inspectOpenLArchive).mockResolvedValue({ readable: false, isOpenLProject: false, name: 'proj' })
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({ comment: { templates: {} } })
@@ -259,13 +259,13 @@ describe('NewProjectModal', () => {
 
         await toConfig('archive')
         await userEvent.type(screen.getByTestId('new-project-name'), 'Typed name')
-        expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Typed name')
+        expect(screen.getByTestId<HTMLInputElement>('new-project-name').value).toBe('Typed name')
 
         // Go back and pick a different method: the previously typed name must not linger.
         await userEvent.click(screen.getByTestId('new-project-back'))
         await toConfig('excel')
 
-        expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('')
+        expect(screen.getByTestId<HTMLInputElement>('new-project-name').value).toBe('')
     })
 
     it('advances to the config step on a single method click, without a Next button', async () => {
@@ -291,7 +291,7 @@ describe('NewProjectModal', () => {
         await toConfig()
         await userEvent.type(screen.getByTestId('new-project-name'), 'Alpha')
 
-        await waitFor(() => expect((screen.getByTestId('new-project-comment') as HTMLTextAreaElement).value)
+        await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('new-project-comment').value)
             .toBe('Project Alpha was created'))
     })
 
@@ -410,7 +410,7 @@ describe('NewProjectModal', () => {
         await waitFor(() => expect(screen.getByTestId('new-project-submit')).not.toBeDisabled())
 
         // The last zip is built from the second folder alone — the first pick is replaced, not appended.
-        const lastBatch = vi.mocked(zipProjectFolder).mock.calls.at(-1)![0] as File[]
+        const lastBatch = vi.mocked(zipProjectFolder).mock.calls.at(-1)![0]
         expect(lastBatch).toHaveLength(1)
         expect((lastBatch[0] as File).webkitRelativePath).toBe('Second/rules.xml')
     })
@@ -684,7 +684,7 @@ describe('NewProjectModal', () => {
         await toConfig('copy')
         await userEvent.click(await screen.findByTestId('opt-source'))
         // The name pre-fills from the source with a "(Copy)" suffix; the user can still edit it.
-        await waitFor(() => expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Source (Copy)'))
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('new-project-name').value).toBe('Source (Copy)'))
         await userEvent.clear(screen.getByTestId('new-project-name'))
         await userEvent.type(screen.getByTestId('new-project-name'), 'Copied')
         await userEvent.type(screen.getByTestId('new-project-path'), 'team/rules')
@@ -732,7 +732,7 @@ describe('NewProjectModal', () => {
         await userEvent.click(await screen.findByTestId('template-group-General'))
         await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
 
-        await waitFor(() => expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Example'))
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('new-project-name').value).toBe('Example'))
     })
 
     it('keeps a name the user typed over the auto-filled suggestion', async () => {
@@ -743,7 +743,7 @@ describe('NewProjectModal', () => {
         await userEvent.type(screen.getByTestId('new-project-name'), 'Custom')
         await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
 
-        expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Custom')
+        expect(screen.getByTestId<HTMLInputElement>('new-project-name').value).toBe('Custom')
     })
 
     it('pre-fills the name from an inspected archive', async () => {
@@ -753,7 +753,7 @@ describe('NewProjectModal', () => {
         await toConfig('archive')
         await userEvent.click(screen.getByTestId('pick-file'))
 
-        await waitFor(() => expect((screen.getByTestId('new-project-name') as HTMLInputElement).value).toBe('Pricing Rules'))
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('new-project-name').value).toBe('Pricing Rules'))
     })
 
     it('warns and blocks submit when the archive is not an OpenL project', async () => {

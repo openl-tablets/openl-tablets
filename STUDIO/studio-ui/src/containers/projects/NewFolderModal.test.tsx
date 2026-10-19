@@ -58,7 +58,7 @@ describe('NewFolderModal', () => {
     it('starts from the selected folder so the field always shows the full path', () => {
         render(<NewFolderModal {...props} targetFolder="rules" />)
 
-        expect((screen.getByTestId('files-folder-path') as HTMLInputElement).value).toBe('rules/')
+        expect(screen.getByTestId<HTMLInputElement>('files-folder-path').value).toBe('rules/')
     })
 
     it('keeps a blank path from creating anything', async () => {

@@ -25,7 +25,7 @@ const found = (over: Partial<ModuleTable> = {}): ModuleTable => ({
     kind: 'Rules',
     tableType: 'SimpleRules',
     ...over,
-} as ModuleTable)
+})
 
 const open = (onOpen = vi.fn()) => {
     render(
@@ -241,7 +241,7 @@ describe('TableSearchModal', () => {
             id: 'table-9',
             name: 'Greeting',
             source: [[{ cell: 'A1', value: 'Hello' }]],
-        } as never)
+        })
         open()
 
         await userEvent.click(screen.getByTestId('table-search-run'))

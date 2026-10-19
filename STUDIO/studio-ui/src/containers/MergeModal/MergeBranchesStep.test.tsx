@@ -168,7 +168,7 @@ describe('MergeBranchesStep', () => {
         const pending = new Promise<BranchInfo[]>(resolve => {
             resolveBranches = resolve
         })
-        vi.mocked(getProjectBranches).mockReturnValue(pending as never)
+        vi.mocked(getProjectBranches).mockReturnValue(pending)
         // A project living only on its own branch widens the list on open, so the read starts by itself.
         render(<MergeBranchesStep {...defaultProps()} branches={[{ name: 'main', protected: false }]} />)
 
@@ -865,7 +865,7 @@ describe('MergeBranchesStep', () => {
             await waitFor(() => expect(getProjectBranches).toHaveBeenCalled())
             await selectBranch('untouched-by-the-project')
 
-            const select = screen.getByTestId('merge-target-branch') as HTMLSelectElement
+            const select = screen.getByTestId<HTMLSelectElement>('merge-target-branch')
             expect(select.value).toBe('untouched-by-the-project')
 
             await userEvent.click(option)

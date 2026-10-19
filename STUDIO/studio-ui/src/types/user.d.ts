@@ -35,10 +35,10 @@ export interface UserDetails {
 }
 
 export interface UpdatedUserRequest {
-    email: string
-    displayName: string
-    firstName: string
-    lastName: string
+    email?: string | undefined
+    displayName?: string | undefined
+    firstName?: string | undefined
+    lastName?: string | undefined
     password: string | null
     groups?: string[]
     // Attributes for new user

@@ -88,7 +88,7 @@ describe('NewFileModal', () => {
     it('starts from the selected folder', () => {
         render(<NewFileModal {...props} targetFolder="rules" />)
 
-        expect((screen.getByTestId('files-text-file-path') as HTMLInputElement).value).toBe('rules')
+        expect(screen.getByTestId<HTMLInputElement>('files-text-file-path').value).toBe('rules')
     })
 
     it('needs a name before it creates anything', async () => {

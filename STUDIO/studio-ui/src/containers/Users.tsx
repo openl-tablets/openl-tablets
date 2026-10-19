@@ -51,7 +51,7 @@ export const Users: React.FC = () => {
     const fetchUsers = async () => {
         setIsLoading(true)
         const response: UserDetails[] = await apiCall('/users')
-        setUsers(response.map((user: any, index: any) => ({ ...user, key: index })))
+        setUsers(response.map((user, index) => ({ ...user, key: index })))
         setIsLoading(false)
     }
 
@@ -74,8 +74,8 @@ export const Users: React.FC = () => {
         })
     }
 
-    const onEditUser = (record: any, event?: any) => {
-        if (event && !event?.target?.className.includes('ant-table-cell')) {
+    const onEditUser = (record: UserDetails, event?: React.MouseEvent) => {
+        if (event && !(event.target instanceof HTMLElement && event.target.className.includes('ant-table-cell'))) {
             return
         }
         setSelectedUser({ ...record })
@@ -167,7 +167,7 @@ export const Users: React.FC = () => {
             {
                 title: t('users:users_table.actions'),
                 width: 150,
-                render: (_: string, record: any) => {
+                render: (_: string, record: UserDetails) => {
                     const canDelete = !record.superUser && !record.currentUser
                     let deleteTooltip = ''
                     if (record.superUser) {

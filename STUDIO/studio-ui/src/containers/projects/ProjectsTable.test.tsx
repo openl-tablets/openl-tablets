@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { ProjectsTable } from './ProjectsTable'
 import { ProjectStatus } from '../../constants/project'
 import type { Project } from '../../types/projects'
-import type { RepositoryInfo } from '../../types/repositories'
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
@@ -76,7 +75,7 @@ const renderTable = (projects: Project[], sorting: Partial<ComponentProps<typeof
             onSort={onSort}
             pending={{}}
             projects={projects}
-            repoInfoOf={() => ({ name: 'Design', type: 'repo-git' } as RepositoryInfo)}
+            repoInfoOf={() => ({ name: 'Design', type: 'repo-git' })}
             sort={null}
             {...sorting}
         />

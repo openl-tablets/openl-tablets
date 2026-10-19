@@ -49,7 +49,7 @@ const captureUpdates = () => {
     let onUpdate!: (update: ProjectStatusUpdate) => void
     vi.mocked(subscribeProjectStatus).mockImplementation((_id, _branch, listener) => {
         onUpdate = listener
-        return { unsubscribe: vi.fn() } as never
+        return { unsubscribe: vi.fn() }
     })
     return (update: ProjectStatusUpdate) => act(() => onUpdate(update))
 }

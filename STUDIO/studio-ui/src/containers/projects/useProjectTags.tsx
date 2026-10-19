@@ -271,7 +271,7 @@ const TagEntryFields = ({ entry, suggestions, duplicate, onChange, testId }: {
                 className={styles.entryKey}
                 data-testid={testId}
                 {...(duplicate ? { status: 'error' as const } : {})}
-                onChange={key => onChange({ ...entry, key: (key as string | undefined) ?? '' })}
+                onChange={key => onChange({ ...entry, key: key ?? '' })}
                 options={suggestions.map(type => ({ value: type.name }))}
                 placeholder={t('browser.tags.key')}
                 showSearch={{ filterOption: (input, option) => matches(String(option?.value), input) }}
@@ -281,7 +281,7 @@ const TagEntryFields = ({ entry, suggestions, duplicate, onChange, testId }: {
             <AutoComplete
                 className={styles.entryValue}
                 data-testid={`${testId}-value`}
-                onChange={value => onChange({ ...entry, value: (value as string | undefined) ?? '' })}
+                onChange={value => onChange({ ...entry, value: value ?? '' })}
                 options={(matchingType?.values ?? []).map(value => ({ value }))}
                 placeholder={t('browser.tags.value')}
                 showSearch={{ filterOption: (input, option) => matches(String(option?.value), input) }}

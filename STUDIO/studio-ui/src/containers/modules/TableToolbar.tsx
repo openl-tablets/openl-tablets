@@ -416,7 +416,7 @@ export const TableToolbar = ({
                             onClick={() => openTable(first)}
                             type="link"
                         >
-                            {label(first as TableTest & TableTarget)}
+                            {label(first)}
                         </Button>
                     </Tooltip>
                     {rest.length > 0 && (

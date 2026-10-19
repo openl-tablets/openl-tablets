@@ -17,7 +17,7 @@ describe('useSheetLoader', () => {
 
     it('stops the spinner when sheets are handed over while a request is still in flight', async () => {
         let answer: ((sheets: string[]) => void) | undefined
-        vi.mocked(getModuleSheets).mockReturnValue(new Promise<string[]>(resolve => { answer = resolve }) as never)
+        vi.mocked(getModuleSheets).mockReturnValue(new Promise<string[]>(resolve => { answer = resolve }))
         const { result } = renderHook(() => useSheetLoader('error'))
 
         act(() => void result.current.load('p1', 'Main', MODULES))

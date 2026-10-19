@@ -16,6 +16,7 @@ import type {
 } from 'types/trace'
 import traceService from 'services/traceService'
 import { walkDepthFirst } from 'utils/depthFirst'
+import { errorMessageOr } from 'utils/errorMessage'
 import { isTraceExecutionTerminal } from 'utils/traceExecutionStatus'
 
 /** Cap on rows fetched per table; the backend slices and reports totalRows when more rows exist. */
@@ -432,8 +433,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
         set({ loading: true, error: null })
         try {
             applyStack(await step())
-        } catch (error: any) {
-            set({ error: error?.message || 'Step failed' })
+        } catch (error) {
+            set({ error: errorMessageOr(error, 'Step failed') })
         } finally {
             set({ loading: false })
         }
@@ -499,8 +500,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
             // the previous table until the target inspection settles.
             set({ status: stack.status, ...(stack.sessionId ? { sessionId: stack.sessionId } : {}) })
             return stack
-        } catch (error: any) {
-            set({ status: 'error', error: error?.message || 'Failed to restart trace' })
+        } catch (error) {
+            set({ status: 'error', error: errorMessageOr(error, 'Failed to restart trace') })
             return null
         } finally {
             set({ loading: false })
@@ -573,8 +574,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // applying this now-stale entry stack would overwrite the fresh run's frames and session id.
                 if (get().runId !== token) return
                 applyStack(stack)
-            } catch (error: any) {
-                set({ status: 'error', error: error?.message || 'Failed to start trace' })
+            } catch (error) {
+                set({ status: 'error', error: errorMessageOr(error, 'Failed to start trace') })
             } finally {
                 set({ loading: false })
             }
@@ -590,14 +591,14 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 // tree instead of overwriting them with a finished run's settled stack.
                 if (get().projectId !== projectId || get().runId !== runId) return
                 applyStack(stack)
-            } catch (error: any) {
+            } catch (error) {
                 // applyStack never ran, so a business inspect's loading window would otherwise stick. The
                 // 'suspended' socket event that triggers this refresh leaves status at 'running' (from the
                 // resume) for applyStack to settle; with no applyStack, restore 'suspended' here so the stale
                 // 'running' does not block a business inspect from retrying the highlighted row. The
                 // completed/error refreshes set their terminal status before calling in, so they are untouched.
                 set({
-                    error: error?.message || 'Failed to load stack',
+                    error: errorMessageOr(error, 'Failed to load stack'),
                     variablesLoading: false,
                     ...(get().status === 'running' ? { status: 'suspended' as const } : {}),
                 })
@@ -637,9 +638,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 const variables = await traceService.getVariables(projectId, index)
                 if (isStale()) return
                 set({ variables, variablesLoading: false })
-            } catch (error: any) {
+            } catch (error) {
                 if (isStale()) return
-                notification.error({ title: error?.message || 'Failed to load variables' })
+                notification.error({ title: errorMessageOr(error, 'Failed to load variables') })
                 set({ variables: null, variablesLoading: false })
             }
         },
@@ -658,8 +659,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
             set({ status: 'running', variables: null })
             try {
                 await traceService.resume(projectId)
-            } catch (error: any) {
-                set({ status: 'suspended', error: error?.message || 'Resume failed', variablesLoading: false })
+            } catch (error) {
+                set({ status: 'suspended', error: errorMessageOr(error, 'Resume failed'), variablesLoading: false })
             }
         },
 
@@ -668,8 +669,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
             if (!projectId) return
             try {
                 await traceService.pause(projectId)
-            } catch (error: any) {
-                set({ error: error?.message || 'Pause failed' })
+            } catch (error) {
+                set({ error: errorMessageOr(error, 'Pause failed') })
             }
         },
 
@@ -732,8 +733,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 ))
                 applyStack(stack)
                 await get().fetchWatch()
-            } catch (error: any) {
-                set({ error: error?.message || 'Failed to collect watches' })
+            } catch (error) {
+                set({ error: errorMessageOr(error, 'Failed to collect watches') })
             } finally {
                 set({ loading: false })
             }
@@ -755,8 +756,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
             try {
                 await traceService.cancelTrace(projectId)
                 set({ status: 'terminated', frames: [], selectedFrameIndex: null, variables: null, variablesLoading: false })
-            } catch (error: any) {
-                notification.error({ title: error?.message || 'Failed to terminate' })
+            } catch (error) {
+                notification.error({ title: errorMessageOr(error, 'Failed to terminate') })
             }
         },
 
@@ -789,8 +790,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
             set({ breakpoints: next, breakpointLabels: labels })
             try {
                 await traceService.setBreakpoints(projectId, next)
-            } catch (error: any) {
-                notification.error({ title: error?.message || 'Failed to update breakpoints' })
+            } catch (error) {
+                notification.error({ title: errorMessageOr(error, 'Failed to update breakpoints') })
                 set({ breakpoints, breakpointLabels })
             }
         },
@@ -894,9 +895,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     // per-page counters.
                     set({ simpleTree: tree, simpleOrder: buildSimpleOrder(tree, {}), simpleReady: true })
                 }
-            } catch (error: any) {
+            } catch (error) {
                 if (get().runId === token) {
-                    set({ status: 'error', error: error?.message || 'Failed to run the trace' })
+                    set({ status: 'error', error: errorMessageOr(error, 'Failed to run the trace') })
                 }
             } finally {
                 if (get().runId === token) {
@@ -989,9 +990,9 @@ export const useTraceStore = create<DebugState>((set, get) => {
                     treeChildren: { ...s.treeChildren, [key]: [...(s.treeChildren[key] ?? []), ...(page.children ?? [])]},
                     treeLoading: { ...s.treeLoading, [key]: false },
                 }))
-            } catch (error: any) {
+            } catch (error) {
                 set(s => ({ treeLoading: { ...s.treeLoading, [key]: false } }))
-                notification.error({ title: error?.message || 'Failed to load sub-calls' })
+                notification.error({ title: errorMessageOr(error, 'Failed to load sub-calls') })
             }
         },
 

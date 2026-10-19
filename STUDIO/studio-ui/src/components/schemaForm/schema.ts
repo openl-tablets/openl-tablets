@@ -47,7 +47,7 @@ export const resolveRef = (ref: string, root: JsonSchema): JsonSchema | undefine
         (node, segment) => (node && typeof node === 'object' ? (node as Record<string, unknown>)[segment] : undefined),
         root
     )
-    return target && typeof target === 'object' ? target as JsonSchema : undefined
+    return target && typeof target === 'object' ? target : undefined
 }
 
 const isNullSchema = (schema: JsonSchema): boolean => schema.type === 'null'

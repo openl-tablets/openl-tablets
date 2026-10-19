@@ -91,7 +91,7 @@ describe('UploadFileModal', () => {
         render(<UploadFileModal {...props} />)
 
         pick('Rates.xlsx')
-        await waitFor(() => expect((screen.getByTestId('files-upload-name') as HTMLInputElement).value)
+        await waitFor(() => expect(screen.getByTestId<HTMLInputElement>('files-upload-name').value)
             .toBe('Rates.xlsx'))
         fireEvent.change(screen.getByTestId('files-upload-path'), { target: { value: 'rules' } })
         await userEvent.click(screen.getByText('ok'))

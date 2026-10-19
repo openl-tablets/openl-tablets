@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => {
 })
 
 const tables: ModuleTable[] = [
-    { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' } as ModuleTable,
+    { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
 ]
 
 /** The rail over the one table, with whatever a test asks to be different. */
@@ -45,8 +45,8 @@ describe('ModuleTablesTree', () => {
 
     it('searches the names it shows, and hands the rest to the extended search', async () => {
         const shown: ModuleTable[] = [
-            { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' } as ModuleTable,
-            { id: 'two', name: 'Premium', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' } as ModuleTable,
+            { id: 'one', name: 'Greeting', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
+            { id: 'two', name: 'Premium', kind: 'Rules', tableType: 'SimpleRules', sheet: 'Rules' },
         ]
         const onExtendedSearch = vi.fn()
         rail({ onExtendedSearch, selectedTableId: 'two', tables: shown })

@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { apiCall, CONFIG } from '../../services'
 import { formatDateTime } from '../../utils/dateFormat'
 import { saveFile } from '../../utils/download'
+import { errorMessageOr } from '../../utils/errorMessage'
 import { isWorkbookPath } from '../../utils/workbooks'
 import { basename } from '../projects/projectPaths'
 import {
@@ -122,8 +123,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
                 })
             })
             setResolutions(initialResolutions)
-        } catch (err: any) {
-            setError(err?.message || t('merge:errors.load_failed'))
+        } catch (err) {
+            setError(errorMessageOr(err, t('merge:errors.load_failed')))
         } finally {
             setIsLoading(false)
         }
@@ -280,8 +281,8 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             ) as ResolveConflictsResponse | undefined
 
             onResolveSuccess(response?.summary)
-        } catch (err: any) {
-            setError(err?.message || t('merge:errors.resolve_failed'))
+        } catch (err) {
+            setError(errorMessageOr(err, t('merge:errors.resolve_failed')))
         } finally {
             setIsSaving(false)
             onSavingChange(false)
@@ -347,7 +348,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             title: t('merge:conflicts.compare_column'),
             key: 'compare',
             width: 200,
-            render: (_: any, record: { filePath: string }) => {
+            render: (_: unknown, record: { filePath: string }) => {
                 const availability = conflictDetails?.fileAvailability[record.filePath]
                 return (
                     <Space orientation="vertical" size="small">
@@ -388,7 +389,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
             title: t('merge:conflicts.resolution_column'),
             key: 'resolution',
             width: 350,
-            render: (_: any, record: { filePath: string }) => {
+            render: (_: unknown, record: { filePath: string }) => {
                 const res = resolutions[record.filePath]
                 const isResolved = res?.resolution && (res.resolution !== 'CUSTOM' || res.customFile)
                 // A text file both versions hold is merged line by line; the server tells text from a binary file. A

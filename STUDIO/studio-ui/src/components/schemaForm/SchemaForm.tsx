@@ -27,7 +27,7 @@ interface SchemaFormProps {
     onChange: (value: Record<string, unknown>) => void
 }
 
-const rootSchema = (parameter: SchemaFormParameter): JsonSchema => (parameter.schema ?? {}) as JsonSchema
+const rootSchema = (parameter: SchemaFormParameter): JsonSchema => (parameter.schema ?? {})
 
 /** Held apart from the render, so that a node of the tree is not drawn again for a new object saying the same. */
 const LINES = { showLeafIcon: false }

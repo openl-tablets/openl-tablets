@@ -75,7 +75,7 @@ export const Groups: React.FC = () => {
             title: t('groups:table.actions'),
             key: 'Action',
             width: 150,
-            render: (_: string, record: any) => (
+            render: (_: string, record: GroupItem) => (
                 <>
                     <Button
                         icon={<EditOutlined />}

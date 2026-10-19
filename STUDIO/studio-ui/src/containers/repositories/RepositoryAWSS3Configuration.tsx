@@ -3,19 +3,19 @@ import { Form } from 'antd'
 import { Input, InputNumber, Select } from '../../components'
 import { useTranslation } from 'react-i18next'
 import { AWS_KMS_SSE_ALGORITHMS, AWS_SSE_ALGORITHM } from './constants'
-import { AWSS3RepositorySettings } from './index'
+import type { AWSS3RepositorySettings, RepositoryResponse } from './index'
 
 interface RepositoryAWSS3ConfigurationProps {
-    configuration: {
-        settings: AWSS3RepositorySettings
-    }
+    /** The repository, or the template of a new one, whose settings list the regions and encryptions offered. */
+    configuration?: Pick<RepositoryResponse, 'settings'> | null | undefined
 }
 
 export const RepositoryAWSS3Configuration: FC<RepositoryAWSS3ConfigurationProps> = ({ configuration }) => {
     const { t } = useTranslation()
     const form = Form.useFormInstance()
     const sseAlgorithm = Form.useWatch(['settings', 'sseAlgorithm'], form)
-    const { allAllowedRegions, allSseAlgorithms } = configuration?.settings || {}
+    const settings: Partial<AWSS3RepositorySettings> = configuration?.settings ?? {}
+    const { allAllowedRegions, allSseAlgorithms } = settings
 
     const regionOptions = allAllowedRegions?.map(region => ({
         label: region.description,

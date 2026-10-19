@@ -258,5 +258,5 @@ export const indentOf = (style: RawTableCellStyle | undefined): React.CSSPropert
         return {}
     }
     const side = style.align === 'right' ? '--cell-indent-right' : '--cell-indent-left'
-    return { [side]: `${style.indent}em` } as React.CSSProperties
+    return { [side]: `${style.indent}em` }
 }

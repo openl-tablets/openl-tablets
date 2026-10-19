@@ -44,7 +44,7 @@ vi.mock('services/execution', () => ({
 const { reset, progress } = vi.hoisted(() => ({
     reset: vi.fn(),
     progress: {
-        current: { status: 'COMPLETED' as string | null, error: null as string | null, subscribed: true },
+        current: { status: 'COMPLETED', error: null as string | null, subscribed: true },
     },
 }))
 

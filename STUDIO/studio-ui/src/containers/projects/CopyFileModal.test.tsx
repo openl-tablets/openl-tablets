@@ -75,8 +75,8 @@ describe('CopyFileModal', () => {
     it('starts from the copy name and the folder the file sits in', () => {
         render(<CopyFileModal {...props} />)
 
-        expect((screen.getByTestId('file-copy-name') as HTMLInputElement).value).toBe('Main-copy.xlsx')
-        expect((screen.getByTestId('file-copy-path') as HTMLInputElement).value).toBe('rules')
+        expect(screen.getByTestId<HTMLInputElement>('file-copy-name').value).toBe('Main-copy.xlsx')
+        expect(screen.getByTestId<HTMLInputElement>('file-copy-path').value).toBe('rules')
     })
 
     it('copies into the folder the user picks', async () => {
