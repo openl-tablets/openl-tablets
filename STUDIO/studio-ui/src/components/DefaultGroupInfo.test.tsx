@@ -37,6 +37,7 @@ const renderWithContext = (overrides: Partial<React.ContextType<typeof SystemCon
         isUserManagementEnabled: true,
         isGroupsManagementEnabled: true,
         isPersonalAccessTokenEnabled: false,
+        isAuditLogEnabled: false,
         systemSettings: { userMode: 'multi' } as any,
     }
     return render(

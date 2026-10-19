@@ -1,3 +1,4 @@
+import './audit.en'
 import './common.en'
 import './compare.en'
 import './deploy.en'

@@ -3,6 +3,7 @@ import { Menu } from 'antd'
 import { useLocation, useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import {
+    AuditOutlined,
     DatabaseOutlined,
     KeyOutlined,
     MailOutlined,
@@ -29,13 +30,19 @@ const MenuItems = {
     notification: '/administration/notification',
     tags: '/administration/tags',
     mail: '/administration/mail',
+    audit: '/administration/audit',
 }
 
 const MainMenu: React.FC = () => {
     const { t } = useTranslation()
     const { styles } = useStyles()
     const { hasAdminPermission } = useContext(PermissionContext)
-    const { isUserManagementEnabled, isGroupsManagementEnabled, isPersonalAccessTokenEnabled } = useContext(SystemContext)
+    const {
+        isUserManagementEnabled,
+        isGroupsManagementEnabled,
+        isPersonalAccessTokenEnabled,
+        isAuditLogEnabled,
+    } = useContext(SystemContext)
     const navigate = useNavigate()
     const location = useLocation()
     const [selectedKeys, setSelectedKeys] = useState<string[]>([])
@@ -73,6 +80,8 @@ const MainMenu: React.FC = () => {
                             <Menu.Item key={MenuItems.users} icon={<UserOutlined />} id="menuitem-users">{t('common:menu.users')}</Menu.Item>}
                         { isGroupsManagementEnabled &&
                             <Menu.Item key={MenuItems.groups} icon={<TeamOutlined />} id="menuitem-groups">{t('common:menu.groups')}</Menu.Item>}
+                        { isAuditLogEnabled &&
+                            <Menu.Item key={MenuItems.audit} icon={<AuditOutlined />} id="menuitem-audit">{t('common:menu.audit_log')}</Menu.Item>}
                         <Menu.Item key={MenuItems.notification} icon={<NotificationOutlined />} id="menuitem-notification">{t('common:menu.notification')}</Menu.Item>
                         <Menu.Item key={MenuItems.tags} icon={<NumberOutlined />} id="menuitem-tags">{t('common:menu.tags')}</Menu.Item>
                         <Menu.Item key={MenuItems.mail} icon={<MailOutlined />} id="menuitem-mail">{t('common:menu.mail')}</Menu.Item>

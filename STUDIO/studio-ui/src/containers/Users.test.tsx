@@ -97,6 +97,7 @@ const renderUsers = (overrides: any = {}) => {
         isUserManagementEnabled: true,
         isGroupsManagementEnabled: true,
         isPersonalAccessTokenEnabled: false,
+        isAuditLogEnabled: false,
         systemSettings: { userMode: 'multi', supportedFeatures: {} } as any,
         ...overrides.system,
     }

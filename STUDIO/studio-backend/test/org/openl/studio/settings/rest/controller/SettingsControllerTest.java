@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
 import org.openl.studio.projects.service.tables.TableFormatting;
+import org.openl.studio.settings.model.SupportedFeaturesModel;
 
 /**
  * Unit tests for {@link SettingsController}.
@@ -20,13 +21,17 @@ class SettingsControllerTest {
     private static final BooleanSupplier MAIL_DISABLED = () -> false;
 
     private boolean isPersonalAccessTokenEnabled(String userMode) {
+        return supportedFeatures(userMode).getPersonalAccessToken();
+    }
+
+    private SupportedFeaturesModel supportedFeatures(String userMode) {
         var environment = new MockEnvironment();
         if (userMode != null) {
             environment.setProperty("user.mode", userMode);
         }
-        var settings = new SettingsController(environment, MAIL_DISABLED, new TableFormatting(environment))
-                .getSettings();
-        return settings.getSupportedFeatures().getPersonalAccessToken();
+        return new SettingsController(environment, MAIL_DISABLED, new TableFormatting(environment))
+                .getSettings()
+                .getSupportedFeatures();
     }
 
     @Test
@@ -62,5 +67,13 @@ class SettingsControllerTest {
     @Test
     void personalAccessTokenDisabledWhenModeIsNotConfigured() {
         assertFalse(isPersonalAccessTokenEnabled(null));
+    }
+
+    @Test
+    void auditLogKeptInEveryModeButSingle() {
+        assertTrue(supportedFeatures("multi").getAuditLog());
+        assertTrue(supportedFeatures("oauth2").getAuditLog());
+        assertFalse(supportedFeatures("single").getAuditLog());
+        assertFalse(supportedFeatures(null).getAuditLog());
     }
 }

@@ -98,6 +98,7 @@ const renderModal = ({ groupsEnabled = true }: { groupsEnabled?: boolean } = {})
             isExternalAuthSystem: false,
             isGroupsManagementEnabled: groupsEnabled,
             isPersonalAccessTokenEnabled: false,
+            isAuditLogEnabled: false,
             isUserManagementEnabled: true,
         }}
     >
@@ -122,6 +123,7 @@ describe('AddAccessModal', () => {
                     isExternalAuthSystem: false,
                     isGroupsManagementEnabled: true,
                     isPersonalAccessTokenEnabled: false,
+                    isAuditLogEnabled: false,
                     isUserManagementEnabled: true,
                 }}
             >

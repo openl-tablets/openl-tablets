@@ -141,6 +141,7 @@ describe('UserProfile', () => {
             isUserManagementEnabled: false,
             isGroupsManagementEnabled: false,
             isPersonalAccessTokenEnabled: false,
+            isAuditLogEnabled: false,
         }
         render(
             <SystemContext.Provider value={contextValue}>

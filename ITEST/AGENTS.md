@@ -69,8 +69,8 @@ GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To r
 
 Each of them runs the `itest.studio/acl` suite against its database, so that suite holds the steps that write a
 value a database may keep or read back differently and read it back: the times of a personal access token
-(`EPBDS-16957_times_read_back`). A unit test on H2 does not tell: the mapping that fails is the one of the other
-database.
+(`EPBDS-16957_times_read_back`), and the time and the long details of an audit event (`audit_log_read_back`). A unit
+test on H2 does not tell: the mapping that fails is the one of the other database.
 
 `OracleRdbmsTest` raises the Oracle process limit from 200 to 1000 when the container initializes. Oracle runs
 every connection in a process of its own: the database takes about 80 of the 200 for itself and the security
@@ -237,7 +237,8 @@ opens no session, so the reset belongs on the request after it.
 - **Headers**: case-insensitive (Content-Type, etc.)
 - **JSON body**: structural comparison with wildcard support (whitespace ignored)
 - **XML**: normalized comparison
-- **Plain text** and **event streams** (`text/event-stream`): regex-based matching
+- **Plain text** (`text/plain`, `text/csv`, `text/html`, …) and **event streams** (`text/event-stream`): regex-based
+  matching
 - **Binary**: byte array comparison
 
 ### Wildcard Patterns in Response Files

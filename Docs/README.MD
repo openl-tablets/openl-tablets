@@ -42,7 +42,7 @@ Studio.
   [Workspace Metainfo Registry](architecture/workspace-metainfo-registry.md),
   [Table Creation](architecture/table-creation.md), [Table Dependency Graph](architecture/table-dependency-graph.md),
   [Decision Table Condition Indexing](architecture/decision-table-condition-indexing.md),
-  [Upload Integrity](architecture/upload-integrity.md),
+  [Upload Integrity](architecture/upload-integrity.md), [Audit Log](architecture/audit-log.md),
   [Embedded User Guides](architecture/embedded-user-guides.md), the design of the
   [Built-in MCP Server](architecture/mcp-server.md) and its
   [internals](architecture/mcp-server-internals.md), [Table Formatting](architecture/table-formatting.md),

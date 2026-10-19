@@ -63,16 +63,21 @@ export const SecurityProvider: FC<PropsWithChildren> = ({ children }) => {
         return systemSettings?.supportedFeatures?.personalAccessToken || false
     }, [systemSettings])
 
+    const isAuditLogEnabled = useMemo(() => {
+        return systemSettings?.supportedFeatures?.auditLog || false
+    }, [systemSettings])
+
     const system = useMemo(() => ({
         systemSettings,
         isExternalAuthSystem,
         isUserManagementEnabled,
         isGroupsManagementEnabled,
         isPersonalAccessTokenEnabled,
+        isAuditLogEnabled,
         openlInfo,
         appVersion,
     }), [systemSettings, isExternalAuthSystem, isUserManagementEnabled, isGroupsManagementEnabled,
-        isPersonalAccessTokenEnabled, openlInfo, appVersion])
+        isPersonalAccessTokenEnabled, isAuditLogEnabled, openlInfo, appVersion])
 
     const permission = useMemo(() => ({ hasAdminPermission }), [hasAdminPermission])
 

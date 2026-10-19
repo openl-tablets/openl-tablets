@@ -59,11 +59,18 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   no security filters at all. A page is never listed: the application page answers a page of a guide too, so
   `RequestMatchers.userGuideFiles()` admits an address below `/docs` only when its last part ends with an extension,
   the rule by which `UserGuidesServlet` never answers it with the page.
+- **The audit log records who did what.** An action worth accounting for records an `AuditEvent` through
+  `AuditService.recordEvent` — a new kind of action is a constant of `AuditAction`, with its category and its wire code —
+  in the transaction of the change it records, so the two are saved together. An event never holds a password or a
+  token. The sign-ins come from the events of Spring Security, so a new way of signing in publishes them. See
+  [`audit-log.md`](../Docs/architecture/audit-log.md).
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`. A time is a `${timestamp}` column that
-  holds UTC, mapped as an `Instant`; Oracle reads it through `OracleInstantTypeContributor`. A value one database
-  keeps or reads back differently is written and read back by the `itest.studio/acl` suite, which CI runs on every
-  supported database (see [`ITEST/AGENTS.md`](../ITEST/AGENTS.md))
+  holds UTC, mapped as an `Instant`; Oracle reads it through `OracleInstantTypeContributor`. A text of any length is
+  a `${text}` column, a large object on Oracle and SQL Server: nothing sorts or groups by it, and no ordinary index
+  holds it, so a search of it reads the table unless a database has an index of its own for it. A value
+  one database keeps or reads back differently is written and read back by the `itest.studio/acl` suite, which CI
+  runs on every supported database (see [`ITEST/AGENTS.md`](../ITEST/AGENTS.md))
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
 - **REST API / OpenAPI**: Externalized descriptions, `@Parameter` vs `@Schema`, enum wire codes, and request
   validation follow strict rules — see [`studio-backend/AGENTS.md`](studio-backend/AGENTS.md)
@@ -105,7 +112,8 @@ The full map of `studio-backend/src/org/openl/` is in
 [`codebase-tour.md`](../Docs/onboarding/codebase-tour.md). To place new code:
 
 - **REST API of an area** — `org.openl.studio.<area>` (`projects`, `repositories`, `deployment`, `users`, `tags`,
-  `settings`, `compare`) keeps its controllers in `rest/controller` (`compare/rest`) beside its services and models.
+  `settings`, `compare`, `audit`) keeps its controllers in `rest/controller` (`compare/rest`) beside its services and
+  models.
   `org.openl.studio.rest` holds only the argument resolvers of pagination; `org.openl.rules.rest` holds the mail,
   management, user and ACL controllers.
 - **WebSocket** — configuration and handshake in `org.openl.studio.socket`; notifications to the clients in

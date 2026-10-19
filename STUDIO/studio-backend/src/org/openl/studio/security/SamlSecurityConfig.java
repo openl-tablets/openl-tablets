@@ -33,6 +33,7 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.LogoutSuccessEventPublishingLogoutHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -56,6 +57,7 @@ public class SamlSecurityConfig {
     public SecurityFilterChain logoutFilterChain(
             @Qualifier("securityContextPersistenceFilter") SecurityContextPersistenceFilter securityContextPersistenceFilter,
             Saml2LogoutRequestFilter logoutFilter,
+            LogoutSuccessEventPublishingLogoutHandler logoutEventPublishingHandler,
             SamlLogoutSuccessHandler samlLogoutHandler) {
 
         // samlLogoutHandler clears the local session and sends a SAML LogoutRequest to the IdP Single
@@ -63,7 +65,7 @@ public class SamlSecurityConfig {
         return new DefaultSecurityFilterChain(RequestMatchers.matcher("/logout"),
                 securityContextPersistenceFilter,
                 logoutFilter,
-                new LogoutFilter("/", samlLogoutHandler)
+                new LogoutFilter("/", logoutEventPublishingHandler, samlLogoutHandler)
         );
     }
 
@@ -165,13 +167,15 @@ public class SamlSecurityConfig {
     @Bean(initMethod = "afterPropertiesSet", destroyMethod = "destroy")
     public Saml2LogoutRequestFilter samlLogoutFilter(
             @Qualifier("relyingPartyRegistrationResolver") RelyingPartyRegistrationResolver relyingPartyRegistrationResolver,
+            LogoutSuccessEventPublishingLogoutHandler logoutEventPublishingHandler,
             SamlLogoutSuccessHandler logoutHandler) {
 
         var logoutRequestValidator = new OpenSaml5LogoutRequestValidator();
         var logoutResponseResolver = new OpenSaml5LogoutResponseResolver(relyingPartyRegistrationResolver);
 
+        // A sign-out the identity provider asks for is published as one the user asked for.
         var logoutFilter = new Saml2LogoutRequestFilter(relyingPartyRegistrationResolver, logoutRequestValidator,
-                logoutResponseResolver, logoutHandler);
+                logoutResponseResolver, logoutEventPublishingHandler, logoutHandler);
         logoutFilter.setLogoutRequestMatcher(RequestMatchers.matcher("/logout"));
         return logoutFilter;
     }

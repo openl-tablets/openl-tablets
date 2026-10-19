@@ -31115,6 +31115,10 @@ Content-Type: application/json
       "SupportedFeaturesModel": {
         "type": "object",
         "properties": {
+          "auditLog": {
+            "type": "boolean",
+            "description": "***"
+          },
           "emailVerification": {
             "type": "boolean",
             "description": "***"

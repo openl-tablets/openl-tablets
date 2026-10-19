@@ -1,0 +1,4 @@
+GET /rest/admin/audit HTTP/1.1
+Authorization: Basic RVBCRFNfMTQ2MDFfdXNlcjpFUEJEU18xNDYwMV91c2Vy
+Accept: application/json
+

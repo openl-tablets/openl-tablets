@@ -9,6 +9,7 @@ type SystemContextType = {
     isUserManagementEnabled: boolean
     isGroupsManagementEnabled: boolean
     isPersonalAccessTokenEnabled: boolean
+    isAuditLogEnabled: boolean
 }
 
 export const SystemContext = createContext<SystemContextType>({
@@ -16,4 +17,5 @@ export const SystemContext = createContext<SystemContextType>({
     isUserManagementEnabled: false,
     isGroupsManagementEnabled: false,
     isPersonalAccessTokenEnabled: false,
+    isAuditLogEnabled: false,
 })

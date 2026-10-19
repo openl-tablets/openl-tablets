@@ -7,7 +7,8 @@ Content-Type: application/json
     "groupsManagement": false,
     "userManagement": true,
     "emailVerification": false,
-    "personalAccessToken": true
+    "personalAccessToken": true,
+    "auditLog": true
   },
   "formatTablesOnSave": true
 }

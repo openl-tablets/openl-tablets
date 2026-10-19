@@ -6,14 +6,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import org.openl.studio.security.pat.model.PatAuthenticationToken;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.security.pat.service.PatAuthService;
 
@@ -32,32 +38,23 @@ import org.openl.studio.security.pat.service.PatAuthService;
  * in the security filter chain.
  * </p>
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class PatAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String PREFIX = "Token ";
 
     private final PatAuthService patAuthService;
+    private final AuthenticationEventPublisher eventPublisher;
     private final SecurityContextHolderStrategy securityContextHolderStrategy;
 
     /**
      * Constructs a new PatAuthenticationFilter with default SecurityContextHolderStrategy.
      *
      * @param patAuthService the PAT authentication service
+     * @param eventPublisher publishes every refused token, which the audit log records
      */
-    public PatAuthenticationFilter(PatAuthService patAuthService) {
-        this.patAuthService = patAuthService;
-        this.securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
-    }
-
-    /**
-     * Package-private constructor for testing with custom SecurityContextHolderStrategy.
-     *
-     * @param patAuthService                the PAT authentication service
-     * @param securityContextHolderStrategy the security context holder strategy
-     */
-    PatAuthenticationFilter(PatAuthService patAuthService, SecurityContextHolderStrategy securityContextHolderStrategy) {
-        this.patAuthService = patAuthService;
-        this.securityContextHolderStrategy = securityContextHolderStrategy;
+    public PatAuthenticationFilter(PatAuthService patAuthService, AuthenticationEventPublisher eventPublisher) {
+        this(patAuthService, eventPublisher, SecurityContextHolder.getContextHolderStrategy());
     }
 
     @Override
@@ -77,14 +74,14 @@ public class PatAuthenticationFilter extends OncePerRequestFilter {
         try {
             patToken = PatToken.parse(tokenValue);
         } catch (IllegalArgumentException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
+            refuse(null, response);
             return;
         }
 
         var resolution = patAuthService.resolveAuthentication(patToken);
 
         if (!resolution.valid()) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
+            refuse(patToken.publicId(), response);
             return;
         }
 
@@ -97,6 +94,17 @@ public class PatAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Answers {@code 401} to a token that was refused, and publishes the refusal without telling why.
+     *
+     * @param publicId the public id of the token, or {@code null} when the token could not be read
+     */
+    private void refuse(@Nullable String publicId, HttpServletResponse response) throws IOException {
+        eventPublisher.publishAuthenticationFailure(new BadCredentialsException("Invalid personal access token"),
+                new PatAuthenticationToken(publicId));
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, HttpStatus.UNAUTHORIZED.getReasonPhrase());
     }
 
     /**

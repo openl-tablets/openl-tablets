@@ -1,9 +1,11 @@
 package org.openl.itest.core;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,6 +51,17 @@ class HttpDataTest {
         var expected = createResponse(tempDir.resolve("text.resp"), "text/plain", "Hello John!");
 
         assertEquals("Body ==> expected: <Hello John!> but was: <Hello World!>", failure(actual, expected));
+    }
+
+    @Test
+    void csvBodyIsComparedAsTextWithWildcards(@TempDir Path tempDir) throws IOException {
+        var csv = "text/csv;charset=UTF-8";
+        var actual = createResponse(tempDir.resolve("actual.resp"), csv, "time,actor\r\n2026-10-19T10:15:30Z,jdoe");
+        var matching = createResponse(tempDir.resolve("matching.resp"), csv, "time,actor\r\n***,jdoe");
+        var different = createResponse(tempDir.resolve("different.resp"), csv, "time,actor\r\n***,admin");
+
+        assertDoesNotThrow(() -> actual.assertTo(matching));
+        assertTrue(failure(actual, different).startsWith("Body ==> expected: <time,actor"));
     }
 
     @Test

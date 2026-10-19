@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
@@ -22,20 +23,14 @@ import org.openl.util.StringUtils;
 @RestController
 @Validated
 @RequestMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequiredArgsConstructor
 @Tag(name = "Settings")
 public class SettingsController {
 
     private final Environment environment;
+    @Qualifier("mailSenderFeature")
     private final BooleanSupplier mailSenderFeature;
     private final TableFormatting tableFormatting;
-
-    public SettingsController(Environment environment,
-                              @Qualifier("mailSenderFeature") BooleanSupplier mailSenderFeature,
-                              TableFormatting tableFormatting) {
-        this.environment = environment;
-        this.mailSenderFeature = mailSenderFeature;
-        this.tableFormatting = tableFormatting;
-    }
 
     @Operation(summary = "msg.get-app-settings.summary", description = "msg.get-app-settings.desc")
     @GetMapping
@@ -48,6 +43,7 @@ public class SettingsController {
                         .userManagement(userManagementMode != null)
                         .emailVerification(mailSenderFeature.getAsBoolean())
                         .personalAccessToken(userManagementMode != null)
+                        .auditLog(userManagementMode != null)
                         .build())
                 .scripts(Stream.of(environment.getProperty("webstudio.javascript.url"))
                         .filter(StringUtils::isNotBlank)

@@ -64,6 +64,7 @@ const renderWithProviders = (opts: { hasAdmin?: boolean; groupsEnabled?: boolean
                 isUserManagementEnabled: true,
                 isGroupsManagementEnabled: groupsEnabled,
                 isPersonalAccessTokenEnabled: false,
+                isAuditLogEnabled: false,
             }}
         >
             <PermissionContext.Provider value={{ hasAdminPermission: hasAdmin ? hasAdminTrue : hasAdminFalse }}>

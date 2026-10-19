@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.LongSupplier;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.DisposableBean;
@@ -247,7 +249,7 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
      * it is with its session cookie alone. A request that also belongs to a browser session of the same user is
      * that browser calling, and keeps to its session.
      */
-    static @Nullable String credentialOf(HttpServletRequest request, @Nullable Authentication authentication) {
+    public static @Nullable String credentialOf(HttpServletRequest request, @Nullable Authentication authentication) {
         if (request.getHeader(HttpHeaders.AUTHORIZATION) == null || authentication == null
                 || !authentication.isAuthenticated()) {
             return null;
@@ -287,6 +289,7 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
     }
 
     /** The beans kept for one credential. */
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
     private final class Client {
 
         private final String credential;
@@ -295,10 +298,6 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
         /** How many requests of the client are running now; a client with one running is never idle. */
         private final AtomicInteger running = new AtomicInteger();
         private volatile long lastAccess = nanoClock.getAsLong();
-
-        Client(String credential) {
-            this.credential = credential;
-        }
 
         /** A request of the client has ended: the client was last used now. */
         void leave(long now) {

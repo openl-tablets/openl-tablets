@@ -75,6 +75,7 @@ const renderAbout = (buildDate = '2026-10-04') => {
                 isUserManagementEnabled: false,
                 isGroupsManagementEnabled: false,
                 isPersonalAccessTokenEnabled: false,
+                isAuditLogEnabled: false,
             }}
         >
             <AboutModal onClose={vi.fn()} open={isOpen} />

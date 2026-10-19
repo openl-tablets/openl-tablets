@@ -27,6 +27,7 @@ const renderHelp = (info?: OpenlInfo) => render(
                 isUserManagementEnabled: false,
                 isGroupsManagementEnabled: false,
                 isPersonalAccessTokenEnabled: false,
+                isAuditLogEnabled: false,
             }}
         >
             <Help />

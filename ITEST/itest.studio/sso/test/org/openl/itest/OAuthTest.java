@@ -126,6 +126,7 @@ class OAuthTest extends AbstractKeycloakTest {
                 // Log in; the session resolves to admin.
                 browser.loginViaOAuth2("admin", "admin");
                 assertAdminSession(browser);
+                assertAudited(browser, "signIn", "oauth2");
 
                 // SP-initiated logout redirects to the OIDC end-session endpoint with the id_token_hint.
                 var logoutRedirect = browser.logoutViaOAuth2();
@@ -138,12 +139,16 @@ class OAuthTest extends AbstractKeycloakTest {
                 assertRestUnauthorized(browser);
                 assertTrue(browser.oauth2ChallengesForLogin(),
                         "Keycloak must require re-authentication after logout");
+
+                // The sign-out is in the audit log.
+                browser.loginViaOAuth2("admin", "admin");
+                assertAudited(browser, "signOut", "oauth2");
             }
         }
     }
 
     private Map<String, String> retrieveBearerAccessTokens(String authServerUrl) throws URISyntaxException, IOException, InterruptedException {
-        Map<String, String> tokens = new HashMap<>();
+        var tokens = new HashMap<String, String>();
         tokens.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "admin", "admin"));
         tokens.put("USER1_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "user1", "user1"));
         tokens.put("GUEST_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "guest", "guest"));
@@ -179,20 +184,19 @@ class OAuthTest extends AbstractKeycloakTest {
                 .uri(new URI(authServerUrl + "/realms/openlstudio/protocol/openid-connect/token"))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED)
                 .timeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.read"))))
-                .POST(HttpRequest.BodyPublishers.ofString("grant_type=password&scope=openid profile email" +
-                        "&client_id=" + CLIENT_ID +
-                        "&client_secret=" + CLIENT_SECRET +
-                        "&username=" + username +
-                        "&password=" + password))
+                .POST(HttpRequest.BodyPublishers.ofString("grant_type=password&scope=openid profile email"
+                        + "&client_id=" + CLIENT_ID
+                        + "&client_secret=" + CLIENT_SECRET
+                        + "&username=" + username
+                        + "&password=" + password))
                 .build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == HttpStatus.SC_OK) {
-            String responseBody = response.body();
+            var responseBody = response.body();
             var responseNode = mapper.readTree(responseBody);
             return responseNode.get("access_token").asText();
-        } else {
-            throw new RuntimeException("Failed to get Access Token: " + response.statusCode() + " - " + response.body());
         }
+        throw new RuntimeException("Failed to get Access Token: " + response.statusCode() + " - " + response.body());
     }
 
     private PersonalAccessTokenResponse getPersonalAccessTokenForUser(org.openl.itest.core.HttpClient httpClient, String bearerToken, CreatePersonalAccessTokenRequest tokenData) {
