@@ -403,16 +403,32 @@ jobs:
           # the step before it reports what happened.
           DEADLINE=$((SECONDS + 240))
 
+          # Repeats a probe of a URL until it passes; the probe sets 'code' to what it reports
           wait_for() {
-            local url="$1" code="000"
+            local probe="$1" url="$2" code="000"
             while [ "$SECONDS" -lt "$DEADLINE" ]; do
-              code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$url")
-              code="${code:-XXX}"
-              [ "$code" = "200" ] && { echo "  OK   200  $url"; return 0; }
+              "$probe" "$url" && { echo "  OK   $code  $url"; return 0; }
               check_process || { echo "  ERR  server process exited  $url"; return 1; }
               sleep 2
             done
             echo "  FAIL $code  $url"; return 1
+          }
+
+          # The URL answers 200
+          answers_200() {
+            code=$(curl -s -m 10 -L -o /dev/null -w '%{http_code}' "$1")
+            code="${code:-XXX}"
+            [ "$code" = "200" ]
+          }
+
+          # The MCP server built into OpenL Studio answers a discovery request at /mcp of OpenL Studio
+          answers_mcp() {
+            code="MCP"
+            curl -s -m 10 -X POST "$1" -H 'Content-Type: application/json' \
+                -H 'Accept: application/json, text/event-stream' -H 'MCP-Protocol-Version: 2026-07-28' \
+                -H 'Mcp-Method: server/discover' \
+                -d '{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"ci","version":"1"},"io.modelcontextprotocol/clientCapabilities":{}}}}' \
+              | grep -q '"studio-mcp"'
           }
 
           URLS=(
@@ -428,7 +444,8 @@ jobs:
           )
 
           fail=0
-          for p in "${URLS[@]}"; do wait_for "http://localhost:8080/$p" || fail=1; done
+          for p in "${URLS[@]}"; do wait_for answers_200 "http://localhost:8080/$p" || fail=1; done
+          wait_for answers_mcp "http://localhost:8080/webstudio/mcp" || fail=1
 
           if [ "$fail" -ne 0 ]; then
             echo "::group::demo logs (tail)"

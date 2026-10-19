@@ -46,8 +46,9 @@ Multi-module Maven project. The version inherits from the root `pom.xml`.
 - **WSFrontend/** — Rule Services (REST endpoints, Kafka, logging, metrics)
 - **ITEST/** — Integration tests (TestContainers, declarative HTTP req/resp suites)
 - **Util/** — Maven plugin, project archetypes and shared libraries (OpenAPI, Excel builder, YAML, OpenTelemetry)
-- **DEMO/** — Demo package: `start`, `start.ps1` and `start.cmd` scripts that download a JRE, Jetty and JDBC drivers
-  and run OpenL Studio with OpenL Rule Services, plus their properties and the welcome page in `webapps/ROOT`
+- **DEMO/** — Demo package: `start`, `start.ps1` and `start.cmd` scripts that download a JRE, Jetty, JDBC drivers and
+  Node.js and run OpenL Studio, its MCP server and OpenL Rule Services, plus their properties and the welcome page in
+  `webapps/ROOT`
 - **jacoco-report/** — Aggregated JaCoCo coverage report; joins the reactor only with `-Dsonar`
 - **Docs/** — Jekyll-based documentation site (GitHub Pages); user guides under `Docs/user-guides/` and the
   specifications of the project files under `Docs/ref/`, which OpenL Studio also ships and `STUDIO/studio-docs`
@@ -86,8 +87,8 @@ docker compose up --build                  # Studio :8080, Rule Services :8081 (
   `mvn verify -pl ITEST/<suite> -am` (e.g. `ITEST/itest.smoke`).
 - **Mirrored versions** — `Dockerfile`, the `DEMO/start` and `DEMO/start.ps1` launch scripts and the compose and
   Kubernetes files cannot read Maven properties, so they spell out a second time `log4j.version` and
-  `opentelemetry.version` (`Dockerfile`), `jetty.version`, `postgresql.version`, `mssql.version` and
-  `ojdbc11.version` (both scripts), and `postgresql.version` (`compose.yaml`,
+  `opentelemetry.version` (`Dockerfile`), `jetty.version`, `postgresql.version`, `mssql.version`,
+  `ojdbc11.version` and `node.version` (both scripts), and `postgresql.version` (`compose.yaml`,
   `Docs/examples/production/studio-config/compose.yaml`, `Docs/examples/k8s/02-openl-studio.yaml`).
   `mvn validate -N` fails when a copy drifts from its property; bump both sides together.
 - Coverage report: `jacoco-report/target/site/jacoco-aggregate/jacoco.xml`; a line is uncovered when `ci="0"`.

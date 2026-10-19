@@ -28,6 +28,7 @@
                                 <include>jetty-home/</include>
                                 <include>webapps/**</include>
                                 <include>jre/</include>
+                                <include>node/</include>
                                 <include>openl-demo/</include>
                                 <include>logs/</include>
                             </includes>

@@ -42,6 +42,8 @@ The first time you run the startup script, it will automatically download and co
 The script will create several new folders inside your Demo directory and download the following assets:
 
 * `jre/` → The **Java Runtime Environment (JRE)** required by the application, when no suitable Java is installed on the computer.
+* `node/` → The **Node.js** runtime of the MCP server built into OpenL Studio, unless Node.js 24 or later is already
+  installed. If it cannot be downloaded, the Demo runs without the MCP server.
 * `jetty-home/` → The **Jetty Web Server**, a lightweight server that hosts the OpenL web applications.
 * `webapps/webstudio.war` and `webapps/webservice.war` → The **OpenL Studio** and **Rule Services** applications themselves.
 * `jetty-home/lib/ext/` → **JDBC drivers** to enable connectivity with MS SQL Server, Oracle, and PostgreSQL.
@@ -59,6 +61,14 @@ The Demo is designed to work out-of-the-box with a smart default configuration.
 * All your work (projects, settings) is stored locally in the `openl-demo/` subfolder.
 * Comes with a pre-initialized local 'design' **Git repository** containing examples and tutorials, located at `openl-demo/repositories/design/`.
 * Comes with a pre-initialized local 'deployment' repository for connecting with the Rule Services, located at `openl-demo/repositories/deployment/`.
+
+### MCP Server
+
+* AI agents and IDEs, such as Claude Code, Claude Desktop, Cursor or VS Code, connect to OpenL Studio at
+  `http://localhost:8080/webstudio/mcp` to read, change, test and deploy the projects.
+* Needs no credentials, as OpenL Studio runs in the single-user mode.
+* To connect an agent, see [Connecting an AI Agent](../../mcp-server/connecting.md) in the OpenL Studio MCP Server
+  Guide.
 
 ### Rule Services
 
