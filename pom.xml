@@ -158,7 +158,7 @@
         <h2.version>2.5.252</h2.version>
         <hikaricp.version>7.1.0</hikaricp.version>
         <hibernate.orm.version>6.6.58.Final</hibernate.orm.version>
-        <hibernate.validator.version>8.0.5.Final</hibernate.validator.version>
+        <hibernate.validator.version>8.0.6.Final</hibernate.validator.version>
 
         <!-- Testing -->
         <junit.version>6.1.3</junit.version>
