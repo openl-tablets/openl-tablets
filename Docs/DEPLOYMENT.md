@@ -31,8 +31,8 @@ docker run -p 8081:8080 openltablets/ws
 
 The image runs Jetty on a Temurin JRE, listens on port `8080`, and deploys the application as the `ROOT` web
 application. The process runs as the non-root user `openl` (UID `1000`). The software the image runs the application
-on — the JRE, Jetty, Log4j, the OpenTelemetry agent and Alpine Linux — is listed with its licenses in
-`webapps/ROOT/licenses/server-licenses.json`, which the **About** window of OpenL Studio shows.
+on — the JRE, Jetty, Log4j, the OpenTelemetry agent, Node.js in the OpenL Studio image, and Alpine Linux — is listed
+with its licenses in `webapps/ROOT/licenses/server-licenses.json`, which the **About** window of OpenL Studio shows.
 
 ### Directories
 
@@ -95,6 +95,45 @@ Settings saved in the **Administration** area of OpenL Studio are kept in the fi
 the `ROOT` application in the image is `/opt/openl/shared/.properties`. See [Configuration](user-guides/installation-guide/configuration.md) for
 the sources of settings and their priority, and
 [Rule Services Configuration](user-guides/rule-services/configuration.md) for the settings of Rule Services.
+
+### Built-in MCP server
+
+The OpenL Studio image serves an MCP server at `/mcp`, for example `http://localhost:8080/mcp`, over the Streamable
+HTTP transport. AI agents and IDEs connect to it to read, change, test and deploy OpenL projects; the
+[OpenL Studio MCP Server Guide](user-guides/mcp-server/index.md) describes how to connect and work with them.
+
+- **How it runs** — OpenL Studio starts the server, a Node.js program the war carries in `WEB-INF/mcp`, on a free port
+  of `127.0.0.1`, and starts it again whenever the settings change. A servlet of OpenL Studio passes the requests to
+  `/mcp` on to it and streams the answers back; the server calls OpenL Studio back over HTTP at the local address and
+  port a request came in through, so TLS ends in front of OpenL Studio. The server reports the version of OpenL Studio,
+  and its reference guides are the ones of the same release.
+- **Authentication** — OpenL Studio checks a request to `/mcp` as it checks a REST call. In the `single` user mode the
+  server needs no credentials. In the other modes a client sends a Personal Access Token of its user as
+  `Authorization: Token <token>`, or in the `oauth2` mode an access token of the identity provider as
+  `Authorization: Bearer <token>`, and the server calls OpenL Studio with the same header.
+- **Logs** — the lines the server writes go to the `org.openl.studio.mcp.node` logger.
+
+A client configuration, here for Claude Code (`.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "openl": {
+      "type": "http",
+      "url": "https://studio.example.com/mcp",
+      "headers": { "Authorization": "Token openl_pat_..." }
+    }
+  }
+}
+```
+
+| Property         | Default                 | Purpose                                                              |
+|------------------|-------------------------|----------------------------------------------------------------------|
+| `mcp.enabled`    | `true`                  | Starts the server.                                                   |
+| `mcp.node`       | `node`                  | Node.js executable: a name on the `PATH` or an absolute path.         |
+
+- **Browser clients** — a web page of another origin calls `/mcp` only when `cors.allowed.origins` lists it, as for the
+  REST API; clients outside a browser send no origin.
 
 ## Docker Compose
 
