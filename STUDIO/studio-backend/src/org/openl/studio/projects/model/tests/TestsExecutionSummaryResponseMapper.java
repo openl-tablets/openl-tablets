@@ -11,7 +11,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.ITestUnit;
@@ -83,7 +82,7 @@ public class TestsExecutionSummaryResponseMapper {
     public TestCaseExecutionResult mapToTestCaseResult(TestUnitsResults testCase, TestExecutionSummaryQuery query) {
         var builder = TestCaseExecutionResult.builder()
                 .name(TableSyntaxNodeUtils.getTestName(testCase.getTestSuite().getTestSuiteMethod()))
-                .tableId(TableUtils.makeTableId(testCase.getTestSuite().getUri()))
+                .tableId(testCase.getTestSuite().getTableId())
                 .module(tableModules.moduleOf(testCase.getTestSuite().getUri()))
                 .description(testCase.getTestSuite().getTestSuiteMethod().getSyntaxNode().getTableProperties().getDescription())
                 .executionTimeMs(testCase.getExecutionTime() / NANOS_IN_MILLISECOND)

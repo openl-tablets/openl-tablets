@@ -5,8 +5,10 @@ import java.util.concurrent.Executor;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.base.INamedThing;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -163,5 +165,14 @@ public class TestSuite implements INamedThing {
         } else {
             return getTestedMethod().getInfo().getSourceUrl();
         }
+    }
+
+    /**
+     * The id of the table the suite runs: the test table, or the rule table run with the input it is given.
+     *
+     * @return the id of the table, or {@code null} when the table is not known
+     */
+    public @Nullable String getTableId() {
+        return TableIds.idOf(testSuiteMethod != null ? testSuiteMethod.getInfo() : getTestedMethod().getInfo());
     }
 }

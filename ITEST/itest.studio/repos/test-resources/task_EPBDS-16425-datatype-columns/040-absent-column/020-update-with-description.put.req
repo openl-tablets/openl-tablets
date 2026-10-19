@@ -1,4 +1,4 @@
-PUT /rest/projects/EPBDS-16425-Columns/tables/5f742658453772e447fa335f60edb8ce HTTP/1.1
+PUT /rest/projects/EPBDS-16425-Columns/tables/vd3FaKTEiAyHoSAG HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

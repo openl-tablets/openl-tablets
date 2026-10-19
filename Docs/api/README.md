@@ -110,12 +110,15 @@ Table types: `Datatype`, `Vocabulary`, `Spreadsheet`, `SimpleSpreadsheet`, `Simp
 
 - **Opened project** — the project is opened first with `PATCH /rest/projects/{projectId}` and
   `{"status": "OPENED"}`. Otherwise the answer is `409` with `openl.error.409.project.not.opened.message`.
-- **Table id** — `{tableId}` is an opaque `id` from the table list. A write that has to move the table changes it.
+- **Table id** — `{tableId}` is an opaque `id` from the table list, made of the module, the kind and the name of the
+  table, or its `id` property. A table keeps it when it moves, on its sheet or to another sheet, and gets a new one
+  when it is renamed or its `id` property changes; see [Stable Table Ids](../architecture/table-ids.md).
 - **Module** — the optional query parameter `module` reads or writes the table through one module. The answer is ready
   once that module is compiled, without waiting for the rest of the project. Without it the endpoint waits for the whole
   project.
-- **Responses of a write** — `204 No Content` when the table keeps its id. `200 OK` with `{"id": "<new id>"}` and a
-  `Location` header when the table had no room to grow and moved.
+- **Responses of a write** — `204 No Content` when the table keeps its id, also when it had no room to grow and
+  moved. `200 OK` with `{"id": "<new id>"}` and a `Location` header when the write renamed the table or changed its
+  `id` property.
 - **Lock** — a write locks the project for the user, and a write by another user answers `409` with
   `openl.error.409.project.locked.by.message`; see [The Project Editing Lock](../architecture/project-editing-lock.md).
 - **Partial tables** — a table that is written as several partial tables is read, and a write to it answers `400` with

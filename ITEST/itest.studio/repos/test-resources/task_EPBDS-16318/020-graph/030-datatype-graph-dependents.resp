@@ -3,7 +3,7 @@ Content-Type: application/json
 
 [
   {
-    "id": "b8f6b32c64ba84aadb482d966b78bcc8",
+    "id": "mZc4f2F8SmM5gYlw",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Car",
@@ -12,7 +12,7 @@ Content-Type: application/json
     "project": "EPBDS-16318",
     "module": "*",
     "dependents": [
-      "34539b1f0ec6389a26ac8dffdbf949a1"
+      "JAIZABElt53WwH0O"
     ],
     "fields": [
       {
@@ -20,10 +20,10 @@ Content-Type: application/json
         "type": "String"
       }
     ],
-    "extends": "2fceeecaa2b6442cb3788a3b7257a93c"
+    "extends": "E-6sd8tk8GRIeVWH"
   },
   {
-    "id": "34539b1f0ec6389a26ac8dffdbf949a1",
+    "id": "JAIZABElt53WwH0O",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Policy",
@@ -35,7 +35,7 @@ Content-Type: application/json
       {
         "name": "car",
         "type": "Car",
-        "ref": "b8f6b32c64ba84aadb482d966b78bcc8"
+        "ref": "mZc4f2F8SmM5gYlw"
       },
       {
         "name": "drivers",
@@ -53,7 +53,7 @@ Content-Type: application/json
     ]
   },
   {
-    "id": "2fceeecaa2b6442cb3788a3b7257a93c",
+    "id": "E-6sd8tk8GRIeVWH",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Vehicle",
@@ -62,7 +62,7 @@ Content-Type: application/json
     "project": "EPBDS-16318",
     "module": "*",
     "dependents": [
-      "b8f6b32c64ba84aadb482d966b78bcc8"
+      "mZc4f2F8SmM5gYlw"
     ],
     "fields": [
       {

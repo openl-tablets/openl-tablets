@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "HelloRun",
-      "tableId": "6fe237d6eb32481c6d41bb91a560349e",
+      "tableId": "ndKcNJ4TylNVpBQ0",
       "module": "Main",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,

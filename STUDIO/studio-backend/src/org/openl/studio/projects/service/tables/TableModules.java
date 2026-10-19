@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -7,11 +8,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -66,14 +69,20 @@ public final class TableModules {
     /** Where a table the compiler built, and no workbook holds, is read: the module it is reached from. */
     private final Function<String, @Nullable TableLocation> generated;
 
-    private TableModules(List<ModuleLocation> modules, Function<String, @Nullable TableLocation> generated) {
+    /** The id of the table at a location, as the compilation the modules were located through names it. */
+    private final Function<String, @Nullable String> ids;
+
+    private TableModules(List<ModuleLocation> modules,
+                         Function<String, @Nullable TableLocation> generated,
+                         Function<String, @Nullable String> ids) {
         this.modules = modules;
         this.generated = generated;
+        this.ids = ids;
     }
 
     /** Locates the modules that have a workbook to hold tables and a name to be opened by. */
     private static TableModules locate(Stream<Module> modules) {
-        return new TableModules(locations(modules, module -> null), tableUri -> null);
+        return new TableModules(locations(modules, module -> null), tableUri -> null, tableUri -> null);
     }
 
     private static List<ModuleLocation> locations(Stream<Module> modules,
@@ -97,7 +106,7 @@ public final class TableModules {
 
     /** No modules to ask: a table read outside a project, which has no module to be opened through. */
     public static TableModules none() {
-        return new TableModules(List.of(), tableUri -> null);
+        return new TableModules(List.of(), tableUri -> null, tableUri -> null);
     }
 
     /**
@@ -155,7 +164,32 @@ public final class TableModules {
                 .filter(loader -> !loader.isProjectLoader())
                 .map(IDependencyLoader::getModule)
                 .filter(Objects::nonNull), addressing),
-                opened.map(location -> generatedIn(model, location)).orElse(tableUri -> null));
+                opened.map(location -> generatedIn(model, location)).orElse(tableUri -> null),
+                idsIn(model));
+    }
+
+    /**
+     * The ids of the tables the workspace has compiled, by the location the engine knows each table at.
+     *
+     * <p>The tables are indexed by their locations once, on the first question: a table read cell by cell, and the
+     * data model of a graph, ask about many. A location no table has exactly is looked for as
+     * {@link ProjectModel#getNode} looks for it, once.
+     */
+    private static Function<String, @Nullable String> idsIn(ProjectModel model) {
+        var index = new AtomicReference<Map<String, TableSyntaxNode>>();
+        var answered = new ConcurrentHashMap<String, Optional<String>>();
+        return tableUri -> answered.computeIfAbsent(tableUri, uri -> {
+            var located = index.updateAndGet(tables -> tables != null ? tables : byLocation(model)).get(uri);
+            return Optional.ofNullable(located != null ? located : model.getNode(uri)).map(TableSyntaxNode::getId);
+        }).orElse(null);
+    }
+
+    /** The tables the workspace has compiled by their locations, the tables of the module open first. */
+    private static Map<String, TableSyntaxNode> byLocation(ProjectModel model) {
+        var tables = new HashMap<String, TableSyntaxNode>();
+        Stream.concat(Arrays.stream(model.getTableSyntaxNodes()), model.getAllTableSyntaxNodes().stream())
+                .forEach(table -> tables.putIfAbsent(table.getUri(), table));
+        return tables;
     }
 
     /**
@@ -214,6 +248,16 @@ public final class TableModules {
     public @Nullable String moduleOf(@Nullable String tableUri) {
         var location = locationOf(tableUri);
         return location == null ? null : location.module();
+    }
+
+    /**
+     * The id of the compiled table at the given location.
+     *
+     * @param tableUri location the engine knows the table at
+     * @return the id of the table, or {@code null} for a location no compiled table stands at
+     */
+    public @Nullable String tableIdOf(String tableUri) {
+        return ids.apply(tableUri);
     }
 
     /**

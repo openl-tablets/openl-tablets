@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * Identifier of a table affected by a write operation.
  * <p>
- * The identifier may differ from the one passed in the request when the table was relocated to a free area because it
- * had no room to grow at its original position.
+ * The identifier differs from the one passed in the request when the write renamed the table or changed its
+ * {@code id} property. A table the write moved to make room keeps its identifier.
  *
  * @author Vladyslav Pikus
  */

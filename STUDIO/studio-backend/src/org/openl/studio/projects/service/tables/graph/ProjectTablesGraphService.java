@@ -21,9 +21,9 @@ import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -198,7 +198,8 @@ public class ProjectTablesGraphService {
                                    Map<TableSyntaxNode, String> projectByTable,
                                    TableModules modules) {
         var candidateIds = executableCandidates(dispatcher)
-                .map(candidate -> TableUtils.makeTableId(candidate.getSourceUrl()))
+                .map(candidate -> TableIds.idOf(candidate.getInfo()))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         if (candidateIds.size() <= 1) {
             return;
@@ -271,8 +272,11 @@ public class ProjectTablesGraphService {
                          OverloadedMethodsDictionary methodNodesDictionary,
                          WebStudioFormats formats,
                          boolean withDetails) {
-        var tableSyntaxNode = (TableSyntaxNode) rulesMethod.getInfo().getSyntaxNode();
-        var id = TableUtils.makeTableId(rulesMethod.getSourceUrl());
+        // A method written in no table has no node in a graph of tables.
+        if (!(rulesMethod.getInfo().getSyntaxNode() instanceof TableSyntaxNode tableSyntaxNode)) {
+            return;
+        }
+        var id = tableSyntaxNode.getId();
         var node = nodes.computeIfAbsent(id, key -> withDetails
                 ? detailedNode(id, tableSyntaxNode, rulesMethod, projectByTable, modules, methodNodesDictionary, formats)
                 : new RawNode(id, rulesMethod.getName(),
@@ -281,7 +285,10 @@ public class ProjectTablesGraphService {
         var dependencies = rulesMethod.getDependencies();
         if (dependencies != null && dependencies.getRulesMethods() != null) {
             dependencies.getRulesMethods()
-                    .forEach(dependency -> node.dependencies().add(TableUtils.makeTableId(dependency.getSourceUrl())));
+                    .stream()
+                    .map(dependency -> TableIds.idOf(dependency.getInfo()))
+                    .filter(Objects::nonNull)
+                    .forEach(node.dependencies()::add);
         }
     }
 
@@ -347,7 +354,7 @@ public class ProjectTablesGraphService {
         var table = new TableSyntaxNodeAdapter(tableSyntaxNode);
         var summary = summaryTableReader.read(table);
         var kind = OpenLTableUtils.getTableTypeItems().get(tableSyntaxNode.getType());
-        var dataModel = dataModelOf(datatype, table);
+        var dataModel = dataModelOf(datatype, table, modules);
         var node = new RawNode(id, summary.name, kind, summary, Map.of(), projectByTable.get(tableSyntaxNode),
                 modules.moduleOf(tableSyntaxNode.getUri()), dataModel);
         if (dataModel.extendsId() != null) {
@@ -367,12 +374,12 @@ public class ProjectTablesGraphService {
      *
      * <p>Only the fields the datatype declares itself are listed; the inherited ones belong to the parent's node.
      */
-    private DataModel dataModelOf(IOpenClass datatype, IOpenLTable table) {
+    private DataModel dataModelOf(IOpenClass datatype, IOpenLTable table, TableModules modules) {
         // a datatype keeps its fields in declaration order, so the response lists them as the table itself reads
         var fields = datatype instanceof DatatypeOpenClass declaringType
-                ? declaringType.getDeclaredFields().stream().map(ProjectTablesGraphService::fieldOf).toList()
+                ? declaringType.getDeclaredFields().stream().map(field -> fieldOf(field, modules)).toList()
                 : List.<DatatypeNodeFieldView>of();
-        return new DataModel(datatypeTableId(superTypeOf(datatype)), fields, vocabularyOf(table));
+        return new DataModel(datatypeTableId(superTypeOf(datatype), modules), fields, vocabularyOf(table));
     }
 
     /**
@@ -413,27 +420,27 @@ public class ProjectTablesGraphService {
         return datatype instanceof DomainOpenClass vocabulary ? vocabulary.getBaseClass() : null;
     }
 
-    private static DatatypeNodeFieldView fieldOf(IOpenField field) {
+    private static DatatypeNodeFieldView fieldOf(IOpenField field, TableModules modules) {
         var type = field.getType();
         var elementType = OpenClassUtils.getRootComponentClass(type);
         return new DatatypeNodeFieldView(field.getName(), type.getDisplayName(INamedThing.SHORT),
-                datatypeTableId(elementType), elementType != type ? Boolean.TRUE : null);
+                datatypeTableId(elementType, modules), elementType != type ? Boolean.TRUE : null);
     }
 
     /**
-     * The id of the node a type is declared by, or {@code null} when the type is not declared by a datatype table. A
-     * datatype knows the table it comes from, so the id is read from the type itself rather than looked up.
+     * The id of the node a type is declared by, or {@code null} when the type is not declared by a datatype table the
+     * workspace has compiled. A datatype knows the location of the table it comes from, which the id is found by.
      *
      * <p>The table may be outside the graph — declared in another module of a module-scoped graph, or left out by the
      * traversal. Such an id simply matches no node and is dropped along with any other unreachable relation.
      */
     @Nullable
-    private static String datatypeTableId(@Nullable IOpenClass type) {
+    private static String datatypeTableId(@Nullable IOpenClass type, TableModules modules) {
         if (!(type instanceof DatatypeOpenClass || type instanceof DomainOpenClass)) {
             return null;
         }
         var metaInfo = type.getMetaInfo();
-        return metaInfo != null ? TableUtils.makeTableId(metaInfo.getSourceUrl()) : null;
+        return metaInfo != null && metaInfo.getSourceUrl() != null ? modules.tableIdOf(metaInfo.getSourceUrl()) : null;
     }
 
     /**

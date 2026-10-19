@@ -9,7 +9,7 @@ Content-Type: application/json
       "depth": 1,
       "instance": 0,
       "uri": "EPBDS-16406/rules.xlsx?sheet=Rules&range=A1:B5",
-      "tableId": "f7e431497224192f1a4c8b94ea288ea4",
+      "tableId": "_50DRHQU6Lb-YMTd",
       "name": "Calculate",
       "kind": "spreadsheet",
       "location": {
@@ -48,7 +48,7 @@ Content-Type: application/json
       "depth": 2,
       "instance": 0,
       "uri": "EPBDS-16406/rules.xlsx?sheet=Rules&range=A7:B9",
-      "tableId": "e62f2f47c67afbbfb39f880e7aad226a",
+      "tableId": "rb7U1UOZgT7Gj8qq",
       "name": "Iteration",
       "kind": "spreadsheet",
       "active": true,

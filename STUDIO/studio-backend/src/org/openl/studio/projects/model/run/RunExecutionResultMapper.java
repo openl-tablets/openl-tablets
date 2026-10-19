@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 
 import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.rest.compile.MessageDescription;
 import org.openl.rules.testmethod.TestDescription;
 import org.openl.rules.testmethod.TestUnitsResults;
@@ -123,7 +122,7 @@ public class RunExecutionResultMapper {
     private static RunExecutionResult.RunExecutionResultBuilder baseResult(TestUnitsResults results) {
         return RunExecutionResult.builder()
                 .tableName(resolveTableName(results))
-                .tableId(TableUtils.makeTableId(results.getTestSuite().getUri()))
+                .tableId(results.getTestSuite().getTableId())
                 .executionTimeMs(results.getExecutionTime() / NANOS_IN_MILLISECOND);
     }
 

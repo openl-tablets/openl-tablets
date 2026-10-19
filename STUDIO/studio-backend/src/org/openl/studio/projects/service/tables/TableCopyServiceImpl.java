@@ -12,8 +12,9 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
@@ -65,7 +66,9 @@ public class TableCopyServiceImpl implements TableCopyService {
         try {
             // The copy takes the regions of its source, laid out as its last compile read it.
             var layout = formatting.onSave() ? RegionShift.ofCompiled(source) : null;
-            var copyId = build(source, original, newName, declared, destGrid, layout);
+            // The copy is numbered among the tables of the module it is written to, as its next compile numbers it.
+            var module = moduleTables.length == 0 ? null : TableIds.moduleOf(moduleTables[0]);
+            var copyId = build(source, original, newName, declared, destGrid, layout, module);
             if (replacesTheSource) {
                 standDown(source);
             }
@@ -173,10 +176,14 @@ public class TableCopyServiceImpl implements TableCopyService {
         var editor = new TableEditorModel(source);
         editor.setProperty(TableVersionService.VERSION_PROPERTY, versionService.currentVersion(source));
         editor.setProperty(TableVersionService.ACTIVE_PROPERTY, Boolean.FALSE);
+        // The properties may move the version below its copy, which shares what it is: it keeps its id, and the copy
+        // is known by the one it was given.
+        editor.keepTableId();
     }
 
     private static String build(IOpenLTable source, IGridTable original, String newName,
-            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, @Nullable RegionShift layout) {
+            @Nullable Map<String, Object> declared, XlsSheetGridModel destGrid, @Nullable RegionShift layout,
+            @Nullable XlsModuleSyntaxNode module) {
         var node = source.getSyntaxNode();
         var type = node.getNodeType();
 
@@ -225,7 +232,7 @@ public class TableCopyServiceImpl implements TableCopyService {
             if (layout != null) {
                 ExcelTableFormatter.formatOnSave(copy, layout);
             }
-            return TableUtils.makeTableId(destGrid.getRangeUri(copy.getRegion()));
+            return TableIds.idOfWritten(copy, module);
         } catch (CreateTableException e) {
             log.warn("Cannot lay out the copy '{}'.", newName, e);
             throw new BadRequestException("table.copy.failed.message");

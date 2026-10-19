@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "270fe7e78878ac558337939c621b3a6c",
+      "id": "236OfTGADtb4gwC-",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Address",
@@ -17,7 +17,7 @@ Content-Type: application/json
       "signature": "Address"
     },
     {
-      "id": "cb1d8299356a8beb83335365afc54211",
+      "id": "zGHaiCF-VLKidKKt",
       "tableType": "Data",
       "kind": "Data",
       "name": "addresses",
@@ -30,7 +30,7 @@ Content-Type: application/json
       "signature": "Address addresses"
     },
     {
-      "id": "db956ceeb6b34b8a871c16062f9eebe3",
+      "id": "IyG8mrF30z1mIkW-",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "AmPmTo24",
@@ -44,7 +44,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
     },
     {
-      "id": "47d020cdaf10119d4bd11c190f87856e",
+      "id": "EN1slklYgLD63nhF",
       "tableType": "SimpleSpreadsheet",
       "kind": "Spreadsheet",
       "name": "AssetsCompare",
@@ -58,7 +58,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
     },
     {
-      "id": "b2369915f4ec978641d2c2666e24daa7",
+      "id": "XHfEvv19pBpP_Zff",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "CountryCode",
@@ -71,7 +71,7 @@ Content-Type: application/json
       "signature": "CountryCode <String>"
     },
     {
-      "id": "87e731887e64f1f5749ee11b07248857",
+      "id": "J1FnQ3jvIZUwUa7D",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "CoverageForm",
@@ -84,7 +84,7 @@ Content-Type: application/json
       "signature": "CoverageForm"
     },
     {
-      "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+      "id": "w-yASx2cfJBGvUEN",
       "tableType": "SmartLookup",
       "kind": "Rules",
       "name": "CoverageRate",
@@ -98,7 +98,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
     },
     {
-      "id": "70d7a4d1573041fc9065b626fa876b07",
+      "id": "LnxxBJ8S_bSQm1vZ",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "Eligibility",
@@ -113,7 +113,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
     },
     {
-      "id": "5415cda46d85fc7bba0120e399c8f50e",
+      "id": "IguETvGtpuutkwOM",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "Greeting1",
@@ -127,7 +127,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg=="
     },
     {
-      "id": "ba41a332a59792fbbf6ffcaca80e8312",
+      "id": "Bec3fn4yM70ZHMj8",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "Greeting4",

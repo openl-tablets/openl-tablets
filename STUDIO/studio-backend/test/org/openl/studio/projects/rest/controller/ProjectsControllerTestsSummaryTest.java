@@ -38,7 +38,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
@@ -96,7 +95,7 @@ class ProjectsControllerTestsSummaryTest {
     private static final String JSON = MediaType.APPLICATION_JSON_VALUE;
     private static final String XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private static final String TABLE_URI = "file://test.xlsx#Sheet1!A1";
-    private static final String TABLE_ID = TableUtils.makeTableId(TABLE_URI);
+    private static final String TABLE_ID = "k3q7v2m5xahd4r2b";
 
     private final RulesProject project = mock(RulesProject.class);
     private final ProjectIdModel projectId = ProjectIdModel.builder().repository("design").projectName("Test").build();
@@ -176,8 +175,8 @@ class ProjectsControllerTestsSummaryTest {
     void getTestsSummary_ofOneTestTable() throws Exception {
         var driver = runTableOf(testSuiteNamed("DriverRun"), retained(returning("1", 100)));
         var vehicleSuite = testSuiteNamed("VehicleRun");
-        var vehicleUri = "file://test.xlsx#Sheet1!A20";
-        when(vehicleSuite.getUri()).thenReturn(vehicleUri);
+        var vehicleId = "vehiclerunqtvzmx";
+        when(vehicleSuite.getTableId()).thenReturn(vehicleId);
         var vehicle = runTableOf(vehicleSuite, retained(returning("1", 200)), retained(returning("2", 300)));
         when(driver.getName()).thenReturn("DriverRun");
         when(vehicle.getName()).thenReturn("VehicleRun");
@@ -190,8 +189,7 @@ class ProjectsControllerTestsSummaryTest {
         var none = (TestsExecutionSummary) summary(JSON, "unknown").getBody();
         var all = (TestsExecutionSummary) summary(JSON, " ").getBody();
         // Pages are cut from the results of the table alone: the second table of the run is the first page of its own.
-        var vehiclePage = (TestsExecutionSummary) summary(JSON, TableUtils.makeTableId(vehicleUri), Page.of(0, 1))
-                .getBody();
+        var vehiclePage = (TestsExecutionSummary) summary(JSON, vehicleId, Page.of(0, 1)).getBody();
         var pastTheTable = (TestsExecutionSummary) summary(JSON, TABLE_ID, Page.of(1, 1)).getBody();
 
         assertEquals(1L, one.getTotal());
@@ -202,7 +200,7 @@ class ProjectsControllerTestsSummaryTest {
         assertEquals(2L, all.getTotal());
         assertEquals(3, all.getNumberOfTests());
         assertEquals(1L, vehiclePage.getTotal());
-        assertEquals(List.of(TableUtils.makeTableId(vehicleUri)),
+        assertEquals(List.of(vehicleId),
                 vehiclePage.getContent().stream().map(TestCaseExecutionResult::tableId).toList());
         assertEquals(1L, pastTheTable.getTotal());
         assertEquals(List.of(), List.copyOf(pastTheTable.getContent()));
@@ -262,7 +260,7 @@ class ProjectsControllerTestsSummaryTest {
         var vehiclePremium = Map.of("premium", 9797);
         var driver = runTableOf(testSuiteNamed("DriverRun"), retained(returning("1", driverPremium)));
         var vehicleSuite = testSuiteNamed("VehicleRun");
-        when(vehicleSuite.getUri()).thenReturn("file://test.xlsx#Sheet1!A20");
+        when(vehicleSuite.getTableId()).thenReturn("vehiclerunqtvzmx");
         var vehicle = runTableOf(vehicleSuite, retained(returning("1", vehiclePremium)));
         ended(List.of(driver, vehicle));
 
@@ -510,7 +508,7 @@ class ProjectsControllerTestsSummaryTest {
         return results;
     }
 
-    /** A test table of the given name, at the cell {@link #TABLE_ID} is made from. */
+    /** A test table of the given name, known by {@link #TABLE_ID}. */
     private static TestSuite testSuiteNamed(String name) {
         var testSuite = mock(TestSuite.class);
         var testMethod = mock(TestSuiteMethod.class);
@@ -521,6 +519,7 @@ class ProjectsControllerTestsSummaryTest {
         var properties = mock(ITableProperties.class);
         when(testSuite.getTestSuiteMethod()).thenReturn(testMethod);
         when(testSuite.getUri()).thenReturn(TABLE_URI);
+        when(testSuite.getTableId()).thenReturn(TABLE_ID);
         when(testSuite.getTestedMethod()).thenReturn(testedMethod);
         when(testedMethod.getSignature()).thenReturn(signature);
         when(signature.getParameterTypes()).thenReturn(new IOpenClass[0]);

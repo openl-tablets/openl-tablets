@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "d2bb169ab4ac556aa8b147f99a723719",
+  "id": "-b0baIgG3csSInyH",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "CoverageRate",

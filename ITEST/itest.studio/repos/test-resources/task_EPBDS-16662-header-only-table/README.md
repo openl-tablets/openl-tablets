@@ -20,7 +20,8 @@ alone, and a datatype that is a header alone.
 `030-completion` — the unfinished tables are completed the two ways a table is written:
 
 - `010-the-editor-completes-the-spreadsheet-with-the-grid` — the grid the editor saves, header and body rows,
-  goes over the header alone.
+  goes over the header alone. The header now names the spreadsheet, which it did not, so the table is answered
+  under the new id that name gives it.
 - `020-the-completed-spreadsheet-compiles` — the listing now names it a `SimpleSpreadsheet` with no error.
 - `030-a-form-completes-the-datatype-under-its-header` — a datatype form written over the header alone.
 - `040-the-datatype-reads-back-with-its-fields` — the header stayed where it was and the fields stand under it,

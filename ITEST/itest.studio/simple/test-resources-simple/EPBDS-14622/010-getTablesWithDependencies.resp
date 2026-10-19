@@ -3,7 +3,7 @@ Content-Type: application/json
 
 [
   {
-    "id": "ff067a15cc30e1d50d7c2d18daede2d4",
+    "id": "2YrC8EoAVhi9ZDaf",
     "tableType": "*",
     "kind": "*",
     "name": "doSomething",
@@ -15,18 +15,18 @@ Content-Type: application/json
     "module": "MethodDispatcherTree"
   },
   {
-    "id": "dispatcher:0022505ccf87b48c1f6d8eb0cc10c360",
+    "id": "dispatcher:-MWy0IigDKB3hg0K",
     "kind": "*",
     "name": "mySPR",
     "project": "EPBDS-14622",
     "module": "MethodDispatcherTree",
     "dependencies": [
-      "0022505ccf87b48c1f6d8eb0cc10c360",
-      "c4bd742f16c5e9e7c01010657f15f511"
+      "-MWy0IigDKB3hg0K",
+      "kyoOrr13o9X7Sm0y"
     ]
   },
   {
-    "id": "0022505ccf87b48c1f6d8eb0cc10c360",
+    "id": "kyoOrr13o9X7Sm0y",
     "tableType": "*",
     "kind": "*",
     "name": "mySPR [state=AR]",
@@ -42,14 +42,14 @@ Content-Type: application/json
     "project": "EPBDS-14622",
     "module": "MethodDispatcherTree",
     "dependencies": [
-      "ff067a15cc30e1d50d7c2d18daede2d4"
+      "2YrC8EoAVhi9ZDaf"
     ],
     "dimensionProperties": {
       "US States": "AR"
     }
   },
   {
-    "id": "c4bd742f16c5e9e7c01010657f15f511",
+    "id": "-MWy0IigDKB3hg0K",
     "tableType": "*",
     "kind": "*",
     "name": "mySPR [state=AZ]",
@@ -69,7 +69,7 @@ Content-Type: application/json
     }
   },
   {
-    "id": "5be921e8f1131e383b0f63c4da0661ef",
+    "id": "Ov8jf4irhSJ-akKA",
     "tableType": "*",
     "kind": "*",
     "name": "theCall",
@@ -85,7 +85,7 @@ Content-Type: application/json
     "project": "EPBDS-14622",
     "module": "MethodDispatcherTree",
     "dependencies": [
-      "dispatcher:0022505ccf87b48c1f6d8eb0cc10c360"
+      "dispatcher:-MWy0IigDKB3hg0K"
     ],
     "dimensionProperties": {
       "US States": "AZ"

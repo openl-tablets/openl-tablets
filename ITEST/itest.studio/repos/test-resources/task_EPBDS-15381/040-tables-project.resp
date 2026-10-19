@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "98d0fbd4f35d05522a1a557864552a70",
+      "id": "6_KUAg4niIpOlrpR",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "CoverageForm",
@@ -17,7 +17,7 @@ Content-Type: application/json
       "signature": "CoverageForm"
     },
     {
-      "id": "572eb024e1c3f2b1b94d76740067e605",
+      "id": "dyJhxjCCi47OUoAE",
       "tableType": "Data",
       "kind": "Data",
       "name": "CoverageFormData",
@@ -30,7 +30,7 @@ Content-Type: application/json
       "signature": "CoverageForm CoverageFormData"
     },
     {
-      "id": "d2bb169ab4ac556aa8b147f99a723719",
+      "id": "-b0baIgG3csSInyH",
       "tableType": "SmartLookup",
       "kind": "Rules",
       "name": "CoverageRate",
@@ -45,7 +45,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ=="
     },
     {
-      "id": "5d64e98cfb043d16d9aedc659e4b2674",
+      "id": "sKyaKpAP5uFcfmEs",
       "tableType": "Test",
       "kind": "Test",
       "name": "CoverageRateTest",
@@ -58,7 +58,7 @@ Content-Type: application/json
       "signature": "CoverageRate CoverageRateTest"
     },
     {
-      "id": "5bd8922c903afffdfb749b3841eddcf1",
+      "id": "K5RdpkFaaNm3Yd5t",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "Greeting1",
@@ -73,7 +73,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ=="
     },
     {
-      "id": "35496a553200efac713de14c74b2b525",
+      "id": "ZEoZWk55403nhBT2",
       "tableType": "Test",
       "kind": "Test",
       "name": "Greeting1Test",
@@ -86,7 +86,7 @@ Content-Type: application/json
       "signature": "Greeting1 Greeting1Test"
     },
     {
-      "id": "6b8777a24966c7a25664a0d492d112e3",
+      "id": "uB_J-TA0RNqPsbFy",
       "tableType": "SimpleLookup",
       "kind": "Rules",
       "name": "IsAdequateMaxCreditRiskScore",
@@ -101,7 +101,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ=="
     },
     {
-      "id": "7bba2e7cd1c547716d17dfd37f6b79ee",
+      "id": "thmAdUq1oUM63t8O",
       "tableType": "Test",
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",

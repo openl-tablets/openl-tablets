@@ -11,6 +11,7 @@ import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTable;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
@@ -34,7 +35,7 @@ public final class DefaultSourceClassifier implements SourceClassifier {
         if (kind == null || !(source instanceof ExecutableRulesMethod method)) {
             return null;
         }
-        return new FrameDescriptor(kind, method.getSourceUrl(), method.getName());
+        return new FrameDescriptor(kind, method.getSourceUrl(), method.getName(), TableIds.idOf(method.getInfo()));
     }
 
     private static @Nullable FrameKind frameKind(Object source) {

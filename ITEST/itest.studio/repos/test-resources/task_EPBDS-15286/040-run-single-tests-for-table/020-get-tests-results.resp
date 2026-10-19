@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "TotalBalanceScoreTest",
-      "tableId": "409387032863ebdc11824a5af4d11ddc",
+      "tableId": "9bRNNsvnfHz1fRkd",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,

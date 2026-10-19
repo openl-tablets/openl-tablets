@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "baeaff5bd2d50c80338527e32212efeb",
+      "id": "aEtzfXEiwn8g1OlT",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BalanceDynamicIndexCalculation",
@@ -22,7 +22,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "ce9a3676a2a272d98f12a32f21d22a53",
+      "id": "jSs7DDZ8FLGXfE99",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BalanceQualityIndexCalculation",
@@ -40,7 +40,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "e368e23c6eeff1a61afce3e409dc55b1",
+      "id": "O3XCLRJXWm1t0kk7",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Bank",
@@ -53,7 +53,7 @@ Content-Type: application/json
       "signature": "Bank"
     },
     {
-      "id": "32b51d4ed984fe0fbd7b723898cb42dc",
+      "id": "qwamAzbWPT2g-HEt",
       "tableType": "Data",
       "kind": "Data",
       "name": "bankData",
@@ -66,7 +66,7 @@ Content-Type: application/json
       "signature": "Bank bankData"
     },
     {
-      "id": "4508daa0239982cfa3e8934a3c09d3a4",
+      "id": "3GcuLrLIytywVL69",
       "tableType": "Data",
       "kind": "Data",
       "name": "bankFinancialData",
@@ -79,7 +79,7 @@ Content-Type: application/json
       "signature": "FinancialData bankFinancialData"
     },
     {
-      "id": "43db5288b8e3d23e8ed11a47b5261df5",
+      "id": "SLS0KUPH8Eb16-2X",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndex",
@@ -94,7 +94,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "c7c394c0fa1cf3e2473cca78ab85adee",
+      "id": "_aZ41wyLNB9PsKYf",
       "tableType": "Test",
       "kind": "Test",
       "name": "BankLimitIndexTest",
@@ -107,7 +107,7 @@ Content-Type: application/json
       "signature": "BankLimitIndex BankLimitIndexTest"
     },
     {
-      "id": "6abe748545ac15a99015f58ba1ec82cd",
+      "id": "A9kaXt62KZalu3ow",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BankQualitativeIndexCalculation",
@@ -125,7 +125,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "9d4f0bbdee0333fc9a1baef8edf7a43d",
+      "id": "GfkSq45fJbhXZQ5S",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "BankRatingCalculation",
@@ -143,7 +143,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "6c5c8a95400af4a9bfd2e73a4e0600f1",
+      "id": "etzMSGqMmmvCYLuF",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "BankRatingGroup",
@@ -158,7 +158,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "4e1f62e1ca5efe8f483c4b759bbc8b4a",
+      "id": "xqhs_BeG4jcnfPIQ",
       "tableType": "Test",
       "kind": "Test",
       "name": "BankRatingGroupTest",
@@ -171,7 +171,7 @@ Content-Type: application/json
       "signature": "BankRatingGroup BankRatingGroupTest"
     },
     {
-      "id": "acfd3e56b9f6f069e4c88056fd0debd9",
+      "id": "0GHln71UGAVt1NVg",
       "tableType": "Data",
       "kind": "Data",
       "name": "bankRatingList",
@@ -184,7 +184,7 @@ Content-Type: application/json
       "signature": "Rating bankRatingList"
     },
     {
-      "id": "7f166a5dc83968b5b8f503949c062df4",
+      "id": "lEmSGDeRGlvoEv9y",
       "tableType": "Test",
       "kind": "Test",
       "name": "BankRatingTest",
@@ -197,7 +197,7 @@ Content-Type: application/json
       "signature": "BankRatingCalculation BankRatingTest"
     },
     {
-      "id": "de007c27106a96682484745cde639bc1",
+      "id": "_nc3ePtRlTjqyHxt",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "CapitalAdequacyScore",
@@ -212,7 +212,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "d2c0ba80e682d12711d1c1c4637ae296",
+      "id": "x7ht2m231W3COX5x",
       "tableType": "Test",
       "kind": "Test",
       "name": "CapitalAdequacyScoreTest",
@@ -225,7 +225,7 @@ Content-Type: application/json
       "signature": "CapitalAdequacyScore CapitalAdequacyScoreTest"
     },
     {
-      "id": "68de41fd9e5c838847d0a326aa3d4ecc",
+      "id": "s18zm7dSnOprFdVD",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "CapitalDynamicScore",
@@ -239,7 +239,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "f1e54a45fcc1202048bd2296650b6052",
+      "id": "N_K0BlUto7sBC5Xn",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "ClaimsOnCustomerRatioScore",
@@ -253,7 +253,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "db477e930ac26d290e9aefce1c9c75b0",
+      "id": "4jYDRCUma_ZuBPCG",
       "tableType": "Constants",
       "kind": "Constants",
       "name": "Constants",
@@ -265,7 +265,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "fc9ed95f1be5c48741ef1a7659b131cd",
+      "id": "-cSEEN17HrAWKOxq",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "CountryCode",
@@ -278,7 +278,7 @@ Content-Type: application/json
       "signature": "CountryCode <String>"
     },
     {
-      "id": "db743662e9cedaa9c4cb15836499ad68",
+      "id": "ki9Gyx1o84zqdl4l",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "CreditPortfolioQualityScore",
@@ -292,7 +292,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "413e78631702378b9ea61214add094b1",
+      "id": "RHKL53mJxTWrxCnZ",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "DowngradesOfBankRatingScore",
@@ -306,7 +306,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "498e83aa2c5328e7106a552981665f8f",
+      "id": "kMTO_LR22gSfZTd0",
       "tableType": "Test",
       "kind": "Test",
       "name": "DynamicIndexTest",
@@ -319,7 +319,7 @@ Content-Type: application/json
       "signature": "BalanceDynamicIndexCalculation DynamicIndexTest"
     },
     {
-      "id": "1b662e47225b661a5bc640d67a79dea6",
+      "id": "mp3SmoeV5N_4b9Hy",
       "tableType": "SimpleLookup",
       "kind": "Rules",
       "name": "EquityScore",
@@ -334,7 +334,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "33e58b7caf7b35b2489cb4b4b808c90c",
+      "id": "5sI54FlRtghu6rVM",
       "tableType": "Test",
       "kind": "Test",
       "name": "EquityScoreTest",
@@ -347,7 +347,7 @@ Content-Type: application/json
       "signature": "EquityScore EquityScoreTest"
     },
     {
-      "id": "4269424f88da4155ef4525b550ae666d",
+      "id": "_ICUy0zQQueam8_F",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "FinancialData",
@@ -360,7 +360,7 @@ Content-Type: application/json
       "signature": "FinancialData"
     },
     {
-      "id": "e37e6cd233ff262b1316a2b4ae3c9acb",
+      "id": "ChRoCg3twTXwUaZX",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "HighLiquidityRatioScore",
@@ -374,7 +374,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "9de4ab56147c7f9a53871f6a0ac8abde",
+      "id": "N06ZrEXiJmaIJcGG",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "IsAdequateCoreCapitalRatioScore",
@@ -388,7 +388,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "003576ebe8ef2c675b2c293661f690ee",
+      "id": "PqeoPsBcVUkv0Lpn",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "IsAdequateLiquidityRatioScore",
@@ -402,7 +402,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "d585f96f7b004237ad7b362be6d3c564",
+      "id": "ZgzgIXsgnUy2bdCt",
       "tableType": "SimpleLookup",
       "kind": "Rules",
       "name": "IsAdequateMaxCreditRiskScore",
@@ -417,7 +417,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "dc969d0c15ce334647d7e0a581ca9b25",
+      "id": "wWP4XX2I5DieV_2U",
       "tableType": "Test",
       "kind": "Test",
       "name": "IsAdequateMaxCreditRiskScoreTest",
@@ -430,7 +430,7 @@ Content-Type: application/json
       "signature": "IsAdequateMaxCreditRiskScore  IsAdequateMaxCreditRiskScoreTest"
     },
     {
-      "id": "ddc706874f6993e6bd89d36e6b657bf7",
+      "id": "jPf925x6w5C75QF0",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "IsAdequateNormativeIndexCalculation",
@@ -448,7 +448,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "b17a0e7b042656a9507588adf95364e1",
+      "id": "5GCYTB74KAfMzOIK",
       "tableType": "Test",
       "kind": "Test",
       "name": "IsAdequateNormativeIndexTest",
@@ -461,7 +461,7 @@ Content-Type: application/json
       "signature": "IsAdequateNormativeIndexCalculation IsAdequateNormativeIndexTest"
     },
     {
-      "id": "b2f39f26ad5786cafee140338de1fc23",
+      "id": "h0c0IEZEiEqcotjk",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiabilitiesToCustomersDynamicScore",
@@ -475,7 +475,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "bd6df101f02e069133109f51a7807f70",
+      "id": "q4wzksOtzqphdaOl",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiabilitiesToCustomersOnDemandRatioScore",
@@ -489,7 +489,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "ea45ae6ff63f59f1fefb965274238647",
+      "id": "AnQu1FgWl1hu6DRn",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiquidityDynamicScore",
@@ -503,7 +503,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "38ef30292bcc103f13b36768d56fbf74",
+      "id": "WEq5nPMcxcCQXpXi",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LiquidityRatioScore",
@@ -517,7 +517,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "345c7f02f51dc523ade3f2cf95dc18b2",
+      "id": "0kP01Cy5ShSwvbEd",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "LongTermRating",
@@ -530,7 +530,7 @@ Content-Type: application/json
       "signature": "LongTermRating <String>"
     },
     {
-      "id": "8c1337a587becd5e6eed607b28549537",
+      "id": "ee1i1GAKRm_9Lqeo",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "LossesInThisYearScore",
@@ -545,7 +545,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "be9862b7f27e117d5c06dda723f621ea",
+      "id": "q1EiDycyl2dcDNZd",
       "tableType": "Test",
       "kind": "Test",
       "name": "LossesInThisYearScoreTest",
@@ -558,7 +558,7 @@ Content-Type: application/json
       "signature": "LossesInThisYearScore LossesInThisYearScoreTest"
     },
     {
-      "id": "df06c45f6216acf1921960f6114f26da",
+      "id": "tCViALZ7gutIfTRh",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NegativeHistoryRelationsScore",
@@ -572,7 +572,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "c87f0f5b1f4770155c45fe8011ae8854",
+      "id": "ddW9wegAxkWi1QAH",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NegativeInfoShareHoldersOrManagementScore",
@@ -586,7 +586,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "4d004cf468b4c3c051d0619215369fe3",
+      "id": "BrbRhb8dCQzWEa3b",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NegativeMassMediaScore",
@@ -600,7 +600,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "5aea89bc0a31d507fc61dfdda675abbf",
+      "id": "9E55kYfojDcLh7R7",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "NetMoneyMarketLiabilitiesScore",
@@ -614,7 +614,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "db294e14382ad512fe7f7888accbc989",
+      "id": "MHcjMCscCdxbwDos",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "NonZeroValues",
@@ -628,7 +628,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "cbc92a9fd8f75c5ab653f81fb5f8ae05",
+      "id": "SFb5Lm6OeYvtYqB5",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "OtherAssetsRatioScore",
@@ -642,7 +642,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "68dbbd59bd38f643bbe34eaf7da2c5cb",
+      "id": "MpkADbkBmqTk20fO",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "ProfitDynamicScore",
@@ -657,7 +657,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduOkVQQkRTLTE1OTk4LWRi"
     },
     {
-      "id": "67a936ac8ac9c20be5ccbdf407ef0865",
+      "id": "_4Qe0peyb0pIz1Cf",
       "tableType": "Test",
       "kind": "Test",
       "name": "ProfitDynamicScoreTest",
@@ -670,7 +670,7 @@ Content-Type: application/json
       "signature": "ProfitDynamicScore ProfitDynamicScoreTest"
     },
     {
-      "id": "aecfc64c9ad292e81ca03213036322d5",
+      "id": "L7GzGqqJr4wJZ5cW",
       "tableType": "Test",
       "kind": "Test",
       "name": "QualitativeIndexTest",
@@ -683,7 +683,7 @@ Content-Type: application/json
       "signature": "BankQualitativeIndexCalculation QualitativeIndexTest"
     },
     {
-      "id": "90c597c9115cd89ad8ed222a8b8938f5",
+      "id": "srvOZFlfL5iVtrOs",
       "tableType": "Test",
       "kind": "Test",
       "name": "QualityIndexTest",
@@ -696,7 +696,7 @@ Content-Type: application/json
       "signature": "BalanceQualityIndexCalculation QualityIndexTest"
     },
     {
-      "id": "70bf6d64135bb4b66cd4e94d31add342",
+      "id": "0PqyBgEOBBYY3fRK",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "QualityIndicators",

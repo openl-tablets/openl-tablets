@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "c6b479d0645a4fea79b818f569295462",
+  "id": "mcFnbqsfZUFNuZ46",
   "tableType": "RawSource",
   "kind": "Test",
   "name": "LossFreeDiscountCalcTest",

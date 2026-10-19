@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "Vocabulary",
-  "id": "da1f4603fa80458412457592fd5f6459",
+  "id": "nKZ_ovEd4LGYsKPB",
   "kind": "Datatype",
   "name": "Color",
   "type": "String",

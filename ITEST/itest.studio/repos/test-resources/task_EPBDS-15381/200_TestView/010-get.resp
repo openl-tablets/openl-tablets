@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "5d64e98cfb043d16d9aedc659e4b2674",
+  "id": "sKyaKpAP5uFcfmEs",
   "tableType": "Test",
   "kind": "Test",
   "name": "CoverageRateTest",

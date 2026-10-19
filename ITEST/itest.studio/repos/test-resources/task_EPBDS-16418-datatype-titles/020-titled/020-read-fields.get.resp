@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "2d6cb3440c469254c696d1d55745882e",
+  "id": "rawSX9rwhm43Uffs",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "TitledType",

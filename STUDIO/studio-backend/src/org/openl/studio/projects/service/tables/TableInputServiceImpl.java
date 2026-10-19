@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.context.DefaultRulesRuntimeContext;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -59,7 +58,7 @@ public class TableInputServiceImpl extends AbstractMethodExecutorService impleme
             throw new NotFoundException("table.message");
         }
         var builder = TableInputView.builder()
-                .tableId(TableUtils.makeTableId(table.getUri()))
+                .tableId(table.getId())
                 .name(method.getName());
         if (method instanceof TestSuiteMethod) {
             return builder.parameters(List.of()).build();

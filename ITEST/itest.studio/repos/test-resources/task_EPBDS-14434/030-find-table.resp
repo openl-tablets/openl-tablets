@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "30507d65bb546d53797e0ab23f25a719",
+      "id": "d_sIvCoPZqci7djy",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "FicaTaxRates",

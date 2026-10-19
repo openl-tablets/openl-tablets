@@ -16,7 +16,6 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -421,7 +420,7 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                             // between the versions of an overloaded rule sits in no workbook, and is opened
                             // through the module it is reached from. A word naming no table is told what it
                             // means and offered no way in.
-                            .tableId(where == null ? null : TableUtils.makeTableId(node.getUri()))
+                            .tableId(where == null ? null : modules.tableIdOf(node.getUri()))
                             .module(where == null ? null : where.module())
                             .projectId(where == null ? null : where.projectId())
                             .kind(RawTableUsageKind.of(node.getNodeType()))

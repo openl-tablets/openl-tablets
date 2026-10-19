@@ -57,6 +57,7 @@ public final class DebugFrame {
     private final FrameKind kind;
     private final Object source;
     private final String uri;
+    private final @Nullable String tableId;
     private final String name;
     private final @Nullable Object target;
     private final Object[] params;
@@ -98,6 +99,7 @@ public final class DebugFrame {
                       int depth) {
         this.kind = descriptor.kind();
         this.uri = descriptor.uri();
+        this.tableId = descriptor.tableId();
         this.name = descriptor.name();
         this.source = source;
         this.target = target;

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "c926ad554329f8a5caccf920cd8600ad",
+  "id": "zW8osSs3B6Ld7aUh",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "collectSmartLookup",
@@ -13,7 +13,7 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "c926ad554329f8a5caccf920cd8600ad",
+        "id": "zW8osSs3B6Ld7aUh",
         "name": "collectSmartLookup",
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU3MDE6MGI5NGE2YWMxZWNlMGZkMzZhNDBlMTgyZjJiYzE2ZDZmY2M3YzZkNmIyZjc1NTMwMGNiMTk5MTYyODBkYzcxYw==",
         "project": "EPBDS-15701",

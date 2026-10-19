@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+  "id": "w-yASx2cfJBGvUEN",
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "CoverageRate",
@@ -13,7 +13,7 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+        "id": "w-yASx2cfJBGvUEN",
         "name": "CoverageRate",
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",
@@ -30,7 +30,7 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "089f8508b0ec1284de97ba1c27ac5f7a",
+        "id": "w-yASx2cfJBGvUEN",
         "name": "CoverageRate",
         "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTU0MDk6YzY2MTYxYjkxY2JmYjNiYzFkMzFlNDU5MGQyNzY1YTUxZjlhMDdiMzViYmYxMjFmYThmOGM4NTcyNzIyNTA2Mg==",
         "project": "EPBDS-15409",

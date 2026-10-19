@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+      "id": "qfQLNvJhaYZq1VDe",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Cat",
@@ -17,7 +17,7 @@ Content-Type: application/json
       "signature": "Cat extends Pet"
     },
     {
-      "id": "da1f4603fa80458412457592fd5f6459",
+      "id": "nKZ_ovEd4LGYsKPB",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "Color",
@@ -30,7 +30,7 @@ Content-Type: application/json
       "signature": "Color <String>"
     },
     {
-      "id": "6e3e97fd6994ad50150bd2f3d86ec198",
+      "id": "luLstmM7OBD_bAFL",
       "tableType": "SimpleSpreadsheet",
       "kind": "Spreadsheet",
       "name": "doSomething_SimpleSpr",
@@ -44,7 +44,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
     },
     {
-      "id": "ef262571777142b68c588757728ae75d",
+      "id": "V9xCvTvnraHzgCxd",
       "tableType": "SimpleSpreadsheet",
       "kind": "Spreadsheet",
       "name": "doSomething_SimpleSpr_HO",
@@ -61,7 +61,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
     },
     {
-      "id": "8c9074f72b0f996f3dce688449a76dd2",
+      "id": "_u_1OpspEXIr4Nm2",
       "tableType": "Spreadsheet",
       "kind": "Spreadsheet",
       "name": "pamPam",
@@ -75,7 +75,7 @@ Content-Type: application/json
       "projectId": "ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA=="
     },
     {
-      "id": "35ce2623bfcdb41b66079342a8e78342",
+      "id": "q3AzQJRmMIFYcIG_",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Pet",
@@ -91,7 +91,7 @@ Content-Type: application/json
       "signature": "Pet"
     },
     {
-      "id": "9805b76ba5af036d6cfc387a5957daa4",
+      "id": "KAV3-f_DFC8P7JX8",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "sayHello",

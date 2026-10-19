@@ -1,9 +1,9 @@
-PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/d2bb169ab4ac556aa8b147f99a723719 HTTP/1.1
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTUzODE6YzE2YmM1ZWM0MGU0YTY5ZjUyMWUzMTM1N2RjMmE0MmYyNzkyNGU1MjZhZWJiM2Q2NTFlZjAwY2YxMDIzNjNmOQ==/tables/-b0baIgG3csSInyH HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-  "id": "d2bb169ab4ac556aa8b147f99a723719",
+  "id": "-b0baIgG3csSInyH",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "CoverageRate",

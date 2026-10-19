@@ -1,10 +1,10 @@
-PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==/tables/8c9074f72b0f996f3dce688449a76dd2 HTTP/1.1
+PUT /rest/projects/ZGVzaWduLWZsYXQ6RVBCRFMtMTM5MzE6ZWY0ODhhZDczNzE2OGI4M2UyMjc3NzExM2I1ZDhjNzMyMzc4ODEzMjVjYWVhYjRhNzI0ZjU2ODg3YjlmMDYzNA==/tables/_u_1OpspEXIr4Nm2 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
   "tableType": "Spreadsheet",
-  "id": "8c9074f72b0f996f3dce688449a76dd2",
+  "id": "_u_1OpspEXIr4Nm2",
   "kind": "Spreadsheet",
   "name": "pamPam",
   "returnType": "SpreadsheetResult",

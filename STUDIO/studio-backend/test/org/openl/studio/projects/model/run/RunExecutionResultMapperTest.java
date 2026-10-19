@@ -33,7 +33,7 @@ import org.openl.types.IOpenMethod;
 @ExtendWith(MockitoExtension.class)
 class RunExecutionResultMapperTest {
 
-    private static final String TABLE_URI = "file://test.xlsx#Sheet1!A1";
+    private static final String TABLE_ID = "k3q7v2m5xahd4r2b";
     private static final String TABLE_NAME = "TestTable";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -56,7 +56,7 @@ class RunExecutionResultMapperTest {
     void setUp() {
         mapper = new RunExecutionResultMapper(objectMapper, schemaGenerator, null);
         when(results.getTestSuite()).thenReturn(testSuite);
-        when(testSuite.getUri()).thenReturn(TABLE_URI);
+        when(testSuite.getTableId()).thenReturn(TABLE_ID);
         when(testSuite.getTestedMethod()).thenReturn(executedMethod);
         when(executedMethod.getName()).thenReturn(TABLE_NAME);
     }
@@ -69,7 +69,7 @@ class RunExecutionResultMapperTest {
         var result = mapper.mapResult(results, true);
 
         assertEquals(TABLE_NAME, result.tableName());
-        assertNotNull(result.tableId());
+        assertEquals(TABLE_ID, result.tableId());
         assertEquals(2.0, result.executionTimeMs(), 0.001);
         assertNull(result.result());
         assertNull(result.resultSchema());

@@ -84,7 +84,7 @@ public class TableCreatorService {
      * <p>The table is stamped as created once it is written, so its author and creation date are recorded the same
      * way for a table written here and for one copied.
      *
-     * @return identifier of the table at its written position
+     * @return the identifier the table is known by once its module is compiled again
      */
     public String createTable(CreateNewTableRequest createTableRequest, ProjectModel projectModel) {
         var table = (TableView) createTableRequest.table();
@@ -92,6 +92,8 @@ public class TableCreatorService {
 
         var gridModel = sheetGridModel(projectModel, resolveSheetName(createTableRequest));
         var tableWriter = tableWritersFactory.getNewTableWriter(table, gridModel);
+        // The new table is numbered among the tables of its module, as its next compile numbers it.
+        tableWriter.setModule(projectModel.getXlsModuleNode());
         if (carriesProperties(table.kind)) {
             tableWriter.stampWith(systemPropertiesService.onCreate());
         }

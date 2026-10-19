@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableId": "b3fd0f2fb189985fb59c36fbd06e00ee",
+  "tableId": "cGVXBE-T1WwaTEpB",
   "name": "myRule2",
   "parameters": [
     {

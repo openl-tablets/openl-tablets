@@ -7,7 +7,7 @@ package org.openl.rules.tableeditor.model;
 import java.io.IOException;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
-import org.openl.rules.lang.xls.syntax.TableUtils;
+import org.openl.rules.lang.xls.syntax.TableIds;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.GridTableUtils;
@@ -57,14 +57,31 @@ public class TableEditorModel {
     }
 
     /**
-     * @return New table id on the sheet where it was saved. It is needed for tables that were moved to new place during
-     * adding new rows and columns on editing. We need to know new destination of the table.
+     * Saves the workbook of the table.
+     *
+     * <p>A table keeps its id when an edit moves it to make room for a property it takes; a new {@code id} property
+     * gives it a new one.
+     *
+     * @return the id of the table as saved
      */
     public String save() throws IOException {
         var xlsgrid = (XlsSheetGridModel) gridTable.getGrid();
+        // Read while the table is open for writing: once saved, the sheet is read as it was compiled.
+        var id = keepTableId();
         xlsgrid.getSheetSource().getWorkbookSource().save();
-        var uri = getOriginalGridTable().getUri();
-        return TableUtils.makeTableId(uri);
+        return id;
+    }
+
+    /**
+     * The id of the table as edited so far.
+     *
+     * <p>A table that a property moved to make room for itself keeps the id it had, also among the tables that share
+     * what it is. A new {@code id} property gives it a new one. Read while the table is open for writing.
+     *
+     * @return the id of the table as edited
+     */
+    public String keepTableId() {
+        return TableIds.idAfterWrite(table.getSyntaxNode(), getOriginalGridTable());
     }
 
     public void setProperty(String name, Object value) {

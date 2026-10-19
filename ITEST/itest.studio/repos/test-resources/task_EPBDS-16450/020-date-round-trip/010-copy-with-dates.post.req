@@ -1,4 +1,4 @@
-POST /rest/projects/EPBDS-16450/tables/1fa70febac8963814fc05ffbdfd307a1/copy HTTP/1.1
+POST /rest/projects/EPBDS-16450/tables/ehJGxXN1NlA0m0gm/copy HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

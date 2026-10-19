@@ -19,7 +19,6 @@ import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
@@ -77,7 +76,7 @@ class RawTableMetaInfoTest {
         assertEquals("Address", String.valueOf(typeCell.value()).substring(usage.start(), usage.end()));
         assertEquals(RawTableUsageKind.DATATYPE, usage.kind());
         // The table is named by the identifier the Tables API addresses it by, not by where the engine keeps it.
-        assertEquals(TableUtils.makeTableId(table("Address").getUri()), usage.tableId());
+        assertEquals(table("Address").getId(), usage.tableId());
         // The editor opens a module and reads a table through it, so the usage names that module too.
         assertEquals(projectModel.getModuleInfo().getName(), usage.module());
         assertNotNull(usage.description());

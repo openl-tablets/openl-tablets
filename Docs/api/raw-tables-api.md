@@ -209,8 +209,9 @@ The `metaInfo` of a cell has these fields, each of which is absent when the comp
   `description`, a `kind` (`rule`, `datatype`, `data`, `field`, `underlined`, or `other`), and, for a table, its
   `tableId`, `module`, and `projectId`. A rule written in several versions names the table the compiler built to
   choose between them (`validateGapOverlap_<rule name>`), in the module the cell is read through. That table is
-  read through the same module, its `runState` is `cannot-run`, and its `tableId` changes with every compilation of
-  the module. Nothing but the compiler writes it: editing, copying, running, tracing or benchmarking it answers
+  read through the same module, its `runState` is `cannot-run`, and its `tableId` is made of its name, so it stays
+  the same from one compilation to the next. Nothing but the compiler writes it: editing, copying, running, tracing
+  or benchmarking it answers
   `400` with `openl.error.400.table.generated.message`, which names the table.
 - `type` — the type that the cell holds.
 - `returnCell` — `true` for the cell that a decision table returns.
@@ -308,7 +309,7 @@ The answer is `201 Created` with the summary of the new table.
 ### Responses
 
 A replacement and an append answer `204 No Content`, or `200 OK` with the new table id and the `Location` header when
-the table had no room to grow and moved; see [Data Tables API](data-tables-api.md#responses).
+the write renamed the table; see [Data Tables API](data-tables-api.md#responses).
 
 ### Formatted on Save
 
@@ -374,7 +375,8 @@ A cell of a request has a `value`, optional `colspan` and `rowspan`, and `covere
 {"operation": "merge", "target": {"type": "cells", "row": 3, "column": 0, "rowspan": 1, "colspan": 2}}
 ```
 
-The answer is `204 No Content`, or `200 OK` with the new table id and the `Location` header when the table moved.
+The answer is `204 No Content`, or `200 OK` with the new table id and the `Location` header when the edit renamed
+the table.
 
 **Refusals** (`400`):
 

@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.TestDescription;
@@ -85,7 +84,7 @@ public class BenchmarkExecutorServiceImpl extends AbstractMethodExecutorService 
                                                       TestSuite testSuite,
                                                       boolean currentOpenedModule) throws InterruptedException {
         var openClass = compiledOpenClass(projectModel, currentOpenedModule).getOpenClassWithErrors();
-        var measured = new Measured(TableUtils.makeTableId(testSuite.getUri()),
+        var measured = new Measured(testSuite.getTableId(),
                 moduleOf(projectModel, testSuite.getUri()),
                 nameOf(testSuite, table),
                 testSuite.getTestSuiteMethod() != null,

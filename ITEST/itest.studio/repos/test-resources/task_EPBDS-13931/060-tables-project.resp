@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "b1752a3c28d3e9c09e9b8db5f2b0e4ba",
+      "id": "qfQLNvJhaYZq1VDe",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Cat",
@@ -17,7 +17,7 @@ Content-Type: application/json
       "signature": "Cat extends Pet"
     },
     {
-      "id": "da1f4603fa80458412457592fd5f6459",
+      "id": "nKZ_ovEd4LGYsKPB",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "Color",
@@ -30,7 +30,7 @@ Content-Type: application/json
       "signature": "Color <String>"
     },
     {
-      "id": "35ce2623bfcdb41b66079342a8e78342",
+      "id": "q3AzQJRmMIFYcIG_",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Pet",

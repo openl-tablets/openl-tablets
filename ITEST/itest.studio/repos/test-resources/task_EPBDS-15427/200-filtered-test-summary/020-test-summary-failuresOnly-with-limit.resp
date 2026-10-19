@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "BankRatingGroupTest",
-      "tableId": "15e6cf0af151bda0361c7fcf3f57b52d",
+      "tableId": "xqhs_BeG4jcnfPIQ",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 5,
@@ -46,7 +46,7 @@ Content-Type: application/json
     },
     {
       "name": "CapitalAdequacyScoreTest",
-      "tableId": "e330475dab5410390947e63ef88df41f",
+      "tableId": "x7ht2m231W3COX5x",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
@@ -80,7 +80,7 @@ Content-Type: application/json
     },
     {
       "name": "TotalBalanceScoreTest",
-      "tableId": "a951c4dde77b537c8af285090fef182e",
+      "tableId": "9bRNNsvnfHz1fRkd",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
@@ -143,7 +143,7 @@ Content-Type: application/json
     },
     {
       "name": "BankLimitIndexTest",
-      "tableId": "786f9d6a8a1c247811e71dd1f870ebfd",
+      "tableId": "_aZ41wyLNB9PsKYf",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -151,7 +151,7 @@ Content-Type: application/json
     },
     {
       "name": "BankRatingTest",
-      "tableId": "4a8cf60f081bb2e49da09c88fc06c663",
+      "tableId": "lEmSGDeRGlvoEv9y",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -159,7 +159,7 @@ Content-Type: application/json
     },
     {
       "name": "DynamicIndexTest",
-      "tableId": "4548092b1b5f499622dba47b88873ac7",
+      "tableId": "kMTO_LR22gSfZTd0",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -167,7 +167,7 @@ Content-Type: application/json
     },
     {
       "name": "EquityScoreTest",
-      "tableId": "d028b6994dd3841fadd941da6c998312",
+      "tableId": "5sI54FlRtghu6rVM",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
@@ -175,7 +175,7 @@ Content-Type: application/json
     },
     {
       "name": "IsAdequateMaxCreditRiskScoreTest",
-      "tableId": "15b2f6665966da7a7e1678b78333b64e",
+      "tableId": "wWP4XX2I5DieV_2U",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
@@ -183,7 +183,7 @@ Content-Type: application/json
     },
     {
       "name": "IsAdequateNormativeIndexTest",
-      "tableId": "daeddb1471de275a5f3527777c77a1e7",
+      "tableId": "5GCYTB74KAfMzOIK",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -191,7 +191,7 @@ Content-Type: application/json
     },
     {
       "name": "LossesInThisYearScoreTest",
-      "tableId": "0f1ecc0343403c96f4ea0a6dc5167a3d",
+      "tableId": "q1EiDycyl2dcDNZd",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 2,
@@ -199,7 +199,7 @@ Content-Type: application/json
     },
     {
       "name": "ProfitDynamicScoreTest",
-      "tableId": "3204477e4a9815606f0cbb42284237f2",
+      "tableId": "_4Qe0peyb0pIz1Cf",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 4,
@@ -207,7 +207,7 @@ Content-Type: application/json
     },
     {
       "name": "QualitativeIndexTest",
-      "tableId": "8363076eb1ec04e8d7aeb84a06db44e1",
+      "tableId": "L7GzGqqJr4wJZ5cW",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -215,7 +215,7 @@ Content-Type: application/json
     },
     {
       "name": "QualityIndexTest",
-      "tableId": "22dbcb4d8a67e8f4c6ec4267534bddc6",
+      "tableId": "srvOZFlfL5iVtrOs",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,
@@ -223,7 +223,7 @@ Content-Type: application/json
     },
     {
       "name": "SetNonZeroValuesTest",
-      "tableId": "e4ba33fb5e210b214a613ca1f14ff98c",
+      "tableId": "bhNxSLRNK9xRuwYF",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,

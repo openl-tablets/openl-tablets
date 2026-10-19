@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "eb371809463ad5de586563bd08dbdef9",
+      "id": "ehJGxXN1NlA0m0gm",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndex",

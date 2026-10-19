@@ -3,7 +3,7 @@ Content-Type: application/json
 
 [
   {
-    "id": "f7a99cb235d59130fac6d870e804b58b",
+    "id": "pQZj3F3VhXiuW4D-",
     "tableType": "Vocabulary",
     "kind": "Datatype",
     "name": "Blank",
@@ -18,7 +18,7 @@ Content-Type: application/json
     }
   },
   {
-    "id": "d88622078f17aced6103a8b173c3622b",
+    "id": "MP3XC07duFnwGDyZ",
     "tableType": "SimpleSpreadsheet",
     "kind": "Spreadsheet",
     "name": "calcPremium",
@@ -30,7 +30,7 @@ Content-Type: application/json
     "signature": "calcPremium(Policy policy)"
   },
   {
-    "id": "b8f6b32c64ba84aadb482d966b78bcc8",
+    "id": "mZc4f2F8SmM5gYlw",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Car",
@@ -39,7 +39,7 @@ Content-Type: application/json
     "project": "EPBDS-16318",
     "module": "*",
     "dependencies": [
-      "2fceeecaa2b6442cb3788a3b7257a93c"
+      "E-6sd8tk8GRIeVWH"
     ],
     "fields": [
       {
@@ -47,10 +47,10 @@ Content-Type: application/json
         "type": "String"
       }
     ],
-    "extends": "2fceeecaa2b6442cb3788a3b7257a93c"
+    "extends": "E-6sd8tk8GRIeVWH"
   },
   {
-    "id": "e92d6feab8e164e94f1f0bad158ce52e",
+    "id": "hiJNEnwiQzU9hMUi",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Driver",
@@ -59,7 +59,7 @@ Content-Type: application/json
     "project": "EPBDS-16318",
     "module": "*",
     "dependencies": [
-      "e92d6feab8e164e94f1f0bad158ce52e"
+      "hiJNEnwiQzU9hMUi"
     ],
     "fields": [
       {
@@ -69,12 +69,12 @@ Content-Type: application/json
       {
         "name": "mentor",
         "type": "Driver",
-        "ref": "e92d6feab8e164e94f1f0bad158ce52e"
+        "ref": "hiJNEnwiQzU9hMUi"
       }
     ]
   },
   {
-    "id": "34539b1f0ec6389a26ac8dffdbf949a1",
+    "id": "JAIZABElt53WwH0O",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Policy",
@@ -83,26 +83,26 @@ Content-Type: application/json
     "project": "EPBDS-16318",
     "module": "*",
     "dependencies": [
-      "4e68c895f5d09029aba13e41928661fa",
-      "b8f6b32c64ba84aadb482d966b78bcc8",
-      "e92d6feab8e164e94f1f0bad158ce52e"
+      "W13Qv3R6WDNSVkVp",
+      "hiJNEnwiQzU9hMUi",
+      "mZc4f2F8SmM5gYlw"
     ],
     "fields": [
       {
         "name": "car",
         "type": "Car",
-        "ref": "b8f6b32c64ba84aadb482d966b78bcc8"
+        "ref": "mZc4f2F8SmM5gYlw"
       },
       {
         "name": "drivers",
         "type": "Driver[]",
-        "ref": "e92d6feab8e164e94f1f0bad158ce52e",
+        "ref": "hiJNEnwiQzU9hMUi",
         "collection": true
       },
       {
         "name": "region",
         "type": "Region",
-        "ref": "4e68c895f5d09029aba13e41928661fa"
+        "ref": "W13Qv3R6WDNSVkVp"
       },
       {
         "name": "policyNumber",
@@ -111,7 +111,7 @@ Content-Type: application/json
     ]
   },
   {
-    "id": "4e68c895f5d09029aba13e41928661fa",
+    "id": "W13Qv3R6WDNSVkVp",
     "tableType": "Vocabulary",
     "kind": "Datatype",
     "name": "Region",
@@ -130,7 +130,7 @@ Content-Type: application/json
     }
   },
   {
-    "id": "df04591b80210ed942dc093298689149",
+    "id": "e429t7rweYWNskYy",
     "tableType": "Vocabulary",
     "kind": "Datatype",
     "name": "Score",
@@ -153,7 +153,7 @@ Content-Type: application/json
     }
   },
   {
-    "id": "2fceeecaa2b6442cb3788a3b7257a93c",
+    "id": "E-6sd8tk8GRIeVWH",
     "tableType": "Datatype",
     "kind": "Datatype",
     "name": "Vehicle",

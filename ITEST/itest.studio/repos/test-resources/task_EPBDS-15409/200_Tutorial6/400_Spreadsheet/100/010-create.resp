@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "47d020cdaf10119d4bd11c190f87856e",
+  "id": "EN1slklYgLD63nhF",
   "tableType": "SimpleSpreadsheet",
   "kind": "Spreadsheet",
   "name": "AssetsCompare",

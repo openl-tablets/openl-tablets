@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "bd101c94c486e5775abd5334a5316db5",
+      "id": "zSCBS4Uzf_MFLC1R",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "sayHello",
