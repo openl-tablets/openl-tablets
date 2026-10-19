@@ -131,6 +131,7 @@ public class SpreadsheetStructureBuilder {
     private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
     private final Map<Integer, SpreadsheetOpenClass> colComponentOpenClasses = new HashMap<>();
     private final Map<Integer, Map<Integer, SpreadsheetContext>> spreadsheetResultContexts = new HashMap<>();
+    private SpreadsheetOpenClass spreadsheetType;
 
     private final Map<Integer, SpreadsheetHeaderDefinition> rowHeaders;
     private final Map<Integer, SpreadsheetHeaderDefinition> columnHeaders;
@@ -144,6 +145,16 @@ public class SpreadsheetStructureBuilder {
     private Integer[] logicalToPhysicalRow;
     private Integer[] logicalToPhysicalColumn;
 
+    /**
+     * The header of the step or the column whose value the Spreadsheet returns: the one named {@code RETURN}, or else
+     * the last step.
+     *
+     * <p>A Spreadsheet that returns {@code SpreadsheetResult} and names no {@code RETURN} returns every step, and has
+     * no such header. Neither has a Spreadsheet none of whose steps has a name.
+     *
+     * @return the header, or {@code null} for a Spreadsheet that returns every step or names no step
+     */
+    @Getter
     private SpreadsheetHeaderDefinition returnHeaderDefinition;
     private SpreadsheetCell[][] cells;
 
@@ -182,6 +193,7 @@ public class SpreadsheetStructureBuilder {
      * @param spreadsheetType open class of the spreadsheet
      */
     public void addCellFields(SpreadsheetOpenClass spreadsheetType, boolean autoType) {
+        this.spreadsheetType = spreadsheetType;
 
         // create cells according to the logical size (excluding description rows/columns)
         var logicalHeight = this.rowHeaders.size();
@@ -646,7 +658,9 @@ public class SpreadsheetStructureBuilder {
         // create name for the column open class
         var columnOpenClassName = "%sColType%d".formatted(spreadsheetHeader.getName(), physicalColumnIndex);
 
-        var columnOpenClass = new SpreadsheetOpenClass(columnOpenClassName, bindingContext.getOpenL());
+        var columnOpenClass = new SpreadsheetOpenClass(columnOpenClassName,
+                bindingContext.getOpenL(),
+                spreadsheetType);
 
         // Iterate over logical row indices
         for (var logicalRow = 0; logicalRow < cells.length; logicalRow++) {
@@ -666,7 +680,9 @@ public class SpreadsheetStructureBuilder {
         var rowOpenClassName = "%sRowType%d".formatted(spreadsheetHeader.getName(), physicalRowIndex);
 
         // create row open class for current row
-        var rowOpenClass = new SpreadsheetOpenClass(rowOpenClassName, bindingContext.getOpenL());
+        var rowOpenClass = new SpreadsheetOpenClass(rowOpenClassName,
+                bindingContext.getOpenL(),
+                spreadsheetType);
 
         // get the width of the whole spreadsheet (logical width)
         // Guard against empty cells array (no valid headers)
@@ -1080,19 +1096,6 @@ public class SpreadsheetStructureBuilder {
      */
     public Map<Integer, SpreadsheetHeaderDefinition> getColumnHeaders() {
         return Collections.unmodifiableMap(columnHeaders);
-    }
-
-    /**
-     * The header of the step or the column whose value the Spreadsheet returns: the one named {@code RETURN}, or else
-     * the last step.
-     *
-     * <p>A Spreadsheet that returns {@code SpreadsheetResult} and names no {@code RETURN} returns every step, and has
-     * no such header. Neither has a Spreadsheet none of whose steps has a name.
-     *
-     * @return the header, or {@code null} for a Spreadsheet that returns every step or names no step
-     */
-    public SpreadsheetHeaderDefinition getReturnHeaderDefinition() {
-        return returnHeaderDefinition;
     }
 
     public IResultBuilder buildResultBuilder(Spreadsheet spreadsheet,
