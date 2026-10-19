@@ -50,5 +50,6 @@ bun.lock
 /DEMO/logs/
 /DEMO/openl-demo/
 /DEMO/jetty-home/
+/DEMO/node/
 /DEMO/webapps/*
 !/DEMO/webapps/ROOT/

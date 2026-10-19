@@ -174,7 +174,9 @@ webapps/ROOT/
 - **Docker image** — copy the musl build from the official Node.js Alpine image of the major version that
   `node.version` names, the same way the image takes Jetty home from the official Jetty image, and add its runtime
   library `libstdc++`. A multi-platform build picks the binary of each architecture.
-- **`DEMO`** — `start*` downloads a Node.js runtime next to the JRE and Jetty it already downloads.
+- **`DEMO`** — `start*` takes Node.js 24 or later from the `PATH`, or downloads the release `node.version` names into
+  `DEMO/node` next to the JRE and the servlet container it already downloads, and passes it in `mcp.node`. A failed
+  download leaves the MCP server off and the Demo running.
 - **WAR in a customer container** — Node.js on `PATH`, or the `mcp.node` setting. Without a runtime the endpoint stays
   disabled and Studio logs a single WARN; Studio itself still starts.
 - The runtime must satisfy the `engines` field of studio-mcp.
@@ -315,6 +317,8 @@ Versioning and build:
   - in `multi` mode: a request without a valid token is refused with `401`, then every tool of the server is called
     with a Personal Access Token.
 - **Other suites** — every other Studio suite sets `mcp.enabled=false`.
+- **DEMO** — the CI job that starts `demo.zip` on Linux, Windows and macOS checks that `/webstudio/mcp` answers a
+  discovery request.
 
 ---
 
