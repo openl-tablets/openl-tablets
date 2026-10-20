@@ -188,6 +188,23 @@ class GuideValidatorTest {
     }
 
     @Test
+    void reportsLiquidTags() throws IOException {
+        write("index.md", """
+                # Guides
+
+                Split by `x` returns `{{3}, {1}}`, while `{ {3}, {1} }` and `{1, {2}}` are plain text.
+
+                ```java
+                {% raw %}
+                ```
+                """);
+
+        assertEquals(List.of(
+                "index.md:3: `{{` starts a Liquid tag on the documentation site. Put a space after `{`.",
+                "index.md:6: `{%` starts a Liquid tag on the documentation site. Put a space after `{`."), messages());
+    }
+
+    @Test
     void reservesTheNameOfTheTableOfContents() throws IOException {
         write("index.md", "# Guides\n");
         write("toc.json", "{}");
