@@ -49,6 +49,7 @@ and the formats are recorded in [`architecture/embedded-user-guides.md`](archite
 - **Diagrams and tables** — a `mermaid` block draws a diagram, a `csv` block a table, and an `openl` block an OpenL
   table: the first line is the table header as written, the other lines are CSV records, `---` ends the column
   headers, a `<` cell joins the cell on its left and a `^` cell the cell above.
+- **No Liquid** — `{{` and `{%` break the site build, even inside code: write `{ {3}, {1} }`, not `{{3}, {1}}`.
 - **`toc.json`** at the root is reserved for the table of contents OpenL Studio builds.
 
 ## File Naming

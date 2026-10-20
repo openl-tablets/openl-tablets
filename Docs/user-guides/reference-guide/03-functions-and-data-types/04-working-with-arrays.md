@@ -99,12 +99,12 @@ Any field, method of the collection element, or any OpenL Tablets function can b
 
 Every array index operator skips the empty elements of an array, which are `null`. The condition or expression is not evaluated for an empty element, and the element is not in the result. For example, for `values = new Integer[] {3, null, 1}`:
 
-| Expression                                | Result       |
-|-------------------------------------------|--------------|
-| `values[(x) select all having x == null]` | `{}`         |
-| `values[(x) order by x]`                  | `{1, 3}`     |
-| `values[(x) split by x]`                  | `{{3}, {1}}` |
-| `values[(x) transform to x]`              | `{3, 1}`     |
+| Expression                                | Result         |
+|-------------------------------------------|----------------|
+| `values[(x) select all having x == null]` | `{}`           |
+| `values[(x) order by x]`                  | `{1, 3}`       |
+| `values[(x) split by x]`                  | `{ {3}, {1} }` |
+| `values[(x) transform to x]`              | `{3, 1}`       |
 
 An empty field does not make its element empty. `drivers[select all having age == null]` returns the drivers whose age is empty, ORDER BY puts such drivers last in both directions, and SPLIT BY gathers them into one group. TRANSFORM TO keeps an empty result of the expression, while TRANSFORM UNIQUE TO drops it.
 
@@ -158,7 +158,7 @@ For example, for `rates = new Double[] {1.5, 2.5, 3.5, 4.5}`:
 | `rates[(rate, i) select all having i > 0]`                    | `{2.5, 3.5, 4.5}` — all the rates but the first one                       |
 | `rates[(rate, i) select first having i > 0 and rate > 3]`     | `3.5` — the first rate above 3 after the first one                        |
 | `rates[(rate, i) order decreasing by i]`                      | `{4.5, 3.5, 2.5, 1.5}` — the rates in reverse order                       |
-| `rates[(rate, i) split by i < 2]`                             | `{{1.5, 2.5}, {3.5, 4.5}}` — the first two rates and the rest             |
+| `rates[(rate, i) split by i < 2]`                             | `{ {1.5, 2.5}, {3.5, 4.5} }` — the first two rates and the rest           |
 | `rates[(Double rate, Integer i) transform to rate * (i + 1)]` | `{1.5, 5.0, 10.5, 18.0}` — each rate multiplied by its number in the list |
 
 An empty element keeps its place in the count: for `values = new Integer[] {3, null, 1}`, `values[(x, i) transform to i]` returns `{0, 2}`. So `values[i]` is always the element itself.

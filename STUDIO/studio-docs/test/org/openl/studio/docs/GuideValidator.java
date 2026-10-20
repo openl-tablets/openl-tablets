@@ -48,7 +48,8 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Only the Markdown both renderers draw the same way is accepted: GFM, the {@code [!Note]} alert, a few HTML tags,
  * and code in the languages the viewer knows. A {@code csv} or an {@code openl} code block holds a table that must
- * read.
+ * read. No text starts a Liquid tag, code included: the site takes it for a template and fails to build or shows
+ * something else.
  *
  * <p>Names are compared case-sensitively, the way the jar and Linux compare them, even on a file system that does not.
  *
@@ -74,6 +75,8 @@ final class GuideValidator {
     private static final Pattern TAG = Pattern.compile("<([A-Za-z][A-Za-z0-9-]*)([^>]*)>");
     private static final Pattern SRC = Pattern.compile("\\ssrc\\s*=\\s*[\"']([^\"']*)[\"']");
     private static final Pattern ALERT = Pattern.compile("^[\\s>]*>\\s*\\[!(\\w+)]");
+    /** What starts a Liquid tag on the documentation site: two opening braces, or a brace and a percent sign. */
+    private static final Pattern LIQUID = Pattern.compile("\\{[{%]");
     private static final Parser PARSER = Parser.builder()
             .extensions(List.of(AutolinkExtension.create(),
                     TablesExtension.create(),
@@ -195,7 +198,10 @@ final class GuideValidator {
             files.stream()
                     .filter(pages::containsKey)
                     .map(pages::get)
-                    .forEach(page -> page.document().accept(new PageCheck(page)));
+                    .forEach(page -> {
+                        page.document().accept(new PageCheck(page));
+                        liquid(page);
+                    });
             files.stream()
                     .filter(file -> IMAGE_TYPES.contains(extensionOf(file)) && !used.contains(file))
                     .forEach(file -> problems.add(new Problem(file, 0, "No page shows the image.")));
@@ -207,6 +213,18 @@ final class GuideValidator {
                     .distinct()
                     .sorted(Comparator.comparing(Problem::file).thenComparingInt(Problem::line))
                     .toList();
+        }
+
+        /** Reports each line holding text the documentation site takes for a Liquid tag. */
+        private void liquid(Page page) {
+            var lines = page.lines();
+            for (var i = 0; i < lines.size(); i++) {
+                var tag = LIQUID.matcher(lines.get(i));
+                if (tag.find()) {
+                    problems.add(new Problem(page.path(), i + 1, "`" + tag.group()
+                            + "` starts a Liquid tag on the documentation site. Put a space after `{`."));
+                }
+            }
         }
 
         private static String extensionOf(String file) {
