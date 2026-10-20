@@ -39,6 +39,8 @@ is, under **Changed**, and pointing at a mark names the change:
 - **`-` on red** — a value removed, or a group or privilege taken away.
 
 A secret value, such as a password, is never shown: its line tells only that it changed.
+A change of the server environment names the settings without their values, and notes that their values are never
+recorded.
 
 The **Object** of a settings change marks each setting it changed the same way. It names the first ten settings and
 the number of the others, which the details list. A long name is cut short there: point at it to read it whole.
@@ -103,8 +105,10 @@ The log records these actions:
   before and after. A value that refers to an environment variable or to another setting, such as `${MAIL_URL}`, is
   recorded as it is written, never as the value it stands for. The value of a secret setting, such as a password or
   an access key, is never recorded: the event tells only that it changed. The credentials a value holds, such as a
-  token in the address of a repository, are hidden as `***`, and a long value is cut short. A setting that comes
-  from the environment of the server, such as a Helm chart, changes with a restart and is not recorded.
+  token in the address of a repository, are hidden as `***`, and a long value is cut short. A setting the
+  environment of the server sets, such as the values of a Helm chart, changes with a restart: the next start
+  records the settings added, changed and removed since the last start by their names only, marked as coming from
+  the server environment. No value of the environment is recorded.
 - **Audit log read** — a view or an export of the log, with the filters it was made with. Every export is recorded.
   A view is recorded once, when it starts: searching, filtering and turning the pages, with nothing else done in
   between, add no event. Any other action of the user, a new sign-in included, makes the next view recorded again.

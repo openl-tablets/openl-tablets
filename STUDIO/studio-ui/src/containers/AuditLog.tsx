@@ -232,14 +232,15 @@ const nameChangesOf = (details: Record<string, unknown>): NameChange[] => Object
     .flatMap(([kind, names]) => names.map(name => ({ name, kind })))
     .sort(byName)
 
-/** The names a change added, removed or changed, a line each, naming the change when pointed at. */
-const NameChanges = ({ changes }: { changes: NameChange[] }) => {
+/** The names a change added, removed or changed, a line each, naming the change when pointed at, and a note on them all when one is given. */
+const NameChanges = ({ changes, note }: { changes: NameChange[], note?: string | undefined }) => {
     const { t } = useTranslation()
     return (
         <Flex vertical align="flex-start" gap={4}>
             {changes.map(({ name, kind }) => (
                 <ChangeTag key={`${kind} ${name}`} hint={t(`audit:changes.${kind}`)} kind={kind} text={name} />
             ))}
+            {note && <Typography.Text type="secondary">{note}</Typography.Text>}
         </Flex>
     )
 }
@@ -300,7 +301,7 @@ const FieldChanges = ({ changes }: { changes: Record<string, FieldChange> }) => 
     )
 }
 
-/** The settings an event changed, in the order of their names: the fields of its changes. */
+/** The settings an event changed, in the order of their names: the fields of its changes, or the names it lists. */
 const settingChangesOf = (details: Record<string, unknown>): NameChange[] => {
     const { changed } = details
     if (isFieldChanges(changed)) {
@@ -308,7 +309,7 @@ const settingChangesOf = (details: Record<string, unknown>): NameChange[] => {
             .map(([name, change]) => ({ name, kind: fieldChangeKind(change) }))
             .sort(byName)
     }
-    return []
+    return nameChangesOf(details)
 }
 
 /** The most settings the column of the objects names for one event; the details name all of them. */
@@ -357,16 +358,21 @@ interface Detail {
     children: React.ReactNode
 }
 
+/** The origin of the changes the server environment made, whose values are never recorded. */
+const ENVIRONMENT = 'environment'
+
 /**
  * The details of an event, each under its name. The names a change added, removed and changed are shown together,
- * under the name of the changes, where the first of their lists was.
+ * under the name of the changes, where the first of their lists was. The changes of the server environment note that
+ * their values are not recorded.
  */
 const EventDetails = ({ details }: { details: Record<string, unknown> }) => {
     const { t } = useTranslation()
     const label = (key: string) => t(`audit:detail_names.${key}`, { defaultValue: key })
     const entries = Object.entries(details)
     const firstList = entries.findIndex(isListedChange)
-    const changes = <NameChanges changes={nameChangesOf(details)} />
+    const note = details['origin'] === ENVIRONMENT ? t('audit:environment_values_not_recorded') : undefined
+    const changes = <NameChanges changes={nameChangesOf(details)} note={note} />
     const items = entries.flatMap(([key, value], index): Detail[] => {
         if (isListedChange([key, value])) {
             return index === firstList ? [{ key: 'changes', label: label('changed'), children: changes }] : []

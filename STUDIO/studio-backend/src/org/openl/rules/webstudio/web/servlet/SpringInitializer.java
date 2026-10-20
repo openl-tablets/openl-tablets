@@ -33,6 +33,7 @@ import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.studio.audit.service.EnvironmentSettingsAuditor;
 
 @WebListener
 @Slf4j
@@ -101,7 +102,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         OpenAPIConfiguration.configure();
 
-        ServletContext servletContext = sce.getServletContext();
+        var servletContext = sce.getServletContext();
         servletContext.log("Initializing Spring root ApplicationContext");
         applicationContext = new XmlWebApplicationContext();
         registerDispatcherServlet(servletContext);
@@ -134,6 +135,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         // Run migration which require context to be initialized
         Migrator.migrateAfterContentInitialized(applicationContext, fromVersion);
+        // The deployment sets its settings once for a run, so they are compared at the start, never at a refresh.
+        applicationContext.getBean(EnvironmentSettingsAuditor.class).compareWithLastStart();
         startTimer();
         // Store the initializer only after OpenL Studio is ready to handle requests.
         servletContext.setAttribute(THIS, this);
@@ -163,7 +166,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     public void contextDestroyed(ServletContextEvent sce) {
         shuttingDown = true;
         OpenLInfoLogger.memStat();
-        ServletContext servletContext = sce.getServletContext();
+        var servletContext = sce.getServletContext();
         servletContext.removeAttribute(THIS);
         servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         applicationContext.close();
@@ -175,7 +178,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     private void startTimer() {
         scheduledPool = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
+            var t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
             return t;
         });
@@ -209,7 +212,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     // Trigger refresh context in the separate thread
     public static void refresh(ServletContext sc) {
-        SpringInitializer springInitializer = ((SpringInitializer) sc.getAttribute(THIS));
+        var springInitializer = (SpringInitializer) sc.getAttribute(THIS);
         springInitializer.run();
     }
 

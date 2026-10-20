@@ -94,6 +94,7 @@ i18next.addResourceBundle('en', 'audit', {
         changed: 'Changed',
     },
     secret_changed: 'secret value changed',
+    environment_values_not_recorded: 'The values the server environment sets are never recorded, for security.',
     yes: 'Yes',
     no: 'No',
     reasons: {
@@ -111,6 +112,7 @@ i18next.addResourceBundle('en', 'audit', {
     },
     origins: {
         identityProvider: 'Identity provider',
+        environment: 'Server environment, read at a start',
     },
     roles: {
         MANAGER: 'Manager',

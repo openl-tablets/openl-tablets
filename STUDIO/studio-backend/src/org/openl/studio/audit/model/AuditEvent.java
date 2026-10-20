@@ -50,6 +50,11 @@ public record AuditEvent(AuditAction action,
      */
     public static final String IDENTITY_PROVIDER = "identityProvider";
 
+    /**
+     * The origin of a change the environment of the server brought at a start, such as the values of a Helm chart.
+     */
+    public static final String ENVIRONMENT = "environment";
+
     public AuditEvent {
         Objects.requireNonNull(action, "action");
         outcome = Objects.requireNonNullElse(outcome, AuditOutcome.SUCCESS);
