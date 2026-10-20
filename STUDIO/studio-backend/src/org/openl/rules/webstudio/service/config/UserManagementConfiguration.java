@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -29,6 +30,7 @@ import org.openl.rules.webstudio.service.ExternalGroupServiceImpl;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.security.acl.JdbcSidManagingAclService;
+import org.openl.studio.audit.service.ExternalGroupRolesAuditor;
 import org.openl.studio.security.GetUserPrivileges;
 
 /**
@@ -54,11 +56,13 @@ public class UserManagementConfiguration {
 
     @Bean("externalGroupService")
     public ExternalGroupService externalGroupService(ExternalGroupDao externalGroupDao,
+                                                     GroupDao groupDao,
                                                      LockRegistry lockRegistry,
                                                      PlatformTransactionManager txManager,
-                                                     ApplicationEventPublisher eventPublisher) {
-        return new ExternalGroupServiceImpl(externalGroupDao, lockRegistry, new TransactionTemplate(txManager),
-                eventPublisher);
+                                                     ApplicationEventPublisher eventPublisher,
+                                                     ObjectProvider<ExternalGroupRolesAuditor> rolesAuditor) {
+        return new ExternalGroupServiceImpl(externalGroupDao, groupDao, lockRegistry,
+                new TransactionTemplate(txManager), eventPublisher, rolesAuditor);
     }
 
     @Bean("groupManagementService")

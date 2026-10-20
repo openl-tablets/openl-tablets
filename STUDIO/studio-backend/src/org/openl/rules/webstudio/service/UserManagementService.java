@@ -30,7 +30,6 @@ import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditChanges;
 import org.openl.studio.audit.model.AuditEvent;
-import org.openl.studio.audit.model.AuditSubjectType;
 import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.util.StringUtils;
 
@@ -45,9 +44,6 @@ import org.openl.util.StringUtils;
  */
 @RequiredArgsConstructor
 public class UserManagementService {
-
-    private static final String ORIGIN = "origin";
-    private static final String IDENTITY_PROVIDER = "identityProvider";
 
     private final UserDao userDao;
     private final GroupDao groupDao;
@@ -160,9 +156,10 @@ public class UserManagementService {
         persistUser.setFlags(UserExternalFlags.builder(flags).getRawFeatures());
         userDao.saveOrUpdate(persistUser);
         if (isNewUser) {
-            announce(AuditAction.USER_CREATED, user, Map.of(ORIGIN, IDENTITY_PROVIDER));
+            announce(AuditAction.USER_CREATED, user, Map.of(AuditEvent.ORIGIN, AuditEvent.IDENTITY_PROVIDER));
         } else if (!changes.isEmpty()) {
-            announce(AuditAction.USER_UPDATED, user, Map.of(ORIGIN, IDENTITY_PROVIDER, "changed", changes.asMap()));
+            announce(AuditAction.USER_UPDATED, user,
+                    Map.of(AuditEvent.ORIGIN, AuditEvent.IDENTITY_PROVIDER, "changed", changes.asMap()));
         }
     }
 
@@ -316,13 +313,7 @@ public class UserManagementService {
     }
 
     private void announceMembership(AuditAction action, String user, String group) {
-        eventPublisher.publishEvent(AuditEvent.builder()
-                .action(action)
-                .targetType(AuditTargetType.GROUP)
-                .target(group)
-                .subjectType(AuditSubjectType.USER)
-                .subject(user)
-                .build());
+        eventPublisher.publishEvent(AuditEvent.membership(action, group, user).build());
     }
 
     /**

@@ -49,9 +49,9 @@ class GroupManagementTest {
 
     /**
      * The queries each merge of the external groups of a user makes for the audit log: it reads the groups the user
-     * had.
+     * had, and the groups of OpenL Studio among the groups that changed.
      */
-    private static final int AUDIT_QUERIES = 1;
+    private static final int AUDIT_QUERIES = 2;
 
     @Autowired
     private ExternalGroupService externalGroupService;

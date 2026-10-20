@@ -2,10 +2,12 @@ package org.openl.security.acl.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,10 @@ import org.openl.security.acl.oid.AclObjectIdentityProvider;
 @Slf4j
 public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
 
+    /**
+     * What sets the path in a repository apart from the repository in the identity of an object.
+     */
+    private static final String PATH_SEPARATOR = ":/";
 
     protected final SidManagingAclService aclService;
     private final Sid relevantSystemWideSid;
@@ -148,6 +154,35 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         var rootOid = oidProvider.getRootOid();
         var permissions = listPermissions(rootOid, sid == null ? List.of() : List.of(sid));
         return permissions.getOrDefault(sid, List.of());
+    }
+
+    @Override
+    @Transactional
+    public Map<Location, List<Permission>> listAllPermissions(Sid sid) {
+        var permissions = new LinkedHashMap<Location, List<Permission>>();
+        aclService.findPermissions(sid)
+                .forEach((oid, held) -> locationOf(oid).ifPresent(location -> permissions.put(location, held)));
+        return permissions;
+    }
+
+    /**
+     * Where an object of the repositories of this kind is, or nothing for an object of another kind. The identity of a
+     * repository object is written by {@link org.openl.security.acl.utils.AclPathUtils#buildRepositoryPath}.
+     */
+    private Optional<Location> locationOf(ObjectIdentity oid) {
+        if (oid.equals(oidProvider.getRootOid())) {
+            return Optional.of(Location.ROOT);
+        }
+        if (!oidProvider.getOidType().equals(oid.getType())) {
+            return Optional.empty();
+        }
+        var identity = oid.getIdentifier().toString();
+        var separator = identity.indexOf(PATH_SEPARATOR);
+        if (separator < 0) {
+            return Optional.of(new Location(identity, null));
+        }
+        return Optional.of(new Location(identity.substring(0, separator),
+                identity.substring(separator + PATH_SEPARATOR.length())));
     }
 
     protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity, List<Sid> sids) {

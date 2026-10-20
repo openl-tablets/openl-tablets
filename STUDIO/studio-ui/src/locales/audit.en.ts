@@ -143,6 +143,8 @@ i18next.addResourceBundle('en', 'audit', {
         type: 'Repository type',
         path: 'Folder',
         origin: 'Origin',
+        group: 'Through group',
+        privileges: 'Privileges',
         changed: 'Changed',
         firstName: 'First name',
         lastName: 'Last name',
