@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "settings",
+      "action": "settingsChanged",
+      "outcome": "success",
+      "targetType": "settings",
+      "target": "project.history.count, test.run.thread.count",
+      "details": {
+        "changed": {
+          "project.history.count": {
+            "from": "7",
+            "to": "100"
+          },
+          "test.run.thread.count": {
+            "from": "3",
+            "to": "4"
+          }
+        }
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": "###"
+}

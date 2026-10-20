@@ -38,6 +38,10 @@ public enum AuditCategory {
     @JsonProperty("deployment")
     DEPLOYMENT,
 
+    @Schema(description = "The system settings of OpenL Studio.")
+    @JsonProperty("settings")
+    SETTINGS,
+
     @Schema(description = "Reading and cleaning the audit log itself.")
     @JsonProperty("audit")
     AUDIT

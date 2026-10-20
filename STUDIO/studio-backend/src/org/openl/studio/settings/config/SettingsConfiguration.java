@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -12,6 +13,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.rules.webstudio.web.admin.SettingsService;
 import org.openl.rules.webstudio.web.admin.SettingsServiceImpl;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.studio.audit.service.SettingsAuditor;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.settings.service.auth.AuthenticationSettingsFactory;
 import org.openl.studio.settings.service.auth.AuthenticationSettingsFactoryImpl;
@@ -44,8 +46,10 @@ public class SettingsConfiguration {
     }
 
     @Bean
-    public SettingsService settingsService(InMemoryProperties inMemoryProperties) {
-        return new SettingsServiceImpl(inMemoryProperties);
+    public SettingsService settingsService(InMemoryProperties inMemoryProperties,
+                                           ConfigurableEnvironment environment,
+                                           SettingsAuditor settingsAuditor) {
+        return new SettingsServiceImpl(inMemoryProperties, environment, settingsAuditor);
     }
 
     @Bean

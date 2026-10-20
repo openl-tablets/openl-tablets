@@ -190,14 +190,24 @@ const CHANGE_MARKS: Record<ChangeKind, { mark: string, color: string }> = {
  */
 const WRAPPED_TEXT: React.CSSProperties = { whiteSpace: 'normal', overflowWrap: 'anywhere' }
 
-/** A value a change added, removed or changed, marked as git marks a line of a diff; pointing at it shows the hint. */
-const ChangeTag = ({ kind, text, hint }: { kind: ChangeKind, text: string, hint: string }) => (
+/**
+ * A value a change added, removed or changed, marked as git marks a line of a diff; pointing at it shows the hint. Its
+ * text wraps, unless it is kept on one line, as a name cut short to fit a column is.
+ */
+const ChangeTag = ({ kind, text, hint, oneLine = false }: {
+    kind: ChangeKind,
+    text: string,
+    hint: string,
+    oneLine?: boolean,
+}) => (
     <Tooltip title={hint}>
-        <Tag color={CHANGE_MARKS[kind].color} style={WRAPPED_TEXT}>{`${CHANGE_MARKS[kind].mark} ${text}`}</Tag>
+        <Tag color={CHANGE_MARKS[kind].color} style={oneLine ? {} : WRAPPED_TEXT}>
+            {`${CHANGE_MARKS[kind].mark} ${text}`}
+        </Tag>
     </Tooltip>
 )
 
-/** A name a change added or removed, such as a privilege of a group. */
+/** A name a change added, removed or changed, such as a privilege of a group or a setting. */
 interface NameChange {
     name: string
     kind: ChangeKind
@@ -211,18 +221,18 @@ const isNames = (value: unknown): value is string[] => (
     Array.isArray(value) && value.every(item => typeof item === 'string')
 )
 
-/** Whether a detail lists the names a change added or removed: its key is the kind of the change. */
+/** Whether a detail lists the names a change added, removed or changed: its key is the kind of the change. */
 const isListedChange = (detail: [string, unknown]): detail is [ChangeKind, string[]] => (
     Object.hasOwn(CHANGE_MARKS, detail[0]) && isNames(detail[1])
 )
 
-/** The names the details list as added or removed, in the order of the names. */
+/** The names the details list as added, removed or changed, in the order of the names. */
 const nameChangesOf = (details: Record<string, unknown>): NameChange[] => Object.entries(details)
     .filter(isListedChange)
     .flatMap(([kind, names]) => names.map(name => ({ name, kind })))
     .sort(byName)
 
-/** The names a change added or removed, a line each, naming the change when pointed at. */
+/** The names a change added, removed or changed, a line each, naming the change when pointed at. */
 const NameChanges = ({ changes }: { changes: NameChange[] }) => {
     const { t } = useTranslation()
     return (
@@ -234,25 +244,29 @@ const NameChanges = ({ changes }: { changes: NameChange[] }) => {
     )
 }
 
-/** The values a field had before a change and after it, either one missing. */
+/** The values a field had before a change and after it, either one missing; a secret field names no value. */
 interface FieldChange {
     from?: unknown
     to?: unknown
+    secret?: boolean
 }
 
 /** Whether a value of the details names the fields a change made, each with its values before and after. */
 const isFieldChanges = (value: unknown): value is Record<string, FieldChange> => (
     typeof value === 'object' && value !== null && !Array.isArray(value)
     && Object.values(value).every(change => typeof change === 'object' && change !== null
-        && ('from' in change || 'to' in change))
+        && ('from' in change || 'to' in change || 'secret' in change))
 )
 
 /** Whether a field had a value before a change or after it. */
 const hasValue = (value: unknown) => value !== undefined && value !== null
 
-/** What a change did to a field: added a value where there was none, removed it, or changed it to another. */
-const fieldChangeKind = ({ from, to }: FieldChange): ChangeKind => {
-    if (hasValue(from) && hasValue(to)) {
+/**
+ * What a change did to a field: added a value where there was none, removed it, or changed it to another. A secret
+ * field, whose values are not recorded, is changed.
+ */
+const fieldChangeKind = ({ from, to, secret }: FieldChange): ChangeKind => {
+    if (secret || (hasValue(from) && hasValue(to))) {
         return 'changed'
     }
     return hasValue(to) ? 'added' : 'removed'
@@ -260,27 +274,80 @@ const fieldChangeKind = ({ from, to }: FieldChange): ChangeKind => {
 
 /**
  * The fields a change made, a line each, marked as git marks the lines of a diff. A value changed reads as the value
- * before the change, an arrow and the value after; a value added or removed reads as that value alone.
+ * before the change, an arrow and the value after; a value added or removed reads as that value alone. A secret field
+ * tells only that its value changed.
  */
 const FieldChanges = ({ changes }: { changes: Record<string, FieldChange> }) => {
     const { t } = useTranslation()
+    const valuesOf = (field: string, { from, to, secret }: FieldChange) => (secret
+        ? t('audit:secret_changed')
+        : [from, to].filter(hasValue).map(value => detailText(t, field, value)).join(' → '))
     return (
         <Flex vertical align="flex-start" gap={4}>
             {Object.entries(changes).map(([field, change]) => {
                 const name = t(`audit:detail_names.${field}`, { defaultValue: field })
-                const values = [change.from, change.to].filter(hasValue).map(value => detailText(t, field, value))
                 const kind = fieldChangeKind(change)
                 return (
                     <ChangeTag
                         key={field}
                         hint={t(`audit:changes.${kind}`)}
                         kind={kind}
-                        text={`${name}: ${values.join(' → ')}`}
+                        text={`${name}: ${valuesOf(field, change)}`}
                     />
                 )
             })}
         </Flex>
     )
+}
+
+/** The settings an event changed, in the order of their names: the fields of its changes. */
+const settingChangesOf = (details: Record<string, unknown>): NameChange[] => {
+    const { changed } = details
+    if (isFieldChanges(changed)) {
+        return Object.entries(changed)
+            .map(([name, change]) => ({ name, kind: fieldChangeKind(change) }))
+            .sort(byName)
+    }
+    return []
+}
+
+/** The most settings the column of the objects names for one event; the details name all of them. */
+const SHOWN_SETTINGS = 10
+/** The longest name of a setting the column of the objects shows, so that the other columns keep their widths. */
+const SETTING_LENGTH = 32
+
+/** The name of a setting as the column of the objects shows it: cut short when it is longer, its end marked as cut. */
+const shortNameOf = (name: string) => (name.length > SETTING_LENGTH ? `${name.slice(0, SETTING_LENGTH - 1)}…` : name)
+
+/**
+ * The settings an event changed, each marked as its change, the first ones only and the number of the others.
+ * Pointing at a setting names the change and the whole name of the setting.
+ */
+const SettingTags = ({ changes }: { changes: NameChange[] }) => {
+    const { t } = useTranslation()
+    return (
+        <Flex wrap gap={4}>
+            {changes.slice(0, SHOWN_SETTINGS).map(({ name, kind }) => {
+                const change = t(`audit:changes.${kind}`)
+                return (
+                    <ChangeTag
+                        key={`${kind} ${name}`}
+                        oneLine
+                        hint={`${change}: ${name}`}
+                        kind={kind}
+                        text={shortNameOf(name)}
+                    />
+                )
+            })}
+            {changes.length > SHOWN_SETTINGS && <Tag>{`+${changes.length - SHOWN_SETTINGS}`}</Tag>}
+        </Flex>
+    )
+}
+
+/** The object of an event: the settings it changed, as tags, or the name of the object. */
+const objectOf = ({ targetType, target, details }: AuditEvent) => {
+    const changes = targetType === 'settings' ? settingChangesOf(details ?? {}) : []
+    return changes.length ? <SettingTags changes={changes} /> : target
 }
 
 /** A detail of an event: what it holds under its name. */
@@ -291,8 +358,8 @@ interface Detail {
 }
 
 /**
- * The details of an event, each under its name. The names a change added and removed are shown together, under
- * the name of the changes, where the first of their lists was.
+ * The details of an event, each under its name. The names a change added, removed and changed are shown together,
+ * under the name of the changes, where the first of their lists was.
  */
 const EventDetails = ({ details }: { details: Record<string, unknown> }) => {
     const { t } = useTranslation()
@@ -405,7 +472,7 @@ export const AuditLog: React.FC = () => {
         filterIcon: <SearchOutlined />,
     })
 
-    const named = (type?: string, name?: string) => (name ? (
+    const named = (type?: string, name?: React.ReactNode) => (name ? (
         <Flex wrap gap={4}>
             {type && <Typography.Text type="secondary">{inWords('types', type)}</Typography.Text>}
             <span>{name}</span>
@@ -470,7 +537,7 @@ export const AuditLog: React.FC = () => {
         {
             title: t('audit:target'),
             ...searched('target'),
-            render: (_, event) => named(event.targetType, event.target),
+            render: (_, event) => named(event.targetType, objectOf(event)),
         },
         {
             title: t('audit:subject'),

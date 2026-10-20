@@ -1891,6 +1891,7 @@ Content-Type: application/json
                   "access",
                   "project",
                   "deployment",
+                  "settings",
                   "audit"
                 ]
               },
@@ -1936,6 +1937,7 @@ Content-Type: application/json
                   "branchMerged",
                   "protectionBypassed",
                   "projectDeployed",
+                  "settingsChanged",
                   "auditLogRead",
                   "auditLogPurged"
                 ]
@@ -24291,6 +24293,7 @@ Content-Type: application/json
               "branchMerged",
               "protectionBypassed",
               "projectDeployed",
+              "settingsChanged",
               "auditLogRead",
               "auditLogPurged"
             ]
@@ -24323,6 +24326,7 @@ Content-Type: application/json
               "access",
               "project",
               "deployment",
+              "settings",
               "audit"
             ]
           },
@@ -24378,7 +24382,8 @@ Content-Type: application/json
               "repository",
               "project",
               "request",
-              "deployment"
+              "deployment",
+              "settings"
             ]
           },
           "time": {

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.ConfigPrefixSettingsHolder;
@@ -20,7 +21,7 @@ import org.openl.studio.settings.model.SettingValueWrapper;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SettingValueWrapperSerializer extends JsonSerializer<Object> implements ContextualSerializer {
 
-    private final Function<Object, Boolean> readOnlyLookup;
+    private final @Nullable Function<@Nullable Object, Boolean> readOnlyLookup;
     private final boolean secret;
 
     public SettingValueWrapperSerializer() {
@@ -47,7 +48,7 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
         }
     }
 
-    private boolean isNotEmpty(Object value) {
+    private boolean isNotEmpty(@Nullable Object value) {
         if (value instanceof String str) {
             return !str.isEmpty();
         }
@@ -55,13 +56,13 @@ public class SettingValueWrapperSerializer extends JsonSerializer<Object> implem
     }
 
     @Override
-    public JsonSerializer<Object> createContextual(SerializerProvider prov, BeanProperty property) {
+    public JsonSerializer<Object> createContextual(SerializerProvider prov, @Nullable BeanProperty property) {
         var annotationDef = Optional.ofNullable(property)
                 .map(p -> p.getAnnotation(SettingPropertyName.class));
         if (annotationDef.isPresent()) {
             var annotation = annotationDef.get();
             var systemPropertyName = annotation.value();
-            Function<Object, Boolean> propertyReadOnlyLookup;
+            Function<@Nullable Object, Boolean> propertyReadOnlyLookup;
             if (systemPropertyName.isBlank()) {
                 var systemPropertySuffix = annotation.suffix();
                 propertyReadOnlyLookup = object -> {

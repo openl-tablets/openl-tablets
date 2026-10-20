@@ -31,6 +31,7 @@ export const AUDIT_ACTIONS = {
         'protectionBypassed',
     ],
     deployment: ['projectDeployed'],
+    settings: ['settingsChanged'],
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const
 export const AUDIT_OUTCOMES = ['success', 'failure', 'denied'] as const

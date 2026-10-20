@@ -2,9 +2,9 @@
 
 The audit log records who signed in to OpenL Studio and when, whose sign-in was refused, who signed out, who changed
 users, groups, personal access tokens and access rights, which requests were refused for lack of permission, who
-created, saved, deleted and deployed projects and changed the branches of their repositories, and who read the log
-itself. OpenL Studio keeps it in its database in every user mode but Single-User, which has no sign-in. Only users
-with administrator privileges see it.
+created, saved, deleted and deployed projects and changed the branches of their repositories, who changed the
+system settings, and who read the log itself. OpenL Studio keeps it in its database in every user mode but
+Single-User, which has no sign-in. Only users with administrator privileges see it.
 
 In the navigation menu, click **Audit Log**. The page lists the events, the newest first, a page at a time. The list
 counts up to 10,000 events: when more match, it shows `10000+` and pages through the newest 10,000. Narrow the
@@ -37,6 +37,11 @@ is, under **Changed**, and pointing at a mark names the change:
 - **`~` on yellow** — a value changed: the value before the change, an arrow and the value after.
 - **`+` on green** — a value added where there was none, or a group or privilege given.
 - **`-` on red** — a value removed, or a group or privilege taken away.
+
+A secret value, such as a password, is never shown: its line tells only that it changed.
+
+The **Object** of a settings change marks each setting it changed the same way. It names the first ten settings and
+the number of the others, which the details list. A long name is cut short there: point at it to read it whole.
 
 The details never hold a password or a token: a personal access token is named by its public identifier.
 A repository that keeps projects in folders of their own can hold several projects of one name, so there the details
@@ -93,6 +98,13 @@ The log records these actions:
   confirmed it.
 - **Project deployed** — a project deployed to a production repository: the deployment is the object, and the details
   name the project, its repository, branch and revision, and the comment.
+- **Settings changed** — the system settings an administrator saved, such as the mail server or a repository: one
+  event for each save, which names the settings it changed as the object and lists each of them with its value
+  before and after. A value that refers to an environment variable or to another setting, such as `${MAIL_URL}`, is
+  recorded as it is written, never as the value it stands for. The value of a secret setting, such as a password or
+  an access key, is never recorded: the event tells only that it changed. The credentials a value holds, such as a
+  token in the address of a repository, are hidden as `***`, and a long value is cut short. A setting that comes
+  from the environment of the server, such as a Helm chart, changes with a restart and is not recorded.
 - **Audit log read** — a view or an export of the log, with the filters it was made with. Every export is recorded.
   A view is recorded once, when it starts: searching, filtering and turning the pages, with nothing else done in
   between, add no event. Any other action of the user, a new sign-in included, makes the next view recorded again.

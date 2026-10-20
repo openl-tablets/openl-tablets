@@ -7,4 +7,5 @@ change of the details and of the password of a user, and a personal access token
 with the values before and after. So are a
 role on the design repositories granted to the user, changed and revoked, and the change of a role the user may not
 make is recorded as a refused request. A project created from an archive and deleted is recorded with the
-role its creator got on it and lost with it.
+role its creator got on it and lost with it. A save of two system settings and the save that restores them are
+each recorded as one change of the settings, with the values before and after.

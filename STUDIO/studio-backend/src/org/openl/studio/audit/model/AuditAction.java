@@ -129,6 +129,10 @@ public enum AuditAction {
     @JsonProperty("projectDeployed")
     PROJECT_DEPLOYED(AuditCategory.DEPLOYMENT),
 
+    @Schema(description = "System settings got other values, all those one save changed.")
+    @JsonProperty("settingsChanged")
+    SETTINGS_CHANGED(AuditCategory.SETTINGS),
+
     @Schema(description = "The audit log was read or exported.")
     @JsonProperty("auditLogRead")
     AUDIT_LOG_READ(AuditCategory.AUDIT),

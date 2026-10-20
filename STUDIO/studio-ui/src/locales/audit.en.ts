@@ -19,6 +19,7 @@ i18next.addResourceBundle('en', 'audit', {
     no_events: 'No events match',
     showing_rows_of_more: '{{from}}-{{to}} of {{total}}+',
     types: {
+        settings: 'Settings',
         user: 'User',
         group: 'Group',
         token: 'Token',
@@ -29,6 +30,7 @@ i18next.addResourceBundle('en', 'audit', {
         deployment: 'Deployment',
     },
     categories: {
+        settings: 'Settings',
         authentication: 'Sign-in',
         user: 'Users',
         group: 'Groups',
@@ -40,6 +42,7 @@ i18next.addResourceBundle('en', 'audit', {
         audit: 'Audit log',
     },
     actions: {
+        settingsChanged: 'Settings changed',
         signIn: 'Sign in',
         signOut: 'Sign out',
         userCreated: 'User created',
@@ -90,6 +93,7 @@ i18next.addResourceBundle('en', 'audit', {
         removed: 'Removed',
         changed: 'Changed',
     },
+    secret_changed: 'secret value changed',
     yes: 'Yes',
     no: 'No',
     reasons: {
