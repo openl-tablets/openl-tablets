@@ -117,8 +117,8 @@ export const listTablesSchema = z.strictObject({
 export const getTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  startRow: z.number().int().min(0).optional().describe("Zero-based index of the first source row; omit to start at the top. Combine with maxRows to read a large table in slices."),
-  maxRows: z.number().int().min(1).optional().describe("Maximum number of source rows, counted from startRow; omit to read to the end. A windowed response carries totalRows."),
+  startRow: z.number().int().min(0).optional().describe("Zero-based index of the first source row; omit to start at the top. Combine with maxRows to read a large table in slices: the next slice starts at startRow plus maxRows."),
+  maxRows: z.number().int().min(1).optional().describe("Maximum number of source rows, counted from startRow; omit to read to the end. A windowed response carries totalRows. A slice holds exactly these rows: a merged cell that its edge cuts comes back cut, its first cell in the slice holding the value of the merged cell and naming its whole area in mergedArea."),
   styles: z.boolean().optional().describe("If true, each raw cell carries its Excel style (background/font colour, bold/italic/underline, alignment, indent, borders)."),
   response_format: ResponseFormat,
 });
@@ -223,6 +223,7 @@ const rawCellInputSchema = z.strictObject({
 
 const rawTableCellSchema = rawCellInputSchema.extend({
   cell: z.string().optional(),
+  mergedArea: z.string().optional(),
 }).describe("Writable raw cell. Studio exposes style only when reading with styles=true; table write APIs do not support changing style, so style is intentionally rejected.");
 
 export const appendTableSchema = z.strictObject({

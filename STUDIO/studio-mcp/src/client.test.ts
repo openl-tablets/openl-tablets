@@ -356,7 +356,7 @@ describe("OpenLClient", () => {
 
       const result = await client.getTable("design-project1", "table id", { startRow: 10, maxRows: 50, styles: true });
 
-      expect(mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 10, maxRows: 50, styles: true });
+      expect(mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 10, maxRows: 50, cutMerges: true, styles: true });
       expect(result.totalRows).toBe(200);
     });
 
@@ -365,7 +365,7 @@ describe("OpenLClient", () => {
 
       await client.getTable("design-project1", "calculatePremium_1234", { maxRows: 25, styles: false });
 
-      expect(mockHttp.history.get[0].params).toEqual({ raw: true, maxRows: 25 });
+      expect(mockHttp.history.get[0].params).toEqual({ raw: true, maxRows: 25, cutMerges: true });
     });
 
     it.each([

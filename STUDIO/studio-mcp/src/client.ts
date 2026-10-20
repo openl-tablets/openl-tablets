@@ -1069,6 +1069,8 @@ export class OpenLClient {
       raw: true,
       startRow: options?.startRow,
       maxRows: options?.maxRows,
+      // A window holds exactly the rows asked for, so no merged cell makes a part of the table unreadable
+      cutMerges: true,
       styles: options?.styles || undefined,
     };
     return (await this.http.get<Types.RawTableView>(

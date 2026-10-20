@@ -52,7 +52,7 @@ describe("reading tables", () => {
       response_format: "json",
     }, harness.client);
 
-    expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 2, maxRows: 1, styles: true });
+    expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 2, maxRows: 1, cutMerges: true, styles: true });
     expect(dataOf(result)).toMatchObject({
       totalRows: 120,
       source: [[{ cell: "A3", style: { background: "#ccccff" } }]],
@@ -224,8 +224,8 @@ describe("openl_update_table", () => {
     });
     // The row-count probe before the PUT, and the recompile read after it
     expect(harness.mockHttp.history.get.map((request) => request.params)).toEqual([
-      { raw: true, startRow: 0, maxRows: 1 },
-      { raw: true, startRow: 0, maxRows: 1 },
+      { raw: true, startRow: 0, maxRows: 1, cutMerges: true },
+      { raw: true, startRow: 0, maxRows: 1, cutMerges: true },
     ]);
   });
 
@@ -276,6 +276,24 @@ describe("openl_update_table", () => {
       message: expect.stringMatching(/Table ID mismatch.*t1.*other-table/),
     });
     expectNoRequest();
+  });
+});
+
+describe("openl_get_table cut by rows", () => {
+  it("cuts a merged cell crossing the last row it delivers as Studio cuts a window, naming its area", async () => {
+    // Column B of the first 400 rows is one merged cell, whose value is long enough to need a cut
+    const source = Array.from({ length: 400 }, (_, row) => [
+      row === 0 ? { cell: "B4", value: "Dog", rowspan: 400 } : { covered: true },
+      { cell: `C${row + 4}`, value: "x".repeat(80) },
+    ]);
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", source));
+
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, harness.client);
+
+    const response = JSON.parse(textOf(result));
+    const delivered = response.data.source.length;
+    expect(delivered).toBeLessThan(400);
+    expect(response.data.source[0][0]).toEqual({ cell: "B4", value: "Dog", rowspan: delivered, mergedArea: "B4:B403" });
   });
 });
 
