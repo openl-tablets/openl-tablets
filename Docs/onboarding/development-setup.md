@@ -36,6 +36,7 @@ mvn clean install                          # everything, with all tests
 | `-Pitest`              | Adds the integration-test modules back to a `-DskipTests` build.                  |
 | `-Dnpm.test.skip`      | Skips the Vitest suites of `studio-ui` and `studio-mcp`.                          |
 | `-Dnpm.typecheck.skip` | Skips the `tsc --noEmit` pass of `studio-ui`.                                     |
+| `-Dnpm.lint.skip`      | Skips the ESLint pass of `studio-ui`.                                             |
 | `-Dnpm.build.skip`     | Skips the production bundle of `studio-ui` and the build of `studio-mcp`.         |
 | `-Dsonar`              | Enables JaCoCo, which writes the coverage report of `verify`.                     |
 
