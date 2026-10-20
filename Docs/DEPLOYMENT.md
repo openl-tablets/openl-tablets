@@ -50,6 +50,10 @@ Mount volumes on `OPENL_HOME` and `OPENL_HOME_SHARED` to keep the data between r
   `JAVA_OPTS`; edit or replace it to add JVM options.
 - **JDBC drivers** — put the driver of the database in use into `/opt/openl/lib`, as the Docker Compose and
   Kubernetes examples below do.
+- **Behind a proxy** — Jetty reads the client address, the scheme and the host from the `Forwarded` and
+  `X-Forwarded-*` headers a proxy sends (its `http-forwarded` module), so the logs of OpenL Studio name the client
+  rather than the proxy. Expose the container through the proxy only: a client that reaches it directly can put any
+  address into these headers.
 
 ### Environment variables
 
