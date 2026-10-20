@@ -329,7 +329,7 @@ Versioning and build:
 
 - **D1 — studio-mcp runs as a Node.js child process, supervised by a Spring lifecycle bean.** Rejected: GraalJS in the
   JVM, a rewrite on the MCP Java SDK, a `web.xml` listener. Reason: the MCP TypeScript SDK and studio-mcp need
-  Node.js; a rewrite discards 74 tools; `SpringInitializer` refreshes the context in place, and only a bean of that
+  Node.js; a rewrite discards 75 tools; `SpringInitializer` refreshes the context in place, and only a bean of that
   context follows the refresh.
 - **D2 — a servlet of the webapp, `McpProxyServlet`, serves `/mcp`.** Rejected: a proxy outside the webapp, in the
   servlet container or in front of it. Reason: `/mcp` passes the filters and the security chains of Studio, so the

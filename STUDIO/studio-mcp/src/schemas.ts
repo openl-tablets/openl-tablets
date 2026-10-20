@@ -870,6 +870,21 @@ export const writeProjectFileSchema = z.union([
   writeBlobProjectFileSchema,
 ]);
 
+/** One change of a text file: the text it replaces, found once, and the text it puts in its place. */
+const fileEditSchema = z.strictObject({
+  oldText: z.string().describe("Text to replace, copied exactly from the file, that occurs in it exactly once: include enough of the surrounding lines to make it unique. Empty appends newText at the end of the file."),
+  newText: z.string().describe("Text to put in its place; empty removes oldText. Its lines may end with LF: in a file whose lines end with CRLF they are written with CRLF."),
+});
+
+export const editProjectFileSchema = z.strictObject({
+  projectId: projectIdSchema,
+  path: filePathSchema,
+  edits: z.array(fileEditSchema).min(1).describe("The changes, applied in order: each one to the text the previous ones left."),
+  message: writeProjectFileBaseSchema.shape.message,
+  branch: fileBranchSchema,
+  response_format: ResponseFormat,
+});
+
 export const deleteProjectFileSchema = z.strictObject({
   projectId: projectIdSchema,
   path: filePathSchema,
