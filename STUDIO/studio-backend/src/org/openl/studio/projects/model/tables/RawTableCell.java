@@ -57,6 +57,8 @@ import org.jspecify.annotations.Nullable;
  *                when the read asked for the styles and the text does not take the font of the cell
  * @param type    The type of the value of the cell, as the compiler reads it, when it differs from the type of the
  *                region of the cell; read with the styles
+ * @param mergedArea The whole area of a merged cell the edge of a window cuts, in A1 notation, when the read asks for
+ *                the exact rows; the cell then holds the part of it inside the window and the value of the merged cell
  * @author Vladyslav Pikus
  */
 @Builder(toBuilder = true)
@@ -120,7 +122,14 @@ public record RawTableCell(
                 The type of the value of the cell, as the compiler reads it, when it differs from the type of the \
                 region of the cell. Read with the styles.""")
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-        @Nullable RawTableValueType type
+        @Nullable RawTableValueType type,
+
+        @Schema(description = """
+                The whole area of a merged cell the edge of the window cuts, in A1 notation (for example 'B4:B299'), \
+                when the read asks for the exact rows. The cell holds the part of the merged cell inside the window, \
+                and the value of the merged cell.""")
+        @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+        @Nullable String mergedArea
 ) {
 
     public static final RawTableCell COVERED_CELL = RawTableCell.builder().covered(true).build();
@@ -136,6 +145,7 @@ public record RawTableCell(
             metaInfo = null;
             runs = null;
             type = null;
+            mergedArea = null;
         } else {
             colspan = (colspan != null && colspan > 1) ? colspan : null;
             rowspan = (rowspan != null && rowspan > 1) ? rowspan : null;

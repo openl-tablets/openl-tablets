@@ -25,6 +25,11 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
   never cuts a merged cell in two. Read the next window from the end of the previous one, not from `startRow` plus
   `maxRows`. A window that starts past the last row holds no rows: `source` is empty and `totalRows` is the height of
   the table, with or without `maxRows`.
+- `cutMerges` — `true` reads exactly the rows `startRow` and `maxRows` ask for, so the next window starts at
+  `startRow` plus `maxRows`. A merged cell that the edge of the window cuts comes back cut: its first cell in the
+  window holds the value of the merged cell, spans the rows of it inside the window, and names its whole area in
+  `mergedArea`. The default `false` grows the window to keep every merged cell whole, so a merge longer than the
+  window comes back whole.
 - `styles` — `true` adds the Excel styles the cells use, each once, and names the style of every cell and of the pieces
   of its text formatted with fonts of their own; see [Style of a Cell](#style-of-a-cell). It also adds what the cells
   of the table mean; see [Roles of the Cells](#roles-of-the-cells).
@@ -99,6 +104,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 - `type` — the type of the value, with `styles=true`, when it differs from the type of the region of the cell; see
   [Roles of the Cells](#roles-of-the-cells). Read-only.
 - `metaInfo` — what the compiler knows about the cell, with `metaInfo=true`. Read-only.
+- `mergedArea` — the whole area of a merged cell that the edge of the window cuts, such as `B4:B299`, with
+  `cutMerges=true`. Read-only.
 
 The cell of a merged range that holds the value is the top-left one. The other positions of the range are `covered`.
 For a cell of 2 columns and 2 rows at the top-left of a matrix:

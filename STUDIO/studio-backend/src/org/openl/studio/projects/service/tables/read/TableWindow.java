@@ -22,6 +22,10 @@ import org.openl.rules.table.IGridTable;
  * first row of a merge the row asked for stands inside. Windows tile the table exactly, and a reader asking
  * for the next one from the end of the one it has never lands inside a merge at all.
  *
+ * <p>A reader that keeps no window of its own, such as an agent reading a long table piece by piece, asks for the
+ * {@linkplain #exact exact} rows instead: a merge longer than any answer it can take would otherwise make every
+ * window inside it the whole merge.
+ *
  * @param startRow the table's own row the window opens on
  * @param rows     how many rows it holds, none when it opens past the last row, or {@link #EVERY_ROW} for the rest
  *                 of the table
@@ -49,6 +53,19 @@ record TableWindow(int startRow, int rows) {
         var region = table.getRegion();
         var from = openedOn(merges, region, start);
         return new TableWindow(from, maxRows == null ? EVERY_ROW : wholeRows(merges, region, from, maxRows));
+    }
+
+    /**
+     * The window of exactly the {@code maxRows} rows from {@code startRow}, whatever merged cells its edges cut.
+     *
+     * @param table    the table being read
+     * @param startRow the first row asked for; {@code null} opens at the top
+     * @param maxRows  how many rows were asked for; {@code null} reads to the end
+     */
+    static TableWindow exact(IGridTable table, @Nullable Integer startRow, @Nullable Integer maxRows) {
+        var start = startRow == null ? 0 : startRow;
+        var left = Math.max(table.getHeight() - start, 0);
+        return new TableWindow(start, maxRows == null ? left : Math.min(maxRows, left));
     }
 
     /** Whether the window holds fewer rows than the table has. */

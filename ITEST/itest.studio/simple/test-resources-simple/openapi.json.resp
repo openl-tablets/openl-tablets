@@ -13934,6 +13934,15 @@ Content-Type: application/json
           {
             "description": "***",
             "in": "query",
+            "name": "cutMerges",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "description": "***",
+            "in": "query",
             "name": "styles",
             "schema": {
               "type": "boolean",
@@ -29061,6 +29070,11 @@ Content-Type: application/json
             "description": "***"
           },
           "formula": {
+            "type": "string",
+            "description": "***",
+            "readOnly": true
+          },
+          "mergedArea": {
             "type": "string",
             "description": "***",
             "readOnly": true
