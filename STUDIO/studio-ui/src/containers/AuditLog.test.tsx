@@ -365,6 +365,81 @@ describe('AuditLog', () => {
         expect(changeTags()).toEqual(['+ DEPLOY_PROJECTS', '- EDIT_PROJECTS', '+ VIEW_PROJECTS'])
     })
 
+    it('shows the settings one save changed as a diff and marks each in the object, a secret one without values',
+        async () => {
+            const settings: audit.AuditEvent = {
+                id: 5,
+                time: '2026-10-19T10:30:00Z',
+                actor: 'admin',
+                category: 'settings',
+                action: 'settingsChanged',
+                outcome: 'success',
+                targetType: 'settings',
+                target: 'mail.password, mail.url, mail.username, project.history.count, repository.design.comment',
+                details: {
+                    changed: {
+                        'mail.url': { from: 'smtp://old.example.com', to: 'smtp://mail.example.com' },
+                        'mail.password': { secret: true },
+                        'mail.username': { to: 'bot' },
+                        'project.history.count': { from: '100' },
+                        'repository.design.comment-template.use-custom-comments': { to: 'true' },
+                    },
+                },
+            }
+            mockGetEvents.mockResolvedValue({ content: [settings], pageNumber: 0, pageSize: 50, total: 1 })
+
+            renderAuditLog()
+            await loaded()
+
+            expect(changeTags()).toEqual([
+                '~ mail.password',
+                '~ mail.url',
+                '+ mail.username',
+                '- project.history.count',
+                '+ repository.design.comment-templ…',
+                '~ audit:detail_names.mail.url: smtp://old.example.com → smtp://mail.example.com',
+                '~ audit:detail_names.mail.password: audit:secret_changed',
+                '+ audit:detail_names.mail.username: bot',
+                '- audit:detail_names.project.history.count: 100',
+                '+ audit:detail_names.repository.design.comment-template.use-custom-comments: true',
+            ])
+            expectTag('~ audit:detail_names.mail.password: audit:secret_changed', 'warning')
+            expectHint('~ mail.password', 'audit:changes.changed: mail.password')
+            // A name cut short to fit the column stays on one line; the details wrap their values.
+            expect(screen.getByText('~ mail.password')).not.toHaveStyle({ overflowWrap: 'anywhere' })
+            expect(screen.getByText('~ audit:detail_names.mail.password: audit:secret_changed'))
+                .toHaveStyle({ overflowWrap: 'anywhere' })
+            expectHint('+ repository.design.comment-templ…',
+                'audit:changes.added: repository.design.comment-template.use-custom-comments')
+            expect(screen.queryByText('mail.password, mail.url, mail.username, project.history.count'))
+                .not.toBeInTheDocument()
+        })
+
+    it('names the first ten settings in the object and counts the others, which the details list', async () => {
+        const names = Array.from({ length: 12 }, (_, index) => `setting.${String(index + 1).padStart(2, '0')}`)
+        const settings: audit.AuditEvent = {
+            id: 8,
+            time: '2026-10-19T10:45:00Z',
+            actor: 'admin',
+            category: 'settings',
+            action: 'settingsChanged',
+            outcome: 'success',
+            targetType: 'settings',
+            target: names.join(', '),
+            details: { changed: Object.fromEntries(names.map(name => [name, { from: '1', to: '2' }])) },
+        }
+        mockGetEvents.mockResolvedValue({ content: [settings], pageNumber: 0, pageSize: 50, total: 1 })
+
+        renderAuditLog()
+        await loaded()
+
+        expect(screen.getByText('~ setting.10')).toBeInTheDocument()
+        expect(screen.queryByText('~ setting.11')).not.toBeInTheDocument()
+        expect(screen.getByText('~ audit:detail_names.setting.12: 1 → 2')).toBeInTheDocument()
+        expect(screen.getByText('+2')).toBeInTheDocument()
+        expect(changeTags()).toHaveLength(22)
+    })
+
     it('names the codes of the details in words and leaves free text as it is', async () => {
         const read: audit.AuditEvent = {
             id: 3,

@@ -2,7 +2,8 @@
 
 OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who changed
 users, groups, personal access tokens and access rights, whose request was refused for lack of permission, who created,
-saved, deleted and deployed projects and changed the branches of their repositories, and who read the log.
+saved, deleted and deployed projects and changed the branches of their repositories, who changed the system settings,
+and who read the log.
 Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes where the
 events come from, how they are kept and how they are read. The user guide describes the page:
 [Reviewing the Audit Log](../user-guides/openl-studio/administration/08-audit-log.md).
@@ -229,6 +230,39 @@ What the events tell, and what they leave out:
 - **Not recorded**: a file written to a closed project through the files API, or to a design repository through its
   files mount, is a revision of the repository with its author (`AuthoringRepository`); the commit that formats the
   workbooks a merge combined belongs to the merge.
+
+## Settings
+
+`SettingsServiceImpl.commit` applies the system settings an administrator saves through the REST API — the system,
+mail, authentication and repository settings under `/rest/admin/settings` — and has `SettingsAuditor` announce them:
+one `settingsChanged` event (category `settings`) for every save, however many settings it changed.
+
+- **The settings a save gave other values**: the values of the properties the save writes are read before it and
+  after it, and every property whose value differs is in the event. A setting saved as it was is not, and a save
+  that changes nothing records nothing. A reverted setting has the value it takes by default. A blank value counts
+  as no value.
+- **A value is recorded as it is written**: the first property source that holds a property gives its value, as it
+  does for the environment, but the references the value holds, as `${MAIL_URL}`, are left unresolved
+  (`SettingsServiceImpl`). So the value of an environment variable or of another property a setting refers to never
+  reaches the event.
+- **The target lists the properties that changed** (type `settings`), so a search by the target finds the event by
+  any of them. The detail `changed` holds each property with its values before and after, `from` and `to`,
+  however many properties the save changed.
+- **No credential reaches a value**: `SecretSettings.masked` hides the user and the password of an address or a
+  connection string, and every parameter whose name tells a secret (`password`, `token`, `key`, `sig`…), as `***`.
+  A value longer than `SettingsAuditor.VALUE_LENGTH` is cut short.
+- **A secret value is never recorded**: a setting a model declares secret (`@SettingPropertyName(secret = true)` on a
+  field or a getter), by its full name or by the suffix a repository adds to its prefix, and a property whose name tells a secret — the
+  last part holds `password` or `secret`, or ends with `key` (`SecretSettings`) — is in the event as
+  `{"secret": true}`, without its values.
+- **A change is announced once it is saved**: the settings live in a file, which no transaction covers. A failure to
+  record it is logged and never fails the save. Neither does a default a repository takes by reference (`.$ref`)
+  that names a property no setting has: it cannot be read and counts as no value. The saves are made one at a time,
+  so the values read around a save are the ones it wrote.
+- **Not recorded**: a setting that comes from an environment variable, a system property, an init parameter of the
+  context or JNDI, such as the configuration of a Helm chart, changes with a restart, outside of OpenL Studio. Such a
+  setting overrides the saved one, so saving it through the REST API changes no value and records nothing. A saved
+  setting overrides the properties files of the application, so saving it records the change.
 
 ## Reading
 

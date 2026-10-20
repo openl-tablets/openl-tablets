@@ -312,7 +312,8 @@ public class AuditService {
         return TRUST_RESOLVER.isAuthenticated(authentication) ? authentication.getName() : null;
     }
 
-    private static @Nullable String cut(@Nullable String value, int length) {
+    /** The text cut to the given length when it is longer, its end marked as cut. */
+    static @Nullable String cut(@Nullable String value, int length) {
         return value == null || value.length() <= length
                 ? value
                 : value.substring(0, length - TRUNCATED.length()) + TRUNCATED;

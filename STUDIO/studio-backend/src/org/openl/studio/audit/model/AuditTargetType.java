@@ -36,5 +36,9 @@ public enum AuditTargetType {
 
     @Schema(description = "A deployment, named by its name; the details name its production repository.")
     @JsonProperty("deployment")
-    DEPLOYMENT
+    DEPLOYMENT,
+
+    @Schema(description = "The system settings, named by the properties that changed.")
+    @JsonProperty("settings")
+    SETTINGS
 }
