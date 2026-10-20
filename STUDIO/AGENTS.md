@@ -60,7 +60,10 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   `RequestMatchers.userGuideFiles()` admits an address below `/docs` only when its last part ends with an extension,
   the rule by which `UserGuidesServlet` never answers it with the page.
 - **New features** → React in `studio-ui/`
-- **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`
+- **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`. A time is a `${timestamp}` column that
+  holds UTC, mapped as an `Instant`; Oracle reads it through `OracleInstantTypeContributor`. A value one database
+  keeps or reads back differently is written and read back by the `itest.studio/acl` suite, which CI runs on every
+  supported database (see [`ITEST/AGENTS.md`](../ITEST/AGENTS.md))
 - **Authentication**: Form-based, SAML, OAuth2, LDAP/AD, Personal Access Tokens
 - **REST API / OpenAPI**: Externalized descriptions, `@Parameter` vs `@Schema`, enum wire codes, and request
   validation follow strict rules — see [`studio-backend/AGENTS.md`](studio-backend/AGENTS.md)

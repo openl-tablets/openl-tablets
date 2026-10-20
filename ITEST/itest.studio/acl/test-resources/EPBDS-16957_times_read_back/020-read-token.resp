@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "publicId": "***",
+  "name": "Times read back",
+  "loginName": "admin",
+  "createdAt": "***",
+  "expiresAt": "2099-01-01T00:00:00Z"
+}
