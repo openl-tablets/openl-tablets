@@ -142,6 +142,8 @@ Consider a case when the name of the array element needs to be referred explicit
     -   List claims = policy.getClaims(); claims[(Claim claim) order by claim.date]
     -   List claims = policy.getClaims(); claims[(Claim claim) ^@ date]
 
+When the declared type converts an element, the condition or expression uses the converted value. For example, `new Integer[] {30, 10, 20}[(Long amount) order by amount]` compares `Long` values and returns `Integer[] {10, 20, 30}`. Over an array, SELECT ALL and ORDER BY return the original elements in an array of the same type. Over a list, they return converted values in an array of the declared type, such as `Long[]`. SPLIT BY follows the same element rule but returns a two-dimensional array: an `Integer[]` source produces `Integer[][]`, while a list whose elements are converted to `Long` produces `Long[][]`. SELECT FIRST always returns the original element, including over a list.
+
 #### Element Index in Array Index Operators
 
 Sometimes a condition or a result depends on where the element stands in the array: the first three rates, every second driver, a line number in a report. For this, name the index of the element next to the element itself. The index is the position of the element, starting from 0 for the first one.

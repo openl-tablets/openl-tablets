@@ -18,6 +18,7 @@ class SplitByIndexNode extends ABoundNode {
     private final IBoundNode targetNode;
     @Getter
     private final IOpenClass type;
+    private final boolean sourceIsArray;
     private final IOpenClass componentType;
 
     SplitByIndexNode(ISyntaxNode syntaxNode,
@@ -28,8 +29,9 @@ class SplitByIndexNode extends ABoundNode {
         this.variables = variables;
         this.targetNode = targetNode;
         this.splitBy = splitBy;
+        this.sourceIsArray = targetNode.getType().isArray();
 
-        if (targetNode.getType().isArray()) {
+        if (sourceIsArray) {
             this.componentType = targetNode.getType().getComponentClass();
             this.type = targetNode.getType().getAggregateInfo().getIndexedAggregateType(targetNode.getType());
         } else {
@@ -68,7 +70,7 @@ class SplitByIndexNode extends ABoundNode {
                 list2d.add(list);
             }
 
-            list.add(element);
+            list.add(sourceIsArray ? element : value);
         });
 
         var size = list2d.size();

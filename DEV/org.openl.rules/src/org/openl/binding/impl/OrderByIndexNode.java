@@ -19,6 +19,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
     private final boolean isDecreasing;
     private final IBoundNode orderBy;
     private final IBoundNode targetNode;
+    private final boolean sourceIsArray;
     private final Class<?> componentClass;
     @Getter
     private final IOpenClass type;
@@ -33,8 +34,9 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
         this.isDecreasing = isDecreasing;
         this.orderBy = orderBy;
         this.targetNode = targetNode;
+        this.sourceIsArray = targetNode.getType().isArray();
 
-        if (targetNode.getType().isArray()) {
+        if (sourceIsArray) {
             this.componentClass = targetNode.getType().getComponentClass().getInstanceClass();
             this.type = targetNode.getType();
         } else {
@@ -57,7 +59,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
 
         variables.forEach(targetNode.getType().getAggregateInfo().getIterator(target),
                 env,
-                (element, value) -> putElement(map, (T) orderBy.evaluate(env), value));
+                (element, value) -> putElement(map, (T) orderBy.evaluate(env), sourceIsArray ? element : value));
 
         var objects = new ArrayList<Object>();
         for (Object element : map.values()) {

@@ -243,6 +243,11 @@ from Maven.
   Applied to an array or a collection that is `null`, such as the values of a missing `Map`, it gives `null`. Before,
   it gave an empty array for a missing array and stopped with a `NullPointerException` for a missing collection.
 
+* **`ORDER BY` returns the original elements of an array even when they are converted for comparison.** For an
+  `Object[]` or `Number[]` holding `Integer` values, `[(Long x) order by x]` compares `Long` values but returns the
+  original `Integer` values in order. Before, it returned converted `Long` values. `SELECT ALL` and `SPLIT BY`
+  already returned original elements. Use `transform to` when the result must contain converted values.
+
 * **`remove` gives an empty value for a missing array.** `remove((Integer[]) null, 0)` is `null`, as `removeElement`,
   `slice` and `removeNulls` already give for a missing array. Before, it stopped the call with `Index: 0, Length: 0`.
   A position outside an existing array still stops the call.

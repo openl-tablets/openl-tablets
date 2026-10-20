@@ -15,6 +15,7 @@ class SelectAllIndexNode extends ABoundNode {
     private final ElementVariables variables;
     private final IBoundNode condition;
     private final IBoundNode targetNode;
+    private final boolean sourceIsArray;
     private final Class<?> componentClass;
     @Getter
     private final IOpenClass type;
@@ -27,8 +28,9 @@ class SelectAllIndexNode extends ABoundNode {
         this.variables = variables;
         this.targetNode = targetNode;
         this.condition = condition;
+        this.sourceIsArray = targetNode.getType().isArray();
 
-        if (targetNode.getType().isArray()) {
+        if (sourceIsArray) {
             this.componentClass = targetNode.getType().getComponentClass().getInstanceClass();
             this.type = targetNode.getType();
         } else {
@@ -48,7 +50,7 @@ class SelectAllIndexNode extends ABoundNode {
         var firedElements = new ArrayList<Object>();
         variables.forEach(targetNode.getType().getAggregateInfo().getIterator(target), env, (element, value) -> {
             if (BooleanUtils.toBoolean(condition.evaluate(env))) {
-                firedElements.add(element);
+                firedElements.add(sourceIsArray ? element : value);
             }
         });
         return CollectionUtils.toArray(firedElements, componentClass);
