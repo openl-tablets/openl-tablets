@@ -12,6 +12,8 @@ import org.openl.studio.projects.service.tables.TableModules;
  *
  * @param startRow     the zero-based index of the first row to answer, or {@code null} for the top
  * @param maxRows      the most rows to answer from {@code startRow}, or {@code null} for every remaining row
+ * @param cutMerges    whether the window holds exactly the rows asked for, cutting the merged cells at its edges,
+ *                     rather than growing to keep them whole
  * @param withStyles   whether to attach the Excel style of each cell (background, font, alignment), the pieces of
  *                     its text formatted with fonts of their own, and the roles of the cells
  * @param withMetaInfo whether to attach what the compiler knows about each cell — the pieces of its text that refer
@@ -21,6 +23,7 @@ import org.openl.studio.projects.service.tables.TableModules;
 @Builder(toBuilder = true)
 public record RawTableRead(@Nullable Integer startRow,
                            @Nullable Integer maxRows,
+                           boolean cutMerges,
                            boolean withStyles,
                            boolean withMetaInfo,
                            TableModules modules) {

@@ -19,13 +19,17 @@ import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.EmptyMetaInfoReader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.AGrid;
+import org.openl.rules.table.GridRegionUtils;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.TextRun;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsUtil;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ui.BorderStyle;
 import org.openl.rules.tableeditor.model.ui.CellModel;
@@ -171,7 +175,9 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         var fullHeight = openLTable.getGridTable().getHeight();
         // Crop from startRow first; TableModel then caps maxRows rows from the slice top. Both act on the grid
         // region, so rows outside the window are never materialised and cell addresses stay absolute.
-        var window = TableWindow.of(openLTable.getGridTable(), read.startRow(), read.maxRows());
+        var window = read.cutMerges()
+                ? TableWindow.exact(openLTable.getGridTable(), read.startRow(), read.maxRows())
+                : TableWindow.of(openLTable.getGridTable(), read.startRow(), read.maxRows());
         var gridTable = sliceFrom(openLTable.getGridTable(), window.startRow());
         var tableModel = gridTable == null ? null
                 : TableModel.initializeTableModel(gridTable, window.rows(), metaInfoReader);
@@ -317,7 +323,13 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
                 }
                 var cellModel = (CellModel) cells[row][col];
                 var cell = tableModel.getGridTable().getCell(cellModel.getColumn(), cellModel.getRow());
-                rowCells.add(readCell(cell, cellModel, read, metaInfoReader, cellValueReader, styled));
+                // Only a cell at an edge of the window can be the part of a merged cell the window cuts
+                var atEdge = row == 0 || row + cellModel.getRowspan() >= height;
+                var cut = read.cutMerges() && atEdge ? cutMergeOf(cell, cellModel) : null;
+                var holder = cut == null ? cell
+                        : tableModel.getGridTable().getGrid().getCell(cut.getLeft(), cut.getTop());
+                rowCells.add(readCell(cell, holder, cut == null ? null : areaOf(cut), cellModel, read,
+                        metaInfoReader, cellValueReader, styled));
                 coveredCells.mark(row, col, cellModel);
             }
             matrix.add(rowCells);
@@ -325,25 +337,51 @@ public class RawTableReader extends TableReader<RawTableView, RawTableView.Build
         return matrix;
     }
 
-    /** One cell as the API reports it: what it holds, what it was written with, and how far it reaches. */
-    private RawTableCell readCell(ICell cell, CellModel cellModel, RawTableRead read,
-            MetaInfoReader metaInfoReader, CellValueReader cellValueReader, @Nullable Styled styled) {
+    /**
+     * The merged cell a window cuts at the given cell, or {@code null} for a cell the window holds whole, merged or
+     * not.
+     */
+    private static @Nullable IGridRegion cutMergeOf(ICell cell, CellModel cellModel) {
+        var merged = cell.getRegion();
+        if (merged == null || cellModel.getRowspan() == GridRegionUtils.height(merged)
+                && cellModel.getColspan() == GridRegionUtils.width(merged)) {
+            return null;
+        }
+        return merged;
+    }
+
+    /** The area of a merged cell in A1 notation, such as {@code B4:B299}. */
+    private static String areaOf(IGridRegion merged) {
+        return XlsUtil.xlsCellPresentation(merged.getLeft(), merged.getTop()) + AGrid.RANGE_SEPARATOR
+                + XlsUtil.xlsCellPresentation(merged.getRight(), merged.getBottom());
+    }
+
+    /**
+     * One cell as the API reports it: what it holds, what it was written with, and how far it reaches.
+     *
+     * <p>The part of a merged cell a window cuts stands at the place of {@code cell}, holds what {@code holder}, the
+     * first cell of the merged cell, holds, and names the whole {@code mergedArea}.
+     */
+    private RawTableCell readCell(ICell cell, ICell holder, @Nullable String mergedArea, CellModel cellModel,
+            RawTableRead read, MetaInfoReader metaInfoReader, CellValueReader cellValueReader,
+            @Nullable Styled styled) {
         // A cell carries both what it computes and what it was written with, so a screen showing formulas
         // chooses between them without asking for the table again.
-        var formula = cell.getFormula();
+        var formula = holder.getFormula();
         var builder = RawTableCell.builder()
                 // Cell address in A1 notation, matching the address reported by compilation messages
                 .cell(cell.getUri())
-                .value(cellValueReader.apply(cell))
+                .value(cellValueReader.apply(holder))
                 .formula(StringUtils.isBlank(formula) ? null : "=" + formula)
-                .comment(commentOf(cell))
+                .comment(commentOf(holder))
                 .colspan(cellModel.getColspan())
                 .rowspan(cellModel.getRowspan())
-                .metaInfo(read.withMetaInfo() ? metaInfoOf(cell, metaInfoReader, read.modules()) : null);
+                .mergedArea(mergedArea)
+                .metaInfo(read.withMetaInfo() ? metaInfoOf(holder, metaInfoReader, read.modules()) : null);
         if (styled != null) {
             builder.style(styled.styleOf(cellModel))
-                    .runs(runsOf(cell, styled.styles))
-                    .type(styled.layout == null ? null : styled.layout.typeAt(cell));
+                    .runs(runsOf(holder, styled.styles))
+                    .type(styled.layout == null ? null : styled.layout.typeAt(holder));
         }
         return builder.build();
     }

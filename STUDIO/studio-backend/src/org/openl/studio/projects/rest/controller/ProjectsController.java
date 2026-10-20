@@ -553,6 +553,7 @@ public class ProjectsController {
                                       @RequestParam(value = "raw", defaultValue = "false") @Parameter(description = "projects.table.get.param.raw.desc") boolean raw,
                                       @RequestParam(value = "startRow", required = false) @Min(0) @Parameter(description = "projects.table.get.param.start-row.desc") Integer startRow,
                                       @RequestParam(value = "maxRows", required = false) @Min(1) @Parameter(description = "projects.table.get.param.max-rows.desc") Integer maxRows,
+                                      @RequestParam(value = "cutMerges", defaultValue = "false") @Parameter(description = "projects.table.get.param.cut-merges.desc") boolean cutMerges,
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
@@ -561,6 +562,7 @@ public class ProjectsController {
                 ? projectService.getTableRaw(project, tableId, RawTableRead.builder()
                         .startRow(startRow)
                         .maxRows(maxRows)
+                        .cutMerges(cutMerges)
                         .withStyles(styles)
                         .withMetaInfo(metaInfo)
                         .build(), module)

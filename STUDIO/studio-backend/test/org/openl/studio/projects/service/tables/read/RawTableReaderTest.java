@@ -245,6 +245,56 @@ class RawTableReaderTest {
     }
 
     @Test
+    void readsTheExactRowsAskedForCuttingTheMergedCellsAtTheEdges(@TempDir Path tempDir) throws Exception {
+        var project = TableTestProjects.writeProject(tempDir.resolve("cut"), "cut", "Rules", new String[][]{
+                {"Datatype Greeting", null},
+                {"String", "a"},
+                {"same", "b"},
+                {"same", "c"},
+                {"int", "d"}
+        });
+        new RawTableWriter(firstTable(project))
+                .apply(new RawTableSourceAction.Merge(new MergeTarget.Cells(2, 0, 2, 1)));
+        var whole = new RawTableReader().read(firstTable(project), RawTableRead.builder().build());
+        var first = whole.source.get(2).getFirst().cell();
+        var second = first.replaceAll("\\d", "") + (Integer.parseInt(first.replaceAll("\\D", "")) + 1);
+        var area = first + ":" + second;
+        assertNull(whole.source.get(2).getFirst().mergedArea(), "a merged cell read whole names no area");
+
+        // A window ending halfway down the group holds the rows asked for and cuts the group at its bottom edge.
+        var top = new RawTableReader().read(firstTable(project), RawTableRead.builder()
+                .maxRows(3)
+                .cutMerges(true)
+                .build());
+        assertEquals(3, top.source.size(), "the window holds exactly the rows asked for");
+        var cutAtBottom = top.source.get(2).getFirst();
+        assertEquals(first, cutAtBottom.cell());
+        assertEquals("same", cutAtBottom.value());
+        assertNull(cutAtBottom.rowspan(), "the part of the group inside the window is one row");
+        assertEquals(area, cutAtBottom.mergedArea(), "the cut cell names the whole group");
+
+        // A window opening halfway down the group holds the rest of it, with the value of the group.
+        var bottom = new RawTableReader().read(firstTable(project), RawTableRead.builder()
+                .startRow(3)
+                .maxRows(1)
+                .cutMerges(true)
+                .build());
+        assertEquals(1, bottom.source.size());
+        var cutAtTop = bottom.source.getFirst().getFirst();
+        assertEquals(second, cutAtTop.cell(), "the cut cell stands where the window shows it");
+        assertEquals("same", cutAtTop.value(), "the cut cell holds the value of the group");
+        assertEquals(area, cutAtTop.mergedArea());
+        assertNotNull(bottom.totalRows);
+
+        var beyond = new RawTableReader().read(firstTable(project), RawTableRead.builder()
+                .startRow(10)
+                .cutMerges(true)
+                .build());
+        assertTrue(beyond.source.isEmpty(), "a window past the last row holds no rows");
+        assertEquals(Integer.valueOf(whole.source.size()), beyond.totalRows);
+    }
+
+    @Test
     void readsTheBordersAndTheFontsOfThePiecesOfATextTheWorkbookDraws(@TempDir Path tempDir) throws Exception {
         var model = TableTestProjects.projectModel(tempDir.resolve("drawn"), "Drawn", sheet -> {
             var workbook = (XSSFWorkbook) sheet.getWorkbook();
