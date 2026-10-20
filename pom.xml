@@ -229,6 +229,7 @@
         <npm.version>12.0.2</npm.version>
         <npm.test.skip>false</npm.test.skip>
         <npm.typecheck.skip>false</npm.typecheck.skip>
+        <npm.lint.skip>false</npm.lint.skip>
         <npm.build.skip>false</npm.build.skip>
 
         <!-- It needs to detect memory leaks. -->

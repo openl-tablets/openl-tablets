@@ -231,12 +231,14 @@ npm run typecheck              # tsc --noEmit
 
 Docker dev: set `_REACT_UI_ROOT_: http://localhost:3100` in root `compose.override.yaml` under the `studio` service.
 
-Maven: `mvn clean install` runs `npm install` + `npm run typecheck` + `npm run build` + `npm run test` via
-`frontend-maven-plugin`. Bundled UI is published relative to `CONFIG.CONTEXT`. Each step after the install has a
-switch of its own — `-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.build.skip` — for a build that needs only
-some of them.
+Maven: `mvn clean install` runs `npm install` + `npm run typecheck` + `npm run lint` + `npm run build` +
+`npm run test` via `frontend-maven-plugin`. Bundled UI is published relative to `CONFIG.CONTEXT`. Each step after the
+install has a switch of its own — `-Dnpm.test.skip`, `-Dnpm.typecheck.skip`, `-Dnpm.lint.skip`, `-Dnpm.build.skip` —
+for a build that needs only some of them.
 
-The build does not run ESLint: run `npm run lint` after a change and leave no error behind.
+An ESLint error fails the build; a warning does not, yet it needs attention all the same. Run `npm run lint` after
+every change, leave no error behind, and deal with each warning the change brings — the build alone lets a warning
+pass unseen.
 
 ## Testing
 
