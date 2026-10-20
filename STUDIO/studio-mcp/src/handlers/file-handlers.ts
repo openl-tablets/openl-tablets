@@ -2,6 +2,8 @@
  * Project-file tool handlers (BETA) — read, write, delete, search, copy, and
  * move files inside an opened project.
  */
+import { isUtf8 } from "node:buffer";
+import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
@@ -10,7 +12,7 @@ import { formatPage } from "../formatters.js";
 import { sanitizeError } from "../utils.js";
 import { RESPONSE_LIMITS } from "../constants.js";
 import { isNotFoundError, parseJsonOrText } from "../http.js";
-import { compactBase64, normalizeMimeType, sliceContent } from "../content-utils.js";
+import { compactBase64, looksBinary, normalizeMimeType, sliceContent } from "../content-utils.js";
 import { registerTool, formatResult, rethrowConflictAsActionable, textResult, type ToolResponse } from "./common.js";
 
 export function registerFileHandlers(): void {
@@ -128,6 +130,42 @@ export function registerFileHandlers(): void {
       };
 
       return formatResult(result, args.response_format);
+    },
+  });
+
+  registerTool({
+    name: "edit_project_file",
+    title: "Edit Part of a Project File",
+    description:
+      "Change part of a TEXT file of a project without sending the whole file, such as adding keys to a large .properties bundle or changing a few lines of a document. Each edit replaces oldText, which must occur in the file exactly once, with newText; an empty oldText appends newText at the end of the file. The edits apply in order, and every other byte of the file stays as it is. In a file whose lines end with CRLF, the LF line ends of oldText and newText match and are written as CRLF. " +
+      "The file is rewritten in the project WORKING COPY; pass 'message' to commit it to Git (committing saves ALL pending project changes, design repositories only). Use 'branch' to pin the project's branch. A binary file, or one that is not UTF-8 text, is refused: replace it whole with openl_write_project_file.",
+    schema: schemas.editProjectFileSchema,
+    annotations: {
+      openWorldHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const file = await client.readProjectFile(args.projectId, args.path, { branch: args.branch });
+      const original = textOfFile(file, args.path);
+      const crlf = endsLinesWithCrlf(file.data);
+      const edited = args.edits.reduce((text, change, index) => applyEdit(text, change, index, crlf), original);
+      const buffer = Buffer.from(edited, "utf-8");
+      await client.writeProjectFile(args.projectId, args.path, buffer, {
+        createFolders: false,
+        conflictPolicy: "OVERWRITE",
+        branch: args.branch,
+      });
+
+      const commit = await commitWrite(client, args.projectId, args.message);
+      return formatResult({
+        success: true,
+        path: args.path,
+        edits: args.edits.length,
+        bytesBefore: file.data.length,
+        bytesAfter: buffer.length,
+        committed: commit.committed,
+        ...(args.branch ? { branch: args.branch } : {}),
+        message: commitMessage(`Applied ${args.edits.length} edit(s) to '${args.path}'`, args.message, commit),
+      }, args.response_format);
     },
   });
 
@@ -269,6 +307,40 @@ async function keepCrlf(
 /** A text with LF line ends written with CRLF; a text that has CR characters stays as it is. */
 function withCrlf(text: string): string {
   return text.includes("\r") ? text : text.replaceAll("\n", "\r\n");
+}
+
+/** The text of a file an edit changes; a folder, a binary file or one that is not UTF-8 text is refused. */
+function textOfFile(file: Types.ProjectFileResponse, path: string): string {
+  if (isListing(file.contentType, file.contentDisposition)) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams, `'${path}' is a folder, not a file.`);
+  }
+  if (looksBinary(file.data) || !isUtf8(file.data)) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+      `'${path}' is not UTF-8 text, so it cannot be edited in part: replace it whole with openl_write_project_file.`);
+  }
+  return file.data.toString("utf-8");
+}
+
+/**
+ * The text after one edit: `oldText`, found exactly once, replaced by `newText`, or `newText` appended when `oldText`
+ * is empty. In a file whose lines end with CRLF, the LF line ends of both texts are taken as CRLF.
+ */
+function applyEdit(text: string, change: { oldText: string; newText: string }, index: number, crlf: boolean): string {
+  const oldText = crlf ? withCrlf(change.oldText) : change.oldText;
+  const newText = crlf ? withCrlf(change.newText) : change.newText;
+  if (oldText === "") {
+    return text + newText;
+  }
+  const at = text.indexOf(oldText);
+  if (at < 0) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+      `Edit ${index + 1}: oldText is not in the file. Copy it exactly from openl_read_project_file; no edit was applied.`);
+  }
+  if (text.includes(oldText, at + 1)) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+      `Edit ${index + 1}: oldText occurs more than once in the file. Include more of the surrounding lines to make it unique; no edit was applied.`);
+  }
+  return text.slice(0, at) + newText + text.slice(at + oldText.length);
 }
 
 /** Whether the lines of a text end with CRLF, every one of them. */

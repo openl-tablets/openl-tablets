@@ -1,7 +1,7 @@
 /** Shared helpers for transporting text and binary file content over MCP. */
 
 /** Detect binary data using NUL/control-byte sampling. */
-function looksBinary(buffer: Buffer): boolean {
+export function looksBinary(buffer: Buffer): boolean {
   const sampleLength = Math.min(buffer.length, 8000);
   if (sampleLength === 0) return false;
   let suspicious = 0;

@@ -364,6 +364,74 @@ describe("openl_write_project_file", () => {
   });
 });
 
+describe("openl_edit_project_file (EPBDS-16855)", () => {
+  const bundle = "i18n/message.properties";
+  const editFile = (edits: Array<{ oldText: string; newText: string }>, extra: object = {}) =>
+    executeTool("edit_project_file", { projectId: "p1", path: bundle, edits, response_format: "json", ...extra }, harness.client);
+
+  it("adds keys to a bundle whose lines end with CRLF, leaving every other byte as it is", async () => {
+    answerFile(bundle, "#Bundle\r\na=1\r\nb=2\r\n", "text/plain");
+    harness.mockHttp.onPost(`/projects/p1/files/${bundle}`).reply(204);
+
+    const result = await editFile([
+      { oldText: "a=1\n", newText: "a=1\nc=3\n" },
+      { oldText: "", newText: "z=26\n" },
+    ]);
+
+    expect(writtenBytes().toString("utf-8")).toBe("#Bundle\r\na=1\r\nc=3\r\nb=2\r\nz=26\r\n");
+    expect(harness.mockHttp.history.post[0].params).toMatchObject({ conflictPolicy: "OVERWRITE", createFolders: false });
+    expect(dataOf(result)).toEqual({
+      success: true, path: bundle, edits: 2, bytesBefore: 19, bytesAfter: 30, committed: false,
+      message: `Applied 2 edit(s) to '${bundle}' in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.`,
+    });
+  });
+
+  it("commits the edit with a 'message'", async () => {
+    answerFile(bundle, "a=1\n", "text/plain");
+    harness.mockHttp.onPost(`/projects/p1/files/${bundle}`).reply(204);
+    harness.mockHttp.onGet("/projects/p1").reply(200, { id: "p1", name: "P", status: "EDITING", repository: "design" });
+    harness.mockHttp.onPatch("/projects/p1").reply(204);
+
+    const result = await editFile([{ oldText: "a=1", newText: "a=2" }], { message: "Change a" });
+
+    expect(writtenBytes().toString("utf-8")).toBe("a=2\n");
+    expect(dataOf(result)).toMatchObject({
+      committed: true,
+      message: `Applied 1 edit(s) to '${bundle}' and committed the project to Git: "Change a".`,
+    });
+  });
+
+  it.each([
+    ["is not in the file", "x=9", /Edit 2: oldText is not in the file/],
+    ["occurs more than once", "=", /Edit 2: oldText occurs more than once/],
+  ])("writes nothing when an oldText %s", async (_case, oldText, message) => {
+    answerFile(bundle, "a=1\nb=2\n", "text/plain");
+
+    await expect(editFile([{ oldText: "a=1", newText: "a=2" }, { oldText, newText: "" }])).rejects.toThrow(message);
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+  });
+
+  it.each([
+    ["a binary file", Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00, 0xff]), "application/octet-stream", /not UTF-8 text/],
+    ["a file that is not UTF-8", Buffer.from("caf\xe9 au lait", "latin1"), "text/plain", /not UTF-8 text/],
+  ])("refuses %s", async (_case, body, contentType, message) => {
+    answerFile(bundle, body, contentType);
+
+    await expect(editFile([{ oldText: "", newText: "x" }])).rejects.toThrow(message);
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+  });
+
+  it("refuses a folder", async () => {
+    harness.mockHttp.onGet("/projects/p1/files/i18n/").reply(200, [{ name: "message.properties" }], {
+      "content-type": "application/json",
+    });
+
+    await expect(executeTool("edit_project_file", {
+      projectId: "p1", path: "i18n/", edits: [{ oldText: "", newText: "x" }],
+    }, harness.client)).rejects.toThrow(/is a folder/);
+  });
+});
+
 describe("delete, search, copy and move", () => {
   it("openl_delete_project_file deletes and reports success", async () => {
     harness.mockHttp.onDelete("/projects/p1/files/old.txt").reply(204);
