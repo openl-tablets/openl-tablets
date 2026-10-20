@@ -67,6 +67,11 @@ The `*RdbmsTest` classes run **only on CI** — they are gated on the `CI` envir
 GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To run one locally, set
 `CI=true` (and do not pass `-DnoDocker`).
 
+Each of them runs the `itest.studio/acl` suite against its database, so that suite holds the steps that write a
+value a database may keep or read back differently and read it back: the times of a personal access token
+(`EPBDS-16957_times_read_back`). A unit test on H2 does not tell: the mapping that fails is the one of the other
+database.
+
 `OracleRdbmsTest` raises the Oracle process limit from 200 to 1000 when the container initializes. Oracle runs
 every connection in a process of its own: the database takes about 80 of the 200 for itself and the security
 database pool keeps 50 more open, while the JDBC design repository opens a connection for every call. A burst of
