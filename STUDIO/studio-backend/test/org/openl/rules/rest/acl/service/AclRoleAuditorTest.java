@@ -98,6 +98,32 @@ class AclRoleAuditorTest {
     }
 
     @Test
+    void roleGainedWithAGroup_namesTheUserTheGroupAndTheIdentityProvider() {
+        auditor.announceThroughGroup(Place.project("design", "Pricing", "sales/Pricing"), "jdoe", "Analysts",
+                "CONTRIBUTOR", true);
+
+        var event = single();
+        assertEquals(AuditAction.ROLE_GRANTED, event.action());
+        assertEquals(AuditTargetType.PROJECT, event.targetType());
+        assertEquals("Pricing", event.target());
+        assertEquals(AuditSubjectType.USER, event.subjectType());
+        assertEquals("jdoe", event.subject());
+        assertEquals(Map.of("repository", "design", "path", "sales/Pricing", "to", "CONTRIBUTOR", "group", "Analysts",
+                "origin", "identityProvider"), event.details());
+    }
+
+    @Test
+    void roleLostWithAGroup_keepsTheRoleTakenAway() {
+        auditor.announceThroughGroup(Place.root(AclRepositoryType.DESIGN), "jdoe", "Analysts", "VIEWER", false);
+
+        var event = single();
+        assertEquals(AuditAction.ROLE_REVOKED, event.action());
+        assertEquals("design", event.target());
+        assertEquals("jdoe", event.subject());
+        assertEquals(Map.of("from", "VIEWER", "group", "Analysts", "origin", "identityProvider"), event.details());
+    }
+
+    @Test
     void sameRole_announcesNothing() {
         auditor.announce(Place.root(AclRepositoryType.DESIGN), JDOE, "VIEWER", "VIEWER");
         auditor.announce(Place.root(AclRepositoryType.DESIGN), JDOE, null, null);

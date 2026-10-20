@@ -40,6 +40,16 @@ public record AuditEvent(AuditAction action,
                          @Nullable String subject,
                          Map<String, ?> details) {
 
+    /**
+     * The detail that names where a change came from.
+     */
+    public static final String ORIGIN = "origin";
+
+    /**
+     * The origin of a change the identity provider brought at sign-in.
+     */
+    public static final String IDENTITY_PROVIDER = "identityProvider";
+
     public AuditEvent {
         Objects.requireNonNull(action, "action");
         outcome = Objects.requireNonNullElse(outcome, AuditOutcome.SUCCESS);
@@ -52,5 +62,17 @@ public record AuditEvent(AuditAction action,
             });
         }
         details = Collections.unmodifiableMap(present);
+    }
+
+    /**
+     * Starts an event of a user joining or leaving a group: the group is its target and the user its subject.
+     */
+    public static AuditEventBuilder membership(AuditAction action, String group, String user) {
+        return builder()
+                .action(action)
+                .targetType(AuditTargetType.GROUP)
+                .target(group)
+                .subjectType(AuditSubjectType.USER)
+                .subject(user);
     }
 }

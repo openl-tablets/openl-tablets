@@ -1,0 +1,6 @@
+POST /rest/admin/management/groups HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/x-www-form-urlencoded
+
+name=audit-analysts&description=Analysts of the audit log&admin=yes

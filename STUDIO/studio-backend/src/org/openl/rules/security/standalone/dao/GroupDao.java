@@ -1,5 +1,6 @@
 package org.openl.rules.security.standalone.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +14,11 @@ import org.openl.rules.security.standalone.persistence.Group;
 public interface GroupDao extends Dao<Group> {
 
     Group getGroupByName(String name);
+
+    /**
+     * The groups of the given names, with their privileges. A name no group has is left out.
+     */
+    List<Group> getGroupsByNames(Collection<String> names);
 
     boolean existsByName(String name);
 

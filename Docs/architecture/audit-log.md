@@ -118,15 +118,25 @@ methods that change a user or a group are transactional for it.
 
 - **The values before a change** are read where the service reads the row anyway: the details of a user, the
   description and the privileges of a group. The groups of a user and its external groups cost one query more, the
-  group to delete and the token to delete one each.
+  group to delete and the token to delete one each; a change of the external groups costs one more, the groups of
+  OpenL Studio among them.
 - **Only a change is announced.** A save that keeps every value, a sign-in that brings the same details and external
   groups, and the same privileges set again announce nothing. A blank text counts as no value (`AuditChanges`). The
   external groups of a sign-in are written again only when they change.
-- **A membership event names the group as the target and the user as the subject**, so a filter by subject finds every
-  group a user joined or left.
+- **A membership event names the group as the target and the user as the subject** (`AuditEvent.membership`), so a
+  filter by subject finds every group a user joined or left.
 - **A change made at sign-in** — a user created or updated from an identity provider, its external groups — is made
   before anyone is signed in, so it names no actor; a user created or changed so is marked `"origin":
-  "identityProvider"`.
+  "identityProvider"` (`AuditEvent.ORIGIN`, `AuditEvent.IDENTITY_PROVIDER`).
+- **External groups bring groups and roles.** An external group of the name of a group of OpenL Studio gives the user
+  the privileges of that group, and every external group gives the user the roles the ACL grants to its name. When
+  the external groups change, `ExternalGroupServiceImpl` announces, after `externalGroupsChanged`, a
+  `groupMemberAdded` or `groupMemberRemoved` for each group of OpenL Studio among the groups that changed, marked as
+  coming from the identity provider and naming its `privileges` (`GroupDao.getGroupsByNames`: one query, the
+  privileges fetched with the groups), and has `ExternalGroupRolesAuditor` announce the roles (see
+  [Access Rights](#access-rights)). Working them out reads the groups and the ACL, so it runs once the external groups
+  and `externalGroupsChanged` are saved and the lock that merges the groups of the user is released, in a transaction
+  of its own: a failure is logged and never fails the sign-in.
 - **Secrets stay out**: a password set is a `passwordChanged` event with no details; a token is named by its public id
   and its name.
 
@@ -148,6 +158,15 @@ user or the group.
   is a `roleRevoked` too. A role inside a project, on a folder or a file, is not compared: the overwrite never sets
   one.
 - **The roles a deleted user or group held are not announced one by one**: the deletion itself is the event.
+- **Roles that come with an external group** are announced for the user. `ExternalGroupRolesAuditor` reads, for each
+  external group the user joined or left, every role the group holds (`SimpleRepositoryAclService.listAllPermissions`:
+  for the design and for the production repositories, one query reads the permissions granted to the group,
+  `JdbcSidManagingAclService.findPermissions`, past the ACL cache) and `AclRoleAuditor.announceThroughGroup` announces
+  each one as `roleGranted` or `roleRevoked` with the subject the user, the detail `group` and `"origin":
+  "identityProvider"`. A project is named from its folder in the ACL as it names itself: the last part of the folder,
+  or the name the mapping of a repository with mapped folders gives it. A role the user already holds, by itself or
+  through another group, is announced all the same: the event tells what the group brings, not what the user may do.
+  It is looked up only when the external groups change, so a sign-in with the same groups costs nothing.
 - **Permissions that make no role** are named by their mask, such as `mask 2`.
 
 ## Refused Requests

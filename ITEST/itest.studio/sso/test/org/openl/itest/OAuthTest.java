@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
@@ -33,6 +34,8 @@ class OAuthTest extends AbstractKeycloakTest {
 
     private static final String CLIENT_ID = "openlstudio";
     private static final String CLIENT_SECRET = "kXo86nuTdOYQzPZ7k09G7vQmqeDNNZoM";
+    private static final String AUDIT_ANALYST = "audit_analyst";
+    private static final String AUDIT_ANALYSTS_GROUP = "audit-analysts";
 
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofMillis(Integer.parseInt(System.getProperty("http.timeout.connect"))))
@@ -51,6 +54,7 @@ class OAuthTest extends AbstractKeycloakTest {
 
                 httpClient.localEnv.putAll(bearerTokens);
                 httpClient.test("test-resources-oauth2");
+                auditGroupsOfTheIdentityProvider(httpClient, keycloack, authServerUrl);
 
                 // stop Keycloak to simulate the lag
                 keycloack.stop();
@@ -147,6 +151,30 @@ class OAuthTest extends AbstractKeycloakTest {
         }
     }
 
+    /**
+     * The identity provider gives a user a group and then takes it away: the audit log names what the user gained with
+     * the group and lost with it. See the README of the resources.
+     */
+    private void auditGroupsOfTheIdentityProvider(org.openl.itest.core.HttpClient httpClient,
+                                                  KeycloakContainer keycloak,
+                                                  String authServerUrl) throws Exception {
+        var resources = "test-resources-oauth2-identity-provider-groups/";
+        httpClient.test(resources + "010-setup");
+        httpClient.test(resources + "020-joined");
+
+        try (var admin = keycloak.getKeycloakAdminClient()) {
+            var realm = admin.realm("openlstudio");
+            var user = realm.users().searchByUsername(AUDIT_ANALYST, true).getFirst();
+            var group = realm.groups().groups(AUDIT_ANALYSTS_GROUP, 0, 1).getFirst();
+            realm.users().get(user.getId()).leaveGroup(group.getId());
+        }
+        // A token issued now no longer names the group.
+        httpClient.localEnv.put("AUDIT_ANALYST_TOKEN",
+                getAccessTokenForUser(authServerUrl, AUDIT_ANALYST, AUDIT_ANALYST));
+        httpClient.test(resources + "030-left");
+        httpClient.test(resources + "999-tierdown");
+    }
+
     private Map<String, String> retrieveBearerAccessTokens(String authServerUrl) throws URISyntaxException, IOException, InterruptedException {
         var tokens = new HashMap<String, String>();
         tokens.put("ADMIN_ACCESS_TOKEN", getAccessTokenForUser(authServerUrl, "admin", "admin"));
@@ -167,6 +195,7 @@ class OAuthTest extends AbstractKeycloakTest {
         tokens.put("EPBDS15131_ADMIN_TOKEN", getAccessTokenForUser(authServerUrl, "epbds15131_admin", "epbds15131_admin"));
         tokens.put("EPBDS15134_USER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds15134_user", "epbds15134_user"));
         tokens.put("EPBDS15621_USER_TOKEN", getAccessTokenForUser(authServerUrl, "epbds15621_user", "epbds15621_user"));
+        tokens.put("AUDIT_ANALYST_TOKEN", getAccessTokenForUser(authServerUrl, AUDIT_ANALYST, AUDIT_ANALYST));
         tokens.put("UNKNOWN_ACCESS_TOKEN", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
         return tokens;
     }

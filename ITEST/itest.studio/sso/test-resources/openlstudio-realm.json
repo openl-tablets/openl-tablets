@@ -566,6 +566,11 @@
       "name": "group-epbds15621-manager",
       "path": "/group-epbds15621-manager",
       "subGroups": []
+    },
+    {
+      "name": "audit-analysts",
+      "path": "/audit-analysts",
+      "subGroups": []
     }
   ],
   "users": [
@@ -931,6 +936,24 @@
       ],
       "groups": [
         "/group-epbds15621-manager"
+      ]
+    },
+    {
+      "username": "audit_analyst",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Audit",
+      "lastName": "Analyst",
+      "email": "audit_analyst@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "audit_analyst",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/audit-analysts"
       ]
     }
   ],

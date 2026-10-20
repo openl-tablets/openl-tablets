@@ -1,0 +1,82 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleGranted",
+      "outcome": "success",
+      "targetType": "root",
+      "target": "prod",
+      "subjectType": "user",
+      "subject": "audit_analyst",
+      "details": {
+        "to": "VIEWER",
+        "group": "audit-analysts",
+        "origin": "identityProvider"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleGranted",
+      "outcome": "success",
+      "targetType": "project",
+      "target": "Audit_Analysts_Project",
+      "subjectType": "user",
+      "subject": "audit_analyst",
+      "details": {
+        "repository": "design",
+        "to": "MANAGER",
+        "group": "audit-analysts",
+        "origin": "identityProvider"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleGranted",
+      "outcome": "success",
+      "targetType": "repository",
+      "target": "design",
+      "subjectType": "user",
+      "subject": "audit_analyst",
+      "details": {
+        "type": "design",
+        "to": "CONTRIBUTOR",
+        "group": "audit-analysts",
+        "origin": "identityProvider"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "clientAddress": "***",
+      "category": "user",
+      "action": "groupMemberAdded",
+      "outcome": "success",
+      "targetType": "group",
+      "target": "audit-analysts",
+      "subjectType": "user",
+      "subject": "audit_analyst",
+      "details": {
+        "origin": "identityProvider",
+        "privileges": [
+          "ADMIN"
+        ]
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 4,
+  "numberOfElements": 4,
+  "total": "###"
+}

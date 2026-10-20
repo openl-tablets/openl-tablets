@@ -30,8 +30,10 @@ import org.openl.security.acl.GrantedAuthorityAclAuthorizationStrategy;
 import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.security.acl.MaskPermissionGrantingStrategy;
 import org.openl.security.acl.oid.AclObjectIdentityProviderImpl;
+import org.openl.security.acl.repository.ProjectArtifact;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.RepositoryAclServiceImpl;
+import org.openl.security.acl.repository.RepositoryObjectIdentity;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclServiceImpl;
 
@@ -117,7 +119,8 @@ public class EnabledAclConfiguration {
         var mutableAclService = new JdbcSidManagingAclService(openlDataSource,
                 lookupStrategy,
                 aclCache,
-                RELEVANT_SYSTEM_WIDE_SID);
+                RELEVANT_SYSTEM_WIDE_SID,
+                repositoryPermissionFactory);
         mutableAclService.setAclClassIdSupported(ALC_CLASS_ID_SUPPORTED);
 
         if (jdbcUrl.startsWith("jdbc:postgresql")) {
@@ -177,8 +180,7 @@ public class EnabledAclConfiguration {
                                                            Cache missingAclCache,
                                                            JdbcSidManagingAclService repositoryJdbcMutableAclService,
                                                            SidRetrievalStrategy sidRetrievalStrategy) {
-        var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.ProjectArtifact.class,
-                DESIGN_REPO_ROOT_ID);
+        var oidProvider = new AclObjectIdentityProviderImpl(ProjectArtifact.class, DESIGN_REPO_ROOT_ID);
         return new RepositoryAclServiceImpl(aclCache,
                 missingAclCache,
                 repositoryJdbcMutableAclService,
@@ -193,8 +195,7 @@ public class EnabledAclConfiguration {
             Cache missingAclCache,
             JdbcSidManagingAclService repositoryJdbcMutableAclService,
             SidRetrievalStrategy sidRetrievalStrategy) {
-        var oidProvider = new AclObjectIdentityProviderImpl(org.openl.security.acl.repository.RepositoryObjectIdentity.class,
-                PROD_REPO_ROOT_ID);
+        var oidProvider = new AclObjectIdentityProviderImpl(RepositoryObjectIdentity.class, PROD_REPO_ROOT_ID);
         return new SimpleRepositoryAclServiceImpl(aclCache,
                 missingAclCache,
                 repositoryJdbcMutableAclService,

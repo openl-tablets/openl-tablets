@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,11 @@ import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.JdbcSidManagingAclService;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.ProjectArtifact;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService.Location;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AclServiceTestConfiguration.class})
 @TestPropertySource(properties = {"db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
@@ -64,6 +68,10 @@ class RepositoryAclServiceTest {
     @Autowired
     @Qualifier("missingAclCache")
     Cache missingAclCache;
+
+    @Autowired
+    @Qualifier("productionRepositoryAclService")
+    SimpleRepositoryAclService productionRepositoryAclService;
 
     @Autowired
     JdbcSidManagingAclService aclService;
@@ -289,6 +297,31 @@ class RepositoryAclServiceTest {
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2/module1.xlsx", List.of(BasePermission.READ)));
         assertTrue(
                 designRepositoryAclService.isGranted("repoId1", "/projectName1/rules1/rules2/module1.xlsx", List.of(BasePermission.WRITE)));
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void listAllPermissions_tellsWhereTheSubjectHoldsThem() {
+        var analysts = new GrantedAuthoritySid("ANALYSTS_JUNIT");
+        var viewer = AclRole.VIEWER.getCumulativePermission();
+        var contributor = AclRole.CONTRIBUTOR.getCumulativePermission();
+        var manager = AclRole.MANAGER.getCumulativePermission();
+        designRepositoryAclService.addRootPermissions(analysts, viewer);
+        designRepositoryAclService.addPermissions("repoId1", null, analysts, contributor);
+        designRepositoryAclService.addPermissions("repoId1", "DESIGN/rules/Bank Rating", analysts, manager);
+        designRepositoryAclService.addPermissions("repoId1", "DESIGN/rules/Bank Rating",
+                new GrantedAuthoritySid(DEVELOPERS_JUNIT), viewer);
+        productionRepositoryAclService.addPermissions("production", null, analysts, viewer);
+
+        assertEquals(Map.of(Location.ROOT, List.of(viewer),
+                        new Location("repoId1", null), List.of(contributor),
+                        new Location("repoId1", "DESIGN/rules/Bank Rating"), List.of(manager)),
+                designRepositoryAclService.listAllPermissions(analysts));
+        assertEquals(Map.of(new Location("production", null), List.of(viewer)),
+                productionRepositoryAclService.listAllPermissions(analysts),
+                "Each kind of repository tells the places of its own");
+        assertTrue(designRepositoryAclService.listAllPermissions(new GrantedAuthoritySid("UNKNOWN_JUNIT")).isEmpty());
     }
 
     @Test

@@ -3,6 +3,13 @@ package org.openl.rules.webstudio.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +36,7 @@ import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditSubjectType;
 import org.openl.studio.audit.model.AuditTargetType;
+import org.openl.studio.audit.service.ExternalGroupRolesAuditor;
 import org.openl.studio.common.exception.NotFoundException;
 
 /**
@@ -51,6 +59,11 @@ class AccountAuditTest {
         AuditEventsCollector auditEventsCollector() {
             return new AuditEventsCollector();
         }
+
+        @Bean
+        ExternalGroupRolesAuditor externalGroupRolesAuditor() {
+            return mock(ExternalGroupRolesAuditor.class);
+        }
     }
 
     @Autowired
@@ -69,6 +82,9 @@ class AccountAuditTest {
     private AuditEventsCollector audit;
 
     @Autowired
+    private ExternalGroupRolesAuditor rolesAuditor;
+
+    @Autowired
     @Qualifier("flywayDBReset")
     private Flyway flywayDBReset;
 
@@ -77,6 +93,7 @@ class AccountAuditTest {
         flywayDBReset.clean();
         flywayDBReset.migrate();
         audit.clear();
+        reset(rolesAuditor);
     }
 
     @Test
@@ -175,7 +192,7 @@ class AccountAuditTest {
         externalGroupService.mergeAllForUser("jdoe", List.of(authority("Testers"), authority("Analysts")));
         externalGroupService.mergeAllForUser("jdoe", List.of(authority("Testers"), authority("Deployers")));
 
-        var events = audit.events();
+        var events = audit.events(AuditAction.EXTERNAL_GROUPS_CHANGED);
         assertEquals(2, events.size(), "The same groups in another order change nothing");
         assertEquals(AuditAction.EXTERNAL_GROUPS_CHANGED, events.getFirst().action());
         assertEquals("jdoe", events.getFirst().target());
@@ -186,6 +203,61 @@ class AccountAuditTest {
                 .stream()
                 .map(Group::getAuthority)
                 .collect(Collectors.toSet()), "The groups the identity provider reports last are kept");
+    }
+
+    @Test
+    void announcesTheStudioGroupsAndTheRolesTheIdentityProviderGivesAndTakesAway() {
+        userService.addUser("jdoe", null, null, null, null, null);
+        groupService.updateGroup("Analysts", Set.of(Privileges.ADMIN.getAuthority()));
+        audit.clear();
+
+        // Sales is no group of OpenL Studio: it can hold roles, never privileges.
+        externalGroupService.mergeAllForUser("jdoe", List.of(authority("Analysts"), authority("Sales")));
+        externalGroupService.mergeAllForUser("jdoe", List.of(authority("Testers")));
+
+        var memberships = audit.events().stream()
+                .filter(event -> event.action() != AuditAction.EXTERNAL_GROUPS_CHANGED)
+                .map(event -> event.action() + " " + event.target() + " " + event.details())
+                .toList();
+        assertEquals(List.of(
+                "GROUP_MEMBER_ADDED Analysts {origin=identityProvider, privileges=[ADMIN]}",
+                "GROUP_MEMBER_ADDED Testers {origin=identityProvider}",
+                "GROUP_MEMBER_REMOVED Analysts {origin=identityProvider, privileges=[ADMIN]}"), memberships);
+        audit.events(AuditAction.GROUP_MEMBER_ADDED).forEach(event -> {
+            assertEquals(AuditTargetType.GROUP, event.targetType());
+            assertEquals(AuditSubjectType.USER, event.subjectType());
+            assertEquals("jdoe", event.subject());
+        });
+        var order = inOrder(rolesAuditor);
+        order.verify(rolesAuditor).announce("jdoe", Set.of("Analysts", "Sales"), Set.of());
+        order.verify(rolesAuditor).announce("jdoe", Set.of("Testers"), Set.of("Analysts", "Sales"));
+        verifyNoMoreInteractions(rolesAuditor);
+    }
+
+    @Test
+    void aFailureToTellTheRolesKeepsTheGroupsOfTheSignIn() {
+        userService.addUser("jdoe", null, null, null, null, null);
+        audit.clear();
+        doThrow(new IllegalStateException("The access control lists cannot be read"))
+                .when(rolesAuditor).announce(any(), any(), any());
+
+        externalGroupService.mergeAllForUser("jdoe", List.of(authority("Analysts")));
+
+        assertEquals(List.of("Analysts"), externalGroupService.findAllForUser("jdoe").stream()
+                .map(Group::getAuthority)
+                .toList(), "The sign-in keeps the groups the identity provider reported");
+        assertEquals(1, audit.events(AuditAction.EXTERNAL_GROUPS_CHANGED).size());
+    }
+
+    @Test
+    void sameExternalGroups_announceNoRoles() {
+        userService.addUser("jdoe", null, null, null, null, null);
+        externalGroupService.mergeAllForUser("jdoe", List.of(authority("Sales")));
+        reset(rolesAuditor);
+
+        externalGroupService.mergeAllForUser("jdoe", List.of(authority("Sales")));
+
+        verifyNoInteractions(rolesAuditor);
     }
 
     private List<AuditAction> actions() {

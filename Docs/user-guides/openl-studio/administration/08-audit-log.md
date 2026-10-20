@@ -57,7 +57,9 @@ The log records these actions:
   changes at sign-in is marked as coming from the identity provider.
 - **Password changed** — a password set for a user. The password itself is never recorded.
 - **Added to group**, **Removed from group** — a user put into a group or taken out of it: the group is the object
-  and the user is the subject.
+  and the user is the subject. A user joins or leaves a group of OpenL Studio at sign-in too, when the identity
+  provider starts or stops reporting a group of the same name: such an event is marked as coming from the identity
+  provider and names the privileges of the group.
 - **External groups changed** — the groups the identity provider reports for a user changed at sign-in, with the
   groups added and removed.
 - **Group created**, **Group changed**, **Group deleted** — a group created, deleted, renamed or described anew.
@@ -67,7 +69,10 @@ The log records these actions:
   a group, replaced or taken away, with the roles before and after. The object is where the role is held: all the
   design or all the production repositories, a repository or a project. The subject is the user or the group. The
   roles a group gets in its editor and the access rights overwritten all at once through the REST API are recorded
-  the same way.
+  the same way. A group the identity provider reports anew at sign-in gives the user every role the group holds, and
+  a group it no longer reports takes them away: each such role is recorded as **Role granted** or **Role revoked** for
+  the user, marked as coming from the identity provider and naming the group. A role the user holds already, by
+  itself or through another group, is recorded all the same.
 - **Access denied** — a request refused because the user may not do what it asks, such as a change of the access
   rights of a project the user does not manage. The object is the path of the request; the details hold its method
   and the reason given to the user.

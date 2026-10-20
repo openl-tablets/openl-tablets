@@ -3,15 +3,23 @@ package org.openl.security.acl;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.lang.Nullable;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PermissionFactory;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.AclCache;
+import org.springframework.security.acls.model.ObjectIdentity;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 
 /**
@@ -26,17 +34,27 @@ public class JdbcSidManagingAclService extends JdbcMutableAclService implements 
     private static final String UPDATE_OWNER_QUERY = "update acl_object_identity set owner_sid = ? where owner_sid = ?";
     private static final String DELETE_ENTRIES_BY_SID_QUERY = "delete from acl_entry where sid=?";
     private static final String UPDATE_SID_QUERY = "update acl_sid set sid = ? where sid = ? and principal=?";
+    private static final String SELECT_PERMISSIONS_BY_SID_QUERY = """
+            select acl_class.class, acl_object_identity.object_id_identity, acl_entry.mask
+            from acl_entry
+            join acl_object_identity on acl_object_identity.id = acl_entry.acl_object_identity
+            join acl_class on acl_class.id = acl_object_identity.object_id_class
+            where acl_entry.sid = ? and acl_entry.granting = ?
+            order by acl_object_identity.id, acl_entry.ace_order""";
 
     private final AclCache aclCache;
     private final Sid relevantSystemWideSid;
+    private final PermissionFactory permissionFactory;
 
     public JdbcSidManagingAclService(DataSource dataSource,
                                      LookupStrategy lookupStrategy,
                                      AclCache aclCache,
-                                     Sid relevantSystemWideSid) {
+                                     Sid relevantSystemWideSid,
+                                     PermissionFactory permissionFactory) {
         super(dataSource, lookupStrategy, aclCache);
         this.aclCache = aclCache;
         this.relevantSystemWideSid = relevantSystemWideSid;
+        this.permissionFactory = permissionFactory;
     }
 
     /**
@@ -149,6 +167,21 @@ public class JdbcSidManagingAclService extends JdbcMutableAclService implements 
         jdbcOperations.update(UPDATE_OWNER_QUERY, newOwnerSid, sidId);
         jdbcOperations.update(DELETE_SID_QUERY, sidId);
         aclCache.clearCache();
+    }
+
+    @Override
+    public Map<ObjectIdentity, List<Permission>> findPermissions(Sid sid) {
+        var sidId = createOrRetrieveSidPrimaryKey(sid, false);
+        if (sidId == null) {
+            return Map.of();
+        }
+        var permissions = new LinkedHashMap<ObjectIdentity, List<Permission>>();
+        jdbcOperations.query(SELECT_PERMISSIONS_BY_SID_QUERY, rs -> {
+            var object = new ObjectIdentityImpl(rs.getString(1), rs.getString(2));
+            permissions.computeIfAbsent(object, key -> new ArrayList<>())
+                    .add(permissionFactory.buildFromMask(rs.getInt(3)));
+        }, sidId, true);
+        return permissions;
     }
 
     public void updateSid(Sid sid, String newSidName) {

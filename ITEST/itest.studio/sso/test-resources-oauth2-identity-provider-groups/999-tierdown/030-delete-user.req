@@ -1,0 +1,4 @@
+DELETE /rest/users/audit_analyst HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+

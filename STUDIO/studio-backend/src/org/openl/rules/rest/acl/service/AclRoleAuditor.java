@@ -33,10 +33,16 @@ import org.openl.studio.audit.model.AuditTargetType;
  * <p>A role is held by a user or a group on all the design or production repositories, on a repository or on a
  * project. A caller reads the role a subject held before a change, makes the change and announces both roles; a role
  * that stays as it was announces nothing.
+ *
+ * <p>A role a user gains or loses with a group the identity provider gives or takes away is announced for the user,
+ * naming the group it comes with.
  */
 @Component
 @RequiredArgsConstructor
 public class AclRoleAuditor {
+
+    private static final String FROM = "from";
+    private static final String TO = "to";
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -64,10 +70,20 @@ public class AclRoleAuditor {
          * of the project too.
          */
         public static Place project(AProject project) {
+            return project(project.getRepository().getId(), project.getBusinessName(), pathOf(project));
+        }
+
+        /**
+         * A project of a design repository by its name, and by its folder in a repository that can hold several
+         * projects of one name.
+         *
+         * @param path the folder of the project, or {@code null} when the repository tells its projects apart by name
+         */
+        public static Place project(String repositoryId, String name, @Nullable String path) {
             var details = new LinkedHashMap<String, String>();
-            details.put("repository", project.getRepository().getId());
-            Optional.ofNullable(pathOf(project)).ifPresent(path -> details.put("path", path));
-            return new Place(AuditTargetType.PROJECT, project.getBusinessName(), details);
+            details.put("repository", repositoryId);
+            Optional.ofNullable(path).ifPresent(folder -> details.put("path", folder));
+            return new Place(AuditTargetType.PROJECT, name, details);
         }
 
         /**
@@ -99,14 +115,39 @@ public class AclRoleAuditor {
             default -> after == null ? AuditAction.ROLE_REVOKED : AuditAction.ROLE_CHANGED;
         };
         var details = new LinkedHashMap<String, Object>(place.details());
-        details.put("from", before);
-        details.put("to", after);
+        details.put(FROM, before);
+        details.put(TO, after);
+        var subjectType = sid instanceof PrincipalSid ? AuditSubjectType.USER : AuditSubjectType.GROUP;
+        publish(action, place, subjectType, nameOf(sid), details);
+    }
+
+    /**
+     * Announces a role a user gained or lost with a group the identity provider gave the user or took away at
+     * sign-in.
+     *
+     * @param role   the role the group holds on the place
+     * @param joined whether the user joined the group, and gained the role, or left it, and lost the role
+     */
+    public void announceThroughGroup(Place place, String user, String group, String role, boolean joined) {
+        var details = new LinkedHashMap<String, Object>(place.details());
+        details.put(joined ? TO : FROM, role);
+        details.put("group", group);
+        details.put(AuditEvent.ORIGIN, AuditEvent.IDENTITY_PROVIDER);
+        publish(joined ? AuditAction.ROLE_GRANTED : AuditAction.ROLE_REVOKED, place, AuditSubjectType.USER, user,
+                details);
+    }
+
+    private void publish(AuditAction action,
+                         Place place,
+                         AuditSubjectType subjectType,
+                         String subject,
+                         Map<String, Object> details) {
         eventPublisher.publishEvent(AuditEvent.builder()
                 .action(action)
                 .targetType(place.type())
                 .target(place.name())
-                .subjectType(sid instanceof PrincipalSid ? AuditSubjectType.USER : AuditSubjectType.GROUP)
-                .subject(nameOf(sid))
+                .subjectType(subjectType)
+                .subject(subject)
                 .details(details)
                 .build());
     }

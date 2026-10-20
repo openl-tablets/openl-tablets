@@ -1,0 +1,5 @@
+GET /rest/admin/audit?action=externalGroupsChanged&target=audit_analyst&size=2 HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+Accept: application/json
+
