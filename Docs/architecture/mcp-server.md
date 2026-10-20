@@ -211,8 +211,13 @@ sequenceDiagram
   it in `DisposableBean.destroy()` too: an in-place refresh of `XmlWebApplicationContext` destroys the old beans
   without stopping the lifecycle beans first, and only closing the context calls `stop()`.
 - **Output** — studio-mcp writes plain text to stdout and stderr, while the Docker image logs ECS JSON through log4j2.
-  A virtual thread per stream pipes each line into the SLF4J logger `org.openl.studio.mcp.node` — stdout as INFO,
-  stderr as WARN — instead of letting it break the JSON stream.
+  A platform daemon thread per stream pipes each line into the SLF4J logger `org.openl.studio.mcp.node` — stdout as
+  INFO, stderr as WARN — instead of letting it break the JSON stream. The readers are never virtual threads: reading
+  the output of a process blocks natively for as long as studio-mcp runs and holds the carrier thread. The
+  virtual-thread scheduler has by default as many carriers as the JVM has processors, and a setting can cap it lower.
+  On two carriers the two readers would hold both, no exchange of `McpProxy` would ever be scheduled, and every request
+  to `/mcp` would hang without a byte of answer. The exchanges themselves only wait on sockets, which parks a virtual
+  thread and frees its carrier.
 - **Port** — studio-mcp takes a free port of the loopback interface and names it at the end of the line it logs once
   it listens, `listening on 127.0.0.1, port <port>`; the bean reads the port from that line. No setting names a port,
   so no other program can take it first. `McpProxyServlet` asks the bean for the address of the running server.

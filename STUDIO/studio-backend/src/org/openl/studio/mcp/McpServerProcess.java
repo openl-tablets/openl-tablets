@@ -48,7 +48,10 @@ import org.openl.info.OpenLVersion;
  * missing, or when it fails to start, OpenL Studio runs without it and logs a warning.
  *
  * <p>Each line the server writes goes to the {@code org.openl.studio.mcp.node} logger: standard output as INFO,
- * standard error as WARN.
+ * standard error as WARN. A platform thread of its own reads each stream. The read of the output of a process blocks
+ * a thread for as long as the server runs. A virtual thread doing it holds one of the few carriers of the
+ * virtual-thread scheduler, which has one per processor by default. On a machine of two processors, two readers hold
+ * both carriers. No exchange of {@link McpProxy} ever runs.
  *
  * @author Yury Molchan
  */
@@ -178,7 +181,10 @@ class McpServerProcess implements SmartLifecycle, DisposableBean {
     }
 
     private static void pipe(BufferedReader output, Consumer<String> logger) {
-        Thread.ofVirtual().name("studio-mcp-output").start(() -> {
+        // Not a virtual thread: the read blocks natively for as long as the server runs and holds a carrier of the
+        // virtual-thread scheduler, which has one per processor by default. Two readers on two carriers starve every
+        // exchange of McpProxy. A daemon thread does not keep the JVM alive after the context is closed.
+        Thread.ofPlatform().daemon().name("studio-mcp-output").start(() -> {
             try (output) {
                 output.lines().forEach(logger);
             } catch (IOException | UncheckedIOException e) {
