@@ -552,6 +552,8 @@ export interface RawTableCell {
   rowspan?: number;
   /** True when this cell is masked by another cell's span. */
   covered?: boolean;
+  /** The whole area of a merged cell the edge of a window cuts, in A1 notation (e.g. `B4:B299`). Read-only. */
+  mergedArea?: string;
   /** Excel cell style; only present when the raw view was requested with `styles=true`. */
   style?: RawTableCellStyle;
 }

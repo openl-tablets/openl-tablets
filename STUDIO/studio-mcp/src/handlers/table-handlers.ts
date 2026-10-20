@@ -137,7 +137,7 @@ export function registerTableHandlers(): void {
     name: "get_table",
     title: "Get Table Structure & Data",
     description:
-      "Get a table as its authoritative RawSource 2D cell matrix. Cell values are scalar string/number/boolean/null values or Studio's one-dimensional multi-value arrays; representable values can be submitted unchanged through every raw write tool. Typed/parsed table views are intentionally unsupported because they are incomplete and cannot safely round-trip workbook content. Every answer states its rows in 'window' next to the data: startRow, endRow, rows, totalRows, complete (whether it holds every row of the table) and nextStartRow while rows remain. startRow/maxRows read a large table in row slices (a windowed response carries totalRows), and styles=true adds each cell's Excel style. A window cannot replace the whole table: openl_update_table rejects totalRows and independently refuses a source with fewer rows than the live table, so removing the marker cannot erase omitted rows. For a large table whose complete response becomes a preview, use the narrow raw table action tools instead. A table keeps its id while it is edited or moved; Studio still serves an id from before a rename, and answers 410 for a deleted table.",
+      "Get a table as its authoritative RawSource 2D cell matrix. Cell values are scalar string/number/boolean/null values or Studio's one-dimensional multi-value arrays; representable values can be submitted unchanged through every raw write tool. Typed/parsed table views are intentionally unsupported because they are incomplete and cannot safely round-trip workbook content. Every answer states its rows in 'window' next to the data: startRow, endRow, rows, totalRows, complete (whether it holds every row of the table) and nextStartRow while rows remain. startRow/maxRows read a large table in row slices of exactly those rows (a windowed response carries totalRows; a merged cell cut at the edge of a slice keeps its value and names its whole area in mergedArea), and styles=true adds each cell's Excel style. A window cannot replace the whole table: openl_update_table rejects totalRows and independently refuses a source with fewer rows than the live table, so removing the marker cannot erase omitted rows. For a large table whose complete response becomes a preview, use the narrow raw table action tools instead. A table keeps its id while it is edited or moved; Studio still serves an id from before a rename, and answers 410 for a deleted table.",
     schema: schemas.getTableSchema,
     annotations: {
       readOnlyHint: true,
@@ -276,8 +276,39 @@ function rowTruncation(table: Types.RawTableView, startRow: number, totalRows: n
   return {
     items: table.source.length,
     unit: "rows",
-    cut: (count) => ({ ...table, source: table.source.slice(0, count), totalRows }),
+    cut: (count) => ({ ...table, source: leadingRows(table.source, count), totalRows }),
     next: (count) => `continue with startRow=${startRow + count}`,
     metadata: (count) => ({ window: rowWindow(startRow, count, totalRows) }),
   };
+}
+
+/**
+ * The first `count` rows of a table. A merged cell reaching past the last of them is cut there as a window of Studio
+ * cuts it: it spans the rows left, and names its whole area in `mergedArea`.
+ */
+function leadingRows(source: Types.RawTableCell[][], count: number): Types.RawTableCell[][] {
+  return source.slice(0, count).map((row, index) => row.map((cell) => {
+    const rowspan = cell.rowspan ?? 1;
+    if (index + rowspan <= count || cell.cell === undefined) {
+      return cell;
+    }
+    const left = count - index;
+    return {
+      ...cell,
+      rowspan: left > 1 ? left : undefined,
+      mergedArea: cell.mergedArea ?? areaOf(cell.cell, rowspan, cell.colspan ?? 1),
+    };
+  }));
+}
+
+/** The A1 area of a merged cell from its first cell, such as `B4:C299` for `B4` spanning 296 rows and 2 columns. */
+function areaOf(first: string, rowspan: number, colspan: number): string {
+  const [, letters = "", digits = "0"] = /^([A-Z]+)(\d+)$/.exec(first) ?? [];
+  let column = [...letters].reduce((index, letter) => index * 26 + letter.charCodeAt(0) - 64, 0) + colspan - 1;
+  let last = "";
+  while (column > 0) {
+    last = String.fromCharCode(65 + (column - 1) % 26) + last;
+    column = Math.floor((column - 1) / 26);
+  }
+  return `${first}:${last}${Number(digits) + rowspan - 1}`;
 }
