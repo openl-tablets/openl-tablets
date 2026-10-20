@@ -252,17 +252,51 @@ one `settingsChanged` event (category `settings`) for every save, however many s
   connection string, and every parameter whose name tells a secret (`password`, `token`, `key`, `sig`…), as `***`.
   A value longer than `SettingsAuditor.VALUE_LENGTH` is cut short.
 - **A secret value is never recorded**: a setting a model declares secret (`@SettingPropertyName(secret = true)` on a
-  field or a getter), by its full name or by the suffix a repository adds to its prefix, and a property whose name tells a secret — the
-  last part holds `password` or `secret`, or ends with `key` (`SecretSettings`) — is in the event as
-  `{"secret": true}`, without its values.
+  field or a getter), by its full name or by the suffix a repository adds to its prefix, and a property whose name
+  tells a secret — the last part holds `password` or `secret`, or ends with `key` (`SecretSettings`) — is in the
+  event as `{"secret": true}`, without its values.
 - **A change is announced once it is saved**: the settings live in a file, which no transaction covers. A failure to
   record it is logged and never fails the save. Neither does a default a repository takes by reference (`.$ref`)
   that names a property no setting has: it cannot be read and counts as no value. The saves are made one at a time,
   so the values read around a save are the ones it wrote.
-- **Not recorded**: a setting that comes from an environment variable, a system property, an init parameter of the
-  context or JNDI, such as the configuration of a Helm chart, changes with a restart, outside of OpenL Studio. Such a
-  setting overrides the saved one, so saving it through the REST API changes no value and records nothing. A saved
-  setting overrides the properties files of the application, so saving it records the change.
+- **An environment variable, a system property, an init parameter of the context or JNDI overrides the saved
+  setting**, so saving such a setting through the REST API changes no value and records nothing. A saved setting
+  overrides the properties files of the application, so saving it records the change. The deployment changes its
+  settings with a restart, as the next section tells.
+
+### Settings of the Deployment
+
+A setting an environment variable, a system property, an init parameter of the context, JNDI or a properties file
+of the application sets — as the values of a Helm chart do — changes with a restart, outside of OpenL Studio.
+`EnvironmentSettingsAuditor` compares these settings at every start with the ones of the last start, once
+`SpringInitializer` has made the context, and announces the properties added, changed and removed since in one
+`settingsChanged` event marked `"origin": "environment"`, with no actor. Its target is the one of a save through the
+REST API (`SettingsAuditor.eventOf`), and its details list the properties `added`, `changed` and `removed` by name.
+
+- **The settings compared** are the ones OpenL Studio knows: its defaults (`openl-default.properties`), the properties
+  its settings models declare on their fields and getters (`SettingDeclarations`), the settings of every repository
+  the lists `design-repository-configs` and `production-repository-configs` name, and those the last snapshot
+  holds, so a setting the deployment sets for a repository removed since is compared still. A variable of the
+  environment that is no setting, such as one Kubernetes adds for a service, is ignored. The defaults and the
+  settings saved through the REST API are no part of the deployment, and neither is a value the default already
+  gives: a variable that repeats a default records nothing, and one that goes back to the default is a setting
+  removed.
+- **No value is kept or recorded**: the snapshot holds a fingerprint of each value (`SettingFingerprints`), and the
+  event names the properties only. A value of the environment is written nowhere, the server log included. An
+  ordinary setting is fingerprinted by SHA-256 with a salt of its own (`HashingUtils`). A secret one
+  (`SecretSettings`) goes through bcrypt (`BCryptPasswordEncoder`), so guessing it takes as long as guessing a
+  password. It is bcrypt whatever password encoder OpenL Studio is configured with, so a change of the encoder
+  changes no fingerprint. bcrypt gets the SHA-256 of the value, so it takes the value whole however long it is.
+- **The snapshot is kept by a `SettingsSnapshotStore`.** `FileSettingsSnapshotStore` keeps it in
+  `settings-snapshot.properties` of the home folder of the instance (`openl.home`), which outlives the restarts as
+  the clones of the repositories do, and replaces the file as a whole. Replacing it with another store, such as one in
+  the database, changes nothing else. The first start, or a start after the file was lost, records nothing and
+  keeps a new snapshot; a start that changed nothing leaves the file as it is.
+- **Each instance compares its own start**: in a cluster, every node that starts with the new settings announces
+  them. The deployment sets its settings once for a run of the server, so a refresh of the context, as a save of the
+  settings through the REST API makes, compares nothing and keeps the requests waiting for no bcrypt.
+- **A failure is logged without any value** and never fails the start. The snapshot stays as it was, so the next
+  start announces the change.
 
 ## Reading
 

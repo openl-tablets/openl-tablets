@@ -440,6 +440,38 @@ describe('AuditLog', () => {
         expect(changeTags()).toHaveLength(22)
     })
 
+    it('shows the settings the environment changed by their names only, each marked as its change', async () => {
+        const environment: audit.AuditEvent = {
+            id: 6,
+            time: '2026-10-19T10:35:00Z',
+            category: 'settings',
+            action: 'settingsChanged',
+            outcome: 'success',
+            targetType: 'settings',
+            target: 'cors.allowed.origins, mail.url, user.mode',
+            details: {
+                origin: 'environment',
+                added: ['user.mode'],
+                changed: ['mail.url'],
+                removed: ['cors.allowed.origins'],
+            },
+        }
+        mockGetEvents.mockResolvedValue({ content: [environment], pageNumber: 0, pageSize: 50, total: 1 })
+
+        renderAuditLog()
+        await loaded()
+
+        expect(screen.getByText('audit:origins.environment')).toBeInTheDocument()
+        expect(screen.getAllByText('audit:detail_names.changed')).toHaveLength(1)
+        const marks = ['- cors.allowed.origins', '~ mail.url', '+ user.mode']
+        expect(changeTags()).toEqual([...marks, ...marks])
+        screen.getAllByText('~ mail.url')
+            .forEach(tag => expect(tag.closest('[data-color]')).toHaveAttribute('data-color', 'warning'))
+        expect(screen.getByText('audit:environment_values_not_recorded')).toBeInTheDocument()
+        expect(screen.getAllByText('~ mail.url').at(-1)?.closest('[data-title]'))
+            .toHaveAttribute('data-title', 'audit:changes.changed')
+    })
+
     it('names the codes of the details in words and leaves free text as it is', async () => {
         const read: audit.AuditEvent = {
             id: 3,

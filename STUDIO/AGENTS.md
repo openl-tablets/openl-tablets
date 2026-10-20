@@ -70,7 +70,9 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   `ApiExceptionControllerAdvice`, so a refusal needs no event of its own. An action on a project is announced
   through `ProjectAuditor` once it is done, since no transaction covers a repository. A save of the system settings
   is announced by `SettingsServiceImpl.commit` through `SettingsAuditor`, one event for every save; a new secret
-  setting is declared `secret` in its model (`@SettingPropertyName`), so its value never reaches the log. See
+  setting is declared `secret` in its model (`@SettingPropertyName`), so its value never reaches the log. A setting
+  the deployment sets is compared at every start by `EnvironmentSettingsAuditor`, which keeps fingerprints of the
+  values through a `SettingsSnapshotStore` and records names only. See
   [`audit-log.md`](../Docs/architecture/audit-log.md).
 - **New features** → React in `studio-ui/`
 - **DB migrations**: Flyway scripts in `studio-backend/resources/db/flyway/`. A time is a `${timestamp}` column that

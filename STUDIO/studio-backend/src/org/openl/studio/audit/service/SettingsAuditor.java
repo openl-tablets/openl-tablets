@@ -76,7 +76,7 @@ public class SettingsAuditor {
      * The event announcing a change of the settings: the properties it changed as the target, so a search by the
      * target finds it by any of them, and the details given.
      */
-    private static AuditEvent eventOf(Collection<String> properties, Map<String, ?> details) {
+    static AuditEvent eventOf(Collection<String> properties, Map<String, ?> details) {
         return AuditEvent.builder()
                 .action(AuditAction.SETTINGS_CHANGED)
                 .targetType(AuditTargetType.SETTINGS)

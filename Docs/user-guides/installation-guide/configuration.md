@@ -439,6 +439,11 @@ A JSON layout, such as the `ecs` format of the OpenL Studio Docker image, also w
 `audit.id`, `audit.action`, `audit.actor` and the others. A copy of the events a log collector keeps elsewhere stays as
 it was recorded, whatever happens to the database of OpenL Studio.
 
+A setting the environment sets — an environment variable, a system property or a properties file, as the values of a
+Helm chart are — is compared at every start with the one of the last start. The settings added, changed and removed
+are recorded by their names, never by their values: the home folder of the instance keeps only fingerprints of the
+values, in `settings-snapshot.properties`.
+
 The events themselves are described in
 [Reviewing the Audit Log](../openl-studio/administration/08-audit-log.md#reviewing-the-audit-log).
 
