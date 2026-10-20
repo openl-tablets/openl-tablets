@@ -29,6 +29,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * OpenL Studio is held while the server works or an event stream stays open. An exchange has no time limit, and it
  * stops when the client goes away.
  *
+ * <p>An exchange only waits on sockets, which parks its virtual thread and frees the carrier. The streams of the
+ * process of the server are not read here, since reading them blocks a thread natively: see
+ * {@link McpServerProcess}.
+ *
  * <p>The server calls OpenL Studio at the address in the {@code OpenL-Base-Url} header and learns the address of
  * OpenL Studio the client opened from the {@code OpenL-Public-Url} header. A request is answered with {@code 502}
  * when the server cannot be reached.
