@@ -24031,6 +24031,14 @@ Content-Type: application/json
       "AdministrationSettings": {
         "type": "object",
         "properties": {
+          "auditOutputsConsole": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "auditRetention": {
+            "type": "string",
+            "description": "***"
+          },
           "autoCompile": {
             "type": "boolean",
             "description": "***"

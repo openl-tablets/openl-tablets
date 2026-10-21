@@ -35,6 +35,14 @@ Content-Type: application/json
     "value": false,
     "readOnly": true
   },
+  "auditRetention": {
+    "value": "1y",
+    "readOnly": true
+  },
+  "auditOutputsConsole": {
+    "value": true,
+    "readOnly": true
+  },
   "db": {
     "url": {
       "value": "jdbc:h2:mem:studio;DB_CLOSE_DELAY=-1",

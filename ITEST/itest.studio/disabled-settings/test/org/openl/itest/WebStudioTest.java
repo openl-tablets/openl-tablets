@@ -30,6 +30,8 @@ class WebStudioTest {
                     .withInitParam("test.run.thread.count", "3")
                     .withInitParam("compile.auto", "false")
                     .withInitParam("dispatching.validation", "false")
+                    .withInitParam("audit.retention", "1y")
+                    .withInitParam("audit.outputs.console", "true")
                     // DB
                     .withInitParam("db.url", "jdbc:h2:mem:studio;DB_CLOSE_DELAY=-1")
                     // email validation settings

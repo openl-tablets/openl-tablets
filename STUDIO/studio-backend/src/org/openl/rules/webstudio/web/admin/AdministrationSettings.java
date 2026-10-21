@@ -16,6 +16,7 @@ import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.studio.settings.model.constraint.DatePatternConstraint;
+import org.openl.studio.settings.model.constraint.PeriodConstraint;
 import org.openl.studio.settings.model.constraint.TimePatternConstraint;
 
 /**
@@ -38,6 +39,8 @@ public final class AdministrationSettings implements SettingsHolder {
 
     public static final String TEST_RUN_THREAD_COUNT_PROPERTY = "test.run.thread.count";
     public static final String AUTO_COMPILE = "compile.auto";
+    public static final String AUDIT_RETENTION = "audit.retention";
+    public static final String AUDIT_OUTPUTS_CONSOLE = "audit.outputs.console";
 
     @Getter
     @Parameter(description = "The maximum count of saved changes for each project per user.")
@@ -102,6 +105,21 @@ public final class AdministrationSettings implements SettingsHolder {
     private Boolean autoCompile;
 
     @Getter
+    @Parameter(description = """
+            How long the audit log keeps an event: a number with its unit, such as 90d, 2w, 6m or 1y, or a period \
+            in ISO 8601, such as P1Y6M. A number without its unit is refused. Empty keeps the events forever.""")
+    @Setter
+    @PeriodConstraint
+    @SettingPropertyName(AUDIT_RETENTION)
+    private String auditRetention;
+
+    @Getter
+    @Parameter(description = "Copy every event of the audit log to the server log, by the OpenL.audit logger.")
+    @Setter
+    @SettingPropertyName(AUDIT_OUTPUTS_CONSOLE)
+    private Boolean auditOutputsConsole;
+
+    @Getter
     @Valid
     @NotNull
     @Setter
@@ -137,6 +155,10 @@ public final class AdministrationSettings implements SettingsHolder {
         autoCompile = Optional.ofNullable(properties.getProperty(AUTO_COMPILE))
                 .map(Boolean::parseBoolean)
                 .orElse(null);
+        auditRetention = properties.getProperty(AUDIT_RETENTION);
+        auditOutputsConsole = Optional.ofNullable(properties.getProperty(AUDIT_OUTPUTS_CONSOLE))
+                .map(Boolean::parseBoolean)
+                .orElse(null);
         db.load(properties);
     }
 
@@ -151,6 +173,8 @@ public final class AdministrationSettings implements SettingsHolder {
         properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
         properties.setProperty(OpenLSystemProperties.DISPATCHING_VALIDATION, dispatchingValidationEnabled);
         properties.setProperty(AUTO_COMPILE, autoCompile);
+        properties.setProperty(AUDIT_RETENTION, auditRetention);
+        properties.setProperty(AUDIT_OUTPUTS_CONSOLE, auditOutputsConsole);
         db.store(properties);
     }
 
@@ -165,7 +189,9 @@ public final class AdministrationSettings implements SettingsHolder {
                 FORMAT_TABLES_ON_SAVE,
                 TEST_RUN_THREAD_COUNT_PROPERTY,
                 OpenLSystemProperties.DISPATCHING_VALIDATION,
-                AUTO_COMPILE);
+                AUTO_COMPILE,
+                AUDIT_RETENTION,
+                AUDIT_OUTPUTS_CONSOLE);
         db.revert(properties);
         load(properties);
     }

@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { Form, Input as AntdInput, Modal, notification } from 'antd'
 import type { FormInstance } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { System, THREAD_COUNT_RULE } from './System'
+import { PERIOD_RULE, System, THREAD_COUNT_RULE } from './System'
+import { SystemContext } from '../contexts'
 import * as services from '../services'
 import type { MockedFunction } from 'vitest'
 
@@ -118,6 +119,29 @@ describe('System', () => {
         ])
     })
 
+    it('offers how long the audit log keeps its events and its copy to the server log where the log is kept', async () => {
+        const context = { isExternalAuthSystem: false, isUserManagementEnabled: true, isGroupsManagementEnabled: true,
+            isPersonalAccessTokenEnabled: true, isAuditLogEnabled: true }
+        render(<SystemContext.Provider value={context}><System /></SystemContext.Provider>)
+
+        const retention = await screen.findByRole('textbox', { name: 'system:audit_retention' })
+        expect(retention).toHaveAttribute('name', 'auditRetention')
+        expect(inputRules.get('auditRetention')).toEqual([
+            { ...PERIOD_RULE, message: 'system:audit_retention_invalid' },
+        ])
+        const copy = screen.getByRole('checkbox', { name: 'system:audit_outputs_console' })
+        expect(copy).toHaveAttribute('name', 'auditOutputsConsole')
+        expect(copy.closest('label')).toHaveAttribute('title', 'system:audit_outputs_console_info')
+    })
+
+    it('leaves the audit log out where it is not kept, as in the single-user mode', async () => {
+        render(<System />)
+
+        expect(await screen.findByText('system:database_configuration')).toBeInTheDocument()
+        expect(screen.queryByText('system:audit_log')).not.toBeInTheDocument()
+        expect(screen.queryByRole('textbox', { name: 'system:audit_retention' })).not.toBeInTheDocument()
+    })
+
     it('reports a refused Apply as an error with the reason, not with the class that carries it', async () => {
         render(<System />)
         await userEvent.click(await screen.findByRole('button', { name: 'common:btn.apply' }))
@@ -162,6 +186,41 @@ describe('THREAD_COUNT_RULE', () => {
         'judges %s threads valid: %s',
         async (threads, valid) => {
             expect(await validates(threads)).toBe(valid)
+        }
+    )
+})
+
+describe('PERIOD_RULE', () => {
+    const validates = async (retention: string | undefined) => {
+        let form: FormInstance | undefined
+        const Harness = () => {
+            const [instance] = Form.useForm()
+            form = instance
+            return (
+                <Form form={instance} initialValues={{ retention }}>
+                    <Form.Item name="retention" rules={[PERIOD_RULE]}>
+                        <AntdInput />
+                    </Form.Item>
+                </Form>
+            )
+        }
+        render(<Harness />)
+        let valid = false
+        await act(async () => {
+            valid = await form!.validateFields().then(() => true, () => false)
+        })
+        return valid
+    }
+
+    // A bare number names no unit: it is refused rather than read as days, months or years.
+    it.each<[string | undefined, boolean]>([
+        [undefined, true], ['', true], ['  ', true], ['90d', true], ['2W', true], ['6m', true], ['1y', true],
+        ['P1Y6M', true], ['p10d', true], [' 1y ', true],
+        ['90', false], ['0d', false], ['P', false], ['-1d', false], ['1 year', false], ['1d2y', false], ['abc', false],
+    ])(
+        'judges a retention of %s valid: %s',
+        async (retention, valid) => {
+            expect(await validates(retention)).toBe(valid)
         }
     )
 })

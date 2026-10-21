@@ -3,8 +3,6 @@ package org.openl.studio.audit.service;
 import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
+import org.openl.studio.common.utils.Periods;
 
 /**
  * Removes the events of the audit log older than the retention period, {@code audit.retention}.
@@ -103,23 +102,12 @@ public class AuditRetention {
      * @throws IllegalStateException when the period cannot be read or is not longer than zero
      */
     private @Nullable Period retentionPeriod() {
-        if (retention.isBlank()) {
-            return null;
-        }
-        var text = retention.strip().toUpperCase(Locale.ROOT);
-        Period period;
         try {
-            period = Period.parse(text.startsWith("P") ? text : "P" + text);
-        } catch (DateTimeParseException e) {
-            throw new IllegalStateException("audit.retention = '%s' is no period: write it as 90d, 2w, 6m, 1y or P1Y6M."
-                    .formatted(retention), e);
+            return Periods.parse(retention);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("audit.retention = %s Leave it empty to keep the events forever."
+                    .formatted(e.getMessage()), e);
         }
-        if (period.isZero() || period.isNegative()) {
-            throw new IllegalStateException(
-                    "audit.retention = '%s' is not longer than zero: leave it empty to keep the events forever."
-                            .formatted(retention));
-        }
-        return period;
     }
 
     private void purgeQuietly() {

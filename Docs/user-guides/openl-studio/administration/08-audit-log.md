@@ -141,5 +141,7 @@ is recorded in the log, with its filters.
 #### Keeping the Audit Log
 
 By default, the events are kept forever. A retention period removes the older events once a day, and a copy of every
-event can also go to the console for a log collector. Both are set in `application.properties`, as described in
-[Audit Log](../../installation-guide/configuration.md#audit-log) of the configuration guide.
+event can also go to the console for a log collector. Both are set in the **Audit Log** section of the
+[System](02-system-settings.md) page, or as properties, as described in
+[Audit Log](../../installation-guide/configuration.md#audit-log) of the configuration guide. The period is a number
+with its unit, such as `90d` or `1y`: a number without its unit, such as `90`, is refused.
