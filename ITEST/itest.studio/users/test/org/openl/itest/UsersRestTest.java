@@ -12,13 +12,10 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.stream.Collectors;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 
-import com.icegreen.greenmail.smtp.SmtpServer;
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -49,7 +46,7 @@ class UsersRestTest {
     static void setUp() throws Exception {
         h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
-        String dbUrl = "jdbc:h2:" + h2Server.getURL() + "/mem:mydb";
+        var dbUrl = "jdbc:h2:" + h2Server.getURL() + "/mem:mydb";
         h2Connection = DriverManager.getConnection(dbUrl);
         h2Connection.setAutoCommit(false);
 
@@ -61,10 +58,10 @@ class UsersRestTest {
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
 
-        SmtpServer smtp = smtpServer.getSmtp();
+        var smtp = smtpServer.getSmtp();
         mailUrl = smtp.getProtocol() + "://" + smtp.getBindTo() + ":" + smtp.getPort();
 
-        try (Statement statement = h2Connection.createStatement()) {
+        try (var statement = h2Connection.createStatement()) {
             statement.execute("SCRIPT TO '%s'".formatted(DB_DUMP_FILE));
         }
     }
@@ -79,7 +76,7 @@ class UsersRestTest {
 
     @AfterEach
     void afterEach() throws SQLException, IOException, FolderException {
-        try (Statement statement = h2Connection.createStatement()) {
+        try (var statement = h2Connection.createStatement()) {
             statement.execute("DROP ALL OBJECTS DELETE FILES;");
             h2Connection.commit();
 
@@ -133,7 +130,7 @@ class UsersRestTest {
         client.send("users-service/users-5.get");
         client.send("users-service/users/groups/external/empty.jsmith.get");
 
-        try (Statement statement = h2Connection.createStatement()) {
+        try (var statement = h2Connection.createStatement()) {
             statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "GROUP_1"));
             statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "GROUP_2"));
             statement.addBatch(INSERT_EXT_GROUPS_SQL.formatted("jsmith", "GROUP_3"));
@@ -167,7 +164,7 @@ class UsersRestTest {
         assertEquals("username@email", mailConfig.username);
         assertEquals(mailUrl, mailConfig.url);
 
-        int receivedMessagesCounter = 0;
+        var receivedMessagesCounter = 0;
         client.send("users-service/users-1.get");
         assertEquals(smtpServer.getReceivedMessages().length, receivedMessagesCounter);
 
@@ -193,15 +190,15 @@ class UsersRestTest {
         client.send("users-service/mail/users-mail-send.post");
         assertEquals(smtpServer.getReceivedMessages().length, ++receivedMessagesCounter);
 
-        MimeMessage message = smtpServer.getReceivedMessages()[smtpServer.getReceivedMessages().length - 1];
+        var message = smtpServer.getReceivedMessages()[smtpServer.getReceivedMessages().length - 1];
         assertEquals("admin@email", message.getRecipients(Message.RecipientType.TO)[0].toString());
         assertEquals("username@email", message.getFrom()[0].toString());
 
-        InputStreamReader inputStreamReader = new InputStreamReader(message.getInputStream());
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String content = bufferedReader.lines().collect(Collectors.joining());
-        int tokenStartIndex = content.indexOf(TOKEN_PARAM) + TOKEN_PARAM.length();
-        String token = content.substring(tokenStartIndex, tokenStartIndex + TOKEN_LENGTH);
+        var inputStreamReader = new InputStreamReader(message.getInputStream());
+        var bufferedReader = new BufferedReader(inputStreamReader);
+        var content = bufferedReader.lines().collect(Collectors.joining());
+        var tokenStartIndex = content.indexOf(TOKEN_PARAM) + TOKEN_PARAM.length();
+        var token = content.substring(tokenStartIndex, tokenStartIndex + TOKEN_LENGTH);
         client.getForObject("/rest/mail/verify/" + token, String.class, 204, "Authorization", "Basic YWRtaW46YWRtaW4=");
         inputStreamReader.close();
         bufferedReader.close();
@@ -210,6 +207,22 @@ class UsersRestTest {
 
         client.send("users-service/mail/reset-mail-config");
         client.send("users-service/mail/users-mail-config-1.get");
+    }
+
+    @Test
+    void creatingUserWithoutFirstNameSendsVerificationMail() throws MessagingException, IOException {
+        var mailConfig = new MailConfigRequest();
+        mailConfig.password = "password";
+        mailConfig.url = mailUrl;
+        mailConfig.username = "username@email";
+        client.postForObject("/rest/admin/settings/mail", mailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
+
+        client.test("test-resources/task_EPBDS-16954");
+
+        var messages = smtpServer.getReceivedMessages();
+        assertEquals(1, messages.length);
+        assertEquals("jroe@email", messages[0].getRecipients(Message.RecipientType.TO)[0].toString());
+        assertTrue(messages[0].getContent().toString().contains("Hello ,"));
     }
 
     public static class MailConfigRequest {

@@ -32,6 +32,9 @@ A user can resend the verification email on their own by clicking the user icon 
 
 *A user initiating verification email resending*
 
+If a user is created through the REST API without a first name, the verification email is still sent. Its greeting
+has no name. The REST API requires an email address to create a user.
+
 The verification email resembles the following:
 
 ![Verification email example](../images/verification-email-example.png "Verification email example")

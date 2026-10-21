@@ -1,0 +1,13 @@
+PUT /rest/users HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "username": "nmail",
+  "firstName": "No",
+  "lastName": "Email",
+  "displayName": "No Email",
+  "internalPassword": {
+    "password": "nmail-pass-1"
+  }
+}

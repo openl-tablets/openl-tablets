@@ -4,6 +4,7 @@ import static org.openl.rules.rest.MailController.MAIL_VERIFY_TOKEN;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Properties;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
@@ -12,6 +13,7 @@ import jakarta.mail.URLName;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -25,6 +27,7 @@ import org.openl.util.IOUtils;
 /**
  * The implementation of SMTP client, that allows to send mails to SMTP Server.
  */
+@RequiredArgsConstructor
 @Slf4j
 public class MailSender {
 
@@ -33,16 +36,12 @@ public class MailSender {
     private final MailSenderProperties settings;
     private final UserSettingManagementService userSettingManagementService;
 
-    public MailSender(MailSenderProperties mailSenderProperties,
-                      UserSettingManagementService userSettingManagementService) {
-        this.settings = mailSenderProperties;
-        this.userSettingManagementService = userSettingManagementService;
-    }
-
     /**
-     * Send e-mail for verification for the given user
+     * Sends an e-mail for verification to the given user.
      *
-     * @return true - if e-mail has been sent successful, false - if the service is off.
+     * <p>A missing first name leaves the greeting without a name.
+     *
+     * @return true if the e-mail was sent, or false if it could not be sent
      */
     public boolean sendVerificationMail(User user, HttpServletRequest httpServletRequest) {
         var token = RandomStringUtils.secure().next(8, false, true);
@@ -63,7 +62,7 @@ public class MailSender {
                 var emailContent = template
                         .replace("${link}", verificationLink)
                         .replace("${from}", settings.getUser())
-                        .replace("${user}", user.getFirstName())
+                        .replace("${user}", Objects.requireNonNullElse(user.getFirstName(), ""))
                         .replace("${email}", user.getEmail());
 
                 // Parse eml template
