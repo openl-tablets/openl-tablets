@@ -343,10 +343,14 @@ one of the latest events of the log, the sign-in of the reader at the latest, so
 `audit.retention` sets how long an event is kept, a `java.time.Period` written with its unit (`90d`, `2w`, `6m` for
 months, `1y`) or in ISO 8601 (`P1Y6M`); empty, the default, keeps the events forever. A month and a year are those of
 the calendar, counted back in UTC. A period that cannot be read or is not longer than zero stops the start, rather
-than keep the events forever unnoticed. `AuditRetention` removes the older events a few minutes after the start and
-then once a day, under the `auditLogRetention` lock of the `JdbcLockRegistry`, so one node of a cluster removes them.
-Each removal is recorded as an `auditLogPurged` event with the number of events removed; a run that finds no event to
-remove records none.
+than keep the events forever unnoticed. A number without its unit is such a period: it is refused rather than read as
+days, since a `6` meant as months and read as days would remove all but the last six days. The **Audit Log** section
+of the System page sets `audit.retention` and `audit.outputs.console` (`AdministrationSettings`). `Periods` reads the
+period both there and at the start: `@PeriodConstraint`, which any setting holding a period can take, refuses what the
+start would. The save rebuilds the context, so the new values hold at once. `AuditRetention` removes the older events
+a few minutes after the start and then once a day, under the `auditLogRetention` lock of the `JdbcLockRegistry`, so
+one node of a cluster removes them. Each removal is recorded as an `auditLogPurged` event with the number of events
+removed; a run that finds no event to remove records none.
 
 - **The events go in batches of 1000**, the oldest first, each in a transaction of its own
   (`AuditService.removeBefore`), so a log that grew large before the period was set is never removed in one long

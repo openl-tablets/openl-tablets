@@ -1,14 +1,20 @@
 package org.openl.rules.webstudio.web.admin;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+
 import org.junit.jupiter.api.Test;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.engine.OpenLSystemProperties;
 
 class AdministrationSettingsTest {
 
@@ -43,6 +49,44 @@ class AdministrationSettingsTest {
     }
 
     @Test
+    void readsAndWritesTheSettingsOfTheAuditLog() {
+        var properties = mock(PropertiesHolder.class);
+        when(properties.getProperty(AdministrationSettings.AUDIT_RETENTION)).thenReturn("1y");
+        when(properties.getProperty(AdministrationSettings.AUDIT_OUTPUTS_CONSOLE)).thenReturn("true");
+        var settings = new AdministrationSettings();
+
+        settings.load(properties);
+
+        assertEquals("1y", settings.getAuditRetention());
+        assertTrue(settings.getAuditOutputsConsole());
+
+        settings.setAuditRetention("");
+        settings.setAuditOutputsConsole(false);
+        settings.store(properties);
+        verify(properties).setProperty(AdministrationSettings.AUDIT_RETENTION, "");
+        verify(properties).setProperty(AdministrationSettings.AUDIT_OUTPUTS_CONSOLE, false);
+    }
+
+    @Test
+    void refusesARetentionOfTheAuditLogThatIsNoPeriodLongerThanZero() {
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var validator = factory.getValidator();
+            var settings = new AdministrationSettings();
+
+            settings.setAuditRetention("90");
+            assertEquals(List.of("""
+                            Write a period longer than zero with its unit, such as 90d, 2w, 6m or 1y, or in \
+                            ISO 8601, such as P1Y6M."""),
+                    validator.validateProperty(settings, "auditRetention").stream()
+                            .map(ConstraintViolation::getMessage)
+                            .toList());
+
+            settings.setAuditRetention("90d");
+            assertTrue(validator.validateProperty(settings, "auditRetention").isEmpty());
+        }
+    }
+
+    @Test
     void disablesProjectDetectionByExcelFilesByDefaultAndRevertsIt() {
         var properties = mock(PropertiesHolder.class);
         var settings = new AdministrationSettings();
@@ -60,7 +104,9 @@ class AdministrationSettingsTest {
                 AdministrationSettings.UPDATE_SYSTEM_PROPERTIES,
                 AdministrationSettings.FORMAT_TABLES_ON_SAVE,
                 AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY,
-                org.openl.engine.OpenLSystemProperties.DISPATCHING_VALIDATION,
-                AdministrationSettings.AUTO_COMPILE);
+                OpenLSystemProperties.DISPATCHING_VALIDATION,
+                AdministrationSettings.AUTO_COMPILE,
+                AdministrationSettings.AUDIT_RETENTION,
+                AdministrationSettings.AUDIT_OUTPUTS_CONSOLE);
     }
 }

@@ -16,6 +16,16 @@ i18next.addResourceBundle('en', 'system', {
     detect_projects_by_excel_files_info: 'Treat folders without rules.xml as projects when they contain an Excel file in their root. A repository that keeps projects as archives, such as a database or AWS S3 repository, has no folders and lists its projects either way. Enabling this setting slows down the Repository tab.',
     clear_all_history: 'Clear All History',
     other: 'Other',
+    audit_log: 'Audit Log',
+    audit_retention: 'Keep events for',
+    audit_retention_forever: 'Forever',
+    audit_retention_info: 'A period with its unit, such as 90d, 2w, 6m or 1y. The events older than it are removed '
+        + 'a few minutes after the settings are applied, and then once a day. Leave it empty to keep the events '
+        + 'forever.',
+    audit_retention_invalid: 'Write a period longer than zero, such as 90d, 2w, 6m or 1y, or leave it empty',
+    audit_outputs_console: 'Copy events to the server log',
+    audit_outputs_console_info: 'Writes every event to the server log as well, by the OpenL.audit logger, for a '
+        + 'log collector to pick up.',
     database_configuration: 'Database Configuration',
     database_configuration_info: 'Set up a database to be used for managing users in OpenL Studio. Please contact your System Administrator for this information if necessary.',
     update_table_properties: 'Update table properties (\'createdOn\', \'modifiedBy\' etc.) on editing',

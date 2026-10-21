@@ -1,14 +1,17 @@
 import { App, Button, Col, Divider, Form, Typography, Row, theme } from 'antd'
 import type { FormRule } from 'antd'
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { WarningFilled } from '@ant-design/icons'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
 import { errorMessage } from '../utils/errorMessage'
 import { Input, InputNumber, Checkbox, InputPassword } from '../components'
 import { WIDTH_OF_FORM_LABEL } from '../constants'
+import { SystemContext } from '../contexts'
 
 interface SystemSettings {
+    auditOutputsConsole: boolean
+    auditRetention: string
     autoCompile: boolean
     datePattern: string
     dispatchingValidationEnabled: boolean
@@ -34,10 +37,24 @@ interface SystemSettings {
  */
 export const THREAD_COUNT_RULE: FormRule = { required: true, pattern: /^[1-9]\d{0,8}$/ }
 
+/**
+ * A period setting, read as the server reads it: a number with its unit, such as 90d, 2w, 6m or 1y, or a period in
+ * ISO 8601, such as P1Y6M. The period is longer than zero, and a number without its unit is refused. An empty value
+ * stands for no period.
+ */
+export const PERIOD_RULE: FormRule = {
+    validator: (_, value: unknown) => {
+        const text = typeof value === 'string' ? value.trim() : ''
+        const valid = !text || (/^P?(\d+Y)?(\d+M)?(\d+W)?(\d+D)?$/i.test(text) && /[1-9]/.test(text))
+        return valid ? Promise.resolve() : Promise.reject(new Error(text))
+    },
+}
+
 export const System: React.FC = () => {
     const { modal, notification } = App.useApp()
     const { t } = useTranslation()
     const { token } = theme.useToken()
+    const { isAuditLogEnabled } = useContext(SystemContext)
     const [systemSettings, setSystemSettings] = React.useState<SystemSettings | undefined>()
     const [form] = Form.useForm()
 
@@ -177,6 +194,23 @@ export const System: React.FC = () => {
                 label={t('system:time_format')}
                 name="timeFormat"
             />
+            {isAuditLogEnabled && (
+                <>
+                    <Divider titlePlacement="start">{t('system:audit_log')}</Divider>
+                    <Input
+                        label={t('system:audit_retention')}
+                        name="auditRetention"
+                        placeholder={t('system:audit_retention_forever')}
+                        rules={[{ ...PERIOD_RULE, message: t('system:audit_retention_invalid') }]}
+                        tooltip={t('system:audit_retention_info')}
+                    />
+                    <Checkbox
+                        label={t('system:audit_outputs_console')}
+                        name="auditOutputsConsole"
+                        tooltip={t('system:audit_outputs_console_info')}
+                    />
+                </>
+            )}
             <Divider titlePlacement="start">{t('system:database_configuration')}</Divider>
             <Typography.Paragraph>
                 {t('system:database_configuration_info')}

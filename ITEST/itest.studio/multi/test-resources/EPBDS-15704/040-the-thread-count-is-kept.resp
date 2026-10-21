@@ -11,6 +11,8 @@ Content-Type: application/json
   "testRunThreadCount": 4,
   "dispatchingValidationEnabled": true,
   "autoCompile": true,
+  "auditRetention": "",
+  "auditOutputsConsole": false,
   "db": {
     "url": "jdbc:h2:mem:studio;DB_CLOSE_DELAY=-1",
     "user": "",

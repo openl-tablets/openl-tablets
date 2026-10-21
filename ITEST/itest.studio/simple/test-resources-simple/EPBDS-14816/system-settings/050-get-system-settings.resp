@@ -11,6 +11,8 @@ Content-Type: application/json
   "testRunThreadCount": 2,
   "dispatchingValidationEnabled": false,
   "autoCompile": false,
+  "auditRetention": "",
+  "auditOutputsConsole": false,
   "db": {
     "url": "jdbc:h2:mem:EPBDS-14816;DB_CLOSE_DELAY=-1",
     "user": "",

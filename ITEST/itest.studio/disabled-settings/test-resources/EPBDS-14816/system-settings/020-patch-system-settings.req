@@ -10,5 +10,7 @@ Content-Type: application/merge-patch+json
   "timeFormat": "ss:mm:hh a",
   "testRunThreadCount": 2,
   "dispatchingValidationEnabled": false,
-  "autoCompile": false
+  "autoCompile": false,
+  "auditRetention": "30d",
+  "auditOutputsConsole": false
 }
