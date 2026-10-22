@@ -114,6 +114,9 @@ mark is displayed next to the username. A user can change the password to improv
 
 ##### Editing a User
 
+Only an administrator can edit another user's account, group membership, or password on this page. To update your own
+information or password, use **My Profile**. Changing your own password there requires the current password.
+
 To edit a user, proceed as follows:
 
 1. In the **Users** list, locate the user to be modified and click the username.

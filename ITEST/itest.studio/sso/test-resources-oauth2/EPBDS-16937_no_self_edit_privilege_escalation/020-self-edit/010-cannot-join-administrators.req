@@ -1,0 +1,13 @@
+PUT /rest/users/guest HTTP/1.1
+Authorization: Bearer ${GUEST_ACCESS_TOKEN}
+Content-Type: application/json
+
+{
+  "firstName": "Guest",
+  "lastName": "Ghost",
+  "displayName": "Guest Ghost",
+  "email": "guest@openl.example",
+  "groups": [
+    "Administrators"
+  ]
+}

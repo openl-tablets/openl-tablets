@@ -156,7 +156,7 @@ public class UsersController {
 
     @Operation(description = "users.edit-user.desc", summary = "users.edit-user.summary")
     @PutMapping("/{username}")
-    @OwnerOrAdminPrivilege
+    @AdminPrivilege
     public void editUser(HttpServletRequest request,
                          @RequestBody UserEditModel userModel,
                          @Parameter(description = "users.field.username") @PathVariable("username") String username) {

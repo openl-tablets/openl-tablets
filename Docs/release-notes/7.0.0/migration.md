@@ -362,6 +362,9 @@ from Maven.
   as `false` and a missing `testsPerPage` or `testsFailuresPerTest` as `0`, and answer `500` on a missing `treeView`
   after the names and the e-mail were already saved. An e-mail or a display name that is sent still cannot be empty,
   and a request that fails now changes nothing.
+* **`PUT /rest/users/{username}` is for administrators only.** A non-administrator now receives `403` even when
+  `{username}` is their own. Use `PUT /rest/users/info` to edit your own information or `PUT /rest/users/profile` to
+  change your own password with the current password.
 * **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
   `400`.
 * **A project id is an opaque 12-character value.** Every project id of the REST API and of the WebSocket
