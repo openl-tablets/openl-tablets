@@ -84,6 +84,10 @@ values:
 - **`none`** — no console output.
 - **Another value** — a warning is printed and `ecs` is used.
 
+The messages of the OpenTelemetry agent itself, such as its version, are written
+in the same format: the image sets `OTEL_JAVAAGENT_LOGGING=application`. Set it to `simple` to get them back as text
+lines on the standard error output, or to `none` to drop them.
+
 OpenL Studio writes its audit log to the console as well when `AUDIT_OUTPUTS_CONSOLE=true`, by the `OpenL.audit`
 logger, a line per event at the `INFO` level, so a log collector can pick the events up in any of these formats. The
 `ecs` format also writes the fields of an event as fields of their own, `audit.id`, `audit.action`, `audit.actor` and

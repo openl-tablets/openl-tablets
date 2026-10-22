@@ -158,6 +158,10 @@ case "$LOGGING_FORMAT" in
 esac
 JAVA_OPTS="$JAVA_OPTS -Dlog4j2.configurationFile=$OPENL_DIR/log4j2-$LOGGING_FORMAT.properties"
 
+# Send the OpenTelemetry agent's own messages to the application's slf4j, so log4j2 writes them in the chosen
+# format, instead of the agent's simple logger, which writes plain text lines to stderr
+export OTEL_JAVAAGENT_LOGGING="${OTEL_JAVAAGENT_LOGGING:-application}"
+
 if [ -z "$OTEL_JAVAAGENT_ENABLED" ] && [ -z "$(env | grep -E '^OTEL_EXPORTER_')" ]; then
     echo "INFO: OpenTelemetry has been disabled because of no OTEL_EXPORTER_*** are defined"
     export OTEL_JAVAAGENT_ENABLED=false
