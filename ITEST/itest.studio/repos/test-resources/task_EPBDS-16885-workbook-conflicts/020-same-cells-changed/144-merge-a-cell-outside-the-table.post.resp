@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.project.merge.conflict.workbook.cell.outside.message",
+  "message": "The merged table 'Rules/A1:B5' of 'EPBDS-16885-Rates/Rates.xlsx' has no cell at row 9, column 0."
+}
+

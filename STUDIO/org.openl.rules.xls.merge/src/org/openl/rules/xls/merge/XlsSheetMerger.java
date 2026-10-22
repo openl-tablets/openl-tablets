@@ -20,6 +20,8 @@ import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -70,6 +72,7 @@ import org.openl.rules.xls.merge.diff.SheetMergePlan;
  * filled empty cells next to each other, when merged cells of one revision cover a value the other revision wrote,
  * or when THEIR revision changed the data validation or the hyperlinks of the sheet otherwise than OUR revision did.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 @NullMarked
 final class XlsSheetMerger {
@@ -85,9 +88,6 @@ final class XlsSheetMerger {
     @FunctionalInterface
     private interface Layout {
         long of(Sheet sheet, int index);
-    }
-
-    private XlsSheetMerger() {
     }
 
     /**
@@ -296,8 +296,8 @@ final class XlsSheetMerger {
 
     /**
      * Writes the content a cell of the merged sheet takes: a copy of a cell of BASE revision, or a copy of another cell
-     * of OUR revision, or nothing, and then the parts of a cell of THEIR revision. A part a revision has not got is
-     * cleared, and a cell left with nothing in it is removed.
+     * of OUR revision, or nothing, and then the parts of a cell of THEIR revision, and last the value the user typed
+     * for it. A part a revision has not got is cleared, and a cell left with nothing in it is removed.
      *
      * <p>An array formula of OUR revision the cell belongs to becomes plain content first when the value of the cell is
      * written. A revision that changed the formula changed every cell it spans, so each of them is written. A cell
@@ -327,6 +327,10 @@ final class XlsSheetMerger {
             their.cell = SheetUtil.getCell(their.sheet, source.their().getRow(), source.their().getColumn());
             source.parts().forEach(part -> copyPart(their, our, part));
         }
+        var typed = source.typed();
+        if (typed != null) {
+            TypedValues.write(our.cell, typed);
+        }
         if (XlsSheetsMatcher.isEmptyCell(our)) {
             our.row.removeCell(our.cell);
         }
@@ -335,12 +339,13 @@ final class XlsSheetMerger {
 
     /**
      * Whether a cell of the merged sheet takes a value: a copy of a cell of BASE revision, a cell of OUR revision moved
-     * there or cleared, or the value of a cell of THEIR revision.
+     * there or cleared, the value of a cell of THEIR revision, or a value the user typed.
      */
     private static boolean writesValue(CellAddress address, CellSource source) {
         return source.base() != null
                 || !address.equals(source.our())
-                || source.their() != null && source.parts().contains(CellPart.VALUE);
+                || source.their() != null && source.parts().contains(CellPart.VALUE)
+                || source.typed() != null;
     }
 
     /**
@@ -675,7 +680,18 @@ final class XlsSheetMerger {
      * @return the parts, or {@code null} if both revisions changed the value or the comment differently
      */
     static @Nullable Set<CellPart> theirParts(Cursor base, Cursor our, Cursor their) {
-        var mask = 0;
+        var parts = partsOf(base, our, their);
+        return parts.conflicting().isEmpty() ? parts.theirs() : null;
+    }
+
+    /**
+     * The parts of the current cells the merged cell takes from THEIR revision, and the parts both revisions changed
+     * differently, which are left to a resolution: the value and the comment. A style both revisions changed
+     * differently keeps OUR style.
+     */
+    static CellParts partsOf(Cursor base, Cursor our, Cursor their) {
+        var theirs = 0;
+        var conflicting = 0;
         for (CellPart part : CellPart.values()) {
             BiPredicate<Cursor, Cursor> equal = switch (part) {
                 case VALUE -> XlsSheetsMatcher::equalValues;
@@ -684,12 +700,31 @@ final class XlsSheetMerger {
             };
             var choice = choose(base, our, their, equal);
             if (choice == Choice.CONFLICT && part != CellPart.STYLE) {
-                return null;
+                conflicting |= 1 << part.ordinal();
             } else if (choice == Choice.THEIR) {
-                mask |= 1 << part.ordinal();
+                theirs |= 1 << part.ordinal();
             }
         }
-        return PARTS.get(mask);
+        return new CellParts(PARTS.get(theirs), PARTS.get(conflicting), PARTS.get(theirs | conflicting));
+    }
+
+    /**
+     * Tells whether OUR revision alone changed the value or the comment of the current cells: THEIR revision holds them
+     * as BASE revision does.
+     */
+    static boolean changedInOursAlone(Cursor base, Cursor our, Cursor their) {
+        return !XlsSheetsMatcher.equalValues(base, our) && XlsSheetsMatcher.equalValues(base, their)
+                || !XlsSheetsMatcher.equalComments(base, our) && XlsSheetsMatcher.equalComments(base, their);
+    }
+
+    /**
+     * How the parts of a cell changed in both revisions are merged.
+     *
+     * @param theirs      the parts taken from THEIR revision
+     * @param conflicting the parts both revisions changed differently
+     * @param chosen      the parts taken from THEIR revision when it is chosen for the conflicting parts
+     */
+    record CellParts(Set<CellPart> theirs, Set<CellPart> conflicting, Set<CellPart> chosen) {
     }
 
     private static List<Set<CellPart>> partSets() {

@@ -2,6 +2,7 @@ package org.openl.rules.xls.merge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -35,10 +36,15 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.xls.merge.XlsSheetMerger.Choice;
+import org.openl.rules.xls.merge.diff.CellConflict;
 import org.openl.rules.xls.merge.diff.CellPart;
+import org.openl.rules.xls.merge.diff.CellResolution;
+import org.openl.rules.xls.merge.diff.CellResolutionException;
 import org.openl.rules.xls.merge.diff.CellSource;
 import org.openl.rules.xls.merge.diff.Resolution;
 import org.openl.rules.xls.merge.diff.SheetConflictReason;
+import org.openl.rules.xls.merge.diff.TableCell;
+import org.openl.rules.xls.merge.diff.TableCells;
 import org.openl.rules.xls.merge.diff.TableConflict;
 import org.openl.rules.xls.merge.diff.TableConflictReason;
 
@@ -61,6 +67,10 @@ import org.openl.rules.xls.merge.diff.TableConflictReason;
  * well when one revision changes the rows and the other the columns of one table, when a change crosses merged cells,
  * when merged tables would touch each other, and when moved content is referred to by a formula, a defined name, a
  * data validation, a conditional formatting or a hyperlink.
+ *
+ * <p>A table whose lines merge while some of its cells conflict can be resolved cell by cell: a survey lists the
+ * merged table with its conflicting cells, and a resolution takes each conflicting cell from the revision chosen for
+ * it.
  */
 @NullMarked
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -123,6 +133,10 @@ final class XlsTableMerger {
      * The tables of the three revisions: a cell outside all of them holds no value in any revision.
      */
     private final List<CellRangeAddress> tables = new ArrayList<>();
+    /**
+     * The conflicting tables a survey merged cell by cell, by the table of BASE revision.
+     */
+    private final Map<CellRangeAddress, TableCells> mergedByCells = new HashMap<>();
 
     /**
      * The cells and the merged cells of a sheet merged table by table.
@@ -226,8 +240,12 @@ final class XlsTableMerger {
                 baseMoved.add(baseTable);
             }
             var reason = mergeTable(baseTable, ourTable, theirTable);
-            if (reason != null
-                    && !resolve(new TableConflict(idOf(baseTable), ourTable, baseTable, theirTable, reason))) {
+            if (reason != null && !resolve(new TableConflict(idOf(baseTable),
+                    ourTable,
+                    baseTable,
+                    theirTable,
+                    reason,
+                    mergedByCells.get(baseTable)))) {
                 return false;
             }
         }
@@ -620,7 +638,7 @@ final class XlsTableMerger {
         }
         for (TableOutput output : outputs) {
             output.cells.forEach((address, source) -> {
-                if (address.equals(source.our()) && source.parts().isEmpty()) {
+                if (address.equals(source.our()) && source.parts().isEmpty() && source.typed() == null) {
                     // the cell keeps its place and its content
                     cells.remove(address);
                 } else {
@@ -788,7 +806,17 @@ final class XlsTableMerger {
         var target = transposed
                 ? place(start, positions, lines.size())
                 : place(start, lines.size(), positions);
-        return write(ourTable, views, new Lines(lines, alignments), target);
+        var output = new TableOutput(views, new Lines(lines, alignments), target);
+        var id = idOf(baseTable);
+        var byCells = conflicts.decidedByCells(id);
+        var reason = byCells == null && !conflicts.surveys() ? output.build() : output.buildByCells(id, byCells);
+        if (output.merged != null) {
+            mergedByCells.put(baseTable, output.merged);
+        }
+        if (reason == null) {
+            keep(ourTable, output);
+        }
+        return reason;
     }
 
     /**
@@ -902,18 +930,24 @@ final class XlsTableMerger {
                                                 CellRangeAddress target) {
         var output = new TableOutput(views, lines, target);
         var reason = output.build();
-        if (reason != null) {
-            return reason;
+        if (reason == null) {
+            keep(ourTable, output);
         }
+        return reason;
+    }
+
+    /**
+     * Keeps a merged table built at its place, clearing the place of the table in OUR revision first.
+     */
+    private void keep(@Nullable CellRangeAddress ourTable, TableOutput output) {
         if (ourTable != null) {
             clearedTables.add(ourTable);
         }
-        layout.add(target);
+        layout.add(output.target);
         outputs.add(output);
         ourMoved.addAll(output.moved(Side.OUR));
         theirMoved.addAll(output.moved(Side.THEIR));
         baseMoved.addAll(output.moved(Side.BASE));
-        return null;
     }
 
     /**
@@ -1066,11 +1100,15 @@ final class XlsTableMerger {
     }
 
     private static CellRangeAddress place(CellAddress start, CellRangeAddress table) {
-        return place(start, height(table), table.getLastColumn() - table.getFirstColumn() + 1);
+        return place(start, height(table), width(table));
     }
 
     private static int height(CellRangeAddress table) {
         return table.getLastRow() - table.getFirstRow() + 1;
+    }
+
+    private static int width(CellRangeAddress table) {
+        return table.getLastColumn() - table.getFirstColumn() + 1;
     }
 
     private static CellRangeAddress place(CellAddress start, int rows, int columns) {
@@ -1357,7 +1395,7 @@ final class XlsTableMerger {
         }
 
         private int columns() {
-            return table.getLastColumn() - table.getFirstColumn() + 1;
+            return width(table);
         }
 
         CellAddress address(int line, int position) {
@@ -1681,6 +1719,29 @@ final class XlsTableMerger {
         private final Map<CellAddress, CellSource> cells = new HashMap<>();
         private final List<CellRangeAddress> regions = new ArrayList<>();
         private final Map<Side, int[]> lineOf = new EnumMap<>(Side.class);
+        /**
+         * The cells both revisions changed differently, when they are collected rather than leave the table a
+         * conflict.
+         */
+        private final List<CellConflict> conflictCells = new ArrayList<>();
+        /**
+         * The cells whose value or comment one revision alone changed, collected with the cells both revisions changed
+         * differently.
+         */
+        private final Set<CellAddress> changedCells = new HashSet<>();
+        /**
+         * The table merged cell by cell for a survey, or {@code null} when it was not, or cannot be.
+         */
+        private @Nullable TableCells merged;
+        /**
+         * Whether the cells both revisions changed differently are collected, each with OUR version of what conflicts,
+         * rather than leave the table a conflict.
+         */
+        private boolean collecting;
+        /**
+         * Whether the cells one revision alone changed are noted, which only a survey lists.
+         */
+        private boolean notingChanges;
 
         private TableOutput(Views views, Lines lines, CellRangeAddress target) {
             this.views = views;
@@ -1694,6 +1755,123 @@ final class XlsTableMerger {
          * {@code null} when it is built
          */
         @Nullable TableConflictReason build() {
+            if (!buildLines()) {
+                return TableConflictReason.CELLS;
+            }
+            return buildRegions() ? null : TableConflictReason.MERGED_CELLS;
+        }
+
+        /**
+         * Builds the table cell by cell: the cells both revisions changed differently are collected, and then taken as
+         * a resolution decides, or listed for a survey.
+         *
+         * <p>A table no cell of which conflicts is built as {@link #build()} builds it, whatever is decided for it. A
+         * survey merges a table whose merged cells can be placed, and notes it in {@link #merged}.
+         *
+         * @param id      the identifier of the conflict of the table
+         * @param byCells how the conflicting cells are resolved, or {@code null} for a survey
+         * @return why the table cannot be built, or {@code null} when it is
+         * @throws CellResolutionException when the resolution names what the merged table cannot take
+         */
+        @Nullable TableConflictReason buildByCells(String id, @Nullable CellResolution byCells) {
+            collecting = true;
+            notingChanges = byCells == null;
+            buildLines();
+            if (conflictCells.isEmpty()) {
+                return buildRegions() ? null : TableConflictReason.MERGED_CELLS;
+            }
+            if (byCells == null) {
+                if (buildRegions()) {
+                    merged = new TableCells(target,
+                            cells,
+                            regions,
+                            conflictCells.stream().sorted(Comparator.comparing(CellConflict::cell)).toList(),
+                            changedCells.stream().sorted().toList());
+                }
+                return TableConflictReason.CELLS;
+            }
+            decide(id, byCells);
+            if (!buildRegions()) {
+                return TableConflictReason.MERGED_CELLS;
+            }
+            requireUncovered(id, byCells);
+            return null;
+        }
+
+        /**
+         * Takes each conflicting cell from the revision chosen for it, and writes the values typed. A conflicting cell
+         * left without either is noted as unresolved, and the merge goes on with OUR version of it, so that every
+         * conflict left is found at once.
+         */
+        private void decide(String id, CellResolution byCells) {
+            requireInside(id, byCells);
+            var unresolved = false;
+            for (CellConflict conflict : conflictCells) {
+                var cell = tableCellOf(conflict.cell());
+                var side = byCells.sideOf(cell);
+                if (side == Resolution.THEIRS) {
+                    cells.put(conflict.cell(), conflict.theirSource());
+                }
+                unresolved |= side == null && !byCells.values().containsKey(cell);
+            }
+            byCells.values().forEach((cell, value) -> {
+                conflicts.typed(new Conflicts.TypedValue(id, cell, our.sheet.getSheetName(), value));
+                var address = new CellAddress(target.getFirstRow() + cell.row(),
+                        target.getFirstColumn() + cell.column());
+                cells.put(address, cells.get(address).withTyped(value));
+            });
+            if (unresolved) {
+                conflicts.unresolved(id);
+            }
+        }
+
+        /**
+         * Refuses a resolution that names a cell outside the merged table.
+         */
+        private void requireInside(String id, CellResolution byCells) {
+            var rows = height(target);
+            var columns = width(target);
+            Stream.concat(byCells.cells().keySet().stream(), byCells.values().keySet().stream())
+                    .filter(cell -> cell.row() < 0 || cell.row() >= rows || cell.column() < 0
+                            || cell.column() >= columns)
+                    .findFirst()
+                    .ifPresent(cell -> {
+                        throw new CellResolutionException(id, CellResolutionException.Kind.OUTSIDE, cell.row(),
+                                cell.column());
+                    });
+        }
+
+        /**
+         * Refuses a value typed for a cell that merged cells cover: only their first cell shows a value.
+         */
+        private void requireUncovered(String id, CellResolution byCells) {
+            for (TableCell cell : byCells.values().keySet()) {
+                var row = target.getFirstRow() + cell.row();
+                var column = target.getFirstColumn() + cell.column();
+                var covered = regions.stream()
+                        .anyMatch(region -> region.isInRange(row, column)
+                                && (region.getFirstRow() != row || region.getFirstColumn() != column));
+                if (covered) {
+                    throw new CellResolutionException(id, CellResolutionException.Kind.COVERED, cell.row(),
+                            cell.column());
+                }
+            }
+        }
+
+        /**
+         * A cell of the merged table by its row and its column in the table.
+         */
+        private TableCell tableCellOf(CellAddress address) {
+            return new TableCell(address.getRow() - target.getFirstRow(),
+                    address.getColumn() - target.getFirstColumn());
+        }
+
+        /**
+         * Builds the cells of every line of the table.
+         *
+         * @return {@code false} if a cell conflicts and the conflicts are not collected
+         */
+        private boolean buildLines() {
             for (Side side : Side.values()) {
                 var view = views.of(side);
                 if (view != null) {
@@ -1710,46 +1888,95 @@ final class XlsTableMerger {
                     }
                 }
                 if (!buildLine(i, line)) {
-                    return TableConflictReason.CELLS;
+                    return false;
                 }
             }
-            return buildRegions() ? null : TableConflictReason.MERGED_CELLS;
+            return true;
         }
 
         private boolean buildLine(int index, Line line) {
             var positions = views.any().positions();
             for (var position = 0; position < positions; position++) {
-                CellSource source;
-                if (line.merged()) {
-                    var parts = mergeCell(line, position);
-                    if (parts == null) {
-                        return false;
-                    }
-                    source = new CellSource(views.our().address(line.our(), position),
-                            parts.isEmpty() ? null : views.their().address(line.their(), position),
-                            parts);
-                } else if (line.our() >= 0) {
-                    source = new CellSource(views.our().address(line.our(), position), null, Set.of());
-                } else if (line.their() >= 0) {
-                    source = new CellSource(null, views.their().address(line.their(), position), ALL_PARTS);
-                } else {
-                    source = CellSource.ofBase(views.base().address(line.base(), position));
+                var source = line.merged()
+                        ? mergedSourceOf(index, line, position)
+                        : takenSourceOf(index, line, position);
+                if (source == null) {
+                    return false;
                 }
                 cells.put(address(index, position), source);
             }
             return true;
         }
 
-        private @Nullable Set<CellPart> mergeCell(Line line, int position) {
+        /**
+         * Where a cell of a line every revision has takes its content from, merged from the revisions. A cell both
+         * revisions changed differently is collected with OUR version of what conflicts.
+         *
+         * @return the content, or {@code null} when the cell conflicts and the conflicts are not collected
+         */
+        private @Nullable CellSource mergedSourceOf(int index, Line line, int position) {
+            var parts = mergeCell(line, index, position);
+            var ourAddress = views.our().address(line.our(), position);
+            var theirAddress = views.their().address(line.their(), position);
+            var source = new CellSource(ourAddress, parts.theirs().isEmpty() ? null : theirAddress, parts.theirs());
+            if (parts.conflicting().isEmpty()) {
+                return source;
+            } else if (!collecting) {
+                return null;
+            }
+            conflictCells.add(new CellConflict(address(index, position),
+                    ourAddress,
+                    views.base().address(line.base(), position),
+                    theirAddress,
+                    source,
+                    new CellSource(ourAddress, theirAddress, parts.chosen())));
+            return source;
+        }
+
+        /**
+         * Where a cell of a line the merge takes from one revision takes its content from: the revision that inserted
+         * the line or changed it alone, or else BASE revision.
+         */
+        private CellSource takenSourceOf(int index, Line line, int position) {
+            if (line.our() >= 0) {
+                noteChanged(index, position);
+                return new CellSource(views.our().address(line.our(), position), null, Set.of());
+            } else if (line.their() >= 0) {
+                noteChanged(index, position);
+                return new CellSource(null, views.their().address(line.their(), position), ALL_PARTS);
+            }
+            return CellSource.ofBase(views.base().address(line.base(), position));
+        }
+
+        /**
+         * Merges the cells of a line every revision has, at a position, and notes the cell as changed when one revision
+         * alone changed its value or its comment.
+         */
+        private XlsSheetMerger.CellParts mergeCell(Line line, int index, int position) {
             var baseView = views.base();
             var ourView = views.our();
             var theirView = views.their();
             baseView.cursor().cell = baseView.cell(line.base(), position);
             ourView.cursor().cell = ourView.cell(line.our(), position);
             theirView.cursor().cell = theirView.cell(line.their(), position);
-            var parts = XlsSheetMerger.theirParts(baseView.cursor(), ourView.cursor(), theirView.cursor());
+            var parts = XlsSheetMerger.partsOf(baseView.cursor(), ourView.cursor(), theirView.cursor());
+            if (notingChanges && (parts.theirs().contains(CellPart.VALUE)
+                    || parts.theirs().contains(CellPart.COMMENT)
+                    || XlsSheetMerger.changedInOursAlone(baseView.cursor(), ourView.cursor(), theirView.cursor()))) {
+                changedCells.add(address(index, position));
+            }
             baseView.cursor().cell = ourView.cursor().cell = theirView.cursor().cell = null;
             return parts;
+        }
+
+        /**
+         * Notes a cell of a line only one revision has as changed: the revision inserted the line, or changed it while
+         * the other one kept it.
+         */
+        private void noteChanged(int index, int position) {
+            if (notingChanges) {
+                changedCells.add(address(index, position));
+            }
         }
 
         private CellAddress address(int line, int position) {
@@ -1882,8 +2109,9 @@ final class XlsTableMerger {
          */
         private boolean hidesValue(int line, int position, Side owner) {
             var source = cells.get(address(line, position));
-            if (source.base() != null) {
-                // Only a table taken whole from BASE revision takes its cells from it, merged cells included.
+            if (source.base() != null || source.typed() != null) {
+                // Only a table taken whole from BASE revision takes its cells from it, merged cells included. A value
+                // typed under merged cells is refused on its own.
                 return false;
             }
             var fromTheir = source.our() == null || source.parts().contains(CellPart.VALUE);

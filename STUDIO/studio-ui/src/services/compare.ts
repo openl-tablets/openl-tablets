@@ -256,11 +256,25 @@ interface ConflictTableVersionData extends Omit<ConflictTableVersion, 'cells'> {
     styles: RawTableCellStyle[]
 }
 
+/** A cell of a merged table both branches changed differently, as the server sends it. */
+interface ConflictCellData extends Omit<ConflictCell, 'ours' | 'theirs'> {
+    ours: RawTableCellData
+    theirs: RawTableCellData
+}
+
+/** A table merged cell by cell as the server sends it: each style once, the cells naming theirs by index. */
+interface ConflictTableMergeData extends Omit<ConflictTableMerge, 'cells' | 'conflicts'> {
+    cells: RawTableCellData[][]
+    styles: RawTableCellStyle[]
+    conflicts: ConflictCellData[]
+}
+
 /** A conflicting table as the server sends it. */
-interface ConflictTableData extends Omit<ConflictTable, 'ours' | 'base' | 'theirs'> {
+interface ConflictTableData extends Omit<ConflictTable, 'ours' | 'base' | 'theirs' | 'merged'> {
     ours?: ConflictTableVersionData
     base?: ConflictTableVersionData
     theirs?: ConflictTableVersionData
+    merged?: ConflictTableMergeData
 }
 
 /** A conflicted workbook as the server sends it. */
@@ -268,7 +282,45 @@ interface ConflictWorkbookData extends Omit<ConflictWorkbook, 'sheets'> {
     sheets: (Omit<ConflictSheet, 'tables'> & { tables: ConflictTableData[] })[]
 }
 
-/** A table both branches changed in ways the merge cannot combine: it is taken whole from one version. */
+/** A cell of a merged table both branches changed differently, with what it is once a version is decided for it. */
+export interface ConflictCell {
+    /** The row of the cell in the merged table, from 0. */
+    row: number
+    /** The column of the cell in the merged table, from 0. */
+    column: number
+    /** The cell on its sheet, in A1 notation. */
+    cell: string
+    /** The cell in your version, which differs from the merged one when a branch inserted rows or columns before it. */
+    ourCell: string
+    /** The cell in their version, which differs from the merged one when a branch inserted rows or columns before it. */
+    theirCell: string
+    /** The cell with your value and comment, in the formatting of the merged cell. */
+    ours: RawTableCell
+    /** The cell with their value and comment, in the formatting of the merged cell. */
+    theirs: RawTableCell
+}
+
+/**
+ * A conflicting table merged cell by cell: the cells only one branch changed, or both changed alike, merged, and the
+ * cells both branches changed differently left to decide. A conflicting cell holds the base version until then.
+ */
+export interface ConflictTableMerge {
+    /** The place of the merged table on its sheet, in A1 notation. */
+    range: string
+    /** The cells of the merged table, row by row; the first rows only of a long table. */
+    cells: RawTableCell[][]
+    /** How many rows the merged table has. */
+    rows: number
+    /** The cells of the rows shown one branch alone changed, which the merge takes from it by itself. */
+    changedCells: string[]
+    /** The cells both branches changed differently, row by row. */
+    conflicts: ConflictCell[]
+}
+
+/**
+ * A table both branches changed in ways the merge cannot combine: it is taken whole from one version, or, when it comes
+ * merged, cell by cell.
+ */
 export interface ConflictTable {
     /** Identifies the conflict in a resolution. */
     id: string
@@ -279,6 +331,8 @@ export interface ConflictTable {
     ours?: ConflictTableVersion
     base?: ConflictTableVersion
     theirs?: ConflictTableVersion
+    /** The table merged cell by cell; absent for a table resolved only as a whole. */
+    merged?: ConflictTableMerge
 }
 
 /** A sheet of a conflicted workbook either branch changed. Its name identifies it in a resolution. */
@@ -309,6 +363,20 @@ export const PALETTE_CONFLICT = '/palette'
 const expandVersion = ({ cells, styles, ...rest }: ConflictTableVersionData): ConflictTableVersion =>
     ({ ...rest, cells: expandCells(cells, styles) })
 
+/** A table merged cell by cell as a screen reads it: every cell carrying its own style, its conflicts too. */
+const expandMerge = ({ cells, styles, conflicts, ...rest }: ConflictTableMergeData): ConflictTableMerge => {
+    // Both versions of a conflicting cell name the styles of the merged table, so they expand as a row of two cells.
+    const versions = expandCells(conflicts.map(({ ours, theirs }) => [ours, theirs]), styles)
+    return {
+        ...rest,
+        cells: expandCells(cells, styles),
+        conflicts: conflicts.map((conflict, index) => {
+            const [ours = {}, theirs = {}] = versions[index] ?? []
+            return { ...conflict, ours, theirs }
+        }),
+    }
+}
+
 /** A conflicted workbook as the merge reads it, for its conflicts to be resolved table by table. */
 export const getConflictWorkbook = async (projectId: string, path: string): Promise<ConflictWorkbook> => {
     const workbook = await apiCall(
@@ -320,33 +388,53 @@ export const getConflictWorkbook = async (projectId: string, path: string): Prom
         ...workbook,
         sheets: workbook.sheets.map(sheet => ({
             ...sheet,
-            tables: sheet.tables.map(({ ours, base, theirs, ...table }) => ({
+            tables: sheet.tables.map(({ ours, base, theirs, merged, ...table }) => ({
                 ...table,
                 ...(ours && { ours: expandVersion(ours) }),
                 ...(base && { base: expandVersion(base) }),
                 ...(theirs && { theirs: expandVersion(theirs) }),
+                ...(merged && { merged: expandMerge(merged) }),
             })),
         })),
     }
 }
 
+/** The version a conflicting cell of a table merged cell by cell takes its value from. */
+export type ConflictCellSide = 'ours' | 'theirs'
+
 /**
- * Merges a conflicted workbook, each conflict taken whole from the version decided for it, and answers with the
- * merged workbook. Nothing is saved.
+ * How a table is merged cell by cell: the version every conflicting cell takes, and the decisions for single cells — a
+ * version, a typed value, or both. Rows and columns count from 0 in the merged table.
+ */
+export interface ConflictCellsDecision {
+    side?: ConflictCellSide
+    cells?: Array<{ row: number; column: number; side?: ConflictCellSide; value?: string }>
+}
+
+/**
+ * Merges a conflicted workbook, each conflict taken whole from the version decided for it, or a table cell by cell as
+ * decided, and answers with the merged workbook. Nothing is saved.
  *
- * @param decisions the version each conflict is taken from, by the identifier of the conflict
+ * @param decisions the version each conflict is taken from whole, by the identifier of the conflict
+ * @param byCells   how each table merged cell by cell is merged, by the identifier of its conflict
  */
 export const mergeConflictWorkbook = async (
     projectId: string,
     path: string,
-    decisions: Record<string, ConflictSide>
+    decisions: Record<string, ConflictSide>,
+    byCells: Record<string, ConflictCellsDecision>
 ): Promise<Blob> =>
     await apiCall(
         `/projects/${projectId}/merge/conflicts/workbook?file=${encodeURIComponent(path)}`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ decisions: Object.entries(decisions).map(([id, side]) => ({ id, side })) }),
+            body: JSON.stringify({
+                decisions: [
+                    ...Object.entries(decisions).map(([id, side]) => ({ id, side })),
+                    ...Object.entries(byCells).map(([id, cells]) => ({ id, cells })),
+                ],
+            }),
         },
         // The merge changes nothing in the workspace, so it tells no other screen to read it again.
         { ...API_OPTIONS, responseType: 'blob', skipWorkspaceEvent: true }

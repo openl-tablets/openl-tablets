@@ -1,4 +1,5 @@
 import type { DatatypeField, RawTableRegion, RawTableRole } from 'types/tables'
+import { columnLettersOf } from 'components/tableRoles'
 
 /** Every table type the modal offers, in the order it presents them. */
 export const TABLE_PRESETS = [
@@ -288,15 +289,6 @@ export const deriveTableName = (preset: TablePreset, header: string): string => 
 const textColumn = (key: string, label: string): TableColumn => ({ key, label, editor: 'text' })
 const valueColumn = (key: string, label: string): TableColumn => ({ key, label, editor: 'value' })
 
-/** Spreadsheet column name for a zero-based index: A, B, ... Z, AA. The only title a plain grid can carry. */
-const columnLetter = (index: number): string => {
-    let name = ''
-    for (let rest = index; rest >= 0; rest = Math.floor(rest / 26) - 1) {
-        name = String.fromCodePoint(65 + rest % 26) + name
-    }
-    return name
-}
-
 export const buildTableColumns = (
     forPreset: TablePreset,
     context: TableBuildContext,
@@ -370,7 +362,7 @@ export const buildTableColumns = (
         case 'freeForm':
             // Nothing in a free-form table is generated, so its columns are named the way a sheet names them.
             return Array.from({ length: gridWidth }, (_, index) =>
-                textColumn(`column-${index}`, columnLetter(index)))
+                textColumn(`column-${index}`, columnLettersOf(index)))
     }
 }
 

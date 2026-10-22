@@ -137,12 +137,21 @@ final class XlsFormulaReferences {
     private static Optional<XlsFormulaReferences> references(Workbook workbook,
                                                              String sheetName,
                                                              Collection<CellRangeAddress> areas) {
-        FormulaParsingWorkbook parsing = switch (workbook) {
+        return Optional.ofNullable(parsingOf(workbook))
+                .map(parsing -> new XlsFormulaReferences(workbook, parsing, sheetName, areas));
+    }
+
+    /**
+     * The workbook as the parser of a formula reads it.
+     *
+     * @return the workbook to parse against, or {@code null} for a workbook whose formulas cannot be read
+     */
+    static @Nullable FormulaParsingWorkbook parsingOf(Workbook workbook) {
+        return switch (workbook) {
             case XSSFWorkbook xssf -> XSSFEvaluationWorkbook.create(xssf);
             case HSSFWorkbook hssf -> HSSFEvaluationWorkbook.create(hssf);
             default -> null;
         };
-        return Optional.ofNullable(parsing).map(p -> new XlsFormulaReferences(workbook, p, sheetName, areas));
     }
 
     private boolean settingsRefer(Sheet sheet, int sheetIndex) {

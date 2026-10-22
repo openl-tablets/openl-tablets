@@ -16,7 +16,7 @@ import org.openl.studio.projects.model.tables.RawTableCellStyle;
  *
  * @author Yury Molchan
  */
-final class RawTableStyleDictionary {
+public final class RawTableStyleDictionary {
 
     private final Map<RawTableCellStyle, Integer> numbers = new LinkedHashMap<>();
 
@@ -26,13 +26,12 @@ final class RawTableStyleDictionary {
      * @param style the style, or {@code null} for none
      * @return the number of the style, or {@code null} for none
      */
-    @Nullable
-    Integer numberOf(@Nullable RawTableCellStyle style) {
+    public @Nullable Integer numberOf(@Nullable RawTableCellStyle style) {
         return style == null ? null : numbers.computeIfAbsent(style, met -> numbers.size());
     }
 
     /** The styles met, each at its number. */
-    List<RawTableCellStyle> styles() {
+    public List<RawTableCellStyle> styles() {
         return List.copyOf(numbers.keySet());
     }
 }

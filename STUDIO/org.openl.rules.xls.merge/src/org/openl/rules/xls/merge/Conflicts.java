@@ -7,13 +7,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.xls.merge.diff.CellResolution;
+import org.openl.rules.xls.merge.diff.CellResolutionException;
 import org.openl.rules.xls.merge.diff.Resolution;
 import org.openl.rules.xls.merge.diff.SheetConflictReason;
+import org.openl.rules.xls.merge.diff.TableCell;
 import org.openl.rules.xls.merge.diff.TableConflict;
 import org.openl.rules.xls.merge.diff.UnresolvedConflictsException;
 
@@ -25,7 +30,7 @@ import org.openl.rules.xls.merge.diff.UnresolvedConflictsException;
  * every conflict as decided, and notes the conflicts that have no decision.
  *
  * <p>A sheet or the palette of a workbook is decided as a whole. A decision for a sheet stands for every table of the
- * sheet.
+ * sheet. A table is decided as a whole, or cell by cell when only some of its cells conflict.
  */
 @NullMarked
 final class Conflicts {
@@ -47,6 +52,10 @@ final class Conflicts {
     private final Mode mode;
     private final Map<String, Resolution> decisions;
     /**
+     * The tables a resolution resolves cell by cell, by the identifiers of their conflicts.
+     */
+    private final Map<String, CellResolution> byCells;
+    /**
      * The conflicting tables of the current sheet a survey noted.
      */
     private final List<TableConflict> tables = new ArrayList<>();
@@ -59,27 +68,47 @@ final class Conflicts {
      */
     private final List<String> unresolved = new ArrayList<>();
     /**
+     * The tables a resolution resolves cell by cell that cannot be merged so.
+     */
+    private final List<String> notByCells = new ArrayList<>();
+    /**
      * The sheets a resolution cannot merge as decided.
      */
     private final Map<String, SheetConflictReason> refused = new LinkedHashMap<>();
+    /**
+     * The values typed for the cells of the tables a resolution resolves cell by cell.
+     */
+    private final List<TypedValue> typedValues = new ArrayList<>();
 
-    private Conflicts(Mode mode, Map<String, Resolution> decisions) {
+    /**
+     * A value typed for a cell of a table resolved cell by cell.
+     *
+     * @param table the identifier of the conflict of the table
+     * @param cell  the cell of the merged table
+     * @param sheet the name of the sheet of the table
+     * @param value the value as typed
+     */
+    record TypedValue(String table, TableCell cell, String sheet, String value) {
+    }
+
+    private Conflicts(Mode mode, Map<String, Resolution> decisions, Map<String, CellResolution> byCells) {
         this.mode = mode;
         this.decisions = Map.copyOf(decisions);
+        this.byCells = Map.copyOf(byCells);
     }
 
     /**
      * Leaves a sheet that both revisions changed in ways the merge cannot combine a conflict.
      */
     static Conflicts strict() {
-        return new Conflicts(Mode.STRICT, Map.of());
+        return new Conflicts(Mode.STRICT, Map.of(), Map.of());
     }
 
     /**
      * Notes every conflict, going on with OUR version of what conflicts.
      */
     static Conflicts survey() {
-        return new Conflicts(Mode.SURVEY, Map.of());
+        return new Conflicts(Mode.SURVEY, Map.of(), Map.of());
     }
 
     /**
@@ -88,7 +117,21 @@ final class Conflicts {
      * @param decisions how each conflict is resolved, by the identifier of the conflict
      */
     static Conflicts resolution(Map<String, Resolution> decisions) {
-        return new Conflicts(Mode.RESOLUTION, decisions);
+        return resolution(decisions, Map.of());
+    }
+
+    /**
+     * Resolves every conflict as decided, some tables cell by cell.
+     *
+     * @param decisions how each conflict is resolved as a whole, by the identifier of the conflict
+     * @param byCells   how each table resolved cell by cell is resolved, by the identifier of its conflict; no table
+     *                  is decided both ways
+     */
+    static Conflicts resolution(Map<String, Resolution> decisions, Map<String, CellResolution> byCells) {
+        if (byCells.keySet().stream().anyMatch(decisions::containsKey)) {
+            throw new IllegalArgumentException("A table is resolved either as a whole or cell by cell.");
+        }
+        return new Conflicts(Mode.RESOLUTION, decisions, byCells);
     }
 
     /**
@@ -100,18 +143,26 @@ final class Conflicts {
     }
 
     /**
-     * Marks what the merge of the current sheet noted so far, for {@link #rewind(int)}.
+     * What a resolution noted so far, by how many conflicts of each kind it noted.
      */
-    int mark() {
-        return unresolved.size();
+    record Mark(int unresolved, int notByCells, int typedValues) {
+    }
+
+    /**
+     * Marks what the merge of the current sheet noted so far, for {@link #rewind(Mark)}.
+     */
+    Mark mark() {
+        return new Mark(unresolved.size(), notByCells.size(), typedValues.size());
     }
 
     /**
      * Forgets what the merge of the current sheet noted since the mark, so that the sheet can be merged again.
      */
-    void rewind(int mark) {
+    void rewind(Mark mark) {
         startSheet();
-        unresolved.subList(mark, unresolved.size()).clear();
+        unresolved.subList(mark.unresolved(), unresolved.size()).clear();
+        notByCells.subList(mark.notByCells(), notByCells.size()).clear();
+        typedValues.subList(mark.typedValues(), typedValues.size()).clear();
     }
 
     /**
@@ -124,7 +175,26 @@ final class Conflicts {
     }
 
     /**
+     * Tells whether the merge notes the conflicts it finds, and merges the cells of a table that can be merged cell by
+     * cell, so that its conflicting cells are listed.
+     */
+    boolean surveys() {
+        return mode == Mode.SURVEY;
+    }
+
+    /**
+     * How a table is resolved cell by cell.
+     *
+     * @return the resolution, or {@code null} when none is decided; only a resolution decides anything
+     */
+    @Nullable CellResolution decidedByCells(String id) {
+        return mode == Mode.RESOLUTION ? byCells.get(id) : null;
+    }
+
+    /**
      * Resolves a table both revisions changed in ways the merge cannot combine.
+     *
+     * <p>A table a resolution decided cell by cell comes here only when it cannot be merged so.
      *
      * @return how the table is taken, or nothing when the sheet stays a conflict
      */
@@ -137,7 +207,9 @@ final class Conflicts {
             }
             case RESOLUTION -> {
                 var decision = decisions.get(conflict.id());
-                if (decision == null) {
+                if (byCells.containsKey(conflict.id())) {
+                    notByCells.add(conflict.id());
+                } else if (decision == null) {
                     unresolved.add(conflict.id());
                 }
                 // The merge goes on without a decision, so that every conflict left is found at once.
@@ -198,13 +270,39 @@ final class Conflicts {
     }
 
     /**
+     * Notes a value typed for a cell of a table resolved cell by cell, so that a formula is read once every sheet of
+     * the merged workbook is known.
+     */
+    void typed(TypedValue value) {
+        typedValues.add(value);
+    }
+
+    /**
+     * Refuses a resolution that types a formula the merged workbook cannot read.
+     *
+     * @param our      OUR revision of the workbook, which knows the names of the merged workbook
+     * @param hasSheet tells whether the merged workbook has a sheet, by its name
+     * @throws CellResolutionException when a typed formula cannot be read
+     */
+    void requireReadable(Workbook our, Predicate<String> hasSheet) {
+        typedValues.stream()
+                .filter(typed -> TypedValues.isUnreadableFormula(typed.value(), our.getSheet(typed.sheet()), hasSheet))
+                .findFirst()
+                .ifPresent(typed -> {
+                    throw new CellResolutionException(typed.table(), CellResolutionException.Kind.FORMULA,
+                            typed.cell().row(), typed.cell().column());
+                });
+    }
+
+    /**
      * Refuses a resolution that leaves a conflict.
      *
-     * @throws UnresolvedConflictsException when a conflict has no decision, or a sheet cannot be merged as decided
+     * @throws UnresolvedConflictsException when a conflict has no decision, a table decided cell by cell cannot be
+     *                                      merged so, or a sheet cannot be merged as decided
      */
     void requireResolved() throws UnresolvedConflictsException {
-        if (!unresolved.isEmpty() || !refused.isEmpty()) {
-            throw new UnresolvedConflictsException(unresolved, refused);
+        if (!unresolved.isEmpty() || !notByCells.isEmpty() || !refused.isEmpty()) {
+            throw new UnresolvedConflictsException(unresolved, notByCells, refused);
         }
     }
 }

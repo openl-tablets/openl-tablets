@@ -158,6 +158,32 @@ export const useStyles = createStyles(({ css, token }, paper: TablePaper) => {
         user-select: none;
     `,
         /**
+     * A heading of the sheet beside the table, the letter over a column or the number beside a row, as Excel draws
+     * it: on a grey strip of the paper the table is drawn on, in a fainter ink than its cells, so it reads as the
+     * edge of the sheet rather than as cells of the table.
+     */
+        heading: css`
+        border: none;
+        background: ${mix(paper.background, paper.grid, 0.5)};
+        padding: 0 ${token.paddingXS}px;
+        color: ${mix(paper.text, paper.background, 0.4)};
+        font-size: ${token.fontSizeSM}px;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+        user-select: none;
+    `,
+        /** A heading the reader picks its row or its column by. */
+        pickableHeading: css`
+        color: ${paper.link};
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+            color: ${paper.linkHover};
+        }
+    `,
+        /**
      * A cell a reader left a note on in Excel, marked in its corner the way the old editor marked it.
      *
      * <p>The mark is drawn by the cell itself rather than by an image, so it costs the page nothing.

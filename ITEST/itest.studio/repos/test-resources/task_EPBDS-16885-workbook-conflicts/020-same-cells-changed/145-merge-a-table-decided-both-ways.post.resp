@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.project.merge.conflict.workbook.decision.message",
+  "message": "The conflict 'Rules/A1:B5' is taken either whole from one version or cell by cell."
+}
+

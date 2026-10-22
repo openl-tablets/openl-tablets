@@ -134,6 +134,22 @@ describe("HttpClient over fetch", () => {
     expect(reported).toEqual([failure]);
   });
 
+  it("fails a request for bytes outside 2xx with the parsed body of the refusal", async () => {
+    answer = (_req, res) => {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "The formula of B2 cannot be read." }));
+    };
+
+    const failure = await client()
+      .post("/merge/conflicts/workbook", { decisions: [] }, { responseType: "arraybuffer" })
+      .catch((error: unknown) => error);
+
+    expect((failure as HttpError).response).toEqual({
+      status: 400,
+      data: { message: "The formula of B2 cannot be read." },
+    });
+  });
+
   it("fails as a timeout when the answer takes longer than the timeout", async () => {
     answer = () => { /* never answers */ };
 

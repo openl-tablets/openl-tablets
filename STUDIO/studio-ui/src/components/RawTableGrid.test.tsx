@@ -89,6 +89,32 @@ describe('RawTableGrid', () => {
         expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
     })
 
+    it('heads the table with the letters of its columns and the numbers of its rows on the sheet', async () => {
+        const onPick = vi.fn()
+        const table: RawTableCell[][] = [
+            [{ cell: 'B9', value: 'Country' }, { cell: 'C9', value: 'Rate' }],
+            [{ cell: 'B10', value: 'US' }, { cell: 'C10', value: 1.5 }],
+        ]
+
+        render(<RawTableGrid
+            headings={{ from: 'B9', picks: { rows: new Set([1]), columns: new Set([1]) }, onPick }}
+            rows={table}
+            testId="grid"
+        />)
+
+        const headings = [...screen.getByTestId('grid').querySelectorAll('td[data-heading]')]
+        expect(headings.map(cell => cell.textContent)).toEqual(['B', 'C', '9', '10'])
+        // A heading the screen lets no one pick tells nothing when clicked.
+        await userEvent.click(screen.getByText('B'))
+        await userEvent.click(screen.getByText('9'))
+        expect(onPick).not.toHaveBeenCalled()
+
+        await userEvent.click(screen.getByText('C'))
+        await userEvent.click(screen.getByText('10'))
+        expect(onPick.mock.calls.map(([line, heading]) => [line, heading.textContent]))
+            .toEqual([[{ column: 1 }, 'C'], [{ row: 1 }, '10']])
+    })
+
     it('numbers nothing on a table that says nothing about its lines', () => {
         render(<RawTableGrid rows={rows} testId="grid" />)
 

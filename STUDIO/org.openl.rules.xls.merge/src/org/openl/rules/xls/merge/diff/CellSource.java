@@ -15,25 +15,37 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>A cell taken from BASE revision is a copy of a cell of BASE revision, whatever the other revisions have.
  *
+ * <p>A cell the user typed a value for takes that value last, read as Excel reads what is typed into a cell. It keeps
+ * the rest of its content as taken.
+ *
  * @param our   the cell of OUR revision the merged cell starts from, or {@code null} to start empty
  * @param their the cell of THEIR revision the parts are taken from, or {@code null} when no part is taken
  * @param parts the parts taken from THEIR revision
  * @param base  the cell of BASE revision the merged cell is a copy of, or {@code null} when it takes nothing from
  *              BASE revision
+ * @param typed the value the user typed for the cell, or {@code null} when none
  */
 public record CellSource(@Nullable CellAddress our,
                          @Nullable CellAddress their,
                          Set<CellPart> parts,
-                         @Nullable CellAddress base) {
+                         @Nullable CellAddress base,
+                         @Nullable String typed) {
 
     public CellSource(@Nullable CellAddress our, @Nullable CellAddress their, Set<CellPart> parts) {
-        this(our, their, parts, null);
+        this(our, their, parts, null, null);
     }
 
     /**
      * A cell that is a copy of a cell of BASE revision.
      */
     public static CellSource ofBase(CellAddress base) {
-        return new CellSource(null, null, Set.of(), base);
+        return new CellSource(null, null, Set.of(), base, null);
+    }
+
+    /**
+     * The same content with the value the user typed for the cell.
+     */
+    public CellSource withTyped(String value) {
+        return new CellSource(our, their, parts, base, value);
     }
 }

@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.project.merge.conflict.workbook.not-by-cells.message",
+  "message": "The tables Rules/A1:B5 of 'EPBDS-16885-Rates/Rates.xlsx' cannot be merged cell by cell. Take each of them whole from one version."
+}
+

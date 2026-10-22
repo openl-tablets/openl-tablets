@@ -33,6 +33,15 @@ export const placeOf = (address: string | undefined): Place | undefined => {
     return { row: Number(digits) - 1, column: column - 1 }
 }
 
+/** The letters Excel names a column of a sheet by, the column counted from 0: `A` to `Z`, then `AA`. */
+export const columnLettersOf = (column: number): string => {
+    let letters = ''
+    for (let rest = column + 1; rest > 0; rest = Math.floor((rest - 1) / 26)) {
+        letters = String.fromCodePoint(65 + (rest - 1) % 26) + letters
+    }
+    return letters
+}
+
 /**
  * The roles of the cells of a table, read once with the table, and where each cell of it stands in the table.
  *

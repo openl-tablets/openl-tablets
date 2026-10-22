@@ -425,6 +425,55 @@ export const readMergeConflictFileSchema = z.strictObject({
   response_format: ResponseFormat,
 });
 
+export const getMergeConflictWorkbookSchema = z.strictObject({
+  projectId: projectIdSchema,
+  file: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
+  table: nonBlankString.optional().describe(
+    "The id of one conflicting table from the overview. Omit to list every sheet and conflicting table with its conflicting cells; give it to read that table in your, the base and their version, and merged cell by cell.",
+  ),
+  response_format: ResponseFormat,
+});
+
+const cellSideSchema = z.enum(["ours", "theirs"]);
+const cellIndexSchema = z.number().int().min(0);
+
+const workbookDecisionSchema = z.union([
+  z.strictObject({
+    id: nonBlankString.describe("A table id, a sheet name (taking the whole sheet), or '/palette'."),
+    side: z.enum(["ours", "theirs", "base"]).describe("The version the conflict is taken from whole; the palette takes ours or theirs only."),
+  }),
+  z.strictObject({
+    id: nonBlankString.describe("The id of a table whose overview says byCells: true."),
+    cells: z.strictObject({
+      side: cellSideSchema.optional().describe("The version every conflicting cell of the table takes, unless the cell is decided otherwise."),
+      cells: z.array(z.strictObject({
+        row: cellIndexSchema.describe("Row of the merged table, from 0."),
+        column: cellIndexSchema.describe("Column of the merged table, from 0."),
+        side: cellSideSchema.optional().describe("The version a conflicting cell takes its value and its comment from."),
+        value: z.string().optional().describe("A value typed for any cell, read as Excel reads typing: '=' starts a formula, TRUE/FALSE are booleans, numbers use a dot, dates are 2026-10-22 or 2026-10-22 14:30, an apostrophe keeps text, '' clears the cell. It keeps the formatting of the merged cell."),
+      }).refine((cell) => cell.side !== undefined || cell.value !== undefined, {
+        error: "A cell decision gives a side, a value, or both.",
+      })).optional().describe("Decisions for single cells; a cell decision overrides the one of the table."),
+    }).describe("How the table is merged cell by cell: the cells only one branch changed are merged by Studio, and every conflicting cell needs a side or a value."),
+  }),
+]);
+
+export const resolveMergeConflictsSchema = z.strictObject({
+  projectId: projectIdSchema,
+  resolutions: z.array(z.union([
+    z.strictObject({
+      file: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it."),
+      strategy: z.enum(["BASE", "OURS", "THEIRS"]).describe("Take the whole file from the base version, your version (the current branch) or their version."),
+    }),
+    z.strictObject({
+      file: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
+      decisions: z.array(workbookDecisionSchema).min(1).describe("How each conflict of the workbook from openl_get_merge_conflict_workbook() is resolved; every conflict needs a decision, and a sheet taken whole needs none for its tables."),
+    }),
+  ])).min(1).describe("One resolution for every conflicted file of the pending conflict."),
+  message: z.string().optional().describe("Commit message; Studio builds one from the conflict when omitted."),
+  response_format: ResponseFormat,
+});
+
 export const deleteProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   confirmProjectName: nonBlankString.describe("Required safety confirmation: exact project name returned by openl_get_project(). The delete is rejected if it does not match."),

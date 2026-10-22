@@ -18,8 +18,22 @@ import { useAppTheme } from '../providers/AppThemeProvider'
 import { type CodeHighlighter, useCodeHighlighter } from '../hooks/useCodeHighlighter'
 import type { CodePiece } from '../utils/codeHighlight'
 import {
-    type CellRole, cellRoleOf, holdsCode, onPaper, roleLinesOf, type RoleLines, type TableRoles,
+    type CellRole, cellRoleOf, columnLettersOf, holdsCode, onPaper, placeOf, roleLinesOf, type RoleLines,
+    type TableRoles,
 } from './tableRoles'
+
+/** A row or a column of a table picked by its heading, counted from 0 in the cells drawn. */
+export type HeadingLine = { row: number } | { column: number }
+
+/** The headings of the sheet a table lies on, drawn above and beside the table as Excel draws them. */
+export interface SheetHeadings {
+    /** The first cell drawn in A1 notation: `A9` heads the first column with A and the first row with 9. */
+    from: string
+    /** The rows and the columns the reader can pick by their headings, counted from 0 in the cells drawn. */
+    picks?: { rows: ReadonlySet<number>; columns: ReadonlySet<number> } | undefined
+    /** Told which row or column the reader picked by its heading, and the heading itself. */
+    onPick?: ((line: HeadingLine, heading: HTMLElement) => void) | undefined
+}
 
 /** How the screen showing a table marks one of its cells. */
 export interface CellDecoration {
@@ -31,6 +45,9 @@ export interface CellDecoration {
     muted?: boolean
     /** What the cell shows, when the screen has more to say about it than the workbook does. */
     content?: React.ReactNode
+    /** What the screen sets before or after the text of the cell, such as a button acting on the cell. */
+    before?: React.ReactNode
+    after?: React.ReactNode
 }
 
 interface RawTableGridProps {
@@ -66,6 +83,11 @@ interface RawTableGridProps {
      * formatting of its workbook alone, such as a side of a comparison or a table of the kind Other.
      */
     roles?: TableRoles | undefined
+    /**
+     * The letter of each column above the table and the number of each row beside it, as the sheet names them.
+     * Absent where the table is drawn without them.
+     */
+    headings?: SheetHeadings | undefined
     testId?: string | undefined
 }
 
@@ -356,6 +378,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     tableRef,
     layout,
     roles,
+    headings,
     testId,
 }) => {
     const { excelFormatting, themeName } = useAppTheme()
@@ -416,15 +439,42 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     // table, counted down the rows or across the columns according to how the table is written.
     const extent = layout?.transposed ? columns : rows.length
     const lines = layout === undefined ? 0 : Math.max(0, extent - layout.firstDataLine)
+    // Where the first cell drawn lies on the sheet, when the headings of the sheet are drawn.
+    const origin = headings === undefined ? undefined : placeOf(headings.from)
+    /** The heading of a row or a column, which picks it where the screen lets it be picked. */
+    const headingOf = (label: string, line: HeadingLine) => {
+        const picks = headings?.picks
+        const pickable = 'row' in line ? picks?.rows.has(line.row) : picks?.columns.has(line.column)
+        const onPick = pickable ? headings?.onPick : undefined
+        return (
+            <td
+                key={`heading-${label}`}
+                className={cx(styles.heading, onPick && styles.pickableHeading)}
+                data-heading={label}
+                onClick={onPick && (event => onPick(line, event.currentTarget))}
+            >
+                {label}
+            </td>
+        )
+    }
 
     const body = (
         <tbody>
+            {origin && (
+                <tr>
+                    <td className={styles.heading} />
+                    {layout !== undefined && !layout.transposed && <td className={styles.lineNumber} />}
+                    {Array.from({ length: columns }, (unused, column) =>
+                        headingOf(columnLettersOf(origin.column + column), { column }))}
+                </tr>
+            )}
             {/*
               * A transposed table's data runs across its columns, so its numbers run above them — one cell
               * per column of the grid, blank over the headings the data begins after.
               */}
             {layout?.transposed && lines > 0 && (
                 <tr>
+                    {origin && <td className={styles.heading} />}
                     {Array.from({ length: columns }, (unused, column) => (
                         <td key={column} className={styles.lineNumber}>
                             {column >= layout.firstDataLine
@@ -436,6 +486,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             )}
             {rows.map((row, rowIndex) => (
                 <tr key={rowKey(row, rowIndex)} className={styles.row}>
+                    {origin && headingOf(String(origin.row + rowIndex + 1), { row: rowIndex })}
                     {/* A table written the usual way round is numbered down its side, as the Editor did. */}
                     {layout !== undefined && !layout.transposed && (
                         <td className={styles.lineNumber}>
@@ -468,9 +519,11 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                     ? studioCellStyle(role, cell.style, border, muted, laidOn.text)
                                     : cellStyle(cell.style, border, painted, muted, laidOn.text)}
                             >
+                                {decoration?.before}
                                 {decoration?.content ?? cellText(studio
                                     ? studioTextOf(cell, role, roles, look.faint, codeRuns?.[rowIndex]?.[columnIndex])
                                     : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage)}
+                                {decoration?.after}
                             </td>
                         )
                         // The note is shown while the cell is read. A cell the screen has taken over — one

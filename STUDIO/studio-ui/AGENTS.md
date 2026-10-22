@@ -357,8 +357,9 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
       in the Studio look they take the theme's token (`useStyles(onPaper(...))` of `TableEditor.styles.ts` and
       `TraceTableView.styles.ts`). On paper, the table editor draws its grid inside `PaperTheme`, a `ConfigProvider`
       that drops the theme in force (`inherit: false`) and keeps the density, so the Ant Design controls written into a
-      cell, and the notes over one, lie on the paper as well. The line numbers beside the table belong to the screen
-      and follow the theme. In either look the table is written in the font of the application, whatever font the
+      cell, and the notes over one, lie on the paper as well. The line numbers beside the table, and the letters and
+      numbers of the sheet a screen heads it with (`headings`), belong to the screen and follow the theme. In either
+      look the table is written in the font of the application, whatever font the
       workbook names: a read carries no font name or size.
     - **The logo is part of the palette.** `components/Logo.tsx` draws the cube from `primary`, `brand` and
       `primaryFg`, so it turns with the theme and the appearance; it carries no colour of its own.

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Response DTO containing detailed information about merge conflicts.
@@ -51,8 +52,9 @@ public record ConflictDetailsResponse(
             boolean theirs,
             @Parameter(description = "Whether the common ancestor contains the file")
             boolean base,
-            @Parameter(description = "Whether every revision that contains the file holds it as UTF-8 text with no "
-                    + "NUL character in its first bytes, which is merged line by line")
+            @Parameter(description = """
+                    Whether every revision that contains the file holds it as UTF-8 text with no \
+                    NUL character in its first bytes, which is merged line by line""")
             boolean text
     ) {
     }
@@ -69,17 +71,17 @@ public record ConflictDetailsResponse(
     @Builder
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record RevisionDetails(
-            String commit,
-            String branch,
-            String author,
-            Instant modifiedAt,
+            @Nullable String commit,
+            @Nullable String branch,
+            @Nullable String author,
+            @Nullable Instant modifiedAt,
             boolean exists
     ) {
 
         /**
          * Creates a RevisionDetails for a non-existent revision.
          */
-        public static RevisionDetails notExists(String commit, String branch) {
+        public static RevisionDetails notExists(@Nullable String commit, @Nullable String branch) {
             return builder()
                     .commit(commit)
                     .branch(branch)
@@ -90,7 +92,10 @@ public record ConflictDetailsResponse(
         /**
          * Creates a RevisionDetails for an existing revision.
          */
-        public static RevisionDetails of(String commit, String branch, String author, Instant modifiedAt) {
+        public static RevisionDetails of(String commit,
+                                         @Nullable String branch,
+                                         @Nullable String author,
+                                         @Nullable Instant modifiedAt) {
             return builder()
                     .commit(commit)
                     .branch(branch)

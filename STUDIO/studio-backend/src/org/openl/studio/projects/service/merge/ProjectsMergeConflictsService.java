@@ -9,6 +9,7 @@ import org.springframework.core.io.InputStreamSource;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictCellsDecision;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictTextView;
@@ -162,8 +163,9 @@ public interface ProjectsMergeConflictsService {
      * version.
      *
      * <p>A conflict is a table or a whole sheet both branches changed in ways the merge cannot combine, or the
-     * palette of an .xls workbook. It is resolved by taking it whole from one version, see
-     * {@link #mergeConflictWorkbook(MergeConflictInfo, String, Map)}.
+     * palette of an .xls workbook. It is resolved by taking it whole from one version, or, for a table only some cells
+     * of which conflict, cell by cell; such a table comes merged cell by cell as well. See
+     * {@link #mergeConflictWorkbook(MergeConflictInfo, String, Map, Map)}.
      *
      * @param mergeConflictInfo conflict information containing Git repository references
      * @param path              path of the conflicted workbook, as the conflict lists it
@@ -176,25 +178,29 @@ public interface ProjectsMergeConflictsService {
     ConflictWorkbookView getConflictWorkbook(MergeConflictInfo mergeConflictInfo, String path) throws IOException;
 
     /**
-     * Merges a conflicted workbook, taking each conflict whole from the version decided for it and merging the rest
-     * as the merge of the branches merges it. Nothing is saved.
+     * Merges a conflicted workbook, taking each conflict whole from the version decided for it, or a table cell by cell
+     * as decided, and merging the rest as the merge of the branches merges it. Nothing is saved.
      *
      * @param mergeConflictInfo conflict information containing Git repository references
      * @param path              path of the conflicted workbook, as the conflict lists it
      * @param decisions         the version each conflict is taken from, by the identifier of the conflict: a table, a
      *                          sheet taken whole with its tables, or the palette
+     * @param byCells           how each table merged cell by cell is merged, by the identifier of its conflict; a
+     *                          conflict is in one of the two maps only
      * @return the merged workbook
      * @throws IOException if a version of the workbook cannot be read
      * @throws org.openl.studio.common.exception.BadRequestException if the file is not an Excel workbook, a conflict
-     *                                                               has no decision, or the decisions make the tables
-     *                                                               of a sheet touch each other or move content that
-     *                                                               something refers to
+     *                                                               or a conflicting cell has no decision, a table
+     *                                                               cannot be merged cell by cell as decided, or the
+     *                                                               decisions make the tables of a sheet touch each
+     *                                                               other or move content that something refers to
      * @throws org.openl.studio.common.exception.NotFoundException   if the file is not conflicted, or your, their or
      *                                                               the base version does not hold it
      */
     byte[] mergeConflictWorkbook(MergeConflictInfo mergeConflictInfo,
                                  String path,
-                                 Map<String, ConflictBase> decisions) throws IOException;
+                                 Map<String, ConflictBase> decisions,
+                                 Map<String, ConflictCellsDecision> byCells) throws IOException;
 
     /**
      * Resolves merge conflicts using specified strategies.

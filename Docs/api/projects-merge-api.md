@@ -26,7 +26,8 @@
 The Projects Merge API provides a REST interface for merging the Git branches of an OpenL Studio project. It reports
 whether there is anything to merge and whether the user may merge, performs the merge, lists the conflicts the merge
 finds, lets a client download or compare the conflicting versions, merges a conflicted text file line by line and a
-conflicted workbook table by table, and resolves the conflicts with a chosen version or an uploaded file.
+conflicted workbook table by table and cell by cell, and resolves the conflicts with a chosen version or an uploaded
+file.
 
 ### Key Features
 
@@ -46,8 +47,8 @@ conflicted workbook table by table, and resolves the conflicts with a chosen ver
 - **Line-by-line Merge**: A conflicted text file is merged line by line, as the merge of the branches merges it, so
   that a client resolves each conflict of its lines in place and sends the merged file as a `CUSTOM` resolution
 - **Table-by-table Merge**: A conflicted workbook lists the tables and the sheets both branches changed in ways the
-  merge cannot combine; a client takes each of them whole from one version, gets the merged workbook and sends it as
-  a `CUSTOM` resolution
+  merge cannot combine; a client takes each of them whole from one version, or merges a table only some cells of
+  which conflict cell by cell, gets the merged workbook and sends it as a `CUSTOM` resolution
 - **Protected Branches**: A merge into a protected branch takes an explicit bypass confirmation (`force=true`)
 - **Session Management**: Maintains conflict state across multiple API calls
 - **Excel File Prioritization**: Excel files come first in conflict lists
@@ -705,8 +706,10 @@ GET /rest/projects/MyProject/merge/conflicts/text?file=MyProject%2Fi18n%2Fmessag
 
 **Description**: Compares the three versions of a conflicted Excel file as the merge of the branches compares them,
 and answers with the sheets either branch changed: how the merge takes each of them by itself, and what both branches
-changed in ways the merge cannot combine. A client resolves each conflict by taking it whole from one version through
-[Merge a Conflicted Workbook](#9-merge-a-conflicted-workbook), and sends the merged workbook as a `CUSTOM` resolution.
+changed in ways the merge cannot combine. A client resolves each conflict by taking it whole from one version, or a
+table only some cells of which conflict cell by cell, through
+[Merge a Conflicted Workbook](#9-merge-a-conflicted-workbook), and sends the merged workbook as a `CUSTOM`
+resolution.
 
 **HTTP Method**: GET
 
@@ -746,7 +749,20 @@ changed in ways the merge cannot combine. A client resolves each conflict by tak
           "base": { "range": "A1:B6", "cells": [["..."]], "styles": ["..."], "rows": 6, "changedCells": [],
             "formattingChanged": false, "conflictCells": ["B3"] },
           "theirs": { "range": "A1:B6", "cells": [["..."]], "styles": ["..."], "rows": 6, "changedCells": ["B3", "B5"],
-            "formattingChanged": true, "conflictCells": ["B3"] }
+            "formattingChanged": true, "conflictCells": ["B3"] },
+          "merged": {
+            "range": "A1:B6",
+            "cells": [["..."], ["..."], [{ "cell": "A3", "value": "US", "style": 2 }, { "cell": "B3", "value": 1.25,
+              "style": 3 }], ["..."]],
+            "styles": ["..."],
+            "rows": 6,
+            "changedCells": ["B5"],
+            "conflicts": [
+              { "row": 2, "column": 1, "cell": "B3", "ourCell": "B3", "theirCell": "B3",
+                "ours": { "cell": "B3", "value": 1.4, "style": 3 },
+                "theirs": { "cell": "B3", "value": 1.5, "style": 3 } }
+            ]
+          }
         }
       ]
     },
@@ -806,6 +822,19 @@ changed in ways the merge cannot combine. A client resolves each conflict by tak
   each version then holds the area of all the tables it added there. The tables are listed from top to bottom by
   their places in the base version, or in their version for tables both branches added. The `...` above stands for
   cells left out of the example.
+- A table whose lines the merge combines while only some of its cells conflict — the `cells` reason — comes merged
+  cell by cell in `merged`: the table as the merge writes it, at the place it lands, with the cells only one branch
+  changed, or both changed alike, merged as Sync merges the cells of a sheet. `cells` holds its first 200 rows, each
+  style once in `styles`; a cell both branches changed differently holds the value and the comment of the base
+  version until a version is decided for it. `changedCells` names the cells of the rows shown whose value, formula or
+  comment one branch alone changed, which the merge takes from that branch by itself, the cells of a row or a column
+  only one branch has included; a cell both branches changed alike is left out. `conflicts` lists those cells row by
+  row, each by its `row` and `column`
+  in the merged table, counted from 0 as `cells` is, by its address, by where your and their version have it
+  (`ourCell`, `theirCell`), which differs from its address after rows or columns a branch inserted or removed before
+  it, and as it is with your version (`ours`) and with their version (`theirs`): the value and the comment of that
+  version in the formatting of the merged cell. A conflict past the rows shown is listed as well. A table
+  with no `merged`, such as one both branches inserted rows into at the same place, is resolved only as a whole.
 - `palette` tells that both branches changed the colours of the palette of an .xls workbook differently. The palette
   is resolved as a whole, by your or their version, under the identifier `/palette`.
 - A conflict is identified by the `id` of its table, or by the `name` of its sheet. Everything the merge combines by
@@ -829,8 +858,8 @@ GET /rest/projects/MyProject/merge/conflicts/workbook?file=MyProject%2Frules%2FR
 **Endpoint**: `POST /rest/projects/{projectId}/merge/conflicts/workbook`
 
 **Description**: Merges the three versions of a conflicted Excel file, taking every conflict whole from the version
-the request decides, and answers with the merged workbook. Nothing is saved: a client sends the workbook as a `CUSTOM`
-resolution of [Resolve Conflicts](#10-resolve-conflicts).
+the request decides, or a table cell by cell as the request decides, and answers with the merged workbook. Nothing is
+saved: a client sends the workbook as a `CUSTOM` resolution of [Resolve Conflicts](#10-resolve-conflicts).
 
 **HTTP Method**: POST
 
@@ -846,15 +875,41 @@ resolution of [Resolve Conflicts](#10-resolve-conflicts).
   "decisions": [
     { "id": "Rates/A1:B6", "side": "theirs" },
     { "id": "Rates/A9:B13", "side": "ours" },
-    { "id": "Notes", "side": "base" }
+    { "id": "Notes", "side": "base" },
+    {
+      "id": "Rates/A20:C26",
+      "cells": {
+        "side": "theirs",
+        "cells": [
+          { "row": 2, "column": 1, "side": "ours" },
+          { "row": 4, "column": 1, "value": "1.45" }
+        ]
+      }
+    }
   ]
 }
 ```
 
 - `id` names a conflict of [Read the Conflicts of a Workbook](#8-read-the-conflicts-of-a-workbook): the `id` of a
   table, the `name` of a sheet, or `/palette`.
+- A decision gives either `side` or `cells`, never both.
 - `side` names the version the conflict is taken from, whole: `ours`, `theirs` or `base`. A table taken from a version
   that has none is left out, and so is a sheet. The palette is taken from `ours` or `theirs` only.
+- `cells` merges a table that comes merged cell by cell from
+  [Read the Conflicts of a Workbook](#8-read-the-conflicts-of-a-workbook): the cells only one branch changed are merged
+  by themselves, and each conflicting cell takes its value and its comment from the version decided for it, `ours` or
+  `theirs`; its style is merged as Sync merges styles. A version is decided for the whole table (`side`) and for
+  single cells (`cells`), each named by its `row` and its `column`, counted from 0 in the merged table as its `cells`
+  are. A decision for a cell overrides the one for the table.
+- A cell decision may give `value` instead of a version, or beside it: the value typed for the cell, which takes the
+  place of its value and keeps its formatting, any cell of the merged table but one merged cells cover. It is read as
+  Excel reads what is typed into a cell: a text after `=` is a formula, `TRUE` and `FALSE`, in any case, are booleans,
+  a number is written with a dot and may have an exponent, a date is written as `2026-10-22` and a date with a time as
+  `2026-10-22 14:30`, and takes a date format when the cell has none, a date before the first day the workbook counts
+  its dates from, `1900-01-01` or `1904-01-01`, stays text, a text after an apostrophe stays text, and an empty value
+  clears the cell. A formula is read against the merged workbook: a sheet it names must be one the merged workbook
+  has, such as a sheet their branch added. Every conflicting cell needs a version or a value. A typed value of a
+  conflicting cell keeps the comment of the version decided for it, or of your version.
 - A table taken from a version lands where the merge puts it: at the place one branch moved it to, so a table the
   other branch moved stays at its new place. When both branches moved it, it lands at the place of the version taken.
 - A sheet decided by its name is taken whole from the version decided, with every table of it, so its tables need no
@@ -878,9 +933,15 @@ curl -X POST "http://localhost:8080/rest/projects/MyProject/merge/conflicts/work
 **Errors**:
 - `400 Bad Request`:
   - The file is not an Excel workbook, or a version of it cannot be read as one
-  - A conflict has no decision (`project.merge.conflict.workbook.unresolved.message` names the conflicts left)
-  - A conflict is decided twice
-  - The palette is decided as `base`
+  - A conflict has no decision, or a table merged cell by cell has a conflicting cell with neither a version nor a
+    value (`project.merge.conflict.workbook.unresolved.message` names the conflicts left)
+  - A conflict is decided twice, or with both `side` and `cells`, or with neither
+  - The palette is decided as `base`, or a cell takes its value from `base`
+  - A table that comes with no `merged` is decided cell by cell
+    (`project.merge.conflict.workbook.not-by-cells.message`); take it whole from one version
+  - A cell decision gives neither a version nor a value, or names a cell twice
+  - A cell lies outside the merged table, a value is typed for a cell merged cells cover, or a typed formula cannot be
+    read
   - The tables of a sheet, as decided, would touch each other and be read as one table, or move content that a formula,
     a defined name, a data validation, a conditional formatting, a hyperlink or a picture refers to, a formula of a
     table taken from the base version included; such a sheet is taken whole from one version. The first such sheet is
@@ -1238,6 +1299,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 | `ours`   | ConflictTableVersion | The table in your version; absent when your version has none        |
 | `base`   | ConflictTableVersion | The table in the base version; absent when both branches added it   |
 | `theirs` | ConflictTableVersion | The table in their version; absent when their version has none      |
+| `merged` | ConflictTableMerge   | The table merged cell by cell; absent for a table resolved only as a whole |
 
 ---
 
@@ -1254,14 +1316,46 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
 ---
 
+### ConflictTableMerge
+
+| Field       | Type                | Description                                                                         |
+|-------------|---------------------|-------------------------------------------------------------------------------------|
+| `range`     | string              | The place of the merged table on its sheet, in A1 notation                          |
+| `cells`     | RawTableCell[][]    | The cells of the merged table, row by row, at most 200 rows; a conflicting cell holds the base version |
+| `styles`    | RawTableCellStyle[] | The styles the cells and the conflicts name by index, each once                     |
+| `rows`      | integer             | How many rows the merged table has                                                  |
+| `changedCells` | string[]         | The cells of the rows shown one branch alone changed, which the merge takes by itself |
+| `conflicts` | ConflictCellView[]  | The cells both branches changed differently, row by row                            |
+
+---
+
+### ConflictCellView
+
+| Field    | Type         | Description                                                                     |
+|----------|--------------|---------------------------------------------------------------------------------|
+| `row`    | integer      | The row of the cell in the merged table, counted from 0                         |
+| `column` | integer      | The column of the cell in the merged table, counted from 0                      |
+| `cell`   | string       | The cell on its sheet, in A1 notation                                           |
+| `ourCell` | string      | The cell in your version, in A1 notation; another one after rows or columns a branch inserted or removed before it |
+| `theirCell` | string    | The cell in their version, in A1 notation; another one after rows or columns a branch inserted or removed before it |
+| `ours`   | RawTableCell | The cell with your value and comment, in the formatting of the merged cell      |
+| `theirs` | RawTableCell | The cell with their value and comment, in the formatting of the merged cell     |
+
+---
+
 ### ResolveConflictWorkbookRequest
 
 | Field       | Type                       | Description                                       |
 |-------------|----------------------------|---------------------------------------------------|
 | `decisions` | ConflictWorkbookDecision[] | The version each conflict is taken from; required |
 
-`ConflictWorkbookDecision` holds the `id` of a conflict (a table `id`, a sheet `name` or `/palette`) and the `side`
-it is taken from: `ours`, `theirs` or `base`.
+`ConflictWorkbookDecision` holds the `id` of a conflict (a table `id`, a sheet `name` or `/palette`) and either the
+`side` it is taken from — `ours`, `theirs` or `base` — or, for a table that comes merged cell by cell, `cells`:
+
+| Field   | Type                   | Description                                                                 |
+|---------|------------------------|-----------------------------------------------------------------------------|
+| `side`  | `ours` \| `theirs`     | The version every conflicting cell of the table takes                       |
+| `cells` | ConflictCellDecision[] | The decisions for single cells: `row`, `column`, and `side`, `value` or both |
 
 ---
 
@@ -1501,7 +1595,15 @@ request body that fails validation answers `400` with a `fields` list naming eac
 | 400    | `project.merge.conflict.workbook.not-workbook.message` | `/conflicts/workbook` gets a file that is not an Excel workbook, or cannot be read as one |
 | 400    | `project.merge.conflict.workbook.unresolved.message` | A conflict of the workbook has no decision; the conflicts left are named |
 | 400    | `project.merge.conflict.workbook.duplicate.message` | A conflict of the workbook is decided twice          |
+| 400    | `project.merge.conflict.workbook.decision.message` | A conflict is decided with both `side` and `cells`, or with neither |
 | 400    | `project.merge.conflict.workbook.palette.message` | The palette of a workbook is decided as `base`         |
+| 400    | `project.merge.conflict.workbook.not-by-cells.message` | A table that comes with no `merged` is decided cell by cell |
+| 400    | `project.merge.conflict.workbook.cell.empty.message` | A cell decision gives neither a version nor a value  |
+| 400    | `project.merge.conflict.workbook.cell.duplicate.message` | A cell is decided twice                          |
+| 400    | `project.merge.conflict.workbook.cell.base.message` | A cell or a table merged cell by cell takes `base`   |
+| 400    | `project.merge.conflict.workbook.cell.outside.message` | A cell lies outside the merged table             |
+| 400    | `project.merge.conflict.workbook.cell.covered.message` | A value is typed for a cell merged cells cover   |
+| 400    | `project.merge.conflict.workbook.cell.formula.message` | A typed formula cannot be read                   |
 | 400    | `project.merge.conflict.workbook.touching.message` | The tables of a sheet, as decided, would touch each other |
 | 400    | `project.merge.conflict.workbook.moved.message`  | The tables of a sheet, as decided, move content something refers to |
 | 400    | `project.merge.conflict.workbook.link.message`   | A formula taken from a version reads another workbook your version links under another number |

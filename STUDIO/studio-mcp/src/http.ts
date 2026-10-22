@@ -187,6 +187,7 @@ export function parseJsonOrText(text: string): unknown {
   }
 }
 
+/** The body of an answer: the raw bytes when they are asked for, else the JSON parsed or the text. */
 function decodeBody(body: ArrayBuffer, responseType: HttpRequestOptions["responseType"]): unknown {
   if (responseType === "arraybuffer") return body;
   const text = new TextDecoder().decode(body);
@@ -237,14 +238,14 @@ export class HttpClient {
     };
     try {
       const raw = await this.transport(request);
-      const decoded = decodeBody(raw.body, request.responseType);
       if (raw.status < 200 || raw.status >= 300) {
+        // A refusal explains itself in JSON or text, even to a request for bytes.
         throw new HttpError(`Request failed with status code ${raw.status}`, request, "status", {
           status: raw.status,
-          data: decoded,
+          data: decodeBody(raw.body, undefined),
         });
       }
-      return { status: raw.status, data: decoded as T, headers: raw.headers };
+      return { status: raw.status, data: decodeBody(raw.body, request.responseType) as T, headers: raw.headers };
     } catch (error) {
       const failure = isHttpError(error) ? error : networkError(error, request);
       this.options.onError?.(failure);

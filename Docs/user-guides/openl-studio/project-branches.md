@@ -247,8 +247,9 @@ contain the project when it is opened. Proceed as follows:
         branches changed, as described below. The option is offered for a text file written in UTF-8 that both your
         version and their version hold, and not for an Excel file or another binary file.
     -   **Merge table by table** — the changes of both branches are merged the way Sync merges them, and you decide
-        only the tables and the sheets both branches changed in ways Sync cannot combine, as described below. The
-        option is offered for an Excel file that your version, their version and the base version hold.
+        only the tables and the sheets both branches changed in ways Sync cannot combine, or, inside a table, only
+        the cells both branches changed differently, as described below. The option is offered for an Excel file that
+        your version, their version and the base version hold.
     -   **Upload merged file** — depending on the selected merging options, changes in the manually updated and
         uploaded file override changes in the branch.
 
@@ -282,56 +283,95 @@ contain the project when it is opened. Proceed as follows:
     **Merge table by table** opens the workbook in a window of its own, laid out the same way: **Your Version** on
     the left, the **Result** in the middle and **Their Version** on the right. Each sheet with conflicts has a tab,
     which tells how many of its conflicts are left. A sheet Sync merges by itself, taken from the one branch that
-    changed it or combined from both, has nothing to resolve and no tab; the summary of the merge lists it.
+    changed it or combined from both, has nothing to resolve and no tab; the summary of the merge lists it. The icon
+    next to the title of the window explains the frames the tables are marked with.
 
-    A conflicting sheet lists its conflicting tables, each headed by its number, its name and whether it is resolved,
-    with the reason Sync cannot merge it, such as both branches changing the same cells. The cells both branches
-    changed differently are listed under the reason, each with what your and their version hold in it, and framed in
-    red in every version. Each version shows the table as its branch has it, in its own formatting: the other cells
-    whose value, formula, comment or merging the branch changed are framed in orange, the rows and the columns it
-    inserted included. A change of formatting alone, such as another font, frames the whole table with a dashed
-    line, marked **Formatting Changed**, and when both branches changed the formatting of the table the window says
-    so: the table takes the formatting of the version you choose. A new default font of the workbook changes the
-    font of every cell written in it. A change both branches made alike, such as the formatting a save gives every
-    table, is not marked. The line above the tables explains the
-    frames. Until the table is resolved the result shows the table of the base version.
+    A sheet shows its conflicting tables one at a time. When it has more than one, the arrows in the heading of the
+    table go to the others, and under a long table they are repeated, so it is not scrolled back up. The tab keeps
+    the table you left it on. The heading also names the table and tells whether it is resolved. Every version of
+    the table and the result are drawn under the letters of their columns and beside the numbers of their rows, as
+    the sheet names them, so a cell such as B3 is found at a glance.
 
-    A table with such cells shows only the rows around them, the same rows in every version, when that leaves out at
-    least five rows; **Show Whole Table** shows every row and **Show Conflict Rows** goes back. A version of a table
-    longer than 200 rows shows its first 200 rows, and a sheet with more than five conflicting tables shows them five
-    at a time, with the pages under them.
-    A table is resolved as a whole:
+    The frames tell where each cell stands:
+
+    -   Red: both branches changed the cell differently, and no version is chosen for it yet.
+    -   Green: Sync merged the change of one branch by itself, in the result and in the version it comes from.
+    -   Yellow: you chose the version of the cell, in the result and in the version chosen. In a table taken only
+        whole, yellow marks the cells the branch changed, which come along with the version taken.
+    -   Blue: you typed the value of the cell.
+    -   A dashed line around a version, marked **Formatting Changed**: the branch changed the formatting of the table
+        alone, such as another font. When both branches did, the window says so, and the table takes the formatting
+        of the version you choose. A new default font of the workbook changes the font of every cell written in it.
+
+    A change both branches made alike, such as the formatting a save gives every table, is not marked. A table with
+    conflicting cells shows only the rows around them, the same rows in every version, when that leaves out at least
+    five rows; **Show Whole Table** shows every row and **Show Conflict Rows** goes back. A version of a table longer
+    than 200 rows shows its first 200 rows.
+
+    A table whose rows Sync combines while some of its cells both branches changed differently is merged cell by cell
+    in the result. The cells only one branch changed, or both changed alike, are merged already, and the heading tells
+    how many conflicting cells are left:
+
+    -   The arrow beside a conflicting cell of your or their version, **»** or **«**, takes the value and the comment
+        of the cell from that version into the result. The cell keeps the formatting Sync merges, and the arrow of the
+        version chosen goes away.
+    -   A click on a conflicting cell of the result offers **Take Yours** and **Take Theirs** beside it. A click on the
+        letter of a column or the number of a row that holds conflicting cells, drawn in blue, offers them for every
+        such cell of the column or the row.
+    -   **Yours for all conflicts** and **Theirs for all conflicts**, under the versions of a table with more than one
+        conflicting cell, take every conflicting cell of the table from one version at once.
+    -   A version taken replaces what was chosen or typed before for the cells it takes, so the latest choice counts.
+    -   A double click on any cell of the result, as the hint beside **Result** says, opens the cell to type its
+        value, as in the table editor: Enter keeps the value typed and Escape leaves the cell as it was. The value
+        takes the place of the value of the cell and keeps its formatting; **Undo Typing** at the end of the field of
+        a cell typed into gives the typed value up, and so does a version taken for a conflicting cell. A value is read
+        as Excel reads what is typed into a cell: a text after `=` is a formula, TRUE and FALSE are booleans, a number
+        is written with a dot, a date is written as `2026-10-22` or `2026-10-22 14:30` and takes a date format, a date
+        before 1900 stays text, a text after an apostrophe stays text, and nothing clears the cell. A formula may refer
+        to any sheet the merged workbook has, a sheet their branch added included. A cell that merged cells cover
+        takes no value.
+
+    The table is resolved once every conflicting cell has a version chosen or a value typed, even the base value it
+    shows. Every conflicting cell past the rows shown is named above the table, with what each version holds, and its
+    name offers **Take Yours** and **Take Theirs**. **Whole Table** next to the heading takes the table whole from your
+    version, from their version or from the base version, and **Merge Cell by Cell** then goes back to the merged table
+    with the choices made.
+
+    Any other conflicting table is resolved as a whole. The window tells why Sync cannot merge it, such as both
+    branches inserting different rows at the same place, and lists the cells both branches changed differently, with
+    what your and their version hold in them:
 
     -   **Take Yours** or **Take Theirs** takes the table from one version, with every change that branch made to it.
-        The changes the other branch made to the table are left out.
+        The changes the other branch made to the table are left out. A version that removed the table shows nothing,
+        and its button, **Remove Table**, leaves the table out of the result.
     -   **Discard Changes** keeps the table of the base version, without the changes of either branch.
 
     A table one branch moved, or pushed down with rows it inserted above it, stays at its new place whichever version
     is taken. Tables their branch added next to a table your branch added at the same place are one conflict.
 
-    **Whole Sheet** above the tables takes the whole sheet from your version, from their version or from the base
-    version, which resolves all its tables at once; **Table by Table** leaves them to be resolved one by one again. A
-    sheet whose conflict lies outside its tables, such as a sheet one branch removed and the other one changed, or
-    a sheet both branches hid or showed differently, is resolved only as a whole: the window tells why, and
-    which versions have the sheet. So is a sheet whose tables would move content a formula refers to, whichever
-    version they are taken from. **Compare Versions** next to the reason opens the workbook in the window described
-    in [Comparing Excel Files](rules-editor.md#comparing-excel-files), with what each branch changed in it. A sheet
-    taken from a version that does not have it is removed. An .xls workbook whose colour palette both branches
-    changed differently shows the palette above the sheets, taken with **Take Yours** or **Take Theirs**.
+    A sheet whose conflict lies outside its tables, such as a sheet one branch removed and the other one changed, or a
+    sheet both branches hid or showed differently, is resolved only as a whole, however many tables it holds. Its tab
+    tells why and offers one choice for the whole sheet: **Take Yours**, **Take Theirs** or **Discard Changes**, and
+    **Remove Sheet** for a version without the sheet. So is a sheet whose tables would move content a formula refers
+    to, whichever version they are taken from. **Compare Versions** next to the name of the sheet opens the workbook in
+    the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), with what each branch
+    changed in it. An .xls workbook whose colour palette both branches changed differently shows the palette above
+    the sheets, taken with **Take Yours** or **Take Theirs**.
 
     **Apply** is available once every conflict is resolved. OpenL Studio merges the workbook, and the dialog marks the
     file **Merged table by table**; **Edit** next to the mark opens the window again with the decisions made, and
     **Download** saves the merged workbook. **Save and Resolve** saves it as it saves an uploaded file. If the tables,
     as resolved, would touch each other or move content a formula or another cell refers to, the window says so; take
-    the whole sheet from one version then. A formula that reads another workbook by the number of a link your version
-    gives to a different workbook stops the merge as well, and the window names its cell; take the whole file from
-    one version then. To combine the changes of both branches inside one table, take one version
+    the tables of that sheet from one version then. A formula that reads another workbook by the number of a link
+    your version gives to a different workbook stops the merge as well, and the window names its cell; take the whole
+    file from one version then. To combine the changes of both branches inside a table taken whole, take one version
     and edit the table in the editor after the merge, or download the merged workbook, edit it in Excel and upload it
     with **Upload merged file**.
 
-    ![Merging a conflicting workbook table by table](images/resolve-conflicts-merge-table-by-table.png "Merging a workbook table by table")
+    ![Merging a conflicting workbook table by table, its first table cell by cell](images/resolve-conflicts-merge-table-by-table.png "Merging a workbook table by table and cell by cell")
 
-    *Merging a conflicting workbook table by table*
+    *Merging a conflicting workbook table by table: the first table of a sheet merged cell by cell, the rate of US
+    taken from their version by its arrow*
 
 1.  To view the changes made by another user, compare them to your changes, or view the base version of the file, select a corresponding option in the **Compare** column.
 

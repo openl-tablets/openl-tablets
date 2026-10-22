@@ -1,5 +1,5 @@
 /**
- * Project-aware branch lifecycle, merge execution, and read-only conflict inspection.
+ * Project-aware branch lifecycle, merge execution, conflict inspection, and the resolution the user decides.
  * Studio keeps the merge conflict state for the credential of the client, so
  * every step of one merge finds it.
  */
@@ -92,6 +92,106 @@ function mergeRequest(
   return { mode: args.mode, otherBranch: args.otherBranch };
 }
 
+/** A cell as an agent reads it: its value, its formula, its comment and its merging, without its formatting. */
+function cellOf(cell: Types.ConflictWorkbookCell): Record<string, unknown> {
+  if (cell.covered) return { covered: true };
+  return {
+    ...(cell.cell ? { cell: cell.cell } : {}),
+    value: cell.value ?? null,
+    ...(cell.formula ? { formula: cell.formula } : {}),
+    ...(cell.comment ? { comment: cell.comment } : {}),
+    ...(cell.colspan ? { colspan: cell.colspan } : {}),
+    ...(cell.rowspan ? { rowspan: cell.rowspan } : {}),
+  };
+}
+
+function cellsOf(cells: Types.ConflictWorkbookCell[][]): Record<string, unknown>[][] {
+  return cells.map((row) => row.map(cellOf));
+}
+
+/** What a cell of a merged table both branches changed differently holds with either version. */
+function conflictCellsOf(merged: Types.ConflictTableMerge): Record<string, unknown>[] {
+  return merged.conflicts.map((conflict) => ({
+    row: conflict.row,
+    column: conflict.column,
+    cell: conflict.cell,
+    ourCell: conflict.ourCell,
+    theirCell: conflict.theirCell,
+    ours: cellOf(conflict.ours),
+    theirs: cellOf(conflict.theirs),
+  }));
+}
+
+function versionOf(version: Types.ConflictTableVersion | undefined): Record<string, unknown> | undefined {
+  return version && {
+    range: version.range,
+    rows: version.rows,
+    changedCells: version.changedCells ?? [],
+    conflictCells: version.conflictCells ?? [],
+    formattingChanged: version.formattingChanged ?? false,
+    cells: cellsOf(version.cells),
+  };
+}
+
+/** The sheets of a conflicted workbook and their conflicting tables, without the cells of the tables. */
+function workbookOverview(file: string, workbook: Types.ConflictWorkbookView): Record<string, unknown> {
+  return {
+    file,
+    palette: workbook.palette,
+    sheets: workbook.sheets.map((sheet) => ({
+      name: sheet.name,
+      status: sheet.status,
+      ...(sheet.reason ? { reason: sheet.reason } : {}),
+      inVersions: { ours: sheet.ours, base: sheet.base, theirs: sheet.theirs },
+      tables: sheet.tables.map((table) => ({
+        id: table.id,
+        name: table.name,
+        reason: table.reason,
+        byCells: Boolean(table.merged),
+        ranges: {
+          ...(table.ours ? { ours: table.ours.range } : {}),
+          ...(table.base ? { base: table.base.range } : {}),
+          ...(table.theirs ? { theirs: table.theirs.range } : {}),
+          ...(table.merged ? { merged: table.merged.range } : {}),
+        },
+        ...(table.merged ? { conflictCells: conflictCellsOf(table.merged) } : {}),
+      })),
+    })),
+  };
+}
+
+/** One conflicting table of a conflicted workbook in every version, and merged cell by cell when it merges so. */
+function workbookTable(file: string, workbook: Types.ConflictWorkbookView, id: string): Record<string, unknown> {
+  for (const sheet of workbook.sheets) {
+    const table = sheet.tables.find((candidate) => candidate.id === id);
+    if (table) {
+      return {
+        file,
+        sheet: sheet.name,
+        id: table.id,
+        name: table.name,
+        reason: table.reason,
+        byCells: Boolean(table.merged),
+        // A version without the table, and a table not merged cell by cell, are left out of the answer.
+        ours: versionOf(table.ours),
+        base: versionOf(table.base),
+        theirs: versionOf(table.theirs),
+        merged: table.merged && {
+          range: table.merged.range,
+          rows: table.merged.rows,
+          changedCells: table.merged.changedCells ?? [],
+          cells: cellsOf(table.merged.cells),
+          conflicts: conflictCellsOf(table.merged),
+        },
+      };
+    }
+  }
+  throw new ProtocolError(
+    ProtocolErrorCode.InvalidParams,
+    `'${id}' is no conflicting table of '${file}'. Call openl_get_merge_conflict_workbook without table to list them.`,
+  );
+}
+
 export function registerProjectMergeHandlers(): void {
   registerTool({
     name: "list_project_branches",
@@ -171,7 +271,7 @@ export function registerProjectMergeHandlers(): void {
         ...(result.status === "conflicts"
           ? {
               nextAction:
-                "The relationship precheck does not predict conflicts; the actual merge found conflicts Studio keeps for this client. Call openl_get_merge_conflicts on this same MCP server and inspect BASE/OURS/THEIRS with openl_read_merge_conflict_file. Do not choose a side automatically: present the conflicts to the user for manual resolution in Studio, then call openl_cancel_merge_conflicts to clear this pending MCP session state.",
+                "The relationship precheck does not predict conflicts; the actual merge found conflicts Studio keeps for this client. Call openl_get_merge_conflicts on this same MCP server, inspect BASE/OURS/THEIRS with openl_read_merge_conflict_file and a conflicted workbook with openl_get_merge_conflict_workbook. Do not choose a side on your own: present the conflicts to the user, and resolve them with openl_resolve_merge_conflicts only as the user decides, or leave the resolution to the user in Studio and call openl_cancel_merge_conflicts to clear this pending MCP session state.",
             }
           : { check }),
       };
@@ -183,7 +283,7 @@ export function registerProjectMergeHandlers(): void {
     name: "get_merge_conflicts",
     title: "Get Merge Conflicts",
     description:
-      "Get the pending merge conflicts Studio keeps for this client: grouped file paths, BASE/OURS/THEIRS revision details, and the default merge commit message. This is read-only evidence for a user who will resolve the conflict manually in Studio; the MCP server intentionally does not expose conflict resolution. Available only after openl_merge_project_branches returns status='conflicts'; use the same MCP server instance throughout inspection.",
+      "Get the pending merge conflicts Studio keeps for this client: grouped file paths, BASE/OURS/THEIRS revision details, and the default merge commit message. Present them to the user, who decides how each file is resolved: in Studio, or through openl_resolve_merge_conflicts with the decisions the user made. Available only after openl_merge_project_branches returns status='conflicts'; use the same MCP server instance throughout inspection and resolution.",
     schema: schemas.projectOnlySchema,
     annotations: {
       readOnlyHint: true,
@@ -200,7 +300,7 @@ export function registerProjectMergeHandlers(): void {
     name: "read_merge_conflict_file",
     title: "Read Merge Conflict File Version",
     description:
-      "Read one BASE, OURS, or THEIRS version of a conflicted file from the current session as read-only evidence for manual user resolution in Studio. Never infer or apply a winning side automatically. UTF-8 and base64 binary chunks are returned in a JSON text envelope with MIME and byte-range metadata. Both forms include nextOffset while more data remains. length targets at most 16000 bytes; a UTF-8 chunk may include up to 3 extra bytes to finish its last character. The backend still downloads the whole file before this client-side slice. Use the exact file path from openl_get_merge_conflicts.",
+      "Read one BASE, OURS, or THEIRS version of a conflicted file from the current session as evidence for the resolution the user decides. Never infer or apply a winning side on your own; a conflicted workbook reads table by table with openl_get_merge_conflict_workbook. UTF-8 and base64 binary chunks are returned in a JSON text envelope with MIME and byte-range metadata. Both forms include nextOffset while more data remains. length targets at most 16000 bytes; a UTF-8 chunk may include up to 3 extra bytes to finish its last character. The backend still downloads the whole file before this client-side slice. Use the exact file path from openl_get_merge_conflicts.",
     schema: schemas.readMergeConflictFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -233,6 +333,61 @@ export function registerProjectMergeHandlers(): void {
       // embedded blob to an image decoder and reject valid XLSX/ZIP bytes.
       const envelope = { ...metadata, content: slice.toString(asBase64 ? "base64" : "utf-8") };
       return formatResult(envelope, "json", { skipTruncation: true });
+    },
+  });
+
+  registerTool({
+    name: "get_merge_conflict_workbook",
+    title: "Get Merge Conflict Workbook",
+    description:
+      "Read the conflicts of a conflicted Excel file of the pending merge, as Studio merges it table by table. Without table: every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell — the cells only one branch changed are merged by Studio — and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in (ourCell, theirCell) and what your (ours) and their (theirs) version holds there. With table: that table's cells in your, the base and their version, and in the merged table, whose conflicting cells hold the base value until decided and whose changedCells Studio took from the one branch that changed them. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides.",
+    schema: schemas.getMergeConflictWorkbookSchema,
+    annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const workbook = await client.getMergeConflictWorkbook(args.projectId, args.file);
+      const data = args.table ? workbookTable(args.file, workbook, args.table) : workbookOverview(args.file, workbook);
+      return formatResult(data, args.response_format);
+    },
+  });
+
+  registerTool({
+    name: "resolve_merge_conflicts",
+    title: "Resolve Merge Conflicts",
+    description:
+      "Resolve the pending merge conflicts as the user decided, and complete the merge (or the save that found them) with one commit. Give one resolution per conflicted file of openl_get_merge_conflicts: a strategy (OURS, THEIRS, BASE) takes the whole file from a version; decisions merge a conflicted workbook as openl_get_merge_conflict_workbook lists it — a table or a sheet taken whole from a version ({id, side}), or a table with byCells: true merged cell by cell ({id, cells}): every conflicting cell needs a side, from the cell itself or the whole table, or a typed value, and any cell may take a typed value. Never choose a side or type a value the user did not decide or approve. A refused decision leaves the conflict pending, so the call can be repeated.",
+    schema: schemas.resolveMergeConflictsSchema,
+    annotations: {
+      destructiveHint: true,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const details = await client.getMergeConflicts(args.projectId);
+      const named = new Set(args.resolutions.map((resolution) => resolution.file));
+      const missing = (details.conflictGroups ?? [])
+        .flatMap((group) => group.files ?? [])
+        .filter((file) => !named.has(file));
+      if (missing.length > 0) {
+        throw new ProtocolError(
+          ProtocolErrorCode.InvalidParams,
+          `Every conflicted file needs a resolution; missing: ${missing.join(", ")}.`,
+        );
+      }
+      // Each workbook merged table by table is merged on its own, side by side, into the content of its file.
+      const resolutions = await Promise.all(args.resolutions.map(
+        async (resolution): Promise<Types.FileConflictResolution> => ("strategy" in resolution
+          ? { file: resolution.file, strategy: resolution.strategy }
+          : {
+            file: resolution.file,
+            strategy: "CUSTOM",
+            content: await client.mergeConflictWorkbook(args.projectId, resolution.file, resolution.decisions),
+          })));
+      const response = await client.resolveMergeConflicts(args.projectId, resolutions, args.message);
+      return formatResult(response, args.response_format);
     },
   });
 

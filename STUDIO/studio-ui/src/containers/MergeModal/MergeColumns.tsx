@@ -40,26 +40,34 @@ interface ConflictHeadingProps {
     title: React.ReactNode
     /** How the conflict is resolved, or none while it is still to be resolved. */
     status?: string | undefined
+    /** What is left to resolve, told in place of Not Resolved while the conflict is still to be resolved. */
+    pending?: string | undefined
     /** The identifier of the title, for the conflict to be named by it. */
     titleId?: string | undefined
+    /** What else the heading offers, such as a menu of what the conflict can be resolved with. */
+    extra?: React.ReactNode
+    /** What leads the heading, such as the way to the other conflicts. */
+    lead?: React.ReactNode
 }
 
-/** The line that heads a conflict: what the conflict is, and how it is resolved or that it is still to be resolved. */
-export const ConflictHeading: React.FC<ConflictHeadingProps> = ({ title, status, titleId }) => {
+/** The line that heads a conflict: what the conflict is, and how it is resolved or what is still to be resolved. */
+export const ConflictHeading: React.FC<ConflictHeadingProps> = ({ title, status, pending, titleId, extra, lead }) => {
     const { t } = useTranslation()
     return (
         <Divider size="small" titlePlacement="start">
             <Space size="small">
+                {lead}
                 <span id={titleId}>{title}</span>
                 {status
                     ? <Tag color="success">{status}</Tag>
-                    : <Tag color="warning">{t('merge:editor.unresolved')}</Tag>}
+                    : <Tag color="warning">{pending ?? t('merge:editor.unresolved')}</Tag>}
+                {extra}
             </Space>
         </Divider>
     )
 }
 
-/** The title of a column, with what names its version. */
+/** The title of a column, with what names its version, or a hint on the result. */
 const ColumnTitle: React.FC<{ label: string; version?: React.ReactNode }> = ({ label, version }) => (
     <Space wrap size="small">
         <Typography.Text strong>{label}</Typography.Text>
@@ -67,15 +75,19 @@ const ColumnTitle: React.FC<{ label: string; version?: React.ReactNode }> = ({ l
     </Space>
 )
 
+interface ColumnTitlesProps {
+    versionLabels?: Partial<Record<Side, React.ReactNode>> | undefined
+    /** What the result lets the reader do, told beside its title. */
+    resultHint?: React.ReactNode
+}
+
 /** The titles of the three columns of a merge window, each version with what names it, such as its branch. */
-export const ColumnTitles: React.FC<{ versionLabels?: Partial<Record<Side, React.ReactNode>> | undefined }> = ({
-    versionLabels,
-}) => {
+export const ColumnTitles: React.FC<ColumnTitlesProps> = ({ versionLabels, resultHint }) => {
     const { t } = useTranslation()
     return (
         <Columns
             ours={<ColumnTitle label={t('merge:editor.your_version')} version={versionLabels?.ours} />}
-            result={<ColumnTitle label={t('merge:editor.result')} />}
+            result={<ColumnTitle label={t('merge:editor.result')} version={resultHint} />}
             theirs={<ColumnTitle label={t('merge:editor.their_version')} version={versionLabels?.theirs} />}
         />
     )

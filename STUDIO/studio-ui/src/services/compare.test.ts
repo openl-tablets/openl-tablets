@@ -130,12 +130,67 @@ describe('compare service', () => {
         })
         expect(table.base?.cells).toEqual(table.ours?.cells)
         expect(table).not.toHaveProperty('theirs')
+        expect(table).not.toHaveProperty('merged')
 
         expect(apiCall).toHaveBeenCalledWith(
             '/projects/Ab3_dE9-xY0z/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
             undefined,
             OPTIONS)
     })
+
+    it('reads a table merged cell by cell, its cells and the versions of its conflicts carrying their styles',
+        async () => {
+            const bold = { font: { bold: true } }
+            vi.mocked(apiCall).mockResolvedValue({
+                sheets: [{
+                    name: 'Rules',
+                    status: 'conflict',
+                    ours: true,
+                    base: true,
+                    theirs: true,
+                    tables: [{
+                        id: 'Rules/A1:A2',
+                        name: 'Rules rate',
+                        reason: 'cells',
+                        merged: {
+                            range: 'A1:A2',
+                            cells: [[{ cell: 'A1', value: 'Rules rate', style: 0 }], [{ cell: 'A2', value: 1 }]],
+                            styles: [bold],
+                            rows: 2,
+                            changedCells: ['A1'],
+                            conflicts: [{
+                                row: 1,
+                                column: 0,
+                                cell: 'A2',
+                                ourCell: 'A2',
+                                theirCell: 'A2',
+                                ours: { cell: 'A2', value: 10, style: 0 },
+                                theirs: { cell: 'A2', value: 20 },
+                            }],
+                        },
+                    }],
+                }],
+                palette: false,
+            })
+
+            const workbook = await getConflictWorkbook('Ab3_dE9-xY0z', 'p/rules/Rates.xlsx')
+
+            expect(workbook.sheets[0]!.tables[0]!.merged).toEqual({
+                range: 'A1:A2',
+                cells: [[{ cell: 'A1', value: 'Rules rate', style: bold }], [{ cell: 'A2', value: 1 }]],
+                rows: 2,
+                changedCells: ['A1'],
+                conflicts: [{
+                    row: 1,
+                    column: 0,
+                    cell: 'A2',
+                    ourCell: 'A2',
+                    theirCell: 'A2',
+                    ours: { cell: 'A2', value: 10, style: bold },
+                    theirs: { cell: 'A2', value: 20 },
+                }],
+            })
+        })
 
     it('sends the version each conflict of a workbook is taken from and answers with the merged workbook', async () => {
         const merged = new Blob(['merged'])
@@ -144,6 +199,8 @@ describe('compare service', () => {
         await expect(mergeConflictWorkbook('Ab3_dE9-xY0z', 'p/rules/Rates.xlsx', {
             'Rules/A1:B6': 'theirs',
             'Notes': 'base',
+        }, {
+            'Rules/A9:C12': { side: 'ours', cells: [{ row: 2, column: 1, value: '1.45' }]},
         })).resolves.toBe(merged)
 
         expect(apiCall).toHaveBeenCalledWith(
@@ -152,7 +209,11 @@ describe('compare service', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    decisions: [{ id: 'Rules/A1:B6', side: 'theirs' }, { id: 'Notes', side: 'base' }],
+                    decisions: [
+                        { id: 'Rules/A1:B6', side: 'theirs' },
+                        { id: 'Notes', side: 'base' },
+                        { id: 'Rules/A9:C12', cells: { side: 'ours', cells: [{ row: 2, column: 1, value: '1.45' }]} },
+                    ],
                 }),
             },
             { ...OPTIONS, responseType: 'blob', skipWorkspaceEvent: true })

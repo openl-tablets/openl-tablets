@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -43,7 +42,7 @@ import org.openl.studio.projects.service.tables.read.RawTableReader;
 
 /**
  * Tells what the merge finds in a conflicted workbook the way the API reports it, with the cells of each version of a
- * conflicting table.
+ * conflicting table, and of the table merged cell by cell when it merges so.
  */
 @Component
 @RequiredArgsConstructor
@@ -124,12 +123,16 @@ class ConflictWorkbookMapper {
         var ours = read(merger, readers, Resolution.OURS, sheetName, table.ours());
         var theirs = read(merger, readers, Resolution.THEIRS, sheetName, table.theirs());
         var conflicting = conflicting(base, ours, theirs);
+        var cells = table.cells();
         return new ConflictTableView(table.id(),
-                nameOf(Stream.of(base, ours, theirs).filter(Objects::nonNull).findFirst().orElseThrow()),
+                nameOf(anyOf(base, ours, theirs)),
                 reasonOf(table.reason()),
                 versionOf(ours, changesOf(ours, base, theirs), conflicting),
                 versionOf(base, Changes.NONE, conflicting),
-                versionOf(theirs, changesOf(theirs, base, ours), conflicting));
+                versionOf(theirs, changesOf(theirs, base, ours), conflicting),
+                cells == null ? null : MergedTableReader.read(cells, MAX_ROWS, (revision, area) -> readers
+                        .computeIfAbsent(merger.revisionOf(revision).getSheet(sheetName), tableReader::cellsOf)
+                        .apply(area)));
     }
 
     /**
@@ -147,7 +150,8 @@ class ConflictWorkbookMapper {
         if (range == null) {
             return null;
         }
-        var sheet = merger.revisionOf(revision).getSheet(sheetName);
+        // A version that has the table has its sheet.
+        var sheet = Objects.requireNonNull(merger.revisionOf(revision).getSheet(sheetName), sheetName);
         var rows = range.getLastRow() - range.getFirstRow() + 1;
         var shown = rows <= MAX_ROWS
                 ? range
@@ -487,6 +491,16 @@ class ConflictWorkbookMapper {
      * The text of the first cell of a table, which heads an OpenL table, or the place of the table when the cell has
      * no text.
      */
+    /**
+     * The first version that has the table: the base version, else your version, else their version.
+     */
+    private static Read anyOf(@Nullable Read base, @Nullable Read ours, @Nullable Read theirs) {
+        if (base != null) {
+            return base;
+        }
+        return ours != null ? ours : Objects.requireNonNull(theirs, "A conflicting table is in some version.");
+    }
+
     private static String nameOf(Read version) {
         return version.cells()
                 .stream()

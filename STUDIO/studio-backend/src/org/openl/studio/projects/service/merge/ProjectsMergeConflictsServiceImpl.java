@@ -52,6 +52,7 @@ import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.xls.merge.LinkedWorkbookMismatchException;
 import org.openl.rules.xls.merge.XlsWorkbookMerger;
+import org.openl.rules.xls.merge.diff.CellResolutionException;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.Resolution;
 import org.openl.rules.xls.merge.diff.SheetConflictReason;
@@ -63,6 +64,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictCellsDecision;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse.ConflictFileAvailability;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse.RevisionDetails;
@@ -203,7 +205,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
     @Override
     public List<ConflictGroup> getMergeConflicts(MergeConflictInfo mergeConflictInfo) {
-        if (mergeConflictInfo.details() == null || mergeConflictInfo.details().getConflictedFiles().isEmpty()) {
+        if (mergeConflictInfo.details().getConflictedFiles().isEmpty()) {
             return List.of();
         }
         var conflicts = new ArrayList<String>(mergeConflictInfo.details().getConflictedFiles());
@@ -271,10 +273,12 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     @Override
     public byte[] mergeConflictWorkbook(MergeConflictInfo mergeConflict,
                                         String path,
-                                        Map<String, ConflictBase> decisions) throws IOException {
+                                        Map<String, ConflictBase> decisions,
+                                        Map<String, ConflictCellsDecision> byCells) throws IOException {
         if (decisions.get(WorkbookConflicts.PALETTE_ID) == ConflictBase.BASE) {
             throw new BadRequestException("project.merge.conflict.workbook.palette.message");
         }
+        var cellResolutions = CellDecisions.resolutionsOf(path, byCells);
         var versions = workbookVersions(mergeConflict, path);
         var resolutions = new HashMap<String, Resolution>();
         decisions.forEach((id, side) -> resolutions.put(id, switch (side) {
@@ -284,9 +288,11 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         }));
         WorkbookDiffResult diff;
         try (var merger = open(path, versions)) {
-            diff = merger.resolve(resolutions);
+            diff = merger.resolve(resolutions, cellResolutions);
         } catch (UnresolvedConflictsException e) {
             throw refusalOf(path, e);
+        } catch (CellResolutionException e) {
+            throw CellDecisions.refusalOf(path, e);
         }
         var output = new ByteArrayOutputStream();
         try {
@@ -381,8 +387,9 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
     }
 
     /**
-     * Tells why a workbook cannot be merged as decided: conflicts left without a decision, or else the first sheet
-     * whose tables do not fit together as resolved, which leaves the sheet to be taken whole from one version.
+     * Tells why a workbook cannot be merged as decided: conflicts left without a decision, tables decided cell by cell
+     * that cannot be merged so, or else the first sheet whose tables do not fit together as resolved, which leaves the
+     * sheet to be taken whole from one version.
      */
     private static BadRequestException refusalOf(String path, UnresolvedConflictsException e) {
         var unresolved = new ArrayList<>(e.getUnresolved());
@@ -394,6 +401,9 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         if (!unresolved.isEmpty()) {
             return new BadRequestException("project.merge.conflict.workbook.unresolved.message",
                     new Object[]{path, String.join(", ", unresolved)});
+        } else if (!e.getNotByCells().isEmpty()) {
+            return new BadRequestException("project.merge.conflict.workbook.not-by-cells.message",
+                    new Object[]{path, String.join(", ", e.getNotByCells())});
         }
         var refused = e.getRefused().entrySet().iterator().next();
         return new BadRequestException(refused.getValue() == SheetConflictReason.TOUCHING_TABLES
@@ -764,7 +774,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
 
             // Check custom file is provided for CUSTOM strategy
             if (resolution.strategy() == ConflictResolutionStrategy.CUSTOM) {
-                if (customFiles == null || !customFiles.containsKey(filePath)) {
+                if (!customFiles.containsKey(filePath)) {
                     throw new BadRequestException("project.merge.conflict.custom.file.missing", new Object[]{filePath});
                 }
                 verifyIntegrity(filePath, customFiles.get(filePath));
@@ -948,7 +958,7 @@ public class ProjectsMergeConflictsServiceImpl implements ProjectsMergeConflicts
         return null;
     }
 
-    private Module getModule(FileItem fileItem, String moduleInternalPath) throws IOException {
+    private @Nullable Module getModule(FileItem fileItem, String moduleInternalPath) throws IOException {
         try (var stream = fileItem.getStream()) {
             ProjectDescriptor descriptor = ProjectDescriptor.read(stream);
             for (Module module : descriptor.getModules()) {

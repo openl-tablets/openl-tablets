@@ -929,6 +929,59 @@ export class OpenLClient {
     await this.http.delete(`${projectPath(projectId)}/merge/conflicts`);
   }
 
+  /**
+   * Read the conflicts of a conflicted workbook: the sheets either branch changed, and each conflicting table in your,
+   * the base and their version, and merged cell by cell when only some of its cells conflict.
+   */
+  async getMergeConflictWorkbook(projectId: string, file: string): Promise<Types.ConflictWorkbookView> {
+    return (await this.http.get<Types.ConflictWorkbookView>(
+      `${projectPath(projectId)}/merge/conflicts/workbook`,
+      { params: { file } },
+    )).data;
+  }
+
+  /**
+   * Merge a conflicted workbook with each conflict resolved as decided, and answer the merged workbook. Nothing is
+   * saved: the workbook resolves the file through {@link resolveMergeConflicts}.
+   */
+  async mergeConflictWorkbook(
+    projectId: string,
+    file: string,
+    decisions: Types.ConflictWorkbookDecision[],
+  ): Promise<ArrayBuffer> {
+    return (await this.http.post<ArrayBuffer>(
+      `${projectPath(projectId)}/merge/conflicts/workbook`,
+      { decisions },
+      { params: { file }, responseType: "arraybuffer", headers: { Accept: "*/*" } },
+    )).data;
+  }
+
+  /**
+   * Resolve the pending conflicts and complete the merge, or the save that found them: each file is taken from a
+   * version, or from the merged content sent as `CUSTOM`.
+   */
+  async resolveMergeConflicts(
+    projectId: string,
+    resolutions: Types.FileConflictResolution[],
+    message?: string,
+  ): Promise<Types.ResolveConflictsResponse> {
+    const form = new FormData();
+    resolutions.forEach((resolution, index) => {
+      form.append(`resolutions[${index}].filePath`, resolution.file);
+      form.append(`resolutions[${index}].strategy`, resolution.strategy);
+      if (resolution.content) {
+        // The upload carries the name of the conflicted file, as the upload of a browser does.
+        const name = resolution.file.slice(resolution.file.lastIndexOf("/") + 1);
+        form.append(`resolutions[${index}].file`, new Blob([resolution.content]), name);
+      }
+    });
+    if (message) form.append("message", message);
+    return (await this.http.post<Types.ResolveConflictsResponse>(
+      `${projectPath(projectId)}/merge/conflicts/resolve`,
+      form,
+    )).data;
+  }
+
   // =============================================================================
   // Rules (Tables) Management
   // =============================================================================

@@ -30,6 +30,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.xls.merge.diff.CellResolution;
+import org.openl.rules.xls.merge.diff.CellResolutionException;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.HSSFPaletteDiffResult;
 import org.openl.rules.xls.merge.diff.Resolution;
@@ -50,7 +52,7 @@ import org.openl.util.IOUtils;
  * @author Vladyslav Pikus
  */
 @Slf4j
-public class XlsWorkbookMerger implements Closeable {
+public final class XlsWorkbookMerger implements Closeable {
 
 
     private final StreamWorkbook baseWorkbook;
@@ -125,22 +127,55 @@ public class XlsWorkbookMerger implements Closeable {
     }
 
     /**
-     * Compares the three revisions and resolves their conflicts as decided.
+     * Compares the three revisions and resolves their conflicts as decided, some tables cell by cell.
      *
      * <p>A sheet decided as a whole is taken whole from the revision decided, its tables included. Everything both
      * revisions did not change in ways that conflict is merged as {@link #getDiffResult()} merges it.
      *
-     * @param decisions how each conflict is resolved, by its identifier: the name of a sheet, the identifier of a table
-     *                  conflict, or {@link WorkbookConflicts#PALETTE_ID}
+     * <p>A table resolved cell by cell merges the cells only one revision changed, or both changed alike, by
+     * themselves, and takes each conflicting cell from the revision chosen for it, and each typed value. It lands where
+     * the merge of its lines puts it, as {@link #getConflicts()} lists it.
+     *
+     * @param decisions how each conflict is resolved as a whole, by its identifier: the name of a sheet, the
+     *                  identifier of a table conflict, or {@link WorkbookConflicts#PALETTE_ID}
+     * @param byCells   how each table conflict resolved cell by cell is resolved, by its identifier; a table is
+     *                  decided in one of the two ways only
      * @return the difference, with every conflict resolved
-     * @throws UnresolvedConflictsException when a conflict has no decision, or the decisions leave a sheet a conflict,
-     *                                      such as tables of the two revisions touching each other
+     * @throws UnresolvedConflictsException when a conflict, or a conflicting cell of a table resolved cell by cell, has
+     *                                      no decision, a table resolved cell by cell cannot be merged so, or the
+     *                                      decisions leave a sheet a conflict
+     * @throws CellResolutionException      when a table resolved cell by cell names what its merged table cannot take,
+     *                                      or a formula typed for it that the merged workbook cannot read
      */
-    public WorkbookDiffResult resolve(Map<String, Resolution> decisions) throws UnresolvedConflictsException {
-        var conflicts = Conflicts.resolution(decisions);
+    public WorkbookDiffResult resolve(Map<String, Resolution> decisions, Map<String, CellResolution> byCells)
+            throws UnresolvedConflictsException {
+        var conflicts = Conflicts.resolution(decisions, byCells);
         var diff = diff(conflicts, null);
         conflicts.requireResolved();
+        conflicts.requireReadable(ourWorkbook.unwrap(), sheetsOf(diff.getSheetDiffResult())::contains);
         return diff;
+    }
+
+    /**
+     * The names of the sheets the merged workbook has: the sheets of OUR revision, with the sheets taken from THEIR or
+     * BASE revision added, or removed when that revision has not got them.
+     */
+    private Set<String> sheetsOf(SheetDiffResult diff) {
+        var sheets = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        ourWorkbook.forEach(sheet -> sheets.add(sheet.getSheetName()));
+        take(sheets, diff.getDiffSheets(DiffStatus.THEIR), theirWorkbook);
+        take(sheets, diff.getDiffSheets(DiffStatus.BASE), baseWorkbook);
+        return sheets;
+    }
+
+    private static void take(Set<String> sheets, Collection<String> taken, Workbook from) {
+        for (var name : taken) {
+            if (from.getSheet(name) == null) {
+                sheets.remove(name);
+            } else {
+                sheets.add(name);
+            }
+        }
     }
 
     /**
@@ -445,9 +480,8 @@ public class XlsWorkbookMerger implements Closeable {
             return DiffStatus.THEIR;
         } else if (theirMatchRes == null || theirMatchRes == XlsMatch.EQUAL) {
             return DiffStatus.OUR;
-        } else {
-            return DiffStatus.CONFLICT;
         }
+        return DiffStatus.CONFLICT;
     }
 
     private static HSSFWorkbook toHSSFBook(StreamWorkbook workbook) {

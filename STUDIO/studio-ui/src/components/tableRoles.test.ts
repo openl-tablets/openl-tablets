@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { RawTableCellBorderSide, RawTableRegion } from 'types/tables'
-import { cellRoleOf, onPaper, placeOf, regionAt, roleLinesOf, rolesOf, type RoleLines, tablePlaceOf } from './tableRoles'
+import {
+    cellRoleOf, columnLettersOf, onPaper, placeOf, regionAt, roleLinesOf, rolesOf, type RoleLines, tablePlaceOf,
+} from './tableRoles'
 
 const line = (color: string): RawTableCellBorderSide => ({ color, style: 'solid', width: 1 })
 
@@ -29,6 +31,11 @@ describe('tableRoles', () => {
         expect(placeOf('a1')).toBeUndefined()
         expect(placeOf('Sheet1!A1')).toBeUndefined()
         expect(placeOf(undefined)).toBeUndefined()
+    })
+
+    it('names a column by the letters Excel gives it', () => {
+        expect([0, 1, 25, 26, 27, 701, 702].map(columnLettersOf)).toEqual(['A', 'B', 'Z', 'AA', 'AB', 'ZZ', 'AAA'])
+        expect(placeOf(`${columnLettersOf(27)}1`)).toEqual({ row: 0, column: 27 })
     })
 
     it('reads no roles for a table read with none, or with no place on its sheet', () => {

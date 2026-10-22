@@ -31,7 +31,7 @@ class ConflictWorkbookViewTest {
                         true,
                         false,
                         List.of(new ConflictTableView("Rules/A1", "A1", ConflictTableReason.ADDED_IN_BOTH, base, null,
-                                null)))), false);
+                                null, null)))), false);
 
         assertEquals("""
                 {"sheets":[\

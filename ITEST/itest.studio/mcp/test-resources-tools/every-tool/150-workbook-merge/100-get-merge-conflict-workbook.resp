@@ -1,0 +1,23 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"file\": \"McpTools/rules/Main.xlsx\",\n    \"palette\": false,\n    \"sheets\": [\n      {\n        \"name\": \"Rules\",\n        \"status\": \"conflict\",\n        \"inVersions\": {\n          \"ours\": true,\n          \"base\": true,\n          \"theirs\": true\n        },\n        \"tables\": [\n          {\n            \"id\": \"Rules/B2:C6\",\n            \"name\": \"SimpleRules Double AgeFactor(Integer age)\",\n            \"reason\": \"cells\",\n            \"byCells\": true,\n            \"ranges\": {\n              \"ours\": \"B2:C6\",\n              \"base\": \"B2:C6\",\n              \"theirs\": \"B2:C6\",\n              \"merged\": \"B2:C6\"\n            },\n            \"conflictCells\": [\n              {\n                \"row\": 2,\n                \"column\": 1,\n                \"cell\": \"C4\",\n                \"ourCell\": \"C4\",\n                \"theirCell\": \"C4\",\n                \"ours\": {\n                  \"cell\": \"C4\",\n                  \"value\": 1.4\n                },\n                \"theirs\": {\n                  \"cell\": \"C4\",\n                  \"value\": 1.6\n                }\n              }\n            ]\n          }\n        ]\n      }\n    ]\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
+
