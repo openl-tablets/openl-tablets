@@ -114,6 +114,10 @@ A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both trav
 
 ## User Settings
 
+- **User administration is administrator-only.** `PUT /rest/users/{username}` can change groups and set a password
+  without the current one, so only `@AdminPrivilege` may guard it. A user changes their own details through
+  `PUT /rest/users/info` and their own password through `PUT /rest/users/profile`, which validates the current password.
+
 - **A user setting is a field of the profile.** Every setting of **My Settings** is kept on the server, so it follows
   the user from browser to browser and no user reads another's (`task_EPBDS-7164-user-settings` of
   `itest.studio/users`). `UserProfileBaseModel` names the key each one is stored under, reads the settings of the

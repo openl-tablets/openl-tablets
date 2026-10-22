@@ -1,0 +1,10 @@
+PUT /rest/users/epbds16937 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "displayName": "Jane Doe",
+  "email": "jane@example.com"
+}
