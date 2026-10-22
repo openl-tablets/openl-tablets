@@ -183,8 +183,9 @@ audit.retention = 1y
 audit.outputs.console = true
 ```
 
-A line of the server log names the action and the outcome of an event, then its other fields, as the columns of an
-export name them, such as `signIn failure id=7 actor=jdoe clientAddress=10.0.0.7 details={"reason":"badCredentials"}`.
+A line of the server log names the action and the outcome of an event, then its other fields but the time and the
+category, as the columns of an export name them, such as
+`signIn failure id=7 actor=jdoe authentication=form clientAddress=10.0.0.7 details={"reason":"badCredentials"}`.
 A JSON layout, such as the `ecs` format of the OpenL Studio Docker image, also writes each field of its own:
 `audit.id`, `audit.action`, `audit.actor` and the others. A copy of the events a log collector keeps elsewhere stays as
 it was recorded, whatever happens to the database of OpenL Studio.

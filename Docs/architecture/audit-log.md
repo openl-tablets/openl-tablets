@@ -25,6 +25,8 @@ on Oracle in `V17.1`, the search indexes of PostgreSQL in `V17.1` of its own), m
 - **subject** — the user or the group whose access or membership the action changed;
 - **details** — a JSON object of what else tells the action apart, kept whole however long it is.
 
+A longer actor or subject is cut to 100 characters, a client address to 45 and a project to 2000, with `…` at the end.
+
 The row keeps names, not links: an event outlives the user, the group or the project it names. A password or a token
 is never recorded; a personal access token is named by its public id.
 
@@ -42,9 +44,9 @@ In the Single-User mode `recordEvent` does nothing: there is no sign-in and no a
 
 When `audit.outputs.console` is on, every event is also written to the console by the `OpenL.audit` logger at the
 `INFO` level, one line per event, for a log collector; the database keeps the events either way. A line holds the
-action and the outcome, then the other fields of the event by the names of the columns of an export and with the
-codes of the REST API, such as `signIn failure id=7 actor=jdoe clientAddress=10.0.0.7
-details={"reason":"badCredentials"}`. A line break or another control character in a value is
+action and the outcome, then the other fields of the event but its time and its category, by the names of the columns
+of an export and with the codes of the REST API, such as `signIn failure id=7 actor=jdoe authentication=form
+clientAddress=10.0.0.7 details={"reason":"badCredentials"}`. A line break or another control character in a value is
 written as an escape (`\n`, `\u2028`), so a value a client typed, such as the name of a refused sign-in, cannot add a
 line of its own. The same fields come with the line as key-value pairs `audit.<field>`, the category and the id
 included, which a structured layout writes as fields of their own: the `ecs` format of the OpenL Studio image does.
@@ -77,8 +79,10 @@ flowchart LR
 - **A refused sign-in** is recorded for every way of signing in, with the reason (`badCredentials`,
   `locked`, `disabled`, `expired`, `invalidToken`, `error`). The `authenticationEventPublisher` of
   `CommonAuthenticationConfig` serves the OpenL authentication manager and the login-form chains alike; a refusal
-  without an event of its own, such as a rejected SAML response, is published as one of bad credentials.
-  `PatAuthenticationFilter` publishes a refused token itself, since no authentication manager reads it.
+  without an event of its own, such as a rejected SAML response, is published as one of bad credentials. The reason
+  comes from the exception all the same (`SignInAuditor.reasonOf`): a rejected SAML response is recorded as `error`,
+  a refused OpenID Connect sign-in as `invalidToken`. `PatAuthenticationFilter` publishes a refused token itself,
+  since no authentication manager reads it.
 - **A refused sign-in names a user only when one was typed** (a `UsernamePasswordAuthenticationToken`): the name of
   a bearer token that was not read is the token itself.
 - **A sign-out** is published by the logout handler the login form chain adds itself, and by
@@ -215,7 +219,9 @@ What the events tell, and what they leave out:
 - **A branch belongs to its repository**: creating, deleting or merging one changes every project on it, so the target
   is the repository, and the details name the branch and the project the action was made from. The log keeps that
   project in the `project` column, as it keeps the project a bypass and a deployment were made from, so a search by
-  the target finds every event of a project by its name.
+  the target finds every event of a project by its name. A branch created for a new project
+  (`ProjectCreationTargetResolver`) is made from the base branch, not from a project, so it names none; the
+  `projectCreated` event that follows names the branch.
 - **The role of the creator** is a `roleGranted` event, announced where the creator gets it; a copy or an archive
   upload grants it only to a project without access rights. A deleted project that no branch holds any longer loses
   its access rights, and each role on it is a `roleRevoked` event.
@@ -316,9 +322,9 @@ What the search reads the table by:
   (`AuditRecordDaoImpl.actionsOf`), so the one index serves both, with a period or without.
 - **The texts** — the actor, the target, the project, the subject and the client address are matched by what they
   contain (`lower(field) LIKE '%text%'`), which no ordinary index serves. On PostgreSQL, `V17.1` creates a trigram
-  index of each of them (`pg_trgm`, GIN, on `lower(field)`) when the database user may create the extension; if not,
-  it notes that and goes on, and the search reads the table, as it does on the other databases. The target is a
-  `${text}` column, a large object on Oracle and SQL Server, which no ordinary index could hold anyway.
+  index of each of them (`pg_trgm`, GIN, on `lower(field)`) when the extension is installed, and creates the
+  extension first when the database user may; if neither, it notes that and goes on, and the search reads the
+  table, as it does on the other databases. The target is a `${text}` column, a large object on Oracle and SQL Server, which no ordinary index could hold anyway.
 
 The `Accept` header chooses the form, on one URL: `application/json` answers a page (`AuditEventsPage`), `text/csv`
 the same events as a CSV file (`AuditCsvWriter`). The form the header gives the higher quality wins, each taking the

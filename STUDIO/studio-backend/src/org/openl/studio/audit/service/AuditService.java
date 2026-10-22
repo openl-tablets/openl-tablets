@@ -199,8 +199,9 @@ public class AuditService {
 
     /**
      * The line of the server log an event is copied to, such as
-     * {@code signIn failure id=7 actor=jdoe clientAddress=10.0.0.7 details={"reason":"badCredentials"}}: the action
-     * and the outcome, then every other field of the event but its category.
+     * {@code signIn failure id=7 actor=jdoe authentication=form clientAddress=10.0.0.7
+     * details={"reason":"badCredentials"}}: the action and the outcome, then every other field of the event but its
+     * category.
      */
     static String describe(Map<String, String> fields) {
         var line = new StringBuilder().append(fields.get(ACTION)).append(' ').append(fields.get(OUTCOME));
