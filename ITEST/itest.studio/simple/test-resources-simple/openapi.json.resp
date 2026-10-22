@@ -24195,6 +24195,97 @@ Content-Type: application/json
           }
         }
       },
+      "ConflictCellDecision": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "minimum": 0
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "minimum": 0
+          },
+          "side": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "base",
+              "ours",
+              "theirs"
+            ]
+          },
+          "value": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "column",
+          "row"
+        ]
+      },
+      "ConflictCellView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cell": {
+            "type": "string",
+            "description": "***"
+          },
+          "column": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "ourCell": {
+            "type": "string",
+            "description": "***"
+          },
+          "ours": {
+            "$ref": "#/components/schemas/RawTableCell"
+          },
+          "row": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "theirCell": {
+            "type": "string",
+            "description": "***"
+          },
+          "theirs": {
+            "$ref": "#/components/schemas/RawTableCell"
+          }
+        }
+      },
+      "ConflictCellsDecision": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictCellDecision"
+            }
+          },
+          "side": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "base",
+              "ours",
+              "theirs"
+            ]
+          }
+        }
+      },
       "ConflictDetailsResponse": {
         "type": "object",
         "properties": {
@@ -24321,6 +24412,52 @@ Content-Type: application/json
           }
         }
       },
+      "ConflictTableMerge": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "cells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RawTableCell"
+              }
+            }
+          },
+          "changedCells": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "string"
+            }
+          },
+          "conflicts": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/ConflictCellView"
+            }
+          },
+          "range": {
+            "type": "string",
+            "description": "***"
+          },
+          "rows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***"
+          },
+          "styles": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "$ref": "#/components/schemas/RawTableCellStyle"
+            }
+          }
+        }
+      },
       "ConflictTableVersion": {
         "type": "object",
         "description": "***",
@@ -24381,6 +24518,9 @@ Content-Type: application/json
           "id": {
             "type": "string",
             "description": "***"
+          },
+          "merged": {
+            "$ref": "#/components/schemas/ConflictTableMerge"
           },
           "name": {
             "type": "string",
@@ -24454,6 +24594,9 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "cells": {
+            "$ref": "#/components/schemas/ConflictCellsDecision"
+          },
           "id": {
             "type": "string",
             "description": "***",
@@ -24470,8 +24613,7 @@ Content-Type: application/json
           }
         },
         "required": [
-          "id",
-          "side"
+          "id"
         ]
       },
       "ConflictWorkbookView": {

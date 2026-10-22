@@ -51,6 +51,7 @@ import org.openl.studio.compare.service.ComparisonContent;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.merge.CheckMergeResult;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictCellsDecision;
 import org.openl.studio.projects.model.merge.ConflictDetailsResponse;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
@@ -189,14 +190,26 @@ public class ProjectsMergeController {
                                                         @RequestBody @Valid ResolveConflictWorkbookRequest request)
             throws IOException {
         var decisions = new LinkedHashMap<String, ConflictBase>();
+        var byCells = new LinkedHashMap<String, ConflictCellsDecision>();
         for (var decision : request.decisions()) {
-            if (decisions.put(decision.id(), decision.side()) != null) {
-                throw new BadRequestException("project.merge.conflict.workbook.duplicate.message",
-                        new Object[]{decision.id()});
+            var id = decision.id();
+            var sideNullable = decision.side() == null;
+            var cellsNullable = decision.cells() == null;
+            if (decisions.containsKey(id) || byCells.containsKey(id)) {
+                throw new BadRequestException("project.merge.conflict.workbook.duplicate.message", new Object[]{id});
+            } else if (sideNullable == cellsNullable) {
+                // A decision takes the conflict whole or merges it cell by cell, never both or neither.
+                throw new BadRequestException("project.merge.conflict.workbook.decision.message", new Object[]{id});
+            } else if (sideNullable) {
+                byCells.put(id, decision.cells());
+            } else {
+                decisions.put(id, decision.side());
             }
         }
-        return fileOf(filePath,
-                mergeConflictsService.mergeConflictWorkbook(getMergeConflictInfo0(project), filePath, decisions));
+        return fileOf(filePath, mergeConflictsService.mergeConflictWorkbook(getMergeConflictInfo0(project),
+                filePath,
+                decisions,
+                byCells));
     }
 
     @Operation(summary = "projects.merge.compare-conflict.summary",

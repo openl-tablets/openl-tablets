@@ -39,8 +39,10 @@ The tools also keep the agent from losing work:
 
 -   A project or a branch is deleted only when the agent repeats its exact name.
 -   Deleting a branch with changes that are not merged into the base branch needs a separate confirmation.
--   When a merge finds conflicts, the agent shows the conflicting files and their versions but does not choose which
-    version wins: the user resolves the conflicts in OpenL Studio. For more information, see [Resolving
+-   When a merge finds conflicts, the agent shows the conflicting files and their versions, and for a workbook the
+    conflicting tables and cells, but does not choose which version wins: the user decides, in OpenL Studio or by
+    telling the agent the version of each file, table or cell, or the value to type. The agent then resolves the
+    conflicts as told, as **Merge table by table** does in OpenL Studio. For more information, see [Resolving
     Conflicts](../openl-studio/project-branches.md#resolving-conflicts) in the OpenL Studio User Guide.
 -   A table write that would drop rows the agent has not read is refused.
 
@@ -64,7 +66,8 @@ The tools of the MCP server have names that start with `openl_` and fall into th
 -   **Projects** — listing, creating, copying, opening, saving, and closing projects, checking how a project compiles,
     listing its modules and sheets, and restoring a previous version of a module.
 -   **Branches and merges** — creating and deleting branches, checking whether two branches can be merged, merging
-    them, and showing merge conflicts.
+    them, showing merge conflicts, a conflicting workbook table by table and cell by cell included, and resolving
+    them as the user decides.
 -   **Tables** — listing, reading, creating, copying, changing, running, and deleting tables, adding or removing rows
     and columns, merging cells, listing the properties a table accepts, and showing the dependencies between tables.
 -   **Project files** — reading, writing, searching, copying, moving, and deleting any file of a project.
@@ -107,6 +110,7 @@ Work with versions:
 Show the history of the project.
 Create the branch feature/young-drivers for the project.
 Check whether feature/young-drivers can be merged into master, and merge it.
+Show the conflicting cells of Rates.xlsx. Take their rate of US, and keep everything else as merged.
 Deploy the project to the production repository.
 ```
 

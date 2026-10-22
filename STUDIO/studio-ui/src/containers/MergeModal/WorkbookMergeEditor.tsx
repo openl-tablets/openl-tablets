@@ -1,27 +1,79 @@
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
-import { Alert, Button, Flex, Modal, Pagination, Radio, Space, Spin, Tabs, Tag, Typography } from 'antd'
+import {
+    Alert,
+    Button,
+    Dropdown,
+    Flex,
+    Modal,
+    Pagination,
+    Popover,
+    Space,
+    Spin,
+    Tabs,
+    Tag,
+    Typography,
+} from 'antd'
+import {
+    DoubleLeftOutlined,
+    DoubleRightOutlined,
+    DownOutlined,
+    QuestionCircleOutlined,
+    UndoOutlined,
+} from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { RawTableGrid, type CellDecoration } from 'components/RawTableGrid'
+import { PaperTheme } from 'components/PaperTheme'
+import { RawTableGrid, type CellDecoration, type HeadingLine } from 'components/RawTableGrid'
 import type { RawTableCell } from 'types/tables'
-import { getConflictWorkbook, mergeConflictWorkbook, PALETTE_CONFLICT, type ConflictSide } from '../../services/compare'
+import {
+    getConflictWorkbook,
+    mergeConflictWorkbook,
+    PALETTE_CONFLICT,
+    type ConflictCellSide,
+    type ConflictSide,
+} from '../../services/compare'
 import { errorMessage } from '../../utils/errorMessage'
 import { openConflictCompareWindow } from '../projects/compare'
 import { basename } from '../projects/projectPaths'
 import { useCellStyles } from '../ComparePage/ComparisonPanes.styles'
+import { CellValueEditor, type EditorKind } from '../modules/CellValueEditor'
+import { useStyles as useCellFieldStyles } from '../modules/TableEditor.styles'
 import { ButtonColumns, Columns, ColumnTitles, ConflictHeading, DiscardButton, TakeButton } from './MergeColumns'
 import type { Side } from './textMerge'
-import type { ConflictSheet, ConflictTable, ConflictTableVersion, ConflictWorkbook, MergedWorkbook } from './types'
+import type {
+    ConflictCell,
+    ConflictSheet,
+    ConflictTable,
+    ConflictTableMerge,
+    ConflictTableVersion,
+    ConflictWorkbook,
+    MergedWorkbook,
+} from './types'
 import {
     cellAt,
+    cellKey,
+    cellsLeftOf,
+    choicesOf,
     conflictsOf,
     conflictWindowOf,
     decisionOf,
     decisionsOf,
+    headingsFrom,
+    isByCells,
     isConflicting,
+    isDecided,
     isWhole,
+    outOfSightOf,
     progressOf,
     resolvedOf,
+    sideOfAll,
+    sideOfCell,
     textOf,
+    typedOf,
+    withCellsTaken,
+    withCellTyped,
+    withEveryCellTaken,
+    type CellChoices,
+    type CellDecisions,
     type RowWindow,
     type WorkbookDecisions,
 } from './workbookMerge'
@@ -33,27 +85,35 @@ const STATUSES: Record<ConflictSide, string> = {
     base: 'merge:editor.status_discarded',
 }
 
-/** The choice of a sheet that leaves its tables to be resolved one by one. */
-const TABLE_BY_TABLE = 'tables'
-
-/** How many conflicting tables of a sheet are shown at a time: each shows three versions of up to 200 rows. */
-const TABLES_PER_PAGE = 5
+/** How many rows a table shows at least for the way to the other conflicts to be drawn under it too. */
+const LONG_TABLE_ROWS = 12
 
 /** How many cells both branches changed differently a table names above its versions. */
 const NAMED_CONFLICTS = 5
 
 /**
  * The classes a version of a table is marked with: a cell its branch changed, a cell both changed differently, and the
- * whole table when its branch changed its formatting.
+ * whole table when its branch changed its formatting. A table merged cell by cell marks a cell the merge took by
+ * itself, a conflicting cell a version is chosen for, a cell typed by hand and the cell picked.
  */
 interface CellMarks {
     changedFrame: string
     conflict: string
     restyled: string
+    merged: string
+    chosen: string
+    edited: string
+    picked: string
 }
 
 /** Tells the editor the version a conflict is taken from, or none to leave it to resolve. */
 type Decide = (id: string, side: ConflictSide | undefined) => void
+
+/** Tells the editor what is decided for a table merged cell by cell, from what was decided before. */
+type ChooseCells = (id: string, choose: (choices: CellChoices) => CellChoices) => void
+
+/** Tells a table merged cell by cell what is decided for it, from what was decided before. */
+type Choose = (choose: (choices: CellChoices) => CellChoices) => void
 
 interface WorkbookMergeEditorProps {
     projectId: string
@@ -79,8 +139,12 @@ interface WorkbookMergeEditorProps {
  * way, and the comparison of the workbook tells what each branch changed in it. Any conflicting sheet can be taken
  * whole at once.
  *
- * The workbook is merged on the server once every conflict is resolved; the user edits it further after the merge.
- * A merge still under way when the window closes is dropped.
+ * A table only some cells of which conflict comes merged cell by cell: the result shows it with the cells only one
+ * branch changed merged, and the user chooses the version of each conflicting cell or of the whole table, or types the
+ * value of any cell in the cell itself. Taking the table whole stays possible.
+ *
+ * The workbook is merged on the server once every conflict is resolved. A merge still under way when the window
+ * closes is dropped.
  */
 export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
     projectId,
@@ -94,15 +158,20 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
     // A workbook merged here before is shown as it was: the versions of a conflict do not change.
     const [workbook, setWorkbook] = useState<ConflictWorkbook | null>(earlier?.workbook ?? null)
     const [decisions, setDecisions] = useState<WorkbookDecisions>(earlier?.decisions ?? {})
+    const [cellDecisions, setCellDecisions] = useState<CellDecisions>(earlier?.cellDecisions ?? {})
     const [error, setError] = useState<string | null>(null)
     const [applyError, setApplyError] = useState<string | null>(null)
     const [applying, setApplying] = useState(false)
+    // The sheet shown, and the table shown on each sheet of tables, from 0.
     const [picked, setPicked] = useState<string>()
+    const [shownTables, setShownTables] = useState<Record<string, number>>({})
     const open = useRef(true)
     // The marks of the changed cells are read once for every table the editor draws. They are kept by their class
     // names, which stay the same while the theme does, so a table not decided again is not drawn again.
-    const { styles: { changedFrame, conflict, restyled } } = useCellStyles()
-    const marks = useMemo<CellMarks>(() => ({ changedFrame, conflict, restyled }), [changedFrame, conflict, restyled])
+    const { styles: { changedFrame, conflict, restyled, merged, chosen, edited, picked: pickedMark } } = useCellStyles()
+    const marks = useMemo<CellMarks>(
+        () => ({ changedFrame, conflict, restyled, merged, chosen, edited, picked: pickedMark }),
+        [changedFrame, conflict, restyled, merged, chosen, edited, pickedMark])
 
     useEffect(() => {
         open.current = true
@@ -132,11 +201,19 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
         }
     }, [projectId, filePath, earlier, t])
 
-    const progress = useMemo(() => workbook && progressOf(workbook, decisions), [workbook, decisions])
+    const progress = useMemo(() => workbook && progressOf(workbook, decisions, cellDecisions),
+        [workbook, decisions, cellDecisions])
     const resolved = !!progress && progress.resolved === progress.count
-    // A sheet the merge takes by itself leaves nothing to look at or decide, so only the conflicting ones are shown.
+    // A sheet the merge takes by itself leaves nothing to look at or decide, so only the conflicts are gone through.
     const sheets = useMemo(() => workbook?.sheets.filter(isConflicting) ?? [], [workbook])
+    // The editor opens on the first conflicting sheet, and each sheet on its first conflicting table.
+    const sheet = sheets.find(item => item.name === picked) ?? sheets[0]
+    const tableOf = (item: ConflictSheet) => Math.min(shownTables[item.name] ?? 0, item.tables.length - 1)
+    const shownTable = sheet && !isWhole(sheet) ? sheet.tables[tableOf(sheet)] : undefined
     const compare = useCallback(() => openConflictCompareWindow(projectId, filePath), [projectId, filePath])
+    const showTable = useCallback((name: string, index: number) => {
+        setShownTables(current => ({ ...current, [name]: index }))
+    }, [])
 
     // One function for every conflict, so a table redraws only when its own decision changes.
     const decide = useCallback<Decide>((id, side) => {
@@ -152,6 +229,12 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
         })
     }, [])
 
+    // One function for every table merged cell by cell, so a table redraws only when its own choices change.
+    const chooseCells = useCallback<ChooseCells>((id, choose) => {
+        setApplyError(null)
+        setCellDecisions(current => ({ ...current, [id]: choose(choicesOf(current, id)) }))
+    }, [])
+
     const apply = async () => {
         if (!workbook || !resolved) {
             return
@@ -159,10 +242,11 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
         setApplying(true)
         setApplyError(null)
         try {
-            const file = await mergeConflictWorkbook(projectId, filePath, decisionsOf(workbook, decisions))
+            const { whole, byCells } = decisionsOf(workbook, decisions, cellDecisions)
+            const file = await mergeConflictWorkbook(projectId, filePath, whole, byCells)
             // Every decision is kept, the ones a sheet taken whole stands for included, for Edit to show them again.
             if (open.current) {
-                onApply({ file, decisions, workbook })
+                onApply({ file, decisions, cellDecisions, workbook })
             }
         } catch (mergeError: unknown) {
             setApplyError(errorMessage(mergeError) || t('merge:workbook.apply_failed'))
@@ -171,8 +255,8 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
         }
     }
 
-    // The editor opens on the first conflicting sheet.
-    const sheet = picked ?? sheets[0]?.name ?? ''
+    // Whether a table of the workbook is merged cell by cell, which the result lets the reader edit.
+    const editable = !!shownTable && isByCells(shownTable, decisions)
 
     return (
         <Modal
@@ -182,7 +266,9 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
             onCancel={onCancel}
             // The three columns take the width of the window. The tables scroll inside the dialog, under the titles
             // of the columns, which keeps its buttons within the window.
-            styles={{ body: { maxHeight: '72vh', overflowY: 'auto' } }}
+            // A wide table scrolls in its own column, so the dialog scrolls down alone: the gutters of the columns
+            // reach a little past its edges, which would give it a scroll across that moves nothing.
+            styles={{ body: { maxHeight: '72vh', overflowY: 'auto', overflowX: 'hidden' } }}
             width="96vw"
             footer={(
                 <Flex align="center" gap="small" justify="space-between">
@@ -210,8 +296,42 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
             )}
             title={(
                 <Flex vertical gap="small">
-                    {t('merge:workbook.title', { name: basename(filePath) })}
-                    <ColumnTitles versionLabels={versionLabels} />
+                    <Space size={4}>
+                        {t('merge:workbook.title', { name: basename(filePath) })}
+                        <Popover
+                            placement="bottomLeft"
+                            title={t('merge:workbook.legend')}
+                            trigger="click"
+                            content={(
+                                <Legend
+                                    testId="workbook-merge-legend"
+                                    rows={[[
+                                        { key: 'conflict', frame: marks.conflict, label: t('merge:workbook.legend_conflict') },
+                                        { key: 'merged', frame: marks.merged, label: t('merge:workbook.legend_merged') },
+                                        { key: 'chosen', frame: marks.chosen, label: t('merge:workbook.legend_chosen') },
+                                        { key: 'edited', frame: marks.edited, label: t('merge:workbook.legend_edited') },
+                                    ], [
+                                        { key: 'changed', frame: marks.changedFrame, label: t('merge:workbook.legend_changed') },
+                                        { key: 'restyled', frame: marks.restyled, label: t('merge:workbook.legend_restyled') },
+                                    ]]}
+                                />
+                            )}
+                        >
+                            <Button
+                                aria-label={t('merge:workbook.legend')}
+                                data-testid="workbook-merge-legend-open"
+                                icon={<QuestionCircleOutlined />}
+                                size="small"
+                                type="text"
+                            />
+                        </Popover>
+                    </Space>
+                    <ColumnTitles
+                        versionLabels={versionLabels}
+                        resultHint={editable
+                            ? <Typography.Text type="secondary">{t('merge:workbook.edit_hint')}</Typography.Text>
+                            : undefined}
+                    />
                 </Flex>
             )}
         >
@@ -219,24 +339,37 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
             {!error && !workbook && <Spin description={t('merge:workbook.loading')} />}
             {workbook && (
                 <Flex vertical gap="small">
+                    {/* The palette belongs to the whole workbook, so it stands above the sheets. */}
                     {workbook.palette && (
                         <PalettePart decision={decisionOf(decisions, PALETTE_CONFLICT)} onDecide={decide} />
                     )}
                     <Tabs
-                        activeKey={sheet}
+                        activeKey={sheet?.name ?? ''}
                         onChange={setPicked}
                         items={sheets.map(item => ({
                             key: item.name,
-                            label: <SheetLabel decisions={decisions} sheet={item} />,
-                            children: (
-                                <SheetPart
-                                    decisions={decisions}
-                                    marks={marks}
-                                    onCompare={compare}
-                                    onDecide={decide}
-                                    sheet={item}
-                                />
-                            ),
+                            label: <SheetLabel cellDecisions={cellDecisions} decisions={decisions} sheet={item} />,
+                            children: isWhole(item)
+                                ? (
+                                    <WholeSheetPart
+                                        decision={decisionOf(decisions, item.name)}
+                                        onCompare={compare}
+                                        onDecide={decide}
+                                        sheet={item}
+                                    />
+                                )
+                                : (
+                                    <SheetTables
+                                        cellDecisions={cellDecisions}
+                                        decisions={decisions}
+                                        index={tableOf(item)}
+                                        marks={marks}
+                                        onChooseCells={chooseCells}
+                                        onDecide={decide}
+                                        onGo={showTable}
+                                        sheet={item}
+                                    />
+                                ),
                         }))}
                     />
                 </Flex>
@@ -245,10 +378,19 @@ export const WorkbookMergeEditor: React.FC<WorkbookMergeEditorProps> = ({
     )
 }
 
+/** Draws the way through the tables of a sheet where a part of the window asks for it, under a test id. */
+type Navigation = (testId: string) => React.ReactNode
+
+interface SheetLabelProps {
+    sheet: ConflictSheet
+    decisions: WorkbookDecisions
+    cellDecisions: CellDecisions
+}
+
 /** The name of a conflicting sheet on its tab, with how many of its conflicts are left. */
-const SheetLabel: React.FC<{ sheet: ConflictSheet; decisions: WorkbookDecisions }> = ({ sheet, decisions }) => {
+const SheetLabel: React.FC<SheetLabelProps> = ({ sheet, decisions, cellDecisions }) => {
     const { t } = useTranslation()
-    const left = conflictsOf(sheet).length - resolvedOf(sheet, decisions)
+    const left = conflictsOf(sheet).length - resolvedOf(sheet, decisions, cellDecisions)
     return (
         <Space size={4}>
             {sheet.name}
@@ -259,106 +401,89 @@ const SheetLabel: React.FC<{ sheet: ConflictSheet; decisions: WorkbookDecisions 
     )
 }
 
-interface TablesPartProps {
+interface SheetTablesProps {
     sheet: ConflictSheet
+    /** The table shown, from 0. */
+    index: number
+    /** Shows a table of a sheet, by the name of the sheet and the place of the table, from 0. */
+    onGo: (sheet: string, index: number) => void
     decisions: WorkbookDecisions
+    cellDecisions: CellDecisions
     onDecide: Decide
+    onChooseCells: ChooseCells
     marks: CellMarks
 }
 
-interface SheetPartProps extends TablesPartProps {
-    /** Opens the comparison of the versions of the workbook. */
-    onCompare: () => void
-}
-
-/** A conflicting sheet of the workbook: its conflicts and the buttons that resolve them. */
-const SheetPart: React.FC<SheetPartProps> = ({ sheet, decisions, onCompare, onDecide, marks }) => isWhole(sheet)
-    ? (
-        <WholeSheetPart
-            decision={decisionOf(decisions, sheet.name)}
-            onCompare={onCompare}
+/** The conflicting tables of a sheet, one at a time, with the way to the others when the sheet has more than one. */
+const SheetTables: React.FC<SheetTablesProps> = ({
+    sheet, index, onGo, decisions, cellDecisions, onDecide, onChooseCells, marks,
+}) => {
+    const table = sheet.tables[index]
+    const count = sheet.tables.length
+    // The same way through for as long as the same table is shown, so the table is not drawn again for it.
+    const navigation = useCallback<Navigation>(testId => (count > 1
+        ? <StepNavigation count={count} index={index} onGo={next => onGo(sheet.name, next)} testId={testId} />
+        : null), [count, index, onGo, sheet.name])
+    return table && (
+        <TablePart
+            // A table shown again starts as it would the first time, with the rows around its cells.
+            key={table.id}
+            choices={choicesOf(cellDecisions, table.id)}
+            decision={decisionOf(decisions, table.id)}
+            marks={marks}
+            navigation={navigation}
+            number={index + 1}
+            onChooseCells={onChooseCells}
             onDecide={onDecide}
-            sheet={sheet}
+            table={table}
         />
     )
-    : <TablesPart decisions={decisions} marks={marks} onDecide={onDecide} sheet={sheet} />
-
-/** The conflicting tables of a sheet, a page at a time, under the choice that takes the whole sheet at once. */
-const TablesPart: React.FC<TablesPartProps> = ({ sheet, decisions, onDecide, marks }) => {
-    const { t } = useTranslation()
-    const [page, setPage] = useState(1)
-    const labelId = useId()
-    const whole = decisionOf(decisions, sheet.name)
-    const first = (page - 1) * TABLES_PER_PAGE
-    return (
-        <Flex vertical gap="small">
-            <Typography.Text data-testid="workbook-merge-legend" type="secondary">
-                {t('merge:workbook.legend')}
-            </Typography.Text>
-            <Flex wrap align="center" gap="small">
-                <Typography.Text id={labelId}>{t('merge:workbook.whole_sheet')}</Typography.Text>
-                <Radio.Group
-                    aria-labelledby={labelId}
-                    data-testid="workbook-merge-sheet-choice"
-                    optionType="button"
-                    size="small"
-                    value={whole ?? TABLE_BY_TABLE}
-                    onChange={event => onDecide(sheet.name,
-                        event.target.value === TABLE_BY_TABLE ? undefined : event.target.value as ConflictSide)}
-                    options={[
-                        { label: t('merge:workbook.table_by_table'), value: TABLE_BY_TABLE },
-                        { label: t('merge:editor.take_yours'), value: 'ours' },
-                        { label: t('merge:editor.discard'), value: 'base' },
-                        { label: t('merge:editor.take_theirs'), value: 'theirs' },
-                    ]}
-                />
-            </Flex>
-            {sheet.tables.slice(first, first + TABLES_PER_PAGE).map((table, offset) => (
-                <TablePart
-                    key={table.id}
-                    count={sheet.tables.length}
-                    decision={whole ?? decisionOf(decisions, table.id)}
-                    index={first + offset}
-                    locked={!!whole}
-                    marks={marks}
-                    onDecide={onDecide}
-                    table={table}
-                />
-            ))}
-            <Pagination
-                hideOnSinglePage
-                align="center"
-                current={page}
-                data-testid="workbook-merge-pages"
-                onChange={setPage}
-                pageSize={TABLES_PER_PAGE}
-                showSizeChanger={false}
-                size="small"
-                total={sheet.tables.length}
-            />
-        </Flex>
-    )
 }
+
+interface StepNavigationProps {
+    /** The conflict shown, from 0. */
+    index: number
+    count: number
+    onGo: (index: number) => void
+    testId: string
+}
+
+/** The way through the tables of a sheet, one at a time: which one is shown, of how many, and the arrows. */
+const StepNavigation: React.FC<StepNavigationProps> = ({ index, count, onGo, testId }) => (
+    <span data-testid={testId}>
+        <Pagination
+            current={index + 1}
+            onChange={page => onGo(page - 1)}
+            pageSize={1}
+            showSizeChanger={false}
+            simple={{ readOnly: true }}
+            size="small"
+            total={count}
+        />
+    </span>
+)
 
 interface ChoiceButtonsProps {
     decision: ConflictSide | undefined
     /** What discarding both changes keeps; none for a conflict that is taken from your or their version only. */
     hint?: string | undefined
-    /** Whether the choice is made for something the conflict belongs to, such as its whole sheet. */
-    disabled?: boolean
+    /** What a button tells in place of taking its version, such as removing what the version has not got. */
+    labels?: Partial<Record<ConflictCellSide, string>> | undefined
     onDecide: (side: ConflictSide) => void
     testId: string
 }
 
 /** The buttons that take a conflict from a version, each in the column of the version they take. */
-const ChoiceButtons: React.FC<ChoiceButtonsProps> = ({ decision, hint, disabled = false, onDecide, testId }) => {
+const ChoiceButtons: React.FC<ChoiceButtonsProps> = ({
+    decision, hint, labels, onDecide, testId,
+}) => {
     const { t } = useTranslation()
     return (
         <ButtonColumns
             ours={(
                 <TakeButton
-                    disabled={disabled || decision === 'ours'}
-                    label={t('merge:editor.take_yours')}
+                    disabled={decision === 'ours'}
+                    label={labels?.ours ?? t('merge:editor.take_yours')}
                     onTake={() => onDecide('ours')}
                     side="ours"
                     testId={`${testId}-take-ours`}
@@ -366,7 +491,7 @@ const ChoiceButtons: React.FC<ChoiceButtonsProps> = ({ decision, hint, disabled 
             )}
             result={hint && (
                 <DiscardButton
-                    disabled={disabled || decision === 'base'}
+                    disabled={decision === 'base'}
                     hint={hint}
                     onDiscard={() => onDecide('base')}
                     testId={`${testId}-discard`}
@@ -374,8 +499,8 @@ const ChoiceButtons: React.FC<ChoiceButtonsProps> = ({ decision, hint, disabled 
             )}
             theirs={(
                 <TakeButton
-                    disabled={disabled || decision === 'theirs'}
-                    label={t('merge:editor.take_theirs')}
+                    disabled={decision === 'theirs'}
+                    label={labels?.theirs ?? t('merge:editor.take_theirs')}
                     onTake={() => onDecide('theirs')}
                     side="theirs"
                     testId={`${testId}-take-theirs`}
@@ -385,6 +510,15 @@ const ChoiceButtons: React.FC<ChoiceButtonsProps> = ({ decision, hint, disabled 
     )
 }
 
+/** What the buttons of the versions without a sheet or a table tell: that taking them removes it. */
+const removalsOf = (
+    held: { ours?: unknown; theirs?: unknown },
+    removal: string
+): Partial<Record<ConflictCellSide, string>> => ({
+    ...(held.ours ? {} : { ours: removal }),
+    ...(held.theirs ? {} : { theirs: removal }),
+})
+
 interface WholeSheetPartProps {
     sheet: ConflictSheet
     decision: ConflictSide | undefined
@@ -393,44 +527,34 @@ interface WholeSheetPartProps {
 }
 
 /**
- * A sheet resolved only as a whole: why, which versions have it, and the buttons that take it from one of them. What
- * each branch changed in it is read in the comparison of the workbook.
+ * A sheet resolved only as a whole, however many tables it holds: why, and the buttons that take it from a version,
+ * which remove it when the version has no such sheet. What each branch changed in it is read in the comparison of the
+ * workbook.
  */
 const WholeSheetPart: React.FC<WholeSheetPartProps> = ({ sheet, decision, onCompare, onDecide }) => {
     const { t } = useTranslation()
     const titleId = useId()
-    const presence = (has: boolean) => has
-        ? <Typography.Text>{t('merge:workbook.sheet_present')}</Typography.Text>
-        : <Typography.Text italic type="secondary">{t('merge:workbook.sheet_absent')}</Typography.Text>
     return (
         <Flex vertical aria-labelledby={titleId} data-testid="workbook-merge-sheet" gap="small" role="group">
-            {sheet.reason && (
-                <Alert
-                    showIcon
-                    title={t(`merge:workbook.sheet_reason.${sheet.reason}`)}
-                    type="info"
-                    action={(
-                        <Button data-testid="workbook-merge-sheet-compare" onClick={onCompare} size="small">
-                            {t('merge:workbook.compare_versions')}
-                        </Button>
-                    )}
-                />
-            )}
             <ConflictHeading
                 status={decision && t(STATUSES[decision])}
                 title={t('merge:workbook.sheet', { name: sheet.name })}
                 titleId={titleId}
+                extra={(
+                    <Button data-testid="workbook-merge-sheet-compare" onClick={onCompare} size="small" type="link">
+                        {t('merge:workbook.compare_versions')}
+                    </Button>
+                )}
             />
+            {sheet.reason && (
+                <Typography.Text type="secondary">{t(`merge:workbook.sheet_reason.${sheet.reason}`)}</Typography.Text>
+            )}
             <ChoiceButtons
                 decision={decision}
                 hint={t('merge:workbook.discard_sheet_hint')}
+                labels={removalsOf(sheet, t('merge:workbook.remove_sheet'))}
                 onDecide={side => onDecide(sheet.name, side)}
                 testId="workbook-merge-sheet"
-            />
-            <Columns
-                ours={presence(sheet.ours)}
-                result={presence(decision ? sheet[decision] : sheet.base)}
-                theirs={presence(sheet.theirs)}
             />
         </Flex>
     )
@@ -438,13 +562,14 @@ const WholeSheetPart: React.FC<WholeSheetPartProps> = ({ sheet, decision, onComp
 
 interface TablePartProps {
     table: ConflictTable
-    /** The place of the table among the conflicting tables of its sheet, from 0. */
-    index: number
-    count: number
+    /** The place of the table among the conflicting tables of its sheet, from 1. */
+    number: number
+    navigation: Navigation
     decision: ConflictSide | undefined
-    /** Whether the sheet of the table is taken whole, which decides the table too. */
-    locked: boolean
+    /** What is decided for the table merged cell by cell. */
+    choices: CellChoices
     onDecide: Decide
+    onChooseCells: ChooseCells
     marks: CellMarks
 }
 
@@ -452,16 +577,21 @@ interface TablePartProps {
  * A conflicting table: why its changes conflict, the cells both branches changed differently, each version of it beside
  * the result, and the buttons that take it from a version. Until it is resolved, the result shows the base version.
  *
+ * A table that comes merged cell by cell shows the merged table as the result, until it is taken whole: the cells only
+ * one branch changed are merged, and each conflicting cell is decided in the result. A table taken whole can be merged
+ * cell by cell again, with the choices made before.
+ *
  * A table with such cells shows the rows around them, the same rows in every version, until the whole table is asked
  * for.
  */
 const TablePart = React.memo(function TablePart({
     table,
-    index,
-    count,
+    number,
+    navigation,
     decision,
-    locked,
+    choices,
     onDecide,
+    onChooseCells,
     marks,
 }: TablePartProps) {
     const { t } = useTranslation()
@@ -469,68 +599,201 @@ const TablePart = React.memo(function TablePart({
     const [whole, setWhole] = useState(false)
     const around = useMemo(() => conflictWindowOf(table), [table])
     const shown = whole ? undefined : around
-    const number = index + 1
     const testId = `workbook-merge-table-${number}`
+    // A table that comes merged is merged cell by cell until it is taken whole.
+    const merged = decision ? undefined : table.merged
+    const left = merged && cellsLeftOf(table, choices)
+    const status = statusOf(decision, left)
+    const choose: Choose = chosen => onChooseCells(table.id, chosen)
+    const take = (side: ConflictCellSide) => merged && {
+        side,
+        conflicts: merged.conflicts,
+        choices,
+        onTake: (cell: ConflictCell) => choose(current => withCellsTaken(current, [cell], side)),
+        testId,
+    }
     return (
         <Flex vertical aria-labelledby={titleId} data-testid={testId} gap="small" role="group">
             <ConflictHeading
-                status={decision && t(STATUSES[decision])}
-                title={t('merge:workbook.table', { number, count, name: table.name })}
+                lead={navigation('workbook-merge-steps')}
+                pending={left === undefined ? undefined : t('merge:workbook.conflicts_left', { count: left })}
+                status={status && t(status)}
+                title={table.name}
                 titleId={titleId}
+                extra={merged && (
+                    <WholeTableMenu onDecide={side => onDecide(table.id, side)} testId={testId} />
+                )}
             />
-            <Typography.Text type="secondary">{t(`merge:workbook.table_reason.${table.reason}`)}</Typography.Text>
-            {table.ours?.formattingChanged && table.theirs?.formattingChanged && (
-                <Typography.Text data-testid={`${testId}-formatting`} type="warning">
-                    {t('merge:workbook.formatting_both')}
-                </Typography.Text>
-            )}
-            <ConflictCells table={table} />
-            <ChoiceButtons
+            <TableChoices
+                choices={choices}
                 decision={decision}
-                disabled={locked}
-                hint={t('merge:workbook.discard_table_hint')}
-                onDecide={side => onDecide(table.id, side)}
+                merged={merged}
+                onChoose={choose}
+                onDecide={onDecide}
+                table={table}
                 testId={testId}
             />
-            {around && (
-                <Flex wrap align="center" gap="small">
-                    <Typography.Text data-testid={`${testId}-rows`} type="secondary">
-                        {shown
-                            ? t('merge:workbook.rows_window', {
-                                from: shown.from + 1,
-                                to: shown.to + 1,
-                                count: (table.base ?? table.ours ?? table.theirs)?.rows ?? 0,
-                            })
-                            : t('merge:workbook.rows_all')}
-                    </Typography.Text>
-                    <Button data-testid={`${testId}-whole`} onClick={() => setWhole(!whole)} size="small" type="link">
-                        {whole ? t('merge:workbook.show_conflict_rows') : t('merge:workbook.show_whole_table')}
-                    </Button>
-                </Flex>
-            )}
+            {around && <RowsSwitch onSwitch={() => setWhole(!whole)} shown={shown} table={table} testId={testId} />}
             <Columns
                 ours={<VersionGrid
-                    absent={t('merge:workbook.table_absent')}
                     marks={marks}
                     shownRows={shown}
+                    take={take('ours')}
                     version={table.ours}
                 />}
-                result={<VersionGrid
-                    absent={t('merge:workbook.table_left_out')}
-                    marks={marks}
-                    shownRows={shown}
-                    version={decision ? table[decision] : table.base}
-                />}
+                result={merged
+                    ? (
+                        <MergedPart
+                            choices={choices}
+                            marks={marks}
+                            merged={merged}
+                            onChoose={choose}
+                            shownRows={shown}
+                            testId={testId}
+                        />
+                    )
+                    : (
+                        <VersionGrid
+                            absent={t('merge:workbook.table_left_out')}
+                            marks={marks}
+                            shownRows={shown}
+                            version={decision ? table[decision] : table.base}
+                        />
+                    )}
                 theirs={<VersionGrid
-                    absent={t('merge:workbook.table_absent')}
                     marks={marks}
                     shownRows={shown}
+                    take={take('theirs')}
                     version={table.theirs}
                 />}
             />
+            {/* A table this long is gone past from under it as well, without scrolling back up. */}
+            {rowsShownOf(table, shown) > LONG_TABLE_ROWS && (
+                <Flex justify="center">{navigation('workbook-merge-steps-bottom')}</Flex>
+            )}
         </Flex>
     )
 })
+
+/**
+ * What the heading of a table tells of how it is resolved: the version it is taken from, or that each of its
+ * conflicting cells is decided; none while it is not resolved.
+ *
+ * @param left how many conflicting cells of a table merged cell by cell are left, or none for a table taken whole
+ */
+const statusOf = (decision: ConflictSide | undefined, left: number | undefined): string | undefined => {
+    if (decision) {
+        return STATUSES[decision]
+    }
+    return left === 0 ? 'merge:workbook.status_by_cells' : undefined
+}
+
+/** How many rows the versions of a table show: the rows around its conflicts, or the longest version whole. */
+const rowsShownOf = (table: ConflictTable, shown: RowWindow | undefined): number => (shown
+    ? shown.to - shown.from + 1
+    : Math.max(...[table.ours, table.base, table.theirs].map(version => version?.cells.length ?? 0)))
+
+interface TableChoicesProps {
+    table: ConflictTable
+    decision: ConflictSide | undefined
+    /** The table merged cell by cell, or none for a table taken whole. */
+    merged: ConflictTableMerge | undefined
+    choices: CellChoices
+    onChoose: Choose
+    onDecide: Decide
+    testId: string
+}
+
+/**
+ * What a conflicting table is decided by, above its versions. A table taken whole tells why it conflicts and names the
+ * cells both branches changed differently, beside the buttons that take it from a version; one that comes merged
+ * offers to be merged cell by cell again. A table merged cell by cell names the conflicting cells past the rows shown,
+ * and takes a version for all of them at once.
+ */
+const TableChoices: React.FC<TableChoicesProps> = ({ table, decision, merged, choices, onChoose, onDecide, testId }) => {
+    const { t } = useTranslation()
+    const formattingBoth = table.ours?.formattingChanged && table.theirs?.formattingChanged
+    if (merged) {
+        return (
+            <>
+                {formattingBoth && <FormattingBoth testId={testId} />}
+                {/* A conflicting cell the rows of the result leave out is named, so it can still be decided. */}
+                {outOfSightOf(merged).length > 0 && (
+                    <MergedConflictCells choices={choices} merged={merged} onChoose={onChoose} testId={testId} />
+                )}
+                {merged.conflicts.length > 1 && (
+                    <AllConflicts choices={choices} merged={merged} onChoose={onChoose} testId={testId} />
+                )}
+            </>
+        )
+    }
+    return (
+        <>
+            <Typography.Text type="secondary">{t(`merge:workbook.table_reason.${table.reason}`)}</Typography.Text>
+            {formattingBoth && <FormattingBoth testId={testId} />}
+            <ConflictCells table={table} />
+            <ChoiceButtons
+                decision={decision}
+                hint={t('merge:workbook.discard_table_hint')}
+                labels={removalsOf(table, t('merge:workbook.remove_table'))}
+                onDecide={side => onDecide(table.id, side)}
+                testId={testId}
+            />
+            {table.merged && (
+                <ButtonColumns
+                    result={(
+                        <Button
+                            data-testid={`${testId}-by-cells`}
+                            onClick={() => onDecide(table.id, undefined)}
+                            size="small"
+                        >
+                            {t('merge:workbook.merge_by_cells')}
+                        </Button>
+                    )}
+                />
+            )}
+        </>
+    )
+}
+
+/** Tells that both branches changed the formatting of a table. */
+const FormattingBoth: React.FC<{ testId: string }> = ({ testId }) => {
+    const { t } = useTranslation()
+    return (
+        <Typography.Text data-testid={`${testId}-formatting`} type="warning">
+            {t('merge:workbook.formatting_both')}
+        </Typography.Text>
+    )
+}
+
+interface RowsSwitchProps {
+    table: ConflictTable
+    /** The rows shown around the conflicts, or none while the whole table is shown. */
+    shown: RowWindow | undefined
+    onSwitch: () => void
+    testId: string
+}
+
+/** Which rows of a table are shown, and the button that shows every row, or the rows around the conflicts again. */
+const RowsSwitch: React.FC<RowsSwitchProps> = ({ table, shown, onSwitch, testId }) => {
+    const { t } = useTranslation()
+    return (
+        <Flex wrap align="center" gap="small">
+            <Typography.Text data-testid={`${testId}-rows`} type="secondary">
+                {shown
+                    ? t('merge:workbook.rows_window', {
+                        from: shown.from + 1,
+                        to: shown.to + 1,
+                        count: (table.base ?? table.ours ?? table.theirs)?.rows ?? 0,
+                    })
+                    : t('merge:workbook.rows_all')}
+            </Typography.Text>
+            <Button data-testid={`${testId}-whole`} onClick={onSwitch} size="small" type="link">
+                {shown ? t('merge:workbook.show_whole_table') : t('merge:workbook.show_conflict_rows')}
+            </Button>
+        </Flex>
+    )
+}
 
 /** The cells both branches changed differently, each with what your and their version hold in it. */
 const ConflictCells: React.FC<{ table: ConflictTable }> = ({ table }) => {
@@ -560,13 +823,496 @@ const ConflictCells: React.FC<{ table: ConflictTable }> = ({ table }) => {
     )
 }
 
-interface VersionGridProps {
-    version: ConflictTableVersion | undefined
-    /** What a version without the table tells. */
-    absent: string
+interface MergedConflictCellsProps {
+    merged: ConflictTableMerge
+    choices: CellChoices
+    onChoose: Choose
+    testId: string
+}
+
+/**
+ * The cells both branches changed differently past the rows of a table merged cell by cell that are shown, each with
+ * what your and their version hold in it and how it is decided. The name of a cell offers its two versions.
+ */
+const MergedConflictCells: React.FC<MergedConflictCellsProps> = ({ merged, choices, onChoose, testId }) => {
+    const { t } = useTranslation()
+    // The cell whose versions are offered, by its name.
+    const [offered, setOffered] = useState<string>()
+    return (
+        <Flex vertical data-testid={`${testId}-conflict-cells`} gap={2}>
+            <Typography.Text strong>{t('merge:workbook.conflict_cells')}</Typography.Text>
+            {outOfSightOf(merged).map(cell => {
+                const side = sideOfCell(choices, cell.row, cell.column)
+                const typed = typedOf(choices, cell.row, cell.column)
+                return (
+                    <Flex key={cell.cell} wrap align="center" gap="small">
+                        <Popover
+                            onOpenChange={open => setOffered(open ? cell.cell : undefined)}
+                            open={offered === cell.cell}
+                            trigger="click"
+                            content={(
+                                <CellChoice
+                                    cells={[cell]}
+                                    choices={choices}
+                                    onChoose={onChoose}
+                                    onDone={() => setOffered(undefined)}
+                                    testId={`${testId}-${cell.cell}`}
+                                />
+                            )}
+                        >
+                            <Button size="small" type="link">{cell.cell}</Button>
+                        </Popover>
+                        <Typography.Text>
+                            {t('merge:workbook.cell_versions', {
+                                ours: textOf(cell.ours),
+                                theirs: textOf(cell.theirs),
+                            })}
+                        </Typography.Text>
+                        {typed !== undefined && <Tag color="processing">{t('merge:editor.status_edited')}</Tag>}
+                        {typed === undefined && side && <Tag color="success">{t(STATUSES[side])}</Tag>}
+                    </Flex>
+                )
+            })}
+        </Flex>
+    )
+}
+
+interface AllConflictsProps {
+    merged: ConflictTableMerge
+    choices: CellChoices
+    onChoose: Choose
+    testId: string
+}
+
+/**
+ * The versions every conflicting cell of a table merged cell by cell takes at once, each in the column of its version.
+ * Taking one replaces what was chosen or typed for each conflicting cell before.
+ */
+const AllConflicts: React.FC<AllConflictsProps> = ({ merged, choices, onChoose, testId }) => {
+    const { t } = useTranslation()
+    const takeAll = (side: ConflictSide) => {
+        if (side !== 'base') {
+            onChoose(current => withEveryCellTaken(current, merged.conflicts, side))
+        }
+    }
+    return (
+        <ChoiceButtons
+            decision={sideOfAll(choices, merged.conflicts)}
+            labels={{ ours: t('merge:workbook.all_conflicts_yours'), theirs: t('merge:workbook.all_conflicts_theirs') }}
+            onDecide={takeAll}
+            testId={`${testId}-all`}
+        />
+    )
+}
+
+interface WholeTableMenuProps {
+    onDecide: (side: ConflictSide) => void
+    testId: string
+}
+
+/** What takes a table merged cell by cell whole instead: your version, their version, or the base one. */
+const WholeTableMenu: React.FC<WholeTableMenuProps> = ({ onDecide, testId }) => {
+    const { t } = useTranslation()
+    return (
+        <Dropdown
+            trigger={['click']}
+            menu={{
+                items: [
+                    { key: 'ours', label: t('merge:editor.take_yours'), onClick: () => onDecide('ours') },
+                    { key: 'theirs', label: t('merge:editor.take_theirs'), onClick: () => onDecide('theirs') },
+                    {
+                        key: 'base',
+                        label: t('merge:editor.discard'),
+                        title: t('merge:workbook.discard_table_hint'),
+                        onClick: () => onDecide('base'),
+                    },
+                ],
+            }}
+        >
+            <Button data-testid={`${testId}-whole-table`} size="small" type="text">
+                {t('merge:workbook.whole_table')} <DownOutlined />
+            </Button>
+        </Dropdown>
+    )
+}
+
+/**
+ * The arrow beside a conflicting cell of a version, pointing to the result: it takes the value of the cell into the
+ * result.
+ */
+const TakeArrow: React.FC<{ cell: ConflictCell; take: SideTake }> = ({ cell, take }) => {
+    const { t } = useTranslation()
+    const label = t(take.side === 'ours' ? 'merge:workbook.take_cell_yours' : 'merge:workbook.take_cell_theirs',
+        { cell: cell.cell })
+    return (
+        <Button
+            aria-label={label}
+            color="primary"
+            data-testid={`${take.testId}-${cell.cell}-take-${take.side}`}
+            icon={take.side === 'ours' ? <DoubleRightOutlined /> : <DoubleLeftOutlined />}
+            onClick={() => take.onTake(cell)}
+            size="small"
+            // The arrow keeps a little room from the value it stands beside.
+            style={take.side === 'ours' ? { marginInlineStart: 4 } : { marginInlineEnd: 4 }}
+            title={label}
+            variant="text"
+        />
+    )
+}
+
+/** A sign of a legend and what it tells. */
+interface LegendEntry {
+    key: string
+    /** The frame of the cells the entry keys, which its swatch wears, so the two cannot drift apart. */
+    frame?: string | undefined
+    /** What stands for the entry where it keys no frame, such as a letter and a number of the headings. */
+    sign?: React.ReactNode
+    label: React.ReactNode
+}
+
+/**
+ * What the frames and the signs of the tables mean, one under another, each shown as the tables show it beside a few
+ * words. The entries come in groups, each group a kind of its own, set apart by a wider gap.
+ */
+const Legend: React.FC<{ rows: LegendEntry[][]; testId: string }> = ({ rows, testId }) => (
+    <Flex vertical data-testid={testId} gap="middle">
+        {rows.map(entries => (
+            <Flex key={entries[0]?.key} vertical gap="small">
+                {entries.map(entry => (
+                    <Space key={entry.key} size="small">
+                        {entry.frame !== undefined && (
+                            // The margin leaves room for a frame drawn outside the swatch, such as the dashed one.
+                            <span
+                                aria-hidden
+                                className={entry.frame}
+                                style={{ display: 'block', width: 14, height: 14, margin: 2 }}
+                            />
+                        )}
+                        {entry.sign}
+                        <Typography.Text>{entry.label}</Typography.Text>
+                    </Space>
+                ))}
+            </Flex>
+        ))}
+    </Flex>
+)
+
+interface CellChoiceProps {
+    /** The conflicting cells offered: a cell, or those of a row or a column. */
+    cells: ConflictCell[]
+    choices: CellChoices
+    onChoose: Choose
+    /** Closes the choice once a version is taken. */
+    onDone: () => void
+    testId: string
+}
+
+/**
+ * The two versions conflicting cells take their values from, a cell, a row or a column of them, the one they take now
+ * marked. Taking one replaces what was chosen or typed for each of them before.
+ */
+const CellChoice: React.FC<CellChoiceProps> = ({ cells, choices, onChoose, onDone, testId }) => {
+    const { t } = useTranslation()
+    const side = sideOfAll(choices, cells)
+    const take = (taken: ConflictCellSide) => () => {
+        onDone()
+        onChoose(current => withCellsTaken(current, cells, taken))
+    }
+    return (
+        <Space data-testid={testId} size="small">
+            <Button
+                data-testid={`${testId}-ours`}
+                onClick={take('ours')}
+                size="small"
+                type={side === 'ours' ? 'primary' : 'default'}
+            >
+                {t('merge:editor.take_yours')}
+            </Button>
+            <Button
+                data-testid={`${testId}-theirs`}
+                onClick={take('theirs')}
+                size="small"
+                type={side === 'theirs' ? 'primary' : 'default'}
+            >
+                {t('merge:editor.take_theirs')}
+            </Button>
+        </Space>
+    )
+}
+
+interface MergedPartProps {
+    merged: ConflictTableMerge
+    choices: CellChoices
+    onChoose: Choose
     marks: CellMarks
     /** The rows shown, or none to show every row. */
     shownRows: RowWindow | undefined
+    testId: string
+}
+
+/** Where a cell or a heading lies over the table, in pixels from the top left corner of the table. */
+interface Box {
+    left: number
+    top: number
+    width: number
+    height: number
+}
+
+/**
+ * The conflicting cells whose versions are offered: one cell, or those of a row or a column. The popover stands at
+ * the cell or at the heading, and the key names the cell picked.
+ */
+interface Offer {
+    cells: ConflictCell[]
+    box: Box
+    key?: string | undefined
+    testId: string
+}
+
+/**
+ * The result of a table merged cell by cell: the merged table, decided in its own cells, under the letters of its
+ * columns and beside the numbers of its rows on the sheet. A click on a conflicting cell offers your and their version
+ * of it beside the cell; a click on the heading of a row or a column with conflicting cells offers them for all its
+ * conflicting cells. A click on any other cell, or a double click on a conflicting one, opens the cell to type its
+ * value.
+ *
+ * A conflicting cell shows the version chosen for it, or the base version while none is; a cell typed by hand shows
+ * what was typed. A cell one branch alone changed is framed as the version it comes from frames it.
+ *
+ * The versions are offered over the cell rather than in it: a cell that changed what it holds between the two clicks
+ * of a double click is given no double click by the browser, and it would lose the note shown over it.
+ */
+const MergedPart: React.FC<MergedPartProps> = ({ merged, choices, onChoose, marks, shownRows, testId }) => {
+    const { t } = useTranslation()
+    const table = useRef<HTMLDivElement>(null)
+    // The conflicting cells whose versions are offered, and the cell being typed into, by its key.
+    const [offer, setOffer] = useState<Offer>()
+    const [open, setOpen] = useState<string>()
+    const conflicts = useMemo(() => new Map(merged.conflicts.map(cell => [cellKey(cell.row, cell.column), cell])),
+        [merged])
+    const changed = useMemo(() => new Set(merged.changedCells), [merged])
+    const offset = shownRows?.from ?? 0
+    const rows = useMemo(() => (shownRows ? merged.cells.slice(shownRows.from, shownRows.to + 1) : merged.cells)
+        .map((line, place) => line.map((cell, column) => resultCellOf(cell,
+            conflicts.get(cellKey(place + offset, column)), choices, place + offset, column))),
+    [merged, conflicts, choices, shownRows, offset])
+    /** Where an element lies over the table. */
+    const boxOf = (element: Element): Box | undefined => {
+        const from = table.current?.getBoundingClientRect()
+        const at = element.getBoundingClientRect()
+        return from && { left: at.left - from.left, top: at.top - from.top, width: at.width, height: at.height }
+    }
+    // A click on a conflicting cell offers its versions; any other cell, and the field being typed into, keeps it.
+    const pick = (row: number, column: number) => {
+        const key = cellKey(row + offset, column)
+        const conflict = conflicts.get(key)
+        if (key === open || !conflict) {
+            return
+        }
+        const cell = table.current?.querySelector(`[data-cell="${conflict.cell}"]`)
+        const box = cell && boxOf(cell)
+        if (box) {
+            setOffer({ cells: [conflict], box, key, testId: `${testId}-cell` })
+        }
+    }
+    const openCell = (row: number, column: number) => {
+        setOffer(undefined)
+        setOpen(cellKey(row + offset, column))
+    }
+    // The rows and the columns with conflicting cells, which their headings decide at once.
+    const picks = useMemo(() => ({
+        rows: new Set(merged.conflicts.map(cell => cell.row - offset)),
+        columns: new Set(merged.conflicts.map(cell => cell.column)),
+    }), [merged, offset])
+    const pickLine = (line: HeadingLine, heading: HTMLElement) => {
+        const box = boxOf(heading)
+        const cells = merged.conflicts.filter(cell => 'row' in line
+            ? cell.row === line.row + offset
+            : cell.column === line.column)
+        if (box) {
+            setOffer({ cells, box, testId: `${testId}-${'row' in line ? 'row' : 'column'}` })
+        }
+    }
+    /**
+     * The field a cell is typed into. It keeps what is typed when it differs from what the cell shows, and for a
+     * conflicting cell left undecided even when it does not, so that the base value it shows can be kept.
+     */
+    const fieldOf = (cell: RawTableCell, key: string, typed: boolean, undecided: boolean): CellDecoration => {
+        const shown = textOf(cell)
+        return {
+            content: (
+                <OpenMergedCell
+                    from={shown}
+                    onCancel={() => setOpen(undefined)}
+                    onCommit={value => {
+                        setOpen(undefined)
+                        if (value !== shown || undecided) {
+                            onChoose(current => withCellTyped(current, key, value))
+                        }
+                    }}
+                    onUntype={typed
+                        ? () => {
+                            setOpen(undefined)
+                            onChoose(current => withCellTyped(current, key, undefined))
+                        }
+                        : undefined}
+                />
+            ),
+        }
+    }
+    const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
+        if (cell.covered) {
+            return undefined
+        }
+        const key = cellKey(row + offset, column)
+        const conflict = conflicts.get(key)
+        const typed = typedOf(choices, row + offset, column) !== undefined
+        if (key === open) {
+            return fieldOf(cell, key, typed, !!conflict && !isDecided(choices, conflict))
+        }
+        const frame = frameOf(marks, {
+            typed,
+            conflict: !!conflict,
+            chosen: !!conflict && !!sideOfCell(choices, row + offset, column),
+            merged: !!cell.cell && changed.has(cell.cell),
+        })
+        const classes = [frame, key === offer?.key && marks.picked].filter(Boolean)
+        return classes.length === 0 ? undefined : { className: classes.join(' ') }
+    }
+    return (
+        <Flex vertical data-testid={`${testId}-merged`} gap={4}>
+            <Flex style={{ overflowX: 'auto' }}>
+                <div ref={table} style={{ position: 'relative' }}>
+                    <PaperTheme>
+                        <RawTableGrid
+                            decorate={decorate}
+                            headings={{ from: headingsFrom(merged.range, offset), picks, onPick: pickLine }}
+                            onOpenCell={openCell}
+                            onPickCell={pick}
+                            rows={rows}
+                        />
+                    </PaperTheme>
+                    {offer && (
+                        <Popover
+                            open
+                            onOpenChange={shown => !shown && setOffer(undefined)}
+                            placement="bottom"
+                            trigger="click"
+                            content={(
+                                <CellChoice
+                                    cells={offer.cells}
+                                    choices={choices}
+                                    onChoose={onChoose}
+                                    onDone={() => setOffer(undefined)}
+                                    testId={offer.testId}
+                                />
+                            )}
+                        >
+                            {/* Clicks go through to the cell under it, which a double click opens to type into. */}
+                            <span style={{ position: 'absolute', pointerEvents: 'none', ...offer.box }} />
+                        </Popover>
+                    )}
+                </div>
+            </Flex>
+            {!shownRows && merged.rows > merged.cells.length && (
+                <Typography.Text type="secondary">
+                    {t('merge:workbook.rows_shown', { shown: merged.cells.length, count: merged.rows })}
+                </Typography.Text>
+            )}
+        </Flex>
+    )
+}
+
+interface OpenMergedCellProps {
+    /** What the cell shows as it is opened, which the typing starts from. */
+    from: string
+    /** Keeps what was typed and closes the cell. */
+    onCommit: (value: string) => void
+    /** Closes the cell, leaving it as it was. */
+    onCancel: () => void
+    /** Gives the value typed for the cell up, or none when no value is typed for it. */
+    onUntype: (() => void) | undefined
+}
+
+/**
+ * A cell of a merged table being typed into, as a cell of the table editor is: Enter keeps what was typed, Escape
+ * leaves the cell as it was. A cell typed into before gives its value up from the end of its field.
+ *
+ * What is being typed lives here, so a keystroke redraws this cell alone.
+ */
+const OpenMergedCell: React.FC<OpenMergedCellProps> = ({ from, onCommit, onCancel, onUntype }) => {
+    const { t } = useTranslation()
+    const { styles } = useCellFieldStyles(true)
+    const [draft, setDraft] = useState(from)
+    // The way of writing the reader switched to, from one line to several.
+    const [switched, setSwitched] = useState<EditorKind>()
+    const kind = switched ?? (draft.includes('\n') ? 'multiline' : 'text')
+    return (
+        <CellValueEditor
+            asked={undefined}
+            className={styles.input}
+            kind={kind}
+            onCancel={onCancel}
+            onChange={setDraft}
+            onCommit={value => onCommit(value ?? draft)}
+            onSwitch={setSwitched}
+            value={draft}
+            suffix={onUntype && (
+                <Button
+                    aria-label={t('merge:workbook.untype_value')}
+                    data-testid="workbook-merge-untype"
+                    icon={<UndoOutlined />}
+                    onClick={onUntype}
+                    // The field keeps the focus, so losing it does not close the cell before the value is given up.
+                    onMouseDown={event => event.preventDefault()}
+                    size="small"
+                    title={t('merge:workbook.untype_value')}
+                    type="text"
+                />
+            )}
+        />
+    )
+}
+
+/**
+ * What a cell of a table merged cell by cell shows: the value typed for it, or the version chosen for a conflicting
+ * cell, or the merged cell itself.
+ */
+const resultCellOf = (
+    cell: RawTableCell,
+    conflict: ConflictCell | undefined,
+    choices: CellChoices,
+    row: number,
+    column: number
+): RawTableCell => {
+    const side = conflict && sideOfCell(choices, row, column)
+    const shown = conflict && side ? conflict[side] : cell
+    const typed = typedOf(choices, row, column)
+    if (typed === undefined) {
+        return shown
+    }
+    const { formula: _formula, runs: _runs, ...rest } = shown
+    return { ...rest, value: typed }
+}
+
+/** The version a side of a table merged cell by cell gives its conflicting cells, taken by the arrows beside them. */
+interface SideTake {
+    side: ConflictCellSide
+    conflicts: ConflictCell[]
+    choices: CellChoices
+    onTake: (cell: ConflictCell) => void
+    testId: string
+}
+
+interface VersionGridProps {
+    version: ConflictTableVersion | undefined
+    /** What a version without the table tells, or none to leave its place empty. */
+    absent?: string | undefined
+    marks: CellMarks
+    /** The rows shown, or none to show every row. */
+    shownRows: RowWindow | undefined
+    /** What the arrows of a side of a table merged cell by cell take, or none for a table taken whole. */
+    take?: SideTake | undefined
 }
 
 /**
@@ -574,36 +1320,55 @@ interface VersionGridProps {
  * cells its branch changed framed in the colour of a change. A version whose formatting its branch changed is framed
  * whole and says so. A version without the table says so too.
  */
-const VersionGrid: React.FC<VersionGridProps> = ({ version, absent, marks, shownRows }) => {
+const VersionGrid: React.FC<VersionGridProps> = ({ version, absent, marks, shownRows, take }) => {
     const { t } = useTranslation()
     const changed = useMemo(() => new Set(version?.changedCells ?? []), [version])
     const conflicting = useMemo(() => new Set(version?.conflictCells ?? []), [version])
-    if (!version) {
-        return <Typography.Text italic type="secondary">{absent}</Typography.Text>
+    // The rows shown stay the same while the choices change, so the grid keeps its lines.
+    const rows = useMemo(() => version && (shownRows
+        ? version.cells.slice(shownRows.from, shownRows.to + 1)
+        : version.cells), [version, shownRows])
+    // The conflicting cells of a table merged cell by cell, by where they lie in this version.
+    const takes = useMemo(() => new Map((take?.conflicts ?? []).map(cell => [
+        take?.side === 'theirs' ? cell.theirCell : cell.ourCell,
+        cell,
+    ] as const)), [take?.conflicts, take?.side])
+    if (!version || !rows) {
+        return absent === undefined ? null : <Typography.Text italic type="secondary">{absent}</Typography.Text>
     }
     const decorate = (cell: RawTableCell): CellDecoration | undefined => {
         if (!cell.cell) {
             return undefined
         }
+        const conflict = takes.get(cell.cell)
+        if (take && conflict) {
+            return takeDecorationOf(conflict, take, marks)
+        }
         if (conflicting.has(cell.cell)) {
             return { className: marks.conflict }
         }
-        return changed.has(cell.cell) ? { className: marks.changedFrame } : undefined
+        if (!changed.has(cell.cell)) {
+            return undefined
+        }
+        // A change of a table merged cell by cell is merged by itself; one of a table taken whole is what a choice takes.
+        return { className: take ? marks.merged : marks.changedFrame }
     }
-    const rows = shownRows ? version.cells.slice(shownRows.from, shownRows.to + 1) : version.cells
     return (
         <Flex vertical gap={4}>
-            <Flex wrap align="center" gap="small">
-                <Typography.Text type="secondary">{version.range}</Typography.Text>
-                {version.formattingChanged && (
-                    <Tag color="warning" data-testid="workbook-merge-formatting-changed">
-                        {t('merge:workbook.formatting_changed')}
-                    </Tag>
-                )}
-            </Flex>
+            {version.formattingChanged && (
+                <Tag color="warning" data-testid="workbook-merge-formatting-changed">
+                    {t('merge:workbook.formatting_changed')}
+                </Tag>
+            )}
             {/* A table wider than its column scrolls on its own, as the versions of a comparison do. */}
             <Flex className={version.formattingChanged ? marks.restyled : undefined} style={{ overflowX: 'auto' }}>
-                <RawTableGrid decorate={decorate} rows={rows} />
+                <PaperTheme>
+                    <RawTableGrid
+                        decorate={decorate}
+                        headings={{ from: headingsFrom(version.range, shownRows?.from ?? 0) }}
+                        rows={rows}
+                    />
+                </PaperTheme>
             </Flex>
             {!shownRows && version.rows > version.cells.length && (
                 <Typography.Text type="secondary">
@@ -614,8 +1379,50 @@ const VersionGrid: React.FC<VersionGridProps> = ({ version, absent, marks, shown
     )
 }
 
+/**
+ * How a conflicting cell of a version of a table merged cell by cell is drawn. It is red until it is decided, then
+ * yellow in the version chosen and plain in the other one, or in both when a value is typed for it instead. The
+ * version chosen has nothing left to take, so only the other one keeps its arrow.
+ */
+const takeDecorationOf = (conflict: ConflictCell, take: SideTake, marks: CellMarks): CellDecoration => {
+    if (sideOfAll(take.choices, [conflict]) === take.side) {
+        return { className: marks.chosen }
+    }
+    const className = isDecided(take.choices, conflict) ? undefined : marks.conflict
+    const arrow = <TakeArrow cell={conflict} take={take} />
+    return take.side === 'ours' ? { className, after: arrow } : { className, before: arrow }
+}
+
+/** What is known of a cell of a table merged cell by cell, which its frame tells. */
+interface CellState {
+    typed: boolean
+    conflict: boolean
+    chosen: boolean
+    merged: boolean
+}
+
+/**
+ * The one frame of a cell of a table merged cell by cell: blue for a value typed, yellow for a conflict a version is
+ * chosen for, red for a conflict still to resolve, green for a change the merge took by itself, none otherwise. A cell
+ * wears one frame only, so the first that applies is the one seen.
+ */
+const frameOf = (marks: CellMarks, state: CellState): string | undefined => {
+    if (state.typed) {
+        return marks.edited
+    }
+    if (state.conflict) {
+        return state.chosen ? marks.chosen : marks.conflict
+    }
+    return state.merged ? marks.merged : undefined
+}
+
 /** The palette of an .xls workbook both branches changed differently, taken from your or their version. */
-const PalettePart: React.FC<{ decision: ConflictSide | undefined; onDecide: Decide }> = ({ decision, onDecide }) => {
+interface PalettePartProps {
+    decision: ConflictSide | undefined
+    onDecide: Decide
+}
+
+const PalettePart: React.FC<PalettePartProps> = ({ decision, onDecide }) => {
     const { t } = useTranslation()
     const titleId = useId()
     return (

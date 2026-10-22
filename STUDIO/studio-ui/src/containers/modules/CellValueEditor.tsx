@@ -42,6 +42,8 @@ interface CellValueEditorProps {
     onCancel: () => void
     /** Asked for another way of writing the value, which Alt+Enter asks for from a one-line field. */
     onSwitch?: ((kind: EditorKind) => void) | undefined
+    /** What a one-line field shows at its end, such as a button that gives the value up. */
+    suffix?: React.ReactNode
     className?: string
 }
 
@@ -134,6 +136,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
     onCommit,
     onCancel,
     onSwitch,
+    suffix,
     className,
 }) => {
     const { t } = useTranslation('repository')
@@ -354,6 +357,7 @@ export const CellValueEditor: React.FC<CellValueEditorProps> = ({
                     onBlur={() => onCommit()}
                     onChange={event => onChange(event.target.value)}
                     onKeyDown={keys}
+                    suffix={suffix}
                     value={value}
                 />
             )

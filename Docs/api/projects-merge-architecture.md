@@ -30,6 +30,8 @@ flowchart TB
     CS --> MC
     CS --> XM["XlsWorkbookMerger<br/>sheet, table and cell merge,<br/>conflicts resolved as decided"]
     CS --> WM["ConflictWorkbookMapper<br/>the conflicts of a workbook"]
+    WM --> MT["MergedTableReader<br/>a table merged cell by cell"]
+    CS --> CD["CellDecisions<br/>the decisions cell by cell"]
     CS --> TM["TextMerge<br/>text file line by line"]
     Save["Project save"] -- SaveMergeConflictEvent --> Lst["SaveMergeConflictEventListener"]
     Lst --> SH
@@ -79,7 +81,20 @@ flowchart TB
   **`Conflicts`** tells the merge what to do with a place both versions changed in ways it cannot combine: a strict
   merge, the one of a merge of branches, leaves the sheet a conflict at once (`getDiffResult`); a survey notes every
   conflicting table and goes on with your version of it, so the conflicts after it are found too (`getConflicts`); a
-  resolution takes each conflict whole from the version decided (`resolve`). A conflict is a table of a sheet merged
+  resolution takes each conflict whole from the version decided (`resolve`), or merges a table cell by cell as
+  decided (`CellResolution`). A table whose lines merge while some of its cells conflict, the `cells` reason, is
+  merged cell by cell in a survey too (`TableCells`): every cell of the merged table at the place the table lands,
+  each with its `CellSource`, its merged cells, the cells one version alone changed, and the cells both versions
+  changed differently, each with the content it takes from your and from their version (`CellConflict`). A survey notes it only when its merged cells
+  can be placed; a table both versions inserted rows into at the same place, or one with no cell of one version
+  facing a cell of the other, is resolved only as a whole. A resolution cell by cell takes the value and the comment
+  of each conflicting cell from the version decided for the cell or for the table, keeps the style the merge gives the
+  cell, and writes the values typed, read as Excel reads typing
+  (`TypedValues`): a conflicting cell left without either, a table that is no longer merged cell by cell, a cell
+  outside the table, a value under merged cells or a formula that cannot be read refuses the resolution
+  (`UnresolvedConflictsException`, `CellResolutionException`). A typed formula is read once every sheet is merged,
+  against the sheets the merged workbook has, so it may name a sheet their version added but not one the merge
+  removes. A conflict is a table of a sheet merged
   table by table, the sheet itself when its conflict lies outside its tables, such as a sheet one version removed and
   the other changed, or the palette of an .xls workbook. Tables their version added next to one table your version
   added are one conflict. A table taken whole lands where the merge puts it, at the place one version moved it to,
@@ -100,7 +115,12 @@ flowchart TB
   changed against the base: cell by cell in a table of the base size, leaving out a cell the other version changed
   alike, or whole rows or columns, matched against the base ones as the longest common sequence, when the branch
   inserted or deleted rows or columns. When all three versions hold the table at one size, it also tells the cells
-  both versions changed differently, which the editor frames and shows the rows around.
+  both versions changed differently, which the editor frames and shows the rows around. A table the survey merged
+  cell by cell comes as `merged`, read by **`MergedTableReader`**: each cell composed of the value, the style and the
+  comment of the cells of the versions it takes them from, the styles of all of them named once, a conflicting cell
+  showing the base version, each conflict as it is with either version and where each version has it, and the cells
+  one version alone changed, which the editor frames as the versions frame them. It reads the area of the rows shown
+  once, and each conflict past them on its own, so a conflict far down a long table reads no rows between.
 - **`TextMerge`** (`org.openl.rules.repository.git.text`) — merges the three versions of a conflicted text file line
   by line, and tells the lines it takes by itself from the conflicts between them, part by part, each part with the
   lines every version holds in its place and their line breaks. It compares the base with each version by the diff
@@ -361,9 +381,12 @@ A refused resolution leaves the stored conflict as it was, so the client can sen
 
 A workbook is merged table by table in two requests that change nothing. `GET /merge/conflicts/workbook` compares the
 three versions as the merge of the branches does, but surveys the conflicts instead of stopping at the first one, and
-`POST /merge/conflicts/workbook` merges them again with each conflict resolved as the request decides, then answers
-the merged workbook. Both read the versions of the conflict as `GET /merge/conflicts/text` does: your version from its
-commit, also in a save conflict, and every version is needed, the base one included.
+`POST /merge/conflicts/workbook` merges them again with each conflict resolved as the request decides, a table taken
+whole or merged cell by cell (`CellDecisions` reads the decisions and tells why the merge refuses them), then answers
+the merged workbook. A cell of a table merged cell by cell is named by its row and its column in the merged table,
+not by its address on the sheet, so a decision holds wherever the table lands as the other tables are decided. Both
+read the versions of the conflict as `GET /merge/conflicts/text` does: your version from its commit, also in a save
+conflict, and every version is needed, the base one included.
 
 ## Errors
 
@@ -386,8 +409,10 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
   `STUDIO/org.openl.rules.xls.merge`: the changes of the two branches, kind by kind, merged or kept a conflict;
   `XlsTableMergerTest` crosses what each branch does with a table: leaves, creates, removes, changes or moves it;
   `XlsConflictResolutionTest` surveys the conflicts of each kind, takes each from every version, and refuses a
-  resolution that leaves a conflict or makes tables touch. `ProjectsMergeConflictsServiceImplTest` reads the
-  conflicts of a workbook and merges it as decided, and `ConflictWorkbookViewTest` holds the JSON a screen reads.
+  resolution that leaves a conflict or makes tables touch; `XlsCellResolutionTest` merges a table cell by cell: the
+  version of a cell and of the table and which one counts, the typed values kind by kind, and every refusal. `ProjectsMergeConflictsServiceImplTest` reads the conflicts of a workbook, a table merged cell by cell
+  included, and merges it as decided, `CellDecisionsTest` reads the decisions cell by cell and their refusals, and
+  `ConflictWorkbookViewTest` holds the JSON a screen reads.
 - **Text merge** — `TextMergeTest`: changes apart merged, a line both branches change, a change both make alike,
   lines both append, blocks both add at one place that start and end alike, the base a conflict replaced, line
   breaks kept, a last line without a line break, and content that is not UTF-8 text;
@@ -399,6 +424,8 @@ as `ERROR` with its reason, and `GET /merge` answers it with `500`.
   `task_EPBDS-16896-merge-scope` checks and merges a branch that changes three projects, as the administrator and as a
   user who may read one of them, so the scope and the summary name that project alone and count the two others;
   `task_EPBDS-16637-text-merge` reads a conflicted message bundle merged line by line;
-  `task_EPBDS-16885-workbook-conflicts` reads the conflicting tables of a workbook and merges it as decided. A merge
+  `task_EPBDS-16885-workbook-conflicts` reads the conflicting tables of a workbook, a table merged cell by cell
+  included, and merges it as decided, whole and cell by cell; the `every-tool` suite of `ITEST/itest.studio/mcp`
+  resolves such a table through the MCP server. A merge
   step is three requests: the `POST` answered `202`, a `GET /merge` retried until the merge has ended, and a
   `GET /merge` checking its result.

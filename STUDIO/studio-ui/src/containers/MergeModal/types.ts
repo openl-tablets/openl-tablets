@@ -5,6 +5,7 @@ import type {
     ConflictTextBlock,
     ConflictWorkbook,
 } from '../../services/compare'
+import type { CellDecisions } from './workbookMerge'
 
 // Merge mode - direction of the merge operation
 export type MergeMode = 'receive' | 'send'
@@ -181,15 +182,25 @@ export interface ConflictFileState {
     mergedWorkbook?: MergedWorkbook | undefined
 }
 
-export type { ConflictSheet, ConflictTable, ConflictTableVersion, ConflictWorkbook } from '../../services/compare'
+export type {
+    ConflictCell,
+    ConflictSheet,
+    ConflictTable,
+    ConflictTableMerge,
+    ConflictTableVersion,
+    ConflictWorkbook,
+} from '../../services/compare'
 
 /**
  * A workbook merged in the editor of the dialog: the merged file, the decisions made in the editor, and the conflicts
- * they were made for. The decisions include the ones a sheet taken whole stands for, which the merge left out.
+ * they were made for. The decisions include the ones a sheet taken whole stands for, which the merge left out, and
+ * what was decided cell by cell for tables taken whole later.
  */
 export interface MergedWorkbook {
     file: Blob
     decisions: Record<string, ConflictSide>
+    /** How each table merged cell by cell was merged, by the identifier of its conflict. */
+    cellDecisions: CellDecisions
     workbook: ConflictWorkbook
 }
 

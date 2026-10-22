@@ -26,6 +26,24 @@ export const useCellStyles = createStyles(({ css }) => ({
     conflict: css`
         box-shadow: inset 0 0 0 2px ${paperToken().colorError};
     `,
+    // A cell of a table merged cell by cell the merge took from one branch by itself: framed in the colour of success.
+    merged: css`
+        box-shadow: inset 0 0 0 2px ${paperToken().colorSuccess};
+    `,
+    // A conflicting cell of a table merged cell by cell that the user chose a version for, in the result and in the
+    // version chosen: framed in yellow.
+    chosen: css`
+        box-shadow: inset 0 0 0 2px ${paperToken().colorWarning};
+    `,
+    // A cell of a table merged cell by cell that the user typed a value for.
+    edited: css`
+        box-shadow: inset 0 0 0 2px ${paperToken().colorInfo};
+    `,
+    // The cell of a table merged cell by cell the user picked, outlined over its frame.
+    picked: css`
+        outline: 2px solid ${paperToken().colorPrimary};
+        outline-offset: -4px;
+    `,
     // A version of a table whose formatting its branch changed: the whole table framed with a dashed line.
     restyled: css`
         width: fit-content;

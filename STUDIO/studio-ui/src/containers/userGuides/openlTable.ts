@@ -1,4 +1,5 @@
 import type { RawTableCell } from 'types/tables'
+import { columnLettersOf } from 'components/tableRoles'
 import { type CsvCell, type CsvRow, csvRecords } from './csvRecords'
 
 /** The line ending the column headers. */
@@ -18,13 +19,7 @@ const isSeparator = (row: CsvRow): boolean =>
 const isMarker = (cell: CsvCell | undefined, marker: string): boolean => cell?.quoted === false && cell.value === marker
 
 /** The address the table editor gives a cell: its column letters, then its row number, as Excel writes it. */
-const addressOf = (row: number, column: number): string => {
-    let letters = ''
-    for (let rest = column + 1; rest > 0; rest = Math.floor((rest - 1) / 26)) {
-        letters = String.fromCodePoint(65 + ((rest - 1) % 26)) + letters
-    }
-    return `${letters}${row + 1}`
-}
+const addressOf = (row: number, column: number): string => `${columnLettersOf(column)}${row + 1}`
 
 /** How many cells to the right, then below, the cell at the given place spans. */
 const spanOf = (grid: CsvCell[][], row: number, column: number): [number, number] => {

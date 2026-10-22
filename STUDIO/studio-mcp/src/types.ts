@@ -398,6 +398,107 @@ export interface ConflictDetailsResponse {
   theirsRevision?: RevisionDetails;
 }
 
+/** A cell of a table of a conflicted workbook, as `GET /merge/conflicts/workbook` sends it. */
+export interface ConflictWorkbookCell extends Omit<RawTableCell, "value" | "style"> {
+  value?: unknown;
+  formula?: string;
+  comment?: string;
+  /** The style of the cell, by its index in the styles of the table. */
+  style?: number;
+  runs?: unknown[];
+  type?: string;
+}
+
+/** A table as one version of a conflicted workbook has it. */
+export interface ConflictTableVersion {
+  range: string;
+  cells: ConflictWorkbookCell[][];
+  styles?: unknown[];
+  rows: number;
+  changedCells?: string[];
+  formattingChanged?: boolean;
+  conflictCells?: string[];
+}
+
+/** A cell of a merged table both branches changed differently, with what it is with either version. */
+export interface ConflictCellView {
+  row: number;
+  column: number;
+  cell: string;
+  /** The cell in your version, which differs from the merged one when a branch inserted rows or columns before it. */
+  ourCell: string;
+  /** The cell in their version, which differs from the merged one when a branch inserted rows or columns before it. */
+  theirCell: string;
+  ours: ConflictWorkbookCell;
+  theirs: ConflictWorkbookCell;
+}
+
+/** A conflicting table merged cell by cell: the conflicting cells hold the base version until they are decided. */
+export interface ConflictTableMerge {
+  range: string;
+  cells: ConflictWorkbookCell[][];
+  styles?: unknown[];
+  rows: number;
+  /** The cells one branch alone changed, which the merge takes from it by itself. */
+  changedCells?: string[];
+  conflicts: ConflictCellView[];
+}
+
+export interface ConflictTableView {
+  id: string;
+  name: string;
+  reason: string;
+  ours?: ConflictTableVersion;
+  base?: ConflictTableVersion;
+  theirs?: ConflictTableVersion;
+  merged?: ConflictTableMerge;
+}
+
+export interface ConflictSheetView {
+  name: string;
+  status: "ours" | "theirs" | "merged" | "conflict";
+  reason?: string;
+  ours: boolean;
+  base: boolean;
+  theirs: boolean;
+  tables: ConflictTableView[];
+}
+
+/** The conflicts of a conflicted workbook, as `GET /merge/conflicts/workbook` answers them. */
+export interface ConflictWorkbookView {
+  sheets: ConflictSheetView[];
+  palette: boolean;
+}
+
+type ConflictCellSide = "ours" | "theirs";
+
+/**
+ * How one conflict of a workbook is resolved, as `POST /merge/conflicts/workbook` takes it: taken whole from a
+ * version, or a table merged cell by cell.
+ */
+export type ConflictWorkbookDecision =
+  | { id: string; side: "ours" | "theirs" | "base" }
+  | {
+    id: string;
+    cells: {
+      side?: ConflictCellSide;
+      cells?: { row: number; column: number; side?: ConflictCellSide; value?: string }[];
+    };
+  };
+
+/** How one conflicted file is resolved by `POST /merge/conflicts/resolve`, with the merged file for `CUSTOM`. */
+export interface FileConflictResolution {
+  file: string;
+  strategy: "BASE" | "OURS" | "THEIRS" | "CUSTOM";
+  content?: ArrayBuffer;
+}
+
+export interface ResolveConflictsResponse {
+  status: "success";
+  resolvedFiles: string[];
+  summary?: unknown;
+}
+
 export interface Repository {
   /** Repository ID */
   id: string;

@@ -94,8 +94,8 @@ describe("project branch and merge handlers", () => {
     });
     expect(result).not.toHaveProperty("check");
     expect(result.nextAction).toEqual(expect.stringContaining("does not predict conflicts"));
-    expect(result.nextAction).toEqual(expect.stringContaining("manual resolution in Studio"));
-    expect(result.nextAction).not.toEqual(expect.stringContaining("openl_resolve_merge_conflicts"));
+    expect(result.nextAction).toEqual(expect.stringContaining(
+      "resolve them with openl_resolve_merge_conflicts only as the user decides"));
   });
 
   it("tolerates a null merge blocker as equivalent to an omitted blocker", async () => {
@@ -245,6 +245,181 @@ describe("project branch and merge handlers", () => {
     expect(first).toMatchObject({ content: "A😀", offset: 0, returnedBytes: 5, nextOffset: 5 });
     expect(second).toMatchObject({ content: "B", offset: 5, returnedBytes: 1, hasMore: false });
     expect(`${first.content}${second.content}`).toBe("A😀B");
+  });
+
+  describe("a conflicted workbook", () => {
+    const cell = (address: string, value: unknown, more: Record<string, unknown> = {}) => ({
+      cell: address, value, style: 0, ...more,
+    });
+    const version = (rate: number) => ({
+      range: "A1:B2",
+      cells: [[cell("A1", "Rules rate", { colspan: 2 }), { covered: true }], [cell("A2", "US"), cell("B2", rate)]],
+      styles: [{ bold: true }],
+      rows: 2,
+      changedCells: ["B2"],
+      formattingChanged: false,
+      conflictCells: ["B2"],
+    });
+    const workbook = {
+      sheets: [
+        { name: "Notes", status: "theirs", ours: true, base: true, theirs: true, tables: [] },
+        {
+          name: "Rules",
+          status: "conflict",
+          ours: true,
+          base: true,
+          theirs: true,
+          tables: [
+            {
+              id: "Rules/A1:B2",
+              name: "Rules rate",
+              reason: "cells",
+              ours: version(10),
+              base: version(1),
+              theirs: version(20),
+              merged: {
+                range: "A1:B2",
+                cells: [[cell("A1", "Rules rate", { colspan: 2 }), { covered: true }], [cell("A2", "USA"), cell("B2", 1)]],
+                styles: [{ bold: true }],
+                rows: 2,
+                changedCells: ["A2"],
+                conflicts: [{
+                  row: 1, column: 1, cell: "B2", ourCell: "B2", theirCell: "B1",
+                  ours: cell("B2", 10), theirs: cell("B2", 20),
+                }],
+              },
+            },
+            { id: "Rules/A9:C12", name: "Data Driver drivers", reason: "rows", ours: version(3), base: version(2) },
+          ],
+        },
+      ],
+      palette: false,
+    };
+
+    it("lists the conflicting tables with the conflicting cells of a table merged cell by cell", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
+
+      const overview = dataOf(await executeTool("get_merge_conflict_workbook", {
+        projectId: "p1", file: "rules/Main.xlsx", response_format: "json",
+      }, harness.client));
+
+      expect(harness.mockHttp.history.get[0].params).toEqual({ file: "rules/Main.xlsx" });
+      expect(overview.sheets[0]).toEqual({
+        name: "Notes", status: "theirs", inVersions: { ours: true, base: true, theirs: true }, tables: [],
+      });
+      expect(overview.sheets[1].tables).toEqual([
+        {
+          id: "Rules/A1:B2",
+          name: "Rules rate",
+          reason: "cells",
+          byCells: true,
+          ranges: { ours: "A1:B2", base: "A1:B2", theirs: "A1:B2", merged: "A1:B2" },
+          conflictCells: [{
+            row: 1,
+            column: 1,
+            cell: "B2",
+            ourCell: "B2",
+            theirCell: "B1",
+            ours: { cell: "B2", value: 10 },
+            theirs: { cell: "B2", value: 20 },
+          }],
+        },
+        {
+          id: "Rules/A9:C12",
+          name: "Data Driver drivers",
+          reason: "rows",
+          byCells: false,
+          ranges: { ours: "A1:B2", base: "A1:B2" },
+        },
+      ]);
+    });
+
+    it("reads one table in every version and merged, without the formatting of its cells", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
+
+      const table = dataOf(await executeTool("get_merge_conflict_workbook", {
+        projectId: "p1", file: "rules/Main.xlsx", table: "Rules/A1:B2", response_format: "json",
+      }, harness.client));
+
+      expect(table).toMatchObject({ sheet: "Rules", id: "Rules/A1:B2", byCells: true });
+      expect(table.theirs).toEqual({
+        range: "A1:B2",
+        rows: 2,
+        changedCells: ["B2"],
+        conflictCells: ["B2"],
+        formattingChanged: false,
+        cells: [
+          [{ cell: "A1", value: "Rules rate", colspan: 2 }, { covered: true }],
+          [{ cell: "A2", value: "US" }, { cell: "B2", value: 20 }],
+        ],
+      });
+      expect(table.merged.cells[1]).toEqual([{ cell: "A2", value: "USA" }, { cell: "B2", value: 1 }]);
+      expect(table.merged.changedCells).toEqual(["A2"]);
+      expect(table.merged.conflicts[0]).toMatchObject({ cell: "B2", ours: { value: 10 }, theirs: { value: 20 } });
+    });
+
+    it("refuses a table that is no conflict of the workbook", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
+
+      await expect(executeTool("get_merge_conflict_workbook", {
+        projectId: "p1", file: "rules/Main.xlsx", table: "Rules/Z1:Z2",
+      }, harness.client)).rejects.toThrow(/no conflicting table/);
+    });
+  });
+
+  it("resolves a workbook merged as decided and the other files by their strategies", async () => {
+    harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
+      conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml"] }],
+    });
+    harness.mockHttp.onPost("/projects/p1/merge/conflicts/workbook").reply(200, Buffer.from("merged"));
+    harness.mockHttp.onPost("/projects/p1/merge/conflicts/resolve").reply(200, {
+      status: "success", resolvedFiles: ["rules/Main.xlsx", "rules.xml"],
+    });
+    const decisions = [
+      { id: "Rules/A1:B2", cells: { side: "ours", cells: [{ row: 1, column: 1, side: "theirs" }, { row: 1, column: 0, value: "USA" }] } },
+      { id: "Notes", side: "base" },
+    ];
+
+    const response = await executeTool("resolve_merge_conflicts", {
+      projectId: "p1",
+      resolutions: [{ file: "rules/Main.xlsx", decisions }, { file: "rules.xml", strategy: "THEIRS" }],
+      message: "Merge rates",
+      response_format: "json",
+    }, harness.client);
+
+    const [workbookRequest, resolveRequest] = harness.mockHttp.history.post;
+    expect(workbookRequest.params).toEqual({ file: "rules/Main.xlsx" });
+    expect(bodyOf(workbookRequest)).toEqual({ decisions });
+    const form = resolveRequest.data as FormData;
+    expect(form.get("resolutions[0].filePath")).toBe("rules/Main.xlsx");
+    expect(form.get("resolutions[0].strategy")).toBe("CUSTOM");
+    const merged = form.get("resolutions[0].file") as File;
+    expect(merged.name).toBe("Main.xlsx");
+    expect(await merged.text()).toBe("merged");
+    expect(form.get("resolutions[1].filePath")).toBe("rules.xml");
+    expect(form.get("resolutions[1].strategy")).toBe("THEIRS");
+    expect(form.get("resolutions[1].file")).toBeNull();
+    expect(form.get("message")).toBe("Merge rates");
+    expect(dataOf(response)).toEqual({ status: "success", resolvedFiles: ["rules/Main.xlsx", "rules.xml"] });
+  });
+
+  it("refuses a resolution that leaves a conflicted file out before sending anything", async () => {
+    harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
+      conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml"] }],
+    });
+
+    await expect(executeTool("resolve_merge_conflicts", {
+      projectId: "p1", resolutions: [{ file: "rules.xml", strategy: "OURS" }],
+    }, harness.client)).rejects.toThrow(/missing: rules\/Main\.xlsx/);
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+  });
+
+  it("refuses a cell decision with neither a side nor a value", async () => {
+    await expect(executeTool("resolve_merge_conflicts", {
+      projectId: "p1",
+      resolutions: [{ file: "rules/Main.xlsx", decisions: [{ id: "Rules/A1:B2", cells: { cells: [{ row: 1, column: 1 }] } }] }],
+    }, harness.client)).rejects.toThrow();
+    expect(harness.mockHttp.history.get).toHaveLength(0);
   });
 
   it("clears the pending conflict session", async () => {

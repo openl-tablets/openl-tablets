@@ -26,8 +26,10 @@ import static org.openl.rules.xls.merge.MergeFixture.text;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -36,10 +38,12 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.xls.merge.diff.CellConflict;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.Resolution;
 import org.openl.rules.xls.merge.diff.SheetConflictReason;
@@ -86,13 +90,18 @@ class XlsConflictResolutionTest {
         var conflicts = FIXTURE.conflicts(XSSFWorkbook::new, OUR_RATE, THEIR_RATE);
 
         var range = CellRangeAddress.valueOf("A1:B6");
+        var table = conflicts.sheets().getFirst().tables().getFirst();
         assertEquals(new WorkbookConflicts(List.of(new SheetConflicts(RULES,
                 DiffStatus.CONFLICT,
                 null,
                 true,
                 true,
                 true,
-                List.of(new TableConflict(RATES, range, range, range, TableConflictReason.CELLS)))), false), conflicts);
+                List.of(new TableConflict(RATES, range, range, range, TableConflictReason.CELLS, table.cells())))),
+                false), conflicts);
+        // the table is merged cell by cell, and its only conflicting cell is the rate of US
+        assertEquals(List.of(new CellAddress("B4")),
+                Objects.requireNonNull(table.cells()).conflicts().stream().map(CellConflict::cell).toList());
     }
 
     @Test
@@ -657,7 +666,7 @@ class XlsConflictResolutionTest {
         assertArrayEquals(new short[]{1, 2, 3}, kept.getCustomPalette().getColor(index).getTriplet());
     }
 
-    private static org.apache.poi.hssf.usermodel.HSSFPalette palette(Sheet sheet) {
+    private static HSSFPalette palette(Sheet sheet) {
         return ((HSSFWorkbook) sheet.getWorkbook()).getCustomPalette();
     }
 

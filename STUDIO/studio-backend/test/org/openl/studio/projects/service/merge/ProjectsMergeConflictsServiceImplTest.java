@@ -69,6 +69,8 @@ import org.openl.studio.audit.service.ProjectAuditor;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictCellDecision;
+import org.openl.studio.projects.model.merge.ConflictCellsDecision;
 import org.openl.studio.projects.model.merge.ConflictResolutionStatus;
 import org.openl.studio.projects.model.merge.ConflictResolutionStrategy;
 import org.openl.studio.projects.model.merge.ConflictSheetStatus;
@@ -528,7 +530,8 @@ class ProjectsMergeConflictsServiceImplTest {
         });
 
         var merged = context.service()
-                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS),
+                        Map.of());
 
         try (var workbook = WorkbookFactory.create(new ByteArrayInputStream(merged))) {
             var sheet = workbook.getSheet("Rules");
@@ -536,6 +539,207 @@ class ProjectsMergeConflictsServiceImplTest {
             assertEquals(3, sheet.getRow(2).getCell(1).getNumericCellValue());
             assertEquals("ours", workbook.getSheet("Notes").getRow(0).getCell(0).getStringCellValue());
         }
+    }
+
+    /** Your branch changes the rate of US and renames CA, their branch changes both rates. */
+    private static void givenRatesChangedCellByCell(BranchRepository repository) throws IOException {
+        givenRates(repository, sheet -> {
+        }, sheet -> {
+            rate(sheet, 1, 1.4);
+            text(sheet, 2, 0, "Canada");
+        }, sheet -> {
+            rate(sheet, 1, 1.5);
+            rate(sheet, 2, 2.4);
+        });
+    }
+
+    @Test
+    void readsATableMergedCellByCell() throws Exception {
+        var context = createContext();
+        givenRatesChangedCellByCell(context.repository());
+
+        var table = context.service()
+                .getConflictWorkbook(context.conflict(), FIRST_FILE)
+                .sheets()
+                .getFirst()
+                .tables()
+                .getFirst();
+
+        var merged = table.merged();
+        assertEquals("A1:B3", merged.range());
+        assertEquals(3, merged.rows());
+        // The cells only one branch changed are merged already.
+        assertEquals("Canada", merged.cells().get(2).getFirst().value());
+        assertEquals(2.4, ((Number) merged.cells().get(2).get(1).value()).doubleValue());
+        // The conflicting cell shows the base version until a version is decided for it.
+        assertEquals(1.0, ((Number) merged.cells().get(1).get(1).value()).doubleValue());
+        // The cells one branch alone changed are named: your new name of CA and their rate of it.
+        assertEquals(List.of("A3", "B3"), merged.changedCells());
+        var conflict = merged.conflicts().getFirst();
+        assertEquals(1, merged.conflicts().size());
+        assertEquals(1, conflict.row());
+        assertEquals(1, conflict.column());
+        assertEquals("B2", conflict.cell());
+        assertEquals("B2", conflict.ourCell());
+        assertEquals("B2", conflict.theirCell());
+        assertEquals(1.4, ((Number) conflict.ours().value()).doubleValue());
+        assertEquals(1.5, ((Number) conflict.theirs().value()).doubleValue());
+    }
+
+    @Test
+    void namesTheConflictingCellWhereEachVersionHasIt() throws Exception {
+        var context = createContext();
+        // Your branch inserts MX above US, so the rate of US both branches changed is a row lower in your version.
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> {
+            text(sheet, 1, 0, "MX");
+            rate(sheet, 1, 3);
+            text(sheet, 2, 0, "US");
+            rate(sheet, 2, 1.4);
+            text(sheet, 3, 0, "CA");
+            rate(sheet, 3, 2);
+        }, sheet -> rate(sheet, 1, 1.5));
+
+        var conflict = context.service()
+                .getConflictWorkbook(context.conflict(), FIRST_FILE)
+                .sheets()
+                .getFirst()
+                .tables()
+                .getFirst()
+                .merged()
+                .conflicts()
+                .getFirst();
+
+        assertEquals("B3", conflict.cell());
+        assertEquals("B3", conflict.ourCell());
+        assertEquals("B2", conflict.theirCell());
+        assertEquals(1.5, ((Number) conflict.theirs().value()).doubleValue());
+    }
+
+    @Test
+    void readsNoMergedTableForATableResolvedOnlyAsAWhole() throws Exception {
+        var context = createContext();
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> {
+            text(sheet, 3, 0, "MX");
+            rate(sheet, 3, 3);
+        }, sheet -> {
+            text(sheet, 3, 0, "DE");
+            rate(sheet, 3, 4);
+        });
+
+        var table = context.service()
+                .getConflictWorkbook(context.conflict(), FIRST_FILE)
+                .sheets()
+                .getFirst()
+                .tables()
+                .getFirst();
+
+        assertEquals(ConflictTableReason.ROWS, table.reason());
+        assertNull(table.merged());
+    }
+
+    @Test
+    void mergesATableCellByCell() throws Exception {
+        var context = createContext();
+        givenRatesChangedCellByCell(context.repository());
+        var theirs = new ConflictCellsDecision(null, List.of(new ConflictCellDecision(1, 1,
+                ConflictBase.THEIRS,
+                null)));
+
+        var merged = context.service()
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of(), Map.of("Rules/A1:B3", theirs));
+
+        try (var workbook = WorkbookFactory.create(new ByteArrayInputStream(merged))) {
+            var sheet = workbook.getSheet("Rules");
+            assertEquals(1.5, sheet.getRow(1).getCell(1).getNumericCellValue());
+            assertEquals("Canada", sheet.getRow(2).getCell(0).getStringCellValue());
+            assertEquals(2.4, sheet.getRow(2).getCell(1).getNumericCellValue());
+        }
+    }
+
+    @Test
+    void mergesATableCellByCellWithATypedValue() throws Exception {
+        var context = createContext();
+        givenRatesChangedCellByCell(context.repository());
+        var typed = new ConflictCellsDecision(ConflictBase.OURS, List.of(new ConflictCellDecision(1, 1, null, "1.45")));
+
+        var merged = context.service()
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of(), Map.of("Rules/A1:B3", typed));
+
+        try (var workbook = WorkbookFactory.create(new ByteArrayInputStream(merged))) {
+            assertEquals(1.45, workbook.getSheet("Rules").getRow(1).getCell(1).getNumericCellValue());
+        }
+    }
+
+    @Test
+    void refusesATableWithAConflictingCellLeftUndecided() throws Exception {
+        var context = createContext();
+        givenRatesChangedCellByCell(context.repository());
+        var service = context.service();
+        var conflict = context.conflict();
+        var nothing = Map.of("Rules/A1:B3", new ConflictCellsDecision(null, null));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, Map.of(), nothing));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.unresolved.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{FIRST_FILE, "Rules/A1:B3"}, exception.getArgs());
+    }
+
+    @Test
+    void refusesToMergeCellByCellATableResolvedOnlyAsAWhole() throws Exception {
+        var context = createContext();
+        givenRates(context.repository(), sheet -> {
+        }, sheet -> {
+            text(sheet, 3, 0, "MX");
+            rate(sheet, 3, 3);
+        }, sheet -> {
+            text(sheet, 3, 0, "DE");
+            rate(sheet, 3, 4);
+        });
+        var service = context.service();
+        var conflict = context.conflict();
+        var ours = Map.of("Rules/A1:B3", new ConflictCellsDecision(ConflictBase.OURS, null));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, Map.of(), ours));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.not-by-cells.message",
+                exception.getErrorCode());
+        assertArrayEquals(new Object[]{FIRST_FILE, "Rules/A1:B3"}, exception.getArgs());
+    }
+
+    @Test
+    void refusesACellOutsideTheMergedTable() throws Exception {
+        var context = createContext();
+        givenRatesChangedCellByCell(context.repository());
+        var service = context.service();
+        var conflict = context.conflict();
+        var outside = Map.of("Rules/A1:B3", new ConflictCellsDecision(ConflictBase.OURS,
+                List.of(new ConflictCellDecision(5, 0, ConflictBase.THEIRS, null))));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, Map.of(), outside));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.cell.outside.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{"Rules/A1:B3", FIRST_FILE, 5, 0}, exception.getArgs());
+    }
+
+    @Test
+    void refusesATypedFormulaThatCannotBeRead() throws Exception {
+        var context = createContext();
+        givenRatesChangedCellByCell(context.repository());
+        var service = context.service();
+        var conflict = context.conflict();
+        var broken = Map.of("Rules/A1:B3", new ConflictCellsDecision(null,
+                List.of(new ConflictCellDecision(1, 1, null, "=SUM("))));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, Map.of(), broken));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.cell.formula.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{"Rules/A1:B3", FIRST_FILE, 1, 1}, exception.getArgs());
     }
 
     /** A merged workbook is staged with the project as the branch the merge changes holds it. */
@@ -549,7 +753,8 @@ class ProjectsMergeConflictsServiceImplTest {
                 .thenReturn(Map.of(FIRST_FILE, formatted));
 
         var merged = context.service()
-                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS),
+                        Map.of());
 
         assertArrayEquals(formatted, merged);
     }
@@ -569,7 +774,8 @@ class ProjectsMergeConflictsServiceImplTest {
                 .thenReturn(Map.of(FIRST_FILE, formatted));
 
         var merged = context.service()
-                .mergeConflictWorkbook(saveConflict, FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+                .mergeConflictWorkbook(saveConflict, FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS),
+                        Map.of());
 
         assertArrayEquals(formatted, merged);
     }
@@ -587,7 +793,8 @@ class ProjectsMergeConflictsServiceImplTest {
         when(context.designTimeRepository().getRepository("design")).thenReturn(designRepository);
 
         var merged = context.service()
-                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS));
+                .mergeConflictWorkbook(context.conflict(), FIRST_FILE, Map.of("Rules/A1:B3", ConflictBase.THEIRS),
+                        Map.of());
 
         try (var workbook = WorkbookFactory.create(new ByteArrayInputStream(merged))) {
             assertEquals(20, workbook.getSheet("Rules").getRow(1).getCell(1).getNumericCellValue());
@@ -651,7 +858,7 @@ class ProjectsMergeConflictsServiceImplTest {
         Map<String, ConflictBase> nothing = Map.of();
 
         var exception = assertThrows(BadRequestException.class,
-                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, nothing));
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, nothing, Map.of()));
 
         assertEquals("openl.error.400.project.merge.conflict.workbook.unresolved.message", exception.getErrorCode());
         assertArrayEquals(new Object[]{FIRST_FILE, "Rules/A1:B3"}, exception.getArgs());
@@ -674,7 +881,7 @@ class ProjectsMergeConflictsServiceImplTest {
         var ours = Map.of("Rules/A1:B3", ConflictBase.OURS);
 
         var exception = assertThrows(BadRequestException.class,
-                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, ours));
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, ours, Map.of()));
 
         assertEquals("openl.error.400.project.merge.conflict.workbook.touching.message", exception.getErrorCode());
         assertArrayEquals(new Object[]{"Rules"}, exception.getArgs());
@@ -696,7 +903,7 @@ class ProjectsMergeConflictsServiceImplTest {
         var theirs = Map.of("Rules/A1:B3", ConflictBase.THEIRS);
 
         var exception = assertThrows(BadRequestException.class,
-                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, theirs));
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, theirs, Map.of()));
 
         assertEquals("openl.error.400.project.merge.conflict.workbook.link.message", exception.getErrorCode());
         assertArrayEquals(new Object[]{"Rules!B2"}, exception.getArgs());
@@ -759,7 +966,7 @@ class ProjectsMergeConflictsServiceImplTest {
         var theirs = Map.of("Rules/A1:B3", ConflictBase.THEIRS);
 
         var exception = assertThrows(BadRequestException.class,
-                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, theirs));
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, theirs, Map.of()));
 
         assertEquals("openl.error.400.project.merge.conflict.workbook.moved.message", exception.getErrorCode());
         assertArrayEquals(new Object[]{"Rules"}, exception.getArgs());
@@ -773,7 +980,7 @@ class ProjectsMergeConflictsServiceImplTest {
         var base = Map.of("/palette", ConflictBase.BASE);
 
         var exception = assertThrows(BadRequestException.class,
-                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, base));
+                () -> service.mergeConflictWorkbook(conflict, FIRST_FILE, base, Map.of()));
 
         assertEquals("openl.error.400.project.merge.conflict.workbook.palette.message", exception.getErrorCode());
     }

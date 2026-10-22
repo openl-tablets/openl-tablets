@@ -49,6 +49,7 @@ import org.openl.studio.compare.model.ComparisonStartedView;
 import org.openl.studio.compare.service.ComparisonContent;
 import org.openl.studio.compare.service.ComparisonLauncher;
 import org.openl.studio.projects.model.merge.ConflictBase;
+import org.openl.studio.projects.model.merge.ConflictCellsDecision;
 import org.openl.studio.projects.model.merge.ConflictGroup;
 import org.openl.studio.projects.model.merge.ConflictTextView;
 import org.openl.studio.projects.model.merge.ConflictWorkbookDecision;
@@ -223,13 +224,15 @@ class ProjectsMergeControllerTest {
     void answersAConflictedWorkbookMergedAsDecidedAsAFileOfItsName() throws Exception {
         var conflictInfo = givenConflict();
         var merged = new byte[]{1, 2, 3};
+        var byCells = new ConflictCellsDecision(ConflictBase.OURS, null);
         when(mergeConflictsService.mergeConflictWorkbook(conflictInfo,
                 "rules/Rates.xlsx",
-                Map.of("Rules/A1:B3", ConflictBase.THEIRS, "Other", ConflictBase.OURS))).thenReturn(merged);
+                Map.of("Rules/A1:B3", ConflictBase.THEIRS, "Other", ConflictBase.OURS),
+                Map.of("Rules/A9:C12", byCells))).thenReturn(merged);
 
         var response = controller.mergeConflictWorkbook(project, "rules/Rates.xlsx",
-                new ResolveConflictWorkbookRequest(List.of(new ConflictWorkbookDecision("Rules/A1:B3",
-                        ConflictBase.THEIRS), new ConflictWorkbookDecision("Other", ConflictBase.OURS))));
+                new ResolveConflictWorkbookRequest(List.of(whole("Rules/A1:B3", ConflictBase.THEIRS), whole("Other", ConflictBase.OURS),
+                        new ConflictWorkbookDecision("Rules/A9:C12", null, byCells))));
 
         assertArrayEquals(merged, response.getBody());
         assertEquals(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
@@ -241,8 +244,52 @@ class ProjectsMergeControllerTest {
     void refusesAConflictDecidedTwice() {
         givenConflict();
         var request = new ResolveConflictWorkbookRequest(List.of(
-                new ConflictWorkbookDecision("Rules/A1:B3", ConflictBase.THEIRS),
-                new ConflictWorkbookDecision("Rules/A1:B3", ConflictBase.OURS)));
+                whole("Rules/A1:B3", ConflictBase.THEIRS),
+                whole("Rules/A1:B3", ConflictBase.OURS)));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> controller.mergeConflictWorkbook(project, "rules/Rates.xlsx", request));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.duplicate.message", exception.getErrorCode());
+        verifyNoInteractions(mergeConflictsService);
+    }
+
+    @Test
+    void refusesATableDecidedBothWholeAndCellByCell() {
+        givenConflict();
+        var request = new ResolveConflictWorkbookRequest(List.of(new ConflictWorkbookDecision("Rules/A1:B3",
+                ConflictBase.THEIRS,
+                new ConflictCellsDecision(ConflictBase.OURS, null))));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> controller.mergeConflictWorkbook(project, "rules/Rates.xlsx", request));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.decision.message", exception.getErrorCode());
+        assertArrayEquals(new Object[]{"Rules/A1:B3"}, exception.getArgs());
+        verifyNoInteractions(mergeConflictsService);
+    }
+
+    @Test
+    void refusesAConflictDecidedNeitherWay() {
+        givenConflict();
+        var request = new ResolveConflictWorkbookRequest(List.of(new ConflictWorkbookDecision("Rules/A1:B3",
+                null,
+                null)));
+
+        var exception = assertThrows(BadRequestException.class,
+                () -> controller.mergeConflictWorkbook(project, "rules/Rates.xlsx", request));
+
+        assertEquals("openl.error.400.project.merge.conflict.workbook.decision.message", exception.getErrorCode());
+        verifyNoInteractions(mergeConflictsService);
+    }
+
+    @Test
+    void refusesATableDecidedTwiceCellByCell() {
+        givenConflict();
+        var cells = new ConflictCellsDecision(ConflictBase.OURS, null);
+        var request = new ResolveConflictWorkbookRequest(List.of(
+                new ConflictWorkbookDecision("Rules/A1:B3", null, cells),
+                whole("Rules/A1:B3", ConflictBase.THEIRS)));
 
         var exception = assertThrows(BadRequestException.class,
                 () -> controller.mergeConflictWorkbook(project, "rules/Rates.xlsx", request));
@@ -406,4 +453,8 @@ class ProjectsMergeControllerTest {
         assertThrows(NotFoundException.class, () -> controller.cancelMergeConflicts(project));
     }
 
+    /** A conflict taken whole from one version. */
+    private static ConflictWorkbookDecision whole(String id, ConflictBase side) {
+        return new ConflictWorkbookDecision(id, side, null);
+    }
 }

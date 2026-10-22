@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -28,6 +30,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTCol;
 
+import org.openl.rules.xls.merge.diff.CellResolution;
 import org.openl.rules.xls.merge.diff.DiffStatus;
 import org.openl.rules.xls.merge.diff.Resolution;
 import org.openl.rules.xls.merge.diff.UnresolvedConflictsException;
@@ -38,6 +41,7 @@ import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
  * Builds the base, OUR and THEIR revisions of a workbook. OUR and THEIR revisions are edits of the base one. The
  * fixture merges them the way a merge of branches does.
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class MergeFixture {
 
     static final String RULES = "Rules";
@@ -46,14 +50,10 @@ final class MergeFixture {
     private static final byte[] PNG = Base64.getDecoder()
             .decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==");
 
-    private final Consumer<Workbook> base;
-
     /**
-     * @param base builds the base revision of the workbook, with a sheet named {@link #RULES}
+     * Builds the base revision of the workbook, with a sheet named {@link #RULES}.
      */
-    MergeFixture(Consumer<Workbook> base) {
-        this.base = base;
-    }
+    private final Consumer<Workbook> base;
 
     /**
      * Merges OUR and THEIR .xlsx revisions of the sheet against BASE revision, and returns the merged sheet.
@@ -131,6 +131,27 @@ final class MergeFixture {
                      Consumer<Sheet> our,
                      Consumer<Sheet> their,
                      Map<String, Resolution> decisions) throws IOException, UnresolvedConflictsException {
+        return resolve(format, our, their, decisions, Map.of());
+    }
+
+    /**
+     * Merges OUR and THEIR .xlsx revisions with their table conflicts resolved cell by cell as decided, and returns
+     * the merged workbook.
+     */
+    Workbook resolveByCells(Consumer<Sheet> our, Consumer<Sheet> their, Map<String, CellResolution> byCells)
+            throws IOException, UnresolvedConflictsException {
+        return resolve(XSSFWorkbook::new, our, their, Map.of(), byCells);
+    }
+
+    /**
+     * Merges OUR and THEIR revisions with their conflicts resolved as decided, some tables cell by cell, and returns
+     * the merged workbook.
+     */
+    Workbook resolve(Supplier<Workbook> format,
+                     Consumer<Sheet> our,
+                     Consumer<Sheet> their,
+                     Map<String, Resolution> decisions,
+                     Map<String, CellResolution> byCells) throws IOException, UnresolvedConflictsException {
         var baseBytes = write(format, NO_EDIT);
         var ourBytes = write(format, our);
         var theirBytes = write(format, their);
@@ -138,7 +159,7 @@ final class MergeFixture {
         try (var merger = XlsWorkbookMerger.create(new ByteArrayInputStream(baseBytes),
                 new ByteArrayInputStream(ourBytes),
                 new ByteArrayInputStream(theirBytes))) {
-            diff = merger.resolve(decisions);
+            diff = merger.resolve(decisions, byCells);
         }
         var output = new ByteArrayOutputStream();
         XlsWorkbookMerger.merge(new ByteArrayInputStream(baseBytes),
