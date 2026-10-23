@@ -9,6 +9,11 @@ import {
   BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, RESPONSE_FORMATS, TABLE_KINDS,
 } from "./types.js";
 
+/** What the compile state of `include: status` does not say: an idle project is not compiled yet. */
+const STATUS_INCLUDE_NOTE =
+  "'status' adds compileState: 'idle' means Studio has not compiled the project yet, not that it compiles; " +
+  "openl_project_status compiles it and reports its errors.";
+
 /** The table kinds as the description of a filter names them: `'Rules', 'Spreadsheet'`. */
 const TABLE_KIND_LIST = TABLE_KINDS.map((kind) => "'" + kind + "'").join(", ");
 
@@ -59,7 +64,7 @@ export const listProjectsSchema = z.strictObject({
   author: z.string().optional().describe("Last-modifying author filter (partial, case-insensitive)."),
   branch: z.string().optional().describe("Branch filter (partial, case-insensitive)."),
   sort: z.enum(["name", "status", "updated"]).optional().describe("Field used to sort the returned page."),
-  include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe("Optional response expansions and listing behavior from the Studio API."),
+  include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe(`Optional response expansions and listing behavior from the Studio API. ${STATUS_INCLUDE_NOTE}`),
   tags: z.record(z.string(), z.string()).optional().describe("Filter by project tags. Tags must be prefixed with 'tags.' in the query string (e.g., tags.version='1.0', tags.environment='production'). This is handled automatically by the API client - provide as object with tag names as keys."),
   response_format: ResponseFormat,
   ...paginationShape,
@@ -67,7 +72,7 @@ export const listProjectsSchema = z.strictObject({
 
 export const getProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe("Optional response expansions from the Studio API."),
+  include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe(`Optional response expansions from the Studio API. ${STATUS_INCLUDE_NOTE}`),
   response_format: ResponseFormat,
 });
 

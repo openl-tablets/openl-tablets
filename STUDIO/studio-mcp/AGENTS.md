@@ -50,7 +50,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch
 
 ### Project Tools (16)
-- `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required
+- `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. A `compileState` of `idle` (`include: status`) means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
 - `openl_get_project` - Get project details
 - `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again
 - `openl_create_project` - Create or copy a project atomically through Studio: omit `template` for a BLANK project, or pass an existing project's exact `projectId` from `openl_list_projects` to copy its full structure and rename it. Both modes accept an optional target `branch` and return the commit revision plus Studio's opaque `projectId` of the new project
@@ -58,7 +58,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_save_project` - Save project changes; a comment is required when the repository supports comments
 - `openl_close_project` - Close project with save/discard options; saving requires a comment only when supported
 - `openl_create_project_branch` - Create new branch
-- `openl_list_project_local_changes` - View one module's workspace history using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`
+- `openl_list_project_local_changes` - View one module's workspace history using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`. It is no check for unsaved changes: `openl_project_status` reports the pending changes
 - `openl_restore_project_local_change` - Restore one module to a listed local version using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`
 - `openl_start_project_tests` - Start project test execution
 - `openl_get_test_results_summary` - Get brief test execution summary; waits internally through Studio's `202 {"status":"notReady"}` responses until the asynchronous run finishes
@@ -85,7 +85,7 @@ the current branch into the other branch.
 
 - `openl_list_project_branches` - List branches with base/protected flags: `scope: "project"` (default) returns branches that hold the project for switching/deletion; `scope: "repository"` returns every repository branch for merge-target discovery, including branches that do not hold the project yet
 - `openl_check_project_merge` - Check merge direction, branch relationship, permissions, and blockers without changing Git; `mergeable`/`canMerge` permits an attempt but does not predict conflicts; `scope` tells what the merge would bring in: every project the source branch changed, and the files both branches changed
-- `openl_merge_project_branches` - Recheck and attempt the merge, where conflicts are first discovered; Studio runs the merge in the background and the tool waits until it ends; the merge brings in every project the source branch changed, which `summary` of a success lists with their files; creates session-bound conflict state when needed
+- `openl_merge_project_branches` - Recheck and attempt the merge, where conflicts are first discovered; Studio runs the merge in the background and the tool waits until it ends; the merge brings in every project the source branch changed, which `summary` of a success lists with their files; creates session-bound conflict state when needed. `summary.after` is the new revision of the project on the target branch
 - `openl_get_merge_conflicts` - Get grouped conflicted paths, which versions hold each file and whether it is UTF-8 text (`fileAvailability`), BASE/OURS/THEIRS revisions, and the default message
 - `openl_read_merge_conflict_file` - Read a bounded UTF-8 or base64 binary chunk for one BASE/OURS/THEIRS file version; a version `fileAvailability` marks `false`, such as the base of a file both branches added, does not hold the file
 - `openl_get_merge_conflict_workbook` - Read a conflicted Excel file that your, the base and their version all hold as Studio merges it table by table (a workbook both branches added has no base version and is resolved whole, with a strategy): without `table`, the sheets either branch changed and the conflicting tables, a table with `byCells: true` listing its conflicting cells (row and column in the merged table, from 0) with what your and their version hold; with `table`, that table's cells in your, the base and their version and in the merged table, without formatting, the merged table naming in `changedCells` the cells Studio took from the one branch that changed them
