@@ -149,6 +149,37 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
     }
 
     /**
+     * The key the state of the current request's client is kept under, or null when the request belongs to a
+     * browser session.
+     *
+     * <p>Something issued to the client can name it by this key, so that a later request carrying no credentials
+     * acts for the same client through {@link #enter}.
+     */
+    public @Nullable String currentKey() {
+        var client = currentClient();
+        return client == null ? null : client.credential;
+    }
+
+    /**
+     * Lets a request that carries no credentials act for the client kept under the given key: every bean the request
+     * asks for is the one kept for that client, and the client is not idle while the request runs.
+     *
+     * @return what to run once the request ends, or null when nothing is kept under the key any more, as after the
+     *         client was idle for too long or the application reloaded
+     */
+    public @Nullable Runnable enter(HttpServletRequest request, String key) {
+        var client = clients.computeIfPresent(key, (ignored, known) -> {
+            known.running.incrementAndGet();
+            return known;
+        });
+        if (client == null) {
+            return null;
+        }
+        request.setAttribute(CLIENT, client);
+        return () -> client.leave(nanoClock.getAsLong());
+    }
+
+    /**
      * Ends what every credential is kept for, as the application stops or reloads.
      */
     @Override

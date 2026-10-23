@@ -186,6 +186,52 @@ class ClientSessionsTest {
     }
 
     @Test
+    void aRequestWithoutCredentialsEntersTheClientItNamesByItsKey() {
+        signIn(user("admin"));
+        stateless();
+        var bean = scope.get("studio", Object::new);
+        var key = scope.currentKey();
+        complete();
+        SecurityContextHolder.clearContext();
+
+        var link = new MockHttpServletRequest();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(link));
+        var leave = scope.enter(link, key);
+
+        assertEquals("admin", key);
+        assertNotNull(leave);
+        assertSame(bean, scope.get("studio", Object::new));
+        assertNull(link.getSession(false));
+
+        // Not idle while the request runs, idle once it has left
+        now.addAndGet(IDLE.toNanos() * 2);
+        scope.sweep();
+        assertEquals(1, scope.size());
+        leave.run();
+        now.addAndGet(IDLE.toNanos());
+        scope.sweep();
+        assertEquals(0, scope.size());
+    }
+
+    @Test
+    void aKeyNothingIsKeptUnderAnyMoreIsNotEntered() {
+        var request = new MockHttpServletRequest();
+
+        assertNull(scope.enter(request, "admin|pat:gone"));
+        assertEquals(0, scope.size());
+    }
+
+    @Test
+    void aBrowserSessionHasNoKey() {
+        var request = new MockHttpServletRequest();
+        request.setSession(new MockHttpSession());
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        signIn(user("admin"));
+
+        assertNull(scope.currentKey());
+    }
+
+    @Test
     void theBeansOfAnIdleClientAreDestroyed() {
         var destroyed = keepStudio(scope);
         complete();

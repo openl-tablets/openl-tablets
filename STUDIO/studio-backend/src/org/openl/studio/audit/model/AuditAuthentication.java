@@ -28,5 +28,9 @@ public enum AuditAuthentication {
 
     @Schema(description = "A sign-in through SAML.")
     @JsonProperty("saml")
-    SAML
+    SAML,
+
+    @Schema(description = "A transfer link, which moves one project file for the user who asked for it.")
+    @JsonProperty("link")
+    LINK
 }

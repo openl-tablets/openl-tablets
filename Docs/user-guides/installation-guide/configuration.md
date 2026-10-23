@@ -547,6 +547,25 @@ its agent uses.
 The server calls OpenL Studio back over HTTP at the local address and port a request to `/mcp` comes in through. For
 OpenL Studio that accepts only HTTPS, end TLS in front of it, at a reverse proxy or a load balancer.
 
+#### Transfer Links
+
+An AI agent moves a large or a binary project file outside its conversation: the MCP server hands it a short-lived
+link, and a script of the agent downloads or uploads the file at `/transfers/<id>` of the address of OpenL Studio, with
+no credential in the request. Single-user mode needs no links: the server hands out the addresses of the REST API.
+
+| Property               | Description                                                                              |
+|------------------------|------------------------------------------------------------------------------------------|
+| `transfer.link.ttl`    | How long a link works after it is issued, as an ISO-8601 duration. The default is `PT15M`. |
+| `transfer.max-pending` | How many links one client holds at a time, one at least; a new link ends the oldest one. The default is `20`. |
+
+```properties
+transfer.link.ttl = PT15M
+transfer.max-pending = 20
+```
+
+A reverse proxy in front of OpenL Studio passes `/transfers` as it passes `/rest`, and lets an upload be as large as
+the largest file an agent writes: the limit of the proxy on the size of a request applies to an upload through a link.
+
 ### Migration Attribution
 
 When an upgrade requires OpenL Studio to change project files in a repository, the commits are attributed to this

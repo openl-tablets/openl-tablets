@@ -16,7 +16,7 @@ on Oracle in `V17.1`, the search indexes of PostgreSQL in `V17.1` of its own), m
 - **id**, growing with every event; **time** (`eventTime`, UTC); **actor** (the login name of the user who did the
   action); **client address**;
 - **authentication** — how the actor signed in, or tried to (`AuditAuthentication`: `form`, `basic`, `token`,
-  `bearer`, `oauth2`, `saml`);
+  `bearer`, `oauth2`, `saml`, `link`);
 - **category**, **action** and **outcome** (`success`, `failure`, `denied`) — `AuditAction` names its category;
 - **target** — the kind and the name of the object the action was done to, kept whole however long it is;
 - **project** — the project the action was made on: the target of an action on a project, or the project a branch,
@@ -103,6 +103,8 @@ Security holds:
 - a personal access token (`PatAuthenticationToken`) is `token`; a bearer token, read or not
   (`BearerTokenAuthenticationToken`, `AbstractOAuth2TokenAuthenticationToken`), is `bearer`;
 - a sign-in through OpenID Connect is `oauth2`, one through SAML is `saml`;
+- a request to a transfer link (`TransferLinkAuthentication`) is `link`: it acts as the user who asked for the link
+  ([MCP File Transfer Links](mcp-file-transfer.md));
 - a user name and a password (`UsernamePasswordAuthenticationToken`) come the same way from the login form, LDAP and
   Active Directory included, and from Basic authentication, so the request tells them apart: a Basic `Authorization`
   header is `basic`, a session is `form`.

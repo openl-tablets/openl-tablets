@@ -47,6 +47,7 @@ Every path that accepts uploaded content and writes it to a project or a reposit
 | Path | Entry point |
 |---|---|
 | Files API — create, update, multipart upload | `ProjectFilesServiceImpl` |
+| Upload through a transfer link | `ProjectFilesServiceImpl`, which `TransferHandler` forwards the body to |
 | Files API — archive expanded into a folder | `FileArchiveSupport.readArchive` |
 | Project created from uploaded module files | `DesignTimeRepositoryController.createFromContent` |
 | Project created from an uploaded archive | `ZipArchiveValidator` — the archive **and** the workbooks it carries |

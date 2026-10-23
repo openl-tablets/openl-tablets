@@ -61,6 +61,18 @@ class FileUtilsTest {
     }
 
     @Test
+    void testCopyBoundedWritesIntoTheFileAndCountsTheBytes(@TempDir Path tempDir) throws IOException {
+        var file = Files.createFile(tempDir.resolve("body.tmp"));
+
+        var copied = FileUtils.copyBounded(new ByteArrayInputStream(new byte[1024]), file, 1024);
+        var thrown = assertThrows(FileUtils.ContentTooLargeException.class,
+                () -> FileUtils.copyBounded(new ByteArrayInputStream(new byte[1025]), file, 1024));
+
+        assertEquals(1024, copied);
+        assertEquals(1024, thrown.getMaxBytes());
+    }
+
+    @Test
     void testCopyDirectory(@TempDir Path tempDir) throws IOException {
         var src = tempDir.resolve("src");
         Files.writeString(Files.createDirectories(src.resolve("nested")).resolve("file.txt"), "content");

@@ -1,0 +1,6 @@
+POST /rest/transfer-links HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/json
+
+{"kind": "upload", "projectId": "${PROJECT_ID}", "path": "notes/new.txt", "size": 33, "sha256": "aff4008b35385ae994a885603f2d5b813cee1b336a5863be55c051ec8fa71ce2"}
