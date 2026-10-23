@@ -51,7 +51,6 @@ cannot corrupt a running suite.
 Most TestContainers images float on rolling tags **on purpose** — a new upstream release that breaks
 OpenL should surface in CI as early as possible, not months later at a manual version bump:
 
-- `apache/kafka-native:latest` — Kafka broker (`itest.kafka.smoke`)
 - `quay.io/keycloak/keycloak:latest` — Keycloak SSO identity provider (`itest.studio/sso`)
 - `mcr.microsoft.com/azure-sql-edge:latest`, `mysql:lts`, `postgres:alpine`,
   `gvenzl/oracle-free:slim-faststart` — RDBMS backends (`itest.studio/acl`, the `*RdbmsTest` classes)
@@ -60,8 +59,14 @@ OpenL should surface in CI as early as possible, not months later at a manual ve
 > [!Note]
 > A suite that starts failing right after an upstream image release is a real incompatibility signal, not flake. Investigate and adapt OpenL (or report upstream) — do not silence it by pinning the tag.
 
-The one **deliberately pinned** image is `openltablets/webstudio:6.0.0` in `AbstractRdbmsTest`: it is the
-fixed previous-release baseline the database-migration tests upgrade *from*, so it must not move.
+Two images are **deliberately pinned**:
+
+- `openltablets/webstudio:6.0.0` in `AbstractRdbmsTest` — the fixed previous-release baseline the
+  database-migration tests upgrade *from*, so it must not move.
+- `apache/kafka-native:<kafka.version>` — the Kafka broker (`itest.kafka.smoke`, `itest.storelogdata`,
+  `itest.tracing`) runs the same release as the `kafka-clients` library OpenL ships. The ITEST parent `pom.xml`
+  passes the root `kafka.version` property to the suites as a system property, so a `kafka-clients` bump moves
+  the broker with it.
 
 The `*RdbmsTest` classes run **only on CI** — they are gated on the `CI` environment variable (set by
 GitHub Actions, GitLab CI, and others) and therefore skip on a local build. To run one locally, set

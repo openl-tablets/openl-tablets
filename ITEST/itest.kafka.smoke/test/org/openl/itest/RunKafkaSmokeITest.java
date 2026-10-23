@@ -40,7 +40,8 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 class RunKafkaSmokeITest {
     private static HttpClient client;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer("apache/kafka-native:latest")
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
+            "apache/kafka-native:" + System.getProperty("kafka.version"))
             .withEnv("KAFKA_LISTENERS", "PLAINTEXT://:9092,BROKER://:9093,CONTROLLER://:9094");// See KAFKA-18281
 
     @BeforeAll
