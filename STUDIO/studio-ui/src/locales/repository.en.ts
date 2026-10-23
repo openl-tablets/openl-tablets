@@ -516,6 +516,9 @@ i18next.addResourceBundle('en', 'repository', {
             compile_cancelled: 'Compiling "{{module}}" was stopped. What was compiled is shown; Refresh compiles '
                 + 'it again.',
             compile_failed: 'The module could not be compiled',
+            changed_on_disk: 'The files of the project were changed outside OpenL Studio',
+            changed_on_disk_hint: 'What is shown is what the files held before. Refresh to read them again; '
+                + 'a change not yet saved here is lost.',
             project_closed: 'Open the project to work with its modules.',
             pick_a_table: 'Pick a table to see it',
             table_not_found: 'This module has no such table',

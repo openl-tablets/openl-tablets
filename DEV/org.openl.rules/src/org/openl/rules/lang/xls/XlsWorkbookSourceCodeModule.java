@@ -160,6 +160,22 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     /**
+     * Whether another program changed the file since the workbook was read from it, or last saved.
+     *
+     * <p>The file is compared by its size and its modification time, which costs no read of the file. A file deleted
+     * since is changed; a workbook that had no file never is.
+     *
+     * <p>A workbook read from another file than the one compiled is changed too, such as a workbook read again from
+     * a file another program changed keeping its size and time.
+     */
+    public boolean isChangedOnDisk() {
+        var version = fileVersion.get();
+        return version.stamp() != null
+                && (READ_FROM_ANOTHER_FILE.equals(version.digest())
+                        || !version.stamp().equals(stampOf(fileOf(getFileUri()))));
+    }
+
+    /**
      * Refuses to save over a file another program changed since the workbook was read from it, or last saved.
      *
      * <p>The file is compared by its size and its modification time, and by its content too when asked for and the

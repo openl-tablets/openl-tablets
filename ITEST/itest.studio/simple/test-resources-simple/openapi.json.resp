@@ -7967,6 +7967,7 @@ Content-Type: application/json
         ]
       },
       "get": {
+        "description": "***",
         "operationId": "***",
         "parameters": [
           {
@@ -30725,6 +30726,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "changedOnDisk": {
+            "type": "boolean",
+            "description": "***"
+          },
           "compilation": {
             "$ref": "#/components/schemas/CompilationDetails"
           },
@@ -30767,6 +30772,10 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
+          "changedOnDisk": {
+            "type": "boolean",
+            "description": "***"
+          },
           "compilation": {
             "$ref": "#/components/schemas/CompilationDetails_Detailed"
           },
@@ -30807,6 +30816,10 @@ Content-Type: application/json
         "properties": {
           "branch": {
             "type": "string",
+            "description": "***"
+          },
+          "changedOnDisk": {
+            "type": "boolean",
             "description": "***"
           },
           "compilation": {

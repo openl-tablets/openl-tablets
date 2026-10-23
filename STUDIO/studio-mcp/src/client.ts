@@ -12,6 +12,19 @@ import { trimChar } from "./text.js";
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /**
+ * The query of the status of a project in short: the project with its status, kept to the compile state and the
+ * change on disk. Studio builds no field `fields` leaves out, so neither the projects using this one nor the messages
+ * of the compilation are looked for.
+ */
+export const STATUS_SUMMARY_QUERY = {
+  include: ["status"],
+  fields: "compileStatus(compileState,changedOnDisk)",
+} as const;
+
+/** What the status in short tells: nothing at all for a project Studio answers with no status. */
+export type ProjectStatusSummary = Partial<Pick<Types.ProjectStatusView, "compileState" | "changedOnDisk">>;
+
+/**
  * Repository identifier for local (non-remote) repositories.
  * Projects in repository "local" are stored only on the server; status change (open/save/close) is not supported by
  * the API.
@@ -518,6 +531,28 @@ export class OpenLClient {
       params: { offset: 0, size: 1 },
       signal: options.signal,
       timeout: options.timeoutMs,
+    });
+  }
+
+  /**
+   * The status of a project in short: the compile state, and whether its files changed on disk since Studio compiled
+   * them. Studio builds no field the query leaves out, so this is cheap enough to ask before every call.
+   */
+  async getProjectStatusSummary(projectId: string, signal?: AbortSignal): Promise<ProjectStatusSummary> {
+    const project = (await this.http.get<Types.ProjectViewModel>(projectPath(projectId), {
+      params: STATUS_SUMMARY_QUERY,
+      signal,
+    })).data;
+    return project.compileStatus ?? {};
+  }
+
+  /**
+   * Compile a project again from its files, dropping what Studio compiled before. Studio compiles every module of
+   * the project whichever module is named, and answers at once: the compilation goes on in the background.
+   */
+  async recompileProject(projectId: string, moduleName: string): Promise<void> {
+    await this.http.post(`${projectPath(projectId)}/modules/${encodeURIComponent(moduleName)}/compile`, undefined, {
+      params: { reset: true },
     });
   }
 

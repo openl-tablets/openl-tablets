@@ -1,0 +1,177 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "Hello",
+  "pos": "B3:E11",
+  "source": [
+    [
+      {
+        "cell": "B3",
+        "value": "Rules String Hello (Integer hour)",
+        "comment": "***",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Rule",
+        "comment": "***"
+      },
+      {
+        "cell": "C4",
+        "value": "C1",
+        "comment": "***"
+      },
+      {
+        "cell": "D4",
+        "value": "C2"
+      },
+      {
+        "cell": "E4",
+        "value": "RET1",
+        "comment": "***"
+      }
+    ],
+    [
+      {
+        "cell": "B5"
+      },
+      {
+        "cell": "C5",
+        "value": "min <= hour",
+        "comment": "***"
+      },
+      {
+        "cell": "D5",
+        "value": "hour <= max"
+      },
+      {
+        "cell": "E5",
+        "value": "greeting",
+        "comment": "***"
+      }
+    ],
+    [
+      {
+        "cell": "B6"
+      },
+      {
+        "cell": "C6",
+        "value": "Integer min"
+      },
+      {
+        "cell": "D6",
+        "value": "Integer max"
+      },
+      {
+        "cell": "E6",
+        "value": "String greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Rule"
+      },
+      {
+        "cell": "C7",
+        "value": "From"
+      },
+      {
+        "cell": "D7",
+        "value": "To"
+      },
+      {
+        "cell": "E7",
+        "value": "Greeting"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "R10"
+      },
+      {
+        "cell": "C8",
+        "value": 0
+      },
+      {
+        "cell": "D8",
+        "value": 11
+      },
+      {
+        "cell": "E8",
+        "value": "Good Morning"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "R20"
+      },
+      {
+        "cell": "C9",
+        "value": 12
+      },
+      {
+        "cell": "D9",
+        "value": 17
+      },
+      {
+        "cell": "E9",
+        "value": "Good Afternoon"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "R30"
+      },
+      {
+        "cell": "C10",
+        "value": 18
+      },
+      {
+        "cell": "D10",
+        "value": 21
+      },
+      {
+        "cell": "E10",
+        "value": "Good Evening"
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": "R40"
+      },
+      {
+        "cell": "C11",
+        "value": 22
+      },
+      {
+        "cell": "D11",
+        "value": 23
+      },
+      {
+        "cell": "E11",
+        "value": "Good Night, from Excel"
+      }
+    ]
+  ],
+  "headerHeight": 4
+}

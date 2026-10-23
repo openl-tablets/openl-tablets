@@ -125,6 +125,11 @@ export interface ProjectStatusUpdate {
      * be compiled.
      */
     manualCompileNeeded?: boolean
+    /**
+     * Set when another program, such as Excel or an IDE, changed a file the open module is compiled from since the
+     * compilation read it: what the screen shows of the file is what it held before, until the reader refreshes.
+     */
+    changedOnDisk?: boolean
 }
 
 /** The one subscription handle shape — an alias of the shared topic multiplexer's. */

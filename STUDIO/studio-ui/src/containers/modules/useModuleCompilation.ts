@@ -26,6 +26,11 @@ interface ModuleCompilation {
      * that write.
      */
     verifyNeeded: boolean
+    /**
+     * Set when another program changed a file the module is compiled from since it was read. Nothing is read again
+     * by itself: the reader may be in the middle of an edit, and it is the reader who refreshes.
+     */
+    changedOnDisk: boolean
     /** The status behind all of the above, so the screen can phrase what it says about it. */
     status: ProjectStatusUpdate | null
 }
@@ -144,6 +149,7 @@ export const useModuleCompilation = ({
         tests: counted.current,
         state: status?.compileState ?? 'idle',
         verifyNeeded: status?.manualCompileNeeded === true,
+        changedOnDisk: status?.changedOnDisk === true,
         status,
     }
 }

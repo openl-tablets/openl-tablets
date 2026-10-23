@@ -526,10 +526,19 @@ running OpenL Studio on a developer's machine sets it up, the projects of the fo
 -   OpenL Studio never writes over a file another program changed after OpenL Studio read it. Such a write is
     refused and the file stays as the other program left it; the module is read again, so repeat the edit on what
     the file holds now.
+-   When another program changes a file of the module open in the editor, adds a workbook to the modules of the
+    project or changes `rules.xml`, the editor shows the notification **The files of the project were changed
+    outside OpenL Studio**. It stays until it is closed, the module is read again or the editor is left. The editor
+    keeps what it shows, so an edit in progress is not lost; click **Refresh** in the notification to read the files
+    again. A change not yet saved in the editor is lost on refresh.
 -   The project is named by the `<name>` of its `rules.xml`, whatever its folder is called, and keeps its tags in
     `tags.properties` of the folder.
 -   Earlier versions of a module are kept as when a copy is edited, so an edit is rolled back from the local history
     of the module.
+
+![A notification that the files of the project were changed outside OpenL Studio, with the Refresh button](images/module-changed-on-disk.png "A file of the module changed outside OpenL Studio")
+
+*A file of the module changed outside OpenL Studio*
 
 A project opened before OpenL Studio ran this way stays a copy in the workspace while it has unsaved changes, so that
 they can be saved; once it has none, the project is edited in place.

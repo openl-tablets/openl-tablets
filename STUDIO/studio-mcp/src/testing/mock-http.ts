@@ -4,7 +4,9 @@
  * `onGet(url, { params })` matches a read by its path — a string compared without its leading slash, or a regular
  * expression — and its query parameters; `onPost(url, body)` and the other writes match the body sent, parsed when it
  * is JSON. A handler registered again for the same request replaces the earlier one, unless it answers once. A request
- * no handler matches is answered with 404. `history` keeps every request, by method.
+ * no handler matches is answered with 404, but for the short status of a project, which says the project is current.
+ * `history` keeps every request, by method, but that answer. The short status is a read of the project itself, so
+ * only a handler naming its query answers it.
  */
 import { isDeepStrictEqual } from "node:util";
 import {
@@ -17,6 +19,7 @@ import {
   type HttpRequest,
   parseJsonOrText,
 } from "../http.js";
+import { STATUS_SUMMARY_QUERY } from "../client.js";
 
 type ReplyHeaders = Record<string, string>;
 type Reply = [number, unknown?, ReplyHeaders?];
@@ -71,9 +74,19 @@ function requestMatches(handler: Handler, request: HttpRequest): boolean {
   if (handler.method !== request.method) return false;
   if (!urlMatches(handler.url, request)) return false;
   if (request.method === "get") {
-    return valueMatches(request.params, (handler.match as { params?: unknown } | undefined)?.params);
+    const params = (handler.match as { params?: unknown } | undefined)?.params;
+    // The short status reads the project itself: only a handler naming its query answers it, not one of the project
+    if (params === undefined && isShortStatus(request)) return false;
+    return valueMatches(request.params, params);
   }
   return valueMatches(bodyOf(request), handler.match);
+}
+
+/** The short status of a project: `GET /projects/:id` with the {@link STATUS_SUMMARY_QUERY}. */
+function isShortStatus(request: HttpRequest): boolean {
+  return request.method === "get"
+    && /^\/?projects\/[^/]+$/.test(request.url)
+    && valueMatches(request.params, STATUS_SUMMARY_QUERY);
 }
 
 function sameHandler(a: Handler, b: Handler): boolean {
@@ -188,11 +201,20 @@ export class MockHttp {
   }
 
   private async handle(request: HttpRequest): Promise<HttpRawResponse> {
+    const index = this.handlers.findIndex((handler) => requestMatches(handler, request));
+    if (index < 0 && isShortStatus(request)) {
+      // A project no test said anything of is current. The tools that work with what Studio compiled ask it before
+      // each call; the answer is left out of the history, so that a test counts the requests the tool itself makes.
+      return {
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: encode({ compileStatus: { compileState: "ok" } }),
+      };
+    }
     this.history[request.method].push(request);
     if (request.signal?.aborted) {
       throw new HttpError("canceled", request, "canceled");
     }
-    const index = this.handlers.findIndex((handler) => requestMatches(handler, request));
     if (index < 0) {
       return { status: 404, headers: {}, body: new ArrayBuffer(0) };
     }

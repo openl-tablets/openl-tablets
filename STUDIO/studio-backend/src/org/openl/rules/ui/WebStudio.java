@@ -899,6 +899,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     currentProject = null;
                     currentModule = null;
                     model.clearModuleInfo();
+                } else if (project.isInPlace()) {
+                    // Another program may have written a file of the project edited in place, added one or taken
+                    // one away: the screens following it are told of every change, and the reader refreshes it
+                    // when they are ready. A workbook written shows the change before the event about it arrives,
+                    // so a change told already cannot be told from a new one. A copy in the workspace is not in the
+                    // folder the event is about.
+                    model.checkProjectFiles();
+                    if (model.isChangedOnDisk()) {
+                        model.publishStatusChanged();
+                    }
                 }
             }
         });

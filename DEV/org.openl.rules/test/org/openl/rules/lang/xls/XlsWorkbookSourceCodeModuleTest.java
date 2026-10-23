@@ -160,6 +160,21 @@ class XlsWorkbookSourceCodeModuleTest {
         assertArrayEquals(content, Files.readAllBytes(file));
     }
 
+    /** A change of the file by another program shows, and a save of the workbook itself does not. */
+    @Test
+    void a_workbook_tells_that_its_file_changed_on_disk() throws IOException {
+        var workbook = written();
+        assertFalse(workbook.isChangedOnDisk(), "a workbook just read stands as its file does");
+
+        workbook.save();
+        assertFalse(workbook.isChangedOnDisk(), "what the workbook saved itself is no change");
+
+        Files.write(workbook.getSourceFile().toPath(), new byte[]{1, 2, 3});
+        assertTrue(workbook.isChangedOnDisk());
+        Files.delete(workbook.getSourceFile().toPath());
+        assertTrue(workbook.isChangedOnDisk(), "a file deleted since is changed");
+    }
+
     /**
      * A workbook unloaded and read again from a file another program changed keeping its size and time is not saved:
      * the tables compiled before stand for the content read first.
@@ -180,7 +195,9 @@ class XlsWorkbookSourceCodeModuleTest {
             System.gc();
         }
         assumeTrue(first.get() == null, "the workbook is unloaded");
+        assertFalse(workbook.isChangedOnDisk(), "the size and the time tell nothing yet");
         assertNotNull(workbook.getWorkbook());
+        assertTrue(workbook.isChangedOnDisk(), "the content read again tells the change");
 
         assertThrows(WorkbookChangedOutsideException.class, workbook::save);
         assertArrayEquals(content, Files.readAllBytes(file), "the change of the other program stays");
@@ -295,6 +312,7 @@ class XlsWorkbookSourceCodeModuleTest {
         var workbook = new XlsWorkbookSourceCodeModule(source);
 
         assertEquals(TestWorkbooks.CELL, workbook.getWorkbook().getSheetAt(0).getRow(0).getCell(0).getStringCellValue());
+        assertFalse(workbook.isChangedOnDisk());
     }
 
     /** A workbook of one cell, on a file of its own, read through one snapshot of it as OpenL reads it. */

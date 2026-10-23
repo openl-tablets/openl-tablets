@@ -6,7 +6,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
 
@@ -70,6 +72,64 @@ class ProjectModelWrittenSinceCompiledTest {
         assertTrue(model.isWrittenSinceCompiled());
     }
 
+    @Test
+    void a_file_changed_by_another_program_shows_until_its_module_is_compiled_again(@TempDir Path dir)
+            throws Exception {
+        TableTestProjects.writeProject(dir, "Rules", "Rules", HELLO);
+        var module = moduleOf(dir, "Rules");
+        var model = opened(module, true);
+        saveWorkbookOf(model);
+        assertFalse(model.isChangedOnDisk(), "a save of the session itself is no change");
+
+        // Another program writes the workbook: a project of its own is written over it.
+        var other = Files.createDirectory(dir.resolve("other"));
+        TableTestProjects.writeProject(other, "Rules", "Rules", BYE);
+        Files.copy(other.resolve("Rules.xlsx"), dir.resolve("Rules.xlsx"), StandardCopyOption.REPLACE_EXISTING);
+
+        assertTrue(model.isChangedOnDisk());
+        model.reset(ReloadType.RELOAD, module);
+        awaitCompiled(model);
+        assertFalse(model.isChangedOnDisk(), "the module compiled again reads the file as the other program left it");
+    }
+
+    @Test
+    void a_workbook_added_to_the_project_shows_until_the_project_is_compiled_again(@TempDir Path dir)
+            throws Exception {
+        TableTestProjects.writeProject(dir, "Rules", "Rules", HELLO);
+        var module = moduleOf(dir, "Rules");
+        var model = opened(module, true);
+        model.checkProjectFiles();
+        assertFalse(model.isChangedOnDisk(), "the files are the ones compiled");
+
+        // Another program puts a workbook into the folder the modules are found in.
+        TableTestProjects.writeProject(dir, "Other", "Other", BYE);
+        assertFalse(model.isChangedOnDisk(), "nothing is noted until the repository tells of a change");
+        model.checkProjectFiles();
+
+        assertTrue(model.isChangedOnDisk(), "the project declares a module that was not compiled");
+        model.reset(ReloadType.RELOAD, moduleOf(dir, "Rules"));
+        awaitCompiled(model);
+        assertFalse(model.isChangedOnDisk(), "the project compiled again holds the new module");
+    }
+
+    @Test
+    void a_changed_or_broken_descriptor_shows(@TempDir Path dir) throws Exception {
+        TableTestProjects.writeProject(dir, "Rules", "Rules", HELLO);
+        var model = opened(moduleOf(dir, "Rules"), true);
+
+        Files.writeString(dir.resolve("rules.xml"), """
+                <project>
+                    <name>Renamed</name>
+                </project>
+                """);
+        model.checkProjectFiles();
+        assertTrue(model.isChangedOnDisk(), "a project descriptor written since is a change");
+
+        Files.writeString(dir.resolve("rules.xml"), "<project>");
+        model.checkProjectFiles();
+        assertTrue(model.isChangedOnDisk(), "a descriptor that cannot be read is a change too");
+    }
+
     private static Module moduleOf(Path dir, String name) throws Exception {
         return ProjectResolver.getInstance()
                 .resolve(dir)
@@ -83,6 +143,7 @@ class ProjectModelWrittenSinceCompiledTest {
     private static ProjectModel opened(Module module, boolean autoCompile) throws Exception {
         var studio = mock(WebStudio.class);
         when(studio.isAutoCompile()).thenReturn(autoCompile);
+        when(studio.getProjectResolver()).thenReturn(ProjectResolver.getInstance());
         var model = new ProjectModel(studio);
         model.setModuleInfo(module);
         awaitCompiled(model);

@@ -164,6 +164,12 @@ public class ProjectModel {
     private volatile Module moduleInfo;
     private long moduleLastModified;
 
+    /** The files of the project open as it was compiled, or nothing when no project is open. */
+    private final AtomicReference<@Nullable ProjectFiles> compiledFiles = new AtomicReference<>();
+
+    /** Whether the files of the project open changed since it was compiled, as last noted. */
+    private volatile boolean projectFilesChanged;
+
     private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     @Getter
     private volatile WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
@@ -1092,6 +1098,8 @@ public class ProjectModel {
      */
     public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
+        compiledFiles.set(null);
+        projectFilesChanged = false;
 
         clearModuleResources(); // prevent memory leak
 
@@ -1210,6 +1218,12 @@ public class ProjectModel {
             this.moduleInfo = findReloadedModule(projectFolder, moduleInfo);
         } else {
             this.moduleInfo = moduleInfo;
+        }
+        // Opening another module of a project compiled already compiles nothing of the project again.
+        var compiled = compiledFiles.get();
+        if (reloadType != ReloadType.NO || compiled == null || !compiled.folder().equals(projectFolder)) {
+            compiledFiles.set(ProjectFiles.of(moduleInfo.getProject()));
+            projectFilesChanged = false;
         }
 
         compilationCancelled = false;
@@ -1570,6 +1584,76 @@ public class ProjectModel {
                 .map(WorkbookSyntaxNode::getWorkbookSourceCodeModule)
                 .filter(Objects::nonNull)
                 .anyMatch(XlsWorkbookSourceCodeModule::isSavedSinceRead);
+    }
+
+    /**
+     * Whether another program changed the files of the project open since the session compiled it.
+     *
+     * <p>A workbook compiled that changed counts, and so does a change of the files of the project that
+     * {@link #checkProjectFiles()} noted: a workbook added or taken away, or a changed descriptor. What the session
+     * shows is what the files held before: the reader refreshes the project to see the change, as nothing compiles it
+     * again by itself. A save of the session itself is no change. Every module compiled for the project open is
+     * asked, the modules of the projects it depends on included.
+     *
+     * <p>Answered without taking the lock of the model, from the size and the modification time of each workbook, and
+     * from what a workbook noted when it was read again.
+     */
+    public boolean isChangedOnDisk() {
+        return projectFilesChanged || getCompiledModules().stream()
+                .map(XlsModuleSyntaxNode::getWorkbookSyntaxNodes)
+                .filter(Objects::nonNull)
+                .flatMap(Arrays::stream)
+                .map(WorkbookSyntaxNode::getWorkbookSourceCodeModule)
+                .filter(Objects::nonNull)
+                .anyMatch(XlsWorkbookSourceCodeModule::isChangedOnDisk);
+    }
+
+    /**
+     * Notes whether the files of the open project changed since it was compiled.
+     *
+     * <p>A workbook added to the modules of the project, or one taken away, and a changed project descriptor are
+     * changes: the modules compiled are not the modules the project declares now. The descriptor is read again from
+     * the project folder, which costs a read of the folder, so this runs when the repository tells that its files
+     * changed, and {@link #isChangedOnDisk()} answers what it noted.
+     *
+     * <p>A descriptor that cannot be read any more is a change too: compiling the project again tells why.
+     */
+    public void checkProjectFiles() {
+        var compiled = compiledFiles.get();
+        if (compiled == null) {
+            return;
+        }
+        ProjectFiles current;
+        try {
+            current = ProjectFiles.of(studio.getProjectResolver().resolve(compiled.folder()));
+        } catch (ProjectResolvingException | RuntimeException e) {
+            log.debug("The project in '{}' cannot be read again.", compiled.folder(), e);
+            current = null;
+        }
+        projectFilesChanged = !compiled.equals(current);
+    }
+
+    /**
+     * The files of a project its compilation is read from.
+     *
+     * @param folder     the project folder
+     * @param descriptor the size and the modification time of the project descriptor, or {@code null} without one
+     * @param workbooks  the workbooks of the modules of the project
+     */
+    private record ProjectFiles(Path folder, @Nullable String descriptor, Set<Path> workbooks) {
+
+        static ProjectFiles of(ProjectDescriptor project) {
+            var folder = project.getProjectFolder();
+            var descriptor = folder.resolve(ProjectDescriptor.FILE_NAME).toFile();
+            var stamp = descriptor.isFile() ? descriptor.length() + ":" + descriptor.lastModified() : null;
+            var workbooks = project.getModules()
+                    .stream()
+                    .map(Module::getRulesPath)
+                    .filter(Objects::nonNull)
+                    .map(path -> path.toAbsolutePath().normalize())
+                    .collect(Collectors.toUnmodifiableSet());
+            return new ProjectFiles(folder, stamp, workbooks);
+        }
     }
 
     /** Whether anything can be run against what was compiled, or the module failed before it had a class. */

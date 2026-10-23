@@ -29,6 +29,7 @@ import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.ExceptionMappingService;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.messaging.SocketRunExecutionProgressListenerFactory;
@@ -124,7 +125,8 @@ class ProjectObjectMapperConfigurationErrorTest {
                 mock(ProjectMetadataService.class),
                 mock(ProjectMigrationService.class),
                 mock(ProjectRevisionService.class),
-                mock(TableInputService.class));
+                mock(TableInputService.class),
+                new FieldProjectionSupport());
     }
 
     @Test

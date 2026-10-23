@@ -30,6 +30,7 @@ import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -48,6 +49,8 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.projection.FieldNode;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
@@ -87,19 +90,25 @@ class ProjectsControllerTest {
     /** Stands in for the generator Spring hands the controller through its lookup methods. */
     private static final SchemaGenerator SCHEMA_GENERATOR = mock(SchemaGenerator.class);
 
+    /** The service is told the includes and the fields the client asked for, so it builds no field left out. */
     @Test
-    void getProjectPassesIncludesToService() {
+    void getProjectPassesIncludesAndFieldsToService() {
         var projectService = mock(WorkspaceProjectService.class);
         var controller = controller(projectService);
         var project = mock(RulesProject.class);
         var expected = mock(ProjectViewModel.class);
         var includes = List.of(ProjectInclude.STATUS, ProjectInclude.DESCRIPTOR);
-        when(projectService.getProject(project, includes)).thenReturn(expected);
+        var request = new MockHttpServletRequest();
+        request.setParameter("fields", "compileStatus(compileState)");
+        when(projectService.getProject(eq(project), eq(includes), any())).thenReturn(expected);
 
-        var result = controller.getProject(project, includes);
+        var result = controller.getProject(project, includes, request);
 
         assertEquals(expected, result);
-        verify(projectService).getProject(project, includes);
+        var selection = ArgumentCaptor.forClass(FieldNode.class);
+        verify(projectService).getProject(eq(project), eq(includes), selection.capture());
+        assertTrue(selection.getValue().selects("compileStatus", "compileState"));
+        assertFalse(selection.getValue().selects("usedBy"));
     }
 
     @Test
@@ -450,7 +459,8 @@ class ProjectsControllerTest {
                 mock(ProjectMetadataService.class),
                 mock(ProjectMigrationService.class),
                 mock(ProjectRevisionService.class),
-                mock(TableInputService.class)) {
+                mock(TableInputService.class),
+                new FieldProjectionSupport()) {
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;
@@ -512,7 +522,8 @@ class ProjectsControllerTest {
                 metadataService,
                 mock(ProjectMigrationService.class),
                 mock(ProjectRevisionService.class),
-                tableInputService) {
+                tableInputService,
+                new FieldProjectionSupport()) {
             @Override
             public WebStudio getWebStudio() {
                 return webStudio;

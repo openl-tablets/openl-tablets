@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -64,6 +65,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.message.OpenLErrorMessage;
@@ -123,6 +125,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.exception.PreconditionFailedException;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
@@ -130,6 +133,7 @@ import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.project.status.ProjectStatusViewModel;
 import org.openl.studio.projects.model.tables.CopyTableRequest;
 import org.openl.studio.projects.model.tables.CreateNewTableRequest;
 import org.openl.studio.projects.model.tables.EditableTableView;
@@ -347,6 +351,36 @@ class WorkspaceProjectServiceTest {
                 .when(repository)
                 .createRepositoryBranch("protected/rates", "main");
         assertThrows(ForbiddenException.class, () -> service.createBranch(project, model));
+    }
+
+    /** A field the answer leaves out is not built: the compile state alone skips the costly parts. */
+    @Test
+    void get_project_builds_only_the_fields_the_selection_keeps() throws Exception {
+        var project = projectWithSimpleExcelModule();
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                workspaceFor(project));
+        var dependencyResolver = (ProjectDependencyResolver) ReflectionTestUtils.getField(service,
+                "projectDependencyResolver");
+        var statusMapper = (ProjectStatusMapper) ReflectionTestUtils.getField(service, "projectStatusMapper");
+        var summary = ProjectStatusViewModel.builder().changedOnDisk(Boolean.TRUE).build();
+        when(statusMapper.mapSummary(project)).thenReturn(summary);
+        var includes = List.of(ProjectInclude.STATUS);
+
+        var result = service.getProject(project, includes,
+                new FieldProjectionSupport().parseSelection("compileStatus(compileState,changedOnDisk)"));
+
+        assertEquals(summary, result.compileStatus);
+        verify(dependencyResolver, never()).getDependsOnProject(project);
+        verify(statusMapper, never()).map(project);
+
+        service.getProject(project, includes,
+                new FieldProjectionSupport().parseSelection("usedBy,compileStatus(compilation(messages(items)))"));
+        verify(dependencyResolver).getDependsOnProject(project);
+        verify(statusMapper).map(project);
+
+        service.getProject(project, includes);
+        verify(dependencyResolver, times(2)).getDependsOnProject(project);
+        verify(statusMapper, times(2)).map(project);
     }
 
     @Test
@@ -1508,6 +1542,10 @@ class WorkspaceProjectServiceTest {
         when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
         var currentProject = mock(RulesProject.class);
         when(webStudio.getCurrentProject()).thenReturn(currentProject);
+        var module = new Module();
+        module.setName("Pricing");
+        when(webStudio.getCurrentModule()).thenReturn(module);
+        doNothing().when(service).compileModule(currentProject, "Pricing", false);
         stubResolvedSource(service, project, mock(IOpenLTable.class));
         var properties = List.of(new TableProperty("state", "AL"));
         when(tablePropertiesService.write(any(), eq(properties)))
@@ -1518,8 +1556,10 @@ class WorkspaceProjectServiceTest {
 
         // The refused write stopped part-way, leaving what it had changed in the workbook the session holds.
         // Every request after it would read that, so the module is built from the disk again — now, whatever
-        // the automatic-compilation setting says.
+        // the automatic-compilation setting says — and compiled at once: until then the screens would be told
+        // nothing about it, a change another program makes included.
         verify(webStudio).rebuildCurrentModule();
+        verify(service).compileModule(currentProject, "Pricing", false);
     }
 
     /** A write based on a table read before another change of it would overwrite that change. */
@@ -1535,6 +1575,8 @@ class WorkspaceProjectServiceTest {
 
         assertEquals("openl.error.412.table.changed.since.read.message", refused.getErrorCode());
         verify(tablePropertiesService, never()).write(any(), any());
+        // Nothing was written, so the module the session holds stands as it is
+        verify(service, never()).compileModule(any(), any(), anyBoolean());
     }
 
     @Test

@@ -6,6 +6,7 @@
 import { describe, it, expect } from "vitest";
 import { executeTool, getAllTools } from "./index.js";
 import type { ProjectStatusView } from "../types.js";
+import { STATUS_SUMMARY_QUERY } from "../client.js";
 import { bodyOf } from "../testing/mock-http.js";
 import { mockRepositories, pageOf, projectView } from "../testing/openl-api-mocks.js";
 import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
@@ -148,6 +149,30 @@ describe("project status", () => {
     // The default path above starts compilation, so MCP clients must not be
     // told that the tool is unconditionally read-only.
     expect(getAllTools().find((tool) => tool.name === "project_status")?.annotations?.readOnlyHint).toBe(false);
+  });
+
+  it("compiles the project again from files another program changed, with a note to read its tables again", async () => {
+    harness.mockHttp
+      .onGet(projectPath)
+      .replyOnce(200, withStatus({ ...compiled("ok", [], 34), changedOnDisk: true }))
+      .onGet(projectPath)
+      .replyOnce(200, withStatus(compiled("ok", [], 35)));
+    harness.mockHttp
+      .onGet(projectPath, { params: STATUS_SUMMARY_QUERY })
+      .replyOnce(200, withStatus({ compileState: "ok", changedOnDisk: true }))
+      .onGet(projectPath, { params: STATUS_SUMMARY_QUERY })
+      .replyOnce(200, withStatus({ compileState: "compiling" }))
+      .onGet(projectPath, { params: STATUS_SUMMARY_QUERY })
+      .reply(200, withStatus({ compileState: "ok" }));
+    harness.mockHttp.onGet(`${projectPath}/modules`).reply(200, [{ name: "Main Rules", path: "rules/Main.xlsx" }]);
+    harness.mockHttp.onPost(`${projectPath}/modules/Main%20Rules/compile`).reply((config) => [config.params?.reset ? 202 : 400]);
+
+    const response = dataOf(await executeTool("project_status", { projectId, response_format: "json" }, harness.client));
+
+    expect(harness.mockHttp.history.post).toHaveLength(1);
+    expect(response.compileState).toBe("ok");
+    expect(response.note).toContain("Read the tables again");
+    expect(response.refreshed).toBeUndefined();
   });
 
   it("reports a compilation already running as compiling, with a note to call again", async () => {
