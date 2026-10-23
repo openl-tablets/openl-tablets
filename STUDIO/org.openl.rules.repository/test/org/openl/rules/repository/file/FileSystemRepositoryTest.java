@@ -16,9 +16,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -31,6 +33,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.FileLockedException;
+import org.openl.util.FileReplacement;
 import org.openl.util.IOUtils;
 
 class FileSystemRepositoryTest {
@@ -40,7 +43,8 @@ class FileSystemRepositoryTest {
 
     /**
      * A file the file system refuses to change is reported by its name, and stays as it is. Its folder is made
-     * read-only here: on Windows a file Excel holds open is refused the same way.
+     * read-only here: on Windows a file Excel holds open is refused the same way. A file of such a folder is still
+     * written or copied over itself, as no other file can take its place.
      */
     @Test
     void aFileTheFileSystemRefusesToChangeIsReportedAsLocked() throws IOException {
@@ -48,23 +52,78 @@ class FileSystemRepositoryTest {
         repo.setRoot(tmpDir);
         repo.initialize();
         assertSave(repo, "rules/Bank Rating.xlsx", "as Excel holds it");
+        assertSave(repo, "rules/Rates.xlsx", "rates");
         var folder = tmpDir.resolve("rules").toFile();
         assertTrue(folder.setWritable(false));
-        try {
+        try (var deletion = new FileItem(fileData("rules/Bank Rating.xlsx"), null)) {
             // An administrator changes a read-only folder all the same: there is nothing to refuse then.
             assumeFalse(Files.isWritable(folder.toPath()));
             var file = new FileData();
             file.setName("rules/Bank Rating.xlsx");
 
-            var written = assertThrows(FileLockedException.class, () -> repo.save(file,
-                    new ByteArrayInputStream("edited".getBytes(StandardCharsets.UTF_8))));
+            assertSave(repo, "rules/Bank Rating.xlsx", "edited");
             var deleted = assertThrows(FileLockedException.class, () -> repo.delete(file));
+            var rates = new FileData();
+            rates.setName("rules/Rates.xlsx");
+            repo.copyHistory("rules/Bank Rating.xlsx", rates, null);
+            var rules = new FileData();
+            rules.setName("rules");
+            var changes = List.of(deletion);
+            var deletedWithFolder = assertThrows(FileLockedException.class,
+                    () -> repo.save(rules, changes, ChangesetType.DIFF));
 
-            assertEquals("Bank Rating.xlsx", written.getFileName());
             assertEquals("Bank Rating.xlsx", deleted.getFileName());
-            assertRead(repo, "rules/Bank Rating.xlsx", "as Excel holds it");
+            assertEquals("Bank Rating.xlsx", deletedWithFolder.getFileName());
+            assertRead(repo, "rules/Bank Rating.xlsx", "edited");
+            assertRead(repo, "rules/Rates.xlsx", "edited");
         } finally {
             assertTrue(folder.setWritable(true));
+        }
+    }
+
+    /**
+     * A file is written or copied whole: nothing of the write is left beside it, and a read-only file is not
+     * replaced. A copy keeps the time its source was modified.
+     */
+    @Test
+    void aFileIsWrittenWholeAndAReadOnlyOneIsReportedAsLocked() throws IOException {
+        var repo = new FileSystemRepository();
+        repo.setRoot(tmpDir);
+        repo.initialize();
+        assertSave(repo, "rules/Rates.xlsx", "first");
+        assertSave(repo, "rules/Bank Rating.xlsx", "copied");
+        var source = tmpDir.resolve("rules/Bank Rating.xlsx");
+        Files.setLastModifiedTime(source, FileTime.fromMillis(1_000_000_000_000L));
+        var copy = new FileData();
+        copy.setName("rules/Rates.xlsx");
+        repo.copyHistory("rules/Bank Rating.xlsx", copy, null);
+        assertRead(repo, "rules/Rates.xlsx", "copied");
+        assertEquals(Files.getLastModifiedTime(source), Files.getLastModifiedTime(tmpDir.resolve("rules/Rates.xlsx")));
+        assertSave(repo, "rules/Rates.xlsx", "second");
+        try (var files = Files.list(tmpDir.resolve("rules"))) {
+            assertEquals(List.of(source, tmpDir.resolve("rules/Rates.xlsx")), files.sorted().toList());
+        }
+        // One left behind by a write that stopped is no file of the project.
+        Files.writeString(tmpDir.resolve("rules/.Rates.xlsx" + FileReplacement.TEMPORARY_SUFFIX), "half");
+        assertEquals(List.of("rules/Bank Rating.xlsx", "rules/Rates.xlsx"),
+                repo.list("").stream().map(FileData::getName).sorted().toList());
+
+        var file = tmpDir.resolve("rules/Rates.xlsx").toFile();
+        assertTrue(file.setWritable(false));
+        try (var third = new ByteArrayInputStream("third".getBytes(StandardCharsets.UTF_8))) {
+            assumeFalse(file.canWrite());
+            var data = new FileData();
+            data.setName("rules/Rates.xlsx");
+
+            var refused = assertThrows(FileLockedException.class, () -> repo.save(data, third));
+            var copied = assertThrows(FileLockedException.class,
+                    () -> repo.copyHistory("rules/Bank Rating.xlsx", data, null));
+
+            assertEquals("Rates.xlsx", refused.getFileName());
+            assertEquals("Rates.xlsx", copied.getFileName());
+            assertRead(repo, "rules/Rates.xlsx", "second");
+        } finally {
+            assertTrue(file.setWritable(true));
         }
     }
 
@@ -190,6 +249,12 @@ class FileSystemRepositoryTest {
     private void assertNoRead(Repository repo, String name) throws IOException {
         var result = repo.read(name);
         assertNull(result, "Null value should be returned for the absent file");
+    }
+
+    private static FileData fileData(String name) {
+        var data = new FileData();
+        data.setName(name);
+        return data;
     }
 
     private void assertRead(Repository repo, String name, String value) throws IOException {
