@@ -367,40 +367,111 @@ describe("project branch and merge handlers", () => {
     });
   });
 
-  it("resolves a workbook merged as decided and the other files by their strategies", async () => {
-    harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
-      conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml"] }],
-    });
-    harness.mockHttp.onPost("/projects/p1/merge/conflicts/workbook").reply(200, Buffer.from("merged"));
-    harness.mockHttp.onPost("/projects/p1/merge/conflicts/resolve").reply(200, {
-      status: "success", resolvedFiles: ["rules/Main.xlsx", "rules.xml"],
-    });
-    const decisions = [
-      { id: "Rules/A1:B2", cells: { side: "ours", cells: [{ row: 1, column: 1, side: "theirs" }, { row: 1, column: 0, value: "USA" }] } },
-      { id: "Notes", side: "base" },
-    ];
+  describe("a conflicted text file", () => {
+    // Lines end with CR LF, as in a file written on Windows; the last one ends without a line break.
+    const run = Array.from({ length: 10 }, (_, line) => `  <!-- ${line} -->\r\n`);
+    const text = {
+      blocks: [
+        { kind: "merged", text: "<project>\r\n" },
+        { kind: "conflict", ours: "  <module>Rates</module>\r\n", base: "", theirs: "  <module>Taxes</module>\r\n" },
+        { kind: "merged", text: run.join(""), ours: run.join(""), base: "", theirs: "" },
+        { kind: "conflict", ours: "  <v>2</v>\r\n", base: "  <v>1</v>\r\n", theirs: "  <v>3</v>\r\n" },
+        { kind: "merged", text: "</project>" },
+      ],
+    };
 
-    const response = await executeTool("resolve_merge_conflicts", {
-      projectId: "p1",
-      resolutions: [{ file: "rules/Main.xlsx", decisions }, { file: "rules.xml", strategy: "THEIRS" }],
-      message: "Merge rates",
-      response_format: "json",
-    }, harness.client);
+    it("reads the conflicts numbered, and a long run of merged lines by its ends", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
 
-    const [workbookRequest, resolveRequest] = harness.mockHttp.history.post;
-    expect(workbookRequest.params).toEqual({ file: "rules/Main.xlsx" });
-    expect(bodyOf(workbookRequest)).toEqual({ decisions });
-    const form = resolveRequest.data as FormData;
-    expect(form.get("resolutions[0].filePath")).toBe("rules/Main.xlsx");
-    expect(form.get("resolutions[0].strategy")).toBe("CUSTOM");
-    const merged = form.get("resolutions[0].file") as File;
-    expect(merged.name).toBe("Main.xlsx");
-    expect(await merged.text()).toBe("merged");
-    expect(form.get("resolutions[1].filePath")).toBe("rules.xml");
-    expect(form.get("resolutions[1].strategy")).toBe("THEIRS");
-    expect(form.get("resolutions[1].file")).toBeNull();
-    expect(form.get("message")).toBe("Merge rates");
-    expect(dataOf(response)).toEqual({ status: "success", resolvedFiles: ["rules/Main.xlsx", "rules.xml"] });
+      const response = await executeTool("get_merge_conflict_text", {
+        projectId: "p1", file: "rules.xml", response_format: "json",
+      }, harness.client);
+
+      expect(harness.mockHttp.history.get[0].params).toEqual({ file: "rules.xml" });
+      expect(dataOf(response)).toEqual({
+        file: "rules.xml",
+        conflicts: 2,
+        blocks: [
+          { kind: "merged", text: "<project>\r\n" },
+          {
+            kind: "conflict",
+            conflict: 0,
+            ours: "  <module>Rates</module>\r\n",
+            base: "",
+            theirs: "  <module>Taxes</module>\r\n",
+          },
+          { kind: "merged", head: run.slice(0, 3).join(""), omittedLines: 4, tail: run.slice(-3).join("") },
+          { kind: "conflict", conflict: 1, ours: "  <v>2</v>\r\n", base: "  <v>1</v>\r\n", theirs: "  <v>3</v>\r\n" },
+          { kind: "merged", text: "</project>" },
+        ],
+      });
+    });
+
+    it("refuses decisions that are not one per conflict before resolving anything", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
+        conflictGroups: [{ projectName: "Rating", files: ["rules.xml"] }],
+      });
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
+
+      await expect(executeTool("resolve_merge_conflicts", {
+        projectId: "p1", resolutions: [{ file: "rules.xml", conflicts: [{ side: "ours" }] }],
+      }, harness.client)).rejects.toThrow(/has 2 conflicts, but 1 decisions/);
+      expect(harness.mockHttp.history.post).toHaveLength(0);
+    });
+
+    it("resolves with a workbook merged as decided and the other files by their strategies", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
+        conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml", "rules-deploy.xml"] }],
+      });
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
+      harness.mockHttp.onPost("/projects/p1/merge/conflicts/workbook").reply(200, Buffer.from("merged"));
+      harness.mockHttp.onPost("/projects/p1/merge/conflicts/resolve").reply(200, {
+        status: "success", resolvedFiles: ["rules/Main.xlsx", "rules.xml", "rules-deploy.xml"],
+      });
+      const decisions = [
+        { id: "Rules/A1:B2", cells: { side: "ours", cells: [{ row: 1, column: 1, side: "theirs" }, { row: 1, column: 0, value: "USA" }] } },
+        { id: "Notes", side: "base" },
+      ];
+
+      const response = await executeTool("resolve_merge_conflicts", {
+        projectId: "p1",
+        resolutions: [
+          { file: "rules/Main.xlsx", decisions },
+          { file: "rules.xml", conflicts: [{ side: "ours-theirs" }, { lines: "  <v>4</v>\n" }] },
+          { file: "rules-deploy.xml", strategy: "THEIRS" },
+        ],
+        message: "Merge rates",
+        response_format: "json",
+      }, harness.client);
+
+      expect(harness.mockHttp.history.get.find((request) => request.url?.endsWith("/text"))?.params)
+        .toEqual({ file: "rules.xml" });
+      const [workbookRequest, resolveRequest] = harness.mockHttp.history.post;
+      expect(workbookRequest.params).toEqual({ file: "rules/Main.xlsx" });
+      expect(bodyOf(workbookRequest)).toEqual({ decisions });
+      const form = resolveRequest.data as FormData;
+      expect(form.get("resolutions[0].filePath")).toBe("rules/Main.xlsx");
+      expect(form.get("resolutions[0].strategy")).toBe("CUSTOM");
+      const merged = form.get("resolutions[0].file") as File;
+      expect(merged.name).toBe("Main.xlsx");
+      expect(await merged.text()).toBe("merged");
+      expect(form.get("resolutions[1].filePath")).toBe("rules.xml");
+      expect(form.get("resolutions[1].strategy")).toBe("CUSTOM");
+      // Both modules are kept, and the typed line takes the line break of the file.
+      const mergedText = form.get("resolutions[1].file") as File;
+      expect(mergedText.name).toBe("rules.xml");
+      expect(await mergedText.text()).toBe(
+        "<project>\r\n  <module>Rates</module>\r\n  <module>Taxes</module>\r\n" + run.join("") +
+        "  <v>4</v>\r\n</project>",
+      );
+      expect(form.get("resolutions[2].filePath")).toBe("rules-deploy.xml");
+      expect(form.get("resolutions[2].strategy")).toBe("THEIRS");
+      expect(form.get("resolutions[2].file")).toBeNull();
+      expect(form.get("message")).toBe("Merge rates");
+      expect(dataOf(response)).toEqual({
+        status: "success", resolvedFiles: ["rules/Main.xlsx", "rules.xml", "rules-deploy.xml"],
+      });
+    });
   });
 
   it("refuses a resolution that leaves a conflicted file out before sending anything", async () => {

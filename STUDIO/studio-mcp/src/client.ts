@@ -924,6 +924,14 @@ export class OpenLClient {
     return toFileContent(await this.getBytes(`${projectPath(projectId)}/merge/conflicts/files`, { file, side }));
   }
 
+  /** Read a conflicted text file merged line by line: the lines merged by themselves and the conflicts, in order. */
+  async getMergeConflictText(projectId: string, file: string): Promise<Types.ConflictTextView> {
+    return (await this.http.get<Types.ConflictTextView>(
+      `${projectPath(projectId)}/merge/conflicts/text`,
+      { params: { file } },
+    )).data;
+  }
+
   /** Clear the pending merge conflict state Studio keeps for this client. */
   async cancelMergeConflicts(projectId: string): Promise<void> {
     await this.http.delete(`${projectPath(projectId)}/merge/conflicts`);

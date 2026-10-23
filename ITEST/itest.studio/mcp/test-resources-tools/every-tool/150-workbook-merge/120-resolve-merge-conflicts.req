@@ -31,6 +31,14 @@ Authorization: Token ${PAT}
               }
             }
           ]
+        },
+        {
+          "file": "McpTools/docs/notes.txt",
+          "conflicts": [
+            {
+              "lines": "Young drivers: factor 1.5."
+            }
+          ]
         }
       ],
       "message": "Merge the factors of young drivers"
@@ -45,4 +53,3 @@ Authorization: Token ${PAT}
     }
   }
 }
-

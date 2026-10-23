@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"status\": \"success\",\n    \"resolvedFiles\": [\n      \"McpTools/rules/Main.xlsx\"\n    ],\n    \"summary\": {\n      \"sourceBranch\": \"rates\",\n      \"targetBranch\": \"master\",\n      \"before\": \"@\",\n      \"after\": \"@\",\n      \"projects\": [\n        {\n          \"id\": \"0FPBaGP6vUeW\",\n          \"name\": \"McpTools\",\n          \"path\": \"McpTools\",\n          \"current\": true,\n          \"status\": \"modified\",\n          \"files\": [\n            {\n              \"path\": \"McpTools/rules/Main.xlsx\",\n              \"type\": \"modified\"\n            }\n          ]\n        }\n      ],\n      \"hiddenProjects\": 0\n    }\n  }\n}"
+        "text": "{\n  \"data\": {\n    \"status\": \"success\",\n    \"resolvedFiles\": [\n      \"McpTools/rules/Main.xlsx\",\n      \"McpTools/docs/notes.txt\"\n    ],\n    \"summary\": {\n      \"sourceBranch\": \"rates\",\n      \"targetBranch\": \"master\",\n      \"before\": \"@\",\n      \"after\": \"@\",\n      \"projects\": [\n        {\n          \"id\": \"0FPBaGP6vUeW\",\n          \"name\": \"McpTools\",\n          \"path\": \"McpTools\",\n          \"current\": true,\n          \"status\": \"modified\",\n          \"files\": [\n            {\n              \"path\": \"McpTools/rules/Main.xlsx\",\n              \"type\": \"modified\"\n            },\n            {\n              \"path\": \"McpTools/docs/notes.txt\",\n              \"type\": \"modified\"\n            }\n          ]\n        }\n      ],\n      \"hiddenProjects\": 0\n    }\n  }\n}"
       }
     ],
     "resultType": "complete",

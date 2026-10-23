@@ -369,6 +369,8 @@ export interface CheckMergeResult {
   /** `mergeable` means the source has pending changes; it does not predict a conflict-free merge. */
   status: "mergeable" | "up-to-date";
   targetBranch: string;
+  /** What the merge would bring into the target branch: every project the source changed, and the files both changed. */
+  scope?: unknown;
 }
 
 interface ConflictGroup {
@@ -379,7 +381,9 @@ interface ConflictGroup {
 
 export interface MergeResultResponse {
   conflictGroups?: ConflictGroup[];
-  status?: "success" | "conflicts";
+  status?: "success" | "conflicts" | "cancelled";
+  /** What a merge that succeeded changed in the target branch: every project it changed, and their files. */
+  summary?: unknown;
 }
 
 interface RevisionDetails {
@@ -390,13 +394,44 @@ interface RevisionDetails {
   modifiedAt?: string;
 }
 
+/** Which versions hold a conflicted file, and whether it is UTF-8 text. */
+interface ConflictFileAvailability {
+  ours: boolean;
+  base: boolean;
+  theirs: boolean;
+  text: boolean;
+}
+
 export interface ConflictDetailsResponse {
   baseRevision?: RevisionDetails;
   conflictGroups?: ConflictGroup[];
   defaultMessage?: string;
+  /** Which versions hold each conflicted file, and whether it is UTF-8 text, by the path of the file. */
+  fileAvailability?: Record<string, ConflictFileAvailability>;
   oursRevision?: RevisionDetails;
   theirsRevision?: RevisionDetails;
 }
+
+/**
+ * A part of a conflicted text file, as `GET /merge/conflicts/text` answers it: lines the merge took by itself, or a
+ * conflict. Every text keeps its line breaks.
+ */
+export type ConflictTextBlock =
+  | { kind: "merged"; text: string; ours?: string; base?: string; theirs?: string }
+  | { kind: "conflict"; ours: string; base: string; theirs: string };
+
+/** A conflicted text file merged line by line: its parts in the order of the file. */
+export interface ConflictTextView {
+  blocks: ConflictTextBlock[];
+}
+
+/**
+ * How one conflict of a text file is resolved: by the lines of a version, by both versions in an order, or by lines
+ * written in its place.
+ */
+export type ConflictTextDecision =
+  | { side: "ours" | "theirs" | "base" | "ours-theirs" | "theirs-ours" }
+  | { lines: string };
 
 /** A cell of a table of a conflicted workbook, as `GET /merge/conflicts/workbook` sends it. */
 export interface ConflictWorkbookCell extends Omit<RawTableCell, "value" | "style"> {
@@ -486,11 +521,14 @@ export type ConflictWorkbookDecision =
     };
   };
 
-/** How one conflicted file is resolved by `POST /merge/conflicts/resolve`, with the merged file for `CUSTOM`. */
+/**
+ * How one conflicted file is resolved by `POST /merge/conflicts/resolve`, with the merged file for `CUSTOM`: the bytes
+ * of a workbook, or a text, which is sent in UTF-8.
+ */
 export interface FileConflictResolution {
   file: string;
   strategy: "BASE" | "OURS" | "THEIRS" | "CUSTOM";
-  content?: ArrayBuffer;
+  content?: ArrayBuffer | string;
 }
 
 export interface ResolveConflictsResponse {

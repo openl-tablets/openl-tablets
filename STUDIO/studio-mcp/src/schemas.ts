@@ -434,6 +434,21 @@ export const getMergeConflictWorkbookSchema = z.strictObject({
   response_format: ResponseFormat,
 });
 
+export const getMergeConflictTextSchema = z.strictObject({
+  projectId: projectIdSchema,
+  file: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
+  response_format: ResponseFormat,
+});
+
+const textDecisionSchema = z.union([
+  z.strictObject({
+    side: z.enum(["ours", "theirs", "base", "ours-theirs", "theirs-ours"]).describe("The lines the conflict takes: of your, their or the base version, or of both versions whole, yours first (ours-theirs) or theirs first (theirs-ours)."),
+  }),
+  z.strictObject({
+    lines: z.string().describe("The lines written in place of the conflict, separated by \\n; a line break after the last line is optional, and '' leaves no line. They are written with the line breaks of the file."),
+  }),
+]);
+
 const cellSideSchema = z.enum(["ours", "theirs"]);
 const cellIndexSchema = z.number().int().min(0);
 
@@ -468,6 +483,10 @@ export const resolveMergeConflictsSchema = z.strictObject({
     z.strictObject({
       file: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
       decisions: z.array(workbookDecisionSchema).min(1).describe("How each conflict of the workbook from openl_get_merge_conflict_workbook() is resolved; every conflict needs a decision, and a sheet taken whole needs none for its tables."),
+    }),
+    z.strictObject({
+      file: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
+      conflicts: z.array(textDecisionSchema).describe("How each conflict of the text file from openl_get_merge_conflict_text() is resolved: one decision per conflict, in their order; the lines the merge took by itself are kept."),
     }),
   ])).min(1).describe("One resolution for every conflicted file of the pending conflict."),
   message: z.string().optional().describe("Commit message; Studio builds one from the conflict when omitted."),
