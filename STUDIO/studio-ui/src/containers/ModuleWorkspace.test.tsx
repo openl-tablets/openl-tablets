@@ -1,6 +1,6 @@
 import type { ReactNode, Ref } from 'react'
 import type { ModuleTable } from 'types/tables'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useSettingsStore } from '../store'
@@ -11,7 +11,7 @@ import { getProject, getProjects, setProjectStatus } from '../services/repositor
 import { ApiHttpError, NotFoundError, notifyLoadFailure } from '../services/apiCall'
 import { renderInTheme, tokenFor } from '../testing/theme'
 import { useAppTheme } from '../providers/AppThemeProvider'
-import { App as AntApp } from 'antd'
+import { App as AntApp, ConfigProvider } from 'antd'
 
 const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace } = vi.hoisted(() => ({
     navigateMock: vi.fn(),
@@ -21,7 +21,14 @@ const { navigateMock, routeParams, searchParams, setSearchParamsMock, workspace 
     setSearchParamsMock: vi.fn(),
     // What the workspace holds of the project: closed until the reader answers the question to open it, and
     // what the compilation of its module came to.
-    workspace: { opened: false, state: 'ok', branch: 'master', verifyNeeded: false, gone: false },
+    workspace: {
+        opened: false,
+        state: 'ok',
+        branch: 'master',
+        verifyNeeded: false,
+        changedOnDisk: false,
+        gone: false,
+    },
 }))
 
 // What the details panel is handed to write the cells before the properties, and what the editor answers it with.
@@ -86,6 +93,7 @@ vi.mock('./modules/useModuleCompilation', () => ({
         state: workspace.opened ? workspace.state : 'idle',
         status: null,
         verifyNeeded: workspace.verifyNeeded,
+        changedOnDisk: workspace.changedOnDisk,
     }),
 }))
 
@@ -237,6 +245,7 @@ describe('ModuleWorkspace', () => {
         workspace.state = 'ok'
         workspace.branch = 'master'
         workspace.verifyNeeded = false
+        workspace.changedOnDisk = false
         workspace.gone = false
         routeParams.projectId = 'p1'
         searchParams.set('table', 't-1')
@@ -761,6 +770,62 @@ describe('ModuleWorkspace', () => {
         await waitFor(() => expect(getRawTable).toHaveBeenCalledWith('p1', 't-new', expect.anything()))
         expect(screen.queryByTestId('module-table-missing')).toBeNull()
         expect(screen.getByTestId('table-details')).toBeInTheDocument()
+    })
+
+    it('notifies that the files changed on disk and reads them again only when the reader refreshes', async () => {
+        workspace.opened = true
+        // Without motion a closed notification is gone at once: jsdom never ends an animation.
+        const app = () => (
+            <ConfigProvider theme={{ token: { motion: false } }}>
+                <AntApp><ModuleWorkspace /></AntApp>
+            </ConfigProvider>
+        )
+        const { rerender } = render(app())
+        await screen.findByTestId('module-table')
+        expect(screen.queryByTestId('module-changed-on-disk')).toBeNull()
+        vi.mocked(getModuleTables).mockClear()
+
+        // The status channel says another program wrote the files.
+        workspace.changedOnDisk = true
+        rerender(app())
+        const warning = await screen.findByTestId('module-changed-on-disk')
+        expect(within(warning).getByText('browser.module.changed_on_disk')).toBeInTheDocument()
+        // Told, not done: the tables the reader looks at stay as they were read.
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 50)) })
+        expect(getModuleTables).not.toHaveBeenCalled()
+
+        await userEvent.click(within(warning).getByRole('button', { name: /browser.module.refresh/ }))
+
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledWith('p1', 'Bank Rating', expect.anything()))
+
+        // Compiled again from the files as they are: the notification goes away.
+        workspace.changedOnDisk = false
+        rerender(app())
+        await waitFor(() => expect(screen.queryByText('browser.module.changed_on_disk')).toBeNull())
+    })
+
+    it('reads the tables again once the compilation a refresh asked for ends, with the errors it found', async () => {
+        workspace.opened = true
+        const { rerender } = render(<ModuleWorkspace />)
+        await screen.findByTestId('module-table')
+        vi.mocked(getModuleTables).mockClear()
+
+        await userEvent.click(screen.getByTestId('module-refresh'))
+        // Read at once: the status at hand still names the module as compiled before the refresh
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(1))
+
+        // The compilation the refresh asked for begins, and ends with what the files hold now.
+        workspace.state = 'compiling'
+        rerender(<ModuleWorkspace />)
+        workspace.state = 'errors'
+        rerender(<ModuleWorkspace />)
+
+        await waitFor(() => expect(getModuleTables).toHaveBeenCalledTimes(2))
+        // Once: another status of the same compilation reads nothing more.
+        workspace.state = 'ok'
+        rerender(<ModuleWorkspace />)
+        await act(async () => { await new Promise(resolve => setTimeout(resolve, 50)) })
+        expect(getModuleTables).toHaveBeenCalledTimes(2)
     })
 
     it('moves off a table it showed when the branch switched to does not carry it', async () => {

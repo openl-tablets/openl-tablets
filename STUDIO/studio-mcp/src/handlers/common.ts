@@ -16,6 +16,7 @@ import type { ResponseFormat } from "../types.js";
 import { sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
 import { isConflictError, isHttpError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
+import { refreshWhenChangedOnDisk } from "./freshness.js";
 
 /**
  * Tool response structure
@@ -73,6 +74,13 @@ interface ToolDefinition<TSchema extends ZodType = ZodType> {
   validateArgs?: (args: unknown) => unknown;
   /** Optional tool-specific enrichment for schema validation failures. */
   formatValidationError?: (error: z.ZodError) => string;
+  /**
+   * Whether the tool works with what Studio compiled of the project its `projectId` names. When another program
+   * changed the files of the project since Studio compiled it, the project is compiled again first, and the tool
+   * goes on with the files as they are: an edit of a table changed since the agent read it is refused by the version
+   * of the table it names. Left out for a tool that does not work with what was compiled.
+   */
+  compiled?: boolean;
   handler: ToolHandler<TSchema>;
 }
 
@@ -143,10 +151,45 @@ export async function executeTool(
         tool.formatValidationError?.(result.error) ?? formatSchemaValidationError(name, result.error),
       );
     }
+    await keepCurrent(tool, result.data, client, extra);
     return await tool.handler(result.data, client, extra);
   } catch (error: unknown) {
-    throw handleToolError(error, name, args);
+    throw isChangedOutside(error)
+      ? new ProtocolError(ProtocolErrorCode.InvalidRequest, CHANGED_OUTSIDE_MESSAGE)
+      : handleToolError(error, name, args);
   }
+}
+
+/** The code OpenL Studio refuses a write with when another program changed the workbook since it was read. */
+const CHANGED_OUTSIDE_CODE = "openl.error.409.workbook.changed.outside.message";
+
+/**
+ * What the agent does after such a refusal. Studio asks a person to refresh the project, but an agent has no such
+ * call: Studio reads the files again by itself after the refusal.
+ */
+const CHANGED_OUTSIDE_MESSAGE =
+  "A workbook of the project changed outside OpenL Studio, such as in Excel, since it was read, and nothing was written. "
+  + "OpenL Studio reads the project files again by itself, so no refresh is needed: read the table again with "
+  + "openl_get_table and repeat the edit on what it holds now.";
+
+/** Whether Studio refused a write because another program changed the workbook since it was read. */
+function isChangedOutside(error: unknown): boolean {
+  return isHttpError(error) && error.response?.status === 409
+    && extractApiErrorInfo(error.response.data, 409).code === CHANGED_OUTSIDE_CODE;
+}
+
+/** Compiles the project a tool works with again when its files changed on disk; see {@link ToolDefinition.compiled}. */
+async function keepCurrent(
+  tool: ToolDefinition,
+  args: unknown,
+  client: OpenLClient,
+  extra?: ToolHandlerExtra,
+): Promise<void> {
+  const projectId = (args as { projectId?: unknown }).projectId;
+  if (!tool.compiled || typeof projectId !== "string") {
+    return;
+  }
+  await refreshWhenChangedOnDisk(client, projectId, extra?.signal);
 }
 
 /**

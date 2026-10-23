@@ -54,6 +54,11 @@ outside OpenL Studio still names it: the request is served for the project, and 
 the address under its current id. The id of a deleted project answers `410` with
 `openl.error.410.project.deleted.message`. See [Stable Project Ids](../architecture/project-ids.md).
 
+The status of a project tells `changedOnDisk` when another program changed the files of the project since the session
+compiled it. A client asks it in short before working with the tables,
+`GET /rest/projects/{projectId}?include=status&fields=compileStatus(compileState,changedOnDisk)`, and compiles the
+module again with `POST /rest/projects/{projectId}/modules/{module}/compile?reset=true` when the files changed.
+
 ### Pages of Results
 
 A list endpoint takes `size` (the page size, `50` by default) and either `page` (the zero-based page number) or `offset`
@@ -67,6 +72,11 @@ A response carries the fields of its type, minus the empty values. The query par
 `fields=name,owner(email)` keeps `name` and the `email` of `owner`. An unknown field is dropped. A malformed selection, or
 one longer than 4096 characters, deeper than 16 levels, or with more than 256 names, answers `400`, and a request that
 creates or changes data then changes nothing.
+
+A field left out may cost nothing. `GET /rest/projects/{projectId}` looks for the projects using this one (`usedBy`),
+reading the descriptor of every other project, only when the selection keeps them. It resolves the messages of the
+status to their tables (`compileStatus.compilation.messages.items`), which waits for a compilation under way, only when
+the selection keeps them or the names of the compiled modules.
 
 ### Errors
 

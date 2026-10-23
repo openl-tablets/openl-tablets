@@ -276,6 +276,7 @@ export function registerTableActionHandlers(): void {
       description: spec.description,
       schema: spec.schema,
       annotations: spec.annotations,
+      compiled: true,
       handler: async (args, client): Promise<ToolResponse> => {
         const reportedId = await client.editTableSource(
           args.projectId, args.tableId, spec.buildAction(args), args.version);

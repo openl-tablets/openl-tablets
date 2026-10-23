@@ -31,6 +31,12 @@ public record ProjectStatusViewModel (
                 where nothing is waiting""")
         Boolean manualCompileNeeded,
 
+        @Parameter(description = """
+                Set when another program, such as Excel or an IDE, changed a file the module the session has open is \
+                compiled from since the compilation read it. What the session shows of the file is what it held \
+                before; compiling the module with reset=true reads it again. Absent where nothing changed""")
+        Boolean changedOnDisk,
+
         @Parameter(description = "Files modified locally and not yet committed to the design repository.")
         PendingChanges pendingChanges
 ) {

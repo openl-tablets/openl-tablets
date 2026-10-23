@@ -123,4 +123,15 @@ describe("errors of OpenL Studio", () => {
     expect(msg).toContain("Project is locked");
     expect(msg).not.toContain("Field errors");
   });
+
+  it("tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists", async () => {
+    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
+      code: "openl.error.409.workbook.changed.outside.message",
+      message: "Bank Rating.xlsx changed outside OpenL Studio since it was read. Refresh the project and repeat the edit.",
+    });
+
+    const msg = (await callAndCatch()).message;
+    expect(msg).toMatch(/changed outside OpenL Studio.*read the table again with openl_get_table/);
+    expect(msg).not.toContain("Refresh the project");
+  });
 });

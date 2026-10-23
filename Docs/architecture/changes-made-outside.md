@@ -30,8 +30,10 @@ changed on disk since the workbook was read would lose that change, so the save 
   written. The hidden files a stopped save left behind are removed by a later save of the same file. A hidden file
   that cannot be removed once the save is over is only logged: the outcome of the save stands.
 - **What the client gets.** The REST API answers `409` `workbook.changed.outside.message`, naming the file. A refused
-  write has the session build the module from its workbooks again (`WorkspaceProjectService.writing`), so the next
-  read shows the file as it is now, and the edit is repeated on it.
+  write has the session build the module from its workbooks again and compile it at once
+  (`WorkspaceProjectService.writing`), so the next read shows the file as it is now, the edit is repeated on it, and
+  the status goes on telling how the module compiles and what changes on disk. A write refused by the version of a
+  table (`412`) has changed nothing, and builds nothing again.
 - **What it costs.** A compilation reads the size and the time of each workbook, nothing more. A workbook loaded for
   a write is read once, and its digest comes from that read. A save hashes the workbook as it writes it, and reads the
   workbook's file once, a part at a time, to compare it. OpenL Rule Services never writes a workbook, so it never
@@ -121,5 +123,27 @@ folder. So the projects of a design repository on the file system are edited whe
 - **History.** The local edit history of a module stays in the workspace
   (`{userId}/.history/.in-place/{repository id}/{folder}`, apart from the history of a copy in the workspace with the
   same folder), and a save of the project keeps it, so an edit is rolled back from it.
+- **Telling the reader.** `XlsWorkbookSourceCodeModule.isChangedOnDisk()` compares the size and the modification time
+  of the file with the ones it remembers, and tells a workbook read from another file than the compiled one, such as
+  one read again from content another program changed keeping the size and the time. `ProjectModel.isChangedOnDisk()`
+  asks every workbook compiled for the open project. A workbook added to the modules of the project, one taken away,
+  and a changed `rules.xml` count too:
+  the model remembers the descriptor and the workbooks of the modules it compiled, and `checkProjectFiles()` reads the
+  descriptor again when the repository watcher reports a change, since that costs a read of the folder. The status of
+  the project answers it as `changedOnDisk`, and a change the watcher reports publishes the status on the channel of
+  the project. The status in short,
+  `GET /projects/{projectId}?include=status&fields=compileStatus(compileState,changedOnDisk)`, is cheap enough to ask
+  before every call: the project builds no field `fields` leaves out, neither the projects using it nor the messages
+  resolved to their tables.
+- **Refreshing.** The editor never reads the files again by itself, as the reader may be in the middle of an edit: it
+  shows a warning with **Refresh**, which compiles the module again with `reset=true`. The MCP server needs no call of
+  the agent: before every tool that works with what Studio compiled (`compiled` in `registerTool`) it asks the short
+  status, and compiles the project again when the files changed, waiting until the compilation ends: Studio drops
+  what it compiled as the compilation starts, and the tables of a module a workbook added come with its end. The
+  tool then goes on with the files as they are: an edit names the version of the table it is based on, so an edit of
+  a table changed since is refused, and a table created or an edit of another table of the workbook is written beside
+  the change. A write the workbook refuses as
+  changed outside (`409`) asks a person to refresh the project; the MCP server tells the agent to read the table again
+  instead, as the session builds the module from its workbooks again after the refusal and no refresh call is needed.
 - **Safety.** A write of a workbook is refused when another program changed the file since it was read (above), and
   a write of a table or a file based on an outdated read is refused by its version.

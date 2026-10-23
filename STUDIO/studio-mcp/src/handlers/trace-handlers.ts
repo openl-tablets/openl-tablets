@@ -217,6 +217,7 @@ async function waitForStop(
 export function registerTraceHandlers(): void {
   registerTool({
     name: "start_trace",
+    compiled: true,
     title: "Start Debug Session",
     description:
       "Start an interactive debug session for a table and run to the first stop. Returns the execution stack (status + frames root→current). " +

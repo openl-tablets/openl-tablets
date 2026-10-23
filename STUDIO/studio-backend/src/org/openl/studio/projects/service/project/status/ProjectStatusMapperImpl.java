@@ -3,9 +3,9 @@ package org.openl.studio.projects.service.project.status;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import jakarta.annotation.Nullable;
 
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -37,6 +37,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
     private final DetailedMessageDescriptionMapper detailedMessageDescriptionMapper;
 
     /** How much of the status is asked for, and so how much work building it is worth. */
+    @RequiredArgsConstructor
     private enum Detail {
 
         /** Everything the project screens show. */
@@ -57,13 +58,6 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         private final boolean moduleNames;
         private final boolean pendingChanges;
         private final boolean tests;
-
-        Detail(boolean messageItems, boolean moduleNames, boolean pendingChanges, boolean tests) {
-            this.messageItems = messageItems;
-            this.moduleNames = moduleNames;
-            this.pendingChanges = pendingChanges;
-            this.tests = tests;
-        }
     }
 
     @Override
@@ -115,6 +109,9 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
             builder.compilation(mapCompilationDetails(model, compilationStatus, detail));
             if (model.isManualCompileNeeded()) {
                 builder.manualCompileNeeded(Boolean.TRUE);
+            }
+            if (model.isChangedOnDisk()) {
+                builder.changedOnDisk(Boolean.TRUE);
             }
         }
         if (detail.pendingChanges) {

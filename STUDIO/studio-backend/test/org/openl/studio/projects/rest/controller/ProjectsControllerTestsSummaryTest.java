@@ -60,6 +60,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.GoneException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.ResultNotReadyView;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.config.ObjectSchemaGeneratorConfiguration;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.ValueLevel;
@@ -126,7 +127,8 @@ class ProjectsControllerTestsSummaryTest {
                 mock(ProjectMetadataService.class),
                 mock(ProjectMigrationService.class),
                 mock(ProjectRevisionService.class),
-                mock(TableInputService.class)) {
+                mock(TableInputService.class),
+                new FieldProjectionSupport()) {
             @Override
             protected SchemaGenerator getSchemaGenerator(ObjectMapper objectMapper) {
                 return new ObjectSchemaGeneratorConfiguration().schemaGenerator(objectMapper);

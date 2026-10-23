@@ -190,4 +190,13 @@ class ProjectStatusMapperImplTest {
         // What was compiled before it stopped is still reported, so the reader sees how far it got.
         assertEquals(3, status.compilation().messages().total());
     }
+
+    @Test
+    void aFileChangedOnDiskIsToldOnlyWhenItWasChanged() {
+        assertNull(mapper.map(project, model).changedOnDisk(), "nothing changed is not told");
+
+        when(model.isChangedOnDisk()).thenReturn(true);
+
+        assertEquals(Boolean.TRUE, mapper.map(project, model).changedOnDisk());
+    }
 }

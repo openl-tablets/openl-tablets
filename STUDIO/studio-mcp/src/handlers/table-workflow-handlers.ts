@@ -26,6 +26,7 @@ function runTimeoutMessage(timeoutMs: number): string {
 export function registerTableWorkflowHandlers(): void {
   registerTool({
     name: "run_table",
+    compiled: true,
     title: "Run Table",
     description:
       "Execute a regular (non-Test) table with caller-provided JSON and return its result. This is a single high-level operation: it starts Studio's asynchronous run and waits inside the tool call until the result is ready, emitting progress notifications instead of requiring agent-side polling. Pass inputJson as an object keyed by method parameter name, as { params, runtimeContext? } with params keyed by name or listed in order, or as an array of the argument values in order, each also as a JSON string, as openl_start_trace takes it; for a method whose only parameter is an array, a top-level array is that parameter's value. Set withSchema only when the result/parameter JSON Schemas are needed because they can be large. Studio keeps one table run per client, so wait for an active call to finish before starting another. Use openl_start_project_tests and the test-result tools for Test tables. Cancelling the MCP call also cancels and clears the Studio run.",
@@ -85,6 +86,7 @@ export function registerTableWorkflowHandlers(): void {
 
   registerTool({
     name: "get_table_dependencies",
+    compiled: true,
     title: "Get Table Dependencies",
     description:
       "Get the table dependency graph as an adjacency list. Omit tableId for the whole project graph, optionally restricted by module and layer (executable, datatype, or all); provide tableId for its dependency/dependent neighborhood with optional direction and depth. Executable nodes include signatures, return types, and dimension properties; datatype nodes include inheritance and declared field references; vocabulary nodes include their value type, total value count, and a bounded first/last values preview. Dispatchers represent versioned executable tables, self-loops represent recursion or self-reference, and cycles are derived from dependency edges. JSON preserves the graph nodes directly. Markdown renders executable calls as a Mermaid flowchart and the data model, including declared fields, vocabulary value previews, and reference cardinalities, as a Mermaid ER diagram; vocabulary headers use Name<Type>, preview rows leave the redundant type column visually empty, and a + N more marker identifies a truncated middle. Inheritance is shown separately when present. Detailed Markdown adds per-node metadata, while concise Markdown stays textual.",
@@ -124,6 +126,7 @@ export function registerTableWorkflowHandlers(): void {
 
   registerTool({
     name: "copy_table",
+    compiled: true,
     title: "Copy Table",
     description:
       "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties. The copy remains in the working copy—use openl_save_project for Git-backed projects.",

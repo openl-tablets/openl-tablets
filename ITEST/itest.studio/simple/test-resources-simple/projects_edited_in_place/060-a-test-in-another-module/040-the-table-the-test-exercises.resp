@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "greetings/rules/Greetings.xlsx",
+      "sheet": "Rules",
+      "pos": "B3:E11",
+      "hasTests": true,
+      "module": "Greetings",
+      "project": "EPBDS-16987 Greetings",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}

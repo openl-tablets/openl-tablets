@@ -51,6 +51,28 @@ public final class FieldNode {
         return children.get(name);
     }
 
+    /**
+     * Whether the answer keeps the field at the path under this node.
+     *
+     * <p>A node that selects no field keeps every field under it, and so does a field selected whole. A service
+     * skips the work of building a field the answer leaves out.
+     *
+     * @param path the names of the field and of the fields holding it, outermost first
+     */
+    public boolean selects(String... path) {
+        var node = this;
+        for (var name : path) {
+            if (node.whole || node.children.isEmpty()) {
+                return true;
+            }
+            node = node.children.get(name);
+            if (node == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     FieldNode getOrAdd(String name) {
         return children.computeIfAbsent(name, key -> new FieldNode());
     }

@@ -1040,6 +1040,11 @@ export interface ProjectStatusView {
   compilation?: CompilationDetails;
   /** Omitted when the working copy is clean. */
   pendingChanges?: PendingChanges;
+  /**
+   * Set when another program, such as Excel or an IDE, changed a file of the project since Studio compiled it:
+   * the tables Studio answers with are what the files held before.
+   */
+  changedOnDisk?: boolean;
 }
 
 // =============================================================================

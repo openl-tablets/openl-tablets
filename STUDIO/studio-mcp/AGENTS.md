@@ -28,6 +28,15 @@ it opens no WebSocket. Studio's background work is read within one tool call whe
 Studio answers `202 notReady` until it is done — test results, merges, table runs —
 while `openl_project_status` reports a compilation that is still running as `compiling`.
 
+Studio answers from what it compiled, and compiles nothing again by itself when another program changes the files
+of a project: a workbook edited, added or taken away, or `rules.xml`. A tool that works with what was compiled
+declares it in `registerTool` (`compiled: true`), and `executeTool` asks the short status
+(`GET /projects/{projectId}` with `STATUS_SUMMARY_QUERY` of `client.ts`, the compile state and the change on disk
+alone, which Studio builds cheaply) before it: when the files changed, the project is compiled again first, the
+tool waits until the compilation ends, and it goes on with the files as they are. An edit of a table that changed since the agent read it is refused by the
+version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
+tables, running rules or editing them declares `compiled`.
+
 ## Tools (78 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
@@ -52,7 +61,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 ### Project Tools (16)
 - `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. A `compileState` of `idle` (`include: status`) means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
 - `openl_get_project` - Get project details
-- `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again
+- `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again; a project whose files another program changed since Studio compiled them is compiled again from those files, with a note to read its tables again — every tool that reads or edits what Studio compiled does the same by itself
 - `openl_create_project` - Create or copy a project atomically through Studio: omit `template` for a BLANK project, or pass an existing project's exact `projectId` from `openl_list_projects` to copy its full structure and rename it. Both modes accept an optional target `branch` and return the commit revision plus Studio's opaque `projectId` of the new project
 - `openl_open_project` - Open project for editing (supports branch/revision switching)
 - `openl_save_project` - Save project changes; a comment is required when the repository supports comments
@@ -232,6 +241,8 @@ and every edit is written straight into its files. `openl_get_project` tells suc
 - What another program, such as Excel or an IDE, writes into the files is part of the project; the tools that work
   with what OpenL Studio compiled compile it again by themselves, and a write based on an outdated read is refused.
 - The project-file tools say the change is in the files already instead of asking for a commit.
+- A table edit refused because a workbook changed outside OpenL Studio needs no refresh call: read the table again
+  with `openl_get_table` and repeat the edit on what it holds now.
 
 ## Authentication
 

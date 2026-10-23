@@ -113,6 +113,7 @@ function structuredPayloadTool(toolName: string, payloadArg: string): {
 export function registerTableHandlers(): void {
   registerTool({
     name: "list_tables",
+    compiled: true,
     title: "List Project Tables",
     description: "List tables/rules in a project with optional filters for kind, name, and properties. Results are paginated (default 50, maximum 200): when a complete inventory is required, follow pagination.has_more and call again with pagination.next_offset until has_more is false. Returns table metadata including 'tableId' (the 'id' field) which is required for calling openl_get_table(), openl_update_table(), openl_append_table(), or openl_run_table(). Use the 'tableId' field from the response to reference specific tables in other API calls. A table keeps its id while it is edited or moved; a rename gives it a new id, which the edit tools return as 'tableId'.",
     schema: schemas.listTablesSchema,
@@ -135,6 +136,7 @@ export function registerTableHandlers(): void {
 
   registerTool({
     name: "get_table",
+    compiled: true,
     title: "Get Table Structure & Data",
     description:
       "Get a table as its authoritative RawSource 2D cell matrix. Cell values are scalar string/number/boolean/null values or Studio's one-dimensional multi-value arrays; representable values can be submitted unchanged through every raw write tool. Typed/parsed table views are intentionally unsupported because they are incomplete and cannot safely round-trip workbook content. Every answer states its rows in 'window' next to the data: startRow, endRow, rows, totalRows, complete (whether it holds every row of the table) and nextStartRow while rows remain. startRow/maxRows read a large table in row slices of exactly those rows (a windowed response carries totalRows; a merged cell cut at the edge of a slice keeps its value and names its whole area in mergedArea), and styles=true adds each cell's Excel style. A window cannot replace the whole table: openl_update_table rejects totalRows and independently refuses a source with fewer rows than the live table, so removing the marker cannot erase omitted rows. For a large table whose complete response becomes a preview, use the narrow raw table action tools instead. A table keeps its id while it is edited or moved; Studio still serves an id from before a rename, and answers 410 for a deleted table. The answer carries the 'version' of the table: pass it to the edit tools, so that an edit over a table changed since — in Excel, on disk or through another client — is refused instead of overwriting that change.",
@@ -156,6 +158,7 @@ export function registerTableHandlers(): void {
 
   registerTool({
     name: "delete_table",
+    compiled: true,
     title: "Delete Table",
     description:
       "Delete an ENTIRE table from a project. The whole table area is cleared from the sheet regardless of table type, so the table no longer exists once the project is recompiled. To remove only a row or column WITHIN a table, use openl_delete_table_rows / openl_delete_table_columns instead. The studio does not auto-compile after the delete — run openl_project_status afterward to confirm the project still compiles (a dangling reference to the deleted table surfaces there). 'version' from openl_get_table is required: Studio deletes nothing when the table changed since.",
@@ -181,6 +184,7 @@ export function registerTableHandlers(): void {
 
   registerTool({
     ...structuredPayloadTool("update_table", "view"),
+    compiled: true,
     title: "Replace Entire Table",
     description:
       "Replace the ENTIRE table RawSource matrix with a modified version; a cell sent with the value it holds is left as it is. Typed table DTOs are intentionally unsupported. Use for modifying, reordering, or structural changes that preserve or add rows; row removal is rejected, so use openl_delete_table_rows with an explicit position/count. Prefer the narrow raw action tools for isolated edits and append_table for additions. Required workflow: call get_table() without styles=true, preserve the complete matrix including covered cells/spans and scalar or one-dimensional multi-value cell values, modify it, then pass the full RawSource object here. Arrays must be non-empty and contain only scalar values; [null], nested arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. Before writing, the tool reads one live row to verify the submitted source is not shorter than the table; this prevents a sliced view from deleting unseen rows even if totalRows was removed. Studio table write APIs cannot change formatting, so cell style is read-only and rejected. The 'version' openl_get_table answered stays in the view and is required: Studio refuses the write when the table changed since — in Excel, on disk or through another client — and writes nothing, so read the table again and repeat the change. The response returns the CURRENT tableId, a new one when the edit renamed the table, and the table's new 'version'. The tool reads the table back to trigger recompilation, so openl_project_status reflects the change.",
@@ -205,6 +209,7 @@ export function registerTableHandlers(): void {
 
   registerTool({
     ...structuredPayloadTool("append_table", "appendData"),
+    compiled: true,
     title: "Append Raw Source Rows",
     description:
       "Append RawSource rows to an existing table. Typed append DTOs are intentionally unsupported. Every row must cover ALL columns of the table; Studio rejects a row of another width and writes nothing. Cell values may be scalars or Studio's one-dimensional multi-value arrays; arrays must be non-empty and contain only scalars, while [null], nested arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. Use { value: null } for a blank cell and preserve covered placeholders for merged regions. For modifying or reordering use a narrow raw action tool or update_table; remove rows/columns only with the corresponding delete action. 'version' from openl_get_table or the previous edit is required: Studio appends nothing to a table changed since. The response returns the CURRENT tableId and the table's new 'version', and the read-back triggers recompilation.",
@@ -224,6 +229,7 @@ export function registerTableHandlers(): void {
 
   registerTool({
     ...structuredPayloadTool("create_project_table", "table"),
+    compiled: true,
     title: "Create New Table",
     description:
       "Create a table from its complete RawSource 2D cell matrix. Typed table creation DTOs are intentionally unsupported because they omit workbook features and do not round-trip reliably. Requires moduleName plus table { tableType: \"RawSource\", name, source }. By default moduleName identifies an existing module; pass modulePath ending in .xlsx to create a new module. Build the exact OpenL grid from the guides (openl_get_guides) or copy an existing raw source, including covered cells/spans where needed. Cell values may be scalars or Studio's one-dimensional multi-value arrays; arrays must be non-empty and contain only scalars, while [null], nested arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. Studio table write APIs cannot set cell formatting, so style is rejected. The response is metadata, not a compilation result; call openl_project_status afterward.",

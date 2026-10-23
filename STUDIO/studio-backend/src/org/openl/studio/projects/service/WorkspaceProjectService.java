@@ -106,6 +106,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.exception.PreconditionFailedException;
 import org.openl.studio.common.model.PageResponse;
+import org.openl.studio.common.projection.FieldNode;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.lock.LockForEditing;
 import org.openl.studio.projects.model.BranchScope;
@@ -352,8 +353,35 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     public ProjectViewModel getProject(RulesProject project, Collection<ProjectInclude> includes) {
+        return getProject(project, includes, new FieldNode());
+    }
+
+    /**
+     * The project, with only the fields the selection keeps built.
+     *
+     * <p>The projects using this one are found only when the selection keeps {@code usedBy}: finding them reads
+     * the descriptor of every other project. The status is built in full only when the selection keeps the
+     * messages or the names of the compiled modules: resolving every message to its table waits for a compilation
+     * under way. So a client that asks for the compile state alone, before every call, gets it cheaply.
+     *
+     * @param selection the fields the answer keeps; an empty selection keeps them all
+     */
+    public ProjectViewModel getProject(RulesProject project, Collection<ProjectInclude> includes,
+                                       FieldNode selection) {
         var normalizedIncludes = ProjectInclude.normalize(includes);
         var builder = mapWorkspaceProjectResponse(project, Map.of(), normalizedIncludes.contains(ProjectInclude.DESCRIPTOR));
+        if (selection.selects("usedBy")) {
+            addUsedBy(project, builder);
+        }
+        if (normalizedIncludes.contains(ProjectInclude.STATUS) && selection.selects("compileStatus")) {
+            var full = selection.selects("compileStatus", "compilation", "messages", "items")
+                    || selection.selects("compileStatus", "compilation", "modules", "compiledModules");
+            builder.compileStatus(full ? projectStatusMapper.map(project) : projectStatusMapper.mapSummary(project));
+        }
+        return builder.build();
+    }
+
+    private void addUsedBy(RulesProject project, ProjectViewModel.Builder builder) {
         try {
             projectDependencyResolver.getDependsOnProject(project).stream()
                     .sorted(PROJECT_BUSINESS_NAME_ORDER)
@@ -365,10 +393,6 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             // be malformed and throw unchecked. A broken neighbour must not fail this project's detail view.
             log.warn("Failed to resolve dependent projects for '{}'", project.getName(), e);
         }
-        if (normalizedIncludes.contains(ProjectInclude.STATUS)) {
-            builder.compileStatus(projectStatusMapper.map(project));
-        }
-        return builder.build();
     }
 
     /**
@@ -2431,11 +2455,24 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * a cell cleared by a write that was then refused makes the next write look as if it emptied the line.
      * Building the module again from the disk is what puts the session back where the refusal found it.
      *
+     * <p>The module is compiled again at once, as a refresh compiles it. Until then the screens following it would
+     * be told nothing about it: neither how it compiles, nor that another program changed its files.
+     *
      * @param write the write to run
      * @return whatever the write answers
      */
     private <T> T writing(Supplier<T> write) {
-        return writing(write, WebStudio::rebuildCurrentModule);
+        return writing(write, this::compileFromDisk);
+    }
+
+    /** Has the module open built from its workbooks again, and compiled at once. */
+    private void compileFromDisk(WebStudio studio) {
+        studio.rebuildCurrentModule();
+        var project = studio.getCurrentProject();
+        var module = studio.getCurrentModule();
+        if (project != null && module != null) {
+            compileModule(project, module.getName(), false);
+        }
     }
 
     /**
@@ -2446,7 +2483,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * when the module is not compiled again after the write, so a write queued behind another write of the same
      * table is compared with what that write left. A write based on another version is refused before anything is
      * written: the table changed since the client read it, on disk or through another client, and the write would
-     * overwrite that change. A write that names no version is not compared.
+     * overwrite that change. A write that names no version is not compared. A write refused so has changed nothing,
+     * and the module is not built again.
      *
      * @throws PreconditionFailedException when the table has another version than the one the client read
      */
@@ -2472,6 +2510,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         return studio.getWorkbookWrites().writing(() -> {
             try {
                 return write.get();
+            } catch (PreconditionFailedException refused) {
+                // Refused before anything was written: the workbook the session holds is as it was
+                throw refused;
             } catch (RuntimeException refused) {
                 // Read again now, not when the reader next asks for it: what the session holds is a workbook no
                 // author wrote, and every request that follows would be judged against it.

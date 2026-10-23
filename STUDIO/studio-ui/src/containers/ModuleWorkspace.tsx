@@ -168,7 +168,14 @@ export const ModuleWorkspace = () => {
     const [linkProblem, setLinkProblem] = useState(false)
     const [opening, setOpening] = useState(false)
     const [modules, setModules] = useState<ModuleInfo[] | null>(null)
-    const [loaded, setLoaded] = useState<{ at: string, other: boolean, tables: ModuleTable[] } | null>(null)
+    const [loaded, setLoaded] = useState<{ at: string, other: boolean, round: number, tables: ModuleTable[] } | null>(
+        null)
+    // A refresh may read the tables before the compilation it asked for has begun: the status at hand still names
+    // the module as compiled, from before, and the tables answer with what was compiled then — another program may
+    // have changed the files since. So the tables are read once more, in a round of their own, when a compilation
+    // that started after the refresh ends.
+    const [round, setRound] = useState(0)
+    const refreshed = useRef<'none' | 'asked' | 'compiling'>('none')
     // The free-form tables — the ones OpenL does not recognize — are left out of the tree unless the reader asks
     // for them, as the Editor's tree hid its utility tables. Asked for, they are read with the rest: the server
     // lists them only on request. The choice is this browser's, as the tree's view is — when it is the reader's:
@@ -377,13 +384,14 @@ export const ModuleWorkspace = () => {
     // screen stays readable and the rail says what it shows; the failure is reported beside it.
     const reading = useRef<string | null>(null)
     useEffect(() => {
-        const asked = `${here} ${reloadToken} ${showOther}`
-        if (!projectId || !compilation.ready || reading.current === asked || (tables !== null && !tablesReloading)) {
+        const asked = `${here} ${reloadToken} ${showOther} ${round}`
+        const current = tables !== null && !tablesReloading && loaded?.round === round
+        if (!projectId || !compilation.ready || reading.current === asked || current) {
             return
         }
         reading.current = asked
         getModuleTables(projectId, moduleName, { includeOther: showOther })
-            .then(found => setLoaded({ at: here, other: showOther, tables: found }))
+            .then(found => setLoaded({ at: here, other: showOther, round, tables: found }))
             .catch((error: unknown) => {
                 if (onScreen.current !== here) {
                     return
@@ -403,7 +411,16 @@ export const ModuleWorkspace = () => {
                 }
             })
     }, [here, projectId, moduleName, compilation.ready, tables, tablesReloading, reloadToken, showOther, chooseOther, t,
-        leaveGoneModule])
+        leaveGoneModule, loaded?.round, round])
+
+    useEffect(() => {
+        if (refreshed.current === 'asked' && compilation.state === 'compiling') {
+            refreshed.current = 'compiling'
+        } else if (refreshed.current === 'compiling' && isCompiled(compilation.state)) {
+            refreshed.current = 'none'
+            setRound(count => count + 1)
+        }
+    }, [compilation.state])
 
     // A module opens on a table rather than on an empty canvas: the first one the list carries. The same
     // correction moves off the table on screen once the module holds it no more: the reader took the free-form
@@ -485,11 +502,40 @@ export const ModuleWorkspace = () => {
     // address still names it, and it is drawn again as soon as the tables are back. Whether the project has
     // compiled through is an open question again until the compilation asked for has finished.
     const refresh = useCallback((rebuilding = true) => {
+        refreshed.current = 'asked'
         setLoaded(null)
         setTableError(null)
         setProjectCompiled(false)
         setReload(asked => ({ module: moduleName, token: asked.token + 1, rebuild: rebuilding }))
     }, [moduleName])
+
+    // Another program wrote the files. The screen is never read again by itself, as the reader may be in the
+    // middle of an edit: a notification says so until the module is compiled again or the reader leaves it.
+    // Its button refreshes the way the screen refreshes now, whatever was pending when the notification opened.
+    const refreshFromDisk = useRef(() => {})
+    useEffect(() => {
+        refreshFromDisk.current = () => confirmDiscard(() => refresh())
+    }, [confirmDiscard, refresh])
+    const changedOnDisk = compilation.changedOnDisk && !closed
+    useEffect(() => {
+        if (!changedOnDisk) {
+            return undefined
+        }
+        const key = `module-changed-on-disk ${projectId} ${moduleName}`
+        notification.warning({
+            key,
+            title: t('browser.module.changed_on_disk'),
+            description: t('browser.module.changed_on_disk_hint'),
+            duration: 0,
+            props: { 'data-testid': 'module-changed-on-disk' },
+            actions: (
+                <Button icon={<ReloadOutlined />} onClick={() => refreshFromDisk.current()}>
+                    {t('browser.module.refresh')}
+                </Button>
+            ),
+        })
+        return () => notification.destroy(key)
+    }, [changedOnDisk, moduleName, notification, projectId, t])
 
     // Opening a revision replaces the workspace copy of the project: the project itself is read again, and the
     // module is compiled from what the revision holds.

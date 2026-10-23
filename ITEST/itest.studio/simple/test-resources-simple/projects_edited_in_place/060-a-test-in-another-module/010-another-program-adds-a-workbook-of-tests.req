@@ -1,0 +1,4 @@
+POST /rest/repos/design-file/files/greetings/tests/GreetingsTests.xlsx?createFolders=true HTTP/1.1
+Content-Type: application/octet-stream
+
+&../greetings-tests.xlsx

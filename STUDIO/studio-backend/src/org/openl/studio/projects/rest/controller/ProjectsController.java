@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -77,6 +78,7 @@ import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.model.ResultNotReadyView;
+import org.openl.studio.common.projection.FieldProjectionSupport;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.web.EntityVersions;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
@@ -179,6 +181,7 @@ public class ProjectsController {
     private final ProjectMigrationService migrationService;
     private final ProjectRevisionService projectRevisionService;
     private final TableInputService tableInputService;
+    private final FieldProjectionSupport fieldProjection;
 
     @Lookup
     public WebStudio getWebStudio() {
@@ -283,15 +286,16 @@ public class ProjectsController {
     }
 
     @GetMapping("/{projectId}")
-    @Operation(summary = "projects.get.summary")
+    @Operation(summary = "projects.get.summary", description = "projects.get.desc")
     @JsonView(GenericView.Detailed.class)
     public ProjectViewModel getProject(@ProjectId @PathVariable("projectId") RulesProject project,
                                        @Parameter(description = "projects.get.param.include.desc",
                                                style = ParameterStyle.FORM,
                                                explode = Explode.TRUE,
                                                array = @ArraySchema(schema = @Schema(implementation = ProjectInclude.class)))
-                                       @RequestParam(value = "include", required = false) List<ProjectInclude> includes) {
-        return projectService.getProject(project, includes);
+                                       @RequestParam(value = "include", required = false) List<ProjectInclude> includes,
+                                       HttpServletRequest request) {
+        return projectService.getProject(project, includes, fieldProjection.selectionOf(request));
     }
 
     @DeleteMapping("/{projectId}")

@@ -21,6 +21,7 @@ const TEST_RESULTS_WAIT: WaitOptions = {
 export function registerTestingHandlers(): void {
   registerTool({
     name: "start_project_tests",
+    compiled: true,
     title: "Start Project Tests",
     description:
       "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Returns execution status and metadata. Retrieve results with openl_get_test_results_summary, openl_get_test_results, or openl_get_test_results_by_table; each result tool waits internally until Studio finishes instead of requiring agent-side polling.",

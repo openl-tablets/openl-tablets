@@ -9,6 +9,7 @@ import type * as Types from "../types.js";
 import { paginateCollection } from "../formatters.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, type ToolResponse } from "./common.js";
+import { refreshFromDisk } from "./freshness.js";
 
 /**
  * Severity ordering for `compilation.messages.items`. Anything not recognised
@@ -69,6 +70,11 @@ function shapeStatusResponse(
   };
 }
 
+/** What `openl_project_status` adds when it compiled the project again from files another program changed. */
+const CHANGED_ON_DISK_NOTE =
+  "Files of the project were changed outside Studio, so the project is compiled again from them. " +
+  "Read the tables again before editing them; call openl_project_status again for the result of the compilation.";
+
 /** What `openl_project_status` adds to a state that is not a final result of a compilation. */
 const STATUS_NOTES: Partial<Record<Types.CompileState, string>> = {
   idle: "Studio has no compilable module registered for this project; compileState remains idle.",
@@ -82,17 +88,23 @@ const STATUS_NOTES: Partial<Record<Types.CompileState, string>> = {
  * compiled yet (`idle`) is compiled through the tables API, which answers once the compilation ends.
  *
  * A compilation that was already running, or that outlasts `timeoutMs`, is reported as it is: `compiling`.
+ *
+ * A project whose files another program changed since Studio compiled them is compiled again from those files, waiting
+ * for the compilation up to `timeoutMs` as for an idle project: the status that is answered tells `refreshed`.
  */
 async function readProjectStatus(
   client: OpenLClient,
   projectId: string,
   branch: string | undefined,
   options: { signal?: AbortSignal; timeoutMs?: number },
-): Promise<Types.ProjectStatusView> {
+): Promise<Types.ProjectStatusView & { refreshed?: true }> {
   let status = await client.getProjectStatus(projectId);
   if (branch && status.branch && branch !== status.branch) {
     await client.openOnBranch(projectId, branch);
     status = await client.getProjectStatus(projectId);
+  }
+  if (status.changedOnDisk && await refreshFromDisk(client, projectId, options.signal, options.timeoutMs)) {
+    return { ...(await client.getProjectStatus(projectId)), refreshed: true };
   }
   if (status.compileState !== "idle") {
     return status;
@@ -162,7 +174,7 @@ export function registerProjectHandlers(): void {
     name: "project_status",
     title: "Get Project Status",
     description:
-      "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch switches the opened design project to that branch first. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation.",
+      "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch switches the opened design project to that branch first. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
     schema: schemas.projectStatusSchema,
     annotations: {
       readOnlyHint: false,
@@ -174,8 +186,9 @@ export function registerProjectHandlers(): void {
         signal: extra?.signal,
         timeoutMs: args.timeoutMs,
       });
-      const shaped = shapeStatusResponse(status, args.severity, args.maxMessages);
-      const note = STATUS_NOTES[status.compileState];
+      const { refreshed, ...read } = status;
+      const shaped = shapeStatusResponse(read, args.severity, args.maxMessages);
+      const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 
       return formatResult(payload, args.response_format);

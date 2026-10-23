@@ -1,0 +1,39 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Bye",
+      "returnType": "String",
+      "signature": "Bye (Integer hour)",
+      "file": "greetings/rules/Farewells.xlsx",
+      "sheet": "Rules",
+      "pos": "B3:E11",
+      "module": "Farewells",
+      "project": "EPBDS-16987 Greetings",
+      "projectId": "***"
+    },
+    {
+      "id": "***",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "Hello",
+      "returnType": "String",
+      "signature": "Hello (Integer hour)",
+      "file": "greetings/rules/Greetings.xlsx",
+      "sheet": "Rules",
+      "pos": "B3:E11",
+      "module": "Greetings",
+      "project": "EPBDS-16987 Greetings",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
