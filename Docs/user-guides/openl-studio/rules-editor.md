@@ -169,6 +169,10 @@ To compare module versions, proceed as follows:
 
     When a project is modified, upon clicking the **Save** icon ![](images/save-icon-alt.png), a temporary version of the module is created, and it appears in the list of local changes. When project update is complete, clicking **Save** removes all temporary versions from Local Changes, and a new version is added to the list of revisions.
 
+    When another program, such as Excel, saved the module since OpenL Studio last did, the version it saved is
+    added to the list too before OpenL Studio writes over it or restores an earlier version, so it can be restored
+    as well.
+
     ![](images/save-project-update-revision.jpeg)
 
     *Clicking Save to complete project update and save changes as a revision version*

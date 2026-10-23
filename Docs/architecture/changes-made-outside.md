@@ -122,7 +122,14 @@ folder. So the projects of a design repository on the file system are edited whe
   the project rather than in the workspace.
 - **History.** The local edit history of a module stays in the workspace
   (`{userId}/.history/.in-place/{repository id}/{folder}`, apart from the history of a copy in the workspace with the
-  same folder), and a save of the project keeps it, so an edit is rolled back from it.
+  same folder), and a save of the project keeps it, so an edit is rolled back from it. Before a workbook is written
+  and before a version is restored, `ProjectHistoryService.save` keeps the file as it is on disk when it differs
+  from the version kept last, so the version another program wrote is never lost to the session. This holds for a
+  copy in the workspace too. The file and the version are compared as they are read, so a big workbook is never held in memory for it, and a file
+  that kept its size and modification time since the history took it is not compared again. A restore
+  writes the file whole, as a save does, and has the session compile the project again when the project was
+  compiled from the restored workbook (`ProjectModel.isCompiledFrom`), so a restore is never taken for a change
+  another program made.
 - **Telling the reader.** `XlsWorkbookSourceCodeModule.isChangedOnDisk()` compares the size and the modification time
   of the file with the ones it remembers, and tells a workbook read from another file than the compiled one, such as
   one read again from content another program changed keeping the size and the time. `ProjectModel.isChangedOnDisk()`

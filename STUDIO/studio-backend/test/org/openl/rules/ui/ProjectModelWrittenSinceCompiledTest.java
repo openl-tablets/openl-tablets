@@ -130,6 +130,16 @@ class ProjectModelWrittenSinceCompiledTest {
         assertTrue(model.isChangedOnDisk(), "a descriptor that cannot be read is a change too");
     }
 
+    @Test
+    void tells_the_workbooks_the_project_was_compiled_from(@TempDir Path dir) throws Exception {
+        TableTestProjects.writeProject(dir, "Rules", "Rules", HELLO);
+        var model = opened(moduleOf(dir, "Rules"), true);
+
+        assertTrue(model.isCompiledFrom(dir.resolve("Rules.xlsx")));
+        assertTrue(model.isCompiledFrom(dir.resolve("other/../Rules.xlsx")), "the same file named another way");
+        assertFalse(model.isCompiledFrom(dir.resolve("Other.xlsx")));
+    }
+
     private static Module moduleOf(Path dir, String name) throws Exception {
         return ProjectResolver.getInstance()
                 .resolve(dir)

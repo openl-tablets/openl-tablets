@@ -1,8 +1,8 @@
 package org.openl.studio.projects.service.history;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -46,6 +46,7 @@ import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.projects.model.history.ProjectHistoryItem;
+import org.openl.util.FileReplacement;
 import org.openl.util.FileUtils;
 
 @Service
@@ -107,33 +108,48 @@ public class ProjectHistoryService {
                         WebStudio webStudio) throws IOException, ProjectException, ProjectResolvingException {
         var location = resolveHistoryLocation(project, moduleName);
         requireWriteAccess(project.getArtefact(location.module().getRulesRootPath()));
-        var fileToRestore = getHistoryVersion(location.historyFolder(), versionToRestore);
+        var requested = getHistoryVersion(location.historyFolder(), versionToRestore);
+        var currentSourceFile = location.module().getRulesPath().toFile();
+        // Another program may have written the file since the last save: the history keeps that version too, so
+        // that the restore can be undone, and the version saved last is restored over it. Keeping it takes the
+        // current mark off the version saved last.
+        save(location.historyFolder().toString(), currentSourceFile);
+        var fileToRestore = requested.isFile() ? requested : unmarked(requested);
         var currentVersion = getCurrentVersion(location.historyFolder().toString());
         if (fileToRestore.equals(currentVersion)) {
             return;
         }
 
-        var currentSourceFile = location.module().getRulesPath().toFile();
         try {
-            FileUtils.copy(fileToRestore, currentSourceFile);
-        } catch (FileNotFoundException e) {
+            // Written whole, as a save writes it: Excel or an IDE reading the file never meets it half written.
+            FileReplacement.replace(currentSourceFile.toPath(), out -> Files.copy(fileToRestore.toPath(), out));
+        } catch (FileSystemException e) {
             throw new LockedException(
-                    e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
+                    currentSourceFile.getName().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
         }
         reloadOpenedModule(webStudio, currentSourceFile);
         markAsCurrent(fileToRestore);
         removeCurrentVersion(currentVersion);
     }
 
+    /**
+     * Has the session compile the project open again when it was compiled from the restored workbook, so that it
+     * reads what the workbook holds now and does not take the restore for a change made by another program.
+     *
+     * <p>The module open is compiled again by itself; any other module compiled with it drops all that was compiled.
+     * A session that compiled nothing from the workbook keeps what it compiled.
+     */
     private static void reloadOpenedModule(WebStudio webStudio, File restoredSource)
             throws IOException, ProjectResolvingException {
         var currentModule = webStudio.getCurrentModule();
-        if (currentModule == null || !Files.isSameFile(currentModule.getRulesPath(), restoredSource.toPath())) {
+        var model = webStudio.getModel();
+        if (currentModule == null || model == null) {
             return;
         }
-        var model = webStudio.getModel();
-        if (model != null) {
+        if (Files.isSameFile(currentModule.getRulesPath(), restoredSource.toPath())) {
             model.reset(ReloadType.SINGLE);
+        } else if (model.isCompiledFrom(restoredSource.toPath())) {
+            model.reset(ReloadType.RELOAD);
         }
     }
 
@@ -205,8 +221,7 @@ public class ProjectHistoryService {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
-        var projectFolder = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
-        var module = resolveModule(projectFolder, moduleName);
+        var module = resolveModule(projectFolderOf(project), moduleName);
         return new HistoryLocation(module, historyOf(project).resolve(module.getRulesRootPath()));
     }
 
@@ -290,11 +305,9 @@ public class ProjectHistoryService {
         File currentVersion = getCurrentVersion(storagePath);
         if (currentVersion != null) {
             try {
-                byte[] currentVersionBytes = Files.readAllBytes(currentVersion.toPath());
-                byte[] sourceBytes = Files.readAllBytes(source.toPath());
-                if (!Arrays.equals(currentVersionBytes, sourceBytes)) {
-                    var destFile = new File(storagePath, System.currentTimeMillis() + CURRENT_VERSION);
-                    FileUtils.copy(source, destFile);
+                // Compared as they are read: a workbook of hundreds of megabytes is never held in memory.
+                if (Files.mismatch(currentVersion.toPath(), source.toPath()) != -1) {
+                    FileUtils.copy(source, newVersion(storagePath));
                     removeCurrentVersion(currentVersion);
                     deleteHistoryOverLimit(storagePath);
                 }
@@ -381,10 +394,28 @@ public class ProjectHistoryService {
     /** Takes the current version mark off the file, leaving it an ordinary history entry. */
     private static void removeCurrentVersion(@Nullable File currentVersion) throws IOException {
         if (currentVersion != null) {
-            Files.move(currentVersion.toPath(),
-                    Path.of(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")),
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.move(currentVersion.toPath(), unmarked(currentVersion).toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    /**
+     * A new current version, named by the time it is kept at.
+     *
+     * <p>Two versions kept within the same millisecond, such as the one another program wrote and the write that
+     * follows it, are named apart.
+     */
+    private static File newVersion(String storagePath) {
+        var time = System.currentTimeMillis();
+        while (new File(storagePath, Long.toString(time)).exists()
+                || new File(storagePath, time + CURRENT_VERSION).exists()) {
+            time++;
+        }
+        return new File(storagePath, time + CURRENT_VERSION);
+    }
+
+    /** The history entry a version is once the current version mark is taken off it. */
+    private static File unmarked(File version) {
+        return new File(version.getPath().replaceAll(CURRENT_VERSION + "$", ""));
     }
 
     private ProjectHistoryItem createItem(String name) {

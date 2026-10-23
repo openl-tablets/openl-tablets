@@ -1,5 +1,6 @@
 package org.openl.rules.ui;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -169,6 +170,12 @@ public class ProjectModel {
 
     /** Whether the files of the project open changed since it was compiled, as last noted. */
     private volatile boolean projectFilesChanged;
+
+    /**
+     * The size and the modification time each workbook had when the local history last took it, or found it taken: a
+     * workbook that still has them is the version the history holds.
+     */
+    private final Map<File, String> keptInHistory = new ConcurrentHashMap<>();
 
     private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     @Getter
@@ -1577,13 +1584,29 @@ public class ProjectModel {
      * compiled.
      */
     public boolean isWrittenSinceCompiled() {
+        return compiledWorkbooks().anyMatch(XlsWorkbookSourceCodeModule::isSavedSinceRead);
+    }
+
+    /**
+     * Whether the project open was compiled from the workbook, as a module of its own or of a project it depends on.
+     *
+     * @param workbook the file of the workbook
+     */
+    public boolean isCompiledFrom(Path workbook) {
+        var file = workbook.toAbsolutePath().normalize();
+        return compiledWorkbooks().map(XlsWorkbookSourceCodeModule::getSourceFile)
+                .filter(Objects::nonNull)
+                .anyMatch(source -> source.toPath().toAbsolutePath().normalize().equals(file));
+    }
+
+    /** The workbooks of every module compiled for the project open. */
+    private Stream<XlsWorkbookSourceCodeModule> compiledWorkbooks() {
         return getCompiledModules().stream()
                 .map(XlsModuleSyntaxNode::getWorkbookSyntaxNodes)
                 .filter(Objects::nonNull)
                 .flatMap(Arrays::stream)
                 .map(WorkbookSyntaxNode::getWorkbookSourceCodeModule)
-                .filter(Objects::nonNull)
-                .anyMatch(XlsWorkbookSourceCodeModule::isSavedSinceRead);
+                .filter(Objects::nonNull);
     }
 
     /**
@@ -1599,13 +1622,7 @@ public class ProjectModel {
      * from what a workbook noted when it was read again.
      */
     public boolean isChangedOnDisk() {
-        return projectFilesChanged || getCompiledModules().stream()
-                .map(XlsModuleSyntaxNode::getWorkbookSyntaxNodes)
-                .filter(Objects::nonNull)
-                .flatMap(Arrays::stream)
-                .map(WorkbookSyntaxNode::getWorkbookSourceCodeModule)
-                .filter(Objects::nonNull)
-                .anyMatch(XlsWorkbookSourceCodeModule::isChangedOnDisk);
+        return projectFilesChanged || compiledWorkbooks().anyMatch(XlsWorkbookSourceCodeModule::isChangedOnDisk);
     }
 
     /**
@@ -1723,6 +1740,14 @@ public class ProjectModel {
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
             var sourceFile = workbookSourceCodeModule.getSourceFile();
             ProjectHistoryService.init(storagePath, sourceFile);
+            // Another program may have written the file since the history took it: the history keeps that version
+            // too, so that the write about to be made can be rolled back to it. A file as the history took it is
+            // not read again to tell.
+            var stamp = stampOf(sourceFile);
+            if (!stamp.equals(keptInHistory.get(sourceFile))) {
+                ProjectHistoryService.save(storagePath, sourceFile);
+                keptInHistory.put(sourceFile, stamp);
+            }
         }
 
         @Override
@@ -1731,6 +1756,11 @@ public class ProjectModel {
             var sourceFile = workbookSourceCodeModule.getSourceFile();
             repository.getProjectState(sourceFile.getPath()).notifyModified();
             ProjectHistoryService.save(storagePath, sourceFile);
+            keptInHistory.put(sourceFile, stampOf(sourceFile));
+        }
+
+        private static String stampOf(File file) {
+            return file.length() + ":" + file.lastModified();
         }
     }
 }
