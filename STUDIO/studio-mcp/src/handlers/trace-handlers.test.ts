@@ -346,14 +346,14 @@ describe("trace tools", () => {
     expect(harness.mockHttp.history.put).toHaveLength(0);
   });
 
-  it("openl_set_trace_breakpoints with set replaces the whole set before reading it back", async () => {
+  it("openl_set_trace_breakpoints with breakpoints replaces the whole set before reading it back", async () => {
     harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply(204);
     harness.mockHttp.onGet(`${projectPath}/trace/breakpoints`).reply(200, ["uri#R0C1"]);
     harness.mockHttp.onGet(`${projectPath}/trace/breakpoint-tables`).reply(200, []);
 
     const result = await executeTool(
       "set_trace_breakpoints",
-      { projectId, set: ["uri#R0C1"], response_format: "json" },
+      { projectId, breakpoints: ["uri#R0C1"], response_format: "json" },
       harness.client
     );
 

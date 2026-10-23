@@ -1019,7 +1019,7 @@ export class OpenLClient {
   async startTableRun(
     projectId: string,
     tableId: string,
-    inputJson: unknown[] | Record<string, unknown>,
+    inputJson: string | unknown[] | Record<string, unknown>,
     options?: { fromModule?: string; timeoutMs?: number }
   ): Promise<void> {
     await this.http.post(
