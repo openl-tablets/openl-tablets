@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"file\": \"McpTools/docs/notes.txt\",\n    \"conflicts\": 1,\n    \"blocks\": [\n      {\n        \"kind\": \"merged\",\n        \"text\": \"Premium notes\\n\"\n      },\n      {\n        \"kind\": \"conflict\",\n        \"conflict\": 0,\n        \"ours\": \"Base premium is 120.\\n\",\n        \"base\": \"Base premium is 100.\\n\",\n        \"theirs\": \"Base premium is 110.\\n\"\n      }\n    ]\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

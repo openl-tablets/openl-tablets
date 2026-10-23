@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/notes.txt\",\n    \"action\": \"overwritten\",\n    \"bytesWritten\": 62,\n    \"committed\": true,\n    \"branch\": \"master\",\n    \"message\": \"Overwrote 62 byte(s) in 'docs/notes.txt' and committed the project to Git: \\\"Note the factor of young drivers on master\\\".\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

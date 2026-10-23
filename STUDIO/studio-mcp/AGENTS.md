@@ -27,7 +27,7 @@ it opens no WebSocket. Studio's background work is read within one tool call whe
 Studio answers `202 notReady` until it is done — test results, merges, table runs —
 while `openl_project_status` reports a compilation that is still running as `compiling`.
 
-## Tools (76 Total)
+## Tools (78 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -66,28 +66,30 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_list_project_modules` - List declared project modules, including path patterns and their matched modules
 - `openl_list_module_sheets` - List worksheets in a project module
 
-### Project Branch/Merge/Deletion Tools (10, BETA)
+### Project Branch/Merge/Deletion Tools (11, BETA)
 
 Studio keeps merge conflict state for the client (its credential). After a merge returns
 `status: "conflicts"`, inspect it through the same MCP server instance and present
-the evidence to the user: the conflicted files, their versions, and, for a workbook,
-the conflicting tables and cells. The user decides how each conflict is resolved,
-in Studio or by telling the agent; choosing `OURS` or `THEIRS` can discard valid
-work, so never choose a side or type a value the user did not decide or approve.
-`openl_resolve_merge_conflicts` then resolves every conflicted file as decided and
-completes the merge, merging a workbook table by table and cell by cell as the
-**Merge table by table** window of Studio does. Use the cancel tool only to clear
-pending MCP session state after the user takes over or the merge is abandoned.
+the evidence to the user: the conflicted files, their versions, for a text file the
+conflicting lines, and for a workbook the conflicting tables and cells. The user
+decides how each conflict is resolved, in Studio or by telling the agent; choosing
+`OURS` or `THEIRS` can discard valid work, so never choose a side or type lines or
+a value the user did not decide or approve. `openl_resolve_merge_conflicts` then
+resolves every conflicted file as decided and completes the merge, merging a text
+file line by line and a workbook table by table and cell by cell as the **Merge line
+by line** and **Merge table by table** windows of Studio do. Use the cancel tool only
+to clear pending MCP session state after the user takes over or the merge is abandoned.
 `receive` merges the other branch into the project's current branch; `send` merges
 the current branch into the other branch.
 
 - `openl_list_project_branches` - List branches with base/protected flags: `scope: "project"` (default) returns branches that hold the project for switching/deletion; `scope: "repository"` returns every repository branch for merge-target discovery, including branches that do not hold the project yet
-- `openl_check_project_merge` - Check merge direction, branch relationship, permissions, and blockers without changing Git; `mergeable`/`canMerge` permits an attempt but does not predict conflicts
-- `openl_merge_project_branches` - Recheck and attempt the merge, where conflicts are first discovered; Studio runs the merge in the background and the tool waits until it ends; creates session-bound conflict state when needed
-- `openl_get_merge_conflicts` - Get grouped conflicted paths, BASE/OURS/THEIRS revisions, and the default message
-- `openl_read_merge_conflict_file` - Read a bounded UTF-8 or base64 binary chunk for one BASE/OURS/THEIRS file version
-- `openl_get_merge_conflict_workbook` - Read a conflicted Excel file as Studio merges it table by table: without `table`, the sheets either branch changed and the conflicting tables, a table with `byCells: true` listing its conflicting cells (row and column in the merged table, from 0) with what your and their version hold; with `table`, that table's cells in your, the base and their version and in the merged table, without formatting, the merged table naming in `changedCells` the cells Studio took from the one branch that changed them
-- `openl_resolve_merge_conflicts` - Resolve every conflicted file of the pending conflict as the user decided and complete the merge: a strategy (`OURS`, `THEIRS`, `BASE`) per file, or workbook `decisions` — a table or a sheet taken whole (`{id, side}`), or a table merged cell by cell (`{id, cells}`: the version of the table and of single cells, and typed values read as Excel reads typing); the tool merges each workbook through Studio and sends it as the `CUSTOM` file, and refuses a call that leaves a conflicted file out
+- `openl_check_project_merge` - Check merge direction, branch relationship, permissions, and blockers without changing Git; `mergeable`/`canMerge` permits an attempt but does not predict conflicts; `scope` tells what the merge would bring in: every project the source branch changed, and the files both branches changed
+- `openl_merge_project_branches` - Recheck and attempt the merge, where conflicts are first discovered; Studio runs the merge in the background and the tool waits until it ends; the merge brings in every project the source branch changed, which `summary` of a success lists with their files; creates session-bound conflict state when needed
+- `openl_get_merge_conflicts` - Get grouped conflicted paths, which versions hold each file and whether it is UTF-8 text (`fileAvailability`), BASE/OURS/THEIRS revisions, and the default message
+- `openl_read_merge_conflict_file` - Read a bounded UTF-8 or base64 binary chunk for one BASE/OURS/THEIRS file version; a version `fileAvailability` marks `false`, such as the base of a file both branches added, does not hold the file
+- `openl_get_merge_conflict_workbook` - Read a conflicted Excel file that your, the base and their version all hold as Studio merges it table by table (a workbook both branches added has no base version and is resolved whole, with a strategy): without `table`, the sheets either branch changed and the conflicting tables, a table with `byCells: true` listing its conflicting cells (row and column in the merged table, from 0) with what your and their version hold; with `table`, that table's cells in your, the base and their version and in the merged table, without formatting, the merged table naming in `changedCells` the cells Studio took from the one branch that changed them
+- `openl_get_merge_conflict_text` - Read a conflicted UTF-8 text file that your and their version hold as Studio merges it line by line: the parts of the file in order, the lines the merge took by itself (a run of more than 8 lines as its first and last 3, `head` and `tail`, with `omittedLines` between) and each conflict, numbered from 0, with every line your, the base and their version have in its place
+- `openl_resolve_merge_conflicts` - Resolve every conflicted file of the pending conflict as the user decided and complete the merge: a strategy (`OURS`, `THEIRS`, `BASE`) per file, text `conflicts` — one decision per conflict of `openl_get_merge_conflict_text`, in their order: a version (`{side}` of `ours`, `theirs`, `base`), both versions whole (`ours-theirs`, `theirs-ours`) or lines written in its place (`{lines}`), put in the line breaks of the file — or workbook `decisions` — a table or a sheet taken whole (`{id, side}`), or a table merged cell by cell (`{id, cells}`: the version of the table and of single cells, and typed values read as Excel reads typing); the tool merges each text file and each workbook as decided and sends it as the `CUSTOM` file, and refuses a call that leaves a conflicted file out
 - `openl_cancel_merge_conflicts` - Clear the pending conflict session without modifying files or branches
 - `openl_delete_project` - Delete a project after exact current-name confirmation
 - `openl_delete_project_branch` - Delete a non-base branch after exact branch confirmation and a safe-delete preflight against the repository base; unmerged commits, unsaved changes, or unverifiable divergence require explicit data-loss confirmation, while protected bypass also requires force confirmation
@@ -119,7 +121,7 @@ Cells / ranges:
 - `openl_merge_table_cells` - Merge a `rowspan`×`colspan` range from (`row`, `column`)
 - `openl_unmerge_table_cells` - Unmerge the cell covering (`row`, `column`)
 
-### Project Files Tools (6, BETA)
+### Project Files Tools (7, BETA)
 Operate on ANY file in a project by exact project-relative path (not just Excel rule files). Writes/deletes/copies/moves land in the project **working copy** — commit them with `openl_save_project`. Use the optional `branch` to pin the project's branch (omit for `local`/non-branch repositories).
 - `openl_read_project_file` - Read a file (text verbatim; arbitrary binary as lossless base64 `content` in a JSON TextContent envelope with MIME/byte metadata; optional `offset`/`length` byte range, whose text chunk arrives in the same envelope with `encoding: "utf-8"`, `nextOffset` while the file goes on and `lineEnding: "CRLF"` when its lines end with CR LF), read file metadata (`view: "meta"`), or list a folder (`recursive`, `viewMode` FLAT/NESTED, `extensions`, `namePattern`, `foldersOnly`); optional `version` reads a historical revision
 - `openl_write_project_file` - Create/replace a file from UTF-8 `content` or a base64 `blob` advertised with JSON Schema `contentEncoding: "base64"`; the legacy base64 `content` + `encoding` form remains accepted, including whitespace-wrapped base64; `createFolders` (default true), `conflictPolicy` FAIL/OVERWRITE/SKIP; OVERWRITE of a text file whose lines end with CRLF by `content` whose lines end with LF writes CRLF, so a read and write back leaves the file unchanged
@@ -193,7 +195,7 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 **For local, do not use:**
 - `openl_open_project`, `openl_save_project`, `openl_close_project` (no commits or status changes);
 - Git tools: `openl_list_branches`, `openl_create_project_branch`, `openl_repository_project_revisions`;
-- Project branch/merge tools: `openl_list_project_branches`, `openl_check_project_merge`, `openl_merge_project_branches`, read-only merge-conflict inspection, conflict-session cancellation, and `openl_delete_project_branch`;
+- Project branch/merge tools: `openl_list_project_branches`, `openl_check_project_merge`, `openl_merge_project_branches`, merge-conflict inspection and resolution, conflict-session cancellation, and `openl_delete_project_branch`;
 - `openl_list_project_local_changes`, `openl_restore_project_local_change` (require an opened project; local projects cannot be opened).
 
 Deployment (`openl_deploy_project`, `openl_redeploy_project`) for projects with `repository: 'local'` is typically not used via the studio.
