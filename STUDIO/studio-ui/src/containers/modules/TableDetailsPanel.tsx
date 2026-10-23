@@ -141,7 +141,7 @@ interface TableDetailsPanelProps {
      */
     beforeSave?: (() => Promise<Written | null>) | undefined
     /**
-     * The table after a write — under a new id when it had to be moved to grow.
+     * The table after a write — under a new id when the write renamed it or changed its `id` property.
      *
      * <p>Told of the cells written before the properties too, when the properties are then refused: the cells
      * stay written, and the table may stand under another id.
@@ -245,11 +245,11 @@ export const TableDetailsPanel = ({
     }, [projectId, tableId, moduleName, open, listed])
 
     // What is being written belongs to the table it was written on: another table is read afresh. The id a refused
-    // save sent the screen to is the same table, moved by its cells, so what the reader wrote stays there.
+    // save sent the screen to is the same table, renamed by its cells, so what the reader wrote stays there.
     useEffect(() => {
-        const moved = following.current === tableId
+        const renamed = following.current === tableId
         following.current = null
-        if (!moved) {
+        if (!renamed) {
             setEditing(false)
             setDraft({})
         }
@@ -332,7 +332,7 @@ export const TableDetailsPanel = ({
                 setDraft({})
                 onSaved?.(table)
             } else if (cells.changed) {
-                // The properties were refused, but the cells are written and may have moved the table. The screen
+                // The properties were refused, but the cells are written and may have renamed the table. The screen
                 // reads it again, under the id it now has, and the properties stay here to be saved again.
                 following.current = cells.tableId
                 onSaved?.(cells.tableId)

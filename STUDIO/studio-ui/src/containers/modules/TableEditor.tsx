@@ -146,7 +146,7 @@ const DRAWN: ReadonlySet<string> = new Set([
 
 /** What a write of the pending cells came to. */
 export interface Written {
-    /** The table's id afterwards — a new one when the table had to be moved to grow. */
+    /** The table's id afterwards — a new one when the write renamed the table or changed its `id` property. */
     tableId: string
     /** Whether anything reached the workbook, so the module has to be compiled again. */
     changed: boolean
@@ -156,7 +156,7 @@ export interface Written {
  * What the screen around the editor can ask of it.
  *
  * <p>The properties of a table are rows of the table itself, so the panel that writes them has to write what
- * the reader has done to its cells first — and the table may be moved as it is written.
+ * the reader has done to its cells first — and the table may be renamed as it is written.
  */
 export interface TableEditorHandle {
     /** Writes the pending cells, or answers null when the table cannot be written as it stands. */
@@ -207,7 +207,7 @@ interface TableEditorProps {
     onEditingChange: (editing: boolean) => void
     /** Told whether the table holds cells the reader has written and not yet saved. */
     onDirtyChange?: ((dirty: boolean) => void) | undefined
-    /** Told the table's id after a save; it changes when the table had to be moved to grow. */
+    /** Told the table's id after a save; it changes when the save renamed the table or changed its `id` property. */
     onSaved: (tableId: string) => void
     /** Handed to the screen, so a write of the table can be asked for from beside it. */
     ref?: React.Ref<TableEditorHandle> | undefined

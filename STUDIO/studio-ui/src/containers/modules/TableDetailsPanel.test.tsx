@@ -225,7 +225,7 @@ describe('TableDetailsPanel', () => {
         expect(onSaved).toHaveBeenCalledWith('table-1')
     })
 
-    it('has the screen read the table again under the id its cells moved it to when its properties are refused',
+    it('has the screen read the table again under the id its cells renamed it to when its properties are refused',
         async () => {
             vi.mocked(updateTableProperties).mockResolvedValue(null)
             const beforeSave = vi.fn().mockResolvedValue({ tableId: 'table-2', changed: true })
@@ -240,14 +240,14 @@ describe('TableDetailsPanel', () => {
             expect(onSaved).toHaveBeenCalledWith('table-2')
         })
 
-    it('keeps what the reader wrote while the screen follows the table its refused save moved', async () => {
+    it('keeps what the reader wrote while the screen follows the table its refused save renamed', async () => {
         vi.mocked(updateTableProperties).mockResolvedValue(null)
         const beforeSave = vi.fn().mockResolvedValue({ tableId: 'table-2', changed: true })
         const onSaved = vi.fn()
         const view = await edit({ beforeSave, onSaved })
-        // The screen opens the table under the id its cells moved it to.
-        onSaved.mockImplementation((moved: string) =>
-            view.rerender(panel({ canWrite: true, beforeSave, onSaved, tableId: moved })))
+        // The screen opens the table under the id its cells renamed it to.
+        onSaved.mockImplementation((renamed: string) =>
+            view.rerender(panel({ canWrite: true, beforeSave, onSaved, tableId: renamed })))
 
         await userEvent.clear(screen.getByTestId('table-details-input-description'))
         await userEvent.type(screen.getByTestId('table-details-input-description'), 'Greets by the hour')
