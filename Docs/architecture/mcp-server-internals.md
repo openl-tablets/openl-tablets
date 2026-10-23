@@ -13,8 +13,9 @@ All paths are under `STUDIO/studio-mcp/src`.
 - **`index.ts`** — the entry point, which starts the HTTP transport; the server has no other mode.
 - **`http-server.ts`** — the `node:http` request listener with `/mcp`: the body limit and the routing of a request to
   its transport.
-- **`mcp-core.ts`** — one `McpServer` with every tool of the registry registered on it; the server offers no
-  prompts.
+- **`mcp-core.ts`** — one `McpServer` with every tool of the registry and the skills registered on it; the server
+  offers no prompts.
+- **`skills.ts`** — the OpenL skills as resources and the `skills/list` and `skills/get` methods.
 - **`handlers/`** — the tools, one module per category. `handlers/common.ts` holds the registry, argument validation,
   the answer of a tool and error mapping; `handlers/wait.ts` the wait for Studio's background work;
   `handlers/table-edit.ts` the end of every table edit: the id Studio answers for a renamed table, and the read that
@@ -30,7 +31,8 @@ All paths are under `STUDIO/studio-mcp/src`.
 - **`guides-registry.ts`** — the specifications and the Reference Guide OpenL Studio serves at `/docs`.
 - **Build time** — `rolldown.config.js` of the module bundles the server and its dependencies into one minified ES
   module, `dist/index.mjs`; `build-licenses.ts`, a plugin of the bundler, lists the libraries the bundle ships in
-  `dist/mcp-licenses.json`.
+  `dist/mcp-licenses.json`, and `build-skills.ts`, another, embeds the skills of `STUDIO/studio-mcp/skills` as the
+  module `virtual:skills`, which the tests import through the same plugin.
 
 ## The Path of a Request
 
@@ -104,6 +106,24 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   changes its id.
 - **Paths** — `path` is the address of a document relative to the address of OpenL Studio. Bodies come as Studio
   serves them, so their links and images are relative to that address too.
+
+## Skills
+
+- **Source** — one folder per skill in `STUDIO/studio-mcp/skills`, in the layout of the
+  [Agent Skills specification](https://agentskills.io/specification). Each holds only what the tools,
+  `openl_get_started` and the guides Studio serves do not say.
+- **Build** — the bundler reads every file of a skill as UTF-8 text, hidden files such as `.DS_Store` left out, and
+  the YAML frontmatter of its `SKILL.md`; a hidden folder of `skills/` holds no skill. A skill without `SKILL.md`,
+  `name` or `description`, a description over 1024 characters, a compatibility that is empty or over 500
+  characters, metadata that is not a map of texts, a `name` other than its folder, a binary file, or more than 512
+  files or 16 MiB fails the build.
+- **Protocol** — the server declares `io.modelcontextprotocol/skills` in its capabilities, without `directoryRead`.
+  Every file is a resource `skill://<skill>/<path>`; a `SKILL.md` takes its name and description from its
+  frontmatter. `skills/list` answers every skill in one page, `skills/get` one by the URI of its `SKILL.md`, and an
+  unknown URI is `-32602`. An entry carries the frontmatter as JSON and every file with its SHA-256 digest and size.
+- **Clients without the extension** — the `instructions` of the server, which a client gives its agent when it
+  connects, send the agent to `openl_get_started` first and list the skills with their URIs and descriptions, as
+  `openl_get_started` does too, so an agent reads the skill that matches its task as resources.
 
 ## Coupling with OpenL Studio
 

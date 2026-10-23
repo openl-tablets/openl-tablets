@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenL Replayable Change Set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "kind", "metadata", "project", "operations"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "enum": ["1.5.0", "1.6.0"] },
+    "kind": { "const": "OpenLChangeSet" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changeSetId", "title", "createdAt"],
+      "properties": {
+        "changeSetId": { "$ref": "#/$defs/text" },
+        "title": { "$ref": "#/$defs/text" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "ticket": { "$ref": "#/$defs/text" },
+        "phase": { "enum": ["structure", "data"] },
+        "pairedFile": { "$ref": "#/$defs/text" }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "repository", "path"],
+      "properties": { "name": { "type": "string" }, "repository": { "type": "string" }, "path": { "type": "string" } }
+    },
+    "operations": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/operation" } },
+    "notes": { "$ref": "#/$defs/notes" },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": { "enum": ["in-progress", "complete", "reapplied", "failed"] },
+        "saveRevision": { "type": "string" },
+        "tests": { "type": "string" },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["at", "event"],
+            "properties": {
+              "at": { "type": "string", "format": "date-time" },
+              "event": { "enum": ["logged", "preflight-conflict", "reapplied", "failed"] },
+              "detail": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "schemaVersion": { "const": "1.6.0" } } },
+      "then": { "properties": { "operations": { "items": { "required": ["purpose", "status", "evidence"] } } } }
+    },
+    {
+      "if": { "properties": { "metadata": { "required": ["phase"], "properties": { "phase": { "const": "structure" } } } } },
+      "then": { "properties": { "operations": { "items": { "properties": { "elementType": { "const": "column" } } } } } }
+    },
+    {
+      "if": { "properties": { "metadata": { "required": ["phase"], "properties": { "phase": { "const": "data" } } } } },
+      "then": { "properties": { "operations": { "items": { "properties": { "elementType": { "const": "row" } } } } } }
+    }
+  ],
+  "$defs": {
+    "text": { "type": "string", "minLength": 1 },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "check": { "enum": ["PASS", "FAIL", "NOT_RUN"] },
+    "tableSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workbook", "sheetName", "tableName"],
+      "properties": {
+        "workbook": { "type": "string" },
+        "module": { "type": "string" },
+        "sheetName": { "type": "string" },
+        "tableName": { "type": "string" },
+        "tableKind": { "type": "string" }
+      }
+    },
+    "keyFields": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+    "fieldValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": { "type": ["string", "number", "boolean", "null"] },
+        "type": { "enum": ["string", "boolean", "integer", "decimal", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "string" } } },
+          "then": { "properties": { "value": { "type": "string" } } }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "integer" } } },
+          "then": { "properties": { "value": { "type": "integer" } } }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "decimal" } } },
+          "then": { "properties": { "value": { "type": "number" } } }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "boolean" } } },
+          "then": { "properties": { "value": { "type": "boolean" } } }
+        },
+        {
+          "if": { "required": ["type"], "properties": { "type": { "const": "null" } } },
+          "then": { "properties": { "value": { "type": "null" } } }
+        }
+      ]
+    },
+    "fields": { "type": "object", "minProperties": 1, "additionalProperties": { "$ref": "#/$defs/fieldValue" } },
+    "dimensionValues": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimensions", "fields"],
+        "properties": {
+          "dimensions": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "value"],
+              "properties": { "name": { "$ref": "#/$defs/text" }, "value": { "type": ["string", "number", "boolean"] } }
+            }
+          },
+          "fields": { "$ref": "#/$defs/fields" }
+        }
+      }
+    },
+    "rowSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields"],
+      "properties": { "fields": { "$ref": "#/$defs/fields" }, "dimensionValues": { "$ref": "#/$defs/dimensionValues" } }
+    },
+    "rowStateRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyFields", "fields"],
+      "properties": {
+        "keyFields": { "$ref": "#/$defs/keyFields" },
+        "fields": { "$ref": "#/$defs/fields" },
+        "dimensionValues": { "$ref": "#/$defs/dimensionValues" }
+      }
+    },
+    "rowEditRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyFields", "before", "after"],
+      "properties": {
+        "keyFields": { "$ref": "#/$defs/keyFields" },
+        "before": { "$ref": "#/$defs/rowSnapshot" },
+        "after": { "$ref": "#/$defs/rowSnapshot" }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "order", "action", "elementType", "targets"],
+      "properties": {
+        "id": { "type": "string" },
+        "order": { "type": "integer", "minimum": 1 },
+        "action": { "enum": ["add", "edit", "remove"] },
+        "elementType": { "enum": ["row", "column"] },
+        "targets": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/tableSelector" } },
+        "records": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "oneOf": [{ "$ref": "#/$defs/rowStateRecord" }, { "$ref": "#/$defs/rowEditRecord" }] }
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["expr", "label"],
+            "properties": { "expr": { "type": "string" }, "label": { "type": "string" } }
+          }
+        },
+        "notes": { "$ref": "#/$defs/notes" },
+        "purpose": { "$ref": "#/$defs/text" },
+        "dependsOn": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" } },
+        "status": { "enum": ["applied", "verified", "reapplied", "failed"] },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "readback": { "$ref": "#/$defs/check" },
+            "compile": { "$ref": "#/$defs/check" },
+            "tests": { "type": "string" },
+            "note": { "type": "string" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "required": ["elementType"], "properties": { "elementType": { "const": "row" } } },
+          "then": { "required": ["records"], "not": { "required": ["columns"] } }
+        },
+        {
+          "if": { "required": ["elementType"], "properties": { "elementType": { "const": "column" } } },
+          "then": { "required": ["columns"], "not": { "required": ["records"] } }
+        },
+        {
+          "if": { "required": ["action"], "properties": { "action": { "const": "edit" } } },
+          "then": {
+            "properties": { "elementType": { "const": "row" }, "records": { "items": { "$ref": "#/$defs/rowEditRecord" } } }
+          }
+        },
+        {
+          "if": { "required": ["action"], "properties": { "action": { "enum": ["add", "remove"] } } },
+          "then": { "properties": { "records": { "items": { "$ref": "#/$defs/rowStateRecord" } } } }
+        }
+      ]
+    }
+  }
+}

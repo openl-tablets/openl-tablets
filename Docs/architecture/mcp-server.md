@@ -283,9 +283,10 @@ What ships inside `WEB-INF/mcp`, and where each part comes from:
   the ones the frontend build accepts.
 - **Guides** — the server serves the specifications and the Reference Guide OpenL Studio carries at `/docs`, so they
   are always the ones of the same release.
-- **Skills** — the trace-investigation skill of openl-mcp is described for users in
-  [Working with an AI Agent](../user-guides/mcp-server/working-with-agents.md#investigating-a-wrong-result). The
-  server offers no MCP prompts.
+- **Skills** — the OpenL skills of `STUDIO/studio-mcp/skills`. The bundle carries them, and the server serves them
+  through the MCP skills extension (SEP-2640); see [MCP Server Internals](mcp-server-internals.md#skills). Users read
+  of them in [Working with an AI Agent](../user-guides/mcp-server/working-with-agents.md#openl-skills). The server
+  offers no MCP prompts.
 - **Project `AGENTS.md`** — part of each project, read through `openl_get_project_agent_context` from the Studio REST
   API. It versions with the project, not with the server.
 

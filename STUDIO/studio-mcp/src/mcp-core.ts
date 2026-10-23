@@ -2,6 +2,7 @@ import { McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/se
 import { SERVER_INFO, mcpToolName } from "./constants.js";
 import { registerAllTools, getAllTools, executeTool } from "./handlers/index.js";
 import type { OpenLClient } from "./client.js";
+import { SKILLS_EXTENSION, registerSkills, SKILLS_OVERVIEW } from "./skills.js";
 
 /**
  * The schema a tool is registered with: it publishes the JSON Schema of the tool as it is, and passes the arguments
@@ -18,6 +19,15 @@ function publishedSchema(inputSchema: Record<string, unknown>): StandardSchemaWi
   };
 }
 
+/**
+ * The instructions a client gives its agent when it connects: start with `openl_get_started`, and follow the skill
+ * that matches the task. They name the skills for the clients that do not list them through the skills extension.
+ */
+const INSTRUCTIONS = `This server connects you to OpenL Studio, the IDE of the OpenL Tablets business rules engine. \
+Call \`openl_get_started\` once, before any other \`openl_\` tool.
+
+${SKILLS_OVERVIEW}`;
+
 // The tools are the same for every server, so they are registered, and their wire names and configurations built,
 // once, when the module loads.
 registerAllTools();
@@ -30,10 +40,10 @@ const TOOLS = getAllTools().map(({ name, title, description, inputSchema, annota
 /**
  * Build an MCP server for one OpenL client. The caller attaches a transport.
  *
- * It serves every tool under its wire name, with the `openl_` namespace prefix; the registry holds bare names. A
- * client picks the tools its agent uses. A tool's own failure (backend 4xx/5xx, argument validation) reaches the
- * calling agent as an `isError` result carrying the detailed, sanitized message `executeTool` wraps it in, so the
- * model can self-correct.
+ * It serves every tool under its wire name, with the `openl_` namespace prefix, the registry holding bare names, and
+ * the OpenL skills of `skills.ts`. A client picks the tools its agent uses. A tool's own failure (backend 4xx/5xx,
+ * argument validation) reaches the calling agent as an `isError` result carrying the detailed, sanitized message
+ * `executeTool` wraps it in, so the model can self-correct.
  */
 export function createConfiguredServer(client: OpenLClient): McpServer {
   const server = new McpServer(
@@ -42,8 +52,15 @@ export function createConfiguredServer(client: OpenLClient): McpServer {
       version: SERVER_INFO.VERSION,
       description: SERVER_INFO.DESCRIPTION,
     },
-    // The tools never change while the server runs
-    { capabilities: { tools: { listChanged: false } } },
+    // The tools and the skills never change while the server runs
+    {
+      instructions: INSTRUCTIONS,
+      capabilities: {
+        tools: { listChanged: false },
+        resources: { listChanged: false },
+        extensions: { [SKILLS_EXTENSION]: {} },
+      },
+    },
   );
 
   for (const { name, wireName, config } of TOOLS) {
@@ -59,6 +76,7 @@ export function createConfiguredServer(client: OpenLClient): McpServer {
       }),
     );
   }
+  registerSkills(server);
 
   return server;
 }

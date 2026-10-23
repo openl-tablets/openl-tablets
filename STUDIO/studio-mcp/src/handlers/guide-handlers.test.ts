@@ -22,6 +22,9 @@ describe("guidance tools", () => {
     expect(text).toContain("openl_get_project_agent_context");
     expect(text).toContain("openl_list_guides");
     expect(text).toContain("openl_get_guides");
+    // ...and to the skills it serves, for clients without the skills extension.
+    expect(text).toContain("## Skills");
+    expect(text).toContain("`skill://planning/SKILL.md`");
     // Orientation reflects the documents of OpenL Studio (count, spec ids, section groups)...
     expect(text).toContain("OpenL Studio serves 3 documents");
     expect(text).toContain(GUIDE_IDS.rulesXml);

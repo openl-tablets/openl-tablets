@@ -13,6 +13,7 @@ Cursor, VS Code / GitHub Copilot) to the OpenL Studio Business Rules Management
 System (BRMS). Through its tools you can:
 
 - **Get oriented** with an onboarding entry point and the OpenL reference docs OpenL Studio serves
+- **Follow OpenL skills** — step-by-step workflows for planning, branching, testing, versioning, tracing and change logs
 - **Discover** repositories, projects, and rules
 - **Read** project structure, table definitions, and rule logic
 - **Modify** rules, tables, and project files
@@ -37,7 +38,7 @@ session before anything else; call `openl_get_project_agent_context` before work
 or creating any project. The documentation tools serve the OpenL Tablets docs **OpenL Studio
 serves for its own version** at `/docs`: the specifications of `docs/ref` and the Reference Guide of
 `docs/reference-guide` — progressive disclosure: the index is metadata-only, bodies are fetched by id on demand.
-- `openl_get_started` - Read-only onboarding bootstrap: the mandatory workflow protocol (load agent context per project, consult guides on demand, edit → validate → save) plus a workspace orientation (which specification/guide categories exist and how to discover more — not an index dump)
+- `openl_get_started` - Read-only onboarding bootstrap: the mandatory workflow protocol (load agent context per project, consult guides on demand, edit → validate → save), the OpenL skills with their `skill://` URIs and descriptions, plus a workspace orientation (which specification/guide categories exist and how to discover more — not an index dump)
 - `openl_get_project_agent_context` - Resolve the **AGENTS.md hierarchy** for a project as a **single aggregated markdown document**: walks UP from the project (or an optional `folder`) to the repository root, collects every applicable `AGENTS.md`, and returns them concatenated in one response — ordered from the root folder (lowest priority) down to the project folder (highest priority), later sections winning on conflict. Ends with the ids of the guides the guidance references
 - `openl_list_guides` - The canonical index of the docs: **metadata only** (id, type, title, path, size), filterable by `type` ('specification'/'guide') and case-insensitive `search` over id+title, paginated; `path` is the address of the document relative to the address of OpenL Studio
 - `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim: their links and images are relative to the path of the document; unknown ids fail with an actionable error — it never falls back to the index
@@ -181,6 +182,24 @@ and walk it level by level with `openl_expand_trace_tree`.
 ### Diagnostics (1)
 - `openl_get_server_info` - Report the OpenL Studio the server works with, as Markdown: `Server: OpenL Studio <version>` and `URL: <address>` — the address its users open, restored from the `X-Forwarded-*` headers or the first `Forwarded` element of the request, its `Host` otherwise, with the context path of Studio. `full: true` adds the build number, the start and the current time, OS, architecture, Java, CPUs and their load, threads, and the memory of the machine and of the JVM, from `/rest/public/info/build.json` and `/rest/public/info/sys.json`. The `path` of a document from `openl_list_guides` is relative to that address
 
+## Skills
+
+The server serves the OpenL skills of `skills/` through the MCP skills extension (SEP-2640,
+`io.modelcontextprotocol/skills`, declared without `directoryRead`):
+
+- `planning` — the entry point for building, changing, or fixing anything in a project
+- `branching` — task branches, sync with the base, conflicts, merge, hotfixes, cleanup
+- `testing` — test rows, running the tests on the saved revision, diagnosing failures
+- `versioning` — table versions by date, LOB, state or currency, and their tests
+- `trace-investigation` — the root cause of an unexpected rule result over the trace tools
+- `change-log-and-reapply` — a log of the changes of a feature, and reapplying the missing ones
+
+Every file of a skill is a resource `skill://<skill>/<path>`: read `skill://<skill>/SKILL.md` with `resources/read`
+and resolve its relative links against the folder of that `SKILL.md`. `skills/list` answers every skill — its
+frontmatter as JSON and every file with its SHA-256 digest and size — and `skills/get` one skill by the URI of its
+`SKILL.md`; an unknown URI is `-32602`. A client without the extension finds the skills in the server instructions,
+which also send the agent to `openl_get_started` first, and in `openl_get_started` itself.
+
 ## Local projects (repository: local)
 
 Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDITING status is not checked or required** for them — local projects are always considered editable.
@@ -284,6 +303,10 @@ OpenL Studio and where the server keeps its state; the
 - `npm run build` type-checks `src`, the tests included, with `tsc`, which emits nothing, and Rolldown
   (`rolldown.config.js`) bundles `src/index.ts` with the code it takes of the production dependencies into one
   minified `dist/index.mjs`. The name, version and description of `package.json` go into the bundle.
+- The `skills` plugin of the bundler (`src/build-skills.ts`) embeds the skills of `skills/` in the bundle as the module
+  `virtual:skills`; `vitest.config.js` applies it too, so the tests import the skills the bundle carries. A skill the
+  Agent Skills specification or the limits of the extension refuse fails the build. `yaml` reads the frontmatter at
+  build time only, so the bundle does not carry it.
 - The `licenses` plugin of the bundler (`src/build-licenses.ts`) writes `dist/mcp-licenses.json`, which the jar
   carries as `licenses/mcp-licenses.json`: every package the bundle takes code of, with its license file and its
   NOTICE, for the About dialog of OpenL Studio. A package whose license is outside the `--onlyAllow` list of the
@@ -345,8 +368,24 @@ OpenL Studio and where the server keeps its state; the
 - `tsc` of `npm run build` checks the tests as it checks the rest of `src/`: a type error in a test fails the build.
 - `ITEST/itest.studio/mcp` runs the server inside OpenL Studio, behind its security and its `/mcp` servlet.
 
+### Skills
+
+The skills of `skills/` are written for this server and follow the
+[best practices](https://agentskills.io/skill-creation/best-practices) of Agent Skills:
+
+- A skill holds only what the agent lacks: the procedure, the approvals, and the gotchas of OpenL and Studio. It
+  never restates a tool description, `openl_get_started`, the guides Studio serves — it names the guide to read — or
+  another skill, which it names.
+- `SKILL.md` holds what every run needs; a file of `references/` holds what only some runs need, and `SKILL.md`
+  says when to read it.
+- A skill names a tool by its `openl_` name and leaves its arguments to the tool description; a test fails on a
+  name the server has no tool for.
+- Evaluate a change of a skill before committing it: run an agent on realistic tasks of the skill against a
+  throwaway OpenL Studio, once with the previous version and once with the new one, and compare the tool calls and
+  the answers.
+
 ### Documentation
 
 - Keep this `AGENTS.md`, the tool descriptions and the documents under `Docs/` that describe the server in step with
-  every change of tools, configuration or behaviour. The server offers no MCP prompts: guidance for agents lives in
-  the tool descriptions, `openl_get_started` and the guides OpenL Studio serves.
+  every change of tools, skills, configuration or behaviour. The server offers no MCP prompts: guidance for agents
+  lives in the tool descriptions, `openl_get_started`, the skills and the guides OpenL Studio serves.
