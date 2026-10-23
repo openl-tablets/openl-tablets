@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,6 +41,7 @@ import org.openl.rules.workspace.dtr.DesignProject;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.lw.LocalProjects;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
@@ -61,6 +63,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
     private final HashMap<String, List<ProjectKey>> rulesProjectKeysByName;
+    /** The folders the listing holds a project of: each one is listed once. */
+    private final Set<ProjectKey> listedFolders = new HashSet<>();
     private Map<ProjectId, RulesProject> rulesProjectsById = Map.of();
 
     private volatile boolean projectsRefreshNeeded = true;
@@ -314,20 +318,29 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private void clearRulesProjectsCache() {
         userRulesProjects.clear();
         rulesProjectKeysByName.clear();
+        listedFolders.clear();
         rulesProjectsById = Map.of();
     }
 
     /**
-     * Adds a project to the listing.
+     * Adds a project to the listing, unless the listing holds a project of its folder already.
+     *
+     * <p>A folder is listed once, by the first project that holds it. The design projects are listed before the
+     * workspace copies left over, so a folder the design side holds is told by its design project.
      *
      * @param location  where the project is stored, which its id is computed from
      * @param locations where each listed project is stored: the design folder, or the workspace one
      */
     private void putRulesProject(RulesProject project, String location, Map<ProjectKey, ProjectKey> locations) {
         var repoId = project.getRepository().getId();
+        var folder = new ProjectKey(repoId, location);
+        if (!listedFolders.add(folder)) {
+            log.debug("The folder '{}' of the repository '{}' is listed already.", location, repoId);
+            return;
+        }
         var key = ProjectKey.byName(repoId, project.getName());
         userRulesProjects.put(key, project);
-        locations.put(key, new ProjectKey(repoId, location));
+        locations.put(key, folder);
         var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
         rulesProjectKeysByName.computeIfAbsent(businessNameKey, k -> new ArrayList<>()).add(key);
     }
@@ -387,20 +400,22 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     .collect(Collectors.groupingBy(project -> project.getRepository().getId(),
                             Collectors.mapping(AProject::getRealPath, Collectors.toSet())));
 
+            // The copies are matched and listed from one view. Another request may open or close a copy
+            // meanwhile, and a copy missed by the match but met by the listing would be listed twice.
+            var localProjects = localWorkspace.snapshot();
+
             var locations = new HashMap<ProjectKey, ProjectKey>();
             // add new
             for (DesignProject designProject : designProjects) {
-                addDesignProject(designProject, designFolders, locations);
+                addDesignProject(designProject, designFolders, localProjects, locations);
             }
 
             // Workspace projects that have no corresponding project in the main branch of the
             // design repositories: genuine local projects and opened copies whose repository is
             // unavailable or removed or whose project was deleted from the main branch.
-            for (AProject lp : localWorkspace.getProjects()) {
+            for (AProject lp : localProjects.projects()) {
                 var repoId = lp.getRepository().getId();
-                var name = lp.getName();
-
-                if (!userRulesProjects.containsKey(ProjectKey.byName(repoId, name))) {
+                if (isLeftOver(lp, designFolders.getOrDefault(repoId, Set.of()))) {
                     var project = resolveUnmatchedProject(repoId, lp);
                     if (project != null) {
                         putRulesProject(project, project.getRealPath(), locations);
@@ -424,13 +439,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
      */
     private void addDesignProject(DesignProject designProject,
                                   Map<String, Set<String>> designFolders,
+                                  LocalProjects localProjects,
                                   Map<ProjectKey, ProjectKey> locations) {
         var rp = designProject.project();
         var repoId = rp.getRepository().getId();
         var localRepository = localWorkspace.getRepository(repoId);
         var name = rp.getName();
         var branchedProject = Optional.ofNullable(designProject.branches());
-        var lp = findLocalProject(repoId, rp, designFolders.getOrDefault(repoId, Set.of()));
+        // Every branch keeps the project in one folder; the design entry tells it without reading the mapping again.
+        var folder = rp.getRealPath();
+        if (listedFolders.contains(new ProjectKey(repoId, folder))) {
+            // Another design project lists the folder, and its copy with it: closing the copy here would lose it.
+            log.debug("The folder '{}' of the repository '{}' is listed already.", folder, repoId);
+            return;
+        }
+        var lp = findLocalProject(rp, folder, designFolders.getOrDefault(repoId, Set.of()), localProjects);
 
         FileData local = lp == null ? null : lp.getFileData();
 
@@ -473,8 +496,20 @@ public class UserWorkspaceImpl implements UserWorkspace {
         if (closeProject) {
             closeProject(project);
         }
-        // Every branch keeps the project in one folder; the design entry tells it without reading the mapping again.
-        putRulesProject(project, rp.getRealPath(), locations);
+        putRulesProject(project, folder, locations);
+    }
+
+    /**
+     * Whether a workspace copy is left over by the design projects: no listed project shows its name, and no design
+     * project holds its folder.
+     *
+     * <p>A copy of a folder the design side holds belongs to the project of that folder, even when its name tells
+     * another, so the folder is never listed twice.
+     */
+    private boolean isLeftOver(AProject localProject, Set<String> designFolders) {
+        var listed = ProjectKey.byName(localProject.getRepository().getId(), localProject.getName());
+        var folder = folderOf(localProject);
+        return !userRulesProjects.containsKey(listed) && (folder == null || !designFolders.contains(folder));
     }
 
     /**
@@ -510,21 +545,27 @@ public class UserWorkspaceImpl implements UserWorkspace {
      * <p>A copy is recognised by the folder it was taken from. Every branch keeps the project in that one folder,
      * so a single lookup answers for all of them.
      *
-     * <p>Only a copy whose folder the design side no longer accounts for is matched by name, because a name is
-     * shown by more than one project when branches disagree about it, and claiming a copy of another folder
-     * closes it. A copy that does not say which folder it came from is left to the name, as it was before.
+     * <p>A copy found by its name is taken only when it is a copy of this very folder or of a folder the design side
+     * no longer accounts for, because a name is shown by more than one project when branches disagree about it, and
+     * claiming a copy of another folder closes it. A copy that does not say which folder it came from is left to the
+     * name, as it was before.
      */
-    private AProject findLocalProject(String repositoryId, AProject project, Set<String> designFolders) {
-        var localProject = localWorkspace.getProjectForPath(repositoryId, project.getRealPath());
+    private static @Nullable AProject findLocalProject(AProject project,
+                                                       String folder,
+                                                       Set<String> designFolders,
+                                                       LocalProjects localProjects) {
+        var repositoryId = project.getRepository().getId();
+        var localProject = localProjects.forFolder(repositoryId, folder);
         if (localProject != null) {
             return localProject;
         }
-        var byName = localWorkspace.getProjectForName(repositoryId, project.getBusinessName());
+        var byName = localProjects.forName(repositoryId, project.getBusinessName());
         if (byName == null) {
             return null;
         }
-        var folder = folderOf(byName);
-        return folder != null && designFolders.contains(folder) ? null : byName;
+        // A copy of this very folder belongs to the project; a copy of a folder another project holds does not.
+        var copyFolder = folderOf(byName);
+        return copyFolder == null || copyFolder.equals(folder) || !designFolders.contains(copyFolder) ? byName : null;
     }
 
     /**

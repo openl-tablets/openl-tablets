@@ -19,9 +19,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,11 +45,14 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.BranchedProject;
 import org.openl.rules.workspace.dtr.BranchedProject.BranchEntry;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.lw.LocalProjects;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
 /**
@@ -92,17 +98,7 @@ class UserWorkspaceRefreshTest {
         lenient().when(localWorkspace.getLocation()).thenReturn(userDir.toFile());
         lenient().when(localWorkspace.getRepository(anyString())).thenReturn(localRepository);
         lenient().when(localWorkspace.getMetainfoRegistry()).thenReturn(registry);
-        lenient().when(localWorkspace.getProjects()).thenAnswer(invocation -> workspaceProjects());
-        lenient().when(localWorkspace.getProjectForPath(anyString(), any()))
-                .thenAnswer(invocation -> workspaceProjects().stream()
-                        .filter(project -> DESIGN_PATH.equals(invocation.getArgument(1)))
-                        .findFirst()
-                        .orElse(null));
-        lenient().when(localWorkspace.getProjectForName(anyString(), anyString()))
-                .thenAnswer(invocation -> workspaceProjects().stream()
-                        .filter(project -> project.getBusinessName().equalsIgnoreCase(invocation.getArgument(1)))
-                        .findFirst()
-                        .orElse(null));
+        lenient().when(localWorkspace.snapshot()).thenAnswer(invocation -> workspaceSnapshot());
 
         userWorkspace = new UserWorkspaceImpl(new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
                 localWorkspace,
@@ -251,7 +247,7 @@ class UserWorkspaceRefreshTest {
         var project = new AProject(forBranch, existing);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(branchedProject("work", Map.of(branch, project))));
+                .thenReturn(Optional.of(branchedProject("work", Map.of(branch, project))));
     }
 
     @Test
@@ -368,7 +364,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(
+                .thenReturn(Optional.of(
                         branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
 
         var selected = userWorkspace.getProject("design", PROJECT);
@@ -400,7 +396,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(
+                .thenReturn(Optional.of(
                         branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
         var switched = userWorkspace.getProject("design", PROJECT);
         // Another thread refreshes the workspace while the switch is under way, replacing the project in hand.
@@ -425,7 +421,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(
+                .thenReturn(Optional.of(
                         branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
         seedOpenedCopy("design", "feature/rates", false);
 
@@ -448,7 +444,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(
+                .thenReturn(Optional.of(
                         branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
         seedOpenedCopy("design", "feature/rates", false);
         var id = ProjectIds.of("design", DESIGN_PATH);
@@ -486,15 +482,133 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(
+                .thenReturn(Optional.of(
                         branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
-        when(localWorkspace.getProjectForName("design", PROJECT)).thenReturn(null);
-        seedOpenedCopy("design", "feature/rates", false);
+        // The copy lives under a local name of its own, which no lookup by name finds: only its folder tells it.
+        // Once matched, the copy is renamed after the project.
+        seedOpenedCopy("P1-local", DESIGN_PATH, "design", "feature/rates", false, "rev-1");
 
         var project = userWorkspace.getProject("design", PROJECT);
 
         assertEquals("feature/rates", project.getBranch());
         assertTrue(project.isOpened());
+    }
+
+    @Test
+    void aCopyOpenedWhileTheWorkspaceIsListedIsListedOnce() throws IOException {
+        mockProjectListedUnderItsMappedName();
+        // Another request opens the copy while the listing runs: a second look at the workspace would meet it.
+        var beforeTheCopy = workspaceSnapshot();
+        seedOpenedCopy("design", "main", false);
+        when(localWorkspace.snapshot()).thenReturn(beforeTheCopy).thenAnswer(invocation -> workspaceSnapshot());
+        var id = ProjectIds.of("design", DESIGN_PATH);
+
+        var listed = userWorkspace.getProjects(true);
+
+        assertEquals(1, listed.size(), "The folder is listed once.");
+        assertFalse(listed.iterator().next().isOpened(), "The listing tells the project as it found the workspace.");
+        var project = userWorkspace.getProjectById(id, true).orElseThrow();
+        assertTrue(project.isOpened(), "The next listing finds the copy.");
+        assertEquals(id, project.getProjectId());
+        assertEquals(id, ProjectIds.of("design", DESIGN_PATH), "The folder keeps its id.");
+    }
+
+    @Test
+    void aCopyOfTheFolderIsFoundByItsNameWhenTheFolderFindsNoCopy() throws IOException {
+        mockProjectListedUnderItsMappedName();
+        seedOpenedCopy("design", "main", false);
+        // The workspace tells the copy under a key its folder does not match, so the folder finds no copy.
+        whenTheWorkspaceTellsTheCopyElsewhere();
+
+        var listed = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
+
+        assertEquals(1, listed.size(), "The folder of the design project is listed once.");
+        assertTrue(listed.getFirst().isOpened(), "A copy of the folder is the copy of the project.");
+    }
+
+    @Test
+    void aCopyOfAHeldFolderNoLookupFindsIsNeitherListedAgainNorClosed() throws IOException {
+        var main = mockProjectListedUnderItsMappedName();
+        // The project lives in another branch only, which closes a copy whose project is gone.
+        when(main.check(DESIGN_PATH)).thenReturn(null);
+        // A local name of its own and a key its folder does not match: neither lookup finds the copy.
+        seedOpenedCopy("P1-local", DESIGN_PATH, "design", "main", false, "rev-1");
+        whenTheWorkspaceTellsTheCopyElsewhere();
+
+        var listed = userWorkspace.getProjects(true);
+
+        assertEquals(1, listed.size(), "The folder of the design project is listed once.");
+        assertTrue(Files.exists(userDir.resolve("P1-local")), "The copy is kept: its project exists.");
+    }
+
+    @Test
+    void aFolderTwoDesignProjectsHoldIsListedOnce() {
+        var main = mappedBranchProjectRepository("main", "DESIGN/P1:aaaa", DESIGN_PATH);
+        var mapper = (FolderMapper) main;
+        when(mapper.getBusinessName("DESIGN/P1:bbbb")).thenReturn("DESIGN/P1:bbbb");
+        when(mapper.getRealPath("DESIGN/P1:bbbb")).thenReturn(DESIGN_PATH);
+        var first = new FileData();
+        first.setName("DESIGN/P1:aaaa");
+        var second = new FileData();
+        second.setName("DESIGN/P1:bbbb");
+        var projects = List.of(new AProject(main, first), new AProject(main, second));
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> projects);
+
+        assertEquals(1, userWorkspace.getProjects(true).size(), "A folder is listed once.");
+    }
+
+    @Test
+    void theCopyOfAFolderTwoDesignProjectsHoldStaysWithTheFirst() {
+        var main = mappedBranchProjectRepository("main", "DESIGN/P1:aaaa", DESIGN_PATH);
+        var feature = mappedBranchProjectRepository("feature/rates", "DESIGN/P1:aaaa", DESIGN_PATH);
+        var mapper = (FolderMapper) main;
+        when(mapper.getBusinessName("DESIGN/P1:bbbb")).thenReturn("DESIGN/P1:bbbb");
+        when(mapper.getRealPath("DESIGN/P1:bbbb")).thenReturn(DESIGN_PATH);
+        var firstData = new FileData();
+        firstData.setName("DESIGN/P1:aaaa");
+        var secondData = new FileData();
+        secondData.setName("DESIGN/P1:bbbb");
+        var first = new AProject(main, firstData);
+        var firstOnFeature = new AProject(feature, firstData);
+        var second = new AProject(main, secondData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(first, second));
+        when(designTimeRepository.getBranchedProject("design", "P1:aaaa")).thenReturn(Optional.of(
+                branchedProject("main", Map.of("main", first, "feature/rates", firstOnFeature))));
+        when(designTimeRepository.getBranchedProject("design", "P1:bbbb")).thenReturn(Optional.of(
+                branchedProject("main", Map.of("main", second))));
+        // The copy is on a branch only the first project holds: the second one would close it as a stranger.
+        seedOpenedCopy("design", "feature/rates", true);
+
+        var listed = new ArrayList<RulesProject>(userWorkspace.getProjects(true));
+
+        assertEquals(1, listed.size(), "A folder is listed once.");
+        assertTrue(listed.getFirst().isOpened(), "The first project keeps the copy.");
+        assertTrue(Files.exists(userDir.resolve(PROJECT)), "The copy and its changes are kept.");
+    }
+
+    private void whenTheWorkspaceTellsTheCopyElsewhere() {
+        var copy = workspaceSnapshot().projects().iterator().next();
+        when(localWorkspace.snapshot()).thenReturn(new LocalProjects(Map.of(new ProjectKey("design", "elsewhere"),
+                copy)));
+    }
+
+    /**
+     * A mapped repository lists the project under a name that tells its folder, not under the name of the copy.
+     */
+    private BranchRepository mockProjectListedUnderItsMappedName() throws IOException {
+        var externalPath = "DESIGN/P1:6370707b";
+        var main = mappedBranchProjectRepository("main", externalPath, DESIGN_PATH);
+        when(((FolderMapper) main).getBusinessName(externalPath)).thenReturn("DESIGN/" + PROJECT);
+        var mainData = new FileData();
+        mainData.setName(externalPath);
+        mainData.setVersion("rev-1");
+        when(main.check(DESIGN_PATH)).thenReturn(mainData);
+        var mainProject = new AProject(main, mainData);
+        when(designTimeRepository.getRepository("design")).thenReturn(main);
+        when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
+        return main;
     }
 
     @Test
@@ -506,7 +620,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(branchedProject("main", Map.of("main", mainProject))));
+                .thenReturn(Optional.of(branchedProject("main", Map.of("main", mainProject))));
         ProjectBranchPreferenceStore.open(userDir).put("design", PROJECT, "removed");
         var recreated = new UserWorkspaceImpl(
                 new WorkspaceUserImpl("jdoe", id -> new UserInfo("jdoe")),
@@ -533,7 +647,7 @@ class UserWorkspaceRefreshTest {
         when(designTimeRepository.getRepository("design")).thenReturn(main);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(mainProject));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(
+                .thenReturn(Optional.of(
                         branchedProject("main", Map.of("main", mainProject, "feature/rates", featureProject))));
 
         var project = userWorkspace.getProject("design", PROJECT);
@@ -719,7 +833,7 @@ class UserWorkspaceRefreshTest {
         var project = new AProject(branched, designFileData);
         when(designTimeRepository.getProjects()).thenAnswer(invocation -> List.of(project));
         when(designTimeRepository.getBranchedProject("design", PROJECT))
-                .thenReturn(java.util.Optional.of(branchedProject("master", Map.of("master", project))));
+                .thenReturn(Optional.of(branchedProject("master", Map.of("master", project))));
     }
 
     private static BranchRepository branchProjectRepository(String branch) {
@@ -755,7 +869,7 @@ class UserWorkspaceRefreshTest {
     }
 
     private static BranchedProject branchedProject(String baseBranch, Map<String, AProject> projects) {
-        var entries = new java.util.LinkedHashMap<String, BranchEntry>();
+        var entries = new LinkedHashMap<String, BranchEntry>();
         projects.forEach((branch, project) -> entries.put(branch,
                 new BranchEntry(project,
                         new BranchStatus(
@@ -780,6 +894,15 @@ class UserWorkspaceRefreshTest {
                                 String branch,
                                 boolean modified,
                                 String version) {
+        seedOpenedCopy(projectName, "DESIGN/rules/" + projectName, repositoryId, branch, modified, version);
+    }
+
+    private void seedOpenedCopy(String projectName,
+                                String folder,
+                                String repositoryId,
+                                String branch,
+                                boolean modified,
+                                String version) {
         try {
             var projectDir = userDir.resolve(projectName);
             Files.createDirectories(projectDir);
@@ -792,7 +915,7 @@ class UserWorkspaceRefreshTest {
             // A record without a version has no revision details at all, like a record migrated
             // from the legacy layout.
             registry.save(projectName,
-                    new ProjectMetainfo(repositoryId, "DESIGN/rules/" + projectName, branch, version, "jdoe",
+                    new ProjectMetainfo(repositoryId, folder, branch, version, "jdoe",
                             version == null ? null : 1751980000000L, version == null ? null : 7L,
                             null, Map.of("/Main.xlsx", baseline)));
             if (modified) {
@@ -803,8 +926,8 @@ class UserWorkspaceRefreshTest {
         }
     }
 
-    private List<AProject> workspaceProjects() {
-        var projects = new ArrayList<AProject>();
+    private LocalProjects workspaceSnapshot() {
+        var projects = new HashMap<ProjectKey, AProject>();
         for (String name : registry.projects()) {
             var projectRepository = new LocalRepository(userDir, registry);
             ProjectMetainfo metainfo = Objects.requireNonNull(registry.get(name));
@@ -813,11 +936,18 @@ class UserWorkspaceRefreshTest {
             var projectState = projectRepository.getProjectState(name);
             var fileData = projectState.getFileData();
             // Mirrors LocalWorkspaceImpl.loadProjects: a record without revision details serves
-            // the project from the folder on disk.
-            projects.add(fileData == null
-                    ? new AProject(projectRepository, name, projectState.getProjectVersion())
-                    : new AProject(projectRepository, fileData));
+            // the project from the folder on disk, and a copy is keyed by the folder it was taken from.
+            if (fileData == null) {
+                projects.put(new ProjectKey(metainfo.repositoryId(), "<local-path>/" + name),
+                        new AProject(projectRepository, name, projectState.getProjectVersion()));
+            } else {
+                var mapping = fileData.getAdditionalData(FileMappingData.class);
+                var folder = mapping == null
+                        ? designTimeRepository.getRulesLocation() + name
+                        : mapping.getInternalPath();
+                projects.put(new ProjectKey(metainfo.repositoryId(), folder), new AProject(projectRepository, fileData));
+            }
         }
-        return projects;
+        return new LocalProjects(projects);
     }
 }

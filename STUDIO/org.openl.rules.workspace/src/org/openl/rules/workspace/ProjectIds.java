@@ -1,20 +1,21 @@
 package org.openl.rules.workspace;
 
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import org.openl.util.HashingUtils;
@@ -34,11 +35,12 @@ import org.openl.util.HashingUtils;
  *
  * <p>Two folders whose identities share a digest are told apart when a collection of projects is indexed: the one
  * whose identity sorts first keeps the plain id, and the others add a number to their identity. The numbers last
- * until the server restarts.
+ * until the server restarts. One folder listed twice is one project and keeps its id.
  *
  * @author Yury Molchan
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public final class ProjectIds {
 
     private static final String VERSION = "v1";
@@ -50,6 +52,8 @@ public final class ProjectIds {
 
     /** The ids of the identities found sharing a digest with another one, by identity. */
     private static final Map<String, ProjectId> NUMBERED = new ConcurrentHashMap<>();
+    /** The identities found listed twice, warned about once until the server restarts. */
+    private static final Set<String> LISTED_TWICE = ConcurrentHashMap.newKeySet();
 
     /**
      * The id of the project stored in the given folder of the given repository.
@@ -84,6 +88,9 @@ public final class ProjectIds {
      * <p>Projects whose identities share a digest are numbered here, in the order of their identities, so that each
      * one is addressed by an id of its own from now on, by {@link #of(String, String)} too.
      *
+     * <p>A folder listed more than once is one project, not several whose ids collide: it keeps its id, the first of
+     * its entries is indexed, and a warning names the folder the first time.
+     *
      * @param projects   the projects to index
      * @param locationOf where a project is stored
      * @return the projects by their ids
@@ -95,15 +102,20 @@ public final class ProjectIds {
     static <T> Map<ProjectId, T> index(Collection<T> projects,
                                        Function<T, ProjectKey> locationOf,
                                        Function<String, ProjectId> digest) {
-        var identities = new ArrayList<Map.Entry<String, T>>(projects.size());
+        var identities = new TreeMap<String, T>();
         for (var project : projects) {
             var location = locationOf.apply(project);
-            identities.add(Map.entry(identity(location.repositoryId(), location.repositoryPath()), project));
+            var identity = identity(location.repositoryId(), location.repositoryPath());
+            // No listing is expected to hold a folder twice: name it once, so the listing that does can be found.
+            if (identities.putIfAbsent(identity, project) != null && LISTED_TWICE.add(identity)) {
+                log.warn("The folder '{}' of the repository '{}' is listed twice. Its first entry is indexed.",
+                        location.repositoryPath(),
+                        location.repositoryId());
+            }
         }
-        identities.sort(Map.Entry.comparingByKey(Comparator.naturalOrder()));
 
         var index = HashMap.<ProjectId, T>newHashMap(identities.size());
-        for (var entry : identities) {
+        for (var entry : identities.entrySet()) {
             var identity = entry.getKey();
             var id = idOf(identity, digest);
             var number = 1;

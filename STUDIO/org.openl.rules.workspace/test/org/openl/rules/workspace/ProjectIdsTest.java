@@ -77,11 +77,8 @@ class ProjectIdsTest {
 
     @Test
     void identitiesSharingADigestAreNumberedInTheirOrder() {
-        // A real 72-bit collision cannot be produced, so every identity of this repository hashes to one digest.
         var collision = "collision-" + System.nanoTime();
-        Function<String, ProjectId> digest = identity -> identity.contains(collision) && !identity.contains("~")
-                ? new ProjectId("shared")
-                : ProjectIds.of("digest", identity);
+        var digest = collidingDigest(collision);
         var first = new ProjectKey(collision, "a");
         var second = new ProjectKey(collision, "b");
         var third = new ProjectKey(collision, "c");
@@ -99,6 +96,33 @@ class ProjectIdsTest {
     }
 
     @Test
+    void aFolderListedTwiceKeepsItsId() {
+        // A folder of its own: a number the index gives would last for the rest of the JVM.
+        var folder = "twice-" + System.nanoTime();
+        Function<String, ProjectKey> inTheFolder = entry -> new ProjectKey("design", folder);
+        var id = ProjectIds.of("design", folder);
+
+        var index = ProjectIds.index(List.of("copy", "copy listed again"), inTheFolder);
+
+        assertEquals(Map.of(id, "copy"), index);
+        assertEquals(id, ProjectIds.of("design", folder));
+        assertEquals(Map.of(id, "copy"), ProjectIds.index(List.of("copy"), inTheFolder));
+    }
+
+    @Test
+    void foldersSharingADigestAreNumberedOnceWhenListedTwice() {
+        var collision = "collision-twice-" + System.nanoTime();
+        var digest = collidingDigest(collision);
+        var first = new ProjectKey(collision, "a");
+        var second = new ProjectKey(collision, "b");
+
+        var index = ProjectIds.index(List.of(second, first, first, second), Function.identity(), digest);
+
+        assertEquals(Map.of(new ProjectId("shared"), first,
+                digest.apply(ProjectIds.identity(collision, "b") + "\u001F~2"), second), index);
+    }
+
+    @Test
     void anIdIsWrittenToJsonAsItsText() throws Exception {
         var mapper = new ObjectMapper();
         var id = new ProjectId("FeZdnMnl3XRa");
@@ -112,5 +136,15 @@ class ProjectIdsTest {
     @Test
     void anIdNeedsText() {
         assertThrows(NullPointerException.class, () -> new ProjectId(null));
+    }
+
+    /**
+     * A real 72-bit collision cannot be produced, so every identity of the given repository hashes to one digest,
+     * and a numbered identity to a digest of its own.
+     */
+    private static Function<String, ProjectId> collidingDigest(String repositoryId) {
+        return identity -> identity.contains(repositoryId) && !identity.contains("~")
+                ? new ProjectId("shared")
+                : ProjectIds.of("digest", identity);
     }
 }

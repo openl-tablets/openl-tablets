@@ -141,6 +141,9 @@ ticket decides keeps the id and the ACL in agreement.
   another id. The number is remembered until the server restarts, so `ProjectIds.of` answers the same id for that
   project everywhere. A restart after the first of them is deleted gives the others their plain ids — accepted at
   these odds.
+- **A folder listed twice is one project, not a collision.** It keeps its id, nothing is numbered, the first of its
+  entries is indexed, and a warning names the folder the first time. Numbering it would leave the folder addressed by
+  another id for good, though the listing that met it twice is gone with the next refresh.
 
 ## The Id-to-Location Map
 
@@ -158,7 +161,14 @@ as the projects are, and no second structure has to be kept in step with them.
   answers only a project the user may read.
 - **The user's workspace** — `UserWorkspaceImpl` lists the user's projects — the design projects, each with its
   workspace copy when there is one, and the local projects — and keys them by id as it lists them, computing the id
-  from the design entry, whose folder every branch shares, so a listing reads no mapping again.
+  from the design entry, whose folder every branch shares, so a listing reads no mapping again. A listing matches the
+  copies to the design projects and lists the copies left over from one view of the workspace
+  (`LocalWorkspace.snapshot`): a copy another request opens or closes meanwhile is either matched or not there at
+  all, never matched from one moment and listed again from another. A copy is left over only when no design project
+  holds its folder, so a copy of an existing project is neither listed a second time nor closed as an orphan. A folder
+  is listed once, by the first project that holds it, and the design projects come before the copies left over. A
+  later design project of a listed folder is passed over before it looks at the copy, so it cannot close the copy
+  the first one lists.
   `UserWorkspace.getProjectById` answers from it; the secured workspace answers only a project the user may read.
 - **An opened copy** keeps its id while its repository is unavailable: its metainfo record holds the repository id and
   the folder, so the id is computed without the repository.
