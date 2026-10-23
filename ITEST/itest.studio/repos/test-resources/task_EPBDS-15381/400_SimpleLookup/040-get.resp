@@ -22,26 +22,26 @@ Content-Type: application/json
       "title": "Country Code/AdequateMaxCreditRisk"
     },
     {
-      "title": "true"
+      "title": "yes"
     },
     {
-      "title": "false"
+      "title": "no"
     }
   ],
   "rows": [
     {
       "Country Code/AdequateMaxCreditRisk": "ME",
-      "true": 11,
-      "false": 11
+      "yes": 11,
+      "no": 11
     },
     {
-      "true": 10,
-      "false": 7
+      "yes": 10,
+      "no": 7
     },
     {
       "Country Code/AdequateMaxCreditRisk": "ME",
-      "true": 11,
-      "false": 10
+      "yes": 11,
+      "no": 10
     }
   ]
 }
