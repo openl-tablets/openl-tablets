@@ -1,9 +1,10 @@
 ---
 table: SmartRules Double ageFactor(Integer age)
-description: The younger or the older the driver, the higher the risk
+properties:
+  description: The younger or the older the driver, the higher the risk
 ---
 
-Keys of the front matter other than `table` are table properties, such as `description`.
+Table properties, such as `description`, are written under `properties` in the front matter.
 
 | Age     | Factor |
 |---------|--------|

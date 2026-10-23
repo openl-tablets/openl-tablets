@@ -52,7 +52,8 @@ class MarkdownMessageLocationTest {
         write("surcharge.md", """
                 ---
                 table: SmartRules Double surcharge(Integer age)
-                state: XX
+                properties:
+                  state: XX
                 ---
 
                 | Age   | Surcharge |
@@ -116,8 +117,9 @@ class MarkdownMessageLocationTest {
         write("Folder/unread.md", """
                 ---
                 table: Method String unread()
-                description:
-                  nested: value
+                properties:
+                  description:
+                    nested: value
                 ---
 
                 ```java
@@ -149,7 +151,7 @@ class MarkdownMessageLocationTest {
                 .filter(ModuleMessageSource.class::isInstance)
                 .map(ModuleMessageSource.class::cast)
                 .toList();
-        assertEquals(List.of("Errors rules/Errors/Folder/unread.md 3"),
+        assertEquals(List.of("Errors rules/Errors/Folder/unread.md 4"),
                 unread.stream().map(at -> at.name() + " " + at.path() + " " + at.line()).toList());
     }
 

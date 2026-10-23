@@ -1,6 +1,7 @@
 ---
 table: SmartRules Double basePremium(Integer age)
-description: Base premium by the age of the driver
+properties:
+  description: Base premium by the age of the driver
 merges: [A1:B1]
 ---
 

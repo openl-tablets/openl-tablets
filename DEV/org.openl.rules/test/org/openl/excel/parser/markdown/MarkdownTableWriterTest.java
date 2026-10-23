@@ -27,7 +27,8 @@ class MarkdownTableWriterTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            description: Greeting by the hour
+            properties:
+              description: Greeting by the hour
             ---
 
             Picks a greeting.
@@ -188,11 +189,11 @@ class MarkdownTableWriterTest {
         var added = write(GREETING, SheetLayout.cellsOf(
                 new RulesTable(table.header(), properties, table.body(), table.merges())));
 
-        assertEquals(GREETING.replace("description: Greeting by the hour\n", """
-                description: Greeting by the hour
-                effectiveDate: 2024-01-01
-                tags: "morning: early"
-                note: ""
+        assertEquals(GREETING.replace("  description: Greeting by the hour\n", """
+                  description: Greeting by the hour
+                  effectiveDate: 2024-01-01
+                  tags: "morning: early"
+                  note: ""
                 """), added);
         assertEquals(properties, parse(added).table().properties());
 
@@ -200,7 +201,54 @@ class MarkdownTableWriterTest {
         var removed = write(added, SheetLayout.cellsOf(
                 new RulesTable(table.header(), properties, table.body(), table.merges())));
 
-        assertEquals(added.replace("description: Greeting by the hour\n", ""), removed);
+        assertEquals(added.replace("  description: Greeting by the hour\n", ""), removed);
+    }
+
+    @Test
+    void lastPropertyRemovedTakesThePropertiesKeyAlong() {
+        var table = parse(GREETING).table();
+
+        var written = write(GREETING, SheetLayout.cellsOf(
+                new RulesTable(table.header(), new LinkedHashMap<>(), table.body(), table.merges())));
+
+        assertEquals(GREETING.replace("properties:\n  description: Greeting by the hour\n", ""), written);
+    }
+
+    @Test
+    void newPropertyIsIndentedAsTheOthers() {
+        var indented = GREETING.replace("  description:", "    description:");
+        var table = parse(indented).table();
+        var properties = new LinkedHashMap<>(table.properties());
+        properties.put("tags", "morning");
+
+        var written = write(indented, SheetLayout.cellsOf(
+                new RulesTable(table.header(), properties, table.body(), table.merges())));
+
+        assertEquals(indented.replace("    description: Greeting by the hour\n",
+                "    description: Greeting by the hour\n    tags: morning\n"), written);
+    }
+
+    @Test
+    void propertiesOnTheLineOfTheirKeyAreWrittenOneToALine() {
+        var inline = GREETING.replace("properties:\n  description: Greeting by the hour\n",
+                "properties: {description: Greeting by the hour}\n");
+        var table = parse(inline).table();
+        var properties = new LinkedHashMap<>(table.properties());
+        properties.put("tags", "morning");
+
+        var written = write(inline, SheetLayout.cellsOf(
+                new RulesTable(table.header(), properties, table.body(), table.merges())));
+
+        assertEquals(GREETING.replace("  description: Greeting by the hour\n",
+                "  description: Greeting by the hour\n  tags: morning\n"), written);
+    }
+
+    @Test
+    void keyTheTableIsReadWithoutStaysInTheFile() {
+        var stray = GREETING.replace("---\n\nPicks", "state: CA\n---\n\nPicks");
+        var cells = set(cellsOf(stray), 0, 0, "SmartRules String greet(Integer hour)");
+
+        assertEquals(stray.replace("greeting(Integer hour)", "greet(Integer hour)"), write(stray, cells));
     }
 
     @Test
@@ -276,7 +324,8 @@ class MarkdownTableWriterTest {
         assertEquals("""
                 ---
                 table: SmartRules String greeting(Integer hour)
-                description: Greeting by the hour
+                properties:
+                  description: Greeting by the hour
                 ---
 
                 | Hour | Greeting |

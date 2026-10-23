@@ -80,7 +80,8 @@ class MarkdownModuleWriterTest {
         assertEquals("""
                 ---
                 table: SmartRules Double rate(Integer age, String state)
-                description: Rates by age
+                properties:
+                  description: Rates by age
                 merges: [A2:A3]
                 ---
 

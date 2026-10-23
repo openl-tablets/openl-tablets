@@ -1,6 +1,7 @@
 ---
 table: SmartRules String greeting(Integer hour)
-description: Greeting by the hour of the day
+properties:
+  description: Greeting by the hour of the day
 ---
 
 Picks a greeting by the hour of the day.

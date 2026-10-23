@@ -13,6 +13,7 @@ import java.util.List;
  * @param table          the table read from the file
  * @param frontMatterEnd the line of the {@code ---} that closes the front matter
  * @param keys           the keys of the front matter, in the order they are written
+ * @param propertyKeys   the keys under {@code properties}, in the order they are written
  * @param body           where the body of the table stands
  * @param problems       the problems of the file the table is read without
  */
@@ -22,6 +23,7 @@ record TableFile(String text,
                  RulesTable table,
                  int frontMatterEnd,
                  List<Key> keys,
+                 List<Key> propertyKeys,
                  Body body,
                  List<MarkdownProblem> problems) {
 
@@ -29,7 +31,8 @@ record TableFile(String text,
      * A key of the front matter.
      *
      * @param name  the name of the key
-     * @param value the value as read: the header text, a property value, or the merged ranges joined with commas
+     * @param value the value as read: the header text, a property value, or the merged ranges joined with commas;
+     *              empty for {@code properties} and for a key the table is read without
      * @param line  the line the key starts on
      */
     record Key(String name, String value, int line) {

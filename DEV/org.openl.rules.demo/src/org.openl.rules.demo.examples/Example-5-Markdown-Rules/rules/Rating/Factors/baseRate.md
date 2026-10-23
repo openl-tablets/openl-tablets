@@ -1,6 +1,7 @@
 ---
 table: SmartRules Double baseRate(String state, VehicleType vehicleType)
-description: Yearly base rate by state and vehicle type
+properties:
+  description: Yearly base rate by state and vehicle type
 ---
 
 | State | Vehicle Type | Base Rate |

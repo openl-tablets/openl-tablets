@@ -18,8 +18,9 @@ policy.
   in `Environment.md` and the Constants table in `Constants.md`. A Properties table is a table like any other: one of a
   category stands in the folder of the category, as it stands on the sheet of the category in a workbook.
 - The front matter of a file is the header of its table: the `table` key holds the text of the first table cell.
-  The other keys are table properties, such as `description`. The `merges` key lists the merged cells of the table,
-  such as `[A1:B1]`, counted from the first row of the table.
+  The `properties` key holds the table properties, a name and a value on each line under it, such as
+  `description: Yearly premium of a policy`. The `merges` key lists the merged cells of the table, such as `[A1:B1]`,
+  counted from the first row of the table. Any other key is an error, and the table is read without it.
 - The properties take three columns of the table, as in a workbook. A body narrower than that has the last cell of each
   of its rows merged over the columns it lacks; a body that keeps these columns apart writes them as empty columns.
 - The first table after the front matter is the body of the table: every row of it, its first row included, is a
@@ -54,5 +55,6 @@ the **Files** tab of the project, where **Open in Editor** opens the table of th
   Studio opens the file on that line, on the **Files** tab.
 - A table whose body breaks the format is read without the part that breaks it: a merged range over a value, over
   another range or outside the table, the cells of a row beyond those of the first row, the rows a blank line cuts
-  off. The error points at the cell of the table that shows the problem, or at the line of the file when no cell
-  shows it.
+  off. So is a table whose front matter holds a key other than `table`, `properties` and `merges`, such as a property
+  written beside `table` rather than under `properties`. The error points at the cell of the table that shows the
+  problem, or at the line of the file when no cell shows it.

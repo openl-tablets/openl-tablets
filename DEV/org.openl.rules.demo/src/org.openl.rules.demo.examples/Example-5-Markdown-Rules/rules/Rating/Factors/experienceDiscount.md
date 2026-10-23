@@ -1,6 +1,7 @@
 ---
 table: SmartRules Double experienceDiscount(Integer licenseYears)
-description: Discount for the years the driver holds a license
+properties:
+  description: Discount for the years the driver holds a license
 merges: [A1:B1]
 ---
 
