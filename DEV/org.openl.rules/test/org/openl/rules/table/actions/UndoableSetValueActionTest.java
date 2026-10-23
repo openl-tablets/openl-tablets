@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.ICell;
@@ -26,6 +27,17 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.types.java.JavaOpenClass;
 
 class UndoableSetValueActionTest {
+
+    /** An enum whose constant has a body of its own, so the class of the constant is not the enum. */
+    enum Speed {
+        FAST {
+            @Override
+            public String toString() {
+                return "fast";
+            }
+        },
+        SLOW
+    }
 
     @Test
     void preservesConvertedEnumArrayComponentType() {
@@ -95,6 +107,93 @@ class UndoableSetValueActionTest {
         var metaInfoCaptor = ArgumentCaptor.forClass(CellMetaInfo.class);
         verify(metaInfoWriter).setMetaInfo(eq(0), eq(0), metaInfoCaptor.capture());
         assertEquals(JavaOpenClass.getOpenClass(Object.class), metaInfoCaptor.getValue().getDataType());
+        assertTrue(metaInfoCaptor.getValue().isMultiValue());
+    }
+
+    @Test
+    void writesARangeAsItWasTyped() {
+        var table = mock(IGridTable.class);
+        var grid = mock(IWritableGrid.class);
+        var metaInfoWriter = mock(MetaInfoWriter.class);
+        var rangeType = JavaOpenClass.getOpenClass(IntRange.class);
+        when(table.getGrid()).thenReturn(grid);
+        when(metaInfoWriter.getMetaInfo(0, 0)).thenReturn(new CellMetaInfo(rangeType, false));
+
+        new UndoableSetValueAction(0, 0, "2-5", metaInfoWriter).doAction(table);
+
+        // Parsed to check it, but written in the notation its author typed rather than in the range's own
+        verify(grid).setCellValue(0, 0, "2-5");
+        var metaInfoCaptor = ArgumentCaptor.forClass(CellMetaInfo.class);
+        verify(metaInfoWriter).setMetaInfo(eq(0), eq(0), metaInfoCaptor.capture());
+        assertEquals(rangeType, metaInfoCaptor.getValue().getDataType());
+    }
+
+    @Test
+    void writesANumberAsTheNumberItReadsAs() {
+        var table = mock(IGridTable.class);
+        var grid = mock(IWritableGrid.class);
+        var metaInfoWriter = mock(MetaInfoWriter.class);
+        when(table.getGrid()).thenReturn(grid);
+        when(metaInfoWriter.getMetaInfo(0, 0)).thenReturn(
+                new CellMetaInfo(JavaOpenClass.getOpenClass(Integer.class), false));
+
+        new UndoableSetValueAction(0, 0, "42", metaInfoWriter).doAction(table);
+
+        // A number is stored as an Excel number, not as the text typed
+        verify(grid).setCellValue(0, 0, 42);
+    }
+
+    @Test
+    void writesAnEnumConstantWithABodyAsTheConstant() {
+        var table = mock(IGridTable.class);
+        var grid = mock(IWritableGrid.class);
+        var metaInfoWriter = mock(MetaInfoWriter.class);
+        when(table.getGrid()).thenReturn(grid);
+        when(metaInfoWriter.getMetaInfo(0, 0)).thenReturn(
+                new CellMetaInfo(JavaOpenClass.getOpenClass(Speed.class), false));
+
+        new UndoableSetValueAction(0, 0, "FAST", metaInfoWriter).doAction(table);
+
+        verify(grid).setCellValue(0, 0, Speed.FAST);
+    }
+
+    @Test
+    void writesABooleanAsItWasTyped() {
+        var table = mock(IGridTable.class);
+        var grid = mock(IWritableGrid.class);
+        var metaInfoWriter = mock(MetaInfoWriter.class);
+        when(table.getGrid()).thenReturn(grid);
+        when(metaInfoWriter.getMetaInfo(0, 0)).thenReturn(
+                new CellMetaInfo(JavaOpenClass.getOpenClass(Boolean.class), false));
+
+        new UndoableSetValueAction(0, 0, "Y", metaInfoWriter).doAction(table);
+
+        // OpenL reads Y as true, and the author's Y stays in the cell rather than an Excel TRUE
+        verify(grid).setCellValue(0, 0, "Y");
+        // The cell is still a boolean one until the module is compiled again, not a text
+        var metaInfoCaptor = ArgumentCaptor.forClass(CellMetaInfo.class);
+        verify(metaInfoWriter).setMetaInfo(eq(0), eq(0), metaInfoCaptor.capture());
+        assertEquals(JavaOpenClass.getOpenClass(Boolean.class), metaInfoCaptor.getValue().getDataType());
+    }
+
+    @Test
+    void keepsTheElementTypeOfBooleansTypedIntoAList() {
+        var table = mock(IGridTable.class);
+        var grid = mock(IWritableGrid.class);
+        var metaInfoWriter = mock(MetaInfoWriter.class);
+        var booleanType = JavaOpenClass.getOpenClass(Boolean.class);
+        when(table.getGrid()).thenReturn(grid);
+        when(metaInfoWriter.getMetaInfo(0, 0)).thenReturn(new CellMetaInfo(booleanType, true));
+
+        new UndoableSetValueAction(0, 0, new Object[]{"Y", "N"}, metaInfoWriter).doAction(table);
+
+        var valueCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(grid).setCellValue(eq(0), eq(0), valueCaptor.capture());
+        assertArrayEquals(new Object[]{"Y", "N"}, (Object[]) valueCaptor.getValue());
+        // Still a list of booleans until the module is compiled again
+        var metaInfoCaptor = ArgumentCaptor.forClass(CellMetaInfo.class);
+        verify(metaInfoWriter).setMetaInfo(eq(0), eq(0), metaInfoCaptor.capture());
+        assertEquals(booleanType, metaInfoCaptor.getValue().getDataType());
         assertTrue(metaInfoCaptor.getValue().isMultiValue());
     }
 }

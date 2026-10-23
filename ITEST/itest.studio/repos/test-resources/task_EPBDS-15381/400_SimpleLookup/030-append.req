@@ -7,8 +7,8 @@ Content-Type: application/json
   "rows": [
     {
       "Country Code/AdequateMaxCreditRisk": "ME",
-      "true": 11,
-      "false": 10
+      "yes": 11,
+      "no": 10
     }
   ]
 }

@@ -2,6 +2,7 @@ package org.openl.rules.table.actions;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Date;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
@@ -70,15 +71,36 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         return typedValues;
     }
 
+    /**
+     * The value a text typed into a cell of the given type is written as. A text that reads as a number, a date or an
+     * enum constant is written as that value, which the workbook keeps as such. Any other text, such as a range or a
+     * boolean written {@code Y}, is written as it was typed, so it keeps the notation of its author. A text that does
+     * not read as the type is written as it is.
+     */
     private static Object convertToType(Object value, Class<?> targetType) {
         if (!(value instanceof String stringValue) || targetType == String.class) {
             return value;
         }
         try {
-            return String2DataConvertorFactory.getConvertor(targetType).parse(stringValue, null);
+            var parsed = String2DataConvertorFactory.getConvertor(targetType).parse(stringValue, null);
+            return parsed == null || isStoredNatively(parsed) ? parsed : value;
         } catch (Exception ignored) {
             return value;
         }
+    }
+
+    /** Whether a text reads as a value of the type. */
+    private static boolean readsAs(String text, Class<?> type) {
+        try {
+            return String2DataConvertorFactory.getConvertor(type).parse(text, null) != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** Whether the workbook stores the value as a value of its own rather than as a text. */
+    private static boolean isStoredNatively(Object value) {
+        return value instanceof Number || value instanceof Date || value instanceof Enum<?>;
     }
 
     private CellMetaInfo getNewMetaInfo(Object value, CellMetaInfo prevMetaInfo) {
@@ -89,6 +111,13 @@ public class UndoableSetValueAction extends AUndoableCellAction {
                 && prevMetaInfo.isMultiValue()
                 && value instanceof Object[] values
                 && matchesMultiValueType(values, prevMetaInfo)) {
+            return removeNodeUsage(prevMetaInfo);
+        }
+        if (prevMetaInfo != null
+                && prevMetaInfo.getDataType() != null
+                && value instanceof String text
+                && readsAs(text, prevMetaInfo.getDataType().getInstanceClass())) {
+            // A text written as it was typed, such as Y in a boolean cell, is still a value of the cell's type
             return removeNodeUsage(prevMetaInfo);
         }
         IOpenClass newType = JavaOpenClass.getOpenClass(value.getClass());
@@ -124,7 +153,9 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         var elementType = dataType.getInstanceClass();
         return Arrays.stream(values)
                 .allMatch(value -> value == null ? !elementType.isPrimitive()
-                        : ClassUtils.isAssignable(value.getClass(), elementType));
+                        : ClassUtils.isAssignable(value.getClass(), elementType)
+                                // A text written as it was typed, such as Y in a boolean list
+                                || value instanceof String text && readsAs(text, elementType));
     }
 
     /**
