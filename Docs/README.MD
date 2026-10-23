@@ -45,7 +45,8 @@ Studio.
   [Upload Integrity](architecture/upload-integrity.md), [Audit Log](architecture/audit-log.md),
   [Embedded User Guides](architecture/embedded-user-guides.md), the design of the
   [Built-in MCP Server](architecture/mcp-server.md) and its
-  [internals](architecture/mcp-server-internals.md), [Table Formatting](architecture/table-formatting.md),
+  [internals](architecture/mcp-server-internals.md), [MCP File Transfer Links](architecture/mcp-file-transfer.md),
+  [Table Formatting](architecture/table-formatting.md),
   [Stable Table Ids](architecture/table-ids.md), and [Stable Project Ids](architecture/project-ids.md).
 - [Release Checklist](release.md) — the steps of a release.
 - The conventions of the code are in the `AGENTS.md` files: [repository](../AGENTS.md), [DEV](../DEV/AGENTS.md),
