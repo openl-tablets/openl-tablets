@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -77,6 +79,72 @@ class ProjectModelHistoryTest {
             assertEquals(2, versions.count());
         }
         verify(state).notifyModified();
+    }
+
+    @Test
+    void keepsTheVersionAnotherProgramWroteBeforeTheNextWrite() throws IOException {
+        var model = new ProjectModel(studioOf(mock(ProjectState.class)));
+        var listeners = new ArrayList<XlsWorkbookListener>();
+        var source = Files.writeString(workspace.resolve("Rates.xlsx"), "as the module was");
+        var workbook = workbookOf(source, listeners);
+        var module = mock(Module.class);
+        when(module.getRulesRootPath()).thenReturn("rules/Rates.xlsx");
+        model.initProjectHistory(tableIn(workbook), module);
+        var listener = listeners.getFirst();
+        listener.beforeSave(workbook);
+        Files.writeString(source, "as the session wrote it");
+        listener.afterSave(workbook);
+
+        Files.writeString(source, "as Excel wrote it");
+        listener.beforeSave(workbook);
+        Files.writeString(source, "as the session wrote it again");
+        listener.afterSave(workbook);
+
+        // The first version, each write of the session, and between them the version Excel wrote.
+        var history = workspace.resolve(".history/Pricing/rules/Rates.xlsx");
+        try (var versions = Files.list(history)) {
+            var contents = versions.sorted().map(ProjectModelHistoryTest::read).toList();
+            assertEquals(4, contents.size());
+            assertTrue(contents.contains("as Excel wrote it"));
+        }
+    }
+
+    /** A workbook as the history took it is not compared with the history again: the history holds it. */
+    @Test
+    void comparesNoWorkbookThatStayedAsTheHistoryTookIt() throws IOException {
+        var model = new ProjectModel(studioOf(mock(ProjectState.class)));
+        var listeners = new ArrayList<XlsWorkbookListener>();
+        var source = Files.writeString(workspace.resolve("Rates.xlsx"), "as the module was");
+        var workbook = workbookOf(source, listeners);
+        var module = mock(Module.class);
+        when(module.getRulesRootPath()).thenReturn("rules/Rates.xlsx");
+        model.initProjectHistory(tableIn(workbook), module);
+        var listener = listeners.getFirst();
+        listener.beforeSave(workbook);
+        Files.writeString(source, "as the session wrote it");
+        listener.afterSave(workbook);
+        var history = workspace.resolve(".history/Pricing/rules/Rates.xlsx");
+        // The copy the history holds is told apart from the file here, so that a comparison would keep the file.
+        try (var versions = Files.list(history)) {
+            var current = versions.filter(version -> version.getFileName().toString().endsWith("_current"))
+                    .findFirst()
+                    .orElseThrow();
+            Files.writeString(current, "another copy");
+        }
+
+        listener.beforeSave(workbook);
+
+        try (var versions = Files.list(history)) {
+            assertEquals(2, versions.count(), "the first version and the write of the session");
+        }
+    }
+
+    private static String read(Path file) {
+        try {
+            return Files.readString(file);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /** A session with a workspace of its own, the project Pricing open in it. */

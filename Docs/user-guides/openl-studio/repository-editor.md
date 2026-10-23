@@ -534,7 +534,7 @@ running OpenL Studio on a developer's machine sets it up, the projects of the fo
 -   The project is named by the `<name>` of its `rules.xml`, whatever its folder is called, and keeps its tags in
     `tags.properties` of the folder.
 -   Earlier versions of a module are kept as when a copy is edited, so an edit is rolled back from the local history
-    of the module.
+    of the module. A version another program saved is kept as well before OpenL Studio writes over it.
 
 ![A notification that the files of the project were changed outside OpenL Studio, with the Refresh button](images/module-changed-on-disk.png "A file of the module changed outside OpenL Studio")
 

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -38,6 +39,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.common.exception.NotFoundException;
 
 class ProjectHistoryServiceTest {
@@ -87,8 +89,8 @@ class ProjectHistoryServiceTest {
         var result = service.getLocalHistory(project, "Bank Rating");
 
         assertEquals(3, result.size());
-        assertEquals("2000_current", result.get(0).id);
-        assertEquals(Boolean.TRUE, result.get(0).current);
+        assertEquals("2000_current", result.getFirst().id);
+        assertEquals(Boolean.TRUE, result.getFirst().current);
         assertEquals("1000", result.get(1).id);
         assertEquals("Revision Version", result.get(2).id);
     }
@@ -183,6 +185,44 @@ class ProjectHistoryServiceTest {
     }
 
     @Test
+    void keepsTheVersionAnotherProgramWroteBeforeRestoringOverIt() throws Exception {
+        var moduleFile = Files.createDirectories(projectFolder.resolve("rules")).resolve("Bank Rating.xlsx");
+        Files.writeString(moduleFile, "as Excel wrote it");
+        var history = Files.createDirectories(historyFolder(workspace));
+        Files.writeString(history.resolve("Revision Version"), "revision version");
+        Files.writeString(history.resolve("2000_current"), "saved last");
+
+        // The version saved last was the current one, yet the file holds another: it is restored, not skipped.
+        service.restore(project, "Bank Rating", "2000_current", mock(WebStudio.class));
+
+        assertEquals("saved last", Files.readString(moduleFile));
+        try (var versions = Files.list(history)) {
+            var excel = versions.filter(version -> !version.getFileName().toString().startsWith("2000"))
+                    .filter(version -> !version.getFileName().toString().startsWith("Revision"))
+                    .toList();
+            assertEquals(1, excel.size(), "the version Excel wrote is kept");
+            assertEquals("as Excel wrote it", Files.readString(excel.getFirst()));
+        }
+        assertTrue(Files.exists(history.resolve("2000_current")));
+    }
+
+    @Test
+    void keepsEveryVersionSavedWithinOneMillisecond() throws Exception {
+        var moduleFile = Files.createDirectories(projectFolder.resolve("rules")).resolve("Bank Rating.xlsx");
+        var history = Files.createDirectories(historyFolder(workspace));
+        Files.writeString(history.resolve("Revision Version_current"), "revision version");
+
+        for (var i = 1; i <= 5; i++) {
+            Files.writeString(moduleFile, "version " + i);
+            ProjectHistoryService.save(history.toString(), moduleFile.toFile());
+        }
+
+        try (var versions = Files.list(history)) {
+            assertEquals(6, versions.count(), "the first version and each version saved");
+        }
+    }
+
+    @Test
     void reloadsRestoredModuleWhenItIsOpenInTheSession() throws Exception {
         var moduleFile = Files.createDirectories(projectFolder.resolve("rules")).resolve("Bank Rating.xlsx");
         Files.writeString(moduleFile, "current version");
@@ -199,6 +239,51 @@ class ProjectHistoryServiceTest {
         service.restore(project, "Bank Rating", "Revision Version", webStudio);
 
         verify(model).reset(ReloadType.SINGLE);
+    }
+
+    /** A module compiled with the module open reads what it holds after a restore, as the module open does. */
+    @Test
+    void reloadsTheProjectWhenARestoredModuleIsCompiledWithTheModuleOpen() throws Exception {
+        var moduleFile = Files.createDirectories(projectFolder.resolve("rules")).resolve("Bank Rating.xlsx");
+        Files.writeString(moduleFile, "current version");
+        var history = Files.createDirectories(historyFolder(workspace));
+        Files.writeString(history.resolve("Revision Version"), "revision version");
+        Files.writeString(history.resolve("2000_current"), "current version");
+        var currentModule = mock(Module.class);
+        when(currentModule.getRulesPath()).thenReturn(Files.writeString(projectFolder.resolve("Other.xlsx"), "other"));
+        var model = mock(ProjectModel.class);
+        when(model.isCompiledFrom(moduleFile)).thenReturn(true);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getCurrentModule()).thenReturn(currentModule);
+        when(webStudio.getModel()).thenReturn(model);
+
+        service.restore(project, "Bank Rating", "Revision Version", webStudio);
+
+        assertEquals("revision version", Files.readString(moduleFile));
+        verify(model).reset(ReloadType.RELOAD);
+    }
+
+    @Test
+    void aWorkbookTheFileSystemRefusesToReplaceIsToldToBeClosed() throws Exception {
+        var moduleFile = Files.createDirectories(projectFolder.resolve("rules")).resolve("Bank Rating.xlsx");
+        Files.writeString(moduleFile, "current version");
+        var history = Files.createDirectories(historyFolder(workspace));
+        Files.writeString(history.resolve("Revision Version"), "revision version");
+        Files.writeString(history.resolve("2000_current"), "current version");
+        assertTrue(moduleFile.toFile().setWritable(false));
+        try {
+            // An administrator writes a read-only file all the same: there is nothing to refuse then.
+            assumeFalse(Files.isWritable(moduleFile));
+            var webStudio = mock(WebStudio.class);
+
+            var refused = assertThrows(LockedException.class,
+                    () -> service.restore(project, "Bank Rating", "Revision Version", webStudio));
+
+            assertEquals("openl.error.423.restore.xls-file.message", refused.getErrorCode());
+            assertEquals("current version", Files.readString(moduleFile));
+        } finally {
+            assertTrue(moduleFile.toFile().setWritable(true));
+        }
     }
 
     @Test
