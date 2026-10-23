@@ -97,15 +97,22 @@ const takesSeveralLines = (address: string | undefined, value: string): boolean 
     if (drawn === null) {
         return value.length > LONG_ENOUGH_TO_WRAP
     }
-    // The browser lays the text out in one rectangle per line, so counting them says how many lines the cell
-    // takes whatever it is styled with. Measuring its height instead needs the line height as a number, and a
-    // stylesheet that leaves the line height to the browser cannot give one.
+    // Element rectangles can cover all the lines of a linked usage. Measure text fragments so their positions
+    // show whether the value wraps.
     const shown = document.createRange()
-    shown.selectNodeContents(drawn)
-    // Not every browser-like environment lays anything out — a test harness draws no lines to count.
-    const lines = typeof shown.getClientRects === 'function' ? shown.getClientRects().length : 0
+    const fragments = document.createTreeWalker(drawn, NodeFilter.SHOW_TEXT)
+    const rectangles: DOMRect[] = []
+    while (fragments.nextNode() !== null) {
+        shown.selectNodeContents(fragments.currentNode)
+        if (typeof shown.getClientRects === 'function') {
+            rectangles.push(...Array.from(shown.getClientRects()))
+        }
+    }
     // A screen with no layout to measure — a test, a cell not drawn yet — is answered from the value alone.
-    return lines === 0 ? value.length > LONG_ENOUGH_TO_WRAP : lines > 1
+    const first = rectangles[0]
+    return first === undefined
+        ? value.length > LONG_ENOUGH_TO_WRAP
+        : rectangles.some(rectangle => rectangle.top > first.top + first.height / 2)
 }
 
 /**

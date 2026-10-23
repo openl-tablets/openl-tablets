@@ -7,6 +7,8 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.DecisionTableHelper;
@@ -24,7 +26,11 @@ import org.openl.util.NumberUtils;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.IFormatter;
 
-/** Picks the editor a cell is written with from what the compiler knows about the cell. */
+/**
+ * Picks the editor a cell is written with from what the compiler knows about the cell.
+ *
+ * <p>A numeric range value keeps its range editor when its condition also has resolved usages.
+ */
 public class CellEditorSelector {
 
     public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
@@ -40,7 +46,8 @@ public class CellEditorSelector {
         IOpenClass dataType = meta == null ? null : meta.getDataType();
         if (dataType != null) {
             if (CellMetaInfo.isCellContainsNodeUsages(meta)) {
-                return defaultEditor(cell);
+                var rangeEditor = numericRangeEditor(initialValue, dataType.getInstanceClass());
+                return rangeEditor == null ? defaultEditor(cell) : rangeEditor;
             }
             IDomain<?> domain = dataType.getDomain();
             Class<?> instanceClass = dataType.getInstanceClass();
@@ -115,14 +122,22 @@ public class CellEditorSelector {
                     EnumUtils.getValues(instanceClass),
                     meta.isMultiValue());
             // Range
-        } else if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
-                .parsableAs(initialValue, instanceClass, null)) {
-            result = new NumberRangeEditor(ICellEditor.CE_INTEGER);
-        } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
-                .parsableAs(initialValue, instanceClass, null)) {
-            result = new NumberRangeEditor(ICellEditor.CE_DOUBLE);
+        } else {
+            result = numericRangeEditor(initialValue, instanceClass);
         }
         return result;
+    }
+
+    private static @Nullable ICellEditor numericRangeEditor(String value, Class<?> instanceClass) {
+        if (ClassUtils.isAssignable(instanceClass, IntRange.class)
+                && DecisionTableHelper.parsableAs(value, instanceClass, null)) {
+            return new NumberRangeEditor(ICellEditor.CE_INTEGER);
+        }
+        if (ClassUtils.isAssignable(instanceClass, DoubleRange.class)
+                && DecisionTableHelper.parsableAs(value, instanceClass, null)) {
+            return new NumberRangeEditor(ICellEditor.CE_DOUBLE);
+        }
+        return null;
     }
 
     private static ICellEditor numericEditor(CellMetaInfo meta, Class<?> instanceClass) {
