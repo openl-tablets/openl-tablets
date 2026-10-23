@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,7 +19,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
@@ -55,6 +56,7 @@ import org.openl.util.StringUtils;
 /**
  * @author Aleh Bykhavets
  */
+@RequiredArgsConstructor
 @Slf4j
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
@@ -89,12 +91,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     public DesignTimeRepositoryImpl(PropertyResolver propertyResolver) {
         this(propertyResolver, new BranchedProjectIndexService());
-    }
-
-    public DesignTimeRepositoryImpl(PropertyResolver propertyResolver,
-                                    BranchedProjectIndexService indexService) {
-        this.propertyResolver = propertyResolver;
-        this.indexService = indexService;
     }
 
     @Override
@@ -225,21 +221,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
 
-            var projectKey = projectKey(repositoryId, name);
+            var projectKey = ProjectKey.byName(repositoryId, name);
 
             var cached = projects.get(projectKey);
             if (cached != null) {
                 return cached;
-            } else {
-                Optional<AProject> project = projects.values()
-                        .stream()
-                        .filter(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name))
-                        .min(Comparator.comparing(AProject::getName));
-                if (project.isPresent()) {
-                    return project.get();
-                }
-                throw new ProjectException("Project '{0}' is not found.", null, name);
             }
+            Optional<AProject> project = projects.values()
+                    .stream()
+                    .filter(p -> p.getRepository().getId().equals(repositoryId) && knownAs(p, name))
+                    .min(Comparator.comparing(AProject::getName));
+            if (project.isPresent()) {
+                return project.get();
+            }
+            throw new ProjectException("Project '{0}' is not found.", null, name);
         }
     }
 
@@ -269,7 +264,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (projectsRefreshNeeded) {
                 refreshProjects();
             }
-            var direct = branchedProjects.get(projectKey(repositoryId, name));
+            var direct = branchedProjects.get(ProjectKey.byName(repositoryId, name));
             if (direct != null) {
                 return Optional.of(direct);
             }
@@ -336,7 +331,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public AProject getProject(String repositoryId, String name, CommonVersion version) {
+    public @Nullable AProject getProject(String repositoryId, String name, CommonVersion version) {
         var repoVersion = version.getVersionName();
         var key = new ProjectKey(repositoryId, "%s:%s".formatted(name, repoVersion));
         var project = projectsVersions.get(key);
@@ -389,10 +384,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public AProject getProjectByPath(String repositoryId,
-                                     String branch,
-                                     String path,
-                                     String version) throws IOException {
+    public @Nullable AProject getProjectByPath(String repositoryId,
+                                               String branch,
+                                               String path,
+                                               String version) throws IOException {
         synchronized (projects) {
             if (projectsRefreshNeeded) {
                 refreshProjects();
@@ -578,8 +573,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projects.putAll(configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of()));
         } else {
             addSnapshotProjects(repository, snapshot);
-            if (snapshot.health().state() == BranchedProjectIndexService.IndexState.DEGRADED &&
-                    !snapshot.branches().containsKey(repository.getBranch())) {
+            if (snapshot.health().state() == BranchedProjectIndexService.IndexState.DEGRADED
+                    && !snapshot.branches().containsKey(repository.getBranch())) {
                 configuredBranchFallbacks.getOrDefault(repository.getId(), Map.of())
                         .forEach(projects::putIfAbsent);
             }
@@ -606,7 +601,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             });
             if (!entries.isEmpty()) {
                 var project = BranchedProject.create(projectSnapshot.name(), repository.getBaseBranch(), entries);
-                var key = projectKey(repository.getId(), project.name());
+                var key = ProjectKey.byName(repository.getId(), project.name());
                 branchedProjects.put(key, project);
                 projects.put(key, project.homeEntry().project());
             }
@@ -634,7 +629,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         for (FileData fileData : fileDatas) {
             var project = new AProject(repository, fileData);
             if (!project.isDeleted()) {
-                result.putIfAbsent(projectKey(repository.getId(), project.getName()), project);
+                result.putIfAbsent(ProjectKey.byName(repository.getId(), project.getName()), project);
             }
         }
         return result;
@@ -647,7 +642,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 refreshProjects();
             }
             // Check full name for mapped repositories
-            var project = projects.get(projectKey(repositoryId, name));
+            var project = projects.get(ProjectKey.byName(repositoryId, name));
             if (project != null) {
                 return true;
             }
@@ -765,16 +760,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return repository instanceof BranchRepository && repository.supports().branches();
     }
 
-    private static ProjectKey projectKey(String repositoryId, String projectName) {
-        return new ProjectKey(repositoryId, projectName.toLowerCase(Locale.ROOT));
-    }
-
-    private static class RepositoryListener implements Listener {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class RepositoryListener implements Listener {
         private final Runnable callback;
-
-        private RepositoryListener(Runnable callback) {
-            this.callback = callback;
-        }
 
         @Override
         public void onChange() {

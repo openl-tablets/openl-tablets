@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import org.openl.util.HashingUtils;
@@ -36,6 +38,7 @@ import org.openl.util.HashingUtils;
  *
  * @author Yury Molchan
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProjectIds {
 
     private static final String VERSION = "v1";
@@ -47,9 +50,6 @@ public final class ProjectIds {
 
     /** The ids of the identities found sharing a digest with another one, by identity. */
     private static final Map<String, ProjectId> NUMBERED = new ConcurrentHashMap<>();
-
-    private ProjectIds() {
-    }
 
     /**
      * The id of the project stored in the given folder of the given repository.
