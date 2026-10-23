@@ -157,6 +157,20 @@ describe('SaveProjectModal', () => {
         await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', undefined))
     })
 
+    it('hides the comment and saves a file repository without one', async () => {
+        const fileProject = {
+            ...project as object,
+            repositoryInfo: { name: 'File', features: { comments: false } },
+        } as never
+        render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={fileProject} />)
+
+        expect(screen.queryByTestId('save-project-comment')).not.toBeInTheDocument()
+        expect(getRepositoryConfig).not.toHaveBeenCalled()
+        await userEvent.click(screen.getByTestId('save-project-submit'))
+
+        await waitFor(() => expect(saveProject).toHaveBeenCalledWith('p1', undefined))
+    })
+
     it('starts from the comment the repository suggests for a save', async () => {
         vi.mocked(getRepositoryConfig).mockResolvedValue({
             comment: { templates: { save: 'Project {project-name} was modified' } },

@@ -193,7 +193,8 @@ After a way is chosen, the dialog shows the source of the project and the settin
 -   **Repository** — the Design repository that stores the project. Only the repositories where the user may create projects are offered.
 -   **Branch** — the branch of a Git repository, described below. The field is shown for repositories that support branches.
 -   **Path** — the folder of the repository where the project is stored. Leave it empty to store the project in the root of the repository, enter a path such as `folder/subfolder`, or click **Browse folders** **⋮** to select an existing folder. The field is shown for repositories that keep projects in folders.
--   **Comment** — the comment of the commit that creates the project. A standard comment is suggested.
+-   **Comment** — the comment of the commit that creates the project. A standard comment is suggested. The field is
+    hidden for repositories that do not store change comments, such as file repositories.
 
 After the project is created, its page opens and the project has the **No Changes** status, which means that it is open and can be modified.
 
@@ -498,11 +499,11 @@ To save a project, proceed as follows:
 
     *Save changes in a project*
 
-1.  Enter a comment if needed and click **Save**.
+1.  Enter a comment if the field is shown and needed, then click **Save**.
 
     For repositories that store change comments, a standard comment is suggested. If the repository requires comments
-    of a certain form, a comment that does not match it is refused. File repositories do not store change comments;
-    their projects can be created and saved without comment templates.
+    of a certain form, a comment that does not match it is refused. File repositories do not store change comments,
+    so the **Comment** field is hidden when saving their projects.
 
 If another user saved the same files in the meantime, their changes are merged with yours where they do not
 overlap. When both changed the same place, the **Resolve Conflicts** window appears, as described in
@@ -785,7 +786,7 @@ To copy a project from the **New Project** wizard, proceed as follows:
 3.  Select the target repository.
 4.  For a branch-capable repository, select an existing branch or enter a new branch name in the single **Branch**
     field.
-5.  If necessary, specify a path and modify the commit comment.
+5.  If necessary, specify a path and modify the commit comment, when the target repository supports comments.
 6.  Click **Create**.
 
 ![Configuring a project copy and its target branch](images/copy-project-dialog.png "Copying a project")
@@ -805,7 +806,7 @@ To copy the selected project, proceed as follows:
 2.  Select **Create a New Project** to copy the project instead of branching it.
 3.  Enter the new project name and select the target repository.
 4.  For a branch-capable target repository, select an existing branch or enter a new branch name in **Branch**.
-5.  If necessary, specify the target path and modify the commit comment.
+5.  If necessary, specify the target path and modify the commit comment, when the target repository supports comments.
 6.  To copy an earlier state, select **Copy an Old Revision** and choose the revision.
 7.  Click **Copy**.
 
@@ -832,7 +833,7 @@ To delete a project, proceed as follows:
 1.  Perform one of the following steps as required:
     -   On the page of the project, click **Delete**.
     -   On the **Projects** page, select **Delete** in the **Actions** menu **⋮** of the row of the project.
-1.  In the confirmation window, enter a comment.
+1.  In the confirmation window, enter a comment if the field is shown. File repositories do not show it.
 2.  Select **I understand that the project will be deleted**.
 3.  Click **Delete**.
 

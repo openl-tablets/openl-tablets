@@ -593,22 +593,22 @@ export class OpenLClient {
   /**
    * Save project changes, creating a new revision in the repository
    *
-   * Saves only a project with unsaved changes (status EDITING). Requires comment; the server creates a new
-   * revision with that comment and transitions the project to OPENED (or CLOSED if closeAfterSave).
-   * Uses PATCH /projects/{projectId} with body { comment } or { comment, status: "CLOSED" }.
+   * Saves only a project with unsaved changes (status EDITING). The server creates a new revision and transitions
+   * the project to OPENED (or CLOSED if closeAfterSave). A comment is required only when the repository supports it.
+   * Uses PATCH /projects/{projectId} with save: true, the comment when supported, and status when closing.
    *
    * A project without unsaved changes has nothing to save. With closeAfterSave it is still closed, unless it is
    * closed already.
    *
-   * @param comment - Comment for the new revision (required when project is EDITING; used as commit message)
+   * @param comment - Comment for the new revision when the repository supports comments
    * @param options - Optional. closeAfterSave: if true, send status CLOSED so project is saved and closed in one
    *   request.
    * @returns Save result; if project is not EDITING, returns success with message "nothing to save".
-   * @throws Error if comment is missing or empty when project is EDITING
+   * @throws Error if a comment is missing when the repository supports comments and the project is EDITING
    */
   async saveProject(
     projectId: string,
-    comment: string,
+    comment?: string,
     options?: { closeAfterSave?: boolean }
   ): Promise<Types.SaveProjectResult> {
     const project = await this.getProjectAndEnsureNotLocal(projectId);
@@ -622,15 +622,17 @@ export class OpenLClient {
         message: `There are no changes in the project; nothing to save.${closes ? " The project is closed." : ""}`,
       };
     }
-    const message = comment.trim();
-    if (!message) {
+    const supportsComments = project.repositoryInfo?.features?.comments !== false;
+    const message = supportsComments ? comment?.trim() : undefined;
+    if (supportsComments && !message) {
       throw new Error("comment is required for save; it is used as the revision (commit) message.");
     }
     await this.http.patch(projectPath(projectId), {
+      save: true,
       comment: message,
       status: options?.closeAfterSave ? "CLOSED" : undefined,
     });
-    return { success: true, message };
+    return { success: true, message: message ?? "Project saved" };
   }
 
   // =============================================================================

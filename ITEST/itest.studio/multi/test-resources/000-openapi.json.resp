@@ -31191,6 +31191,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "comments": {
+            "type": "boolean",
+            "description": "***"
+          },
           "mappedFolders": {
             "type": "boolean",
             "description": "***"
@@ -31208,6 +31212,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "comments": {
+            "type": "boolean",
+            "description": "***"
+          },
           "mappedFolders": {
             "type": "boolean",
             "description": "***"
@@ -31222,6 +31230,10 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "branches": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "comments": {
             "type": "boolean",
             "description": "***"
           },

@@ -29,7 +29,7 @@ interface CommentFieldProps {
 
 /**
  * The commit comment of an action that writes to the repository, suggested by the repository and validated
- * against its pattern. Every dialog that commits shows the same field.
+ * against its pattern. Dialogs show it when the repository supports comments.
  */
 export const CommentField = ({ value, onChange, config, testId, labelWidth }: CommentFieldProps) => {
     const { t } = useTranslation('repository')

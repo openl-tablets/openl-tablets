@@ -6,10 +6,14 @@ import { TextArea } from 'components/form'
 import { useCommitInfoGuard, useGlobalEvents, useRepositoryConfig } from 'hooks'
 import { validateComment } from 'utils/repositoryConfig'
 import { deleteProject } from 'services/projects'
+import { supportsComments } from 'utils/repositoryFeatures'
+import type { RepositoryInfo } from 'types/repositories'
 
 interface DeleteProjectModalDetail {
     projectId: string
     projectName: string
+    repositoryInfo?: RepositoryInfo
+    localOnly?: boolean
     onSuccess?: () => void
 }
 
@@ -27,9 +31,11 @@ export const DeleteProjectModal: React.FC = () => {
     const [deleting, setDeleting] = useState(false)
     const confirmed = Form.useWatch('confirmed', form)
     const comment = Form.useWatch('comment', form)
-    // Deleting commits too, so the comment obeys the same rule the repository configures. The repository
-    // has no template for a deletion, so nothing is suggested.
-    const config = useRepositoryConfig(detail?.projectId ? { projectId: detail.projectId } : null)
+    const repositorySupportsComments = !detail?.localOnly && supportsComments(detail?.repositoryInfo)
+    // Where the repository supports comments, deletion follows its validation rule. No deletion template is offered.
+    const config = useRepositoryConfig(detail?.projectId && repositorySupportsComments
+        ? { projectId: detail.projectId }
+        : null)
     const commentError = validateComment(
         comment ?? '',
         config,
@@ -58,7 +64,8 @@ export const DeleteProjectModal: React.FC = () => {
         await runWithCommitInfo(async () => {
             setDeleting(true)
             try {
-                const deleted = await deleteProject(detail.projectId, detail.projectName, values.comment.trim())
+                const deleted = await deleteProject(detail.projectId, detail.projectName,
+                    repositorySupportsComments ? values.comment?.trim() : undefined)
                 if (deleted) {
                     handleClose()
                     detail.onSuccess?.()
@@ -67,9 +74,9 @@ export const DeleteProjectModal: React.FC = () => {
                 setDeleting(false)
             }
         })
-    }, [detail, form, handleClose, runWithCommitInfo])
+    }, [detail, form, handleClose, repositorySupportsComments, runWithCommitInfo])
 
-    const canDelete = Boolean(confirmed && comment?.trim() && !commentError)
+    const canDelete = Boolean(confirmed && (!repositorySupportsComments || comment?.trim() && !commentError))
 
     return (
         <>
@@ -103,13 +110,13 @@ export const DeleteProjectModal: React.FC = () => {
                     {t('repository:delete_project_modal.confirm', { project: detail?.projectName })}
                 </Typography.Paragraph>
                 <Form form={form} layout="vertical">
-                    <TextArea
+                    {repositorySupportsComments && <TextArea
                         required
                         label={t('repository:delete_project_modal.comment_label', { project: detail?.projectName })}
                         name="comment"
                         rows={4}
                         rules={[{ validator: async () => commentError ? Promise.reject(new Error(commentError)) : Promise.resolve() }]}
-                    />
+                    />}
                     <Form.Item name="confirmed" valuePropName="checked">
                         <Checkbox>{t('repository:delete_project_modal.confirmation')}</Checkbox>
                     </Form.Item>

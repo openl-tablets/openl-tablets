@@ -45,7 +45,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 ### Repository Tools (4)
 - `openl_list_repositories` - List all design repositories
 - `openl_list_branches` - List Git branches in a repository
-- `openl_list_repository_features` - Get repository capabilities
+- `openl_list_repository_features` - Get repository features, including whether change comments are supported
 - `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch
 
 ### Project Tools (16)
@@ -54,8 +54,8 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again
 - `openl_create_project` - Create or copy a project atomically through Studio: omit `template` for a BLANK project, or pass an existing project's exact `projectId` from `openl_list_projects` to copy its full structure and rename it. Both modes accept an optional target `branch` and return the commit revision plus Studio's opaque `projectId` of the new project
 - `openl_open_project` - Open project for editing (supports branch/revision switching)
-- `openl_save_project` - Save project changes to Git with validation
-- `openl_close_project` - Close project with save/discard options (prevents data loss)
+- `openl_save_project` - Save project changes; a comment is required when the repository supports comments
+- `openl_close_project` - Close project with save/discard options; saving requires a comment only when supported
 - `openl_create_project_branch` - Create new branch
 - `openl_list_project_local_changes` - View one module's workspace history using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`
 - `openl_restore_project_local_change` - Restore one module to a listed local version using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`

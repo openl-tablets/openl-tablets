@@ -41,12 +41,14 @@ const mockDeleteProject = deleteProject as MockedFunction<typeof deleteProject>
 
 const urlSafeId = (raw: string) => btoa(raw).replaceAll('+', '-').replaceAll('/', '_')
 
-const openModal = async (onSuccess = vi.fn()) => {
+const openModal = async (onSuccess = vi.fn(), comments = true, localOnly = false) => {
     await act(async () => {
         window.dispatchEvent(new CustomEvent('openDeleteProjectModal', {
             detail: {
                 projectId: urlSafeId('design:MyProject'),
                 projectName: 'MyProject',
+                repositoryInfo: { name: 'Design', features: { comments } },
+                localOnly,
                 onSuccess,
             },
         }))
@@ -90,5 +92,27 @@ describe('DeleteProjectModal', () => {
             expect(onSuccess).toHaveBeenCalled()
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
         })
+    })
+
+    it('deletes from a file repository without asking for a comment', async () => {
+        mockDeleteProject.mockResolvedValueOnce(true)
+        render(<DeleteProjectModal />)
+        await openModal(vi.fn(), false)
+
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+        await userEvent.click(screen.getByRole('checkbox'))
+        const deleteButton = screen.getByRole('button', { name: 'repository:delete_project_modal.confirm_button' })
+        expect(deleteButton).toBeEnabled()
+        await userEvent.click(deleteButton)
+
+        await waitFor(() => expect(mockDeleteProject).toHaveBeenCalledWith(
+            urlSafeId('design:MyProject'), 'MyProject', undefined))
+    })
+
+    it('does not ask for a comment when deleting a local project', async () => {
+        render(<DeleteProjectModal />)
+        await openModal(vi.fn(), true, true)
+
+        expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     })
 })

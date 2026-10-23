@@ -45,7 +45,26 @@ describe("repository tools", () => {
       response_format: "json",
     }, harness.client);
 
-    expect(dataOf(result)).toEqual({ branches: false, mappedFolders: false, searchable: false });
+    expect(dataOf(result)).toEqual({ branches: false, comments: true, mappedFolders: false, searchable: false });
+  });
+
+  it("openl_list_repository_features reports that repo-file does not support comments", async () => {
+    harness.mockHttp.onGet("/repos").reply(200, [
+      ...mockRepositories,
+      {
+        id: "design-file",
+        name: "File Repository",
+        type: "repo-file",
+        features: { branches: false, comments: false, mappedFolders: true, searchable: false },
+      },
+    ]);
+
+    const result = await executeTool("list_repository_features", {
+      repository: "design-file",
+      response_format: "json",
+    }, harness.client);
+
+    expect(dataOf(result)).toEqual({ branches: false, comments: false, mappedFolders: true, searchable: false });
   });
 
   it("openl_repository_project_revisions uses the current revision total to derive more pages", async () => {

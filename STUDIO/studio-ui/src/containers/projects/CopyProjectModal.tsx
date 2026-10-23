@@ -20,7 +20,7 @@ import { breaksProjectAddress } from '../../utils/projectName'
 import { suggestBranchName, suggestComment, validateBranchName } from '../../utils/repositoryConfig'
 import { CommentField, useCommentError } from './CommentField'
 import { useUserStore } from '../../store'
-import { supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
+import { supportsBranches, supportsComments, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { useCommitInfoGuard, useDesignRepositoryBranches, useRepositoryConfig } from '../../hooks'
 import { DiscardChangesModal } from '../DiscardChangesModal'
 import { ProjectStatus } from '../../constants/project'
@@ -42,8 +42,8 @@ interface CopyProjectModalProps {
  * project needs the right to create one in some repository. Whichever the user has decides what the dialog
  * offers; when both are available, a checkbox switches between them.
  *
- * The new branch name and the commit comment start from the repository configuration. A copy can be taken
- * from an older revision of the project instead of its latest state.
+ * The new branch name and, when supported, the comment start from the repository configuration. A copy can be
+ * taken from an older revision of the project instead of its latest state.
  */
 export const CopyProjectModal = ({ open, project, repositories, onClose, onCopied }: CopyProjectModalProps) => {
     const { notification } = App.useApp()
@@ -78,6 +78,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
     const newProjectMode = canCopyProject && (asNewProject || !canBranch)
     const targetRepository = repositories.find(repo => repo.id === targetRepositoryId)
     const targetSupportsBranches = supportsBranches(targetRepository)
+    const targetSupportsComments = supportsComments(targetRepository)
     const targetConfig = useRepositoryConfig(
         open && newProjectMode && targetRepositoryId ? { repositoryId: targetRepositoryId } : null
     )
@@ -135,8 +136,10 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
             return
         }
         setBranch(suggestBranchName(sourceConfig, { projectName: project.name, username }))
-        setComment(suggestComment(writeConfig, 'copy', project.name))
-    }, [open, project, sourceConfig, touched, username, writeConfig])
+        if (!newProjectMode || targetSupportsComments) {
+            setComment(suggestComment(writeConfig, 'copy', project.name))
+        }
+    }, [newProjectMode, open, project, sourceConfig, targetSupportsComments, touched, username, writeConfig])
 
     // The revisions to copy from are only listed once the user asks for an older one.
     const { revisions, options: revisionOptions } = useProjectRevisions(project, open && fromOldRevision)
@@ -235,14 +238,14 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
         if (breaksProjectAddress(trimmed)) {
             throw new Error(t('browser.create.name_invalid'))
         }
-        if (commentError) {
+        if (targetSupportsComments && commentError) {
             throw new Error(commentError)
         }
         if (targetBranchError) {
             throw new Error(targetBranchError)
         }
         await copyProject(source.id, targetRepositoryId, trimmed, {
-            comment: comment.trim() || undefined,
+            comment: targetSupportsComments ? comment.trim() || undefined : undefined,
             path: targetSupportsFolders ? path : undefined,
             revision: fromOldRevision ? revision : undefined,
             branch: targetSupportsBranches ? targetBranch.trim() : undefined,
@@ -312,7 +315,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                     />
                 </FieldRow>
             )}
-            <CommentField
+            {targetSupportsComments && <CommentField
                 config={writeConfig}
                 labelWidth={LABEL_WIDTH}
                 testId="copy-project-comment"
@@ -321,7 +324,7 @@ export const CopyProjectModal = ({ open, project, repositories, onClose, onCopie
                     setTouched(true)
                     setComment(value)
                 }}
-            />
+            />}
             <FieldRow label={t('browser.copy_dialog.old_revision')} labelWidth={LABEL_WIDTH}>
                 <Checkbox
                     checked={fromOldRevision}

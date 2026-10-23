@@ -19,7 +19,8 @@ Content-Type: application/json
         "features": {
           "branches": false,
           "searchable": false,
-          "mappedFolders": true
+          "mappedFolders": true,
+          "comments": false
         }
       },
       "capabilities": {
@@ -49,7 +50,8 @@ Content-Type: application/json
         "features": {
           "branches": false,
           "searchable": false,
-          "mappedFolders": true
+          "mappedFolders": true,
+          "comments": false
         }
       },
       "capabilities": {

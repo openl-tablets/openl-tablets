@@ -53,7 +53,7 @@ export function registerRepositoryHandlers(): void {
     name: "list_repository_features",
     title: "Get Repository Features",
     description:
-      "Get features supported by a design repository (branching, searchable, etc.). Use this to check if a repository supports specific features like branching before performing operations that depend on those features. Pass either the id or name from openl_list_repositories() — both are accepted (case-insensitive). Do not invent example values; call openl_list_repositories() first if not in context.",
+      "Get features supported by a design repository, including branching, search, and change comments. Check these flags before operations that depend on them. Pass either the id or name from openl_list_repositories() — both are accepted (case-insensitive). Do not invent example values; call openl_list_repositories() first if not in context.",
     schema: schemas.getRepositoryFeaturesSchema,
     annotations: {
       readOnlyHint: true,

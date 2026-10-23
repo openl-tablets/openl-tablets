@@ -17,6 +17,8 @@ export interface RepositoryFeatures {
     searchable: boolean
     /** Repository uses a non-flat structure and accepts a project path within the repository. */
     mappedFolders: boolean
+    /** Repository stores comments for project changes. */
+    comments?: boolean
 }
 
 /**

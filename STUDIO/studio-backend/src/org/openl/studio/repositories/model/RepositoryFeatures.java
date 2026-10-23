@@ -10,9 +10,11 @@ public record RepositoryFeatures(
         @Parameter(description = "Determines if the target repository supports searching and pagination")
         boolean searchable,
         @Parameter(description = "Determines if the target repository supports mapped project folders")
-        boolean mappedFolders) {
+        boolean mappedFolders,
+        @Parameter(description = "Determines if the target repository supports change comments")
+        boolean comments) {
 
     public RepositoryFeatures(Features features) {
-        this(features.branches(), features.searchable(), features.mappedFolders());
+        this(features.branches(), features.searchable(), features.mappedFolders(), features.comments());
     }
 }

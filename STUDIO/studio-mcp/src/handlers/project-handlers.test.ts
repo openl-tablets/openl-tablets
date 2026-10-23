@@ -324,9 +324,23 @@ describe("open, save and close", () => {
       closeAfterSave: true,
     }, harness.client);
 
-    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ comment: "Save and close", status: "CLOSED" }]);
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "Save and close", status: "CLOSED" }]);
     expect(textOf(result)).toContain("success");
     expect(textOf(result)).toContain("Save and close");
+  });
+
+  it("openl_save_project omits the comment for a file repository", async () => {
+    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("EDITING", {
+      repositoryInfo: { name: "File", features: { comments: false } },
+    }));
+    harness.mockHttp.onPatch(lifecyclePath).reply(204);
+
+    const result = await executeTool("save_project", {
+      projectId: "design-project1", response_format: "json",
+    }, harness.client);
+
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true }]);
+    expect(dataOf(result)).toEqual({ success: true, message: "Project saved" });
   });
 
   it("openl_save_project closes a project without unsaved changes when closeAfterSave asks for it", async () => {
@@ -347,7 +361,7 @@ describe("open, save and close", () => {
   it.each([
     ["a project without unsaved changes", "OPENED", {}, { status: "CLOSED" }, "Project closed successfully"],
     ["saving the changes", "EDITING", { saveChanges: true, comment: "Save before close" },
-      { comment: "Save before close", status: "CLOSED" },
+      { save: true, comment: "Save before close", status: "CLOSED" },
       'Project saved and closed successfully with comment: "Save before close"'],
     ["discarding the changes", "EDITING", { discardChanges: true, confirmDiscard: true },
       { status: "CLOSED", discardChanges: true }, "Project closed (unsaved changes discarded)"],
@@ -361,6 +375,20 @@ describe("open, save and close", () => {
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([patch]);
     expect(dataOf(result)).toEqual({ success: true, message });
+  });
+
+  it("openl_close_project saves and closes a file repository project without a comment", async () => {
+    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("EDITING", {
+      repositoryInfo: { name: "File", features: { comments: false } },
+    }));
+    harness.mockHttp.onPatch(lifecyclePath).reply(204);
+
+    const result = await executeTool("close_project", {
+      projectId: "design-project1", saveChanges: true, response_format: "json",
+    }, harness.client);
+
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, status: "CLOSED" }]);
+    expect(dataOf(result)).toEqual({ success: true, message: "Project saved and closed successfully" });
   });
 
   it("openl_close_project asks for confirmDiscard before discarding unsaved changes", async () => {

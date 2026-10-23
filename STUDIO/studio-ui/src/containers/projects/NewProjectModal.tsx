@@ -31,7 +31,7 @@ import { BranchSelect } from './BranchSelect'
 import { branchMarksFromConfig, withConfiguredBranch } from './configBranchMarks'
 import { RepoFolderInput } from './RepoFolderInput'
 import { useSharedStyles } from './sharedStyles'
-import { creatableRepositories, supportsBranches, supportsMappedFolders } from '../../utils/repositoryFeatures'
+import { creatableRepositories, supportsBranches, supportsComments, supportsMappedFolders } from '../../utils/repositoryFeatures'
 import { inspectOpenLArchive, zipProjectFolder, type OpenLArchiveInfo } from '../../utils/openlArchive'
 import { useCommitInfoGuard, useDesignRepositoryBranches, useRepositoryConfig } from '../../hooks'
 import { breaksProjectAddress } from '../../utils/projectName'
@@ -279,6 +279,7 @@ export const NewProjectModal = ({
     const repository = useMemo(() => creatableRepos.find(repo => repo.id === repoId) ?? null, [creatableRepos, repoId])
     const repositorySupportsFolders = supportsMappedFolders(repository)
     const repositorySupportsBranches = supportsBranches(repository)
+    const repositorySupportsComments = supportsComments(repository)
     const projectSources = copyProjects ?? initialProjects
     const copyableProjectSources = useMemo(
         () => projectSources.filter(project => project.capabilities?.canCopy),
@@ -330,8 +331,7 @@ export const NewProjectModal = ({
         }
     }, [suggestedName, nameTouched])
 
-    // The target repository suggests the comment of the commit the wizard is about to make, following the
-    // project the comment is about: the copied one, or the one being created.
+    // A repository that supports comments suggests one for the copied or newly created project.
     const config = useRepositoryConfig(open && repoId ? { repositoryId: repoId } : null)
     // The repository the branches are read from; the form asks for none until it has one to write to.
     const branchRepositoryId = open && repositorySupportsBranches && repoId ? repoId : null
@@ -348,10 +348,10 @@ export const NewProjectModal = ({
         : name.trim()
 
     useEffect(() => {
-        if (open && !commentTouched) {
+        if (open && repositorySupportsComments && !commentTouched) {
             setComment(suggestComment(config, mode === 'copy' ? 'copy' : 'create', commentSubject))
         }
-    }, [commentSubject, commentTouched, config, mode, open])
+    }, [commentSubject, commentTouched, config, mode, open, repositorySupportsComments])
 
     useEffect(() => {
         setBranch('')
@@ -527,7 +527,7 @@ export const NewProjectModal = ({
         if (mode === 'copy') {
             const source = copyableProjectSources.find(candidate => candidate.id === copySource)!
             return await copyProject(source.id, repository.id, trimmedName, {
-                comment: comment.trim() || undefined,
+                comment: repositorySupportsComments ? comment.trim() || undefined : undefined,
                 path: repositoryPath(),
                 branch: repositorySupportsBranches ? branch.trim() : undefined,
             })
@@ -536,7 +536,7 @@ export const NewProjectModal = ({
             return await createProject(repository.id, trimmedName, {
                 template: { type, category, name: name_ },
                 path: repositoryPath(),
-                comment: comment.trim() || undefined,
+                comment: repositorySupportsComments ? comment.trim() || undefined : undefined,
                 status: 'OPENED',
                 ...(repositorySupportsBranches ? { branch: branch.trim() } : {}),
             })
@@ -545,7 +545,7 @@ export const NewProjectModal = ({
                 files: contentFiles(),
                 ...(mode === 'openapi' ? { openApi } : {}),
                 path: mode === 'archive' ? archivePath() : repositoryPath(),
-                comment: comment.trim() || undefined,
+                comment: repositorySupportsComments ? comment.trim() || undefined : undefined,
                 // Every source opens the new project, so an uploaded archive is no longer the odd
                 // one out that lands closed.
                 status: 'OPENED',
@@ -569,7 +569,7 @@ export const NewProjectModal = ({
             setError(sourceError)
             return
         }
-        if (commentError) {
+        if (repositorySupportsComments && commentError) {
             setError(commentError)
             return
         }
@@ -872,7 +872,7 @@ export const NewProjectModal = ({
                     />
                 </FieldRow>
             )}
-            <CommentField
+            {repositorySupportsComments && <CommentField
                 config={config}
                 testId="new-project-comment"
                 value={comment}
@@ -880,7 +880,7 @@ export const NewProjectModal = ({
                     setCommentTouched(true)
                     setComment(value)
                 }}
-            />
+            />}
             {error && <Alert showIcon data-testid="new-project-error" style={{ marginTop: 4 }} title={error} type="error" />}
         </>
     )

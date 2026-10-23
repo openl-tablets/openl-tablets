@@ -17,6 +17,7 @@ import { normalizeProjectFileChanges, type NormalizedFileChange } from './fileCh
 import type { Project } from '../../types/projects'
 import { ProjectStatus } from '../../constants/project'
 import { formatDateTime } from '../../utils/dateFormat'
+import { supportsComments } from '../../utils/repositoryFeatures'
 
 interface SaveProjectModalProps {
     open: boolean
@@ -84,7 +85,7 @@ const usePendingSave = (open: boolean, projectId: string | undefined): PendingSa
 }
 
 /**
- * Commit-comment dialog for saving a project, mirroring the legacy repository save flow.
+ * Dialog for saving a project. It asks for a comment when the repository supports one.
  *
  * It lists the files the save commits, each comparable with the revision the working copy was taken from. Before
  * committing it verifies that the profile completed during login is still valid. If the commit races another change
@@ -97,7 +98,8 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     const [comment, setComment] = useState('')
     const [commentTouched, setCommentTouched] = useState(false)
     const [submitting, setSubmitting] = useState(false)
-    const config = useRepositoryConfig(open && project ? { projectId: project.id } : null)
+    const repositorySupportsComments = supportsComments(project?.repositoryInfo)
+    const config = useRepositoryConfig(open && project && repositorySupportsComments ? { projectId: project.id } : null)
     const commentError = useCommentError(comment, config)
     const pending = usePendingSave(open, project?.id)
 
@@ -109,7 +111,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     // The repository suggests the comment; it stays editable. Saving a project opened on an older revision
     // restores that revision, and the repository has its own template for it.
     useEffect(() => {
-        if (!open || commentTouched) {
+        if (!open || !repositorySupportsComments || commentTouched) {
             return
         }
         setComment(project?.status === ProjectStatus.ViewingVersion
@@ -119,7 +121,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
                 datetime: formatDateTime(project.modifiedAt) ?? '',
             })
             : suggestComment(config, 'save', project?.name))
-    }, [commentTouched, config, open, project])
+    }, [commentTouched, config, open, project, repositorySupportsComments])
 
     const openConflictResolution = async (target: Project) => {
         notification.warning({ title: t('browser.save_conflict') })
@@ -130,7 +132,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     const doSave = async (target: Project) => {
         setSubmitting(true)
         try {
-            await saveProject(target.id, comment.trim() || undefined)
+            await saveProject(target.id, repositorySupportsComments ? comment.trim() || undefined : undefined)
             notification.success({ title: t('browser.saved') })
             onSaved()
             onClose()
@@ -150,7 +152,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
     }
 
     const submit = async () => {
-        if (!project || commentError) {
+        if (!project || repositorySupportsComments && commentError) {
             return
         }
         await runWithCommitInfo(() => doSave(project))
@@ -172,7 +174,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
             <Modal
                 destroyOnHidden
                 confirmLoading={submitting}
-                okButtonProps={{ 'data-testid': 'save-project-submit', disabled: !!commentError, icon: <SaveOutlined /> }}
+                okButtonProps={{ 'data-testid': 'save-project-submit', disabled: repositorySupportsComments && !!commentError, icon: <SaveOutlined /> }}
                 okText={t('browser.save')}
                 onCancel={onClose}
                 onOk={submit}
@@ -208,7 +210,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
                             }]}
                         />
                     )}
-                    <CommentField
+                    {repositorySupportsComments && <CommentField
                         config={config}
                         testId="save-project-comment"
                         value={comment}
@@ -216,7 +218,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
                             setCommentTouched(true)
                             setComment(value)
                         }}
-                    />
+                    />}
                 </Flex>
             </Modal>
             {commitInfoModal}

@@ -384,6 +384,8 @@ export const ProjectWorkspace = () => {
                 detail: {
                     projectId: project.id,
                     projectName: project.name,
+                    repositoryInfo: project.repositoryInfo,
+                    localOnly: project.status === ProjectStatus.Local,
                     onSuccess: () => navigate('/projects'),
                 },
             })),

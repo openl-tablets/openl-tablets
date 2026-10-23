@@ -225,6 +225,22 @@ describe('CopyProjectModal', () => {
         expect(copyProject).not.toHaveBeenCalled()
     })
 
+    it('copies into a file repository without a comment field or comment', async () => {
+        const fileRepositories = [{
+            id: 'file', name: 'File',
+            features: { branches: false, searchable: false, mappedFolders: true, comments: false },
+        }] as unknown as Repository[]
+        await renderModal({ repositories: fileRepositories })
+        await asNewProject()
+
+        expect(screen.queryByTestId('copy-project-comment')).not.toBeInTheDocument()
+        fireEvent.change(screen.getByTestId('copy-project-name'), { target: { value: 'Beta' } })
+        await userEvent.click(screen.getByTestId('copy-project-submit'))
+
+        await waitFor(() => expect(copyProject).toHaveBeenCalledWith('p1', 'file', 'Beta',
+            expect.objectContaining({ comment: undefined })))
+    })
+
     it('offers a new branch built from the repository pattern', async () => {
         await renderModal()
 

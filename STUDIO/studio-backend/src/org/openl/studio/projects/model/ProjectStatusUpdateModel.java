@@ -28,13 +28,13 @@ public record ProjectStatusUpdateModel(
         String revision,
 
         @Parameter(description = """
-                Commit message used when the project has local modifications that must be saved \
-                before the status change.""")
+                Change comment used when the project has modifications to save and its repository \
+                supports comments.""")
         String comment,
 
         @Parameter(description = """
-                Optional. Set to true only when comment is null and local modifications must be \
-                saved using the repository's default comment generation rules.""")
+                Optional. Set to true when comment is null and local modifications must be saved. \
+                The repository's default comment is generated only when comments are supported.""")
         Boolean save,
 
         @Parameter(description = """
