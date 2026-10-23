@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -256,9 +258,11 @@ public class ProjectFilesController extends AbstractFilesController {
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam("file") @Parameter(description = "projects.files.param.file.desc") MultipartFile file,
             @RequestParam(value = "branch", required = false)
-            @Parameter(description = "projects.files.param.branch.desc") String branch) throws IOException {
+            @Parameter(description = "projects.files.param.branch.desc") String branch,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false)
+            @Parameter(description = "projects.files.param.if-match.desc") @Nullable String ifMatch) throws IOException {
         BranchGuard.requireBranch(project, branch);
-        handleUpdate(fileRootFactory.of(project), path, file);
+        handleUpdate(fileRootFactory.of(project), path, file, ifMatch);
     }
 
     @PutMapping("/{*path}")
@@ -268,9 +272,11 @@ public class ProjectFilesController extends AbstractFilesController {
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam(value = "branch", required = false)
             @Parameter(description = "projects.files.param.branch.desc") String branch,
-            InputStream content) {
+            InputStream content,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false)
+            @Parameter(description = "projects.files.param.if-match.desc") @Nullable String ifMatch) {
         BranchGuard.requireBranch(project, branch);
-        handleUpdateRaw(fileRootFactory.of(project), path, content);
+        handleUpdateRaw(fileRootFactory.of(project), path, content, ifMatch);
     }
 
     @PutMapping(value = "/{*path}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -293,8 +299,10 @@ public class ProjectFilesController extends AbstractFilesController {
             @ProjectId @PathVariable("projectId") RulesProject project,
             @PathVariable @Parameter(description = "projects.files.param.path.desc") String path,
             @RequestParam(value = "branch", required = false)
-            @Parameter(description = "projects.files.param.branch.desc") String branch) {
+            @Parameter(description = "projects.files.param.branch.desc") String branch,
+            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false)
+            @Parameter(description = "projects.files.param.if-match.desc") @Nullable String ifMatch) {
         BranchGuard.requireBranch(project, branch);
-        handleDelete(fileRootFactory.of(project), path);
+        handleDelete(fileRootFactory.of(project), path, ifMatch);
     }
 }

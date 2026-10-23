@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -77,6 +78,7 @@ import org.openl.studio.common.model.GenericView;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.model.ResultNotReadyView;
 import org.openl.studio.common.utils.WebTool;
+import org.openl.studio.common.web.EntityVersions;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
 import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
@@ -587,7 +589,8 @@ public class ProjectsController {
                                       @RequestParam(value = "styles", defaultValue = "false") @Parameter(description = "projects.table.get.param.styles.desc") boolean styles,
                                       @RequestParam(value = "metaInfo", defaultValue = "false") @Parameter(description = "projects.table.get.param.meta-info.desc") boolean metaInfo,
                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
-                                      @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState) {
+                                      @RequestParam(value = "runState", defaultValue = "false") @Parameter(description = "projects.table.get.param.run-state.desc") boolean runState,
+                                      HttpServletResponse response) {
         var read = raw
                 ? projectService.getTableRaw(project, tableId, RawTableRead.builder()
                         .startRow(startRow)
@@ -597,8 +600,12 @@ public class ProjectsController {
                         .withMetaInfo(metaInfo)
                         .build(), module)
                 : (EditableTableView) projectService.getTable(project, tableId, module);
-        if (runState && read instanceof TableView view) {
-            view.runState = projectService.getTableRunState(project, tableId, module);
+        if (read instanceof TableView view) {
+            if (runState) {
+                view.runState = projectService.getTableRunState(project, tableId, module);
+            }
+            // The version of the table read, which a write of the table names back in the If-Match header.
+            response.setHeader(HttpHeaders.ETAG, EntityVersions.entityTag(view.version));
         }
         return read;
     }
@@ -759,8 +766,10 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> updateTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody EditableTableView editTable,
-                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = written(true, () -> projectService.updateTable(project, tableId, editTable, module));
+                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                                   @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) @Parameter(description = "project.table.if-match.desc") @Nullable String ifMatch) {
+        var newTableId = written(true, () -> projectService.updateTable(project, tableId, editTable, module,
+                EntityVersions.expectedVersion(ifMatch)));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -771,8 +780,10 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> appendTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody AppendTableView editTable,
-                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = written(true, () -> projectService.appendTableLines(project, tableId, editTable, module));
+                                                   @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                                   @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) @Parameter(description = "project.table.if-match.desc") @Nullable String ifMatch) {
+        var newTableId = written(true, () -> projectService.appendTableLines(project, tableId, editTable, module,
+                EntityVersions.expectedVersion(ifMatch)));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -783,8 +794,10 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> editTableSource(@ProjectId @PathVariable("projectId") RulesProject project,
                                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                        @Valid @RequestBody RawTableSourceAction action,
-                                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = written(true, () -> projectService.editTableSource(project, tableId, List.of(action), module));
+                                                       @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                                       @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) @Parameter(description = "project.table.if-match.desc") @Nullable String ifMatch) {
+        var newTableId = written(true, () -> projectService.editTableSource(project, tableId, List.of(action), module,
+                EntityVersions.expectedVersion(ifMatch)));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -795,8 +808,10 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> editTableSourceBatch(@ProjectId @PathVariable("projectId") RulesProject project,
                                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                             @Valid @RequestBody RawTableSourceActions actions,
-                                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = written(true, () -> projectService.editTableSource(project, tableId, actions.actions(), module));
+                                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                                            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) @Parameter(description = "project.table.if-match.desc") @Nullable String ifMatch) {
+        var newTableId = written(true, () -> projectService.editTableSource(project, tableId, actions.actions(), module,
+                EntityVersions.expectedVersion(ifMatch)));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -815,8 +830,10 @@ public class ProjectsController {
     public ResponseEntity<TableIdView> updateTableProperties(@ProjectId @PathVariable("projectId") RulesProject project,
                                                              @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                              @Valid @RequestBody TablePropertiesUpdate update,
-                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = written(true, () -> projectService.updateTableProperties(project, tableId, update.properties(), module));
+                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                                             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) @Parameter(description = "project.table.if-match.desc") @Nullable String ifMatch) {
+        var newTableId = written(true, () -> projectService.updateTableProperties(project, tableId, update.properties(),
+                module, EntityVersions.expectedVersion(ifMatch)));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -825,9 +842,10 @@ public class ProjectsController {
     @DeleteMapping("/{projectId}/tables/{tableId}")
     public ResponseEntity<Void> deleteTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
-                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
+                                            @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module,
+                                            @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) @Parameter(description = "project.table.if-match.desc") @Nullable String ifMatch) {
         written(true, () -> {
-            projectService.deleteTable(project, tableId, module);
+            projectService.deleteTable(project, tableId, module, EntityVersions.expectedVersion(ifMatch));
             return null;
         });
         return ResponseEntity.noContent().build();
@@ -964,7 +982,7 @@ public class ProjectsController {
                                              @RequestHeader(name = HttpHeaders.ACCEPT)
                                              String acceptMediaType) throws IOException {
         var completed = completedTests(project);
-        if (acceptMediaType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
+        if (MediaType.APPLICATION_JSON_VALUE.equalsIgnoreCase(acceptMediaType)) {
             if (completed.isEmpty()) {
                 return ResultNotReadyView.accepted();
             }
@@ -975,7 +993,7 @@ public class ProjectsController {
                     compoundResult,
                     lazyValues);
             return ResponseEntity.ok(mapper.mapExecutionSummary(tablesOf(project, run, tableId), run.notRun(), query, page));
-        } else if (acceptMediaType.equalsIgnoreCase(APPLICATION_XLSX_MEDIATYPE)) {
+        } else if (APPLICATION_XLSX_MEDIATYPE.equalsIgnoreCase(acceptMediaType)) {
             // A client that asked for a workbook is told by the status alone: it did not ask for JSON.
             if (completed.isEmpty()) {
                 return ResponseEntity.accepted().build();
@@ -988,9 +1006,8 @@ public class ProjectsController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue("test-results.xlsx"))
                     .header(HttpHeaders.CONTENT_TYPE, APPLICATION_XLSX_MEDIATYPE)
                     .body(output.toByteArray());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 
     @Operation(summary = "projects.tests.case.summary", description = "projects.tests.case.desc")

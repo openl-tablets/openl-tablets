@@ -18,6 +18,7 @@ Authorization: Token ${PAT}
       "view": {
         "id": "${AGE_FACTOR_ID}",
         "tableType": "RawSource",
+        "version": ${AGE_FACTOR_VERSION},
         "kind": "Rules",
         "name": "AgeFactor",
         "pos": "B2:C6",

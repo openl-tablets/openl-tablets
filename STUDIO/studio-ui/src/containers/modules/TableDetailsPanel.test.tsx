@@ -204,7 +204,7 @@ describe('TableDetailsPanel', () => {
 
         // The value it was not asked about is not sent, so the table keeps it as it stands.
         expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-1',
-            [{ name: 'description', value: 'Greets by the hour' }], 'Claims')
+            [{ name: 'description', value: 'Greets by the hour' }], 'Claims', undefined)
         expect(onSaved).toHaveBeenCalledWith('table-1')
     })
 
@@ -221,7 +221,7 @@ describe('TableDetailsPanel', () => {
 
         expect(beforeSave).toHaveBeenCalled()
         expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-2',
-            [{ name: 'description', value: 'Greets by the hour' }], 'Claims')
+            [{ name: 'description', value: 'Greets by the hour' }], 'Claims', undefined)
         expect(onSaved).toHaveBeenCalledWith('table-1')
     })
 
@@ -300,7 +300,7 @@ describe('TableDetailsPanel', () => {
         await userEvent.click(screen.getByTestId('table-details-save'))
 
         expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-1',
-            [{ name: 'lob', value: 'Insurance' }], 'Claims')
+            [{ name: 'lob', value: 'Insurance' }], 'Claims', undefined)
     })
 
     it('takes a property away by writing it with no value', async () => {
@@ -312,7 +312,7 @@ describe('TableDetailsPanel', () => {
         expect(screen.queryByTestId('table-details-input-description')).not.toBeInTheDocument()
         await userEvent.click(screen.getByTestId('table-details-save'))
         expect(updateTableProperties).toHaveBeenCalledWith('p1', 'table-1',
-            [{ name: 'description', value: null }], 'Claims')
+            [{ name: 'description', value: null }], 'Claims', undefined)
     })
 
     it('adds only a property the table may still be given', async () => {

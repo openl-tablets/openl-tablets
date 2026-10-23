@@ -30,6 +30,7 @@ import {
 const rawTable = {
   tableType: "RawSource" as const,
   name: "Rate",
+  version: "v1",
   source: [[{
     value: "Rules void Rate()",
     cell: "A1",
@@ -60,50 +61,50 @@ const rawCellWriteSchemas = [
     name: "append table",
     schema: appendTableSchema,
     input: (value: unknown) => ({
-      projectId: "p1", tableId: "t1",
+      projectId: "p1", tableId: "t1", version: "v1",
       appendData: { tableType: "RawSource", rows: [[{ value }]] },
     }),
   },
   {
     name: "append rows",
     schema: appendTableRowsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", cells: [[{ value }]] }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", cells: [[{ value }]] }),
   },
   {
     name: "append columns",
     schema: appendTableColumnsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", cells: [[{ value }]] }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", cells: [[{ value }]] }),
   },
   {
     name: "insert rows",
     schema: insertTableRowsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", position: 1, cells: [[{ value }]] }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 1, cells: [[{ value }]] }),
   },
   {
     name: "insert columns",
     schema: insertTableColumnsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", position: 1, cells: [[{ value }]] }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 1, cells: [[{ value }]] }),
   },
   {
     name: "update row",
     schema: updateTableRowSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", position: 0, cells: [{ value }] }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 0, cells: [{ value }] }),
   },
   {
     name: "update column",
     schema: updateTableColumnSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", position: 0, cells: [{ value }] }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 0, cells: [{ value }] }),
   },
   {
     name: "update cell",
     schema: updateTableCellSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", row: 0, column: 0, value }),
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0, value }),
   },
   {
     name: "update range",
     schema: updateTableRangeSchema,
     input: (value: unknown) => ({
-      projectId: "p1", tableId: "t1", row: 0, column: 0,
+      projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0,
       cells: [[{ value }, { value: null }]],
     }),
   },
@@ -177,9 +178,18 @@ describe("RawSource-only table contracts", () => {
     expect(serializedValueSchema).not.toContain('"type":"object"');
   });
 
+  it.each(rawCellWriteSchemas.filter(({ name }) => name !== "create table"))(
+    "requires the version of the table the write of $name is based on", ({ schema, input }) => {
+      const args = input("x") as { version?: string; view?: { version?: string } };
+      delete args.version;
+      delete args.view?.version;
+
+      expect(schema.safeParse(args).success).toBe(false);
+    });
+
   it("explains the supported cell-value domain in validation errors", () => {
     const objectResult = updateTableCellSchema.safeParse({
-      projectId: "p1", tableId: "t1", row: 0, column: 0, value: { unsupported: true },
+      projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0, value: { unsupported: true },
     });
 
     expect(objectResult.success).toBe(false);
@@ -206,6 +216,7 @@ describe("RawSource-only table contracts", () => {
     expect(appendTableSchema.safeParse({
       projectId: "p1",
       tableId: "t1",
+      version: "v1",
       appendData: { tableType: "RawSource", rows: [[styledCell]] },
     }).success).toBe(false);
   });
@@ -224,16 +235,16 @@ describe("RawSource-only table contracts", () => {
 
   it("requires at least one raw append row", () => {
     expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", appendData: { tableType: "RawSource", rows: [] },
+      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [] },
     }).success).toBe(false);
     expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", appendData: { tableType: "RawSource", rows: [[{ value: null }]] },
+      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [[{ value: null }]] },
     }).success).toBe(true);
     expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", appendData: { tableType: "RawSource", rows: [[]] },
+      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [[]] },
     }).success).toBe(false);
     expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", appendData: { tableType: "RawSource", rows: [[{ value: "x", colspan: 0 }]] },
+      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [[{ value: "x", colspan: 0 }]] },
     }).success).toBe(false);
   });
 
@@ -247,7 +258,7 @@ describe("RawSource-only table contracts", () => {
         projectId: "p1", tableId: "t1", view: { ...rawTable, tableType },
       }).success).toBe(false);
       expect(appendTableSchema.safeParse({
-        projectId: "p1", tableId: "t1", appendData: {
+        projectId: "p1", tableId: "t1", version: "v1", appendData: {
           tableType,
           rows: [[{ value: "x" }]],
         },

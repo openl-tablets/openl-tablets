@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/files/docs/notes.txt?view=meta&branch=rates HTTP/1.1
+Authorization: Token ${PAT}
+

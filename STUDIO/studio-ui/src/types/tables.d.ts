@@ -378,6 +378,12 @@ export interface RawTableView {
     headerHeight?: number
     /** What the compiler said about this table — the errors and warnings it raised, if any */
     messages?: ProjectStatusDetailedMessage[]
+    /**
+     * The version of the table read, as the `ETag` header of the read named it. A write of the table names it, so a
+     * write over a table changed since the read — on disk or through another client — is refused rather than
+     * overwriting that change.
+     */
+    version?: string
     /** Whether the table can be run, and how far; absent while the read that carries it is on its way. */
     runState?: TableRunState
     /**

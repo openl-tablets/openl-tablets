@@ -1,5 +1,6 @@
 package org.openl.studio.transfer;
 
+import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.studio.projects.model.merge.ConflictBase;
@@ -44,16 +45,20 @@ public sealed interface TransferOperation {
     /**
      * Uploads one file of a project into its working copy.
      *
-     * @param projectId      the id of the project
-     * @param path           the project-relative path the file is written to
-     * @param branch         the branch the project must be on, or null for the one it is on
-     * @param conflictPolicy what to do with a file already at the path
-     * @param createFolders  whether missing parent folders are created
-     * @param size           the size the uploaded file must have, or null to take any size
-     * @param sha256         the hex SHA-256 the uploaded file must have, or null to take any content
+     * @param projectId       the id of the project
+     * @param path            the project-relative path the file is written to
+     * @param branch          the branch the project must be on, or null for the one it is on
+     * @param conflictPolicy  what to do with a file already at the path
+     * @param createFolders   whether missing parent folders are created
+     * @param size            the size the uploaded file must have, or null to take any size
+     * @param sha256          the hex SHA-256 the uploaded file must have, or null to take any content
+     * @param expectedVersion the version of the file the upload replaces, or null for an upload that creates a file
+     *                        or follows the conflict policy
      */
+    @Builder
     record Upload(String projectId, String path, @Nullable String branch, ConflictPolicy conflictPolicy,
-                  boolean createFolders, @Nullable Long size, @Nullable String sha256) implements TransferOperation {
+                  boolean createFolders, @Nullable Long size, @Nullable String sha256,
+                  @Nullable String expectedVersion) implements TransferOperation {
 
         @Override
         public boolean once() {

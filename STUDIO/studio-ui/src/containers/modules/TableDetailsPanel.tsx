@@ -147,6 +147,11 @@ interface TableDetailsPanelProps {
      * stay written, and the table may stand under another id.
      */
     onSaved?: ((tableId: string) => void) | undefined
+    /**
+     * The version of the table read, which a save of the properties names so that it does not overwrite a change made
+     * since. Not named when the cells were written first in the same save: that write gave the table a new version.
+     */
+    version?: string | undefined
 }
 
 /**
@@ -168,6 +173,7 @@ export const TableDetailsPanel = ({
     confirmWrite,
     beforeSave,
     onSaved,
+    version,
 }: TableDetailsPanelProps) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
@@ -326,7 +332,8 @@ export const TableDetailsPanel = ({
             if (cells === null) {
                 return
             }
-            const table = await updateTableProperties(projectId, cells.tableId, written, moduleName)
+            const table = await updateTableProperties(projectId, cells.tableId, written, moduleName,
+                cells.changed ? undefined : version)
             if (table !== null) {
                 setEditing(false)
                 setDraft({})

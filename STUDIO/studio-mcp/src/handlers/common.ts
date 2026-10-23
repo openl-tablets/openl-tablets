@@ -22,8 +22,9 @@ import { formatResponse, type FormatOptions } from "../formatters.js";
  */
 export interface ToolResponse {
   [key: string]: unknown;
-  // Every OpenL result is one text block, which every MCP client can read
-  content: [{ type: "text"; text: string }];
+  // Every OpenL result is text, which every MCP client can read: the answer in the first block, and a fact about a
+  // verbatim answer, such as the version of a file read inline, in a block of its own
+  content: [{ type: "text"; text: string }, ...{ type: "text"; text: string }[]];
 }
 
 /** The answer of a tool made of one text block. */

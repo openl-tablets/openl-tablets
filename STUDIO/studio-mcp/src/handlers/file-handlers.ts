@@ -21,7 +21,8 @@ export function registerFileHandlers(): void {
       `A text file of up to ${INLINE_TEXT_BYTES} bytes — text as the Content-Type OpenL Studio answers for it says: text/*, JSON, XML or YAML — is returned inline, verbatim. ` +
       "Any other file — a larger text, a workbook, an image, an archive — and a folder, as a ZIP archive, is returned as a download LINK: JSON with the url, a ready `curl` command that saves it locally, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
       "Run the curl command in a shell: the bytes never enter the conversation. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and may be fetched again; an agent that has the repository itself can read repositoryPath there instead. " +
-      "Read the TABLES of a workbook with openl_get_table, not as a file. Optional 'version' reads a historical revision; 'branch' pins the project's branch. List or find files with openl_search_project_files.",
+      "Read the TABLES of a workbook with openl_get_table, not as a file. Optional 'version' reads a historical revision; 'branch' pins the project's branch. List or find files with openl_search_project_files. " +
+      "The answer tells the file's current 'version' — beside the inline text, or in the link JSON — which openl_write_project_file, openl_create_upload_link and openl_delete_project_file require to replace or delete the file.",
     schema: schemas.readProjectFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -41,14 +42,13 @@ export function registerFileHandlers(): void {
         const file = await client.readProjectFile(projectId, path, at);
         const text = inlineText(file);
         if (text !== undefined) {
-          return textResult(text);
+          // The text stays verbatim: its version is told apart from it
+          return { content: [{ type: "text", text }, ...versionNote(meta.version)] };
         }
         mimeType = mimeTypeOf(file.contentType) || undefined;
       }
-      return formatResult(
-        await downloadLink(client, { kind: "download", projectId, path, ...at }, { size: meta.size, mimeType }),
-        args.response_format,
-      );
+      const link = await downloadLink(client, { kind: "download", projectId, path, ...at }, { size: meta.size, mimeType });
+      return formatResult(meta.version === undefined ? link : { ...link, version: meta.version }, args.response_format);
     },
   });
 
@@ -58,36 +58,27 @@ export function registerFileHandlers(): void {
     description:
       "Create or replace a TEXT file in a project by its project-relative path, from UTF-8 'content'. To send a file you have on disk — a workbook, an image, any binary or large file — ask for an upload link with openl_create_upload_link and run its curl command instead of typing the content out. " +
       "COMMIT: pass 'message' to commit the write to Git (a new revision is created); omit 'message' and the write stays in the project WORKING COPY (commit it later with openl_save_project). Committing saves ALL pending project changes and works only for design repositories (not 'local'). " +
-      "By default missing parent folders are created (createFolders=true). If the target file already EXISTS, behavior follows conflictPolicy: FAIL (default) returns an error; OVERWRITE replaces the file in place (content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged); SKIP leaves the existing file unchanged (reported skipped). Use 'branch' to pin the project's branch (omit for local/non-branch repositories). (To change a module's TABLES use openl_update_table / openl_append_table / openl_create_project_table.)",
+      "Without 'version' the tool creates a NEW file, missing parent folders included by default (createFolders=true), and writes nothing when a file is already at the path. To REPLACE a file, pass the 'version' openl_read_project_file answered for it: Studio replaces the file in place only while it has that version, and writes nothing when it changed since — on disk, such as in an IDE, or through another client — so read it again and repeat the change. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). (To change a module's TABLES use openl_update_table / openl_append_table / openl_create_project_table.)",
     schema: schemas.writeProjectFileSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const policy = args.conflictPolicy ?? "FAIL";
-      const buffer = policy === "OVERWRITE"
-        ? await keepCrlf(client, args)
-        : Buffer.from(args.content, "utf-8");
+      const buffer = args.version === undefined
+        ? Buffer.from(args.content, "utf-8")
+        : await keepCrlf(client, args);
 
-      // Studio answers a refusal with its own reason: a file already there, a locked or protected project
-      const created = await client.writeProjectFile(args.projectId, args.path, buffer, {
+      // Studio answers a refusal with its own reason: a file changed since the read, a locked or protected project
+      // Without a version the write creates the file, and with one it replaces it: Studio refuses anything else.
+      const created = args.version === undefined;
+      await client.writeProjectFile(args.projectId, args.path, buffer, {
         createFolders: args.createFolders,
-        conflictPolicy: policy,
         branch: args.branch,
-      });
+        version: args.version,
+      }).catch((error: unknown) => (args.version === undefined
+        ? rethrowConflictAsActionable(error, `A file is already at '${args.path}', and nothing was written. To replace it, read it with openl_read_project_file and pass the 'version' it answers.`)
+        : Promise.reject(error)));
       const branch = args.branch ? { branch: args.branch } : {};
-      if (!created && policy === "SKIP") {
-        const skipped = {
-          success: true,
-          path: args.path,
-          written: false,
-          skipped: true,
-          committed: false,
-          ...branch,
-          message: `'${args.path}' already exists; left unchanged (conflictPolicy SKIP).`,
-        };
-        return formatResult(skipped, args.response_format);
-      }
 
       const commit = await commitWrite(client, args.projectId, args.message);
       const result = {
@@ -108,7 +99,8 @@ export function registerFileHandlers(): void {
     name: "create_upload_link",
     title: "Create Upload Link",
     description:
-      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. Takes the target of the write: 'path' (project-relative), 'conflictPolicy' (FAIL default, OVERWRITE, SKIP), 'createFolders' (default true) and 'branch'; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients (in single-user mode the link is the REST API, which checks neither). " +
+      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. Takes the target of the write: 'path' (project-relative), 'createFolders' (default true) and 'branch'; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients (in single-user mode the link is the REST API, which checks neither). " +
+      "Without 'version' the link creates a NEW file and writes nothing over a file already at the path. To REPLACE a file, pass the 'version' openl_read_project_file answered for it: the link replaces the file only while it has that version, and writes nothing when it changed since — in Excel, on disk or through another client — so read it again and repeat the change on what it holds now. " +
       "Returns JSON with the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch). Run the command in a shell, adjusting the local file name. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. " +
       "The file lands in the project WORKING COPY, as openl_write_project_file writes it; commit it with openl_save_project. A small text file can be written with openl_write_project_file directly.",
     schema: schemas.createUploadLinkSchema,
@@ -124,7 +116,7 @@ export function registerFileHandlers(): void {
         projectId: args.projectId,
         path: args.path,
         branch: args.branch,
-        conflictPolicy: args.conflictPolicy ?? "FAIL",
+        version: args.version,
         createFolders: args.createFolders,
         size: args.size,
         sha256: args.sha256,
@@ -136,15 +128,20 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or folder from a project by its project-relative path. Maps to DELETE /projects/{projectId}/files/{path}. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
+      "Delete a file or folder from a project by its project-relative path. Maps to DELETE /projects/{projectId}/files/{path}. A file is deleted by the 'version' openl_read_project_file answered for it, which is required: Studio deletes nothing when the file changed since — on disk or through another client. A folder is deleted without it. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
+      if (args.version === undefined && await isFile(client, args.projectId, args.path, args.branch)) {
+        throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+          `'${args.path}' is a file: read it with openl_read_project_file and pass the 'version' it answers to delete it.`);
+      }
       await client.deleteProjectFile(args.projectId, args.path, {
         branch: args.branch,
+        version: args.version,
       });
 
       const result = {
@@ -226,6 +223,24 @@ export function registerFileHandlers(): void {
 /** Whether a project-relative path names a folder: the project root, or a path ending in a slash. */
 function isFolderPath(path: string): boolean {
   return path === "" || path === "/" || path.endsWith("/");
+}
+
+/** Whether a file is at the path; a folder, or nothing at all, is not one. */
+async function isFile(client: OpenLClient, projectId: string, path: string, branch: string | undefined): Promise<boolean> {
+  if (isFolderPath(path)) {
+    return false;
+  }
+  // Studio answers the metadata of a file only
+  return client.getProjectFileMeta(projectId, path, { branch })
+    .then(() => true, (error: unknown) => (isNotFoundError(error) ? false : Promise.reject(error)));
+}
+
+/** The note beside the text of a file read inline: its version, which a replacement or a deletion names back. */
+function versionNote(version: string | undefined): { type: "text"; text: string }[] {
+  return version === undefined ? [] : [{
+    type: "text",
+    text: `version: ${version} — pass it as 'version' to openl_write_project_file or openl_delete_project_file to replace or delete this file.`,
+  }];
 }
 
 /**

@@ -167,14 +167,20 @@ public class TransferHandler {
                 return;
             }
             var parameters = new LinkedHashMap<String, String>();
-            parameters.put("createFolders", Boolean.toString(upload.createFolders()));
-            parameters.put("conflictPolicy", upload.conflictPolicy().name());
+            if (upload.expectedVersion() == null) {
+                parameters.put("createFolders", Boolean.toString(upload.createFolders()));
+                parameters.put("conflictPolicy", upload.conflictPolicy().name());
+            }
             if (upload.branch() != null) {
                 parameters.put("branch", upload.branch());
             }
             try (var in = Files.newInputStream(body)) {
-                forward(request, response, filesPath(upload.projectId(), upload.path()),
-                        TransferRequest.post(request, parameters, in));
+                // A file of a known version is replaced while it has that version, as a client replaces it itself.
+                var expectedVersion = upload.expectedVersion();
+                var forwarded = expectedVersion == null
+                        ? TransferRequest.post(request, parameters, in)
+                        : TransferRequest.put(request, parameters, in, expectedVersion);
+                forward(request, response, filesPath(upload.projectId(), upload.path()), forwarded);
             }
         } finally {
             Files.deleteIfExists(body);

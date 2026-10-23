@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +42,15 @@ class HashingUtilsTest {
         assertEquals(HashingUtils.sha256Hex("hello"), HashingUtils.sha256Hex(bytes));
         assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                 HashingUtils.sha256Hex(new byte[0]));
+    }
+
+    @Test
+    void sha256Hex_ofPartsIsTheHashOfTheTextTheyMake() {
+        assertEquals(HashingUtils.sha256Hex("Hello 世界 🌍\t\n"),
+                HashingUtils.sha256Hex(text -> List.of("Hello ", "世界", " 🌍", "\t", "\n").forEach(text)));
+        assertEquals(HashingUtils.sha256Hex(""), HashingUtils.sha256Hex(text -> {
+            // No parts.
+        }));
     }
 
     @Test

@@ -42,3 +42,55 @@ changed on disk since the workbook was read would lose that change, so the save 
 - **What it does not tell.** A change made between the last comparison and the replacement, a matter of
   microseconds, is overwritten. So is a change made between the compilation and the read of the workbook that keeps
   both the size and the modification time of the file.
+
+## A Write Names the Version It Is Based On
+
+A client sends a table or a file it built from an earlier read. When the table or the file changed since, on disk or
+through another client, the write would overwrite that change even when OpenL Studio holds the newest content. So a
+write names the version it is based on, and a write over another version is refused.
+
+- **Tables.** The version of a table is a digest of the text of its cells (`TableSyntaxNode.getVersion()`, read through
+  `IOpenLTable.getVersion()`). A compiled table reads its cells from the workbook as the module was compiled, so the
+  version is computed once and changes with a new compilation. A written table takes a new version at once
+  (`TableSyntaxNode.markWritten()`), as a module is not always compiled again after a write. A read answers the version
+  in the `ETag` header, and the body carries none. The table writes — a replacement, an append, an edit of the source, a
+  write of the properties, a deletion — take it in `If-Match`, and `WorkspaceProjectService` compares it once the
+  write's turn in the queue of the session has come, before anything is written. So of two writes based on one read, the
+  second is compared with what the first left. Another version answers `412 Precondition Failed`
+  `table.changed.since.read.message`.
+- **Files.** The version of a file is a digest of its content (`ProjectFilesService.getVersion`). A read of a file and
+  of its metadata answer it in `ETag`, and a replacement and a deletion through the files API take it in `If-Match`;
+  so does an upload link that replaces a file (`expectedVersion` of the link). The writes based on a version run one
+  at a time, from the comparison to the end of the write, so two of them based on one read never both pass. Another
+  version answers `412 Precondition Failed` `file.changed.since.read.message`.
+- **HTTP semantics.** The versions follow [`ETag`](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3) and
+  [`If-Match`](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.1) of RFC 9110 (see also MDN on
+  [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag) and
+  [`If-Match`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/If-Match)). A tag is strong and
+  quoted, and a write is made only when the tag it names equals the current one, as the [strong
+  comparison](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3.2) defines it; a weak tag matches none. A list of
+  several tags matches none either, while RFC 9110 lets it match when one of them is current: no client of OpenL Studio
+  sends one. Another version answers [`412 Precondition
+  Failed`](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.13). `*` matches any version: a write of a table or a
+  file that is not there answers `404`, as the conditions are [left
+  out](https://www.rfc-editor.org/rfc/rfc9110#section-13.2.1) of a request answered otherwise without them. A write
+  whose version is current answers as without the header, and its answer names no new tag: what is written is formatted
+  on the way, so the client reads it again for the next version. The tag of a table is the version of the table, not of
+  one view of it: every read of the table, whole, in a window or by fields, answers the same tag. The MCP server answers
+  the tag to the agent as the `version` of its table tools, beside the table, and names it back in `If-Match`. `409`
+  stays for a state that refuses the write whatever the client read, such as a workbook another program changed since
+  OpenL Studio read it.
+- **Optional for REST clients.** A write without `If-Match` is made over any version, so the existing integrations keep
+  working; `428 Precondition Required` is not answered. The editor of OpenL Studio names the version of the table it
+  read in every write it makes, the properties included unless the cells were written first in the same save; it changes
+  no file by its content. The MCP server always names one, as an agent may write from a read long past: its table tools
+  require the version `openl_get_table` or the previous edit answered, and its file tools the version
+  `openl_read_project_file` answered to replace or delete a file. Only a table or a file it creates names none.
+- **What it does not tell.** Another program that writes a file between the comparison and the write is not seen by
+  the comparison; a workbook saved by OpenL Studio is still checked by the save itself. While automatic compilation is
+  off, a written module is not compiled again, so what a read shows stays as it was compiled until the module is
+  verified, while a written table answers its new version.
+- **To improve.** The version of a file is a digest of its whole content, so a read of a file reads it twice, once
+  for `ETag` and once to send it, and a read of the metadata of a file reads the whole file. A version that costs no
+  read of the content, such as one kept with the file or the revision of a repository that has one, is still to be
+  found.

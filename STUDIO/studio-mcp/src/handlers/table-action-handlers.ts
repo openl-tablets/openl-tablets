@@ -21,7 +21,9 @@ import { finishTableEdit } from "./table-edit.js";
 const ACTION_SUFFIX =
   " Operates on the table's RAW source, so it works for any table type. Positions are 0-based " +
   "(row 0 is the header row, column 0 carries the leading labels). The response returns the table's " +
-  "CURRENT id as 'tableId' (plus previousTableId when the edit renamed the table) — use it for subsequent calls. " +
+  "CURRENT id as 'tableId' (plus previousTableId when the edit renamed the table) and the table's new 'version' — " +
+  "use them for subsequent calls. 'version' is required, from openl_get_table or the previous edit: Studio refuses " +
+  "an edit of a table changed since, in Excel, on disk or through another client, and writes nothing. " +
   "When the tool writes cell values, it accepts scalar string/number/boolean/null values and Studio's " +
   "one-dimensional multi-value arrays. Arrays must be non-empty and contain only scalars; [null], nested " +
   "arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. " +
@@ -32,6 +34,7 @@ const ACTION_SUFFIX =
 interface BaseActionArgs {
   projectId: string;
   tableId: string;
+  version: string;
   response_format?: Types.ResponseFormat;
 }
 
@@ -274,7 +277,8 @@ export function registerTableActionHandlers(): void {
       schema: spec.schema,
       annotations: spec.annotations,
       handler: async (args, client): Promise<ToolResponse> => {
-        const reportedId = await client.editTableSource(args.projectId, args.tableId, spec.buildAction(args));
+        const reportedId = await client.editTableSource(
+          args.projectId, args.tableId, spec.buildAction(args), args.version);
         return finishTableEdit(client, args, reportedId, `Successfully ${spec.pastTenseEdit} table ${args.tableId}`, "edit");
       },
     });

@@ -257,6 +257,8 @@ export const ModuleWorkspace = () => {
         () => (tables ?? []).find(candidate => candidate.id === selectedId) ?? null,
         [tables, selectedId]
     )
+    // The version of the selected table as it was read, which its writes are based on; none while it is not read.
+    const selectedVersion = table?.id === selectedId ? table.version : undefined
 
     const projectLoads = useLoadGeneration()
 
@@ -936,6 +938,7 @@ export const ModuleWorkspace = () => {
                 projectId={project.id}
                 runState={runState}
                 table={selected}
+                version={selectedVersion}
             />
         )
         // The rows of the table left behind are not drawn under the address of the one on its way.
@@ -983,6 +986,7 @@ export const ModuleWorkspace = () => {
                     rows={table.source}
                     tableId={selectedId}
                     testId="module-table"
+                    version={table.version}
                     whole={shown >= total}
                 >
                     {shown < total && (
@@ -1107,6 +1111,7 @@ export const ModuleWorkspace = () => {
                                 onSaved={tableRewritten}
                                 projectId={project.id}
                                 tableId={selectedId}
+                                version={selectedVersion}
                             />
                         )}
                     </div>

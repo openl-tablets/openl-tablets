@@ -26,6 +26,13 @@ import apiCall, { asArray, LOCAL_LOAD_API_OPTIONS, notifyLoadFailure } from './a
 const inModule = (moduleName?: string): string =>
     (moduleName === undefined ? '' : `?module=${encodeURIComponent(moduleName)}`)
 
+/**
+ * The header naming the version of the table a write is based on, so that a write over a table changed since it was
+ * read is refused; none when the version is not known.
+ */
+const ifMatch = (version?: string): Record<string, string> =>
+    (version === undefined ? {} : { 'If-Match': `"${version}"` })
+
 /** How many cases of a test table a page carries, as the API pages them. */
 export const TEST_CASES_PAGE_SIZE = 25
 
@@ -168,7 +175,8 @@ export const updateTableProperties = async (
     projectId: string,
     tableId: string,
     properties: TableProperty[],
-    moduleName?: string
+    moduleName?: string,
+    version?: string
 ): Promise<string | null> => {
     try {
         const written = await apiCall(
@@ -176,7 +184,7 @@ export const updateTableProperties = async (
             + inModule(moduleName),
             {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...ifMatch(version) },
                 body: JSON.stringify({ properties }),
             },
             LOCAL_LOAD_API_OPTIONS
@@ -204,7 +212,8 @@ export const applyTableActions = async (
     projectId: string,
     tableId: string,
     actions: TableEdit[],
-    moduleName?: string
+    moduleName?: string,
+    version?: string
 ): Promise<string | null> => {
     try {
         const written = await apiCall(
@@ -212,7 +221,7 @@ export const applyTableActions = async (
             + inModule(moduleName),
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...ifMatch(version) },
                 body: JSON.stringify({ actions }),
             },
             LOCAL_LOAD_API_OPTIONS
@@ -240,13 +249,14 @@ export const deleteTable = async (
     projectId: string,
     tableId: string,
     tableName: string,
-    moduleName?: string
+    moduleName?: string,
+    version?: string
 ): Promise<boolean> => {
     try {
         await apiCall(
             `/projects/${projectId}/tables/${encodeURIComponent(tableId)}`
             + inModule(moduleName),
-            { method: 'DELETE' },
+            { method: 'DELETE', headers: ifMatch(version) },
             LOCAL_LOAD_API_OPTIONS
         )
         notification.success({

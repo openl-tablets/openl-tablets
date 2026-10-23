@@ -61,6 +61,24 @@ function toFileContent(response: HttpResponse<ArrayBuffer>): Types.ProjectFileRe
   };
 }
 
+/** The version an `ETag` header names, its quotes and a weak prefix left out; none without the header. */
+function versionOf(entityTag: string | undefined): string | undefined {
+  return entityTag?.replace(/^W\//, "").replace(/^"(.*)"$/, "$1") || undefined;
+}
+
+/** The entity tag of a version, as an `If-Match` header names it. */
+export function entityTag(version: string): string {
+  return `"${version}"`;
+}
+
+/**
+ * The header naming the version a write is based on, so that Studio refuses a write over what changed since it was
+ * read; none when the version is not known, and the write is then not compared.
+ */
+function ifMatch(version: string | undefined): Record<string, string> {
+  return version === undefined ? {} : { "If-Match": entityTag(version) };
+}
+
 /** The query of a projected read: the fields asked for, or else the whole reply with the JSON Schemas of its values. */
 function projection(fields: string | undefined): Record<string, unknown> {
   return fields ? { fields } : { includeSchema: true };
@@ -659,38 +677,48 @@ export class OpenLClient {
   }
 
   /**
-   * Write a file to a project's working copy: `POST /projects/{projectId}/files/{path}` with the raw bytes as an
-   * `application/octet-stream` body. The write is not committed to Git; commit it via {@link saveProject}.
+   * Write a file to a project's working copy with the raw bytes as an `application/octet-stream` body. The write is
+   * not committed to Git; commit it via {@link saveProject}.
    *
-   * Studio follows `conflictPolicy` for a file already there: `FAIL`, its default, answers 409, `OVERWRITE` replaces
-   * the file, and `SKIP` leaves it as it is.
+   * A write naming the `version` of a file replaces it, `PUT /projects/{projectId}/files/{path}`, while it has that
+   * version, and Studio answers 412 for a file changed since. Any other write is `POST
+   * /projects/{projectId}/files/{path}`, which creates the file, and Studio answers 409 for a file already there.
    *
    * @param path - Project-relative file path.
    * @param content - Raw file bytes.
-   * @param options - createFolders / conflictPolicy / branch.
-   * @returns Whether the file was created; false for a file already there, replaced or left as it is.
+   * @param options - createFolders / branch, or the version of the file replaced.
    */
   async writeProjectFile(
     projectId: string,
     path: string,
     content: Buffer,
-    options?: { createFolders?: boolean; conflictPolicy?: "FAIL" | "OVERWRITE" | "SKIP"; branch?: string }
-  ): Promise<boolean> {
+    options?: {
+      createFolders?: boolean;
+      branch?: string;
+      version?: string;
+    }
+  ): Promise<void> {
     const encodedPath = encodeProjectFilePath(path);
+    if (options?.version !== undefined) {
+      await this.http.put(`${projectPath(projectId)}/files/${encodedPath}`, content, {
+        headers: { "Content-Type": "application/octet-stream", ...ifMatch(options.version) },
+        params: { branch: options.branch || undefined },
+      });
+      return;
+    }
 
-    const response = await this.http.post(
+    await this.http.post(
       `${projectPath(projectId)}/files/${encodedPath}`,
       content,
       {
         headers: { "Content-Type": "application/octet-stream" },
         params: {
           createFolders: options?.createFolders,
-          conflictPolicy: options?.conflictPolicy,
+          conflictPolicy: "FAIL",
           branch: options?.branch || undefined,
         },
       }
     );
-    return response.status === 201;
   }
 
   /**
@@ -700,15 +728,17 @@ export class OpenLClient {
    * auto-cleans dangling references to the deleted resource from project config.
    *
    * @param path - Project-relative path to the resource.
-   * @param options - Optional branch.
+   * @param options - Optional branch, and the version of a file the deletion is based on: Studio deletes nothing
+   *   when the file changed since.
    */
   async deleteProjectFile(
     projectId: string,
     path: string,
-    options?: { branch?: string }
+    options?: { branch?: string; version?: string }
   ): Promise<void> {
     const encodedPath = encodeProjectFilePath(path);
     await this.http.delete(`${projectPath(projectId)}/files/${encodedPath}`, {
+      headers: ifMatch(options?.version),
       params: { branch: options?.branch || undefined },
     });
   }
@@ -880,10 +910,12 @@ export class OpenLClient {
     projectId: string,
     path: string,
     options?: { version?: string; branch?: string },
-  ): Promise<Types.FsNode> {
-    return (await this.http.get<Types.FsNode>(`${projectPath(projectId)}/files/${encodeProjectFilePath(path)}`, {
+  ): Promise<Types.ProjectFileMeta> {
+    const response = await this.http.get<Types.FsNode>(`${projectPath(projectId)}/files/${encodeProjectFilePath(path)}`, {
       params: { view: "meta", version: options?.version || undefined, branch: options?.branch || undefined },
-    })).data;
+    });
+    const version = versionOf(response.headers.etag);
+    return version === undefined ? response.data : { ...response.data, version };
   }
 
   /** The public settings of OpenL Studio; a Studio in single-user mode names no `userMode`. */
@@ -1144,24 +1176,31 @@ export class OpenLClient {
       cutMerges: true,
       styles: options?.styles || undefined,
     };
-    return (await this.http.get<Types.RawTableView>(
-      tablePath(projectId, tableId),
-      { params }
-    )).data;
+    const response = await this.http.get<Types.RawTableView>(tablePath(projectId, tableId), { params });
+    // Studio answers the version of the table in the ETag header; the tool answers it beside the table, and a write
+    // names it back
+    const version = versionOf(response.headers.etag);
+    return version === undefined ? response.data : { ...response.data, version };
   }
 
   /**
    * Writes a table and answers the id Studio gives it: a write that renamed the table, or that named it by an id from
    * before a rename, answers 200 with `{ id }`; any other write answers 204, which leaves the id as it was.
    */
-  private async writeTable(method: "put" | "post", path: string, body: unknown): Promise<string | undefined> {
-    return (await this.http[method]<{ id?: string } | undefined>(path, body)).data?.id;
+  private async writeTable(
+    method: "put" | "post",
+    path: string,
+    body: unknown,
+    version: string | undefined,
+  ): Promise<string | undefined> {
+    return (await this.http[method]<{ id?: string } | undefined>(path, body, { headers: ifMatch(version) })).data?.id;
   }
 
   /**
    * Update table content
    *
-   * @param view - Complete raw table source
+   * @param view - Complete raw table source; its `version`, as the read answered it, is named so that the write is
+   *   refused when the table changed since
    * @returns the table's id after the write when Studio answered one, otherwise undefined (204 — id unchanged)
    */
   async updateTable(
@@ -1170,21 +1209,23 @@ export class OpenLClient {
     view: Types.RawTableView
   ): Promise<string | undefined> {
     // Studio accepts RawTableView directly as the request body.
-    return this.writeTable("put", tablePath(projectId, tableId), view);
+    return this.writeTable("put", tablePath(projectId, tableId), view, view.version);
   }
 
   /**
    * Append lines to a project table
    *
    * @param appendData - Raw source rows to append
+   * @param version - The version of the table the append is based on, as a read or the previous edit answered it
    * @returns the table's id after the append when Studio answered one, otherwise undefined (204 — id unchanged)
    */
   async appendProjectTable(
     projectId: string,
     tableId: string,
-    appendData: Types.RawTableAppend
+    appendData: Types.RawTableAppend,
+    version: string
   ): Promise<string | undefined> {
-    return this.writeTable("post", `${tablePath(projectId, tableId)}/lines`, appendData);
+    return this.writeTable("post", `${tablePath(projectId, tableId)}/lines`, appendData, version);
   }
 
   /**
@@ -1193,25 +1234,27 @@ export class OpenLClient {
    * in raw format regardless of its type.
    *
    * @param action - The edit to apply (operation + target)
+   * @param version - The version of the table the edit is based on, as a read or the previous edit answered it
    * @returns the table's id after the edit when Studio answered one, otherwise undefined (204 — id unchanged)
    */
   async editTableSource(
     projectId: string,
     tableId: string,
-    action: Types.RawTableSourceAction
+    action: Types.RawTableSourceAction,
+    version: string
   ): Promise<string | undefined> {
-    return this.writeTable("post", `${tablePath(projectId, tableId)}/actions`, action);
+    return this.writeTable("post", `${tablePath(projectId, tableId)}/actions`, action, version);
   }
 
   /**
    * Delete a table from the currently opened project. The whole table area is
    * cleared from the sheet regardless of table type, so the table no longer
    * exists once the project is recompiled.
+   *
+   * @param version - The version of the table the deletion is based on, as a read answered it
    */
-  async deleteTable(projectId: string, tableId: string): Promise<void> {
-    await this.http.delete(
-      tablePath(projectId, tableId)
-    );
+  async deleteTable(projectId: string, tableId: string, version: string): Promise<void> {
+    await this.http.delete(tablePath(projectId, tableId), { headers: ifMatch(version) });
   }
 
   // =============================================================================

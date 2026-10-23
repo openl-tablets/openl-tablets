@@ -3,12 +3,15 @@ import type { MockedFunction } from 'vitest'
 import type { CopyTableRequest, CreateTableRequest } from 'types/tables'
 import apiCall, { notifyLoadFailure } from './apiCall'
 import {
+    applyTableActions,
     copyTable,
     createTable,
+    deleteTable,
     formatProject,
     getDatatype,
     getProjectTables,
     getTableCopyInfo,
+    updateTableProperties,
 } from './tables'
 
 vi.mock('./apiCall', () => ({
@@ -278,5 +281,31 @@ describe('reformat Excel files', () => {
         await expect(formatProject('project-id')).resolves.toBeNull()
 
         expect(notifyLoadFailure).toHaveBeenCalledWith('project:table_format.failed', expect.any(Error))
+    })
+})
+
+describe('the version of the table a write is based on', () => {
+    const headersOf = (call: number): HeadersInit | undefined => mockApiCall.mock.calls[call]![1]?.headers
+
+    it('is named by every write of the table, so a write over a table changed since the read is refused', async () => {
+        mockApiCall.mockResolvedValue(null)
+
+        await applyTableActions('project-id', 'table-id', [], 'Main', 'v1')
+        await updateTableProperties('project-id', 'table-id', [], 'Main', 'v1')
+        await deleteTable('project-id', 'table-id', 'Rates', 'Main', 'v1')
+
+        expect(headersOf(0)).toEqual({ 'Content-Type': 'application/json', 'If-Match': '"v1"' })
+        expect(headersOf(1)).toEqual({ 'Content-Type': 'application/json', 'If-Match': '"v1"' })
+        expect(headersOf(2)).toEqual({ 'If-Match': '"v1"' })
+    })
+
+    it('is left out when it is not known, and the write is not compared', async () => {
+        mockApiCall.mockResolvedValue(null)
+
+        await applyTableActions('project-id', 'table-id', [], 'Main')
+        await deleteTable('project-id', 'table-id', 'Rates', 'Main')
+
+        expect(headersOf(0)).toEqual({ 'Content-Type': 'application/json' })
+        expect(headersOf(1)).toEqual({})
     })
 })

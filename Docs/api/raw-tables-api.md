@@ -85,7 +85,8 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 - `layout` — for a test table: `transposed` is `true` where a case is a column rather than a row, and `firstDataLine` is
   the line where the data begins. Absent for the other tables and for a test table whose cases have identifiers of their
   own. Read-only.
-- `messages`, `runState`, `partial` — read-only; see [Table Endpoints](README.md#table-endpoints).
+- `messages`, `runState`, `partial` — read-only; see [Table Endpoints](README.md#table-endpoints). The version of the
+  table is answered in the `ETag` header, not in the body; see [Versions](#versions).
 
 ### RawTableCell
 
@@ -315,6 +316,24 @@ Content-Type: application/json
   them, or in a typed view, is written as sent and formatted at its next save.
 
 The answer is `201 Created` with the summary of the new table.
+
+### Versions
+
+A read of the table, of a window too, answers the version of the whole table in the `ETag` header; the body carries
+none. A write — a replacement, an append, an edit of the source, a write of the properties and a deletion — names the
+version it is based on in the `If-Match` header:
+
+```http
+PUT /rest/projects/{projectId}/tables/{tableId}
+If-Match: "9f2c…"
+```
+
+The version is compared when the write's turn has come. A table changed since the read, in Excel, on disk or through
+another client, answers `412` with `openl.error.412.table.changed.since.read.message`, and nothing is written: read the
+table again and repeat the edit. A write without `If-Match`, or with `*`, is made over any version; a weak tag matches
+none. The headers follow RFC 9110: [`ETag`](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3),
+[`If-Match`](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.1) and [`412 Precondition
+Failed`](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.13).
 
 ### Responses
 

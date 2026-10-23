@@ -29,6 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.util.LinkedMultiValueMap;
 
 import org.openl.rules.common.ProjectException;
@@ -287,10 +289,31 @@ class ProjectsControllerTest {
         verify(projectService, times(2)).getTables(eq(project), query.capture(), eq(page));
         // The tree asks for the free-form tables and for the order the module is written in; a reader looking
         // for one table asks for neither, and is answered the way the list always was.
-        assertTrue(query.getAllValues().get(0).isIncludeOther());
-        assertEquals(TableSort.POSITION, query.getAllValues().get(0).getSort());
+        assertTrue(query.getAllValues().getFirst().isIncludeOther());
+        assertEquals(TableSort.POSITION, query.getAllValues().getFirst().getSort());
         assertFalse(query.getAllValues().get(1).isIncludeOther());
         assertEquals(TableSort.NAME, query.getAllValues().get(1).getSort());
+    }
+
+    /** A read tells the version of the table, and a write names it back: the service compares it. */
+    @Test
+    void aTableReadTellsItsVersionAndAWriteNamesItBack() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService, mock(WebStudio.class));
+        var project = mock(RulesProject.class);
+        var view = mock(RawTableView.class);
+        view.version = "v1";
+        when(projectService.getTable(project, "table-id", "Main")).thenReturn(view);
+        var response = new MockHttpServletResponse();
+
+        controller.getTable(project, "table-id", false, null, null, false, false, false, "Main", false, response);
+
+        assertEquals("\"v1\"", response.getHeader(HttpHeaders.ETAG));
+        var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(1, 1, "Buenos Dias"));
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main"), eq("v1")))
+                .thenReturn("table-id");
+        controller.editTableSource(project, "table-id", action, "Main", "\"v1\"");
+        verify(projectService).editTableSource(eq(project), eq("table-id"), anyList(), eq("Main"), eq("v1"));
     }
 
     @Test
@@ -300,7 +323,7 @@ class ProjectsControllerTest {
         var controller = controller(projectService, webStudio);
         var project = mock(RulesProject.class);
         var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(1, 1, "Buenos Dias"));
-        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main"), isNull()))
                 .thenReturn("table-id");
 
         var writes = new WorkbookWrites();
@@ -317,7 +340,7 @@ class ProjectsControllerTest {
             return null;
         }).when(webStudio).recompileCurrentModule();
 
-        controller.editTableSource(project, "table-id", action, "Main");
+        controller.editTableSource(project, "table-id", action, "Main", null);
 
         assertTrue(recompiledWhileWriting.get(), "the module was marked for compiling after the write let go");
         // A write touches one module's workbook. Resetting the session would drop every module compiled from
@@ -333,11 +356,11 @@ class ProjectsControllerTest {
         var controller = controller(projectService, webStudio);
         var project = mock(RulesProject.class);
         var action = new RawTableSourceAction.Update(new UpdateTarget.Cell(99999, 1, "Buenos Dias"));
-        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
+        when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main"), isNull()))
                 .thenThrow(new BadRequestException("table.action.position.invalid.message"));
 
         assertThrows(BadRequestException.class,
-                () -> controller.editTableSource(project, "table-id", action, "Main"));
+                () -> controller.editTableSource(project, "table-id", action, "Main", null));
 
         // Nothing was written, so nothing has to be compiled again: asking for it would throw away a module
         // the session had compiled, and the next read would wait for it to be built from the workbook afresh.

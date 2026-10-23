@@ -26,6 +26,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -129,8 +130,8 @@ class TransferHandlerTest {
     @Test
     void anUploadWritesItsBodyOnceThroughTheFilesApi() throws Exception {
         var body = "<project/>".getBytes(StandardCharsets.UTF_8);
-        var id = issue("jdoe", new TransferOperation.Upload("P1", "rules.xml", "main", ConflictPolicy.OVERWRITE,
-                false, (long) body.length, sha256(body)));
+        var id = issue("jdoe", upload().branch("main").conflictPolicy(ConflictPolicy.OVERWRITE)
+                .size((long) body.length).sha256(sha256(body)).build());
 
         var first = send("PUT", id, body);
         var second = send("PUT", id, body);
@@ -142,14 +143,30 @@ class TransferHandlerTest {
         assertEquals(Map.of("createFolders", "false", "conflictPolicy", "OVERWRITE", "branch", "main"),
                 forward.parameters);
         assertArrayEquals(body, forward.body);
+        assertNull(forward.ifMatch);
         assertEquals(404, second.response.getStatus());
         assertTrue(second.forwards.isEmpty());
     }
 
     @Test
+    void anUploadOfAKnownVersionReplacesTheFileWhileItHasThatVersion() throws Exception {
+        var body = "<project/>".getBytes(StandardCharsets.UTF_8);
+        var id = issue("jdoe", upload().branch("main").createFolders(true).expectedVersion("v1").build());
+
+        var forward = send("PUT", id, body, "\"v0\"").forwards.getFirst();
+
+        assertEquals("/rest/projects/P1/files/rules.xml", forward.path);
+        assertEquals("PUT", forward.method);
+        assertEquals("application/octet-stream", forward.contentType);
+        assertEquals(Map.of("branch", "main"), forward.parameters);
+        // The link names the version; the one the client sent beside it is not used.
+        assertEquals("\"v1\"", forward.ifMatch);
+        assertArrayEquals(body, forward.body);
+    }
+
+    @Test
     void anUploadNotMatchingWhatWasDeclaredWritesNothing() throws Exception {
-        var id = issue("jdoe", new TransferOperation.Upload("P1", "rules.xml", null, ConflictPolicy.FAIL, true,
-                null, sha256("<project/>".getBytes(StandardCharsets.UTF_8))));
+        var id = issue("jdoe", upload().sha256(sha256("<project/>".getBytes(StandardCharsets.UTF_8))).build());
 
         var sent = send("PUT", id, "<project>cut".getBytes(StandardCharsets.UTF_8));
 
@@ -162,8 +179,7 @@ class TransferHandlerTest {
     @Test
     void aLinkUsedWithTheWrongMethodIsRefusedAndKept() throws Exception {
         var download = issue("jdoe", new TransferOperation.Download("P1", "rules.xml", null, null, false));
-        var upload = issue("jdoe", new TransferOperation.Upload("P1", "rules.xml", null, ConflictPolicy.FAIL, true,
-                null, null));
+        var upload = issue("jdoe", upload().build());
 
         assertEquals(404, send("PUT", download, new byte[0]).response.getStatus());
         assertEquals(404, send("GET", upload, null).response.getStatus());
@@ -182,8 +198,10 @@ class TransferHandlerTest {
                 send("GET", "a/b", null), send("GET", "", null))) {
             assertEquals(404, sent.response.getStatus());
             assertEquals("application/json", sent.response.getContentType());
-            assertTrue(sent.response.getContentAsString().contains("\"code\":\"openl.error.404.transfer.link"
-                    + ".unknown.message\""));
+            assertTrue(sent.response.getContentAsString().contains("""
+                    "code":"openl.error.404.transfer.link\
+                    .unknown.message"\
+                    """));
             assertTrue(sent.forwards.isEmpty());
         }
     }
@@ -213,13 +231,25 @@ class TransferHandlerTest {
     }
 
     private Sent send(String method, String id, byte[] body) throws Exception {
+        return send(method, id, body, null);
+    }
+
+    private Sent send(String method, String id, byte[] body, String ifMatch) throws Exception {
         var request = new LinkRequest(method, id);
         if (body != null) {
             request.setContent(body);
         }
+        if (ifMatch != null) {
+            request.addHeader(HttpHeaders.IF_MATCH, ifMatch);
+        }
         var response = new MockHttpServletResponse();
         handler.handle(request, response);
         return new Sent(response, request.forwards);
+    }
+
+    /** An upload of rules.xml of P1 that fails on a file already there, the other fields left to each test. */
+    private static TransferOperation.Upload.UploadBuilder upload() {
+        return TransferOperation.Upload.builder().projectId("P1").path("rules.xml").conflictPolicy(ConflictPolicy.FAIL);
     }
 
     private static String sha256(byte[] content) throws Exception {
@@ -237,7 +267,7 @@ class TransferHandlerTest {
     }
 
     private record Forward(String path, String method, Map<String, String> parameters, String contentType,
-                           byte[] body, Authentication user, String client) {
+                           String ifMatch, byte[] body, Authentication user, String client) {
     }
 
     /** A request to a link that records where it is forwarded, and what the endpoint there would see. */
@@ -261,7 +291,8 @@ class TransferHandlerTest {
                     var parameters = new TreeMap<String, String>();
                     forwarded.getParameterMap().forEach((name, values) -> parameters.put(name, values[0]));
                     forwards.add(new Forward(path, forwarded.getMethod(), Map.copyOf(parameters),
-                            forwarded.getContentType(), forwarded.getInputStream().readAllBytes(),
+                            forwarded.getContentType(), forwarded.getHeader(HttpHeaders.IF_MATCH),
+                            forwarded.getInputStream().readAllBytes(),
                             SecurityContextHolder.getContext().getAuthentication(), sessions.currentKey()));
                     RequestContextHolder.resetRequestAttributes();
                 }

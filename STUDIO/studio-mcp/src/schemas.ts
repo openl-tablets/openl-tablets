@@ -128,9 +128,17 @@ export const getTableSchema = z.strictObject({
   response_format: ResponseFormat,
 });
 
+/** The version of a table a write is based on, as openl_get_table or the previous edit answered it. */
+const tableVersionSchema = nonBlankString.describe(
+  "The 'version' of the table that openl_get_table, or the previous edit of the table, answered. Studio refuses the " +
+  "write when the table changed since — on disk, such as in Excel, or through another client — and writes nothing: " +
+  "read the table again and repeat the edit on what it holds now.",
+);
+
 const tableActionBase = {
   projectId: projectIdSchema,
   tableId: tableIdSchema,
+  version: tableVersionSchema,
   response_format: ResponseFormat,
 };
 
@@ -245,6 +253,7 @@ export const appendTableSchema = z.strictObject({
     tableType: z.literal("RawSource"),
     rows: z.array(z.array(rawTableCellSchema).min(1)).min(1).describe("Non-empty source rows to append. Every row must cover the table's full width; use { value: null } for an intentionally blank cell."),
   }).describe("RawSource append payload. Typed table append DTOs are intentionally unsupported because they are lossy and incomplete."),
+  version: tableVersionSchema,
   response_format: ResponseFormat,
 });
 
@@ -577,12 +586,13 @@ const rawTableViewSchema = z.strictObject({
     pos: z.string().optional(),
     source: z.array(z.array(rawTableCellSchema)).describe("Complete 2D source matrix. Preserve cell positions, covered placeholders, and spans when replacing a table. Remove read-only style objects returned by styles=true; Studio table write APIs cannot change formatting."),
     totalRows: z.number().int().optional().describe("Total row count when the response contains a window."),
+    version: tableVersionSchema.optional().describe("The version a get response carries, tolerated when it is round-tripped; an update requires it."),
 }).describe("Complete RawSource table structure. Typed table DTOs are intentionally unsupported because they cannot reliably round-trip workbook content.");
 
 export const updateTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  view: rawTableViewSchema.describe("Full, non-windowed RawSource structure from openl_get_table() with modifications applied. Send the complete source matrix, not only changed cells; a view carrying totalRows is rejected, and the handler independently rejects a source with fewer rows than the live table."),
+  view: rawTableViewSchema.extend({ version: tableVersionSchema }).describe("Full, non-windowed RawSource structure from openl_get_table() with modifications applied. Send the complete source matrix, not only changed cells; a view carrying totalRows is rejected, and the handler independently rejects a source with fewer rows than the live table."),
   response_format: ResponseFormat,
 }).superRefine((value, ctx) => {
   if (value.view.totalRows !== undefined) {
@@ -830,17 +840,22 @@ export const readProjectFileSchema = z.strictObject({
   response_format: ResponseFormat,
 });
 
+/** The version of a file a write replaces or a deletion removes, as openl_read_project_file answered it. */
+const fileVersionText =
+  "The 'version' openl_read_project_file answered for the file. Studio changes the file only while it has this " +
+  "version: a file changed since — on disk, such as in an IDE or in Excel, or through another client — is left as " +
+  "it is, so read it again and repeat the change on what it holds now.";
+
 const writeProjectFileBaseSchema = z.strictObject({
   projectId: projectIdSchema,
   path: filePathSchema,
   createFolders: z
     .boolean()
     .default(true)
-    .describe("If true (default), missing intermediate folders are created automatically; otherwise the parent folder must already exist."),
-  conflictPolicy: z
-    .enum(["FAIL", "OVERWRITE", "SKIP"])
+    .describe("If true (default), missing intermediate folders of a new file are created automatically; otherwise the parent folder must already exist."),
+  version: nonBlankString
     .optional()
-    .describe("How to handle a target file that already exists: FAIL (default) returns an error; OVERWRITE replaces its content in place; SKIP leaves the existing file unchanged and reports it skipped. Has no effect when creating a new file."),
+    .describe(`Required to replace a file that exists. ${fileVersionText} Omit it to create a new file: Studio writes nothing when a file is already at the path.`),
   branch: fileBranchSchema,
 });
 
@@ -873,6 +888,9 @@ export const createUploadLinkSchema = writeProjectFileBaseSchema.extend({
 export const deleteProjectFileSchema = z.strictObject({
   projectId: projectIdSchema,
   path: filePathSchema,
+  version: nonBlankString
+    .optional()
+    .describe(`Required to delete a file. ${fileVersionText} A folder is deleted without it.`),
   branch: fileBranchSchema,
   response_format: ResponseFormat,
 });

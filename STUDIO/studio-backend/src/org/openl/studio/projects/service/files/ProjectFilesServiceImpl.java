@@ -7,13 +7,13 @@ import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -40,6 +41,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.exception.PreconditionFailedException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.files.FolderNode;
@@ -79,6 +81,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final BeanValidationProvider validationProvider;
     private final UploadFormatting uploadFormatting;
 
+    /**
+     * Held by a write based on a version from the comparison to the end of the write, so that two writes based on the
+     * same version never both pass: the second one is compared with what the first one left.
+     */
+    private final ReentrantLock versionedWrites = new ReentrantLock();
+
     @Override
     public List<FsNode> getResources(@NotNull FileRoot root,
                                        @NotNull FileCriteriaQuery query,
@@ -86,16 +94,15 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                        @NotNull FileViewMode viewMode,
                                        String version) {
         root.requireReadable();
-        AProjectFolder projectFolder = root.readFolder(version);
-        AProjectFolder baseFolder = resolveBaseFolder(projectFolder, query);
+        var projectFolder = root.readFolder(version);
+        var baseFolder = resolveBaseFolder(projectFolder, query);
 
         var filter = buildFilterCriteria(query);
 
         if (viewMode == FileViewMode.NESTED && recursive) {
             return buildNested(baseFolder, filter);
-        } else {
-            return buildFlatList(baseFolder, filter, recursive);
         }
+        return buildFlatList(baseFolder, filter, recursive);
     }
 
     @Override
@@ -114,12 +121,17 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     @Override
     public void updateResource(@NotNull FileRoot root,
                                @NotBlank String path,
-                               @NotNull InputStream content) {
+                               @NotNull InputStream content,
+                               @Nullable String expectedVersion) {
         root.requireModifiable();
         lockIfClosed(root);
+        lockIfVersioned(expectedVersion);
         try {
-            replaceFile(root, findFileArtefact(root.readFolder(null), path), path, content);
+            var resource = findFileArtefact(root.readFolder(null), path);
+            refuseOutdated(resource, path, expectedVersion);
+            replaceFile(root, resource, path, content);
         } finally {
+            unlockIfVersioned(expectedVersion);
             unlockIfClosed(root);
         }
     }
@@ -132,7 +144,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         try {
             // Validated before the project is reserved, so a rejected write leaves no lock behind. The
             // validated content is closed here as well, so a write that never happens leaves nothing behind.
-            try (InputStream validatedContent = validateContent(root, path, content)) {
+            try (var validatedContent = validateContent(root, path, content)) {
                 lockForEditing(root, path);
                 resource.setContent(formatted(root, path, validatedContent));
             }
@@ -143,14 +155,18 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     @Override
-    public void deleteResource(@NotNull FileRoot root, @NotBlank String path) {
+    public void deleteResource(@NotNull FileRoot root, @NotBlank String path, @Nullable String expectedVersion) {
         root.requireModifiable();
         validateResourcePath(path);
         lockIfClosed(root);
+        lockIfVersioned(expectedVersion);
         try {
-            AProjectArtefact found = findArtefactByPath(root.readFolder(null), path);
+            var found = findArtefactByPath(root.readFolder(null), path);
             if (found == null) {
                 throw new NotFoundException("file.not.found.message");
+            }
+            if (found instanceof AProjectResource resource) {
+                refuseOutdated(resource, path, expectedVersion);
             }
             requirePermission(found, BasePermission.DELETE);
             lockForEditing(root, path);
@@ -162,6 +178,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         } catch (ProjectException | IOException e) {
             throw new ConflictException("file.delete.failed.message");
         } finally {
+            unlockIfVersioned(expectedVersion);
             unlockIfClosed(root);
         }
     }
@@ -238,7 +255,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             // An opened project is reserved only once the content is known to be writable, so a rejected
             // write leaves no lock behind. A closed project is reserved beforehand, as it is for the other
             // modifications, so the content is not validated against a state another user is changing.
-            try (InputStream validatedContent = validateContent(root, path, content)) {
+            try (var validatedContent = validateContent(root, path, content)) {
                 lockForEditing(root, path);
                 var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
                         createFolders, "file.path.not.folder.message");
@@ -284,13 +301,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         root.requireModifiable();
         validateResourcePath(path);
         lockForEditing(root, path);
-        String[] segments = path.split("/");
+        var segments = path.split("/");
         try {
-            AProjectFolder current = root.writeFolder();
-            for (int i = 0; i < segments.length; i++) {
-                String segment = segments[i];
+            var current = root.writeFolder();
+            for (var i = 0; i < segments.length; i++) {
+                var segment = segments[i];
                 if (current.hasArtefact(segment)) {
-                    AProjectArtefact artefact = current.getArtefact(segment);
+                    var artefact = current.getArtefact(segment);
                     if (!artefact.isFolder()) {
                         throw new ConflictException("file.path.not.folder.message", artefact.getInternalPath());
                     }
@@ -314,7 +331,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     public void writeFolderAsZip(@NotNull FileRoot root, String path, @NotNull OutputStream out,
                                  String version) throws IOException {
         root.requireReadable();
-        AProjectFolder folder = root.readFolder(version);
+        var folder = root.readFolder(version);
         // A blank path zips the whole project (the root folder), e.g. project export.
         AProjectArtefact artefact = StringUtils.isBlank(path) ? folder : findExistingArtefact(folder, path);
         if (!artefact.isFolder()) {
@@ -343,7 +360,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                     @NotNull ConflictPolicy conflictPolicy) {
         root.requireModifiable();
         requireWritableBase(root, path);
-        List<FileEntry> entries = new ArrayList<>();
+        var entries = new ArrayList<FileEntry>();
         for (UploadedFile file : files) {
             String name = FilePaths.stripLeadingSlashes(StringUtils.trimToEmpty(file.name()).replace('\\', '/'));
             if (name.isEmpty()) {
@@ -385,8 +402,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             throw new BadRequestException("file.archive.empty.message");
         }
         entries.forEach(entry -> validateResourcePath(entry.fullPath()));
-        AProjectFolder current = root.readFolder(null);
-        Map<String, byte[]> written = new LinkedHashMap<>();
+        var current = root.readFolder(null);
+        var written = new LinkedHashMap<String, byte[]>();
         for (FileEntry entry : entries) {
             if (!isEntrySkipped(current, entry, conflictPolicy)) {
                 // An upload brings its own files with it - the libraries a descriptor names among them - so
@@ -399,7 +416,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         if (replace) {
             requireRemovedFilesDeletable(current, basePath, entries);
         }
-        List<FileItem> items = new ArrayList<>();
+        var items = new ArrayList<FileItem>();
         formatted(root, current, basePath, written, replace).forEach((path, data) -> {
             var fileData = new FileData();
             fileData.setName(path);
@@ -479,8 +496,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     /** Every file under the folder, however deep. */
     private static List<AProjectArtefact> filesUnder(AProjectFolder folder) {
-        List<AProjectArtefact> files = new ArrayList<>();
-        Deque<AProjectFolder> queue = new ArrayDeque<>();
+        var files = new ArrayList<AProjectArtefact>();
+        var queue = new ArrayDeque<AProjectFolder>();
         queue.add(folder);
         while (!queue.isEmpty()) {
             for (AProjectArtefact artefact : queue.poll().getArtefacts()) {
@@ -511,7 +528,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             var current = root.readFolder(null);
             written.keySet().forEach(this::validateResourcePath);
             requireWritable(current, written.keySet());
-            List<FileItem> items = new ArrayList<>();
+            var items = new ArrayList<FileItem>();
             written.forEach((path, content) -> {
                 validateContent(root, path, content, written.keySet());
                 items.add(new FileItem(path, new ByteArrayInputStream(content)));
@@ -534,7 +551,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * <p>A folder standing at a path cannot be written as a file.
      */
     private void requireWritable(AProjectFolder current, Collection<String> paths) {
-        Set<AProjectFolder> receiving = new LinkedHashSet<>();
+        var receiving = new LinkedHashSet<AProjectFolder>();
         for (var path : paths) {
             var found = findArtefactByPath(current, path);
             if (found == null) {
@@ -587,7 +604,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             case AProjectFolder folder -> filesUnder(folder);
             case AProjectArtefact file -> List.of(file);
         };
-        List<FileItem> items = new ArrayList<>();
+        var items = new ArrayList<FileItem>();
         for (var file : removed) {
             if (!written.contains(file.getInternalPath())) {
                 requirePermission(file, BasePermission.DELETE);
@@ -624,7 +641,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     /**
      * Checks that the user has the specified permission on the artefact.
      */
-    private void requirePermission(AProjectArtefact artefact, org.springframework.security.acls.model.Permission permission) {
+    private void requirePermission(AProjectArtefact artefact, Permission permission) {
         if (!aclProjectsHelper.hasPermission(artefact, permission)) {
             throw new ForbiddenException("default.message");
         }
@@ -673,12 +690,36 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         }
     }
 
+    /** Waits for the writes based on a version that came first, when this write is based on one too. */
+    private void lockIfVersioned(@Nullable String expectedVersion) {
+        if (expectedVersion != null) {
+            versionedWrites.lock();
+        }
+    }
+
+    private void unlockIfVersioned(@Nullable String expectedVersion) {
+        if (expectedVersion != null) {
+            versionedWrites.unlock();
+        }
+    }
+
+    /**
+     * Refuses a write based on another version of the file than the one it has now: the file changed since the client
+     * read it, on disk or through another client, and the write would overwrite that change. A write that names no
+     * version is not compared.
+     */
+    private void refuseOutdated(AProjectResource resource, String path, @Nullable String expectedVersion) {
+        if (expectedVersion != null && !expectedVersion.equals(getVersion(resource))) {
+            throw new PreconditionFailedException("file.changed.since.read.message", path);
+        }
+    }
+
     /**
      * Validates path, locates a file artefact, and verifies it exists and is not a folder.
      */
     private AProjectResource findFileArtefact(AProjectFolder root, String path) {
         validateResourcePath(path);
-        AProjectArtefact found = findArtefactByPath(root, path);
+        var found = findArtefactByPath(root, path);
         if (found == null || found.isFolder()) {
             throw new NotFoundException("file.not.found.message");
         }
@@ -693,7 +734,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      */
     private AProjectArtefact findExistingArtefact(AProjectFolder root, String path) {
         validateResourcePath(path);
-        AProjectArtefact found = findArtefactByPath(root, path);
+        var found = findArtefactByPath(root, path);
         if (found == null) {
             throw new NotFoundException("file.not.found.message");
         }
@@ -721,7 +762,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private void copyArtefact(AProjectArtefact source, AProjectFolder targetFolder, String name)
             throws ProjectException, IOException {
         if (source.isFolder()) {
-            AProjectFolder created = targetFolder.addFolder(name);
+            var created = targetFolder.addFolder(name);
             for (AProjectArtefact child : ((AProjectFolder) source).getArtefacts()) {
                 copyArtefact(child, created, child.getName());
             }
@@ -747,7 +788,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                                   String fullPath,
                                                   boolean createMissing,
                                                   String conflictMessageKey) throws ProjectException {
-        String[] segments = fullPath.split("/");
+        var segments = fullPath.split("/");
         var reached = deepestFolder(rootFolder, segments, conflictMessageKey);
         if (!createMissing && reached.depth() < segments.length - 1) {
             throw new NotFoundException("file.parent.not.found.message", segments[reached.depth()]);
@@ -756,7 +797,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         requirePermission(reached.folder(), BasePermission.CREATE);
 
         var targetFolder = reached.folder();
-        for (int i = reached.depth(); i < segments.length - 1; i++) {
+        for (var i = reached.depth(); i < segments.length - 1; i++) {
             targetFolder = targetFolder.addFolder(segments[i]);
         }
 
@@ -902,7 +943,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     private AProjectArtefact findArtefactByPath(AProjectFolder rootFolder, String path) {
-        String[] segments = path.split("/");
+        var segments = path.split("/");
         AProjectArtefact current = rootFolder;
         for (String segment : segments) {
             if (!current.isFolder()) {
@@ -922,7 +963,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         var builtChildren = new IdentityHashMap<AProjectFolder, List<FsNode>>();
         record Frame(AProjectFolder folder, boolean expanded) {}
 
-        Deque<Frame> stack = new ArrayDeque<>();
+        var stack = new ArrayDeque<Frame>();
         stack.push(new Frame(rootFolder, false));
 
         while (!stack.isEmpty()) {
@@ -949,7 +990,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private List<FsNode> buildNestedChildren(AProjectFolder folder,
                                                Predicate<AProjectArtefact> filter,
                                                IdentityHashMap<AProjectFolder, List<FsNode>> builtChildren) {
-        List<FsNode> out = new ArrayList<>();
+        var out = new ArrayList<FsNode>();
         for (var artefact : folder.getArtefacts()) {
             if (!artefact.isFolder()) {
                 if (filter.test(artefact)) {
@@ -959,7 +1000,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
             var childChildren = builtChildren.getOrDefault(artefact, List.of());
             if (filter.test(artefact) || !childChildren.isEmpty()) {
-                FsNode mapped = resourceMapper.map(artefact);
+                var mapped = resourceMapper.map(artefact);
                 if (mapped instanceof FolderNode fr && !childChildren.isEmpty()) {
                     // childChildren was already sorted when it was stored, so no need to sort again.
                     mapped = fr.withChildren(childChildren);
@@ -1036,13 +1077,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private List<FsNode> buildFlatList(AProjectFolder rootFolder,
                                          Predicate<AProjectArtefact> filter,
                                          boolean recursive) {
-        List<FsNode> result = new ArrayList<>();
+        var result = new ArrayList<FsNode>();
 
-        Deque<AProjectFolder> queue = new ArrayDeque<>();
+        var queue = new ArrayDeque<AProjectFolder>();
         queue.add(rootFolder);
 
         while (!queue.isEmpty()) {
-            AProjectFolder folder = queue.poll();
+            var folder = queue.poll();
             for (AProjectArtefact artefact : folder.getArtefacts()) {
                 if (filter.test(artefact)) {
                     result.add(resourceMapper.map(artefact));

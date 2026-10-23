@@ -111,6 +111,9 @@ export interface FilePathPairRequest {
  * path/name/type/basePath quartet; the backend additionally returns `extension`,
  * `size` and `lastModified` for files, so they are modelled here as optional.
  */
+/** The metadata of a file, with the version of its content that a replacement or a deletion of it names back. */
+export type ProjectFileMeta = FsNode & { version?: string };
+
 export interface FsNode {
   /** Project-relative path (e.g. 'folder/rules.xlsx'). */
   path: string;
@@ -727,6 +730,11 @@ export interface RawTableView {
   /** Empty only for a slice whose `startRow` is past the last row. */
   source: RawTableCell[][];
   /**
+   * The version of the table read (read-only). A write of the table names it, so that a write over a table changed
+   * since the read — on disk or through another client — is refused rather than overwriting that change.
+   */
+  version?: string;
+  /**
    * Total number of rows when the returned window omits rows (a `startRow`
    * offset or a `maxRows` cap); absent when the whole table is returned.
    */
@@ -1337,6 +1345,8 @@ export interface TransferLinkRequest {
   version?: string;
   side?: "base" | "ours" | "theirs";
   conflictPolicy?: "FAIL" | "OVERWRITE" | "SKIP";
+  /** The version of the file an upload replaces: the link writes nothing when the file changed since. */
+  expectedVersion?: string;
   createFolders?: boolean;
   size?: number;
   sha256?: string;

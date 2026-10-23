@@ -64,8 +64,10 @@ public class TransferLinksController {
         var projectId = projects.convert(request.projectId()).getProjectId().value();
         var issued = clientLinks.issue(SecurityContextHolder.getContext().getAuthentication().getName(), clientKey,
                 operationOf(request, projectId));
-        return new TransferLinkView(TransferServlet.PATH.substring(1) + "/" + issued.id(),
-                issued.link().expiresAt());
+        return TransferLinkView.builder()
+                .path(TransferServlet.PATH.substring(1) + "/" + issued.id())
+                .expiresAt(issued.link().expiresAt())
+                .build();
     }
 
     private static TransferOperation operationOf(TransferLinkRequest request, String projectId) {
@@ -80,9 +82,22 @@ public class TransferLinksController {
                 }
                 yield new TransferOperation.ConflictVersion(projectId, request.path(), request.side());
             }
-            case UPLOAD -> new TransferOperation.Upload(projectId, request.path(), request.branch(),
-                    request.conflictPolicy() == null ? ConflictPolicy.FAIL : request.conflictPolicy(),
-                    request.createFolders() == null || request.createFolders(), request.size(), request.sha256());
+            case UPLOAD -> TransferOperation.Upload.builder()
+                    .projectId(projectId)
+                    .path(request.path())
+                    .branch(request.branch())
+                    .conflictPolicy(conflictPolicyOf(request))
+                    .createFolders(!Boolean.FALSE.equals(request.createFolders()))
+                    .size(request.size())
+                    .sha256(request.sha256())
+                    .expectedVersion(request.expectedVersion())
+                    .build();
         };
+    }
+
+    /** What an upload does with a file already at the path: refuses to write over it unless the request says else. */
+    private static ConflictPolicy conflictPolicyOf(TransferLinkRequest request) {
+        var policy = request.conflictPolicy();
+        return policy == null ? ConflictPolicy.FAIL : policy;
     }
 }

@@ -17,8 +17,12 @@ class TransferLinksTest {
 
     private static final TransferOperation DOWNLOAD = new TransferOperation.Download("P1", "rules/Rules.xlsx", null,
             null, false);
-    private static final TransferOperation UPLOAD = new TransferOperation.Upload("P1", "rules/Rules.xlsx", null,
-            ConflictPolicy.OVERWRITE, true, null, null);
+    private static final TransferOperation UPLOAD = TransferOperation.Upload.builder()
+            .projectId("P1")
+            .path("rules/Rules.xlsx")
+            .conflictPolicy(ConflictPolicy.OVERWRITE)
+            .createFolders(true)
+            .build();
 
     private final TestClock clock = new TestClock(Instant.parse("2026-10-23T10:00:00Z"));
     private final TransferLinks links = new TransferLinks(clock, "PT15M", 3);

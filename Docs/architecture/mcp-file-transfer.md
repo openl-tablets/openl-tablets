@@ -115,14 +115,14 @@ sequenceDiagram
     participant A as Agent shell
     participant N as studio-mcp
     participant S as OpenL Studio
-    M->>N: openl_create_upload_link(projectId, path, conflictPolicy, size, sha256)
+    M->>N: openl_create_upload_link(projectId, path, version, size, sha256)
     N->>S: POST /rest/transfer-links
     S-->>N: path transfers/<id>, expiresAt
     N-->>M: url, location, a ready curl command
     M->>A: curl -fsS -T Rules.xlsx '<url>'
     A->>S: PUT /transfers/<id>, the bytes
     S->>S: take the record, receive and check the body, forward to the files API
-    S-->>A: created, overwritten or skipped
+    S-->>A: created, or replaced
     M->>N: openl_save_project(projectId, comment)
 ```
 
@@ -191,11 +191,13 @@ a link is a REST call; using it is not.
   on an upload of more than 1 MB, so Studio never reads the body of a request without a valid link. The body is
   received into a temporary file only the owner of the process may read, hashed as it comes, up to the 1000 MB of
   [Upload Integrity](upload-integrity.md): a longer body is refused with `400`. A declared size or SHA-256 the body
-  does not match is refused with `400` too, and nothing is written. The handler then forwards a raw
-  `POST` of that file, as `application/octet-stream`, to `/rest/projects/{id}/files/{path}` with `createFolders`,
-  `conflictPolicy` and `branch`; the files API checks it as [Upload Integrity](upload-integrity.md) describes and
-  answers `201`, `204` for a skipped file, or `409`. The forward reads the body from one stream, which the handler
-  closes, and the temporary file is deleted afterwards.
+  does not match is refused with `400` too, and nothing is written. The handler then forwards that file, as
+  `application/octet-stream`, to `/rest/projects/{id}/files/{path}`: a raw `POST` with `createFolders`,
+  `conflictPolicy` and `branch`, or, for a link that names the version of the file it replaces (`expectedVersion`),
+  a raw `PUT` with `branch` and that version in `If-Match`, the one the client sent left out. The files API checks it
+  as [Upload Integrity](upload-integrity.md) describes and answers as it answers any client: `409` for a file
+  already there that the policy does not replace, and for a file changed since the version. The forward reads the
+  body from one stream, which the handler closes, and the temporary file is deleted afterwards.
 
 How a forward runs:
 
@@ -227,13 +229,15 @@ REST API that already serves each transfer:
 | a project file | `GET <public>/rest/projects/{projectId}/files/{path}?branch=…&version=…` |
 | a folder as a ZIP | the same, with `download=true` |
 | a merge-conflict version | `GET <public>/rest/projects/{projectId}/merge/conflicts/files?file=…&side=…` |
-| an upload | `POST <public>/rest/projects/{projectId}/files/{path}?createFolders=…&conflictPolicy=…&branch=…` |
+| an upload of a new file | `POST <public>/rest/projects/{projectId}/files/{path}?createFolders=…&conflictPolicy=FAIL&branch=…` |
+| an upload replacing a file | `PUT <public>/rest/projects/{projectId}/files/{path}?branch=…` with `If-Match` |
 
 - **The mode** — `GET /rest/settings`, which Studio answers without credentials, names no `userMode` in single-user
   mode. studio-mcp reads it with every link: a cheap call, and a Studio whose settings change restarts studio-mcp
   anyway ([Built-in MCP Server §3.5](mcp-server.md#35-lifecycle)).
 - **Upload** — the body goes raw, as `application/octet-stream`, to the files API, which checks it as
-  [Upload Integrity](upload-integrity.md) describes and answers `201`, `204` for a skipped file, or `409`.
+  [Upload Integrity](upload-integrity.md) describes; the `curl` command of a replacement sends the version in
+  `If-Match` itself.
 - **Not one-time** — the link is the REST API: it works as long as the resource exists, any number of times, and
   never expires.
 - **No declared size or SHA-256** — the files API checks neither, so the size and SHA-256 an upload link takes apply
@@ -247,16 +251,20 @@ The file tools and what each one answers:
   answered inline; a larger file is answered with a download link without a byte of it being read; a binary file of
   up to 5,000 bytes is read once, to learn its type, and answered with a link too. A folder, a path ending in a slash
   or the project root, is answered with a link to its ZIP archive. It takes the project, the path, `version` and
-  `branch`.
+  `branch`. It answers the version of a file, which the metadata carry in `ETag`: in the link JSON, and beside an
+  inline text in a text block of its own, so that the text stays verbatim.
 - **`openl_search_project_files`** — finds files, and lists a folder: a search from it with no other criteria, each
   match with its size and date.
 - **`openl_write_project_file`** — writes a text from its `content`. Its `content` has no size limit, as the model
   writes what it authors; the description tells the agent to send a file it has on disk by the upload link instead of
-  typing it out.
-- **`openl_create_upload_link`** — takes the target of the write — `projectId`, `path`, `conflictPolicy`,
-  `createFolders`, `branch` — and, optionally, the `size` and `sha256` of the file, and answers the link that writes
-  it. A download needs no tool of its own: the read answers the link.
-- **`openl_delete_project_file`** — deletes a file or a folder.
+  typing it out. Without `version` it creates a new file and writes nothing over a file already at the path; with
+  the version the read answered, it replaces the file while the file has that version.
+- **`openl_create_upload_link`** — takes the target of the write — `projectId`, `path`, `createFolders`, `branch`
+  and, to replace a file, its `version` — and, optionally, the `size` and `sha256` of the file, and answers the link
+  that writes it. It creates or replaces a file as the write does. A download needs no tool of its own: the read
+  answers the link.
+- **`openl_delete_project_file`** — deletes a folder, or a file by the version the read answered, which it
+  requires.
 - **`openl_copy_project_file`** — copies a file inside Studio, so no byte moves through the agent, where a download and
   an upload would take four calls.
 - **`openl_move_project_file`** — moves a file. It deletes its source, so it is a tool apart from copy, whose name and
