@@ -1,10 +1,14 @@
 package org.openl.studio.projects.service.tables.write;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -51,6 +55,7 @@ import org.openl.studio.projects.service.tables.format.ExcelTableFormatter;
 import org.openl.studio.projects.service.tables.format.FormattedTables;
 import org.openl.studio.projects.service.tables.format.RegionShift;
 import org.openl.studio.projects.service.tables.format.TableRegions;
+import org.openl.studio.projects.service.tables.read.CellValueReader;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -329,11 +334,17 @@ public abstract class TableWriter<T extends TableView> {
      *
      * <p>So a line written past the edge grows the table once, by its first cell.
      *
+     * <p>On update, a cell that already holds the value is left as it is: written again, a number kept as a text
+     * would become a number, and the table would change where nobody changed it.
+     *
      * @param gridTable table to update
      * @param cellKey   relative cell coordinates
      * @param value     new cell value
      */
     protected void createOrUpdateCell(IGridTable gridTable, CellKey cellKey, Object value) {
+        if (isUpdateMode() && holds(gridTable, cellKey, value)) {
+            return;
+        }
         var region = gridTable.getRegion();
         // calculate absolute coordinates
         int grow = cellKey.getRow() + region.getTop();
@@ -362,6 +373,62 @@ public abstract class TableWriter<T extends TableView> {
         }
 
         updateCellValue(gridTable, gcol, grow, value);
+    }
+
+    /**
+     * Tells whether the cell at a table position already holds the value a write would put there: the text it shows,
+     * or the value it reads as. A position outside the table holds nothing yet, and nor does a cell a merged cell
+     * covers: it reads as the value of the merged cell, which a write that unmerges it must not take for its own.
+     */
+    private boolean holds(IGridTable gridTable, CellKey cellKey, @Nullable Object value) {
+        if (cellKey.getRow() >= gridTable.getHeight() || cellKey.getColumn() >= gridTable.getWidth()) {
+            return false;
+        }
+        var region = gridTable.getRegion();
+        var column = region.getLeft() + cellKey.getColumn();
+        var row = region.getTop() + cellKey.getRow();
+        var merged = gridTable.getGrid().getRegionContaining(column, row);
+        if (merged != null && (merged.getLeft() != column || merged.getTop() != row)) {
+            return false;
+        }
+        var cell = gridTable.getCell(cellKey.getColumn(), cellKey.getRow());
+        return value instanceof String text && text.equals(cell.getStringValue())
+                || sameValue(new CellValueReader(getMetaInfoWriter()).apply(cell), value);
+    }
+
+    /** Whether two cell values are the same: numbers by their value, arrays and lists element by element. */
+    static boolean sameValue(@Nullable Object current, @Nullable Object value) {
+        if (current instanceof Number a && value instanceof Number b) {
+            try {
+                return new BigDecimal(a.toString()).compareTo(new BigDecimal(b.toString())) == 0;
+            } catch (NumberFormatException e) {
+                return a.equals(b);
+            }
+        }
+        var currentItems = itemsOf(current);
+        var items = itemsOf(value);
+        if (currentItems != null && items != null) {
+            if (currentItems.size() != items.size()) {
+                return false;
+            }
+            for (var i = 0; i < items.size(); i++) {
+                if (!sameValue(currentItems.get(i), items.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return Objects.equals(current, value);
+    }
+
+    /** The items of an array or a collection value, or {@code null} for a single value. */
+    private static @Nullable List<?> itemsOf(@Nullable Object value) {
+        return switch (value) {
+            case Object[] array -> Arrays.asList(array);
+            // An item may be blank, which List.copyOf refuses
+            case Collection<?> collection -> new ArrayList<>(collection);
+            case null, default -> null;
+        };
     }
 
     /** Grows the table by the columns a cell written past its right edge needs. */
