@@ -308,6 +308,11 @@ function firstNames(items: Array<{ name?: string }>): string {
   return `${items.slice(0, 3).map((item) => item.name).join(", ")}${more}`;
 }
 
+/** Every project of a page by its name and its id, which the other tools take: `Bank (p1), Rates (p2)`. */
+function projectNames(projects: Array<{ name?: string; projectId?: string }>): string {
+  return projects.map(({ name, projectId }) => `${name} (${projectId})`).join(", ");
+}
+
 /** The summary of a page of a list whose total is known, by the kind of its items. */
 function listSummary(data: unknown[], total: number, dataType?: string, markdownContext?: DependencyQuery): string[] {
   const count = data.length;
@@ -322,7 +327,7 @@ function listSummary(data: unknown[], total: number, dataType?: string, markdown
     case "projects":
       return [
         foundText(count, total, "project"),
-        ...ifAny(() => `${statusBreakdown(named)}. Projects: ${firstNames(named)}.`),
+        ...ifAny(() => `${statusBreakdown(named)}. Projects: ${projectNames(named)}.`),
       ];
     case "tables": {
       const types = (): string => [...new Set((data as Types.TableMetadata[]).map((t) => t.tableType))].join(", ");

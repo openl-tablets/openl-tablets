@@ -188,9 +188,10 @@ describe("formatters", () => {
       const result = toMarkdownConcise({ data }, "projects");
 
       expect(result).toContain("Found 3");
-      // The projects are named by their names, not their opaque ids, and counted in every status
-      expect(result).toContain("2 editing, 1 opened. Projects: Bank, Rates, Auto.");
-      expect(result).not.toContain("ZGVz");
+      // Every project is named, with the id the other tools take, and counted in every status
+      expect(result).toContain(
+        "2 editing, 1 opened. Projects: Bank (ZGVzaWduOkJhbms=), Rates (ZGVzaWduOlJhdGVz), Auto (ZGVzaWduOkF1dG8=).",
+      );
       expect(result.length).toBeLessThan(500); // Should be brief
     });
 
