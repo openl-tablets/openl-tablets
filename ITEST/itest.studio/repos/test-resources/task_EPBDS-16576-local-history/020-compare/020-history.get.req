@@ -1,3 +1,3 @@
-GET /rest/projects/XKWdanYBsXBN/local-history?module=Qwerty HTTP/1.1
+GET /rest/projects/BJJSTTKP06RQ0/local-history?module=Qwerty HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

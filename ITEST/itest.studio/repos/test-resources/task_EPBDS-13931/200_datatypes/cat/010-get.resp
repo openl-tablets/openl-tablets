@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "Datatype",
-  "id": "qfQLNvJhaYZq1VDe",
+  "id": "N7T0PDQJC5MRCTPN",
   "kind": "Datatype",
   "name": "Cat",
   "fields": [

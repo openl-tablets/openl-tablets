@@ -1,3 +1,3 @@
-DELETE /rest/projects/fZEY_BwtMzsh?comment=Cleanup%20repository%20config HTTP/1.1
+DELETE /rest/projects/FP8HHZ0W5MSKP?comment=Cleanup%20repository%20config HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

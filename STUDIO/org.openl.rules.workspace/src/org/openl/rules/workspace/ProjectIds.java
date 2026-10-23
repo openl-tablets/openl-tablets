@@ -1,8 +1,6 @@
 package org.openl.rules.workspace;
 
 import java.text.Normalizer;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,10 +21,10 @@ import org.openl.util.HashingUtils;
 /**
  * Makes the ids projects are addressed by.
  *
- * <p>An id is the first 72 bits of the SHA-256 digest of where a project is stored — its repository and its folder
- * there — written as 12 characters of URL-safe base64. Neither the name, the branch nor the revision is part of it,
- * so a project keeps its id while it stays in its folder: opened or closed, on every branch, after a rename in
- * {@code rules.xml}, after a restart and on every Studio instance.
+ * <p>An id is the first 65 bits of the SHA-256 digest of where a project is stored — its repository and its folder
+ * there — written as 13 upper-case characters of Crockford's Base32. Neither the name, the branch nor the revision
+ * is part of it, so a project keeps its id while it stays in its folder: opened or closed, on every branch, after a
+ * rename in {@code rules.xml}, after a restart and on every Studio instance.
  *
  * <p>The folder is the internal path of the project in a repository with folders, the key it is stored under in a
  * repository without folders, and the workspace folder of a local project. It is read with {@code /} separators,
@@ -46,9 +44,9 @@ public final class ProjectIds {
     private static final String VERSION = "v1";
     /** The unit separator, which joins the fields of an identity; no repository id or path contains it. */
     private static final char SEPARATOR = '\u001F';
-    private static final int ID_BYTES = 9;
-    private static final Base64.Encoder BASE64 = Base64.getUrlEncoder().withoutPadding();
-    private static final Pattern ID = Pattern.compile("[A-Za-z0-9_-]{12}");
+    /** 65 bits are 13 symbols of Base32, with no padding. */
+    private static final int ID_SYMBOLS = 13;
+    private static final Pattern ID = Pattern.compile("[0-9A-HJKMNP-TV-Z]{13}");
 
     /** The ids of the identities found sharing a digest with another one, by identity. */
     private static final Map<String, ProjectId> NUMBERED = new ConcurrentHashMap<>();
@@ -66,8 +64,8 @@ public final class ProjectIds {
     }
 
     /**
-     * Whether the text has the form of an id: 12 characters of URL-safe base64. A text of another form names no
-     * project.
+     * Whether the text has the form of an id: 13 upper-case characters of Crockford's Base32. A text of another
+     * form, lower-case included, names no project.
      */
     public static boolean isId(String text) {
         return ID.matcher(text).matches();
@@ -145,6 +143,6 @@ public final class ProjectIds {
     }
 
     private static ProjectId digest(String identity) {
-        return new ProjectId(BASE64.encodeToString(Arrays.copyOf(HashingUtils.sha256(identity), ID_BYTES)));
+        return new ProjectId(HashingUtils.sha256Base32(identity, ID_SYMBOLS));
     }
 }

@@ -8,7 +8,7 @@ Content-Type: application/json
   "branch": "user1/feature-1",
   "revision": "*",
   "path": "ProjectUser1",
-  "id": "4sLLGxT9DBma",
+  "id": "WB1CP6RMZM61K",
   "status": "OPENED",
   "comment": "User1 saved the project",
   "repository": "design-flat",

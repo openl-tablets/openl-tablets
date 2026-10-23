@@ -16,28 +16,31 @@ import org.junit.jupiter.api.Test;
 class ProjectIdsTest {
 
     @Test
-    void anIdIsTwelveUrlSafeCharactersOfTheRepositoryAndTheFolder() {
-        assertEquals("FeZdnMnl3XRa", ProjectIds.of("design", "Example 1 - Bank Rating").value());
-        assertEquals("LhFSURkIYmQQ", ProjectIds.of("design", "rating/Auto").value());
-        assertEquals("c6KaddxZ4Oae", ProjectIds.of("jdbc", "DESIGN/rules/Bank Rating").value());
+    void anIdIsThirteenBase32CharactersOfTheRepositoryAndTheFolder() {
+        assertEquals("2QK5V769WQEQ8", ProjectIds.of("design", "Example 1 - Bank Rating").value());
+        assertEquals("5R8N4M8S11H68", ProjectIds.of("design", "rating/Auto").value());
+        assertEquals("EEH9MXEWB7GED", ProjectIds.of("jdbc", "DESIGN/rules/Bank Rating").value());
     }
 
     @Test
     void theIdHasNeitherPaddingNorSlashes() {
         for (var folder : List.of("Тарифный план", "a", "rules/Пример 1", "x/y/z", "Договор")) {
             var id = ProjectIds.of("design", folder).value();
-            assertEquals(12, id.length(), folder);
-            assertTrue(id.matches("[A-Za-z0-9_-]{12}"), id);
+            assertEquals(13, id.length(), folder);
+            assertTrue(id.matches("[0-9A-HJKMNP-TV-Z]{13}"), id);
         }
     }
 
     @Test
-    void onlyTwelveUrlSafeCharactersHaveTheFormOfAnId() {
-        assertTrue(ProjectIds.isId("FeZdnMnl3XRa"));
-        assertTrue(ProjectIds.isId("a-b_c-d_e-f_"));
+    void onlyThirteenUpperCaseBase32CharactersHaveTheFormOfAnId() {
+        assertTrue(ProjectIds.isId("2QK5V769WQEQ8"));
+        assertTrue(ProjectIds.isId("0123456789ABC"));
+        assertFalse(ProjectIds.isId("2qk5v769wqeq8"));
+        assertFalse(ProjectIds.isId("2QK5V769WQEQI"));
+        assertFalse(ProjectIds.isId("2QK5V769WQEQ"));
+        assertFalse(ProjectIds.isId("FeZdnMnl3XRa"));
         assertFalse(ProjectIds.isId("ZGVzaWduOlByb2plY3Q="));
-        assertFalse(ProjectIds.isId("FeZdnMnl3XR"));
-        assertFalse(ProjectIds.isId("FeZdnMnl3X/a"));
+        assertFalse(ProjectIds.isId("2QK5V769WQE/8"));
         assertFalse(ProjectIds.isId("Bank Rating"));
     }
 
@@ -125,12 +128,12 @@ class ProjectIdsTest {
     @Test
     void anIdIsWrittenToJsonAsItsText() throws Exception {
         var mapper = new ObjectMapper();
-        var id = new ProjectId("FeZdnMnl3XRa");
+        var id = new ProjectId("2QK5V769WQEQ8");
 
-        assertEquals("\"FeZdnMnl3XRa\"", mapper.writeValueAsString(id));
-        assertEquals(id, mapper.readValue("\"FeZdnMnl3XRa\"", ProjectId.class));
-        assertEquals("FeZdnMnl3XRa", id.toString());
-        assertEquals(id, ProjectId.of("FeZdnMnl3XRa"));
+        assertEquals("\"2QK5V769WQEQ8\"", mapper.writeValueAsString(id));
+        assertEquals(id, mapper.readValue("\"2QK5V769WQEQ8\"", ProjectId.class));
+        assertEquals("2QK5V769WQEQ8", id.toString());
+        assertEquals(id, ProjectId.of("2QK5V769WQEQ8"));
     }
 
     @Test

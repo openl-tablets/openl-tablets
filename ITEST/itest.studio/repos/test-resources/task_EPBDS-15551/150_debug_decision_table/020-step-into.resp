@@ -9,7 +9,7 @@ Content-Type: application/json
       "depth": 1,
       "instance": 0,
       "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Groups&range=C8:D14",
-      "tableId": "etzMSGqMmmvCYLuF",
+      "tableId": "FBECRJ3AHJD6QGK0",
       "name": "BankRatingGroup",
       "kind": "decisionTable",
       "location": {

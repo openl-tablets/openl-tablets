@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "luLstmM7OBD_bAFL",
+  "id": "JVHESDK37CW11ZVC",
   "tableType": "SimpleSpreadsheet",
   "kind": "Spreadsheet",
   "name": "doSomething_SimpleSpr",
@@ -13,9 +13,9 @@ Content-Type: application/json
       "severity": "WARN",
       "location": {
         "type": "table",
-        "id": "luLstmM7OBD_bAFL",
+        "id": "JVHESDK37CW11ZVC",
         "name": "doSomething_SimpleSpr",
-        "projectId": "mZkhLzsWf3Ze",
+        "projectId": "K6CJ2BSV2SZQC",
         "project": "EPBDS-13931",
         "module": "Main",
         "cell": "C9",

@@ -1,3 +1,3 @@
-DELETE /rest/projects/Ix24cf3wpGoy/branches/EPBDS-16410-feature HTTP/1.1
+DELETE /rest/projects/4CEVGWFXY2J6M/branches/EPBDS-16410-feature HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

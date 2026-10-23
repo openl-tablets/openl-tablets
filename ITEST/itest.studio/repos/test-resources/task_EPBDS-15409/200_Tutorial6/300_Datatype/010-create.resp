@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "wwhi2rPIwsabGzZ2",
+  "id": "RC465PNKS31CD6RV",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "Loss",

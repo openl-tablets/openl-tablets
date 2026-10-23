@@ -1,4 +1,4 @@
-PUT /rest/projects/GxrRioM42xnT/tables/gC5XG5F2KGzzxG81?module=Notes HTTP/1.1
+PUT /rest/projects/3CDD32M373DHK/tables/G0Q5E6WHERM6SWY4?module=Notes HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

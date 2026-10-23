@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "BankRatingGroupTest",
-      "tableId": "xqhs_BeG4jcnfPIQ",
+      "tableId": "RTM6SZ0QGVH3E9VW",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 5,
@@ -142,7 +142,7 @@ Content-Type: application/json
     },
     {
       "name": "CapitalAdequacyScoreTest",
-      "tableId": "x7ht2m231W3COX5x",
+      "tableId": "RYW6VPKDPZAPVGHS",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
@@ -248,7 +248,7 @@ Content-Type: application/json
     },
     {
       "name": "TotalBalanceScoreTest",
-      "tableId": "9bRNNsvnfHz1fRkd",
+      "tableId": "YPT4TDPBWXY7SXBX",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
@@ -470,7 +470,7 @@ Content-Type: application/json
     },
     {
       "name": "BankLimitIndexTest",
-      "tableId": "_aZ41wyLNB9PsKYf",
+      "tableId": "ZPK7HNRCHCT1YKXG",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -735,7 +735,7 @@ Content-Type: application/json
     },
     {
       "name": "BankRatingTest",
-      "tableId": "lEmSGDeRGlvoEv9y",
+      "tableId": "JH4S461QJ4D5QT0J",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -990,7 +990,7 @@ Content-Type: application/json
     },
     {
       "name": "DynamicIndexTest",
-      "tableId": "kMTO_LR22gSfZTd0",
+      "tableId": "J32CXZ5MEVD097V5",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -1177,7 +1177,7 @@ Content-Type: application/json
     },
     {
       "name": "EquityScoreTest",
-      "tableId": "5sI54FlRtghu6rVM",
+      "tableId": "WV13KR2SA6V0GVQA",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
@@ -1399,7 +1399,7 @@ Content-Type: application/json
     },
     {
       "name": "IsAdequateMaxCreditRiskScoreTest",
-      "tableId": "wWP4XX2I5DieV_2U",
+      "tableId": "R5HZGQBXH3J3H7JQ",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
@@ -1621,7 +1621,7 @@ Content-Type: application/json
     },
     {
       "name": "IsAdequateNormativeIndexTest",
-      "tableId": "5GCYTB74KAfMzOIK",
+      "tableId": "WHG9GK0YZ0M0FK6C",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -1870,7 +1870,7 @@ Content-Type: application/json
     },
     {
       "name": "LossesInThisYearScoreTest",
-      "tableId": "q1EiDycyl2dcDNZd",
+      "tableId": "ND8J43S76ABPEQ0C",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 2,
@@ -1928,7 +1928,7 @@ Content-Type: application/json
     },
     {
       "name": "ProfitDynamicScoreTest",
-      "tableId": "_4Qe0peyb0pIz1Cf",
+      "tableId": "ZY21XMMQP9QMMJ6F",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 4,
@@ -2070,7 +2070,7 @@ Content-Type: application/json
     },
     {
       "name": "QualitativeIndexTest",
-      "tableId": "L7GzGqqJr4wJZ5cW",
+      "tableId": "5YRV66NAH6QRR2B7",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -2319,7 +2319,7 @@ Content-Type: application/json
     },
     {
       "name": "QualityIndexTest",
-      "tableId": "srvOZFlfL5iVtrOs",
+      "tableId": "PAXWWS2SBWQSH5DP",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,
@@ -2425,7 +2425,7 @@ Content-Type: application/json
     },
     {
       "name": "SetNonZeroValuesTest",
-      "tableId": "bhNxSLRNK9xRuwYF",
+      "tableId": "DR9Q2J5M9MNXRMDV",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,

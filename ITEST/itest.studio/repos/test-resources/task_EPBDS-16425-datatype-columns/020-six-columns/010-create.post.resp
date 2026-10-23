@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "P-XNmWGlLWAkCipy",
+  "id": "7ZJWV6B1MMPP090A",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "Claim",

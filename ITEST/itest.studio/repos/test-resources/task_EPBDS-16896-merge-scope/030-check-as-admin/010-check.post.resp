@@ -9,7 +9,7 @@ Content-Type: application/json
   "scope": {
     "projects": [
       {
-        "id": "AQWGsdcNsKSz",
+        "id": "042RDCEQ1PRA9",
         "name": "EPBDS-16896-Own",
         "path": "EPBDS-16896-Own",
         "current": true,
@@ -17,7 +17,7 @@ Content-Type: application/json
         "changedFiles": 1
       },
       {
-        "id": "9ir8zZKvl7Y6",
+        "id": "YRNFSKCJNYBVC",
         "name": "EPBDS-16896-Added",
         "path": "EPBDS-16896-Added",
         "current": false,
@@ -25,7 +25,7 @@ Content-Type: application/json
         "changedFiles": 2
       },
       {
-        "id": "o0NkTqkHyjC1",
+        "id": "MD1P8KN90Z531",
         "name": "EPBDS-16896-Hidden",
         "path": "EPBDS-16896-Hidden",
         "current": false,

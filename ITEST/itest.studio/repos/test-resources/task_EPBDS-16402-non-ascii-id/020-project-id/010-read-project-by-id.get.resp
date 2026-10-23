@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "-lhtqkwnJ_K5",
+  "id": "Z9C6VAJC4WKZ5",
   "name": "Тарифный план",
   "status": "CLOSED",
   "repository": "design",

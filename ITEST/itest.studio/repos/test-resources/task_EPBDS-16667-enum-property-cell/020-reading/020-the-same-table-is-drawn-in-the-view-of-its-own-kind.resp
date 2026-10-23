@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "OvwRlwHEr4JKic4p",
+  "id": "7BY135R1RJQR4JM9",
   "tableType": "RawSource",
   "kind": "Properties",
   "name": "myProperty",

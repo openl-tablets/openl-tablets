@@ -1,7 +1,7 @@
 HTTP/1.1 200
-Location: http://example.com/rest/projects/5B0GdFcBUcfe/tables/e0bzesjcgQNIcL6k
+Location: http://example.com/rest/projects/WGEGCX2Q058WF/tables/FD3F6YP8VJ0G6J3G
 Content-Type: application/json
 
 {
-  "id": "e0bzesjcgQNIcL6k"
+  "id": "FD3F6YP8VJ0G6J3G"
 }

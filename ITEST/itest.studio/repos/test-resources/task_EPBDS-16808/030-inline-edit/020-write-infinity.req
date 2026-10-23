@@ -1,4 +1,4 @@
-POST /rest/projects/Jh1mxDjHQBbm/tables/{TABLE_ID}/actions HTTP/1.1
+POST /rest/projects/4REPDH1RRX01D/tables/{TABLE_ID}/actions HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT_ID}/run?tableId=UnR30e8zQWRoxRpN&fromModule=Tutorial7%20-%20Intro%20to%20Table%20Properties HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/run?tableId=A9T7FMFF6D0P8T65&fromModule=Tutorial7%20-%20Intro%20to%20Table%20Properties HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

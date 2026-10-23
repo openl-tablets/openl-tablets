@@ -48,7 +48,7 @@ const mockApiCall = services.apiCall as MockedFunction<typeof services.apiCall>
 const mockDeleteBranch = deleteBranch as MockedFunction<typeof deleteBranch>
 
 // The project id, as the server issued it.
-const PROJECT_ID = 'FeZdnMnl3XRa'
+const PROJECT_ID = '2QK5V769WQEQ8'
 
 const createDetail = (overrides?: Partial<DeleteBranchModalDetail>): DeleteBranchModalDetail => ({
     projectId: PROJECT_ID,

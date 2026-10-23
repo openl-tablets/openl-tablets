@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "doValidation",
-      "tableId": "B7YpB0osXOK7piOK",
+      "tableId": "0YV2J1TA5HEE5EX6",
       "module": "*",
       "executionTimeMs": "*",
       "numberOfTests": 1,

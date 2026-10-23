@@ -6,6 +6,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production-s3",
   "deploymentName": "EPBDS-15595-flat",
-  "projectId": "9d8mSyRIxVP_",
+  "projectId": "YQFJCJS4932N7",
   "comment": "Deploy project EPBDS_15595 to S3"
 }

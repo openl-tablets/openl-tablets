@@ -1,4 +1,4 @@
-POST /rest/projects/c-urzhAmKopD/merge/conflicts/resolve HTTP/1.1
+POST /rest/projects/EFNTQKGG4RN8M/merge/conflicts/resolve HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 

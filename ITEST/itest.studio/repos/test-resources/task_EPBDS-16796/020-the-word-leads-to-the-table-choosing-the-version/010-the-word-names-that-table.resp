@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "dt-iZ_ZqZE4J18BT",
+  "id": "EVFT4SZPD9J4W2EQ",
   "tableType": "RawSource",
   "kind": "Method",
   "name": "CallHello",
@@ -26,7 +26,7 @@ Content-Type: application/json
               "description": "String Hello(String name)",
               "tableId": "@@@",
               "module": "Rules",
-              "projectId": "K0njm_N76vGf",
+              "projectId": "5D4Y76ZKFFNF3",
               "kind": "rule"
             }
           ],

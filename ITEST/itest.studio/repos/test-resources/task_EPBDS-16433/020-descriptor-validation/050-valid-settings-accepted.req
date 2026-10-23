@@ -1,4 +1,4 @@
-PUT /rest/projects/Uaez0kYfV_Jg/files/rules.xml HTTP/1.1
+PUT /rest/projects/A6KV7MJ63XBZ4/files/rules.xml HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 

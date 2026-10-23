@@ -1,4 +1,4 @@
-PUT /rest/acls/projects/nB3-9ogi_Ksf?sid=zzz_project_subject&principal=true HTTP/1.1
+PUT /rest/acls/projects/KGEZXXM84BYAP?sid=zzz_project_subject&principal=true HTTP/1.1
 Authorization: Basic enp6X3Byb2plY3RfbWFuYWdlcjp6enpfcHJvamVjdF9tYW5hZ2Vy
 Content-Type: application/json
 

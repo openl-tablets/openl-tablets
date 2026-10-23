@@ -1,4 +1,4 @@
-POST /rest/projects/pWq5DvI4Bfr2/tests/run?tableId=NVATcY3AzuknUjN8 HTTP/1.1
+POST /rest/projects/MNNBJ3QJ702ZN/tests/run?tableId=6N816WCDR37EJ9TJ HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

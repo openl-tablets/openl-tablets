@@ -46,10 +46,10 @@ describe('files service', () => {
     it('loads file content through apiCall', async () => {
         vi.mocked(apiCall).mockResolvedValue(new Response('hello'))
 
-        await expect(getFileContent('Ab3_dE9-xY0z', 'rules/My File.xml', 'rev 1')).resolves.toBe('hello')
+        await expect(getFileContent('06YZYX2FFV2RT', 'rules/My File.xml', 'rev 1')).resolves.toBe('hello')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/Ab3_dE9-xY0z/files/rules/My%20File.xml?version=rev%201',
+            '/projects/06YZYX2FFV2RT/files/rules/My%20File.xml?version=rev%201',
             undefined,
             // A missing file is reported inline, not by the global 404 page.
             { throwError: true, responseType: 'response', suppressErrorPages: true }
@@ -75,10 +75,10 @@ describe('files service', () => {
         // "Prämie=1" written in ISO-8859-1: the umlaut is one byte, which is no UTF-8.
         vi.mocked(apiCall).mockResolvedValue(new Response(new Uint8Array([0x50, 0x72, 0xe4, 0x6d, 0x69, 0x65, 0x3d, 0x31])))
 
-        await expect(getFileText('Ab3_dE9-xY0z', 'i18n/message.properties', 'rev 1')).resolves.toBe('Prämie=1')
+        await expect(getFileText('06YZYX2FFV2RT', 'i18n/message.properties', 'rev 1')).resolves.toBe('Prämie=1')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/Ab3_dE9-xY0z/files/i18n/message.properties?version=rev%201',
+            '/projects/06YZYX2FFV2RT/files/i18n/message.properties?version=rev%201',
             undefined,
             { throwError: true, responseType: 'response', suppressErrorPages: true }
         )

@@ -1,4 +1,4 @@
-PUT /rest/projects/c5HtC2wdN8fO/tables/oF0-9El4ZIZLMOBl HTTP/1.1
+PUT /rest/projects/EE8YT2VC3MVWF/tables/M1EKXX29F1J8CJSG HTTP/1.1
 Authorization: Bearer ${GUEST_ACCESS_TOKEN}
 Content-Type: application/json
 

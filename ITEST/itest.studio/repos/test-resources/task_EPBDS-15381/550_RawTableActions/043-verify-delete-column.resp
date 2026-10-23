@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "K5RdpkFaaNm3Yd5t",
+  "id": "5EA5V9J1B9MDKDV1",
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "Greeting1",
@@ -13,9 +13,9 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "K5RdpkFaaNm3Yd5t",
+        "id": "5EA5V9J1B9MDKDV1",
         "name": "Greeting1",
-        "projectId": "wXeZzeVNDKS6",
+        "projectId": "R5VSKKF59M6A9",
         "project": "EPBDS-15381",
         "module": "EPBDS-15381",
         "cell": "B4"

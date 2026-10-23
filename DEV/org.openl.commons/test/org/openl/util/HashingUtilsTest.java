@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -172,5 +173,20 @@ class HashingUtilsTest {
         String hash2 = HashingUtils.sha256Hex("input2");
 
         assertNotEquals(hash1, hash2, "Different inputs should produce different hashes");
+    }
+
+    @Test
+    void sha256Base32_writesTheLeadingBitsInCrockfordsAlphabet() {
+        assertEquals("5KS4VEJZP2HGW", HashingUtils.sha256Base32("hello", 13));
+        assertEquals("5KS4VEJZP2HGW9Q8", HashingUtils.sha256Base32("hello", 16));
+        assertEquals("WERC8GMRZGE196QVYK49JVXS4GKTWGF4CJDS6K54JPCHPY2JQ1A", HashingUtils.sha256Base32("", 51));
+        assertEquals(HashingUtils.sha256Base32("", 1), HashingUtils.sha256Base32(null, 1));
+    }
+
+    @Test
+    void sha256Base32_acceptsOnlyAsManySymbolsAsTheDigestHasBits() {
+        assertThrows(IllegalArgumentException.class, () -> HashingUtils.sha256Base32("hello", 0));
+        assertThrows(IllegalArgumentException.class, () -> HashingUtils.sha256Base32("hello", 52));
+        assertThrows(IllegalArgumentException.class, () -> HashingUtils.sha256Base32("hello", 858_993_460));
     }
 }

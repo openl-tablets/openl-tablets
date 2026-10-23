@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "oF0-9El4ZIZLMOBl",
+      "id": "M1EKXX29F1J8CJSG",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "Hello",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "B3:D8",
       "module": "Main",
       "project": "EPBDS_14670_Project",
-      "projectId": "G1j1WDwJoejn"
+      "projectId": "3DCFAP1W16GYH"
     }
   ],
   "pageNumber": 0,

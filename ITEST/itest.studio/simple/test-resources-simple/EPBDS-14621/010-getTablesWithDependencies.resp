@@ -3,7 +3,7 @@ Content-Type: application/json
 
 [
   {
-    "id": "3ELaS4JVMmK3ohB5",
+    "id": "VH1DMJW2AMS65DX2",
     "tableType": "*",
     "kind": "*",
     "name": "mySPR",
@@ -15,7 +15,7 @@ Content-Type: application/json
     "module": "DependencyArrayCall"
   },
   {
-    "id": "343F6QhRWc6gOgmV",
+    "id": "VY6WBT88A5CWX81T",
     "tableType": "*",
     "kind": "*",
     "name": "theCall",
@@ -26,7 +26,7 @@ Content-Type: application/json
     "project": "EPBDS-14621",
     "module": "DependencyArrayCall",
     "dependencies": [
-      "3ELaS4JVMmK3ohB5"
+      "VH1DMJW2AMS65DX2"
     ]
   }
 ]

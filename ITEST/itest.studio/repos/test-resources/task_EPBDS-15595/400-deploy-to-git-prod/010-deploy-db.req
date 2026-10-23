@@ -6,6 +6,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production-git",
   "deploymentName": "EPBDS-15595-db",
-  "projectId": "rd894y78q0-9",
+  "projectId": "NQFKVRSEZJNMZ",
   "comment": "Deploy DB project to git prod"
 }

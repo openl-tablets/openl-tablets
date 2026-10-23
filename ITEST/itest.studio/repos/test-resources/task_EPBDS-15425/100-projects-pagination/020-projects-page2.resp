@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "rUUUH3G03j0j",
+      "id": "NN2H87VHPKF3T",
       "name": "EPBDS-15425_Project1",
       "branch": "master",
       "status": "CLOSED",
@@ -16,7 +16,7 @@ Content-Type: application/json
       "comment": "Project EPBDS-15425_Project1 is created.",
       "dependencies": [
         {
-          "id": "appPPtXdd0lT",
+          "id": "DAD4YFPNVNVMJ",
           "name": "EPBDS-15425_Project2",
           "branch": "master",
           "status": "CLOSED",
@@ -51,7 +51,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "appPPtXdd0lT",
+      "id": "DAD4YFPNVNVMJ",
       "name": "EPBDS-15425_Project2",
       "branch": "master",
       "status": "CLOSED",
@@ -88,7 +88,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "ym3IH0b7iU-7",
+      "id": "S9PWG7T6ZE4MZ",
       "name": "Project",
       "status": "CLOSED",
       "repository": "design",
@@ -119,7 +119,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "c5HtC2wdN8fO",
+      "id": "EE8YT2VC3MVWF",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",
@@ -156,7 +156,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "bWwb43n8VPU7",
+      "id": "DNP1QRVSZHAFA",
       "name": "Project",
       "branch": "master",
       "status": "CLOSED",

@@ -1,3 +1,3 @@
-GET /rest/acls/projects/nB3-9ogi_Ksf?inherited=true HTTP/1.1
+GET /rest/acls/projects/KGEZXXM84BYAP?inherited=true HTTP/1.1
 Authorization: Basic enp6X3JlcG9fbWFuYWdlcjp6enpfcmVwb19tYW5hZ2Vy
 

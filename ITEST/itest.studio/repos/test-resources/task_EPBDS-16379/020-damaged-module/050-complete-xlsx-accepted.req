@@ -1,4 +1,4 @@
-POST /rest/projects/PZ_FZH5zjHLw/files/rules/Complete.xlsx?createFolders=true HTTP/1.1
+POST /rest/projects/7PFWAS3YEE675/files/rules/Complete.xlsx?createFolders=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/octet-stream
 

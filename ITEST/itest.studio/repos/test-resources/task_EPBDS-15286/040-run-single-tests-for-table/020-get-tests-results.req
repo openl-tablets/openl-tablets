@@ -1,4 +1,4 @@
-GET /rest/projects/lxo5SsQBRYge/tests/summary HTTP/1.1
+GET /rest/projects/JWD3JJP4052RG/tests/summary HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Accept: application/json
 X-OpenL-Test-Retry: yes

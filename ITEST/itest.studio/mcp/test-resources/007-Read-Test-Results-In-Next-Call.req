@@ -12,7 +12,7 @@ Mcp-Name: openl_get_test_results_summary
   "params": {
     "name": "openl_get_test_results_summary",
     "arguments": {
-      "projectId": "eUInstWZBMgF"
+      "projectId": "F512FCPNK42CG"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

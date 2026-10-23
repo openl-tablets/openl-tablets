@@ -1,4 +1,4 @@
-POST /rest/projects/wXeZzeVNDKS6/tables/K5RdpkFaaNm3Yd5t/lines HTTP/1.1
+POST /rest/projects/R5VSKKF59M6A9/tables/5EA5V9J1B9MDKDV1/lines HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

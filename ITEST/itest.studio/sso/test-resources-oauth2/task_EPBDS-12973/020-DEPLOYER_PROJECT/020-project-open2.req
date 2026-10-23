@@ -1,4 +1,4 @@
-PATCH /rest/projects/fIiIGKTVd0re HTTP/1.1
+PATCH /rest/projects/FJ48G654TNVMN HTTP/1.1
 Authorization: Bearer ${EPBDS12973_DEPLOYER_TOKEN}
 Content-Type: application/json
 

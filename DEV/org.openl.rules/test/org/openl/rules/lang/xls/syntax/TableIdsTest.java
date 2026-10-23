@@ -42,12 +42,12 @@ class TableIdsTest {
     private Path dir;
 
     @Test
-    void anIdIsSixteenCharactersOfUrlSafeBase64() throws IOException {
+    void anIdIsSixteenUpperCaseCharactersOfBase32() throws IOException {
         var project = project("a", sheet -> put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1"));
 
         var id = only(parse(project, RULES)).getId();
 
-        assertTrue(id.matches("[A-Za-z0-9_-]{16}"), id);
+        assertTrue(id.matches("[0-9A-HJKMNP-TV-Z]{16}"), id);
     }
 
     @Test

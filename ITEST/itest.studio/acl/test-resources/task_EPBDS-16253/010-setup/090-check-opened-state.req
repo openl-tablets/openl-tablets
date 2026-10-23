@@ -1,4 +1,4 @@
-GET /rest/projects/zF5wJSeNEhM2?fields=status HTTP/1.1
+GET /rest/projects/SHF70997HM916?fields=status HTTP/1.1
 Authorization: Basic RVBCRFNfMTYyNTM6RVBCRFNfMTYyNTM=
 Cookie: NO_JSESSIONID=noAuth
 

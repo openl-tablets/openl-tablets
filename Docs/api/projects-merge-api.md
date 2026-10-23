@@ -138,7 +138,7 @@ data and does not look for conflicts: only the merge itself finds them.
   "scope": {
     "projects": [
       {
-        "id": "Jq-o4wRqHuAG",
+        "id": "4TQTHRR4D8FE0",
         "name": "Pricing",
         "path": "DESIGN/rules/Pricing",
         "current": true,
@@ -149,7 +149,7 @@ data and does not look for conflicts: only the merge itself finds them.
         ]
       },
       {
-        "id": "kZwsAuDSO2f4",
+        "id": "J6E2R0Q0T8XPF",
         "name": "Rating",
         "path": "DESIGN/rules/Rating",
         "current": false,
@@ -306,7 +306,7 @@ not follow the topic asks again while the answer is `202`.
     "after": "4f0c2d9a7b1e3c5d8f6a2b4c6d8e0f1a3b5c7d9e",
     "projects": [
       {
-        "id": "Jq-o4wRqHuAG",
+        "id": "4TQTHRR4D8FE0",
         "name": "Pricing",
         "path": "DESIGN/rules/Pricing",
         "current": true,

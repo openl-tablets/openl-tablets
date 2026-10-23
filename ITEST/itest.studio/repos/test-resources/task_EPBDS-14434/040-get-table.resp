@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "d_sIvCoPZqci7djy",
+  "id": "EZXGHF1A1XKAE8QD",
   "tableType": "SmartRules",
   "kind": "Rules",
   "name": "FicaTaxRates",
@@ -13,9 +13,9 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "d_sIvCoPZqci7djy",
+        "id": "EZXGHF1A1XKAE8QD",
         "name": "FicaTaxRates",
-        "projectId": "0ExjL79vPiOL",
+        "projectId": "T1666BXZDWZ27",
         "project": "EPBDS-14434",
         "module": "EPBDS-14434",
         "cell": "B2",

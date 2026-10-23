@@ -1,3 +1,3 @@
-GET /rest/projects/0a6T2HC1wE7P/tables HTTP/1.1
+GET /rest/projects/T6Q97P3GPQ04X/tables HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

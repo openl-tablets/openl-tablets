@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "j_g3hD_3qkavzZMA",
+      "id": "HZW3F11ZYYN4DBYD",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "StyledData",
@@ -13,7 +13,7 @@ Content-Type: application/json
       "pos": "B2:C6",
       "module": "Main",
       "project": "EPBDS-16194",
-      "projectId": "KJZ5GbbQSaKj",
+      "projectId": "52B7J6DPT14T5",
       "signature": "StyledData"
     }
   ],

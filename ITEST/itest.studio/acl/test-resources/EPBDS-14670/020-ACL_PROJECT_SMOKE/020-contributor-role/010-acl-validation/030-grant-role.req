@@ -1,4 +1,4 @@
-PUT /rest/acls/projects/G1j1WDwJoejn?sid=jdoe&principal=true HTTP/1.1
+PUT /rest/acls/projects/3DCFAP1W16GYH?sid=jdoe&principal=true HTTP/1.1
 Authorization: Basic amRvZTpqZG9l
 Content-Type: application/json
 

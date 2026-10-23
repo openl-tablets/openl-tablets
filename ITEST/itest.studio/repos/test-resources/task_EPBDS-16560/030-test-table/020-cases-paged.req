@@ -1,3 +1,3 @@
-GET /rest/projects/{PROJECT_ID}/tables/xqhs_BeG4jcnfPIQ/input/cases?page=1&size=1 HTTP/1.1
+GET /rest/projects/{PROJECT_ID}/tables/RTM6SZ0QGVH3E9VW/input/cases?page=1&size=1 HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

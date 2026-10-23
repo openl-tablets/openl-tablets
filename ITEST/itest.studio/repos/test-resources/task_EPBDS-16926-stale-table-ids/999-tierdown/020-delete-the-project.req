@@ -1,3 +1,3 @@
-DELETE /rest/projects/bgm2PMYJX3ZX HTTP/1.1
+DELETE /rest/projects/DR4VCF6615FQC HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

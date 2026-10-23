@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ehJGxXN1NlA0m0gm",
+      "id": "F894DHBKEMV50D4V",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndex",
@@ -15,10 +15,10 @@ Content-Type: application/json
       "pos": "B22:H30",
       "module": "BankLimits",
       "project": "EPBDS-16450",
-      "projectId": "F5dXqes7bQry"
+      "projectId": "2YBNFAFB7DPGN"
     },
     {
-      "id": "-8eWyROGt8w77KAE",
+      "id": "ZF3SDJ8KGTVWREZC",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndexDated",
@@ -34,10 +34,10 @@ Content-Type: application/json
       "pos": "B54:H65",
       "module": "BankLimits",
       "project": "EPBDS-16450",
-      "projectId": "F5dXqes7bQry"
+      "projectId": "2YBNFAFB7DPGN"
     },
     {
-      "id": "DEIWDcxHzogL363h",
+      "id": "1H11C3EC8Z78G2YZ",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndexDated",
@@ -55,7 +55,7 @@ Content-Type: application/json
       "active": false,
       "module": "BankLimits",
       "project": "EPBDS-16450",
-      "projectId": "F5dXqes7bQry"
+      "projectId": "2YBNFAFB7DPGN"
     }
   ],
   "pageNumber": 0,

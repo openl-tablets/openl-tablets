@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableName": "BalanceDynamicIndexCalculation",
-  "tableId": "aEtzfXEiwn8g1OlT",
+  "tableId": "D15Q6ZBH4B17Y86M",
   "executionTimeMs": "##.##",
   "result": 0.94,
   "resultSchema": {

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "-_Mm0yAlM0Yy",
+  "id": "ZFSJDMS04MSMC",
   "branch": "master",
   "revision": "*"
 }

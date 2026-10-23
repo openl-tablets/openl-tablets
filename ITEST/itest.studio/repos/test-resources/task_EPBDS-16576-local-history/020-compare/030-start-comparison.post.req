@@ -1,4 +1,4 @@
-POST /rest/projects/XKWdanYBsXBN/local-history/compare?module=Qwerty HTTP/1.1
+POST /rest/projects/BJJSTTKP06RQ0/local-history/compare?module=Qwerty HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

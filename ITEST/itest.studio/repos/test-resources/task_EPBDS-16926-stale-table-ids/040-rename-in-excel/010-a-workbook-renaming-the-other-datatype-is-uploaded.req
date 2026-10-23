@@ -1,4 +1,4 @@
-PUT /rest/projects/bgm2PMYJX3ZX/files/rules/Rates.xlsx HTTP/1.1
+PUT /rest/projects/DR4VCF6615FQC/files/rules/Rates.xlsx HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/octet-stream
 

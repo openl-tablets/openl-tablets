@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "d_sIvCoPZqci7djy",
+      "id": "EZXGHF1A1XKAE8QD",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "FicaTaxRates",
@@ -16,7 +16,7 @@ Content-Type: application/json
       "errors": 1,
       "module": "EPBDS-14434",
       "project": "EPBDS-14434",
-      "projectId": "0ExjL79vPiOL"
+      "projectId": "T1666BXZDWZ27"
     }
   ],
   "pageNumber": 0,

@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "qfQLNvJhaYZq1VDe",
+      "id": "N7T0PDQJC5MRCTPN",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Cat",
@@ -13,11 +13,11 @@ Content-Type: application/json
       "pos": "B17:C18",
       "module": "Main",
       "project": "EPBDS-13931",
-      "projectId": "mZkhLzsWf3Ze",
+      "projectId": "K6CJ2BSV2SZQC",
       "signature": "Cat extends Pet"
     },
     {
-      "id": "nKZ_ovEd4LGYsKPB",
+      "id": "KJK7Z8QH3QGB365G",
       "tableType": "Vocabulary",
       "kind": "Datatype",
       "name": "Color",
@@ -26,11 +26,11 @@ Content-Type: application/json
       "pos": "B28:B32",
       "module": "Main",
       "project": "EPBDS-13931",
-      "projectId": "mZkhLzsWf3Ze",
+      "projectId": "K6CJ2BSV2SZQC",
       "signature": "Color <String>"
     },
     {
-      "id": "q3AzQJRmMIFYcIG_",
+      "id": "NDR36G4MCRR82P3G",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Pet",
@@ -42,7 +42,7 @@ Content-Type: application/json
       "pos": "B5:D8",
       "module": "Main",
       "project": "EPBDS-13931",
-      "projectId": "mZkhLzsWf3Ze",
+      "projectId": "K6CJ2BSV2SZQC",
       "signature": "Pet"
     }
   ],

@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "5CpPD1KmygMBt9h0",
+  "id": "WGN4Y3TJMV5060DQ",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "Coverage",

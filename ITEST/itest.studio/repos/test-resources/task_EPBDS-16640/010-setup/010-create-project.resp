@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "MGQNRIwCFLCA",
+  "id": "61J0TH4C08AB1",
   "branch": "master",
   "revision": "*"
 }

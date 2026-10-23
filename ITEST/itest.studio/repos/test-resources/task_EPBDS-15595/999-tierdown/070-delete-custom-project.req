@@ -1,4 +1,4 @@
-DELETE /rest/projects/NDEPQaKwfsI0?comment=Cleanup%20EPBDS-15595 HTTP/1.1
+DELETE /rest/projects/6GRGYGD2P1ZC4?comment=Cleanup%20EPBDS-15595 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Cookie: NO_JSESSIONID=noAuth
 

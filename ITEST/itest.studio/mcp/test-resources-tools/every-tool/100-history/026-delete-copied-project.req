@@ -13,7 +13,7 @@ Authorization: Token ${PAT}
   "params": {
     "name": "openl_delete_project",
     "arguments": {
-      "projectId": "8Z5PQDjdgwr6",
+      "projectId": "Y6F4YG1RVP1GN",
       "confirmProjectName": "McpToolsCopy"
     },
     "_meta": {

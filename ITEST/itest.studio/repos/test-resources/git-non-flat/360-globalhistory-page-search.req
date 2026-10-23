@@ -1,3 +1,3 @@
-GET /rest/projects/J3yR3-xfpIL2/history?techRevs=true&page=1&size=3&search=Update HTTP/1.1
+GET /rest/projects/4XY93QZCBYJ85/history?techRevs=true&page=1&size=3&search=Update HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

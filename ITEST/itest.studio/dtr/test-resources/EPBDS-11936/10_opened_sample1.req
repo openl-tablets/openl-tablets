@@ -1,2 +1,2 @@
-GET /rest/projects/8hkHqtiKAZea?fields=name,status,dependencies(name,status),usedBy(name,status) HTTP/1.1
+GET /rest/projects/Y8CGFAPRH80SF?fields=name,status,dependencies(name,status),usedBy(name,status) HTTP/1.1
 

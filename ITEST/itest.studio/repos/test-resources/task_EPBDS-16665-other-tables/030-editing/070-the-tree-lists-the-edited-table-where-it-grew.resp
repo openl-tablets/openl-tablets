@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "COCah49VLCiwGAMo",
+      "id": "13G9N1WFAMP2HC0R",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "Greeting",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "B2:C7"
     },
     {
-      "id": "gC5XG5F2KGzzxG81",
+      "id": "G0Q5E6WHERM6SWY4",
       "tableType": "Other",
       "kind": "Other",
       "name": "Test123",
@@ -24,7 +24,7 @@ Content-Type: application/json
       "pos": "B9:C11"
     },
     {
-      "id": "Jla69qXLLxXTyQoT",
+      "id": "4SBBNXN5SCQHBMY9",
       "tableType": "Other",
       "kind": "Other",
       "name": "Test123",

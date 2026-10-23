@@ -9,7 +9,7 @@ Content-Type: application/json
       "depth": 1,
       "instance": 0,
       "uri": "EPBDS-16291-profiling/arrayCallProject.xlsx?sheet=Rules&range=A1:B4",
-      "tableId": "BK4NMaeAV5hg2fcK",
+      "tableId": "0JQ0TCD7G1BSGR6S",
       "name": "Root",
       "kind": "spreadsheet",
       "active": true,

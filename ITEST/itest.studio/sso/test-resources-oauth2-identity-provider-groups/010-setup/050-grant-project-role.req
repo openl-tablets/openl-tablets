@@ -1,4 +1,4 @@
-PUT /rest/acls/projects/Dltxvry9tYYI?sid=audit-analysts&principal=false HTTP/1.1
+PUT /rest/acls/projects/1SDQ3FNWQPTRC?sid=audit-analysts&principal=false HTTP/1.1
 Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
 Cookie: NO_JSESSIONID=noAuth
 Content-Type: application/json

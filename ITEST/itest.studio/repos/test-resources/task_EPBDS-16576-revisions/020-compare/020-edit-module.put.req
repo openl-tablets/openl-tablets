@@ -1,4 +1,4 @@
-PUT /rest/projects/mW5iL8nYA_Hy/tables/G9Yo_-R-RP92Vc7z HTTP/1.1
+PUT /rest/projects/K5Q64BY9V01Z3/tables/3FB2HZZ4FS2FYXJN HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

@@ -107,10 +107,10 @@ describe('projects service', () => {
         mockApiCall.mockResolvedValueOnce(true)
         const archive = new Blob(['zip-bytes'], { type: 'application/zip' })
 
-        await expect(updateProjectFromZip('Ab3_dE9-xY0z', 'My Project', archive)).resolves.toBe(true)
+        await expect(updateProjectFromZip('06YZYX2FFV2RT', 'My Project', archive)).resolves.toBe(true)
 
         expect(mockApiCall).toHaveBeenCalledWith(
-            '/projects/Ab3_dE9-xY0z/files/?conflictPolicy=REPLACE',
+            '/projects/06YZYX2FFV2RT/files/?conflictPolicy=REPLACE',
             { method: 'POST', headers: { 'Content-Type': 'application/zip' }, body: archive },
             { throwError: true, suppressErrorPages: true }
         )

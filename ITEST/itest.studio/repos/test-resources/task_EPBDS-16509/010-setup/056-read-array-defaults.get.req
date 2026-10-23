@@ -1,4 +1,4 @@
-GET /rest/projects/v_uWbCSpoy1M/tables/SKtQyqi4CZmnz0k1?raw=true HTTP/1.1
+GET /rest/projects/QZXSCV14N6HJT/tables/92NN1JN8Q04SK9YF?raw=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Accept: application/json
 Content-Type: application/json

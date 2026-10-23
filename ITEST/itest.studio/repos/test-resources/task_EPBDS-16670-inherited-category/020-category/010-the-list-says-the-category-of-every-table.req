@@ -1,3 +1,3 @@
-GET /rest/projects/2eDi5SNYIuuS/tables?fields=name,sheet,properties,category HTTP/1.1
+GET /rest/projects/V7GE5S93B0HEQ/tables?fields=name,sheet,properties,category HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

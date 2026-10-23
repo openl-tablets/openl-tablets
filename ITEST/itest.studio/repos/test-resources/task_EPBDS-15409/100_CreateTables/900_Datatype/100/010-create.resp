@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "9E-1afjDa5b2DJcT",
+  "id": "YH7VATFRRDNSDXGC",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "USState",

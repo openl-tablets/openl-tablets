@@ -2,4 +2,4 @@ POST /rest/repos/design/projects/DbCopy/from-project HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
-{"sourceProject":"nB3-9ogi_Ksf"}
+{"sourceProject":"KGEZXXM84BYAP"}

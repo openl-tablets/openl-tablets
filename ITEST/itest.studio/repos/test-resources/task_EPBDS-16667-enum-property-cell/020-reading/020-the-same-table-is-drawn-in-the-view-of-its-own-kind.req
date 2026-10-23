@@ -1,3 +1,3 @@
-GET /rest/projects/ZfcqPZYyGesA/tables/OvwRlwHEr4JKic4p?module=TestModuleCategoryInheritedProperties HTTP/1.1
+GET /rest/projects/CQVJMFCP68CYP/tables/7BY135R1RJQR4JM9?module=TestModuleCategoryInheritedProperties HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

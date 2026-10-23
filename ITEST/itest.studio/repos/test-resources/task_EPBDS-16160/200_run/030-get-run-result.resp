@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableName": "MyRule",
-  "tableId": "6FcmzI4JzvWjssA2",
+  "tableId": "X1BJDK4E177FB8XJ",
   "executionTimeMs": "*",
   "result": {
     "Test": {}

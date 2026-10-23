@@ -19,7 +19,7 @@ class WorkspaceCompileServiceTest {
     private static final HttpClient client = startServerWithSeededWorkspace();
 
     // The id of the local project in the workspace folder Sample: the 72-bit SHA-256 of "v1␟local␟Sample".
-    private static final String PROJECT_ID = "JlihHZzGjoDv";
+    private static final String PROJECT_ID = "4SCA27CWRT781";
     private static final String STATUS_TOPIC = "/user/topic/projects/" + PROJECT_ID + "/status";
 
     /**

@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "SimpleSpreadsheet",
-  "id": "luLstmM7OBD_bAFL",
+  "id": "JVHESDK37CW11ZVC",
   "kind": "Spreadsheet",
   "name": "doSomething_SimpleSpr",
   "returnType": "SpreadsheetResult",

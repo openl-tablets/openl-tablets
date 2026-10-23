@@ -1,4 +1,4 @@
-PUT /rest/projects/QZcb1EpRq6gY/tables/bhAAY8X5NdqyDqwq?module=Rates HTTP/1.1
+PUT /rest/projects/86BHQN2AA6NTG/tables/DR800RY5Z4TXNCGE?module=Rates HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

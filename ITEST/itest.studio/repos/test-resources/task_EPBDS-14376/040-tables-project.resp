@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "GMrY6pNw_--8HNSt",
+      "id": "335DHTMKE3ZYZF0W",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "FicaDetails",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "C5:E9",
       "module": "DateBug",
       "project": "EPBDS-14376",
-      "projectId": "0a6T2HC1wE7P"
+      "projectId": "T6Q97P3GPQ04X"
     }
   ],
   "pageNumber": 0,

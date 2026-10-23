@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "tableId": "aEtzfXEiwn8g1OlT",
+  "tableId": "D15Q6ZBH4B17Y86M",
   "name": "BalanceDynamicIndexCalculation",
   "parameters": [
     {

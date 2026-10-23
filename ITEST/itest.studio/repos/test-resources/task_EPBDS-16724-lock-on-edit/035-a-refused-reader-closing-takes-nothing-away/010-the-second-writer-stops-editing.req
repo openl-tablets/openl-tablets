@@ -1,4 +1,4 @@
-DELETE /rest/projects/7uQFIYDBN6wF/tables/ruLOSLOkVRjL532w/editors HTTP/1.1
+DELETE /rest/projects/XVJ0A8C0R4VTR/tables/NVHCWJ5KMHAHHJZ7/editors HTTP/1.1
 Authorization: ${WRITER_AUTH}
 Cookie: NO_JSESSIONID=noAuth
 

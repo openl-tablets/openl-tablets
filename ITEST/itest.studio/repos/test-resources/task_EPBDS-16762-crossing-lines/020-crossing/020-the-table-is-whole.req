@@ -1,3 +1,3 @@
-GET /rest/projects/mch-wL10UqKO/tables/botZ_tfRyL31z7-Z?raw=true HTTP/1.1
+GET /rest/projects/K747XG5XEH9A5/tables/DT5NKZPQT74BVXEF?raw=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 
