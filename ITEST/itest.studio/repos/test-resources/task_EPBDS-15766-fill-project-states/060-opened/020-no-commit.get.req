@@ -1,4 +1,4 @@
-GET /rest/projects/UOthMXIwz6Qi/history HTTP/1.1
+GET /rest/projects/A3NP2CBJ637T8/history HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Cookie: NO_JSESSIONID=noAuth
 

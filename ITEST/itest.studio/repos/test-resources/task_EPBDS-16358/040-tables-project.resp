@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "ehJGxXN1NlA0m0gm",
+      "id": "F894DHBKEMV50D4V",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "BankLimitIndex",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "B22:H30",
       "module": "BankLimits",
       "project": "EPBDS-16358",
-      "projectId": "iuC94dldJZ1V"
+      "projectId": "HBGBVRESBMJST"
     }
   ],
   "pageNumber": 0,

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "mYpJwgJ7SParkvnz",
+  "id": "K654KGG2FD4FDAWJ",
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "minAge",

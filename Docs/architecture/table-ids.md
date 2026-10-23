@@ -18,7 +18,7 @@ Excel, merges, recompiles, restarts and other Studio instances.
 
 - **The id** — built from what the table is: its module, its kind, and its name or `id` property. Neither the
   project, the parameters nor the properties are part of it.
-- **Format** — 16 characters of URL-safe base64, 96 bits of a SHA-256 digest.
+- **Format** — 16 upper-case characters of Crockford's Base32, 80 bits of a SHA-256 digest.
 - **Write answers** — a write that moves a table keeps its id; only a rename, or a change of the `id` property,
   answers a new one.
 - **Old ids** — the position ids of earlier versions are an implementation detail, not a public contract. They are
@@ -33,11 +33,11 @@ Excel, merges, recompiles, restarts and other Studio instances.
 
 ### Format
 
-The id is the first 96 bits (12 bytes) of the SHA-256 digest of the table's identity, written as 16 characters of
-URL-safe base64 (RFC 4648 alphabet `A-Z`, `a-z`, `0-9`, `-`, `_`; 12 bytes need no padding):
+The id is the first 80 bits of the SHA-256 digest of the table's identity, written as 16 characters of
+Crockford's Base32 (alphabet `0-9` and `A-Z` without `I`, `L`, `O` and `U`; no padding):
 
 ```text
-v1 | rules/Rating.xlsx | method | rate   ->   9d8vgdp7SqnnDpLZ
+v1 | rules/Rating.xlsx | method | rate   ->   YQFJZ0ETFD5AKSRE
 ```
 
 The `|` stands for U+001F, the unit separator, which joins the fields; no OpenL name or file path practically
@@ -45,10 +45,12 @@ contains it.
 
 - **Distinct from the old ids**, which were 32 hex characters: an old id is never taken for a new one.
 - **Safe in an address** — a URL path segment, a query parameter and JSON take the id as it is: the alphabet has
-  neither `/` nor `+`, and no padding `=`.
-- **Case matters** — two ids may differ in case alone, so an id is compared exactly as it is written.
-- **Collisions are handled, not assumed away.** With 96 bits, the chance that two tables of a project of ten
-  thousand tables share an id is about 6 in 10^22. Two identities of a module with one digest are told apart as
+  digits and letters only.
+- **Upper case** — the id stands apart from the lower-case words of a REST path, as in
+  `/projects/2QK5V769WQEQ8/tables/YQFJZ0ETFD5AKSRE`, and leaves out the letters easily misread as digits. It is compared
+  exactly as it is written, so a lower-case spelling names no table.
+- **Collisions are handled, not assumed away.** With 80 bits, the chance that two tables of a project of ten
+  thousand tables share an id is about 4 in 10^17. Two identities of a module with one digest are told apart as
   tables sharing an identity are: the later one takes another number, which hashes to another id.
 - **SHA-256**, not MD5, keeps Sonar's weak-hash rule quiet.
 - **Versioned.** The identity starts with `v1`, so a later change of the rules gives new ids instead of silently

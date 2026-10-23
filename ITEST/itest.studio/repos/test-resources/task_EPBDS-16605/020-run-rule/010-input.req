@@ -1,3 +1,3 @@
-GET /rest/projects/{PROJECT_ID}/tables/O4-jYVSDYTowyH_o/input HTTP/1.1
+GET /rest/projects/{PROJECT_ID}/tables/7E7T6RAMGDGKMC68/input HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

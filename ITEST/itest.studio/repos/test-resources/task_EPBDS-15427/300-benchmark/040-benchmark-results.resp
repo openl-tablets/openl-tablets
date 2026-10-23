@@ -4,7 +4,7 @@ Content-Type: application/json
 [
   {
     "id": "*",
-    "tableId": "_aZ41wyLNB9PsKYf",
+    "tableId": "ZPK7HNRCHCT1YKXG",
     "module": "*",
     "name": "BankLimitIndexTest",
     "testTable": true,

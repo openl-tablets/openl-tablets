@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "5B0GdFcBUcfe",
+      "id": "WGEGCX2Q058WF",
       "name": "Project",
       "status": "CLOSED",
       "repository": "design-file",
@@ -34,7 +34,7 @@ Content-Type: application/json
       }
     },
     {
-      "id": "2am5jJ35tmoF",
+      "id": "V6MVK34XZ6V6M",
       "name": "Project2",
       "status": "CLOSED",
       "repository": "design-file",

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"projectId\": \"0FPBaGP6vUeW\",\n    \"projectName\": \"McpTools\",\n    \"message\": \"Deleted project 'McpTools'.\"\n  }\n}"
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"projectId\": \"T19W2T33ZAYMF\",\n    \"projectName\": \"McpTools\",\n    \"message\": \"Deleted project 'McpTools'.\"\n  }\n}"
       }
     ],
     "resultType": "complete",

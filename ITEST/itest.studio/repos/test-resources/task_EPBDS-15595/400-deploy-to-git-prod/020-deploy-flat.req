@@ -6,6 +6,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production-git",
   "deploymentName": "EPBDS-15595-flat",
-  "projectId": "9d8mSyRIxVP_",
+  "projectId": "YQFJCJS4932N7",
   "comment": "Deploy flat project to git prod"
 }

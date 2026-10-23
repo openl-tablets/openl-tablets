@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "dyJhxjCCi47OUoAE",
+  "id": "EWH63HHGGA5RXKJJ",
   "tableType": "Data",
   "kind": "Data",
   "name": "CoverageFormData",

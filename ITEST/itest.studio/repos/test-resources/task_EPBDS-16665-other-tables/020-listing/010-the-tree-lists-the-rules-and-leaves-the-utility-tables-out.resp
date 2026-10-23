@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "COCah49VLCiwGAMo",
+      "id": "13G9N1WFAMP2HC0R",
       "tableType": "Rules",
       "kind": "Rules",
       "name": "Greeting",

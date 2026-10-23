@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "zSCBS4Uzf_MFLC1R",
+      "id": "SMG82JW56DZZ619C",
       "tableType": "SimpleRules",
       "kind": "Rules",
       "name": "sayHello",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "B8:C13",
       "module": "Main 2",
       "project": "EPBDS-14095",
-      "projectId": "vIEe7hHKLO1g"
+      "projectId": "QJ0HXVGHS8PET"
     }
   ],
   "pageNumber": 0,

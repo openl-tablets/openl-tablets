@@ -1,3 +1,3 @@
-DELETE /rest/projects/6JaTsM_ezXjx?comment=EPBDS-16946%20Cleanup HTTP/1.1
+DELETE /rest/projects/X2B97C6FVV6QH?comment=EPBDS-16946%20Cleanup HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

@@ -1,4 +1,4 @@
-POST /rest/projects/{PROJECT_ID}/run?tableId=E-AZLmdeT8LXd0Pd&fromModule=Bank%20Rating HTTP/1.1
+POST /rest/projects/{PROJECT_ID}/run?tableId=2FG1JBK7BS7W5NVQ&fromModule=Bank%20Rating HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

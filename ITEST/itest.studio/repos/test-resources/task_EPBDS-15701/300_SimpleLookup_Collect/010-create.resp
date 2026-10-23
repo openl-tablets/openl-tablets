@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "9v6D-PE2p7THsp5V",
+  "id": "YVZ87Y7H6TKV9HXJ",
   "tableType": "SimpleLookup",
   "kind": "Rules",
   "name": "collectLookup",

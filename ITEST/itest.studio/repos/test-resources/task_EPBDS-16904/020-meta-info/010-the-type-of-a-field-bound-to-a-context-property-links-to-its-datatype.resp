@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "kGIYLBmfrdBZLhOh",
+  "id": "J1H1GB0SKYPX0P9E",
   "tableType": "RawSource",
   "kind": "Datatype",
   "name": "Policy",
@@ -31,9 +31,9 @@ Content-Type: application/json
               "start": 0,
               "end": 5,
               "description": "Datatype State <String>",
-              "tableId": "3uA5YmIfAyn-w8Aj",
+              "tableId": "VVG3JRK23W1JKZP3",
               "module": "Model",
-              "projectId": "G4XF43dTIxuG",
+              "projectId": "3E2WBRVQACHHQ",
               "kind": "datatype"
             }
           ],
@@ -64,9 +64,9 @@ Content-Type: application/json
               "start": 0,
               "end": 5,
               "description": "Datatype State <String>",
-              "tableId": "3uA5YmIfAyn-w8Aj",
+              "tableId": "VVG3JRK23W1JKZP3",
               "module": "Model",
-              "projectId": "G4XF43dTIxuG",
+              "projectId": "3E2WBRVQACHHQ",
               "kind": "datatype"
             }
           ],

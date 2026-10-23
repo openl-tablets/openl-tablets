@@ -9,7 +9,7 @@ Content-Type: application/json
       "depth": 1,
       "instance": 0,
       "uri": "EPBDS-15551/Bank%20Rating.xlsx?sheet=Rating%20Algorithm&range=D9:G22",
-      "tableId": "GfkSq45fJbhXZQ5S",
+      "tableId": "37WH5AWEBWJVGNV5",
       "name": "BankRatingCalculation",
       "kind": "spreadsheet",
       "active": true,

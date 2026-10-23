@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "nFGapkGlFcLNDiO1",
+  "id": "KH8SN9J1MMAW5K8E",
   "tableType": "SimpleRules",
   "kind": "Rules",
   "name": "collectValues",

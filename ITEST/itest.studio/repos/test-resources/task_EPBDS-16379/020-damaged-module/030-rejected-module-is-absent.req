@@ -1,3 +1,3 @@
-GET /rest/projects/PZ_FZH5zjHLw/files/rules/Tailless.xlsx HTTP/1.1
+GET /rest/projects/7PFWAS3YEE675/files/rules/Tailless.xlsx HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

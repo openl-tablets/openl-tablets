@@ -1,3 +1,3 @@
-DELETE /rest/projects/tFI2wRAFFNpi/branches/{SELECTED_BRANCH} HTTP/1.1
+DELETE /rest/projects/PH93DG8G0MADM/branches/{SELECTED_BRANCH} HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

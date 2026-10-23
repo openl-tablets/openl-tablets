@@ -1,8 +1,8 @@
 HTTP/1.1 200
-Content-Location: /rest/projects/bgm2PMYJX3ZX/tables/BDsO8zJUVMCv4wN_?fields=id,name
+Content-Location: /rest/projects/DR4VCF6615FQC/tables/0GXGXWSJAHAC1BZ3?fields=id,name
 Content-Type: application/json
 
 {
-  "id": "BDsO8zJUVMCv4wN_",
+  "id": "0GXGXWSJAHAC1BZ3",
   "name": "Salute"
 }

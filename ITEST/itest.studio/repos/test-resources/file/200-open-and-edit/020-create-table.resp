@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "A4BaK55f96gLenzM",
+  "id": "0E05MAWYBZVTG2VT",
   "tableType": "Datatype",
   "kind": "Datatype",
   "name": "TestType",

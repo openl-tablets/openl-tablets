@@ -1,3 +1,3 @@
-GET /rest/projects/NsjBZseD2kml/tables/UkI3d5Q1xpZz5-8a/editors HTTP/1.1
+GET /rest/projects/6V4C2SP7GFD4K/tables/A913EXWM6Q39CWZ7/editors HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

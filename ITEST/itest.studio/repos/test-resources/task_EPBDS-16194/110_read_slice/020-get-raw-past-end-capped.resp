@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "j_g3hD_3qkavzZMA",
+  "id": "HZW3F11ZYYN4DBYD",
   "tableType": "RawSource",
   "kind": "Datatype",
   "name": "StyledData",

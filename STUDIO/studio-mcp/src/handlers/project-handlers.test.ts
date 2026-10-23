@@ -418,7 +418,7 @@ describe("open, save and close", () => {
 
 describe("branches, creation and copies", () => {
   /** The id Studio answers a create or a copy with, the one the project list shows. */
-  const createdId = "0FPBaGP6vUeW";
+  const createdId = "T19W2T33ZAYMF";
 
   it.each([
     ["abc123", "Successfully created branch 'feature/test-branch' from revision abc123"],

@@ -15,14 +15,14 @@ whichever branch, after a rename, across restarts and on every Studio instance.
   share it.
 - **Nothing is written to make an id.** No project file, no repository index, no database row: the id is computed
   from where the project is.
-- **The id is opaque and short.** Twelve characters of a fixed alphabet, safe in a URL path, a STOMP destination and
+- **The id is opaque and short.** Thirteen characters of a fixed alphabet, safe in a URL path, a STOMP destination and
   JSON as they are. No client builds or decodes it.
 
 ## Decisions at a Glance
 
 - **The id** — a hash of what locates the project: its repository and the folder it occupies there. Neither the
   name, the branch nor the revision is part of it.
-- **Format** — 12 characters of URL-safe base64: 72 bits of a SHA-256 digest.
+- **Format** — 13 upper-case characters of Crockford's Base32: 65 bits of a SHA-256 digest.
 - **The map** — derived, not persisted. The caches of scanned projects key their projects by id too; a restart and
   another instance compute the same ids from the same repositories.
 - **The contract** — every REST path, query parameter and body field that names a project, and every WebSocket
@@ -41,25 +41,27 @@ whichever branch, after a rename, across restarts and on every Studio instance.
 
 ### Format
 
-The id is the first 72 bits (9 bytes) of the SHA-256 digest of the project's identity, written as 12 characters of
-URL-safe base64 (RFC 4648 alphabet `A-Z`, `a-z`, `0-9`, `-`, `_`; 9 bytes need no padding):
+The id is the first 65 bits of the SHA-256 digest of the project's identity, written as 13 characters of
+Crockford's Base32 (alphabet `0-9` and `A-Z` without `I`, `L`, `O` and `U`; no padding):
 
 ```text
-v1 | design | Example 1 - Bank Rating      ->   FeZdnMnl3XRa
-v1 | design | rating/Auto                  ->   LhFSURkIYmQQ
-v1 | jdbc   | DESIGN/rules/Bank Rating     ->   c6KaddxZ4Oae
+v1 | design | Example 1 - Bank Rating      ->   2QK5V769WQEQ8
+v1 | design | rating/Auto                  ->   5R8N4M8S11H68
+v1 | jdbc   | DESIGN/rules/Bank Rating     ->   EEH9MXEWB7GED
 ```
 
 The `|` stands for U+001F, the unit separator, as in a table identity.
 
 - **Distinct from table ids**, which are 16 characters: a project id and a table id are never mistaken for each
   other in a log, a URL or a fixture.
-- **Distinct from the old ids**, which decode to `repository:name` and have no fixed length. A text that is not 12
+- **Distinct from the old ids**, which decode to `repository:name` and have no fixed length. A text that is not 13
   characters of the alphabet names no project and is refused at once; an old id of that very length is looked up like
   any other and finds no project.
 - **Safe in an address** — a URL path segment, a query parameter, a STOMP destination and JSON take the id as it is,
   and it holds no `:`, which some UI keys use as a separator.
-- **Case matters** — an id is compared exactly as it is written.
+- **Upper case** — the id stands apart from the lower-case words of a REST path, as in
+  `/projects/2QK5V769WQEQ8/tables`, and leaves out the letters easily misread as digits. A lower-case spelling is
+  not of the alphabet and names no project.
 - **SHA-256**, not MD5, keeps Sonar's weak-hash rule quiet.
 - **Versioned.** The identity starts with `v1`, so a later change of the rules gives new ids instead of silently
   colliding with old ones.
@@ -134,8 +136,8 @@ ticket decides keeps the id and the ACL in agreement.
 - **Within a repository** — a folder holds one project, so the identity is unique.
 - **Across repositories** — the repository id is part of the identity.
 - **Local projects** — unique within the user's workspace, where they are resolved.
-- **Collisions are handled, not assumed away.** With 72 bits, the chance that two of ten thousand projects share an
-  id is about 1 in 10^14, and of a hundred thousand about 1 in 10^12. When a cache of projects is indexed by id
+- **Collisions are handled, not assumed away.** With 65 bits, the chance that two of ten thousand projects share an
+  id is about 1 in 10^12, and of a hundred thousand about 1 in 10^10. When a cache of projects is indexed by id
   (`ProjectIds.index`), identities that share an id are ordered by their identity text; the first keeps the plain id,
   and each of the others adds `~2` as the last field of its identity, `~3` should that collide again, which hashes to
   another id. The number is remembered until the server restarts, so `ProjectIds.of` answers the same id for that
@@ -174,7 +176,7 @@ as the projects are, and no second structure has to be kept in step with them.
   the folder, so the id is computed without the repository.
 - **Lookup** — `ProjectIdConverter` asks the user's workspace and reuses a project listed before while the design
   repository still holds it and its opened state is the one the metainfo records; otherwise the workspace lists its
-  projects again. A text that is not 12 characters of the alphabet is refused without a listing. An id of a project
+  projects again. A text that is not 13 characters of the alphabet is refused without a listing. An id of a project
   the user cannot see answers `404`. The ACL endpoints, which manage design projects, ask the design repositories
   (`AProjectConverter`).
 
@@ -208,7 +210,7 @@ configuration and the same folders. Nothing needs to be stored, synchronized or 
   folder the write placed the project in — the internal path the written data carries in a repository with folders,
   or else the rules location followed by the project name. Every mode of creation — an archive, Excel files, a
   template, an OpenAPI file — and a copy answer the id the project list then gives.
-- **A value type, not a string.** `ProjectId` is a record of the 12 characters with Jackson's `@JsonValue`, used by
+- **A value type, not a string.** `ProjectId` is a record of the 13 characters with Jackson's `@JsonValue`, used by
   every controller, model, registry and publisher, so a name can no longer pass where an id is expected.
 - **One resolver.** `ProjectIdConverter` looks the id up, then asks the stale-id ledger, and `AProjectConverter` does
   the same for the ACL endpoints; anything else answers `404`.
@@ -328,8 +330,8 @@ taken.
 - **The business name in the identity** — not unique and changed by a rename: the faults of the old id.
 - **The branch in the identity** — a branch switch would change the id, against the branchless logical project.
 - **The repository URI in the identity** — differs by instance and changes with the remote's address.
-- **A longer digest** — 96 bits, as for tables, would add 4 characters to every project address for odds that 72 bits
-  already make negligible at the number of projects one installation holds; 12 characters also tell a project id from
+- **A longer digest** — 80 bits, as for tables, would add 3 characters to every project address for odds that 65 bits
+  already make negligible at the number of projects one installation holds; 13 characters also tell a project id from
   a table id at a glance.
 - **Accepting old ids, bare names or old links** — see [Old Ids](#old-ids).
 

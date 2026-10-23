@@ -1,4 +1,4 @@
-POST /rest/projects/NtattFfCGxFf/openapi/generation HTTP/1.1
+POST /rest/projects/6VBAVD2QR8DH2/openapi/generation HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

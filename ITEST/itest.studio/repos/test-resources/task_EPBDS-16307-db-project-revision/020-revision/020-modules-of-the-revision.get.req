@@ -1,3 +1,3 @@
-GET /rest/projects/nYQ7A4pHuEo6?include=descriptor HTTP/1.1
+GET /rest/projects/KP23P0WA8YW4M?include=descriptor HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

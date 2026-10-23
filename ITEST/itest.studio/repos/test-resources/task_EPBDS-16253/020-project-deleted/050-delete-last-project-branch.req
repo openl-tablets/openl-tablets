@@ -1,3 +1,3 @@
-DELETE /rest/projects/RoEy2U8E_b8X/branches/{COPY_BRANCH} HTTP/1.1
+DELETE /rest/projects/8T0K5PAF0KYVY/branches/{COPY_BRANCH} HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

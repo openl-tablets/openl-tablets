@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "fdAji_wFpgqHvcTd",
+      "id": "FQ8272ZW0PK0N1XX",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "_MyRules",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "C2:D5"
     },
     {
-      "id": "kv0cVZWBKqdu15CS",
+      "id": "JBYHRNCNG4NAEVPQ",
       "tableType": "Other",
       "kind": "Other",
       "name": "Test123",
@@ -24,7 +24,7 @@ Content-Type: application/json
       "pos": "H3"
     },
     {
-      "id": "XBPUT2dkKGyiH5ve",
+      "id": "BG9X8KV7CGM6S8GZ",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "MyRules",
@@ -35,7 +35,7 @@ Content-Type: application/json
       "pos": "H6:I9"
     },
     {
-      "id": "LRA5i6t4ETcs7oYD",
+      "id": "5M83K2XBF08KEB7E",
       "tableType": "SmartRules",
       "kind": "Rules",
       "name": "MyRules",
@@ -46,7 +46,7 @@ Content-Type: application/json
       "pos": "B7:C10"
     },
     {
-      "id": "IiBcrdWpnGXToJLz",
+      "id": "48G5SBENN6E6BMX0",
       "tableType": "Other",
       "kind": "Other",
       "name": "Test123",
@@ -55,7 +55,7 @@ Content-Type: application/json
       "pos": "C14"
     },
     {
-      "id": "7XnEFuleViHcTLbk",
+      "id": "XNWW85Q9BSB23Q2C",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Atable",

@@ -46,7 +46,7 @@ OpenL Studio publishes a REST API under `{context-path}/rest`, and OpenL Rule Se
 
 ### Projects
 
-`{projectId}` in a path is the project id `GET /rest/projects` hands out: 12 characters of URL-safe Base64, computed
+`{projectId}` in a path is the project id `GET /rest/projects` hands out: 13 upper-case characters of Crockford's Base32, computed
 from the repository and the folder that hold the project, so it stays the same when the project is opened, closed,
 renamed in `rules.xml` or switched to another branch. An id that matches no project answers `404 Not Found`, and so do
 a project name and an id of OpenL Studio 6.x. While the server runs, the id a project had before its folder moved

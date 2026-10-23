@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "6FcmzI4JzvWjssA2",
+      "id": "X1BJDK4E177FB8XJ",
       "tableType": "SimpleSpreadsheet",
       "kind": "Spreadsheet",
       "name": "MyRule",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "pos": "C19:D21",
       "module": "generalProject",
       "project": "EPBDS-16160",
-      "projectId": "fNUAVPu1sACQ"
+      "projectId": "FKAG0N7VPPR01"
     }
   ],
   "pageNumber": 0,

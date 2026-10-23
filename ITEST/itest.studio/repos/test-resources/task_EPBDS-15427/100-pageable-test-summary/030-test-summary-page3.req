@@ -1,4 +1,4 @@
-GET /rest/projects/JLIMmjLkTfk8/tests/summary?page=2&size=10 HTTP/1.1
+GET /rest/projects/4JS0S6HJWH6ZJ/tests/summary?page=2&size=10 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Accept: application/json
 

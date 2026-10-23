@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "SmartRules",
-  "id": "GMrY6pNw_--8HNSt",
+  "id": "335DHTMKE3ZYZF0W",
   "kind": "Rules",
   "name": "FicaDetails",
   "returnType": "Double",

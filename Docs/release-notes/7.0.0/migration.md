@@ -367,7 +367,7 @@ from Maven.
   change your own password with the current password.
 * **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
   `400`.
-* **A project id is an opaque 12-character value.** Every project id of the REST API and of the WebSocket
+* **A project id is an opaque 13-character value.** Every project id of the REST API and of the WebSocket
   destinations used to be the Base64 of `repository:name`, and a project name was accepted in its place: the
   `{projectId}` of every `/rest/projects/{projectId}/...` path, `{project-id}` of `/rest/acls/projects/{project-id}`,
   `projectId` of `POST /rest/deployments` and `POST /rest/deployments/{id}`, `sourceProject` of a project copy and

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import org.jspecify.annotations.NonNull;
 
 /**
- * The id a project is addressed by: 12 characters of URL-safe base64.
+ * The id a project is addressed by: 13 upper-case characters of Crockford's Base32.
  *
  * <p>{@link ProjectIds} computes it from where the project is stored; a client never builds or decodes one. The id
  * is written to JSON as its text and read back from it.

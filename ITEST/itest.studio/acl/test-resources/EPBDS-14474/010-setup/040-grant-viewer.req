@@ -1,4 +1,4 @@
-PUT /rest/acls/projects/R8v5QUxbR0mF?sid=EPBDS_14474&principal=true HTTP/1.1
+PUT /rest/acls/projects/8Z5ZJGACBD3MK?sid=EPBDS_14474&principal=true HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 

@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "sKyaKpAP5uFcfmEs",
+  "id": "P2P9MAMG1ZKE2Q3Y",
   "tableType": "Test",
   "kind": "Test",
   "name": "CoverageRateTest",
@@ -13,9 +13,9 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "sKyaKpAP5uFcfmEs",
+        "id": "P2P9MAMG1ZKE2Q3Y",
         "name": "CoverageRateTest",
-        "projectId": "wXeZzeVNDKS6",
+        "projectId": "R5VSKKF59M6A9",
         "project": "EPBDS-15381",
         "module": "EPBDS-15381",
         "cell": "B14",

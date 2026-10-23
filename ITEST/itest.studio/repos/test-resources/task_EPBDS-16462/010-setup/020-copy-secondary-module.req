@@ -1,4 +1,4 @@
-POST /rest/projects/TN_ajBtpCOX3/file-copy HTTP/1.1
+POST /rest/projects/9KFXN30VD44EB/file-copy HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

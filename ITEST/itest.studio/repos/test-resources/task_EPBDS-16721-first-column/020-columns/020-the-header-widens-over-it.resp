@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "ruLOSLOkVRjL532w",
+  "id": "NVHCWJ5KMHAHHJZ7",
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "DriverPremium2",
@@ -13,10 +13,10 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "ruLOSLOkVRjL532w",
+        "id": "NVHCWJ5KMHAHHJZ7",
         "name": "DriverPremium2",
         "module": "Tutorial1 - Intro to Decision Tables",
-        "projectId": "K0ZwvRLpLwAp",
+        "projectId": "5D371F8JX4QG0",
         "project": "EPBDS-16721",
         "cell": "D71",
         "start": 0,

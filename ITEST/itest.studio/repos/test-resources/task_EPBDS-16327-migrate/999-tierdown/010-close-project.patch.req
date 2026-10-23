@@ -1,4 +1,4 @@
-PATCH /rest/projects/x-c7-DhYuT-H HTTP/1.1
+PATCH /rest/projects/RZKKQY1RB2WKZ HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

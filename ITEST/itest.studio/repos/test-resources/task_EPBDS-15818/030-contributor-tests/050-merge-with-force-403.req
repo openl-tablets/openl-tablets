@@ -1,4 +1,4 @@
-POST /rest/projects/ggk-sZgb7Vmv/merge?force=true HTTP/1.1
+POST /rest/projects/G84KXCCR3FPNK/merge?force=true HTTP/1.1
 Authorization: Basic Y29udHJpYnV0b3JfMTU4MTg6Y29udHJpYnV0b3JfMTU4MTg=
 Content-Type: application/json
 

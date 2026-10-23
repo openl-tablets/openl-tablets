@@ -2,7 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "w-yASx2cfJBGvUEN",
+  "id": "RFP80JRXKHY90HNX",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "CoverageRate",
@@ -13,9 +13,9 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "w-yASx2cfJBGvUEN",
+        "id": "RFP80JRXKHY90HNX",
         "name": "CoverageRate",
-        "projectId": "pWq5DvI4Bfr2",
+        "projectId": "MNNBJ3QJ702ZN",
         "project": "EPBDS-15409",
         "module": "Main",
         "cell": "C17",
@@ -30,9 +30,9 @@ Content-Type: application/json
       "severity": "ERROR",
       "location": {
         "type": "table",
-        "id": "w-yASx2cfJBGvUEN",
+        "id": "RFP80JRXKHY90HNX",
         "name": "CoverageRate",
-        "projectId": "pWq5DvI4Bfr2",
+        "projectId": "MNNBJ3QJ702ZN",
         "project": "EPBDS-15409",
         "module": "Main",
         "cell": "B16",

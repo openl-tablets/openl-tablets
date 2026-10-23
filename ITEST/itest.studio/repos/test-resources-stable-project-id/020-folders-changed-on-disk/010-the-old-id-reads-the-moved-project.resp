@@ -1,8 +1,8 @@
 HTTP/1.1 200
 Content-Type: application/json
-Content-Location: /rest/projects/6JaTsM_ezXjx?fields=id,name
+Content-Location: /rest/projects/X2B97C6FVV6QH?fields=id,name
 
 {
-  "id": "6JaTsM_ezXjx",
+  "id": "X2B97C6FVV6QH",
   "name": "EPBDS-16946-Moved"
 }

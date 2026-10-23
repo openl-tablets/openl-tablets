@@ -1,2 +1,2 @@
-DELETE /rest/projects/kfzH5opDhC3h?comment=Foo%20Bar HTTP/1.1
+DELETE /rest/projects/J7YCFSMA8E22V?comment=Foo%20Bar HTTP/1.1
 

@@ -1,3 +1,3 @@
-GET /rest/projects/J5VR4dlZjSS1/tables/{TABLE_ID}?raw=true HTTP/1.1
+GET /rest/projects/4YAN3RESB66J9/tables/{TABLE_ID}?raw=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

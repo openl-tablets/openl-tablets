@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"mode\": \"copy\",\n    \"projectId\": \"8Z5PQDjdgwr6\",\n    \"projectName\": \"McpToolsCopy\",\n    \"source\": \"0FPBaGP6vUeW\",\n    \"repository\": \"design\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"message\": \"Copied '0FPBaGP6vUeW' to 'McpToolsCopy' in repository 'design' (branch 'master') at revision @.\"\n  }\n}"
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"mode\": \"copy\",\n    \"projectId\": \"Y6F4YG1RVP1GN\",\n    \"projectName\": \"McpToolsCopy\",\n    \"source\": \"T19W2T33ZAYMF\",\n    \"repository\": \"design\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"message\": \"Copied 'T19W2T33ZAYMF' to 'McpToolsCopy' in repository 'design' (branch 'master') at revision @.\"\n  }\n}"
       }
     ],
     "resultType": "complete",

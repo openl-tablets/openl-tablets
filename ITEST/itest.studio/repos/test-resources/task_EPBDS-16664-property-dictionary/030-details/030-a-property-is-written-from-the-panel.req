@@ -1,4 +1,4 @@
-PATCH /rest/projects/klH-B9yci0r7/tables/pQurld0HL3SBjpOg/properties HTTP/1.1
+PATCH /rest/projects/J98ZW1YWKJ5MN/tables/MM5TQ5EX0WQQ90CE/properties HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

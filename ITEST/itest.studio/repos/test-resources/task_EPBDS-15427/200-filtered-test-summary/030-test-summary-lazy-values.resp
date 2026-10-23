@@ -12,7 +12,7 @@ Content-Type: application/json
   "testCases": [
     {
       "name": "BankLimitIndexTest",
-      "tableId": "_aZ41wyLNB9PsKYf",
+      "tableId": "ZPK7HNRCHCT1YKXG",
       "module": "*",
       "executionTimeMs": "##.##",
       "numberOfTests": 1,

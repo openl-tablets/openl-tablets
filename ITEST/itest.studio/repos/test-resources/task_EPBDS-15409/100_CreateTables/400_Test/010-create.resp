@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "-YCDocLrdobn3zQs",
+  "id": "Z60878E2XDV8DSYZ",
   "tableType": "Test",
   "kind": "Test",
   "name": "IsAdequateMaxCreditRiskScoreTest",

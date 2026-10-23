@@ -4,25 +4,25 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "CQCqxKt46RRwBocO",
+      "id": "140ANH5BF3MH8W06",
       "kind": "Datatype",
       "name": "Choice",
       "pos": "B2:C4"
     },
     {
-      "id": "vQ9FLjB6ai3sMLs4",
+      "id": "QM7MABHGF9N2VV1G",
       "kind": "Rules",
       "name": "Choices",
       "pos": "B7:D21"
     },
     {
-      "id": "BDsLv_KuRcXPdRiA",
+      "id": "0GXGQFZJNS2WBKVN",
       "kind": "Datatype",
       "name": "Item",
       "pos": "B24:C28"
     },
     {
-      "id": "w3JF7fldskGLGe13",
+      "id": "RDS4BVFSBPS432RS",
       "kind": "Data",
       "name": "items",
       "pos": "B31:E35"

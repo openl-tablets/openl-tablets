@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "RG3zTkgZz57Py5ee",
+  "id": "8HPZ6KJ8377SXKYB",
   "tableType": "SimpleRules",
   "kind": "Rules",
   "name": "LossFreeDiscount",

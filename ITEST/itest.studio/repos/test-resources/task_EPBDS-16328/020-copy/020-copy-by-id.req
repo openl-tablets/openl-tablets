@@ -3,7 +3,7 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "sourceProject": "8N00NtBC95bi",
+  "sourceProject": "Y3EK8DPG8BVSD",
   "comment": "EPBDS-16328: Copy the source by identifier"
 }
 

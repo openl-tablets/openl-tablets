@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableName": "BalanceQualityIndexCalculation",
-  "tableId": "jSs7DDZ8FLGXfE99",
+  "tableId": "HMNKP31PFGAB35VW",
   "executionTimeMs": "##.##",
   "result": {
     "Description_CapitalAdequacy": "Calculate Capital Adequacy (%)",

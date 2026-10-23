@@ -1,4 +1,4 @@
-POST /rest/projects/Fas6xMSUqqrp/merge HTTP/1.1
+POST /rest/projects/2PNKNH64JJNAN/merge HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 

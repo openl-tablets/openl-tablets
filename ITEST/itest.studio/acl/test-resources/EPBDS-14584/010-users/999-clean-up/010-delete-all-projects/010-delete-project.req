@@ -1,4 +1,4 @@
-DELETE /rest/projects/KEmtLkX3n-ts?comment=Foo%20Bar HTTP/1.1
+DELETE /rest/projects/514TTBJ5YYFYP?comment=Foo%20Bar HTTP/1.1
 Authorization: Basic RVBCRFNfMTQ1ODRfMzpFUEJEU18xNDU4NF8z
 Cookie: NO_JSESSIONID=noAuth
 

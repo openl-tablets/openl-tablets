@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "rUUUH3G03j0j",
+      "id": "NN2H87VHPKF3T",
       "name": "EPBDS-15425_Project1",
       "branch": "master",
       "status": "CLOSED",
@@ -16,7 +16,7 @@ Content-Type: application/json
       "comment": "Project EPBDS-15425_Project1 is created.",
       "dependencies": [
         {
-          "id": "appPPtXdd0lT",
+          "id": "DAD4YFPNVNVMJ",
           "name": "EPBDS-15425_Project2",
           "branch": "master",
           "status": "CLOSED",

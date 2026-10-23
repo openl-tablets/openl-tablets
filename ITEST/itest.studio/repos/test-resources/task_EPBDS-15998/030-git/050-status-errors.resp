@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "compileStatus": {
-    "projectId": "QLKqsr_bsBXt",
+    "projectId": "82SANCNZVER1B",
     "branch": "master",
     "revision": "*",
     "compileState": "errors",
@@ -22,7 +22,7 @@ Content-Type: application/json
               "type": "table",
               "id": "***",
               "name": "doWithError",
-              "projectId": "QLKqsr_bsBXt",
+              "projectId": "82SANCNZVER1B",
               "project": "EPBDS-15998-git",
               "module": "Bank Rating",
               "cell": "***",

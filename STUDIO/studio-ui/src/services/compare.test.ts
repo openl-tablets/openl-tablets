@@ -28,11 +28,11 @@ describe('compare service', () => {
         // "Prämie=1" written in ISO-8859-1: the umlaut is one byte, which is no UTF-8.
         vi.mocked(apiCall).mockResolvedValue(new Blob([new Uint8Array([0x50, 0x72, 0xe4, 0x6d, 0x69, 0x65, 0x3d, 0x31])]))
 
-        await expect(getConflictFileText('Ab3_dE9-xY0z', 'p/i18n/message.properties', 'theirs'))
+        await expect(getConflictFileText('06YZYX2FFV2RT', 'p/i18n/message.properties', 'theirs'))
             .resolves.toBe('Prämie=1')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/Ab3_dE9-xY0z/merge/conflicts/files?file=p%2Fi18n%2Fmessage.properties&side=theirs',
+            '/projects/06YZYX2FFV2RT/merge/conflicts/files?file=p%2Fi18n%2Fmessage.properties&side=theirs',
             undefined,
             { ...OPTIONS, responseType: 'blob' }
         )
@@ -119,7 +119,7 @@ describe('compare service', () => {
             palette: false,
         })
 
-        const workbook = await getConflictWorkbook('Ab3_dE9-xY0z', 'p/rules/Rates.xlsx')
+        const workbook = await getConflictWorkbook('06YZYX2FFV2RT', 'p/rules/Rates.xlsx')
 
         const table = workbook.sheets[0]!.tables[0]!
         expect(table.ours).toEqual({
@@ -133,7 +133,7 @@ describe('compare service', () => {
         expect(table).not.toHaveProperty('merged')
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/Ab3_dE9-xY0z/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
+            '/projects/06YZYX2FFV2RT/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
             undefined,
             OPTIONS)
     })
@@ -173,7 +173,7 @@ describe('compare service', () => {
                 palette: false,
             })
 
-            const workbook = await getConflictWorkbook('Ab3_dE9-xY0z', 'p/rules/Rates.xlsx')
+            const workbook = await getConflictWorkbook('06YZYX2FFV2RT', 'p/rules/Rates.xlsx')
 
             expect(workbook.sheets[0]!.tables[0]!.merged).toEqual({
                 range: 'A1:A2',
@@ -196,7 +196,7 @@ describe('compare service', () => {
         const merged = new Blob(['merged'])
         vi.mocked(apiCall).mockResolvedValue(merged)
 
-        await expect(mergeConflictWorkbook('Ab3_dE9-xY0z', 'p/rules/Rates.xlsx', {
+        await expect(mergeConflictWorkbook('06YZYX2FFV2RT', 'p/rules/Rates.xlsx', {
             'Rules/A1:B6': 'theirs',
             'Notes': 'base',
         }, {
@@ -204,7 +204,7 @@ describe('compare service', () => {
         })).resolves.toBe(merged)
 
         expect(apiCall).toHaveBeenCalledWith(
-            '/projects/Ab3_dE9-xY0z/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
+            '/projects/06YZYX2FFV2RT/merge/conflicts/workbook?file=p%2Frules%2FRates.xlsx',
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

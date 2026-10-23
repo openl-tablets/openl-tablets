@@ -1,4 +1,4 @@
-DELETE /rest/projects/5B0GdFcBUcfe?comment=Cleanup HTTP/1.1
+DELETE /rest/projects/WGEGCX2Q058WF?comment=Cleanup HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Cookie: NO_JSESSIONID=noAuth
 

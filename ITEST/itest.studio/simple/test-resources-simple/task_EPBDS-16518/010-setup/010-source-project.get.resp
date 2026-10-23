@@ -2,13 +2,13 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "id": "amF29D031Ogg",
+  "id": "D9GQDX1X6ZAEG",
   "name": "epbds-16518-source",
   "status": "LOCAL",
   "repository": "local",
   "dependencies": [
     {
-      "id": "f40g5dsnC-vJ",
+      "id": "FY6J1SEV4W5YQ",
       "name": "EPBDS-16518 Target"
     }
   ],

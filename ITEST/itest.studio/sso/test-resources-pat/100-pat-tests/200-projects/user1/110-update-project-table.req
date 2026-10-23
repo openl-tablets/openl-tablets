@@ -1,4 +1,4 @@
-PUT /rest/projects/4sLLGxT9DBma/tables/oF0-9El4ZIZLMOBl HTTP/1.1
+PUT /rest/projects/WB1CP6RMZM61K/tables/M1EKXX29F1J8CJSG HTTP/1.1
 Authorization: Token ${USER1_PAT}
 Content-Type: application/json
 

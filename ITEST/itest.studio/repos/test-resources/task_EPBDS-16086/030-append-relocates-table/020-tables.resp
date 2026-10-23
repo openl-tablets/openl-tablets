@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "CKUlKyMgevrsc2KU",
+      "id": "12JJAAS341XFNV3K",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "TypeA",
@@ -13,11 +13,11 @@ Content-Type: application/json
       "pos": "B11:C15",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "7oss6nV6bUHe",
+      "projectId": "XT5JSTKNF9PM3",
       "signature": "TypeA"
     },
     {
-      "id": "oS1XZhBZevEtlu1m",
+      "id": "M4PNESGGB5XF2BCP",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "TypeB",
@@ -26,11 +26,11 @@ Content-Type: application/json
       "pos": "B18:C22",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "7oss6nV6bUHe",
+      "projectId": "XT5JSTKNF9PM3",
       "signature": "TypeB"
     },
     {
-      "id": "Yte23AmHynStA-68",
+      "id": "CBBVDQ09GZ579B83",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "TypeC",
@@ -39,7 +39,7 @@ Content-Type: application/json
       "pos": "B8:C9",
       "module": "EPBDS-16086",
       "project": "EPBDS-16086",
-      "projectId": "7oss6nV6bUHe",
+      "projectId": "XT5JSTKNF9PM3",
       "signature": "TypeC"
     }
   ],

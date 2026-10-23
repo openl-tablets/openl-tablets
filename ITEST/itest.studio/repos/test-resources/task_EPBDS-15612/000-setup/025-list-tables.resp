@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "content": [
     {
-      "id": "G9Yo_-R-RP92Vc7z",
+      "id": "3FB2HZZ4FS2FYXJN",
       "tableType": "Datatype",
       "kind": "Datatype",
       "name": "Foo",
@@ -13,7 +13,7 @@ Content-Type: application/json
       "pos": "B7:C8",
       "module": "Qwerty",
       "project": "EPBDS-15612",
-      "projectId": "rqTcwFEKjoHF",
+      "projectId": "NTJDSG2H1A783",
       "signature": "Foo"
     },
     {
@@ -28,7 +28,7 @@ Content-Type: application/json
       "pos": "B3:E11",
       "module": "Main",
       "project": "EPBDS-15612",
-      "projectId": "rqTcwFEKjoHF"
+      "projectId": "NTJDSG2H1A783"
     }
   ],
   "pageNumber": 0,

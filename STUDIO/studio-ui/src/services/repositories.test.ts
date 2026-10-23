@@ -234,7 +234,7 @@ describe('getProjects', () => {
         vi.mocked(apiCall).mockResolvedValue({ id: 'sZIiCSgPtIfe', revision: 'r1' })
 
         // The source is named by its id alone, which names its repository too.
-        await expect(copyProject('FeZdnMnl3XRa', 'target', 'Beta', {
+        await expect(copyProject('2QK5V769WQEQ8', 'target', 'Beta', {
             comment: '  copied  ',
             path: ' folder ',
             branch: 'feature/rates',
@@ -246,7 +246,7 @@ describe('getProjects', () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sourceProject: 'FeZdnMnl3XRa',
+                    sourceProject: '2QK5V769WQEQ8',
                     comment: 'copied',
                     path: 'folder',
                     branch: 'feature/rates',

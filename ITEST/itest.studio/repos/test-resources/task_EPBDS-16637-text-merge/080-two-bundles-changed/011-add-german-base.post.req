@@ -1,4 +1,4 @@
-POST /rest/projects/Fas6xMSUqqrp/files/i18n/message_de.properties?createFolders=true HTTP/1.1
+POST /rest/projects/2PNKNH64JJNAN/files/i18n/message_de.properties?createFolders=true HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 

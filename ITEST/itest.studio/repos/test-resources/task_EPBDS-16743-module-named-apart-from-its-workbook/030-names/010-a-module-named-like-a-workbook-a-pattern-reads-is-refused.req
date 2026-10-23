@@ -1,4 +1,4 @@
-PUT /rest/projects/NtattFfCGxFf/files/rules.xml HTTP/1.1
+PUT /rest/projects/6VBAVD2QR8DH2/files/rules.xml HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: text/plain
 

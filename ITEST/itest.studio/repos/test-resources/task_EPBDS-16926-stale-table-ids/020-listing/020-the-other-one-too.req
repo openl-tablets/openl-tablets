@@ -1,3 +1,3 @@
-GET /rest/projects/bgm2PMYJX3ZX/tables/QpOJ3DwCC3-egNj8?fields=id,name HTTP/1.1
+GET /rest/projects/DR4VCF6615FQC/tables/8A9RKQ1W085QZ7M0?fields=id,name HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

@@ -1,3 +1,3 @@
-GET /rest/projects/lnq5uNhFSYnu/tables?fields=id,name,kind,pos,errors HTTP/1.1
+GET /rest/projects/JSXBKE6R8N4RK/tables?fields=id,name,kind,pos,errors HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 

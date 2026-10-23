@@ -5,7 +5,6 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -16,7 +15,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.map.LRUMap;
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +30,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.IProjectSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.util.HashingUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 
@@ -48,7 +47,8 @@ import org.openl.util.formatters.FileNameFormatter;
  * then from top to bottom. A table OpenL Studio moves keeps the number it had until the server restarts, and so do
  * the tables sharing what a table OpenL Studio deletes; see {@link #idAfterWrite} and {@link #deleting}.
  *
- * <p>An id is 16 characters of URL-safe base64: 96 bits of the SHA-256 digest of what the table is. Case matters.
+ * <p>An id is 16 upper-case characters of Crockford's Base32: the first 80 bits of the SHA-256 digest of what the
+ * table is. Its digits and capitals stand apart from the lower-case words of a URL path.
  *
  * @author Yury Molchan
  */
@@ -57,10 +57,8 @@ public final class TableIds {
     /** Starts every identity, so that a change of what an identity is made of gives new ids. */
     private static final String VERSION = "v1";
     private static final char SEPARATOR = '\u001F';
-    /** 96 bits are 16 characters of base64, with no padding. */
-    private static final int ID_BYTES = 12;
-    /** Neither {@code /} nor {@code +}: an id stays one segment of a URL path and needs no escaping in a query. */
-    private static final Base64.Encoder BASE64 = Base64.getUrlEncoder().withoutPadding();
+    /** 80 bits are 16 symbols of Base32, with no padding. */
+    private static final int ID_SYMBOLS = 16;
     /** How many tables keep their numbers. */
     private static final int PINS = 1000;
     private static final String ID_PROPERTY = "id";
@@ -121,7 +119,7 @@ public final class TableIds {
         String id(int number) {
             var text = VERSION + SEPARATOR + module + SEPARATOR + kind + SEPARATOR + key
                     + (number > 1 ? SEPARATOR + "~" + number : "");
-            return BASE64.encodeToString(Arrays.copyOf(DigestUtils.sha256(text), ID_BYTES));
+            return HashingUtils.sha256Base32(text, ID_SYMBOLS);
         }
     }
 

@@ -1,3 +1,3 @@
-GET /rest/projects/G1j1WDwJoejn/tables HTTP/1.1
+GET /rest/projects/3DCFAP1W16GYH/tables HTTP/1.1
 Authorization: Basic RVBCRFNfMTQ2NzA6RVBCRFNfMTQ2NzA=
 

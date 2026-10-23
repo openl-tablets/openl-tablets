@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "bjFt5zWzkZfdziyd",
+  "id": "DRRPVSSNPE8SFQEE",
   "tableType": "SmartRules",
   "kind": "Rules",
   "name": "collectGreeting",

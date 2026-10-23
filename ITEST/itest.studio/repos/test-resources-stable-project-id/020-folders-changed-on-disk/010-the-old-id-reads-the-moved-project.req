@@ -1,4 +1,4 @@
-GET /rest/projects/d5wbb2Ggqn13?fields=id,name HTTP/1.1
+GET /rest/projects/EYE1PVV1M2N7T?fields=id,name HTTP/1.1
 Authorization: ${ADMIN_AUTH_TOCKEN}
 X-OpenL-Test-Retry: yes
 

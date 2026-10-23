@@ -56,9 +56,9 @@ Java `UPPER_SNAKE` `.name()`.
 A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both travel as a **path segment**, so both
 **MUST** stay within one.
 
-- **A project id is a hash of where the project is stored** — 12 characters of URL-safe Base64 of the SHA-256 of the
-  repository id and the project folder (`ProjectIds`; the design is `Docs/architecture/project-ids.md`). The alphabet
-  keeps it within one segment as it is, so it needs no encoding.
+- **A project id is a hash of where the project is stored** — 13 upper-case characters of Crockford's Base32 of the
+  SHA-256 of the repository id and the project folder (`ProjectIds`; the design is
+  `Docs/architecture/project-ids.md`). The alphabet keeps it within one segment as it is, so it needs no encoding.
   - **Take the id from the project** — `AProject.getProjectId()`, which `RulesProject` computes once. Never build one
     from a name, a `FileData` or a request value: a create or a copy answers `ProjectCreationService.idOfWritten`, the
     id of the folder it wrote. A client never builds or decodes an id either.

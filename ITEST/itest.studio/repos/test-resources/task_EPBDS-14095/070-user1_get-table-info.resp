@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "SimpleRules",
-  "id": "zSCBS4Uzf_MFLC1R",
+  "id": "SMG82JW56DZZ619C",
   "kind": "Rules",
   "name": "sayHello",
   "returnType": "String",

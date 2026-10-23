@@ -3,7 +3,7 @@ Content-Type: application/json
 
 {
   "tableType": "SmartRules",
-  "id": "d_sIvCoPZqci7djy",
+  "id": "EZXGHF1A1XKAE8QD",
   "kind": "Rules",
   "name": "FicaTaxRates",
   "returnType": "Integer",

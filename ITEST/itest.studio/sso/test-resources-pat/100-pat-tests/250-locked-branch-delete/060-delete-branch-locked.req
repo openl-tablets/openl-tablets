@@ -1,4 +1,4 @@
-DELETE /rest/projects/_ToABN62UUrK/branches/EPBDS-16255-lock HTTP/1.1
+DELETE /rest/projects/ZMX0016YPS8MN/branches/EPBDS-16255-lock HTTP/1.1
 Authorization: Token ${ADMIN_PAT}
 Cookie: NO_JSESSIONID=noAuth
 

@@ -1,2 +1,2 @@
-GET /rest/projects/f40g5dsnC-vJ?fields=id,name,status,repository,capabilities HTTP/1.1
+GET /rest/projects/FY6J1SEV4W5YQ?fields=id,name,status,repository,capabilities HTTP/1.1
 

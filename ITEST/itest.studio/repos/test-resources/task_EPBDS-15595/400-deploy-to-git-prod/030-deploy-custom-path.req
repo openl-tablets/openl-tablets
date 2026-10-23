@@ -6,6 +6,6 @@ Content-Type: application/json
 {
   "productionRepositoryId": "production-git",
   "deploymentName": "EPBDS-15595-path",
-  "projectId": "NDEPQaKwfsI0",
+  "projectId": "6GRGYGD2P1ZC4",
   "comment": "Deploy custom-path project to git prod"
 }

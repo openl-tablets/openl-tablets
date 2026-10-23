@@ -2,7 +2,7 @@ HTTP/1.1 201
 Content-Type: application/json
 
 {
-  "id": "zW8osSs3B6Ld7aUh",
+  "id": "SNQJHC9B6W3T5QFD",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "collectSmartLookup",

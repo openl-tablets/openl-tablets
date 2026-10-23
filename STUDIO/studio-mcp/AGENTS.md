@@ -251,7 +251,7 @@ anonymous (single-user Studio).
 
 - **Dual versioning** — Git commits (temporal) and dimension properties (business context).
 - **Table types** — Rules, SimpleRules, SmartRules, Lookups, Spreadsheet, Datatype, Method, Test, and others.
-- **Project ids** — opaque 12-character ids OpenL Studio answers; a project keeps its id while it stays in its folder. Never build or decode one.
+- **Project ids** — opaque 13-character ids OpenL Studio answers; a project keeps its id while it stays in its folder. Never build or decode one.
 
 ### RawSource-only table content
 

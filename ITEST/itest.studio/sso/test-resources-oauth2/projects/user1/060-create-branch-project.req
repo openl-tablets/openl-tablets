@@ -1,4 +1,4 @@
-POST /rest/projects/4sLLGxT9DBma/branches HTTP/1.1
+POST /rest/projects/WB1CP6RMZM61K/branches HTTP/1.1
 Authorization: Bearer ${USER1_ACCESS_TOKEN}
 Content-Type: application/json
 

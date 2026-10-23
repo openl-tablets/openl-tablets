@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"projectId\": \"eUInstWZBMgF\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"compileState\": \"ok\",\n    \"lastModifiedBy\": {\n      \"author\": \"*\",\n      \"date\": \"*\"\n    },\n    \"compilation\": {\n      \"messages\": {\n        \"total\": 0,\n        \"errors\": 0,\n        \"warnings\": 0,\n        \"items\": []\n      },\n      \"modules\": {\n        \"compiledModules\": [\n          \"Main\"\n        ],\n        \"total\": 1,\n        \"compiled\": 1\n      },\n      \"tests\": {\n        \"total\": 0\n      }\n    }\n  }\n}"
+        "text": "{\n  \"data\": {\n    \"projectId\": \"F512FCPNK42CG\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"compileState\": \"ok\",\n    \"lastModifiedBy\": {\n      \"author\": \"*\",\n      \"date\": \"*\"\n    },\n    \"compilation\": {\n      \"messages\": {\n        \"total\": 0,\n        \"errors\": 0,\n        \"warnings\": 0,\n        \"items\": []\n      },\n      \"modules\": {\n        \"compiledModules\": [\n          \"Main\"\n        ],\n        \"total\": 1,\n        \"compiled\": 1\n      },\n      \"tests\": {\n        \"total\": 0\n      }\n    }\n  }\n}"
       }
     ],
     "resultType": "complete",
