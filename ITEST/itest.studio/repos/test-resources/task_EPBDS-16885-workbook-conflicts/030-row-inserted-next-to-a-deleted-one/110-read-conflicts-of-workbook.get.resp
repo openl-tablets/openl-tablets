@@ -374,7 +374,7 @@ Content-Type: application/json
             "conflictCells": []
           },
           "theirs": {
-            "range": "A1:B6",
+            "range": "A1:B4",
             "cells": [
               [
                 {
@@ -444,35 +444,11 @@ Content-Type: application/json
               [
                 {
                   "cell": "A4",
-                  "value": "FR",
-                  "style": 6
-                },
-                {
-                  "cell": "B4",
-                  "value": 4.25,
-                  "style": 7
-                }
-              ],
-              [
-                {
-                  "cell": "A5",
-                  "value": "DE",
-                  "style": 6
-                },
-                {
-                  "cell": "B5",
-                  "value": 2.25,
-                  "style": 7
-                }
-              ],
-              [
-                {
-                  "cell": "A6",
                   "value": "CA",
                   "style": 8
                 },
                 {
-                  "cell": "B6",
+                  "cell": "B4",
                   "value": 3.25,
                   "style": 9
                 }
@@ -552,11 +528,8 @@ Content-Type: application/json
                 }
               }
             ],
-            "rows": 6,
-            "changedCells": [
-              "A4",
-              "B4"
-            ],
+            "rows": 4,
+            "changedCells": [],
             "formattingChanged": false,
             "conflictCells": []
           }
@@ -566,4 +539,3 @@ Content-Type: application/json
   ],
   "palette": false
 }
-

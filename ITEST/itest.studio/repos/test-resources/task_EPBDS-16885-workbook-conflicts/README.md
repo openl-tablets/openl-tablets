@@ -16,6 +16,6 @@ here a merge answers the workbook, and changes nothing.
 | Scenario | Changes | Result |
 |----------|---------|--------|
 | `020-same-cells-changed` | Both branches change the rate of US, their branch the rate of DE as well | the table is a `cells` conflict, merged cell by cell with the rate of US left to decide; taking their version, or merging the table cell by cell, answers the merged workbook |
-| `030-rows-inserted-at-the-same-place` | Both branches insert a row at the same place | the table is a `rows` conflict, its inserted rows marked, which is not merged cell by cell; discarding both changes answers the merged workbook |
+| `030-row-inserted-next-to-a-deleted-one` | Our branch inserts a row before the one their branch deletes | the table is a `rows` conflict, its inserted row marked, which is not merged cell by cell; discarding both changes answers the merged workbook |
 
 A conflict here is the expected result, not a defect.

@@ -2,15 +2,34 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "status": "conflicts",
-  "conflictGroups": [
-    {
-      "projectName": "EPBDS-16884-Rates",
-      "projectPath": "EPBDS-16884-Rates",
-      "files": [
-        "EPBDS-16884-Rates/Rates.xlsx"
-      ]
-    }
-  ]
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-16884-same-place",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "iVSshLdFcM7P",
+        "name": "EPBDS-16884-Rates",
+        "path": "EPBDS-16884-Rates",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-16884-Rates/Rates.xlsx",
+            "type": "modified",
+            "sheets": [
+              {
+                "name": "Rules",
+                "takenFrom": "both"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
 }
 

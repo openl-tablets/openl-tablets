@@ -3,6 +3,6 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "comment": "EPBDS-16885 Change master: Different rows inserted at the same place"
+  "comment": "EPBDS-16885 Change master: Row inserted next to a row the other branch deletes"
 }
 

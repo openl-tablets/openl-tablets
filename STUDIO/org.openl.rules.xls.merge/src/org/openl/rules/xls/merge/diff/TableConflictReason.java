@@ -11,8 +11,9 @@ public enum TableConflictReason {
      */
     CELLS,
     /**
-     * Both revisions inserted different rows at the same place, one revision inserted a row next to a row the other
-     * one deleted, or deleted a row the other one changed; columns follow the same rule
+     * One revision inserted a row next to a row the other one deleted, or deleted a row the other one changed; columns
+     * follow the same rule. Both revisions inserted rows right under the header of the table, where it keeps its
+     * properties, or columns before its first column, which holds the header
      */
     ROWS,
     /**

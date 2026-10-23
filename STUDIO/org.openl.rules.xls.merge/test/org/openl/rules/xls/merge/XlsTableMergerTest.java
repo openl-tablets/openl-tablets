@@ -51,6 +51,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import org.openl.rules.xls.merge.diff.DiffStatus;
+import org.openl.rules.xls.merge.diff.SheetConflictReason;
 
 class XlsTableMergerTest {
 
@@ -117,9 +118,21 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void rowsInsertedInBothTouchTheTableBelow_isConflict() throws IOException {
-        // Each revision grows the rules table into the only empty row above the data table.
-        FIXTURE.assertConflict(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> set(sheet, 6, 0, "FR"));
+    void rowsInsertedInBothIntoTheEmptyRowsAboveATable_pushItDown() throws IOException {
+        // Each revision grows the rules table into the empty rows above the data table, which would touch it.
+        var merged = FIXTURE.mergeXlsx(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> set(sheet, 6, 0, "FR"));
+        assertRates(merged, "US", "UK", "CA", "MX", "FR");
+        assertDriversPushedDown(merged);
+    }
+
+    /**
+     * Checks that the data table stands a row lower than the base revision has it, with its merged header.
+     */
+    private static void assertDriversPushedDown(Sheet merged) {
+        assertEquals("Data Driver drivers", text(merged, 9, 0));
+        assertEquals(30, number(merged, 11, 1));
+        assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A10:C10")));
+        assertFalse(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A9:C9")));
     }
 
     @Test
@@ -143,8 +156,48 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void differentRowsInsertedAtTheSamePlace_isConflict() throws IOException {
-        FIXTURE.assertConflict(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> insertRow(sheet, 4, "DE", 5));
+    void rowsInsertedAtTheSamePlaceIntoTheEmptyRowsAboveATable_pushItDown() throws IOException {
+        // Both rows are kept, so the rules table grows over both empty rows above the data table.
+        var merged = FIXTURE.mergeXlsx(sheet -> insertRow(sheet, 4, "UK", 4), sheet -> insertRow(sheet, 4, "DE", 5));
+        assertRates(merged, "US", "UK", "DE", "CA", "MX");
+        assertDriversPushedDown(merged);
+    }
+
+    @Test
+    void rowsAppendedInBothAboveATable_areKeptAndPushItDown() throws IOException {
+        // Each revision adds a country after the last one, the way OpenL Studio adds a row into the empty rows under it.
+        var merged = FIXTURE.mergeXlsx(sheet -> {
+            set(sheet, 6, 0, "UK");
+            set(sheet, 6, 1, 4);
+        }, sheet -> {
+            set(sheet, 6, 0, "DE");
+            set(sheet, 6, 1, 5);
+        });
+        assertRates(merged, "US", "CA", "MX", "UK", "DE");
+        assertEquals(5, number(merged, 7, 1));
+        assertDriversPushedDown(merged);
+    }
+
+    @Test
+    void columnsAppendedInBothTouchingTheTableBeside_isConflict() throws IOException {
+        // Both columns are kept, so the rules table would reach the datatype table beside it, which nothing pushes.
+        var sheet = FIXTURE.conflicts(XSSFWorkbook::new,
+                rules -> appendCondition(rules, "C2", "state"),
+                rules -> appendCondition(rules, "C3", "zip")).sheets().getFirst();
+        assertEquals(SheetConflictReason.TOUCHING_TABLES, sheet.reason());
+    }
+
+    /**
+     * Appends a condition to the rules table after its last column, its merged header stretched over it.
+     */
+    private static void appendCondition(Sheet sheet, String code, String title) {
+        set(sheet, 1, 2, code);
+        set(sheet, 2, 2, title);
+        for (var row = 3; row <= 5; row++) {
+            set(sheet, row, 2, title + row);
+        }
+        sheet.removeMergedRegion(regionIndex(sheet, "A1:B1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:C1"));
     }
 
     @Test
@@ -612,14 +665,20 @@ class XlsTableMergerTest {
     }
 
     @Test
-    void differentColumnsInsertedAtTheSamePlace_isConflict() throws IOException {
-        FIXTURE.assertConflict(sheet -> {
+    void differentColumnsInsertedAtTheSamePlace_areMergedOursFirst() throws IOException {
+        // The merged header covers the inserted column in each revision, and the column of both in the merged one.
+        var merged = FIXTURE.mergeXlsx(sheet -> {
             move(sheet, "C10:C12", 0, 1);
             set(sheet, 9, 2, "zip");
         }, sheet -> {
             move(sheet, "C10:C12", 0, 1);
             set(sheet, 9, 2, "city");
         });
+        assertEquals("zip", text(merged, 9, 2));
+        assertEquals("city", text(merged, 9, 3));
+        assertEquals("note", text(merged, 9, 4));
+        assertEquals("b", text(merged, 11, 4));
+        assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A9:D9")));
     }
 
     @Test

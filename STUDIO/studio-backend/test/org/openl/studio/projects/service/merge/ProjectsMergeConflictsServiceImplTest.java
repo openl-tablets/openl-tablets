@@ -426,17 +426,14 @@ class ProjectsMergeConflictsServiceImplTest {
         var context = createContext();
         givenRates(context.repository(), sheet -> {
         }, sheet -> {
-            // The labels written in bold, which keeps the rows they head matched, and a row inserted after CA.
+            // The labels written in bold, which keeps the rows they head matched, and a row inserted before CA.
+            insertMexico(sheet);
             bold(sheet, 1, 0);
-            bold(sheet, 2, 0);
-            text(sheet, 3, 0, "MX");
-            rate(sheet, 3, 3);
+            bold(sheet, 3, 0);
         }, sheet -> {
+            bold(sheet, 0, 0);
             rate(sheet, 1, 10);
-            bold(sheet, 2, 1);
-            // Another row inserted at the same place.
-            text(sheet, 3, 0, "BR");
-            rate(sheet, 3, 4);
+            deleteCanada(sheet);
         });
 
         var table = context.service()
@@ -447,10 +444,10 @@ class ProjectsMergeConflictsServiceImplTest {
                 .getFirst();
 
         assertEquals(ConflictTableReason.ROWS, table.reason());
-        assertEquals(List.of("A4", "B4"), table.ours().changedCells());
+        assertEquals(List.of("A3", "B3"), table.ours().changedCells());
         assertTrue(table.ours().formattingChanged());
-        // The row of US does not match the base one, and the label your version has alike is left out.
-        assertEquals(List.of("B2", "A4", "B4"), table.theirs().changedCells());
+        // The row of US does not match the base one, so each of its cells is changed.
+        assertEquals(List.of("A2", "B2"), table.theirs().changedCells());
         assertTrue(table.theirs().formattingChanged());
         assertFalse(table.base().formattingChanged());
     }
@@ -620,13 +617,7 @@ class ProjectsMergeConflictsServiceImplTest {
     void readsNoMergedTableForATableResolvedOnlyAsAWhole() throws Exception {
         var context = createContext();
         givenRates(context.repository(), sheet -> {
-        }, sheet -> {
-            text(sheet, 3, 0, "MX");
-            rate(sheet, 3, 3);
-        }, sheet -> {
-            text(sheet, 3, 0, "DE");
-            rate(sheet, 3, 4);
-        });
+        }, ProjectsMergeConflictsServiceImplTest::insertMexico, ProjectsMergeConflictsServiceImplTest::deleteCanada);
 
         var table = context.service()
                 .getConflictWorkbook(context.conflict(), FIRST_FILE)
@@ -691,13 +682,7 @@ class ProjectsMergeConflictsServiceImplTest {
     void refusesToMergeCellByCellATableResolvedOnlyAsAWhole() throws Exception {
         var context = createContext();
         givenRates(context.repository(), sheet -> {
-        }, sheet -> {
-            text(sheet, 3, 0, "MX");
-            rate(sheet, 3, 3);
-        }, sheet -> {
-            text(sheet, 3, 0, "DE");
-            rate(sheet, 3, 4);
-        });
+        }, ProjectsMergeConflictsServiceImplTest::insertMexico, ProjectsMergeConflictsServiceImplTest::deleteCanada);
         var service = context.service();
         var conflict = context.conflict();
         var ours = Map.of("Rules/A1:B3", new ConflictCellsDecision(ConflictBase.OURS, null));
@@ -1061,6 +1046,19 @@ class ProjectsMergeConflictsServiceImplTest {
             workbook.write(output);
             return output.toByteArray();
         }
+    }
+
+    /** Inserts MX between US and CA, which moves CA a row down. */
+    private static void insertMexico(Sheet sheet) {
+        text(sheet, 2, 0, "MX");
+        rate(sheet, 2, 3);
+        text(sheet, 3, 0, "CA");
+        rate(sheet, 3, 2);
+    }
+
+    /** Deletes CA, next to the row {@link #insertMexico} inserts before it. */
+    private static void deleteCanada(Sheet sheet) {
+        sheet.removeRow(sheet.getRow(2));
     }
 
     private static void text(Sheet sheet, int row, int column, String value) {

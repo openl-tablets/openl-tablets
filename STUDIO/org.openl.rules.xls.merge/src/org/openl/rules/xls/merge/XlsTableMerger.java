@@ -2,6 +2,7 @@ package org.openl.rules.xls.merge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -58,15 +59,20 @@ import org.openl.rules.xls.merge.diff.TableConflictReason;
  * revision, and the lines inserted, deleted or changed in one revision only are taken from it. The cells of a line
  * changed in both revisions are merged part by part.
  *
- * <p>A revision that only pushes its tables up or down, by rows it inserts into tables or between them, does not move
- * them on purpose: the merged sheet follows the places the other revision gives the tables, pushed by those rows.
+ * <p>Lines both revisions inserted at the same place are all kept: those of OUR revision first, then those of THEIR
+ * revision. A line both revisions inserted there holding the same values and comments is kept once, as OUR revision
+ * has it.
  *
- * <p>The sheet stays a conflict when both revisions change the same lines differently, insert different lines at the
- * same place, both move a table on purpose to different places, or delete a table the other revision changes. It
- * stays a conflict as
- * well when one revision changes the rows and the other the columns of one table, when a change crosses merged cells,
- * when merged tables would touch each other, and when moved content is referred to by a formula, a defined name, a
- * data validation, a conditional formatting or a hyperlink.
+ * <p>A revision that only pushes its tables up or down, by rows it inserts into tables or between them, does not move
+ * them on purpose: the merged sheet follows the places the other revision gives the tables, pushed by those rows. The
+ * rows a revision inserted into a table push the tables under it down as well when the table, grown by the rows of
+ * both revisions, would touch them otherwise.
+ *
+ * <p>The sheet stays a conflict when both revisions change the same lines differently, both move a table on purpose
+ * to different places, or delete a table the other revision changes. It stays a conflict as well when one revision
+ * changes the rows and the other the columns of one table, when a change crosses merged cells, when merged tables
+ * would touch each other, and when moved content is referred to by a formula, a defined name, a data validation, a
+ * conditional formatting or a hyperlink.
  *
  * <p>A table whose lines merge while some of its cells conflict can be resolved cell by cell: a survey lists the
  * merged table with its conflicting cells, and a resolution takes each conflicting cell from the revision chosen for
@@ -112,6 +118,10 @@ final class XlsTableMerger {
      * The rows of the tables both revisions kept, aligned with BASE revision, by the table of BASE revision.
      */
     private final Map<CellRangeAddress, Optional<Alignments>> rowAlignments = new HashMap<>();
+    /**
+     * The mergers of the rows of the tables both revisions kept, by the table of BASE revision.
+     */
+    private final Map<CellRangeAddress, Optional<LineMerger>> rowMergers = new HashMap<>();
     /**
      * The places of all the tables of the merged sheet.
      */
@@ -182,6 +192,10 @@ final class XlsTableMerger {
      * <p>A table both revisions changed in ways that cannot be combined is taken whole from the revision the conflicts
      * resolve it with. When nothing resolves it, the sheet stays a conflict.
      *
+     * <p>A table both revisions grew, each into the empty rows under it, may come to touch the table under it once it
+     * holds the rows of both. The rows one revision inserted then push the tables under it down, as they do when both
+     * revisions moved a table, unless a revision moved a table on purpose, whose move the pushed places would lose.
+     *
      * @param changedInTheirs tells whether THEIR revision changed or created a sheet, by its name
      * @param conflicts       resolves the tables that conflict, and learns why a sheet stays a conflict
      * @return what changes in OUR revision of the sheet, or nothing if the changes conflict
@@ -192,31 +206,80 @@ final class XlsTableMerger {
                                   Predicate<String> changedInTheirs,
                                   Conflicts conflicts) {
         var mark = conflicts.mark();
-        var split = Tables.of(base, our, their);
-        var merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts, split);
-        if (merger.merge(true)) {
+        var merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts, Tables.of(base, our, their));
+        if (merger.merge(Placing.MOVED_APART)) {
             return Optional.of(merger.content());
-        } else if (merger.pushes == null || conflicts.refusal() == null) {
+        } else if (conflicts.refusal() == null) {
+            return Optional.empty();
+        } else if (merger.pushes != null) {
+            // The combined places do not fit together: the tables both revisions moved are conflicts of their own then.
+            return merger.replan(mark, Placing.APART);
+        } else if (conflicts.refusal() != SheetConflictReason.TOUCHING_TABLES || !merger.pushedOnly()) {
             return Optional.empty();
         }
-        // The combined places do not fit together: the tables both revisions moved are conflicts of their own then.
-        conflicts.rewind(mark);
-        merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts, split);
-        return merger.merge(false) ? Optional.of(merger.content()) : Optional.empty();
+        var pushed = merger.replan(mark, Placing.PUSHED);
+        if (pushed.isEmpty()) {
+            // The sheet stays the conflict it was found to be.
+            merger.replan(mark, Placing.MOVED_APART);
+        }
+        return pushed;
     }
 
     /**
-     * @param combinesPlaces whether the places both revisions gave a table may be combined, when one revision only
-     *                       pushed its tables
+     * Tells whether the rows one revision inserted may push down the tables the other revision has under them: one
+     * revision only pushes its tables, and neither revision moved a table on purpose.
      */
-    private boolean merge(boolean combinesPlaces) {
+    private boolean pushedOnly() {
+        var baseTables = split.base();
+        var ourPairs = split.ourPairs();
+        var theirPairs = split.theirPairs();
+        SharedRows shared = (table, line) -> sharedRows(table, line, ourPairs, theirPairs);
+        return Pushes.movedOnPurpose(baseTables, ourPairs, shared).isEmpty()
+                && Pushes.movedOnPurpose(baseTables, theirPairs, shared).isEmpty()
+                && Pushes.of(baseTables, ourPairs, theirPairs, shared) != null;
+    }
+
+    /**
+     * Plans the merge of the sheet anew, with the places combined as given, once what this merge noted is forgotten.
+     */
+    private Optional<Content> replan(Conflicts.Mark mark, Placing placing) {
+        conflicts.rewind(mark);
+        var merger = new XlsTableMerger(base, our, their, changedInTheirs, conflicts, split);
+        return merger.merge(placing) ? Optional.of(merger.content()) : Optional.empty();
+    }
+
+    /**
+     * When the merged sheet combines the places both revisions gave the tables, one revision only pushing its tables
+     * by the rows it inserted or deleted.
+     */
+    private enum Placing {
+        /**
+         * Never: a table takes the place a revision moved it to.
+         */
+        APART,
+        /**
+         * When both revisions moved a table, each to another place.
+         */
+        MOVED_APART,
+        /**
+         * Always, so that the rows a revision inserted push down the tables the other revision has under them.
+         */
+        PUSHED
+    }
+
+    private boolean merge(Placing placing) {
         var baseTables = split.base();
         tables.addAll(baseTables);
         tables.addAll(split.our());
         tables.addAll(split.their());
         var ourPairs = split.ourPairs();
         var theirPairs = split.theirPairs();
-        if (combinesPlaces && movedApart(baseTables, ourPairs, theirPairs)) {
+        var combines = switch (placing) {
+            case APART -> false;
+            case MOVED_APART -> movedApart(baseTables, ourPairs, theirPairs);
+            case PUSHED -> true;
+        };
+        if (combines) {
             pushes = Pushes.of(baseTables,
                     ourPairs,
                     theirPairs,
@@ -313,16 +376,30 @@ final class XlsTableMerger {
                            int line,
                            Map<CellRangeAddress, CellRangeAddress> ourPairs,
                            Map<CellRangeAddress, CellRangeAddress> theirPairs) {
+        return rowMergers
+                .computeIfAbsent(baseTable, table -> Optional.ofNullable(rowMerger(table, ourPairs, theirPairs)))
+                .map(merger -> merger.sharedLines(line))
+                .orElse(0);
+    }
+
+    /**
+     * Merges the rows of a table both revisions kept.
+     *
+     * @return the merger, or {@code null} when a revision removed the table or too many rows changed to align them
+     */
+    private @Nullable LineMerger rowMerger(CellRangeAddress baseTable,
+                                           Map<CellRangeAddress, CellRangeAddress> ourPairs,
+                                           Map<CellRangeAddress, CellRangeAddress> theirPairs) {
         var ourTable = ourPairs.get(baseTable);
         var theirTable = theirPairs.get(baseTable);
         if (ourTable == null || theirTable == null) {
-            return 0;
+            return null;
         }
         var baseView = view(base, baseTable);
         var ourView = view(our, ourTable);
         var theirView = view(their, theirTable);
         var alignments = rowAlignments(baseTable, new Views(baseView, ourView, theirView));
-        return alignments == null ? 0 : new LineMerger(baseView, ourView, theirView, alignments).sharedLines(line);
+        return alignments == null ? null : new LineMerger(baseView, ourView, theirView, alignments);
     }
 
     /**
@@ -804,9 +881,9 @@ final class XlsTableMerger {
             return TableConflictReason.ROWS;
         }
         var target = transposed
-                ? place(start, positions, lines.size())
-                : place(start, lines.size(), positions);
-        var output = new TableOutput(views, new Lines(lines, alignments), target);
+                ? place(start, positions, lines.lines().size())
+                : place(start, lines.lines().size(), positions);
+        var output = new TableOutput(views, lines, target);
         var id = idOf(baseTable);
         var byCells = conflicts.decidedByCells(id);
         var reason = byCells == null && !conflicts.surveys() ? output.build() : output.buildByCells(id, byCells);
@@ -851,11 +928,20 @@ final class XlsTableMerger {
     private static long[] lineDigests(long[][] cells) {
         var digests = new long[cells.length];
         for (var line = 0; line < cells.length; line++) {
-            for (var position = 0; position < cells[line].length; position++) {
-                digests[line] += XlsSheetShifts.mix(position, cells[line][position]);
-            }
+            digests[line] = lineDigest(cells[line]);
         }
         return digests;
+    }
+
+    /**
+     * The digest of a line from the digests of its cells.
+     */
+    private static long lineDigest(long[] cells) {
+        var digest = 0L;
+        for (var position = 0; position < cells.length; position++) {
+            digest += XlsSheetShifts.mix(position, cells[position]);
+        }
+        return digest;
     }
 
     /**
@@ -1411,12 +1497,21 @@ final class XlsTableMerger {
          * Digests of the values of the cells by line and position, {@code 0} for a cell with nothing in it.
          */
         long[][] cellDigests() {
-            var digests = new long[lines()][positions()];
+            var digests = new long[lines()][];
             for (var line = 0; line < digests.length; line++) {
-                for (var position = 0; position < positions(); position++) {
-                    var cell = cell(line, position);
-                    digests[line][position] = cell == null ? 0 : XlsSheetShifts.digest(cell);
-                }
+                digests[line] = cellDigests(line);
+            }
+            return digests;
+        }
+
+        /**
+         * Digests of the values of the cells of a line by position, {@code 0} for a cell with nothing in it.
+         */
+        long[] cellDigests(int line) {
+            var digests = new long[positions()];
+            for (var position = 0; position < digests.length; position++) {
+                var cell = cell(line, position);
+                digests[position] = cell == null ? 0 : XlsSheetShifts.digest(cell);
             }
             return digests;
         }
@@ -1483,9 +1578,16 @@ final class XlsTableMerger {
      *
      * @param firstLine the first line of BASE revision the merged cells cover
      * @param lastLine  the last line of BASE revision the merged cells cover
-     * @param length    the number of lines the merged cells cover in the revision, inserted lines included
+     * @param length    the number of lines the merged cells cover in the revision, inserted lines included, less those
+     *                  inserted where both revisions inserted lines
+     * @param joints    the places both revisions inserted lines at that the merged cells stretch over
      */
-    private record RegionKey(int firstLine, int lastLine, int firstPosition, int lastPosition, int length) {
+    private record RegionKey(int firstLine,
+                             int lastLine,
+                             int firstPosition,
+                             int lastPosition,
+                             int length,
+                             Set<Joint> joints) {
     }
 
     /**
@@ -1530,8 +1632,9 @@ final class XlsTableMerger {
     /**
      * A line of a merged table: the lines of the revisions it comes from, {@code -1} for a revision it is not in.
      *
-     * <p>A line every revision has is merged cell by cell. Any other line is taken whole from the one revision it
-     * comes from: both OUR and THEIR revisions keep a line of BASE revision that neither of them deleted.
+     * <p>A line every revision has is merged cell by cell. Any other line is taken whole from one revision: both OUR
+     * and THEIR revisions keep a line of BASE revision that neither of them deleted. A line both revisions inserted
+     * alike at one place is taken from OUR revision.
      */
     private record Line(int base, int our, int their) {
 
@@ -1566,8 +1669,9 @@ final class XlsTableMerger {
      * The lines of a merged table, and how the revisions were aligned to get them.
      *
      * @param alignments the alignments of the lines, or {@code null} when the table is taken whole from one revision
+     * @param joints     the places both revisions inserted lines at
      */
-    private record Lines(List<Line> lines, @Nullable Alignments alignments) {
+    private record Lines(List<Line> lines, @Nullable Alignments alignments, List<Joint> joints) {
 
         /**
          * The rows of a table taken whole from one revision.
@@ -1577,12 +1681,35 @@ final class XlsTableMerger {
             for (var i = 0; i < count; i++) {
                 lines.add(Line.of(side, i));
             }
-            return new Lines(lines, null);
+            return new Lines(lines, null, List.of());
+        }
+
+        /**
+         * The place both revisions inserted a line of the merged table at, or {@code null} for a line of another
+         * place.
+         */
+        @Nullable Joint jointOf(int line) {
+            return joints.stream().filter(joint -> joint.from() <= line && line < joint.to()).findFirst().orElse(null);
         }
     }
 
     /**
+     * A place both revisions inserted lines at: the lines of OUR revision come first, and then the lines of THEIR
+     * revision that OUR revision has not inserted alike.
+     *
+     * @param base the line of BASE revision the inserted lines stand before
+     * @param from the first line of the merged table inserted there
+     * @param to   the line of the merged table after the last one inserted there
+     */
+    private record Joint(int base, int from, int to) {
+    }
+
+    /**
      * Merges the lines of a table changed in both revisions, the way a three-way merge of text merges lines.
+     *
+     * <p>The lines both revisions inserted at the same place follow one another, those of OUR revision first. A line
+     * THEIR revision inserted there that OUR revision inserted alike is not repeated, and neither are the lines of a
+     * structural change both revisions made alike: a line of OUR revision stands for the line of THEIR revision.
      */
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static final class LineMerger {
@@ -1591,58 +1718,144 @@ final class XlsTableMerger {
         private final View our;
         private final View their;
         private final Alignments alignments;
+        /**
+         * The lines of OUR revision alike the lines THEIR revision inserted, by the insertion of THEIR revision.
+         */
+        private final Map<LineAlignment.Hunk, int[]> alikeLines = new HashMap<>();
 
         /**
          * @return the lines of the merged table, or {@code null} if the changes conflict
          */
-        @Nullable List<Line> merge() {
+        @Nullable Lines merge() {
             var ourHunks = alignments.our().hunks();
             var theirHunks = new ArrayList<LineAlignment.Hunk>();
+            var madeAlike = new ArrayList<LineAlignment.Hunk>();
             for (LineAlignment.Hunk hunk : alignments.their().hunks()) {
-                var same = ourHunks.stream().anyMatch(ourHunk -> sameHunk(ourHunk, hunk));
-                if (!same) {
-                    if (ourHunks.stream().anyMatch(ourHunk -> overlap(ourHunk, hunk))) {
-                        return null;
-                    }
+                if (ourHunks.stream().anyMatch(ourHunk -> sameHunk(ourHunk, hunk))) {
+                    madeAlike.add(hunk);
+                } else if (ourHunks.stream().anyMatch(ourHunk -> overlap(ourHunk, hunk) && !joint(ourHunk, hunk))) {
+                    return null;
+                } else {
                     theirHunks.add(hunk);
                 }
             }
             if (changedUnder(ourHunks, their, alignments.their()) || changedUnder(theirHunks, our, alignments.our())) {
                 return null;
             }
-            return lines(ourHunks, theirHunks);
+            return lines(ourHunks, theirHunks, madeAlike);
         }
 
-        private List<Line> lines(List<LineAlignment.Hunk> ourHunks, List<LineAlignment.Hunk> theirHunks) {
+        /**
+         * @param madeAlike the structural changes of THEIR revision that OUR revision made alike
+         */
+        private Lines lines(List<LineAlignment.Hunk> ourHunks,
+                            List<LineAlignment.Hunk> theirHunks,
+                            List<LineAlignment.Hunk> madeAlike) {
             var lines = new ArrayList<Line>();
+            var joints = new ArrayList<Joint>();
             var covered = new boolean[base.lines()];
             for (var i = 0; i <= base.lines(); i++) {
-                addHunksAt(i, ourHunks, Side.OUR, lines, covered);
-                addHunksAt(i, theirHunks, Side.THEIR, lines, covered);
+                var ourHunk = hunkAt(i, ourHunks);
+                var theirHunk = hunkAt(i, theirHunks);
+                var alikeHunk = hunkAt(i, madeAlike);
+                var from = lines.size();
+                addLines(ourHunk, Side.OUR, lines, covered);
+                if (ourHunk != null && alikeHunk != null) {
+                    for (var line = 0; line < alikeHunk.sideTo() - alikeHunk.sideFrom(); line++) {
+                        lines.set(from + line, new Line(-1, ourHunk.sideFrom() + line, alikeHunk.sideFrom() + line));
+                    }
+                } else if (ourHunk != null && theirHunk != null) {
+                    addInsertedAlongside(ourHunk, theirHunk, from, lines);
+                    joints.add(new Joint(i, from, lines.size()));
+                } else {
+                    addLines(theirHunk, Side.THEIR, lines, covered);
+                }
                 if (i < base.lines() && !covered[i]) {
                     lines.add(new Line(i, alignments.our().sideOf()[i], alignments.their().sideOf()[i]));
                 }
             }
-            return lines;
+            return new Lines(lines, alignments, joints);
         }
 
         /**
-         * Adds the lines of a revision's structural changes made before a line of BASE revision, and marks the lines of
-         * BASE revision they replace.
+         * The structural change a revision made before a line of BASE revision, if any.
          */
-        private static void addHunksAt(int baseLine,
-                                       List<LineAlignment.Hunk> hunks,
-                                       Side side,
-                                       List<Line> lines,
-                                       boolean[] covered) {
-            for (LineAlignment.Hunk hunk : hunks) {
-                if (hunk.baseFrom() == baseLine) {
-                    for (var line = hunk.sideFrom(); line < hunk.sideTo(); line++) {
-                        lines.add(Line.of(side, line));
-                    }
-                    Arrays.fill(covered, hunk.baseFrom(), hunk.baseTo(), true);
+        private static LineAlignment.@Nullable Hunk hunkAt(int baseLine, List<LineAlignment.Hunk> hunks) {
+            return hunks.stream().filter(hunk -> hunk.baseFrom() == baseLine).findFirst().orElse(null);
+        }
+
+        /**
+         * Adds the lines of a structural change of a revision, and marks the lines of BASE revision they replace.
+         */
+        private static void addLines(LineAlignment.@Nullable Hunk hunk, Side side, List<Line> lines, boolean[] covered) {
+            if (hunk != null) {
+                for (var line = hunk.sideFrom(); line < hunk.sideTo(); line++) {
+                    lines.add(Line.of(side, line));
+                }
+                Arrays.fill(covered, hunk.baseFrom(), hunk.baseTo(), true);
+            }
+        }
+
+        /**
+         * Adds the lines THEIR revision inserted where OUR revision inserted lines too, after those of OUR revision.
+         * A line OUR revision inserted alike stands for the line of THEIR revision.
+         *
+         * @param from the line of the merged table the lines OUR revision inserted there start at
+         */
+        private void addInsertedAlongside(LineAlignment.Hunk ourHunk,
+                                          LineAlignment.Hunk theirHunk,
+                                          int from,
+                                          List<Line> lines) {
+            var alike = alike(ourHunk, theirHunk);
+            for (var i = 0; i < alike.length; i++) {
+                var theirLine = theirHunk.sideFrom() + i;
+                if (alike[i] < 0) {
+                    lines.add(Line.of(Side.THEIR, theirLine));
+                } else {
+                    lines.set(from + alike[i] - ourHunk.sideFrom(), new Line(-1, alike[i], theirLine));
                 }
             }
+        }
+
+        /**
+         * Finds the lines OUR revision inserted alike for the lines THEIR revision inserted at the same place: lines
+         * holding the same values and comments, each line of OUR revision standing for one line of THEIR revision.
+         *
+         * @return the line of OUR revision by the line THEIR revision inserted, counted from the first one, or
+         * {@code -1} for a line OUR revision has not inserted alike
+         */
+        private int[] alike(LineAlignment.Hunk ourHunk, LineAlignment.Hunk theirHunk) {
+            return alikeLines.computeIfAbsent(theirHunk, hunk -> findAlike(ourHunk, hunk));
+        }
+
+        private int[] findAlike(LineAlignment.Hunk ourHunk, LineAlignment.Hunk theirHunk) {
+            var ourLines = new HashMap<Long, List<Integer>>();
+            for (var line = ourHunk.sideFrom(); line < ourHunk.sideTo(); line++) {
+                ourLines.computeIfAbsent(lineDigest(our.cellDigests(line)), digest -> new ArrayList<>()).add(line);
+            }
+            var alike = new int[theirHunk.sideTo() - theirHunk.sideFrom()];
+            for (var i = 0; i < alike.length; i++) {
+                var theirLine = theirHunk.sideFrom() + i;
+                alike[i] = takeAlike(ourLines.getOrDefault(lineDigest(their.cellDigests(theirLine)), List.of()),
+                        theirLine);
+            }
+            return alike;
+        }
+
+        /**
+         * Takes the first line of OUR revision that holds the same as a line of THEIR revision out of the candidates.
+         *
+         * @return the line, or {@code -1} when none holds the same
+         */
+        private int takeAlike(List<Integer> candidates, int theirLine) {
+            for (var iterator = candidates.iterator(); iterator.hasNext(); ) {
+                var ourLine = iterator.next();
+                if (our.holdsLine(ourLine, their, theirLine)) {
+                    iterator.remove();
+                    return ourLine;
+                }
+            }
+            return -1;
         }
 
         /**
@@ -1654,10 +1867,36 @@ final class XlsTableMerger {
             return alignments.our()
                     .hunks()
                     .stream()
-                    .filter(hunk -> hunk.baseTo() <= line
-                            && theirHunks.stream().anyMatch(theirHunk -> sameHunk(hunk, theirHunk)))
-                    .mapToInt(hunk -> hunk.sideTo() - hunk.sideFrom() - hunk.baseTo() + hunk.baseFrom())
+                    .filter(hunk -> hunk.baseTo() <= line)
+                    .mapToInt(hunk -> theirHunks.stream().mapToInt(theirHunk -> sharedLines(hunk, theirHunk)).sum())
                     .sum();
+        }
+
+        /**
+         * The lines two structural changes of the revisions share: the lines a change both revisions made alike
+         * inserts less those it deletes, or the lines both revisions inserted alike at the same place.
+         */
+        private int sharedLines(LineAlignment.Hunk ourHunk, LineAlignment.Hunk theirHunk) {
+            if (sameHunk(ourHunk, theirHunk)) {
+                return ourHunk.sideTo() - ourHunk.sideFrom() - ourHunk.baseTo() + ourHunk.baseFrom();
+            } else if (joint(ourHunk, theirHunk)) {
+                return (int) Arrays.stream(alike(ourHunk, theirHunk)).filter(line -> line >= 0).count();
+            }
+            return 0;
+        }
+
+        /**
+         * Tells whether both revisions only inserted lines at the same place, which the merge keeps one after another.
+         *
+         * <p>Columns inserted before the first column of a table are not kept so, since that column holds the header
+         * of the table. Neither are rows inserted right under the header, where a table keeps its properties: the rows
+         * of each revision would start properties of their own.
+         */
+        private boolean joint(LineAlignment.Hunk ourHunk, LineAlignment.Hunk theirHunk) {
+            return ourHunk.baseFrom() == ourHunk.baseTo()
+                    && theirHunk.baseFrom() == theirHunk.baseTo()
+                    && ourHunk.baseFrom() == theirHunk.baseFrom()
+                    && ourHunk.baseFrom() > (base.transposed() ? 0 : 1);
         }
 
         /**
@@ -1991,15 +2230,18 @@ final class XlsTableMerger {
          * over lines it inserted, or shrank by lines it deleted, are changed in that revision. Merged cells over lines
          * a revision inserted only come with those lines.
          *
+         * <p>Where both revisions inserted lines at one place, merged cells a revision stretched over all the lines it
+         * inserted there are stretched over the lines both revisions inserted there. Merged cells stretched over some
+         * of them only cannot be.
+         *
          * @return {@code false} if both revisions changed the merged cells differently, merged cells do not stay over
          * lines next to each other, or they cover a value another revision wrote
          */
         private boolean buildRegions() {
-            var keys = new EnumMap<Side, Set<RegionKey>>(Side.class);
-            var spans = new EnumMap<Side, List<Span>>(Side.class);
+            var keys = new EnumMap<Side, Map<Span, RegionKey>>(Side.class);
             for (Side side : Side.values()) {
                 var view = views.of(side);
-                if (view != null && !sortRegions(side, view, keys, spans)) {
+                if (view != null && !sortRegions(side, view, keys)) {
                     return false;
                 }
             }
@@ -2007,14 +2249,16 @@ final class XlsTableMerger {
                 // A table taken whole from one revision has every merged cell of it placed with its lines.
                 return true;
             }
-            var choice = XlsSheetMerger.choose(keys.get(Side.BASE), keys.get(Side.OUR), keys.get(Side.THEIR),
+            var choice = XlsSheetMerger.choose(Set.copyOf(keys.get(Side.BASE).values()),
+                    Set.copyOf(keys.get(Side.OUR).values()),
+                    Set.copyOf(keys.get(Side.THEIR).values()),
                     Object::equals);
             if (choice == Choice.CONFLICT) {
                 return false;
             }
             var owner = choice == Choice.THEIR ? Side.THEIR : Side.OUR;
-            for (Span span : spans.get(owner)) {
-                if (!place(span, owner)) {
+            for (var entry : keys.get(owner).entrySet()) {
+                if (!place(entry.getKey(), owner, entry.getValue().joints())) {
                     return false;
                 }
             }
@@ -2027,45 +2271,53 @@ final class XlsTableMerger {
          *
          * @return {@code false} if merged cells cannot be placed
          */
-        private boolean sortRegions(Side side,
-                                    View view,
-                                    Map<Side, Set<RegionKey>> keys,
-                                    Map<Side, List<Span>> spans) {
-            var sideKeys = new HashSet<RegionKey>();
-            var sideSpans = new ArrayList<Span>();
+        private boolean sortRegions(Side side, View view, Map<Side, Map<Span, RegionKey>> keys) {
+            var sideKeys = new LinkedHashMap<Span, RegionKey>();
             keys.put(side, sideKeys);
-            spans.put(side, sideSpans);
             for (Span span : view.regions()) {
                 var key = key(side, span);
-                if (key != null) {
-                    sideKeys.add(key);
-                    sideSpans.add(span);
-                } else if (!place(span, side)) {
+                if (key == null) {
+                    if (!place(span, side, Set.of())) {
+                        return false;
+                    }
+                } else if (!coverWholeJoints(side, span, key)) {
                     return false;
+                } else {
+                    sideKeys.put(span, key);
                 }
             }
             return true;
         }
 
         /**
-         * The lines of BASE revision merged cells of a revision cover, and the number of lines they cover in that
-         * revision.
+         * The lines of BASE revision merged cells of a revision cover, the number of lines they cover in that
+         * revision, and the places both revisions inserted lines at they stretch over. The lines inserted at those
+         * places are not counted, so merged cells both revisions stretched over the lines they inserted there have
+         * one key.
          *
          * @return the key, or {@code null} for merged cells over lines the revision inserted only, or of a table
          * taken whole from one revision
          */
         private @Nullable RegionKey key(Side side, Span span) {
-            var length = span.lastLine() - span.firstLine() + 1;
-            if (lines.alignments() == null) {
+            var alignments = lines.alignments();
+            if (alignments == null) {
                 return null;
             } else if (side == Side.BASE) {
                 return new RegionKey(span.firstLine(), span.lastLine(), span.firstPosition(), span.lastPosition(),
-                        length);
+                        span.lastLine() - span.firstLine() + 1, Set.of());
             }
-            var baseOf = lines.alignments().of(side).baseOf();
+            var baseOf = alignments.of(side).baseOf();
             var first = -1;
             var last = -1;
+            var length = 0;
+            var joints = new HashSet<Joint>();
             for (var line = span.firstLine(); line <= span.lastLine(); line++) {
+                var joint = baseOf[line] < 0 ? lines.jointOf(lineOf.get(side)[line]) : null;
+                if (joint != null) {
+                    joints.add(joint);
+                } else {
+                    length++;
+                }
                 if (baseOf[line] >= 0) {
                     first = first < 0 ? baseOf[line] : first;
                     last = baseOf[line];
@@ -2073,24 +2325,49 @@ final class XlsTableMerger {
             }
             return first < 0
                     ? null
-                    : new RegionKey(first, last, span.firstPosition(), span.lastPosition(), length);
+                    : new RegionKey(first, last, span.firstPosition(), span.lastPosition(), length, joints);
         }
 
         /**
-         * Places merged cells of a revision in the merged table by the lines of that revision.
-         *
-         * @return {@code false} if those lines are not next to each other in the merged table, or the merged cells
-         * cover a value another revision wrote
+         * Tells whether merged cells of a revision cover every line the revision inserted at each place both
+         * revisions inserted lines at that the merged cells reach.
          */
-        private boolean place(Span span, Side owner) {
+        private boolean coverWholeJoints(Side side, Span span, RegionKey key) {
+            var lineOfSide = lineOf.get(side);
+            return key.joints().stream().allMatch(joint -> {
+                var covered = IntStream.rangeClosed(span.firstLine(), span.lastLine())
+                        .filter(line -> joint.equals(lines.jointOf(lineOfSide[line])))
+                        .count();
+                var inserted = IntStream.range(joint.from(), joint.to())
+                        .filter(line -> lines.lines().get(line).of(side) >= 0)
+                        .count();
+                return covered == inserted;
+            });
+        }
+
+        /**
+         * Places merged cells of a revision in the merged table by the lines of that revision, stretched over the
+         * lines both revisions inserted at the places given.
+         *
+         * @param joints the places both revisions inserted lines at that the merged cells stretch over
+         * @return {@code false} if those lines are not next to each other in the merged table, or the merged cells
+         * cover a value another revision wrote or other merged cells
+         */
+        private boolean place(Span span, Side owner, Set<Joint> joints) {
             var lineOfSide = lineOf.get(owner);
-            var first = lineOfSide[span.firstLine()];
+            var mergedLines = new BitSet();
             for (var line = span.firstLine(); line <= span.lastLine(); line++) {
-                if (first < 0 || lineOfSide[line] != first + line - span.firstLine()) {
+                if (lineOfSide[line] < 0) {
                     return false;
                 }
+                mergedLines.set(lineOfSide[line]);
             }
-            var last = first + span.lastLine() - span.firstLine();
+            joints.forEach(joint -> mergedLines.set(joint.from(), joint.to()));
+            var first = mergedLines.nextSetBit(0);
+            var last = mergedLines.length() - 1;
+            if (mergedLines.cardinality() != last - first + 1) {
+                return false;
+            }
             for (var line = first; line <= last; line++) {
                 for (var position = span.firstPosition(); position <= span.lastPosition(); position++) {
                     var covered = line != first || position != span.firstPosition();
@@ -2099,7 +2376,14 @@ final class XlsTableMerger {
                     }
                 }
             }
-            regions.add(area(address(first, span.firstPosition()), address(last, span.lastPosition())));
+            var region = area(address(first, span.firstPosition()), address(last, span.lastPosition()));
+            if (regions.contains(region)) {
+                // Both revisions inserted the line alike with these merged cells.
+                return true;
+            } else if (regions.stream().anyMatch(region::intersects)) {
+                return false;
+            }
+            regions.add(region);
             return true;
         }
 
