@@ -161,8 +161,8 @@ export const copyTable = async (
  * <p>Only the values cross the wire: the table's body takes no part in this, however large it is. A property
  * given no value is taken away, and a value the module or the category also declares applies again in its place.
  *
- * @returns the table's id after the write — it changes when the table had to be moved to grow — or null when
- *          the write failed, which is reported to the reader here
+ * @returns the table's id after the write — it changes when the write renamed the table or changed its `id`
+ *          property — or null when the write failed, which is reported to the reader here
  */
 export const updateTableProperties = async (
     projectId: string,
@@ -182,7 +182,8 @@ export const updateTableProperties = async (
             LOCAL_LOAD_API_OPTIONS
         ) as { id?: string } | null
         notification.success({ title: i18n.t('project:table_properties.saved') })
-        // The table keeps its id unless it had to be moved to grow, and then the answer carries the new one.
+        // The table keeps its id unless the write renamed it or changed its id property, and then the answer
+        // carries the new one.
         return written?.id ?? tableId
     } catch (error) {
         notifyLoadFailure(i18n.t('project:table_properties.save_failed'), error)
@@ -196,8 +197,8 @@ export const updateTableProperties = async (
  * <p>The edits are applied in the order they were made and the table is written once, so an editing session of
  * any size costs a single request — and a refused edit leaves the table exactly as it was.
  *
- * @returns the table's id after the write — it changes when the table had to be moved to grow — or null when
- *          the write failed, which is reported to the reader here
+ * @returns the table's id after the write — it changes when the write renamed the table or changed its `id`
+ *          property — or null when the write failed, which is reported to the reader here
  */
 export const applyTableActions = async (
     projectId: string,
@@ -217,7 +218,8 @@ export const applyTableActions = async (
             LOCAL_LOAD_API_OPTIONS
         ) as { id?: string } | null
         notification.success({ title: i18n.t('project:table_edit.saved') })
-        // The table keeps its id unless it had to be moved to grow, and then the answer carries the new one.
+        // The table keeps its id unless the write renamed it or changed its id property, and then the answer
+        // carries the new one.
         return written?.id ?? tableId
     } catch (error) {
         notifyLoadFailure(i18n.t('project:table_edit.save_failed'), error)

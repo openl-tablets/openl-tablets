@@ -623,13 +623,13 @@ describe('TableEditor', () => {
 
             const written = await act(() => held.current?.write() ?? Promise.resolve(null))
 
-            // The table may be moved to grow as it is written, and what writes its properties next has to
-            // address the table that leaves rather than the one it started from.
+            // The write may rename the table, and what writes its properties next has to address it by the id
+            // it has afterwards rather than the one it started with.
             expect(applyTableActions).toHaveBeenCalled()
             expect(written).toEqual({ tableId: 'table-2', changed: true })
         })
 
-        it('lets the screen open the table a save has moved, without holding the reader back', async () => {
+        it('lets the screen open the table a save has renamed, without holding the reader back', async () => {
             vi.mocked(applyTableActions).mockResolvedValue('table-2')
             // The screen opens the table under its new id as soon as the save answers, before the editor is
             // drawn again, and the router asks then whether leaving would lose anything.
