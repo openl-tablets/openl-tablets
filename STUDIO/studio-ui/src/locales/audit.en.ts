@@ -82,6 +82,7 @@ i18next.addResourceBundle('en', 'audit', {
         bearer: 'Bearer token',
         oauth2: 'OpenID Connect',
         saml: 'SAML',
+        link: 'Transfer link',
     },
     outcomes: {
         success: 'Success',

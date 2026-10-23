@@ -68,7 +68,7 @@ public final class FileIntegrityValidator {
      * upload longer than this is refused instead of filling the file system it is copied to. The
      * bound matches the one the other upload paths of OpenL Studio apply.
      */
-    private static final long MAX_BUFFERED_BYTES = 1000L * 1024 * 1024;
+    public static final long MAX_BUFFERED_BYTES = 1000L * 1024 * 1024;
 
     /**
      * The largest workbook read into memory to be verified in full - one carried by an archive, and

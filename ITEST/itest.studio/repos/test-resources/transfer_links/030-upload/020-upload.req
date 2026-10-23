@@ -1,0 +1,5 @@
+PUT /{UPLOAD_LINK} HTTP/1.1
+Cookie: NO_JSESSIONID=noAuth
+Content-Type: application/octet-stream
+
+&../upload/new.txt

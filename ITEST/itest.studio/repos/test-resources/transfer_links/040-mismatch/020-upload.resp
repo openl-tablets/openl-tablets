@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.transfer.upload.mismatch.message",
+  "message": "The uploaded file does not have the size or the SHA-256 declared for the link. Nothing was written."
+}

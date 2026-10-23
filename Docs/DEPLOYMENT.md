@@ -147,9 +147,13 @@ A client configuration, here for Claude Code (`.mcp.json`):
 |------------------|-------------------------|----------------------------------------------------------------------|
 | `mcp.enabled`    | `true`                  | Starts the server.                                                   |
 | `mcp.node`       | `node`                  | Node.js executable: a name on the `PATH` or an absolute path.         |
+| `transfer.link.ttl` | `PT15M`              | How long a transfer link of an agent works after it is issued.       |
+| `transfer.max-pending` | `20`              | How many transfer links one client holds; a new one ends the oldest. |
 
 - **Browser clients** — a web page of another origin calls `/mcp` only when `cors.allowed.origins` lists it, as for the
   REST API; clients outside a browser send no origin.
+- **Transfer links** — an agent downloads and uploads a large or a binary file at `/transfers/<id>`, with no
+  credential; a reverse proxy passes that path too, and lets a request be as large as the files agents upload.
 
 ## Docker Compose
 

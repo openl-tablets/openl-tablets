@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -28,6 +29,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.studio.audit.model.AuditAuthentication;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.transfer.TransferLinkAuthentication;
 
 class AuthenticationMethodsTest {
 
@@ -56,6 +58,9 @@ class AuthenticationMethodsTest {
                 AuthenticationMethods.of(new OAuth2AuthenticationToken(oauth2User, List.of(), "oidc")));
         assertEquals(AuditAuthentication.SAML, AuthenticationMethods.of(mock(Saml2Authentication.class)));
         assertEquals(AuditAuthentication.SAML, AuthenticationMethods.of(mock(Saml2AuthenticationToken.class)));
+        assertEquals(AuditAuthentication.LINK,
+                AuthenticationMethods.of(new TransferLinkAuthentication(
+                        User.withUsername("jdoe").password("secret").build(), List.of())));
     }
 
     @Test

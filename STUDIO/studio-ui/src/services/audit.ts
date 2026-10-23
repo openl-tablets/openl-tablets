@@ -35,7 +35,7 @@ export const AUDIT_ACTIONS = {
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const
 export const AUDIT_OUTCOMES = ['success', 'failure', 'denied'] as const
-export const AUDIT_AUTHENTICATIONS = ['form', 'basic', 'token', 'bearer', 'oauth2', 'saml'] as const
+export const AUDIT_AUTHENTICATIONS = ['form', 'basic', 'token', 'bearer', 'oauth2', 'saml', 'link'] as const
 
 /** The area an audit event belongs to, as the REST API names it. */
 export type AuditCategory = keyof typeof AUDIT_ACTIONS

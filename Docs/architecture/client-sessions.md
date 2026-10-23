@@ -43,6 +43,15 @@ A credential is told apart by what it stands for, never by the token value:
 
 Controllers and services get the beans as before; the scope finds the right instance.
 
+## A Request That Names Its Client
+
+A request to a transfer link carries no credential: the link is the credential
+([MCP File Transfer Links](mcp-file-transfer.md)). The link names the client that asked for it by the key its state is
+kept under (`ClientSessions.currentKey`), and the request enters that client (`ClientSessions.enter`): it finds the
+client's beans — its pending merge conflict, its compiled project — and keeps the client from being idle while it runs.
+A key nothing is kept under any more, after the idle timeout or a reload, enters nothing, and the link is refused. A
+browser session has no key, so a browser is issued no link.
+
 ## Single-User Mode
 
 In single-user mode every request acts as the one user, so the scope keeps the state of every request for that user,

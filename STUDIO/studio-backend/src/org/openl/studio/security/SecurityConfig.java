@@ -13,6 +13,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 
 import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
+import org.openl.studio.transfer.TransferServlet;
 
 @Configuration
 @EnableWebSecurity
@@ -47,7 +48,9 @@ public class SecurityConfig {
                                 StudioDispatcherServlet.REST_PATH + "/public/**",
                                 StudioDispatcherServlet.REST_PATH + "/settings",
                                 StudioDispatcherServlet.REST_PATH + "/api-docs",
-                                StudioDispatcherServlet.REST_PATH + "/openapi.json"
+                                StudioDispatcherServlet.REST_PATH + "/openapi.json",
+                                // A transfer link is its own credential: the handler of the link checks it.
+                                TransferServlet.PATH + "/**"
                         )
                         // A page of a guide is the application page, guarded as every other page.
                         .requestMatchers(RequestMatchers.userGuideFiles()))

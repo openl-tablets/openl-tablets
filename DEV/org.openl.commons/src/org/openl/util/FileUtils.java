@@ -79,9 +79,32 @@ public class FileUtils {
     public static Path copyToPrivateTempFile(InputStream content, String prefix, String suffix,
                                              long maxBytes) throws IOException {
         Path file = createPrivateTempFile(prefix, suffix);
-        // The content is written into the file that was just created, so it keeps the permissions it was
-        // created with. Files.copy(..., REPLACE_EXISTING) would delete that file and create a new one,
-        // which the default umask makes readable by every local user.
+        try {
+            copyBounded(content, file, maxBytes);
+        } catch (IOException e) {
+            deleteQuietly(file);
+            throw e;
+        }
+        return file;
+    }
+
+    /**
+     * Copies the content into a file that exists already, such as one {@link #createPrivateTempFile} created, and
+     * returns how many bytes it copied. The stream is left open for the caller to close, and so is the file to
+     * delete on a failure.
+     *
+     * <p>The file keeps the permissions it was created with: it is written in place, where {@code Files.copy(...,
+     * REPLACE_EXISTING)} would delete it and create a new one, which the default umask makes readable by every
+     * local user. The copy stops as soon as the content is longer than {@code maxBytes} and reports it as
+     * {@link ContentTooLargeException}, so content of an unknown length cannot fill the disk it is copied to.
+     *
+     * @param content  the content to copy
+     * @param file     the file to write the content into
+     * @param maxBytes the largest content that may be copied
+     * @return the number of bytes copied
+     * @throws ContentTooLargeException when the content is longer than {@code maxBytes}
+     */
+    public static long copyBounded(InputStream content, Path file, long maxBytes) throws IOException {
         try (OutputStream out = Files.newOutputStream(file)) {
             byte[] buffer = new byte[64 * 1024];
             long copied = 0;
@@ -93,11 +116,8 @@ public class FileUtils {
                 }
                 out.write(buffer, 0, read);
             }
-        } catch (IOException e) {
-            deleteQuietly(file);
-            throw e;
+            return copied;
         }
-        return file;
     }
 
     /**

@@ -19,6 +19,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.studio.audit.model.AuditAuthentication;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.transfer.TransferLinkAuthentication;
 
 /**
  * Tells how a user signed in, or tried to, from the authentication Spring Security holds for the user.
@@ -48,6 +49,7 @@ final class AuthenticationMethods {
             case OAuth2AuthenticationToken ignored -> AuditAuthentication.OAUTH2;
             case Saml2AuthenticationToken ignored -> AuditAuthentication.SAML;
             case Saml2Authentication ignored -> AuditAuthentication.SAML;
+            case TransferLinkAuthentication ignored -> AuditAuthentication.LINK;
             case UsernamePasswordAuthenticationToken ignored -> passwordAuthentication();
             default -> null;
         };

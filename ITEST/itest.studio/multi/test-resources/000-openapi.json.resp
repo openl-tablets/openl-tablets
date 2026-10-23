@@ -116,6 +116,10 @@ Content-Type: application/json
       "name": "Tags"
     },
     {
+      "description": "***",
+      "name": "Transfer Links (BETA)"
+    },
+    {
       "name": "Users"
     },
     {
@@ -1972,7 +1976,8 @@ Content-Type: application/json
                 "token",
                 "bearer",
                 "oauth2",
-                "saml"
+                "saml",
+                "link"
               ]
             }
           },
@@ -22263,6 +22268,119 @@ Content-Type: application/json
         ]
       }
     },
+    "/transfer-links": {
+      "post": {
+        "description": "***",
+        "operationId": "***",
+        "parameters": [
+          {
+            "description": "***",
+            "in": "query",
+            "name": "fields",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferLinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferLinkView"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "423": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          }
+        },
+        "summary": "***",
+        "tags": [
+          "Transfer Links (BETA)"
+        ]
+      }
+    },
     "/users": {
       "get": {
         "description": "***",
@@ -24320,7 +24438,8 @@ Content-Type: application/json
               "token",
               "bearer",
               "oauth2",
-              "saml"
+              "saml",
+              "link"
             ]
           },
           "category": {
@@ -33857,6 +33976,93 @@ Content-Type: application/json
           "pageNumber",
           "pageSize"
         ]
+      },
+      "TransferLinkRequest": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "***"
+          },
+          "conflictPolicy": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "FAIL",
+              "OVERWRITE",
+              "SKIP",
+              "REPLACE"
+            ]
+          },
+          "createFolders": {
+            "type": "boolean",
+            "description": "***"
+          },
+          "kind": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "download",
+              "archive",
+              "conflictVersion",
+              "upload"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          },
+          "projectId": {
+            "type": "string",
+            "description": "***",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "description": "***",
+            "pattern": "[0-9a-fA-F]{64}"
+          },
+          "side": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "base",
+              "ours",
+              "theirs"
+            ]
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64",
+            "description": "***",
+            "minimum": 0
+          },
+          "version": {
+            "type": "string",
+            "description": "***"
+          }
+        },
+        "required": [
+          "kind",
+          "path",
+          "projectId"
+        ]
+      },
+      "TransferLinkView": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "***"
+          },
+          "path": {
+            "type": "string",
+            "description": "***"
+          }
+        }
       },
       "TreeChildrenView": {
         "type": "object",

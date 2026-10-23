@@ -1,0 +1,7 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.transfer.link.unknown.message",
+  "message": "The transfer link is unknown, has expired or has been used. Ask for a new link."
+}
