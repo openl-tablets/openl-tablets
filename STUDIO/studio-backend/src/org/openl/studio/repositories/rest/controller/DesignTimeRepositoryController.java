@@ -181,8 +181,7 @@ public class DesignTimeRepositoryController {
             throw new BadRequestException("repos.create-project.no-source.message");
         }
 
-        String resolvedComment = StringUtils.isNotBlank(comment) ? comment
-                : getCommentsService(repository.getId()).createProject(projectName);
+        var resolvedComment = resolveCreateComment(repository, projectName, comment);
         var model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
                 StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolvedComment, overwrite, branch);
         validationProvider.validate(model);
@@ -314,10 +313,13 @@ public class DesignTimeRepositoryController {
         if (source == null) {
             throw new NotFoundException("project.identifier.message");
         }
-        // Validate the target name, comment and path before copying. An omitted comment falls back to the
-        // repository "copied from" template rather than to the create-project one.
-        String comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
-                : getCommentsService(repository.getId()).copiedFrom(source.getBusinessName());
+        // Validate the target name and path before copying. Repositories that store comments use the
+        // "copied from" template when the comment is omitted.
+        String comment = null;
+        if (repository.supports().comments()) {
+            comment = StringUtils.isNotBlank(request.comment()) ? request.comment()
+                    : getCommentsService(repository.getId()).copiedFrom(source.getBusinessName());
+        }
         var model = validatedCreateModel(repository, projectName, request.path(), comment, request.branch());
         allowedToPushRequestedBranch(repository, request.branch(), false);
         var targetRepository = projectCreationTargetResolver.resolve(repository, request.branch());
@@ -335,22 +337,29 @@ public class DesignTimeRepositoryController {
     }
 
     /**
-     * Build and validate a create model — project-name format, comment (length + repo pattern) and the
+     * Build and validate a create model — project-name format, supported comments and the
      * duplicate/path-conflict check — reused by the copy and publish flows so they match the archive path
      * and the legacy repository tab. Never allows overwrite.
      */
     private CreateUpdateProjectModel validatedCreateModel(Repository repository,
                                                           String projectName,
                                                           String path,
-                                                          String comment,
+                                                          @Nullable String comment,
                                                           @Nullable String branch) {
-        String resolved = StringUtils.isNotBlank(comment) ? comment
-                : getCommentsService(repository.getId()).createProject(projectName);
+        var resolved = resolveCreateComment(repository, projectName, comment);
         var model = new CreateUpdateProjectModel(repository.getId(), getUserName(),
                 StringUtils.trimToNull(projectName), StringUtils.trimToNull(path), resolved, false, branch);
         validationProvider.validate(model);
         validationProvider.validate(model, createUpdateProjectModelValidator);
         return model;
+    }
+
+    private @Nullable String resolveCreateComment(Repository repository, String projectName, @Nullable String comment) {
+        if (!repository.supports().comments()) {
+            return null;
+        }
+        return StringUtils.isNotBlank(comment) ? comment
+                : getCommentsService(repository.getId()).createProject(projectName);
     }
 
     private Lock getLock(Repository repository, CreateUpdateProjectModel model) {

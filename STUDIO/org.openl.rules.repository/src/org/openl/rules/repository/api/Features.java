@@ -1,11 +1,15 @@
 package org.openl.rules.repository.api;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Example of usage: if (repository.supports().branches()) return ((BranchRepository) repository).getBranch();
  *
  * @see BranchRepository
  * @see FeaturesBuilder
  */
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class Features {
     private final boolean folders;
     private final boolean branches;
@@ -14,19 +18,7 @@ public final class Features {
     private final boolean uniqueFileId;
     private final boolean local;
     private final boolean searchable;
-
-    /**
-     * Don't use this constructor directly. Use {@link FeaturesBuilder} instead.
-     */
-    Features(boolean folders, boolean branches, boolean versions, boolean mappedFolders, boolean uniqueFileId, boolean local, boolean searchable) {
-        this.folders = folders;
-        this.branches = branches;
-        this.versions = versions;
-        this.mappedFolders = mappedFolders;
-        this.uniqueFileId = uniqueFileId;
-        this.local = local;
-        this.searchable = searchable;
-    }
+    private final boolean comments;
 
     /**
      * If true, repository can use Folders features
@@ -74,5 +66,10 @@ public final class Features {
 
     public boolean searchable() {
         return searchable;
+    }
+
+    /** Whether the repository stores comments on project changes. */
+    public boolean comments() {
+        return comments;
     }
 }
