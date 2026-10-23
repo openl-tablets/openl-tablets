@@ -14,7 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_set_trace_breakpoints",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "set": []
+      "breakpoints": []
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

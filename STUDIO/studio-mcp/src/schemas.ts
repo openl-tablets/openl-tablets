@@ -5,6 +5,7 @@
 
 import { z } from "zod";
 import { isValidBase64 } from "./content-utils.js";
+import { parseJsonOrText } from "./http.js";
 import {
   BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, RESPONSE_FORMATS, TABLE_KINDS,
 } from "./types.js";
@@ -137,13 +138,20 @@ const tableActionBase = {
 /** A tool that names one table: its project and its id. */
 export const tableOnlySchema = z.strictObject(tableActionBase);
 
+/** Whether a string holds a JSON object or array, the inputs a method takes. */
+function isJsonInput(text: string): boolean {
+  const value = parseJsonOrText(text);
+  return typeof value === "object" && value !== null;
+}
+
 export const runTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema.describe("Table ID of a regular executable table. Use openl_list_tables() to discover it; use the Tests tools instead for Test tables."),
   inputJson: z.union([
+    z.string().refine(isJsonInput, { error: "inputJson as a string must be a JSON object or array" }),
     z.array(z.unknown()),
     z.record(z.string(), z.unknown()),
-  ]).describe("Method input as JSON: an object keyed by method parameter name; { params, runtimeContext? } with params keyed by name or listed in order; or an array of the argument values in order. For a method whose only parameter is an array, a top-level array is that parameter's value. The value is sent to Studio unchanged."),
+  ]).describe("Method input as JSON, or the same as a JSON string: an object keyed by method parameter name; { params, runtimeContext? } with params keyed by name or listed in order; or an array of the argument values in order. For a method whose only parameter is an array, a top-level array is that parameter's value. The value is sent to Studio unchanged."),
   fromModule: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
   withSchema: z.boolean().optional().describe("Include result and parameter JSON Schemas. Default false because schemas can be large."),
   timeoutMs: z.number().int().positive().max(600000).default(120000).describe("Maximum time for the complete Studio start-and-result workflow, in milliseconds. Default 120000 (2 minutes), maximum 600000 (10 minutes). A timeout cancels the pending Studio run."),
@@ -659,7 +667,7 @@ export const inspectTraceFrameSchema = z.strictObject({
 
 export const setTraceBreakpointsSchema = z.strictObject({
   projectId: projectIdSchema,
-  set: z.array(z.string()).optional().describe("When provided, REPLACES the whole breakpoint set (empty array clears all). Key forms: '<name>' (entry of any same-named table), '<uri>' (entry of that table), '<uri>#R{r}C{c}' (spreadsheet cell), '<uri>#rule' (any decision-table rule fires), '<uri>#<ruleName>' (specific rule fires). Append '@N' to any key to break only on the table's N-th execution (0-based, matching frames[].instance and a watch series' instance) — e.g. '<uri>#R48C0@3'. Omit to just read the current set and available targets."),
+  breakpoints: z.array(z.string()).optional().describe("When provided, REPLACES the whole breakpoint set (empty array clears all). Key forms: '<name>' (entry of any same-named table), '<uri>' (entry of that table), '<uri>#R{r}C{c}' (spreadsheet cell), '<uri>#rule' (any decision-table rule fires), '<uri>#<ruleName>' (specific rule fires). Append '@N' to any key to break only on the table's N-th execution (0-based, matching frames[].instance and a watch series' instance) — e.g. '<uri>#R48C0@3'. Omit to just read the current set and available targets."),
   response_format: ResponseFormat,
 });
 

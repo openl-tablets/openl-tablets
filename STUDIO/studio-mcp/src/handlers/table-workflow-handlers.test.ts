@@ -12,6 +12,15 @@ import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
 useToolHarness();
 
 describe("table workflow handlers", () => {
+  it("posts an input given as a JSON string to Studio as it is", async () => {
+    harness.mockHttp.onPost("/projects/p1/run").reply(202);
+    harness.mockHttp.onGet("/projects/p1/run/result").reply(200, { tableId: "t1", result: 1 });
+
+    await executeTool("run_table", { projectId: "p1", tableId: "t1", inputJson: '{"params":{"age":25}}' }, harness.client);
+
+    expect(harness.mockHttp.history.post[0].data).toBe('{"params":{"age":25}}');
+  });
+
   it("runs a table, waits through 202 not-ready responses, and omits bulky schemas by default", async () => {
     harness.mockHttp.onPost("/projects/p1/run").reply(202);
     harness.mockHttp

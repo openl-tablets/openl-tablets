@@ -263,11 +263,13 @@ describe("RawSource-only table contracts", () => {
 });
 
 describe("table workflow schemas", () => {
-  it("accepts named and positional inputs, and nothing but an object or an array", () => {
+  it("accepts named and positional inputs, also as a JSON string, and nothing but an object or an array", () => {
     expect(runTableSchema.safeParse({ projectId: "p1", tableId: "t1", inputJson: [42] }).success).toBe(true);
     expect(runTableSchema.safeParse({ projectId: "p1", tableId: "t1", inputJson: { params: { age: 25 } } }).success).toBe(true);
     expect(runTableSchema.safeParse({ projectId: "p1", tableId: "t1", inputJson: { params: [42] } }).success).toBe(true);
+    expect(runTableSchema.safeParse({ projectId: "p1", tableId: "t1", inputJson: '{"params":[42]}' }).success).toBe(true);
     expect(runTableSchema.safeParse({ projectId: "p1", tableId: "t1", inputJson: "invalid" }).success).toBe(false);
+    expect(runTableSchema.safeParse({ projectId: "p1", tableId: "t1", inputJson: "42" }).success).toBe(false);
   });
 
   it("enforces distinct project-graph and table-neighborhood options", () => {
