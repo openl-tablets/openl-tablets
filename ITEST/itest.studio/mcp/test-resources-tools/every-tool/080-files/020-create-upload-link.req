@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json, text/event-stream
 MCP-Protocol-Version: 2026-07-28
 Mcp-Method: tools/call
-Mcp-Name: openl_read_project_file
+Mcp-Name: openl_create_upload_link
 Authorization: Token ${PAT}
 
 {
@@ -11,12 +11,12 @@ Authorization: Token ${PAT}
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "openl_read_project_file",
+    "name": "openl_create_upload_link",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "path": "docs/notes.txt",
-      "offset": 15,
-      "length": 20
+      "path": "docs/data.bin",
+      "size": 8,
+      "sha256": "8a851ff82ee7048ad09ec3847f1ddf44944104d2cbd17ef4e3db22c6785a0d45"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

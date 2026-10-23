@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"path\": \"docs/data.bin\",\n    \"contentType\": \"application/octet-stream\",\n    \"mimeType\": \"application/octet-stream\",\n    \"encoding\": \"base64\",\n    \"byteLength\": 8,\n    \"returnedBytes\": 8,\n    \"content\": \"AAECAwQFBgc=\"\n  }\n}"
+        "text": "{\n  \"data\": {\n    \"url\": \"http://example.com/transfers/***\",\n    \"method\": \"GET\",\n    \"expiresAt\": \"***\",\n    \"size\": 8,\n    \"mimeType\": \"application/octet-stream\",\n    \"repositoryId\": \"design\",\n    \"repositoryPath\": \"McpTools/docs/data.bin\",\n    \"branch\": \"master\",\n    \"curl\": \"curl -fsS -o 'data.bin' 'http://example.com/transfers/***'\",\n    \"note\": \"Run curl to save the file; the link works until it expires, a cut download is fetched again with it.\"\n  }\n}"
       }
     ],
     "resultType": "complete",

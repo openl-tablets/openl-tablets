@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\n  \"data\": {\n    \"url\": \"http://example.com/transfers/***\",\n    \"method\": \"PUT\",\n    \"expiresAt\": \"***\",\n    \"repositoryId\": \"design\",\n    \"repositoryPath\": \"McpTools/docs/data.bin\",\n    \"branch\": \"master\",\n    \"curl\": \"curl -fsS -T 'data.bin' 'http://example.com/transfers/***'\",\n    \"note\": \"The link writes once: a failed upload needs a new link. The file lands in the project working copy; commit it with openl_save_project.\"\n  }\n}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

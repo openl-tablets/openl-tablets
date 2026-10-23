@@ -29,6 +29,9 @@ All paths are under `STUDIO/studio-mcp/src`.
   types, and the rendering of a result as JSON or Markdown; `dependency-markdown.ts` renders a table dependency graph
   as Mermaid diagrams, and `text.ts` holds the text helpers both renderings share.
 - **`guides-registry.ts`** — the specifications and the Reference Guide OpenL Studio serves at `/docs`.
+- **`transfer-links.ts`** — the links a file tool answers instead of the bytes of a file: a transfer link Studio
+  issues where it authenticates, the address of the REST API in single-user mode, with where the file lives in its
+  repository and a `curl` command ([MCP File Transfer Links](mcp-file-transfer.md)).
 - **Build time** — `rolldown.config.js` of the module bundles the server and its dependencies into one minified ES
   module, `dist/index.mjs`; `build-licenses.ts`, a plugin of the bundler, lists the libraries the bundle ships in
   `dist/mcp-licenses.json`, and `build-skills.ts`, another, embeds the skills of `STUDIO/studio-mcp/skills` as the
@@ -90,7 +93,8 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
   items, with the page cursor moved to match, a table read by rows, with `totalRows` and the `startRow` to continue
   from. The note on a cut result names only a way to continue that the tool has; anything else is cut to a preview.
   A page of `openl_get_test_results` is cut by whole test tables. An unpaged read of test results, the test results of
-  one table, guides, binary file reads and merge-conflict chunks are never cut.
+  one table and guides are never cut. A file read answers a text of up to 5,000 bytes inline, and any other file by a
+  link the agent runs `curl` with ([MCP File Transfer Links](mcp-file-transfer.md)).
 - **Errors** — a failed tool answers with an `isError` result; only an unknown tool is a protocol error. A Studio
   status maps to a code: `400` and `404` to `InvalidParams`, `401` and `403` to `InvalidRequest`, `405` to
   `MethodNotFound`, the rest to `InternalError`. Validation errors of Studio are folded into the message, up to 20
@@ -143,9 +147,10 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 - **Legacy sessions** have no idle timeout and no limit, and keep the credential sent with `initialize`.
 - **`tools/list`** carries no `ttlMs` or `cacheScope`.
 - **`Host`** is not validated.
-- **A file write** is limited to about 3.7 MB, the body limit less the base64 overhead.
+- **A text write** travels in the MCP request, whose whole body — JSON escaping included — is limited to 5 MB, so
+  a text well under that size may already need an upload link; a binary file always goes by one.
 - **The REST timeout** of 30 seconds cannot be changed.
-- **Unbounded answers** — `openl_get_test_results` with `unpaged: true`, and a binary file read without `length`.
+- **Unbounded answers** — `openl_get_test_results` with `unpaged: true`.
 - **`openl_open_project` with a branch** ignores a failed branch switch and opens the project again, and ignores
   `revision` for a project that is already open.
 - **`openl_deploy_project`** finds the deployment repository by its exact name, case included.

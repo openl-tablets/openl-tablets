@@ -69,6 +69,18 @@ The agent gets the error message of OpenL Studio and usually corrects the reques
 identifier of a table changes when the table is edited. When the agent cannot recover, ask it for the exact error
 message and look for the same action in OpenL Studio.
 
+### A File Download or Upload Fails
+
+The agent moves a large or a binary file by a link of OpenL Studio, with `curl` run on the computer of the agent.
+That computer reaches OpenL Studio at the address the agent connected to, so a sandbox of the agent that allows only
+some hosts lists that address too. In an OpenL Studio with sign-in, a link works for 15 minutes by default:
+
+-   **Download** — a cut download is fetched again with the same link, until it expires.
+-   **Upload** — a link writes once, so after a cut or a refused upload the agent asks for a new link.
+
+In single-user mode the link is the address of the REST API itself, which neither expires nor is spent. A reverse
+proxy in front of OpenL Studio passes `/transfers` and allows a request as large as the file.
+
 ### Reporting a Problem
 
 When reporting a problem, ask the agent for the full information about the server. The `openl_get_server_info` tool

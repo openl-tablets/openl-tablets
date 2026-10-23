@@ -1,8 +1,6 @@
 /**
- * Project-file tool handlers (BETA) — read, write, delete, search, copy, and
- * move files inside an opened project.
+ * Project-file tool handlers (BETA) — read, write, upload, delete, search, copy, and move files inside a project.
  */
-import { isUtf8 } from "node:buffer";
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
@@ -10,9 +8,8 @@ import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { formatPage } from "../formatters.js";
 import { sanitizeError } from "../utils.js";
-import { RESPONSE_LIMITS } from "../constants.js";
-import { isNotFoundError, parseJsonOrText } from "../http.js";
-import { compactBase64, looksBinary, normalizeMimeType, sliceContent } from "../content-utils.js";
+import { isNotFoundError } from "../http.js";
+import { downloadLink, INLINE_TEXT_BYTES, inlineText, mimeTypeOf, uploadLink } from "../transfer-links.js";
 import { registerTool, formatResult, rethrowConflictAsActionable, textResult, type ToolResponse } from "./common.js";
 
 export function registerFileHandlers(): void {
@@ -20,12 +17,11 @@ export function registerFileHandlers(): void {
     name: "read_project_file",
     title: "Read Project File",
     description:
-      "Read any file in a project by its project-relative path — text or binary, and folder listings too. Maps to GET /projects/{projectId}/files/{path}. Behavior by path/params: " +
-      "(1) a FILE path returns its content — UTF-8 text is returned verbatim, while binary is returned as base64 'content' in a JSON text envelope with byte and MIME metadata (use encoding to force 'utf-8' or binary; default 'auto' detects); " +
-      "(2) a FILE path with view='meta' returns JSON metadata (name, size, extension, lastModified); " +
-      "(3) a FOLDER path (empty string for the root, or a path ending in '/') lists its entries (use recursive, viewMode FLAT/NESTED, extensions, namePattern, foldersOnly); " +
-      "(4) a FOLDER path with download=true returns a ZIP as base64 in the same JSON text envelope. " +
-      "Optional 'version' reads a historical revision; 'branch' pins the project branch. Optional byte range (offset/length) is applied client-side AFTER fetching the whole file (the backend does not support partial transfers), so the entire file is loaded into memory; for very large/binary files, bound the RETURNED size with offset/length and read in chunks (a full file's base64 can exceed MCP message limits); a UTF-8 chunk keeps its characters whole, so its ends may move up to 3 bytes forward. A text chunk arrives in a JSON envelope with byteLength, the range it covers, nextOffset while the file goes on, and lineEnding 'CRLF' when its lines end with CR LF. Use this to read AGENTS.md, README.md, schemas, manifests, or to inspect/export xlsx rule files.",
+      "Read a file of a project by its project-relative path. Maps to GET /projects/{projectId}/files/{path}. " +
+      `A text file of up to ${INLINE_TEXT_BYTES} bytes — text as the Content-Type OpenL Studio answers for it says: text/*, JSON, XML or YAML — is returned inline, verbatim. ` +
+      "Any other file — a larger text, a workbook, an image, an archive — and a folder, as a ZIP archive, is returned as a download LINK: JSON with the url, a ready `curl` command that saves it locally, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
+      "Run the curl command in a shell: the bytes never enter the conversation. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and may be fetched again; an agent that has the repository itself can read repositoryPath there instead. " +
+      "Read the TABLES of a workbook with openl_get_table, not as a file. Optional 'version' reads a historical revision; 'branch' pins the project's branch. List or find files with openl_search_project_files.",
     schema: schemas.readProjectFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -33,50 +29,26 @@ export function registerFileHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const path = args.path;
-      const { data, contentType, contentDisposition } = await client.readProjectFile(args.projectId, path, args);
-
-      if (isListing(contentType, contentDisposition)) {
-        return formatResult(parseJsonOrText(data.toString("utf-8")), args.response_format);
+      const { projectId, path } = args;
+      const at = { version: args.version, branch: args.branch };
+      const meta = isFolderPath(path) ? undefined : await client.getProjectFileMeta(projectId, path, at);
+      if (!meta || meta.type === "folder") {
+        return formatResult(await downloadLink(client, { kind: "archive", projectId, path, ...at }),
+          args.response_format);
       }
-
-      // File (or folder-ZIP) content. Apply the optional client-side byte range,
-      // then choose text or a base64 JSON envelope.
-      const total = data.length;
-      const { start, end, slice, asBase64 } = sliceContent(data, {
-        offset: args.offset,
-        length: args.length,
-        encoding: args.download ? "base64" : args.encoding,
-      });
-      const ranged = start !== 0 || end !== total;
-
-      if (!asBase64 && !ranged) {
-        // Text content: returned (near-)verbatim — most useful for docs/schemas/
-        // manifests (response_format does not apply). The verbatim path would
-        // otherwise bypass the response-size cap, so when the content exceeds the
-        // 25K limit we truncate and append a continuation cursor (next byte offset)
-        // so the caller can page the rest with offset/length. No more is decoded than
-        // the cap can return: a character takes four bytes at most.
-        let text = slice.subarray(0, 4 * RESPONSE_LIMITS.MAX_CHARACTERS).toString("utf-8");
-        if (text.length > RESPONSE_LIMITS.MAX_CHARACTERS) {
-          text = text.slice(0, RESPONSE_LIMITS.MAX_CHARACTERS);
-          const nextOffset = start + Buffer.byteLength(text, "utf-8");
-          text += `\n\n${RESPONSE_LIMITS.TRUNCATION_MESSAGE} Returned bytes ${start}–${nextOffset} of ${total}; continue with offset=${nextOffset}.`;
+      let mimeType: string | undefined;
+      if (meta.size !== undefined && meta.size <= INLINE_TEXT_BYTES) {
+        const file = await client.readProjectFile(projectId, path, at);
+        const text = inlineText(file);
+        if (text !== undefined) {
+          return textResult(text);
         }
-        return textResult(text);
+        mimeType = mimeTypeOf(file.contentType) || undefined;
       }
-
-      // Binary bytes, and a chunk of text, go in a JSON envelope telling where they are in the file, where the next
-      // chunk starts and, for text, how its lines end. Although MCP permits arbitrary binary BlobResourceContents,
-      // several clients route every embedded blob through their image renderer and reject XLSX/ZIP/octet-stream data
-      // as an unsupported image. TextContent is the interoperable lossless transport for non-display binary files.
-      // Keep it untruncated; callers can bound/page bytes with offset/length.
-      const encoding = asBase64 ? "base64" : "utf-8";
-      return formatResult({
-        ...fileMetadata(path, args.version, contentType, encoding, total, start, end),
-        ...(!asBase64 && endsLinesWithCrlf(slice) ? { lineEnding: "CRLF" } : {}),
-        content: slice.toString(encoding),
-      }, "json", { skipTruncation: true });
+      return formatResult(
+        await downloadLink(client, { kind: "download", projectId, path, ...at }, { size: meta.size, mimeType }),
+        args.response_format,
+      );
     },
   });
 
@@ -84,19 +56,18 @@ export function registerFileHandlers(): void {
     name: "write_project_file",
     title: "Write Project File",
     description:
-      "Create or replace a file in a project by its project-relative path. Provide UTF-8 text in 'content'. For binary files such as xlsx/images/zip, provide base64 bytes in 'blob'; its advertised JSON Schema uses contentEncoding='base64'. The legacy content + encoding='base64' form remains accepted. " +
+      "Create or replace a TEXT file in a project by its project-relative path, from UTF-8 'content'. To send a file you have on disk — a workbook, an image, any binary or large file — ask for an upload link with openl_create_upload_link and run its curl command instead of typing the content out. " +
       "COMMIT: pass 'message' to commit the write to Git (a new revision is created); omit 'message' and the write stays in the project WORKING COPY (commit it later with openl_save_project). Committing saves ALL pending project changes and works only for design repositories (not 'local'). " +
-      "By default missing parent folders are created (createFolders=true). If the target file already EXISTS, behavior follows conflictPolicy: FAIL (default) returns an error; OVERWRITE replaces the file in place (text 'content' whose lines end with LF, written over a text file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged); SKIP leaves the existing file unchanged (reported skipped). Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to add or update docs, schemas, or manifests. (Overwriting a module .xlsx replaces its bytes; to change a module's TABLES use openl_update_table / openl_append_table / openl_create_project_table.)",
+      "By default missing parent folders are created (createFolders=true). If the target file already EXISTS, behavior follows conflictPolicy: FAIL (default) returns an error; OVERWRITE replaces the file in place (content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged); SKIP leaves the existing file unchanged (reported skipped). Use 'branch' to pin the project's branch (omit for local/non-branch repositories). (To change a module's TABLES use openl_update_table / openl_append_table / openl_create_project_table.)",
     schema: schemas.writeProjectFileSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const policy = args.conflictPolicy ?? "FAIL";
-      const text = textContentOf(args);
-      const buffer = policy === "OVERWRITE" && text !== undefined
-        ? await keepCrlf(client, args, text)
-        : decodeFileContent(args);
+      const buffer = policy === "OVERWRITE"
+        ? await keepCrlf(client, args)
+        : Buffer.from(args.content, "utf-8");
 
       // Studio answers a refusal with its own reason: a file already there, a locked or protected project
       const created = await client.writeProjectFile(args.projectId, args.path, buffer, {
@@ -134,38 +105,30 @@ export function registerFileHandlers(): void {
   });
 
   registerTool({
-    name: "edit_project_file",
-    title: "Edit Part of a Project File",
+    name: "create_upload_link",
+    title: "Create Upload Link",
     description:
-      "Change part of a TEXT file of a project without sending the whole file, such as adding keys to a large .properties bundle or changing a few lines of a document. Each edit replaces oldText, which must occur in the file exactly once, with newText; an empty oldText appends newText at the end of the file. The edits apply in order, and every other byte of the file stays as it is. In a file whose lines end with CRLF, the LF line ends of oldText and newText match and are written as CRLF. " +
-      "The file is rewritten in the project WORKING COPY; pass 'message' to commit it to Git (committing saves ALL pending project changes, design repositories only). Use 'branch' to pin the project's branch. A binary file, or one that is not UTF-8 text, is refused: replace it whole with openl_write_project_file.",
-    schema: schemas.editProjectFileSchema,
+      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. Takes the target of the write: 'path' (project-relative), 'conflictPolicy' (FAIL default, OVERWRITE, SKIP), 'createFolders' (default true) and 'branch'; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients (in single-user mode the link is the REST API, which checks neither). " +
+      "Returns JSON with the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch). Run the command in a shell, adjusting the local file name. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. " +
+      "The file lands in the project WORKING COPY, as openl_write_project_file writes it; commit it with openl_save_project. A small text file can be written with openl_write_project_file directly.",
+    schema: schemas.createUploadLinkSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const file = await client.readProjectFile(args.projectId, args.path, { branch: args.branch });
-      const original = textOfFile(file, args.path);
-      const crlf = endsLinesWithCrlf(file.data);
-      const edited = args.edits.reduce((text, change, index) => applyEdit(text, change, index, crlf), original);
-      const buffer = Buffer.from(edited, "utf-8");
-      await client.writeProjectFile(args.projectId, args.path, buffer, {
-        createFolders: false,
-        conflictPolicy: "OVERWRITE",
-        branch: args.branch,
-      });
-
-      const commit = await commitWrite(client, args.projectId, args.message);
-      return formatResult({
-        success: true,
+      if (isFolderPath(args.path)) {
+        throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+          `'${args.path}' names a folder: an upload link writes one file, so give the path of the file.`);
+      }
+      return formatResult(await uploadLink(client, {
+        projectId: args.projectId,
         path: args.path,
-        edits: args.edits.length,
-        bytesBefore: file.data.length,
-        bytesAfter: buffer.length,
-        committed: commit.committed,
-        ...(args.branch ? { branch: args.branch } : {}),
-        message: commitMessage(`Applied ${args.edits.length} edit(s) to '${args.path}'`, args.message, commit),
-      }, args.response_format);
+        branch: args.branch,
+        conflictPolicy: args.conflictPolicy ?? "FAIL",
+        createFolders: args.createFolders,
+        size: args.size,
+        sha256: args.sha256,
+      }), args.response_format);
     },
   });
 
@@ -201,7 +164,7 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search a project's files and folders by ant-glob path 'pattern' (e.g. 'rules/**/*.xlsx'), file 'extensions', resource 'type' (FILE/FOLDER/ANY), and/or a case-insensitive 'content' substring. Maps to POST /projects/{projectId}/file-search. CONTENT LIMITATION: Studio searches inside TEXT files only. It does not inspect binary formats such as XLSX/XLS/ZIP/images; find those only by path pattern, extension, or name, then read/download them separately. Combining content with a binary-only pattern or extension therefore returns no matches even when that text is visible in an Excel workbook. IMPORTANT: set recursive=true to search nested folders — by default (recursive omitted/false) only the project's TOP LEVEL is searched, and a '**' glob alone does NOT descend (so a project-wide search needs recursive=true, and to match files in subfolders use a '**/' pattern such as '**/*.xlsx', not '*.xlsx'). Scope SUBTREE (default) searches within the project and may target a historical 'version'; scope ANCESTORS walks up to the repository root. Returns matching nodes (path, name, type, size, ...), paginated client-side via 'limit'/'offset' (the response carries pagination metadata; the server returns the full match set). Use 'branch' to pin the project's branch. Use this for questions like \"where is portability loading mentioned in XML or Markdown?\" (content, recursive=true) or \"list every xlsx under rules\" (pattern '**/*.xlsx', recursive=true, without content).",
+      "Search a project's files and folders by ant-glob path 'pattern' (e.g. 'rules/**/*.xlsx'), file 'extensions', resource 'type' (FILE/FOLDER/ANY), and/or a case-insensitive 'content' substring. Maps to POST /projects/{projectId}/file-search. CONTENT LIMITATION: Studio searches inside TEXT files only. It does not inspect binary formats such as XLSX/XLS/ZIP/images; find those only by path pattern, extension, or name, then read/download them separately. Combining content with a binary-only pattern or extension therefore returns no matches even when that text is visible in an Excel workbook. IMPORTANT: set recursive=true to search nested folders — by default (recursive omitted/false) only the project's TOP LEVEL is searched, and a '**' glob alone does NOT descend (so a project-wide search needs recursive=true, and to match files in subfolders use a '**/' pattern such as '**/*.xlsx', not '*.xlsx'). Scope SUBTREE (default) searches within the project and may target a historical 'version'; scope ANCESTORS walks up to the repository root. Returns matching nodes (path, name, type, size, ...), paginated client-side via 'limit'/'offset' (the response carries pagination metadata; the server returns the full match set). Use 'branch' to pin the project's branch. Use this for questions like \"where is portability loading mentioned in XML or Markdown?\" (content, recursive=true) or \"list every xlsx under rules\" (pattern '**/*.xlsx', recursive=true, without content). To LIST a folder, search 'from' it with no other criteria (recursive=true for its whole subtree); every match carries its size and lastModified, so no separate metadata read is needed.",
     schema: schemas.searchProjectFilesSchema,
     annotations: {
       readOnlyHint: true,
@@ -260,29 +223,9 @@ export function registerFileHandlers(): void {
   });
 }
 
-/**
- * The bytes a write carries. The schema union guarantees one representation. Buffer.from() alone would silently
- * discard malformed base64 characters, so validation and legacy whitespace normalization happen before decoding.
- */
-function decodeFileContent(args: z.output<typeof schemas.writeProjectFileSchema>): Buffer {
-  const text = textContentOf(args);
-  if (text !== undefined) {
-    return Buffer.from(text, "utf-8");
-  }
-  return "blob" in args ? Buffer.from(args.blob, "base64") : Buffer.from(compactBase64(args.content), "base64");
-}
-
-/** The text a write carries, or undefined for bytes sent in `blob` or as base64. */
-function textContentOf(args: z.output<typeof schemas.writeProjectFileSchema>): string | undefined {
-  return "blob" in args || ("encoding" in args && args.encoding === "base64") ? undefined : args.content;
-}
-
-/**
- * Whether a read of a path answered the listing of a folder rather than the bytes of a file. A .json file is served
- * as an attachment too, so only a JSON answer that is not an attachment is a listing.
- */
-function isListing(contentType: string, contentDisposition: string): boolean {
-  return !/attachment/i.test(contentDisposition) && contentType.includes("application/json");
+/** Whether a project-relative path names a folder: the project root, or a path ending in a slash. */
+function isFolderPath(path: string): boolean {
+  return path === "" || path === "/" || path.endsWith("/");
 }
 
 /**
@@ -290,57 +233,15 @@ function isListing(contentType: string, contentDisposition: string): boolean {
  * LF only, written over a text file that ends them with CRLF, gets CRLF: an agent reading the file and writing the
  * same text back leaves it unchanged, although the CR characters of the read are invisible to it.
  *
- * Bytes sent in `blob` or as base64 are written as they are, and so is a file that does not exist yet.
+ * A file that does not exist yet is written as the text is.
  */
-async function keepCrlf(
-  client: OpenLClient,
-  args: z.output<typeof schemas.writeProjectFileSchema>,
-  text: string,
-): Promise<Buffer> {
+async function keepCrlf(client: OpenLClient, args: z.output<typeof schemas.writeProjectFileSchema>): Promise<Buffer> {
+  const text = args.content;
   const existing = text.includes("\n") && !text.includes("\r")
     ? await client.readProjectFile(args.projectId, args.path, { branch: args.branch })
       .then(({ data }) => data, (error: unknown) => (isNotFoundError(error) ? undefined : Promise.reject(error)))
     : undefined;
-  return Buffer.from(existing && endsLinesWithCrlf(existing) ? withCrlf(text) : text, "utf-8");
-}
-
-/** A text with LF line ends written with CRLF; a text that has CR characters stays as it is. */
-function withCrlf(text: string): string {
-  return text.includes("\r") ? text : text.replaceAll("\n", "\r\n");
-}
-
-/** The text of a file an edit changes; a folder, a binary file or one that is not UTF-8 text is refused. */
-function textOfFile(file: Types.ProjectFileResponse, path: string): string {
-  if (isListing(file.contentType, file.contentDisposition)) {
-    throw new ProtocolError(ProtocolErrorCode.InvalidParams, `'${path}' is a folder, not a file.`);
-  }
-  if (looksBinary(file.data) || !isUtf8(file.data)) {
-    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
-      `'${path}' is not UTF-8 text, so it cannot be edited in part: replace it whole with openl_write_project_file.`);
-  }
-  return file.data.toString("utf-8");
-}
-
-/**
- * The text after one edit: `oldText`, found exactly once, replaced by `newText`, or `newText` appended when `oldText`
- * is empty. In a file whose lines end with CRLF, the LF line ends of both texts are taken as CRLF.
- */
-function applyEdit(text: string, change: { oldText: string; newText: string }, index: number, crlf: boolean): string {
-  const oldText = crlf ? withCrlf(change.oldText) : change.oldText;
-  const newText = crlf ? withCrlf(change.newText) : change.newText;
-  if (oldText === "") {
-    return text + newText;
-  }
-  const at = text.indexOf(oldText);
-  if (at < 0) {
-    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
-      `Edit ${index + 1}: oldText is not in the file. Copy it exactly from openl_read_project_file; no edit was applied.`);
-  }
-  if (text.includes(oldText, at + 1)) {
-    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
-      `Edit ${index + 1}: oldText occurs more than once in the file. Include more of the surrounding lines to make it unique; no edit was applied.`);
-  }
-  return text.slice(0, at) + newText + text.slice(at + oldText.length);
+  return Buffer.from(existing && endsLinesWithCrlf(existing) ? text.replaceAll("\n", "\r\n") : text, "utf-8");
 }
 
 /** Whether the lines of a text end with CRLF, every one of them. */
@@ -353,33 +254,6 @@ function endsLinesWithCrlf(data: Buffer): boolean {
     lineFeeds++;
   }
   return lineFeeds > 0;
-}
-
-/**
- * The metadata of the content a file read returns: where it is in the file and how it is encoded. A chunk that ends
- * before the end of the file names the offset of the next one.
- */
-function fileMetadata(
-  path: string,
-  version: string | undefined,
-  contentType: string,
-  encoding: "utf-8" | "base64",
-  total: number,
-  start: number,
-  end: number,
-): Record<string, unknown> {
-  const ranged = start !== 0 || end !== total;
-  return {
-    path: path === "" ? "/" : path,
-    ...(version ? { version } : {}),
-    ...(contentType ? { contentType } : {}),
-    mimeType: normalizeMimeType(contentType),
-    encoding,
-    byteLength: total,
-    returnedBytes: end - start,
-    ...(ranged ? { range: { offset: start, length: end - start } } : {}),
-    ...(end < total ? { nextOffset: end } : {}),
-  };
 }
 
 /** Whether a write was committed, and why not when the commit failed. */
@@ -416,11 +290,6 @@ function writtenMessage(
   commit: WriteCommit,
 ): string {
   const written = created ? `Wrote ${bytes} byte(s) to '${path}'` : `Overwrote ${bytes} byte(s) in '${path}'`;
-  return commitMessage(written, message, commit);
-}
-
-/** The message of a change to a file: what was `written`, and whether it was committed. */
-function commitMessage(written: string, message: string | undefined, commit: WriteCommit): string {
   if (commit.committed) {
     return `${written} and committed the project to Git: "${message}".`;
   }

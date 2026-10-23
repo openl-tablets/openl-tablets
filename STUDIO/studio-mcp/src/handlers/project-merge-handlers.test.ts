@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import { executeTool } from "./index.js";
 import { bodyOf } from "../testing/mock-http.js";
-import { dataOf, harness, useToolHarness } from "../testing/harness.js";
+import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
 
@@ -157,94 +157,90 @@ describe("project branch and merge handlers", () => {
     expect(harness.mockHttp.history.post[1].params).toEqual({ force: true });
   });
 
-  it("reads conflict details and bounded binary sides from the same session", async () => {
-    const conflicts = {
-      conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx"] }],
+  describe("a version of a conflicted file", () => {
+    // A conflicted file is named by its path in the repository: the folder of the project comes first
+    const availability = (text: boolean, base = true) => ({
       oursRevision: { branch: "main", commit: "abc", exists: true },
       theirsRevision: { branch: "feature", commit: "def", exists: true },
-      baseRevision: { commit: "000", exists: true },
-      defaultMessage: "Merge feature into main",
-    };
-    harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, conflicts);
-    harness.mockHttp.onGet("/projects/p1/merge/conflicts/files").reply(200, Buffer.from([0, 1, 2, 3, 4]), {
-      "content-type": "Application/Vnd.Openxmlformats-Officedocument.Spreadsheetml.Sheet",
-      "content-disposition": "attachment; filename=Main.xlsx",
+      conflictGroups: [{ projectName: "Rating", files: ["Rating/rules/Main.xlsx", "Rating/rules/config.txt"] }],
+      fileAvailability: {
+        "Rating/rules/Main.xlsx": { ours: true, base, theirs: true, text },
+        "Rating/rules/config.txt": { ours: true, base, theirs: true, text },
+      },
+    });
+    const project = { id: "p1", name: "Rating", repository: "design", path: "Rating", branch: "main" };
+
+    it("is a transfer link for a binary version where Studio authenticates, read by no tool call", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(false));
+      harness.mockHttp.onGet("/settings").reply(200, { userMode: "INTERNAL" });
+      harness.mockHttp.onPost("/transfer-links").reply(201, { path: "transfers/abc", expiresAt: "2026-10-23T10:15:00Z" });
+      harness.mockHttp.onGet("/projects/p1").reply(200, project);
+
+      const response = await executeTool("read_merge_conflict_file", {
+        projectId: "p1", file: "Rating/rules/Main.xlsx", side: "OURS",
+      }, harness.client);
+
+      expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
+        kind: "conflictVersion", projectId: "p1", path: "Rating/rules/Main.xlsx", side: "ours", branch: "main",
+      });
+      expect(dataOf(response)).toMatchObject({
+        url: "http://localhost:8080/transfers/abc",
+        method: "GET",
+        expiresAt: "2026-10-23T10:15:00Z",
+        repositoryId: "design",
+        repositoryPath: "Rating/rules/Main.xlsx",
+        branch: "main",
+        curl: "curl -fsS -o 'Main.xlsx' 'http://localhost:8080/transfers/abc'",
+      });
+      expect(harness.mockHttp.history.get.map((request) => request.url)).not.toContain(
+        "/projects/p1/merge/conflicts/files");
     });
 
-    const detailsResponse = await executeTool("get_merge_conflicts", {
-      projectId: "p1", response_format: "json",
-    }, harness.client);
-    const fileResponse = await executeTool("read_merge_conflict_file", {
-      projectId: "p1", file: "rules/Main.xlsx", side: "OURS", length: 3,
-    }, harness.client);
+    it("is returned inline when it is a text of up to 5,000 bytes", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true));
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/files").reply(200, "rate = 1.5\n", {
+        "content-type": "text/plain; charset=utf-8",
+      });
 
-    expect(dataOf(detailsResponse)).toEqual(conflicts);
-    expect(harness.mockHttp.history.get[1].params).toEqual({ file: "rules/Main.xlsx", side: "OURS" });
-    expect(dataOf<Record<string, unknown>>(fileResponse)).toMatchObject({
-      contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      encoding: "base64",
-      content: Buffer.from([0, 1, 2]).toString("base64"),
-      returnedBytes: 3,
-      hasMore: true,
-      nextOffset: 3,
+      const response = await executeTool("read_merge_conflict_file", {
+        projectId: "p1", file: "Rating/rules/config.txt", side: "THEIRS",
+      }, harness.client);
+
+      expect(textOf(response)).toBe("rate = 1.5\n");
+      expect(harness.mockHttp.history.get[1].params).toEqual({ file: "Rating/rules/config.txt", side: "THEIRS" });
     });
 
-    const conciseResponse = await executeTool("read_merge_conflict_file", {
-      projectId: "p1",
-      file: "rules/Main.xlsx",
-      side: "OURS",
-      length: 3,
-      response_format: "markdown_concise",
-    }, harness.client);
-    expect(dataOf<Record<string, unknown>>(conciseResponse)).toMatchObject({
-      file: "rules/Main.xlsx",
-      content: Buffer.from([0, 1, 2]).toString("base64"),
-      nextOffset: 3,
-    });
-  });
+    it("is the address of the REST API for a larger text in single-user mode", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true));
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/files").reply(200, "x".repeat(5001), {
+        "content-type": "text/plain",
+      });
+      harness.mockHttp.onGet("/settings").reply(200, {});
+      harness.mockHttp.onGet("/projects/p1").reply(200, project);
 
-  it("returns binary conflict chunks as lossless base64 TextContent", async () => {
-    const bytes = Buffer.from([0, 1, 2, 3]);
-    harness.mockHttp.onGet("/projects/p1/merge/conflicts/files").reply(200, bytes, {
-      "content-type": "application/octet-stream",
-    });
+      const response = await executeTool("read_merge_conflict_file", {
+        projectId: "p1", file: "Rating/rules/config.txt", side: "THEIRS",
+      }, harness.client);
 
-    const response = await executeTool("read_merge_conflict_file", {
-      projectId: "p1",
-      file: "rules/Main.xlsx",
-      side: "THEIRS",
-      length: 3,
-    }, harness.client, { signal: new AbortController().signal });
-
-    expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      file: "rules/Main.xlsx",
-      side: "THEIRS",
-      mimeType: "application/octet-stream",
-      returnedBytes: 3,
-      hasMore: true,
-      nextOffset: 3,
-      content: Buffer.from([0, 1, 2]).toString("base64"),
-    });
-    expect(response.content).toHaveLength(1);
-  });
-
-  it("keeps UTF-8 characters complete across conflict-file chunks", async () => {
-    const content = Buffer.from("A😀B", "utf-8");
-    harness.mockHttp.onGet("/projects/p1/merge/conflicts/files").reply(200, content, {
-      "content-type": "text/plain; charset=utf-8",
+      expect(dataOf(response)).toMatchObject({
+        url: "http://localhost:8080/rest/projects/p1/merge/conflicts/files?file=Rating%2Frules%2Fconfig.txt&side=theirs",
+        method: "GET",
+        size: 5001,
+        mimeType: "text/plain",
+        repositoryPath: "Rating/rules/config.txt",
+        branch: "feature",
+      });
+      expect(dataOf(response)).not.toHaveProperty("expiresAt");
+      expect(harness.mockHttp.history.post).toHaveLength(0);
     });
 
-    const first = dataOf<Record<string, unknown>>(await executeTool("read_merge_conflict_file", {
-      projectId: "p1", file: "rules/config.txt", side: "OURS", encoding: "utf-8", length: 2,
-    }, harness.client));
-    const second = dataOf<Record<string, unknown>>(await executeTool("read_merge_conflict_file", {
-      projectId: "p1", file: "rules/config.txt", side: "OURS", encoding: "utf-8",
-      offset: first.nextOffset as number, length: 2,
-    }, harness.client));
+    it("is refused when fileAvailability marks that it holds no file", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, availability(true, false));
 
-    expect(first).toMatchObject({ content: "A😀", offset: 0, returnedBytes: 5, nextOffset: 5 });
-    expect(second).toMatchObject({ content: "B", offset: 5, returnedBytes: 1, hasMore: false });
-    expect(`${first.content}${second.content}`).toBe("A😀B");
+      await expect(executeTool("read_merge_conflict_file", {
+        projectId: "p1", file: "Rating/rules/config.txt", side: "BASE",
+      }, harness.client)).rejects.toThrow(/does not hold the file/);
+    });
   });
 
   describe("a conflicted workbook", () => {

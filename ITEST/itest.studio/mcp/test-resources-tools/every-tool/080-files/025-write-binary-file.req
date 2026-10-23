@@ -1,0 +1,5 @@
+POST /rest/projects/{PROJECT_ID}/files/docs/data.bin?createFolders=true HTTP/1.1
+Authorization: Token ${PAT}
+Content-Type: application/octet-stream
+
+&data.bin
