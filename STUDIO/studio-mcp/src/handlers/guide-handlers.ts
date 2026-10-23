@@ -46,14 +46,18 @@ now oriented — do not call this tool again in this session.
    \`openl_get_guides(ids)\`. Do not guess OpenL table syntax, functions, or project
    layout from memory — look them up.
 4. **Edit**: open the project first (\`openl_open_project\`; design repositories only),
-   then use the table tools (\`openl_list_tables\`, \`openl_get_table\`,
+   unless \`capabilities.canOpen\` of \`openl_get_project\` is absent — a project edited in
+   place, of a file repository in single-user mode, is always open and has every edit
+   written straight into its files. Then use the table tools (\`openl_list_tables\`, \`openl_get_table\`,
    \`openl_update_table\`, ...) or the project-file tools.
 5. **Validate after every edit**: \`openl_project_status\` for compile
    errors, then run tests (\`openl_start_project_tests\` →
    \`openl_get_test_results_summary\`).
 6. **Persist / ship**: \`openl_save_project\` commits to Git; \`openl_deploy_project\`
    deploys. Neither applies to projects in the 'local' repository — those have no
-   open/save/close or Git operations.`;
+   open/save/close or Git operations — and saving does not apply to a project edited in
+   place either: its edits are in its files already, and it is never closed. The
+   \`capabilities\` of \`openl_get_project\` tell which of these operations a project takes.`;
 
 /**
  * Render the workspace-orientation section from the documents OpenL Studio serves:

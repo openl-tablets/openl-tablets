@@ -30,6 +30,16 @@ Content-Type: application/json
     "id": "design"
   },
   {
+    "name": "Design File",
+    "settings": {
+      "useCustomComments": false,
+      "basePath": "DESIGN/rules/",
+      "uri": "**/repositories/design-file"
+    },
+    "type": "repo-file",
+    "id": "design-file"
+  },
+  {
     "name": "H2",
     "settings": {
       "useCustomComments": false,

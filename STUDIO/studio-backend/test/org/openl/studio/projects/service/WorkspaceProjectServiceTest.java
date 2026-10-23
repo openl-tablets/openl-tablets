@@ -986,6 +986,25 @@ class WorkspaceProjectServiceTest {
         verify(workspaceManager).refreshWorkspaces();
     }
 
+    /** A project edited in place is the folder of the design repository: closing it would close nothing. */
+    @Test
+    void update_project_status_refuses_to_close_a_project_edited_in_place() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), null,
+                mock(ProjectStateValidator.class), mock(WebStudio.class));
+        var project = mock(RulesProject.class);
+        fillProject(project, repository(), "PricingProject", "PricingProject");
+        when(project.getStatus()).thenReturn(ProjectStatus.EDITING);
+        when(project.isInPlace()).thenReturn(true);
+        when(acl.isGranted(project, List.of(BasePermission.READ))).thenReturn(true);
+
+        var model = ProjectStatusUpdateModel.builder().status(ProjectStatus.CLOSED).build();
+        var exception = assertThrows(ConflictException.class, () -> service.updateProjectStatus(project, model));
+
+        assertEquals("openl.error.409.project.close.in-place.message", exception.getErrorCode());
+        verify(project, never()).close();
+    }
+
     @Test
     void update_project_status_rejects_closing_modified_project_without_force() throws Exception {
         var acl = mock(RepositoryAclService.class);
@@ -3402,6 +3421,9 @@ class WorkspaceProjectServiceTest {
 
         var localWorkspace = mock(LocalWorkspace.class);
         when(localWorkspace.getRepository("design")).thenReturn(localRepository);
+        for (var project : projects) {
+            when(project.getLocalRepository()).thenReturn(localRepository);
+        }
 
         var userWorkspace = mock(UserWorkspace.class);
         when(userWorkspace.getLocalWorkspace()).thenReturn(localWorkspace);

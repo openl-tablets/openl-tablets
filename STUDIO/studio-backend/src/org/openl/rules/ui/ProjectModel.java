@@ -1,6 +1,5 @@
 package org.openl.rules.ui;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +25,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
@@ -39,7 +40,6 @@ import org.openl.dependency.ResolvedDependency;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.meta.IMetaInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsHelper;
@@ -67,11 +67,9 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Repository;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTableUtils;
@@ -94,7 +92,6 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.studio.projects.service.history.ProjectHistoryService;
 import org.openl.studio.projects.service.tables.StaleTableIds;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
@@ -203,7 +200,7 @@ public class ProjectModel {
     }
 
     public synchronized TableSyntaxNode findNode(String url) {
-        XlsUrlParser parsedUrl = new XlsUrlParser(url);
+        var parsedUrl = new XlsUrlParser(url);
 
         return findNode(parsedUrl);
     }
@@ -227,7 +224,7 @@ public class ProjectModel {
         Collection<TableSyntaxNode> nodes = getAllTableSyntaxNodes();
         for (TableSyntaxNode node : nodes) {
             if (p1.intersects(node.getGridTable().getUriParser())) {
-                if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
+                if (XlsNodeTypes.XLS_TABLEPART == node.getNodeType()) {
                     var compositeNode = findCompositeNode(nodes, p1);
                     if (compositeNode != null) {
                         return compositeNode;
@@ -245,7 +242,7 @@ public class ProjectModel {
      */
     private @Nullable TableSyntaxNode findCompositeNode(Collection<TableSyntaxNode> nodes, XlsUrlParser p1) {
         for (TableSyntaxNode tableSyntaxNode : nodes) {
-            IGridTable table = tableSyntaxNode.getGridTable();
+            var table = tableSyntaxNode.getGridTable();
             if (table.getGrid() instanceof CompositeGrid compositeGrid
                     && findInCompositeGrid(compositeGrid, p1)) {
                 return tableSyntaxNode;
@@ -254,8 +251,7 @@ public class ProjectModel {
         return null;
     }
 
-
-    public synchronized TableSyntaxNode getTableByUri(String uri) {
+    public synchronized @Nullable TableSyntaxNode getTableByUri(String uri) {
         for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
             if (Objects.equals(uri, tableSyntaxNode.getUri())) {
                 return tableSyntaxNode;
@@ -269,7 +265,7 @@ public class ProjectModel {
         return null;
     }
 
-    public synchronized TableSyntaxNode getNodeById(String id) {
+    public synchronized @Nullable TableSyntaxNode getNodeById(String id) {
         for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
             if (Objects.equals(id, tableSyntaxNode.getId())) {
                 return tableSyntaxNode;
@@ -286,10 +282,10 @@ public class ProjectModel {
     private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode,
                                                 Severity severity,
                                                 Collection<OpenLMessage> openLMessages) {
-        List<OpenLMessage> messages = new ArrayList<>();
+        var messages = new ArrayList<OpenLMessage>();
         for (OpenLMessage openLMessage : openLMessages) {
             if (openLMessage.getSourceLocation() != null && openLMessage.getSeverity() == severity) {
-                XlsUrlParser xlsUrlParser = new XlsUrlParser(openLMessage.getSourceLocation());
+                var xlsUrlParser = new XlsUrlParser(openLMessage.getSourceLocation());
                 if (tableSyntaxNode.getUriParser().intersects(xlsUrlParser)) {
                     messages.add(openLMessage);
                 }
@@ -299,12 +295,12 @@ public class ProjectModel {
     }
 
     public List<OpenLMessage> getMessagesByTsn(String uri, Severity severity) {
-        TableSyntaxNode tableSyntaxNode = getTableByUri(uri);
+        var tableSyntaxNode = getTableByUri(uri);
         return getMessagesByTsn(tableSyntaxNode, severity, getModuleMessages());
     }
 
     public List<OpenLMessage> getOpenedModuleMessagesByTsn(String uri, Severity severity) {
-        TableSyntaxNode tableSyntaxNode = getTableByUri(uri);
+        var tableSyntaxNode = getTableByUri(uri);
         return getMessagesByTsn(tableSyntaxNode, severity, getOpenedModuleMessages());
     }
 
@@ -312,23 +308,23 @@ public class ProjectModel {
         return getMessagesByTsn(uri, Severity.ERROR);
     }
 
-    public synchronized IOpenMethod getMethod(String tableUri) {
+    public synchronized @Nullable IOpenMethod getMethod(String tableUri) {
         if (!isCompiledSuccessfully()) {
             return null;
         }
-        IOpenClass openClass = compiledOpenClass.get().getOpenClassWithErrors();
+        var openClass = compiledOpenClass.get().getOpenClassWithErrors();
         return getOpenClassMethod(tableUri, openClass);
     }
 
-    public synchronized IOpenMethod getOpenedModuleMethod(String tableUri) {
+    public synchronized @Nullable IOpenMethod getOpenedModuleMethod(String tableUri) {
         if (!isOpenedModuleCompiledSuccessfully()) {
             return null;
         }
-        IOpenClass openClass = openedModuleCompiledOpenClass.get().getOpenClassWithErrors();
+        var openClass = openedModuleCompiledOpenClass.get().getOpenClassWithErrors();
         return getOpenClassMethod(tableUri, openClass);
     }
 
-    public synchronized IOpenMethod getOpenClassMethod(String tableUri, IOpenClass openClass) {
+    public synchronized @Nullable IOpenMethod getOpenClassMethod(String tableUri, IOpenClass openClass) {
         for (IOpenMethod method : openClass.getMethods()) {
             IOpenMethod resolvedMethod;
 
@@ -349,7 +345,7 @@ public class ProjectModel {
         // for methods that exist in module but not included in
         // CompiledOpenClass
         // e.g. elder inactive versions of methods
-        TableSyntaxNode tsn = getNode(tableUri);
+        var tsn = getNode(tableUri);
         if (tsn != null && tsn.getMember() instanceof IOpenMethod tableMethod) {
             return WrapperLogic.wrapOpenMethod(tableMethod, (XlsModuleOpenClass) openClass, false);
         }
@@ -361,7 +357,7 @@ public class ProjectModel {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
+            var resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -375,7 +371,7 @@ public class ProjectModel {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
+            var resolvedMethod = resolveMethod(candidate, uri);
             if (resolvedMethod != null) {
                 return WrapperLogic.wrapOpenMethod(resolvedMethod, method.getDeclaringClass(), false);
             }
@@ -408,12 +404,12 @@ public class ProjectModel {
      */
     private boolean isInstanceOfTable(IOpenMethod method, String uri) {
 
-        IMemberMetaInfo metaInfo = method.getInfo();
+        var metaInfo = method.getInfo();
 
         return metaInfo != null && uri.equals(metaInfo.getSourceUrl());
     }
 
-    public synchronized TableSyntaxNode getNode(String tableUri) {
+    public synchronized TableSyntaxNode getNode(@Nullable String tableUri) {
         TableSyntaxNode tsn = null;
         if (tableUri != null) {
             tsn = getTableByUri(tableUri);
@@ -424,8 +420,8 @@ public class ProjectModel {
         return tsn;
     }
 
-    public synchronized IOpenLTable getTable(String tableUri) {
-        TableSyntaxNode tsn = getNode(tableUri);
+    public synchronized @Nullable IOpenLTable getTable(String tableUri) {
+        var tsn = getNode(tableUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
@@ -437,9 +433,9 @@ public class ProjectModel {
 
     }
 
-    public synchronized IOpenLTable getTableById(String id) {
+    public synchronized @Nullable IOpenLTable getTableById(String id) {
         initProjectHistory();
-        TableSyntaxNode tsn = getNodeById(id);
+        var tsn = getNodeById(id);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
@@ -450,8 +446,8 @@ public class ProjectModel {
         return null;
     }
 
-    public IGridTable getGridTable(String tableUri) {
-        TableSyntaxNode tsn = getNode(tableUri);
+    public @Nullable IGridTable getGridTable(String tableUri) {
+        var tsn = getNode(tableUri);
         return tsn == null ? null : tsn.getGridTable();
     }
 
@@ -478,7 +474,7 @@ public class ProjectModel {
      * runs without any parameters and tests without cases and runs.
      */
     public IOpenMethod[] getTestAndRunMethods(String tableUri, boolean currentOpenedModule) {
-        IOpenMethod method = getMethod(tableUri);
+        var method = getMethod(tableUri);
         if (method != null) {
             Collection<IOpenMethod> methods;
             if (currentOpenedModule) {
@@ -494,14 +490,14 @@ public class ProjectModel {
         return IOpenMethod.EMPTY_ARRAY;
     }
 
-    public TestSuiteMethod[] getAllTestMethods() {
+    public TestSuiteMethod @Nullable[] getAllTestMethods() {
         // Read once: opening another module empties this between the question and the answer.
         var compiled = this.compiledOpenClass.get();
         return compiled != null && isCompiledSuccessfully() ? ProjectHelper
                 .allTesters(compiled.getOpenClassWithErrors()) : null;
     }
 
-    public TestSuiteMethod[] getOpenedModuleTestMethods() {
+    public TestSuiteMethod @Nullable[] getOpenedModuleTestMethods() {
         var compiled = this.openedModuleCompiledOpenClass.get();
         return compiled != null && isOpenedModuleCompiledSuccessfully() ? ProjectHelper
                 .allTesters(compiled.getOpenClassWithErrors()) : null;
@@ -597,7 +593,7 @@ public class ProjectModel {
         // Fallback path for the opened module BEFORE setModuleInfo publishes
         // `openedModuleCompiledOpenClass` (the loader's ref is set by then),
         // and the canonical path for all other module loaders.
-        CompiledDependency compiledDependency = loader.getRefToCompiledDependency();
+        var compiledDependency = loader.getRefToCompiledDependency();
         if (compiledDependency != null) {
             status.addMessages(compiledDependency.getCompiledOpenClass().getMessages()).addModulesCompiled(1);
         }
@@ -623,7 +619,7 @@ public class ProjectModel {
     }
 
     public Collection<OpenLMessage> getModuleMessages() {
-        CompiledOpenClass moduleCompiledOpenClass = getCompiledOpenClass();
+        var moduleCompiledOpenClass = getCompiledOpenClass();
         if (moduleCompiledOpenClass != null) {
             return moduleCompiledOpenClass.getAllMessages();
         }
@@ -631,14 +627,14 @@ public class ProjectModel {
     }
 
     public Collection<OpenLMessage> getOpenedModuleMessages() {
-        CompiledOpenClass openedCompiledOpenClass = getOpenedModuleCompiledOpenClass();
+        var openedCompiledOpenClass = getOpenedModuleCompiledOpenClass();
         if (openedCompiledOpenClass != null) {
             return openedCompiledOpenClass.getAllMessages();
         }
         return Collections.emptyList();
     }
 
-    public XlsModuleSyntaxNode getXlsModuleNode() {
+    public @Nullable XlsModuleSyntaxNode getXlsModuleNode() {
 
         if (!isCompiledSuccessfully()) {
             return null;
@@ -648,7 +644,7 @@ public class ProjectModel {
     }
 
     private XlsModuleSyntaxNode findXlsModuleSyntaxNode(CompiledOpenClass compiledOpenClass) {
-        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+        var xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
         return xmi == null ? null : xmi.getXlsModuleNode();
     }
 
@@ -658,7 +654,7 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        RulesProject currentProject = getProject();
+        var currentProject = getProject();
         if (currentProject != null) {
             AProjectArtefact currentModule = null;
             try {
@@ -690,9 +686,9 @@ public class ProjectModel {
     }
 
     private boolean isCurrentBranchProtected() {
-        RulesProject project = getProject();
+        var project = getProject();
         if (project != null && !project.isLocalOnly()) {
-            Repository repo = project.getDesignRepository();
+            var repo = project.getDesignRepository();
             return repo.supports().branches()
                     && studio.getBypassService().isProtectionEnforced(
                             (BranchRepository) repo, project.getBranch(), project);
@@ -792,7 +788,7 @@ public class ProjectModel {
      * workbooks it was compiled from are new ones.
      */
     public synchronized void initProjectHistory() {
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        var workbookNodes = getWorkbookNodes();
         var module = moduleInfo;
         if (workbookNodes != null && module != null) {
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
@@ -835,15 +831,24 @@ public class ProjectModel {
         }
     }
 
-    /** Where this project's edits are kept, or nothing when the model stands outside a workspace. */
-    private LocalRepository getLocalRepository() {
+    /**
+     * Where this project's edits are kept: the folder of a project edited in place, else the workspace. Nothing when
+     * the model stands outside a workspace.
+     */
+    private @Nullable LocalRepository getLocalRepository() {
         var workspace = studio.getUserWorkspace();
-        return workspace == null ? null : workspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
+        if (workspace == null) {
+            return null;
+        }
+        var project = studio.getCurrentProject();
+        return project != null
+                ? project.getLocalRepository()
+                : workspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
     public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
         if (isCompiledSuccessfully()) {
-            XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
+            var moduleSyntaxNode = getXlsModuleNode();
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
 
@@ -870,7 +875,7 @@ public class ProjectModel {
      * @return table syntax node to owning project name
      */
     public synchronized Map<TableSyntaxNode, String> getTableSyntaxNodeProjects() {
-        Map<TableSyntaxNode, String> index = new IdentityHashMap<>();
+        var index = new IdentityHashMap<TableSyntaxNode, String>();
         xlsModuleSyntaxNodesPerProject.forEach((projectName, moduleNodes) -> moduleNodes.stream()
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
                 .filter(Objects::nonNull)
@@ -918,14 +923,14 @@ public class ProjectModel {
         // author: Alexey Gamanovich
         //
         List<TableSyntaxNode> executableNodes = getAllExecutableTables(tableSyntaxNodes);
-        OverloadedMethodsDictionary methodNodesDictionary = new OverloadedMethodsDictionary();
+        var methodNodesDictionary = new OverloadedMethodsDictionary();
         methodNodesDictionary.addAll(executableNodes);
 
         return methodNodesDictionary;
     }
 
     public OverloadedMethodsDictionary getMethodNodesDictionary() {
-        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
+        var tableSyntaxNodes = getTableSyntaxNodes();
         return makeMethodNodesDictionary(tableSyntaxNodes);
     }
 
@@ -935,7 +940,7 @@ public class ProjectModel {
      * that live in non-opened modules.
      */
     public synchronized OverloadedMethodsDictionary getAllMethodNodesDictionary() {
-        TableSyntaxNode[] tableSyntaxNodes = xlsModuleSyntaxNodesPerProject.values().stream()
+        var tableSyntaxNodes = xlsModuleSyntaxNodesPerProject.values().stream()
                 .flatMap(Collection::stream)
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
                 .filter(Objects::nonNull)
@@ -1017,7 +1022,7 @@ public class ProjectModel {
 
     public synchronized TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
         Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
-        boolean isParallel = threads != null && threads > 1;
+        var isParallel = threads != null && threads > 1;
         return runTest(test,
                 isParallel,
                 currentOpenedModule ? openedModuleCompiledOpenClass.get().getOpenClassWithErrors()
@@ -1041,14 +1046,13 @@ public class ProjectModel {
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
-        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+        var oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.get().getClassLoader());
             if (!isParallel) {
                 return test.invokeSequentially(openClass, 1);
-            } else {
-                return test.invokeParallel(testSuiteExecutor, openClass, 1);
             }
+            return test.invokeParallel(testSuiteExecutor, openClass, 1);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -1141,9 +1145,9 @@ public class ProjectModel {
     }
 
     private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+        var metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
-            XlsModuleSyntaxNode dependencySyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            var dependencySyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (dependencySyntaxNode != null) {
                 getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(dependencySyntaxNode);
                 if (!(dependencySyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
@@ -1159,9 +1163,9 @@ public class ProjectModel {
     }
 
     private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+        var metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo xlsMetaInfo) {
-            XlsModuleSyntaxNode dependencySyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            var dependencySyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (dependencySyntaxNode != null) {
                 getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(dependencySyntaxNode);
                 if (!(dependencySyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
@@ -1196,7 +1200,7 @@ public class ProjectModel {
         }
     }
 
-    public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws ProjectResolvingException {
+    public synchronized void setModuleInfo(@Nullable Module moduleInfo, ReloadType reloadType) throws ProjectResolvingException {
         if (moduleInfo == null || reloadType == ReloadType.NO && isSameModule(this.moduleInfo, moduleInfo)) {
             return;
         }
@@ -1217,19 +1221,19 @@ public class ProjectModel {
         openedModuleCompiledOpenClass.set(null);
         prepareWorkspaceDependencyManager(moduleInfo.getProject());
         try {
-            CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
+            var thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
                     .loadDependency(AbstractDependencyManager.buildResolvedDependency(moduleInfo))
                     .getCompiledOpenClass();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass.set(thisModuleCompiledOpenClass);
-            if (compiledOpenClass.get() == null || !isProjectCompilationCompleted() || !ReloadType.NO.equals(reloadType)) {
+            if (compiledOpenClass.get() == null || !isProjectCompilationCompleted() || ReloadType.NO != reloadType) {
                 compiledOpenClass.set(thisModuleCompiledOpenClass);
             }
             if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
                 ResolvedDependency projectDependency = AbstractDependencyManager
                         .buildResolvedDependency(moduleInfo.getProject());
-                if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependency,
+                if (ReloadType.NO != reloadType || !Objects.equals(projectDependency,
                         projectCompilationCompleted.get())) {
                     compileProject(false, false);
                 }
@@ -1251,8 +1255,8 @@ public class ProjectModel {
      */
     private @Nullable Module findReloadedModule(Path projectFolder,
                                                 Module moduleInfo) throws ProjectResolvingException {
-        ProjectResolver projectResolver = studio.getProjectResolver();
-        ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
+        var projectResolver = studio.getProjectResolver();
+        var projectDescriptor = projectResolver.resolve(projectFolder);
         for (Module module : projectDescriptor.getModules()) {
             if (moduleInfo.getName().equals(module.getName())) {
                 return module;
@@ -1268,7 +1272,7 @@ public class ProjectModel {
         }
         final RegisteredCompilation cycle;
         synchronized (this) {
-            ProjectDescriptor projectDescriptor = getProjectDescriptor();
+            var projectDescriptor = getProjectDescriptor();
             if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
                 prepareWorkspaceDependencyManager(projectDescriptor);
             }
@@ -1296,7 +1300,7 @@ public class ProjectModel {
                     } else {
                         try {
                             this.compiledOpenClass.set(this.validate(projectDescriptor));
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.get().getOpenClassWithErrors()
+                            var metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.get().getOpenClassWithErrors()
                                     .getMetaInfo();
                             replaceProjectNode(projectDescriptor.getName(), metaInfo1.getXlsModuleNode());
                         } catch (Exception | LinkageError e) {
@@ -1398,8 +1402,8 @@ public class ProjectModel {
             return moduleInfo.getProject();
         }
         try {
-            ProjectResolver projectResolver = studio.getProjectResolver();
-            var localFile = project.getLocalRepository().getRoot().resolve(project.getName());
+            var projectResolver = studio.getProjectResolver();
+            var localFile = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
             return projectResolver.resolve(localFile);
         } catch (Exception e) {
             // Fail-safe behavior for mock tests where studio.getProjectResolver() is not set.
@@ -1410,9 +1414,9 @@ public class ProjectModel {
     private void onCompilationFailed(Throwable t) {
         compilationInProgress = false;
         log.error("Failed to load.", t);
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        var messages = new LinkedHashSet<OpenLMessage>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
-            String message = "Cannot load the module: %s".formatted(openLMessage.getSummary());
+            var message = "Cannot load the module: %s".formatted(openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
         compiledOpenClass.set(new CompiledOpenClass(NullOpenClass.the, messages));
@@ -1423,19 +1427,19 @@ public class ProjectModel {
         if (moduleInfo == null) {
             return false;
         }
-        long modificationTime = moduleLastModified;
+        var modificationTime = moduleLastModified;
         moduleLastModified = moduleInfo.getRulesPath().toFile().lastModified();
         return modificationTime != moduleLastModified;
     }
 
     private CompiledOpenClass validate(ProjectDescriptor projectDescriptor) throws RulesInstantiationException {
-        OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+        var openApiProjectValidator = new OpenApiProjectValidator();
         return openApiProjectValidator.validate(projectDescriptor, getRulesInstantiationStrategy(projectDescriptor));
     }
 
     public RulesInstantiationStrategy getRulesInstantiationStrategy(ProjectDescriptor projectDescriptor) {
         List<Module> modules = projectDescriptor.getModules();
-        RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+        var instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
                 webStudioWorkspaceDependencyManager,
                 false);
         Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
@@ -1473,8 +1477,8 @@ public class ProjectModel {
         Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
                 .map(ProjectDescriptor::getName)
                 .collect(Collectors.toSet());
-        boolean foundOpenedProject = false;
-        boolean allProjectCanBeReused = true;
+        var foundOpenedProject = false;
+        var allProjectCanBeReused = true;
         Collection<IDependencyLoader> projectDependencyLoaders = webStudioWorkspaceDependencyManager
                 .getDependencyLoaders()
                 .stream()
@@ -1601,7 +1605,7 @@ public class ProjectModel {
      * Remove listeners added in {@link #initProjectHistory()}
      */
     private void removeListeners() {
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
+        var workbookNodes = getWorkbookNodes();
         if (workbookNodes != null) {
             for (WorkbookSyntaxNode workbookSyntaxNode : workbookNodes) {
                 var sourceCodeModule = workbookSyntaxNode.getWorkbookSourceCodeModule();
@@ -1625,26 +1629,22 @@ public class ProjectModel {
         return method instanceof OpenMethodDispatcher dispatcher ? getMethodFromDispatcher(dispatcher, uri) : method;
     }
 
-    private class XlsModificationListener implements XlsWorkbookListener {
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private final class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
         private final String storagePath;
 
-        private XlsModificationListener(LocalRepository repository, String storagePath) {
-            this.repository = repository;
-            this.storagePath = storagePath;
-        }
-
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            var sourceFile = workbookSourceCodeModule.getSourceFile();
             ProjectHistoryService.init(storagePath, sourceFile);
         }
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
             isModified();
-            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            var sourceFile = workbookSourceCodeModule.getSourceFile();
             repository.getProjectState(sourceFile.getPath()).notifyModified();
             ProjectHistoryService.save(storagePath, sourceFile);
         }

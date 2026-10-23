@@ -514,6 +514,26 @@ overlap. When both changed the same place, the **Resolve Conflicts** window appe
 
 An editable project can be saved and closed directly from the editor as described in [Editing and Saving a Project](rules-editor.md#editing-and-saving-a-project).
 
+### Projects Edited in Place
+
+When OpenL Studio runs in single-user mode and its Design repository is a folder of the file system, as a tool
+running OpenL Studio on a developer's machine sets it up, the projects of the folder are edited where they are:
+
+-   Every project of the folder is open at once, with the **No Changes** status, and is not copied to the workspace.
+    **Open**, **Close** and **Save** are not offered for it.
+-   Every edit is written into the files of the project in the folder at once, and what other programs write there,
+    such as Excel or an IDE, is part of the project as well.
+-   OpenL Studio never writes over a file another program changed after OpenL Studio read it. Such a write is
+    refused and the file stays as the other program left it; the module is read again, so repeat the edit on what
+    the file holds now.
+-   The project is named by the `<name>` of its `rules.xml`, whatever its folder is called, and keeps its tags in
+    `tags.properties` of the folder.
+-   Earlier versions of a module are kept as when a copy is edited, so an edit is rolled back from the local history
+    of the module.
+
+A project opened before OpenL Studio ran this way stays a copy in the workspace while it has unsaved changes, so that
+they can be saved; once it has none, the project is edited in place.
+
 ### Viewing the Project Overview
 
 The **Overview** tab of a project page shows the configuration of the project on the left and its properties on the right. A section or a property that the project has no value for is not shown.

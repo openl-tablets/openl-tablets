@@ -28,5 +28,15 @@ Content-Type: application/json
     },
     "type": "repo-git",
     "id": "design"
+  },
+  {
+    "name": "Design File",
+    "settings": {
+      "useCustomComments": false,
+      "basePath": "DESIGN/rules/",
+      "uri": "**/repositories/design-file"
+    },
+    "type": "repo-file",
+    "id": "design-file"
   }
 ]

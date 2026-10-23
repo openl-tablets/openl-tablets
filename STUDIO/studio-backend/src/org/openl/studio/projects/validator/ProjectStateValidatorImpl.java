@@ -62,7 +62,8 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
         if (project == null || project.isDeleted()) {
             return false;
         }
-        return !project.isLocalOnly() && project.isOpened();
+        // A project edited in place is the folder of the design repository: there is no copy to close.
+        return !project.isLocalOnly() && project.isOpened() && !project.isInPlace();
     }
 
     @Override

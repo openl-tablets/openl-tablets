@@ -34,6 +34,11 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     private String workspaceHome;
     @Setter
     private boolean enableLocks = true;
+    /**
+     * Whether the projects of a design repository on the file system are edited where they are. Only in single-user
+     * mode: the one user of the machine works on the folder of their projects.
+     */
+    private final boolean inPlace;
 
     // User name -> user workspace
     private final Map<String, LocalWorkspaceImpl> localWorkspaces = new HashMap<>();
@@ -49,10 +54,12 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     // for tests
     public LocalWorkspaceManagerImpl() {
         designTimeRepository = null;
+        inPlace = false;
     }
 
     public LocalWorkspaceManagerImpl(PropertyResolver propertyResolver, DesignTimeRepository designTimeRepository) {
         workspaceHome = propertyResolver.getProperty("user.workspace.home");
+        inPlace = "single".equals(propertyResolver.getProperty("user.mode"));
         this.designTimeRepository = designTimeRepository;
     }
 
@@ -78,7 +85,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         var workspace = new LocalWorkspaceImpl(userId,
                 userWorkspace,
                 designTimeRepository,
-                registryOf(userId));
+                registryOf(userId),
+                inPlace);
         workspace.addWorkspaceListener(this);
         return workspace;
     }

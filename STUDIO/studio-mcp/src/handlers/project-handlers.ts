@@ -113,7 +113,7 @@ export function registerProjectHandlers(): void {
     name: "list_projects",
     title: "List Projects",
     description:
-      "List projects with the Studio filters for repository, status, dependency, name, author, branch, tags, sorting, and response expansions. Results are paginated (default 50, maximum 200): when a complete inventory is required, follow pagination.has_more and call again with pagination.next_offset until has_more is false. Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field from API to use with other tools. For local-only projects, do not pass repository filter 'local' (it may fail); list every page without that filter and filter results by repository === 'local' client-side. For such projects, open/save/close do not work; table/rule/test tools work without opening. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. Pass either the id or name from openl_list_repositories() — both are accepted (case-insensitive). Do not invent example values; call openl_list_repositories() first if not in context. Use this to discover and filter projects.",
+      "List projects with the Studio filters for repository, status, dependency, name, author, branch, tags, sorting, and response expansions. Results are paginated (default 50, maximum 200): when a complete inventory is required, follow pagination.has_more and call again with pagination.next_offset until has_more is false. Returns project names, status (OPENED/CLOSED), metadata, and a convenient 'projectId' field from API to use with other tools. For local-only projects, do not pass repository filter 'local' (it may fail); list every page without that filter and filter results by repository === 'local' client-side. For such projects, open/save/close do not work; table/rule/test tools work without opening. The same holds for a project edited in place — a project of a file repository in single-user mode, as a developer runs OpenL Studio on their machine: it is always open, every edit is written straight into its files, and its folder has no branches; openl_get_project tells it by capabilities without canOpen, canSave and canClose. IMPORTANT: The 'projectId' is returned exactly as provided by the API and should be used without modification. Pass either the id or name from openl_list_repositories() — both are accepted (case-insensitive). Do not invent example values; call openl_list_repositories() first if not in context. Use this to discover and filter projects.",
     schema: schemas.listProjectsSchema,
     annotations: {
       readOnlyHint: true,
@@ -144,7 +144,7 @@ export function registerProjectHandlers(): void {
     name: "get_project",
     title: "Get Project Details",
     description:
-      "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status.",
+      "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Its 'capabilities' tell which lifecycle tools apply: canOpen, canSave, canClose and canManageBranches are left out when the operation is not available — for a project edited in place (a file repository in single-user mode) the first three always are, as the project is always open and every edit is already in its files.",
     schema: schemas.getProjectSchema,
     annotations: {
       readOnlyHint: true,
@@ -186,7 +186,7 @@ export function registerProjectHandlers(): void {
     name: "open_project",
     title: "Open Project for Editing",
     description:
-      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions. Use this before making changes to project tables or rules.",
+      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions. Use this before making changes to project tables or rules — unless capabilities.canOpen of openl_get_project is absent: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
     schema: schemas.openProjectSchema,
     annotations: {
       openWorldHint: true,
@@ -225,7 +225,7 @@ export function registerProjectHandlers(): void {
     name: "save_project",
     title: "Save Project",
     description:
-      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, append_table, or other edits. Does not work for repository 'local'.",
+      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, append_table, or other edits. Does not work for repository 'local', nor when capabilities.canSave of openl_get_project is absent: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
     schema: schemas.saveProjectSchema,
     annotations: {
       openWorldHint: true,
@@ -243,7 +243,7 @@ export function registerProjectHandlers(): void {
     name: "close_project",
     title: "Close Project",
     description:
-      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; comment required only when repository features.comments is true) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss.",
+      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; comment required only when repository features.comments is true) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss. Not for a project whose capabilities.canClose (openl_get_project) is absent: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
     schema: schemas.closeProjectSchema,
     annotations: {
       destructiveHint: true, // Can discard changes if requested
@@ -308,7 +308,7 @@ export function registerProjectHandlers(): void {
     name: "create_project_branch",
     title: "Create Project Branch",
     description:
-      "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used.",
+      "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Only for a repository with branches (features.branches of openl_list_repository_features; capabilities.canManageBranches of openl_get_project): the folder of a file repository has none, a project edited in place included.",
     schema: schemas.createBranchSchema,
     annotations: {
       openWorldHint: true,

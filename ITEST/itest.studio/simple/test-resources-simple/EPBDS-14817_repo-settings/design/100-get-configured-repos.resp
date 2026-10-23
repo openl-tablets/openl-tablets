@@ -17,5 +17,21 @@ Content-Type: application/json
       "mappedFolders": true,
       "comments": true
     }
+  },
+  {
+    "aclId": "REVTSUdOOmRlc2lnbi1maWxl",
+    "id": "design-file",
+    "name": "Design File",
+    "type": "repo-file",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": true,
+      "comments": false
+    }
   }
 ]

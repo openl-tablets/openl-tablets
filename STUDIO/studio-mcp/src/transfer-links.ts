@@ -9,6 +9,7 @@
  */
 import { entityTag, type OpenLClient } from "./client.js";
 import { trimChar } from "./text.js";
+import { IN_PLACE_NOTE, isEditedInPlace } from "./utils.js";
 import type * as Types from "./types.js";
 
 /** The most bytes of a text file a tool answers inline; a larger or a binary file is answered with a link. */
@@ -105,7 +106,7 @@ export async function downloadLink(
 export async function uploadLink(client: OpenLClient, target: UploadTarget): Promise<Record<string, unknown>> {
   const { version, ...where } = target;
   const local = target.path.split("/").at(-1) ?? target.path;
-  const [{ url, expiresAt }, location] = await Promise.all([
+  const [{ url, expiresAt }, project] = await Promise.all([
     linkOf(client, {
       kind: "upload",
       ...where,
@@ -113,7 +114,7 @@ export async function uploadLink(client: OpenLClient, target: UploadTarget): Pro
     }, () => client.projectFileUrl(target.projectId, target.path, version === undefined
       ? { createFolders: String(target.createFolders), conflictPolicy: "FAIL", branch: target.branch }
       : { branch: target.branch })),
-    locationOf(client, target.projectId, target.path, target.branch),
+    client.getProject(target.projectId),
   ]);
   // A transfer link takes one PUT; the REST API creates a file with a POST and replaces one with a PUT
   const method = expiresAt || version !== undefined ? "PUT" : "POST";
@@ -126,10 +127,12 @@ export async function uploadLink(client: OpenLClient, target: UploadTarget): Pro
     url,
     method,
     ...(expiresAt ? { expiresAt } : {}),
-    ...location,
+    ...locationIn(project, target.path, target.branch),
     curl,
     note: (expiresAt ? "The link writes once: a failed upload needs a new link. " : "")
-      + "The file lands in the project working copy; commit it with openl_save_project.",
+      + (isEditedInPlace(project)
+        ? IN_PLACE_NOTE
+        : "The file lands in the project working copy; commit it with openl_save_project."),
   };
 }
 
@@ -173,7 +176,16 @@ async function locationOf(
   branch: string | undefined,
   inRepository = false,
 ): Promise<Record<string, unknown>> {
-  const project = await client.getProject(projectId);
+  return locationIn(await client.getProject(projectId), path, branch, inRepository);
+}
+
+/** Where a file of the given project lives in its repository; see {@link locationOf}. */
+function locationIn(
+  project: Types.ProjectViewModel,
+  path: string,
+  branch: string | undefined,
+  inRepository = false,
+): Record<string, unknown> {
   const folder = inRepository ? undefined : project.path && trimChar(project.path, "/", false);
   // A folder keeps its trailing slash in the repository path
   const relative = path.replace(/^\/+/, "");

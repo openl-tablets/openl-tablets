@@ -90,6 +90,7 @@ class ProjectModelHistoryTest {
         when(userWorkspace.getLocalWorkspace()).thenReturn(local);
         var project = mock(RulesProject.class);
         when(project.getFolderPath()).thenReturn("Pricing");
+        when(project.getLocalRepository()).thenReturn(repository);
         var studio = mock(WebStudio.class);
         when(studio.getUserWorkspace()).thenReturn(userWorkspace);
         when(studio.getCurrentProject()).thenReturn(project);

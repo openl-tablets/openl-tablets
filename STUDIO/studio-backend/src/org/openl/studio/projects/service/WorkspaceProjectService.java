@@ -411,9 +411,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     private Optional<ResolvedDescriptor> resolveLocalProjectDescriptor(RulesProject project) {
         try {
-            var localWorkspace = getUserWorkspace().getLocalWorkspace();
-            var repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
-            var folder = repoRoot.resolve(project.getFolderPath());
+            var folder = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
             var descriptor = ProjectResolver.getInstance().resolve(folder);
             if (descriptor == null) {
                 return Optional.empty();
@@ -1073,6 +1071,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         requireGranted(project, BasePermission.READ);
         if (project.isDeleted()) {
             throw new ConflictException("project.close.deleted.message", project.getBusinessName());
+        } else if (project.isInPlace()) {
+            throw new ConflictException("project.close.in-place.message", project.getBusinessName());
         } else if (!projectStateValidator.canClose(project)) {
             throw new ConflictException("project.close.conflict.message");
         }

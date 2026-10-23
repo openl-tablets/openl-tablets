@@ -2,7 +2,7 @@
  * Utility functions for the OpenL MCP Server
  */
 
-import type { ResultNotReadyView } from "./types.js";
+import type { ProjectViewModel, ResultNotReadyView } from "./types.js";
 
 /** Error detail in API error response (for 400 status) */
 interface ApiErrorDetail {
@@ -147,6 +147,18 @@ export function sanitizeJson(obj: unknown): unknown {
 export function isResultNotReady(value: unknown): value is ResultNotReadyView {
   return isPlainObject(value) && value.status === "notReady";
 }
+
+/**
+ * Whether a project has no working copy to commit: it is neither opened nor closed, so every change lands in its
+ * files at once. A project edited in place is one, and so is a project of the 'local' repository. A project whose
+ * capabilities are not told is taken for one with a working copy.
+ */
+export function isEditedInPlace({ capabilities }: ProjectViewModel): boolean {
+  return capabilities !== undefined && !capabilities.canOpen && !capabilities.canClose;
+}
+
+/** What a change of the files of a project edited in place tells the agent instead of asking it to commit. */
+export const IN_PLACE_NOTE = "The project is edited in place: the change is in its files already, and there is nothing to commit.";
 
 /**
  * Type guard for a plain (non-null, non-array) object.

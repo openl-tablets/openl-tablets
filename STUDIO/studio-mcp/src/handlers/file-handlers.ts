@@ -7,7 +7,7 @@ import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { formatPage } from "../formatters.js";
-import { sanitizeError } from "../utils.js";
+import { IN_PLACE_NOTE, isEditedInPlace, sanitizeError } from "../utils.js";
 import { isNotFoundError } from "../http.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText, mimeTypeOf, uploadLink } from "../transfer-links.js";
 import { registerTool, formatResult, rethrowConflictAsActionable, textResult, type ToolResponse } from "./common.js";
@@ -57,7 +57,7 @@ export function registerFileHandlers(): void {
     title: "Write Project File",
     description:
       "Create or replace a TEXT file in a project by its project-relative path, from UTF-8 'content'. To send a file you have on disk — a workbook, an image, any binary or large file — ask for an upload link with openl_create_upload_link and run its curl command instead of typing the content out. " +
-      "COMMIT: pass 'message' to commit the write to Git (a new revision is created); omit 'message' and the write stays in the project WORKING COPY (commit it later with openl_save_project). Committing saves ALL pending project changes and works only for design repositories (not 'local'). " +
+      "COMMIT: pass 'message' to commit the write to Git (a new revision is created); omit 'message' and the write stays in the project WORKING COPY (commit it later with openl_save_project). Committing saves ALL pending project changes and works only for design repositories (not 'local'). A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. " +
       "Without 'version' the tool creates a NEW file, missing parent folders included by default (createFolders=true), and writes nothing when a file is already at the path. To REPLACE a file, pass the 'version' openl_read_project_file answered for it: Studio replaces the file in place only while it has that version, and writes nothing when it changed since — on disk, such as in an IDE, or through another client — so read it again and repeat the change. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). (To change a module's TABLES use openl_update_table / openl_append_table / openl_create_project_table.)",
     schema: schemas.writeProjectFileSchema,
     annotations: {
@@ -80,7 +80,8 @@ export function registerFileHandlers(): void {
         : Promise.reject(error)));
       const branch = args.branch ? { branch: args.branch } : {};
 
-      const commit = await commitWrite(client, args.projectId, args.message);
+      const inPlace = await editedInPlace(client, args.projectId);
+      const commit = inPlace ? { committed: false } : await commitWrite(client, args.projectId, args.message);
       const result = {
         success: true,
         path: args.path,
@@ -88,7 +89,7 @@ export function registerFileHandlers(): void {
         bytesWritten: buffer.length,
         committed: commit.committed,
         ...branch,
-        message: writtenMessage(created, buffer.length, args.path, args.message, commit),
+        message: writtenMessage(created, buffer.length, args.path, args.message, inPlace ? "inPlace" : commit),
       };
 
       return formatResult(result, args.response_format);
@@ -102,7 +103,7 @@ export function registerFileHandlers(): void {
       "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. Takes the target of the write: 'path' (project-relative), 'createFolders' (default true) and 'branch'; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients (in single-user mode the link is the REST API, which checks neither). " +
       "Without 'version' the link creates a NEW file and writes nothing over a file already at the path. To REPLACE a file, pass the 'version' openl_read_project_file answered for it: the link replaces the file only while it has that version, and writes nothing when it changed since — in Excel, on disk or through another client — so read it again and repeat the change on what it holds now. " +
       "Returns JSON with the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch). Run the command in a shell, adjusting the local file name. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. " +
-      "The file lands in the project WORKING COPY, as openl_write_project_file writes it; commit it with openl_save_project. A small text file can be written with openl_write_project_file directly.",
+      "The file lands in the project WORKING COPY, as openl_write_project_file writes it; commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. A small text file can be written with openl_write_project_file directly.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
       openWorldHint: true,
@@ -128,7 +129,7 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or folder from a project by its project-relative path. Maps to DELETE /projects/{projectId}/files/{path}. A file is deleted by the 'version' openl_read_project_file answered for it, which is required: Studio deletes nothing when the file changed since — on disk or through another client. A folder is deleted without it. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
+      "Delete a file or folder from a project by its project-relative path. Maps to DELETE /projects/{projectId}/files/{path}. A file is deleted by the 'version' openl_read_project_file answered for it, which is required: Studio deletes nothing when the file changed since — on disk or through another client. A folder is deleted without it. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
@@ -148,9 +149,9 @@ export function registerFileHandlers(): void {
         success: true,
         path: args.path,
         ...(args.branch ? { branch: args.branch } : {}),
-        message:
-          `Deleted '${args.path}' from the project working copy. ` +
-          `Use openl_save_project to commit the deletion to Git.`,
+        message: await editedInPlace(client, args.projectId)
+          ? `Deleted '${args.path}'. ${IN_PLACE_NOTE}`
+          : `Deleted '${args.path}' from the project working copy. Use openl_save_project to commit the deletion to Git.`,
       };
 
       return formatResult(result, args.response_format);
@@ -199,7 +200,7 @@ export function registerFileHandlers(): void {
     name: "copy_project_file",
     title: "Copy Project File",
     description:
-      "Copy a file within a project to a new project-relative path. Maps to POST /projects/{projectId}/file-copy. Intermediate destination folders are created automatically. There is NO overwrite option — if destinationPath already exists the call fails with HTTP 409; choose a different destination or delete the existing file first. The copy is staged in the working copy — commit it with openl_save_project. Use 'branch' to pin the project's branch. Use this to scaffold a new module from an existing one or clone a test set.",
+      "Copy a file within a project to a new project-relative path. Maps to POST /projects/{projectId}/file-copy. Intermediate destination folders are created automatically. There is NO overwrite option — if destinationPath already exists the call fails with HTTP 409; choose a different destination or delete the existing file first. The copy is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to scaffold a new module from an existing one or clone a test set.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,
@@ -211,7 +212,7 @@ export function registerFileHandlers(): void {
     name: "move_project_file",
     title: "Move or Rename Project File",
     description:
-      "Move or rename a file within a project. Maps to POST /projects/{projectId}/file-move. Intermediate destination folders are created automatically and the source file is deleted after the move. A destination collision fails with HTTP 409. The move is staged in the working copy — commit it with openl_save_project. Use 'branch' to pin the project's branch. Use this to rename a file or relocate it to another folder.",
+      "Move or rename a file within a project. Maps to POST /projects/{projectId}/file-move. Intermediate destination folders are created automatically and the source file is deleted after the move. A destination collision fails with HTTP 409. The move is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to rename a file or relocate it to another folder.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,
@@ -296,15 +297,29 @@ async function commitWrite(client: OpenLClient, projectId: string, message: stri
   }
 }
 
-/** The message of a write: how many bytes went where, and whether they were committed. */
+/**
+ * Whether the project has no working copy to commit, as a project edited in place. A project that cannot be read is
+ * taken for one that has: the change is written either way, and only the note on committing it differs.
+ */
+async function editedInPlace(client: OpenLClient, projectId: string): Promise<boolean> {
+  return client.getProject(projectId).then(isEditedInPlace, () => false);
+}
+
+/**
+ * The message of a write: how many bytes went where, and whether they were committed, or need no commit as the
+ * project is edited in place.
+ */
 function writtenMessage(
   created: boolean,
   bytes: number,
   path: string,
   message: string | undefined,
-  commit: WriteCommit,
+  commit: WriteCommit | "inPlace",
 ): string {
   const written = created ? `Wrote ${bytes} byte(s) to '${path}'` : `Overwrote ${bytes} byte(s) in '${path}'`;
+  if (commit === "inPlace") {
+    return `${written}. ${IN_PLACE_NOTE}`;
+  }
   if (commit.committed) {
     return `${written} and committed the project to Git: "${message}".`;
   }
@@ -344,9 +359,10 @@ function transferHandler(
       sourcePath: args.sourcePath,
       destinationPath: args.destinationPath,
       ...(args.branch ? { branch: args.branch } : {}),
-      message:
-        `${done} '${args.sourcePath}' to '${args.destinationPath}' in the project working copy. ` +
-        `Use openl_save_project to commit the ${action} to Git.`,
+      message: await editedInPlace(client, args.projectId)
+        ? `${done} '${args.sourcePath}' to '${args.destinationPath}'. ${IN_PLACE_NOTE}`
+        : `${done} '${args.sourcePath}' to '${args.destinationPath}' in the project working copy. ` +
+          `Use openl_save_project to commit the ${action} to Git.`,
     };
     return formatResult(result, args.response_format);
   };

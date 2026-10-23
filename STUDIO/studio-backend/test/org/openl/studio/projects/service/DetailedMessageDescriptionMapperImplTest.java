@@ -300,7 +300,7 @@ class DetailedMessageDescriptionMapperImplTest {
         var studio = mock(WebStudio.class);
         var project = mock(RulesProject.class);
         when(studio.getProjects()).thenReturn(Map.of("design", List.of(dependency)));
-        when(studio.getProject("design", "Shared Rules")).thenReturn(project);
+        when(studio.projectOf("design", dependency)).thenReturn(project);
         when(model.getStudio()).thenReturn(studio);
         when(project.getProjectId()).thenReturn(ProjectIds.of("design", "Shared Rules"));
 

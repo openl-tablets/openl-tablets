@@ -175,7 +175,21 @@ public class ProjectHistoryService {
     }
 
     private static String historyFolderOf(RulesProject project, String workbookPath) {
-        return FolderHelper.resolveHistoryFolder(projectFolderOf(project), workbookPath).toString();
+        return historyOf(project).resolve(workbookPath).toString();
+    }
+
+    /**
+     * The folder of the edit history of the project in the workspace of the user.
+     *
+     * <p>A project edited in place keeps its history in the workspace too, never in the folder of the design
+     * repository.
+     *
+     * @see FolderHelper#resolveHistoryFolder(RulesProject)
+     */
+    private static Path historyOf(RulesProject project) {
+        return project.getLocalRepository()
+                .getWorkspaceFolder()
+                .resolve(FolderHelper.resolveHistoryFolder(project));
     }
 
     private static @Nullable File workbookOf(RulesProject project, String workbookPath) {
@@ -193,7 +207,7 @@ public class ProjectHistoryService {
         }
         var projectFolder = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
         var module = resolveModule(projectFolder, moduleName);
-        return new HistoryLocation(module, FolderHelper.resolveHistoryFolder(projectFolder, module));
+        return new HistoryLocation(module, historyOf(project).resolve(module.getRulesRootPath()));
     }
 
     private static File getHistoryVersion(Path historyFolder, String version) {
@@ -221,9 +235,7 @@ public class ProjectHistoryService {
         if (!project.isOpened()) {
             throw new ConflictException("project.not.opened.message");
         }
-        var projectFolder = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
-        var historyFolder = projectFolder.resolveSibling(FolderHelper.HISTORY_FOLDER)
-                .resolve(projectFolder.getFileName().toString());
+        var historyFolder = historyOf(project);
         if (Files.exists(historyFolder)) {
             FileUtils.delete(historyFolder);
         }

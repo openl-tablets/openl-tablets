@@ -35,7 +35,7 @@ class LocalWorkspaceImplTest {
         registry = MetainfoRegistry.open(userDir);
         var designTimeRepository = mock(DesignTimeRepository.class);
         when(designTimeRepository.getRulesLocation()).thenReturn("DESIGN/rules/");
-        workspace = new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry);
+        workspace = new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry, false);
     }
 
     @Test
