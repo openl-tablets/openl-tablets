@@ -8,8 +8,15 @@ HTTP/1.1 200 OK
     "capabilities": {
       "tools": {
         "listChanged": false
+      },
+      "resources": {
+        "listChanged": false
+      },
+      "extensions": {
+        "io.modelcontextprotocol/skills": {}
       }
     },
+    "instructions": "This server connects you to OpenL Studio*skill://planning/SKILL.md*",
     "resultType": "complete",
     "ttlMs": 0,
     "cacheScope": "private",

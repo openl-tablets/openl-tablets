@@ -10,6 +10,7 @@ The following topics are included in this section:
 -   [What the Agent Can Do](#what-the-agent-can-do)
 -   [Requests to Try](#requests-to-try)
 -   [Investigating a Wrong Result](#investigating-a-wrong-result)
+-   [OpenL Skills](#openl-skills)
 
 ### How the Agent Works on a Project
 
@@ -132,3 +133,22 @@ agent then traces the run instead of guessing from the tables:
 
 For more information on tracing in OpenL Studio, see [Tracing
 Rules](../openl-studio/editing-testing.md#tracing-rules) in the OpenL Studio User Guide.
+
+### OpenL Skills
+
+The server offers the agent OpenL skills: step-by-step workflows for common tasks, with the reference files they
+need. An agent that supports MCP skills lists them on its own; any other agent learns of them at the start of a
+conversation and reads the one it needs. The skills are part of OpenL Studio, so they describe the tools of the same
+release.
+
+- **planning** — the entry point for building, changing, or fixing anything in a project: what to open, the branch,
+  the ordered changes, one approval, and a verified summary.
+- **branching** — task branches, syncing with the base branch, conflicts, merging, hotfixes, and cleanup.
+- **testing** — adding test rows, running the tests on the saved revision, and diagnosing failures.
+- **versioning** — versions of a table by effective date, line of business, state, or currency, and their tests.
+- **trace-investigation** — finding the cause of an unexpected result, as described in
+  [Investigating a Wrong Result](#investigating-a-wrong-result).
+- **change-log-and-reapply** — a log of every change of a feature, and reapplying the missing changes after a
+  conflict or on another branch.
+
+To use a skill, name the task, for example "plan adding the rule for Texas", or ask for the skill by name.

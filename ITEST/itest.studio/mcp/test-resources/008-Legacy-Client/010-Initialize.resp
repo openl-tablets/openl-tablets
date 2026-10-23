@@ -3,4 +3,4 @@ Content-Type: text/event-stream
 Mcp-Session-Id: *
 
 event: message
-data: {"result":{"protocolVersion":"2025-11-25","capabilities":{"tools":{"listChanged":false}},"serverInfo":{"name":"studio-mcp","version":"*","description":"The MCP server built into OpenL Studio"}},"jsonrpc":"2.0","id":1}
+data: {"result":{"protocolVersion":"2025-11-25","capabilities":{"tools":{"listChanged":false},"resources":{"listChanged":false},"extensions":{"io.modelcontextprotocol/skills":{}}},"serverInfo":{"name":"studio-mcp","version":"*","description":"The MCP server built into OpenL Studio"},"instructions":"This server connects you to OpenL Studio*skill://planning/SKILL.md*"},"jsonrpc":"2.0","id":1}

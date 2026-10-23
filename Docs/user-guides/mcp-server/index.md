@@ -22,7 +22,7 @@ debug how a rule computes its result, work with branches, and deploy projects.
 - **The rights of the user** — the agent sends a personal access token of its user, and the server calls OpenL Studio
   with it. The agent sees and changes only what this user can see and change in OpenL Studio.
 - **The same release** — the server reports the version of OpenL Studio, and offers the agent the OpenL Tablets
-  reference guides of the same release.
+  reference guides and the OpenL skills of the same release.
 
 For the settings of the server, see
 [Built-in MCP Server](../installation-guide/configuration.md#built-in-mcp-server) in the OpenL Tablets Installation

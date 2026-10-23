@@ -15,12 +15,14 @@ import {
   readGuideBodies,
 } from "../guides-registry.js";
 import type { OpenLClient } from "../client.js";
+import { SKILLS_OVERVIEW } from "../skills.js";
 import { sanitizeError } from "../utils.js";
 import { registerTool, textResult, type ToolResponse } from "./common.js";
 
 /**
  * The fixed part of openl_get_started: the workflow protocol every agent is
- * expected to follow. The orientation is appended at call time, from the documents OpenL Studio serves.
+ * expected to follow. The skills and the orientation are appended at call time, the orientation from the documents
+ * OpenL Studio serves.
  */
 const WORKFLOW_PROTOCOL = `# OpenL Studio MCP — Getting Started
 
@@ -94,7 +96,7 @@ export function registerGuideHandlers(): void {
     name: "get_started",
     title: "Get Started",
     description:
-      "Read-only. Call this FIRST, once per session, before any other openl_ tool. Returns the mandatory workflow protocol and a workspace orientation: when to call openl_get_project_agent_context (before working on or creating any project), how to discover the OpenL reference documentation OpenL Studio serves (openl_list_guides / openl_get_guides), and the edit → validate → save loop. Takes no arguments.",
+      "Read-only. Call this FIRST, once per session, before any other openl_ tool. Returns the mandatory workflow protocol, the OpenL skills (step-by-step workflows served as skill:// resources), and a workspace orientation: when to call openl_get_project_agent_context (before working on or creating any project), how to discover the OpenL reference documentation OpenL Studio serves (openl_list_guides / openl_get_guides), and the edit → validate → save loop. Takes no arguments.",
     schema: schemas.getStartedSchema,
     annotations: {
       readOnlyHint: true,
@@ -102,7 +104,7 @@ export function registerGuideHandlers(): void {
       openWorldHint: true,
     },
     handler: async (_args, client): Promise<ToolResponse> => {
-      return textResult(`${WORKFLOW_PROTOCOL}\n\n${await renderGuidesOrientation(client)}`);
+      return textResult(`${WORKFLOW_PROTOCOL}\n\n${SKILLS_OVERVIEW}\n\n${await renderGuidesOrientation(client)}`);
     },
   });
 
