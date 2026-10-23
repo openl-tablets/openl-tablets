@@ -233,7 +233,7 @@ public class SequentialXlsLoader {
             if (StringUtils.isNotBlank(include)) {
                 try {
                     var newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
-                            StringTool.encodeURL(include));
+                            encodedPath(include));
                     var src = new URLSourceCodeModule(new URI(newURL).toURL());
                     preprocessWorkbook(src);
                 } catch (Exception t) {
@@ -241,6 +241,20 @@ public class SequentialXlsLoader {
                 }
             }
         }
+    }
+
+    /**
+     * Encodes each name of a relative path, keeping the separators between them.
+     *
+     * <p>The steps to a parent folder are then merged into the path the include is read from. A workbook read from
+     * an archive needs it: an entry of the archive is named by its path as it is, with no step to a parent folder.
+     */
+    private static String encodedPath(String path) {
+        var names = path.replace('\\', '/').split("/", -1);
+        for (var i = 0; i < names.length; i++) {
+            names[i] = StringTool.encodeURL(names[i]);
+        }
+        return String.join("/", names);
     }
 
     private void registerIncludeError(IGridTable table, int i, String include, Exception t) {
