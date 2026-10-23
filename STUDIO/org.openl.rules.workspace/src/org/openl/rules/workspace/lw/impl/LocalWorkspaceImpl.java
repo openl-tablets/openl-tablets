@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,18 +25,28 @@ import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.lw.LocalProjects;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
     private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
             .compareToIgnoreCase(o2.getName());
+    /** Orders the projects whose names differ only in case, so the order does not depend on hashing. */
+    private static final Comparator<ProjectKey> KEY_ORDER = Comparator.comparing(ProjectKey::repositoryId)
+            .thenComparing(ProjectKey::repositoryPath);
 
     @Getter(AccessLevel.PROTECTED)
     private final String userId;
     @Getter
     private final File location;
-    private final Map<ProjectKey, AProject> localProjects;
+    /**
+     * The projects as the last refresh found them. A refresh puts a new view in place of the old one, so a reader
+     * sees either view whole and needs no lock.
+     */
+    private final AtomicReference<LocalProjects> localProjects = new AtomicReference<>(new LocalProjects(Map.of()));
+    /** One refresh at a time: a refresh that read the registry earlier must not replace the view of a later one. */
+    private final Lock refreshLock = new ReentrantLock();
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
     private final LocalRepository localRepository;
     private final DesignTimeRepository designTimeRepository;
@@ -48,11 +62,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         this.designTimeRepository = designTimeRepository;
         this.metainfoRegistry = metainfoRegistry;
 
-        localProjects = new HashMap<>();
-
         localRepository = new LocalRepository(location.toPath(), metainfoRegistry);
         localRepository.initialize();
-        loadProjects();
+        localProjects.set(loadProjects());
     }
 
     @Override
@@ -80,75 +92,47 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
-        AProject lp;
-        synchronized (localProjects) {
-            lp = localProjects.values()
-                    .stream()
-                    .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
-                            .equalsIgnoreCase(name))
-                    .findFirst()
-                    .orElse(null);
-        }
-        if (lp == null) {
-            throw new ProjectException("Cannot find project ''{0}''.", null, name);
-        }
-
-        return lp;
+        return findProject(repositoryId, name)
+                .orElseThrow(() -> new ProjectException("Cannot find project ''{0}''.", null, name));
     }
 
     @Override
-    public AProject getProjectForPath(String repositoryId, String path) {
-        synchronized (localProjects) {
-            return localProjects.get(new ProjectKey(repositoryId, path));
-        }
-    }
-
-    @Override
-    public AProject getProjectForName(String repositoryId, String projectName) {
-        synchronized (localProjects) {
-            return localProjects.values()
-                    .stream()
-                    .filter(project -> Objects.equals(repositoryId, project.getRepository().getId()))
-                    .filter(project -> project.getBusinessName().equalsIgnoreCase(projectName))
-                    .findFirst()
-                    .orElse(null);
-        }
+    public LocalProjects snapshot() {
+        return localProjects.get();
     }
 
     @Override
     public Collection<AProject> getProjects() {
-        synchronized (localProjects) {
-            var projects = new ArrayList<AProject>(localProjects.values());
-            projects.sort(PROJECTS_COMPARATOR);
-            return projects;
-        }
+        return new ArrayList<>(snapshot().projects());
     }
 
     @Override
     public List<? extends AProject> getProjects(String repositoryId) {
-        synchronized (localProjects) {
-            return localProjects.entrySet()
-                    .stream()
-                    .filter(entry -> Objects.equals(repositoryId, entry.getKey().repositoryId()))
-                    .map(Map.Entry::getValue)
-                    .sorted(PROJECTS_COMPARATOR)
-                    .toList();
-        }
+        return snapshot().projects()
+                .stream()
+                .filter(project -> Objects.equals(repositoryId, project.getRepository().getId()))
+                .toList();
     }
 
     @Override
     public boolean hasProject(String repositoryId, String name) {
-        synchronized (localProjects) {
-            Optional<AProject> lp = localProjects.values()
-                    .stream()
-                    .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
-                            .equalsIgnoreCase(name))
-                    .findFirst();
-            return lp.isPresent();
-        }
+        return findProject(repositoryId, name).isPresent();
     }
 
-    private void loadProjects() {
+    private Optional<AProject> findProject(String repositoryId, String name) {
+        return snapshot().projects()
+                .stream()
+                .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
+                        .equalsIgnoreCase(name))
+                .findFirst();
+    }
+
+    /**
+     * Reads the projects of the workspace from its registry, sorted by name: the order stays the same from one start
+     * to the next.
+     */
+    private LocalProjects loadProjects() {
+        var projects = new HashMap<ProjectKey, AProject>();
         for (String name : metainfoRegistry.projects()) {
             AProject lpi;
             var repositoryPath = designTimeRepository.getRulesLocation() + name;
@@ -167,8 +151,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 }
                 lpi = new AProject(repository, fileData);
             }
-            localProjects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
+            projects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
         }
+        var sorted = new LinkedHashMap<ProjectKey, AProject>();
+        projects.entrySet()
+                .stream()
+                .sorted(Map.Entry.<ProjectKey, AProject>comparingByValue(PROJECTS_COMPARATOR)
+                        .thenComparing(Map.Entry::getKey, KEY_ORDER))
+                .forEach(entry -> sorted.put(entry.getKey(), entry.getValue()));
+        return new LocalProjects(sorted);
     }
 
     /**
@@ -195,17 +186,21 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     @Override
     public void refresh() {
-        // check existing
-        synchronized (localProjects) {
-            localProjects.clear();
-            loadProjects();
+        refreshLock.lock();
+        try {
+            localProjects.set(loadProjects());
+        } finally {
+            refreshLock.unlock();
         }
     }
 
     @Override
     public void release() {
-        synchronized (localProjects) {
-            localProjects.clear();
+        refreshLock.lock();
+        try {
+            localProjects.set(new LocalProjects(Map.of()));
+        } finally {
+            refreshLock.unlock();
         }
 
         localRepository.close();

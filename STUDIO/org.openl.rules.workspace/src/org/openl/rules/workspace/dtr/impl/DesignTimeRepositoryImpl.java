@@ -72,7 +72,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /**
      * Project Cache
      */
-    private final HashMap<ProjectKey, AProject> projects = new HashMap<>();
+    /** In the order they are listed: the index entries before the fallbacks, so the index tells a folder first. */
+    private final HashMap<ProjectKey, AProject> projects = new LinkedHashMap<>();
     private final HashMap<ProjectKey, AProject> projectsVersions = new HashMap<>();
     private final HashMap<ProjectKey, BranchedProject> branchedProjects = new HashMap<>();
     private final Map<String, Map<ProjectKey, AProject>> configuredBranchFallbacks = new HashMap<>();

@@ -2,7 +2,6 @@ package org.openl.rules.workspace.lw;
 
 import java.io.File;
 
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.workspace.abstracts.ProjectsContainer;
@@ -57,10 +56,10 @@ public interface LocalWorkspace extends ProjectsContainer {
      */
     void removeWorkspaceListener(LocalWorkspaceListener listener);
 
-    AProject getProjectForPath(String repositoryId, String path);
-
     /**
-     * Returns a local copy by its logical external project name.
+     * Returns the projects of the workspace as they are now.
+     *
+     * <p>The view does not follow a later refresh, so whatever is looked up in it answers for the same moment.
      */
-    AProject getProjectForName(String repositoryId, String projectName);
+    LocalProjects snapshot();
 }
