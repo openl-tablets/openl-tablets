@@ -386,8 +386,12 @@ both branches is split into tables, each ending at a row or a column with no val
 the style of its cells; the style and the comment of an empty cell between tables are merged cell by cell. A table
 added, removed, changed or moved in one branch takes the change of that branch, and one both branches added with the
 same content is kept once, where your version has it; a table changed in both is merged row by row, or column by
-column when a branch inserted or deleted its columns, and a row changed in both cell by cell. A workbook resolves
-automatically when every such sheet merges:
+column when a branch inserted or deleted its columns, and a row changed in both cell by cell. Rows both branches
+inserted at the same place of a table are all kept, those of your version first, and a row both inserted there with
+the same values and comments once, as your version has it; merged cells a branch stretched over all the rows it
+inserted there, such as the header of a table over the columns each branch added at its end, cover the rows of both.
+A table that would touch the table under it once it holds the rows both branches inserted into it pushes that table
+down. A workbook resolves automatically when every such sheet merges:
 
 - no value or comment of a cell, merged cell of a table or picture of the sheet is changed differently in the two
   branches: one branch may change the value of a cell and the other its style. The style of a cell, the height or
@@ -396,10 +400,12 @@ automatically when every such sheet merges:
   not change what OpenL reads. So does the size of a row or a column content of their version moves through. A row,
   a table or a sheet one branch removes while the other changes only its formatting or its sizes is removed, and a
   table one branch only formats is taken from the other branch when their changes cannot be merged row by row;
-- the branches do not insert different rows at the same place of a table, neither inserts a row next to a row the
-  other deletes, and neither deletes a row the other changes; the same holds for columns;
-- one branch does not change the rows of a table while the other changes its columns, and no inserted or deleted row
-  or column crosses merged cells the other branch keeps;
+- neither branch inserts a row next to a row the other deletes, and neither deletes a row the other changes; the same
+  holds for columns. The branches do not both insert rows right under the header of a table, where it keeps its
+  properties, nor columns before its first column, which holds the header;
+- one branch does not change the rows of a table while the other changes its columns, no inserted or deleted row or
+  column crosses merged cells the other branch keeps, and no branch stretches merged cells over only some of the rows
+  it inserted where the other branch inserted rows too;
 - the branches do not both move a table on purpose to different places, and neither removes a table the other
   changes. A branch that only pushes its tables up or down, by rows it inserts into tables or between them, moves
   none of them on purpose: the merged sheet takes the places the other branch gives the tables, pushed by those rows.
@@ -834,7 +840,8 @@ resolution.
   (`ourCell`, `theirCell`), which differs from its address after rows or columns a branch inserted or removed before
   it, and as it is with your version (`ours`) and with their version (`theirs`): the value and the comment of that
   version in the formatting of the merged cell. A conflict past the rows shown is listed as well. A table
-  with no `merged`, such as one both branches inserted rows into at the same place, is resolved only as a whole.
+  with no `merged`, such as one where a branch inserted a row next to a row the other deleted, is resolved only as a
+  whole.
 - `palette` tells that both branches changed the colours of the palette of an .xls workbook differently. The palette
   is resolved as a whole, by your or their version, under the identifier `/palette`.
 - A conflict is identified by the `id` of its table, or by the `name` of its sheet. Everything the merge combines by

@@ -151,18 +151,18 @@ class XlsConflictResolutionTest {
     }
 
     @Test
-    void rowsInsertedAtTheSamePlace_areTakenWithTheTableOfOneRevision() throws Exception {
+    void rowInsertedNextToRowDeletedInTheirs_isTakenWithTheTableOfOneRevision() throws Exception {
         Consumer<Sheet> our = sheet -> insertRow(sheet, 4, "UK", 4);
-        Consumer<Sheet> their = sheet -> insertRow(sheet, 4, "DE", 5);
+        Consumer<Sheet> their = sheet -> deleteRow(sheet, 4);
 
         var table = FIXTURE.conflicts(XSSFWorkbook::new, our, their).sheets().getFirst().tables().getFirst();
         assertEquals(new TableConflict(RATES,
                 CellRangeAddress.valueOf("A1:B7"),
                 CellRangeAddress.valueOf("A1:B6"),
-                CellRangeAddress.valueOf("A1:B7"),
+                CellRangeAddress.valueOf("A1:B5"),
                 TableConflictReason.ROWS), table);
 
-        assertCountries(FIXTURE.resolveXlsx(our, their, Map.of(RATES, Resolution.THEIRS)), "US", "DE", "CA", "MX");
+        assertCountries(FIXTURE.resolveXlsx(our, their, Map.of(RATES, Resolution.THEIRS)), "US", "MX");
         assertCountries(FIXTURE.resolveXlsx(our, their, Map.of(RATES, Resolution.OURS)), "US", "UK", "CA", "MX");
         assertCountries(FIXTURE.resolveXlsx(our, their, Map.of(RATES, Resolution.BASE)), "US", "CA", "MX");
     }

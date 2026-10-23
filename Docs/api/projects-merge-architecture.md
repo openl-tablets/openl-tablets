@@ -71,10 +71,13 @@ flowchart TB
   created with the same content is kept once, at the place of your version, and a sheet holding one at different
   places is merged table by table even when nothing moved; a cell outside every table, styled but empty, is merged
   cell by cell,
-  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version; when
+  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
+  the lines both versions inserted at one place are kept one after another, those of your version first and a line
+  both inserted alike once (`Joint`), merged cells stretched over them by either version covering them all; when
   both versions moved tables and one of them only pushed its tables by rows it inserted or deleted above them, the
   merged sheet follows the places of the other version, pushed by those rows (`Pushes`), and falls back to a
-  conflict per moved table when those places do not fit together; and
+  conflict per moved table when those places do not fit together. The same pushes place the tables under a table
+  that, holding the rows both versions inserted into it, would touch them otherwise; and
   **`XlsFormulaReferences`** keeps the sheet a conflict when a formula or a defined name refers to content that moves.
   A row, a table or a sheet one version removes while the other changes only its look is removed, and a table one
   version only formats is taken from the other version when their changes cannot be merged row by row.
@@ -86,8 +89,8 @@ flowchart TB
   merged cell by cell in a survey too (`TableCells`): every cell of the merged table at the place the table lands,
   each with its `CellSource`, its merged cells, the cells one version alone changed, and the cells both versions
   changed differently, each with the content it takes from your and from their version (`CellConflict`). A survey notes it only when its merged cells
-  can be placed; a table both versions inserted rows into at the same place, or one with no cell of one version
-  facing a cell of the other, is resolved only as a whole. A resolution cell by cell takes the value and the comment
+  can be placed; a table whose rows conflict, or one with no cell of one version facing a cell of the other, is
+  resolved only as a whole. A resolution cell by cell takes the value and the comment
   of each conflicting cell from the version decided for the cell or for the table, keeps the style the merge gives the
   cell, and writes the values typed, read as Excel reads typing
   (`TypedValues`): a conflicting cell left without either, a table that is no longer merged cell by cell, a cell

@@ -185,6 +185,33 @@ class XlsTablePushTest {
     }
 
     @Test
+    void rowsBothInsertedAtOnePlace_pushTheTablesBelowByTheRowsKept() throws IOException {
+        // Our branch inserts MX and FR into the rules the way Excel does; their branch inserts MX into them in place,
+        // and moves the drivers and the cars on purpose.
+        Consumer<Sheet> our = sheet -> {
+            move(sheet, "A4:F20", 2, 0);
+            set(sheet, 3, 0, "MX");
+            set(sheet, 3, 1, 3);
+            set(sheet, 4, 0, "FR");
+            set(sheet, 4, 1, 4);
+        };
+        Consumer<Sheet> their = REARRANGE.andThen(sheet -> {
+            move(sheet, "A4:B4", 1, 0);
+            set(sheet, 3, 0, "MX");
+            set(sheet, 3, 1, 3);
+        });
+
+        var merged = STACKED.mergeXlsx(our, their);
+
+        assertEquals("MX", text(merged, 3, 0));
+        assertEquals("FR", text(merged, 4, 0));
+        assertEquals("CA", text(merged, 5, 0));
+        assertNull(cell(merged, 8, 0));
+        assertEquals("Data Driver drivers", text(merged, 9, 0), "Where their branch put the table, one row down");
+        assertEquals("Data Car cars", text(merged, 0, 4));
+    }
+
+    @Test
     void noteBesideATableBothGrewAlike_staysBesideItsRow() throws IOException {
         // Our branch changes the rate of the CA too, so the rules differ beyond the rows both branches inserted.
         var merged = NOTED.mergeXlsx(GROW_AROUND_NOTE.andThen(PUSH_ALL).andThen(sheet -> set(sheet, 6, 1, 20)),

@@ -3,20 +3,11 @@ Authorization: ${ADMIN_AUTH_TOCKEN}
 Content-Type: application/json
 
 {
-  "operation": "insert",
+  "operation": "delete",
   "target": {
     "type": "rows",
     "position": 3,
-    "cells": [
-      [
-        {
-          "value": "FR"
-        },
-        {
-          "value": 4.25
-        }
-      ]
-    ]
+    "count": 1
   }
 }
 

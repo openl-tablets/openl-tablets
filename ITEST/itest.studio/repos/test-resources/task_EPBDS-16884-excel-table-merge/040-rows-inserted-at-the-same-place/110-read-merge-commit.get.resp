@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "Format the workbooks merged from branch 'EPBDS-16884-same-place'",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "Merge commit with *\n\n Automatically resolved conflicts:\n\tEPBDS-16884-Rates/Rates.xlsx\n\t\tRules (master, EPBDS-16884-same-place)",
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 2,
+  "numberOfElements": 2
+}

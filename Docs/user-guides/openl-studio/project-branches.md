@@ -180,8 +180,15 @@ contain the project when it is opened. Proceed as follows:
     changed or moved in one branch only takes the change of that branch. A table both branches added with the same
     content is kept once, where your version has it. A table both branches changed is merged row by row, the way
     lines of a text file are: rows inserted, deleted or changed in one branch are taken from it, and
-    so are columns when a branch inserted or deleted columns of the table. A table that grew or moved in one branch
-    keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that branch.
+    so are columns when a branch inserted or deleted columns of the table. Rows both branches inserted at the same
+    place of a table are all kept, those of the branch the changes are merged into first: of the current branch for
+    **Receive their updates**, of the selected branch for **Send your updates**. A row both branches inserted there
+    with the same values and comments is kept once, as your version has it. Merged cells a branch stretched over all
+    the rows it inserted there, such as the header of a table over the columns each branch added at its end, are
+    stretched over the rows of both branches. Columns follow the same rule. A table that would touch the table under
+    it once it holds the rows both branches inserted into it pushes that table down. A table that grew or moved in one
+    branch keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that
+    branch.
     The value, the style and the comment of a cell are merged separately, so one branch can change the text of a
     cell and the other its style. The height of a row, the width of a column, their visibility and the default sizes
     are merged the same way. A style or a size both branches changed differently keeps the one of your version:
@@ -193,14 +200,16 @@ contain the project when it is opened. Proceed as follows:
 
     -   Both branches change the value or the comment of the same cell, the merged cells of the same table or the
         pictures of the sheet differently.
-    -   Both branches insert different rows at the same place of a table, one branch inserts a row next to a row
-        the other branch deletes, or one branch deletes a row the other branch changes. Columns follow the same
-        rule.
+    -   One branch inserts a row next to a row the other branch deletes, or deletes a row the other branch
+        changes. Columns follow the same rule. Rows both branches insert right under the header of a table, where
+        the table keeps its properties, and columns both insert before its first column, which holds the header,
+        conflict too.
     -   One branch inserts or deletes rows of a table and the other branch inserts or deletes columns of it.
     -   Both branches move the same table on purpose to different places, or one branch removes a table the other
         changes. Tables a branch only pushes down or up, by inserting or deleting rows above them, are not moved on
         purpose: Sync puts them where the other branch has them, pushed by those rows.
-    -   A row or a column one branch inserts or deletes crosses merged cells the other branch keeps.
+    -   A row or a column one branch inserts or deletes crosses merged cells the other branch keeps, or a branch
+        stretches merged cells over only some of the rows it inserts where the other branch inserts rows too.
     -   Tables of the two branches would touch each other and be read as one: OpenL ends a table at an empty row
         or column.
     -   A branch merges cells over a value the other branch wrote.
@@ -337,9 +346,9 @@ contain the project when it is opened. Proceed as follows:
     version, from their version or from the base version, and **Merge Cell by Cell** then goes back to the merged table
     with the choices made.
 
-    Any other conflicting table is resolved as a whole. The window tells why Sync cannot merge it, such as both
-    branches inserting different rows at the same place, and lists the cells both branches changed differently, with
-    what your and their version hold in them:
+    Any other conflicting table is resolved as a whole. The window tells why Sync cannot merge it, such as one branch
+    inserting a row next to a row the other branch deletes, and lists the cells both branches changed differently,
+    with what your and their version hold in them:
 
     -   **Take Yours** or **Take Theirs** takes the table from one version, with every change that branch made to it.
         The changes the other branch made to the table are left out. A version that removed the table shows nothing,

@@ -17,18 +17,22 @@ public enum ConflictTableReason {
     CELLS,
 
     /**
-     * Both branches inserted rows at the same place, or one deleted a row the other changed; columns alike.
+     * One branch inserted a row next to a row the other deleted, or deleted a row the other changed; columns alike.
+     * Both inserted rows right under the header, where the properties are, or columns before the first column.
      */
-    @Schema(description = "Both branches inserted different rows at the same place, one inserted a row next to a "
-            + "row the other deleted, or deleted a row the other changed; columns follow the same rule")
+    @Schema(description = """
+            One branch inserted a row next to a row the other deleted, or deleted a row the other \
+            changed; columns follow the same rule. Both branches inserted rows right under the header of the table, \
+            where it keeps its properties, or columns before its first column, which holds the header""")
     @JsonProperty("rows")
     ROWS,
 
     /**
      * One branch inserted or deleted rows and the other columns, or too many rows changed to align them.
      */
-    @Schema(description = "One branch inserted or deleted rows of the table and the other columns, or so many rows "
-            + "changed that they cannot be aligned")
+    @Schema(description = """
+            One branch inserted or deleted rows of the table and the other columns, or so many rows \
+            changed that they cannot be aligned""")
     @JsonProperty("rowsAndColumns")
     ROWS_AND_COLUMNS,
 

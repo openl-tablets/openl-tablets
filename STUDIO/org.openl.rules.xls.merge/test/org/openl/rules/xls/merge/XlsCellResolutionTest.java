@@ -10,6 +10,7 @@ import static org.openl.rules.xls.merge.MergeFixture.RULES;
 import static org.openl.rules.xls.merge.MergeFixture.bold;
 import static org.openl.rules.xls.merge.MergeFixture.cell;
 import static org.openl.rules.xls.merge.MergeFixture.comment;
+import static org.openl.rules.xls.merge.MergeFixture.deleteRow;
 import static org.openl.rules.xls.merge.MergeFixture.insertRow;
 import static org.openl.rules.xls.merge.MergeFixture.isBold;
 import static org.openl.rules.xls.merge.MergeFixture.number;
@@ -272,7 +273,7 @@ class XlsCellResolutionTest {
     @Test
     void tableThatCannotBeMergedCellByCell_isRefused() throws IOException {
         Consumer<Sheet> ours = sheet -> insertRow(sheet, 4, "UK", 5);
-        Consumer<Sheet> theirs = sheet -> insertRow(sheet, 4, "DE", 6);
+        Consumer<Sheet> theirs = sheet -> deleteRow(sheet, 4);
         var table = rates(FIXTURE.conflicts(XSSFWorkbook::new, ours, theirs).sheets().getFirst().tables());
         assertEquals(TableConflictReason.ROWS, table.reason());
         assertNull(table.cells());

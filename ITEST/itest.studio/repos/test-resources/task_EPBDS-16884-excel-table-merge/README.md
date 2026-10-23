@@ -13,7 +13,7 @@ side branch into master.
 |----------|---------|--------|
 | `020-row-inserted-and-row-changed` | One branch inserts a row, the other changes another row of the table | merged automatically |
 | `030-table-moved` | One branch grows a table until OpenL Studio moves it, the other changes it | merged automatically |
-| `040-rows-inserted-at-the-same-place` | Both branches insert a row at the same place | conflict, manual resolution |
+| `040-rows-inserted-at-the-same-place` | Both branches insert a row at the same place | merged automatically, the row of master first |
 | `050-row-deleted-and-changed` | One branch deletes a row the other changes | conflict, manual resolution |
 
 A conflict here is the expected result, not a defect.
