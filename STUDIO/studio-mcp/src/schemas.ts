@@ -747,7 +747,7 @@ const testResultFields = {
   offset: z.number().int().nonnegative().optional().describe("Offset for pagination. Mutually exclusive with page"),
   size: z.number().int().positive().max(200).optional().describe("Page size (number of results per page, maximum 200)"),
   limit: z.number().int().positive().max(200).optional().describe("Page size (alias for size, maps to size parameter)"),
-  unpaged: z.boolean().default(false).describe("Return all results without pagination. Mutually exclusive with page, offset, size, and limit"),
+  unpaged: z.boolean().default(false).describe("Return all results without pagination or a size limit, which can exceed what the client accepts. Mutually exclusive with page, offset, size, and limit"),
   response_format: ResponseFormat,
 };
 
