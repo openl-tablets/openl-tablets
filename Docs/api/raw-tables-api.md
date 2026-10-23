@@ -224,6 +224,9 @@ The `metaInfo` of a cell has these fields, each of which is absent when the comp
 - `returnCell` — `true` for the cell that a decision table returns.
 - `editor` — the editor that the cell asks for: `text`, `numeric`, `combo`, `date`, `multiselect`, `formula`,
   `boolean`, `array`, `range`, `integer`, `double`, or `multiline`.
+  A parseable numeric range in a lookup table's horizontal condition reports `range` even when the cell also has
+  compiler-resolved usages. A formula reports `formula`. Other values with usages report `text`, or `multiline` when
+  they contain a newline.
 
 ## Multi-Value Cells
 

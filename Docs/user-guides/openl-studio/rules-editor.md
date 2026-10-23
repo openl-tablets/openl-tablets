@@ -568,6 +568,10 @@ Consider the following principles while working with Range Editor:
 -   When a new range is created, the ‘..’ format is used.
 -   When a range format other than ‘..’ is edited, if only range values are edited, the format remains the same.
 
+Range Editor also applies to numeric ranges in the horizontal conditions of Smart Lookup and Simple Lookup tables.
+Double click a condition value and click its field to open the same range controls shown below.
+This also works when the condition value is highlighted with a compiler usage tooltip.
+
 If any editor control is used, for example, a check box or the **Done** button, the range format is set to ‘..’.
 
 The following example displays the decision table with data represented as a range:

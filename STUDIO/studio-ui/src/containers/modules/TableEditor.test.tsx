@@ -119,6 +119,29 @@ const write = async (was: string, becomes: string) => {
     await userEvent.type(input, `${becomes}{Enter}`)
 }
 
+/** Gives the cell measured text fragments, then restores the browser's measurement. */
+const withMeasuredText = async (tops: number[], check: () => Promise<void>,
+    whole: { top: number, height: number }[] = tops.map(top => ({ top, height: 16 }))) => {
+    const original = Object.getOwnPropertyDescriptor(Range.prototype, 'getClientRects')
+    Object.defineProperty(Range.prototype, 'getClientRects', {
+        configurable: true,
+        value(this: Range) {
+            return this.startContainer.nodeType === Node.TEXT_NODE
+                ? tops.map(top => ({ top, height: 16 }))
+                : whole
+        },
+    })
+    try {
+        await check()
+    } finally {
+        if (original === undefined) {
+            Reflect.deleteProperty(Range.prototype, 'getClientRects')
+        } else {
+            Object.defineProperty(Range.prototype, 'getClientRects', original)
+        }
+    }
+}
+
 describe('TableEditor', () => {
     beforeEach(() => {
         vi.mocked(applyTableActions).mockResolvedValue('table-1')
@@ -1418,6 +1441,65 @@ describe('TableEditor', () => {
         ...NO_EDITORS,
         editors: [{ editor: 'range', entryEditor: 'double' }],
         cells: [{ row: 1, column: 0, editor: 0 }],
+    })
+
+    /** A Smart Lookup condition in a header row, marked with the compiler's usage tooltip. */
+    const horizontalRange = (linked = false, over: Partial<Parameters<typeof TableEditor>[0]> = {}) => {
+        vi.mocked(getTableEditors).mockResolvedValue({
+            kind: 'declared',
+            editors: [{ editor: 'range', entryEditor: 'integer' }],
+            cells: [],
+            areas: [{ row: 1, column: 1, rows: 1, columns: null, editor: 0 }],
+        })
+        return draw({ rows: [
+            [{ cell: 'C3', value: 'SmartLookup Integer quote(Integer units)', colspan: 2 }, { covered: true }],
+            [{ cell: 'C4', value: 'units' }, { cell: 'D4', value: '1…50', metaInfo: {
+                type: 'IntRange', editor: 'range',
+                usages: [{ start: 0, end: 4, description: 'Condition: HC1', kind: 'other',
+                    ...(linked ? { tableId: 'condition', module: 'Ranges' } : {}) }],
+            } }],
+        ], ...over })
+    }
+
+    it('opens the range editor for a horizontal condition whose usage spans its text on one line', async () => {
+        await withMeasuredText([10, 10], async () => {
+            horizontalRange()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+            await userEvent.dblClick(screen.getByTestId('cell-usage-0'))
+            const input = screen.getByTestId('table-cell-input')
+            expect(input.tagName).not.toBe('TEXTAREA')
+            await userEvent.click(input)
+
+            expect(await screen.findByTestId('range-editor')).toBeInTheDocument()
+        })
+    })
+
+    it('opens an actually wrapped horizontal range over several lines', async () => {
+        await withMeasuredText([10, 30], async () => {
+            horizontalRange()
+            await waitFor(() => expect(getTableEditors).toHaveBeenCalledTimes(1))
+
+            await userEvent.dblClick(screen.getByTestId('cell-usage-0'))
+
+            expect(screen.getByTestId('table-cell-input').tagName).toBe('TEXTAREA')
+        })
+    })
+
+    it('detects wrapped text inside a linked usage when editing starts', async () => {
+        await withMeasuredText([10, 30], async () => {
+            horizontalRange(true, { editing: false, onOpenUsage: vi.fn() })
+            const usage = screen.getByTestId('cell-usage-0')
+            expect(usage.tagName).toBe('BUTTON')
+
+            await userEvent.dblClick(usage)
+
+            expect(screen.getByTestId('table-cell-input').tagName).toBe('TEXTAREA')
+        }, [
+            { top: 10, height: 40 },
+            { top: 10, height: 16 },
+            { top: 30, height: 16 },
+        ])
     })
 
     it('enters a range in the panel under the cell, in the wording the Editor wrote', async () => {

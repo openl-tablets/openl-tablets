@@ -1,0 +1,218 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "mySmartLookup2",
+  "pos": "C3:F7",
+  "source": [
+    [
+      {
+        "cell": "C3",
+        "value": "SmartLookup  Integer mySmartLookup2(Integer carNum, Integer param6, Double param7)",
+        "colspan": 4
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "C4",
+        "value": "num",
+        "rowspan": 2,
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 3,
+              "description": "Condition: MC1\nExpression: carNum\nType: IntRange",
+              "kind": "other"
+            }
+          ],
+          "type": "String",
+          "editor": "text"
+        }
+      },
+      {
+        "cell": "D4",
+        "value": "1…50",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 4,
+              "description": "Condition: HC1\nExpression: param6\nType: IntRange",
+              "kind": "other"
+            }
+          ],
+          "type": "IntRange",
+          "editor": "range"
+        }
+      },
+      {
+        "cell": "E4",
+        "value": "51…100",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 6,
+              "description": "Condition: HC1\nExpression: param6\nType: IntRange",
+              "kind": "other"
+            }
+          ],
+          "type": "IntRange",
+          "editor": "range"
+        }
+      },
+      {
+        "cell": "F4",
+        "value": "101..200",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 8,
+              "description": "Condition: HC1\nExpression: param6\nType: IntRange",
+              "kind": "other"
+            }
+          ],
+          "type": "IntRange",
+          "editor": "range"
+        }
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "D5",
+        "value": "<=100",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 5,
+              "description": "Condition: HC2\nExpression: param7\nType: DoubleRange",
+              "kind": "other"
+            }
+          ],
+          "type": "DoubleRange",
+          "editor": "range"
+        }
+      },
+      {
+        "cell": "E5",
+        "value": "[101;500]",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 9,
+              "description": "Condition: HC2\nExpression: param7\nType: DoubleRange",
+              "kind": "other"
+            }
+          ],
+          "type": "DoubleRange",
+          "editor": "range"
+        }
+      },
+      {
+        "cell": "F5",
+        "value": ">500",
+        "metaInfo": {
+          "usages": [
+            {
+              "start": 0,
+              "end": 4,
+              "description": "Condition: HC2\nExpression: param7\nType: DoubleRange",
+              "kind": "other"
+            }
+          ],
+          "type": "DoubleRange",
+          "editor": "range"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "C6",
+        "value": "1...50",
+        "metaInfo": {
+          "type": "IntRange",
+          "editor": "range"
+        }
+      },
+      {
+        "cell": "D6",
+        "value": 2,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      },
+      {
+        "cell": "E6",
+        "value": 5,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      },
+      {
+        "cell": "F6",
+        "value": 3,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      }
+    ],
+    [
+      {
+        "cell": "C7",
+        "value": "51...100",
+        "metaInfo": {
+          "type": "IntRange",
+          "editor": "range"
+        }
+      },
+      {
+        "cell": "D7",
+        "value": 4,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      },
+      {
+        "cell": "E7",
+        "value": 6,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      },
+      {
+        "cell": "F7",
+        "value": 1,
+        "metaInfo": {
+          "type": "Integer",
+          "editor": "numeric"
+        }
+      }
+    ]
+  ],
+  "headerHeight": 1
+}
+

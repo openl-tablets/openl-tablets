@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.read;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,6 +48,30 @@ import org.openl.studio.projects.service.tables.write.RawTableWriter;
 class RawTableReaderTest {
 
     private static final String PROJECT = "test/rules/EPBDS-16160";
+
+    @Test
+    void reportsRangeEditorForSmartLookupHorizontalConditions(@TempDir Path projectDir) throws Exception {
+        var module = TableTestProjects.projectModel(projectDir, "Rules", sheet -> {
+            TableTestProjects.row(sheet, 1, 1,
+                    "SmartLookup Integer Shipping(Integer boxes, Integer distance, Double mass)");
+            TableTestProjects.row(sheet, 2, 1, "Boxes", "1..10", "11..20");
+            TableTestProjects.row(sheet, 3, 2, "<=5", ">5");
+            TableTestProjects.row(sheet, 4, 1, "1..3", "2", "4");
+            TableTestProjects.merge(sheet, 1, 1, 1, 3);
+            TableTestProjects.merge(sheet, 2, 3, 1, 1);
+        });
+        var source = new RawTableReader().read(TableTestProjects.table(module, "Shipping"),
+                RawTableRead.builder().withMetaInfo(true).build()).source;
+
+        var integerCondition = TableTestProjects.cellOf(source, "1..10").metaInfo();
+        var doubleCondition = TableTestProjects.cellOf(source, "<=5").metaInfo();
+        assertNotNull(integerCondition);
+        assertNotNull(doubleCondition);
+        assertFalse(integerCondition.usages().isEmpty());
+        assertFalse(doubleCondition.usages().isEmpty());
+        assertEquals("range", integerCondition.editor());
+        assertEquals("range", doubleCondition.editor());
+    }
 
     @Test
     void capsRowsAndReportsTotalWhenTruncated() throws Exception {
