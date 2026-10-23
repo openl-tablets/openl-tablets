@@ -62,7 +62,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_restore_project_local_change` - Restore one module to a listed local version using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`
 - `openl_start_project_tests` - Start project test execution
 - `openl_get_test_results_summary` - Get brief test execution summary; waits internally through Studio's `202 {"status":"notReady"}` responses until the asynchronous run finishes
-- `openl_get_test_results` - Get full test execution results with pagination; waits internally for completed results instead of requiring agent-side polling. A page is cut by whole test tables to the 25K-character limit (`pagination.next_offset` continues it); only `unpaged: true` returns every test table without a limit
+- `openl_get_test_results` - Get full test execution results with pagination; waits internally for completed results instead of requiring agent-side polling. A page is cut by whole test tables to the 25K-character limit (`pagination.next_offset` continues it); only `unpaged: true` returns every test table without a limit, an answer that can exceed what the client accepts
 - `openl_get_test_results_by_table` - Get the test results of one test table, which Studio filters and pages by the `tableId` of the summary; waits while the run is in progress
 - `openl_list_project_modules` - List declared project modules, including path patterns and their matched modules
 - `openl_list_module_sheets` - List worksheets in a project module
