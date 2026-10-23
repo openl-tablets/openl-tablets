@@ -44,6 +44,14 @@ changed on disk since the workbook was read would lose that change, so the save 
 - **What it does not tell.** A change made between the last comparison and the replacement, a matter of
   microseconds, is overwritten. So is a change made between the compilation and the read of the workbook that keeps
   both the size and the modification time of the file.
+- **A file held open.** Excel on Windows keeps the workbooks it shows from being replaced, and a read-only file is not
+  replaced either. A program that opens the file for a moment, such as an indexer or an antivirus, is waited out. The
+  save throws `FileLockedException` (`org.openl.commons`), the REST API answers `423` `file.locked.message`, naming the file, and the
+  session builds the module again as for any refused write.
+- **Any file held open.** A write, a copy or a deletion of a file in a repository on the file system
+  (`FileSystemRepository`, the workspace included) that the file system refuses for an existing file throws
+  `FileLockedException`. The files API and every other endpoint answer `423` `file.locked.message`, naming the file,
+  instead of a failure that does not tell why.
 
 ## A Write Names the Version It Is Based On
 

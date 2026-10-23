@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.UncheckedIOException;
+import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -35,6 +36,7 @@ import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.BaseError;
+import org.openl.util.FileLockedException;
 
 class ApiExceptionControllerAdviceTest {
 
@@ -138,6 +140,37 @@ class ApiExceptionControllerAdviceTest {
         assertNull(handled);
         assertNull(advice.handleTypeMismatch(new TypeMismatchException("x", Integer.class), new HttpHeaders(),
                 HttpStatus.BAD_REQUEST, request), "a type mismatch after the commit is left alone too");
+    }
+
+    /** A write refused because another program holds the file open is told as locked, naming the file. */
+    @Test
+    void workbookLocked_isLockedNamingTheFile() {
+        var request = new ServletWebRequest(new MockHttpServletRequest());
+        var refused = new FileLockedException("Bank Rating.xlsx",
+                new FileSystemException("The process cannot access the file"));
+
+        var response = advice().handleInternalErrors(new IllegalStateException(new UncheckedIOException(refused)),
+                request);
+
+        assertEquals(HttpStatus.LOCKED, response.getStatusCode());
+        var error = assertInstanceOf(BaseError.class, response.getBody());
+        assertEquals("openl.error.423.file.locked.message", error.code);
+        assertTrue(error.message.startsWith("Bank Rating.xlsx cannot be changed while another program"),
+                error.message);
+    }
+
+    /** A file of a repository on the file system that another program holds open is told the same way. */
+    @Test
+    void fileLocked_isLockedNamingTheFile() {
+        var request = new ServletWebRequest(new MockHttpServletRequest());
+        var refused = new FileLockedException("rules.xml", new FileSystemException("rules/rules.xml"));
+
+        var response = advice().handleInternalErrors(new IllegalStateException(refused), request);
+
+        assertEquals(HttpStatus.LOCKED, response.getStatusCode());
+        var error = assertInstanceOf(BaseError.class, response.getBody());
+        assertEquals("openl.error.423.file.locked.message", error.code);
+        assertTrue(error.message.startsWith("rules.xml cannot be changed"), error.message);
     }
 
     /** A write refused because the file changed on disk is a conflict naming the file, however deep it was raised. */

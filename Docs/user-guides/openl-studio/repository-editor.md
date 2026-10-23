@@ -526,6 +526,9 @@ running OpenL Studio on a developer's machine sets it up, the projects of the fo
 -   OpenL Studio never writes over a file another program changed after OpenL Studio read it. Such a write is
     refused and the file stays as the other program left it; the module is read again, so repeat the edit on what
     the file holds now.
+-   A file open in another program on Windows, such as a workbook in Excel, cannot be changed while the program
+    holds it. An edit, an upload or a deletion of it is refused with a message naming the file; close the file there
+    and repeat the change.
 -   When another program changes a file of the module open in the editor, adds a workbook to the modules of the
     project or changes `rules.xml`, the editor shows the notification **The files of the project were changed
     outside OpenL Studio**. It stays until it is closed, the module is read again or the editor is left. The editor

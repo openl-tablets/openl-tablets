@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystemException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -35,6 +36,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.util.FileLockedException;
 import org.openl.util.FileUtils;
 
 /**
@@ -142,7 +144,7 @@ public class FileSystemRepository implements Repository, Closeable {
             Files.createDirectories(parent);
         }
 
-        Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING);
+        replace(stream, file);
 
         if (data.getModifiedAt() != null) {
             Files.setLastModifiedTime(file, fromMillis(data.getModifiedAt().getTime()));
@@ -169,6 +171,8 @@ public class FileSystemRepository implements Repository, Closeable {
             FileUtils.delete(file);
         } catch (FileNotFoundException e) {
             return false;
+        } catch (FileSystemException e) {
+            throw locked(e);
         }
 
         deleteEmptyParentFolders(file);
@@ -226,8 +230,39 @@ public class FileSystemRepository implements Repository, Closeable {
         var srcFile = resolveInRoot(srcName);
         var destFile = resolveInRoot(destData.getName());
         Files.createDirectories(destFile.getParent());
-        Files.copy(srcFile, destFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
+        try {
+            Files.copy(srcFile, destFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
+        } catch (FileSystemException e) {
+            throw locked(e);
+        }
         return getFileData(destFile);
+    }
+
+    private static void deleteFile(Path file) throws IOException {
+        try {
+            Files.delete(file);
+        } catch (FileSystemException e) {
+            throw locked(e);
+        }
+    }
+
+    /** Writes the content into the file, replacing what it holds. */
+    private static void replace(InputStream content, Path file) throws IOException {
+        try {
+            Files.copy(content, file, StandardCopyOption.REPLACE_EXISTING);
+        } catch (FileSystemException e) {
+            throw locked(e);
+        }
+    }
+
+    /**
+     * Tells an existing file the file system refuses to change from the other failures.
+     *
+     * <p>Such a file is held open by another program, as Excel does on Windows with a workbook it shows, or it is
+     * read-only. It is reported as {@link FileLockedException}, naming the file the failure names.
+     */
+    private static IOException locked(FileSystemException e) {
+        return e.getFile() == null ? e : FileLockedException.lockedOr(e, Path.of(e.getFile()));
     }
 
     @Override
@@ -382,12 +417,12 @@ public class FileSystemRepository implements Repository, Closeable {
 
             var stream = change.getStream();
             if (stream != null) {
-                Files.copy(stream, file, StandardCopyOption.REPLACE_EXISTING);
+                replace(stream, file);
                 if (data.getModifiedAt() != null) {
                     Files.setLastModifiedTime(file, fromMillis(data.getModifiedAt().getTime()));
                 }
             } else {
-                Files.delete(file);
+                deleteFile(file);
             }
         }
 
