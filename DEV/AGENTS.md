@@ -95,6 +95,15 @@ A saved workbook says so (`XlsWorkbookSourceCodeModule.isSavedSinceRead()`): wha
 answers for the file. A compilation reads every workbook again, so the mark belongs to one compilation, and OpenL
 Studio tells by it whether what it compiled is out of date.
 
+A save never writes over a file another program changed since the workbook was read or last saved: it throws
+`WorkbookChangedOutsideException` and leaves the file alone. The workbook remembers the size and the modification
+time of its file when it is compiled, and a digest of the snapshot of the file its loader read it from; a workbook
+unloaded and read again from other content is not saved either. A save writes
+the whole workbook beside the file and replaces the file in one step (`org.openl.util.FileReplacement`), comparing
+the file once more right before; never write a workbook file through a stream of your own. A workbook built with an
+explicit `WorkbookLoader` is compared by size and time only. See
+[`changes-made-outside.md`](../Docs/architecture/changes-made-outside.md).
+
 **One thread at a time**: a `Workbook` is an Apache POI object over an XmlBeans store, and neither is safe to
 touch from two threads. A write racing a save leaves the store's cursor list with a broken link — which spins at
 a whole core until the server is restarted — fails the store's own assertion halfway through the save, or writes

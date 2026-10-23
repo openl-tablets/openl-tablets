@@ -1,31 +1,36 @@
 package org.openl.rules.lang.xls;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.load.WorkbookLoader;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.FileReplacement;
 import org.openl.util.FileUtils;
+import org.openl.util.HashingUtils;
 import org.openl.util.StringTool;
 
 /**
@@ -34,10 +39,14 @@ import org.openl.util.StringTool;
 // The engine still represents every loaded workbook with this module; it has no replacement yet.
 @SuppressWarnings("java:S1133")
 @Deprecated(since = "5.23.10")
-@RequiredArgsConstructor
 @Slf4j
 public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
+    /** The digest of a workbook read from another file than the one compiled: no content matches it. */
+    private static final String READ_FROM_ANOTHER_FILE = "";
+
+    /** How many times a file that changes while it is read is read again. */
+    private static final int READS = 3;
 
     protected final IOpenSourceCodeModule src;
 
@@ -70,8 +79,37 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     @Getter
     private volatile boolean savedSinceRead;
 
+    /**
+     * The file as the workbook was read from it, or as it was last saved. A save refuses to write over a file that
+     * differs from it.
+     */
+    private final AtomicReference<FileVersion> fileVersion;
+
+    /**
+     * A workbook read from its file through one snapshot of it.
+     *
+     * <p>The workbook is read from the whole content of the file read at once, and what it was read from is noted.
+     * A save then refuses to overwrite a file that differs from it.
+     */
     public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src) {
-        this(src, WorkbookLoaders.getWorkbookLoader(src));
+        this.src = src;
+        fileVersion = new AtomicReference<>(compiled(src));
+        workbookLoader = WorkbookLoaders.getWorkbookLoader(new FileSnapshot());
+    }
+
+    /**
+     * A workbook read by the given loader. A save compares the file with it by the size and the modification time
+     * of the file alone.
+     */
+    public XlsWorkbookSourceCodeModule(IOpenSourceCodeModule src, WorkbookLoader workbookLoader) {
+        this.src = src;
+        this.workbookLoader = workbookLoader;
+        fileVersion = new AtomicReference<>(compiled(src));
+    }
+
+    /** The file as it is now, as the compilation is about to read it. */
+    private static FileVersion compiled(IOpenSourceCodeModule src) {
+        return new FileVersion(stampOf(fileOf(src.getFileUri())), null);
     }
 
     private void initWorkbookColors() {
@@ -122,6 +160,77 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     /**
+     * Refuses to save over a file another program changed since the workbook was read from it, or last saved.
+     *
+     * <p>The file is compared by its size and its modification time, and by its content too when asked for and the
+     * content the workbook was read from is known. A workbook read from another file than the one compiled is
+     * refused whatever the file holds. A workbook that had no file, and a file deleted since, are saved.
+     *
+     * @throws WorkbookChangedOutsideException when the file changed
+     */
+    private void refuseChangedOutside(File sourceFile, boolean byContent) throws IOException {
+        var version = fileVersion.get();
+        if (version.stamp() == null || !sourceFile.isFile()) {
+            return;
+        }
+        var readFromAnother = READ_FROM_ANOTHER_FILE.equals(version.digest());
+        var contentChanged = byContent && version.digest() != null
+                && !version.digest().equals(HashingUtils.sha256Hex(Files.newInputStream(sourceFile.toPath())));
+        // The size and the time are compared last, so that a change made while the content is read is told too.
+        if (readFromAnother || contentChanged || !version.stamp().equals(stampOf(sourceFile))) {
+            throw new WorkbookChangedOutsideException(sourceFile);
+        }
+    }
+
+    /** The file of the workbook, or {@code null} for a workbook built in memory or read from elsewhere. */
+    private static @Nullable File fileOf(@Nullable String fileUri) {
+        if (fileUri == null) {
+            return null;
+        }
+        try {
+            return new File(new URI(fileUri));
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private static @Nullable String stampOf(@Nullable File file) {
+        return file == null || !file.isFile() ? null : file.length() + ":" + file.lastModified();
+    }
+
+    /**
+     * The content of a file read at once, with its size and modification time before and after the read.
+     */
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    private static final class Snapshot {
+        private final byte[] content;
+        private final @Nullable String before;
+        private final @Nullable String after;
+
+        static Snapshot of(File file) throws IOException {
+            var before = stampOf(file);
+            var content = Files.readAllBytes(file.toPath());
+            return new Snapshot(content, before, stampOf(file));
+        }
+
+        /** Whether the file stayed as it was while it was read. */
+        boolean whole() {
+            return before != null && before.equals(after);
+        }
+    }
+
+    /**
+     * What the workbook knows of its file.
+     *
+     * @param stamp  the size and the modification time of the file the compiled tables answer for, or {@code null}
+     *               when there was no file
+     * @param digest a digest of the content the workbook in memory was read from, {@code null} until it is read, or
+     *               {@link #READ_FROM_ANOTHER_FILE}
+     */
+    private record FileVersion(@Nullable String stamp, @Nullable String digest) {
+    }
+
+    /**
      * Synch object for file accessing. It is necessary to prevent getting isModified info before save operation will be
      * finished.
      */
@@ -140,17 +249,31 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         }
     }
 
+    /**
+     * Saves the workbook into its file.
+     *
+     * <p>The whole workbook is written beside the file, and replaces it in one step: a reader of the file meets it as
+     * it was or as it is saved, never half written, and a save that fails leaves the file as it was. The file is
+     * compared with what the workbook was read from before the write, and once more by its content right before it
+     * is replaced.
+     *
+     * @throws WorkbookChangedOutsideException when another program changed the file since it was read
+     */
     public void save() throws IOException {
         var sourceFile = getSourceFile();
-        var fileName = sourceFile.getCanonicalPath();
         synchronized (fileAccessLock) {
+            var workbook = getWorkbook();
+            refuseChangedOutside(sourceFile, false);
             for (XlsWorkbookListener wl : listeners) {
                 wl.beforeSave(this);
             }
 
-            var fileOut = new DeferredCreateFileOutputStream(fileName);
-            getWorkbook().write(fileOut);
-            fileOut.close();
+            var written = new AtomicReference<String>();
+            FileReplacement.replace(sourceFile.toPath(), workbook::write, temporary -> {
+                written.set(HashingUtils.sha256Hex(Files.newInputStream(temporary)));
+                refuseChangedOutside(sourceFile, true);
+            });
+            fileVersion.set(new FileVersion(stampOf(sourceFile), written.get()));
             // The file says what the workbook says again, so the workbook may be unloaded and read back from it.
             workbookLoader.setModified(false);
             savedSinceRead = true;
@@ -207,96 +330,86 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     /**
-     * Avoids rewriting the file before actual write operation is occurred. For example if OutOfMemoryError is thrown
-     * before actual write operation begins, the file should not be corrupted.
-     *
-     * @author NSamatov
+     * The source of the workbook as its loader reads it: the content of the file is read at once, and what was read
+     * is noted. A source that is no file on disk is read as it is.
      */
-    private static final class DeferredCreateFileOutputStream extends OutputStream {
-        private final String fileName;
+    private final class FileSnapshot implements IOpenSourceCodeModule {
 
-        /**
-         * Create deferred output stream.
-         *
-         * @param fileName the system-dependent file name
-         * @throws IOException if the file exists but is a directory rather than a regular file, does not exist but
-         *                     cannot be created, or cannot be opened for any other reason.
-         */
-        private DeferredCreateFileOutputStream(String fileName) throws IOException {
-            this.fileName = fileName;
-            throwExceptionIfNotWritable(fileName);
-        }
-
-        /**
-         * Check that file is writable. File should not be rewritten in this method.
-         *
-         * @param fileName the checking file
-         * @throws IOException if the file exists but is a directory rather than a regular file, does not exist but
-         *                     cannot be created, or cannot be opened for any other reason.
-         */
-        private void throwExceptionIfNotWritable(String fileName) throws IOException {
-            try (var ignored = new FileOutputStream(fileName, true)) {
-                // The file is opened for appending only, so that an unwritable file is reported before anything is
-                // written.
+        @Override
+        public InputStream getByteStream() {
+            var file = fileOf(src.getFileUri());
+            if (file == null || !file.isFile()) {
+                return src.getByteStream();
+            }
+            try {
+                return new ByteArrayInputStream(readSnapshot(file));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
         }
 
-        private OutputStream stream;
-
-        private OutputStream getStream() throws FileNotFoundException {
-            if (stream == null) {
-                stream = new FileOutputStream(fileName);
+        /**
+         * Reads the whole file at once, again when it changes while it is read, and notes what the workbook is read
+         * from.
+         */
+        private byte[] readSnapshot(File file) throws IOException {
+            var read = Snapshot.of(file);
+            for (var attempt = 1; attempt < READS && !read.whole(); attempt++) {
+                read = Snapshot.of(file);
             }
-            return stream;
+            var snapshot = read;
+            fileVersion.updateAndGet(version -> new FileVersion(version.stamp(), digestOf(version, snapshot)));
+            return snapshot.content;
         }
 
         /**
-         * Invokes the delegate's <code>write(int)</code> method.
+         * The digest of the content the workbook is read from now.
          *
-         * @param idx the byte to write
-         * @throws IOException if an I/O error occurs
+         * <p>A workbook read again, once it was unloaded, is read from the content it was read from before or last
+         * saved. Another program may change the file keeping its size and modification time: the content read then
+         * is another file, and the workbook is not saved over it.
          */
-        @Override
-        public void write(int idx) throws IOException {
-            getStream().write(idx);
-        }
-
-        /**
-         * Invokes the delegate's <code>write(byte[])</code> method.
-         *
-         * @param bts the bytes to write
-         * @throws IOException if an I/O error occurs
-         */
-        @Override
-        public void write(byte[] bts) throws IOException {
-            getStream().write(bts);
-        }
-
-        /**
-         * Invokes the delegate's <code>write(byte[])</code> method.
-         *
-         * @param bts the bytes to write
-         * @param st  The start offset
-         * @param end The number of bytes to write
-         * @throws IOException if an I/O error occurs
-         */
-        @Override
-        public void write(byte[] bts, int st, int end) throws IOException {
-            getStream().write(bts, st, end);
-        }
-
-        @Override
-        public void flush() throws IOException {
-            if (stream != null) {
-                stream.flush();
+        private static String digestOf(FileVersion version, Snapshot snapshot) {
+            if (!snapshot.whole() || !snapshot.before.equals(version.stamp())) {
+                return READ_FROM_ANOTHER_FILE;
             }
+            var digest = HashingUtils.sha256Hex(snapshot.content);
+            return version.digest() == null || version.digest().equals(digest) ? digest : READ_FROM_ANOTHER_FILE;
         }
 
         @Override
-        public void close() throws IOException {
-            if (stream != null) {
-                stream.close();
-            }
+        public Reader getCharacterStream() {
+            return src.getCharacterStream();
+        }
+
+        @Override
+        public String getCode() {
+            return src.getCode();
+        }
+
+        @Override
+        public int getStartPosition() {
+            return src.getStartPosition();
+        }
+
+        @Override
+        public String getUri() {
+            return src.getUri();
+        }
+
+        @Override
+        public String getFileUri() {
+            return src.getFileUri();
+        }
+
+        @Override
+        public Map<String, Object> getParams() {
+            return src.getParams();
+        }
+
+        @Override
+        public void setParams(Map<String, Object> params) {
+            src.setParams(params);
         }
     }
 }
