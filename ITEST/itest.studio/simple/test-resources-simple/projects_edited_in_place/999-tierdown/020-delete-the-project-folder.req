@@ -1,0 +1,2 @@
+DELETE /rest/repos/design-file/files/greetings/ HTTP/1.1
+

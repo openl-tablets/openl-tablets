@@ -4,8 +4,10 @@ Every project opened in a user workspace of OpenL Studio is described by one rec
 **metainfo registry**. The record links the local project copy to its source repository project and keeps the
 per-file baselines of the last synchronization. Project folders contain only project files.
 
-The registry is **authoritative**: a project exists in the workspace exactly when it has a record. A folder
-without a record is garbage and is deleted when the workspace is loaded.
+The registry is **authoritative**: a copy of a project exists in the workspace exactly when it has a record. A folder
+without a record is garbage and is deleted when the workspace is loaded. A project edited in place has neither a
+record nor a folder in the workspace; see
+[Projects Edited in Place](changes-made-outside.md#projects-edited-in-place).
 
 ## On-Disk Layout
 
@@ -180,6 +182,9 @@ opened project of that name, so the imported one stays closed until the local pr
 
 - The module edit history lives outside the project folder: `{userId}/.history/{project}/<module root>`
   (`FolderHelper.resolveHistoryFolder`).
+- A project edited in place keeps it in `{userId}/.history/.in-place/{repository id}/{project path}/<module root>`:
+  its path is unique only within its repository, and a copy in the workspace never has a folder name starting with a
+  dot.
 - Deleting the project root in the local repository removes the record and the project history together
   with the folder.
 

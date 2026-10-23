@@ -1,0 +1,7 @@
+HTTP/1.1 412
+Content-Type: application/json
+
+{
+  "code": "openl.error.412.table.changed.since.read.message",
+  "message": "The table changed since it was read, on disk or through another client, and writing it would overwrite that change. Read the table again and repeat the edit."
+}

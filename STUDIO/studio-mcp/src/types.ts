@@ -76,6 +76,15 @@ export interface ProjectViewModel {
   comment?: string;
   repository?: string;
   repositoryInfo?: { name: string; features?: RepositoryFeatures };
+  /** What the user may do with the project: an operation left out is not available. */
+  capabilities?: ProjectCapabilities;
+}
+
+/** The lifecycle operations a project takes; the ones left out do not apply to it. */
+export interface ProjectCapabilities {
+  canOpen?: boolean;
+  canSave?: boolean;
+  canClose?: boolean;
 }
 
 export interface ModuleViewModel {

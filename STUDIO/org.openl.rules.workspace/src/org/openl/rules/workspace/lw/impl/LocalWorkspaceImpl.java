@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,15 +17,23 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.PathCheckedRepository;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositoryDelegate;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
+import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.lw.LocalProjects;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
@@ -52,15 +61,22 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     private final DesignTimeRepository designTimeRepository;
     @Getter
     private final MetainfoRegistry metainfoRegistry;
+    /**
+     * Whether the projects of a design repository on the file system are edited where they are, with no copy in the
+     * workspace.
+     */
+    private final boolean inPlace;
 
     LocalWorkspaceImpl(String userId,
                        File location,
                        DesignTimeRepository designTimeRepository,
-                       MetainfoRegistry metainfoRegistry) {
+                       MetainfoRegistry metainfoRegistry,
+                       boolean inPlace) {
         this.userId = userId;
         this.location = location;
         this.designTimeRepository = designTimeRepository;
         this.metainfoRegistry = metainfoRegistry;
+        this.inPlace = inPlace;
 
         localRepository = new LocalRepository(location.toPath(), metainfoRegistry);
         localRepository.initialize();
@@ -78,7 +94,11 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             id = LOCAL_ID;
         }
         // Create a new instance with id and name.
-        var repository = new LocalRepository(localRepository.getRoot(), metainfoRegistry);
+        return named(new LocalRepository(localRepository.getRoot(), metainfoRegistry), id);
+    }
+
+    /** Gives the repository the id and the name of the design repository it holds the projects of. */
+    private <T extends LocalRepository> T named(T repository, String id) {
         repository.setId(id);
         if (designTimeRepository != null) {
             var designRepository = designTimeRepository.getRepository(id);
@@ -128,31 +148,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     /**
-     * Reads the projects of the workspace from its registry, sorted by name: the order stays the same from one start
-     * to the next.
+     * Reads the projects of the workspace from its registry, and the projects edited in place, sorted by name: the
+     * order stays the same from one start to the next.
      */
     private LocalProjects loadProjects() {
         var projects = new HashMap<ProjectKey, AProject>();
         for (String name : metainfoRegistry.projects()) {
-            AProject lpi;
-            var repositoryPath = designTimeRepository.getRulesLocation() + name;
-            var projectState = localRepository.getProjectState(name);
-            var repository = getRepository(projectState.getRepositoryId());
-            var fileData = projectState.getFileData();
-            if (fileData == null) {
-                var version = projectState.getProjectVersion();
-                lpi = new AProject(repository, name, version);
-                repositoryPath = "<local-path>/" + name;
-            } else {
-                var mappingData = fileData.getAdditionalData(FileMappingData.class);
-                if (mappingData != null) {
-                    repositoryPath = mappingData.getInternalPath();
-                    mappingData.setExternalPath(getExternalPath(repository, name, repositoryPath));
-                }
-                lpi = new AProject(repository, fileData);
-            }
-            projects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
+            addRecordedProject(projects, name);
         }
+        addInPlaceProjects(projects);
         var sorted = new LinkedHashMap<ProjectKey, AProject>();
         projects.entrySet()
                 .stream()
@@ -160,6 +164,95 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                         .thenComparing(Map.Entry::getKey, KEY_ORDER))
                 .forEach(entry -> sorted.put(entry.getKey(), entry.getValue()));
         return new LocalProjects(sorted);
+    }
+
+    /** Adds the workspace copy the registry records under the name. */
+    private void addRecordedProject(Map<ProjectKey, AProject> projects, String name) {
+        var projectState = localRepository.getProjectState(name);
+        AProject lpi;
+        var repositoryPath = designTimeRepository.getRulesLocation() + name;
+        var repository = getRepository(projectState.getRepositoryId());
+        var fileData = projectState.getFileData();
+        if (fileData == null) {
+            var version = projectState.getProjectVersion();
+            lpi = new AProject(repository, name, version);
+            repositoryPath = "<local-path>/" + name;
+        } else {
+            var mappingData = fileData.getAdditionalData(FileMappingData.class);
+            if (mappingData != null) {
+                repositoryPath = mappingData.getInternalPath();
+                mappingData.setExternalPath(getExternalPath(repository, name, repositoryPath));
+            }
+            lpi = new AProject(repository, fileData);
+        }
+        projects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
+    }
+
+    /**
+     * Adds the projects edited in place: every project of a design repository on the file system, as it is there.
+     *
+     * <p>A copy of the project in the workspace, opened before, stays while it holds changes that are not saved yet,
+     * so that they can be saved. A copy without changes of its own gives way to the folder of the design repository.
+     */
+    private void addInPlaceProjects(Map<ProjectKey, AProject> projects) {
+        if (!inPlace || designTimeRepository == null) {
+            return;
+        }
+        var repositories = new HashMap<String, Optional<InPlaceRepository>>();
+        for (var designProject : designTimeRepository.getProjects()) {
+            var repositoryId = designProject.getRepository().getId();
+            var designData = designProject.getFileData();
+            var repository = repositories.computeIfAbsent(repositoryId, this::inPlaceRepository);
+            if (designData != null && repository.isPresent()) {
+                var folder = designProject.getRealPath();
+                var fileData = new FileData();
+                fileData.setName(folder);
+                var mappingData = designData.getAdditionalData(FileMappingData.class);
+                fileData.addAdditionalData(mappingData == null
+                        ? new FileMappingData(designData.getName(), folder)
+                        : mappingData);
+                var key = new ProjectKey(repositoryId, folder);
+                var copy = projects.get(key);
+                if (copy == null || !metainfoRegistry.isDirty(copy.getName())) {
+                    projects.put(key, new AProject(repository.get(), fileData));
+                }
+            }
+        }
+    }
+
+    /**
+     * The repository the projects of the design repository are edited in, or nothing when they are copied into the
+     * workspace.
+     */
+    private Optional<InPlaceRepository> inPlaceRepository(String repositoryId) {
+        return Optional.ofNullable(inPlaceRoot(repositoryId))
+                .map(root -> named(new InPlaceRepository(root, location.toPath(), metainfoRegistry), repositoryId));
+    }
+
+    /**
+     * The folder the projects of the design repository are edited in, or {@code null} when they are copied into the
+     * workspace.
+     *
+     * <p>Projects are edited in place only in single-user mode, and only in a design repository on the file system.
+     */
+    private @Nullable Path inPlaceRoot(String repositoryId) {
+        var repository = designTimeRepository.getRepository(repositoryId);
+        while (repository != null) {
+            if (repository instanceof FileSystemRepository fileSystem) {
+                return fileSystem.supports().isLocal() ? fileSystem.getRoot() : null;
+            }
+            repository = unwrap(repository);
+        }
+        return null;
+    }
+
+    private static @Nullable Repository unwrap(Repository repository) {
+        return switch (repository) {
+            case MappedRepository mapped -> mapped.getDelegate();
+            case PathCheckedRepository checked -> checked.getDelegate();
+            case RepositoryDelegate delegate -> delegate.getOriginal();
+            default -> null;
+        };
     }
 
     /**

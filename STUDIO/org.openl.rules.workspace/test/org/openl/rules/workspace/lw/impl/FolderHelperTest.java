@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
 
 class FolderHelperTest {
@@ -25,6 +26,22 @@ class FolderHelperTest {
 
         assertEquals(Path.of("/workspaces/jdoe/.history/Example 1/Bank Rating .xlsx"),
                 FolderHelper.resolveHistoryFolder(Path.of("/workspaces/jdoe/Example 1"), module));
+    }
+
+    @Test
+    void historyOfAProjectEditedInPlaceIsKeptApartPerRepository() {
+        Module module = mock(Module.class);
+        when(module.getRulesRootPath()).thenReturn("Bank Rating .xlsx");
+        var repository = mock(LocalRepository.class);
+        when(repository.getId()).thenReturn("design");
+
+        RulesProject project = mock(RulesProject.class);
+        when(project.isInPlace()).thenReturn(true);
+        when(project.getLocalRepository()).thenReturn(repository);
+        when(project.getFolderPath()).thenReturn("Example 1");
+
+        assertEquals(".history/.in-place/design/Example 1/Bank Rating .xlsx",
+                FolderHelper.resolveHistoryFolder(project, module));
     }
 
 }

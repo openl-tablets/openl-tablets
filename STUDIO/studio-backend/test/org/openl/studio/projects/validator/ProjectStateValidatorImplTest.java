@@ -192,6 +192,12 @@ class ProjectStateValidatorImplTest {
     }
 
     @Test
+    void canClose_inPlace_returnsFalse() {
+        var project = projectWith().opened(true).inPlace(true).build();
+        assertFalse(validator.canClose(project), "a project edited in place has no copy to close");
+    }
+
+    @Test
     void canClose_notOpened_returnsFalse() {
         var project = projectWith().build();
         assertFalse(validator.canClose(project));
@@ -507,7 +513,13 @@ class ProjectStateValidatorImplTest {
         private boolean protectedBranch;
         private boolean branchRepo;
         private boolean existsInBranch = true;
+        private boolean inPlace;
         private String branch = "main";
+
+        ProjectMockBuilder inPlace(boolean v) {
+            this.inPlace = v;
+            return this;
+        }
 
         ProjectMockBuilder modified(boolean v) {
             this.modified = v;
@@ -574,6 +586,7 @@ class ProjectStateValidatorImplTest {
             when(project.isDeleted()).thenReturn(deleted);
             when(project.isLockedByMe()).thenReturn(lockedByMe);
             when(project.isOpened()).thenReturn(opened);
+            when(project.isInPlace()).thenReturn(inPlace);
 
             if (protectedBranch || branchRepo) {
                 var repo = mock(BranchRepository.class);

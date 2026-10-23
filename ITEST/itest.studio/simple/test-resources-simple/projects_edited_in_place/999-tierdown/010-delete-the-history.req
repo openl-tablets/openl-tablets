@@ -1,0 +1,2 @@
+DELETE /rest/projects/{PROJECT_ID}/local-history HTTP/1.1
+

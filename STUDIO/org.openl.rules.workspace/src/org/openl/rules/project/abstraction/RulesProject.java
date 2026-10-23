@@ -19,6 +19,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.lock.LockInfo;
+import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.LocalChanges;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
@@ -133,6 +134,11 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     private void save(CommonUser user, AdditionalData additionalData) throws ProjectException {
+        if (isInPlace()) {
+            // Every edit is in the design repository already.
+            unlock();
+            return;
+        }
         var oldVersion = getHistoryVersion();
         var designData = new FileData();
         designData.setName(designFolderName);
@@ -212,6 +218,10 @@ public class RulesProject extends UserWorkspaceProject {
             if (isLockedByUser(user)) {
                 unlock();
             }
+            if (isInPlace()) {
+                // The folder is the project in the design repository: it is never deleted on close.
+                return;
+            }
             if (localFolderName != null) {
                 deleteFromLocalRepository();
             }
@@ -257,9 +267,8 @@ public class RulesProject extends UserWorkspaceProject {
                             fileData.getName());
                     if (deleteCause == null) {
                         throw new ProjectException(message);
-                    } else {
-                        throw new ProjectException(message, deleteCause);
                     }
+                    throw new ProjectException(message, deleteCause);
                 }
             } catch (IOException e) {
                 throw new ProjectException("Not possible to read the directory", e);
@@ -309,7 +318,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    public ProjectVersion getVersion() {
+    public @Nullable ProjectVersion getVersion() {
         var historyVersion = getHistoryVersion();
         if (historyVersion == null) {
             if (designFolderName != null) {
@@ -369,7 +378,7 @@ public class RulesProject extends UserWorkspaceProject {
      * @throws ProjectException if the project folder cannot be read
      */
     public LocalChanges getLocalChanges() throws ProjectException {
-        if (isRepositoryOnly()) {
+        if (isRepositoryOnly() || isInPlace()) {
             return new LocalChanges(List.of(), List.of(), List.of());
         }
         try {
@@ -389,7 +398,30 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
+    public boolean isInPlace() {
+        return localRepository instanceof InPlaceRepository && !isRepositoryOnly();
+    }
+
+    /**
+     * The name of the project. A project edited in place is named by its {@code rules.xml}, as a workspace copy is
+     * named by the folder it is opened into: the name of its own folder may differ.
+     */
+    @Override
+    public String getName() {
+        return isInPlace() ? getMainBusinessName() : super.getName();
+    }
+
+    @Override
+    public String getBusinessName() {
+        return isInPlace() ? getMainBusinessName() : super.getBusinessName();
+    }
+
+    @Override
     public void openVersion(String version) throws ProjectException {
+        if (isInPlace()) {
+            // The project is opened as it is in the design repository, and it has no other version to open.
+            return;
+        }
         var designVersion = findDesignVersion(version);
         var designProject = new AProject(designRepository, designFolderName, version);
 
@@ -678,9 +710,8 @@ public class RulesProject extends UserWorkspaceProject {
         // name.
         if (isOpened()) {
             return super.getArtefactPath();
-        } else {
-            return new ArtefactPathImpl(getName());
         }
+        return new ArtefactPathImpl(getName());
     }
 
     @Override
@@ -741,9 +772,8 @@ public class RulesProject extends UserWorkspaceProject {
                 }
             }
             return ((FolderMapper) repository).getRealPath(folderPath);
-        } else {
-            return folderPath;
         }
+        return folderPath;
     }
 
     /**
@@ -767,7 +797,8 @@ public class RulesProject extends UserWorkspaceProject {
     public String getMainBusinessName() {
         var repository = getDesignRepository();
         if (repository == null) {
-            return getBusinessName();
+            // Not getBusinessName(): a project edited in place answers it with this name.
+            return super.getBusinessName();
         }
         var folderPath = getDesignFolderName();
         if (repository.supports().mappedFolders()) {

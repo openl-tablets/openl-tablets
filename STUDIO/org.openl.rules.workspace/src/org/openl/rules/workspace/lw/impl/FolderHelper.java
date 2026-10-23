@@ -13,6 +13,7 @@ import org.openl.rules.project.model.Module;
 public final class FolderHelper {
 
     public static final String HISTORY_FOLDER = ".history";
+    private static final String IN_PLACE_HISTORY = ".in-place";
 
     private FolderHelper() {
     }
@@ -36,7 +37,23 @@ public final class FolderHelper {
      * <p>The history lives outside the project folder: {@code .history/<project>/<module root>}.
      */
     public static String resolveHistoryFolder(RulesProject project, Module module) {
-        return normalizePath(Path.of(HISTORY_FOLDER, project.getFolderPath(), module.getRulesRootPath()));
+        return normalizePath(resolveHistoryFolder(project).resolve(module.getRulesRootPath()));
+    }
+
+    /**
+     * Returns the edit-history folder of the project relative to the user workspace directory:
+     * {@code .history/<project folder>}.
+     *
+     * <p>A project edited in place keeps its history in {@code .history/.in-place/<repository id>/<project path>}.
+     * Its path is unique only within its repository, and it may equal the folder of a copy in the workspace, whose
+     * name never starts with a dot.
+     */
+    public static Path resolveHistoryFolder(RulesProject project) {
+        var history = Path.of(HISTORY_FOLDER);
+        return project.isInPlace()
+                ? history.resolve(IN_PLACE_HISTORY).resolve(project.getLocalRepository().getId())
+                        .resolve(project.getFolderPath())
+                : history.resolve(project.getFolderPath());
     }
 
     /**

@@ -262,7 +262,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
         var anyProjectRenamed = false;
         for (RulesProject rPr : getProjects(false)) {
             var repository = designTimeRepository.getRepository(rPr.getRepository().getId());
-            if (repository != null && repository.supports().mappedFolders() && rPr.isOpened() && !rPr.isLocalOnly()) {
+            if (repository != null && repository.supports().mappedFolders() && rPr.isOpened() && !rPr.isLocalOnly()
+                    && !rPr.isInPlace()) {
                 try {
                     var realProjectName = getActualName(rPr);
                     if (!rPr.getLocalFolderName().equals(realProjectName)) {
@@ -443,7 +444,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                   Map<ProjectKey, ProjectKey> locations) {
         var rp = designProject.project();
         var repoId = rp.getRepository().getId();
-        var localRepository = localWorkspace.getRepository(repoId);
         var name = rp.getName();
         var branchedProject = Optional.ofNullable(designProject.branches());
         // Every branch keeps the project in one folder; the design entry tells it without reading the mapping again.
@@ -456,6 +456,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         var lp = findLocalProject(rp, folder, designFolders.getOrDefault(repoId, Set.of()), localProjects);
 
         FileData local = lp == null ? null : lp.getFileData();
+        var localRepository = localRepositoryOf(lp, repoId);
 
         var selectedProject = rp;
         var closeProject = false;
@@ -537,6 +538,13 @@ public class UserWorkspaceImpl implements UserWorkspace {
         } catch (ProjectException e) {
             log.warn("Cannot close the project {}", project.getName(), e);
         }
+    }
+
+    /** The repository a project is read and written through: for a project edited in place, the one its folder is in. */
+    private LocalRepository localRepositoryOf(@Nullable AProject localProject, String repoId) {
+        return localProject != null && localProject.getRepository() instanceof LocalRepository own
+                ? own
+                : localWorkspace.getRepository(repoId);
     }
 
     /**

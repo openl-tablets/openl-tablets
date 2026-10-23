@@ -3,6 +3,22 @@ Content-Type: application/json
 
 [
   {
+    "aclId": "REVTSUdOOmRlc2lnbi1maWxl",
+    "id": "design-file",
+    "name": "Design File",
+    "type": "repo-file",
+    "capabilities": {
+      "canCreateProject": true,
+      "canManage": true
+    },
+    "features": {
+      "branches": false,
+      "searchable": false,
+      "mappedFolders": true,
+      "comments": false
+    }
+  },
+  {
     "aclId": "REVTSUdOOmRlc2lnbjE=",
     "id": "design1",
     "name": "H2",

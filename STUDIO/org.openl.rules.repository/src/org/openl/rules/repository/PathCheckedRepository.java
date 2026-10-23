@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
@@ -37,6 +38,8 @@ import org.openl.rules.repository.api.UserInfo;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class PathCheckedRepository implements BranchRepository {
 
+    /** The repository whose paths are checked. */
+    @Getter
     private final Repository delegate;
 
     @Override

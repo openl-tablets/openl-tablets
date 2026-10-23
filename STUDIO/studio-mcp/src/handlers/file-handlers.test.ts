@@ -22,6 +22,14 @@ const answerFile = (path: string, body: string | Buffer, contentType = "applicat
 const writtenBytes = (method: "post" | "put" = "post"): Buffer =>
   Buffer.from(harness.mockHttp.history[method][0].data as Uint8Array);
 
+/** The reads of a file of a project the tool sent; the read of the project itself is none. */
+const fileReads = () => harness.mockHttp.history.get.filter((request) => request.url?.includes("/files/"));
+
+/** Answers the project p1 as edited in place: neither opened nor closed. */
+const editedInPlace = (): void => {
+  harness.mockHttp.onGet("/projects/p1").reply(200, { id: "p1", name: "P", repository: "design", capabilities: {} });
+};
+
 /** Answers the metadata of a file of project p1, with its version in the ETag header. */
 const answerMeta = (path: string, size: number): void => {
   harness.mockHttp.onGet(`/projects/p1/files/${path}`, { params: expect.objectContaining({ view: "meta" }) })
@@ -213,6 +221,17 @@ describe("openl_create_upload_link", () => {
     });
   });
 
+  it("tells that an upload into a project edited in place needs no commit", async () => {
+    harness.mockHttp.onGet("/settings").reply(200, {});
+    editedInPlace();
+
+    const result = await executeTool("create_upload_link", { projectId: "p1", path: "rules/Model.xlsx" },
+      harness.client);
+
+    expect(dataOf<{ note: string }>(result).note).toMatch(/edited in place.*nothing to commit/);
+    expect(dataOf<{ note: string }>(result).note).not.toContain("openl_save_project");
+  });
+
   it("refuses a folder, which a link cannot write as one file", async () => {
     await expect(executeTool("create_upload_link", { projectId: "p1", path: "rules/" }, harness.client))
       .rejects.toThrow(/names a folder/);
@@ -287,6 +306,23 @@ describe("openl_write_project_file", () => {
     expect(harness.mockHttp.history.patch).toHaveLength(0);
   });
 
+  it("commits nothing in a project edited in place, telling the file is written", async () => {
+    harness.mockHttp.onPost("/projects/p1/files/docs/x.md").reply(201);
+    editedInPlace();
+
+    const result = await executeTool("write_project_file", {
+      projectId: "p1",
+      path: "docs/x.md",
+      content: "hello",
+      message: "add docs/x.md",
+      response_format: "json",
+    }, harness.client);
+
+    expect(harness.mockHttp.history.patch).toHaveLength(0);
+    expect(dataOf(result)).toMatchObject({ success: true, committed: false });
+    expect(dataOf(result).message).toMatch(/^Wrote 5 byte\(s\) to 'docs\/x\.md'\. The project is edited in place/);
+  });
+
   it("creates a new file with conflictPolicy FAIL and forwards branch", async () => {
     harness.mockHttp.onPost("/projects/p1/files/docs/x.md").reply(201);
 
@@ -350,7 +386,7 @@ describe("openl_write_project_file", () => {
     await executeTool("write_project_file", { projectId: "p1", path: "new.txt", content: "a\nb\n" }, harness.client);
 
     expect(writtenBytes().toString("utf-8")).toBe("a\nb\n");
-    expect(harness.mockHttp.history.get).toHaveLength(0);
+    expect(fileReads()).toHaveLength(0);
   });
 
   it("passes on the reason Studio refuses a replacement for", async () => {
@@ -387,7 +423,24 @@ describe("delete, search, copy and move", () => {
 
     expect(harness.mockHttp.history.delete[0].headers).toMatchObject({ "If-Match": '"v1"' });
     expect(dataOf(result)).toMatchObject({ success: true, path: "old.txt" });
-    expect(harness.mockHttp.history.get).toHaveLength(0);
+    expect(dataOf(result).message).toContain("openl_save_project");
+    expect(fileReads()).toHaveLength(0);
+  });
+
+  it.each([
+    ["delete_project_file", "delete", { path: "old.txt", version: "v1" }],
+    ["copy_project_file", "post", { sourcePath: "a.txt", destinationPath: "b.txt" }],
+    ["move_project_file", "post", { sourcePath: "a.txt", destinationPath: "b.txt" }],
+  ] as const)("openl_%s tells that a change of a project edited in place needs no commit", async (tool, method, args) => {
+    harness.mockHttp.onDelete("/projects/p1/files/old.txt").reply(204);
+    harness.mockHttp.onPost(/\/projects\/p1\/file-(copy|move)/).reply(201);
+    editedInPlace();
+
+    const result = await executeTool(tool, { projectId: "p1", ...args, response_format: "json" }, harness.client);
+
+    expect(harness.mockHttp.history[method]).toHaveLength(1);
+    expect(dataOf(result).message).toMatch(/The project is edited in place/);
+    expect(dataOf(result).message).not.toContain("openl_save_project");
   });
 
   it("openl_delete_project_file refuses to delete a file without its version", async () => {
@@ -408,7 +461,7 @@ describe("delete, search, copy and move", () => {
     await executeTool("delete_project_file", { projectId: "p1", path }, harness.client);
 
     expect(harness.mockHttp.history.delete[0].headers).not.toHaveProperty("If-Match");
-    expect(harness.mockHttp.history.get).toHaveLength(asked ? 1 : 0);
+    expect(fileReads()).toHaveLength(asked ? 1 : 0);
   });
 
   it("openl_search_project_files builds the query body and returns matches", async () => {

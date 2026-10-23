@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -35,6 +36,14 @@ public abstract class UserWorkspaceProject extends AProject {
 
     public boolean isLockedByMe() {
         return isLockedByUser(user);
+    }
+
+    /**
+     * Whether the project is edited where the design repository keeps it, with no copy in the workspace. Such a
+     * project is always opened, and is neither opened, closed nor saved.
+     */
+    public boolean isInPlace() {
+        return false;
     }
 
     public boolean isLockedByMe(LockInfo lockInfo) {
@@ -114,13 +123,10 @@ public abstract class UserWorkspaceProject extends AProject {
         } else if (isOpened()) {
             if (isLocked() && !isLockedByMe()) {
                 return ProjectStatus.VIEWING_VERSION;
-            } else {
-                return ProjectStatus.VIEWING;
             }
-
-        } else {
-            return ProjectStatus.CLOSED;
+            return ProjectStatus.VIEWING;
         }
+        return ProjectStatus.CLOSED;
     }
 
     protected void setDesignRepository(Repository repository) {
@@ -153,7 +159,7 @@ public abstract class UserWorkspaceProject extends AProject {
         }
     }
 
-    public String getBranch() {
+    public @Nullable String getBranch() {
         if (isSupportsBranches()) {
             return ((BranchRepository) getDesignRepository()).getBranch();
         }

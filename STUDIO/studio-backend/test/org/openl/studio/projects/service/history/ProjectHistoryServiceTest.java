@@ -67,6 +67,7 @@ class ProjectHistoryServiceTest {
         when(project.getFolderPath()).thenReturn("TestProject");
         when(project.getArtefact("rules/Bank Rating.xlsx")).thenReturn(moduleArtefact);
         when(repository.getRoot()).thenReturn(workspace);
+        when(repository.getWorkspaceFolder()).thenReturn(workspace);
         when(aclService.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
         when(aclService.isGranted(moduleArtefact, List.of(BasePermission.WRITE))).thenReturn(true);
     }
@@ -90,6 +91,32 @@ class ProjectHistoryServiceTest {
         assertEquals(Boolean.TRUE, result.get(0).current);
         assertEquals("1000", result.get(1).id);
         assertEquals("Revision Version", result.get(2).id);
+    }
+
+    @Test
+    void readsTheHistoryOfAProjectEditedInPlaceFromTheWorkspace(@TempDir Path design) throws Exception {
+        // The project is read from the folder of the design repository, under a folder path of its own there.
+        var editedInPlace = Files.createDirectories(design.resolve("rating/bank"));
+        Files.copy(projectFolder.resolve("rules.xml"), editedInPlace.resolve("rules.xml"));
+        when(repository.getRoot()).thenReturn(design);
+        when(repository.getId()).thenReturn("design");
+        when(project.isInPlace()).thenReturn(true);
+        when(project.getFolderPath()).thenReturn("rating/bank");
+        var history = Files.createDirectories(workspace.resolve(
+                ".history/.in-place/design/rating/bank/rules/Bank Rating.xlsx"));
+        Files.createFile(history.resolve("Revision Version"));
+        Files.createFile(history.resolve("1000_current"));
+        // A copy in the workspace with the same folder path keeps a history of its own.
+        var copyHistory = Files.createDirectories(workspace.resolve(".history/rating/bank/rules/Bank Rating.xlsx"));
+        Files.createFile(copyHistory.resolve("2000_current"));
+
+        var result = service.getLocalHistory(project, "Bank Rating");
+
+        assertEquals(List.of("1000_current", "Revision Version"), result.stream().map(item -> item.id).toList());
+        service.deleteProjectHistory(project);
+        assertFalse(Files.exists(workspace.resolve(".history/.in-place/design/rating/bank")));
+        assertTrue(Files.exists(copyHistory.resolve("2000_current")));
+        assertFalse(Files.exists(design.resolve(".history")), "nothing is written into the design repository");
     }
 
     @Test

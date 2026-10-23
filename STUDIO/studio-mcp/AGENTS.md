@@ -123,7 +123,7 @@ Cells / ranges:
 - `openl_unmerge_table_cells` - Unmerge the cell covering (`row`, `column`)
 
 ### Project Files Tools (7, BETA)
-Operate on ANY file in a project by exact project-relative path (not just Excel rule files). Writes/uploads/deletes/copies/moves land in the project **working copy** — commit them with `openl_save_project`. Use the optional `branch` to pin the project's branch (omit for `local`/non-branch repositories). No file content travels as base64: a text file of up to 5,000 bytes is read inline, and every other file goes by a **link** the agent runs `curl` with, so its bytes never enter the conversation ([MCP File Transfer Links](../../Docs/architecture/mcp-file-transfer.md)). Where Studio authenticates, the link is a transfer link of Studio — no credential in it, 15 minutes by default, an upload one used once; in single-user mode it is the address of the REST API. A link answer carries the URL, the method, the expiry, the size when known, the MIME type, where the file lives in its repository (`repositoryId`, `repositoryPath`, `branch`) and a ready `curl` command.
+Operate on ANY file in a project by exact project-relative path (not just Excel rule files). Writes/uploads/deletes/copies/moves land in the project **working copy** — commit them with `openl_save_project` — except in a project edited in place, whose files take them at once, with nothing to commit. Use the optional `branch` to pin the project's branch (omit for `local`/non-branch repositories). No file content travels as base64: a text file of up to 5,000 bytes is read inline, and every other file goes by a **link** the agent runs `curl` with, so its bytes never enter the conversation ([MCP File Transfer Links](../../Docs/architecture/mcp-file-transfer.md)). Where Studio authenticates, the link is a transfer link of Studio — no credential in it, 15 minutes by default, an upload one used once; in single-user mode it is the address of the REST API. A link answer carries the URL, the method, the expiry, the size when known, the MIME type, where the file lives in its repository (`repositoryId`, `repositoryPath`, `branch`) and a ready `curl` command.
 - `openl_read_project_file` - Read a file: a text of up to 5,000 bytes — `text/*`, JSON, XML or YAML as Studio's `Content-Type` says — inline and verbatim; a larger text, a binary file, or a folder as a ZIP archive, by a download link; optional `version` reads a historical revision. The answer tells the file's current `version` — in a text block of its own beside an inline text, in the link JSON otherwise — which a replacement or a deletion of the file names back
 - `openl_write_project_file` - Create a TEXT file from UTF-8 `content`, `createFolders` (default true), writing nothing over a file already at the path; or replace a file by the `version` `openl_read_project_file` answered, sent in `If-Match`, so Studio writes nothing over a file changed since. A replacement of a text file whose lines end with CRLF by `content` whose lines end with LF writes CRLF, so a read and write back leaves the file unchanged; a file on disk goes by `openl_create_upload_link` instead
 - `openl_create_upload_link` - A link that writes one file from disk into the working copy: the target (`path`, `createFolders`, `branch`, and the `version` of a file it replaces) and optionally the `size` and `sha256` Studio checks before it writes anything; it creates or replaces a file as `openl_write_project_file` does
@@ -218,6 +218,20 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 - `openl_list_project_local_changes`, `openl_restore_project_local_change` (require an opened project; local projects cannot be opened).
 
 Deployment (`openl_deploy_project`, `openl_redeploy_project`) for projects with `repository: 'local'` is typically not used via the studio.
+
+## Projects edited in place
+
+In single-user mode with a design repository on the file system (`repo-file`), as a developer runs OpenL Studio on
+their machine, every project of the repository is edited where the folder keeps it: it is always open, never modified,
+and every edit is written straight into its files. `openl_get_project` tells such a project by its `capabilities`:
+`canOpen`, `canSave` and `canClose` are left out, and so is `canManageBranches`, as the folder has no branches.
+
+- Edit its tables and files right away, without `openl_open_project`.
+- Do not call `openl_save_project` or `openl_close_project`, nor the branch and merge tools: there is nothing to save,
+  the project is never closed, and the folder has no branches.
+- What another program, such as Excel or an IDE, writes into the files is part of the project; the tools that work
+  with what OpenL Studio compiled compile it again by themselves, and a write based on an outdated read is refused.
+- The project-file tools say the change is in the files already instead of asking for a commit.
 
 ## Authentication
 

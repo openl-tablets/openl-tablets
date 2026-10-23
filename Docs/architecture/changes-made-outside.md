@@ -94,3 +94,32 @@ write names the version it is based on, and a write over another version is refu
   for `ETag` and once to send it, and a read of the metadata of a file reads the whole file. A version that costs no
   read of the content, such as one kept with the file or the revision of a repository that has one, is still to be
   found.
+
+## Projects Edited in Place
+
+In single-user mode the one user works on the folder of their projects, often in an IDE and in Excel at the same
+time. A copy of each project in the workspace would have to be opened, saved and closed, and kept in step with the
+folder. So the projects of a design repository on the file system are edited where they are instead.
+
+- **When.** `LocalWorkspaceManagerImpl` turns it on for `user.mode = single`. A design repository qualifies when it
+  unwraps — through `PathCheckedRepository`, the secured and the mapped wrappers — to a `FileSystemRepository` that
+  says it is local (`repo-file`). Every other repository is copied into the workspace as before.
+- **Listing.** `LocalWorkspaceImpl` lists every project of such a repository as a project of the workspace, read
+  through an `InPlaceRepository`: a `LocalRepository` rooted at the folder of the design repository, whose paths are
+  the paths there. `getRepository(id)` still answers the repository of the workspace, so a copy opened later goes
+  there. A copy opened before stays while the registry marks it as changed, so that it can be saved; a copy without
+  changes gives way to the folder.
+- **State.** `RulesProject.isInPlace()` tells such a project. It is opened, never modified and has no local changes;
+  `open`, `openVersion`, `save` and `close` change nothing on disk, and closing it through the API answers `409`
+  `project.close.in-place.message`. Nothing is recorded about it in the metainfo registry of the user: the hooks of
+  `LocalRepository` (`noteModified`, `forgetProject`, `uniqueIdOf`, `baselineOf`) are left out.
+- **Name and folder.** The project is named by its `rules.xml`, as a closed project is, while its folder keeps the
+  name it has. `WebStudio` finds the project of a descriptor by the folder and then by the name the descriptor
+  declares, takes the project found only when its path ends the folder of the descriptor (in a repository of nested
+  folders, the folder name of one project may be the name of another), and resolves the descriptor in the folder of
+  the project rather than in the workspace.
+- **History.** The local edit history of a module stays in the workspace
+  (`{userId}/.history/.in-place/{repository id}/{folder}`, apart from the history of a copy in the workspace with the
+  same folder), and a save of the project keeps it, so an edit is rolled back from it.
+- **Safety.** A write of a workbook is refused when another program changed the file since it was read (above), and
+  a write of a table or a file based on an outdated read is refused by its version.

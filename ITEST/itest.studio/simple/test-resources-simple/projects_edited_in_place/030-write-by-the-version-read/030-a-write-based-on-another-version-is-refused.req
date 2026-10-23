@@ -1,0 +1,13 @@
+POST /rest/projects/{PROJECT_ID}/tables/{TABLE_ID}/actions HTTP/1.1
+Content-Type: application/json
+If-Match: "0000"
+
+{
+  "operation": "update",
+  "target": {
+    "type": "cell",
+    "row": 8,
+    "column": 3,
+    "value": "Good Night, from Studio"
+  }
+}

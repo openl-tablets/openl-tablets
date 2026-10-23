@@ -1,0 +1,2 @@
+POST /rest/projects/{PROJECT_ID}/modules/Greetings/compile?reset=true HTTP/1.1
+

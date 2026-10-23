@@ -32,8 +32,10 @@ tools answer the URLs of the REST API itself.**
   of a merge-conflict version or of a folder as a ZIP, as the REST endpoint answers them.
 - **D5 — An upload link writes one file.** The tool that issues it takes the target — the project, the path, the
   conflict policy, whether to create folders, the branch — and the request to the link writes its body there, into
-  the working copy, as the files API does; `openl_save_project` commits it. A link bound to its target works the same
-  in every mode, and the agent reads the outcome of the write in the answer to its request.
+  the working copy, as the files API does; `openl_save_project` commits it. A project edited in place has no working
+  copy: the upload is in its files at once, and the answer of the tool tells that there is nothing to commit. A link
+  bound to its target works the same in every mode, and the agent reads the outcome of the write in the answer to its
+  request.
 - **D6 — The link is a credential of its own, bound to the client session of its issuer.**
   - **Rights when it runs** — the transfer runs as the user with the user's authorities at that moment, and the
     endpoint it forwards to checks the rights of the operation: a removed permission or a locked project refuses it.

@@ -230,7 +230,7 @@ public final class TableModules {
         if (repositoryId == null || descriptor.getProjectFolder() == null) {
             return null;
         }
-        var project = studio.getProject(repositoryId, descriptor.getProjectFolder().getFileName().toString());
+        var project = studio.projectOf(repositoryId, descriptor);
         return project == null ? null
                 : new ProjectAddress(project.getProjectId().value(), descriptor.getName());
     }

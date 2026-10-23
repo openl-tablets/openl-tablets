@@ -14,6 +14,7 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -46,6 +47,16 @@ public class LocalRepository extends FileSystemRepository {
     public LocalRepository(Path location, MetainfoRegistry registry) {
         setRoot(location);
         this.registry = registry;
+    }
+
+    /**
+     * The folder of the user workspace the projects of this repository belong to.
+     *
+     * <p>The workspace keeps the local edit history of the projects in its {@code .history} folder. For a copy in the
+     * workspace it is the root of this repository.
+     */
+    public Path getWorkspaceFolder() {
+        return getRoot();
     }
 
     @Override
@@ -82,7 +93,7 @@ public class LocalRepository extends FileSystemRepository {
                          final Iterable<FileItem> files,
                          ChangesetType changesetType) throws IOException {
         var fileData = super.save(folderData, files, changesetType);
-        registry.markDirty(projectNameOf(folderData.getName()));
+        noteModified(projectNameOf(folderData.getName()));
         return fileData;
     }
 
@@ -91,16 +102,49 @@ public class LocalRepository extends FileSystemRepository {
         var deleted = super.delete(data);
         var name = data.getName();
         if (name.contains("/")) {
-            registry.markDirty(projectNameOf(name));
+            noteModified(projectNameOf(name));
         } else if (deleted || check(name) == null) {
             // The project root is deleted: the project leaves the workspace together with its record
             // and its local edit history. When the folder deletion failed and the folder is still
             // there, the record is kept, otherwise the project files would be dropped at the next
             // workspace load.
-            registry.remove(name);
-            FileUtils.deleteQuietly(getRoot().resolve(FolderHelper.HISTORY_FOLDER).resolve(name).toFile());
+            forgetProject(name);
         }
         return deleted;
+    }
+
+    /**
+     * Notes that the project has local changes: a file of it was written or deleted.
+     *
+     * @param projectName the folder of the project
+     */
+    protected void noteModified(String projectName) {
+        registry.markDirty(projectName);
+    }
+
+    /**
+     * Forgets a project whose folder was deleted: its record and its local edit history go with it.
+     *
+     * @param projectName the folder of the project
+     */
+    protected void forgetProject(String projectName) {
+        registry.remove(projectName);
+        FileUtils.deleteQuietly(getRoot().resolve(FolderHelper.HISTORY_FOLDER).resolve(projectName).toFile());
+    }
+
+    /**
+     * The revision id of a file in the source repository, while the file is as it was synchronized; {@code null} when
+     * it changed since or nothing is recorded about it.
+     */
+    protected @Nullable String uniqueIdOf(String projectName, String path, long size, long modifiedAt) {
+        return registry.uniqueId(projectName, path, size, modifiedAt);
+    }
+
+    /**
+     * What the last synchronization recorded about a file; {@code null} when nothing is recorded about it.
+     */
+    protected ProjectMetainfo.@Nullable FileBaseline baselineOf(String projectName, String path) {
+        return registry.baseline(projectName, path);
     }
 
     @Override
@@ -115,7 +159,7 @@ public class LocalRepository extends FileSystemRepository {
         var name = fileData.getName();
         var slash = name.indexOf('/');
         if (slash > 0 && Files.isRegularFile(file)) {
-            fileData.setUniqueId(registry.uniqueId(name.substring(0, slash),
+            fileData.setUniqueId(uniqueIdOf(name.substring(0, slash),
                     name.substring(slash),
                     fileData.getSize(),
                     fileData.getModifiedAt().getTime()));
@@ -137,9 +181,9 @@ public class LocalRepository extends FileSystemRepository {
     private FileData afterFileWrite(FileData fileData) throws IOException {
         var name = fileData.getName();
         var projectName = projectNameOf(name);
-        registry.markDirty(projectName);
+        noteModified(projectName);
         if (name.length() > projectName.length()) {
-            var baseline = registry.baseline(projectName, name.substring(projectName.length()));
+            var baseline = baselineOf(projectName, name.substring(projectName.length()));
             if (baseline != null && baseline.size() == fileData.getSize()
                     && baseline.modifiedAt() == fileData.getModifiedAt().getTime()) {
                 var bumped = Math.max(System.currentTimeMillis(), baseline.modifiedAt() + 1);
@@ -197,13 +241,13 @@ public class LocalRepository extends FileSystemRepository {
         }
 
         @Override
-        public String getProjectVersion() {
+        public @Nullable String getProjectVersion() {
             var metainfo = registry.get(projectName);
             return metainfo == null ? null : metainfo.version();
         }
 
         @Override
-        public String getRepositoryId() {
+        public @Nullable String getRepositoryId() {
             var metainfo = registry.get(projectName);
             return metainfo == null ? null : metainfo.repositoryId();
         }
@@ -225,7 +269,7 @@ public class LocalRepository extends FileSystemRepository {
         }
 
         @Override
-        public FileData getFileData() {
+        public @Nullable FileData getFileData() {
             var metainfo = registry.get(projectName);
             if (metainfo == null || !metainfo.hasRevision()) {
                 // Only partial information is available. Cannot fill FileData. Must request from repository.
