@@ -57,7 +57,8 @@ public class ProjectAccessService {
         // must be opened for editing first. canModify folds in the branch-protection and lock state.
         var editable = projectStateValidator.canModify(workspaceProject)
                 && (localOnly || workspaceProject.isOpenedForEditing());
-        // Compare and view-history are both "read a shared (non-local) project".
+        // A local project has no shared revision history. A non-versioned repository has only the current state.
+        var versioned = !localOnly && workspaceProject.getDesignRepository().supports().versions();
         var readShared = !localOnly && read.getAsBoolean();
         return ProjectCapabilities.builder()
                 .project(Capabilities.builder()
@@ -72,7 +73,7 @@ public class ProjectAccessService {
                 .canDeploy(flag(!localOnly && projectStateValidator.canDeploy(workspaceProject)
                         && listingContext.canDeployToAnyRepository(deploymentRepositoryService::canDeployToAnyRepository)))
                 .canCompare(flag(readShared))
-                .canViewHistory(flag(readShared))
+                .canViewHistory(flag(versioned && readShared))
                 .canManage(flag(!localOnly && administer.getAsBoolean()))
                 // Copy creates a new project in a repository the user picks, so it mirrors the copy dialog's
                 // repository list — not just the source repository.
