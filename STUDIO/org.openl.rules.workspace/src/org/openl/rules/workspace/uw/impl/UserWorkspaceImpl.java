@@ -128,7 +128,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
         RulesProject uwp;
         synchronized (userRulesProjects) {
-            uwp = userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
+            uwp = userRulesProjects.get(ProjectKey.byName(repositoryId, name));
         }
 
         if (uwp == null) {
@@ -237,7 +237,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             if (projectsRefreshNeeded) {
                 refreshRulesProjects();
             }
-            return userRulesProjects.containsKey(new ProjectKey(repositoryId, name.toLowerCase(Locale.ROOT)));
+            return userRulesProjects.containsKey(ProjectKey.byName(repositoryId, name));
         }
     }
 
@@ -317,10 +317,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
         rulesProjectsById = Map.of();
     }
 
-    private static ProjectKey projectKey(String repositoryId, String projectName) {
-        return new ProjectKey(repositoryId, projectName.toLowerCase(Locale.ROOT));
-    }
-
     /**
      * Adds a project to the listing.
      *
@@ -329,7 +325,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
      */
     private void putRulesProject(RulesProject project, String location, Map<ProjectKey, ProjectKey> locations) {
         var repoId = project.getRepository().getId();
-        var key = projectKey(repoId, project.getName());
+        var key = ProjectKey.byName(repoId, project.getName());
         userRulesProjects.put(key, project);
         locations.put(key, new ProjectKey(repoId, location));
         var businessNameKey = project.getBusinessName().toLowerCase(Locale.ROOT);
@@ -404,7 +400,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 var repoId = lp.getRepository().getId();
                 var name = lp.getName();
 
-                if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase(Locale.ROOT)))) {
+                if (!userRulesProjects.containsKey(ProjectKey.byName(repoId, name))) {
                     var project = resolveUnmatchedProject(repoId, lp);
                     if (project != null) {
                         putRulesProject(project, project.getRealPath(), locations);
