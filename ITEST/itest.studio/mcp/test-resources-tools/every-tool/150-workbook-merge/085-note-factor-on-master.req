@@ -15,8 +15,8 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "path": "docs/notes.txt",
+      "version": ${NOTES_VERSION},
       "content": "Premium notes\nBase premium is 120.\nYoung drivers: factor 1.4.\n",
-      "conflictPolicy": "OVERWRITE",
       "message": "Note the factor of young drivers on master",
       "branch": "master"
     },

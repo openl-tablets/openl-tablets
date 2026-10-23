@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
@@ -50,6 +51,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -120,6 +122,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.exception.PreconditionFailedException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.model.BranchScope;
 import org.openl.studio.projects.model.CreateBranchModel;
@@ -1492,12 +1495,90 @@ class WorkspaceProjectServiceTest {
                 .thenThrow(new BadRequestException("table.action.line.all-empty.message"));
 
         assertThrows(BadRequestException.class,
-                () -> service.updateTableProperties(project, "src-id", properties, null));
+                () -> service.updateTableProperties(project, "src-id", properties, null, null));
 
         // The refused write stopped part-way, leaving what it had changed in the workbook the session holds.
         // Every request after it would read that, so the module is built from the disk again — now, whatever
         // the automatic-compilation setting says.
         verify(webStudio).rebuildCurrentModule();
+    }
+
+    /** A write based on a table read before another change of it would overwrite that change. */
+    @Test
+    void a_write_based_on_another_version_of_the_table_is_refused_before_anything_is_written() throws Exception {
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var service = versionedTableService(tablePropertiesService, project);
+        var properties = List.of(new TableProperty("state", "AL"));
+
+        var refused = assertThrows(PreconditionFailedException.class,
+                () -> service.updateTableProperties(project, "src-id", properties, null, "read-before"));
+
+        assertEquals("openl.error.412.table.changed.since.read.message", refused.getErrorCode());
+        verify(tablePropertiesService, never()).write(any(), any());
+    }
+
+    @Test
+    void a_write_based_on_the_current_version_of_the_table_is_written() throws Exception {
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var service = versionedTableService(tablePropertiesService, project);
+        var properties = List.of(new TableProperty("state", "AL"));
+        when(tablePropertiesService.write(any(), eq(properties))).thenReturn("src-id");
+
+        assertEquals("src-id", service.updateTableProperties(project, "src-id", properties, null, "current"));
+        assertEquals("src-id", service.updateTableProperties(project, "src-id", properties, null, null),
+                "a write that names no version is not compared");
+    }
+
+    /**
+     * A write takes the version the table had away, even while the module is not compiled again: a second write
+     * based on the same read would overwrite the first one.
+     */
+    @Test
+    void a_second_write_based_on_the_version_the_first_write_was_based_on_is_refused() throws Exception {
+        var tablePropertiesService = mock(TablePropertiesService.class);
+        var project = project(repository(), "PricingProject", "PricingProject");
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var currentProject = mock(RulesProject.class);
+        when(webStudio.getCurrentProject()).thenReturn(currentProject);
+        var version = new AtomicReference<>("read");
+        var table = mock(IOpenLTable.class);
+        when(table.getVersion()).thenAnswer(invocation -> version.get());
+        doAnswer(invocation -> {
+            version.set("written");
+            return null;
+        }).when(table).markWritten();
+        stubResolvedSource(service, project, table);
+        var properties = List.of(new TableProperty("state", "AL"));
+        when(tablePropertiesService.write(any(), eq(properties))).thenReturn("src-id");
+
+        service.updateTableProperties(project, "src-id", properties, null, "read");
+
+        assertThrows(PreconditionFailedException.class,
+                () -> service.updateTableProperties(project, "src-id", properties, null, "read"));
+        verify(tablePropertiesService, times(1)).write(any(), any());
+        assertEquals("src-id", service.updateTableProperties(project, "src-id", properties, null, "written"));
+    }
+
+    /** A service whose table {@code src-id} of the project has the version {@code current}. */
+    private WorkspaceProjectService versionedTableService(TablePropertiesService tablePropertiesService,
+                                                          RulesProject project) throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var webStudio = mock(WebStudio.class);
+        var service = spy(newCopyService(acl, webStudio, mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), tablePropertiesService));
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var currentProject = mock(RulesProject.class);
+        when(webStudio.getCurrentProject()).thenReturn(currentProject);
+        var table = mock(IOpenLTable.class);
+        when(table.getVersion()).thenReturn("current");
+        stubResolvedSource(service, project, table);
+        return service;
     }
 
     @Test
@@ -1518,7 +1599,7 @@ class WorkspaceProjectServiceTest {
         var properties = List.of(new TableProperty("id", "greet"));
         when(tablePropertiesService.write(any(), eq(properties))).thenReturn("new-id");
 
-        assertEquals("new-id", service.updateTableProperties(project, "src-id", properties, null));
+        assertEquals("new-id", service.updateTableProperties(project, "src-id", properties, null, null));
         assertEquals("new-id", StaleTableIds.currentIdOf(folder, "src-id"));
     }
 
@@ -1583,7 +1664,7 @@ class WorkspaceProjectServiceTest {
             var answers = pool.invokeAll(Collections.nCopies(2, (Callable<String>) () -> {
                 // Waited for with a limit: one of the two failing before the barrier must not hang the build.
                 together.await(30, TimeUnit.SECONDS);
-                return service.updateTableProperties(project, "src-id", properties, null);
+                return service.updateTableProperties(project, "src-id", properties, null, null);
             }));
             for (var answer : answers) {
                 answer.get();
@@ -1611,7 +1692,7 @@ class WorkspaceProjectServiceTest {
         var properties = List.of(new TableProperty("state", "AL"));
 
         var refused = assertThrows(BadRequestException.class,
-                () -> service.updateTableProperties(project, "src-id", properties, null));
+                () -> service.updateTableProperties(project, "src-id", properties, null, null));
 
         // The cells such a table is drawn from do not sit together, so there is nowhere to write back into:
         // refused where the table is resolved, rather than left to fail on the grid it is read through.
@@ -1652,7 +1733,7 @@ class WorkspaceProjectServiceTest {
                 () -> service.getTableEditors(project, "src-id", null, null, null));
         var state = List.of(new TableProperty("state", "AL"));
         var properties = assertThrows(BadRequestException.class,
-                () -> service.updateTableProperties(project, "src-id", state, null));
+                () -> service.updateTableProperties(project, "src-id", state, null, null));
 
         // It is built again from the versions it chooses between, so nothing written to it would last: refused,
         // saying why, before anything is asked of how its cells are written.

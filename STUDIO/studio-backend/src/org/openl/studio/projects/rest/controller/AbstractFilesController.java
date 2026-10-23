@@ -21,6 +21,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.utils.WebTool;
 import org.openl.studio.common.validation.BeanValidationProvider;
+import org.openl.studio.common.web.EntityVersions;
 import org.openl.studio.projects.service.files.ConflictPolicy;
 import org.openl.studio.projects.service.files.FileCriteriaQuery;
 import org.openl.studio.projects.service.files.FileRoot;
@@ -166,8 +167,11 @@ public abstract class AbstractFilesController {
         }
         var filePath = stripLeadingSlash(path);
         if ("meta".equalsIgnoreCase(view)) {
+            var file = filesService.getResource(root, filePath, version);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
+                    // The version of the file, so a client learns it without reading the content.
+                    .header(HttpHeaders.ETAG, EntityVersions.entityTag(filesService.getVersion(file)))
                     .body(filesService.getNode(root, filePath, version));
         }
         // Stream the content to the response in the request thread, without buffering the whole file in memory.
@@ -175,6 +179,8 @@ public abstract class AbstractFilesController {
         // written.
         var resource = filesService.getResource(root, filePath, version);
         var fileName = resource.getName();
+        // The version of the file read, which a write of the file names back in the If-Match header.
+        response.setHeader(HttpHeaders.ETAG, EntityVersions.entityTag(filesService.getVersion(resource)));
         response.setContentType(MediaTypeFactory.getMediaType(fileName)
                 .orElse(MediaType.APPLICATION_OCTET_STREAM).toString());
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName));
@@ -194,9 +200,11 @@ public abstract class AbstractFilesController {
     /**
      * Updates a resource from a multipart file.
      */
-    protected void handleUpdate(FileRoot root, String path, MultipartFile file) throws IOException {
+    protected void handleUpdate(FileRoot root, String path, MultipartFile file, @Nullable String ifMatch)
+            throws IOException {
         try {
-            filesService.updateResource(root, stripLeadingSlash(path), file.getInputStream());
+            filesService.updateResource(root, stripLeadingSlash(path), file.getInputStream(),
+                    EntityVersions.expectedVersion(ifMatch));
         } finally {
             postWrite();
         }
@@ -206,9 +214,10 @@ public abstract class AbstractFilesController {
     /**
      * Updates a resource from a raw octet stream.
      */
-    protected void handleUpdateRaw(FileRoot root, String path, InputStream content) {
+    protected void handleUpdateRaw(FileRoot root, String path, InputStream content, @Nullable String ifMatch) {
         try {
-            filesService.updateResource(root, stripLeadingSlash(path), content);
+            filesService.updateResource(root, stripLeadingSlash(path), content,
+                    EntityVersions.expectedVersion(ifMatch));
         } finally {
             postWrite();
         }
@@ -232,9 +241,9 @@ public abstract class AbstractFilesController {
     /**
      * Deletes a resource (file or folder) at the path.
      */
-    protected void handleDelete(FileRoot root, String path) {
+    protected void handleDelete(FileRoot root, String path, @Nullable String ifMatch) {
         try {
-            filesService.deleteResource(root, stripLeadingSlash(path));
+            filesService.deleteResource(root, stripLeadingSlash(path), EntityVersions.expectedVersion(ifMatch));
         } finally {
             postWrite();
         }

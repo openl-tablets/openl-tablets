@@ -192,6 +192,8 @@ interface TableEditorProps {
     whole?: boolean | undefined
     /** The table body as it was read, which the pending edits are replayed over. */
     rows: RawTableCell[][]
+    /** The version of the table read, which a save names so that it does not overwrite a change made since. */
+    version?: string | undefined
     /**
      * How many rows at the top of the table are kept out of sight — what "Show Header" puts away.
      *
@@ -251,6 +253,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     maxRows,
     whole = true,
     rows,
+    version,
     hiddenRows,
     layout,
     formulas,
@@ -647,7 +650,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         }
         setSaving(true)
         try {
-            const savedId = await applyTableActions(projectId, tableId, actions, moduleName)
+            const savedId = await applyTableActions(projectId, tableId, actions, moduleName, version)
             if (savedId === null) {
                 return null
             }
@@ -656,7 +659,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         } finally {
             setSaving(false)
         }
-    }, [blocked, edited, moduleName, projectId, rows, tableId])
+    }, [blocked, edited, moduleName, projectId, rows, tableId, version])
 
     useImperativeHandle(ref, () => ({ write }), [write])
 

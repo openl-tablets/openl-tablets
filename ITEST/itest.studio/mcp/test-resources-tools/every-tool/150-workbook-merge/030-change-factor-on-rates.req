@@ -15,6 +15,7 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${AGE_FACTOR_ID}",
+      "version": ${AGE_FACTOR_VERSION},
       "row": 2,
       "column": 1,
       "value": 1.6

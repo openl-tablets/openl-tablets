@@ -11,8 +11,13 @@ import java.util.Objects;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import org.jspecify.annotations.Nullable;
+
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.studio.common.exception.PreconditionFailedException;
 import org.openl.studio.projects.model.files.FsNode;
+import org.openl.util.HashingUtils;
 
 /**
  * Service for managing files and folders of a mount (a project's working copy or a repository subtree).
@@ -60,13 +65,44 @@ public interface ProjectFilesService {
     FsNode getNode(@NotNull FileRoot root, @NotBlank String path, String version);
 
     /**
+     * The version of a file: a digest of its content. It changes whenever the content of the file changes.
+     *
+     * @param resource the file
+     * @return the version
+     */
+    default String getVersion(@NotNull AProjectResource resource) {
+        try (var content = resource.getContent()) {
+            return HashingUtils.sha256Hex(content);
+        } catch (IOException | ProjectException e) {
+            throw new IllegalStateException("Cannot read the file '%s'.".formatted(resource.getName()), e);
+        }
+    }
+
+    /**
      * Update a file resource with new content.
      *
      * @param root    the file root
      * @param path    mount-relative path to the resource (e.g. "folder/rules.xlsx")
      * @param content new file content
      */
-    void updateResource(@NotNull FileRoot root, @NotBlank String path, @NotNull InputStream content);
+    default void updateResource(@NotNull FileRoot root, @NotBlank String path, @NotNull InputStream content) {
+        updateResource(root, path, content, null);
+    }
+
+    /**
+     * Update a file resource with new content, based on the version of the file the client read.
+     *
+     * @param root            the file root
+     * @param path            mount-relative path to the resource (e.g. "folder/rules.xlsx")
+     * @param content         new file content
+     * @param expectedVersion the version of the file the write is based on, or {@code null} to write whatever the
+     *                        file holds
+     * @throws PreconditionFailedException when the file has another version: it changed since the client read it
+     */
+    void updateResource(@NotNull FileRoot root,
+                        @NotBlank String path,
+                        @NotNull InputStream content,
+                        @Nullable String expectedVersion);
 
     /**
      * Delete a resource (file or folder) by its path.
@@ -74,7 +110,20 @@ public interface ProjectFilesService {
      * @param root the file root
      * @param path mount-relative path to the resource (e.g. "folder/rules.xlsx")
      */
-    void deleteResource(@NotNull FileRoot root, @NotBlank String path);
+    default void deleteResource(@NotNull FileRoot root, @NotBlank String path) {
+        deleteResource(root, path, null);
+    }
+
+    /**
+     * Delete a resource (file or folder) by its path, based on the version of the file the client read.
+     *
+     * @param root            the file root
+     * @param path            mount-relative path to the resource (e.g. "folder/rules.xlsx")
+     * @param expectedVersion the version of the file the deletion is based on, or {@code null} to delete whatever the
+     *                        file holds; a folder has no version and is not compared
+     * @throws PreconditionFailedException when the file has another version: it changed since the client read it
+     */
+    void deleteResource(@NotNull FileRoot root, @NotBlank String path, @Nullable String expectedVersion);
 
     /**
      * Copy a file resource to a new location within the mount.

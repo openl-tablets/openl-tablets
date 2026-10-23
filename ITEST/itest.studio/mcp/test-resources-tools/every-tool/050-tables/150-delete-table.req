@@ -14,7 +14,8 @@ Authorization: Token ${PAT}
     "name": "openl_delete_table",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "tableId": "${COPY_ID}"
+      "tableId": "${COPY_ID}",
+      "version": ${COPY_VERSION}
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

@@ -92,6 +92,16 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     }
 
     @Override
+    public String getVersion() {
+        return tsn.getVersion();
+    }
+
+    @Override
+    public void markWritten() {
+        tsn.markWritten();
+    }
+
+    @Override
     public boolean isVersionable() {
         return PropertiesChecker.isPropertySuitableForTableType("version", tsn.getType());
     }

@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+ETag: *
+
+{
+  "type": "file",
+  "path": "docs/data.bin",
+  "name": "data.bin",
+  "basePath": "docs",
+  "extension": "bin",
+  "size": "*",
+  "lastModified": "*"
+}

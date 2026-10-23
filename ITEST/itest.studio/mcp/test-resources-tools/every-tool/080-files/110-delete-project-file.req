@@ -14,7 +14,8 @@ Authorization: Token ${PAT}
     "name": "openl_delete_project_file",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "path": "docs/data.bin"
+      "path": "docs/data.bin",
+      "version": ${DATA_VERSION}
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

@@ -361,7 +361,7 @@ describe('TableEditor', () => {
         // Read as ISO, written back as ISO: opening a cell and closing it must not rewrite what it held.
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '2024-03-14' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('keeps a date the reader emptied when they go on to another cell', async () => {
@@ -386,7 +386,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('writes nothing for a formula cell the reader only looked into', async () => {
@@ -928,7 +928,7 @@ describe('TableEditor', () => {
             // four rows higher — over another rule, or over the header, which stops the table compiling.
             await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
                 { operation: 'update', target: { type: 'cell', row: 6, column: 1, value: '555' } },
-            ], 'Claims'))
+            ], 'Claims', undefined))
         })
 
         it('offers to take away the first row it draws, which is no header of the table', async () => {
@@ -1058,7 +1058,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: '=B5*2' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('opens a yes-or-no cell ticked on any of the words OpenL reads as true', async () => {
@@ -1099,7 +1099,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: 'false' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('takes the whole list of choices at once and says so, as the Editor did', async () => {
@@ -1123,7 +1123,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'a,b' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('takes no date typed into the field, and empties it on Backspace', async () => {
@@ -1183,7 +1183,7 @@ describe('TableEditor', () => {
                 operation: 'style',
                 target: { type: 'cells', row: 1, column: 1, rowspan: 1, colspan: 1,
                     style: { background: { theme: 'dk1', tint: 0.5 } } },
-            }], 'Claims'))
+            }], 'Claims', undefined))
         })
 
     it('offers the look of a cell only with tables not formatted on save and the Excel formatting shown', async () => {
@@ -1230,7 +1230,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '1,2,3' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     /** The value of the cell that is open for writing, which says where the keyboard landed. */
@@ -1285,7 +1285,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'first\nsecond' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
         expect(onSaved).toHaveBeenCalled()
     })
 
@@ -1318,8 +1318,18 @@ describe('TableEditor', () => {
         expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '6' } },
             { operation: 'update', target: { type: 'cell', row: 1, column: 1, value: 'Buenos Dias' } },
-        ], 'Claims')
+        ], 'Claims', undefined)
         await waitFor(() => expect(onSaved).toHaveBeenCalledWith('table-1'))
+    })
+
+    it('names the version of the table it read, so a save over a table changed since is refused', async () => {
+        draw({ version: 'v1' })
+
+        await write('Good Morning', 'Buenos Dias')
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith(
+            'repo:Rating', 'table-1', expect.any(Array), 'Claims', 'v1'))
     })
 
     it('takes an edit back and puts it again without asking the server', async () => {
@@ -1520,7 +1530,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '0 .. 200' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('closes the range panel when the reader clicks away from it', async () => {
@@ -1578,7 +1588,7 @@ describe('TableEditor', () => {
 
         await waitFor(() => expect(applyTableActions).toHaveBeenCalledWith('repo:Rating', 'table-1', [
             { operation: 'update', target: { type: 'cell', row: 1, column: 0, value: '5+' } },
-        ], 'Claims'))
+        ], 'Claims', undefined))
     })
 
     it('writes a cell over several lines when the reader switches to it', async () => {

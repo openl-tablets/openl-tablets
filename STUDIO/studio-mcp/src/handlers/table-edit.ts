@@ -43,7 +43,7 @@ async function readTableBack(
  *
  * Reads the table back to trigger the studio recompile (noting a failure with
  * the tool's own verb, e.g. "update"/"append"/"edit"), and answers the standard
- * result (`success`, `message`, `recompileTriggered`, current `tableId`, plus
+ * result (`success`, `message`, `recompileTriggered`, current `tableId` and its `version`, plus
  * `tableIdChanged`/`previousTableId` and a `note` when present) in the format
  * the caller asked for.
  *
@@ -96,6 +96,7 @@ export async function finishTableEdit(
     recompileTriggered,
     ...(errors.length > 0 ? { compiles: false, errors } : {}),
     tableId: currentId,
+    ...(table?.version === undefined ? {} : { version: table.version }),
     ...(idChanged ? { tableIdChanged: true, previousTableId: requestedId } : {}),
     ...(notes.length > 0 ? { note: notes.join(" ") } : {}),
   }, args.response_format);

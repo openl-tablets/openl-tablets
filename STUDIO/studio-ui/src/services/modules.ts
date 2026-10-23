@@ -119,11 +119,21 @@ export const getRawTable = async (
     if (options.maxRows !== undefined) {
         params.set('maxRows', String(options.maxRows))
     }
-    return expandRawTable(await apiCall(
+    const response = await apiCall(
         `/projects/${projectId}/tables/${encodeURIComponent(tableId)}?${params}`,
         undefined,
-        LOCAL_LOAD_API_OPTIONS
-    ) as RawTableViewData)
+        { ...LOCAL_LOAD_API_OPTIONS, responseType: 'response' }
+    ) as Response
+    const table = expandRawTable(await response.json() as RawTableViewData)
+    // The version of the table comes in the ETag header, and a write of the table names it back.
+    const version = versionOf(response.headers.get('ETag'))
+    return version === undefined ? table : { ...table, version }
+}
+
+/** The version an `ETag` header names, without its quotes; none without the header or for a weak tag. */
+const versionOf = (entityTag: string | null): string | undefined => {
+    const quoted = entityTag?.match(/^"(.*)"$/)
+    return quoted?.[1] || undefined
 }
 
 /** One way of entering a value, with everything that way of entering it needs. */

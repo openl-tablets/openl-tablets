@@ -6,6 +6,10 @@ HTTP/1.1 200 OK
       {
         "type": "text",
         "text": "Hotfix\n"
+      },
+      {
+        "type": "text",
+        "text": "version: * — pass it as 'version' to openl_write_project_file or openl_delete_project_file to replace or delete this file."
       }
     ],
     "resultType": "complete",

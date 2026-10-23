@@ -26,9 +26,12 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -38,6 +41,7 @@ import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.projects.service.files.ConflictPolicy;
+import org.openl.studio.projects.service.files.FileViewMode;
 import org.openl.studio.projects.service.files.FileWriteOutcome;
 import org.openl.studio.projects.service.files.ProjectFileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
@@ -143,8 +147,8 @@ class ProjectFilesControllerTest {
                 new ByteArrayInputStream(new byte[]{1}));
         controller.uploadArchive(project, "/", true, ConflictPolicy.REPLACE, null,
                 new ByteArrayInputStream(new byte[]{1}));
-        controller.updateResource(project, "/Main.xlsx", workbook, null);
-        controller.updateResourceRaw(project, "/Raw.xlsx", null, new ByteArrayInputStream(new byte[]{1}));
+        controller.updateResource(project, "/Main.xlsx", workbook, null, null);
+        controller.updateResourceRaw(project, "/Raw.xlsx", null, new ByteArrayInputStream(new byte[]{1}), null);
 
         var order = inOrder(studio, workspace);
         order.verify(studio).reset();
@@ -223,6 +227,46 @@ class ProjectFilesControllerTest {
 
         verify(studio).reset();
         verify(workspace, never()).formatUploaded(any(), any());
+    }
+
+    /** A file read tells its version, and a write and a deletion of the file name it back. */
+    @Test
+    void aFileReadTellsItsVersionAndAWriteNamesItBack() throws Exception {
+        var project = mock(RulesProject.class);
+        var files = mock(ProjectFilesService.class);
+        var resource = mock(AProjectResource.class);
+        when(resource.getName()).thenReturn("rules.xml");
+        when(resource.getContent()).thenReturn(new ByteArrayInputStream(new byte[]{1}));
+        when(files.getResource(any(), eq("rules.xml"), any())).thenReturn(resource);
+        when(files.getVersion(resource)).thenReturn("v1");
+        var controller = controller(files, project, mock(WorkspaceProjectService.class), mock(WebStudio.class));
+        var response = new MockHttpServletResponse();
+
+        controller.getFile(project, "/rules.xml", null, null, null, null, false, false, FileViewMode.FLAT, null, null,
+                null, response);
+
+        assertEquals("\"v1\"", response.getHeader(HttpHeaders.ETAG));
+        var content = new ByteArrayInputStream(new byte[]{2});
+        controller.updateResourceRaw(project, "/rules.xml", null, content, "\"v1\"");
+        verify(files).updateResource(any(), eq("rules.xml"), eq(content), eq("v1"));
+        controller.deleteResource(project, "/rules.xml", null, "\"v1\"");
+        verify(files).deleteResource(any(), eq("rules.xml"), eq("v1"));
+    }
+
+    /** The metadata of a file tell its version as a read of the file does, without the content. */
+    @Test
+    void theMetadataOfAFileTellItsVersion() throws Exception {
+        var project = mock(RulesProject.class);
+        var files = mock(ProjectFilesService.class);
+        var resource = mock(AProjectResource.class);
+        when(files.getResource(any(), eq("rules.xml"), any())).thenReturn(resource);
+        when(files.getVersion(resource)).thenReturn("v1");
+        var controller = controller(files, project, mock(WorkspaceProjectService.class), mock(WebStudio.class));
+
+        var meta = controller.getFile(project, "/rules.xml", "meta", null, null, null, false, false,
+                FileViewMode.FLAT, null, null, null, new MockHttpServletResponse());
+
+        assertEquals("\"v1\"", meta.getHeaders().getETag());
     }
 
     /** The controller of a session, mounting the files of the project. */

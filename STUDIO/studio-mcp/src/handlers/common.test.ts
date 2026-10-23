@@ -73,7 +73,9 @@ describe("argument validation", () => {
 describe("errors of OpenL Studio", () => {
   const callAndCatch = async (): Promise<Error> => {
     try {
-      await executeTool("update_table_cell", { projectId: "p1", tableId: "t1", row: 0, column: 0, value: "x" }, harness.client);
+      await executeTool("update_table_cell", {
+        projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0, value: "x",
+      }, harness.client);
     } catch (e) {
       return e as Error;
     }

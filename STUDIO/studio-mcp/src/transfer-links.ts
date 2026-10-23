@@ -7,7 +7,7 @@
  * credential, an upload one used once. In single-user mode, where nobody is authenticated, the link is the address
  * of the REST API itself.
  */
-import type { OpenLClient } from "./client.js";
+import { entityTag, type OpenLClient } from "./client.js";
 import { trimChar } from "./text.js";
 import type * as Types from "./types.js";
 
@@ -32,7 +32,8 @@ interface UploadTarget {
   projectId: string;
   path: string;
   branch?: string;
-  conflictPolicy: "FAIL" | "OVERWRITE" | "SKIP";
+  /** The version of the file the upload replaces; none for an upload that creates a file. */
+  version?: string;
   createFolders: boolean;
   size?: number;
   sha256?: string;
@@ -95,21 +96,32 @@ export async function downloadLink(
   };
 }
 
-/** A link that uploads a file to the target, with where the file lands in its repository and a `curl` command. */
+/**
+ * A link that uploads a file to the target, with where the file lands in its repository and a `curl` command.
+ *
+ * An upload naming the version of a file replaces it while it has that version, and creates a file otherwise: Studio
+ * writes nothing over a file changed since the read, nor over a file the agent did not read.
+ */
 export async function uploadLink(client: OpenLClient, target: UploadTarget): Promise<Record<string, unknown>> {
+  const { version, ...where } = target;
   const local = target.path.split("/").at(-1) ?? target.path;
   const [{ url, expiresAt }, location] = await Promise.all([
-    linkOf(client, { kind: "upload", ...target }, () => client.projectFileUrl(target.projectId, target.path, {
-      createFolders: String(target.createFolders),
-      conflictPolicy: target.conflictPolicy,
-      branch: target.branch,
-    })),
+    linkOf(client, {
+      kind: "upload",
+      ...where,
+      ...(version === undefined ? { conflictPolicy: "FAIL" } : { expectedVersion: version }),
+    }, () => client.projectFileUrl(target.projectId, target.path, version === undefined
+      ? { createFolders: String(target.createFolders), conflictPolicy: "FAIL", branch: target.branch }
+      : { branch: target.branch })),
     locationOf(client, target.projectId, target.path, target.branch),
   ]);
-  const method = expiresAt ? "PUT" : "POST";
+  // A transfer link takes one PUT; the REST API creates a file with a POST and replaces one with a PUT
+  const method = expiresAt || version !== undefined ? "PUT" : "POST";
+  const ifMatch = version === undefined ? undefined : "If-Match: " + entityTag(version);
+  const replacing = ifMatch === undefined ? "" : `-X PUT -H ${quote(ifMatch)} `;
   const curl = expiresAt
     ? `curl -fsS -T ${quote(local)} ${quote(url)}`
-    : `curl -fsS --data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`;
+    : `curl -fsS ${replacing}--data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`;
   return {
     url,
     method,

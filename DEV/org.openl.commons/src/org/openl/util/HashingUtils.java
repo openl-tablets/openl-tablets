@@ -8,6 +8,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
+import java.util.function.Consumer;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -86,6 +87,19 @@ public final class HashingUtils {
             in.transferTo(OutputStream.nullOutputStream());
             return encodeHexString(in.getMessageDigest().digest());
         }
+    }
+
+    /**
+     * The SHA-256 digest of the text the parts make one after another, as {@link #sha256Hex(String)} answers it for
+     * that text.
+     *
+     * <p>The text hands its parts one by one to the consumer it is given, and each part is digested as it comes, so
+     * a text of any size is never held whole.
+     */
+    public static String sha256Hex(Consumer<Consumer<String>> text) {
+        var digest = getSha256Digest();
+        text.accept(part -> digest.update(getBytesUtf8(part)));
+        return encodeHexString(digest.digest());
     }
 
     private static String encodeHexString(byte[] bytes) {

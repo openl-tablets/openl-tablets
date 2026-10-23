@@ -372,6 +372,15 @@ describe("OpenLClient", () => {
       expect(result.totalRows).toBe(200);
     });
 
+    it("answers the version of the table the ETag header names, beside the table", async () => {
+      mockHttp.onGet(`${tablesPath}/calculatePremium_1234`)
+        .reply(200, { id: "calculatePremium_1234", source: [] }, { etag: "\"v1\"" });
+
+      const table = await client.getTable("design-project1", "calculatePremium_1234");
+
+      expect(table.version).toBe("v1");
+    });
+
     it("omits unset raw-view options and a false styles flag from the query", async () => {
       mockHttp.onGet(`${tablesPath}/calculatePremium_1234`).reply(200, { id: "calculatePremium_1234", source: [] });
 
@@ -383,10 +392,10 @@ describe("OpenLClient", () => {
     it.each([
       ["an append", (tableId: string) => client.appendProjectTable("design-project1", tableId, {
         tableType: "RawSource", rows: [[{ value: "SAFE" }, { value: 1000 }]],
-      }), "lines"],
+      }, "v1"), "lines"],
       ["an action", (tableId: string) => client.editTableSource("design-project1", tableId, {
         operation: "insert", target: { type: "row", position: 1 },
-      }), "actions"],
+      }, "v1"), "actions"],
     ])("answers the table id Studio gives in the 200 answer to %s, at the encoded table path", async (_case, edit, endpoint) => {
       mockHttp.onPost(`${tablesPath}/Customer%201234/${endpoint}`).reply(200, { id: "Customer_5678" });
 
@@ -396,9 +405,10 @@ describe("OpenLClient", () => {
     it("deletes a table by its encoded id", async () => {
       mockHttp.onDelete(`${tablesPath}/Customer%201234`).reply(204);
 
-      await client.deleteTable("design-project1", "Customer 1234");
+      await client.deleteTable("design-project1", "Customer 1234", "v1");
 
       expect(mockHttp.history.delete).toHaveLength(1);
+      expect(mockHttp.history.delete[0].headers?.["If-Match"]).toBe('"v1"');
     });
   });
 
@@ -508,27 +518,18 @@ describe("OpenLClient", () => {
       expectNoRequest();
     });
 
-    it("POSTs octet-stream bytes with createFolders/conflictPolicy/branch and tells a created file", async () => {
+    it("POSTs octet-stream bytes that create a file, never over one already there", async () => {
       mockHttp.onPost("/projects/p1/files/docs/readme.md").reply(201);
 
-      const created = await client.writeProjectFile("p1", "docs/readme.md", Buffer.from("hello"), {
+      await client.writeProjectFile("p1", "docs/readme.md", Buffer.from("hello"), {
         createFolders: true,
-        conflictPolicy: "OVERWRITE",
         branch: "main",
       });
 
       const [request] = mockHttp.history.post;
       expect(request.headers["Content-Type"]).toContain("octet-stream");
-      expect(request.params).toEqual({ createFolders: true, conflictPolicy: "OVERWRITE", branch: "main" });
+      expect(request.params).toEqual({ createFolders: true, conflictPolicy: "FAIL", branch: "main" });
       expect(Buffer.from(request.data as Uint8Array).toString("utf-8")).toBe("hello");
-      expect(created).toBe(true);
-    });
-
-    it("tells a file already there, which Studio answers with 204", async () => {
-      mockHttp.onPost("/projects/p1/files/docs/readme.md").reply(204);
-
-      await expect(client.writeProjectFile("p1", "docs/readme.md", Buffer.from("v2"), { conflictPolicy: "SKIP" }))
-        .resolves.toBe(false);
     });
 
     it("deletes a file with the branch query param, and without one when no branch is given", async () => {

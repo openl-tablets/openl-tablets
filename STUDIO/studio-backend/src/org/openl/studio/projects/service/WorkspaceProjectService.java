@@ -104,6 +104,7 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.common.exception.PreconditionFailedException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.lock.LockForEditing;
@@ -2066,6 +2067,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * kind gives it, and what the compiler made of it does not change with the reader asked for it.
      */
     private <T extends TableView> T described(T view, OpenLTableContext context) {
+        view.version = context.table().getVersion();
         view.messages = mapMessages(context);
         // Said here rather than by the reader: what makes a table partial is where its cells sit in the
         // workbook, which the module knows and the table itself does not.
@@ -2437,6 +2439,30 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     /**
+     * Runs a write of a table that is based on the version of the table the client read, as {@link #writing(Supplier)}
+     * runs a write.
+     *
+     * <p>The version is compared once the write's turn has come. A written table takes a new version at once, even
+     * when the module is not compiled again after the write, so a write queued behind another write of the same
+     * table is compared with what that write left. A write based on another version is refused before anything is
+     * written: the table changed since the client read it, on disk or through another client, and the write would
+     * overwrite that change. A write that names no version is not compared.
+     *
+     * @throws PreconditionFailedException when the table has another version than the one the client read
+     */
+    private <T> T writing(OpenLTableContext context, @Nullable String expectedVersion, Supplier<T> write) {
+        return writing(() -> {
+            var table = context.table();
+            if (expectedVersion != null && !expectedVersion.equals(table.getVersion())) {
+                throw new PreconditionFailedException("table.changed.since.read.message");
+            }
+            var written = write.get();
+            table.markWritten();
+            return written;
+        });
+    }
+
+    /**
      * Runs a write of the workbooks of the session, and reads them again as the recovery says when the write is
      * refused. The recovery runs before the next write may start, so it never reads a workbook another write is
      * changing.
@@ -2500,11 +2526,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      */
     @LockForEditing
     public String updateTable(RulesProject project, String tableId, EditableTableView tableView,
-            @Nullable String moduleName) {
+            @Nullable String moduleName, @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return renamed(context, writing(() -> tableWriterExecutor.executeWrite(writer, tableView)));
+        return renamed(context,
+                writing(context, expectedVersion, () -> tableWriterExecutor.executeWrite(writer, tableView)));
     }
 
     /**
@@ -2520,11 +2547,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public String appendTableLines(RulesProject project,
                                    String tableId,
                                    AppendTableView tableView,
-                                   @Nullable String moduleName) {
+                                   @Nullable String moduleName,
+                                   @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), tableView.getTableType());
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return renamed(context, writing(() -> tableWriterExecutor.executeAppend(writer, tableView)));
+        return renamed(context,
+                writing(context, expectedVersion, () -> tableWriterExecutor.executeAppend(writer, tableView)));
     }
 
     /**
@@ -2546,11 +2575,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     public String editTableSource(RulesProject project,
                                   String tableId,
                                   List<RawTableSourceAction> actions,
-                                  @Nullable String moduleName) {
+                                  @Nullable String moduleName,
+                                  @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
         writer.stampEditWith(systemPropertiesService.onEdit());
-        return renamed(context, writing(() -> tableWriterExecutor.executeSourceAction(writer, actions)));
+        return renamed(context,
+                writing(context, expectedVersion, () -> tableWriterExecutor.executeSourceAction(writer, actions)));
     }
 
     /**
@@ -2733,9 +2764,11 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     @LockForEditing
     public String updateTableProperties(RulesProject project, String tableId,
                                         List<TableProperty> properties,
-                                        @Nullable String moduleName) {
+                                        @Nullable String moduleName,
+                                        @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
-        return renamed(context, writing(() -> tablePropertiesService.write(context.table(), properties)));
+        return renamed(context,
+                writing(context, expectedVersion, () -> tablePropertiesService.write(context.table(), properties)));
     }
 
     /**
@@ -2749,10 +2782,13 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
      * @throws ConflictException if the project is held by another user
      */
     @LockForEditing
-    public void deleteTable(RulesProject project, String tableId, @Nullable String moduleName) {
+    public void deleteTable(RulesProject project,
+                            String tableId,
+                            @Nullable String moduleName,
+                            @Nullable String expectedVersion) {
         var context = getWritableTable(project, tableId, moduleName);
         var writer = tableWritersFactory.getTableWriter(context.table(), RawTableView.TABLE_TYPE);
-        writing(() -> {
+        writing(context, expectedVersion, () -> {
             writer.delete();
             return null;
         });

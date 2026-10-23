@@ -73,11 +73,21 @@ class TransferLinksControllerTest {
                 operationOf(request(TransferKind.ARCHIVE, null)));
         assertEquals(new TransferOperation.ConflictVersion("CURRENT", "rules/Rules.xlsx", ConflictBase.OURS),
                 operationOf(request(TransferKind.CONFLICT_VERSION, ConflictBase.OURS)));
-        assertEquals(new TransferOperation.Upload("CURRENT", "rules/Rules.xlsx", "main", ConflictPolicy.FAIL, true,
-                null, null), operationOf(request(TransferKind.UPLOAD, null)));
-        assertEquals(new TransferOperation.Upload("CURRENT", "rules/Rules.xlsx", null, ConflictPolicy.OVERWRITE,
-                false, 10L, "ab".repeat(32)), operationOf(new TransferLinkRequest(TransferKind.UPLOAD, "OLD",
-                "rules/Rules.xlsx", null, null, null, ConflictPolicy.OVERWRITE, false, 10L, "ab".repeat(32))));
+        var upload = TransferOperation.Upload.builder().projectId("CURRENT").path("rules/Rules.xlsx");
+        assertEquals(upload.branch("main").conflictPolicy(ConflictPolicy.FAIL).createFolders(true).build(),
+                operationOf(request(TransferKind.UPLOAD, null)));
+        var replacement = TransferLinkRequest.builder()
+                .kind(TransferKind.UPLOAD)
+                .projectId("OLD")
+                .path("rules/Rules.xlsx")
+                .conflictPolicy(ConflictPolicy.OVERWRITE)
+                .expectedVersion("v1")
+                .createFolders(false)
+                .size(10L)
+                .sha256("ab".repeat(32))
+                .build();
+        assertEquals(upload.branch(null).conflictPolicy(ConflictPolicy.OVERWRITE).createFolders(false).size(10L)
+                .sha256("ab".repeat(32)).expectedVersion("v1").build(), operationOf(replacement));
     }
 
     @Test
@@ -90,8 +100,7 @@ class TransferLinksControllerTest {
     @Test
     void aPathLeadingOutOfTheProjectIsRefused() {
         for (var path : List.of("../users/info", "rules/../../x", "/rules.xml", "rules//a.xml")) {
-            var request = new TransferLinkRequest(TransferKind.UPLOAD, "OLD", path, null, null, null, null, null,
-                    null, null);
+            var request = TransferLinkRequest.builder().kind(TransferKind.UPLOAD).projectId("OLD").path(path).build();
 
             assertThrows(BadRequestException.class, () -> controller.create(request), path);
         }
@@ -111,6 +120,13 @@ class TransferLinksControllerTest {
     }
 
     private static TransferLinkRequest request(TransferKind kind, ConflictBase side) {
-        return new TransferLinkRequest(kind, "OLD", "rules/Rules.xlsx", "main", "abc", side, null, null, null, null);
+        return TransferLinkRequest.builder()
+                .kind(kind)
+                .projectId("OLD")
+                .path("rules/Rules.xlsx")
+                .branch("main")
+                .version("abc")
+                .side(side)
+                .build();
     }
 }

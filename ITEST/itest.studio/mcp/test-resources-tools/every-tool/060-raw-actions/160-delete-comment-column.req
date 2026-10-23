@@ -15,6 +15,7 @@ Authorization: Token ${PAT}
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${GRADE_ID}",
+      "version": ${GRADE_VERSION},
       "position": 2
     },
     "_meta": {

@@ -89,6 +89,8 @@ An error answers with a body of this form, where `<key>` is the message code, an
 - **`409 Conflict`** — the state of the project does not allow it: the project is not opened, is locked by another user,
   or has unresolved merge conflicts.
 - **`410 Gone`** — the project or the table an id named was deleted.
+- **`412 Precondition Failed`** — the version named in `If-Match` is not the current one: the table or the file changed
+  since it was read, and nothing is written.
 
 ## Table Endpoints
 
@@ -131,6 +133,14 @@ Table types: `Datatype`, `Vocabulary`, `Spreadsheet`, `SimpleSpreadsheet`, `Simp
   `openl.error.409.project.locked.by.message`; see [The Project Editing Lock](../architecture/project-editing-lock.md).
 - **Partial tables** — a table that is written as several partial tables is read, and a write to it answers `400` with
   `openl.error.400.table.partial.message`. Excel edits such a table.
+- **Version** — a read tells the version of the table in the
+  [`ETag`](https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3) header; the body carries none. A write that names it in
+  the [`If-Match`](https://www.rfc-editor.org/rfc/rfc9110#section-13.1.1) header is refused with
+  [`412`](https://www.rfc-editor.org/rfc/rfc9110#section-15.5.13) and `openl.error.412.table.changed.since.read.message`
+  when the table changed since the read, on disk or through another client, and nothing is written. A write without the
+  header, or with `*`, is made over any version; a weak tag matches none. A write of a workbook whose file another
+  program changed since OpenL Studio read it answers `409` with `openl.error.409.workbook.changed.outside.message`; see
+  [Changes Made Outside OpenL Studio](../architecture/changes-made-outside.md).
 
 **Read-only fields of every table model:**
 
@@ -140,5 +150,8 @@ Table types: `Datatype`, `Vocabulary`, `Spreadsheet`, `SimpleSpreadsheet`, `Simp
 - `runState` — with `runState=true`: `can-run`, `can-run-module` (runs against the module that holds the table only), or
   `cannot-run`.
 - `partial` — `true` for a table that is written as several partial tables.
+
+The version of the table read is not a field of the model: the `ETag` header of the read answers it, and a write names
+it in `If-Match`. It changes whenever the text of a cell of the table changes.
 
 **Cell values** in the models are a string, a number, a boolean, or `null`. A date is an ISO 8601 string.

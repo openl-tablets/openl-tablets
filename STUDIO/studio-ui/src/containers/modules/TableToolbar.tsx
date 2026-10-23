@@ -192,6 +192,8 @@ interface TableToolbarProps {
      * revision, say. Absent where nothing stands in the way of a write.
      */
     confirmWrite?: ConfirmWrite | undefined
+    /** The version of the table read, which removing the table names so that it does not drop a change made since. */
+    version?: string | undefined
 }
 
 /**
@@ -216,6 +218,7 @@ export const TableToolbar = ({
     onRemoved,
     onEdit,
     confirmWrite,
+    version,
 }: TableToolbarProps) => {
     const { modal } = App.useApp()
     const { t } = useTranslation('repository')
@@ -328,7 +331,7 @@ export const TableToolbar = ({
             okButtonProps: { danger: true },
             okText: t('browser.module.remove'),
             onOk: async () => {
-                if (await deleteTable(projectId, table.id, table.name, moduleName)) {
+                if (await deleteTable(projectId, table.id, table.name, moduleName, version)) {
                     onRemoved?.()
                 }
             },

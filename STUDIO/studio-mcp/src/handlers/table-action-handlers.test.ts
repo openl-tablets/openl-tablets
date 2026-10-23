@@ -53,7 +53,9 @@ describe("raw table-source actions", () => {
     harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
     harness.mockHttp.onGet(tablePath).reply(200, { id: "t1", name: "T", tableType: "RawSource", kind: "Other" });
 
-    const result = await executeTool(tool, { projectId: "p1", tableId: "t1", ...args, response_format: "json" }, harness.client);
+    const result = await executeTool(tool, {
+      projectId: "p1", tableId: "t1", version: "v1", ...args, response_format: "json",
+    }, harness.client);
 
     expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([action]);
     expect(dataOf(result)).toEqual({
@@ -62,6 +64,27 @@ describe("raw table-source actions", () => {
       recompileTriggered: true,
       tableId: "t1",
     });
+  });
+
+  it("edits the version of the table it names, and answers the version the edit left", async () => {
+    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
+    harness.mockHttp.onGet(tablePath).reply(200, {
+      id: "t1", name: "T", tableType: "RawSource", kind: "Other", source: [], version: "v2",
+    });
+
+    const result = await executeTool("update_table_cell", {
+      projectId: "p1", tableId: "t1", row: 1, column: 1, value: "x", version: "v1", response_format: "json",
+    }, harness.client);
+
+    expect(harness.mockHttp.history.post[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
+    expect(dataOf(result)).toMatchObject({ success: true, version: "v2" });
+  });
+
+  it("refuses an edit that names no version of the table before reaching the backend", async () => {
+    await expect(executeTool("update_table_cell", {
+      projectId: "p1", tableId: "t1", row: 1, column: 1, value: "x",
+    }, harness.client)).rejects.toThrow(/Invalid arguments for update_table_cell/);
+    expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 
   it("tells an applied edit after which the table does not compile, with its errors (EPBDS-16804)", async () => {
@@ -76,7 +99,7 @@ describe("raw table-source actions", () => {
     });
 
     const result = await executeTool("append_table_rows", {
-      projectId: "p1", tableId: "t1", cells: [[a, b]], response_format: "json",
+      projectId: "p1", tableId: "t1", version: "v1", cells: [[a, b]], response_format: "json",
     }, harness.client);
 
     expect(dataOf(result)).toMatchObject({
@@ -92,7 +115,9 @@ describe("raw table-source actions", () => {
     harness.mockHttp.onPost(`${tablePath}/actions`).reply(200, { id: "t1_renamed" });
     harness.mockHttp.onGet("/projects/p1/tables/t1_renamed").reply(200, { id: "t1_renamed", name: "T", tableType: "RawSource" });
 
-    const result = await executeTool("delete_table_rows", { projectId: "p1", tableId: "t1", position: 5, response_format: "json" }, harness.client);
+    const result = await executeTool("delete_table_rows", {
+      projectId: "p1", tableId: "t1", version: "v1", position: 5, response_format: "json",
+    }, harness.client);
 
     expect(dataOf(result)).toMatchObject({ tableId: "t1_renamed", tableIdChanged: true, previousTableId: "t1" });
     expect(textOf(result)).toContain("now known by the id 't1_renamed'");
@@ -108,7 +133,8 @@ describe("raw table-source actions", () => {
     ["merge_table_cells", "of one cell", { row: 0, column: 0, rowspan: 1, colspan: 1 }, /more than one cell/],
     ["update_table_range", "of one cell", { row: 0, column: 0, cells: [[{ value: "x" }]] }, /more than one cell/],
   ])("%s refuses an edit %s before reaching the backend", async (tool, _case, args, message) => {
-    await expect(executeTool(tool, { projectId: "p1", tableId: "t1", ...args }, harness.client)).rejects.toThrow(message);
+    await expect(executeTool(tool, { projectId: "p1", tableId: "t1", version: "v1", ...args }, harness.client))
+      .rejects.toThrow(message);
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 });

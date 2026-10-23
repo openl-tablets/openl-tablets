@@ -204,6 +204,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -308,6 +318,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -439,6 +459,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -551,6 +581,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -694,6 +734,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -805,6 +855,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -934,6 +994,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1034,6 +1104,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -1160,6 +1240,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1260,6 +1350,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -1380,6 +1480,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1497,6 +1607,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1603,6 +1723,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1688,6 +1818,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1764,6 +1904,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -1874,6 +2024,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -1967,6 +2127,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -2051,6 +2221,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2173,6 +2353,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -2249,6 +2439,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2359,6 +2559,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -2443,6 +2653,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2545,6 +2765,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -2621,6 +2851,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2725,6 +2965,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -2801,6 +3051,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2914,6 +3174,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -2998,6 +3268,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3120,6 +3400,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -3206,6 +3496,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3310,6 +3610,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -3386,6 +3696,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3499,6 +3819,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -3583,6 +3913,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3705,6 +4045,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -3791,6 +4141,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3895,6 +4255,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -3971,6 +4341,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -4081,6 +4461,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -4174,6 +4564,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -4258,6 +4658,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -4386,6 +4796,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -4492,6 +4912,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -4578,6 +5008,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -4687,6 +5127,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -4773,6 +5223,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -4869,6 +5329,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -4984,6 +5454,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -5077,6 +5557,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -5186,6 +5676,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -5274,6 +5774,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -5379,6 +5889,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -5504,6 +6024,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -5602,6 +6132,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -5719,6 +6259,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -5853,6 +6403,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -5940,6 +6500,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -6053,6 +6623,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -6186,6 +6766,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -6308,6 +6898,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -6392,6 +6992,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -6513,6 +7123,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -6608,6 +7228,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -6713,6 +7343,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -6800,6 +7440,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -6906,6 +7556,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -7157,6 +7817,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -7251,6 +7921,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -7388,6 +8068,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -7482,6 +8172,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -7589,6 +8289,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -7721,6 +8431,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -7838,6 +8558,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -7975,6 +8705,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -8069,6 +8809,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -8192,6 +8942,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -8299,6 +9059,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -8427,6 +9197,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -8532,6 +9312,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -8729,6 +9519,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -8834,6 +9634,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -8976,6 +9786,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -9033,6 +9853,14 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9080,6 +9908,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -9299,6 +10137,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -9475,6 +10323,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -9536,6 +10394,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -9609,6 +10475,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -9721,6 +10597,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -9909,6 +10795,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -9996,6 +10892,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -10117,6 +11023,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -10250,6 +11166,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -10365,6 +11291,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -10451,6 +11387,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -10582,6 +11528,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -10687,6 +11643,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -10819,6 +11785,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -10909,6 +11885,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -11019,6 +12005,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -11172,6 +12168,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -11291,6 +12297,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -11438,6 +12454,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -11543,6 +12569,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -11666,6 +12702,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -11772,6 +12818,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -11902,6 +12958,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -12003,6 +13069,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -12115,6 +13191,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -12238,6 +13324,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -12334,6 +13430,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -12455,6 +13561,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -12560,6 +13676,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -12697,6 +13823,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -12792,6 +13928,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -12904,6 +14050,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -13035,6 +14191,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -13147,6 +14313,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -13234,6 +14410,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -13354,6 +14540,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -13514,6 +14710,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -13781,6 +14987,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -13892,6 +15108,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -14038,6 +15264,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -14095,6 +15331,14 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -14142,6 +15386,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -14342,6 +15596,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -14394,6 +15658,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -14491,6 +15763,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -14545,6 +15827,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -14642,6 +15932,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -14696,6 +15996,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -14784,6 +16092,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -14924,6 +16242,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -15053,6 +16381,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -15149,6 +16487,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -15296,6 +16644,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -15453,6 +16811,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -15573,6 +16941,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -15753,6 +17131,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -15891,6 +17279,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -15945,6 +17343,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -16033,6 +17439,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -16163,6 +17579,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -16215,6 +17641,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "module",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -16303,6 +17737,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -16444,6 +17888,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -16575,6 +18029,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -16685,6 +18149,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -16923,6 +18397,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -17056,6 +18540,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -17258,6 +18752,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -17345,6 +18849,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -17577,6 +19091,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -17692,6 +19216,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -17798,6 +19332,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -17893,6 +19437,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -18024,6 +19578,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -18140,6 +19704,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -18289,6 +19863,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -18411,6 +19995,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -18551,6 +20145,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -18647,6 +20251,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -18734,6 +20348,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -18888,6 +20512,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -18991,6 +20625,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -19150,6 +20794,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -19321,6 +20975,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -19442,6 +21106,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -19539,6 +21213,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -19652,6 +21336,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -19738,6 +21432,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -19842,6 +21546,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -19937,6 +21651,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -20023,6 +21747,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -20138,6 +21872,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -20235,6 +21979,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -20350,6 +22104,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -20453,6 +22217,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -20576,6 +22350,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -20681,6 +22465,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -20823,6 +22617,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -20880,6 +22684,14 @@ Content-Type: application/json
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -20927,6 +22739,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -21138,6 +22960,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -21314,6 +23146,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -21375,6 +23217,14 @@ Content-Type: application/json
             "description": "***",
             "in": "query",
             "name": "branch",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "***",
+            "in": "header",
+            "name": "If-Match",
             "schema": {
               "type": "string"
             }
@@ -21448,6 +23298,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -21664,6 +23524,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -21795,6 +23665,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -21889,6 +23769,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22004,6 +23894,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -22110,6 +24010,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -22194,6 +24104,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22289,6 +24209,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22401,6 +24331,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -22485,6 +24425,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22581,6 +24531,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22700,6 +24660,16 @@ Content-Type: application/json
             },
             "description": "***"
           },
+          "412": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
           "423": {
             "content": {
               "application/json": {
@@ -22795,6 +24765,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {
@@ -22910,6 +24890,16 @@ Content-Type: application/json
             "description": "***"
           },
           "410": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            },
+            "description": "***"
+          },
+          "412": {
             "content": {
               "application/json": {
                 "schema": {

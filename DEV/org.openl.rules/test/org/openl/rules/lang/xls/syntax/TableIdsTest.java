@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -28,11 +29,11 @@ import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.table.GridTable;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IProjectSourceCodeModule;
 import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.util.HashingUtils;
 
 class TableIdsTest {
 
@@ -71,6 +72,48 @@ class TableIdsTest {
 
         assertEquals(a.get("Rules String rate(String state)"), b.get("Rules String rate(String state)"));
         assertEquals(a.get("Datatype Car"), b.get("Datatype Car"));
+    }
+
+    /** The version of a table changes with the text of a cell, and only with it. */
+    @Test
+    void aTableHasANewVersionWhenTheTextOfACellChanges() throws IOException {
+        var a = project("a", sheet -> put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1", "\"CA\"|1"));
+        var moved = project("b", sheet -> put(sheet, 7, 3, "Rules String rate(String state)", "C1|RET1", "\"CA\"|1"));
+        var edited = project("c", sheet -> put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1", "\"CA\"|2"));
+
+        var table = only(parse(a, RULES));
+        var version = table.getVersion();
+
+        assertEquals(version, table.getVersion(), "the version stays while the table is not compiled again");
+        assertEquals(version, only(parse(moved, RULES)).getVersion(), "where the table stands is not its content");
+        assertNotEquals(version, only(parse(edited, RULES)).getVersion());
+        assertEquals(version, new TableSyntaxNodeAdapter(table).getVersion());
+    }
+
+    /** The version is the digest of the text of the cells, row by row: the versions told before stay valid. */
+    @Test
+    void theVersionIsTheDigestOfTheTextOfTheCells() throws IOException {
+        var table = only(parse(project("a", sheet -> put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1",
+                "\"CA\"|1")), RULES));
+
+        assertEquals(HashingUtils.sha256Hex("Rules String rate(String state)\tnull\t\nC1\tRET1\t\n\"CA\"\t1\t\n"),
+                table.getVersion());
+    }
+
+    /** A written table takes a new version at once, while the module is not compiled again, and keeps it. */
+    @Test
+    void aWrittenTableTakesANewVersion() throws IOException {
+        var table = only(parse(project("a", sheet -> put(sheet, 1, 1, "Rules String rate(String state)", "C1|RET1",
+                "\"CA\"|1")), RULES));
+        var read = table.getVersion();
+
+        table.markWritten();
+
+        var written = table.getVersion();
+        assertNotEquals(read, written);
+        assertEquals(written, table.getVersion());
+        new TableSyntaxNodeAdapter(table).markWritten();
+        assertNotEquals(written, table.getVersion(), "the table read by OpenL Studio is the table itself");
     }
 
     @Test
@@ -392,7 +435,7 @@ class TableIdsTest {
     private static Map<String, String> byFirstBodyCell(XlsModuleSyntaxNode module) {
         var ids = new LinkedHashMap<String, String>();
         for (var table : module.getXlsTableSyntaxNodes()) {
-            IGridTable grid = table.getGridTable();
+            var grid = table.getGridTable();
             ids.put(grid.getCell(0, 1).getStringValue(), table.getId());
         }
         return ids;
@@ -401,16 +444,12 @@ class TableIdsTest {
     /** A workbook of a project, as OpenL Studio compiles a module. */
     private static final class ProjectFile extends PathSourceCodeModule implements IProjectSourceCodeModule {
 
+        @Getter
         private final Path projectFolder;
 
         ProjectFile(Path file, Path projectFolder) {
             super(file);
             this.projectFolder = projectFolder;
-        }
-
-        @Override
-        public Path getProjectFolder() {
-            return projectFolder;
         }
     }
 }
