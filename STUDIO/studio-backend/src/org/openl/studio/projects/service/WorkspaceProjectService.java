@@ -988,7 +988,10 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         }
     }
 
-    private String resolveSaveComment(RulesProject project, @Nullable String comment) {
+    private @Nullable String resolveSaveComment(RulesProject project, @Nullable String comment) {
+        if (!project.getDesignRepository().supports().comments()) {
+            return null;
+        }
         if (comment != null) {
             return comment;
         }

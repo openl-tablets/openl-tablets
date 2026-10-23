@@ -1,0 +1,5 @@
+POST /rest/repos/design-file/projects/ProjectCopy/from-project HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{"sourceProject":"5B0GdFcBUcfe"}

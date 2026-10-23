@@ -387,6 +387,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
                 .setFolders(delegate.supports().folders())
                 .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
                 .setSearchable(delegate.supports().searchable())
+                .setComments(delegate.supports().comments())
                 .build();
     }
 

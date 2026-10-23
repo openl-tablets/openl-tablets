@@ -500,7 +500,9 @@ To save a project, proceed as follows:
 
 1.  Enter a comment if needed and click **Save**.
 
-    A standard comment is suggested. If the repository requires comments of a certain form, a comment that does not match it is refused.
+    For repositories that store change comments, a standard comment is suggested. If the repository requires comments
+    of a certain form, a comment that does not match it is refused. File repositories do not store change comments;
+    their projects can be created and saved without comment templates.
 
 If another user saved the same files in the meantime, their changes are merged with yours where they do not
 overlap. When both changed the same place, the **Resolve Conflicts** window appears, as described in

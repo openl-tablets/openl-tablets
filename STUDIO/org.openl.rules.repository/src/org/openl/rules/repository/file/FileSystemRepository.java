@@ -286,7 +286,7 @@ public class FileSystemRepository implements Repository, Closeable {
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setVersions(false).setFolders(true).build();
+        return new FeaturesBuilder(this).setVersions(false).setFolders(true).setComments(false).build();
     }
 
     protected FileData getFileData(Path file) throws IOException {

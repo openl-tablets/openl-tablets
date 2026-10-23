@@ -105,7 +105,8 @@ public class LocalRepository extends FileSystemRepository {
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setVersions(false).setFolders(true).build();
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setVersions(false).setFolders(true)
+                .setComments(false).build();
     }
 
     @Override
