@@ -161,7 +161,7 @@ readinessProbe:
 ### OpenL Studio Administration
 
 * Improved the Users and Groups management tables, and added search to both tabs.
-* Added editing of user data in single user mode through the OpenL Studio UI.
+* Added editing of user data in Single-User mode through the OpenL Studio UI.
 * Added a prompt for the profile data a user is missing after authentication.
 * Moved the active user badge to Last Login.
 
@@ -248,6 +248,9 @@ This section summarizes changes that may require action before or after upgradin
   longer resolve.
 * **Manual project import is removed** — Importing a project from a repository is superseded by automatic project
   detection.
+* **The username in Single-User mode comes from the operating system** — In Single-User mode OpenL Studio signs in
+  the account that runs the server, where it signed in `DEFAULT` before. To keep the previous username, set
+  `security.single.username` explicitly.
 * **The project descriptor size limit is 1 MB** — A `rules.xml` above 1 MB is refused, where the previous limit was
   16 MB.
 * **gRPC is no longer a dependency** — The obsolete Studio AI search integration is removed together with its gRPC

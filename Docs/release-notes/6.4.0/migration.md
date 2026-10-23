@@ -72,8 +72,16 @@ administrator-facing settings and screens are removed. Workspace metadata is mig
 * **Check project descriptors against the 1 MB limit.** A `rules.xml` larger than 1 MB is refused, where the previous
   limit was 16 MB. A descriptor of that size is almost always generated content; split or trim it before upgrading.
 
+* **The username in Single-User mode comes from the operating system.** In Single-User mode OpenL Studio signs in
+  the account that runs the server, where it signed in `DEFAULT` before. To keep the previous username, set it
+  explicitly:
+
+  ```properties
+  security.single.username = DEFAULT
+  ```
+
 * **Workspace metadata migrates on first start.** The `.studioProps` migration always runs so local workspaces
-  survive the upgrade, and the single-user workspace is moved to the resolved user name. No manual step is required;
+  survive the upgrade, and the Single-User workspace is moved to the resolved username. No manual step is required;
   allow for the migration on the first start after the upgrade.
 
 * **Project permissions are evaluated per branch.** Authorization is applied separately to each branch membership of
