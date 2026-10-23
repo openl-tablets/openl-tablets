@@ -40,7 +40,8 @@ class MarkdownTableCopyTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            description: Greeting by the hour
+            properties:
+              description: Greeting by the hour
             merges: [A3:A4]
             ---
 
@@ -99,7 +100,8 @@ class MarkdownTableCopyTest {
         assertEquals("""
                 ---
                 table: SmartRules String salutation(Integer hour)
-                description: Greeting by the hour
+                properties:
+                  description: Greeting by the hour
                 merges: [A3:A4]
                 ---
 

@@ -37,7 +37,8 @@ class MarkdownTableWriteTest {
     private static final String GREETING = """
             ---
             table: SmartRules String greeting(Integer hour)
-            description: Greeting by the hour
+            properties:
+              description: Greeting by the hour
             ---
 
             Picks a greeting.
@@ -169,8 +170,8 @@ class MarkdownTableWriteTest {
         }
 
         // The table editor puts a new property first, as in a workbook
-        assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                "tags: greeting\ndescription: Greeting by the hour\n"), written());
+        assertEquals(GREETING.replace("  description: Greeting by the hour\n",
+                "  tags: greeting\n  description: Greeting by the hour\n"), written());
     }
 
     private void apply(RawTableSourceAction... actions) {

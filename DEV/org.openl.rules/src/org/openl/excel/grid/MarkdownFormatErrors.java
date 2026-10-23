@@ -66,12 +66,14 @@ final class MarkdownFormatErrors {
     }
 
     /**
-     * Returns the text of a line of the file, from its first character to its last.
+     * Returns the text of a line of the file, from its first character to its last, the indent left out: a property
+     * is indented under {@code properties}.
      */
     private static ILocation lineOf(XlsWorkbookSourceCodeModule file, int line) {
         var text = new TextInfo(file.getCode());
-        var start = text.getPosition(line - 1);
-        var length = text.getLine(line - 1).stripTrailing().length();
+        var written = text.getLine(line - 1);
+        var start = text.getPosition(line - 1) + written.length() - written.stripLeading().length();
+        var length = written.strip().length();
         return LocationUtils.createTextInterval(start, start + Math.max(length - 1, 0));
     }
 }

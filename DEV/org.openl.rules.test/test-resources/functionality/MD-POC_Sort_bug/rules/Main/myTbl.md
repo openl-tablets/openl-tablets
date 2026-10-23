@@ -1,6 +1,7 @@
 ---
 table: Test  mySpr myTbl
-precision: 2
+properties:
+  precision: 2
 merges: [B1:C1, B2:C2, B3:C3, B4:C4]
 ---
 

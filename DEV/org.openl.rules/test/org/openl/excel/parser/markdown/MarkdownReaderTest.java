@@ -42,9 +42,10 @@ class MarkdownReaderTest {
         var text = """
                 ---
                 table: Rules String Greeting(Integer hour)
-                description: Greeting by the hour of the day
-                effectiveDate: 2024-01-01
-                state: [CA, NY]
+                properties:
+                  description: Greeting by the hour of the day
+                  effectiveDate: 2024-01-01
+                  state: [CA, NY]
                 ---
 
                 Documentation before the table.
@@ -257,7 +258,8 @@ class MarkdownReaderTest {
     @ParameterizedTest(name = "{0}")
     @CsvSource(delimiter = ';', quoteCharacter = '"', textBlock = """
             not closed;          {h}| a |\\n|---|\\n; 1; not closed
-            nested value;   {h}state: {a: b}\\n{/h}| a |\\n|---|\\n; 3; text or a list
+            nested value;   {h}properties:\\n  state: {a: b}\\n{/h}| a |\\n|---|\\n; 4; text or a list
+            no properties block; {h}properties: [a]\\n{/h}| a |\\n|---|\\n; 3; 'name: value' lines under 'properties'
             complex key;    {h}[a]: b\\n{/h}| a |\\n|---|\\n; 3; single word
             no table key;   ---\\ndescription: x\\n---\\n| a |\\n|---|\\n; 1; no 'table' key
             empty table key; ---\\ntable:\\n---\\n| a |\\n|---|\\n; 1; no 'table' key
@@ -287,6 +289,7 @@ class MarkdownReaderTest {
             reversed range; {h}merges: [B2:A1]\\n{/h}| a |\\n|---|\\n; 3; from its top left;
             row too far;    {h}merges: [A99999999999]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range;
             column too far; {h}merges: [ZZZZZZZZZ1]\\n{/h}| a |\\n|---|\\n; 3; is not a cell range;
+            property above; {h}state: CA\\n{/h}| a |\\n|---|\\n; 3; a table property is written under 'properties';
             """)
     void problemOfTheBodyLeavesTheTableReadable(String name, String text, int line, String message,
                                                 @Nullable String cell) {

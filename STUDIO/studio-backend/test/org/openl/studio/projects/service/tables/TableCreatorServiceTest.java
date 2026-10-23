@@ -663,7 +663,8 @@ class TableCreatorServiceTest {
         assertEquals("""
                 ---
                 table: SmartRules String Premium(Integer age)
-                createdBy: jane
+                properties:
+                  createdBy: jane
                 ---
 
                 | Age | Premium |

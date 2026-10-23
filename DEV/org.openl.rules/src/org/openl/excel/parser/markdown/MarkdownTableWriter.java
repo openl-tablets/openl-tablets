@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -34,7 +35,12 @@ import org.openl.util.StringUtils;
 final class MarkdownTableWriter {
 
     private static final String TABLE = "table";
+    private static final String PROPERTIES = "properties";
     private static final String MERGES = "merges";
+    /** The keys of the front matter the table is read from; any other key stays in the file as written. */
+    private static final Set<String> TABLE_KEYS = Set.of(TABLE, PROPERTIES, MERGES);
+    /** How far a new property is indented under {@code properties}. */
+    private static final String INDENT = "  ";
     private static final String DELIMITER = "---";
     private static final String METHOD = "Method ";
     /** The fence a new file writes the code of a Method in. */
@@ -66,7 +72,10 @@ final class MarkdownTableWriter {
         var text = new ArrayList<String>();
         text.add(DELIMITER);
         text.add(rendered(TABLE, table.header()));
-        table.properties().forEach((name, value) -> text.add(rendered(name, value)));
+        if (!table.properties().isEmpty()) {
+            text.add(PROPERTIES + ":");
+            table.properties().forEach((name, value) -> text.add(INDENT + rendered(name, value)));
+        }
         if (!table.merges().isEmpty()) {
             text.add(rendered(MERGES, RulesTable.mergesText(table.merges())));
         }
@@ -105,14 +114,64 @@ final class MarkdownTableWriter {
         // The opening line and whatever stands before the first key, such as a comment
         text.addAll(lines.subList(0, keys.isEmpty() ? file.frontMatterEnd() : keys.getFirst().line()));
         text.addAll(key(file, TABLE, table.header()));
-        table.properties().forEach((name, value) -> text.addAll(key(file, name, value)));
+        text.addAll(properties(file, table));
         // Ranges the table is read without stay as written until the ranges change, even when no range is left
         var merges = RulesTable.mergesText(table.merges());
         if (!merges.isEmpty() || written(file, MERGES, merges).isPresent()) {
             text.addAll(key(file, MERGES, merges));
         }
+        keys.stream()
+                .filter(key -> !TABLE_KEYS.contains(key.name()))
+                .forEach(key -> text.addAll(file.lines().subList(key.line(), endOf(file, key))));
         text.add(lines.get(file.frontMatterEnd()));
         return text;
+    }
+
+    /**
+     * Returns the lines of the properties: the {@code properties} key, then a line for each property under it. A
+     * property keeps its lines when its value is the same, and a new one is indented as the others are.
+     */
+    private static List<String> properties(TableFile file, RulesTable table) {
+        if (table.properties().isEmpty()) {
+            return List.of();
+        }
+        var written = file.propertyKeys();
+        // Properties written on the line of the key, as {a: b}, are written again one to a line
+        var block = file.keys()
+                .stream()
+                .filter(key -> key.name().equals(PROPERTIES)
+                        && !written.isEmpty()
+                        && written.getFirst().line() > key.line())
+                .findFirst();
+        var text = new ArrayList<String>();
+        text.add(block.map(key -> file.lines().get(key.line())).orElse(PROPERTIES + ":"));
+        var indent = block.map(key -> indentOf(file.lines().get(written.getFirst().line()))).orElse(INDENT);
+        table.properties()
+                .forEach((name, value) -> text.addAll(block.flatMap(key -> writtenProperty(file, key, name, value))
+                        .orElseGet(() -> List.of(indent + rendered(name, value)))));
+        return text;
+    }
+
+    /**
+     * Returns the lines of a property as written in the file, or nothing when the file holds no such property of that
+     * value.
+     */
+    private static Optional<List<String>> writtenProperty(TableFile file, TableFile.Key block, String name,
+                                                          String value) {
+        var keys = file.propertyKeys();
+        var blockEnd = endOf(file, block);
+        for (var i = 0; i < keys.size(); i++) {
+            var key = keys.get(i);
+            if (key.name().equals(name) && key.value().equals(value)) {
+                var end = i + 1 < keys.size() ? keys.get(i + 1).line() : blockEnd;
+                return Optional.of(file.lines().subList(key.line(), end));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static String indentOf(String line) {
+        return line.substring(0, line.length() - line.stripLeading().length());
     }
 
     private static boolean sameProperties(RulesTable original, RulesTable table) {
@@ -130,15 +189,23 @@ final class MarkdownTableWriter {
      * Returns the lines of a key as written in the file, or nothing when the file holds no such key of that value.
      */
     private static Optional<List<String>> written(TableFile file, String name, String value) {
-        var keys = file.keys();
-        for (var i = 0; i < keys.size(); i++) {
-            var key = keys.get(i);
-            if (key.name().equals(name) && key.value().equals(value)) {
-                var end = i + 1 < keys.size() ? keys.get(i + 1).line() : file.frontMatterEnd();
-                return Optional.of(file.lines().subList(key.line(), end));
-            }
-        }
-        return Optional.empty();
+        return file.keys()
+                .stream()
+                .filter(key -> key.name().equals(name) && key.value().equals(value))
+                .findFirst()
+                .map(key -> file.lines().subList(key.line(), endOf(file, key)));
+    }
+
+    /**
+     * Returns the line after the lines of a key of the front matter: the line of the next key, or the closing line.
+     */
+    private static int endOf(TableFile file, TableFile.Key key) {
+        return file.keys()
+                .stream()
+                .mapToInt(TableFile.Key::line)
+                .filter(line -> line > key.line())
+                .min()
+                .orElse(file.frontMatterEnd());
     }
 
     private static String rendered(String name, String value) {

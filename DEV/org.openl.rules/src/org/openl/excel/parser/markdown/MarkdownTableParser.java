@@ -34,9 +34,10 @@ import org.openl.util.StringUtils;
  * Reads the rules table of a Markdown file. A file holds one table at most.
  *
  * <p>The header of the table is the front matter of the file: the {@code table} key holds the text of the first table
- * cell, such as {@code Rules String Greeting(Integer hour)}. The other keys are table properties, except
- * {@code merges}, which lists the merged ranges of the body in A1 notation. Values are read as written:
- * {@code NO} stays {@code NO}, and a list is joined with commas.
+ * cell, such as {@code Rules String Greeting(Integer hour)}. The {@code properties} key holds the table properties, a
+ * name and a value on each line under it, and {@code merges} lists the merged ranges of the body in A1 notation. Values
+ * are read as written: {@code NO} stays {@code NO}, and a list is joined with commas. Any other key is a problem: the
+ * table is read without it.
  *
  * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
  * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with
@@ -69,6 +70,7 @@ final class MarkdownTableParser {
     private static final Pattern A1_RANGE = Pattern.compile("[A-Z]{1,3}[1-9]\\d{0,6}(?::[A-Z]{1,3}[1-9]\\d{0,6})?");
     private static final String FRONT_MATTER = "---";
     private static final String TABLE = "table";
+    private static final String PROPERTIES = "properties";
     private static final String MERGES = "merges";
 
     private final String text;
@@ -124,6 +126,7 @@ final class MarkdownTableParser {
                 table,
                 end,
                 keysOf(header, table),
+                header.propertyKeys(),
                 node == null ? new TableFile.NoBody(end + 1) : bodyOf(node),
                 List.copyOf(problems)));
     }
@@ -161,20 +164,23 @@ final class MarkdownTableParser {
 
         String header = null;
         var properties = new LinkedHashMap<String, String>();
+        var propertyKeys = new ArrayList<TableFile.Key>();
         List<CellRangeAddress> merges = List.of();
         var mergesLine = 1;
         var keys = new ArrayList<TableFile.Key>();
         for (var tuple : mapping.getValue()) {
             var keyLine = firstLine + tuple.getKeyNode().getStartMark().getLine();
             var key = scalar(tuple.getKeyNode(), keyLine);
-            var values = values(tuple.getValueNode(), keyLine);
-            var value = String.join(",", values);
+            var value = "";
             switch (key) {
                 case TABLE -> {
-                    header = value.strip();
+                    header = String.join(",", values(tuple.getValueNode(), keyLine)).strip();
                     value = header;
                 }
+                case PROPERTIES -> readProperties(tuple.getValueNode(), keyLine, firstLine, properties, propertyKeys);
                 case MERGES -> {
+                    var values = values(tuple.getValueNode(), keyLine);
+                    value = String.join(",", values);
                     mergesLine = keyLine;
                     merges = values.stream()
                             .flatMap(range -> Arrays.stream(range.split(",")))
@@ -183,14 +189,42 @@ final class MarkdownTableParser {
                             .flatMap(range -> range(range, keyLine).stream())
                             .toList();
                 }
-                default -> properties.put(key, value);
+                // The table is read without it, and the key stays in the file as written
+                default -> problem(keyLine,
+                        "'%s' is not a key of the front matter: a table property is written under '%s'".formatted(key,
+                                PROPERTIES),
+                        null);
             }
             keys.add(new TableFile.Key(key, value, keyLine - 1));
         }
-        if (StringUtils.isBlank(header)) {
+        if (header == null || header.isBlank()) {
             throw error(1, "The front matter has no 'table' key with the header of the table");
         }
-        return new Header(header, properties, merges, mergesLine, keys);
+        return new Header(header, properties, merges, mergesLine, keys, propertyKeys);
+    }
+
+    /**
+     * Reads the properties of the table: the keys under {@code properties}, each a name and a value. A
+     * {@code properties} key with nothing under it gives none.
+     */
+    private void readProperties(org.yaml.snakeyaml.nodes.Node node,
+                                int line,
+                                int firstLine,
+                                SequencedMap<String, String> properties,
+                                List<TableFile.Key> keys) {
+        if (node instanceof ScalarNode scalar && scalar.getValue().isEmpty()) {
+            return;
+        }
+        if (!(node instanceof MappingNode mapping)) {
+            throw error(line, "The properties of the table must be a set of 'name: value' lines under 'properties'");
+        }
+        for (var tuple : mapping.getValue()) {
+            var keyLine = firstLine + tuple.getKeyNode().getStartMark().getLine();
+            var name = scalar(tuple.getKeyNode(), keyLine);
+            var value = String.join(",", values(tuple.getValueNode(), keyLine));
+            properties.put(name, value);
+            keys.add(new TableFile.Key(name, value, keyLine - 1));
+        }
     }
 
     private String scalar(org.yaml.snakeyaml.nodes.Node node, int line) {
@@ -421,14 +455,16 @@ final class MarkdownTableParser {
     /**
      * The header of the table, read from the front matter.
      *
-     * @param mergesLine the line of the file the merged ranges are written on
-     * @param keys       the keys of the front matter
+     * @param mergesLine   the line of the file the merged ranges are written on
+     * @param keys         the keys of the front matter
+     * @param propertyKeys the keys under {@code properties}
      */
     private record Header(String text,
                           SequencedMap<String, String> properties,
                           List<CellRangeAddress> merges,
                           int mergesLine,
-                          List<TableFile.Key> keys) {
+                          List<TableFile.Key> keys,
+                          List<TableFile.Key> propertyKeys) {
 
         /**
          * Returns the cell of the sheet a cell of the body is laid out in.
