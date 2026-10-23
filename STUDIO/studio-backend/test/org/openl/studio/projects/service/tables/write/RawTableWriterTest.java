@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables.write;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -366,6 +367,55 @@ class RawTableWriterTest {
         assertEquals(List.of(), writer.columnsGrown);
         assertEquals(List.of(), writer.rowsGrown);
         assertEquals("gamma", value(reload(mainProject), 3, 2));
+    }
+
+    @Test
+    void writesTheWholeTableWithoutRewritingTheCellsItKeeps() throws IOException {
+        var project = writeProject("kept", new String[][]{
+                {"SimpleRules Double Score(Integer level)", null},
+                {"Level", "Score"},
+                {"007", "1"},
+                {"8", "2"}
+        });
+        var view = new RawTableReader().read(load(project));
+        // A client sends back what it read, and changes one score
+        view.source.get(3).set(1, cell(20));
+
+        write(project, view.source);
+
+        // Written again, the level kept as a text would become the number 7
+        var table = load(project).getGridTable(IXlsTableNames.VIEW_DEVELOPER);
+        assertEquals("007", table.getCell(0, 2).getStringValue());
+        assertEquals(20, ((Number) value(reload(project), 3, 1)).intValue());
+    }
+
+    @Test
+    void unmergesThroughAFullUpdateWritingTheValuesSentForTheCoveredCells() throws IOException {
+        var project = bankedHeaderProject("unmerge-full");
+        var view = new RawTableReader().read(load(project));
+        var header = view.source.get(0).get(0).value();
+        // The header is sent without its span, and its text again for the cells it covered
+        view.source.set(0, new ArrayList<>(List.of(cell(header), cell(header), cell(header))));
+
+        write(project, view.source);
+
+        // A covered cell reads as the value of its merged cell, so it was written though it read the same
+        var source = reload(project);
+        assertEquals(header, value(source, 0, 1));
+        assertEquals(header, value(source, 0, 2));
+    }
+
+    @Test
+    void comparesCellValuesByWhatTheyHold() {
+        assertTrue(TableWriter.sameValue(1, 1.0));
+        assertTrue(TableWriter.sameValue(Double.NaN, Double.NaN));
+        assertTrue(TableWriter.sameValue(new Object[]{1, "a"}, List.of(1.0, "a")));
+        assertTrue(TableWriter.sameValue(new Object[]{"US", null}, Arrays.asList("US", null)));
+        assertTrue(TableWriter.sameValue(null, null));
+        assertFalse(TableWriter.sameValue(1, 2));
+        assertFalse(TableWriter.sameValue(new Object[]{1}, List.of(1, 2)));
+        assertFalse(TableWriter.sameValue(List.of("a", "b"), List.of("a", "c")));
+        assertFalse(TableWriter.sameValue("1", 1));
     }
 
     @Test
