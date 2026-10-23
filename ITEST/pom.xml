@@ -118,6 +118,8 @@
                             <!-- Store OpenL Studio passwords in plain text: a bcrypt check on every Basic-auth
                                  request slows the suites down -->
                             <security.password.encoder>noop</security.password.encoder>
+                            <!-- The tag of the apache/kafka-native broker image: the same release as kafka-clients -->
+                            <kafka.version>${kafka.version}</kafka.version>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
