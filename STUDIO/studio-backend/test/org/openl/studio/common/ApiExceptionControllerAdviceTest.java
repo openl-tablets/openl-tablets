@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.UncheckedIOException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,6 +27,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 
+import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
@@ -135,6 +138,21 @@ class ApiExceptionControllerAdviceTest {
         assertNull(handled);
         assertNull(advice.handleTypeMismatch(new TypeMismatchException("x", Integer.class), new HttpHeaders(),
                 HttpStatus.BAD_REQUEST, request), "a type mismatch after the commit is left alone too");
+    }
+
+    /** A write refused because the file changed on disk is a conflict naming the file, however deep it was raised. */
+    @Test
+    void workbookChangedOutside_isAConflictNamingTheFile() {
+        var request = new ServletWebRequest(new MockHttpServletRequest());
+        var refused = new WorkbookChangedOutsideException(new File("rules", "Bank Rating.xlsx"));
+
+        var response = advice().handleInternalErrors(new IllegalStateException(new UncheckedIOException(refused)),
+                request);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        var error = assertInstanceOf(BaseError.class, response.getBody());
+        assertEquals("openl.error.409.workbook.changed.outside.message", error.code);
+        assertTrue(error.message.startsWith("Bank Rating.xlsx changed outside OpenL Studio"), error.message);
     }
 
     @Test

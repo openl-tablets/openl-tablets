@@ -8,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,23 @@ class HashingUtilsTest {
         assertNotNull(result);
         assertEquals(40, result.length(), "SHA-1 hash should be 20 bytes");
         assertEquals("aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d", result);
+    }
+
+    @Test
+    void sha256Hex_ofAStreamIsTheHashOfItsBytes() throws IOException {
+        var content = new ByteArrayInputStream("hello".getBytes(StandardCharsets.UTF_8));
+
+        assertEquals(HashingUtils.sha256Hex("hello"), HashingUtils.sha256Hex(content));
+        assertEquals(-1, content.read(), "the stream is read to its end");
+    }
+
+    @Test
+    void sha256Hex_ofBytesIsTheHashOfTheirText() {
+        var bytes = "hello".getBytes(StandardCharsets.UTF_8);
+
+        assertEquals(HashingUtils.sha256Hex("hello"), HashingUtils.sha256Hex(bytes));
+        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                HashingUtils.sha256Hex(new byte[0]));
     }
 
     @Test
@@ -87,7 +107,7 @@ class HashingUtilsTest {
 
     @Test
     void sha256Hex_nullString_returnsHashOfEmptyBytes() {
-        String result = HashingUtils.sha256Hex(null);
+        String result = HashingUtils.sha256Hex((String) null);
 
         assertNotNull(result);
         assertEquals(64, result.length());

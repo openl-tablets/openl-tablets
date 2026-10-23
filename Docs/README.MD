@@ -40,6 +40,7 @@ Studio.
   [Project Editing Lock](architecture/project-editing-lock.md),
   [WebSocket Change Notifications](architecture/websocket-change-notifications.md),
   [Workspace Metainfo Registry](architecture/workspace-metainfo-registry.md),
+  [Changes Made Outside OpenL Studio](architecture/changes-made-outside.md),
   [Table Creation](architecture/table-creation.md), [Table Dependency Graph](architecture/table-dependency-graph.md),
   [Decision Table Condition Indexing](architecture/decision-table-condition-indexing.md),
   [Upload Integrity](architecture/upload-integrity.md), [Audit Log](architecture/audit-log.md),

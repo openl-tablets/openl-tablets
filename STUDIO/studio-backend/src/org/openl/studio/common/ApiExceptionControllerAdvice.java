@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,10 +37,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.web.util.UrlPathHelper;
 import org.springframework.web.util.WebUtils;
 
+import org.openl.rules.lang.xls.WorkbookChangedOutsideException;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
 import org.openl.studio.audit.model.AuditTargetType;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.common.model.BaseError;
@@ -108,7 +111,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             org.springframework.security.access.AccessDeniedException.class,
             SecurityException.class
     })
-    public ResponseEntity<Object> handleSecurityErrors(Exception e, WebRequest request) {
+    public @Nullable ResponseEntity<Object> handleSecurityErrors(Exception e, WebRequest request) {
         log.debug(e.getMessage(), e);
         var error = exceptionMappingService.processException(e);
         recordDenial(request, error);
@@ -147,13 +150,21 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
      * fault — answer 400 instead of letting it fall through to a 500.
      */
     @ExceptionHandler(InvalidPathException.class)
-    public ResponseEntity<Object> handleInvalidPath(InvalidPathException e, WebRequest request) {
+    public @Nullable ResponseEntity<Object> handleInvalidPath(InvalidPathException e, WebRequest request) {
         log.debug(e.getMessage(), e);
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler({Exception.class, RuntimeException.class})
-    public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
+    public @Nullable ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
+        var changedOutside = ExceptionUtils.throwableOfType(e, WorkbookChangedOutsideException.class);
+        if (changedOutside != null) {
+            // A write of a workbook whose file another program, or another client, changed since it was read.
+            var answer = handleAllRestRuntimeExceptions(
+                    new ConflictException("workbook.changed.outside.message", changedOutside.getFile().getName()),
+                    request);
+            return new ResponseEntity<>(answer.getBody(), answer.getHeaders(), answer.getStatusCode());
+        }
         var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
                 .map(ResponseStatus::code)
                 .orElse(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -166,7 +177,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<Object> handleMultipartException(MultipartException e, WebRequest request) throws Exception {
+    public @Nullable ResponseEntity<Object> handleMultipartException(MultipartException e, WebRequest request) throws Exception {
         if (isJettyPartLimitExceeded(e)) {
             return handleException(new MaxUploadSizeExceededException(-1, e), request);
         }
@@ -177,7 +188,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     @ExceptionHandler(ConversionFailedException.class)
     // The handler answers with the error of the REST exception handler or with the one Spring builds.
     @SuppressWarnings("java:S1452")
-    public ResponseEntity<?> handleConversionFailedException(ConversionFailedException e, WebRequest request) {
+    public @Nullable ResponseEntity<?> handleConversionFailedException(ConversionFailedException e, WebRequest request) {
         if (e.getCause() instanceof RestRuntimeException ex) {
             return handleAllRestRuntimeExceptions(ex, request);
         }

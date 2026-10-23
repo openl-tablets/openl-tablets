@@ -1,20 +1,24 @@
 package org.openl.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class HashingUtils {
 
     private static final byte[] EMPTY_BYTES = new byte[0];
     /** Crockford's Base32 alphabet: the digits and the upper-case letters except I, L, O and U. */
     private static final String BASE32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
     private static final int BASE32_BITS = 5;
-
-    private HashingUtils() {
-
-    }
 
     private static MessageDigest getSha1Digest() {
         return getDigest("SHA-1");
@@ -65,6 +69,23 @@ public final class HashingUtils {
             text[i] = BASE32.charAt(twoBytes >>> (Short.SIZE - BASE32_BITS - bit % Byte.SIZE) & 0x1F);
         }
         return new String(text);
+    }
+
+    /** The SHA-256 of the bytes, as lowercase hexadecimal. */
+    public static String sha256Hex(byte[] data) {
+        return encodeHexString(getSha256Digest().digest(data));
+    }
+
+    /**
+     * The SHA-256 digest of the content of the stream, as {@link #sha256Hex(byte[])} answers it for the same bytes.
+     *
+     * <p>The stream is read a part at a time to its end, so content of any size is never held whole, and then closed.
+     */
+    public static String sha256Hex(InputStream content) throws IOException {
+        try (var in = new DigestInputStream(content, getSha256Digest())) {
+            in.transferTo(OutputStream.nullOutputStream());
+            return encodeHexString(in.getMessageDigest().digest());
+        }
     }
 
     private static String encodeHexString(byte[] bytes) {
