@@ -53,6 +53,16 @@ service is injected by class.
 A method marked `@LockForEditing` has to name the project it is about; one that names none is a mistake and says
 so, rather than running as an unguarded write.
 
+The lock keeps other users out; it does nothing between the requests of one client, which share its session and
+the module it has compiled. Two of them writing at once — an agent creating four datatypes in parallel — each read
+a module the other then compiled again under it, so a write found its module gone and a create read its table back
+as nothing. The interceptor therefore runs every marked operation inside the session's `WorkbookWrites` lock,
+taken before the project: the operations of one session run one after another, from the module they read to the
+answer they give. Every table-write endpoint holds the same lock until it has marked the module to be compiled
+again, so a recompile never resets the module another write of the session is working in; the create and the copy
+endpoints hold it until they have read the new table back too, and a table still not found after that is answered as
+a `409`, never as an empty `201`.
+
 The `GET` that begins editing is deliberately not a safe method: it answers with the metadata and takes the lock
 in the same breath, because that request is the only thing that unambiguously says "I am taking this table up to
 write it".

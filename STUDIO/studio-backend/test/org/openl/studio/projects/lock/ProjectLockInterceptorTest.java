@@ -12,7 +12,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.framework.ProxyFactory;
@@ -23,6 +30,8 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.WorkbookWrites;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -37,6 +46,20 @@ class ProjectLockInterceptorTest {
 
         boolean ran;
         boolean heldWhileRunning;
+        final AtomicInteger running = new AtomicInteger();
+        final AtomicBoolean atOnce = new AtomicBoolean();
+
+        @SuppressWarnings("java:S2925")
+        @LockForEditing
+        public String slowly(RulesProject project) throws InterruptedException {
+            if (running.incrementAndGet() > 1) {
+                atOnce.set(true);
+            }
+            // Long enough that a second operation let through would still find this one here.
+            Thread.sleep(50);
+            running.decrementAndGet();
+            return "written";
+        }
 
         @LockForEditing
         public String write(RulesProject project) {
@@ -78,10 +101,18 @@ class ProjectLockInterceptorTest {
 
     /** The target proxied as its own class, which is how the post-processor proxies it. */
     private static Written locking(Written target, RepositoryAclService acl) {
+        // The session of the caller, whose workbook writes come one after another
+        var studio = mock(WebStudio.class);
+        when(studio.getWorkbookWrites()).thenReturn(new WorkbookWrites());
         var factory = new ProxyFactory(target);
         factory.addAdvisor(new DefaultPointcutAdvisor(
                 AnnotationMatchingPointcut.forMethodAnnotation(LockForEditing.class),
-                new ProjectLockInterceptor(acl)));
+                new ProjectLockInterceptor(acl) {
+                    @Override
+                    protected WebStudio getWebStudio() {
+                        return studio;
+                    }
+                }));
         return (Written) factory.getProxy();
     }
 
@@ -116,6 +147,30 @@ class ProjectLockInterceptorTest {
         // The lock is there for the work the operation leaves behind, so it outlives the call.
         assertTrue(target.heldWhileRunning);
         verify(project, never()).releaseMyLock();
+    }
+
+    @Test
+    void two_operations_of_one_session_run_one_after_another() throws Exception {
+        var target = new Written();
+        var project = free();
+        var locked = locking(target);
+
+        var together = new CyclicBarrier(2);
+        var pool = Executors.newFixedThreadPool(2);
+        try {
+            var answers = pool.invokeAll(Collections.nCopies(2, (Callable<String>) () -> {
+                // Waited for with a limit: one of the two failing before the barrier must not hang the build.
+                together.await(30, TimeUnit.SECONDS);
+                return locked.slowly(project);
+            }));
+            for (var answer : answers) {
+                assertEquals("written", answer.get());
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+
+        assertFalse(target.atOnce.get(), "two operations of one session ran at the same time");
     }
 
     @Test
