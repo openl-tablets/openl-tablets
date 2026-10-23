@@ -68,6 +68,7 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.WorkbookWrites;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
@@ -184,18 +185,12 @@ public class ProjectsController {
     }
 
     /**
-     * Marks the module a write changed to be compiled again, and nothing besides it.
+     * Marks the module a write changed to be compiled again, and nothing besides it, or the whole project for a
+     * write that may have added a module to the project rather than written into one.
      *
      * <p>Called where a write returned, never where it was refused: a write that did not happen changed no
      * workbook, and asking for the module to be built again on account of it throws away what the session has
      * compiled for nothing.
-     */
-    private void recompileWrittenModule() {
-        recompileWrittenModule(true);
-    }
-
-    /**
-     * The same, for a write that may have added a module to the project rather than written into one.
      *
      * @param intoAModuleOfItsOwn whether the write landed in a module the project already had
      */
@@ -454,18 +449,15 @@ public class ProjectsController {
         return projectService.getTables(project, queryBuilder.build(), page);
     }
 
-    @Operation(summary = "projects.tables.create.summary")
+    @Operation(summary = "projects.tables.create.summary", description = "projects.tables.create.desc")
     @Parameter(name = "projectId", description = "projects.param.project-id.desc", in = ParameterIn.PATH, required = true, schema = @Schema(implementation = String.class))
     @PostMapping("/{projectId}/tables")
     @ResponseStatus(HttpStatus.CREATED)
     public SummaryTableView createNewTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                            @Valid @RequestBody CreateNewTableRequest request) throws ProjectException {
-        var tableId = projectService.createNewTable(project, request);
-        // A table written into a module that did not exist before changes what the project is made of, not just
-        // what one module holds, so the session is told to read the project again.
-        recompileWrittenModule(tableId != null);
         var table = (TableView) request.table();
-        return projectService.getCreatedTable(project, request.moduleName(), tableId, table.name);
+        return created(project, request.moduleName(), table.name,
+                () -> projectService.createNewTable(project, request));
     }
 
     @Operation(summary = "projects.tables.copy.summary", description = "projects.tables.copy.desc")
@@ -475,10 +467,48 @@ public class ProjectsController {
     public SummaryTableView copyTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                       @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                       @Valid @RequestBody CopyTableRequest request) throws ProjectException {
-        var copyId = projectService.copyTable(project, tableId, request);
-        recompileWrittenModule(copyId != null);
-        // Read the copy back by its own id: a copy kept under the source's name cannot be told apart by name.
-        return projectService.getCreatedTable(project, request.moduleName(), copyId, request.name());
+        return created(project, request.moduleName(), request.name(),
+                () -> projectService.copyTable(project, tableId, request));
+    }
+
+    /**
+     * Runs a write of the session's workbooks and marks what it changed to be compiled again, before another write of
+     * the session starts: marked after it, the recompile would reset the module that write is working in.
+     *
+     * @param intoAModuleOfItsOwn whether the write changed one module rather than what the project is made of
+     */
+    private <T extends @Nullable Object> T written(boolean intoAModuleOfItsOwn,
+                                                   WorkbookWrites.Write<T, RuntimeException> write) {
+        return getWebStudio().getWorkbookWrites().writing(() -> {
+            var result = write.run();
+            recompileWrittenModule(intoAModuleOfItsOwn);
+            return result;
+        });
+    }
+
+    /**
+     * Writes a table, compiles the module again and reads the table back, before another write of the session
+     * compiles the module again. The table is read by the id the write answers with, so a copy kept under the
+     * source's name is told apart from it.
+     *
+     * <p>A table written into a module that did not exist before — the write answers with no id — changes what the
+     * project is made of, not just what one module holds, so the session is told to read the project again.
+     *
+     * <p>A table that is not found after the write is answered as a conflict, never as an empty answer: the table
+     * may be in the module, and the caller is told to look.
+     */
+    private SummaryTableView created(RulesProject project, String moduleName, String name,
+                                     WorkbookWrites.Write<@Nullable String, ProjectException> write)
+            throws ProjectException {
+        return getWebStudio().getWorkbookWrites().writing(() -> {
+            var tableId = write.run();
+            recompileWrittenModule(tableId != null);
+            var table = projectService.getCreatedTable(project, moduleName, tableId, name);
+            if (table == null) {
+                throw new ConflictException("table.created.not-found.message");
+            }
+            return table;
+        });
     }
 
     @GetMapping("/{projectId}/modules")
@@ -730,8 +760,7 @@ public class ProjectsController {
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody EditableTableView editTable,
                                                    @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = projectService.updateTable(project, tableId, editTable, module);
-        recompileWrittenModule();
+        var newTableId = written(true, () -> projectService.updateTable(project, tableId, editTable, module));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -743,8 +772,7 @@ public class ProjectsController {
                                                    @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                    @Valid @RequestBody AppendTableView editTable,
                                                    @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = projectService.appendTableLines(project, tableId, editTable, module);
-        recompileWrittenModule();
+        var newTableId = written(true, () -> projectService.appendTableLines(project, tableId, editTable, module));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -756,8 +784,7 @@ public class ProjectsController {
                                                        @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                        @Valid @RequestBody RawTableSourceAction action,
                                                        @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = projectService.editTableSource(project, tableId, List.of(action), module);
-        recompileWrittenModule();
+        var newTableId = written(true, () -> projectService.editTableSource(project, tableId, List.of(action), module));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -769,8 +796,7 @@ public class ProjectsController {
                                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                             @Valid @RequestBody RawTableSourceActions actions,
                                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = projectService.editTableSource(project, tableId, actions.actions(), module);
-        recompileWrittenModule();
+        var newTableId = written(true, () -> projectService.editTableSource(project, tableId, actions.actions(), module));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -778,10 +804,8 @@ public class ProjectsController {
     @ApiResponse(responseCode = "200", description = "project.format.200.desc")
     @PostMapping("/{projectId}/format")
     public TableFormatResultView formatProject(@ProjectId @PathVariable("projectId") RulesProject project) {
-        var result = projectService.formatProject(project);
         // Every module of the project is formatted, so each is built again rather than the open one alone.
-        recompileWrittenModule(false);
-        return result;
+        return written(false, () -> projectService.formatProject(project));
     }
 
     @Operation(summary = "project.table.properties.update.summary", description = "project.table.properties.update.desc")
@@ -792,8 +816,7 @@ public class ProjectsController {
                                                              @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                                              @Valid @RequestBody TablePropertiesUpdate update,
                                                              @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        var newTableId = projectService.updateTableProperties(project, tableId, update.properties(), module);
-        recompileWrittenModule();
+        var newTableId = written(true, () -> projectService.updateTableProperties(project, tableId, update.properties(), module));
         return tableWriteResponse(tableId, newTableId);
     }
 
@@ -803,8 +826,10 @@ public class ProjectsController {
     public ResponseEntity<Void> deleteTable(@ProjectId @PathVariable("projectId") RulesProject project,
                                             @PathVariable("tableId") @Parameter(description = "project.table.id.desc") String tableId,
                                             @RequestParam(value = "module", required = false) @Parameter(description = "projects.table.get.param.module.desc") String module) {
-        projectService.deleteTable(project, tableId, module);
-        recompileWrittenModule();
+        written(true, () -> {
+            projectService.deleteTable(project, tableId, module);
+            return null;
+        });
         return ResponseEntity.noContent().build();
     }
 

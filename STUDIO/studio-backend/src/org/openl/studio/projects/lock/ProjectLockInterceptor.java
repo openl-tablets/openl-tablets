@@ -6,6 +6,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.acls.domain.BasePermission;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.ui.WebStudio;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -32,6 +34,11 @@ import org.openl.util.StringUtils;
  * refuses the call. Only a free one is taken, and only such a call gives its lock back where it is refused past
  * that point — by a table that is not there, by a layout the writer will not take — so a request that wrote
  * nothing leaves the project as it found it.
+ *
+ * <p>The operations of one session run one after another, from the module they read to the answer they give:
+ * two requests of one client that write the project at once would otherwise each find the module the other has
+ * compiled again under it. The session's workbook lock is taken before the project, as {@code WorkbookWrites}
+ * asks of everything that takes it.
  *
  * <p>An operation that succeeds keeps the lock. It is given up by saving the project, by closing it, or by the
  * editor saying the table has been put down — see {@code Docs/architecture/project-editing-lock.md}.
@@ -51,11 +58,23 @@ public class ProjectLockInterceptor implements MethodInterceptor {
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
+    /** The session of the caller, whose workbook writes come one after another. */
+    @Lookup
+    protected WebStudio getWebStudio() {
+        // Spring overrides this method with a lookup of the bean; the stub itself never runs.
+        throw new UnsupportedOperationException("Overridden by the Spring @Lookup container");
+    }
+
     @Nullable
     @Override
     public Object invoke(@NonNull MethodInvocation invocation) throws Throwable {
         var project = projectOf(invocation);
         requireMayWrite(project);
+        return getWebStudio().getWorkbookWrites().writing(() -> holding(project, invocation));
+    }
+
+    /** Runs the operation with the project held for the caller. */
+    private static @Nullable Object holding(RulesProject project, MethodInvocation invocation) throws Throwable {
         // One read answers all three states the lock can be in, and the engine reads the same file again on the
         // way in, so nothing here asks it twice.
         var lock = project.getLockInfo();

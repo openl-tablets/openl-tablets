@@ -1,7 +1,6 @@
 package org.openl.rules.ui;
 
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Supplier;
 
 /**
  * Lets one write at a time into the workbooks a session holds.
@@ -18,7 +17,10 @@ import java.util.function.Supplier;
  * order.
  *
  * <p>Taken by a request thread and by nothing else, before anything the request goes on to lock, so the
- * compilation worker — which holds the module and the dependency manager — cannot meet it in a cycle.
+ * compilation worker — which holds the module and the dependency manager — cannot meet it in a cycle. A request
+ * holds it from the module it reads to the answer it reads back: a write of the same session done in between
+ * compiles the module again, and the module the request read is gone. It may be taken again by the thread that
+ * holds it.
  *
  * @author Vladyslav Pikus
  */
@@ -31,13 +33,25 @@ public class WorkbookWrites {
      *
      * @param write the write to run
      * @return whatever the write answers
+     * @throws E what the write throws
      */
-    public <T> T writing(Supplier<T> write) {
+    public <T, E extends Throwable> T writing(Write<T, E> write) throws E {
         oneAtATime.lock();
         try {
-            return write.get();
+            return write.run();
         } finally {
             oneAtATime.unlock();
         }
+    }
+
+    /**
+     * A write of the session's workbooks, which may refuse with an exception of its own.
+     *
+     * @param <T> what the write answers
+     * @param <E> what the write throws
+     */
+    @FunctionalInterface
+    public interface Write<T, E extends Throwable> {
+        T run() throws E;
     }
 }

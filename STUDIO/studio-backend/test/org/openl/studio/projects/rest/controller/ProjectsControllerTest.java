@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,6 +20,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
@@ -34,9 +39,11 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.WorkbookWrites;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.PageResponse;
 import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgressListenerFactory;
@@ -216,6 +223,21 @@ class ProjectsControllerTest {
     }
 
     @Test
+    void createNewTableAnswersAConflictForATableNotFoundAfterTheWrite() throws ProjectException {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService);
+        var project = mock(RulesProject.class);
+        var table = RawTableView.builder().kind(TableKind.CONSTANTS).name("Constants").source(List.of()).build();
+        var request = new CreateNewTableRequest("Main", "Rules", null, table, null);
+        when(projectService.createNewTable(project, request)).thenReturn("created-id");
+
+        var refused = assertThrows(ConflictException.class, () -> controller.createNewTable(project, request));
+
+        // Never an empty answer: the table may be there, and the caller is told to look before writing it again
+        assertEquals("openl.error.409.table.created.not-found.message", refused.getErrorCode());
+    }
+
+    @Test
     void copyTableReadsTheResponseByTheCopyName() throws ProjectException {
         var projectService = mock(WorkspaceProjectService.class);
         var controller = controller(projectService);
@@ -281,8 +303,23 @@ class ProjectsControllerTest {
         when(projectService.editTableSource(eq(project), eq("table-id"), anyList(), eq("Main")))
                 .thenReturn("table-id");
 
+        var writes = new WorkbookWrites();
+        when(webStudio.getWorkbookWrites()).thenReturn(writes);
+        var recompiledWhileWriting = new AtomicBoolean();
+        doAnswer(invocation -> {
+            // Another thread of the session can take the lock only once the write and its recompile are done
+            var other = CompletableFuture.supplyAsync(() -> writes.writing(() -> true));
+            try {
+                other.get(1, TimeUnit.SECONDS);
+            } catch (TimeoutException held) {
+                recompiledWhileWriting.set(true);
+            }
+            return null;
+        }).when(webStudio).recompileCurrentModule();
+
         controller.editTableSource(project, "table-id", action, "Main");
 
+        assertTrue(recompiledWhileWriting.get(), "the module was marked for compiling after the write let go");
         // A write touches one module's workbook. Resetting the session would drop every module compiled from
         // the workspace and read all of it again, which costs a minute for one changed cell.
         verify(webStudio).recompileCurrentModule();
@@ -319,6 +356,8 @@ class ProjectsControllerTest {
         // the service says so by answering with no identifier.
         var request = new CreateNewTableRequest(null, "Rules", "rules/New.xlsx", table, null);
         when(projectService.createNewTable(project, request)).thenReturn(null);
+        when(projectService.getCreatedTable(project, null, null, "Constants"))
+                .thenReturn(SummaryTableView.builder().name("Constants").build());
 
         controller.createNewTable(project, request);
 
@@ -335,6 +374,8 @@ class ProjectsControllerTest {
         var table = RawTableView.builder().tableType("RawSource").name("Constants").source(List.of()).build();
         var request = new CreateNewTableRequest("Main", "Rules", null, table, null);
         when(projectService.createNewTable(project, request)).thenReturn("created-id");
+        when(projectService.getCreatedTable(project, "Main", "created-id", "Constants"))
+                .thenReturn(SummaryTableView.builder().id("created-id").build());
 
         controller.createNewTable(project, request);
 
@@ -373,6 +414,7 @@ class ProjectsControllerTest {
     }
 
     private static ProjectsController controller(WorkspaceProjectService projectService, WebStudio webStudio) {
+        when(webStudio.getWorkbookWrites()).thenReturn(new WorkbookWrites());
         return new ProjectsController(
                 projectService,
                 mock(TestsExecutorService.class),
@@ -434,6 +476,7 @@ class ProjectsControllerTest {
                                                  ExecutionTestsResultRegistry testsResultRegistry,
                                                  SocketProjectAllTestsExecutionProgressListenerFactory listeners) {
         var webStudio = mock(WebStudio.class);
+        when(webStudio.getWorkbookWrites()).thenReturn(new WorkbookWrites());
         return new ProjectsController(
                 projectService,
                 testsExecutorService,
