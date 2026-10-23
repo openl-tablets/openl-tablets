@@ -1,7 +1,5 @@
 package org.openl.rules.repository.file;
 
-import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.nio.file.attribute.FileTime.fromMillis;
 
 import java.io.Closeable;
@@ -14,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,6 +34,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.FileLockedException;
+import org.openl.util.FileReplacement;
 import org.openl.util.FileUtils;
 
 /**
@@ -93,7 +91,7 @@ public class FileSystemRepository implements Repository, Closeable {
         if (Files.isDirectory(directory)) {
             try (var stream = Files.walk(directory)) {
                 var list = new ArrayList<FileData>();
-                stream.filter(Files::isRegularFile).forEach(file -> {
+                stream.filter(file -> Files.isRegularFile(file) && !FileReplacement.isTemporary(file)).forEach(file -> {
                     try {
                         list.add(getFileData(file));
                     } catch (Exception ex) {
@@ -230,11 +228,11 @@ public class FileSystemRepository implements Repository, Closeable {
         var srcFile = resolveInRoot(srcName);
         var destFile = resolveInRoot(destData.getName());
         Files.createDirectories(destFile.getParent());
-        try {
-            Files.copy(srcFile, destFile, REPLACE_EXISTING, COPY_ATTRIBUTES);
-        } catch (FileSystemException e) {
-            throw locked(e);
+        try (var content = Files.newInputStream(srcFile)) {
+            replace(content, destFile);
         }
+        // The copy keeps the time the source was modified.
+        Files.setLastModifiedTime(destFile, Files.getLastModifiedTime(srcFile));
         return getFileData(destFile);
     }
 
@@ -246,12 +244,15 @@ public class FileSystemRepository implements Repository, Closeable {
         }
     }
 
-    /** Writes the content into the file, replacing what it holds. */
+    /**
+     * Writes the content into the file whole: another program reading the file meets it as it was or as it is
+     * written, never half written, and a write that fails leaves the file as it was.
+     */
     private static void replace(InputStream content, Path file) throws IOException {
         try {
-            Files.copy(content, file, StandardCopyOption.REPLACE_EXISTING);
+            FileReplacement.replace(file, content::transferTo);
         } catch (FileSystemException e) {
-            throw locked(e);
+            throw FileLockedException.lockedOr(e, file);
         }
     }
 

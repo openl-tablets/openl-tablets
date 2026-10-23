@@ -52,6 +52,10 @@ changed on disk since the workbook was read would lose that change, so the save 
   (`FileSystemRepository`, the workspace included) that the file system refuses for an existing file throws
   `FileLockedException`. The files API and every other endpoint answer `423` `file.locked.message`, naming the file,
   instead of a failure that does not tell why.
+- **Repository files are written whole.** `FileSystemRepository` writes and copies a file through `FileReplacement`
+  as well, so a file written through the files API, a project saved into a repository on the file system and a file
+  of the workspace are never half written either. A copy keeps the time its source was modified. A read-only file is
+  not replaced. The hidden files of the writes are not listed as files of a project.
 
 ## A Write Names the Version It Is Based On
 

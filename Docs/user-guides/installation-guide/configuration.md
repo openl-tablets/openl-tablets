@@ -312,7 +312,12 @@ The **Type** field is set by `repository.<id>.$ref`, which points at the block o
 The **Local** type keeps the deployments in a folder of the file system and is offered for deployment repositories
 only. A Design repository of this type is set in the properties alone, such as by a tool that runs OpenL Studio on a
 developer's machine; in single-user mode its projects are then edited where the folder keeps them, as described in
-[Projects Edited in Place](../openl-studio/repository-editor.md#projects-edited-in-place).
+[Projects Edited in Place](../openl-studio/repository-editor.md#projects-edited-in-place). OpenL Studio replaces a
+file it writes there with a new one: the file keeps its permissions but belongs to the user OpenL Studio runs as.
+A file that cannot be replaced, such as one in a folder OpenL Studio cannot create files in or one mounted into the
+container on its own, is written over in place and keeps its owner.
+When OpenL Studio runs in a container on a folder of the host, run it as the user that owns the folder, so that the
+files stay editable on the host.
 
 A `$ref` sets up inheritance: any `repository.<id>.<suffix>` left undefined falls back to `<ref>.<suffix>`. Defining
 `repository.design.$ref = repo-git` and then only `repository.design.uri` is enough — the remaining Git settings come

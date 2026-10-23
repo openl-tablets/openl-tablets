@@ -526,6 +526,9 @@ running OpenL Studio on a developer's machine sets it up, the projects of the fo
 -   OpenL Studio never writes over a file another program changed after OpenL Studio read it. Such a write is
     refused and the file stays as the other program left it; the module is read again, so repeat the edit on what
     the file holds now.
+-   OpenL Studio writes a file whole. A program reading it meanwhile, such as Excel or an IDE, sees it as it was or
+    as it is saved, never half written, and a save that fails leaves the file as it was. A file in a folder OpenL
+    Studio cannot create files in is written over in place instead.
 -   A file open in another program on Windows, such as a workbook in Excel, cannot be changed while the program
     holds it. An edit, an upload or a deletion of it is refused with a message naming the file; close the file there
     and repeat the change.
