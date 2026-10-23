@@ -323,6 +323,18 @@ describe("OpenLClient", () => {
       expect(mockHttp.history.patch).toHaveLength(0);
     });
 
+    it("saves a file repository project without a comment", async () => {
+      mockHttp.onGet(projectPath).reply(200, projectView("EDITING", {
+        repositoryInfo: { name: "File", features: { comments: false } },
+      }));
+      mockHttp.onPatch(projectPath).reply(204);
+
+      const result = await client.saveProject("design-project1");
+
+      expect(result).toEqual({ success: true, message: "Project saved" });
+      expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true }]);
+    });
+
     it("PATCHes the trimmed comment when EDITING after one read of the project", async () => {
       mockHttp.onGet(projectPath).reply(200, projectView("EDITING"));
       mockHttp.onPatch(projectPath).reply(204);
@@ -331,7 +343,7 @@ describe("OpenLClient", () => {
 
       expect(result.success).toBe(true);
       // closeAfterSave was not requested -> no status field.
-      expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ comment: "Add premium rule" }]);
+      expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "Add premium rule" }]);
       expect(mockHttp.history.get.map((request) => request.url)).toEqual([projectPath]);
     });
   });

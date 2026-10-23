@@ -295,6 +295,23 @@ describe('NewProjectModal', () => {
             .toBe('Project Alpha was created'))
     })
 
+    it('creates in a file repository without a comment field or comment', async () => {
+        const fileRepositories = [{
+            id: 'file', name: 'File', aclId: 'a', capabilities: { canCreateProject: true },
+            features: { branches: false, searchable: false, mappedFolders: true, comments: false },
+        }]
+        renderWizard({ repositories: fileRepositories })
+
+        await toConfig()
+        await userEvent.click(await screen.findByTestId('template-group-General'))
+        await userEvent.click(await screen.findByTestId(`template-${JSON.stringify(['predefined', 'General', 'Example'])}`))
+        expect(screen.queryByTestId('new-project-comment')).not.toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('new-project-submit'))
+
+        await waitFor(() => expect(createProject).toHaveBeenCalledWith('file', expect.any(String),
+            expect.objectContaining({ comment: undefined })))
+    })
+
     it('refuses a comment the target repository pattern forbids', async () => {
         vi.mocked(getDesignRepositoryConfig).mockResolvedValue({
             comment: { userMessagePattern: 'EPBDS-\\d+.*', invalidUserMessageHint: 'Start with a ticket', templates: {} },

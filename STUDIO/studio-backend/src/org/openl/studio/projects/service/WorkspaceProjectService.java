@@ -1011,6 +1011,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     }
 
     private void validateComment(RulesProject project, @Nullable String comment) {
+        if (project.isLocalOnly() || !project.getDesignRepository().supports().comments()) {
+            return;
+        }
         try {
             CommentValidator.forRepo(project.getRepository().getId()).validate(comment);
         } catch (Exception e) {
@@ -1105,7 +1108,9 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             throw new ConflictException("project.delete.message");
         }
 
-        var normalizedComment = StringUtils.trimToNull(comment);
+        var normalizedComment = project.isLocalOnly() || !project.getDesignRepository().supports().comments()
+                ? null
+                : StringUtils.trimToNull(comment);
         validateComment(project, normalizedComment);
         var localOnly = project.isLocalOnly();
         var repository = project.getDesignRepository();

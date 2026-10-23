@@ -223,9 +223,9 @@ export function registerProjectHandlers(): void {
 
   registerTool({
     name: "save_project",
-    title: "Save Project to Git",
+    title: "Save Project",
     description:
-      "Save project changes to Git. Works only when project status is EDITING (after opening and making changes). Requires comment (used as revision/commit message). Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, append_table, or other edits. Does not work for repository 'local'.",
+      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, append_table, or other edits. Does not work for repository 'local'.",
     schema: schemas.saveProjectSchema,
     annotations: {
       openWorldHint: true,
@@ -243,7 +243,7 @@ export function registerProjectHandlers(): void {
     name: "close_project",
     title: "Close Project",
     description:
-      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true with comment) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss.",
+      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; comment required only when repository features.comments is true) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss.",
     schema: schemas.closeProjectSchema,
     annotations: {
       destructiveHint: true, // Can discard changes if requested
@@ -256,7 +256,7 @@ export function registerProjectHandlers(): void {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidParams,
           "Cannot set both saveChanges and discardChanges to true. Choose one option:\n" +
-          "1. Set saveChanges: true (with comment) to save changes before closing\n" +
+          "1. Set saveChanges: true (with comment if supported) to save changes before closing\n" +
           "2. Set discardChanges: true to explicitly discard unsaved changes (destructive operation)"
         );
       }
@@ -269,21 +269,24 @@ export function registerProjectHandlers(): void {
       }
 
       if (args.saveChanges === true) {
-        if (!args.comment) {
+        const supportsComments = currentProject.repositoryInfo?.features?.comments !== false;
+        if (supportsComments && !args.comment) {
           throw new ProtocolError(
             ProtocolErrorCode.InvalidParams,
             "comment is required when saveChanges is true. Provide a commit message describing the changes."
           );
         }
         await client.saveProject(args.projectId, args.comment, { closeAfterSave: true });
-        return reply({ success: true, message: `Project saved and closed successfully with comment: "${args.comment}"` });
+        return reply({ success: true, message: supportsComments
+          ? `Project saved and closed successfully with comment: "${args.comment}"`
+          : "Project saved and closed successfully" });
       }
 
       if (args.discardChanges !== true) {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidParams,
           "Project has unsaved changes. You must either:\n" +
-          "1. Set saveChanges: true (with comment) to save and close\n" +
+          "1. Set saveChanges: true (with comment if supported) to save and close\n" +
           "2. Set discardChanges: true to close without saving (then ask user to confirm and call again with confirmDiscard: true)"
         );
       }
@@ -329,10 +332,10 @@ export function registerProjectHandlers(): void {
     name: "create_project",
     title: "Create or Copy Project",
     description:
-      "Create a new OpenL project in a design repository and commit it. Two modes, selected by the `template` argument:\n" +
+      "Create a new OpenL project in a design repository. Two modes, selected by the `template` argument:\n" +
       "• CREATE (omit `template`): create a BLANK project from the \"Empty Project\" template OpenL Studio ships, as a user of Studio does.\n" +
       "• COPY (pass `template` = an existing project's exact projectId from openl_list_projects): use Studio's server-side project-copy API to copy that source project's FULL structure and rename its descriptor to projectName. Do not pass the displayed project name because mapped repositories may contain multiple projects with the same name.\n" +
-      "Both modes are committed and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches(); Studio also supports creating a missing branch from the base branch. Returns the new project name, commit revision, and Studio's opaque projectId. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
+      "Both modes are written and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches() when branches are supported; Studio also supports creating a missing branch from the base branch. Omit `comment` when repository features.comments is false. Returns the new project name, revision, and Studio's opaque projectId. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
     schema: schemas.createProjectSchema,
     annotations: {
       readOnlyHint: false,

@@ -258,7 +258,7 @@ describe("openl_write_project_file", () => {
       response_format: "json",
     }, harness.client);
 
-    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ comment: "add docs/x.md" }]);
+    expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "add docs/x.md" }]);
     expect(dataOf(result).committed).toBe(true);
     expect(dataOf(result).message).toContain("committed");
   });

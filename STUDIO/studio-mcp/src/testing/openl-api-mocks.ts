@@ -51,6 +51,7 @@ export const mockRepositories: Types.Repository[] = [
     type: 'git',
     features: {
       branches: true,
+      comments: true,
       mappedFolders: false,
       searchable: true,
     },
@@ -61,6 +62,7 @@ export const mockRepositories: Types.Repository[] = [
     type: 'git',
     features: {
       branches: false,
+      comments: true,
       mappedFolders: false,
       searchable: false,
     },

@@ -14,7 +14,8 @@ Content-Type: application/json
     "features": {
       "branches": false,
       "searchable": false,
-      "mappedFolders": true
+      "mappedFolders": true,
+      "comments": false
     }
   },
   {
@@ -29,7 +30,8 @@ Content-Type: application/json
     "features": {
       "branches": true,
       "searchable": true,
-      "mappedFolders": true
+      "mappedFolders": true,
+      "comments": true
     }
   },
   {
@@ -44,7 +46,8 @@ Content-Type: application/json
     "features": {
       "branches": true,
       "searchable": true,
-      "mappedFolders": true
+      "mappedFolders": true,
+      "comments": true
     }
   },
   {
@@ -59,7 +62,8 @@ Content-Type: application/json
     "features": {
       "branches": true,
       "searchable": true,
-      "mappedFolders": true
+      "mappedFolders": true,
+      "comments": true
     }
   },
   {
@@ -74,7 +78,8 @@ Content-Type: application/json
     "features": {
       "branches": false,
       "searchable": false,
-      "mappedFolders": false
+      "mappedFolders": false,
+      "comments": true
     }
   }
 ]

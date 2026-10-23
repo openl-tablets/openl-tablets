@@ -291,6 +291,7 @@ class WorkspaceProjectServiceTest {
         assertEquals("design", result.repositoryInfo.id());
         assertEquals("Design", result.repositoryInfo.name());
         assertNotNull(result.repositoryInfo.features());
+        assertTrue(result.repositoryInfo.features().comments());
     }
 
     @Test
@@ -756,6 +757,29 @@ class WorkspaceProjectServiceTest {
         when(projectStateValidator.canDelete(project)).thenReturn(true);
 
         service.delete(project, " ");
+
+        verify(project).delete(null);
+    }
+
+    @Test
+    void delete_project_ignores_comment_and_validation_when_repository_does_not_support_comments()
+            throws Exception {
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var userWorkspace = userWorkspaceWithNonDirectoryParent();
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
+                userWorkspace, projectStateValidator, webStudio, aclProjectsHelper);
+        var repository = repository();
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setComments(false).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "PricingProject", "PricingProject");
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        Props.setEnvironment(commentValidationEnvironment());
+
+        service.delete(project, "ignored comment");
 
         verify(project).delete(null);
     }

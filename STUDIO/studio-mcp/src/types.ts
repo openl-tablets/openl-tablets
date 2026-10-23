@@ -75,6 +75,7 @@ export interface ProjectViewModel {
   tags?: Record<string, string>;
   comment?: string;
   repository?: string;
+  repositoryInfo?: { name: string; features?: RepositoryFeatures };
 }
 
 export interface ModuleViewModel {
@@ -549,6 +550,8 @@ export interface Repository {
 /** Repository features (from OpenAPI) */
 export interface RepositoryFeatures {
   branches?: boolean;
+  /** Whether project changes can carry a comment. */
+  comments?: boolean;
   mappedFolders?: boolean;
   searchable?: boolean;
 }
@@ -622,6 +625,7 @@ export interface ProjectStatusUpdateModel {
   branch?: string;
   revision?: string;
   comment?: string;
+  save?: boolean;
   discardChanges?: boolean;
   openDependencies?: boolean;
 }

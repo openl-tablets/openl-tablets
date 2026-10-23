@@ -695,6 +695,8 @@ export const ProjectsHome = () => {
             detail: {
                 projectId: project.id,
                 projectName: project.name,
+                repositoryInfo: project.repositoryInfo,
+                localOnly: project.status === ProjectStatus.Local,
                 onSuccess: () => load(true),
             },
         })),
