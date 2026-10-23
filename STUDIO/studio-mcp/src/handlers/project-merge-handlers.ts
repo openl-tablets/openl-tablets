@@ -8,9 +8,9 @@ import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { normalizeMimeType, sliceContent } from "../content-utils.js";
+import { downloadLink, INLINE_TEXT_BYTES, inlineText, mimeTypeOf } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
-import { registerTool, formatResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
 
 /** How long a merge may run in the background before the tool stops waiting: a large project takes minutes. */
@@ -23,8 +23,6 @@ const MERGE_WAIT: WaitOptions = {
   timeoutMessage: `The merge did not finish within ${MERGE_TIMEOUT_MS} ms. It may still be running in Studio: call ` +
     "openl_get_merge_conflicts or open the project later to see how it ended.",
 };
-
-const CONFLICT_FILE_CHUNK_SIZE = 16_000;
 
 /** How many merged lines of a conflicted text file are read whole; a longer run is read by its ends. */
 const SHOWN_LINES = 8;
@@ -366,7 +364,8 @@ export function registerProjectMergeHandlers(): void {
     name: "read_merge_conflict_file",
     title: "Read Merge Conflict File Version",
     description:
-      "Read one BASE, OURS, or THEIRS version of a conflicted file from the current session as evidence for the resolution the user decides. Never infer or apply a winning side on your own; a conflicted text file reads line by line with openl_get_merge_conflict_text, a conflicted workbook table by table with openl_get_merge_conflict_workbook. A version fileAvailability marks false does not hold the file, such as the base of a file both branches added. UTF-8 and base64 binary chunks are returned in a JSON text envelope with MIME and byte-range metadata. Both forms include nextOffset while more data remains. length targets at most 16000 bytes; a UTF-8 chunk may include up to 3 extra bytes to finish its last character. The backend still downloads the whole file before this client-side slice. Use the exact file path from openl_get_merge_conflicts.",
+      "Read one BASE, OURS, or THEIRS version of a conflicted file from the current session as evidence for the resolution the user decides. Never infer or apply a winning side on your own; a conflicted text file reads line by line with openl_get_merge_conflict_text, a conflicted workbook table by table with openl_get_merge_conflict_workbook. A version fileAvailability marks false does not hold the file, such as the base of a file both branches added. " +
+      `A text version of up to ${INLINE_TEXT_BYTES} bytes is returned inline, verbatim; a larger or a binary version is returned as a download LINK: JSON with the url, a ready \`curl\` command that saves it locally and where the file lives in its repository. Run the curl command in a shell: the bytes never enter the conversation. Use the exact file path from openl_get_merge_conflicts.`,
     schema: schemas.readMergeConflictFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -374,31 +373,27 @@ export function registerProjectMergeHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
+      const side = args.side.toLowerCase() as "base" | "ours" | "theirs";
+      const conflicts = await client.getMergeConflicts(args.projectId);
+      const branch = side === "base" ? undefined : conflicts[`${side}Revision`]?.branch;
+      const link = { kind: "conflictVersion", projectId: args.projectId, path: args.file, side, branch } as const;
+      const available = conflicts.fileAvailability?.[args.file];
+      if (available && !available[side]) {
+        throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+          `The ${args.side} version of '${args.file}' does not hold the file: fileAvailability marks it false.`);
+      }
+      if (available && !available.text) {
+        return formatResult(await downloadLink(client, link), args.response_format);
+      }
       const response = await client.readMergeConflictFile(args.projectId, args.file, args.side);
-      const total = response.data.length;
-      const { start, end, slice, asBase64 } = sliceContent(response.data, {
-        offset: args.offset,
-        length: args.length ?? CONFLICT_FILE_CHUNK_SIZE,
-        encoding: args.encoding,
-      });
-      const metadata = {
-        file: args.file,
-        side: args.side,
-        ...(response.contentType ? { contentType: response.contentType } : {}),
-        mimeType: normalizeMimeType(response.contentType),
-        ...(response.contentDisposition ? { contentDisposition: response.contentDisposition } : {}),
-        encoding: asBase64 ? "base64" : "utf-8",
-        byteLength: total,
-        offset: start,
-        returnedBytes: slice.length,
-        hasMore: end < total,
-        ...(end < total ? { nextOffset: end } : {}),
-      };
-
-      // Use TextContent for arbitrary binary data too. Some MCP clients send every
-      // embedded blob to an image decoder and reject valid XLSX/ZIP bytes.
-      const envelope = { ...metadata, content: slice.toString(asBase64 ? "base64" : "utf-8") };
-      return formatResult(envelope, "json", { skipTruncation: true });
+      const text = inlineText(response);
+      if (text !== undefined) {
+        return textResult(text);
+      }
+      return formatResult(await downloadLink(client, link, {
+        size: response.data.length,
+        mimeType: mimeTypeOf(response.contentType) || undefined,
+      }), args.response_format);
     },
   });
 

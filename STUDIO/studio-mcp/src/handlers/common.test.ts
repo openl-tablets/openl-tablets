@@ -54,7 +54,7 @@ describe("argument validation", () => {
 
   it.each([
     ["project_status", { projectId: "p1", timeoutMs: 600_001 }, /timeoutMs/],
-    ["read_project_file", { projectId: "p1", offset: -1 }, /offset/],
+    ["create_upload_link", { projectId: "p1", path: "a.bin", size: -1 }, /size/],
     ["get_test_results", { projectId: "p1", page: 0, offset: 0 }, /mutually exclusive/],
     ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],

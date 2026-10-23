@@ -472,31 +472,17 @@ describe("OpenLClient", () => {
   });
 
   describe("project files", () => {
-    it("returns file bytes plus content-type/disposition headers and forwards version/branch", async () => {
+    it("returns file bytes with their lower-cased content type and forwards version/branch", async () => {
       mockHttp.onGet("/projects/p1/files/rules/Model.xlsx").reply(200, "hello-bytes", {
-        "content-type": "text/plain",
+        "content-type": "Text/Plain; Charset=UTF-8",
         "content-disposition": "attachment; filename=Model.xlsx",
       });
 
       const res = await client.readProjectFile("p1", "rules/Model.xlsx", { version: "abc123", branch: "main" });
 
       expect(res.data.toString("utf-8")).toBe("hello-bytes");
-      expect(res.contentType).toBe("text/plain");
-      expect(res.contentDisposition).toMatch(/attachment/i);
+      expect(res.contentType).toBe("text/plain; charset=utf-8");
       expect(mockHttp.history.get[0].params).toMatchObject({ version: "abc123", branch: "main" });
-    });
-
-    it("lists the project root with a trailing-slash URL and the extensions comma-separated", async () => {
-      mockHttp.onGet("/projects/p1/files/").reply(200, [{ path: "Bank Rating.xlsx", name: "Bank Rating.xlsx", type: "file" }], {
-        "content-type": "application/json",
-      });
-
-      const res = await client.readProjectFile("p1", "", { recursive: true, viewMode: "FLAT", extensions: ["xlsx", "xml"] });
-
-      expect(res.contentType).toBe("application/json");
-      expect(res.contentDisposition).toBe("");
-      expect(JSON.parse(res.data.toString("utf-8"))[0].name).toBe("Bank Rating.xlsx");
-      expect(mockHttp.history.get[0].params?.extensions).toBe("xlsx,xml");
     });
 
     it("percent-encodes path segments but preserves '/' separators", async () => {

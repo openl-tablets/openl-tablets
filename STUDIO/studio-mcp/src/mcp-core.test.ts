@@ -88,26 +88,6 @@ describe("MCP core — tool-call error channel", () => {
     expect(textOf(result)).toContain("Design");
   });
 
-  it("preserves non-image binary bytes on the MCP wire", async () => {
-    const bytes = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
-    mockHttp.onGet("/projects/p1/files/model.xlsx").reply(200, bytes, {
-      "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "content-disposition": "attachment; filename=model.xlsx",
-    });
-
-    const result = await client.callTool({
-      name: "openl_read_project_file",
-      arguments: { projectId: "p1", path: "model.xlsx" },
-    });
-    expect(result.content).toHaveLength(1);
-    expect(JSON.parse((result.content[0] as { text: string }).text).data).toMatchObject({
-      path: "model.xlsx",
-      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      content: bytes.toString("base64"),
-    });
-
-  });
-
   it("does not advertise repeatable side effects as idempotent", async () => {
     const tools = await client.listTools();
     for (const name of [

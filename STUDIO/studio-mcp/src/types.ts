@@ -182,18 +182,14 @@ export interface FileSearchQuery {
 }
 
 /**
- * Result of reading a single project file's bytes via the Projects: Files API.
- * Returned by {@link OpenLClient.readProjectFile} so the caller can decide how to
- * decode the payload (text vs base64) and whether the body was a file download or
- * a JSON listing/metadata response.
+ * The bytes of a file OpenL Studio answered — a project file or a version of a conflicted one — with their type, by
+ * which the caller tells text from anything else.
  */
 export interface ProjectFileResponse {
   /** Raw response body. */
   data: Buffer;
   /** Response Content-Type header (lower-cased), if any. */
   contentType: string;
-  /** Response Content-Disposition header, if any (present for file downloads). */
-  contentDisposition: string;
 }
 
 /**
@@ -1325,4 +1321,29 @@ export interface StartTraceRequest {
   includeTree?: boolean;
   /** Number of hotspots in the profile overview (backend default 20). */
   profileTop?: number;
+}
+
+/** The public settings of OpenL Studio, `GET /settings`: a Studio in single-user mode names no `userMode`. */
+export interface StudioSettings {
+  userMode?: string;
+}
+
+/** What a transfer link is asked to move, `POST /transfer-links`. */
+export interface TransferLinkRequest {
+  kind: "download" | "archive" | "conflictVersion" | "upload";
+  projectId: string;
+  path: string;
+  branch?: string;
+  version?: string;
+  side?: "base" | "ours" | "theirs";
+  conflictPolicy?: "FAIL" | "OVERWRITE" | "SKIP";
+  createFolders?: boolean;
+  size?: number;
+  sha256?: string;
+}
+
+/** A transfer link Studio issued: its address relative to the address of Studio, and when it stops working. */
+export interface TransferLinkView {
+  path: string;
+  expiresAt: string;
 }

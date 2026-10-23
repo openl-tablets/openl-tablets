@@ -72,7 +72,9 @@ The tools of the MCP server have names that start with `openl_` and fall into th
     cell by cell included, and resolving them as the user decides.
 -   **Tables** — listing, reading, creating, copying, changing, running, and deleting tables, adding or removing rows
     and columns, merging cells, listing the properties a table accepts, and showing the dependencies between tables.
--   **Project files** — reading, writing, searching, copying, moving, and deleting any file of a project.
+-   **Project files** — reading, writing, searching, copying, moving, and deleting any file of a project. A short
+    text file is read in the conversation; any other file, a workbook or an image for one, the agent downloads and
+    uploads by a link it runs `curl` with, so the content of the file never fills the conversation.
 -   **Tests** — running the tests of a project, a table, or selected test cases, and reading their results.
 -   **Tracing** — debugging how a rule computes its result: breakpoints, stepping, the values of a step, the rule of a
     decision table that fired, watching a value across a run, and the slowest tables of a run.

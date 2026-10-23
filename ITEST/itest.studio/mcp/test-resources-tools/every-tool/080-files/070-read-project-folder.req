@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json, text/event-stream
 MCP-Protocol-Version: 2026-07-28
 Mcp-Method: tools/call
-Mcp-Name: openl_edit_project_file
+Mcp-Name: openl_read_project_file
 Authorization: Token ${PAT}
 
 {
@@ -11,16 +11,10 @@ Authorization: Token ${PAT}
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "openl_edit_project_file",
+    "name": "openl_read_project_file",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "path": "archive/notes.txt",
-      "edits": [
-        {
-          "oldText": "Base premium is 100.\n",
-          "newText": "Base premium is 120.\n"
-        }
-      ]
+      "path": "docs/"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

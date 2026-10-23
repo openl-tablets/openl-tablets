@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { executeTool, getAllTools } from "./index.js";
-import { bodyOf, queryOf } from "../testing/mock-http.js";
+import { executeTool } from "./index.js";
+import { bodyOf } from "../testing/mock-http.js";
 import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
@@ -22,225 +22,213 @@ const answerFile = (path: string, body: string | Buffer, contentType = "applicat
 const writtenBytes = (): Buffer => Buffer.from(harness.mockHttp.history.post[0].data as Uint8Array);
 
 describe("openl_read_project_file", () => {
-  it("returns UTF-8 text content verbatim", async () => {
+  const project = { id: "p1", name: "Bank Rating", repository: "design", path: "Bank Rating", branch: "main" };
+
+  /** Answers the metadata of a file of project p1. */
+  const answerMeta = (path: string, size: number): void => {
+    harness.mockHttp.onGet(`/projects/p1/files/${path}`, { params: expect.objectContaining({ view: "meta" }) })
+      .reply(200, { path, name: path.split("/").at(-1), type: "file", size });
+  };
+  const singleUser = (): void => {
+    harness.mockHttp.onGet("/settings").reply(200, {});
+    harness.mockHttp.onGet("/projects/p1").reply(200, project);
+  };
+  const authenticating = (): void => {
+    harness.mockHttp.onGet("/settings").reply(200, { userMode: "INTERNAL" });
+    harness.mockHttp.onPost("/transfer-links").reply(201, { path: "transfers/k3Jx", expiresAt: "2026-10-23T10:15:00Z" });
+    harness.mockHttp.onGet("/projects/p1").reply(200, project);
+  };
+
+  it("returns a text file of up to 5,000 bytes verbatim", async () => {
+    answerMeta("readme.md", 5000);
     answerFile("readme.md", "# Title\nbody", "text/markdown");
 
     const result = await executeTool("read_project_file", { projectId: "p1", path: "readme.md" }, harness.client);
 
     expect(textOf(result)).toBe("# Title\nbody");
+    expect(harness.mockHttp.history.get[0].params).toMatchObject({ view: "meta" });
   });
 
-  it("keeps binary content in a lossless base64 envelope of one text block", async () => {
-    const binary = Buffer.from([0x00, 0x01, 0x02, 0xff, 0x00]);
-    answerFile("data.bin", binary);
+  it("decodes a text in the charset Studio names for it", async () => {
+    answerMeta("i18n/fr.properties", 4);
+    answerFile("i18n/fr.properties", Buffer.from([0x63, 0x61, 0x66, 0xe9]), "text/plain; charset=ISO-8859-1");
+
+    const result = await executeTool("read_project_file", { projectId: "p1", path: "i18n/fr.properties" },
+      harness.client);
+
+    expect(textOf(result)).toBe("café");
+  });
+
+  it("answers a larger text with the address of the REST API in single-user mode, reading no byte of it", async () => {
+    answerMeta("rules.xml", 5001);
+    singleUser();
 
     const result = await executeTool("read_project_file", {
-      projectId: "p1",
-      path: "data.bin",
-    }, harness.client, { signal: new AbortController().signal });
-
-    expect(dataOf(result)).toMatchObject({
-      path: "data.bin",
-      mimeType: "application/octet-stream",
-      encoding: "base64",
-      byteLength: 5,
-      returnedBytes: 5,
-      content: binary.toString("base64"),
-    });
-    expect(result.content).toHaveLength(1);
-    expect(result.structuredContent).toBeUndefined();
-  });
-
-  it("returns binary-ish bytes as raw text when encoding='utf-8' is asked for", async () => {
-    const bytes = Buffer.from([0x41, 0x00, 0x42]); // 'A', NUL, 'B' -> looksBinary true
-    answerFile("data.bin", bytes);
-
-    const result = await executeTool("read_project_file", { projectId: "p1", path: "data.bin", encoding: "utf-8" }, harness.client);
-
-    expect(textOf(result)).toBe(bytes.toString("utf-8"));
-  });
-
-  it("tells text from binary by the share of control characters: 1/10 stays text, 2/10 becomes base64", async () => {
-    const oneCtrl = Buffer.concat([Buffer.from("A".repeat(9)), Buffer.from([0x01])]);
-    const twoCtrl = Buffer.concat([Buffer.from("A".repeat(8)), Buffer.from([0x01, 0x01])]);
-    answerFile("a.txt", oneCtrl);
-    answerFile("b.txt", twoCtrl);
-
-    const textResult = await executeTool("read_project_file", { projectId: "p1", path: "a.txt" }, harness.client);
-    const binResult = await executeTool("read_project_file", { projectId: "p1", path: "b.txt", response_format: "json" }, harness.client);
-
-    expect(textOf(textResult)).toBe(oneCtrl.toString("utf-8"));
-    expect(dataOf(binResult).encoding).toBe("base64");
-  });
-
-  it("applies a client-side byte range", async () => {
-    answerFile("nums.txt", "0123456789", "text/plain");
-
-    const result = await executeTool("read_project_file", {
-      projectId: "p1", path: "nums.txt", offset: 2, length: 3,
+      projectId: "p1", path: "rules.xml", branch: "feature",
     }, harness.client);
 
     expect(dataOf(result)).toEqual({
-      path: "nums.txt", contentType: "text/plain", mimeType: "text/plain", encoding: "utf-8",
-      byteLength: 10, returnedBytes: 3, range: { offset: 2, length: 3 }, nextOffset: 5, content: "234",
+      url: "http://localhost:8080/rest/projects/p1/files/rules.xml?branch=feature",
+      method: "GET",
+      size: 5001,
+      repositoryId: "design",
+      repositoryPath: "Bank Rating/rules.xml",
+      branch: "feature",
+      curl: "curl -fsS -o 'rules.xml' 'http://localhost:8080/rest/projects/p1/files/rules.xml?branch=feature'",
+      note: "Run curl to save the file.",
+    });
+    expect(harness.mockHttp.history.get.filter((request) => !request.params?.view
+      && request.url.includes("/files/"))).toHaveLength(0);
+  });
+
+  it("answers a small binary file with a transfer link of a revision where Studio authenticates", async () => {
+    answerMeta("rules/Model.xlsx", 4);
+    answerFile("rules/Model.xlsx", Buffer.from([0x50, 0x4b, 0x03, 0x04]),
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    authenticating();
+
+    const result = await executeTool("read_project_file", {
+      projectId: "p1", path: "rules/Model.xlsx", version: "r1",
+    }, harness.client);
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
+      kind: "download", projectId: "p1", path: "rules/Model.xlsx", version: "r1",
+    });
+    expect(dataOf(result)).toMatchObject({
+      url: "http://localhost:8080/transfers/k3Jx",
+      method: "GET",
+      expiresAt: "2026-10-23T10:15:00Z",
+      size: 4,
+      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      repositoryPath: "Bank Rating/rules/Model.xlsx",
+      branch: "main",
+      curl: "curl -fsS -o 'Model.xlsx' 'http://localhost:8080/transfers/k3Jx'",
     });
   });
 
-  it("names the line ends of a text chunk and no next offset at the end of the file (EPBDS-16856)", async () => {
-    answerFile("i18n/message.properties", "#MasterOffer\r\nkey=value\r\n", "text/plain");
+  it.each([
+    ["a folder", "rules/", "rules.zip", "Bank Rating/rules/"],
+    ["the project root", "", "project.zip", "Bank Rating/"],
+  ])("answers %s with a link to its ZIP archive", async (_case, path, local, repositoryPath) => {
+    singleUser();
 
-    const result = await executeTool("read_project_file", {
-      projectId: "p1", path: "i18n/message.properties", offset: 14,
-    }, harness.client);
+    const result = await executeTool("read_project_file", { projectId: "p1", path }, harness.client);
 
     expect(dataOf(result)).toMatchObject({
-      byteLength: 25, range: { offset: 14, length: 11 }, lineEnding: "CRLF", content: "key=value\r\n",
+      url: `http://localhost:8080/rest/projects/p1/files/${path}?download=true`,
+      curl: `curl -fsS -o '${local}' 'http://localhost:8080/rest/projects/p1/files/${path}?download=true'`,
+      repositoryPath,
     });
-    expect(dataOf(result)).not.toHaveProperty("nextOffset");
+    expect(harness.mockHttp.history.get.some((request) => request.params?.view === "meta")).toBe(false);
   });
 
-  it("keeps the characters of a byte range whole", async () => {
-    // "a" (1 byte), "é" (2 bytes), "€" (3 bytes), "b": bytes 2-3 cut both multi-byte characters
-    answerFile("chars.txt", "aé€b", "text/plain");
+  it("answers a path the metadata names a folder with a link to its archive", async () => {
+    harness.mockHttp.onGet("/projects/p1/files/rules", { params: { view: "meta" } })
+      .reply(200, { path: "rules", name: "rules", type: "folder" });
+    authenticating();
 
-    const result = await executeTool("read_project_file", {
-      projectId: "p1", path: "chars.txt", offset: 2, length: 2,
+    await executeTool("read_project_file", { projectId: "p1", path: "rules" }, harness.client);
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toMatchObject({ kind: "archive", path: "rules" });
+  });
+
+  it.each([
+    ["encoding", { encoding: "base64" }],
+    ["a byte range", { offset: 0, length: 10 }],
+    ["a folder listing", { recursive: true }],
+  ])("refuses %s, which it no longer takes", async (_case, extra) => {
+    await expect(executeTool("read_project_file", { projectId: "p1", path: "rules.xml", ...extra },
+      harness.client)).rejects.toThrow(/invalid arguments|unrecognized/i);
+    expect(harness.mockHttp.history.get).toHaveLength(0);
+  });
+});
+
+describe("openl_create_upload_link", () => {
+  const project = { id: "p1", name: "Bank Rating", repository: "design-flat" };
+
+  it("issues a transfer link that writes the file once where Studio authenticates", async () => {
+    harness.mockHttp.onGet("/settings").reply(200, { userMode: "EXTERNAL" });
+    harness.mockHttp.onPost("/transfer-links").reply(201, { path: "transfers/up", expiresAt: "2026-10-23T10:15:00Z" });
+    harness.mockHttp.onGet("/projects/p1").reply(200, project);
+    const sha256 = "ab".repeat(32);
+
+    const result = await executeTool("create_upload_link", {
+      projectId: "p1", path: "rules/Model.xlsx", conflictPolicy: "OVERWRITE", size: 4, sha256,
     }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({ range: { offset: 3, length: 3 }, nextOffset: 6, content: "€" });
-  });
-
-  it("caps oversized text at 25K and appends a continuation cursor", async () => {
-    answerFile("big.txt", "A".repeat(30000), "text/plain");
-
-    const text = textOf(await executeTool("read_project_file", { projectId: "p1", path: "big.txt" }, harness.client));
-
-    expect(text.startsWith("A".repeat(100))).toBe(true);
-    // First 25000 chars of content + a continuation note pointing at the next byte offset.
-    expect(text).toContain("continue with offset=25000");
-    expect(text.length).toBeLessThan(25000 + 300);
-  });
-
-  it("does not truncate a large base64 binary payload", async () => {
-    // 30 KB of NUL bytes -> base64 ~40 KB, well past the 25k markdown cap.
-    answerFile("big.bin", Buffer.alloc(30000, 0));
-
-    const data = dataOf(await executeTool("read_project_file", { projectId: "p1", path: "big.bin" }, harness.client));
-
-    expect(data.encoding).toBe("base64");
-    expect(data.byteLength).toBe(30000);
-    expect(Buffer.from(data.content, "base64")).toHaveLength(30000);
-  });
-
-  it("returns a folder listing and the metadata of a file as JSON", async () => {
-    harness.mockHttp.onGet("/projects/p1/files/").reply(200, [
-      { path: "a.xlsx", name: "a.xlsx", type: "file" },
-      { path: "sub", name: "sub", type: "folder" },
-    ], { "content-type": "application/json" });
-    harness.mockHttp.onGet("/projects/p1/files/a.xlsx").reply(200, { path: "a.xlsx", name: "a.xlsx", type: "file", size: 100 }, {
-      "content-type": "application/json",
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
+      kind: "upload", projectId: "p1", path: "rules/Model.xlsx", conflictPolicy: "OVERWRITE", createFolders: true,
+      size: 4, sha256,
     });
-
-    const listing = await executeTool("read_project_file", {
-      projectId: "p1", path: "", recursive: true, response_format: "json",
-    }, harness.client);
-    const meta = await executeTool("read_project_file", {
-      projectId: "p1", path: "a.xlsx", view: "meta", response_format: "json",
-    }, harness.client);
-
-    expect(dataOf(listing).map((node: { name: string }) => node.name)).toEqual(["a.xlsx", "sub"]);
-    expect(dataOf(meta).size).toBe(100);
+    expect(dataOf(result)).toMatchObject({
+      url: "http://localhost:8080/transfers/up",
+      method: "PUT",
+      expiresAt: "2026-10-23T10:15:00Z",
+      repositoryId: "design-flat",
+      repositoryPath: "rules/Model.xlsx",
+      curl: "curl -fsS -T 'Model.xlsx' 'http://localhost:8080/transfers/up'",
+    });
+    expect(dataOf<{ note: string }>(result).note).toMatch(/once.*openl_save_project/);
   });
 
-  it("forwards version and branch, and download=true for a base64 ZIP of a folder", async () => {
-    answerFile("a.xlsx", "x", "text/plain");
-    const zip = Buffer.from("PK\x03\x04fakezip");
-    harness.mockHttp.onGet("/projects/p1/files/rules/").reply(200, zip, {
-      "content-type": "application/zip",
-      "content-disposition": "attachment; filename=rules.zip",
-    });
+  it("answers the raw POST of the files API in single-user mode, its quotes kept for the shell", async () => {
+    harness.mockHttp.onGet("/settings").reply(200, {});
+    harness.mockHttp.onGet("/projects/p1").reply(200, project);
 
-    await executeTool("read_project_file", { projectId: "p1", path: "a.xlsx", version: "rev1", branch: "dev" }, harness.client);
-    const result = await executeTool("read_project_file", {
-      projectId: "p1", path: "rules/", download: true, response_format: "json",
+    const result = await executeTool("create_upload_link", {
+      projectId: "p1", path: "docs/it's new.md", createFolders: false, branch: "main",
     }, harness.client);
 
-    expect(harness.mockHttp.history.get[0].params).toMatchObject({ version: "rev1", branch: "dev" });
-    expect(queryOf(harness.mockHttp.history.get[1]).download).toBe("true");
-    expect(dataOf(result)).toMatchObject({ encoding: "base64", content: zip.toString("base64") });
+    const url = "http://localhost:8080/rest/projects/p1/files/docs/it's%20new.md"
+      + "?createFolders=false&conflictPolicy=FAIL&branch=main";
+    const quotedUrl = `'${url.replaceAll("'", String.raw`'\''`)}'`;
+    expect(dataOf(result)).toMatchObject({
+      url,
+      method: "POST",
+      branch: "main",
+      curl: String.raw`curl -fsS --data-binary @'it'\''s new.md' -H 'Content-Type: application/octet-stream' `
+        + quotedUrl,
+    });
+    expect(dataOf(result)).not.toHaveProperty("expiresAt");
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+  });
+
+  it("refuses a folder, which a link cannot write as one file", async () => {
+    await expect(executeTool("create_upload_link", { projectId: "p1", path: "rules/" }, harness.client))
+      .rejects.toThrow(/names a folder/);
+    expect(harness.mockHttp.history.get).toHaveLength(0);
+  });
+
+  it("refuses a sha256 that is not hex of 64 characters", async () => {
+    await expect(executeTool("create_upload_link", { projectId: "p1", path: "a.bin", sha256: "abc" },
+      harness.client)).rejects.toThrow(/sha256/);
   });
 });
 
 describe("openl_write_project_file", () => {
-  it("decodes base64 and reports an uncommitted working-copy write", async () => {
+  it("writes UTF-8 text and reports an uncommitted working-copy write", async () => {
     harness.mockHttp.onPost("/projects/p1/files/docs/new.md").reply(201);
 
     const result = await executeTool("write_project_file", {
       projectId: "p1",
       path: "docs/new.md",
-      content: Buffer.from("hello").toString("base64"),
-      encoding: "base64",
+      content: "héllo",
       response_format: "json",
     }, harness.client);
 
-    expect(writtenBytes().toString("utf-8")).toBe("hello");
+    expect(writtenBytes().toString("utf-8")).toBe("héllo");
     // createFolders default (true) is materialized by the handler.
     expect(harness.mockHttp.history.post[0].params?.createFolders).toBe(true);
-    expect(dataOf(result)).toMatchObject({ success: true, bytesWritten: 5, committed: false });
-  });
-
-  it("advertises and accepts a JSON Schema base64 blob", async () => {
-    const tool = getAllTools().find((candidate) => candidate.name === "write_project_file");
-    const alternatives = tool?.inputSchema.anyOf as Array<Record<string, unknown>>;
-    expect(tool?.inputSchema.type).toBe("object");
-    expect(alternatives).toHaveLength(3);
-
-    const blobAlternative = alternatives.find((alternative) =>
-      Object.hasOwn(alternative.properties as object, "blob"));
-    const blobProperties = blobAlternative?.properties as Record<string, Record<string, unknown>>;
-    expect(blobProperties.blob).toMatchObject({
-      type: "string",
-      contentEncoding: "base64",
-      contentMediaType: "application/octet-stream",
-    });
-    expect(blobAlternative?.required).toEqual(expect.arrayContaining(["blob"]));
-    expect(blobProperties).not.toHaveProperty("content");
-    expect(alternatives.every((alternative) => alternative.additionalProperties === false)).toBe(true);
-
-    harness.mockHttp.onPost("/projects/p1/files/rules/model.xlsx").reply(201);
-    const bytes = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
-    await executeTool("write_project_file", {
-      projectId: "p1",
-      path: "rules/model.xlsx",
-      blob: bytes.toString("base64"),
-    }, harness.client);
-
-    expect(writtenBytes()).toEqual(bytes);
-  });
-
-  it("accepts whitespace-wrapped legacy base64 content", async () => {
-    harness.mockHttp.onPost("/projects/p1/files/rules/model.xlsx").reply(201);
-    const bytes = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0x00]);
-    const base64 = bytes.toString("base64");
-
-    await executeTool("write_project_file", {
-      projectId: "p1",
-      path: "rules/model.xlsx",
-      content: `${base64.slice(0, 4)}\n${base64.slice(4)}\n`,
-      encoding: "base64",
-    }, harness.client);
-
-    expect(writtenBytes()).toEqual(bytes);
+    expect(dataOf(result)).toMatchObject({ success: true, bytesWritten: 6, committed: false });
   });
 
   it.each([
-    ["an invalid blob", { blob: "not base64!" }, /base64/i],
-    ["invalid base64 content", { content: "not valid base64 @@@!!!", encoding: "base64" }, /base64/i],
-    ["both content and blob", { content: "text", blob: Buffer.from("bytes").toString("base64") }, /invalid arguments/i],
-    ["neither content nor blob", {}, /invalid arguments/i],
-  ])("refuses %s before calling OpenL Studio", async (_case, args, message) => {
+    ["a base64 blob", { blob: Buffer.from("bytes").toString("base64") }],
+    ["base64 content", { content: "aGVsbG8=", encoding: "base64" }],
+    ["no content", {}],
+  ])("refuses %s before calling OpenL Studio", async (_case, args) => {
     await expect(executeTool("write_project_file", { projectId: "p1", path: "x.bin", ...args }, harness.client))
-      .rejects.toThrow(message);
+      .rejects.toThrow(/invalid arguments|unrecognized|expected string/i);
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 
@@ -361,74 +349,6 @@ describe("openl_write_project_file", () => {
       content: "v2",
       conflictPolicy: "OVERWRITE",
     }, harness.client)).rejects.toThrow(/Project is locked/);
-  });
-});
-
-describe("openl_edit_project_file (EPBDS-16855)", () => {
-  const bundle = "i18n/message.properties";
-  const editFile = (edits: Array<{ oldText: string; newText: string }>, extra: object = {}) =>
-    executeTool("edit_project_file", { projectId: "p1", path: bundle, edits, response_format: "json", ...extra }, harness.client);
-
-  it("adds keys to a bundle whose lines end with CRLF, leaving every other byte as it is", async () => {
-    answerFile(bundle, "#Bundle\r\na=1\r\nb=2\r\n", "text/plain");
-    harness.mockHttp.onPost(`/projects/p1/files/${bundle}`).reply(204);
-
-    const result = await editFile([
-      { oldText: "a=1\n", newText: "a=1\nc=3\n" },
-      { oldText: "", newText: "z=26\n" },
-    ]);
-
-    expect(writtenBytes().toString("utf-8")).toBe("#Bundle\r\na=1\r\nc=3\r\nb=2\r\nz=26\r\n");
-    expect(harness.mockHttp.history.post[0].params).toMatchObject({ conflictPolicy: "OVERWRITE", createFolders: false });
-    expect(dataOf(result)).toEqual({
-      success: true, path: bundle, edits: 2, bytesBefore: 19, bytesAfter: 30, committed: false,
-      message: `Applied 2 edit(s) to '${bundle}' in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.`,
-    });
-  });
-
-  it("commits the edit with a 'message'", async () => {
-    answerFile(bundle, "a=1\n", "text/plain");
-    harness.mockHttp.onPost(`/projects/p1/files/${bundle}`).reply(204);
-    harness.mockHttp.onGet("/projects/p1").reply(200, { id: "p1", name: "P", status: "EDITING", repository: "design" });
-    harness.mockHttp.onPatch("/projects/p1").reply(204);
-
-    const result = await editFile([{ oldText: "a=1", newText: "a=2" }], { message: "Change a" });
-
-    expect(writtenBytes().toString("utf-8")).toBe("a=2\n");
-    expect(dataOf(result)).toMatchObject({
-      committed: true,
-      message: `Applied 1 edit(s) to '${bundle}' and committed the project to Git: "Change a".`,
-    });
-  });
-
-  it.each([
-    ["is not in the file", "x=9", /Edit 2: oldText is not in the file/],
-    ["occurs more than once", "=", /Edit 2: oldText occurs more than once/],
-  ])("writes nothing when an oldText %s", async (_case, oldText, message) => {
-    answerFile(bundle, "a=1\nb=2\n", "text/plain");
-
-    await expect(editFile([{ oldText: "a=1", newText: "a=2" }, { oldText, newText: "" }])).rejects.toThrow(message);
-    expect(harness.mockHttp.history.post).toHaveLength(0);
-  });
-
-  it.each([
-    ["a binary file", Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00, 0xff]), "application/octet-stream", /not UTF-8 text/],
-    ["a file that is not UTF-8", Buffer.from("caf\xe9 au lait", "latin1"), "text/plain", /not UTF-8 text/],
-  ])("refuses %s", async (_case, body, contentType, message) => {
-    answerFile(bundle, body, contentType);
-
-    await expect(editFile([{ oldText: "", newText: "x" }])).rejects.toThrow(message);
-    expect(harness.mockHttp.history.post).toHaveLength(0);
-  });
-
-  it("refuses a folder", async () => {
-    harness.mockHttp.onGet("/projects/p1/files/i18n/").reply(200, [{ name: "message.properties" }], {
-      "content-type": "application/json",
-    });
-
-    await expect(executeTool("edit_project_file", {
-      projectId: "p1", path: "i18n/", edits: [{ oldText: "", newText: "x" }],
-    }, harness.client)).rejects.toThrow(/is a folder/);
   });
 });
 

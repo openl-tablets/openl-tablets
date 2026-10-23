@@ -4,7 +4,6 @@
  */
 
 import { z } from "zod";
-import { isValidBase64 } from "./content-utils.js";
 import { parseJsonOrText } from "./http.js";
 import {
   BRANCH_SCOPES, GUIDE_TYPES, MERGE_MODES, PROJECT_INCLUDES, PROJECT_STATUSES, RESPONSE_FORMATS, TABLE_KINDS,
@@ -432,9 +431,6 @@ export const readMergeConflictFileSchema = z.strictObject({
   projectId: projectIdSchema,
   file: nonBlankString.describe("Project-relative conflicted file path from openl_get_merge_conflicts()."),
   side: z.enum(["BASE", "OURS", "THEIRS"]).describe("Version to read: common ancestor, current branch, or merging branch."),
-  encoding: z.enum(["auto", "utf-8", "base64"]).optional().describe("Content encoding. Default auto detects binary content."),
-  offset: z.number().int().nonnegative().optional().describe("Byte offset in the downloaded file. Default 0."),
-  length: z.number().int().min(1).max(16000).optional().describe("Target bytes returned from offset. Default and maximum target 16000; a UTF-8 response may add up to 3 bytes to finish a character. Continue with nextOffset when hasMore is true."),
   response_format: ResponseFormat,
 });
 
@@ -824,73 +820,13 @@ export const readProjectFileSchema = z.strictObject({
     .string()
     .default("")
     .describe(
-      "Project-relative path to a file or folder (e.g. 'rules/Model.xlsx' or 'rules/'). Empty string (default) or a path ending in '/' lists the project root / that folder; a file path returns the file content."
+      "Project-relative path of a file (e.g. 'rules.xml', 'rules/Model.xlsx'), or of a folder ('rules/', or empty for the project root), which is answered as a ZIP archive by link. List a folder with openl_search_project_files."
     ),
-  view: z
-    .enum(["meta"])
-    .optional()
-    .describe(
-      "For a file, set to 'meta' to return JSON metadata (name, size, extension, lastModified) instead of the file content. Omit to read content (files) or list entries (folders)."
-    ),
-  download: z
-    .boolean()
-    .optional()
-    .describe(
-      "For a folder, set true to download the folder and its contents as a ZIP archive (base64 content in a JSON text envelope). Ignored for files."
-    ),
-  recursive: z
-    .boolean()
-    .optional()
-    .describe("Folder listing only: include nested resources recursively (default false)."),
-  viewMode: z
-    .enum(["FLAT", "NESTED"])
-    .optional()
-    .describe("Folder listing only: FLAT returns a flat list, NESTED returns a tree (default FLAT)."),
-  extensions: z
-    .array(z.string())
-    .optional()
-    .describe("Folder listing only: filter by file extensions without the dot, e.g. ['xlsx','xml']."),
-  namePattern: z
-    .string()
-    .optional()
-    .describe("Folder listing only: filter by name (case-insensitive contains match)."),
-  foldersOnly: z
-    .boolean()
-    .optional()
-    .describe("Folder listing only: if true, return only folders (default false)."),
   version: z
     .string()
     .optional()
-    .describe(
-      "Historical revision (commit hash) to read. Omit to read the latest revision. Applies to file content/metadata and folder listing/ZIP. An unknown revision yields 404."
-    ),
+    .describe("Historical revision (commit hash) to read. Omit to read the working copy. An unknown revision yields 404."),
   branch: fileBranchSchema,
-  fields: z
-    .string()
-    .optional()
-    .describe(
-      "Comma-separated response fields to return for metadata/listing responses, including nested selection (e.g. 'id,name'). When omitted, the full response is returned."
-    ),
-  encoding: z
-    .enum(["auto", "utf-8", "base64"])
-    .default("auto")
-    .describe(
-      "How to return file content. 'auto' (default) returns text as UTF-8 and binary as base64 content in a JSON text envelope; 'utf-8' forces text; 'base64' forces the base64 envelope. Ignored for metadata/listing responses."
-    ),
-  offset: z
-    .number()
-    .int()
-    .nonnegative()
-    .optional()
-    .describe(
-      "Byte offset to start reading file content from (default 0). NOTE: the backend does not support partial transfers, so the whole file is fetched and then sliced client-side. offset/length are BYTE offsets — in text, a range boundary inside a multi-byte UTF-8 character moves forward to the next character, so characters stay whole; for exact bytes use encoding='base64'."
-    ),
-  length: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .describe("Maximum number of bytes of file content to return starting at 'offset'. Omit for the rest of the file. Byte count, not character count (see the note on 'offset')."),
   response_format: ResponseFormat,
 });
 
@@ -905,64 +841,32 @@ const writeProjectFileBaseSchema = z.strictObject({
     .enum(["FAIL", "OVERWRITE", "SKIP"])
     .optional()
     .describe("How to handle a target file that already exists: FAIL (default) returns an error; OVERWRITE replaces its content in place; SKIP leaves the existing file unchanged and reports it skipped. Has no effect when creating a new file."),
+  branch: fileBranchSchema,
+});
+
+export const writeProjectFileSchema = writeProjectFileBaseSchema.extend({
+  content: z
+    .string()
+    .describe("UTF-8 text content of the file."),
   message: z
     .string()
     .optional()
     .describe("Optional commit message. PRESENT → the write is committed to Git after saving the project (a new revision is created). ABSENT → the write stays in the project WORKING COPY (commit it later with openl_save_project). NOTE: committing saves ALL pending project changes (OpenL has no per-file commit), and only works for design (Git) repositories — not 'local'."),
-  branch: fileBranchSchema,
   response_format: ResponseFormat,
 });
 
-const writeUtf8ProjectFileSchema = writeProjectFileBaseSchema.extend({
-  content: z
-    .string()
-    .describe("UTF-8 text content."),
-  encoding: z
-    .literal("utf-8")
+export const createUploadLinkSchema = writeProjectFileBaseSchema.extend({
+  size: z
+    .number()
+    .int()
+    .nonnegative()
     .optional()
-    .describe("Optional explicit UTF-8 encoding; omitted means UTF-8."),
-});
-
-const writeLegacyBase64ProjectFileSchema = writeProjectFileBaseSchema.extend({
-  content: z
+    .describe("Size in bytes the uploaded file must have; where Studio authenticates its clients, it refuses a body of another size and writes nothing."),
+  sha256: z
     .string()
-    .refine(isValidBase64, "Content is not valid base64.")
-    .describe("Legacy base64 binary content. Whitespace and line wrapping are accepted."),
-  encoding: z
-    .literal("base64")
-    .describe("Marks the legacy content parameter as base64."),
-});
-
-const writeBlobProjectFileSchema = writeProjectFileBaseSchema.extend({
-  blob: z
-    .base64()
-    .meta({ contentMediaType: "application/octet-stream" })
-    .describe("Binary file bytes encoded as base64. Uses JSON Schema 2020-12 contentEncoding='base64'."),
-});
-
-/**
- * Exactly one content representation is accepted. Keeping this as a Zod union
- * makes the same mutually exclusive alternatives visible in the generated MCP JSON Schema;
- * superRefine alone would enforce it only at runtime.
- */
-export const writeProjectFileSchema = z.union([
-  writeUtf8ProjectFileSchema,
-  writeLegacyBase64ProjectFileSchema,
-  writeBlobProjectFileSchema,
-]);
-
-/** One change of a text file: the text it replaces, found once, and the text it puts in its place. */
-const fileEditSchema = z.strictObject({
-  oldText: z.string().describe("Text to replace, copied exactly from the file, that occurs in it exactly once: include enough of the surrounding lines to make it unique. Empty appends newText at the end of the file."),
-  newText: z.string().describe("Text to put in its place; empty removes oldText. Its lines may end with LF: in a file whose lines end with CRLF they are written with CRLF."),
-});
-
-export const editProjectFileSchema = z.strictObject({
-  projectId: projectIdSchema,
-  path: filePathSchema,
-  edits: z.array(fileEditSchema).min(1).describe("The changes, applied in order: each one to the text the previous ones left."),
-  message: writeProjectFileBaseSchema.shape.message,
-  branch: fileBranchSchema,
+    .regex(/^[0-9a-fA-F]{64}$/, "sha256 is the hex SHA-256 of the file, 64 characters.")
+    .optional()
+    .describe("Hex SHA-256 the uploaded file must have, e.g. from `sha256sum`; where Studio authenticates its clients, it refuses other content and writes nothing."),
   response_format: ResponseFormat,
 });
 

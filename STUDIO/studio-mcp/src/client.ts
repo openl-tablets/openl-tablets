@@ -2,7 +2,7 @@
  * OpenL Studio API Client: the REST calls the tools of the server make, on the HTTP client of `http.ts`.
  */
 
-import { HttpClient, type HttpResponse } from "./http.js";
+import { buildUrl, HttpClient, type HttpResponse } from "./http.js";
 import type * as Types from "./types.js";
 import { authorizationHeaders, logUnauthorized } from "./auth.js";
 import { isResultNotReady } from "./utils.js";
@@ -58,7 +58,6 @@ function toFileContent(response: HttpResponse<ArrayBuffer>): Types.ProjectFileRe
   return {
     data: Buffer.from(response.data),
     contentType: (response.headers["content-type"] ?? "").toLowerCase(),
-    contentDisposition: response.headers["content-disposition"] ?? "",
   };
 }
 
@@ -645,55 +644,18 @@ export class OpenLClient {
   // (branch, version, conflictPolicy, glob/content search, copy/move).
 
   /**
-   * Read a file's bytes, a file's metadata, or a folder listing from a project.
-   *
-   * Maps to `GET /projects/{projectId}/files/{path}`. The single endpoint serves
-   * several response shapes depending on the path and query params:
-   *  - file path                -> the file's raw bytes (Content-Disposition: attachment)
-   *  - file path + view=meta    -> JSON metadata (FsNode)
-   *  - folder path              -> JSON array of FsNode (or a tree when viewMode=NESTED)
-   *  - folder path + download   -> a ZIP archive of the folder (attachment)
-   *
-   * The raw body is returned as a Buffer together with the Content-Type and
-   * Content-Disposition headers so the caller can distinguish a file/ZIP download
-   * (attachment) from a JSON listing/metadata response and decode accordingly.
-   *
-   * @param path - Project-relative path; empty or trailing-slash lists a folder.
-   * @param options - Query parameters mirroring the REST API.
+   * Read the bytes of a file of a project, with the type OpenL Studio gives them: `GET
+   * /projects/{projectId}/files/{path}`, of the working copy or of a `version`.
    */
   async readProjectFile(
     projectId: string,
     path: string,
-    options?: {
-      view?: "meta";
-      download?: boolean;
-      recursive?: boolean;
-      viewMode?: "FLAT" | "NESTED";
-      extensions?: string[];
-      namePattern?: string;
-      foldersOnly?: boolean;
-      version?: string;
-      branch?: string;
-      fields?: string;
-    }
+    options?: { version?: string; branch?: string },
   ): Promise<Types.ProjectFileResponse> {
-    const encodedPath = encodeProjectFilePath(path);
-
-    const params = {
-      view: options?.view || undefined,
-      download: options?.download || undefined,
-      recursive: options?.recursive,
-      viewMode: options?.viewMode || undefined,
-      // Spring binds a Set<String> query param from either repeated keys or a
-      // comma-separated value; the comma form is the most portable.
-      extensions: options?.extensions?.length ? options.extensions.join(",") : undefined,
-      namePattern: options?.namePattern || undefined,
-      foldersOnly: options?.foldersOnly,
+    return toFileContent(await this.getBytes(`${projectPath(projectId)}/files/${encodeProjectFilePath(path)}`, {
       version: options?.version || undefined,
       branch: options?.branch || undefined,
-      fields: options?.fields || undefined,
-    };
-    return toFileContent(await this.getBytes(`${projectPath(projectId)}/files/${encodedPath}`, params));
+    }));
   }
 
   /**
@@ -909,6 +871,52 @@ export class OpenLClient {
   ): Promise<Types.MergeResultResponse | Types.ResultNotReadyView> {
     return this.getResult(`${projectPath(projectId)}/merge`, options);
   }
+
+  /**
+   * The metadata of a file or a folder of a project — its name, type and size — without its content: `GET
+   * /projects/{projectId}/files/{path}?view=meta`.
+   */
+  async getProjectFileMeta(
+    projectId: string,
+    path: string,
+    options?: { version?: string; branch?: string },
+  ): Promise<Types.FsNode> {
+    return (await this.http.get<Types.FsNode>(`${projectPath(projectId)}/files/${encodeProjectFilePath(path)}`, {
+      params: { view: "meta", version: options?.version || undefined, branch: options?.branch || undefined },
+    })).data;
+  }
+
+  /** The public settings of OpenL Studio; a Studio in single-user mode names no `userMode`. */
+  async getSettings(): Promise<Types.StudioSettings> {
+    return (await this.http.get<Types.StudioSettings>("/settings")).data;
+  }
+
+  /**
+   * Issue a transfer link, which moves one file with no credential in the request: `POST /transfer-links`. A
+   * Studio in single-user mode issues none.
+   */
+  async createTransferLink(request: Types.TransferLinkRequest): Promise<Types.TransferLinkView> {
+    return (await this.http.post<Types.TransferLinkView>("/transfer-links",
+      { ...request, path: normalizeBodyPath(request.path) })).data;
+  }
+
+  /**
+   * The address of a file of a project in the REST API, at the address of Studio its users open: the link of a
+   * download or an upload in single-user mode, where the API needs no credentials.
+   */
+  projectFileUrl(projectId: string, path: string, params: Record<string, string | undefined>): string {
+    return this.publicApiUrl(`${projectPath(projectId)}/files/${encodeProjectFilePath(path)}`, params);
+  }
+
+  /** The address of a version of a conflicted file in the REST API, at the address of Studio its users open. */
+  conflictFileUrl(projectId: string, file: string, side: string): string {
+    return this.publicApiUrl(`${projectPath(projectId)}/merge/conflicts/files`, { file, side });
+  }
+
+  private publicApiUrl(path: string, params: Record<string, string | undefined>): string {
+    return buildUrl({ baseURL: `${this.publicUrl}rest`, url: path, params });
+  }
+
 
   /** Read the pending merge conflict details Studio keeps for this client. */
   async getMergeConflicts(projectId: string): Promise<Types.ConflictDetailsResponse> {
