@@ -101,8 +101,10 @@ time of its file when it is compiled, and a digest of the snapshot of the file i
 unloaded and read again from other content is not saved either. A save writes
 the whole workbook beside the file and replaces the file in one step (`org.openl.util.FileReplacement`), comparing
 the file once more right before; never write a workbook file through a stream of your own. A workbook built with an
-explicit `WorkbookLoader` is compared by size and time only. See
-[`changes-made-outside.md`](../Docs/architecture/changes-made-outside.md).
+explicit `WorkbookLoader` is compared by size and time only. A file the file system refuses to replace — held open by
+another program, as Excel does on Windows, or read-only — is reported as `org.openl.util.FileLockedException`. A
+file no other file can take the place of — in a folder that takes no new file, or mounted into a container on its
+own — is written over in place. See [`changes-made-outside.md`](../Docs/architecture/changes-made-outside.md).
 
 **One thread at a time**: a `Workbook` is an Apache POI object over an XmlBeans store, and neither is safe to
 touch from two threads. A write racing a save leaves the store's cursor list with a broken link — which spins at

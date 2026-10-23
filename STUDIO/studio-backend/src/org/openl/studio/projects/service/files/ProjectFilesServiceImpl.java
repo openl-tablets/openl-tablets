@@ -21,6 +21,7 @@ import jakarta.validation.constraints.NotNull;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
@@ -40,14 +41,17 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.ForbiddenException;
+import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.exception.PreconditionFailedException;
+import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.common.validation.FileIntegrityValidator;
 import org.openl.studio.projects.model.files.FolderNode;
 import org.openl.studio.projects.model.files.FsNode;
 import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.validator.file.ProjectDescriptorValidator;
+import org.openl.util.FileLockedException;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
@@ -150,7 +154,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("file.update.failed.message");
+            throw failed(e, "file.update.failed.message");
         }
     }
 
@@ -176,7 +180,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             found.delete();
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("file.delete.failed.message");
+            throw failed(e, "file.delete.failed.message");
         } finally {
             unlockIfVersioned(expectedVersion);
             unlockIfClosed(root);
@@ -200,7 +204,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             copyArtefact(source, targetFolder, FilePaths.name(destinationPath));
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("file.copy.failed.message");
+            throw failed(e, "file.copy.failed.message");
         } finally {
             unlockIfClosed(root);
         }
@@ -226,7 +230,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             deleteSourceOrRollback(source, targetFolder, fileName, destinationPath);
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("file.move.failed.message");
+            throw failed(e, "file.move.failed.message");
         } finally {
             unlockIfClosed(root);
         }
@@ -263,7 +267,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
             }
             root.awaitIndex();
         } catch (ProjectException | IOException e) {
-            throw new ConflictException("file.create.failed.message");
+            throw failed(e, "file.create.failed.message");
         }
     }
 
@@ -321,7 +325,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                 }
             }
         } catch (ProjectException e) {
-            throw new ConflictException("file.create.failed.message");
+            throw failed(e, "file.create.failed.message");
         } finally {
             unlockIfClosed(root);
         }
@@ -927,6 +931,18 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         } catch (IOException e) {
             throw FileIntegrityValidator.damagedContent(fileName, e);
         }
+    }
+
+    /**
+     * The failure of a write as the client is told about it.
+     *
+     * <p>A file another program holds open, as Excel does on Windows, or a read-only one is told as locked, naming
+     * the file: the client closes it there and repeats the write. Any other failure is told by the given code.
+     */
+    private static RestRuntimeException failed(Exception e, String code) {
+        var locked = ExceptionUtils.throwableOfType(e, FileLockedException.class);
+        return locked == null ? new ConflictException(code) : new LockedException("file.locked.message",
+                locked.getFileName());
     }
 
     /**

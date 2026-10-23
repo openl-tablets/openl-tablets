@@ -43,10 +43,12 @@ import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
 import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.common.exception.RestRuntimeException;
 import org.openl.studio.common.exception.ValidationException;
 import org.openl.studio.common.model.BaseError;
 import org.openl.studio.common.model.ValidationError;
+import org.openl.util.FileLockedException;
 import org.openl.util.StringUtils;
 
 /**
@@ -160,10 +162,13 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         var changedOutside = ExceptionUtils.throwableOfType(e, WorkbookChangedOutsideException.class);
         if (changedOutside != null) {
             // A write of a workbook whose file another program, or another client, changed since it was read.
-            var answer = handleAllRestRuntimeExceptions(
-                    new ConflictException("workbook.changed.outside.message", changedOutside.getFile().getName()),
-                    request);
-            return new ResponseEntity<>(answer.getBody(), answer.getHeaders(), answer.getStatusCode());
+            return answered(new ConflictException("workbook.changed.outside.message",
+                    changedOutside.getFile().getName()), request);
+        }
+        var locked = ExceptionUtils.throwableOfType(e, FileLockedException.class);
+        if (locked != null) {
+            // A change of a file, a workbook included, that another program, such as Excel, holds open.
+            return answered(new LockedException("file.locked.message", locked.getFileName()), request);
         }
         var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
                 .map(ResponseStatus::code)
@@ -174,6 +179,12 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             log.debug(e.getMessage(), e);
         }
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), code, request);
+    }
+
+    /** Answers a failure raised deep in a write as the client error that tells what to do about it. */
+    private ResponseEntity<Object> answered(RestRuntimeException e, WebRequest request) {
+        var answer = handleAllRestRuntimeExceptions(e, request);
+        return new ResponseEntity<>(answer.getBody(), answer.getHeaders(), answer.getStatusCode());
     }
 
     @ExceptionHandler(MultipartException.class)

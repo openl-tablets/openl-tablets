@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,12 +30,43 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
+import org.openl.util.FileLockedException;
 import org.openl.util.IOUtils;
 
 class FileSystemRepositoryTest {
 
     @TempDir
     Path tmpDir;
+
+    /**
+     * A file the file system refuses to change is reported by its name, and stays as it is. Its folder is made
+     * read-only here: on Windows a file Excel holds open is refused the same way.
+     */
+    @Test
+    void aFileTheFileSystemRefusesToChangeIsReportedAsLocked() throws IOException {
+        var repo = new FileSystemRepository();
+        repo.setRoot(tmpDir);
+        repo.initialize();
+        assertSave(repo, "rules/Bank Rating.xlsx", "as Excel holds it");
+        var folder = tmpDir.resolve("rules").toFile();
+        assertTrue(folder.setWritable(false));
+        try {
+            // An administrator changes a read-only folder all the same: there is nothing to refuse then.
+            assumeFalse(Files.isWritable(folder.toPath()));
+            var file = new FileData();
+            file.setName("rules/Bank Rating.xlsx");
+
+            var written = assertThrows(FileLockedException.class, () -> repo.save(file,
+                    new ByteArrayInputStream("edited".getBytes(StandardCharsets.UTF_8))));
+            var deleted = assertThrows(FileLockedException.class, () -> repo.delete(file));
+
+            assertEquals("Bank Rating.xlsx", written.getFileName());
+            assertEquals("Bank Rating.xlsx", deleted.getFileName());
+            assertRead(repo, "rules/Bank Rating.xlsx", "as Excel holds it");
+        } finally {
+            assertTrue(folder.setWritable(true));
+        }
+    }
 
     @Test
     void createFolderOnDemand() throws IOException {

@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -35,11 +36,13 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.LockedException;
 import org.openl.studio.common.exception.PreconditionFailedException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.tables.TableFormatting;
 import org.openl.studio.projects.service.tables.UploadFormatting;
 import org.openl.studio.projects.validator.ProjectStateValidator;
+import org.openl.util.FileLockedException;
 import org.openl.util.HashingUtils;
 
 /**
@@ -167,6 +170,31 @@ class ProjectFilesVersionTest {
         assertDoesNotThrow(() -> service.deleteResource(root, "data.txt"));
 
         verify(repository).delete(any(FileData.class));
+    }
+
+    @Test
+    void aFileAnotherProgramHoldsOpenIsToldAsLockedNamingIt() throws IOException {
+        var held = new FileLockedException("data.txt", new FileSystemException("Project1/data.txt"));
+        when(repository.save(any(FileData.class), any(InputStream.class))).thenThrow(held);
+        when(repository.delete(any(FileData.class))).thenThrow(held);
+
+        var edited = content("edited");
+        var written = assertThrows(LockedException.class, () -> service.updateResource(root, "data.txt", edited));
+        var deleted = assertThrows(LockedException.class, () -> service.deleteResource(root, "data.txt"));
+
+        assertEquals("openl.error.423.file.locked.message", written.getErrorCode());
+        assertEquals(List.of("data.txt"), List.of(written.getArgs()));
+        assertEquals("openl.error.423.file.locked.message", deleted.getErrorCode());
+    }
+
+    @Test
+    void anyOtherFailureOfAWriteIsAConflict() throws IOException {
+        when(repository.save(any(FileData.class), any(InputStream.class))).thenThrow(new IOException("disk full"));
+
+        var edited = content("edited");
+        var refused = assertThrows(ConflictException.class, () -> service.updateResource(root, "data.txt", edited));
+
+        assertEquals("openl.error.409.file.update.failed.message", refused.getErrorCode());
     }
 
     private static InputStream content(String text) {

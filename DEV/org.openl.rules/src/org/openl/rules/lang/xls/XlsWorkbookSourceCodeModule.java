@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.jspecify.annotations.Nullable;
 import org.openl.rules.lang.xls.load.WorkbookLoader;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.FileLockedException;
 import org.openl.util.FileReplacement;
 import org.openl.util.FileUtils;
 import org.openl.util.HashingUtils;
@@ -274,6 +276,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
      * is replaced.
      *
      * @throws WorkbookChangedOutsideException when another program changed the file since it was read
+     * @throws FileLockedException            when another program holds the file open, or it is read-only
      */
     public void save() throws IOException {
         var sourceFile = getSourceFile();
@@ -285,10 +288,14 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
             }
 
             var written = new AtomicReference<String>();
-            FileReplacement.replace(sourceFile.toPath(), workbook::write, temporary -> {
-                written.set(HashingUtils.sha256Hex(Files.newInputStream(temporary)));
-                refuseChangedOutside(sourceFile, true);
-            });
+            try {
+                FileReplacement.replace(sourceFile.toPath(), workbook::write, temporary -> {
+                    written.set(HashingUtils.sha256Hex(Files.newInputStream(temporary)));
+                    refuseChangedOutside(sourceFile, true);
+                });
+            } catch (FileSystemException e) {
+                throw FileLockedException.lockedOr(e, sourceFile.toPath());
+            }
             fileVersion.set(new FileVersion(stampOf(sourceFile), written.get()));
             // The file says what the workbook says again, so the workbook may be unloaded and read back from it.
             workbookLoader.setModified(false);

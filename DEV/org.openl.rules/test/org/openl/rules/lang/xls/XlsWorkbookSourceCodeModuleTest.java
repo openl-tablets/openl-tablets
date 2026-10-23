@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -37,6 +38,7 @@ import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
+import org.openl.util.FileLockedException;
 
 class XlsWorkbookSourceCodeModuleTest {
 
@@ -173,6 +175,26 @@ class XlsWorkbookSourceCodeModuleTest {
         assertTrue(workbook.isChangedOnDisk());
         Files.delete(workbook.getSourceFile().toPath());
         assertTrue(workbook.isChangedOnDisk(), "a file deleted since is changed");
+    }
+
+    /** A file another program holds open, or a read-only one, is not written, and says so. */
+    @Test
+    void a_save_refuses_a_file_it_cannot_open_for_writing() throws IOException {
+        var workbook = written();
+        var file = workbook.getSourceFile();
+        var content = Files.readAllBytes(file.toPath());
+        assertTrue(file.setWritable(false));
+        // An administrator writes a read-only file all the same: there is nothing to refuse then.
+        assumeFalse(file.canWrite());
+        try {
+            var refused = assertThrows(FileLockedException.class, workbook::save);
+
+            assertEquals(file.getName(), refused.getFileName());
+            assertArrayEquals(content, Files.readAllBytes(file.toPath()));
+            assertFalse(workbook.isSavedSinceRead());
+        } finally {
+            assertTrue(file.setWritable(true));
+        }
     }
 
     /**
