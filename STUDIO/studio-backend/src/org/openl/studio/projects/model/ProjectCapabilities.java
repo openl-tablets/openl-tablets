@@ -15,6 +15,7 @@ import org.openl.studio.common.model.Capabilities;
  * <p>Each flag is computed server-side from the user's effective access and the project state (opened,
  * opened-for-editing, locked, local-only, modified, branch protection). The UI only shows or hides
  * controls; the server enforces every operation independently.
+ * History is available only for projects in repositories that store revisions.
  *
  * <p>A capability that is not granted is {@code null} (omitted) rather than {@code false}, to keep the
  * response small.

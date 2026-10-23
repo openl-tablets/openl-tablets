@@ -28,7 +28,6 @@ Content-Type: application/json
         "canDelete": true,
         "canDeploy": true,
         "canCompare": true,
-        "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
         "canExport": true
@@ -59,7 +58,6 @@ Content-Type: application/json
         "canDelete": true,
         "canDeploy": true,
         "canCompare": true,
-        "canViewHistory": true,
         "canManage": true,
         "canCopy": true,
         "canExport": true

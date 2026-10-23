@@ -80,8 +80,8 @@ The following table describes the actions of the project page in their display o
 | Action            | Description                                                                                                        | Available when                                                                                 |
 |-------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
 | **Save**          | Saves the changes as a new revision. See [Saving a Project](#saving-a-project).                                    | The project has unsaved changes.                                                               |
-| **Open**          | Opens the project. Its menu offers **Open Revision**. See [Opening a Project](#opening-a-project).                 | The project is closed.                                                                         |
-| **Open Revision** | Opens an earlier revision of the project. See [Opening a Project](#opening-a-project).                             | The project is open, or from the **Open** menu while it is closed.                             |
+| **Open**          | Opens the project. For versioned repositories, its menu offers **Open Revision**. See [Opening a Project](#opening-a-project). | The project is closed. |
+| **Open Revision** | Opens an earlier revision of the project. See [Opening a Project](#opening-a-project).                             | The repository stores project revisions; the project is open, or from the **Open** menu while it is closed. |
 | **Close**         | Closes the project. See [Closing a Project](#closing-a-project).                                                   | The project is open.                                                                           |
 | **Sync**          | Merges the project with another branch. See [Working with Project Branches](project-branches.md#working-with-branches). | The repository supports branches and the project has no unsaved changes.                       |
 | **Copy**          | Copies the project into a new project or a new branch. See [Copying a Project](#copying-a-project).                | The user can create projects or branch this one.                                               |
@@ -97,7 +97,8 @@ When the window is too narrow for all actions, the last ones move into the **Act
 The tabs below the title row show the following:
 
 -   **Overview** shows the project configuration and properties. See [Viewing the Project Overview](#viewing-the-project-overview).
--   **Revisions** lists the revisions of the project. See [Opening a Project](#opening-a-project).
+-   **Revisions** lists the revisions of a project in a versioned repository. It is unavailable for file repositories,
+    which retain only the current project state. See [Opening a Project](#opening-a-project).
 -   **Files** shows the files and folders of the project. See [Modifying Project Contents](#modifying-project-contents).
 -   **Deploy Configuration** shows the `rules-deploy.xml` settings and the deployments of the project. See [Deploying a Project](#deploying-a-project).
 -   **Management** assigns roles on the project. See [Managing Project Access](#managing-project-access).
@@ -435,6 +436,8 @@ To open a project revision using the **Open Revision** button, proceed as follow
 1.  Click **Open**.
 
 #### Opening a Project Revision Using the Revisions Tab
+
+The tab and the **More \> Revisions** editor action are available only when the repository stores revisions.
 
 To open a project revision using the **Revisions** tab, proceed as follows:
 

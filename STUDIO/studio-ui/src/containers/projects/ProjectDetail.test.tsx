@@ -445,6 +445,17 @@ describe('ProjectDetail', () => {
         }))
     })
 
+    it('hides project history for a file repository without versions', () => {
+        setParams('tab=history')
+        renderProjectDetail({
+            project: { ...PROJECT, capabilities: { ...PROJECT.capabilities } },
+            repoFeatures: { branches: false, searchable: false, mappedFolders: true, comments: false },
+        })
+
+        expect(screen.queryByTestId('tab-history')).toBeNull()
+        expect(screen.queryByTestId('history-panel')).toBeNull()
+    })
+
     it('turns off the history search for a repository that cannot search', () => {
         setParams('tab=history')
         renderProjectDetail({

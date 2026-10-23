@@ -19,6 +19,7 @@ import org.springframework.security.acls.model.Permission;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -48,6 +49,8 @@ class ProjectAccessServiceTest {
         project = mock(UserWorkspaceProject.class);
         var repository = mock(Repository.class);
         when(project.getRepository()).thenReturn(repository);
+        when(project.getDesignRepository()).thenReturn(repository);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
         service = new ProjectAccessService(aclProjectsHelper, stateValidator, deploymentRepositoryService,
                 designTimeRepositoryService, listingContext, designTimeRepository);
     }
@@ -118,6 +121,18 @@ class ProjectAccessServiceTest {
         assertEquals(Boolean.TRUE, caps.canCompare());
         assertEquals(Boolean.TRUE, caps.canViewHistory());
         assertNull(caps.canManage());
+    }
+
+    @Test
+    void a_non_versioned_repository_has_no_project_history() {
+        grant(BasePermission.READ);
+        var repository = project.getDesignRepository();
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setVersions(false).build());
+
+        var caps = service.computeCapabilities(project);
+
+        assertEquals(Boolean.TRUE, caps.canCompare());
+        assertNull(caps.canViewHistory());
     }
 
     @Test
@@ -215,6 +230,7 @@ class ProjectAccessServiceTest {
         var rulesProject = mock(RulesProject.class);
         var repository = mock(BranchRepository.class);
         when(repository.getId()).thenReturn("design");
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
         when(rulesProject.getDesignRepository()).thenReturn(repository);
         when(rulesProject.getDesignProjectName()).thenReturn("Rates");
         when(rulesProject.getBranch()).thenReturn("feature");
@@ -240,6 +256,9 @@ class ProjectAccessServiceTest {
     @Test
     void merging_takes_write_access_and_a_project_that_can_take_one() {
         var rulesProject = mock(RulesProject.class);
+        var repository = mock(Repository.class);
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).build());
+        when(rulesProject.getDesignRepository()).thenReturn(repository);
         when(aclProjectsHelper.hasPermission(rulesProject, BasePermission.WRITE)).thenReturn(true);
         when(stateValidator.canTakeMerge(rulesProject)).thenReturn(true);
 
