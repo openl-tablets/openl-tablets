@@ -1852,6 +1852,27 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void a_markdown_table_written_in_parts_is_changed_in_the_files_of_its_parts() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var service = spy(newCopyService(acl, mock(WebStudio.class), mock(TableCreatorService.class),
+                mock(TableCopyService.class), mock(SummaryTableReader.class), mock(TablePropertiesService.class)));
+        var project = project(repository(), "PricingProject", "PricingProject");
+        when(acl.isGranted(project, List.of(BasePermission.WRITE))).thenReturn(true);
+        var source = mock(IOpenLTable.class);
+        var model = stubResolvedSource(service, project, source);
+        var uri = "file:/projects/PricingProject/rules/Rates/rate-part1.md?sheet=Rates&range=A1:B5";
+        when(source.getUri()).thenReturn(uri);
+        when(model.getModuleInfo().containsTable(uri)).thenReturn(true);
+        when(model.isTablePart(uri)).thenReturn(true);
+
+        var refused = assertThrows(BadRequestException.class,
+                () -> service.getTableEditors(project, "src-id", null, null, null));
+
+        // Each part is a file of its own, which is changed as text rather than through a workbook
+        assertEquals("openl.error.400.table.markdown.partial.message", refused.getErrorCode());
+    }
+
+    @Test
     void a_table_of_a_markdown_module_is_written_and_deleted_but_not_styled() throws Exception {
         var acl = mock(RepositoryAclService.class);
         var tableCopyService = mock(TableCopyService.class);
