@@ -59,7 +59,7 @@ describe('RepositoryAWSS3Configuration, server-side encryption', () => {
         // Nothing is selected, so the title of the selected value does not repeat the title of an option.
         renderForm('')
 
-        openOptions(ALGORITHM_LABEL)
+        await openOptions(ALGORITHM_LABEL)
 
         for (const title of ['repository:none', 'AES256', 'aws:fsx', 'aws:backup', 'aws:kms', 'aws:kms:dsse']) {
             expect(await screen.findByTitle(title)).toBeInTheDocument()

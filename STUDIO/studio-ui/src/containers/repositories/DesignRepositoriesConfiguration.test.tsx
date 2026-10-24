@@ -100,7 +100,7 @@ describe('DesignRepositoriesConfiguration, adding a repository', () => {
             await chooseOption('repository:type', 'AWS S3')
 
             await waitFor(() => expect(templateRequests()).toEqual([RepositoryType.GIT, RepositoryType.AWS_S3]))
-            openOptions('repository:region_name')
+            await openOptions('repository:region_name')
             expect(await screen.findByTitle(REGION.description)).toBeInTheDocument()
         }
     )
