@@ -67,6 +67,23 @@ describe('useProjectTags', () => {
             .toHaveTextContent('browser.tags.unconfigured {"types":"Home-made"}')
     })
 
+    it('shows the tags in the order of the configured tag types, then the others as the file names them', async () => {
+        vi.mocked(getTagTypes).mockResolvedValue([
+            { name: 'Region', values: [], nullable: true, extensible: true },
+            { name: 'Domain', values: [], nullable: true, extensible: true },
+        ] as never)
+        await renderRead(<Host tags={{ Zeta: '1', domain: '2', Alpha: '3', Region: '4' }} />)
+
+        expect(screen.getByTestId('project-tags')).toHaveTextContent(/^Region4domain2Zeta1Alpha3/)
+
+        // The editor starts from the same order, so saving writes the file in it.
+        await userEvent.click(screen.getByTestId('edit-tags'))
+        await userEvent.click(screen.getByTestId('tags-save'))
+        await waitFor(() => expect(writeRootFile).toHaveBeenCalledWith(
+            'p1', 'tags.properties', 'Region=4\ndomain=2\nZeta=1\nAlpha=3\n', 'overwrite'
+        ))
+    })
+
     it('marks no type as unconfigured while the configured ones cannot be read', async () => {
         vi.mocked(getTagTypes).mockRejectedValue(new Error('offline'))
         await renderRead(<Host tags={{ 'Home-made': 'anything' }} />)

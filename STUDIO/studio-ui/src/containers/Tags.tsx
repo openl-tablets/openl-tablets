@@ -3,6 +3,7 @@ import TextArea from 'antd/es/input/TextArea'
 import React, { useEffect, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
+import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
 import { Tag, TagTable, TagType } from './tags/TagTable'
 import { FillTagsModal } from './tags/FillTagsModal'
 
@@ -72,6 +73,24 @@ export const Tags: React.FC = () => {
             method: 'DELETE'
         })
         setIsLoading(false)
+    }
+
+    // The new order shows at once, and the catalog is read again once it is stored. A refused order, say a tag type
+    // another administrator deleted meanwhile, is said in a message and the order stored before comes back.
+    const onReorderTagTypes = async (ordered: TagType[]) => {
+        setTagTypes(ordered)
+        setIsLoading(true)
+        try {
+            await apiCall('/admin/tag-config/types/order', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ordered.map(tagType => tagType.id)),
+            }, LOCAL_LOAD_API_OPTIONS)
+        } catch (e) {
+            notification.error({ title: e instanceof Error ? e.message : t('tags:reorder_error') })
+        } finally {
+            await fetchTagTypes()
+        }
     }
 
     const createTag = async (tagName: string, tagTypeId: number) => {
@@ -199,6 +218,9 @@ export const Tags: React.FC = () => {
                         i18nKey="tags:tag_type_instruction_p2"
                     />
                 </li>
+                <li>
+                    {t('tags:tag_type_order_notice')}
+                </li>
             </ul>
             <p>
                 {t('tags:tag_type_auto_save_notice')}
@@ -208,6 +230,7 @@ export const Tags: React.FC = () => {
                 deleteTag={onDeleteTag}
                 deleteTagType={onDeleteTagType}
                 isLoading={isLoading}
+                reorderTagTypes={ordered => void onReorderTagTypes(ordered)}
                 tagTypes={tagTypes}
                 updateTag={onUpdateTag}
                 updateTagType={onUpdateTagType}

@@ -34,6 +34,27 @@ public class TagTypeService {
         tagTypeDao.update(tagType);
     }
 
+    /**
+     * Arranges the tag types in the given order. The tag types not listed follow the listed ones, by name.
+     *
+     * @param ids the IDs of the tag types, in the order to list them
+     * @return {@code false}, changing nothing, when an ID names no tag type
+     */
+    @Transactional
+    public boolean reorder(List<Long> ids) {
+        var types = tagTypeDao.getAll();
+        var known = types.stream().map(TagType::getId).collect(Collectors.toSet());
+        if (!known.containsAll(ids)) {
+            return false;
+        }
+        // The types are read in this transaction, so the changed ones are written when it commits.
+        for (var type : types) {
+            var position = ids.indexOf(type.getId());
+            type.setDisplayOrder(position < 0 ? null : position);
+        }
+        return true;
+    }
+
     public boolean delete(Long id) {
         return tagTypeDao.deleteById(id);
     }

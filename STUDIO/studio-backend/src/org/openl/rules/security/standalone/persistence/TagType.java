@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import org.jspecify.annotations.Nullable;
+
 @Entity
 @Table(name = "OpenL_Tag_Types")
 public class TagType implements Serializable {
@@ -19,6 +21,7 @@ public class TagType implements Serializable {
     private String name;
     private boolean extensible;
     private boolean nullable;
+    private @Nullable Integer displayOrder;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,6 +60,19 @@ public class TagType implements Serializable {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    /**
+     * Where the tag type is listed among the others, starting from 0. A tag type without one is listed after
+     * the ordered ones, by name.
+     */
+    @Column(name = "display_order")
+    public @Nullable Integer getDisplayOrder() {
+        return displayOrder;
+    }
+
+    public void setDisplayOrder(@Nullable Integer displayOrder) {
+        this.displayOrder = displayOrder;
     }
 
     @Override

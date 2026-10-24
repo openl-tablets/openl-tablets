@@ -550,7 +550,7 @@ Project tags classify projects, for example, by business domain or line of busin
 
 The tags of a project are stored in the `tags.properties` file located in the root directory of the project, one `<type>=<value>` line per tag. OpenL Studio does not ask for tags when a project is created. A project has the tags that its files carry, for instance, when it is created from a ZIP archive or copied from another project.
 
-Tags are shown in the **Tags** section of the **Overview** tab and in the project list, and they can be used for filtering and grouping projects. To tag a project, proceed as follows:
+Tags are shown in the **Tags** section of the **Overview** tab and in the project list, and they can be used for filtering and grouping projects. The **Tags** section lists the tags in the order an administrator arranged the tag types in, as described in [Managing Tags](administration/06-tags.md#managing-tags), followed by the tags of types not defined in OpenL Studio. The editor starts in the same order, so saving the tags writes the `tags.properties` file in it. To tag a project, proceed as follows:
 
 1.  Open the project and its **Overview** tab.
 1.  Click the pencil icon **Edit tags** next to **Tags**. The icon is shown only while the project can be modified.
@@ -577,7 +577,7 @@ The **Tags** section checks the tags against the tag types defined in OpenL Stud
 
 These are warnings: the tags can be saved anyway, since a project may carry tags that the current configuration no longer allows, for instance, when it comes from Git. A warning disappears as soon as the tag is corrected in the editor.
 
-![The Tags section warning about a value not allowed for BLOB, the undefined Region tag type, and the missing mandatory Domain tag](images/project-tags-warnings.png "Warnings about the tags of a project")
+![The Tags section listing Insurance Type before BLOB in the arranged order, and warning about a value not allowed for BLOB, the undefined Region tag type, and the missing mandatory Domain tag](images/project-tags-warnings.png "Warnings about the tags of a project")
 
 *Warnings about the tags of a project*
 

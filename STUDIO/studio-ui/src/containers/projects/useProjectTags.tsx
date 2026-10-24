@@ -104,6 +104,16 @@ const typeOf = (types: TagType[], key: string): TagType | undefined => types.fin
 const isNotAllowed = (type: TagType | undefined, value: string): boolean => !!type && !type.extensible
     && value.trim() !== '' && !(type.values ?? []).some(allowed => sameName(allowed, value))
 
+/**
+ * The tags in the order an administrator arranged the tag types in. The tags of types that are not configured
+ * follow, in the order the file names them.
+ */
+const inTypeOrder = (types: TagType[], entries: TagEntry[]): TagEntry[] => {
+    const ranks = new Map(types.map((type, index) => [nameKey(type.name), index]))
+    const rank = (entry: TagEntry) => ranks.get(nameKey(entry.key)) ?? types.length
+    return entries.toSorted((one, other) => rank(one) - rank(other))
+}
+
 /** Whether a key names a tag type that is not configured. Nothing is, while the configured types are unknown. */
 const isUnconfigured = (types: TagType[] | null, key: string): boolean =>
     types !== null && key.trim() !== '' && !typeOf(types, key)
@@ -132,9 +142,10 @@ interface ProjectTagsOptions {
  * The tags of a project, and the way to change them: what to put beside the heading of the tags row, and
  * what to put in the row itself.
  *
- * The tags.properties file of the project is the source of truth: every tag it names is shown, and
- * editing writes the file back through the files API, the way rules.xml is edited. Any key and any value
- * can be entered; the tag types an administrator configured are offered as suggestions.
+ * The tags.properties file of the project is the source of truth: every tag it names is shown, in the order
+ * an administrator arranged the tag types in, and editing writes the file back through the files API, the way
+ * rules.xml is edited. Any key and any value can be entered; the tag types an administrator configured are
+ * offered as suggestions.
  *
  * The tags are checked against the configured tag types, both while viewed and while edited: a tag type
  * that is not configured, a mandatory type left without a value, and a value a non-extensible type does
@@ -153,12 +164,12 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const assigned = Object.entries(tags)
     const types = tagTypes ?? []
+    const assigned = inTypeOrder(types, Object.entries(tags).map(([key, value]) => ({ key, value })))
     // A repeated key cannot be written to the properties file, so saving waits until it is resolved.
     const duplicates = editing ? duplicateKeys(entries) : new Set<string>()
     // The warnings follow what is on the screen: the edited tags while editing, so a fix clears them at once.
-    const shown = editing ? entries : assigned.map(([key, value]) => ({ key, value }))
+    const shown = editing ? entries : assigned
     const missing = missingMandatory(types, shown)
     const unconfigured = unconfiguredTypes(tagTypes, shown)
 
@@ -175,7 +186,7 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
 
     const startEditing = () => {
         setError(null)
-        setEntries(Object.entries(tags).map(([key, value]) => ({ key, value })))
+        setEntries(assigned)
         setEditing(true)
     }
 
@@ -243,13 +254,13 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
 
     const view = (
         <div className={styles.table} data-testid="project-tags">
-            {assigned.map(([type, value]) => (
+            {assigned.map(({ key, value }) => (
                 <TagRow
-                    key={type}
-                    notAllowed={isNotAllowed(typeOf(types, type), value)}
-                    type={type}
+                    key={key}
+                    notAllowed={isNotAllowed(typeOf(types, key), value)}
+                    type={key}
                     ui={ui}
-                    unconfigured={isUnconfigured(tagTypes, type)}
+                    unconfigured={isUnconfigured(tagTypes, key)}
                     value={value}
                 />
             ))}

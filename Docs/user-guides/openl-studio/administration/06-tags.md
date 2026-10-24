@@ -32,21 +32,25 @@ To create project tags, proceed as follows:
 
 4.  To delete a tag type, click the **Delete** icon in the **Actions** column of the tag type row and confirm the deletion.
 
-5.  To add a tag value, in the **Tags** column of the tag type row, click **+ Add Tag**, enter the tag name, and press **Enter** or click outside the field.
+5.  To change the order of tag types, drag a tag type row by the handle at the start of the row and drop it at the new place. To move it with the keyboard, focus the handle, press Space, move the row with the arrow keys, and press Space again.
+
+    The tags of a project are shown in this order on its **Overview** tab. Tag types that were never moved, a new one among them, follow the arranged ones in alphabetical order.
+
+6.  To add a tag value, in the **Tags** column of the tag type row, click **+ Add Tag**, enter the tag name, and press **Enter** or click outside the field.
 
     ![](../images/add-tag-values.png "Adding tag values")
 
     *Adding tag values*
 
-6.  To edit a tag value, double-click the tag, modify the value, and press **Enter** or click outside the field.
+7.  To edit a tag value, double-click the tag, modify the value, and press **Enter** or click outside the field.
 
-7.  To delete a tag value, click the delete icon next to the tag name.
+8.  To delete a tag value, click the delete icon next to the tag name.
 
 All created tag types and values are saved automatically. These values are now offered as suggestions when tagging a project, and the tags of a project are checked against them, as described in [Tagging a Project](../repository-editor.md#tagging-a-project).
 
 Tag values can be derived from project names. Proceed as follows:
 
-8.  To define project name templates, in the **Tags from a Project Name** section, enter the templates in the **Project Name Templates** text area.
+9.  To define project name templates, in the **Tags from a Project Name** section, enter the templates in the **Project Name Templates** text area.
 
     Templates use the following syntax:
 
@@ -57,9 +61,9 @@ Tag values can be derived from project names. Proceed as follows:
 
     **Example:** For the `%Domain%-%LOB%-*` template, the project named `Policy-L&A-rules` receives the tag **Policy** for the **Domain** tag type and **L&A** for **LOB**.
 
-9.  To save project name templates, click **Save Templates**.
+10. To save project name templates, click **Save Templates**.
 
-10. To assign tags according to these project name templates to the projects that do not have tags defined yet, click **Fill Tags for Project**.
+11. To assign tags according to these project name templates to the projects that do not have tags defined yet, click **Fill Tags for Project**.
 
 The **Projects without tags** window appears. It contains all projects that have **None** selected for one or multiple tag types, or do not have tags defined at all, and which name matches the project name template.
 

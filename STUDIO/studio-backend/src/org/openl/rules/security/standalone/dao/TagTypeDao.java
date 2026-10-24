@@ -13,6 +13,10 @@ public interface TagTypeDao extends Dao<TagType> {
     @Transactional
     TagType getByName(String name);
 
+    /**
+     * Lists every tag type in the order an administrator arranged them. The tag types not arranged yet follow
+     * the arranged ones, by name regardless of case.
+     */
     @Transactional
     List<TagType> getAll();
 
