@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * First migration phase: empty-tag cleanup for both {@code rules.xml} and {@code rules-deploy.xml}.
@@ -46,7 +45,7 @@ public final class ConfigEmptyTagMigrator implements Migrator {
     }
 
     @Override
-    public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
+    public List<Path> migrate(Path sourceFolder, MigrationContext context)
             throws IOException {
         var changed = new ArrayList<Path>();
         changed.addAll(ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> {

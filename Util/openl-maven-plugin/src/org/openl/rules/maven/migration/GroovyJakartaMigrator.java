@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -105,13 +104,13 @@ public final class GroovyJakartaMigrator implements Migrator {
     /**
      * Walks {@code sourceFolder} recursively and rewrites every {@code *.groovy} file in place so that the
      * legacy Jakarta EE {@code javax.*} namespaces are replaced with their Jakarta EE 10 equivalents. Files
-     * that do not need changes are left untouched. The {@code generatedInterface} supplier is unused.
+     * that do not need changes are left untouched. The context is unused.
      *
      * @return absolute paths of every groovy file whose content was actually rewritten; empty when no file
      * needed changes or the folder is missing.
      */
     @Override
-    public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
+    public List<Path> migrate(Path sourceFolder, MigrationContext context) throws IOException {
         if (!Files.isDirectory(sourceFolder)) {
             return List.of();
         }

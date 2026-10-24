@@ -3,7 +3,6 @@ package org.openl.rules.maven.migration;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.openl.rules.project.migration.RulesXmlMigrations;
 
@@ -39,7 +38,7 @@ public final class ConfigProjectClasspathMigrator implements Migrator {
     }
 
     @Override
-    public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
+    public List<Path> migrate(Path sourceFolder, MigrationContext context) throws IOException {
         return ConfigProjectIO.roundtrip(this, sourceFolder, RulesXmlMigrations::classpath);
     }
 }

@@ -3,7 +3,6 @@ package org.openl.rules.maven.migration;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * A single migration step that the {@code openl:migrate} mojo can apply to an OpenL project folder.
@@ -42,13 +41,13 @@ public interface Migrator {
     /**
      * Applies the migration to the given source folder.
      *
-     * @param sourceFolder       OpenL project root.
-     * @param generatedInterface lazy supplier of the compiled OpenL interface class. Only invoked by
-     *                           migrators that need it (notably {@link ConfigProjectMethodFilterMigrator}
-     *                           when populating {@code <exposed-methods>} from a legacy
-     *                           {@code <method-filter>}).
+     * @param sourceFolder OpenL project root.
+     * @param context      what the migrator can learn about the project: the compiled OpenL interface class, used by
+     *                     {@link ConfigProjectMethodFilterMigrator} when populating {@code <exposed-methods>} from a
+     *                     legacy {@code <method-filter>}, and the compilation messages of the project as it is on
+     *                     disk, used by the {@code rules.*} migrators to find the rules that no longer compile.
      * @return absolute paths of the files this migrator actually changed. An empty list means the migrator
      * was a no-op for this project and the caller may skip creating an SCM commit.
      */
-    List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException;
+    List<Path> migrate(Path sourceFolder, MigrationContext context) throws IOException;
 }

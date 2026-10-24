@@ -2,6 +2,8 @@ package org.openl.binding.exception;
 
 import java.io.Serial;
 
+import lombok.Getter;
+
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
@@ -15,7 +17,15 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
     @Serial
     private static final long serialVersionUID = -6505424809898412642L;
 
+    /**
+     * The name the method is called by.
+     */
+    @Getter
     private final String methodName;
+    /**
+     * The types of the arguments the method is called with.
+     */
+    @Getter
     private final transient IOpenClass[] params;
     private final transient IOpenClass target;
 

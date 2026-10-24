@@ -1,9 +1,11 @@
 package org.openl.rules.maven;
 
+import java.net.MalformedURLException;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import org.apache.maven.scm.ScmFileSet;
 import org.apache.maven.scm.manager.ScmManager;
 
 import org.openl.OpenClassUtil;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.maven.migration.ConfigDeployRuntimeContextMigrator;
 import org.openl.rules.maven.migration.ConfigDeployTemplateClassMigrator;
 import org.openl.rules.maven.migration.ConfigEmptyTagMigrator;
@@ -28,13 +31,18 @@ import org.openl.rules.maven.migration.ConfigProjectCwProcessorMigrator;
 import org.openl.rules.maven.migration.ConfigProjectDefaultModulesMigrator;
 import org.openl.rules.maven.migration.ConfigProjectMethodFilterMigrator;
 import org.openl.rules.maven.migration.GroovyJakartaMigrator;
+import org.openl.rules.maven.migration.MigrationContext;
 import org.openl.rules.maven.migration.Migrator;
+import org.openl.rules.maven.migration.RulesRemovedFunctionsMigrator;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.util.StringUtils;
 
 /**
- * Migrates an OpenL project to the latest version: rules.xml, rules-deploy.xml, groovy scripts. Each migrator
- * that actually changes files produces a separate SCM commit, so the migration history stays granular.
+ * Migrates an OpenL project to the latest version: rules.xml, rules-deploy.xml, groovy scripts and the rules in the
+ * workbooks. Each migrator that actually changes files produces a separate SCM commit, so the migration history stays
+ * granular.
  *
  * @author Yury Molchan
  * @since 6.1.0
@@ -60,10 +68,12 @@ public final class MigrateMojo extends BaseOpenLMojo {
      * <ul>
      *     <li>{@code all} — the synthetic catch-all id (also the default). Whenever this value appears
      *         anywhere in the list, every registered migrator runs and other entries are ignored.</li>
-     *     <li>an exact id — e.g. {@code config.empty-tag}, {@code groovy.jakarta}</li>
+     *     <li>an exact id — e.g. {@code config.empty-tag}, {@code groovy.jakarta},
+     *         {@code rules.removed-functions}</li>
      *     <li>a category prefix that matches every migrator whose id starts with {@code <prefix>.}
      *         — e.g. {@code config.deploy} (every {@code config.deploy.*} phase), {@code config}
-     *         (every {@code config.*} phase), {@code groovy} (every {@code groovy.*})</li>
+     *         (every {@code config.*} phase), {@code groovy} (every {@code groovy.*}), {@code rules} (every
+     *         {@code rules.*})</li>
      * </ul>
      * On the command line, multiple values are passed comma-separated: {@code -Dopenl.migrate.migrators=config.deploy.drop-rmi,groovy.jakarta}.
      */
@@ -126,16 +136,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
         ClassLoader classLoader = null;
         try {
             classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
-
-            var builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
-            if (hasDependencies) {
-                builder.setWorkspace(workspaceFolder.getPath());
-            }
-            var factory = builder.setProject(sourcePath)
-                    .setClassLoader(classLoader)
-                    .setExecutionMode(true)
-                    .setExternalParameters(externalParameters)
-                    .build();
+            var factory = factory(sourcePath, hasDependencies, classLoader, true);
 
             Supplier<Class<?>> generatedInterface = () -> {
                 try {
@@ -144,13 +145,14 @@ public final class MigrateMojo extends BaseOpenLMojo {
                     throw new RuntimeException("Failed to obtain generated interface class", e);
                 }
             };
+            var context = new MigrationContext(generatedInterface, () -> compile(sourcePath, hasDependencies));
 
             for (Migrator migrator : selected) {
                 // A single migrator's failure (broken transform, SCM error, etc.) must not abort the whole
                 // run — surviving migrators may still apply useful changes. The error message goes to ERROR,
                 // the stacktrace stays at DEBUG so build logs remain readable by default.
                 try {
-                    var changed = migrator.migrate(source, generatedInterface);
+                    var changed = migrator.migrate(source, context);
                     if (changed.isEmpty()) {
                         debug("[", migrator.getId(), "] no changes.");
                         continue;
@@ -175,6 +177,38 @@ public final class MigrateMojo extends BaseOpenLMojo {
     }
 
     /**
+     * Compiles the project as it is on disk, the tables OpenL Studio alone compiles, such as the test tables, included.
+     */
+    // OpenClassUtil releases the class loader and also clears the OpenL caches bound to it.
+    @SuppressWarnings("java:S2093")
+    private Collection<OpenLMessage> compile(String sourcePath, boolean hasDependencies) {
+        ClassLoader classLoader = null;
+        try {
+            classLoader = new URLClassLoader(toURLs(classpath), SimpleProjectEngineFactory.class.getClassLoader());
+            return factory(sourcePath, hasDependencies, classLoader, false).getCompiledOpenClass().getAllMessages();
+        } catch (MalformedURLException | RulesInstantiationException | ProjectResolvingException e) {
+            throw new IllegalStateException("Failed to compile the project", e);
+        } finally {
+            OpenClassUtil.releaseClassLoader(classLoader);
+        }
+    }
+
+    private SimpleProjectEngineFactory<?> factory(String sourcePath,
+                                                  boolean hasDependencies,
+                                                  ClassLoader classLoader,
+                                                  boolean executionMode) {
+        var builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
+        return builder.setProject(sourcePath)
+                .setClassLoader(classLoader)
+                .setExecutionMode(executionMode)
+                .setExternalParameters(externalParameters)
+                .build();
+    }
+
+    /**
      * Every available migrator, in execution order (this is the order {@code openl:migrate} runs them).
      * Stays private — external callers (the {@code openl:migrate-list} goal, unit tests) use
      * {@link #allMigratorsAlphabetical()} instead, which never depends on the execution-order semantics.
@@ -186,13 +220,15 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 // rules.xml: one atomic step per content rewrite.
                 new ConfigProjectClasspathMigrator(),
                 new ConfigProjectCwProcessorMigrator(),
+                // The sources go before the method-filter step, which compiles the project into the generated
+                // interface: groovy first, as the rules compile against its classes.
+                new GroovyJakartaMigrator(),
+                new RulesRemovedFunctionsMigrator(),
                 new ConfigProjectMethodFilterMigrator(),
                 new ConfigProjectDefaultModulesMigrator(),
                 // rules-deploy.xml: one atomic step per content rewrite.
                 new ConfigDeployRuntimeContextMigrator(),
-                new ConfigDeployTemplateClassMigrator(),
-                // groovy
-                new GroovyJakartaMigrator());
+                new ConfigDeployTemplateClassMigrator());
     }
 
     /**

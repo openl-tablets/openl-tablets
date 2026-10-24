@@ -316,9 +316,9 @@ public final class ConfigProjectMethodFilterMigrator implements Migrator {
     }
 
     @Override
-    public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface)
+    public List<Path> migrate(Path sourceFolder, MigrationContext context)
             throws IOException {
         return ConfigProjectIO.roundtrip(this, sourceFolder,
-                descriptor -> transform(descriptor, generatedInterface));
+                descriptor -> transform(descriptor, context.generatedInterface()));
     }
 }
