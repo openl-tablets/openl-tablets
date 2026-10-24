@@ -48,6 +48,17 @@ To create project tags, proceed as follows:
 
 All created tag types and values are saved automatically. These values are now offered as suggestions when tagging a project, and the tags of a project are checked against them, as described in [Tagging a Project](../repository-editor.md#tagging-a-project).
 
+Projects can carry tags that are not defined here, for instance, when a tag is typed on the **Overview** tab of a project or comes with a project from Git. The page lists them so they can be reviewed in one place:
+
+-   A value that a tag type does not have is shown at the end of the **Tags** column of its row, with a dashed border and the number of projects that carry it.
+-   A tag type that is not defined is listed under **Tag types found in projects**, below the table, with its values.
+-   Click a value to open the projects that carry it. The **Projects** list opens filtered by that tag, so a tag added by mistake can be removed from those projects.
+-   Click **+** on a value to add it to its tag type, creating the tag type when it is not defined. Click **Add tag type** to add a tag type with all its values. A tag type added this way is optional and not extensible, and it follows the arranged tag types in alphabetical order.
+
+![The tag table showing Banking found in projects for BLOB, and the Region tag type found in projects below the table with its value EU](../images/tags-found-in-projects.png "Tags found in projects")
+
+*Tags found in projects*
+
 Tag values can be derived from project names. Proceed as follows:
 
 9.  To define project name templates, in the **Tags from a Project Name** section, enter the templates in the **Project Name Templates** text area.

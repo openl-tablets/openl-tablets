@@ -2,6 +2,7 @@ package org.openl.studio.tags.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,40 @@ public class TagTypeService {
             type.setDisplayOrder(position < 0 ? null : position);
         }
         return true;
+    }
+
+    /**
+     * Defines the given tags in the configuration, so that the projects carrying them are tagged as configured.
+     *
+     * <p>A tag type that does not exist yet is created as optional and not extensible, so that no project is
+     * warned about it. A value its tag type does not have yet is added to it. Names match regardless of case,
+     * so a tag type or a value that exists under another case is kept as it is.
+     *
+     * @param tags tag type names, each with the values to define for it; the names must be valid
+     */
+    @Transactional
+    public void define(Map<String, List<String>> tags) {
+        tags.forEach((typeName, values) -> {
+            var type = tagTypeDao.getByName(typeName);
+            if (type == null) {
+                type = new TagType();
+                type.setName(typeName);
+                type.setNullable(true);
+                tagTypeDao.save(type);
+            }
+            for (var value : values) {
+                defineValue(type, value);
+            }
+        });
+    }
+
+    private void defineValue(TagType type, String value) {
+        if (tagDao.getByName(type.getId(), value) == null) {
+            var tag = new Tag();
+            tag.setType(type);
+            tag.setName(value);
+            tagDao.save(tag);
+        }
     }
 
     public boolean delete(Long id) {

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import org.openl.studio.common.exception.NotFoundException;
+import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.tags.service.TagFillService;
 import org.openl.studio.tags.service.TagService;
 import org.openl.studio.tags.service.TagTemplateService;
@@ -31,7 +32,7 @@ class TagConfigControllerOrderTest {
     void setUp() {
         tagTypeService = mock(TagTypeService.class);
         controller = new TagConfigController(tagTypeService, mock(TagService.class), mock(TagTemplateService.class),
-                mock(TagFillService.class));
+                mock(TagFillService.class), mock(WorkspaceProjectService.class));
     }
 
     @Test

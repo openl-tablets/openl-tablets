@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.tags.service.TagFillService;
 import org.openl.studio.tags.service.TagService;
 import org.openl.studio.tags.service.TagTemplateService;
@@ -32,7 +33,7 @@ class TagConfigControllerTemplatesTest {
         tagService = mock(TagService.class);
         tagTemplateService = mock(TagTemplateService.class);
         controller = new TagConfigController(tagTypeService, tagService, tagTemplateService,
-                mock(TagFillService.class));
+                mock(TagFillService.class), mock(WorkspaceProjectService.class));
     }
 
     @Test

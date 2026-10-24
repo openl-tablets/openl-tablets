@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.DBTestConfiguration;
+import org.openl.studio.tags.model.TagDTO;
 import org.openl.studio.tags.model.TagTypeDTO;
 
 /**
@@ -79,6 +82,35 @@ class TagTypeServiceTest {
         assertFalse(tagTypeService.reorder(List.of(id("lob"), -1L)));
 
         assertEquals(List.of("Region", "Domain", "lob"), names());
+    }
+
+    @Test
+    void definesAMissingTypeAsOptionalWithTheValuesTheProjectsCarry() {
+        tagTypeService.define(Map.of("Region", List.of("EU", "US"), "Product", List.of("Auto")));
+
+        var product = tagTypeService.getByName("product");
+        assertTrue(product.isNullable());
+        assertFalse(product.isExtensible());
+        assertEquals(List.of("Auto"), values("Product"));
+        assertEquals(Set.of("EU", "US"), Set.copyOf(values("Region")));
+    }
+
+    @Test
+    void keepsWhatIsConfiguredUnderAnotherCase() {
+        tagTypeService.define(Map.of("region", List.of("EU")));
+        tagTypeService.define(Map.of("REGION", List.of("eu", "Asia")));
+
+        // Region exists from the start, so neither spelling replaces it, and 'eu' is the EU defined first.
+        assertEquals("Region", tagTypeService.getByName("region").getName());
+        assertEquals(Set.of("Asia", "EU"), Set.copyOf(values("Region")));
+    }
+
+    private List<String> values(String type) {
+        return tagTypeService.getAll().stream()
+                .filter(dto -> dto.getName().equals(type))
+                .flatMap(dto -> dto.getTags().stream())
+                .map(TagDTO::getName)
+                .toList();
     }
 
     private List<String> names() {

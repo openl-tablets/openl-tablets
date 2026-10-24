@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import type { DragEndEvent } from '@dnd-kit/core'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -24,18 +26,24 @@ const tagType = (id: number, name: string): TagType => ({ id, name, extensible: 
 
 const types = [tagType(1, 'Domain'), tagType(2, 'LOB'), tagType(3, 'Region')]
 
-const renderTable = (reorderTagTypes = vi.fn(), isLoading = false) => {
+const renderTable = ({
+    reorderTagTypes = vi.fn(), isLoading = false, found = new Map(), defineTags = vi.fn(),
+} = {}) => {
     render(
-        <TagTable
-            createTag={vi.fn()}
-            deleteTag={vi.fn()}
-            deleteTagType={vi.fn()}
-            isLoading={isLoading}
-            reorderTagTypes={reorderTagTypes}
-            tagTypes={types}
-            updateTag={vi.fn()}
-            updateTagType={vi.fn()}
-        />
+        <MemoryRouter>
+            <TagTable
+                createTag={vi.fn()}
+                defineTags={defineTags}
+                deleteTag={vi.fn()}
+                deleteTagType={vi.fn()}
+                found={found}
+                isLoading={isLoading}
+                reorderTagTypes={reorderTagTypes}
+                tagTypes={types}
+                updateTag={vi.fn()}
+                updateTagType={vi.fn()}
+            />
+        </MemoryRouter>
     )
     return reorderTagTypes
 }
@@ -46,6 +54,18 @@ const drag = (activeId: number, overId: number | null) => endDrag({
 } as unknown as DragEndEvent)
 
 describe('TagTable', () => {
+    it('shows the values the projects carry beside the configured ones, each opening its projects', async () => {
+        const defineTags = vi.fn()
+        renderTable({ found: new Map([[3, [{ value: 'Asia', projects: 2 }]]]), defineTags })
+
+        const link = screen.getByRole('link', { name: /tags:found_open/ })
+        expect(link).toHaveAttribute('href', '/projects?tags=Region%3AAsia')
+        expect(screen.getByTestId('found-tag-Region-Asia')).toHaveTextContent('Asia2')
+
+        await userEvent.click(screen.getByTestId('found-tag-add-Region-Asia'))
+        expect(defineTags).toHaveBeenCalledWith('Region', ['Asia'])
+    })
+
     it('offers a handle to drag each tag type by', () => {
         renderTable()
 
@@ -54,7 +74,7 @@ describe('TagTable', () => {
     })
 
     it('lets no tag type be moved while the table is loading', () => {
-        renderTable(vi.fn(), true)
+        renderTable({ isLoading: true })
 
         // A change being stored would otherwise race the next one.
         expect(screen.getByTestId('tag-type-drag-Domain')).toHaveAttribute('aria-disabled', 'true')

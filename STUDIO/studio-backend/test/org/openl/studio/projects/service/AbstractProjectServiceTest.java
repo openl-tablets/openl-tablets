@@ -145,6 +145,27 @@ class AbstractProjectServiceTest {
     }
 
     @Test
+    void getTagCountsCountsTheReadableProjectsWhateverTheFacetFilters() {
+        var payroll = rulesProject("Payroll", "design", "Design", Map.of("Category", "Payroll"));
+        var benefits = rulesProject("Benefits", "ro", "ReadOnly", Map.of("Category", "Benefits"));
+        var hidden = rulesProject("Hidden", "design", "Design", Map.of("Category", "Secret"));
+        service.projects = List.of(payroll, benefits, hidden);
+        grantRead(payroll);
+        grantRead(benefits);
+
+        var counts = service.getTagCounts(ProjectCriteriaQuery.builder()
+                .repositoryId("design")
+                .tagValues(Map.of("Category", Set.of("Payroll")))
+                .build());
+
+        // The repository and tag filters do not narrow the counts, and a project the user cannot read is left out.
+        assertEquals(List.of("Benefits", "Payroll"), counts.getFirst().values().stream()
+                .map(FacetCount::id)
+                .sorted()
+                .toList());
+    }
+
+    @Test
     void getProjectsFiltersByAuthorAndBranch() {
         var alpha = rulesProject("Alpha", "design", "Design", Map.of());
         alpha.getFileData().setAuthor(new UserInfo("jane"));

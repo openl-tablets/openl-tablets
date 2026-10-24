@@ -571,7 +571,7 @@ The tags are written to the `tags.properties` file, and the project status chang
 
 The **Tags** section checks the tags against the tag types defined in OpenL Studio, both while the tags are viewed and while they are edited:
 
--   A tag type that is not defined in OpenL Studio is shown in the warning color, and a warning below the tags lists such types. Such a tag can be edited or removed like any other one, or an administrator can define its type as described in [Managing Tags](administration/06-tags.md#managing-tags).
+-   A tag type that is not defined in OpenL Studio is shown in the warning color, and a warning below the tags lists such types. Such a tag can be edited or removed like any other one, or an administrator can add it on the **Tags** page of the administration, which lists the tags that projects carry but that are not defined, as described in [Managing Tags](administration/06-tags.md#managing-tags).
 -   A mandatory tag type, the one with **Nullable** cleared, that the project has no value for is reported as `Tag type '<tag type>' is mandatory.` below the tags.
 -   A value that a tag type with **Extensible** cleared does not have is reported as `'<value>' is not allowed value for tag type '<tag type>'.` below that tag. Values are compared regardless of case, and any value of an extensible tag type is accepted.
 

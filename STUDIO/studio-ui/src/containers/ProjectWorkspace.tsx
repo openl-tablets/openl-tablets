@@ -34,7 +34,7 @@ import type { BusyId } from './projects/projectActions'
 import { DiscardChangesModal } from './DiscardChangesModal'
 import { ProjectsRail } from './projects/ProjectsRail'
 import { UnresolvedProjectLink } from './projects/UnresolvedProjectLink'
-import type { NodeFilters } from './projects/projectGrouping'
+import { groupQuery } from './projects/projectGrouping'
 import { clearStoredPicks, loadStoredPicks } from './projects/filterStorage'
 import { listingQueryOf } from './projects/projectListing'
 import { moduleRoute, projectFileRoute } from '../services/projectId'
@@ -510,20 +510,4 @@ export const ProjectWorkspace = () => {
             />
         </div>
     )
-}
-
-/** The list parameters that show the projects of a tree group. */
-const groupQuery = (filters: NodeFilters): string => {
-    const params = new URLSearchParams()
-    if (filters.repositories.length > 0) {
-        params.set('repo', filters.repositories.join(','))
-    }
-    // Branch names may contain a comma, so each branch rides as its own param instead of a comma-joined one.
-    for (const branch of filters.branches) {
-        params.append('branch', branch)
-    }
-    if (filters.tags.length > 0) {
-        params.set('tags', filters.tags.join(','))
-    }
-    return params.toString()
 }
