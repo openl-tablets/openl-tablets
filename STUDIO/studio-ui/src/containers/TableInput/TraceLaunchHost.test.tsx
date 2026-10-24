@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { getProject } from 'services/repositories'
 import { getTableInput, getTableInputCase, getTableInputCases } from 'services/tables'
 import { launchTrace } from 'services/traceLaunch'
-import { useUserStore } from 'store'
+import { useSettingsStore } from 'store'
+import { DEFAULT_USER_SETTINGS } from 'store/settingsStore'
 import type { TableInput } from 'types/tables'
 import { TraceLaunchHost } from 'containers/TableInput/TraceLaunchHost'
 
@@ -78,7 +79,7 @@ describe('TraceLaunchHost', () => {
         projectRead.mockResolvedValue({ id: 'real-p1', name: 'P' })
         casesRead.mockResolvedValue(casesPage)
         launch.mockResolvedValue(undefined)
-        useUserStore.setState({ userProfile: { showRealNumbers: true } as never })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, showRealNumbers: true } })
     })
 
     it('collects the parameters of a rule table and starts the trace with them', async () => {

@@ -24,7 +24,7 @@ import { isUnresolvedProjectLink } from '../services/projectLink'
 import { supportsBranches } from '../utils/repositoryFeatures'
 import { errorMessage } from '../utils/errorMessage'
 import { useLoadGeneration, useReleaseOnClose } from '../hooks'
-import { useUserStore } from '../store'
+import { useSettingsStore } from '../store'
 import { ProjectStatus } from '../constants/project'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
 import { rolesOf } from '../components/tableRoles'
@@ -196,8 +196,8 @@ export const ModuleWorkspace = () => {
     // The cell a message was raised against, asked for from beside that message.
     const [editCell, setEditCell] = useState<string | null>(null)
     // The table settings the user keeps for themselves, which the Editor has always obeyed.
-    const showHeader = useUserStore(state => state.userProfile?.showHeader ?? true)
-    const showFormulas = useUserStore(state => state.userProfile?.showFormulas ?? false)
+    const showHeader = useSettingsStore(state => state.settings.showHeader)
+    const showFormulas = useSettingsStore(state => state.settings.showFormulas)
     // Bumped by Refresh, so the module is compiled again and its tables read afresh.
     // What the reader asked to be compiled again, and how many times. A refresh belongs to the module it was
     // pressed on: carried over to the next module, it would rebuild that one from the workbook as well.

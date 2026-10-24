@@ -1,6 +1,6 @@
 # The settings of a user stay with the user
 
-Two users change the settings of **My Settings** through `PUT /rest/users/profile`:
+Two users change the table, testing and trace settings of their profiles through `PUT /rest/users/profile`:
 
 - the first changes every setting;
 - the second reads the defaults, then changes two settings of its own.

@@ -3,7 +3,8 @@ import type { ModuleTable } from 'types/tables'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useUserStore } from '../store'
+import { useSettingsStore } from '../store'
+import { DEFAULT_USER_SETTINGS } from '../store/settingsStore'
 import { ModuleWorkspace } from './ModuleWorkspace'
 import { getMessageStacktrace, getModuleTables, getRawTable, listModules, stopEditingTable } from '../services/modules'
 import { getProject, getProjects, setProjectStatus } from '../services/repositories'
@@ -229,7 +230,7 @@ describe('ModuleWorkspace', () => {
         editorHandle.current = null
         handed.found = undefined
         handed.usage = {}
-        useUserStore.setState({ userProfile: undefined })
+        useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS })
         routeParams.projectId = 'p1'
         routeParams.moduleName = 'Bank Rating'
         workspace.opened = false
@@ -373,7 +374,7 @@ describe('ModuleWorkspace', () => {
 
     it('hands the table over whole with the count of header rows to keep out of sight', async () => {
         workspace.opened = true
-        useUserStore.setState({ userProfile: { showHeader: false } as never })
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, showHeader: false } })
         vi.mocked(getRawTable).mockResolvedValue({
             id: 't-1',
             name: 'BankRating',

@@ -3,9 +3,9 @@ import { Avatar, Col, Drawer, Menu, type MenuProps, Row, Typography } from 'antd
 import { useStyles } from './UserMenu.styles'
 import {
     InfoCircleOutlined,
+    KeyOutlined,
     LogoutOutlined,
     QuestionOutlined,
-    SettingOutlined,
     ToolOutlined,
     UserOutlined,
 } from '@ant-design/icons'
@@ -31,7 +31,7 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
     const appNavigate = useAppNavigate()
     const userProfile = useUserStore(state => state.userProfile)
     const { hasAdminPermission } = useContext(PermissionContext)
-    const { appVersion, systemSettings } = useContext(SystemContext)
+    const { appVersion, isPersonalAccessTokenEnabled, systemSettings } = useContext(SystemContext)
     // Undefined until About is chosen for the first time, so the dialog is not loaded before.
     const [isAboutOpen, setIsAboutOpen] = useState<boolean>()
 
@@ -57,7 +57,13 @@ export const UserMenu: FC<UserMenuProps> = ({ isOpen, onClose }) => {
 
     const items: MenuProps['items'] = [
         { key: '/administration/user/profile', icon: <UserOutlined />, label: t('common:user_menu.my_profile') },
-        { key: '/administration/user/settings', icon: <SettingOutlined />, label: t('common:user_menu.my_settings') },
+        ...(isPersonalAccessTokenEnabled ? [
+            {
+                key: '/administration/user/tokens',
+                icon: <KeyOutlined />,
+                label: t('common:user_menu.personal_access_tokens'),
+            },
+        ] : []),
         ...(hasAdminPermission() ? [
             { type: 'divider' as const },
             { key: '/administration/system', icon: <ToolOutlined />, label: t('common:user_menu.administration') },

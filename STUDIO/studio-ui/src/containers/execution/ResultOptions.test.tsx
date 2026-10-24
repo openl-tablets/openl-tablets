@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { FailuresOption, savedFailuresOption } from './ResultOptions'
+import { FailuresOption } from './ResultOptions'
 
 vi.mock('react-i18next', () => {
     const t = (key: string) => key
@@ -49,25 +49,5 @@ describe('FailuresOption', () => {
         await pickCount('20')
 
         await waitFor(() => expect(onChange).toHaveBeenCalledWith({ failures: 20 }))
-    })
-})
-
-describe('savedFailuresOption', () => {
-    it('opens with what the user saved, every failure included', () => {
-        expect(savedFailuresOption({ testsFailuresOnly: true, testsFailuresPerTest: -1 } as never))
-            .toEqual({ failuresOnly: true, failures: -1 })
-    })
-
-    it('falls back to the default count for a profile that was never asked', () => {
-        expect(savedFailuresOption({ testsFailuresOnly: false, testsFailuresPerTest: 0 } as never))
-            .toEqual({ failuresOnly: false, failures: 5 })
-        expect(savedFailuresOption(null)).toEqual({ failuresOnly: false, failures: 5 })
-    })
-
-    it('falls back for a count the server would refuse, and keeps one it would take', () => {
-        expect(savedFailuresOption({ testsFailuresOnly: true, testsFailuresPerTest: -7 } as never))
-            .toEqual({ failuresOnly: true, failures: 5 })
-        expect(savedFailuresOption({ testsFailuresOnly: true, testsFailuresPerTest: 7 } as never))
-            .toEqual({ failuresOnly: true, failures: 7 })
     })
 })

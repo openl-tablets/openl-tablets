@@ -1,8 +1,7 @@
 import React from 'react'
 import { Checkbox, Select, Space, Typography } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { ALL_FAILURES, FAILURES_PER_TEST, FAILURES_PER_TEST_OPTIONS } from 'constants/tests'
-import type { UserProfile } from 'types/user'
+import { ALL_FAILURES, FAILURES_PER_TEST_OPTIONS } from 'constants/tests'
 
 const { Text } = Typography
 
@@ -51,20 +50,6 @@ export const CountSelect: React.FC<CountSelectProps> = ({
 export interface FailuresChoice {
     failuresOnly: boolean
     failures: number
-}
-
-/**
- * The option as the user last saved it.
- *
- * <p>A count the server would refuse falls back to the default: the profile takes whatever is written to it,
- * and nothing there keeps a count out of it.
- */
-export const savedFailuresOption = (profile: UserProfile | null | undefined): FailuresChoice => {
-    const saved = profile?.testsFailuresPerTest ?? 0
-    return {
-        failuresOnly: profile?.testsFailuresOnly ?? false,
-        failures: saved >= 1 || saved === ALL_FAILURES ? saved : FAILURES_PER_TEST,
-    }
 }
 
 interface FailuresOptionProps extends FailuresChoice {

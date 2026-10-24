@@ -39,20 +39,22 @@ For more information on OpenL Studio UI, see [Introducing Rules Editor](#introdu
 
 ### Modifying User Profile
 
-OpenL Studio provides a navigation panel accessible from the top-right corner of the application for updating profile information and editing personal settings. To open it, click the user icon in the top-right corner. The panel displays the current username and email address, and provides access to the following items:
+OpenL Studio provides a navigation panel accessible from the top-right corner of the application for updating profile information. To open it, click the user icon in the top-right corner. The panel displays the current username and email address, and provides access to the following items:
 
 -   **My Profile** — update account details, name, and password
--   **My Settings** — configure display and testing preferences
+-   **Personal Access Tokens** — manage API authentication tokens (not shown in single-user mode)
 -   **Administration** — open the administration tools (shown to administrators only)
 -   **Help** — open the OpenL Studio help
 -   **About** — view the version, build date and license of OpenL Studio and the licenses of the third-party
     libraries it includes
 -   **Sign Out** — end the current session (not shown in single-user mode)
 
-**My Profile** and **My Settings** open a page with a navigation menu on the left. The menu also lists **Personal
-Access Tokens**, which manages API authentication tokens in all multi-user authentication modes.
+**My Profile** and **Personal Access Tokens** open a page with a navigation menu on the left, which lists both.
 
-![User profile panel with the My Profile, My Settings, Help, About and Sign Out items](images/user-profile-dropdown.png "User profile panel")
+The display and testing preferences are not in the panel: the settings icon beside the theme icon opens
+**My Settings**, described in [Modifying My Settings](#modifying-my-settings).
+
+![User profile panel with the My Profile, Personal Access Tokens, Help, About and Sign Out items](images/user-profile-dropdown.png "User profile panel")
 
 *Opening the user profile panel*
 
@@ -127,16 +129,19 @@ If this user was not created as a local user previously but instead, created upo
 
 #### Modifying My Settings
 
+**My Settings** are kept in the web browser, not on the server. They apply to every tab of the browser and are
+remembered for the next visit, but another browser or another computer starts from the defaults. A change applies
+at once; there is nothing to save.
+
 To manage personal settings, proceed as follows:
 
-1.  In OpenL Studio, in the top-right corner, click the user icon.
-2.  In the panel, click **My Settings**.
+1.  In OpenL Studio, in the top-right corner, click the settings icon beside the theme icon.
 
-    ![My Settings page with the Table Settings, Testing Settings, and Trace Settings sections](images/user-settings-form.png "My Settings page")
+    ![My Settings menu with the Table Settings, Testing Settings, and Trace Settings groups](images/user-settings-menu.png "My Settings menu")
 
-    *My Settings page*
+    *My Settings menu*
 
-3.  In the **Table Settings** section, configure the following options:
+2.  In the **Table Settings** group, turn the following options on or off:
 
     -   **Show Header** — display the table header row.
     -   **Show Formulas** — display MS Excel formulas in table cells.
@@ -144,19 +149,21 @@ To manage personal settings, proceed as follows:
     Whether the tables are drawn in the colours of the OpenL Studio theme or as the Excel file formats them is chosen
     in the theme menu, by the **Excel Formatting** switch described in [Switching the Theme](#switching-the-theme).
 
-4.  In the **Testing Settings** section, configure the following options:
+3.  In the **Testing Settings** group, configure the following options:
 
-    -   **Tests Per Page** — number of test results displayed per page. Default is 5.
+    -   **Tests Per Page** — number of test results displayed per page; point to it and pick 1, 5, 20 or **All**.
+        Default is 5.
     -   **Failures Only** — show only failed test cases in the results.
     -   **Compound Result** — display compound test results.
 
     For more information on testing settings, see [Running Unit Tests](editing-testing.md#running-unit-tests).
 
-5.  In the **Trace Settings** section, configure the following option:
+4.  In the **Trace Settings** group, turn the following option on or off:
 
     -   **Show Numbers Without Formatting** — display numeric values without locale-based formatting in the trace view.
 
-6.  Click **Save**.
+The menu stays open while the options are changed. To close it, click the settings icon again or anywhere outside
+the menu.
 
 #### Managing Personal Access Tokens
 
@@ -166,23 +173,23 @@ Personal access tokens are available in all multi-user authentication modes — 
 
 To create a personal access token, proceed as follows:
 
-1.  In OpenL Studio, in the top-right corner, click the user icon, and in the panel, click **My Profile**.
-2.  In the navigation menu on the left, click **Personal Access Tokens**.
+1.  In OpenL Studio, in the top-right corner, click the user icon, and in the panel, click **Personal Access
+    Tokens**.
 
     ![](images/personal-access-tokens-view.png)
 
     *Personal Access Tokens page*
 
-3.  Click **+ Create Token**.
+2.  Click **+ Create Token**.
 
     ![](images/create-token.png)
 
     *Create Token drawer*
 
-4.  In the **Create Token** drawer, enter a **Token Name** that identifies the token's purpose, such as `CI/CD Pipeline` or `MCP Client`.
-5.  Select an **Expiration** period: 7 days, 30 days, 60 days, 90 days, a custom date, or no expiration.
-6.  Click **Create**.
-7.  Copy the generated token value immediately.
+3.  In the **Create Token** drawer, enter a **Token Name** that identifies the token's purpose, such as `CI/CD Pipeline` or `MCP Client`.
+4.  Select an **Expiration** period: 7 days, 30 days, 60 days, 90 days, a custom date, or no expiration.
+5.  Click **Create**.
+6.  Copy the generated token value immediately.
 
     The token is displayed only once and cannot be retrieved after closing the drawer.
 
@@ -315,7 +322,7 @@ The **Projects** and **Deployments** links in the top bar lead back to the pages
 
 OpenL Studio provides different modes for displaying rule elements. In this guide, modes are contingently divided into a **simple view** and **extended view**.
 
-To switch between views, in the top right corner, select **My Settings** and use the **Show Header** and **Show Formulas** options.
+To switch between views, in the top right corner, click the settings icon and use the **Show Header** and **Show Formulas** options of **My Settings**.
 
 When a table is opened in a simple view, OpenL Studio hides various technical table details, such as table header and MS Excel formulas. An example of a table opened in a simple view is as follows.
 

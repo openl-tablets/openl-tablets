@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Button, Checkbox, Space, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
+import { CompoundResultOption, CountSelect, FailuresOption } from 'containers/execution/ResultOptions'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { isFinished, useExecutionProgress, useQuietSpells } from 'containers/execution/useExecutionProgress'
 import { testsTopics } from 'containers/execution/topics'
 import { useEventProject } from 'hooks'
-import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
+import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
     getTestsSummaryWorkbook,
     readTestsSummaryWorkbook,
@@ -17,7 +17,7 @@ import {
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
 import { openExecutionWindow, publishExecution } from 'services/executionWindow'
-import { useUserStore } from 'store'
+import { savedTestsOptions } from 'store/settingsStore'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
@@ -40,13 +40,8 @@ interface TestsLaunchProps {
 
 const TestsLaunch: React.FC<TestsLaunchProps> = ({ detail, project, onClose }) => {
     const { t } = useTranslation('execution')
-    const profile = useUserStore(state => state.userProfile)
     const [moduleOnly, setModuleOnly] = useState(detail.moduleOnlyLocked ?? false)
-    const [options, setOptions] = useState<TestsOptions>(() => ({
-        size: profile?.testsPerPage || TESTS_PAGE_SIZE,
-        ...savedFailuresOption(profile),
-        compoundResult: profile?.showComplexResult ?? false,
-    }))
+    const [options, setOptions] = useState<TestsOptions>(savedTestsOptions)
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)
     const [ran, setRan] = useState(false)

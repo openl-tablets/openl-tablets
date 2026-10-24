@@ -61,13 +61,6 @@ export interface UserProfile {
     }
     firstName: string
     lastName: string
-    showComplexResult: boolean
-    showFormulas: boolean
-    showHeader: boolean
-    showRealNumbers: boolean
-    testsFailuresOnly: boolean
-    testsFailuresPerTest: number
-    testsPerPage: number
     username: string
 }
 

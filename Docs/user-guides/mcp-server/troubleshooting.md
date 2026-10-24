@@ -44,7 +44,7 @@ deleted:
 
 -   Check that the client sends the `Authorization` header as `Token <token>`, or as `Bearer <token>` with an access
     token of the identity provider when OpenL Studio signs users in through OAuth2.
--   In OpenL Studio, in **My Profile** > **Personal Access Tokens**, check that the token exists and has not expired,
+-   In OpenL Studio, in **Personal Access Tokens** of the user icon, check that the token exists and has not expired,
     or create a new one.
 
 An error with `403` means that the user of the token has no permission for the action, the same as in OpenL Studio.

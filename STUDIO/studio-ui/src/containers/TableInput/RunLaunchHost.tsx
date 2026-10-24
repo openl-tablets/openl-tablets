@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Checkbox, Space } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { CompoundResultOption, FailuresOption, savedFailuresOption } from 'containers/execution/ResultOptions'
+import { CompoundResultOption, FailuresOption } from 'containers/execution/ResultOptions'
 import { RunResultModal } from 'containers/execution/RunResultModal'
 import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { TestsResultModal } from 'containers/execution/TestsResultModal'
@@ -23,7 +23,7 @@ import {
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
 import { openExecutionWindow, publishExecution, type ExecutionWindowRequest } from 'services/executionWindow'
-import { useUserStore } from 'store'
+import { savedTestsOptions } from 'store/settingsStore'
 import type { Project } from 'types/projects'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
@@ -50,7 +50,6 @@ interface RunLaunchProps {
 
 const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
     const { t } = useTranslation('execution')
-    const profile = useUserStore(state => state.userProfile)
     // A test table runs the cases it carries; a Run table among them states no expected values, so its cases
     // are run rather than tested.
     const testTable = carriesCases(detail.kind)
@@ -77,10 +76,10 @@ const RunLaunch: React.FC<RunLaunchProps> = ({ detail, project, onClose }) => {
         flattenParameters: true,
         resultInJson: false,
     })
-    const [testsOptions, setTestsOptions] = useState<TestsOptions>(() => ({
-        ...savedFailuresOption(profile),
-        compoundResult: profile?.showComplexResult ?? false,
-    }))
+    const [testsOptions, setTestsOptions] = useState<TestsOptions>(() => {
+        const { failuresOnly, failures, compoundResult } = savedTestsOptions()
+        return { failuresOnly, failures, compoundResult }
+    })
 
     const resultRequest = useCallback((kind: RunResults): ExecutionWindowRequest => kind === 'run'
         ? { kind, projectId: project.id, tableId: detail.tableId, fileOptions: file }

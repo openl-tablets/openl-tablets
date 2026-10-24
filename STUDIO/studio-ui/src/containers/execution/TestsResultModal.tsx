@@ -14,7 +14,7 @@ import {
     type ValueStyles,
 } from 'components/values/ParameterValues'
 import { isComplexValue } from 'components/values/valueTree'
-import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZE, TESTS_PAGE_SIZES } from 'constants/tests'
+import { ALL_TESTS_ON_A_PAGE, TESTS_PAGE_SIZES } from 'constants/tests'
 import {
     getTestCaseLines,
     getTestsSummary,
@@ -26,7 +26,7 @@ import {
 } from 'services/execution'
 import { isStillRunning } from 'services/taskResult'
 import { isMissingExecution } from 'services/executionWindow'
-import { useUserStore } from 'store'
+import { savedTestsOptions } from 'store/settingsStore'
 import type {
     TestAssertionResult,
     TestsSummary,
@@ -34,12 +34,11 @@ import type {
     TestTableResult,
     TestUnitResult,
 } from 'types/execution'
-import type { UserProfile } from 'types/user'
 import type { TraceParameterValue } from 'types/trace'
 import { saveFile } from 'utils/download'
 import { errorMessage } from 'utils/errorMessage'
 import { formatSmartNumber } from 'utils/smartNumber'
-import { CompoundResultOption, CountSelect, FailuresOption, savedFailuresOption } from './ResultOptions'
+import { CompoundResultOption, CountSelect, FailuresOption } from './ResultOptions'
 import { isFinished, useExecutionProgress, useQuietSpells } from './useExecutionProgress'
 import { testsTopics } from './topics'
 import { ExecutionErrors, ExecutionModal, ExecutionWindowContext, nameOf } from './ExecutionModal'
@@ -282,14 +281,12 @@ const TestTable: React.FC<{
     )
 }
 
-/** What the screen shows to begin with: the settings of the user, as they were saved in the profile. */
-const savedQuery = (profile: UserProfile | null): Required<TestsQuery> => ({
-    ...savedFailuresOption(profile),
-    compoundResult: profile?.showComplexResult ?? false,
+/** What the screen shows to begin with: the settings of the user, as **My Settings** keep them. */
+const savedQuery = (): Required<TestsQuery> => ({
+    ...savedTestsOptions(),
     // The screen only reads the values, so a value with inner structure is read when it is asked for.
     lazyValues: true,
     page: 0,
-    size: profile?.testsPerPage || TESTS_PAGE_SIZE,
 })
 
 interface TestsResultModalProps {
@@ -313,8 +310,7 @@ export const TestsResultModal: React.FC<TestsResultModalProps> = ({ projectId, t
     const { t } = useTranslation('execution')
     const { openTable } = useContext(ExecutionWindowContext)
     const valueStyles = useValueStyles()
-    const profile = useUserStore(state => state.userProfile)
-    const [query, setQuery] = useState<Required<TestsQuery>>(() => ({ ...savedQuery(profile ?? null), ...options }))
+    const [query, setQuery] = useState<Required<TestsQuery>>(() => ({ ...savedQuery(), ...options }))
     const [summary, setSummary] = useState<TestsSummary | null>(null)
     // What the results on screen were read with. The columns follow it rather than what was just asked for, so a
     // column added while the results are read again does not stand empty over the results before.

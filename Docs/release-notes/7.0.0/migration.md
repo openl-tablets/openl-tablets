@@ -20,6 +20,11 @@ from Maven.
   saved before the upgrade, and one that names a project by its name, leads to no project. Open the project from the
   **Projects** tab and bookmark it again.
 
+* **My Settings are kept in the browser and open from the header.** The settings icon beside the theme icon opens
+  them, and a change applies at once. They are no longer saved in the user profile, so each browser starts from the
+  defaults, and the settings saved before the upgrade are not used. The user icon lists **Personal Access Tokens**
+  right under **My Profile** instead.
+
 * **The Default Order is gone from My Settings.** The module tree opens on the view last picked in the browser, and on
   **By Excel Sheet** until one is picked. A Default Order saved before the upgrade is not used.
 

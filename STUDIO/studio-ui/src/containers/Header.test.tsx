@@ -25,6 +25,7 @@ vi.mock('./Header.styles', () => ({
 
 vi.mock('./header/UserMenu', () => ({ UserMenu: () => null }))
 vi.mock('./header/ThemeSwitch', () => ({ ThemeSwitch: () => <div data-testid="theme-switch" /> }))
+vi.mock('./header/SettingsMenu', () => ({ SettingsMenu: () => <div data-testid="settings-menu" /> }))
 vi.mock('../components/Logo', () => ({ default: () => null }))
 vi.mock('../hooks', () => ({ useAppNavigate: () => appNavigateMock, useScript: () => {} }))
 vi.mock('store', () => ({ useNotificationStore: () => ({ notification: notificationRef.current }) }))
@@ -112,12 +113,14 @@ describe('Header', () => {
         expect(screen.getByTestId('menu-/projects').getAttribute('data-selected')).toBeNull()
     })
 
-    it('offers the theme switcher beside the avatar', async () => {
+    it('offers My Settings and the theme switcher beside the avatar', async () => {
         vi.mocked(hasDeploymentRepositories).mockResolvedValue(true)
 
         render(<Header />)
 
-        expect(await screen.findByTestId('theme-switch')).toBeTruthy()
+        const settings = await screen.findByTestId('settings-menu')
+        expect(settings.compareDocumentPosition(screen.getByTestId('theme-switch')))
+            .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     })
 
     it('switches tabs through the app instead of loading the page anew', async () => {

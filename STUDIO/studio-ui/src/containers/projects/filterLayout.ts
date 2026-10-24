@@ -1,4 +1,4 @@
-import { readJson, writeJson } from '../../utils/localStore'
+import { isJsonObject, readJson, writeJson } from '../../utils/localStore'
 /** The group of the rail that filters by repository. */
 export const REPOSITORY_GROUP = 'repository'
 /** The group of the rail that filters by the branch a project is open on. */
@@ -26,10 +26,8 @@ const STORAGE_KEY = 'openl.projects.filters.layout'
 const isStringArray = (value: unknown): value is string[] =>
     Array.isArray(value) && value.every(item => typeof item === 'string')
 
-const isRecord = (value: unknown): value is Partial<FilterLayout> => typeof value === 'object' && value !== null
-
 export const loadFilterLayout = (): FilterLayout => {
-    const layout = readJson<Partial<FilterLayout>>(STORAGE_KEY, {}, isRecord)
+    const layout = readJson<Partial<FilterLayout>>(STORAGE_KEY, {}, isJsonObject)
     return {
         order: isStringArray(layout.order) ? layout.order : [],
         hidden: isStringArray(layout.hidden) ? layout.hidden : [],

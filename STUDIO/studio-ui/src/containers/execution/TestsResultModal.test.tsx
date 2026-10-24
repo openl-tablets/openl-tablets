@@ -9,6 +9,7 @@ import { TestsResultModal } from 'containers/execution/TestsResultModal'
 import { ExecutionWindowContext } from 'containers/execution/ExecutionModal'
 import { useQuietSpells } from 'containers/execution/useExecutionProgress'
 import * as look from 'components/values/parameterValues.styles'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 
 vi.mock('services/execution', () => ({
     getTestsSummary: vi.fn(),
@@ -16,12 +17,6 @@ vi.mock('services/execution', () => ({
     getTestCaseLines: vi.fn(),
     getTestsSummaryWorkbook: vi.fn(),
     XLSX_MEDIA_TYPE: 'application/xlsx',
-}))
-
-const saved = vi.hoisted(() => ({ profile: null as Record<string, unknown> | null }))
-
-vi.mock('store', () => ({
-    useUserStore: (select: (state: unknown) => unknown) => select({ userProfile: saved.profile }),
 }))
 
 vi.mock('utils/download', () => ({ saveFile: vi.fn() }))
@@ -133,7 +128,7 @@ const show = async () => {
 describe('TestsResultModal', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        saved.profile = null
+        useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS })
         run.status = null
         run.quietSpells = 0
         readSummary.mockResolvedValue(summary)
@@ -494,23 +489,20 @@ describe('TestsResultModal', () => {
 
         await userEvent.click(screen.getByTestId('tests-save'))
 
-        await waitFor(() => expect(readWorkbook).toHaveBeenCalledWith('p1', expect.objectContaining({ size: 20 })))
+        await waitFor(() => expect(readWorkbook).toHaveBeenCalledWith('p1', expect.objectContaining({ size: 5 })))
         expect(save).toHaveBeenCalledWith(expect.any(Blob), 'test-results.xlsx', 'application/xlsx')
     })
 
     it('starts from the settings the user saved', async () => {
-        saved.profile = {
-            testsFailuresOnly: true,
-            testsFailuresPerTest: 20,
-            showComplexResult: true,
-            testsPerPage: -1,
-        }
+        useSettingsStore.setState({
+            settings: { ...DEFAULT_USER_SETTINGS, testsFailuresOnly: true, showComplexResult: true, testsPerPage: -1 },
+        })
 
         await show()
 
         expect(readSummary).toHaveBeenCalledWith('p1', {
             failuresOnly: true,
-            failures: 20,
+            failures: 5,
             compoundResult: true,
             lazyValues: true,
             page: 0,
@@ -660,7 +652,7 @@ describe('TestsResultModal', () => {
     })
 
     it('leaves the whole value of a case that returned none empty', async () => {
-        saved.profile = { showComplexResult: true }
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, showComplexResult: true } })
 
         await show()
 

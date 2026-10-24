@@ -10,7 +10,6 @@ import {
     NotificationOutlined,
     NumberOutlined,
     SafetyOutlined,
-    SettingOutlined,
     TeamOutlined,
     ToolOutlined,
     UserOutlined,
@@ -20,7 +19,6 @@ import { useStyles } from './MainMenu.styles'
 
 const MenuItems = {
     userProfile: '/administration/user/profile',
-    userSettings: '/administration/user/settings',
     userTokens: '/administration/user/tokens',
     repositories: '/administration/repositories/design',
     system: '/administration/system',
@@ -66,7 +64,6 @@ const MainMenu: React.FC = () => {
                 }}
             >
                 <Menu.Item key={MenuItems.userProfile} icon={<UserOutlined />} id="menuitem-profile">{t('common:menu.my_profile')}</Menu.Item>
-                <Menu.Item key={MenuItems.userSettings} icon={<SettingOutlined />} id="menuitem-settings">{t('common:menu.my_settings')}</Menu.Item>
                 {isPersonalAccessTokenEnabled && (
                     <Menu.Item key={MenuItems.userTokens} icon={<KeyOutlined />} id="menuitem-tokens">{t('common:menu.personal_access_tokens')}</Menu.Item>
                 )}

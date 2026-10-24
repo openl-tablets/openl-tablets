@@ -322,7 +322,7 @@ The options above the list decide what it shows. They apply at once, without run
     puts every test table on one page.
 
 The screen opens with the options the panel that started the run was left with, and that panel starts from
-what is saved in **My Settings**. **Failures per test** is not offered there, so it starts at 5.
+what **My Settings** keep in the browser. **Failures per test** is not offered there, so it starts at 5.
 Changing any of them here applies to this run only.
 
 To save the results, click **Save to Excel**. The workbook holds every case that ran, with its input —

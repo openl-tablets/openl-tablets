@@ -51,3 +51,7 @@ export const readJson = <T>(key: string, fallback: T, accept: (value: unknown) =
 
 /** Stores a value as JSON; does nothing when storage is unavailable. */
 export const writeJson = (key: string, value: unknown): void => writeStored(key, JSON.stringify(value))
+
+/** Whether a parsed value is a JSON object, the shape a stored record of fields is read from. */
+export const isJsonObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null && !Array.isArray(value)

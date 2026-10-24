@@ -6,7 +6,7 @@
  */
 
 /** How many test tables one page of the results holds, and the sizes the screen offers instead. */
-export const TESTS_PAGE_SIZE = 20
+export const TESTS_PAGE_SIZE = 5
 /** A size that puts every test table on one page. */
 export const ALL_TESTS_ON_A_PAGE = -1
 export const TESTS_PAGE_SIZES = [1, 5, 20, ALL_TESTS_ON_A_PAGE]

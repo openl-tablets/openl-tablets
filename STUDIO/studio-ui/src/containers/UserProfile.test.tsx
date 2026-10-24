@@ -53,8 +53,6 @@ const profile = {
     lastName: 'Admin',
     displayName: 'Ada Admin',
     externalFlags: {},
-    showHeader: true,
-    testsPerPage: 5,
 } as StoredProfile
 
 vi.mock('antd', async () => {
