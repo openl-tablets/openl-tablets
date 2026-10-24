@@ -240,7 +240,6 @@ class ParserTest {
         _testErrorMsg("10K", "Encountered");
         _testErrorMsg("1.5M", "Encountered");
         _testErrorMsg("1,000", "Encountered");
-        _testErrorMsg("08", "Encountered");
         _testType("$100", "identifier");
     }
 
@@ -321,6 +320,17 @@ class ParserTest {
         _testLiteralParseAndBind(new IntNodeBinder(),
                 "10000000000000000000",
                 new BigInteger("10000000000000000000"),
+                BigInteger.class,
+                "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "010", 10, int.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "08", 8, int.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "010L", 10L, long.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "0x1F", 31, int.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "0x80000000", 2147483648L, long.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "0xFFL", 255L, long.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(),
+                "0x10000000000000000",
+                new BigInteger("10000000000000000", 16),
                 BigInteger.class,
                 "literal.integer");
 

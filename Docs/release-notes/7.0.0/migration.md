@@ -162,9 +162,12 @@ from Maven.
   rule or a simple rule, `77,99` was the number `7799`; now it is the list of `77` and `99`, which makes the column a
   column of lists, where `1,500` is the list of `1` and `500` too. Write such a number without the comma.
 
-  A leading zero makes a whole number octal, as in Java, so `08` and `09` no longer compile: write `Date(2021, 4, 8)`
-  instead of `Date(2021, 04, 08)`. Number values in Data and Test tables never accepted these forms and are not
-  affected.
+  Number values in Data and Test tables never accepted these forms and are not affected.
+
+* **A whole number in a formula is decimal, even when it starts with zeros.** Octal numbers are removed, so `010` is
+  `10` instead of `8`, and `0777` is `777` instead of `511`. `08`, `09`, `008` and `009` compile, and the numbers from
+  `00` to `07` keep their value. A hexadecimal number such as `0xFF` and an octal escape in a character or a string,
+  such as `'\101'`, are not affected.
 
 * **A percent value in a whole-number cell has to be a whole number.** A text such as `5%` or `250%` in an `Integer`,
   `Long`, `Short` or `Byte` cell no longer compiles, just as the number `2.5` there does not:

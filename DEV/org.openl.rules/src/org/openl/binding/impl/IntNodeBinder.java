@@ -14,16 +14,18 @@ import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
+ * Binds a whole number literal.
+ *
+ * <p>A number is decimal even when it starts with zeros, so {@code 010} is ten. A {@code 0x} prefix makes it
+ * hexadecimal. There are no octal numbers.
+ *
+ * <p>The literal is an {@code int} when it fits, a {@code long} when it fits or ends with {@code L}, and a
+ * {@code BigInteger} otherwise.
+ *
  * @author snshor
  */
 public class IntNodeBinder extends ANodeBinder {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.INodeBinder#bind(org.openl.parser.ISyntaxNode, org.openl.env.IOpenEnv,
-     * org.openl.binding.IBindingContext)
-     */
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
@@ -33,23 +35,28 @@ public class IntNodeBinder extends ANodeBinder {
             s = s.substring(1);
         }
 
-        var len = s.length();
-
-        if (Character.toUpperCase(s.charAt(len - 1)) == 'L') {
-            return new LiteralBoundNode(node, Long.decode(s.substring(0, len - 1)), JavaOpenClass.LONG);
+        var isLong = Character.toUpperCase(s.charAt(s.length() - 1)) == 'L';
+        if (isLong) {
+            s = s.substring(0, s.length() - 1);
         }
 
-        try {
-            return new LiteralBoundNode(node, Integer.decode(s), JavaOpenClass.INT);
-        } catch (NumberFormatException e) {
-            try {
-                // Possibly too big for integer - try long
-                return new LiteralBoundNode(node, Long.decode(s), JavaOpenClass.LONG);
-            } catch (NumberFormatException e1) {
-                // Possibly too big for long - try BigInteger
-                return new LiteralBoundNode(node, new BigInteger(s), JavaOpenClass.getOpenClass(BigInteger.class));
-            }
+        var radix = 10;
+        if (s.length() > 2 && Character.toUpperCase(s.charAt(1)) == 'X') {
+            radix = 16;
+            s = s.substring(2);
         }
+
+        if (isLong) {
+            return new LiteralBoundNode(node, Long.parseLong(s, radix), JavaOpenClass.LONG);
+        }
+
+        var value = new BigInteger(s, radix);
+        if (value.bitLength() < Integer.SIZE) {
+            return new LiteralBoundNode(node, value.intValue(), JavaOpenClass.INT);
+        } else if (value.bitLength() < Long.SIZE) {
+            return new LiteralBoundNode(node, value.longValue(), JavaOpenClass.LONG);
+        }
+        return new LiteralBoundNode(node, value, JavaOpenClass.getOpenClass(BigInteger.class));
     }
 
     @Override
