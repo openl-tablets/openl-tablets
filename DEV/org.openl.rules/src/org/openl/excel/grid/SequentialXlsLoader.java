@@ -227,17 +227,17 @@ public class SequentialXlsLoader {
         int len = p1.endsWith("/") ? pp1.length : pp1.length - 1;
 
         for (var i = 0; i < len; i++) {
-            if (pp1[i].equals("..") && !result.isEmpty() && !result.getLast().equals("..")) {
+            if ("..".equals(pp1[i]) && !result.isEmpty() && !"..".equals(result.getLast())) {
                 result.removeLast();
-            } else if (!pp1[i].equals(".")) {
+            } else if (!".".equals(pp1[i])) {
                 result.add(pp1[i]);
             }
         }
 
         for (String s : pp2) {
-            if (!result.isEmpty() && s.equals("..")) {
+            if (!result.isEmpty() && "..".equals(s)) {
                 result.removeLast();
-            } else if (!s.equals(".")) {
+            } else if (!".".equals(s)) {
                 result.add(s);
             }
         }
@@ -328,16 +328,19 @@ public class SequentialXlsLoader {
         var tablePartProcessor = new TablePartProcessor();
         var workbookSourceModule = new XlsWorkbookSourceCodeModule(source);
         var sheetNodes = createWorksheetNodes(tablePartProcessor, workbookSourceModule);
-
-        var workbookNode = createWorkbookNode(tablePartProcessor, workbookSourceModule, sheetNodes);
-        messages.addAll(tablePartProcessor.getMessages());
-        return workbookNode;
+        var mergedNodes = mergeTableParts(tablePartProcessor);
+        return new WorkbookSyntaxNode(sheetNodes, mergedNodes.toArray(TableSyntaxNode.EMPTY_ARRAY),
+                workbookSourceModule);
     }
 
     /**
      * Reads a module written as a folder of Markdown files: every file is a workbook of the module.
      *
      * <p>A file already read, such as one of a sub-folder the module includes, is not read again.
+     *
+     * <p>A file holds one table, so each part of a table written in parts is a file of its own. The parts are joined
+     * across the folder, as a workbook joins the parts on its sheets, and the joined table belongs to the file of its
+     * first part.
      */
     private void preprocessFolder(IOpenSourceCodeModule module, Path folder) {
         var files = MarkdownFolderModule.files(module, folder);
@@ -346,31 +349,50 @@ public class SequentialXlsLoader {
         }
         // All are known before any is read: an include of one of them reads nothing, the walk reads it by its place
         var unread = files.stream().filter(file -> preprocessedWorkBooks.add(file.file().toString())).toList();
+        var tablePartProcessor = new TablePartProcessor();
+        var read = new ArrayList<ReadFile>();
         for (var file : unread) {
-            var workbookNode = readWorkbook(file.source());
+            var workbookSourceModule = new XlsWorkbookSourceCodeModule(file.source());
+            read.add(new ReadFile(file.path(), workbookSourceModule,
+                    List.of(createWorksheetNodes(tablePartProcessor, workbookSourceModule))));
+        }
+        var mergedNodes = mergeTableParts(tablePartProcessor);
+        for (var file : read) {
+            var joined = mergedNodes.stream()
+                    .filter(table -> table.getXlsSheetSourceCodeModule().getWorkbookSource() == file.workbook())
+                    .toArray(TableSyntaxNode[]::new);
+            var workbookNode = new WorkbookSyntaxNode(file.sheets().toArray(WorksheetSyntaxNode[]::new),
+                    joined,
+                    file.workbook());
             workbookNodes.add(workbookNode);
             MarkdownFolderModule.misplacedTables(file.path(), workbookNode).forEach(this::addError);
         }
     }
 
-    private WorkbookSyntaxNode createWorkbookNode(TablePartProcessor tablePartProcessor,
-                                                  XlsWorkbookSourceCodeModule workbookSourceModule,
-                                                  WorksheetSyntaxNode[] sheetNodes) {
-        TableSyntaxNode[] mergedNodes = {};
+    /**
+     * A file of a module folder as read, before the parts of its tables are joined.
+     *
+     * @param path     the path of the file in the folder
+     * @param workbook the workbook the file is read as
+     * @param sheets   the sheets of the file
+     */
+    private record ReadFile(String path, XlsWorkbookSourceCodeModule workbook, List<WorksheetSyntaxNode> sheets) {
+    }
+
+    /**
+     * Joins the parts of every table written in parts. A joined table stands on the sheet of its first part.
+     */
+    private List<TableSyntaxNode> mergeTableParts(TablePartProcessor tablePartProcessor) {
+        var mergedNodes = new ArrayList<TableSyntaxNode>();
         try {
-            List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
-            var n = tableParts.size();
-            mergedNodes = new TableSyntaxNode[n];
-            for (var i = 0; i < n; i++) {
-                mergedNodes[i] = preprocessTable(tableParts.get(i).getTable(),
-                        tableParts.get(i).getSource(),
-                        tablePartProcessor);
+            for (TablePart tablePart : tablePartProcessor.mergeAllNodes()) {
+                mergedNodes.add(preprocessTable(tablePart.getTable(), tablePart.getSource(), tablePartProcessor));
             }
         } catch (OpenLCompilationException e) {
             messages.add(OpenLMessagesUtils.newErrorMessage(e));
         }
-
-        return new WorkbookSyntaxNode(sheetNodes, mergedNodes, workbookSourceModule);
+        messages.addAll(tablePartProcessor.getMessages());
+        return mergedNodes;
     }
 
     private WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,

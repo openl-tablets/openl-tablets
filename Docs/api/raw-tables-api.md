@@ -276,7 +276,8 @@ Content-Type: application/json
 - A table that OpenL recognizes cannot be turned into one that it cannot parse: `400` with
   `openl.error.400.table.header.unrecognized.message`.
 - A table that is written as several partial tables is read but not written: `400` with
-  `openl.error.400.table.partial.message`. Excel edits such a table.
+  `openl.error.400.table.partial.message`. Excel edits such a table. A table of a Markdown module written in parts
+  gives `openl.error.400.table.markdown.partial.message`: each part is a file, changed on the Files tab.
 
 ### Append Rows
 

@@ -37,6 +37,10 @@ import org.openl.util.FileTypeHelper;
  * folder: the Environment table in {@code Environment.md} and the Constants table in {@code Constants.md}. A Properties
  * table is a table like any other: one of a category stands in the folder of its category, as on its sheet in a
  * workbook.
+ *
+ * <p>A table written in parts ({@code TablePart}) has a file for each part. The parts are joined across the folder
+ * and its sub-folders, as a workbook joins the parts on its sheets, and the joined table belongs to the file of its
+ * first part.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class MarkdownFolderModule {

@@ -450,6 +450,7 @@ i18next.addResourceBundle('en', 'repository', {
             test_elsewhere: 'Written in project "{{project}}", which is not open here',
             problems: 'Problems',
             partial_table: 'This table is written as several partial tables, so it cannot be edited here. Open it in Excel to change it.',
+            partial_markdown_table: 'This table is written in parts, a Markdown file for each part, so it cannot be edited here. Change the parts in their files, on the Files tab.',
             details: 'Table Details',
             details_show: 'Show table details',
             details_hide: 'Hide table details',

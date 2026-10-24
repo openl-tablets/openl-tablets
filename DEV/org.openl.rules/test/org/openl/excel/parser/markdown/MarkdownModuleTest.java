@@ -171,8 +171,31 @@ class MarkdownModuleTest {
         assertEquals(1, module.getOpenClassWithErrors()
                 .getMethods()
                 .stream()
-                .filter(method -> method.getName().equals("hi"))
+                .filter(method -> "hi".equals(method.getName()))
                 .count());
+    }
+
+    @Test
+    void partsOfATableInFilesOfTheirOwnAreJoinedAcrossTheFolder() {
+        var factory = new RulesEngineFactory<>("test/rules/markdown/Parts");
+        var module = factory.getCompiledOpenClass();
+        assertFalse(module.hasErrors(), () -> module.getAllMessages().toString());
+        var engine = factory.newEngineInstance();
+
+        // The rows of the part in a sub-folder follow the rows of the first part
+        assertEquals(1.5, TestUtils.<Double>invoke(engine, "rate", 20));
+        assertEquals(1.0, TestUtils.<Double>invoke(engine, "rate", 40));
+        assertEquals(1.2, TestUtils.<Double>invoke(engine, "rate", 70));
+        // Parts side by side give their columns
+        assertEquals("West", TestUtils.invoke(engine, "zone", "90210"));
+        // The joined table belongs to the file of its first part
+        var rate = Arrays.stream(((XlsMetaInfo) module.getOpenClassWithErrors().getMetaInfo()).getXlsModuleNode()
+                        .getXlsTableSyntaxNodes())
+                .filter(node -> node.getHeader().getSourceString().startsWith("SmartRules Double rate"))
+                .findFirst()
+                .orElseThrow();
+        var file = rate.getXlsSheetSourceCodeModule().getWorkbookSource().getUri();
+        assertTrue(file.endsWith("/Parts/rate-part1.md"), file);
     }
 
     @Test

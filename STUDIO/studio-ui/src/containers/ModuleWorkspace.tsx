@@ -1007,6 +1007,7 @@ export const ModuleWorkspace = () => {
                 {toolbar}
                 <TableProblems
                     cellText={textAt}
+                    markdown={markdownTable}
                     messages={table.messages ?? []}
                     onEditCell={canWriteTable ? setEditCell : undefined}
                     onStacktrace={readStacktrace}

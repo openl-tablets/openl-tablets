@@ -7,8 +7,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.excel.parser.markdown.MarkdownGrid;
@@ -28,10 +31,10 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
-import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.util.StringUtils;
 
 /**
@@ -63,8 +66,12 @@ import org.openl.util.StringUtils;
  * non-breaking spaces before its text, {@code &nbsp;&nbsp;SET} for one level; elsewhere the indent is a look, which a
  * file does not keep.
  *
- * <p>Any other table a file cannot hold is left out, and the result tells why: a table written in parts; a table whose
- * layout has no Markdown form.
+ * <p>A table a workbook keeps in parts, each part a table of its own, is written whole, as the compiler joined it: a
+ * file holds a table of any size. The parts are not written. When the compiler could not join the parts of a table,
+ * the parts are left out.
+ *
+ * <p>Any other table a file cannot hold is left out, and the result tells why: a table whose layout has no Markdown
+ * form.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MarkdownModuleWriter {
@@ -110,20 +117,22 @@ public final class MarkdownModuleWriter {
         var notes = new LinkedHashMap<String, StringBuilder>();
         // The Environment and the Constants tables, each kind joined in the one file of the module
         var joined = new LinkedHashMap<Path, List<TableSyntaxNode>>();
+        var unjoined = unjoinedParts(workbook);
         for (var table : workbook.getTableSyntaxNodes()) {
-            // A table of a kind OpenL knows that could not be read is a table still, its error kept
-            if (table.getNodeType() == XlsNodeTypes.XLS_OTHER && !XlsHelper.isKnownTableHeader(headerOf(table))) {
+            if (table.getNodeType() == XlsNodeTypes.XLS_TABLEPART) {
+                // A part is written with the table the compiler joined it into
+                unjoined.ifPresent(why -> leftOut.add(new LeftOut(table.getUri(), headerOf(table), why)));
+            } else if (table.getNodeType() == XlsNodeTypes.XLS_OTHER
+                    && !XlsHelper.isKnownTableHeader(headerOf(table))) {
+                // A table of a kind OpenL knows that could not be read is a table still, its error kept
                 notes.computeIfAbsent(sheetOf(table), sheet -> new StringBuilder()).append(textOf(table));
             } else if (JOINED.contains(table.getNodeType())) {
                 joined.computeIfAbsent(fileFor(table, folder), file -> new ArrayList<>()).add(table);
             } else {
-                var reason = reasonToLeaveOut(table);
+                var file = fileFor(table, folder);
+                var reason = write(List.of(table), file);
                 if (reason.isEmpty()) {
-                    var file = fileFor(table, folder);
-                    reason = write(List.of(table), file);
-                    if (reason.isEmpty()) {
-                        files.add(file);
-                    }
+                    files.add(file);
                 }
                 reason.ifPresent(why -> leftOut.add(new LeftOut(table.getUri(), headerOf(table), why)));
             }
@@ -157,7 +166,7 @@ public final class MarkdownModuleWriter {
             for (var column = 0; column < cells.getWidth(); column++) {
                 var cell = cells.getCell(column, row);
                 var merged = cell.getRegion();
-                var value = merged == null || startsAt(merged, cell) ? cell.getStringValue() : null;
+                var value = merged == null || startsAt(merged, cells, column, row) ? cell.getStringValue() : null;
                 if (StringUtils.isNotBlank(value)) {
                     line.add(value.strip());
                 }
@@ -234,13 +243,25 @@ public final class MarkdownModuleWriter {
         }
     }
 
-    /** Why a table gets no file for its kind: a table written in parts. */
-    private static Optional<String> reasonToLeaveOut(TableSyntaxNode table) {
-        if (table.getNodeType() == XlsNodeTypes.XLS_TABLEPART
-                || table.getGridTable().getGrid() instanceof CompositeGrid) {
-            return Optional.of("The table is written in parts, which a Markdown file does not keep");
-        }
-        return Optional.empty();
+    /**
+     * Why the parts of the tables of a workbook are left out: the compiler joined fewer tables than the workbook has
+     * tables in parts, so a table of them would be lost.
+     */
+    private static Optional<String> unjoinedParts(WorkbookSyntaxNode workbook) {
+        var tables = Arrays.stream(workbook.getTableSyntaxNodes())
+                .filter(table -> table.getNodeType() == XlsNodeTypes.XLS_TABLEPART)
+                .map(MarkdownModuleWriter::partNameOf)
+                .distinct()
+                .count();
+        return tables > workbook.getMergedTableParts().length
+                ? Optional.of("The parts of a table could not be joined into the table")
+                : Optional.empty();
+    }
+
+    /** The name a part gives the table it is a part of: {@code Table1} of {@code TablePart Table1 row 1 of 2}. */
+    private static String partNameOf(TableSyntaxNode part) {
+        var words = StringUtils.trimToEmpty(headerOf(part)).split("\\s+");
+        return words.length > 1 ? words[1] : "";
     }
 
     /** The file a table goes into. */
@@ -325,6 +346,7 @@ public final class MarkdownModuleWriter {
         }
         // The indent carries the structure of these tables; elsewhere it is a look, which a file does not keep
         var indented = INDENTED.contains(table.getNodeType());
+        var copy = new Copy(grid, cells, shift);
         for (var row = first; row < cells.getHeight(); row++) {
             for (var column = 0; column < cells.getWidth(); column++) {
                 var cell = cells.getCell(column, row);
@@ -335,7 +357,7 @@ public final class MarkdownModuleWriter {
                 } else {
                     value = valueOf(cell, metaInfo);
                 }
-                write(grid, cell, value, indent, region, shift);
+                copy.cell(column, row, value, indent);
             }
         }
     }
@@ -346,35 +368,65 @@ public final class MarkdownModuleWriter {
     }
 
     /**
-     * Writes a cell of a table, and its merged range when the cell starts one, moved down by the given number of rows.
-     * A cell a range covers is not written.
+     * The copy of the cells of a table into the sheet of a file, each moved down by a number of rows.
+     *
+     * <p>A cell is placed by where it stands in the grid of the table, which for a table joined from parts is not where
+     * it stands on its sheet. A cell a merged range covers is not written, nor is one a range written before covers:
+     * the header of a table joined from parts side by side reaches over the header of every part after the first.
      */
-    private static void write(MarkdownGrid grid,
-                              ICell cell,
-                              @Nullable Object value,
-                              int indent,
-                              IGridRegion region,
-                              int shift) {
-        var merged = cell.getRegion();
-        var row = cell.getAbsoluteRow() - region.getTop() + shift;
-        var column = cell.getAbsoluteColumn() - region.getLeft();
-        if (merged != null && !startsAt(merged, cell)) {
-            return;
+    @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+    private static final class Copy {
+
+        private final MarkdownGrid grid;
+        private final IGridTable table;
+        private final int shift;
+        /** The cells of the sheet the ranges written cover, all but the first cell of each. */
+        private final Set<Long> covered = new HashSet<>();
+
+        /**
+         * Writes a cell of the table, and its merged range when the cell starts one.
+         */
+        void cell(int tableColumn, int tableRow, @Nullable Object value, int indent) {
+            var region = table.getRegion();
+            var merged = table.getCell(tableColumn, tableRow).getRegion();
+            var row = table.getGridRow(tableColumn, tableRow) - region.getTop() + shift;
+            var column = table.getGridColumn(tableColumn, tableRow) - region.getLeft();
+            var coveredBefore = covered.contains(cellKey(column, row));
+            if (coveredBefore || merged != null && !startsAt(merged, table, tableColumn, tableRow)) {
+                return;
+            }
+            grid.setCellValue(column, row, value);
+            if (indent > 0) {
+                grid.setCellIndent(column, row, indent);
+            }
+            if (merged != null) {
+                var range = new GridRegion(row,
+                        column,
+                        Math.min(merged.getBottom(), region.getBottom()) - region.getTop() + shift,
+                        Math.min(merged.getRight(), region.getRight()) - region.getLeft());
+                grid.addMergedRegion(range);
+                cover(range);
+            }
         }
-        grid.setCellValue(column, row, value);
-        if (indent > 0) {
-            grid.setCellIndent(column, row, indent);
+
+        private void cover(IGridRegion range) {
+            for (var row = range.getTop(); row <= range.getBottom(); row++) {
+                for (var column = range.getLeft(); column <= range.getRight(); column++) {
+                    if (row != range.getTop() || column != range.getLeft()) {
+                        covered.add(cellKey(column, row));
+                    }
+                }
+            }
         }
-        if (merged != null) {
-            grid.addMergedRegion(new GridRegion(row,
-                    column,
-                    Math.min(merged.getBottom(), region.getBottom()) - region.getTop() + shift,
-                    Math.min(merged.getRight(), region.getRight()) - region.getLeft()));
+
+        private static long cellKey(int column, int row) {
+            return ((long) row << 32) | column;
         }
     }
 
-    private static boolean startsAt(IGridRegion merged, ICell cell) {
-        return merged.getTop() == cell.getAbsoluteRow() && merged.getLeft() == cell.getAbsoluteColumn();
+    /** Whether a merged range starts at a cell of a table, both in the grid of the table. */
+    private static boolean startsAt(IGridRegion merged, IGridTable table, int column, int row) {
+        return merged.getTop() == table.getGridRow(column, row) && merged.getLeft() == table.getGridColumn(column, row);
     }
 
     /**
@@ -393,7 +445,7 @@ public final class MarkdownModuleWriter {
             case XLS_TEST_METHOD, XLS_RUN_METHOD -> words.length > 2
                     ? words[2]
                     : String.join("", List.of(words).reversed());
-            case XLS_OTHER -> words.length > 1 ? words[1] : "";
+            case XLS_OTHER -> partNameOf(table);
             default -> TableSyntaxNodeUtils.str2name(header, table.getNodeType());
         };
         var fileName = NOT_IN_A_NAME.matcher(name).replaceAll("_");

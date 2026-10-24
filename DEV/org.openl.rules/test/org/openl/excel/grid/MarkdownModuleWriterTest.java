@@ -127,12 +127,86 @@ class MarkdownModuleWriterTest {
         assertEquals("# Notes\n\nA note: the algorithms count to three\n\n",
                 Files.readString(module.resolve("notes.md")));
         assertEquals(List.of(
-                "Method Integer three(): Only the header and the properties stand above the body, but B1 holds a "
-                        + "value"),
+                """
+                Method Integer three(): Only the header and the properties stand above the body, but B1 holds a \
+                value"""),
                 written.leftOut()
                         .stream()
                         .map(table -> table.header() + ": " + table.reason())
                         .toList());
+    }
+
+    @Test
+    void tableWrittenInPartsIsWrittenWholeAsTheCompilerJoinedIt() throws IOException {
+        var workbook = workbook("Parts.xlsx", rules -> {
+            var rates = rules.createSheet("Rates");
+            row(rates, 0, "TablePart Rates row 1 of 2");
+            row(rates, 1, "SmartRules Double rate(Integer age)");
+            row(rates, 2, "Age", "Rate");
+            row(rates, 3, "< 25", 1.5);
+            rates.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
+            // Parts side by side: the header of each part repeats the header of the table
+            row(rates, 5, "TablePart Zones column 1 of 2", null, "TablePart Zones column 2 of 2");
+            row(rates, 6, "SmartRules String zone(String zip)", null, "SmartRules String zone(String zip)");
+            row(rates, 7, "Zip", null, "Zone");
+            row(rates, 8, "10001", null, "East");
+            row(rates, 9, "90210", null, "West");
+            var more = rules.createSheet("More");
+            row(more, 0, "TablePart Rates row 2 of 2");
+            row(more, 1, "25 - 64", 1.0);
+            row(more, 2, ">= 65", 1.2);
+        });
+        var module = dir.resolve("md/Parts");
+
+        var written = MarkdownModuleWriter.write(workbookNode(workbook), module);
+
+        // The parts are not written: the table they make is, in the folder of the sheet of its first part
+        assertEquals(List.of(), written.leftOut());
+        assertEquals(List.of("Rates/rate.md", "Rates/zone.md"),
+                written.files().stream().map(file -> module.relativize(file).toString().replace('\\', '/'))
+                        .sorted()
+                        .toList());
+        assertEquals("""
+                ---
+                table: SmartRules Double rate(Integer age)
+                ---
+
+                | Age | Rate |
+                |---|---|
+                | < 25 | 1.5 |
+                | 25 - 64 | 1 |
+                | >= 65 | 1.2 |
+                """, Files.readString(module.resolve("Rates/rate.md")));
+        assertEquals("""
+                | Zip | Zone |
+                |---|---|
+                | 10001 | East |
+                | 90210 | West |
+                """, bodyOf(module.resolve("Rates/zone.md")));
+        var factory = new RulesEngineFactory<>(module.toString());
+        var compiled = factory.getCompiledOpenClass();
+        assertFalse(compiled.hasErrors(), () -> compiled.getAllMessages().toString());
+        var rules = factory.newEngineInstance();
+        assertEquals(1.2, TestUtils.<Double>invoke(rules, "rate", 70));
+        assertEquals("West", TestUtils.invoke(rules, "zone", "90210"));
+    }
+
+    @Test
+    void partsThatDoNotMakeATableAreLeftOut() throws IOException {
+        var workbook = workbook("Lost.xlsx", rules -> {
+            var rates = rules.createSheet("Rates");
+            row(rates, 0, "TablePart Rates row 1 of 2");
+            row(rates, 1, "SmartRules Double rate(Integer age)");
+            row(rates, 2, "Age", "Rate");
+            row(rates, 3, "< 25", 1.5);
+            rates.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
+        });
+
+        var written = MarkdownModuleWriter.write(workbookNode(workbook), dir.resolve("md/Lost"));
+
+        // Without its second part the table is not joined, and its first part would be lost with it
+        assertEquals(List.of("TablePart Rates row 1 of 2: The parts of a table could not be joined into the table"),
+                written.leftOut().stream().map(table -> table.header() + ": " + table.reason()).toList());
     }
 
     @Test

@@ -2463,9 +2463,12 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         GeneratedTables.refuseAction(context.module(), context.table());
         // A table gathered from several partial tables is drawn from cells that do not sit together, and the
         // grid it is read through holds no place to write back into. Refused here, where every write resolves
-        // its table, rather than left to fail on the grid itself.
+        // its table, rather than left to fail on the grid itself. The parts of a Markdown table are files, changed
+        // as text.
         if (context.module().isTablePart(context.table().getUri())) {
-            throw new BadRequestException("table.partial.message");
+            throw new BadRequestException(MarkdownTables.isMarkdown(context.table())
+                    ? "table.markdown.partial.message"
+                    : "table.partial.message");
         }
         return context;
     }
@@ -3001,7 +3004,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
     private @Nullable String copyIntoNewMarkdownModule(RulesProject project,
                                                        IOpenLTable source,
                                                        CopyTableRequest request,
-                                                       String modulePath) throws ProjectException {
+                                                       String modulePath) {
         var projectDescriptor = getProjectDescriptor(project);
         requireModuleAbsent(projectDescriptor.getModules(), request.moduleName(), modulePath);
         var grid = tableCreatorService.newMarkdownModule(project, projectDescriptor, request.moduleName(),
