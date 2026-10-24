@@ -575,11 +575,13 @@ export interface TagType {
     extensible: boolean
     /** The tag may be left unset. */
     nullable: boolean
-    values: string[]
+    /** The configured values; omitted when the type has none. */
+    values?: string[]
 }
 
 /** List the configured tag types (name + allowed values) used to tag projects. */
 export async function getTagTypes(): Promise<TagType[]> {
-    const response = await apiCall('/tags/types', undefined, { throwError: true })
+    // The caller works on without the tag types, so a failed read never covers its screen with an error page.
+    const response = await apiCall('/tags/types', undefined, LOCAL_LOAD_API_OPTIONS)
     return asArray(response)
 }

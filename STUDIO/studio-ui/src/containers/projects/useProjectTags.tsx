@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, Button, Tooltip } from 'antd'
+import { Alert, Button, Tooltip, Typography } from 'antd'
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
@@ -15,7 +15,8 @@ const useStyles = createStyles(({ css, token }) => ({
     table: css`
         display: grid;
         grid-template-columns: minmax(0, auto) minmax(0, 1fr);
-        align-items: center;
+        /* A warning below a value adds a line, so the type keeps to the first one. */
+        align-items: baseline;
         column-gap: 12px;
         row-gap: 6px;
     `,
@@ -52,10 +53,27 @@ const useStyles = createStyles(({ css, token }) => ({
         flex: 1;
         min-width: 0;
     `,
+    /** A tag and, below it, what is wrong with it, if anything. */
+    flagged: css`
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    `,
+    warning: css`
+        font-size: 12px;
+    `,
     error: css`
         margin-top: 8px;
     `,
 }))
+
+/** What a tag type name is matched by: tag types match regardless of case and surrounding spaces. */
+const nameKey = (name: string) => name.trim().toLowerCase()
+
+const sameName = (one: string, other: string) => nameKey(one) === nameKey(other)
+
+/** The styles of the tags section, read once by the section and handed down to each tag it draws. */
+type TagStyles = ReturnType<typeof useStyles>
 
 /**
  * The keys named by more than one entry. A properties file cannot repeat a key, and tag types match
@@ -64,13 +82,28 @@ const useStyles = createStyles(({ css, token }) => ({
 const duplicateKeys = (entries: TagEntry[]): Set<string> => {
     const counts = new Map<string, number>()
     for (const entry of entries) {
-        const key = entry.key.trim().toLowerCase()
+        const key = nameKey(entry.key)
         if (key) {
             counts.set(key, (counts.get(key) ?? 0) + 1)
         }
     }
     return new Set([...counts.entries()].filter(([, count]) => count > 1).map(([key]) => key))
 }
+
+/** The configured tag type a key names, matched regardless of case the way the server resolves it. */
+const typeOf = (types: TagType[], key: string): TagType | undefined => types.find(type => sameName(type.name, key))
+
+/**
+ * Whether the tag type does not take the value: the type is not extensible and none of its values matches,
+ * regardless of case. A value of an extensible type is always allowed — it simply is a new one.
+ */
+const isNotAllowed = (type: TagType | undefined, value: string): boolean => !!type && !type.extensible
+    && value.trim() !== '' && !(type.values ?? []).some(allowed => sameName(allowed, value))
+
+/** The mandatory tag types the tags leave without a value, whether the key is absent or its value is blank. */
+const missingMandatory = (types: TagType[], entries: TagEntry[]): string[] => types
+    .filter(type => !type.nullable && !entries.some(entry => sameName(entry.key, type.name) && entry.value.trim()))
+    .map(type => type.name)
 
 interface ProjectTagsOptions {
     projectId: string
@@ -87,35 +120,39 @@ interface ProjectTagsOptions {
  *
  * The tags.properties file of the project is the source of truth: every tag it names is shown, and
  * editing writes the file back through the files API, the way rules.xml is edited. Any key and any value
- * can be entered; the tag types an administrator configured are only offered as suggestions.
+ * can be entered; the tag types an administrator configured are offered as suggestions.
+ *
+ * The tags are checked against the configured tag types, both while viewed and while edited: a mandatory
+ * type left without a value, and a value a non-extensible type does not take, are warned about. A warning
+ * never blocks saving, since a project may carry tags the configuration no longer allows.
  */
 export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTagsOptions) => {
     const { t } = useTranslation('repository')
-    const { styles, cx } = useStyles()
+    // Read once for every tag the section draws, and handed down to them.
+    const ui = useStyles()
+    const { styles, cx } = ui
     const [editing, setEditing] = useState(false)
     const [entries, setEntries] = useState<TagEntry[]>([])
-    const [suggestions, setSuggestions] = useState<TagType[]>([])
+    // Null until the configured tag types are read, and when they cannot be: nothing is checked then.
+    const [tagTypes, setTagTypes] = useState<TagType[] | null>(null)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const assigned = Object.entries(tags)
+    const types = tagTypes ?? []
     // A repeated key cannot be written to the properties file, so saving waits until it is resolved.
     const duplicates = editing ? duplicateKeys(entries) : new Set<string>()
+    // The warnings follow what is on the screen: the edited tags while editing, so a fix clears them at once.
+    const missing = missingMandatory(types, editing ? entries : assigned.map(([key, value]) => ({ key, value })))
 
-    // The configured tag types only feed the suggestions, so they are read when the editing starts and
-    // a failed read simply suggests nothing.
+    // The configured tag types feed the checks and the suggestions. They are read again whenever the editing
+    // starts or ends, so a change an administrator made meanwhile shows. A failed read keeps what was read
+    // before, or checks and suggests nothing when nothing was, and the tags are still shown and edited.
     useEffect(() => {
-        if (!editing) {
-            return
-        }
         let cancelled = false
         getTagTypes()
-            .then(types => {
-                if (!cancelled) {
-                    setSuggestions(types)
-                }
-            })
-            .catch(() => setSuggestions([]))
+            .then(read => !cancelled && setTagTypes(read))
+            .catch(() => undefined)
         return () => { cancelled = true }
     }, [editing])
 
@@ -190,7 +227,13 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     const view = (
         <div className={styles.table} data-testid="project-tags">
             {assigned.map(([type, value]) => (
-                <TagRow key={type} type={type} value={value} />
+                <TagRow
+                    key={type}
+                    notAllowed={isNotAllowed(typeOf(types, type), value)}
+                    type={type}
+                    ui={ui}
+                    value={value}
+                />
             ))}
             {assigned.length === 0 && <span className={cx(styles.value, styles.unset)}>{t('browser.tags.none')}</span>}
         </div>
@@ -205,11 +248,12 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
                 testId="edit-tag"
                 renderItem={(entry, set, id) => (
                     <TagEntryFields
-                        duplicate={duplicates.has(entry.key.trim().toLowerCase())}
+                        duplicate={duplicates.has(nameKey(entry.key))}
                         entry={entry}
                         onChange={set}
-                        suggestions={suggestions}
+                        suggestions={types}
                         testId={id}
+                        ui={ui}
                     />
                 )}
             />
@@ -225,34 +269,67 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
         </div>
     )
 
+    const mandatory = missing.length > 0 && (
+        <Alert
+            showIcon
+            className={styles.error}
+            data-testid="tags-mandatory"
+            title={missing.map(type => <div key={type}>{t('browser.tags.mandatory', { type })}</div>)}
+            type="warning"
+        />
+    )
+
     return {
         action: editActions || editButton,
         content: (
             <>
                 {editing ? editor : view}
+                {mandatory}
                 {error && <Alert showIcon className={styles.error} data-testid="tags-error" title={error} type="error" />}
             </>
         ),
     }
 }
 
-/** One line of the table: the tag type, and what the project carries for it. */
-const TagRow = ({ type, value }: { type: string, value: ReactNode }) => {
-    const { styles } = useStyles()
+/**
+ * One line of the table: the tag type, and what the project carries for it. A value the type does not take
+ * is followed by the warning about it.
+ */
+const TagRow = ({ ui, type, value, notAllowed }: {
+    ui: TagStyles
+    type: string
+    value: string
+    notAllowed: boolean
+}) => {
+    const { styles } = ui
     return (
         <>
             <span className={styles.type}>{type}</span>
-            <span className={styles.value}>{value}</span>
+            <span className={styles.flagged}>
+                <span className={styles.value}>{value}</span>
+                {notAllowed && <NotAllowedWarning className={styles.warning} type={type} value={value} />}
+            </span>
         </>
+    )
+}
+
+/** Says that the tag type does not take the value. */
+const NotAllowedWarning = ({ className, type, value }: { className: string, type: string, value: string }) => {
+    const { t } = useTranslation('repository')
+    return (
+        <Typography.Text className={className} data-testid={`tag-not-allowed-${type}`} type="warning">
+            {t('browser.tags.not_allowed', { type, value })}
+        </Typography.Text>
     )
 }
 
 /**
  * The editable fields of one tag: its key and its value, both free text. The configured tag types are
  * offered for the key, and the values of the matching type for the value — suggestions only, since the
- * file takes whatever the user names.
+ * file takes whatever the user names. A value the matching type does not take is marked and warned about.
  */
-const TagEntryFields = ({ entry, suggestions, duplicate, onChange, testId }: {
+const TagEntryFields = ({ ui, entry, suggestions, duplicate, onChange, testId }: {
+    ui: TagStyles
     entry: TagEntry
     suggestions: TagType[]
     /** The key is named by another entry too — the field is marked until one of them changes. */
@@ -261,29 +338,37 @@ const TagEntryFields = ({ entry, suggestions, duplicate, onChange, testId }: {
     testId: string
 }) => {
     const { t } = useTranslation('repository')
-    const { styles } = useStyles()
-    const matchingType = suggestions.find(type => type.name.toLowerCase() === entry.key.trim().toLowerCase())
+    const { styles } = ui
+    const matchingType = typeOf(suggestions, entry.key)
+    const notAllowed = isNotAllowed(matchingType, entry.value)
+    // The warning goes below the fields in the same wrapper either way, so the fields keep their focus.
     return (
-        <div className={styles.entry}>
-            <SuggestInput
-                className={styles.entryKey}
-                data-testid={testId}
-                {...(duplicate ? { status: 'error' as const } : {})}
-                onChange={key => onChange({ ...entry, key })}
-                options={suggestions.map(type => ({ label: type.name, value: type.name }))}
-                placeholder={t('browser.tags.key')}
-                size="small"
-                value={entry.key}
-            />
-            <SuggestInput
-                className={styles.entryValue}
-                data-testid={`${testId}-value`}
-                onChange={value => onChange({ ...entry, value })}
-                options={(matchingType?.values ?? []).map(value => ({ label: value, value }))}
-                placeholder={t('browser.tags.value')}
-                size="small"
-                value={entry.value}
-            />
+        <div className={styles.flagged}>
+            <div className={styles.entry}>
+                <SuggestInput
+                    className={styles.entryKey}
+                    data-testid={testId}
+                    {...(duplicate ? { status: 'error' as const } : {})}
+                    onChange={key => onChange({ ...entry, key })}
+                    options={suggestions.map(type => ({ label: type.name, value: type.name }))}
+                    placeholder={t('browser.tags.key')}
+                    size="small"
+                    value={entry.key}
+                />
+                <SuggestInput
+                    className={styles.entryValue}
+                    data-testid={`${testId}-value`}
+                    {...(notAllowed ? { status: 'warning' as const } : {})}
+                    onChange={value => onChange({ ...entry, value })}
+                    options={(matchingType?.values ?? []).map(value => ({ label: value, value }))}
+                    placeholder={t('browser.tags.value')}
+                    size="small"
+                    value={entry.value}
+                />
+            </div>
+            {notAllowed && (
+                <NotAllowedWarning className={styles.warning} type={entry.key.trim()} value={entry.value.trim()} />
+            )}
         </div>
     )
 }
