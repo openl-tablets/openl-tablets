@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.SourceRange;
 import org.openl.util.text.ILocation;
 
 /**
@@ -22,11 +23,14 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
     private final String sourceCode;
     @Getter
     private final String sourceLocation;
+    @Getter
+    private final SourceRange sourceRange;
 
     public OpenlNotCheckedException() {
         this.location = null;
         this.sourceCode = null;
         this.sourceLocation = null;
+        this.sourceRange = null;
     }
 
     public OpenlNotCheckedException(String message) {
@@ -49,5 +53,6 @@ public class OpenlNotCheckedException extends RuntimeException implements OpenLE
         this.location = location;
         this.sourceCode = sourceModule != null ? sourceModule.getCode() : null;
         this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, sourceModule);
+        this.sourceRange = sourceModule == null ? null : SourceCodeURLTool.rangeOf(location, sourceModule);
     }
 }

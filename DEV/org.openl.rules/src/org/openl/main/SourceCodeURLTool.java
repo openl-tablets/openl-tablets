@@ -7,12 +7,17 @@
 package org.openl.main;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.SourceRange;
 import org.openl.source.impl.CompositeSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -29,67 +34,99 @@ public final class SourceCodeURLTool {
     private static final Pattern NEW_LINE = Pattern.compile("[\r\n]+");
 
     public static String makeSourceLocationURL(ILocation location, IOpenSourceCodeModule module) {
-
-        if (module != null && StringUtils.isEmpty(module.getUri())) {
-            return StringUtils.EMPTY;
-        }
-
-        var start = -1;
-        var end = -1;
-
-        String lineInfo = null;
-
         if (module == null) {
             return "NO_MODULE";
         }
-
-        if (location != null && location.isTextLocation()) {
-            var src = module.getCode();
-            var info = new TextInfo(src);
-            try {
-                start = location.getStart().getAbsolutePosition(info) + module.getStartPosition();
-                end = location.getEnd().getAbsolutePosition(info) + module.getStartPosition();
-            } catch (UnsupportedOperationException e) {
-                log.warn("Cannot make source location URL", e);
-            }
-
-            lineInfo = "start=" + start + "&end=" + end;
-
+        var uri = module.getUri();
+        if (StringUtils.isEmpty(uri)) {
+            return StringUtils.EMPTY;
         }
-
-        String moduleUri = getUri(module, location);
-
-        String suffix = !moduleUri.contains("?") ? "?" : "&";
-
-        var url = moduleUri;
-        if (lineInfo != null) {
-            url += suffix + lineInfo;
-        } else if (location != null) {
-            url += suffix + location;
+        if (location == null || !location.isTextLocation()) {
+            return location == null ? uri : withQuery(uri, location.toString());
         }
-
-        return url;
+        var range = rangeOf(location, module);
+        // The end of the URL points at the last character of the piece.
+        return range == null ? withQuery(uri, "start=-1&end=-1")
+                : withQuery(range.uri(), "start=" + range.start() + "&end=" + (range.end() - 1));
     }
 
-    private static String getUri(IOpenSourceCodeModule module, ILocation location) {
-        String moduleUri;
-        if (module instanceof CompositeSourceCodeModule codeModule && location != null && location.isTextLocation()) {
-            var line = location.getStart().getLine(new TextInfo(module.getCode()));
+    private static String withQuery(String uri, String query) {
+        return uri + (uri.contains("?") ? "&" : "?") + query;
+    }
 
-            var modules = codeModule.getModules();
-            if (modules.length <= line || line < 0) {
-                // Occurs when Method table expression has several lines but reside inside single cell.
-                log.debug("Modules count in composite module are less than error line number. Return first found module uri.");
-                moduleUri = module.getUri();
-            } else {
-                // Occurs when Method table expression has several lines and each line resides inside his own cell.
-                var actualModule = modules[line];
-                moduleUri = actualModule == null ? module.getUri() : actualModule.getUri();
-            }
-        } else {
-            moduleUri = module.getUri();
+    /**
+     * Returns the piece of the code the location points at, in the source the code was read from. For code written
+     * in a cell, it is the cell: the part after {@code =} is shifted to its place in the cell's text, and a Method
+     * table body, which joins the texts of its cells, gives the cell that holds the piece.
+     * <p>
+     * A location that points at no text covers the whole code. A piece that runs over several cells of a Method
+     * table body ends with the cell it starts in.
+     *
+     * @return the piece, or {@code null} when the location cannot be read in the code or the source has no URI
+     */
+    public static @Nullable SourceRange rangeOf(@Nullable ILocation location, IOpenSourceCodeModule module) {
+        var code = module.getCode();
+        if (code == null) {
+            return null;
         }
-        return moduleUri;
+        var start = 0;
+        var end = code.length();
+        if (location != null && location.isTextLocation()) {
+            var info = new TextInfo(code);
+            try {
+                start = location.getStart().getAbsolutePosition(info);
+                // The end position of a syntax node points at its last character.
+                end = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
+            } catch (UnsupportedOperationException e) {
+                log.debug("The location '{}' points at no position in the code", location, e);
+                return null;
+            }
+        }
+        var source = module;
+        for (var part = partAt(source, start); part != null; part = partAt(source, start)) {
+            source = part.module();
+            start += part.shift();
+            end = Math.min(end + part.shift(), source.getCode().length());
+        }
+        var uri = source.getUri();
+        return uri == null || start < 0 || end < start ? null : new SourceRange(uri, source.getCode(), start, end);
+    }
+
+    /**
+     * Returns the source the code of the module was cut from, with the shift from a position in the code to its
+     * position in that source, or {@code null} when the module is the source itself.
+     */
+    private static @Nullable Part partAt(IOpenSourceCodeModule module, int position) {
+        if (module instanceof SubTextSourceCodeModule subText) {
+            return new Part(subText.getBaseModule(), subText.getStartPosition());
+        }
+        return module instanceof CompositeSourceCodeModule composite ? partOf(composite, position) : null;
+    }
+
+    /**
+     * Returns the module of the composite that holds the position. A position after the code falls into the last
+     * module.
+     */
+    private static @Nullable Part partOf(CompositeSourceCodeModule composite, int position) {
+        var modules = Arrays.stream(composite.getModules()).filter(Objects::nonNull).toList();
+        var length = modules.stream().mapToInt(module -> module.getCode().length()).sum();
+        // The code of a composite joins the codes of its modules, each followed by the same separator.
+        var separator = modules.isEmpty() ? 0 : (composite.getCode().length() - length) / modules.size();
+        var offset = 0;
+        for (var module : modules) {
+            var next = offset + module.getCode().length() + separator;
+            if (position < next || module == modules.getLast()) {
+                return new Part(module, -offset);
+            }
+            offset = next;
+        }
+        return null;
+    }
+
+    /**
+     * The source a code was cut from, and the shift from a position in the code to its position in the source.
+     */
+    private record Part(IOpenSourceCodeModule module, int shift) {
     }
 
     /**

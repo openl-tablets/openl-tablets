@@ -8,6 +8,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.SourceRange;
 import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.util.text.ILocation;
 
@@ -21,6 +22,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     private final String sourceLocation;
     private final String sourceUri;
     private final String sourceCode;
+    private final SourceRange sourceRange;
 
     public OpenLCompilationException(String message,
                                      Throwable insideCause,
@@ -32,9 +34,11 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
         if (source != null) {
             this.sourceUri = source.getUri();
             this.sourceCode = source.getCode();
+            this.sourceRange = SourceCodeURLTool.rangeOf(location, source);
         } else {
             this.sourceUri = null;
             this.sourceCode = null;
+            this.sourceRange = null;
         }
         this.sourceLocation = SourceCodeURLTool.makeSourceLocationURL(location, source);
     }
@@ -89,6 +93,11 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
     @Override
     public String getSourceLocation() {
         return sourceLocation;
+    }
+
+    @Override
+    public SourceRange getSourceRange() {
+        return sourceRange;
     }
 
     @Override

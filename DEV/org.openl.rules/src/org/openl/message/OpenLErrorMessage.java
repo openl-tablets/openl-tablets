@@ -5,8 +5,10 @@ import java.io.StringWriter;
 import java.util.Objects;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.exception.OpenLException;
+import org.openl.source.SourceRange;
 import org.openl.util.StringUtils;
 
 /**
@@ -50,6 +52,11 @@ public class OpenLErrorMessage extends OpenLMessage {
     @Override
     public String getSourceLocation() {
         return error.getSourceLocation();
+    }
+
+    @Override
+    public @Nullable SourceRange getSourceRange() {
+        return error.getSourceRange();
     }
 
 
