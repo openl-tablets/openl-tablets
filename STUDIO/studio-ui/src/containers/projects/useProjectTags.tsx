@@ -1,12 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Alert, AutoComplete, Button, Tooltip } from 'antd'
+import { Alert, Button, Tooltip } from 'antd'
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../../utils/errorMessage'
 import { getTagTypes, type TagType } from '../../services/repositories'
 import { deleteFile, rootFileExists, writeRootFile } from '../../services/files'
 import { serializeTagsProperties, TAGS_FILE_NAME, type TagEntry } from '../../services/tagsProperties'
+import { SuggestInput } from '../../components/SuggestInput'
 import { EditableList } from './EditableList'
 
 const useStyles = createStyles(({ css, token }) => ({
@@ -55,9 +56,6 @@ const useStyles = createStyles(({ css, token }) => ({
         margin-top: 8px;
     `,
 }))
-
-/** Case-insensitive substring match, the way a value is looked for in a long list. */
-const matches = (value: string, input: string): boolean => value.toLowerCase().includes(input.toLowerCase())
 
 /**
  * The keys named by more than one entry. A properties file cannot repeat a key, and tag types match
@@ -267,24 +265,22 @@ const TagEntryFields = ({ entry, suggestions, duplicate, onChange, testId }: {
     const matchingType = suggestions.find(type => type.name.toLowerCase() === entry.key.trim().toLowerCase())
     return (
         <div className={styles.entry}>
-            <AutoComplete
+            <SuggestInput
                 className={styles.entryKey}
                 data-testid={testId}
                 {...(duplicate ? { status: 'error' as const } : {})}
-                onChange={key => onChange({ ...entry, key: key ?? '' })}
-                options={suggestions.map(type => ({ value: type.name }))}
+                onChange={key => onChange({ ...entry, key })}
+                options={suggestions.map(type => ({ label: type.name, value: type.name }))}
                 placeholder={t('browser.tags.key')}
-                showSearch={{ filterOption: (input, option) => matches(String(option?.value), input) }}
                 size="small"
                 value={entry.key}
             />
-            <AutoComplete
+            <SuggestInput
                 className={styles.entryValue}
                 data-testid={`${testId}-value`}
-                onChange={value => onChange({ ...entry, value: value ?? '' })}
-                options={(matchingType?.values ?? []).map(value => ({ value }))}
+                onChange={value => onChange({ ...entry, value })}
+                options={(matchingType?.values ?? []).map(value => ({ label: value, value }))}
                 placeholder={t('browser.tags.value')}
-                showSearch={{ filterOption: (input, option) => matches(String(option?.value), input) }}
                 size="small"
                 value={entry.value}
             />

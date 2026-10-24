@@ -556,7 +556,7 @@ Tags are shown in the **Tags** section of the **Overview** tab and in the projec
 1.  Click the pencil icon **Edit tags** next to **Tags**. The icon is shown only while the project can be modified.
 1.  Click **Add**, and enter the tag type in the first field and the tag value in the second one.
 
-    The fields suggest the tag types and values defined in OpenL Studio, but any name and value can be entered. Each tag type can be used only once in a project.
+    The fields suggest the tag types and values defined in OpenL Studio, the way the type fields of **Create Table** do: opening a field lists every suggestion, even when the field already holds a value, and typing narrows the list. Any name and value can be entered. Each tag type can be used only once in a project.
 
     ![Editing the tags of a project](images/project-tags-edit.png "Editing the tags of a project")
 

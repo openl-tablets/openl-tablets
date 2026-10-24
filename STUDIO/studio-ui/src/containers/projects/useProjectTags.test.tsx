@@ -90,6 +90,37 @@ describe('useProjectTags', () => {
         ))
     })
 
+    it('offers every configured type in a key field that already holds one', async () => {
+        vi.mocked(getTagTypes).mockResolvedValue([
+            { name: 'Region', values: ['EU', 'US'], nullable: true, extensible: false },
+            { name: 'Domain', values: [], nullable: true, extensible: false },
+        ] as never)
+        render(<Host tags={{ Region: 'EU' }} />)
+
+        await userEvent.click(screen.getByTestId('edit-tags'))
+        await waitFor(() => expect(getTagTypes).toHaveBeenCalled())
+        await userEvent.click(within(screen.getByTestId('edit-tag-0')).getByRole('combobox'))
+
+        // Like the type fields of Create Table, the list opens whole rather than filtered by the current value.
+        expect(await screen.findByTitle('Domain')).toBeInTheDocument()
+    })
+
+    it('narrows the offered types to what is typed, ignoring case', async () => {
+        vi.mocked(getTagTypes).mockResolvedValue([
+            { name: 'Region', values: [], nullable: true, extensible: false },
+            { name: 'Domain', values: [], nullable: true, extensible: false },
+        ] as never)
+        render(<Host tags={{}} />)
+
+        await userEvent.click(screen.getByTestId('edit-tags'))
+        await waitFor(() => expect(getTagTypes).toHaveBeenCalled())
+        await userEvent.click(screen.getByTestId('edit-tag-add'))
+        await userEvent.type(screen.getByTestId('edit-tag-0'), 'dom')
+
+        expect(await screen.findByTitle('Domain')).toBeInTheDocument()
+        expect(screen.queryByTitle('Region')).toBeNull()
+    })
+
     it('refuses to save while a key is used twice, whatever its case', async () => {
         render(<Host tags={{ Region: 'EU' }} />)
 

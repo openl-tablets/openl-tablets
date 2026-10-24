@@ -20,6 +20,9 @@ interface SuggestInputProps {
     className?: string
     style?: CSSProperties
     placeholder?: string
+    size?: 'small' | 'middle' | 'large'
+    /** Marks the field as invalid, the way a form marks a field that fails its check. */
+    status?: 'error' | 'warning'
     'data-testid'?: string
     'aria-label'?: string
 }
