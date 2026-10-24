@@ -10,10 +10,10 @@ const completeProfile = {
 
 describe('changedValues', () => {
     it('keeps only the fields that differ from the values the form opened with', () => {
-        const opened = { ...completeProfile, showHeader: false, testsPerPage: 5 }
-        const values = { ...completeProfile, firstName: 'Janet', showHeader: true, testsPerPage: 5 }
+        const opened = { ...completeProfile, displayName: 'Jane D.' }
+        const values = { ...completeProfile, firstName: 'Janet' }
 
-        expect(changedValues(values, opened)).toEqual({ firstName: 'Janet', showHeader: true })
+        expect(changedValues(values, opened)).toEqual({ firstName: 'Janet', displayName: 'Jane Doe' })
     })
 
     it('keeps every field of a form that opened without values', () => {

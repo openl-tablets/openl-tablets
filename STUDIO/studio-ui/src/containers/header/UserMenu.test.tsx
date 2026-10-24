@@ -27,7 +27,7 @@ vi.mock('./AboutModal', () => ({
     },
 }))
 
-const renderMenu = ({ admin = false, userMode = true } = {}) => {
+const renderMenu = ({ admin = false, userMode = true, tokens = false } = {}) => {
     const onClose = vi.fn()
     render(
         <PermissionContext.Provider value={{ hasAdminPermission: () => admin }}>
@@ -38,7 +38,7 @@ const renderMenu = ({ admin = false, userMode = true } = {}) => {
                     isExternalAuthSystem: false,
                     isUserManagementEnabled: false,
                     isGroupsManagementEnabled: false,
-                    isPersonalAccessTokenEnabled: false,
+                    isPersonalAccessTokenEnabled: tokens,
                     isAuditLogEnabled: false,
                 }}
             >
@@ -57,7 +57,6 @@ describe('UserMenu', () => {
 
         expect(await menuItems()).toEqual([
             'common:user_menu.my_profile',
-            'common:user_menu.my_settings',
             'common:user_menu.help',
             'common:user_menu.about',
             'common:user_menu.sign_out',
@@ -69,11 +68,24 @@ describe('UserMenu', () => {
 
         expect(await menuItems()).toEqual([
             'common:user_menu.my_profile',
-            'common:user_menu.my_settings',
             'common:user_menu.administration',
             'common:user_menu.help',
             'common:user_menu.about',
         ])
+    })
+
+    it('offers Personal Access Tokens right under My Profile where tokens are enabled', async () => {
+        const { onClose } = renderMenu({ tokens: true })
+
+        expect((await menuItems()).slice(0, 2)).toEqual([
+            'common:user_menu.my_profile',
+            'common:user_menu.personal_access_tokens',
+        ])
+
+        await userEvent.click(screen.getByText('common:user_menu.personal_access_tokens'))
+
+        expect(appNavigate).toHaveBeenCalledWith('/administration/user/tokens')
+        expect(onClose).toHaveBeenCalled()
     })
 
     it('navigates to the address of an item and closes the panel', async () => {

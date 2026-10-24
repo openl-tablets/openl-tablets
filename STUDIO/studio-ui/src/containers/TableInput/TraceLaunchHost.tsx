@@ -3,7 +3,7 @@ import { Checkbox, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useEventProject } from 'hooks'
 import { launchTrace, TRACE_WINDOW_BLOCKED } from 'services/traceLaunch'
-import { useUserStore } from 'store'
+import { useSettingsStore } from 'store'
 import type { Project } from 'types/projects'
 import { errorMessage } from 'utils/errorMessage'
 import { TableInputLauncher, type TableLaunchDetail, type TableLaunchValue } from './TableInputLauncher'
@@ -19,7 +19,7 @@ interface TraceLaunchProps {
 
 const TraceLaunch: React.FC<TraceLaunchProps> = ({ detail, project, onClose }) => {
     const { t } = useTranslation('trace')
-    const showRealNumbers = useUserStore(state => state.userProfile?.showRealNumbers ?? false)
+    const showRealNumbers = useSettingsStore(state => state.settings.showRealNumbers)
     const [advanced, setAdvanced] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [starting, setStarting] = useState(false)

@@ -72,7 +72,7 @@ The agent authenticates the same way in every MCP client:
     then has the rights of this user, no more. When OpenL Studio signs users in through OAuth2, the agent may send an
     access token of the identity provider as `Bearer <token>` instead.
 
-To create a token, in OpenL Studio, click the user icon, select **My Profile** > **Personal Access Tokens**, and click
+To create a token, in OpenL Studio, click the user icon, select **Personal Access Tokens**, and click
 **+ Create Token**. For more information, see [Managing Personal Access
 Tokens](../openl-studio/getting-started.md#managing-personal-access-tokens) in the OpenL Studio User Guide. Create a
 token for each agent, so that a token can be deleted without affecting the others.

@@ -212,11 +212,17 @@ The build writes two pages (`build.rollupOptions.input`):
   `densityTheme(compact)` from `AppThemeProvider` and read with `useAppTheme()`. antd-style builds the algorithm
   chain as `[appearance, ...theme.algorithm]`, and a nested provider starts that chain again — so **every scoped
   theme merges `densityTheme(compact)` in**, or its area stays comfortable inside a compact application.
-- **Settings live in the profile.** Every setting of **My Settings** is a field of the user profile (`GET` and
-  `PUT /users/profile`, `UserProfile` in `types/user.d.ts`), kept on the server, so it follows the user from browser
-  to browser and no user reads another's. `localStorage` keeps only what the header picks for the browser — the
-  appearance, the theme, the density and the look of the tables (**Excel Formatting**) — and the state of a screen,
-  such as the width of a panel or a filter. A new setting is a field of the profile, never a key of the browser.
+- **Settings live in the browser.** **My Settings** are picked in the header's `SettingsMenu`, beside `ThemeSwitch`, and
+  kept in `localStorage` alone, as one JSON object under `openl.settings` (`useSettingsStore` of
+  `store/settingsStore.ts`). Nothing reads or writes them through the user profile, so they follow the browser, not the
+  user. A stored value this version does not know falls back to the default of that one setting. A change made in one
+  tab reaches every other tab at once (the `storage` event), and a pick there keeps it. A screen reads a setting with
+  `useSettingsStore(state => state.settings.…)`; a new setting is a field of `UserSettings` with its default in
+  `DEFAULT_USER_SETTINGS`, and a row of `SettingsMenu`. A screen that starts a test run, or shows its results, starts
+  from `savedTestsOptions()` of the same store.
+- **The user menu** (`containers/header/UserMenu`) lists **My Profile**, then **Personal Access Tokens** where
+  `isPersonalAccessTokenEnabled`, then **Administration** for an administrator, **Help**, **About** and **Sign Out**.
+  The side menu of the administration pages lists **My Profile** and **Personal Access Tokens**, never the settings.
 
 ## Development
 

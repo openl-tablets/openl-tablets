@@ -22,7 +22,6 @@ const ExecutionWindow = React.lazy(() =>
 // The user guides bring a Markdown renderer, code highlighting and diagrams of their own, loaded on the first visit.
 const UserGuides = React.lazy(() => import('../containers/userGuides/UserGuides'))
 import { UserProfile } from 'containers/UserProfile'
-import { UserSettings } from 'containers/UserSettings'
 import { DefaultLayout } from '../layouts/DefaultLayout'
 import { AdministrationLayout } from '../layouts/AdministrationLayout'
 import { RedirectRoute } from './RedirectRoute'
@@ -168,10 +167,6 @@ const router = createBrowserRouter([
                             {
                                 path: 'profile',
                                 element: <UserProfile />,
-                            },
-                            {
-                                path: 'settings',
-                                element: <UserSettings />,
                             },
                             {
                                 path: 'tokens',

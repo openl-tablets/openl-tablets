@@ -5,6 +5,7 @@ import { UserOutlined } from '@ant-design/icons'
 import { useStyles } from './Header.styles'
 import { UserMenu } from './header/UserMenu'
 import { ThemeSwitch } from './header/ThemeSwitch'
+import { SettingsMenu } from './header/SettingsMenu'
 import { Link, useLocation } from 'react-router'
 import Logo from '../components/Logo'
 import { hasDeploymentRepositories } from '../services/deployments'
@@ -115,6 +116,7 @@ export const Header = () => {
                     </Col>
                     <Col>
                         <Space size="small">
+                            <SettingsMenu />
                             <ThemeSwitch />
                             <Avatar icon={<UserOutlined />} onClick={onOpenUserMenu} />
                         </Space>

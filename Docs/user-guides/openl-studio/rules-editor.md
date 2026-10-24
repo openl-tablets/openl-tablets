@@ -312,7 +312,7 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     *Table opened in OpenL Studio*
 
-1.  To switch between simple and extended view, in **My Settings**, select or clear the **Show Header** and **Show Formulas** options as required.
+1.  To switch between simple and extended view, in **My Settings**, opened by the settings icon in the top-right corner, turn the **Show Header** and **Show Formulas** options on or off as required.
 2.  To switch the table to the edit mode, perform one of the following steps:
     -   Above the table, click **Edit**.
     -   Double click the cell to edit.

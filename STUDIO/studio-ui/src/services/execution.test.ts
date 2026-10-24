@@ -74,7 +74,7 @@ describe('execution service', () => {
         await getTestsSummary('p1', { failuresOnly: true, failures: ALL_FAILURES })
 
         expect(read.mock.calls[0]?.[0]).toBe(
-            '/projects/p1/tests/summary?failuresOnly=true&allFailures=true&compoundResult=false&page=0&size=20'
+            '/projects/p1/tests/summary?failuresOnly=true&allFailures=true&compoundResult=false&page=0&size=5'
         )
         expect(FAILURES_PER_TEST_OPTIONS).toContain(ALL_FAILURES)
     })
