@@ -48,7 +48,8 @@ dependencies of `STUDIO/studio-ui/package.json` and `STUDIO/studio-mcp/package.j
 ## Observability
 
 - **Log4j 2** with **SLF4J**, **Micrometer**, and **OpenTelemetry** — the Java agent and the extension that traces rules
-  (`Util/openl-rules-opentelemetry`).
+  (`Util/openl-rules-opentelemetry`); the OpenTelemetry SDK for Node.js in the MCP server and the browser SDK in the
+  pages of OpenL Studio, which post through the Studio backend to the collector.
 
 ## Frontend
 

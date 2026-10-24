@@ -21,6 +21,7 @@
         <module>repos</module>
         <module>simple</module>
         <module>sso</module>
+        <module>telemetry</module>
         <module>users</module>
     </modules>
 

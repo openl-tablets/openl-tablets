@@ -14,6 +14,7 @@ import { UserProfileCompletionModal } from './containers/users/UserProfileComple
 import { isUserProfileComplete } from './utils/userProfile'
 import { readStored, removeStored, writeStored } from './utils/localStore'
 import { EXECUTION_EDITOR_NAVIGATION } from './services/executionWindow'
+import { startTelemetry } from './services/telemetry'
 
 /** Where the tab remembers the page it reloaded for the sign-in. */
 const RELOADED_PAGE_KEY = 'openl.signIn.reloadedPage'
@@ -72,6 +73,8 @@ function App() {
         if (isLoggedIn) {
             // Initialize WebSocket connection for real-time notifications
             initializeWebSocket()
+            // The telemetry settings are read signed in: the server passes the data of a signed-in user on only
+            void startTelemetry()
         }
 
         return () => {

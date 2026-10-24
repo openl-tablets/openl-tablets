@@ -65,7 +65,7 @@ The build writes two pages (`build.rollupOptions.input`):
    initializes i18n and mounts `App` into `#appRoot`.
 2. `App` fetches the user profile, blocks rendering until auth completes, then mounts the router inside
    `AppThemeProvider` and Ant Design's `App` provider (with `PopupsBridge`, see Quality Rules), and initializes
-   WebSocket notifications.
+   WebSocket notifications and the telemetry (see **OpenTelemetry**).
 3. `api-docs.html` → `api-docs.tsx` mounts `ApiDocs` alone. The REST API documentation is read without logging in,
    so it carries no shell, no router and no auth bootstrap; the server answers `/api-docs` with this page and
    redirects the former `/rest/api-docs` to it.
@@ -106,6 +106,16 @@ The build writes two pages (`build.rollupOptions.input`):
   the pages take that build too (see **About**). A bare `#heading` link resolves against `<base href>`, the root of
   the application, not against the page: a link to a heading — in a page or in its outline — goes through the router
   with the address of the page.
+- **OpenTelemetry**: once the user is signed in, `startTelemetry` of `services/telemetry.ts` reads `GET /rest/telemetry`
+  — the service name, the resource attributes, and whether traces and metrics are sent, which the server derives from
+  its `OTEL_*` environment. When either is, it loads `services/openTelemetry.ts`, a lazy chunk with the OpenTelemetry
+  SDK, which traces every `fetch` of the page, carries the trace on in `traceparent`, and records
+  `http.client.request.duration` from the request spans. The SDK posts OTLP/HTTP to `/rest/telemetry/v1/*`, which the
+  server relays to the collector; those posts are not traced. The metrics are deltas, so an idle tab posts nothing and
+  does not keep its session alive, and the tabs of many users add up in one series. The fetch instrumentation is the one
+  of `@opentelemetry/browser-instrumentation`: the one of `@opentelemetry/instrumentation-fetch` is deprecated. A span
+  records the address of a request through `redactedUrl`: no credentials, no values of the query, no token of an e-mail
+  verification, no fragment; a new address that carries a secret in its path is added to it.
 - **About**: the **About** item of the user menu opens `containers/header/AboutModal`, a lazy chunk loaded the first
   time About is chosen. It shows the version, the build date (`openl.build.date`, in the UI language) and the license
   of OpenL Studio — LGPL v3, a link to its text on gnu.org — then reads the lists of third-party libraries once

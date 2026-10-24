@@ -1,0 +1,42 @@
+POST /rest/telemetry/v1/metrics HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "OpenL-ITest-ui" } }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": { "name": "studio-ui" },
+          "metrics": [
+            {
+              "name": "http.client.request.duration",
+              "unit": "s",
+              "histogram": {
+                "aggregationTemporality": 1,
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      { "key": "http.request.method", "value": { "stringValue": "GET" } },
+                      { "key": "http.response.status_code", "value": { "intValue": 200 } }
+                    ],
+                    "startTimeUnixNano": "1761292800000000000",
+                    "timeUnixNano": "1761292860000000000",
+                    "count": "1",
+                    "sum": 0.12,
+                    "bucketCounts": ["0", "1"],
+                    "explicitBounds": [0.1]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

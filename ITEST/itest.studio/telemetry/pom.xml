@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest.studio</artifactId>
+        <version>7.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>itest.studio.telemetry</artifactId>
+    <name>ITEST - Studio - OpenTelemetry of the pages and the MCP server</name>
+    <properties>
+        <!-- The collector the test runs, on the port reserved below -->
+        <otel.collector>http://127.0.0.1:${otel.collector.port}</otel.collector>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.rules.studio</groupId>
+            <artifactId>studio-backend</artifactId>
+            <type>war</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <!-- The Node.js runtime of the MCP server, the version that builds it -->
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install Node</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- A free port for the collector the test runs: OpenL Studio reads its address from the environment -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>reserve collector port</id>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <portNames>
+                                <portName>otel.collector.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- OpenL Studio sends telemetry as the Docker image configures it: by the OTEL_* variables of its
+                 environment. The MCP server inherits them. Short intervals send the data within the test, and JSON
+                 lets the test read what the MCP server sends. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <environmentVariables>
+                        <OTEL_EXPORTER_OTLP_ENDPOINT>${otel.collector}</OTEL_EXPORTER_OTLP_ENDPOINT>
+                        <OTEL_EXPORTER_OTLP_PROTOCOL>http/json</OTEL_EXPORTER_OTLP_PROTOCOL>
+                        <OTEL_EXPORTER_OTLP_HEADERS>Authorization=Bearer itest-token</OTEL_EXPORTER_OTLP_HEADERS>
+                        <OTEL_SERVICE_NAME>OpenL-ITest</OTEL_SERVICE_NAME>
+                        <OTEL_RESOURCE_ATTRIBUTES>deployment.environment=itest</OTEL_RESOURCE_ATTRIBUTES>
+                        <OTEL_LOGS_EXPORTER>none</OTEL_LOGS_EXPORTER>
+                        <OTEL_BSP_SCHEDULE_DELAY>100</OTEL_BSP_SCHEDULE_DELAY>
+                        <OTEL_METRIC_EXPORT_INTERVAL>500</OTEL_METRIC_EXPORT_INTERVAL>
+                    </environmentVariables>
+                    <systemPropertyVariables>
+                        <otel.collector.port>${otel.collector.port}</otel.collector.port>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

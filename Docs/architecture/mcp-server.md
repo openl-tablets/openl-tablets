@@ -160,7 +160,8 @@ webapps/ROOT/
     ├── web.xml
     ├── lib/…
     └── mcp/
-        └── index.mjs              # studio-mcp and its dependencies in one minified ES module (§5)
+        ├── index.mjs              # studio-mcp and its dependencies, minified ES modules (§5)
+        └── *-<hash>.mjs           # the chunks index.mjs imports when it needs them, such as the OpenTelemetry SDK
 ```
 
 - The WAR carries no Node.js binary: it is one artifact for every OS and architecture (§3.4).
@@ -195,7 +196,7 @@ sequenceDiagram
     J->>S: contextInitialized
     S->>S: refresh(): security chains, REST
     S->>L: start()
-    L->>N: node WEB-INF/mcp/index.mjs (PORT=0, HOST=127.0.0.1, OPENL_VERSION)
+    L->>N: node WEB-INF/mcp/index.mjs (PORT=0, HOST=127.0.0.1, OPENL_VERSION, OTEL_SDK_DISABLED, OTEL_SERVICE_NAME)
     N-->>L: stdout: listening on 127.0.0.1, port <port>
     Note over J,N: serving traffic
     S->>L: destroy() — the settings changed, the refresh destroys the beans
@@ -235,7 +236,10 @@ The bean passes studio-mcp its configuration in the environment, on top of the e
 - **`HOST`** — `127.0.0.1`, so only the loopback interface reaches the server;
 - **`OPENL_VERSION`** — the version of Studio, which the server reports in `serverInfo`;
 - **`NODE_USE_ENV_PROXY`** — removed, so that Node.js does not send the calls to Studio through the proxy of the
-  environment.
+  environment;
+- **`OTEL_SDK_DISABLED`** — `false` when Studio sends traces or metrics, `true` otherwise, so the server loads the
+  OpenTelemetry SDK only then;
+- **`OTEL_SERVICE_NAME`** — the service name of Studio with the suffix `-mcp`.
 
 ---
 
@@ -276,8 +280,9 @@ holds no credential of its own and checks none.
 
 What ships inside `WEB-INF/mcp`, and where each part comes from:
 
-- **Server** — studio-mcp bundled with the code it takes of its production dependencies into one minified ES
-  module, `index.mjs`, which Node.js runs without a `package.json`.
+- **Server** — studio-mcp bundled with the code it takes of its production dependencies into minified ES modules,
+  `index.mjs` and the chunks it imports only when it needs them, which Node.js runs without a `package.json`. The
+  OpenTelemetry SDK is such a chunk: a server that sends no telemetry never loads it.
 - **Licenses** — a plugin of the bundler lists every package the bundle takes code of, with its license file and
   NOTICE, in `licenses/mcp-licenses.json` of the war, which the About dialog shows, and fails on a license outside
   the ones the frontend build accepts.
@@ -306,7 +311,7 @@ Versioning and build:
 |---|---|---|
 | `initialize` | install Node.js and npm (root properties); `npm install` | `frontend-maven-plugin` |
 | `compile` | type-check and bundle studio-mcp into `dist/index.mjs`, with its license list | `frontend-maven-plugin` |
-| `process-classes` | copy the bundle into `mcp/` of the jar and its license list into `licenses/` | resources plugin |
+| `process-classes` | copy the bundle (`*.mjs`) into `mcp/` of the jar, its license list into `licenses/` | resources |
 | `test` | studio-mcp unit tests (Vitest) with coverage, skipped by `-Dnpm.test.skip` | `frontend-maven-plugin` |
 | `package` | jar with the bundle; the OpenL Studio war unpacks it into `WEB-INF/mcp` | jar, dependency plugins |
 
@@ -325,7 +330,11 @@ Versioning and build:
     in it and closes it;
   - in `multi` mode: a request without a valid token is refused with `401`, then every tool of the server is called
     with a Personal Access Token.
-- **Other suites** — every other Studio suite sets `mcp.enabled=false`.
+- **Telemetry** — `ITEST/itest.studio/telemetry` starts Studio with the `OTEL_*` variables of the Docker image and a
+  collector of its own, and checks that one tool call sends the spans of the request, of the tool and of the call to
+  `/rest` in the trace of the client, with their duration metrics (see
+  [Tracing with OpenTelemetry](../integration-guides/opentelemetry.md)).
+- **Other suites** — every other Studio suite but `telemetry` sets `mcp.enabled=false`.
 - **DEMO** — the CI job that starts `demo.zip` on Linux, Windows and macOS checks that `/webstudio/mcp` answers a
   discovery request.
 

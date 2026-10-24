@@ -115,6 +115,40 @@ class McpServerProcessTest {
     }
 
     @Test
+    void sendsTelemetryAsAServiceOfItsOwnWhenStudioDoes() {
+        var env = new HashMap<>(Map.of("OTEL_EXPORTER_OTLP_ENDPOINT", "http://collector:4318",
+                "OTEL_SERVICE_NAME", "Studio"));
+
+        server(true, NODE).configure(env);
+
+        assertEquals("false", env.get("OTEL_SDK_DISABLED"));
+        assertEquals("Studio-mcp", env.get("OTEL_SERVICE_NAME"));
+        assertEquals("http://collector:4318", env.get("OTEL_EXPORTER_OTLP_ENDPOINT"));
+    }
+
+    @Test
+    void sendsNoTelemetryWhenStudioDoesNot() {
+        var env = new HashMap<>(Map.of("OTEL_JAVAAGENT_ENABLED", "false",
+                "OTEL_EXPORTER_OTLP_ENDPOINT", "http://collector:4318"));
+
+        server(true, NODE).configure(env);
+
+        assertEquals("true", env.get("OTEL_SDK_DISABLED"));
+        assertEquals("OpenL-mcp", env.get("OTEL_SERVICE_NAME"));
+    }
+
+    @Test
+    void sendsNoTelemetryWhenStudioSendsNoTracesOrMetrics() {
+        // LOGGING_FORMAT=otel of the Docker image without a collector: the agent is on for the logs alone
+        var env = new HashMap<>(Map.of("OTEL_JAVAAGENT_ENABLED", "true", "OTEL_TRACES_EXPORTER", "none",
+                "OTEL_METRICS_EXPORTER", "none"));
+
+        server(true, NODE).configure(env);
+
+        assertEquals("true", env.get("OTEL_SDK_DISABLED"));
+    }
+
+    @Test
     void stopsTheServerWhenTheContextIsRefreshed() throws Exception {
         assumeTrue(nodeIsAvailable());
         bundle(LISTENING);

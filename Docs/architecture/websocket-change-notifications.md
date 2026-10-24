@@ -73,13 +73,13 @@ Not every change is published by the request that made it, and those need the sa
 - a commit reaches them through the design-repository index, which rebuilds on its executor a
   moment after the request that invalidated it.
 
-So a mutating request stays the *presumed author* for a few seconds after it starts
-(`ChangeOriginResolver.remember`, wired by `ChangeOriginFilter` — a filter rather than a handler
-interceptor, because the writes come from every mount: the REST API and the legacy pages as well as
-the UI's own). A publication about one user's workspace with no request of its own takes the clients
-**of that user** that were writing just before. The repository-changed ping is named the same
-way, but per recipient: each user is told which of their own clients were writing, and never about
-anybody else's.
+So a mutating request stays the *presumed author* for a few seconds after it starts (`ChangeOriginResolver.remember`,
+wired by `ChangeOriginFilter` — a filter rather than a handler interceptor, because the writes come from every mount:
+the REST API and the legacy pages as well as the UI's own). The telemetry a page posts every few seconds
+(`/rest/telemetry/v1/*`) changes nothing and marks nobody: it would keep the session of the page a recent writer for
+good. A publication about one user's workspace with no request of its own takes the clients **of that user** that were
+writing just before. The repository-changed ping is named the same way, but per recipient: each user is told which of
+their own clients were writing, and never about anybody else's.
 
 Four rules keep this from swallowing real changes:
 
