@@ -798,6 +798,8 @@ i18next.addResourceBundle('en', 'repository', {
             save: 'Save',
             cancel: 'Cancel',
             duplicate_keys: 'Each tag can be used only once',
+            mandatory: "Tag type '{{type}}' is mandatory.",
+            not_allowed: "'{{value}}' is not allowed value for tag type '{{type}}'.",
         },
         create: {
             wizard_title: 'Create project',

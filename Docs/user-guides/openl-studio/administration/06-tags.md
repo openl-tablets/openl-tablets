@@ -25,10 +25,10 @@ To create project tags, proceed as follows:
 
 3.  To configure a tag type, use the following checkboxes in the tag type row:
 
-    | Column         | Description                                                                                                                            |
-    |----------------|----------------------------------------------------------------------------------------------------------------------------------------|
-    | **Extensible** | When selected, any user can create new tag values for this tag type. When cleared, only an administrator can add values.               |
-    | **Nullable**   | When selected, assigning a value for this tag type is optional when creating a project. When cleared, a value must always be selected. |
+    | Column         | Description                                                                                                                                                                   |
+    |----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | **Extensible** | When selected, any user can create new tag values for this tag type. When cleared, only an administrator can add values, and a project carrying another value gets a warning. |
+    | **Nullable**   | When selected, a project may have no value for this tag type. When cleared, a project without a value gets a warning.                                                         |
 
 4.  To delete a tag type, click the **Delete** icon in the **Actions** column of the tag type row and confirm the deletion.
 
@@ -42,7 +42,7 @@ To create project tags, proceed as follows:
 
 7.  To delete a tag value, click the delete icon next to the tag name.
 
-All created tag types and values are saved automatically. These values are now offered as suggestions when tagging a project as described in [Tagging a Project](../repository-editor.md#tagging-a-project).
+All created tag types and values are saved automatically. These values are now offered as suggestions when tagging a project, and the tags of a project are checked against them, as described in [Tagging a Project](../repository-editor.md#tagging-a-project).
 
 Tag values can be derived from project names. Proceed as follows:
 

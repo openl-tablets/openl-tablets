@@ -569,6 +569,13 @@ Tags are shown in the **Tags** section of the **Overview** tab and in the projec
 
 The tags are written to the `tags.properties` file, and the project status changes to **In Editing**. When every tag is removed, the file is deleted. Save the project to store the tags in Design repository.
 
+The **Tags** section checks the tags against the tag types defined in OpenL Studio, both while the tags are viewed and while they are edited:
+
+-   A mandatory tag type, the one with **Nullable** cleared, that the project has no value for is reported as `Tag type '<tag type>' is mandatory.` below the tags.
+-   A value that a tag type with **Extensible** cleared does not have is reported as `'<value>' is not allowed value for tag type '<tag type>'.` below that tag. Values are compared regardless of case, and any value of an extensible tag type is accepted.
+
+These are warnings: the tags can be saved anyway, since a project may carry tags that the current configuration no longer allows, for instance, when it comes from Git. A warning disappears as soon as the tag is corrected in the editor.
+
 If a tag is used for grouping in a project tree, its value in a tree gets updated only when the project is saved.
 
 When a project created from an archive or copied from another project carries a value of an extensible tag type that is not yet configured in OpenL Studio, OpenL Studio adds the value to the tag type.
