@@ -14,8 +14,8 @@ import org.openl.engine.OpenLManager;
 import org.openl.source.impl.StringSourceCodeModule;
 
 /**
- * Checks that every array index operator skips the null elements of an array or a list, and returns null for a
- * missing one.
+ * Checks that TRANSFORM TO gives a value for every element of an array or a list, a null one too, that every other
+ * array index operator skips the null elements, and that every operator returns null for a missing array or list.
  * <p>
  * A null result of the expression for an element is not a null element: TRANSFORM TO keeps it.
  *
@@ -23,15 +23,27 @@ import org.openl.source.impl.StringSourceCodeModule;
  */
 class IndexOperatorsNullTest {
 
+    static Stream<Arguments> keepsNullElements() {
+        return Stream.of(
+                arguments("Integer[] a = {3, null, 1}; a[(x) transform to x]", new Integer[]{3, null, 1}),
+                arguments("Integer[] a = {3, null, 1}; a[(x) *@ x]", new Integer[]{3, null, 1}),
+                arguments("String[] a = {\"bb\", null, \"a\"}; a[(s) transform to s.length()]", new int[]{2, 0, 1}),
+                arguments("String[] a = {\"bb\", null, \"a\"}; a[transform to length()]", new int[]{2, 0, 1}),
+                arguments("String[] a = {\"bb\", null, \"a\"}; a[(s) transform to isEmpty(s) ? \"-\" : s]",
+                        new String[]{"bb", "-", "a"}),
+                arguments("Integer[] a = {3, null, 1}; a[(x, i) transform to i]", new Integer[]{0, 1, 2}),
+                arguments("List l = new ArrayList(); l.add(3); l.add(null); l.add(1); l[(Integer x) transform to x]",
+                        new Integer[]{3, null, 1}));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    void keepsNullElements(String expression, Object expected) {
+        assertResult(expression, expected);
+    }
+
     static Stream<Arguments> skipsNullElements() {
         return Stream.of(
-                arguments("Integer[] a = {3, null, 1}; a[(x) transform to x]", new Integer[]{3, 1}),
-                arguments("String[] a = {\"bb\", null, \"a\"}; a[transform to length()]", new int[]{2, 1}),
-                arguments("String[] a = {\"bb\", null, \"a\"}; a[(s) transform to isEmpty(s) ? \"-\" : s]",
-                        new String[]{"bb", "a"}),
-                arguments("List l = new ArrayList(); l.add(3); l.add(null); l.add(1); l[(Integer x) transform to x]",
-                        new Integer[]{3, 1}),
-
                 arguments("Integer[] a = {3, null, 1, null, 3}; a[(x) transform unique to x]", new Integer[]{3, 1}),
                 arguments("String[] a = {\"bb\", null, \"a\"}; a[(s) transform unique to s.length()]", new int[]{2, 1}),
                 arguments("String[] a = {\"bb\", null, \"a\", \"cc\"}; a[*!@ length()]", new int[]{2, 1}),

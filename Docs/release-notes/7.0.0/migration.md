@@ -233,14 +233,14 @@ from Maven.
   - `round(x, n)` rounds a large whole `Double` exactly. Before, it could change in its last digit:
     `round(1.0E15, 1)` was `1.0000000000000001E15`.
 
-* **`transform to` skips an empty element of an array, as the other array index operators do.** It does not evaluate
-  the expression for an element that is `null` and gives no value for it, so
-  `new Integer[] {3, null, 1}[(x) transform to x]` is `{3, 1}`, and a position in the result, as in
-  `[transform to name][1]`, can belong to another element. `transform unique to` skips it too. Before, both evaluated
-  the expression for the empty element: the result was `{3, null, 1}`, `(x) transform to isEmpty(x) ? -1 : x` gave
-  `-1` for it, and `transform to length()`, which calls a method of the element without naming it, stopped with a
-  `NullPointerException`. To keep a value for every element, use `array.field`, such as `drivers.name`, or call a
-  rule with the array: the rule runs for every element, an empty one too.
+* **`transform unique to` skips an empty element of an array, as the other array index operators except
+  `transform to` do.** It does not evaluate the expression for an element that is `null`. Before, it evaluated the
+  expression for the empty element: `(x) transform unique to isEmpty(x) ? -1 : x` gave `-1` for it, and
+  `transform unique to length()`, which calls a method of the element without naming it, stopped with a
+  `NullPointerException`. `transform to` keeps evaluating the expression for every element, an empty one too, so its
+  result has as many values as the array; a method of an empty element called without naming it, as in
+  `transform to length()`, gives an empty value, or `0` for a primitive type, instead of the
+  `NullPointerException`.
 
 * **`transform unique to` returns an empty value for a missing array, as the other array index operators do.**
   Applied to an array or a collection that is `null`, such as the values of a missing `Map`, it gives `null`. Before,

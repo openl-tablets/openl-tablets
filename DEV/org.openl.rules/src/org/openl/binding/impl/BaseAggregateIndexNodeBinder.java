@@ -24,9 +24,9 @@ import org.openl.types.java.JavaOpenClass;
  * {@code (x, i)} or {@code (Type x, Integer i)}. The index is the position of the element from 0. It is an Integer,
  * and it can be declared of any type an Integer converts to without a loss, such as int, Long or Double.
  * <p>
- * Every operator skips the null elements of the array or collection. Its condition or expression is not evaluated
- * for them, and they are not in its result. A null result of an expression is not an element, so TRANSFORM TO keeps
- * it.
+ * TRANSFORM TO evaluates its expression for every element, a null one too, so its result has as many values as the
+ * array or collection. Every other operator skips the null elements. Its condition or expression is not evaluated
+ * for them, and they are not in its result.
  * <p>
  * Every operator returns null for a missing array or collection.
  *

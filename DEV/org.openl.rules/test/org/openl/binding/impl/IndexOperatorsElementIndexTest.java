@@ -83,10 +83,10 @@ class IndexOperatorsElementIndexTest {
                         new double[]{1.5, 2.5, 3.5, 0.0, 0.0}),
                 arguments("Double[] in = {1.5, 2.5, 3.5, 4.5}; in[(x, i) transform to i < 3 ? x : 0.0]",
                         new Double[]{1.5, 2.5, 3.5, 0.0}),
-                arguments("Integer[] a = {3, null, 1}; a[(x, i) transform to i]", new Integer[]{0, 2}),
+                arguments("Integer[] a = {3, null, 1}; a[(x, i) transform to i]", new Integer[]{0, 1, 2}),
                 arguments("Integer[] a = {null, 3, null, 1}; a[(x, i) select all having i > 1]", new Integer[]{1}),
                 arguments("List l = new ArrayList(); l.add(\"a\"); l.add(null); l.add(\"b\"); "
-                        + "l[(String s, i) transform to s + i]", new String[]{"a0", "b2"}),
+                        + "l[(String s, i) transform to s + i]", new String[]{"a0", "null1", "b2"}),
                 arguments("Set s = new LinkedHashSet(); s.add(\"x\"); s.add(\"y\"); s[(String e, i) *@ e + i]",
                         new String[]{"x0", "y1"}),
                 arguments("String[][] a = {{\"a\", \"b\"}, {\"c\"}}; "

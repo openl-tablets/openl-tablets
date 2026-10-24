@@ -18,9 +18,9 @@ import org.openl.vm.IRuntimeEnv;
  * The variables an array index operator declares for every element: the element itself and, when the operator names
  * it, the index of the element.
  * <p>
- * The operator goes through the elements in their order and skips the empty ones. The index is the position of the
- * element in the array or the collection, starting from 0. The skipped elements keep their positions, so the element
- * at index {@code i} is {@code array[i]}.
+ * The operator goes through the elements in their order and skips the empty ones, except TRANSFORM TO, which takes
+ * every element. The index is the position of the element in the array or the collection, starting from 0. The
+ * skipped elements keep their positions, so the element at index {@code i} is {@code array[i]}.
  *
  * @param element      the variable of the element
  * @param elementCast  the conversion of an element to the declared type of its variable
@@ -64,6 +64,17 @@ record ElementVariables(ILocalVar element,
     }
 
     /**
+     * Calls the action for every element, an empty one too, after it assigns the element and its index to the
+     * variables.
+     */
+    void forEachWithEmpty(Iterator<Object> elements, IRuntimeEnv env, Runnable action) {
+        for (var position = 0; elements.hasNext(); position++) {
+            assign(elements.next(), position, env);
+            action.run();
+        }
+    }
+
+    /**
      * Goes through the elements like {@link #forEach} and stops at the first one the condition holds for.
      *
      * @return that element, or {@code null} when the condition holds for none
@@ -83,7 +94,7 @@ record ElementVariables(ILocalVar element,
      *
      * @return the element converted to the declared type of its variable
      */
-    private Object assign(Object element, int position, IRuntimeEnv env) {
+    private @Nullable Object assign(@Nullable Object element, int position, IRuntimeEnv env) {
         var value = elementCast.convert(element);
         this.element.set(null, value, env);
         if (index != null) {
