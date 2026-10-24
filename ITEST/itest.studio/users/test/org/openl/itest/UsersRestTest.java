@@ -105,10 +105,6 @@ class UsersRestTest {
         client.send("users-service/users-profile-3.get");
         client.send("users-service/users-profile-tree-view.put");
         client.send("users-service/users-profile-3.get");
-        client.send("users-service/users-profile-one-setting.put");
-        client.send("users-service/users-profile-4.get");
-        client.send("users-service/users-profile-tests-count.put");
-        client.send("users-service/users-profile-4.get");
 
         client.send("users-service/users-delete-1.delete");
         client.send("users-service/users-delete-2.delete");
@@ -120,8 +116,8 @@ class UsersRestTest {
     }
 
     @Test
-    void userSettingsStayWithTheirUser() {
-        client.test("test-resources/task_EPBDS-7164-user-settings");
+    void removedUserSettingsAreRefused() {
+        client.test("test-resources/removed-user-settings");
     }
 
     @Test

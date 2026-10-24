@@ -34,7 +34,6 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
     private static final String CANNOT_BE_EMPTY = "Cannot be empty.";
-    private static final String POSITIVE_OR_ALL = "Must be a positive number, or -1 for all.";
     private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name cannot contain spaces and any of the following characters: / \\ : * ? \" < > | { } ~ ^ ; %";
 
     @Autowired
@@ -347,25 +346,7 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     void testEditUserProfile_withoutDetails_valid() {
-        assertNull(validateAndGetResult(new UserProfileEditModel().setShowFormulas(true)));
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {-1, 1, 20})
-    void testEditUserProfile_testsCounts_valid(int count) {
-        assertNull(validateAndGetResult(new UserProfileEditModel().setTestsPerPage(count).setTestsFailuresPerTest(count)));
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {0, -2, Integer.MIN_VALUE})
-    void testEditUserProfile_testsCounts_notValid(int count) {
-        var bindingResult = validateAndGetResult(
-                new UserProfileEditModel().setTestsPerPage(count).setTestsFailuresPerTest(count));
-        assertFieldError("testsPerPage", POSITIVE_OR_ALL, count, bindingResult.getFieldError("testsPerPage"));
-        assertFieldError("testsFailuresPerTest",
-                POSITIVE_OR_ALL,
-                count,
-                bindingResult.getFieldError("testsFailuresPerTest"));
+        assertNull(validateAndGetResult(new UserProfileEditModel()));
     }
 
     @Test
@@ -422,13 +403,6 @@ class UsersValidatorTest extends AbstractConstraintValidatorTest {
     private UserProfileEditModel getValidUserProfileEditModel() {
         return new UserProfileEditModel().setChangePassword(
                         new ChangePasswordModel().setConfirmPassword("pass2").setNewPassword("pass2").setCurrentPassword("pass"))
-                .setShowComplexResult(true)
-                .setShowFormulas(true)
-                .setShowRealNumbers(true)
-                .setTestsFailuresOnly(true)
-                .setTestsFailuresPerTest(20)
-                .setTestsPerPage(20)
-                .setShowHeader(true)
                 .setDisplayName("John Smith")
                 .setFirstName("John")
                 .setEmail("jsmith@email")

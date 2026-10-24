@@ -1,7 +1,7 @@
 PUT /rest/users/profile HTTP/1.1
-Authorization: Basic anNtaXRoOnBhc3Mz
+Authorization: Basic YWxpY2U6YWxpY2UtcGFzcw==
 Content-Type: application/json
 
 {
-  "showFormulas": false
+  "showFormulas": true
 }

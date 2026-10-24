@@ -214,9 +214,9 @@ The build writes two pages (`build.rollupOptions.input`):
   theme merges `densityTheme(compact)` in**, or its area stays comfortable inside a compact application.
 - **Settings live in the browser.** **My Settings** are picked in the header's `SettingsMenu`, beside `ThemeSwitch`, and
   kept in `localStorage` alone, as one JSON object under `openl.settings` (`useSettingsStore` of
-  `store/settingsStore.ts`). Nothing reads or writes them through the user profile, so they follow the browser, not the
-  user. A stored value this version does not know falls back to the default of that one setting. A change made in one
-  tab reaches every other tab at once (the `storage` event), and a pick there keeps it. A screen reads a setting with
+  `store/settingsStore.ts`). The user profile carries none of them, so they follow the browser, not the user. A stored
+  value this version does not know falls back to the default of that one setting. A change made in one tab reaches every
+  other tab at once (the `storage` event), and a pick there keeps it. A screen reads a setting with
   `useSettingsStore(state => state.settings.…)`; a new setting is a field of `UserSettings` with its default in
   `DEFAULT_USER_SETTINGS`, and a row of `SettingsMenu`. A screen that starts a test run, or shows its results, starts
   from `savedTestsOptions()` of the same store.

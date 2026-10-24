@@ -20,16 +20,6 @@ public class HibernateUserSettingDao extends BaseHibernateDao<UserSetting> imple
 
     @Override
     @Transactional
-    public List<UserSetting> getProperties(String login) {
-        var builder = getSession().getCriteriaBuilder();
-        var criteria = builder.createQuery(UserSetting.class);
-        var setting = criteria.from(UserSetting.class);
-        criteria.select(setting).where(builder.equal(setting.get("id").get(LOGIN_NAME), login));
-        return getSession().createQuery(criteria).getResultList();
-    }
-
-    @Override
-    @Transactional
     public void setProperty(String login, String key, String value) {
         var session = getSession();
         var property = findProperty(login, key);

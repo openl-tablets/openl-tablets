@@ -19,8 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,7 +47,6 @@ import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
-import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.security.acl.JdbcSidManagingAclService;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ForbiddenException;
@@ -72,12 +69,10 @@ public class UsersController {
     private final AdminUsers adminUsersInitializer;
     private final CurrentUserInfo currentUserInfo;
     private final BeanValidationProvider validationProvider;
-    private final UserSettingManagementService userSettingsManager;
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
     private final JdbcSidManagingAclService aclService;
-    private final TransactionTemplate txTemplate;
     private final boolean groupsDisabled;
 
     @Autowired
@@ -87,10 +82,8 @@ public class UsersController {
                            CurrentUserInfo currentUserInfo,
                            PasswordEncoder passwordEncoder,
                            BeanValidationProvider validationService,
-                           UserSettingManagementService userSettingsManager,
                            ExternalGroupService extGroupService,
                            MailSender mailSender,
-                           PlatformTransactionManager txManager,
                            @Autowired(required = false) JdbcSidManagingAclService aclService,
                            @Value("${user.mode}") String userMode) {
         this.userManagementService = userManagementService;
@@ -98,12 +91,10 @@ public class UsersController {
         this.adminUsersInitializer = adminUsersInitializer;
         this.currentUserInfo = currentUserInfo;
         this.passwordEncoder = passwordEncoder;
-        this.userSettingsManager = userSettingsManager;
         this.validationProvider = validationService;
         this.extGroupService = extGroupService;
         this.mailSender = mailSender;
         this.aclService = aclService;
-        this.txTemplate = new TransactionTemplate(txManager);
         this.groupsDisabled = "multi".equals(userMode) || "single".equals(userMode);
     }
 
@@ -201,16 +192,8 @@ public class UsersController {
         var newPassword = Optional.ofNullable(userModel.getChangePassword())
                 .map(ChangePasswordModel::getNewPassword)
                 .orElse(null);
-        // The details and the settings are saved together, so a failure leaves the profile as it was, and the
-        // verification link is mailed only once the new e-mail is saved.
-        var verifyEmail = txTemplate.execute(status -> {
-            var username = currentUserInfo.getUserName();
-            var dbUser = userManagementService.getUser(username);
-            var emailChanged = updateCurrentUserData(dbUser, withStoredDetails(userModel, dbUser), newPassword);
-            userModel.store((key, value) -> userSettingsManager.setProperty(username, key, value));
-            return emailChanged;
-        });
-        if (Boolean.TRUE.equals(verifyEmail)) {
+        var dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+        if (updateCurrentUserData(dbUser, withStoredDetails(userModel, dbUser), newPassword)) {
             sendVerificationMail(request);
         }
     }
@@ -256,15 +239,13 @@ public class UsersController {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var isAdmin = SecurityUtils.hasAuthority(authentication, Privileges.ADMIN.getAuthority());
 
-        var profile = new UserProfileModel().setFirstName(user.getFirstName())
+        return new UserProfileModel().setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
                 .setDisplayName(user.getDisplayName())
                 .setUsername(user.getUsername())
                 .setExternalFlags(user.getExternalFlags())
                 .setAdministrator(isAdmin);
-        profile.load(userSettingsManager.getSettings(user.getUsername()));
-        return profile;
     }
 
     @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")

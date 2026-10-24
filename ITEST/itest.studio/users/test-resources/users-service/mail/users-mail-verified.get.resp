@@ -7,13 +7,6 @@ Content-Type: application/json
   "displayName": "Admin",
   "firstName": "Ad",
   "lastName": "Min",
-  "showHeader": true,
-  "showFormulas": false,
-  "testsPerPage": 5,
-  "testsFailuresOnly": false,
-  "testsFailuresPerTest": 5,
-  "showComplexResult": false,
-  "showRealNumbers": false,
   "administrator": true,
   "externalFlags": {
     "firstNameExternal": false,

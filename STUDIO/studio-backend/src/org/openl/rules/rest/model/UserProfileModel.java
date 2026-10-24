@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import org.openl.rules.security.UserExternalFlags;
 
-public class UserProfileModel extends UserProfileBaseModel {
+public class UserProfileModel extends UserInfoModel {
 
     @Getter
     @Parameter(description = "Username")
