@@ -1,9 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { RawTableGrid } from 'components/RawTableGrid'
 import { roleColoursOf } from 'components/RawTableGrid.styles'
 import { rolesOf } from 'components/tableRoles'
 import { contrastRatio, opaque } from 'styles/colorMath'
+import { markInksOf } from './textMarks'
 import { paperToken } from 'styles/paper'
 import { LIST_PAGE_COLORS } from 'styles/listPageTheme'
 import { THEME_ORDER, variantOf } from 'styles/themes'
@@ -392,6 +393,21 @@ describe('RawTableGrid', () => {
             expect(cellAt('B4')).toHaveAttribute('data-role', 'value')
         })
 
+        it('draws the marks of a text in the colours of the theme, and every other font of it plain', () => {
+            const marked: RawTableCell[][] = rule.map((row, index) => (index !== 3 ? row : [
+                { cell: 'B5', value: 'sixty five', runs: [
+                    { text: 'sixty', style: { bold: true, color: '#FFC000' } },
+                    { text: ' five', style: { italic: true, color: '#123456' } },
+                ]},
+                { cell: 'C5', value: 0.25 },
+            ]))
+            renderInTheme(<RawTableGrid roles={roles} rows={marked} testId="grid" />, { theme: 'standard', mode: 'dark' })
+
+            expect(within(cellAt('B5')).getByText('sixty')).toHaveStyle({ color: dark.colorWarningText })
+            expect(within(cellAt('B5')).getByText('sixty', { exact: false }).tagName).toBe('SPAN')
+            expect(cellAt('B5').querySelector('[style*="italic"]')).toBeNull()
+        })
+
         it('keeps the indent of the workbook, which carries the structure of a table', () => {
             drawIn()
 
@@ -485,6 +501,25 @@ describe('RawTableGrid', () => {
             }
             // A faint text reads as the secondary text of the application.
             expect(contrastOn(theme.faint, surface)).toBeGreaterThanOrEqual(3)
+        })
+
+        it.each(VARIANTS)('keeps every mark readable on every fill in $name $appearance', ({ token }) => {
+            const theme = roleColoursOf(token)
+            const surface = token.colorBgContainer
+            const contrastOn = (color: string, fill: string) => {
+                const ground = opaque(fill, surface)
+                return contrastRatio(opaque(color, ground), ground)
+            }
+            const fills = [surface, theme.inputTitleFill, theme.outputTitleFill, theme.outputFill]
+            const inks = markInksOf(token, fills.map(fill => opaque(fill, surface)))
+
+            for (const ink of Object.values(inks)) {
+                for (const fill of fills) {
+                    expect(contrastOn(ink, fill)).toBeGreaterThanOrEqual(4.5)
+                }
+            }
+            // Each mark keeps a colour of its own, apart from the text and from the other marks.
+            expect(new Set([...Object.values(inks), opaque(token.colorText, surface)]).size).toBe(5)
         })
     })
 

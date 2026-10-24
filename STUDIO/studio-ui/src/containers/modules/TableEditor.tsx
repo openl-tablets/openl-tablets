@@ -11,7 +11,8 @@ import { useAppTheme } from '../../providers/AppThemeProvider'
 import { notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, type TableCellEditor, type TableEditors } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
-import type { RawCellStyleInput, RawTableCell, TableLayout } from 'types/tables'
+import { marksOf, sameMarks } from '../../components/textMarks'
+import type { RawCellStyleInput, RawTableCell, RawTextMark, TableLayout } from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
 import { withoutFirstRows } from './hiddenRows'
 import { OpenCell } from './OpenCell'
@@ -176,6 +177,8 @@ interface OpenAt extends CellAt {
     from: string
     /** Whether the cell takes more than one line on screen, measured as it was opened. */
     several: boolean
+    /** The marks on the text the cell held when it was opened. */
+    marks: RawTextMark[]
 }
 
 interface TableEditorProps {
@@ -208,6 +211,8 @@ interface TableEditorProps {
     onOpenUsage?: OpenUsage | undefined
     /** Whether the reader may change the table; one who may not never picks a cell. */
     canWrite: boolean
+    /** Whether the workbook can hold marks on a piece of a text: an `.xlsx` one, not an `.xls` one. */
+    canMark?: boolean | undefined
     /** Whether the reader is editing the table. */
     editing: boolean
     /** Told when the reader starts editing by opening a cell, and when they stop. */
@@ -253,6 +258,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     kind,
     onOpenUsage,
     canWrite,
+    canMark = true,
     editing,
     onEditingChange,
     onDirtyChange,
@@ -554,7 +560,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         setPicked({ row, column })
         // Measured while the cell still shows what it holds: once it is open, the field is what stands there.
         const from = typed ?? heldBy(cell)
-        setOpen({ row, column, from, several: takesSeveralLines(cell.cell, from) })
+        setOpen({ row, column, from, several: takesSeveralLines(cell.cell, from),
+            marks: typed === undefined ? marksOf(cell.runs) : []})
         onEditingChange(true)
     }, [onEditingChange, written])
 
@@ -579,7 +586,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
      * that writes and closes in one gesture — the calendar, where picking a date is both — knows the value
      * before the screen does.
      */
-    const closeCell = (keep: boolean, value = '') => {
+    const closeCell = (keep: boolean, value = '', marks?: RawTextMark[]) => {
         const at = open
         // Two things can close one cell in the same breath — the field losing the focus, and the click that
         // took the focus off it — and what the cell holds is written once, not twice.
@@ -595,8 +602,9 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         // Compared against what the cell was opened on, which for a cell written with a formula is the
         // formula rather than the value it computed. Comparing against the value would read every formula
         // cell the reader merely looked into as rewritten, and write the formula over itself on the next save.
-        if (value !== heldBy(written[at.row]?.[at.column])) {
-            step({ kind: 'value', at: { row: at.row, column: at.column }, value })
+        const cell = written[at.row]?.[at.column]
+        if (value !== heldBy(cell) || (marks !== undefined && !sameMarks(marks, marksOf(cell?.runs)))) {
+            step({ kind: 'value', at: { row: at.row, column: at.column }, value, ...(marks !== undefined && { marks }) })
         }
     }
 
@@ -686,6 +694,18 @@ export const TableEditor: React.FC<TableEditorProps> = ({
         return (cell?.metaInfo?.type ?? '').endsWith('Range') ? 'range' : null
     }
 
+    /**
+     * Whether pieces of the text of a cell can be marked: a cell of an `.xlsx` workbook the table was read with, which
+     * the save writes in place, and not its header, which the table style writes in pieces of its own. A cell written with a formula
+     * holds no text to mark.
+     */
+    const markableAt = (at: CellAt): boolean => {
+        const row = rowAsRead(edited, at.row)
+        const column = columnAsRead(edited, at.column)
+        return canMark && row !== null && column !== null && !(row === 0 && column === 0)
+            && written[at.row]?.[at.column]?.formula === undefined
+    }
+
     /** How a cell is drawn: picked, waiting to be written, or open for writing. */
     const decorate = (cell: RawTableCell, row: number, column: number): CellDecoration | undefined => {
         const at = { row, column }
@@ -698,8 +718,10 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         address={written[at.row]?.[at.column]?.cell}
                         asked={asked}
                         from={open.from}
+                        markable={markableAt(at)}
+                        marks={open.marks}
                         onCancel={() => closeCell(false)}
-                        onCommit={value => closeCell(true, value)}
+                        onCommit={(value, marks) => closeCell(true, value, marks)}
                         onPaper={paper}
                         onSwitching={opened => { switching.current = opened }}
                         own={ownKind(at, asked)}

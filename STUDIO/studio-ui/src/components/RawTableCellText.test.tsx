@@ -79,6 +79,26 @@ describe('RawTableCellText', () => {
         expect(screen.getByText('Datatype').style.color).toBe('rgb(128, 128, 128)')
     })
 
+    it('keeps the colour of a mark on a piece leading to a table', () => {
+        const child = { start: 9, end: 14, description: 'Datatype Child', tableId: 't-2', module: 'Claims',
+            kind: 'datatype' as const }
+        render(
+            <RawTableCellText
+                ink={INK}
+                metaInfo={metaInfo({ usages: [child]})}
+                onOpenUsage={vi.fn()}
+                runs={[{ text: 'Datatype ' }, { text: 'Child', style: { bold: true, color: '#ff0000' } }]}
+                styles={styles}
+                text="Datatype Child"
+            />
+        )
+
+        // A mark is what the author asked the reader to look at, so a link does not paint it over.
+        const piece = screen.getByTestId('cell-usage-0').querySelector('span') as HTMLElement
+        expect(piece.style.color).toBe('rgb(255, 0, 0)')
+        expect(piece.style.textDecoration).toBe('')
+    })
+
     it('draws a piece naming no colour in the ink of the paper, as Excel draws it', () => {
         const runs = [{ text: 'Datatype ', style: { color: '#808080' } }, { text: 'Child', style: { bold: true } }]
         render(<RawTableCellText ink={INK} metaInfo={undefined} runs={runs} styles={styles} text="Datatype Child" />)

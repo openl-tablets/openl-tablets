@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { RawTableCell } from 'types/tables'
+import type { RawTableCell, RawTextMark } from 'types/tables'
 import {
     asRead,
     blankLine,
@@ -441,5 +441,44 @@ describe('shownStyle', () => {
         expect(shownStyle({ background: { theme: 'accent1', tint: 0.6 }, color: { rgb: '#C00000' }, bold: true }))
             .toEqual({ background: '#b4c6e7', color: '#c00000', bold: true })
         expect(shownStyle({ indent: 2 })).toEqual({ indent: 2 })
+    })
+})
+
+describe('marks', () => {
+    const marked = (row: number, column: number, value: string, marks: RawTextMark[]): EditStep =>
+        ({ kind: 'value', at: { row, column }, value, marks })
+
+    it('shows a marked text in its marks, bold in the colours of Excel, until it is saved', () => {
+        const cell = after(marked(1, 1, 'Good Morning', [{ from: 5, to: 12, color: 'success' }])).rows[1]?.[1]
+
+        expect(cell?.runs).toEqual([{ text: 'Good ' }, { text: 'Morning', style: { bold: true, color: '#00b050' }, mark: 'success' }])
+    })
+
+    it('writes a text with its marks', () => {
+        expect(sent(marked(1, 1, 'Good Morning', [{ from: 0, to: 4, color: 'error' }]))).toEqual([{
+            operation: 'update',
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [{ from: 0, to: 4, color: 'error' }]},
+        }])
+    })
+
+    it('writes nothing for marks written back as they were', () => {
+        const read: RawTableCell[][] = [table[0] ?? [], [{ cell: 'A2', value: 0 }, {
+            cell: 'B2',
+            value: 'Good Morning',
+            runs: [{ text: 'Good', style: { bold: true, color: '#FF0000' } }, { text: ' Morning' }],
+        }]]
+        const steps = [marked(1, 1, 'Good Morning', [{ from: 0, to: 4, color: 'error' }])]
+
+        expect(compile(read, replay(read, steps))).toEqual([])
+    })
+
+    it('drops the pieces a value was formatted in once it is written without marks', () => {
+        const read: RawTableCell[][] = [table[0] ?? [], [{ cell: 'A2', value: 0 }, {
+            cell: 'B2',
+            value: 'Good Morning',
+            runs: [{ text: 'Good', style: { bold: true, color: '#FF0000' } }, { text: ' Morning' }],
+        }]]
+
+        expect(replay(read, [write(1, 1, 'Hello')]).rows[1]?.[1]?.runs).toBeUndefined()
     })
 })

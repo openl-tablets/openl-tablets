@@ -41,8 +41,8 @@ import org.openl.studio.projects.service.tables.format.WorkbookStyles.Edges;
  * indent, its text wrapping and its text rotation. No value of a cell is changed.
  *
  * <p>The signature is the only cell written as rich text, in its pieces: the name of the table bold, the names of the
- * parameters in the text colour, and the rest lighter. Rich text in any other cell is replaced by the same text in the
- * font of its cell.
+ * parameters in the text colour, and the rest lighter. Rich text in any other cell keeps its marks, each bold in its
+ * colour in the font of the cell; every other piece takes the font of its cell.
  *
  * <p>A table of an {@code .xls} workbook, and a table of the type Other, are left as they are. One formatter serves a
  * batch of tables: what it writes into a workbook for one table is reused by the others.
@@ -330,7 +330,10 @@ public final class ExcelTableFormatter {
             return row != null ? row : sheet.createRow(at);
         }
 
-        /** Gives a cell its cell format, and writes its text as plain text. */
+        /**
+         * Gives a cell its cell format. A text in pieces of their own fonts keeps its marks, in the font of the role
+         * of the cell, and loses every other font.
+         */
         private void write(XSSFRow row, int column, TableStyle style, Edges edges) {
             var at = table.getLeft() + column;
             var found = row.getCell(at);
@@ -342,16 +345,21 @@ public final class ExcelTableFormatter {
             if (format != source) {
                 ct.setS(format);
             }
-            if (style != TableStyle.SIGNATURE && isRich(cell)) {
-                writeText(cell, new XSSFRichTextString(cell.getStringCellValue()));
+            var rich = style == TableStyle.SIGNATURE ? null : richOf(cell);
+            if (rich != null) {
+                TextMarks.writeText(cell, TextMarks.write(rich.getString(), TextMarks.of(rich, sheet.getWorkbook()),
+                        color -> styles.markFont(style, color)));
             }
         }
 
-        /** Whether the text of a cell is written in pieces of their own fonts. */
-        private static boolean isRich(XSSFCell cell) {
+        /** The text of a cell when it is written in pieces of their own fonts, or {@code null}. */
+        private static @Nullable XSSFRichTextString richOf(XSSFCell cell) {
             var type = cell.getCTCell().getT();
-            return (type == STCellType.S || type == STCellType.INLINE_STR)
-                    && cell.getRichStringCellValue().numFormattingRuns() > 0;
+            if (type != STCellType.S && type != STCellType.INLINE_STR) {
+                return null;
+            }
+            var rich = cell.getRichStringCellValue();
+            return rich.numFormattingRuns() > 0 ? rich : null;
         }
 
         /**
@@ -366,7 +374,7 @@ public final class ExcelTableFormatter {
                 return;
             }
             var text = cell.getStringCellValue();
-            writeText(cell, covers(regions.signature(), text) ? inPieces(text) : new XSSFRichTextString(text));
+            TextMarks.writeText(cell, covers(regions.signature(), text) ? inPieces(text) : new XSSFRichTextString(text));
         }
 
         /** The header text, a run of its own font for each piece. */
@@ -394,17 +402,6 @@ public final class ExcelTableFormatter {
                 case PARAMETER_NAME -> styles.pieceFont(false, TableStyle.Look.TEXT);
                 case KEYWORD, TYPE, PUNCTUATION, PARAMETER_TYPE -> styles.pieceFont(false, TableStyle.Look.MUTED);
             };
-        }
-
-        /**
-         * Writes a text into a cell. A text written into the cell itself, as tools other than Excel write it, would
-         * keep its characters and lose its pieces: blanking the cell first makes the text a shared string.
-         */
-        private static void writeText(XSSFCell cell, XSSFRichTextString text) {
-            if (cell.getCTCell().getT() == STCellType.INLINE_STR) {
-                cell.setBlank();
-            }
-            cell.setCellValue(text);
         }
     }
 }

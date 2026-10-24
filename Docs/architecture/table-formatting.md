@@ -29,6 +29,7 @@ glance: what the table is, what it takes, and what it gives.
 | Switching | The switch only re-renders. Both looks are drawn from one read of the table. |
 | Studio look | Formulas and code are highlighted as CodeMirror highlights code; values are coloured by their type. |
 | Colour picker | Only the 60 theme colours and the 10 standard colours of Excel. No custom colour. |
+| Text marks | Four marks on a piece of a cell text, bold in a functional colour: kept by every formatting, written as rich text, no cell style. |
 | REST API | One compact read: a style dictionary and role regions, every fact sent once. |
 
 ## Table anatomy
@@ -214,7 +215,8 @@ The Studio look colours a body value by its type. The type comes from the compil
   the font size of the workbook's **Normal** style, so row heights do not change.
 - **Fill colours** — only `lt2`, `dk2` and `accent1`–`accent6`, with a tint. `lt1` and `dk1` are never a fill:
   they are white and black in every Excel theme. A cell with no fill has no fill, not a white one.
-- **Text colours** — `dk1`, and `dk1` lighter by 50% for what matters less.
+- **Text colours** — `dk1`, and `dk1` lighter by 50% for what matters less. A [mark](#marks-on-a-piece-of-a-text)
+  on a piece of a text is the one other text colour: a standard colour of Excel, as an Office theme has no red.
 - **Colours as theme references** — every colour is written as a theme index with a tint, whatever theme the
   workbook has. Changing the theme in Excel (**Page Layout > Colors**) recolours the tables. No colour is written
   as RGB, whatever theme the workbook has.
@@ -312,7 +314,8 @@ The signature is the only cell written as rich text. Its pieces are read from th
 | parameter types, punctuation | `dk1` lighter 50% |
 | parameter names | `dk1` |
 
-Every other cell is written as plain text. Rich text found in it is replaced by the same text in the cell's font.
+Every other cell is written as plain text, but for its [marks](#marks-on-a-piece-of-a-text). Any other piece of rich
+text found in it is replaced by the same text in the cell's font.
 
 The signature is the whole first row of a table, so the formatter merges that row into one cell across the table. A
 merge of a part of the row is widened to the whole row. A row holding a value beside the header, or one a merge
@@ -321,6 +324,62 @@ model of the sheet when the table is read through one, so the merged regions it 
 
 The rows of the properties, and the rows of the code and of the titles of a table written the usual way round, take
 their role in every cell up to the right edge of the table, the empty ones included.
+
+### Marks on a piece of a text
+
+A rule author marks a piece of a cell text to draw the attention of the reviewers to it, such as a word of an
+expression. A mark is bold text in one of four colours, the functional colours of Ant Design:
+
+| Mark | API | In Excel | In the Studio look |
+|---|---|---|---|
+| Error | `error` | bold, Red `#FF0000` | bold, `colorErrorText` |
+| Warning | `warning` | bold, Orange `#FFC000` | bold, `colorWarningText` |
+| Success | `success` | bold, Green `#00B050` | bold, `colorSuccessText` |
+| Info | `info` | bold, Light Blue `#00B0F0` | bold, `colorInfoText` |
+
+- **Rich text, no style** — a mark is a run of the shared string of the cell, with its font written inline in the
+  run. It adds no cell format, named style or font to the styles of the workbook, and the cell keeps its own style.
+- **Standard colours** — a mark is written as the RGB of a standard colour of Excel, not as a theme colour: an
+  Office theme has no red, and a mark keeps its meaning whatever theme the workbook has. A piece of text bold in one
+  of the four colours reads as that mark, whoever wrote it, Excel included.
+- **Kept by formatting** — the formatter keeps the marks of every cell but the signature and rebuilds each marked
+  run on the font of the cell's role, bold in the colour of its mark. Any other run is written in the cell font, so
+  italics or another colour applied in Excel do not survive formatting.
+- **No compile change** — the compiler reads the text of a cell, never its runs.
+- **Where** — every cell of a table, except the header and a cell written with an Excel formula, in an `.xlsx`
+  workbook. A value written as a number, a date or a boolean holds no text to mark.
+
+The Studio look draws the marks over everything else, the code highlighting included. The functional colours of a
+theme are made darker, or lighter in a dark theme, until they reach 4.5:1 on every fill of a role, as the text of the
+application does: the warning colour of Ant Design falls well below that on white. The Excel look and Compare draw the
+standard colours as Excel does.
+
+A change of the marks alone is neither a difference of Compare nor a conflict of a merge of branches: both compare
+the text of a cell. A merge copies a cell with its runs, so the marks of the side taken are kept.
+
+**Editing.** The cell editor offers the four marks and **Clear Mark** above an open cell holding a text, an
+expression or a text of several lines. A cell holding marks is written in a field that shows them, and text typed
+inside a marked piece takes its mark; one without is written in the plain field. Pasted text loses its fonts.
+
+**API.** The `update` of a cell takes the marks with the value:
+
+```json
+{
+  "operation": "update",
+  "target": {
+    "type": "cell", "row": 4, "column": 2, "value": "= DriverEligibility ( $DriverType, hadTraining )",
+    "marks": [{ "from": 35, "to": 46, "color": "warning" }]
+  }
+}
+```
+
+- `marks` absent — a new value is written as plain text, and an unchanged value keeps the marks it has.
+- `marks: []` — the value is written with no marks.
+- Marks are refused with `400` on the header, on a value that is not a text, out of the text or overlapping, and in
+  an `.xls` workbook, whose tables the editor offers no marks for. A text the cell type turns into a number, or an Excel formula, keeps no marks.
+
+The read returns the marks as the `runs` of the cell, like any other rich text; a client tells a mark by its bold
+and its colour.
 
 ### Regions, not cells
 
@@ -698,6 +757,8 @@ flowchart LR
   table's meta-info reader, or its member, such as the `DecisionTable` or the Spreadsheet structure.
 - **Region cache** — a weak map keyed by the compiled `TableSyntaxNode`. A compile makes new nodes, so it
   invalidates the cache. Every page of a large table reuses one layout.
+- **`TextMarks`** — reads the marks of a cell and writes a text with its marks, for the writer of a cell update and
+  for the formatter.
 - **`TableStyle`** — the role looks, in code: a Java enum with each role's built-in style, font scheme, fill,
   lines and alignment. With one style there is nothing to configure, so there is no style file.
 - **`ExcelTableFormatter`** — writes `TableRegions` into a workbook: it writes the nine built-in styles, indexes and

@@ -1,9 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { Dropdown, Popover } from 'antd'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Dropdown, Popover, Tooltip } from 'antd'
+import { ClearOutlined } from '@ant-design/icons'
+import { useTheme } from 'antd-style'
 import { useTranslation } from 'react-i18next'
+import { MARK_COLORS, markInksOf, markRange } from 'components/textMarks'
+import type { RawTextMark, RawTextMarkColor } from 'types/tables'
 import type { TableCellEditor } from '../../services/modules'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
+import { MarkedTextField, selectionIn, type TextSelection } from './MarkedTextField'
 import { RANGE_PANEL, RangeEditor } from './RangeEditor'
+import { paperToken } from '../../styles/paper'
 import { useStyles } from './TableEditor.styles'
 
 interface OpenCellProps {
@@ -17,8 +23,12 @@ interface OpenCellProps {
     asked: TableCellEditor | undefined
     /** The cell's address in the workbook, which tells a click inside it from one outside. */
     address: string | undefined
-    /** Keeps what was written and closes the cell. */
-    onCommit: (value: string) => void
+    /** The marks on the text the cell held when it was opened. */
+    marks: RawTextMark[]
+    /** Whether pieces of the text can be marked: a text of a cell the table was read with, not its header. */
+    markable: boolean
+    /** Keeps what was written, with the marks on it where the text can be marked, and closes the cell. */
+    onCommit: (value: string, marks?: RawTextMark[]) => void
     /** Closes the cell, leaving it as it was. */
     onCancel: () => void
     /** Told while the reader has the menu of other ways open, which is not them leaving the cell. */
@@ -35,11 +45,23 @@ interface OpenCellProps {
  * the tab would answer a key at a time. Here a keystroke redraws the one cell it is typed into.
  */
 export const OpenCell: React.FC<OpenCellProps> = ({
-    from, several, own, asked, address, onCommit, onCancel, onSwitching, onPaper,
+    from, marks: fromMarks, markable, several, own, asked, address, onCommit, onCancel, onSwitching, onPaper,
 }) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles(onPaper)
+    const token = useTheme()
+    // The field lies on the paper of the workbook where the table is drawn in its formatting.
+    const ground = onPaper ? paperToken() : token
+    const inks = useMemo(() => markInksOf(ground, [ground.colorBgContainer]), [ground])
     const [draft, setDraft] = useState(from)
+    const [marks, setMarks] = useState(fromMarks)
+    // Where the selection is put once a mark is laid, which draws the text again.
+    const [selection, setSelection] = useState<TextSelection | null>(null)
+    // The field the marked text is written in, which the selection a mark is laid over is read from.
+    const field = useRef<HTMLDivElement | null>(null)
+    // Set while a mark swaps the field a text is typed in for the one that shows marks, or back: the field it leaves
+    // is not the reader leaving the cell.
+    const marking = useRef(false)
     // The way the reader chose to write the cell, when it is not the way the cell asks for.
     const [switched, setSwitched] = useState<EditorKind | null>(null)
     // Whether the reader has asked for the panel the bounds of a range are entered in.
@@ -66,6 +88,36 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     }
 
     const kind = kindOf()
+    const marked = markable && (kind === 'text' || kind === 'multiline' || kind === 'formula')
+
+    /** Keeps what was written, with its marks where the text can be marked. */
+    const commit = (value: string) => {
+        if (!marking.current) {
+            onCommit(value, marked ? marks : undefined)
+        }
+    }
+
+    /** Lays a mark over the selected piece of the text, or takes the marks off it. */
+    const mark = (color: RawTextMarkColor | null) => {
+        const active = document.activeElement
+        const typed = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement
+            ? { from: active.selectionStart ?? 0, to: active.selectionEnd ?? 0 }
+            : null
+        const at = field.current === null ? typed : selectionIn(field.current)
+        if (at === null || at.from === at.to) {
+            return
+        }
+        const next = markRange(marks, at.from, at.to, color)
+        // A text that comes to hold marks, or loses the last of them, is written in the other field from now on.
+        marking.current = (marks.length > 0) !== (next.length > 0)
+        setSelection(at)
+        setMarks(next)
+    }
+
+    // The field that shows marks has taken the place of the one the text was typed in, and has the focus now.
+    useEffect(() => {
+        marking.current = false
+    }, [marks])
 
     // A field the reader writes in closes the cell by losing the focus. The bounds of a range are entered in a
     // panel of its own, and going to that panel takes the focus out of the field — so what closes a range cell
@@ -131,19 +183,77 @@ export const OpenCell: React.FC<OpenCellProps> = ({
                     }
                     : undefined}
             >
-                <CellValueEditor
-                    asked={asked}
-                    className={styles.input}
-                    kind={kind}
-                    onCancel={onCancel}
-                    onChange={setDraft}
-                    onCommit={value => onCommit(value ?? draft)}
-                    onSwitch={setSwitched}
-                    value={draft}
-                />
+                {marked && marks.length > 0 ? (
+                    <MarkedTextField
+                        className={styles.markedInput}
+                        fieldRef={field}
+                        inks={inks}
+                        marks={marks}
+                        multiline={kind === 'multiline'}
+                        onCancel={onCancel}
+                        onCommit={() => commit(draft)}
+                        onSwitch={() => setSwitched('multiline')}
+                        selection={selection}
+                        value={draft}
+                        onChange={(value, written) => {
+                            setDraft(value)
+                            setMarks(written)
+                        }}
+                    />
+                ) : (
+                    <CellValueEditor
+                        asked={asked}
+                        className={styles.input}
+                        kind={kind}
+                        onCancel={onCancel}
+                        onChange={setDraft}
+                        onCommit={value => commit(value ?? draft)}
+                        onSwitch={setSwitched}
+                        value={draft}
+                    />
+                )}
             </div>
         </Dropdown>
     )
+
+    // The marks are offered above the cell, where they cover no other cell of its row. Pressing one keeps the
+    // focus in the field, so the selection it marks stays where the reader put it.
+    const bar = (
+        <div aria-label={t('browser.module.marks_bar')} className={styles.marksBar} role="toolbar">
+            {MARK_COLORS.map(color => (
+                <Tooltip key={color} title={t(`browser.module.mark_${color}`)}>
+                    <Button
+                        aria-label={t(`browser.module.mark_${color}`)}
+                        data-testid={`table-cell-mark-${color}`}
+                        icon={<span style={{ color: inks[color], fontWeight: 700 }}>A</span>}
+                        onClick={() => mark(color)}
+                        onMouseDown={event => event.preventDefault()}
+                        size="small"
+                        type="text"
+                    />
+                </Tooltip>
+            ))}
+            <Tooltip title={t('browser.module.mark_clear')}>
+                <Button
+                    aria-label={t('browser.module.mark_clear')}
+                    data-testid="table-cell-mark-clear"
+                    icon={<ClearOutlined />}
+                    onClick={() => mark(null)}
+                    onMouseDown={event => event.preventDefault()}
+                    size="small"
+                    type="text"
+                />
+            </Tooltip>
+        </div>
+    )
+
+    if (marked) {
+        return (
+            <Popover open arrow={false} content={bar} placement="topLeft" trigger={[]}>
+                {inCell}
+            </Popover>
+        )
+    }
 
     // The bounds of a range are entered under the cell rather than in the cell, the way the old editor
     // dropped its panel there — and the cell keeps the way out to writing it as text.

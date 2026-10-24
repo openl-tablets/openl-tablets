@@ -8,6 +8,7 @@ import { ApiHttpError, notifyLoadFailure } from '../../services/apiCall'
 import { getTableEditors, NO_EDITORS } from '../../services/modules'
 import { applyTableActions } from '../../services/tables'
 import { rolesOf } from '../../components/tableRoles'
+import { selectIn } from './MarkedTextField'
 import { TableEditor, type TableEditorHandle } from './TableEditor'
 import { paperToken } from '../../styles/paper'
 import { hex, renderInTheme, tokenFor } from '../../testing/theme'
@@ -1738,4 +1739,98 @@ describe('TableEditor', () => {
         expect(screen.queryByTestId('table-edit-toolbar')).toBeNull()
     })
 
+})
+
+describe('TableEditor marks', () => {
+    beforeEach(() => {
+        vi.mocked(applyTableActions).mockClear()
+        vi.mocked(applyTableActions).mockResolvedValue('table-1')
+        vi.mocked(getTableEditors).mockResolvedValue(NO_EDITORS)
+    })
+
+    const MARKED: RawTableCell[][] = [
+        ROWS[0] ?? [],
+        [{ cell: 'B5', value: 0 }, {
+            cell: 'C5',
+            value: 'Good Morning',
+            runs: [{ text: 'Good ' }, { text: 'Morning', style: { bold: true, color: '#FF0000' } }],
+        }],
+    ]
+
+    /** The actions the editor saved the table with. */
+    const saved = async () => {
+        await userEvent.click(screen.getByTestId('table-edit-save'))
+        await waitFor(() => expect(applyTableActions).toHaveBeenCalled())
+        return vi.mocked(applyTableActions).mock.calls[0]?.[2]
+    }
+
+    it('marks the selected piece of a text and writes the text with its mark', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        const input = screen.getByTestId<HTMLInputElement>('table-cell-input')
+        input.setSelectionRange(5, 12)
+        fireEvent.click(screen.getByTestId('table-cell-mark-error'))
+
+        const field = await screen.findByTestId('table-cell-marked-input')
+        expect(field.querySelector('[data-mark="error"]')).toHaveTextContent('Morning')
+        fireEvent.keyDown(field, { key: 'Enter' })
+
+        expect(await saved()).toEqual([{
+            operation: 'update',
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: [{ from: 5, to: 12, color: 'error' }]},
+        }])
+    })
+
+    it('opens a marked text with its marks and takes them off', async () => {
+        draw({ rows: MARKED })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Morning'))
+        const field = screen.getByTestId('table-cell-marked-input')
+        expect(field.querySelector('[data-mark="error"]')).toHaveTextContent('Morning')
+        selectIn(field, { from: 0, to: 12 })
+        fireEvent.click(screen.getByTestId('table-cell-mark-clear'))
+
+        const input = await screen.findByTestId('table-cell-input')
+        fireEvent.keyDown(input, { key: 'Enter' })
+
+        expect(await saved()).toEqual([{
+            operation: 'update',
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Morning', marks: []},
+        }])
+    })
+
+    it('writes a text it holds no marks on without them, as plain text', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await write('Good Morning', 'Good Evening')
+
+        expect(await saved()).toEqual([{
+            operation: 'update',
+            target: { type: 'cell', row: 1, column: 1, value: 'Good Evening' },
+        }])
+    })
+
+    it('offers no marks in a workbook that cannot hold them', async () => {
+        draw({ canMark: false })
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+
+        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+        expect(screen.queryByTestId('table-cell-mark-error')).not.toBeInTheDocument()
+    })
+
+    it('offers no marks for the header of the table', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.dblClick(screen.getByText('Rules String Greeting(Integer hour)'))
+
+        expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
+        expect(screen.queryByTestId('table-cell-mark-error')).not.toBeInTheDocument()
+    })
 })

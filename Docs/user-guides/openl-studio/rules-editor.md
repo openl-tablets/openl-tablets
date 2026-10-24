@@ -399,7 +399,32 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     Elsewhere — in a Spreadsheet, in a Datatype, in a table written as a plain grid — a cell of a line just
     added is written as plain text: nothing is known about it until the table is saved and read again.
-2.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
+2.  To draw the attention of reviewers to a piece of a text, mark it. Open the cell, select the piece, and above
+    the cell click one of the marks:
+
+    | Mark        | In OpenL Studio                         | In the Excel file |
+    |-------------|-----------------------------------------|-------------------|
+    | **Error**   | bold, in the error color of the theme   | bold, Red         |
+    | **Warning** | bold, in the warning color of the theme | bold, Orange      |
+    | **Success** | bold, in the success color of the theme | bold, Green       |
+    | **Info**    | bold, in the info color of the theme    | bold, Light Blue  |
+
+    ![A word of an expression marked as a warning, with the marks above the open cell](images/edit-text-marks.png "Marking a piece of a text")
+
+    *Marking a piece of a text*
+
+    **Clear Mark** takes the marks off the selected piece. Text typed inside a marked piece takes its mark.
+
+    A mark changes the text only. It is saved into the Excel file as rich text of the cell, so Excel shows it the
+    same way, and the cell keeps its style: no cell style is added to the Excel file. A mark does not change how
+    the rule is compiled and run, and it is kept when another cell is saved, when the table is formatted on save,
+    and by **Reformat Excel files**. Every other font a piece of a text has in the Excel file, such as italics or
+    another color, is replaced by the font of the cell when the table is formatted.
+
+    Marks are offered for a text, an expression and a text of several lines, in every cell of a table but its
+    header. A value written as a number, a date, a value chosen from a list, or an Excel formula keeps no marks.
+    Marks are saved to `.xlsx` files only: a table of an `.xls` file offers no marks.
+3.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell. The same list offers **Text Editor** and **Multiline Editor** to write the value in another way.
 

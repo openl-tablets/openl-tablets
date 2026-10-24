@@ -244,8 +244,14 @@ Other (`XLS_OTHER`, and `XLS_TABLEPART`, which the screen shows as Other) is lai
   column from the titles down (`TableStyle.isHeaderPart`), and a line closing the table. The header row is merged into
   one cell across the table unless another cell of it holds a value or a merge reaches out of it
   (`TableWrite.mergeSignature`, through the grid model when there is one, so its region pool stays in sync). The
-  signature is the only rich text, in its pieces; rich text in any other cell is written plain. A table of an `.xls`
-  workbook and a table of the type Other are not formatted.
+  signature is the only rich text, in its pieces; rich text in any other cell keeps only its marks (`TextMarks`: a
+  piece bold in Red, Orange, Green or Light Blue), each rebuilt on the font of the cell's role, and is plain otherwise.
+  A table of an `.xls` workbook and a table of the type Other are not formatted.
+- **A mark is a run, never a style.** `UpdateTarget.Cell.marks` writes a text with its marks
+  (`RawTableWriter.writeMarks`): the run fonts are `XSSFFont` objects never registered in the workbook, so the font
+  lives in the shared string and no cell format, named style or font is added. A font copied from a cell or a role
+  keeps its theme colour beside an RGB set through `XSSFFont.setColor`, and the theme wins, so `TextMarks.fontOf`
+  replaces the colour element.
 - **Unused styles are removed only by Reformat.** `ExcelTableFormatter.removeUnusedStyles` (`UnusedStyles`) drops the
   cell formats no cell, row or column names and the named styles no cell format links, renumbering the references; it
   reads every cell, so a save of one table never runs it. It reads POI's private `xfs` and `styleXfs` lists, as POI
