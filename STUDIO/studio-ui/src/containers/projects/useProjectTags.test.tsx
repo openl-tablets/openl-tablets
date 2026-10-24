@@ -55,12 +55,41 @@ describe('useProjectTags', () => {
         expect(screen.queryByTestId('project-tags-editor')).toBeNull()
     })
 
-    it('shows every tag the file names, configured or not', async () => {
+    it('shows every tag the file names, marking the types no administrator configured', async () => {
         // The file is the source of truth: a tag no administrator configured is still the project's tag.
-        await renderRead(<Host tags={{ 'Home-made': 'anything' }} />)
+        await renderRead(<Host tags={{ 'Home-made': 'anything', Region: 'EU' }} />)
 
         expect(screen.getByText('Home-made')).toBeInTheDocument()
         expect(screen.getByText('anything')).toBeInTheDocument()
+        expect(screen.getByTestId('tag-unconfigured-Home-made')).toBeInTheDocument()
+        expect(screen.queryByTestId('tag-unconfigured-Region')).toBeNull()
+        expect(screen.getByTestId('tags-unconfigured'))
+            .toHaveTextContent('browser.tags.unconfigured {"types":"Home-made"}')
+    })
+
+    it('marks no type as unconfigured while the configured ones cannot be read', async () => {
+        vi.mocked(getTagTypes).mockRejectedValue(new Error('offline'))
+        await renderRead(<Host tags={{ 'Home-made': 'anything' }} />)
+
+        expect(screen.getByText('Home-made')).toBeInTheDocument()
+        expect(screen.queryByTestId('tag-unconfigured-Home-made')).toBeNull()
+        expect(screen.queryByTestId('tags-unconfigured')).toBeNull()
+    })
+
+    it('lets an unconfigured tag be renamed or removed, and stops warning about it', async () => {
+        await renderRead(<Host tags={{ Home: 'anything', Other: 'one' }} />)
+
+        await userEvent.click(screen.getByTestId('edit-tags'))
+        expect(screen.getByTestId('tags-unconfigured'))
+            .toHaveTextContent('browser.tags.unconfigured {"types":"Home, Other"}')
+
+        await userEvent.clear(within(screen.getByTestId('edit-tag-0')).getByRole('combobox'))
+        await userEvent.type(screen.getByTestId('edit-tag-0'), 'Region')
+        expect(screen.getByTestId('tags-unconfigured'))
+            .toHaveTextContent('browser.tags.unconfigured {"types":"Other"}')
+
+        await userEvent.click(screen.getByTestId('edit-tag-1-remove'))
+        expect(screen.queryByTestId('tags-unconfigured')).toBeNull()
     })
 
     it('offers no way in for a user who may not write the project', async () => {
