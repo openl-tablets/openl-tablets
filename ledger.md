@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- No PR is open: #2348 merged. Cut a fresh branch off a re-fetched `origin/main` once a finding is proven.
-- Everything up to `origin/main` fc9f15ea10 is swept, Java included. A run is: sweep the delta since that SHA, then
+- PR #2393 (`dead-code/delta-2026-10-24`) is open: maintain it first, then sweep the delta.
+- Everything up to `origin/main` 38bdb7c561 is swept, Java included. A run is: sweep the delta since that SHA, then
   spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
@@ -21,15 +21,17 @@
 | 7 | Unreferenced resources (descriptors, config files, images) | done; 220 candidates, 0 unreferenced |
 | 8 | CSS rules and inline styles | done; 1 file, 4 selectors, all used |
 | 9 | Legacy JS functions and pages | done; 0 `.xhtml` remain, only keep-listed vendor JS |
-| 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1 in #2212, 1,656 + 769 alive; re-run per delta |
-| 11 | TypeScript exports, types, components, imports | done; 0 dead exports, dead imports in #2184, #2284, #2348 |
+| 10 | i18n and message keys (studio-ui locales, Java bundles) | done; 1 in #2212, 1 in #2393; re-run per delta |
+| 11 | TypeScript exports, types, components, imports | done; dead imports in #2184, #2284, #2348, #2393 |
 | 12 | Test fixtures: workbooks, utility classes, stub members | done |
 | 13 | Package-private/protected members and unreferenced internal classes | done; 1,025 raw hits, 0 survivors |
 | 14 | Documentation of settings and classes the code no longer has | done; 6 in #2212; re-run per new release note |
 
 ## Open PR
 
-- None. Open the next one as soon as a finding is pushed, ready for review, and record it here.
+- #2393 `dead-code/delta-2026-10-24`, head 84a78cb896, base 38bdb7c561:
+  - ef7e2f1ed3 openapi.properties `trace.field.showRealNumbers` (last reader UserProfileBaseModel deleted).
+  - 84a78cb896 unused `import React` in studio-ui `RedirectRoute.test.tsx`.
 
 ## Merged PRs
 
@@ -81,7 +83,8 @@
   `beforeMarshal`/`afterUnmarshal`, Spring MVC handlers, record accessors, generic bridge overrides.
 - A top-level type whose simple name occurs only in its own file is still alive when a framework names it — JUnit by
   file pattern, Spring by classpath scan, `@Mojo` by the descriptor: 73 production types.
-- A generated member can be reached where the generator is not: `@SuperBuilder` on an abstract parent serves its
+- A generated member can be reached where the generator is not: Lombok `@Delegate(excludes = I.class)` names a
+  private interface whose methods Error Prone calls unused (xls.merge TypedValues.SheetReferences); `@SuperBuilder` on an abstract parent serves its
   subclasses' `builder()`, a Spring `@Bean` is collected by its framework interface (ViewResolver), and a
   package-visible `LOG` is read as `Owner.LOG.x`, so a same-file search sees neither.
 - An indent-anchored regex reads a nested class's members as the outer class's, and `@Builder.Default` matches
@@ -94,7 +97,8 @@
 - Reflection fixtures asserted by name: epbds6830 BeanA.getAB, AOpenClassTest.getC, JavaOpenClassTest.gg, MyProp
   fields in a binary .xls, YamlMapperFactoryTest transients, InterfaceTransformerTest.TestInterface. Error Prone
   reports BeanA.getAB every build; it stays.
-- Bundle conventions: ValidationMessages `openl.error.<status>.<code>.message` (code composed in Java), sql-errors
+- Bundle conventions: ValidationMessages `openl.error.<status>.<code>.message` (Java passes `<code>.message` or the
+  `{full.key}`; unnumbered keys `openl.error.<code>.message` pass `<code>` alone), sql-errors
   keyed by vendor error code, `openl-default.properties` keys composed as `repo-<id>.` and `$ref` indirection —
   the documented `repository.archive.*` and `repository.design.*` are that composition, not dead keys.
 - dependency:analyze FPs: a module declaring no `<dependencies>` still gets findings from its parent; the inherited
@@ -230,6 +234,8 @@
 - A container restart mid-run resets `git config --global` (identity back to Claude, gpgsign back on) and kills
   detached builds: re-set both and verify the author after every commit, not only the first.
 - The clone holds ~50 commits and a delta can far exceed that (one wave ran ~200): deepen until dates repeat.
+- `ITEST/itest.studio/mcp` McpTest.coversEveryTool fails on untouched main here (merge-conflict text answers
+  CRLF where LF is expected), skipping later ITEST studio suites; judge them by PR CI, not the local reactor.
 
 ## Exhausted veins
 
@@ -248,6 +254,8 @@
 - studio-ui module graph (every src file imported by another, `index.html`/`api-docs.html` entries): 0 orphans;
   `.d.ts` files resolve as `./index` or ambient globals, so a resolver without `.d.ts` reports them falsely.
 - TS interface and type MEMBERS swept by identifier index: 1 candidate, an API payload FP. Closed.
+- studio-mcp (new TS module): tsc unused, exports used only by own file/tests, npm deps at zero; re-run per delta.
+  Audit-log locale dictionaries mirror the Jackson `@JsonProperty` codes of `studio/audit/model`: all alive.
 - antd-style `createStyles` keys (695 in 107 files): every key without a `.key` read is picked by `styles[KIND[k]]`
   or a string-union type naming it (HighlightState). Closed.
 - Veins probed and closed at zero: Maven profiles, npm dependencies, orphaned `package-info.java`, empty tracked
@@ -283,10 +291,10 @@
 
 ## Run log
 
-- 2026-10-17: delta was 61 commits (table themes removed, Excel-native formatting, merge conflicts). i18n
-  (1,814 keys), bundles, Docs images and tokens, theme leftovers at zero; Error Prone, PMD (56,
-  all pre-delta), new-type index at zero; tsc found 1 dead React import, #2348 MERGED (-1). Reactor 21:22 warm.
 - 2026-10-17 (2nd): delta was 8 commits (EPBDS-7164 table formatting). Reactor green 29:17 cold; Error Prone, PMD
   (studio-backend), tsc, removed-name index, Docs images and tokens at zero; no locale or bundle change. No commit.
 - 2026-10-18: delta was 15 commits (doc waves, guide sizes, postgres guard). Reactor green 25:09 cold; Error Prone,
   tsc, Docs images and tokens, AGENTS/README names at zero; new veins `@ts-ignore`, `eslint-disable` closed. No commit.
+- 2026-10-24: delta was 104 commits (audit log, studio-mcp, project ids, My Settings to browser). Reactor 25:56 cold,
+  red only in ITEST McpTest (CRLF, pre-existing). i18n 2,057 keys, bundles, Docs, images, Error Prone at zero; found
+  1 orphaned openapi key and 1 dead React import, #2393 opened (-3).
