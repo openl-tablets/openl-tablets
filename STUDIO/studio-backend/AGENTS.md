@@ -118,15 +118,11 @@ A project is addressed by `ProjectId`, a deployment by `DeploymentId`. Both trav
   without the current one, so only `@AdminPrivilege` may guard it. A user changes their own details through
   `PUT /rest/users/info` and their own password through `PUT /rest/users/profile`, which validates the current password.
 
-- **A user setting is a field of the profile.** Every setting of the profile is kept on the server, so it follows
-  the user from browser to browser and no user reads another's (`task_EPBDS-7164-user-settings` of
-  `itest.studio/users`). The screens of OpenL Studio no longer read or write them: **My Settings** live in the
-  browser (see `STUDIO/studio-ui/AGENTS.md`). `UserProfileBaseModel` names the key each one is stored under, reads the settings of the
-  user (`load`) and saves the ones a request carries (`store`), as `AdministrationSettings` does for the settings of
-  the system, so no controller names the key of a setting, and a new setting adds a field to the profile and nothing
-  else to the API. The default of each is in `openl-default.properties` under *Default values for user settings*,
-  and `UserSettingManagementService` stores a value only where it differs from the default. The same store keeps the
-  e-mail verification token (`MailController`), which is no setting and never part of the profile.
+- **The profile carries no setting.** `GET` and `PUT /rest/users/profile` hold the details of the user alone: the
+  name, the e-mail, the display name and, on `PUT`, the change of the password. **My Settings** live in the browser
+  (see `STUDIO/studio-ui/AGENTS.md`), so a setting the profile once had is refused as an unknown field
+  (`removed-user-settings` of `itest.studio/users`). `UserSettingManagementService` keeps only the e-mail
+  verification token of a user (`MailController`, `MailSender`).
 
 ## Request Validation
 

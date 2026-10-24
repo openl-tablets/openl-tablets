@@ -307,6 +307,11 @@ from Maven.
   through to the page the application is drawn on, so the response is `200` with an HTML body. A client that
   only tests the status code will parse that page as JSON. A non-GET answers `405`. Search your clients for
   the literal `/web` rather than relying on error handling to surface the change.
+* **The user profile carries no settings.** `GET /rest/users/profile` no longer returns `showHeader`,
+  `showFormulas`, `testsPerPage`, `testsFailuresOnly`, `testsFailuresPerTest`, `showComplexResult` and
+  `showRealNumbers`, and `PUT /rest/users/profile` refuses a request that sends one of them with `400` and
+  `Unknown field '<name>'`. OpenL Studio keeps these settings in the browser. Remove them from the requests of
+  your clients.
 * **No client needs new credentials.** `/rest` accepts everything `/web` did and more: the session cookie in
   every mode, a Personal Access Token in all multi-user modes, HTTP Basic in `ad` and `multi`, and a Bearer
   token in `oauth2`.

@@ -34698,36 +34698,6 @@ Content-Type: application/json
             "example": "Doe",
             "maxLength": 25,
             "minLength": 0
-          },
-          "showComplexResult": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "showFormulas": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "showHeader": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "showRealNumbers": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "testsFailuresOnly": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "testsFailuresPerTest": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "testsPerPage": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
           }
         }
       },
@@ -34768,36 +34738,6 @@ Content-Type: application/json
             "example": "Doe",
             "maxLength": 25,
             "minLength": 0
-          },
-          "showComplexResult": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "showFormulas": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "showHeader": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "showRealNumbers": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "testsFailuresOnly": {
-            "type": "boolean",
-            "description": "***"
-          },
-          "testsFailuresPerTest": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
-          },
-          "testsPerPage": {
-            "type": "integer",
-            "format": "int32",
-            "description": "***"
           },
           "username": {
             "type": "string",

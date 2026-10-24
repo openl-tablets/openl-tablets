@@ -7,13 +7,6 @@ Content-Type: application/json
   "displayName": "MJ",
   "firstName": "Mike",
   "lastName": "Johnson",
-  "showHeader": false,
-  "showFormulas": true,
-  "testsPerPage": 20,
-  "testsFailuresOnly": true,
-  "testsFailuresPerTest": 20,
-  "showComplexResult": true,
-  "showRealNumbers": true,
   "administrator": false,
   "externalFlags": {
     "lastNameExternal": false,

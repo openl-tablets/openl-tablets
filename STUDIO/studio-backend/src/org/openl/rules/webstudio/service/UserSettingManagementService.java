@@ -1,59 +1,37 @@
 package org.openl.rules.webstudio.service;
 
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.PropertyResolver;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.security.standalone.dao.UserSettingDao;
-import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.openl.util.StringUtils;
 
+/**
+ * The values OpenL Studio keeps for each user, such as the token that verifies the e-mail.
+ *
+ * <p>A value is stored only while it holds more than white space.
+ */
 @RequiredArgsConstructor
 public class UserSettingManagementService {
 
     private final UserSettingDao userSettingDao;
 
     /**
-     * Needed to retrieve default values
+     * The value stored for the user under the key, or {@code null} when none is stored.
      */
-    private final PropertyResolver propertyResolver;
-
-    public String getStringProperty(String login, String key) {
+    public @Nullable String getStringProperty(String login, String key) {
         var setting = userSettingDao.getProperty(login, key);
-        if (setting == null) {
-            // A value for specified user not found. Return default value.
-            return propertyResolver.getProperty(key);
-        }
-
-        return setting.getSettingValue();
+        return setting == null ? null : setting.getSettingValue();
     }
 
     /**
-     * The settings of a user, read in one query.
+     * Stores the value for the user under the key. A blank value removes the one stored.
      */
-    public UserSettings getSettings(String login) {
-        var stored = userSettingDao.getProperties(login)
-                .stream()
-                .collect(Collectors.toMap(setting -> setting.getId().getSettingKey(), UserSetting::getSettingValue));
-        return new UserSettings(stored, propertyResolver);
-    }
-
-    public void setProperty(String login, String key, String value) {
-        var defVal = propertyResolver.getProperty(key);
-        if (StringUtils.isBlank(defVal) && StringUtils.isBlank(value) || Objects.equals(defVal, value)) {
+    public void setProperty(String login, String key, @Nullable String value) {
+        if (StringUtils.isBlank(value)) {
             userSettingDao.removeProperty(login, key);
         } else {
             userSettingDao.setProperty(login, key, value);
         }
-    }
-
-    public void setProperty(String login, String key, boolean value) {
-        setProperty(login, key, Boolean.toString(value));
-    }
-
-    public void setProperty(String login, String key, int value) {
-        setProperty(login, key, Integer.toString(value));
     }
 }
