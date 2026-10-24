@@ -11,6 +11,8 @@ import type {
     TableLayout,
 } from 'types/tables'
 import { RawTableCellText, type OpenUsage } from './RawTableCellText'
+import { type MarkInks, markInksOf, markedRuns, marksOf } from './textMarks'
+import { opaque } from '../styles/colorMath'
 import { themePaper, workbookPaper } from '../styles/paper'
 import { type RawTableGridStyles, roleColoursOf, useStyles } from './RawTableGrid.styles'
 import { borders, collapsedBorders, indentOf, textDecoration, tinted } from './rawTableStyle'
@@ -305,19 +307,24 @@ const codeRunsOf = (cell: RawTableCell, role: CellRole | undefined, roles: Table
 
 /**
  * A cell as the Studio look writes its text: the header in the pieces of its signature, code in the pieces the code
- * editor highlights, any other text in the font of the cell, whatever pieces the workbook formats it in.
+ * editor highlights, any other text in the font of the cell. Of the pieces the workbook formats the text in, only the
+ * marks are kept, drawn over the code in the inks of the theme.
  */
 const studioTextOf = (cell: RawTableCell, role: CellRole | undefined, roles: TableRoles | undefined,
-    faint: string, code: RawTableTextRun[] | undefined): RawTableCell => {
+    faint: string, code: RawTableTextRun[] | undefined, inks: MarkInks): RawTableCell => {
     const { runs, ...plain } = cell
+    const header = role?.region.role === 'signature' && role.place.row === 0 && role.place.column === 0
+    if (header && roles !== undefined && roles.signature.length > 0 && typeof cell.value === 'string') {
+        return { ...plain, runs: signatureRuns(cell.value, roles.signature, faint) }
+    }
+    const marks = marksOf(runs)
+    if (marks.length > 0 && typeof cell.value === 'string') {
+        return { ...plain, runs: markedRuns(cell.value, code, marks, inks) }
+    }
     if (code !== undefined) {
         return { ...plain, runs: code }
     }
-    const header = role?.region.role === 'signature' && role.place.row === 0 && role.place.column === 0
-    if (!header || roles === undefined || roles.signature.length === 0 || typeof cell.value !== 'string') {
-        return runs === undefined ? cell : plain
-    }
-    return { ...plain, runs: signatureRuns(cell.value, roles.signature, faint) }
+    return runs === undefined ? cell : plain
 }
 
 /**
@@ -389,8 +396,16 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     const studio = !onPaper(roles, excelFormatting)
     const {
         colorBgContainer, colorText, colorFillTertiary, colorLink, colorLinkHover, colorError, colorTextSecondary,
-        colorBorder, colorPrimary, colorTextBase,
+        colorBorder, colorPrimary, colorTextBase, colorErrorText, colorWarningText, colorSuccessText, colorInfoText,
     } = token
+    // The marks read on every fill a role draws, in every theme.
+    const inks = React.useMemo(() => {
+        const roles = roleColoursOf({ colorText, colorTextSecondary, colorFillTertiary, colorBgContainer, colorPrimary })
+        const grounds = [colorBgContainer, roles.inputTitleFill, roles.outputTitleFill, roles.outputFill]
+            .map(fill => opaque(fill, colorBgContainer))
+        return markInksOf({ colorErrorText, colorWarningText, colorSuccessText, colorInfoText }, grounds)
+    }, [colorBgContainer, colorErrorText, colorFillTertiary, colorInfoText, colorPrimary, colorSuccessText, colorText,
+        colorTextSecondary, colorWarningText])
     // The paper and the lines of the theme, worked out again only when a colour of them changes.
     const look = React.useMemo(() => ({
         paper: themePaper({ colorBgContainer, colorText, colorFillTertiary, colorBorder, colorLink, colorLinkHover,
@@ -521,7 +536,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                             >
                                 {decoration?.before}
                                 {decoration?.content ?? cellText(studio
-                                    ? studioTextOf(cell, role, roles, look.faint, codeRuns?.[rowIndex]?.[columnIndex])
+                                    ? studioTextOf(cell, role, roles, look.faint, codeRuns?.[rowIndex]?.[columnIndex], inks)
                                     : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage)}
                                 {decoration?.after}
                             </td>

@@ -94,6 +94,8 @@ export interface RawTableCellBorder {
 export interface RawTableTextRun {
     text: string
     style?: RawTableCellStyle
+    /** The mark the piece is drawn in, which a link keeps the colour of; set on the screen, never read */
+    mark?: RawTextMarkColor
 }
 
 /** One cell of a raw table grid (Tables API `?raw=true`). */
@@ -197,6 +199,16 @@ export interface RawCellStyleInput {
     indent?: number
 }
 
+/** The colour of a mark on a piece of a cell text: a functional colour of the Studio theme. */
+export type RawTextMarkColor = 'error' | 'warning' | 'success' | 'info'
+
+/** A mark on a piece of a cell text, from the index of its first character to the index after its last one. */
+export interface RawTextMark {
+    from: number
+    to: number
+    color: RawTextMarkColor
+}
+
 /**
  * One edit of a table's raw source, as the Tables API takes it.
  *
@@ -204,7 +216,10 @@ export interface RawCellStyleInput {
  * together, each addressing the table as the previous one left it, and the table is written once.
  */
 export type TableEdit =
-    | { operation: 'update', target: { type: 'cell', row: number, column: number, value: string | number | boolean | null } }
+    | {
+        operation: 'update'
+        target: { type: 'cell', row: number, column: number, value: string | number | boolean | null, marks?: RawTextMark[] }
+    }
     | { operation: 'insert', target: { type: 'rows', position: number, cells: RawTableCellInput[][] } }
     | { operation: 'insert', target: { type: 'columns', position: number, cells: RawTableCellInput[][] } }
     | { operation: 'delete', target: { type: 'rows', position: number, count: number } }

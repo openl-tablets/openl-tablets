@@ -29765,6 +29765,39 @@ Content-Type: application/json
           "source"
         ]
       },
+      "RawTextMark": {
+        "type": "object",
+        "description": "***",
+        "properties": {
+          "color": {
+            "type": "string",
+            "description": "***",
+            "enum": [
+              "error",
+              "warning",
+              "success",
+              "info"
+            ]
+          },
+          "from": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "minimum": 0
+          },
+          "to": {
+            "type": "integer",
+            "format": "int32",
+            "description": "***",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "color",
+          "from",
+          "to"
+        ]
+      },
       "RedeployProjectModel": {
         "type": "object",
         "description": "***",
@@ -32665,6 +32698,13 @@ Content-Type: application/json
                 "format": "int32",
                 "description": "***",
                 "minimum": 0
+              },
+              "marks": {
+                "type": "array",
+                "description": "***",
+                "items": {
+                  "$ref": "#/components/schemas/RawTextMark"
+                }
               },
               "row": {
                 "type": "integer",

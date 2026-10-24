@@ -74,7 +74,19 @@ public sealed interface UpdateTarget permits UpdateTarget.Row, UpdateTarget.Colu
                     Null clears the cell.""")
             @Schema(oneOf = {NullableCellValueSchema.class, Number.class, Boolean.class, CellValueArraySchema.class})
             @CellValueConstraint
-            @Nullable Object value) implements UpdateTarget {
+            @Nullable Object value,
+            @Valid
+            @Parameter(description = """
+                    Marks on pieces of a text value, each bold in its colour, in the order of the text and not \
+                    overlapping. An empty list writes the text with no marks. Absent: a new value is written with no \
+                    marks, and an unchanged value keeps the marks it has. A value written as a number, a date, a \
+                    boolean or an Excel formula keeps no marks. Refused for the header and in an .xls file.""")
+            @Nullable List<@NotNull @Valid RawTextMark> marks) implements UpdateTarget {
+
+        /** Updates the value of a cell, leaving the marks of an unchanged value as they are. */
+        public Cell(Integer row, Integer column, @Nullable Object value) {
+            this(row, column, value, null);
+        }
     }
 
     @Schema(name = "UpdateRange", description = """

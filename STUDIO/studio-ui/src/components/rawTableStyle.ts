@@ -1,4 +1,5 @@
 import type React from 'react'
+import { markOf } from './textMarks'
 import type {
     RawTableCell,
     RawTableCellBorder,
@@ -229,16 +230,18 @@ export interface RunPlace {
  *
  * A run with a font of its own names every attribute of it, so an attribute it leaves out is at its default rather
  * than taken from the cell. A colour it leaves out is the automatic one, as Excel draws it; in a muted cell it keeps the
- * grey of the cell. A run in a link takes its font only, so the link reads as a link. A run
- * without a font takes the font of the cell.
+ * grey of the cell. A run in a link takes its font only, so the link reads as a link, but for a mark, which keeps its
+ * colour. A run without a font takes the font of the cell.
  */
 export const runStyle = (run: RawTableTextRun, place: RunPlace): React.CSSProperties | undefined => {
     const style = run.style
     if (style === undefined) {
         return undefined
     }
+    // A mark keeps its colour in a link too: it is what the author asked the reader to look at.
+    const marked = run.mark !== undefined || markOf(style) !== undefined
     return {
-        color: place.linked
+        color: place.linked && !marked
             ? undefined
             : tinted(style.color, place.muted) ?? automaticColour(place.muted, place.ink),
         fontWeight: style.bold ? 'bold' : 'normal',

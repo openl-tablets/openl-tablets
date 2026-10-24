@@ -34,6 +34,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STPatternType;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STVerticalAlignment;
 
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
+import org.openl.studio.projects.model.tables.RawTextMarkColor;
 import org.openl.studio.projects.service.tables.format.TableStyle.Line;
 import org.openl.util.RuntimeExceptionWrapper;
 
@@ -79,6 +80,7 @@ final class WorkbookStyles {
 
     private final Map<FontKey, Integer> fonts = new HashMap<>();
     private final Map<FontKey, XSSFFont> pieceFonts = new HashMap<>();
+    private final Map<TableStyle, Map<RawTextMarkColor, XSSFFont>> markFonts = new EnumMap<>(TableStyle.class);
     private final Map<FillKey, Integer> fills = new HashMap<>();
     private final Map<BorderKey, Integer> borders = new HashMap<>();
     private final Map<Format, Integer> formats = new HashMap<>();
@@ -135,6 +137,20 @@ final class WorkbookStyles {
     XSSFFont pieceFont(boolean bold, ThemedColor colour) {
         return pieceFonts.computeIfAbsent(new FontKey(majorFace, size, bold, false, STFontScheme.INT_MAJOR, colour),
                 key -> new XSSFFont(fontOf(key)));
+    }
+
+    /**
+     * The font of a marked piece of a cell text: the font of the role of its cell, bold, in the colour of the mark. It
+     * is not registered in the workbook: a piece of rich text holds its font itself.
+     *
+     * @param style the role of the cell
+     * @param color the colour of the mark
+     * @return the font
+     */
+    XSSFFont markFont(TableStyle style, RawTextMarkColor color) {
+        return markFonts.computeIfAbsent(style, key -> new EnumMap<>(RawTextMarkColor.class))
+                .computeIfAbsent(color,
+                        key -> TextMarks.fontOf(styles.getFontAt(roleFonts.get(style)).getCTFont(), color));
     }
 
     /** What is kept from a cell format: its number format, indent, text wrapping and text rotation. */

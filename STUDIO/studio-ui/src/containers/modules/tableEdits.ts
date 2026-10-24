@@ -1,5 +1,8 @@
 import { hexOf } from 'styles/excelColours'
-import type { RawCellStyleInput, RawTableCell, RawTableCellStyle, RawTableCellInput, TableEdit } from 'types/tables'
+import { MARK_RGB, markedRuns, marksOf, sameMarks } from 'components/textMarks'
+import type {
+    RawCellStyleInput, RawTableCell, RawTableCellStyle, RawTableCellInput, RawTextMark, TableEdit,
+} from 'types/tables'
 
 /** Where a cell sits in the table, as it stands on screen. */
 export interface CellAt {
@@ -15,7 +18,8 @@ export interface CellAt {
  * reader saves.
  */
 export type EditStep =
-    | { kind: 'value', at: CellAt, value: string }
+    /** A value, and the marks on its text when the reader wrote them; a value without marks is plain text. */
+    | { kind: 'value', at: CellAt, value: string, marks?: RawTextMark[] }
     | { kind: 'style', at: CellAt, style: RawCellStyleInput }
     | { kind: 'insertRow', at: number }
     | { kind: 'removeRow', at: number, lines: number }
@@ -226,9 +230,13 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
             if (row !== undefined && cell !== undefined && rowId !== undefined && columnId !== undefined) {
                 const key = cellKey(rowId, columnId)
                 if (step.kind === 'value') {
-                    // What the reader typed stands on its own; the formula the cell was written with is gone.
-                    const { formula, ...kept } = cell
-                    row[step.at.column] = { ...kept, value: step.value }
+                    // What the reader typed stands on its own; the formula the cell was written with is gone, and so
+                    // are the pieces of the text the workbook formatted, but for the marks the reader wrote.
+                    const { formula, runs, ...kept } = cell
+                    // The marks are drawn as the workbook writes them, bold in the standard colours of Excel.
+                    row[step.at.column] = step.marks === undefined || step.marks.length === 0
+                        ? { ...kept, value: step.value }
+                        : { ...kept, value: step.value, runs: markedRuns(step.value, undefined, step.marks, MARK_RGB) }
                     state.touched.add(key)
                 } else {
                     state.styled.set(key, { ...state.styled.get(key), ...step.style })
@@ -416,8 +424,17 @@ const valueEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[]
             const wasColumn = readAt(state.columnIds[column] ?? '')
             const was = wasRow === null || wasColumn === null ? undefined : original[wasRow]?.[wasColumn]
             // A cell a merge has grown over holds nothing of its own, and the API refuses a write to one.
-            if (cell.covered !== true && was !== undefined && String(was.value ?? '') !== String(cell.value ?? '')) {
-                edits.push({ operation: 'update', target: { type: 'cell', row, column, value: cell.value ?? '' } })
+            if (cell.covered === true || was === undefined) {
+                return
+            }
+            const value = cell.value ?? ''
+            const marks = marksOf(cell.runs)
+            // The marks go with the value where there are any to write or to take away: a cell that never held one
+            // is written as it always was, as plain text.
+            const remarked = !sameMarks(marks, marksOf(was.runs))
+            if (remarked || String(was.value ?? '') !== String(value)) {
+                const target = { type: 'cell' as const, row, column, value }
+                edits.push({ operation: 'update', target: remarked || marks.length > 0 ? { ...target, marks } : target })
             }
         })
     })

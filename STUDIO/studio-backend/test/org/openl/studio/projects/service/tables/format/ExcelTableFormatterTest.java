@@ -331,6 +331,23 @@ class ExcelTableFormatterTest {
     }
 
     @Test
+    void keepsTheMarksOfATextInTheFontOfItsCell() throws IOException {
+        try (var workbook = formatted(ExcelTableFormatterTest::fillSheet)) {
+            var cell = workbook.getSheet(SHEET).getRow(RATE_ROW + 4).getCell(2);
+            var rich = cell.getRichStringCellValue();
+            assertEquals("Weekend", rich.getString());
+            assertNull(fontOfRun(rich, 0), "The text before the mark takes the font of the cell");
+            var mark = fontOfRun(rich, 4);
+            assertTrue(mark.getBold());
+            assertFalse(mark.getItalic(), "Only the bold and the colour of a mark are kept");
+            assertEquals("FF0000", mark.getXSSFColor().getARGBHex().substring(2));
+            var font = cell.getCellStyle().getFont();
+            assertEquals(font.getFontName(), mark.getFontName(), "A mark is written in the font of its cell");
+            assertEquals(font.getScheme(), mark.getScheme());
+        }
+    }
+
+    @Test
     void addsNothingWhenATableIsFormattedAgain() throws IOException {
         try (var once = formatted(ExcelTableFormatterTest::fillSheet)) {
             var counts = countsOf(once);
@@ -599,6 +616,15 @@ class ExcelTableFormatterTest {
             bold.setBold(true);
             rich.applyFont(0, 4, bold);
             sheet.getRow(RATE_ROW + 3).getCell(2).setCellValue(rich);
+            // A mark written in a font of its own, italic, which the formatter replaces by the font of the cell
+            var marked = new XSSFRichTextString("Weekend");
+            var red = xssf.createFont();
+            red.setBold(true);
+            red.setItalic(true);
+            red.setFontName("Courier New");
+            red.setColor(new XSSFColor(new byte[]{(byte) 0xFF, 0, 0}, null));
+            marked.applyFont(4, 7, red);
+            sheet.getRow(RATE_ROW + 4).getCell(2).setCellValue(marked);
         }
 
         row(sheet, FACTORIAL_ROW, LABEL, "TBasic Integer Factorial (Integer n)");

@@ -1,12 +1,17 @@
 package org.openl.studio.projects.service.tables.write;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -30,6 +35,7 @@ import org.openl.rules.table.actions.style.font.SetColorAction;
 import org.openl.rules.table.actions.style.font.SetItalicAction;
 import org.openl.rules.table.actions.style.font.SetUnderlineAction;
 import org.openl.rules.table.xls.PoiExcelHelper;
+import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.projects.model.tables.AppendTarget;
 import org.openl.studio.projects.model.tables.DeleteTarget;
@@ -43,9 +49,12 @@ import org.openl.studio.projects.model.tables.RawTableCell;
 import org.openl.studio.projects.model.tables.RawTableHorizontalAlign;
 import org.openl.studio.projects.model.tables.RawTableSourceAction;
 import org.openl.studio.projects.model.tables.RawTableView;
+import org.openl.studio.projects.model.tables.RawTextMark;
+import org.openl.studio.projects.model.tables.RawTextMarkColor;
 import org.openl.studio.projects.model.tables.StyleTarget;
 import org.openl.studio.projects.model.tables.UnmergeTarget;
 import org.openl.studio.projects.model.tables.UpdateTarget;
+import org.openl.studio.projects.service.tables.format.TextMarks;
 
 /**
  * Writes {@link RawTableView} back to the original table preserving the exact 2D matrix structure.
@@ -346,7 +355,7 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         switch (target) {
             case UpdateTarget.Row(var position, var cells) -> updateRow(position, requireNotEmpty(cells));
             case UpdateTarget.Column(var position, var cells) -> updateColumn(position, requireNotEmpty(cells));
-            case UpdateTarget.Cell(var row, var column, var value) -> updateCell(row, column, value);
+            case UpdateTarget.Cell(var row, var column, var value, var marks) -> updateCell(row, column, value, marks);
             case UpdateTarget.Range(var row, var column, var cells) -> updateRange(row, column, cells);
         }
     }
@@ -456,13 +465,64 @@ public class RawTableWriter extends TableWriter<RawTableView> {
         writeColumn(developerView, position, cells, true);
     }
 
-    private void updateCell(int row, int column, Object value) {
+    private void updateCell(int row, int column, @Nullable Object value, @Nullable List<RawTextMark> marks) {
         var developerView = developerView();
         requireCellInBounds(developerView, row, column);
         if (isCoveredByMerge(developerView, row, column)) {
             throw new BadRequestException("table.action.cell.covered.message", new Object[]{row, column});
         }
+        if (marks != null) {
+            requireMarkable((XlsSheetGridModel) developerView.getGrid(), row, column, value, marks);
+        }
         createOrUpdateCell(developerView, buildCellKey(column, row), value);
+        if (marks == null) {
+            return;
+        }
+        var grid = (XlsSheetGridModel) developerView.getGrid();
+        var region = developerView.getRegion();
+        var cell = PoiExcelHelper.getCell(region.getLeft() + column, region.getTop() + row, grid.getSheetToWrite());
+        if (cell instanceof XSSFCell xssf) {
+            writeMarks(xssf, TextMarks.joined(marks));
+        }
+    }
+
+    /** Refuses marks on the header, on a value that is not a text, out of the text, or in an {@code .xls} file. */
+    private static void requireMarkable(XlsSheetGridModel grid, int row, int column, @Nullable Object value,
+            List<RawTextMark> marks) {
+        if (marks.isEmpty()) {
+            return;
+        }
+        if (row == 0 && column == 0) {
+            throw new BadRequestException("table.action.marks.header.message");
+        }
+        if (!(value instanceof String text)) {
+            throw new BadRequestException("table.action.marks.not-text.message");
+        }
+        if (!TextMarks.fit(marks, text)) {
+            throw new BadRequestException("table.action.marks.invalid.message");
+        }
+        if (!(grid.getWorkbookToWrite() instanceof XSSFWorkbook)) {
+            throw new BadRequestException("table.action.marks.xls.message");
+        }
+    }
+
+    /**
+     * Writes the marks on the text of a cell, leaving a cell that has them as it is. A value written as anything but
+     * a text, such as a number or an Excel formula, keeps no marks.
+     */
+    private static void writeMarks(XSSFCell cell, List<RawTextMark> marks) {
+        if (cell.getCellType() != CellType.STRING || TextMarks.of(cell).equals(marks)) {
+            return;
+        }
+        var text = cell.getStringCellValue();
+        // The value a cell type takes may be written as another text than the one the marks were checked on.
+        if (!TextMarks.fit(marks, text)) {
+            return;
+        }
+        var font = cell.getCellStyle().getFont().getCTFont();
+        var fonts = new EnumMap<RawTextMarkColor, XSSFFont>(RawTextMarkColor.class);
+        TextMarks.writeText(cell, TextMarks.write(text, marks,
+                color -> fonts.computeIfAbsent(color, key -> TextMarks.fontOf(font, key))));
     }
 
     private void updateRange(int row, int column, List<List<RawCellInput>> cells) {

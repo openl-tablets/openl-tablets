@@ -61,6 +61,29 @@ export const useStyles = createStyles(({ css, token }, onPaper: boolean) => {
         font: inherit;
         text-align: inherit;
     `,
+        /**
+     * The field a text is written in together with its marks: the field a cell is written in, drawn as an input of
+     * antd draws its own, keeping the lines and the spaces of the text.
+     */
+        markedInput: css`
+        width: 100%;
+        min-width: 0;
+        padding: 0 ${token.paddingXXS + 3}px;
+        border: 1px solid ${mark.colorPrimary};
+        background: ${mark.colorBgContainer};
+        color: ${mark.colorText};
+        font: inherit;
+        text-align: inherit;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        outline: none;
+        cursor: text;
+    `,
+        /** The marks a piece of the text being written is given, offered above the open cell. */
+        marksBar: css`
+        display: flex;
+        gap: ${token.marginXXS}px;
+    `,
         /** The open cell, which the field fills. */
         open: css`
         width: 100%;
