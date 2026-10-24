@@ -238,3 +238,19 @@ export const searchTree = (nodes: GroupNode[], query: string): GroupNode[] => {
 /** The keys of every group in the tree, so a search can show what it found without more clicks. */
 export const groupKeys = (nodes: GroupNode[]): string[] =>
     nodes.flatMap(node => (node.project ? [] : [node.key, ...groupKeys(node.children)]))
+
+/** The list parameters that show the projects of a tree group. */
+export const groupQuery = (filters: NodeFilters): string => {
+    const params = new URLSearchParams()
+    if (filters.repositories.length > 0) {
+        params.set('repo', filters.repositories.join(','))
+    }
+    // Branch names may contain a comma, so each branch rides as its own param instead of a comma-joined one.
+    for (const branch of filters.branches) {
+        params.append('branch', branch)
+    }
+    if (filters.tags.length > 0) {
+        params.set('tags', filters.tags.join(','))
+    }
+    return params.toString()
+}

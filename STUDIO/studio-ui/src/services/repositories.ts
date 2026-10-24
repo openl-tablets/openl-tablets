@@ -2,7 +2,7 @@ import apiCall, { asArray, isApiHttpError, LOCAL_LOAD_API_OPTIONS, type ApiCallO
 import CONFIG from './config'
 import { triggerDownload } from '../utils/download'
 import type { Repository, RepositoryConfig } from '../types/repositories'
-import type { Project, ProjectsPage } from '../types/projects'
+import type { Project, ProjectsPage, TagFacetSummary } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { ProjectStatus } from '../constants/project'
 
@@ -577,6 +577,26 @@ export interface TagType {
     nullable: boolean
     /** The configured values; omitted when the type has none. */
     values?: string[]
+}
+
+/**
+ * Define tags found in projects, an administrator's right: the tag types that do not exist yet are created as
+ * optional, and each value is added to its tag type unless it has it already.
+ */
+export async function defineTags(tags: Record<string, string[]>): Promise<void> {
+    await apiCall('/admin/tag-config/tags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tags),
+    }, LOCAL_LOAD_API_OPTIONS)
+}
+
+/**
+ * The tags the projects visible to the user carry, each value with the number of projects that carry it, the way
+ * the summary of the projects list counts them. An administrator's right.
+ */
+export async function getProjectTagCounts(): Promise<TagFacetSummary[]> {
+    return asArray(await apiCall('/admin/tag-config/tags', undefined, LOCAL_LOAD_API_OPTIONS))
 }
 
 /** List the configured tag types (name + allowed values) used to tag projects. */

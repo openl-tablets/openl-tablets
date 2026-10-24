@@ -1,11 +1,16 @@
 import { App, Input, Divider, Button, Row, Typography } from 'antd'
 import TextArea from 'antd/es/input/TextArea'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { apiCall } from '../services'
 import { LOCAL_LOAD_API_OPTIONS } from '../services/apiCall'
+import { defineTags, getProjectTagCounts } from '../services/repositories'
+import type { TagFacetSummary } from '../types/projects'
 import { Tag, TagTable, TagType } from './tags/TagTable'
+import { useStyles } from './tags/TagTable.styles'
 import { FillTagsModal } from './tags/FillTagsModal'
+import { TagTypesFoundInProjects, type DefineTags } from './tags/TagsFoundInProjects'
+import { tagsInProjects } from './tags/tagsInProjects'
 
 
 export const Tags: React.FC = () => {
@@ -18,6 +23,12 @@ export const Tags: React.FC = () => {
     const [isSavingTemplates, setIsSavingTemplates] = useState(false)
     const [isFillingTags, setIsFillingTags] = useState(false)
     const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+    // The tags the projects carry. Nothing is found while they are not read, or when they cannot be.
+    const [carried, setCarried] = useState<TagFacetSummary[]>([])
+    const { styles } = useStyles()
+    const found = useMemo(() => tagsInProjects(tagTypes, carried), [tagTypes, carried])
+
+    const fetchCarriedTags = async () => setCarried(await getProjectTagCounts().catch(() => []))
 
     const fetchTagTypes = async () => {
         setIsLoading(true)
@@ -92,6 +103,20 @@ export const Tags: React.FC = () => {
             await fetchTagTypes()
         }
     }
+
+    // The tags found in projects go to the configuration; the projects keep them, so only the catalog is read again.
+    const onDefineTags = async (type: string, values: string[]) => {
+        setIsLoading(true)
+        try {
+            await defineTags({ [type]: values })
+        } catch (e) {
+            notification.error({ title: e instanceof Error ? e.message : t('tags:found_add_error') })
+        } finally {
+            await fetchTagTypes()
+        }
+    }
+
+    const defineFound: DefineTags = (type, values) => void onDefineTags(type, values)
 
     const createTag = async (tagName: string, tagTypeId: number) => {
         setIsLoading(true)
@@ -194,6 +219,7 @@ export const Tags: React.FC = () => {
     useEffect(() => {
         void fetchTagTypes()
         void fetchTemplates()
+        void fetchCarriedTags()
     }, [])
 
     return (
@@ -221,14 +247,19 @@ export const Tags: React.FC = () => {
                 <li>
                     {t('tags:tag_type_order_notice')}
                 </li>
+                <li>
+                    {t('tags:tag_found_notice')}
+                </li>
             </ul>
             <p>
                 {t('tags:tag_type_auto_save_notice')}
             </p>
             <TagTable
                 createTag={onCreateTag}
+                defineTags={defineFound}
                 deleteTag={onDeleteTag}
                 deleteTagType={onDeleteTagType}
+                found={found.values}
                 isLoading={isLoading}
                 reorderTagTypes={ordered => void onReorderTagTypes(ordered)}
                 tagTypes={tagTypes}
@@ -246,6 +277,11 @@ export const Tags: React.FC = () => {
                     value={newTagTypeName}
                 />
             </Row>
+            <TagTypesFoundInProjects
+                onDefine={defineFound}
+                styles={styles}
+                types={found.types}
+            />
             <Divider />
             <Typography.Title level={4}>
                 {t('tags:tags_from_a_project_name')}
@@ -303,8 +339,11 @@ export const Tags: React.FC = () => {
             {/* Filling may create tag values, so the catalog is read again. */}
             <FillTagsModal
                 onClose={() => setIsPreviewOpen(false)}
-                onFilled={() => void fetchTagTypes()}
                 open={isPreviewOpen}
+                onFilled={() => {
+                    void fetchTagTypes()
+                    void fetchCarriedTags()
+                }}
             />
         </>
     )

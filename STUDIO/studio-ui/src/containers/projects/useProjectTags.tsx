@@ -9,6 +9,7 @@ import { deleteFile, rootFileExists, writeRootFile } from '../../services/files'
 import { serializeTagsProperties, TAGS_FILE_NAME, type TagEntry } from '../../services/tagsProperties'
 import { SuggestInput } from '../../components/SuggestInput'
 import { EditableList } from './EditableList'
+import { nameKey, sameName } from '../tags/tagNames'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** The tags read as a table: the type on the left, what the project is tagged with on the right. */
@@ -70,11 +71,6 @@ const useStyles = createStyles(({ css, token }) => ({
         margin-top: 8px;
     `,
 }))
-
-/** What a tag type name is matched by: tag types match regardless of case and surrounding spaces. */
-const nameKey = (name: string) => name.trim().toLowerCase()
-
-const sameName = (one: string, other: string) => nameKey(one) === nameKey(other)
 
 /** The styles of the tags section, read once by the section and handed down to each tag it draws. */
 type TagStyles = ReturnType<typeof useStyles>

@@ -1,6 +1,7 @@
 package org.openl.studio.tags.rest.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -9,7 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,9 @@ import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.GenericView;
+import org.openl.studio.projects.model.TagFacetSummary;
+import org.openl.studio.projects.service.ProjectCriteriaQuery;
+import org.openl.studio.projects.service.WorkspaceProjectService;
 import org.openl.studio.security.AdminPrivilege;
 import org.openl.studio.tags.model.TagFillPreview;
 import org.openl.studio.tags.model.TagFillResult;
@@ -44,6 +48,7 @@ import org.openl.util.StringUtils;
 @RequestMapping("/admin/tag-config")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
 @AdminPrivilege
+@RequiredArgsConstructor
 public class TagConfigController {
 
 
@@ -51,17 +56,7 @@ public class TagConfigController {
     private final TagService tagService;
     private final TagTemplateService tagTemplateService;
     private final TagFillService tagFillService;
-
-    @Autowired
-    public TagConfigController(TagTypeService tagTypeService,
-                               TagService tagService,
-                               TagTemplateService tagTemplateService,
-                               TagFillService tagFillService) {
-        this.tagTypeService = tagTypeService;
-        this.tagService = tagService;
-        this.tagTemplateService = tagTemplateService;
-        this.tagFillService = tagFillService;
-    }
+    private final WorkspaceProjectService projectService;
 
     @Operation(summary = "tags.get-types.summary", description = "tags.get-types.desc")
     @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,13 +130,7 @@ public class TagConfigController {
             }
         }
 
-        if (StringUtils.isBlank(name)) {
-            throw new BadRequestException("cannot.be.empty.message");
-        }
-
-        if (!NameChecker.checkName(name)) {
-            throw new BadRequestException("invalid.name.message");
-        }
+        checkTagName(name);
 
         final var existing = tagTypeService.getByName(name);
         if (existing != null && !existing.getId().equals(id)) {
@@ -206,12 +195,7 @@ public class TagConfigController {
             }
         }
 
-        if (StringUtils.isBlank(name)) {
-            throw new BadRequestException("cannot.be.empty.message");
-        }
-        if (!NameChecker.checkName(name)) {
-            throw new BadRequestException("invalid.name.message");
-        }
+        checkTagName(name);
 
         final var existing = tagService.getByName(tag.getType().getId(), name);
         if (existing != null && !existing.getId().equals(tagId)) {
@@ -226,6 +210,37 @@ public class TagConfigController {
         } else {
             tagService.update(tag);
             return ResponseEntity.noContent().build();
+        }
+    }
+
+    @Operation(summary = "tags.get-project-tags.summary", description = "tags.get-project-tags.desc")
+    @GetMapping(value = "/tags", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<TagFacetSummary> getProjectTags() {
+        return projectService.getTagCounts(ProjectCriteriaQuery.builder().build());
+    }
+
+    @Operation(summary = "tags.define-tags.summary", description = "tags.define-tags.desc")
+    @PostMapping(value = "/tags", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponse(responseCode = "204", description = "Defined")
+    public ResponseEntity<Void> defineTags(
+            @Parameter(description = "tags.define-tags.request.desc") @RequestBody Map<String, List<String>> tags) {
+        tags.forEach((type, values) -> {
+            checkTagName(type);
+            if (values == null) {
+                throw new BadRequestException("cannot.be.empty.message");
+            }
+            values.forEach(TagConfigController::checkTagName);
+        });
+        tagTypeService.define(tags);
+        return ResponseEntity.noContent().build();
+    }
+
+    private static void checkTagName(String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new BadRequestException("cannot.be.empty.message");
+        }
+        if (!NameChecker.checkName(name)) {
+            throw new BadRequestException("invalid.name.message");
         }
     }
 

@@ -128,6 +128,20 @@ public abstract class AbstractProjectService<T extends AProject> implements Proj
                 projectIndexHealth());
     }
 
+    /**
+     * The tags that the projects of the query carry, each value with the number of projects that carry it.
+     *
+     * <p>Only the projects the current user can read are counted, the way the summary of {@link #getProjects}
+     * counts them, without building a page of projects.
+     *
+     * @param query the projects to count; its repository, status and tag filters are ignored
+     * @return the tag types, each with its values and their counts
+     */
+    @Nonnull
+    public List<TagFacetSummary> getTagCounts(ProjectCriteriaQuery query) {
+        return tagCounts(projectScope(query.withoutFacetFilters(), false));
+    }
+
     private List<T> projectScope(ProjectCriteriaQuery query, boolean includeTagFilters) {
         var scopeFilter = buildFilterCriteria(query)
                 .and(proj -> designRepositoryAclService.isGranted(proj, List.of(BasePermission.READ)));
