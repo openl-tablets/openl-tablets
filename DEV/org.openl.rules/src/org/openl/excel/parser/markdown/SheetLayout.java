@@ -3,6 +3,7 @@ package org.openl.excel.parser.markdown;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,10 +143,11 @@ final class SheetLayout {
             throw refuse("A property needs the third column for its value, but the table is %d columns wide"
                     .formatted(width));
         }
-        var bodyWidth = properties.isEmpty() || width > PROPERTIES_WIDTH ? width : widthUnderProperties(sheet,
-                bodyTop,
-                height);
-        var body = IntStream.range(bodyTop, height).mapToObj(row -> bodyRow(sheet, row, bodyWidth)).toList();
+        var covering = new RowMerges(sheet.merges(), height);
+        var bodyWidth = properties.isEmpty() || width > PROPERTIES_WIDTH
+                ? width
+                : widthUnderProperties(sheet, covering, bodyTop, height);
+        var body = IntStream.range(bodyTop, height).mapToObj(row -> bodyRow(sheet, covering, row, bodyWidth)).toList();
         // The last cells of a narrower body merged over the columns of the properties follow from the layout
         var merges = sheet.merges()
                 .stream()
@@ -219,11 +221,11 @@ final class SheetLayout {
         return range.getLastRow() < bodyTop && (range.equals(headerMerge) || propertyValue || marker);
     }
 
-    private static List<@Nullable String> bodyRow(SheetCells sheet, int row, int width) {
+    private static List<@Nullable String> bodyRow(SheetCells sheet, RowMerges covering, int row, int width) {
         var cells = new ArrayList<@Nullable String>(width);
         for (var column = 0; column < width; column++) {
             var value = valueOf(sheet, row, column);
-            var range = sheet.mergeAt(row, column);
+            var range = covering.at(row, column);
             if (value != null && range != null && (range.getFirstRow() != row || range.getFirstColumn() != column)) {
                 throw refuse("The cell %s has a value, but the merged range %s covers it".formatted(
                         cellName(row, column), range.formatAsString()));
@@ -256,15 +258,15 @@ final class SheetLayout {
      * own width when the last cell of each row is merged over the columns of the properties, as the layout gives it;
      * else the body takes all three.
      */
-    private static int widthUnderProperties(SheetCells sheet, int bodyTop, int height) {
+    private static int widthUnderProperties(SheetCells sheet, RowMerges covering, int bodyTop, int height) {
         var own = bodyWidth(sheet, bodyTop);
-        return IntStream.range(bodyTop, height).allMatch(row -> reachesTheProperties(sheet, row, own - 1))
+        return IntStream.range(bodyTop, height).allMatch(row -> reachesTheProperties(covering, row, own - 1))
                 ? own
                 : PROPERTIES_WIDTH;
     }
 
-    private static boolean reachesTheProperties(SheetCells sheet, int row, int column) {
-        var range = sheet.mergeAt(row, column);
+    private static boolean reachesTheProperties(RowMerges covering, int row, int column) {
+        var range = covering.at(row, column);
         return (range == null ? column : range.getLastColumn()) == PROPERTIES_WIDTH - 1;
     }
 
@@ -325,5 +327,39 @@ final class SheetLayout {
 
     private static MarkdownWriteException refuse(String message) {
         return new MarkdownWriteException(message);
+    }
+
+    /**
+     * The merged ranges of a sheet by the rows they cover, so that the range of a cell is found among the few ranges of
+     * its row: a body narrower than the properties has a range in every row.
+     */
+    private static final class RowMerges {
+
+        private final List<List<CellRangeAddress>> rows;
+
+        RowMerges(List<CellRangeAddress> merges, int height) {
+            rows = new ArrayList<>(Collections.nCopies(height, List.of()));
+            for (var range : merges) {
+                for (var row = range.getFirstRow(); row <= Math.min(range.getLastRow(), height - 1); row++) {
+                    if (rows.get(row).isEmpty()) {
+                        rows.set(row, new ArrayList<>(1));
+                    }
+                    rows.get(row).add(range);
+                }
+            }
+        }
+
+        /**
+         * Returns the merged range a cell lies in, or {@code null} when the cell is not merged.
+         */
+        @Nullable
+        CellRangeAddress at(int row, int column) {
+            for (var range : row < rows.size() ? rows.get(row) : List.<CellRangeAddress>of()) {
+                if (range.isInRange(row, column)) {
+                    return range;
+                }
+            }
+            return null;
+        }
     }
 }
