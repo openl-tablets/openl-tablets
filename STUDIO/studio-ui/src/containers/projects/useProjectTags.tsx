@@ -24,6 +24,10 @@ const useStyles = createStyles(({ css, token }) => ({
         color: ${token.colorTextTertiary};
         font-size: 12px;
     `,
+    /** A tag type no administrator configured: the project carries it, the database does not know it. */
+    unconfigured: css`
+        color: ${token.colorWarningText};
+    `,
     value: css`
         min-width: 0;
         overflow: hidden;
@@ -100,6 +104,16 @@ const typeOf = (types: TagType[], key: string): TagType | undefined => types.fin
 const isNotAllowed = (type: TagType | undefined, value: string): boolean => !!type && !type.extensible
     && value.trim() !== '' && !(type.values ?? []).some(allowed => sameName(allowed, value))
 
+/** Whether a key names a tag type that is not configured. Nothing is, while the configured types are unknown. */
+const isUnconfigured = (types: TagType[] | null, key: string): boolean =>
+    types !== null && key.trim() !== '' && !typeOf(types, key)
+
+/** The tag types the tags name that are not configured, each once, in the order the tags name them. */
+const unconfiguredTypes = (types: TagType[] | null, entries: TagEntry[]): string[] => {
+    const keys = entries.map(entry => entry.key.trim()).filter(key => isUnconfigured(types, key))
+    return keys.filter((key, index) => keys.findIndex(other => sameName(other, key)) === index)
+}
+
 /** The mandatory tag types the tags leave without a value, whether the key is absent or its value is blank. */
 const missingMandatory = (types: TagType[], entries: TagEntry[]): string[] => types
     .filter(type => !type.nullable && !entries.some(entry => sameName(entry.key, type.name) && entry.value.trim()))
@@ -122,9 +136,10 @@ interface ProjectTagsOptions {
  * editing writes the file back through the files API, the way rules.xml is edited. Any key and any value
  * can be entered; the tag types an administrator configured are offered as suggestions.
  *
- * The tags are checked against the configured tag types, both while viewed and while edited: a mandatory
- * type left without a value, and a value a non-extensible type does not take, are warned about. A warning
- * never blocks saving, since a project may carry tags the configuration no longer allows.
+ * The tags are checked against the configured tag types, both while viewed and while edited: a tag type
+ * that is not configured, a mandatory type left without a value, and a value a non-extensible type does
+ * not take are warned about. A warning never blocks saving, since a project may carry tags the
+ * configuration no longer allows.
  */
 export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTagsOptions) => {
     const { t } = useTranslation('repository')
@@ -143,7 +158,9 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
     // A repeated key cannot be written to the properties file, so saving waits until it is resolved.
     const duplicates = editing ? duplicateKeys(entries) : new Set<string>()
     // The warnings follow what is on the screen: the edited tags while editing, so a fix clears them at once.
-    const missing = missingMandatory(types, editing ? entries : assigned.map(([key, value]) => ({ key, value })))
+    const shown = editing ? entries : assigned.map(([key, value]) => ({ key, value }))
+    const missing = missingMandatory(types, shown)
+    const unconfigured = unconfiguredTypes(tagTypes, shown)
 
     // The configured tag types feed the checks and the suggestions. They are read again whenever the editing
     // starts or ends, so a change an administrator made meanwhile shows. A failed read keeps what was read
@@ -232,6 +249,7 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
                     notAllowed={isNotAllowed(typeOf(types, type), value)}
                     type={type}
                     ui={ui}
+                    unconfigured={isUnconfigured(tagTypes, type)}
                     value={value}
                 />
             ))}
@@ -254,6 +272,7 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
                         suggestions={types}
                         testId={id}
                         ui={ui}
+                        unconfigured={isUnconfigured(tagTypes, entry.key)}
                     />
                 )}
             />
@@ -279,11 +298,22 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
         />
     )
 
+    const unknown = unconfigured.length > 0 && (
+        <Alert
+            showIcon
+            className={styles.error}
+            data-testid="tags-unconfigured"
+            title={t('browser.tags.unconfigured', { types: unconfigured.join(', ') })}
+            type="warning"
+        />
+    )
+
     return {
         action: editActions || editButton,
         content: (
             <>
                 {editing ? editor : view}
+                {unknown}
                 {mandatory}
                 {error && <Alert showIcon className={styles.error} data-testid="tags-error" title={error} type="error" />}
             </>
@@ -292,19 +322,27 @@ export const useProjectTags = ({ projectId, tags, canEdit, onSaved }: ProjectTag
 }
 
 /**
- * One line of the table: the tag type, and what the project carries for it. A value the type does not take
- * is followed by the warning about it.
+ * One line of the table: the tag type, and what the project carries for it. A type that is not configured
+ * is marked, and a value the type does not take is followed by the warning about it.
  */
-const TagRow = ({ ui, type, value, notAllowed }: {
+const TagRow = ({ ui, type, value, notAllowed, unconfigured }: {
     ui: TagStyles
     type: string
     value: string
     notAllowed: boolean
+    unconfigured: boolean
 }) => {
-    const { styles } = ui
+    const { t } = useTranslation('repository')
+    const { styles, cx } = ui
     return (
         <>
-            <span className={styles.type}>{type}</span>
+            {unconfigured ? (
+                <Tooltip title={t('browser.tags.unconfigured_type')}>
+                    <span className={cx(styles.type, styles.unconfigured)} data-testid={`tag-unconfigured-${type}`}>
+                        {type}
+                    </span>
+                </Tooltip>
+            ) : <span className={styles.type}>{type}</span>}
             <span className={styles.flagged}>
                 <span className={styles.value}>{value}</span>
                 {notAllowed && <NotAllowedWarning className={styles.warning} type={type} value={value} />}
@@ -323,17 +361,27 @@ const NotAllowedWarning = ({ className, type, value }: { className: string, type
     )
 }
 
+/** How the key field is marked. A repeated key blocks the save, so it outweighs an unconfigured one. */
+const keyStatusOf = (duplicate: boolean, unconfigured: boolean) => {
+    if (duplicate) {
+        return 'error' as const
+    }
+    return unconfigured ? 'warning' as const : undefined
+}
+
 /**
  * The editable fields of one tag: its key and its value, both free text. The configured tag types are
  * offered for the key, and the values of the matching type for the value — suggestions only, since the
  * file takes whatever the user names. A value the matching type does not take is marked and warned about.
  */
-const TagEntryFields = ({ ui, entry, suggestions, duplicate, onChange, testId }: {
+const TagEntryFields = ({ ui, entry, suggestions, duplicate, unconfigured, onChange, testId }: {
     ui: TagStyles
     entry: TagEntry
     suggestions: TagType[]
     /** The key is named by another entry too — the field is marked until one of them changes. */
     duplicate: boolean
+    /** The key names a tag type that is not configured — the field is marked as a warning. */
+    unconfigured: boolean
     onChange: (entry: TagEntry) => void
     testId: string
 }) => {
@@ -341,6 +389,7 @@ const TagEntryFields = ({ ui, entry, suggestions, duplicate, onChange, testId }:
     const { styles } = ui
     const matchingType = typeOf(suggestions, entry.key)
     const notAllowed = isNotAllowed(matchingType, entry.value)
+    const keyStatus = keyStatusOf(duplicate, unconfigured)
     // The warning goes below the fields in the same wrapper either way, so the fields keep their focus.
     return (
         <div className={styles.flagged}>
@@ -348,7 +397,7 @@ const TagEntryFields = ({ ui, entry, suggestions, duplicate, onChange, testId }:
                 <SuggestInput
                     className={styles.entryKey}
                     data-testid={testId}
-                    {...(duplicate ? { status: 'error' as const } : {})}
+                    {...(keyStatus ? { status: keyStatus } : {})}
                     onChange={key => onChange({ ...entry, key })}
                     options={suggestions.map(type => ({ label: type.name, value: type.name }))}
                     placeholder={t('browser.tags.key')}

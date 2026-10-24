@@ -800,6 +800,8 @@ i18next.addResourceBundle('en', 'repository', {
             duplicate_keys: 'Each tag can be used only once',
             mandatory: "Tag type '{{type}}' is mandatory.",
             not_allowed: "'{{value}}' is not allowed value for tag type '{{type}}'.",
+            unconfigured: 'Tag types not defined in OpenL Studio: {{types}}. Update them or ask an administrator to define them.',
+            unconfigured_type: 'This tag type is not defined in OpenL Studio',
         },
         create: {
             wizard_title: 'Create project',
