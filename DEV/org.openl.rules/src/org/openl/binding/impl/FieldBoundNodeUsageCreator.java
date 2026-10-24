@@ -9,8 +9,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.DependencyVar;
 import org.openl.meta.IMetaInfo;
@@ -18,6 +22,7 @@ import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.IOriginalDeclaredClassesOpenField;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.dt.DTColumnsDefinitionField;
@@ -32,13 +37,11 @@ import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.util.text.TextInfo;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
 
     private static final int MAX_DESCRIPTION_CLASS_NUMBER = 3;
     private static final int MAX_DESCRIPTION_CLASS_LENGTH = 50;
-
-    private FieldBoundNodeUsageCreator() {
-    }
 
     @Override
     public boolean accept(IBoundNode boundNode) {
@@ -70,6 +73,11 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
      * @param type the type the field is accessed from
      */
     static FieldUsage describe(IOpenField boundField, IOpenClass type, ISyntaxNode syntaxNode) {
+        if (boundField instanceof ComponentOpenClass.ThisField
+                && boundField.getType() instanceof SpreadsheetOpenClass spreadsheetType) {
+            return new FieldUsage(getIdentifierSyntaxNode(syntaxNode),
+                    "Spreadsheet " + spreadsheetType.getSpreadsheetName(), spreadsheetType.getSpreadsheetSourceUrl());
+        }
         if (boundField instanceof IOriginalDeclaredClassesOpenField combinedOpenField) {
             var description = describeCombinedField(combinedOpenField, boundField);
             return new FieldUsage(getIdentifierSyntaxNode(syntaxNode), description, getSourceUrl(type, boundField));

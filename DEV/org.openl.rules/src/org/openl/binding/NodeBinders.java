@@ -6,6 +6,7 @@ import org.openl.binding.impl.ArrayInitializationBinder;
 import org.openl.binding.impl.AssignOperatorNodeBinder;
 import org.openl.binding.impl.BExChainBinder;
 import org.openl.binding.impl.BExChainSuffixBinder;
+import org.openl.binding.impl.BaseAggregateIndexNodeBinder;
 import org.openl.binding.impl.BinaryOperatorAndNodeBinder;
 import org.openl.binding.impl.BinaryOperatorNodeBinder;
 import org.openl.binding.impl.BinaryOperatorOrNodeBinder;
@@ -137,5 +138,10 @@ public class NodeBinders {
             BINDERS.put(node, nodeBinder);
         }
         return nodeBinder;
+    }
+
+    /** Returns whether the syntax node is registered as an array index operator. */
+    public static boolean isAggregateIndexOperator(String nodeType) {
+        return BINDERS.get(nodeType) instanceof BaseAggregateIndexNodeBinder;
     }
 }

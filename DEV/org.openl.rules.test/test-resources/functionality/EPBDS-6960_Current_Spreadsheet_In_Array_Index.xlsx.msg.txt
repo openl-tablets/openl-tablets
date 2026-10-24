@@ -1,0 +1,1 @@
+WARN: 'current.$Key' refers to input parameter 'current'. The spreadsheet also has '$Key'. Use 'this.$Key' for the spreadsheet cell.
