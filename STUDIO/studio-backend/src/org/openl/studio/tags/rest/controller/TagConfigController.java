@@ -108,6 +108,17 @@ public class TagConfigController {
         return addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), null);
     }
 
+    @Operation(summary = "tags.reorder-tag-types.summary", description = "tags.reorder-tag-types.desc")
+    @PutMapping(value = "/types/order", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponse(responseCode = "204", description = "Reordered")
+    public ResponseEntity<Void> reorderTagTypes(
+            @Parameter(description = "tags.reorder-tag-types.request.desc") @RequestBody List<Long> ids) {
+        if (!tagTypeService.reorder(ids)) {
+            throw new NotFoundException("tag-type.message");
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     private ResponseEntity<Void> addOrUpdateTagType(final Long id,
                                                     final String name,
                                                     final Boolean nullable,

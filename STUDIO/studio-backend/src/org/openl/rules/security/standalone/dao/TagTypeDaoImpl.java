@@ -36,7 +36,9 @@ public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagType
         var builder = getSession().getCriteriaBuilder();
         var criteria = builder.createQuery(TagType.class);
         var root = criteria.from(TagType.class);
-        criteria.select(root).orderBy(builder.asc(builder.upper(root.get("name"))));
+        // Nulls last: a type that has no place yet goes after the ordered ones on every database.
+        criteria.select(root).orderBy(builder.asc(root.get("displayOrder"), false),
+                builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 
