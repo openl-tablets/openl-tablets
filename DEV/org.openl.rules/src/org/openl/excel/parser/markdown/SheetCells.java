@@ -31,7 +31,12 @@ record SheetCells(@Nullable String[][] values, List<CellRangeAddress> merges) {
      */
     @Nullable
     CellRangeAddress mergeAt(int row, int column) {
-        return merges.stream().filter(range -> range.isInRange(row, column)).findFirst().orElse(null);
+        for (var range : merges) {
+            if (range.isInRange(row, column)) {
+                return range;
+            }
+        }
+        return null;
     }
 
     /** Equal to the cells holding the same values and merged ranges. */

@@ -58,10 +58,30 @@ final class MarkdownTableWriter {
      * @throws MarkdownFormatException when the file does not hold a table
      */
     static String write(String text, SheetCells sheet) {
-        var mark = !text.isEmpty() && text.charAt(0) == MarkdownReader.BYTE_ORDER_MARK ? text.substring(0, 1) : "";
+        var mark = markOf(text);
         var file = MarkdownTableParser.parse(text.substring(mark.length()))
                 .orElseThrow(() -> new MarkdownWriteException(NO_TABLE));
+        return write(mark, file, sheet);
+    }
+
+    /**
+     * Writes the table laid out on a sheet into a file read before.
+     *
+     * @param mark  the byte order mark the file starts with, or an empty text
+     * @param file  the file as read, without its byte order mark
+     * @param sheet the cells of the sheet holding the table
+     * @return the new text of the file
+     * @throws MarkdownWriteException when the cells or a value have no Markdown form
+     */
+    static String write(String mark, TableFile file, SheetCells sheet) {
         return mark + write(file, SheetLayout.tableOf(sheet));
+    }
+
+    /**
+     * Returns the byte order mark a text starts with, or an empty text when it has none.
+     */
+    static String markOf(String text) {
+        return !text.isEmpty() && text.charAt(0) == MarkdownReader.BYTE_ORDER_MARK ? text.substring(0, 1) : "";
     }
 
     /**
@@ -139,7 +159,7 @@ final class MarkdownTableWriter {
         // Properties written on the line of the key, as {a: b}, are written again one to a line
         var block = file.keys()
                 .stream()
-                .filter(key -> key.name().equals(PROPERTIES)
+                .filter(key -> PROPERTIES.equals(key.name())
                         && !written.isEmpty()
                         && written.getFirst().line() > key.line())
                 .findFirst();
@@ -307,17 +327,27 @@ final class MarkdownTableWriter {
                 : null;
         var delimiter = source == null ? "|" + (DELIMITER + "|").repeat(width) : lines.get(source.delimiterLine());
         var rowLines = source == null ? List.<Integer>of() : source.rowLines();
-        var unchanged = source == null || file == null
-                ? Map.<List<@Nullable String>, Queue<Integer>>of()
-                : rowsOf(file.table());
+        var original = source == null || file == null ? List.<List<@Nullable String>>of() : file.table().body();
+        var rows = table.body();
+        // The rows above and below the change keep their lines as they stand; only the rows between are looked up
+        var top = sameAtTop(original, rows);
+        var bottom = sameAtBottom(original, rows, top);
+        var unchanged = rowsOf(original, top, original.size() - bottom);
         // Cells are aligned only to the widths of a table aligned by hand
         var widths = source == null ? new int[width] : widths(delimiter, width);
-        var text = new ArrayList<String>();
-        var lastKept = -1;
-        for (var cells : table.body()) {
-            var kept = keptRow(unchanged, cells, lastKept);
-            lastKept = Math.max(lastKept, kept);
-            text.add(kept < 0 ? row(cells, widths) : lines.get(rowLines.get(kept)));
+        var text = new ArrayList<String>(rows.size() + 1);
+        var lastKept = top - 1;
+        for (var i = 0; i < rows.size(); i++) {
+            int kept;
+            if (i < top) {
+                kept = i;
+            } else if (i >= rows.size() - bottom) {
+                kept = original.size() - rows.size() + i;
+            } else {
+                kept = keptRow(unchanged, rows.get(i), lastKept);
+                lastKept = Math.max(lastKept, kept);
+            }
+            text.add(kept < 0 ? row(rows.get(i), widths) : lines.get(rowLines.get(kept)));
             if (text.size() == 1) {
                 text.add(delimiter);
             }
@@ -326,12 +356,39 @@ final class MarkdownTableWriter {
     }
 
     /**
-     * Returns the rows of the original body by their cells, each with the indexes of the rows holding them.
+     * Returns how many rows at the top of the table are the same as in the original body.
      */
-    private static Map<List<@Nullable String>, Queue<Integer>> rowsOf(RulesTable table) {
+    private static int sameAtTop(List<List<@Nullable String>> original, List<List<@Nullable String>> rows) {
+        var top = 0;
+        while (top < original.size() && top < rows.size() && original.get(top).equals(rows.get(top))) {
+            top++;
+        }
+        return top;
+    }
+
+    /**
+     * Returns how many rows at the bottom of the table are the same as in the original body, the rows the same at the
+     * top left out.
+     */
+    private static int sameAtBottom(List<List<@Nullable String>> original, List<List<@Nullable String>> rows, int top) {
+        var bottom = 0;
+        while (bottom < original.size() - top && bottom < rows.size() - top
+                && original.get(original.size() - 1 - bottom).equals(rows.get(rows.size() - 1 - bottom))) {
+            bottom++;
+        }
+        return bottom;
+    }
+
+    /**
+     * Returns the rows of the original body between two of them by their cells, each with the indexes of the rows
+     * holding them.
+     */
+    private static Map<List<@Nullable String>, Queue<Integer>> rowsOf(List<List<@Nullable String>> body,
+                                                                     int from,
+                                                                     int to) {
         var rows = new HashMap<List<@Nullable String>, Queue<Integer>>();
-        for (var i = 0; i < table.body().size(); i++) {
-            rows.computeIfAbsent(table.body().get(i), cells -> new ArrayDeque<>()).add(i);
+        for (var i = from; i < to; i++) {
+            rows.computeIfAbsent(body.get(i), cells -> new ArrayDeque<>()).add(i);
         }
         return rows;
     }

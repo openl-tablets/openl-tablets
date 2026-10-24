@@ -57,20 +57,24 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     /** The sheet of the file the module compiles, or {@code null} for a file written outside a module. */
     @Getter
     private final @Nullable XlsSheetSourceCodeModule sheetSource;
-    /** The text of the file when the sheet was opened, or {@code null} for a file that does not exist yet. */
-    private final @Nullable String text;
+    /** The file as read when the sheet was opened, or {@code null} for a file that does not exist yet. */
+    private final @Nullable TableFile file;
+    /** The byte order mark the file starts with, or an empty text. */
+    private final String mark;
     private final Saver saver;
     private final List<List<@Nullable String>> rows = new ArrayList<>();
     private final List<IGridRegion> merges = new ArrayList<>();
 
     private MarkdownGrid(String uri,
                          @Nullable XlsSheetSourceCodeModule sheetSource,
-                         @Nullable String text,
+                         @Nullable TableFile file,
+                         String mark,
                          SheetCells cells,
                          Saver saver) {
         this.uri = uri;
         this.sheetSource = sheetSource;
-        this.text = text;
+        this.file = file;
+        this.mark = mark;
         this.saver = saver;
         for (var row = 0; row < cells.values().length; row++) {
             for (var column = 0; column < cells.values()[row].length; column++) {
@@ -98,14 +102,13 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        var withoutMark = !text.isEmpty() && text.charAt(0) == MarkdownReader.BYTE_ORDER_MARK
-                ? text.substring(1)
-                : text;
-        var file = MarkdownTableParser.parse(withoutMark)
+        var mark = MarkdownTableWriter.markOf(text);
+        var file = MarkdownTableParser.parse(text.substring(mark.length()))
                 .orElseThrow(() -> new MarkdownWriteException(MarkdownTableWriter.NO_TABLE));
         return new MarkdownGrid(sheetSource.getUri(),
                 sheetSource,
-                text,
+                file,
+                mark,
                 SheetLayout.cellsOf(file.table()),
                 written -> workbook.save(out -> out.write(written.getBytes(StandardCharsets.UTF_8))));
     }
@@ -122,7 +125,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
     public static MarkdownGrid create(String fileUri, Saver saver) {
         var path = StringTool.decodeURL(fileUri);
         var uri = fileUri + "?sheet=" + StringTool.encodeURL(MarkdownReader.sheetNameOf(path));
-        return new MarkdownGrid(uri, null, null, new SheetCells(new String[0][], List.of()), saver);
+        return new MarkdownGrid(uri, null, null, "", new SheetCells(new String[0][], List.of()), saver);
     }
 
     /**
@@ -141,7 +144,8 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var path = StringTool.decodeURL(fileUri);
         var workbook = new XlsWorkbookSourceCodeModule(new MarkdownFileSource(file, fileUri));
         var sheet = new XlsSheetSourceCodeModule(new UnwrittenSheet(MarkdownReader.sheetNameOf(path)), workbook);
-        return new MarkdownGrid(sheet.getUri(), sheet, null, new SheetCells(new String[0][], List.of()), saver);
+        return new MarkdownGrid(sheet.getUri(), sheet, null, "", new SheetCells(new String[0][], List.of()),
+                saver);
     }
 
     /** The sheet of a file not written yet: it has a name, and nothing to read. */
@@ -222,9 +226,9 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
                         range.getRight()))
                 .toList();
         var cells = new SheetCells(values, ranges);
-        saver.save(text == null
+        saver.save(file == null
                 ? MarkdownTableWriter.newFile(SheetLayout.tableOf(cells))
-                : MarkdownTableWriter.write(text, cells));
+                : MarkdownTableWriter.write(mark, file, cells));
     }
 
     // Reading
@@ -425,10 +429,14 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
             rows.add(new ArrayList<>());
         }
         var cells = rows.get(row);
-        if (cells.size() <= column) {
-            cells.addAll(Collections.nCopies(column + 1 - cells.size(), null));
+        if (cells.size() > column) {
+            cells.set(column, value);
+        } else {
+            if (cells.size() < column) {
+                cells.addAll(Collections.nCopies(column - cells.size(), null));
+            }
+            cells.add(value);
         }
-        cells.set(column, value);
     }
 
     /**

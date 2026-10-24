@@ -13,8 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.commonmark.ext.gfm.tables.TableBlock;
-import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.Node;
 import org.commonmark.node.Paragraph;
@@ -57,9 +55,9 @@ import org.openl.util.StringUtils;
 final class MarkdownTableParser {
 
     private static final Parser PARSER = Parser.builder()
-            // A file of rules is trusted as a workbook is, so a table is read whatever its number of cells
-            .extensions(List.of(TablesExtension.builder().maxCells(null).build()))
-            .includeSourceSpans(IncludeSourceSpans.BLOCKS_AND_INLINES)
+            // A table is known by its lines: its cells are cut out of the lines of the file, whatever their number
+            .customBlockParserFactory(new TableLines.Factory())
+            .includeSourceSpans(IncludeSourceSpans.BLOCKS)
             // A cell is taken from the text of the file, so the Markdown inside it is never parsed
             .inlineParserFactory(context -> (content, node) -> {
             })
@@ -79,7 +77,29 @@ final class MarkdownTableParser {
 
     private MarkdownTableParser(String text) {
         this.text = text;
-        this.lines = Arrays.asList(LINE_SEPARATOR.split(text, -1));
+        this.lines = linesOf(text);
+    }
+
+    /**
+     * Returns the lines of a text, without their line breaks: {@code \r\n}, {@code \r} or {@code \n}.
+     */
+    private static List<String> linesOf(String text) {
+        var lines = new ArrayList<String>();
+        var start = 0;
+        var i = 0;
+        while (i < text.length()) {
+            var c = text.charAt(i);
+            var next = i + 1;
+            if (c == '\n' || c == '\r') {
+                lines.add(text.substring(start, i));
+                // A carriage return and a line feed end one line
+                next += c == '\r' && next < text.length() && text.charAt(next) == '\n' ? 1 : 0;
+                start = next;
+            }
+            i = next;
+        }
+        lines.add(text.substring(start));
+        return lines;
     }
 
     /**
@@ -94,11 +114,11 @@ final class MarkdownTableParser {
     }
 
     private Optional<TableFile> parse() {
-        if (!lines.getFirst().strip().equals(FRONT_MATTER)) {
+        if (!FRONT_MATTER.equals(lines.getFirst().strip())) {
             return Optional.empty();
         }
         var end = 1;
-        while (end < lines.size() && !lines.get(end).strip().equals(FRONT_MATTER)) {
+        while (end < lines.size() && !FRONT_MATTER.equals(lines.get(end).strip())) {
             end++;
         }
         if (end == lines.size()) {
@@ -111,7 +131,7 @@ final class MarkdownTableParser {
         Collections.fill(body.subList(0, end + 1), "");
         var document = PARSER.parse(String.join("\n", body));
         var node = document.getFirstChild();
-        while (node != null && !(node instanceof TableBlock) && !(node instanceof FencedCodeBlock)) {
+        while (node != null && !(node instanceof TableLines) && !(node instanceof FencedCodeBlock)) {
             node = node.getNext();
         }
         // A table with no table nor code block after its front matter has a header alone
@@ -138,7 +158,7 @@ final class MarkdownTableParser {
     private static List<TableFile.Key> keysOf(Header header, RulesTable table) {
         return header.keys()
                 .stream()
-                .map(key -> key.name().equals(MERGES)
+                .map(key -> MERGES.equals(key.name())
                         ? new TableFile.Key(MERGES, RulesTable.mergesText(table.merges()), key.line())
                         : key)
                 .toList();
@@ -265,7 +285,7 @@ final class MarkdownTableParser {
     private RulesTable readTable(Header header, @Nullable Node body) {
         var rows = switch (body) {
             case null -> List.<List<@Nullable String>>of();
-            case TableBlock table -> readRows(table, header);
+            case TableLines table -> readRows(table, header);
             default -> List.of(Collections.singletonList(StringUtils.trimToNull(((FencedCodeBlock) body)
                     .getLiteral())));
         };
@@ -282,22 +302,20 @@ final class MarkdownTableParser {
                     StringUtils.trimToEmpty(code.getInfo()),
                     code.getFenceIndent());
         }
-        // A table has a source span per line: the first row, the delimiter row, then the other rows.
-        var rowLines = new ArrayList<Integer>();
-        rowLines.add(spans.getFirst().getLineIndex());
-        spans.subList(2, spans.size()).forEach(span -> rowLines.add(span.getLineIndex()));
-        return new TableFile.GfmBody(rowLines, spans.get(1).getLineIndex());
+        var table = (TableLines) body;
+        return new TableFile.GfmBody(table.rowLines(), table.delimiterLine());
     }
 
     /**
      * Tells of table rows cut off from the body by a blank line: GFM reads them as a paragraph, so they are lost.
      */
     private void checkNotSplit(Node body) {
-        if (body instanceof TableBlock && body.getNext() instanceof Paragraph next) {
+        if (body instanceof TableLines && body.getNext() instanceof Paragraph next) {
             var lineIndex = next.getSourceSpans().getFirst().getLineIndex();
             if (lines.get(lineIndex).strip().startsWith("|")) {
-                problem(lineIndex + 1, "A blank line cuts these rows off the table above. Remove it: a file holds "
-                        + "one table", null);
+                problem(lineIndex + 1, """
+                        A blank line cuts these rows off the table above. Remove it: a file holds \
+                        one table""", null);
             }
         }
     }
@@ -305,35 +323,44 @@ final class MarkdownTableParser {
     /**
      * Reads the rows of a GFM table. A row keeps as many cells as the first row has, as GFM reads it.
      */
-    private List<List<@Nullable String>> readRows(TableBlock table, Header header) {
-        // A table has a source span per line: the first row, the delimiter row, then the other rows.
-        var spans = table.getSourceSpans();
-        var rows = new ArrayList<List<@Nullable String>>();
-        for (var section = table.getFirstChild(); section != null; section = section.getNext()) {
-            for (var row = section.getFirstChild(); row != null; row = row.getNext()) {
-                var lineIndex = spans.get(rows.isEmpty() ? 0 : rows.size() + 1).getLineIndex();
-                var cells = new ArrayList<@Nullable String>();
-                for (var cell = row.getFirstChild(); cell != null; cell = cell.getNext()) {
-                    cells.add(cellText(cell));
-                }
-                if (countCells(lines.get(lineIndex)) > cells.size()) {
-                    problem(lineIndex + 1, "The row has more cells than the first row of the table",
-                            header.cellOf(rows.size(), cells.size() - 1));
-                }
-                rows.add(cells);
+    private List<List<@Nullable String>> readRows(TableLines table, Header header) {
+        var rowLines = table.rowLines();
+        var width = TableLines.cellBounds(lines.get(rowLines.getFirst())).length / 2;
+        var rows = new ArrayList<List<@Nullable String>>(rowLines.size());
+        for (var lineIndex : rowLines) {
+            var line = lines.get(lineIndex);
+            var bounds = TableLines.cellBounds(line);
+            var cells = new ArrayList<@Nullable String>(width);
+            for (var column = 0; column < width; column++) {
+                cells.add(cellText(line, bounds, column));
             }
+            if (countCells(line) > width) {
+                problem(lineIndex + 1, "The row has more cells than the first row of the table",
+                        header.cellOf(rows.size(), width - 1));
+            }
+            rows.add(cells);
         }
         return rows;
     }
 
-    private @Nullable String cellText(Node cell) {
-        var spans = cell.getSourceSpans();
-        if (spans.isEmpty()) {
+    /**
+     * Returns the value of a cell of a row, or {@code null} for a blank cell or one the row does not have.
+     *
+     * @param bounds where the cells of the row stand, see {@link TableLines#cellBounds}
+     */
+    private static @Nullable String cellText(String row, int[] bounds, int column) {
+        if (2 * column >= bounds.length) {
             return null;
         }
-        var span = spans.getFirst();
-        var start = span.getColumnIndex();
-        return cellText(lines.get(span.getLineIndex()).substring(start, start + span.getLength()));
+        var from = bounds[2 * column];
+        var to = bounds[2 * column + 1];
+        while (from < to && Character.isWhitespace(row.charAt(from))) {
+            from++;
+        }
+        while (to > from && Character.isWhitespace(row.charAt(to - 1))) {
+            to--;
+        }
+        return from == to ? null : cellText(row.substring(from, to));
     }
 
     /**
@@ -341,7 +368,7 @@ final class MarkdownTableParser {
      */
     static @Nullable String cellText(String source) {
         var text = unwrapCode(source.strip().replace("\\|", "|"));
-        return StringUtils.trimToNull(LINE_BREAK.matcher(text).replaceAll("\n"));
+        return StringUtils.trimToNull(text.indexOf('<') < 0 ? text : LINE_BREAK.matcher(text).replaceAll("\n"));
     }
 
     private static String unwrapCode(String text) {
@@ -361,24 +388,31 @@ final class MarkdownTableParser {
      * Counts the cells of a table row the way GFM splits it, before GFM drops the cells past the first row's.
      */
     static int countCells(String row) {
-        var text = row.strip();
+        var start = 0;
+        var end = row.length();
+        while (start < end && Character.isWhitespace(row.charAt(start))) {
+            start++;
+        }
+        while (end > start && Character.isWhitespace(row.charAt(end - 1))) {
+            end--;
+        }
         var pipes = 0;
         var lastPipe = -1;
-        var i = 0;
-        while (i < text.length()) {
-            var c = text.charAt(i);
+        var i = start;
+        while (i < end) {
+            var c = row.charAt(i);
             if (c == '|') {
                 pipes++;
                 lastPipe = i;
             }
             // GFM escapes a pipe only: a backslash before anything else is a character of the cell
-            i += c == '\\' && i + 1 < text.length() && text.charAt(i + 1) == '|' ? 2 : 1;
+            i += c == '\\' && i + 1 < end && row.charAt(i + 1) == '|' ? 2 : 1;
         }
         var cells = pipes + 1;
-        if (text.startsWith("|")) {
+        if (start < end && row.charAt(start) == '|') {
             cells--;
         }
-        if (lastPipe > 0 && lastPipe == text.length() - 1) {
+        if (lastPipe > start && lastPipe == end - 1) {
             cells--;
         }
         return cells;
