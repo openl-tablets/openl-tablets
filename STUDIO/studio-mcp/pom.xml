@@ -113,7 +113,7 @@
                                     <directory>dist</directory>
                                     <targetPath>mcp</targetPath>
                                     <includes>
-                                        <include>index.mjs</include>
+                                        <include>*.mjs</include>
                                     </includes>
                                 </resource>
                                 <!-- The libraries the bundle ships, which the war serves under /licenses for the

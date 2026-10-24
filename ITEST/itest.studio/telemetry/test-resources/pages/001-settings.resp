@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "serviceName": "OpenL-ITest-ui",
+  "attributes": {
+    "deployment.environment": "itest"
+  },
+  "traces": true,
+  "metrics": true
+}

@@ -74,8 +74,10 @@ Mount volumes on `OPENL_HOME` and `OPENL_HOME_SHARED` to keep the data between r
 
 A `JAVA_OPTS` value replaces the default. `OTEL_SERVICE_NAME`, `SERVICE_VERSION` and `ENVIRONMENT` also fill the
 fields of the `ecs` log format. Any variable that starts with `OTEL_EXPORTER_` turns OpenTelemetry on, and
-`OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false` turns off the tracing of OpenL rules. `LOGGING_FORMAT` takes these
-values:
+`OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false` turns off the tracing of OpenL rules. In the OpenL Studio image the
+same variables drive the telemetry of its MCP server and of its pages in the browser, reported as the services
+`<OTEL_SERVICE_NAME>-mcp` and `<OTEL_SERVICE_NAME>-ui` (see
+[Tracing with OpenTelemetry](integration-guides/opentelemetry.md)). `LOGGING_FORMAT` takes these values:
 
 - **`ecs`** — JSON lines in the Elastic Common Schema on the standard output.
 - **`plain`** — text lines on the standard output.

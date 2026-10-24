@@ -1,0 +1,7 @@
+HTTP/1.1 415 Unsupported Media Type
+Content-Type: application/json
+
+{
+  "code": "openl.error.415.default.message",
+  "message": "***"
+}

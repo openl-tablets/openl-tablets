@@ -298,11 +298,18 @@ OpenL Studio and where the server keeps its state; the
 
 - `mvn install -pl STUDIO/studio-mcp` installs Node.js and npm of the root `pom.xml`, runs `npm install`, `npm run build`
   and `npm test`, and packs the server into the non-public `mcp/` folder of the jar: `index.mjs`, an ES module
-  Node.js runs without a `package.json`. The OpenL Studio war unpacks it into `WEB-INF/mcp`, and `McpServerProcess`
-  of `studio-backend` runs `WEB-INF/mcp/index.mjs`.
+  Node.js runs without a `package.json`, and the `*.mjs` chunks it imports. The OpenL Studio war unpacks it into
+  `WEB-INF/mcp`, and `McpServerProcess` of `studio-backend` runs `WEB-INF/mcp/index.mjs`.
 - `npm run build` type-checks `src`, the tests included, with `tsc`, which emits nothing, and Rolldown
-  (`rolldown.config.js`) bundles `src/index.ts` with the code it takes of the production dependencies into one
-  minified `dist/index.mjs`. The name, version and description of `package.json` go into the bundle.
+  (`rolldown.config.js`) bundles `src/index.ts` with the code it takes of the production dependencies into a
+  minified `dist/index.mjs`. A module imported with `await import()` becomes a chunk of its own beside it,
+  `<name>-<hash>.mjs`, which Node.js loads only when the server imports it. The name, version and description of
+  `package.json` go into the bundle.
+- The `requires` plugin of the bundler (`src/build-requires.ts`) bundles the packages a dependency loads with a
+  `require` of its own (`__require("<package>")`, made by `createRequire`), which the bundler would leave for Node.js
+  to find in a `node_modules` folder the war does not carry: the OpenTelemetry SDK loads `forwarded-parse` and
+  `@grpc/grpc-js` so. A call that still loads a package at run time works only in `dist/` of the module, where
+  `node_modules` is found, so `ITEST/itest.studio/telemetry` checks the bundle inside OpenL Studio.
 - The `skills` plugin of the bundler (`src/build-skills.ts`) embeds the skills of `skills/` in the bundle as the module
   `virtual:skills`; `vitest.config.js` applies it too, so the tests import the skills the bundle carries. A skill the
   Agent Skills specification or the limits of the extension refuse fails the build. `yaml` reads the frontmatter at
@@ -330,6 +337,13 @@ OpenL Studio and where the server keeps its state; the
   `npm run build && HOST=127.0.0.1 PORT=3001 node dist/index.mjs`, then connect a client to
   `http://127.0.0.1:3001/mcp` with the header `OpenL-Base-Url: http://localhost:8080`. Inside OpenL Studio, every
   other variable of the environment of Studio reaches the server.
+- OpenTelemetry is off unless `OTEL_SDK_DISABLED=false`, which OpenL Studio sets when it sends traces or metrics itself
+  (`OtelEnvironment` of `studio-backend`). A failure to start the SDK is logged, and the server runs without it.
+  `src/testing/otlp-collector.ts` is a collector the tests of the telemetry send to. Outside Studio, add it and a
+  collector: `OTEL_SDK_DISABLED=false OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318 node dist/index.mjs`, or
+  `OTEL_TRACES_EXPORTER=console` to print the spans. `telemetry.ts` is imported with `await import()` only, so the SDK
+  stays a chunk of its own; anything else reaches OpenTelemetry through `@opentelemetry/api` alone, as
+  `tool-telemetry.ts` does.
 - A browser-based inspector needs its origin in `cors.allowed.origins` of OpenL Studio.
 
 ### Code quality
@@ -366,7 +380,8 @@ OpenL Studio and where the server keeps its state; the
 - Read the requests a test sent from `mockHttp.history` (`bodyOf` parses a JSON body) instead of capturing them in a
   reply callback; check that no request was sent by the length of the history.
 - `tsc` of `npm run build` checks the tests as it checks the rest of `src/`: a type error in a test fails the build.
-- `ITEST/itest.studio/mcp` runs the server inside OpenL Studio, behind its security and its `/mcp` servlet.
+- `ITEST/itest.studio/mcp` runs the server inside OpenL Studio, behind its security and its `/mcp` servlet;
+  `ITEST/itest.studio/telemetry` checks the spans and the metrics it sends to a collector.
 
 ### Skills
 

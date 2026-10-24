@@ -32,6 +32,14 @@ class ChangeOriginFilterTest {
                 new MockFilterChain());
     }
 
+    /** A POST the REST API serves at the given path, written by the client as the given address. */
+    private void handleRest(String uri, String pathInfo) throws Exception {
+        var request = new MockHttpServletRequest(servletContext, "POST", uri);
+        request.setServletPath("/rest");
+        request.setPathInfo(pathInfo);
+        filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+    }
+
     @Test
     void marks_the_client_of_a_change_as_a_recent_writer() throws Exception {
         handle("PATCH", "/rest/projects/p1");
@@ -56,6 +64,23 @@ class ChangeOriginFilterTest {
         handle("GET", "/rest/projects");
 
         verify(changeOrigin, never()).remember(any());
+    }
+
+    @Test
+    void the_telemetry_of_a_page_marks_nobody() throws Exception {
+        // A page posts it every few seconds: marking it would keep the session a recent writer for good, and no tab
+        // would ever recognise the echo of its own change.
+        handleRest("/rest/telemetry/v1/traces", "/telemetry/v1/traces");
+
+        verify(changeOrigin, never()).remember(any());
+    }
+
+    @Test
+    void a_change_addressed_through_the_telemetry_path_is_still_marked() throws Exception {
+        // The container resolves the dot segments: the REST API serves a change of the project
+        handleRest("/rest/telemetry/v1/../../projects/p1", "/projects/p1");
+
+        verify(changeOrigin, times(2)).remember(any());
     }
 
     @Test

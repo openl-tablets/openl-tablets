@@ -11,7 +11,9 @@ End-to-end tests for OpenL Rule Services and OpenL Studio using Docker, TestCont
 - **itest.studio/** — OpenL Studio E2E tests split into independent per-suite modules (parallelizable with `-T 1C`)
 - **itest.kafka.smoke** — Kafka integration, with services deployed from a folder and from a zip archive
 - **itest.s3** — S3 storage
-- **itest.tracing** — OpenTelemetry
+- **itest.tracing** — OpenTelemetry of Rule Services, through the Java agent
+- **itest.studio/telemetry** — OpenTelemetry of the OpenL Studio pages and MCP server: the build passes the `OTEL_*`
+  variables to the test JVM, with the address of a collector the test runs on a port the build reserves
 - **itest.storelogdata** — Audit logging
 - **itest.healthchecks** — Health check endpoints
 - **itest.spring-boot** — Spring Boot integration

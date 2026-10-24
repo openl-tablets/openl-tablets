@@ -1,0 +1,36 @@
+POST /rest/telemetry/v1/traces HTTP/1.1
+Content-Type: application/json
+
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "OpenL-ITest" } },
+          { "key": "deployment.environment", "value": { "stringValue": "itest" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "@opentelemetry/browser-instrumentation/fetch" },
+          "spans": [
+            {
+              "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+              "spanId": "00f067aa0ba902b7",
+              "name": "GET",
+              "kind": 3,
+              "startTimeUnixNano": "1761292800000000000",
+              "endTimeUnixNano": "1761292800120000000",
+              "attributes": [
+                { "key": "http.request.method", "value": { "stringValue": "GET" } },
+                { "key": "url.full", "value": { "stringValue": "http://localhost/rest/projects" } },
+                { "key": "http.response.status_code", "value": { "intValue": 200 } }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

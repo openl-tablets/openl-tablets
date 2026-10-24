@@ -5,8 +5,7 @@
  * so a branch reads as protected in the forms exactly when the server would refuse a direct commit to it.
  */
 
-/** Escapes one character so it matches itself inside a regular expression. */
-const escapeRegExpChar = (char: string): string => char.replace(/[.*+?^${}()|[\]\\/]/g, String.raw`\$&`)
+import { escapeRegExp } from './escapeRegExp'
 
 /** Translates a `[...]` set, returning the regex chunk and how many characters it consumed. */
 const translateClass = (glob: string, start: number): [string, number] => {
@@ -23,7 +22,7 @@ const translateClass = (glob: string, start: number): [string, number] => {
     }
     if (end >= glob.length) {
         // No closing bracket: the '[' stands for itself.
-        return [escapeRegExpChar('['), 1]
+        return [escapeRegExp('['), 1]
     }
     const inner = glob.slice(start + 1, end)
     const negated = inner.startsWith('!')
@@ -43,7 +42,7 @@ const translateToken = (glob: string, index: number): [string, number] => {
     const char = glob[index] ?? ''
     const nextChar = glob[index + 1]
     if (char === '\\') {
-        return nextChar ? [escapeRegExpChar(nextChar), 2] : ['\\\\', 1]
+        return nextChar ? [escapeRegExp(nextChar), 2] : ['\\\\', 1]
     }
     if (char === '*') {
         return nextChar === '*' ? ['.*', 2] : ['[^/]*', 1]
@@ -54,7 +53,7 @@ const translateToken = (glob: string, index: number): [string, number] => {
     if (char === '[') {
         return translateClass(glob, index)
     }
-    return [escapeRegExpChar(char), 1]
+    return [escapeRegExp(char), 1]
 }
 
 /**

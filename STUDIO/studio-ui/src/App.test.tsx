@@ -6,6 +6,7 @@ import App from './App'
 import { EXECUTION_EDITOR_NAVIGATION } from './services/executionWindow'
 
 const navigate = vi.hoisted(() => vi.fn())
+const startTelemetry = vi.hoisted(() => vi.fn())
 
 interface Profile {
     username: string
@@ -51,6 +52,7 @@ vi.mock('./services', () => ({ CONFIG: { CONTEXT: '/webstudio' } }))
 vi.mock('./legacy', () => ({}))
 vi.mock('./App.styles.ts', () => ({ AppStyles: () => null }))
 vi.mock('./services/popups', () => ({ PopupsBridge: () => null }))
+vi.mock('./services/telemetry', () => ({ startTelemetry }))
 vi.mock('./providers/SecurityProvider', () => ({
     SecurityProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }))
@@ -100,6 +102,12 @@ describe('App profile completion', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Save profile' }))
 
         expect(appState.fetchUserInfo).toHaveBeenCalledTimes(2)
+    })
+
+    it('starts the telemetry of the page once the user is signed in', () => {
+        render(<App />)
+
+        expect(startTelemetry).toHaveBeenCalledTimes(1)
     })
 
     it('does not prompt after a complete profile is loaded', () => {
@@ -152,6 +160,7 @@ describe('App sign-in', () => {
         expect(reload).toHaveBeenCalledTimes(1)
         expect(replace).not.toHaveBeenCalled()
         expect(screen.queryByTestId('router')).not.toBeInTheDocument()
+        expect(startTelemetry).not.toHaveBeenCalled()
     })
 
     it('opens the login page when the reload brings the page back signed out', () => {

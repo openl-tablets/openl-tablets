@@ -28,6 +28,8 @@ import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
 import org.openl.info.OpenLVersion;
+import org.openl.studio.telemetry.OtelEnvironment;
+import org.openl.studio.telemetry.OtelEnvironment.Signal;
 
 /**
  * Runs the MCP server built into OpenL Studio.
@@ -172,12 +174,19 @@ class McpServerProcess implements SmartLifecycle, DisposableBean {
      *
      * <p>{@code NODE_USE_ENV_PROXY} is removed: with it, Node.js would send the calls to Studio through the proxy of the
      * environment instead of to the loopback interface.
+     *
+     * <p>The server sends OpenTelemetry data when OpenL Studio sends traces or metrics ({@code OTEL_SDK_DISABLED}), as
+     * the service of OpenL Studio with the suffix {@code -mcp} ({@code OTEL_SERVICE_NAME}). The other {@code OTEL_*}
+     * variables reach it as they are.
      */
     void configure(Map<String, String> env) {
         env.remove("NODE_USE_ENV_PROXY");
         env.put("PORT", "0");
         env.put("HOST", LOOPBACK);
         env.put("OPENL_VERSION", OpenLVersion.getVersion());
+        var otel = new OtelEnvironment(env);
+        env.put("OTEL_SDK_DISABLED", String.valueOf(!otel.sends(Signal.TRACES) && !otel.sends(Signal.METRICS)));
+        env.put("OTEL_SERVICE_NAME", otel.serviceName("-mcp"));
     }
 
     private static void pipe(BufferedReader output, Consumer<String> logger) {

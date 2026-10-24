@@ -97,7 +97,8 @@ From Spring Boot it takes only the condition annotations of `spring-boot-autocon
   never deployed to a remote repository, so the war depends on it as `optional` and copies it into `WEB-INF/lib`
   itself. Its tests validate the guides — see [`Docs/AGENTS.md`](../Docs/AGENTS.md)
 - **studio-mcp/** — the built-in MCP server, in TypeScript (see `studio-mcp/AGENTS.md`). Its jar carries
-  the server, bundled with its dependencies into one file, in a non-public `mcp/` folder; never deployed to a remote
+  the server, bundled with its dependencies into `index.mjs` and the chunks it loads on demand, in a non-public `mcp/`
+  folder; never deployed to a remote
   repository, so the war depends on it as `optional` and unpacks the folder into `WEB-INF/mcp`. `McpServerProcess`
   (`org.openl.studio.mcp`) runs it with Node.js on the loopback interface, and `McpProxyServlet` serves it at `/mcp`
 

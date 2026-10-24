@@ -3,6 +3,7 @@ import { SERVER_INFO, mcpToolName } from "./constants.js";
 import { registerAllTools, getAllTools, executeTool } from "./handlers/index.js";
 import type { OpenLClient } from "./client.js";
 import { SKILLS_EXTENSION, registerSkills, SKILLS_OVERVIEW } from "./skills.js";
+import { traceToolCall } from "./tool-telemetry.js";
 
 /**
  * The schema a tool is registered with: it publishes the JSON Schema of the tool as it is, and passes the arguments
@@ -69,11 +70,11 @@ export function createConfiguredServer(client: OpenLClient): McpServer {
     server.registerTool(
       wireName,
       config,
-      (args, ctx) => executeTool(name, args, client, {
+      (args, ctx) => traceToolCall(wireName, () => executeTool(name, args, client, {
         signal: ctx.mcpReq.signal,
         _meta: ctx.mcpReq._meta,
         sendNotification: (notification) => ctx.mcpReq.notify(notification),
-      }),
+      })),
     );
   }
   registerSkills(server);

@@ -1,0 +1,2 @@
+GET /rest/telemetry HTTP/1.1
+

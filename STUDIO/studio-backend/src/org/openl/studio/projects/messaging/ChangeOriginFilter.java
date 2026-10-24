@@ -10,6 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import org.openl.rules.webstudio.web.servlet.SpringInitializer;
+import org.openl.rules.webstudio.web.servlet.StudioDispatcherServlet;
+import org.openl.studio.telemetry.rest.controller.TelemetryController;
 
 /**
  * Marks the client of every request that changes something as a recent writer, so the changes that
@@ -19,6 +21,8 @@ import org.openl.rules.webstudio.web.servlet.SpringInitializer;
  * watcher, the repository index — runs on its own thread, where the request is long gone. The mark
  * is taken when the request starts and again when it ends, so a slow write stays attributable for
  * the whole time its consequences are still arriving.
+ *
+ * <p>A request that is no GET but changes nothing by design, the telemetry a page posts, marks nobody.
  *
  * <p>A filter rather than a handler interceptor: the writes come from every mount of the
  * application — the REST API an integration or an MCP server calls, and the top-level servlets, which
@@ -35,7 +39,7 @@ public class ChangeOriginFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
-        if (HttpMethod.GET.matches(request.getMethod())) {
+        if (HttpMethod.GET.matches(request.getMethod()) || isTelemetry(request)) {
             chain.doFilter(request, response);
             return;
         }
@@ -46,6 +50,19 @@ public class ChangeOriginFilter extends OncePerRequestFilter {
         } finally {
             changeOrigin.remember(request);
         }
+    }
+
+    /**
+     * Whether the request posts the telemetry of a page. It changes nothing, and a page posts it every few seconds,
+     * which would keep its session a recent writer for good: no tab of it would recognise the echo of its own change.
+     *
+     * <p>The path is the decoded and normalized one the REST API is served by, never the address as the client wrote
+     * it: a change addressed through {@code /rest/telemetry/v1/../../} is still marked.
+     */
+    private static boolean isTelemetry(HttpServletRequest request) {
+        var pathInfo = request.getPathInfo();
+        return StudioDispatcherServlet.REST_PATH.equals(request.getServletPath()) && pathInfo != null
+                && pathInfo.startsWith(TelemetryController.RELAY_PATH);
     }
 
     /**

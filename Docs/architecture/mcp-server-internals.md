@@ -32,10 +32,19 @@ All paths are under `STUDIO/studio-mcp/src`.
 - **`transfer-links.ts`** — the links a file tool answers instead of the bytes of a file: a transfer link Studio
   issues where it authenticates, the address of the REST API in single-user mode, with where the file lives in its
   repository and a `curl` command ([MCP File Transfer Links](mcp-file-transfer.md)).
-- **Build time** — `rolldown.config.js` of the module bundles the server and its dependencies into one minified ES
-  module, `dist/index.mjs`; `build-licenses.ts`, a plugin of the bundler, lists the libraries the bundle ships in
-  `dist/mcp-licenses.json`, and `build-skills.ts`, another, embeds the skills of `STUDIO/studio-mcp/skills` as the
-  module `virtual:skills`, which the tests import through the same plugin.
+- **`telemetry.ts`**, **`tool-telemetry.ts`** — OpenTelemetry. `index.ts` loads `telemetry.ts`, the OpenTelemetry SDK
+  for Node.js with the instrumentation of `node:http` and of `fetch`, only when `OTEL_SDK_DISABLED` is `false`, and
+  stops it on `SIGTERM`, so the buffered telemetry is sent. A failure to start it is logged, and the server runs
+  without telemetry. `tool-telemetry.ts` wraps every tool call in a span
+  `tools/call <tool>` and records `mcp.server.operation.duration`, through the OpenTelemetry API, which does nothing
+  without the SDK.
+- **Build time** — `rolldown.config.js` of the module bundles the server and its dependencies into minified ES modules:
+  `dist/index.mjs`, and beside it a chunk for each module the server imports only when it needs it, such as the
+  OpenTelemetry SDK; `build-requires.ts`, a plugin of the bundler, bundles the packages a dependency loads with a
+  `require` of its own instead of leaving them to a `node_modules` folder the war does not carry; `build-licenses.ts`, a
+  plugin of the bundler, lists the libraries the bundle ships in `dist/mcp-licenses.json`, and `build-skills.ts`,
+  another, embeds the skills of `STUDIO/studio-mcp/skills` as the module `virtual:skills`, which the tests import
+  through the same plugin.
 
 ## The Path of a Request
 
@@ -137,6 +146,9 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 - Studio sets `PORT` to `0`, `HOST` and `OPENL_VERSION`, the version the server reports in `serverInfo`, and removes
   `NODE_USE_ENV_PROXY`, which would send the calls to Studio through the proxy of the environment; every other variable,
   `NODE_OPTIONS` included, comes from the environment of Studio.
+- Studio sets `OTEL_SDK_DISABLED` to `false` when it sends traces or metrics itself, by the rule of `OtelEnvironment`,
+  and to `true` otherwise, and `OTEL_SERVICE_NAME` to its own service name with the suffix `-mcp`. The other `OTEL_*`
+  variables of its environment reach the server as they are.
 - The output of the server lands in the `org.openl.studio.mcp.node` logger: standard output as INFO, standard error
   as WARN.
 
