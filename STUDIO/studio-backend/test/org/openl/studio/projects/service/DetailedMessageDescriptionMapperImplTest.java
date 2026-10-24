@@ -17,7 +17,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
@@ -36,6 +36,9 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.CompositeSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.studio.projects.model.project.status.ModuleMessageSource;
 import org.openl.studio.projects.model.project.status.TableMessageSource;
 import org.openl.syntax.ISyntaxNode;
@@ -83,27 +86,36 @@ class DetailedMessageDescriptionMapperImplTest {
         return message;
     }
 
-    /** A compilation error raised about a piece of a rule, the way the compiler reports one. */
-    private static OpenLMessage errorAbout(String sourceLocation, String code, int from, int to) {
-        var error = mock(OpenLException.class);
-        when(error.getSourceLocation()).thenReturn(sourceLocation);
-        when(error.getSourceCode()).thenReturn(code);
-        when(error.getLocation()).thenReturn(LocationUtils.createTextInterval(from, to));
-        return new OpenLErrorMessage(error);
+    /** The URI of a cell of column C of the workbook the tables of these tests are in. */
+    private static String cellC(int row) {
+        return "file:/wb.xlsx?sheet=Sheet1&cell=C" + row;
     }
 
-    /** A table of one cell, holding the given text at C5. */
-    private TableSyntaxNode tableHolding(String text) {
-        var cell = mock(ICell.class);
-        when(cell.getStringValue()).thenReturn(text);
+    /**
+     * A compilation error raised about a piece of the rule a cell at C5 holds after its '=', the way the compiler
+     * reports one: the piece ends at its last character.
+     */
+    private static OpenLMessage errorAbout(String cellText, int from, int to) {
+        var rule = new SubTextSourceCodeModule(new StringSourceCodeModule(cellText, cellC(5)), 1);
+        var location = LocationUtils.createTextInterval(from, to);
+        return new OpenLErrorMessage(new OpenLCompilationException("Error", null, location, rule));
+    }
+
+    /** A table of column C, holding the given texts from C5 down. */
+    private TableSyntaxNode tableHolding(String... texts) {
         var grid = mock(IGrid.class);
-        when(grid.getCell(2, 4)).thenReturn(cell);
+        for (var i = 0; i < texts.length; i++) {
+            var cell = mock(ICell.class);
+            when(cell.getStringValue()).thenReturn(texts[i]);
+            when(grid.getCell(2, 4 + i)).thenReturn(cell);
+        }
         var gridTable = mock(IGridTable.class);
         when(gridTable.getGrid()).thenReturn(grid);
         var node = mock(TableSyntaxNode.class);
         when(node.getId()).thenReturn("n1");
         when(node.getGridTable()).thenReturn(gridTable);
-        when(node.getUriParser()).thenReturn(new XlsUrlParser("file:/wb.xlsx?sheet=Sheet1&range=C5:C5"));
+        when(node.getUriParser())
+                .thenReturn(new XlsUrlParser("file:/wb.xlsx?sheet=Sheet1&range=C5:C" + (4 + texts.length)));
         when(model.getAllTableSyntaxNodes()).thenReturn(Set.of(node));
         return node;
     }
@@ -112,8 +124,7 @@ class DetailedMessageDescriptionMapperImplTest {
     void aMessageNamesThePieceOfTheCellItIsAbout() {
         tableHolding("=BlaBla+100");
 
-        var result = mapper.mapSorted(
-                List.of(errorAbout("file:/wb.xlsx?sheet=Sheet1&range=C5:C5", "BlaBla+100", 0, 5)), model);
+        var result = mapper.mapSorted(List.of(errorAbout("=BlaBla+100", 0, 5)), model);
 
         // The screen draws the cell, so only where the piece begins and ends crosses the wire — counted in the
         // cell's own text, which the '=' of a spreadsheet step begins one character before the rule.
@@ -125,9 +136,8 @@ class DetailedMessageDescriptionMapperImplTest {
     @Test
     void aMessageAboutAWholeRuleMarksAllOfItInTheCell() {
         tableHolding("=BlaBla+100");
-        var error = mock(OpenLException.class);
-        when(error.getSourceLocation()).thenReturn("file:/wb.xlsx?sheet=Sheet1&range=C5:C5");
-        when(error.getSourceCode()).thenReturn("BlaBla+100");
+        var rule = new SubTextSourceCodeModule(new StringSourceCodeModule("=BlaBla+100", cellC(5)), 1);
+        var error = new OpenLCompilationException("Error", null, null, rule);
 
         var result = mapper.mapSorted(List.of(new OpenLErrorMessage(error)), model);
 
@@ -139,17 +149,10 @@ class DetailedMessageDescriptionMapperImplTest {
     @Test
     void aWarningNamesThePieceOfTheCellItWasRaisedAbout() {
         tableHolding("Bonus > limit");
-        var module = mock(IOpenSourceCodeModule.class);
-        when(module.getCode()).thenReturn("Bonus > limit");
         var node = mock(ISyntaxNode.class);
-        when(node.getModule()).thenReturn(module);
+        when(node.getModule()).thenReturn(new StringSourceCodeModule("Bonus > limit", cellC(5)));
         when(node.getSourceLocation()).thenReturn(LocationUtils.createTextInterval(0, 4));
-        var warning = new OpenLWarnMessage("deprecated", node) {
-            @Override
-            public String getSourceLocation() {
-                return "file:/wb.xlsx?sheet=Sheet1&range=C5:C5";
-            }
-        };
+        var warning = new OpenLWarnMessage("deprecated", node);
 
         var result = mapper.mapSorted(List.of(warning), model);
 
@@ -162,11 +165,39 @@ class DetailedMessageDescriptionMapperImplTest {
     void aMessageTheCellNoLongerSpellsOutMarksNothing() {
         tableHolding("=Something else");
 
-        var result = mapper.mapSorted(
-                List.of(errorAbout("file:/wb.xlsx?sheet=Sheet1&range=C5:C5", "BlaBla+100", 0, 5)), model);
+        var result = mapper.mapSorted(List.of(errorAbout("=BlaBla+100", 0, 5)), model);
 
         var location = (TableMessageSource) result.getFirst().location();
         assertNull(location.start(), "a rule that is not what the cell says has nothing to mark in it");
+    }
+
+    @Test
+    void aMessageInAMethodBodyMarksThePieceInTheCellThatHoldsIt() {
+        tableHolding("int a = 1;\nint b = 2;", "return format(a);");
+        var body = new CompositeSourceCodeModule(new IOpenSourceCodeModule[]{
+                new StringSourceCodeModule("int a = 1;\nint b = 2;", cellC(5)),
+                new StringSourceCodeModule("return format(a);", cellC(6))}, "\n");
+        // "format(a)" on the third line of the body, which is the first line of the second cell.
+        var error = new OpenLCompilationException("Error", null, LocationUtils.createTextInterval(29, 37), body);
+
+        var result = mapper.mapSorted(List.of(new OpenLErrorMessage(error)), model);
+
+        var location = (TableMessageSource) result.getFirst().location();
+        assertEquals("C6", location.cell());
+        assertEquals(7, location.start());
+        assertEquals(16, location.end());
+    }
+
+    @Test
+    void aMessageAboutABlankCellMarksNothing() {
+        tableHolding("   ");
+        var error = new OpenLCompilationException("Error", null, null, new StringSourceCodeModule("   ", cellC(5)));
+
+        var result = mapper.mapSorted(List.of(new OpenLErrorMessage(error)), model);
+
+        var location = (TableMessageSource) result.getFirst().location();
+        assertNull(location.start());
+        assertNull(location.end());
     }
 
     @Test

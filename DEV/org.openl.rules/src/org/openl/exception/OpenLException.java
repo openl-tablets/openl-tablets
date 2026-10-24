@@ -1,5 +1,8 @@
 package org.openl.exception;
 
+import org.jspecify.annotations.Nullable;
+
+import org.openl.source.SourceRange;
 import org.openl.util.text.ILocation;
 
 public interface OpenLException {
@@ -28,5 +31,14 @@ public interface OpenLException {
      * @return source location URI
      */
     String getSourceLocation();
+
+    /**
+     * Gets the piece of the source the error is about, such as a part of the text of a cell.
+     *
+     * @return the piece, or {@code null} when the error points at no source
+     */
+    default @Nullable SourceRange getSourceRange() {
+        return null;
+    }
 
 }

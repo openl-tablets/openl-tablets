@@ -2,6 +2,9 @@ package org.openl.message;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.jspecify.annotations.Nullable;
+
+import org.openl.source.SourceRange;
 import org.openl.util.StringUtils;
 
 /**
@@ -72,6 +75,15 @@ public class OpenLMessage {
     }
 
     public String getSourceLocation() {
+        return null;
+    }
+
+    /**
+     * Gets the piece of the source the message is about, such as a part of the text of a cell.
+     *
+     * @return the piece, or {@code null} when the message points at no source
+     */
+    public @Nullable SourceRange getSourceRange() {
         return null;
     }
 

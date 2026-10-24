@@ -10,6 +10,7 @@ import lombok.Getter;
 
 import org.openl.binding.IBoundNode;
 import org.openl.main.SourceCodeURLTool;
+import org.openl.source.SourceRange;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.text.ILocation;
 
@@ -31,6 +32,8 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
     private final String sourceLocation;
     @Getter
     private final String sourceCode;
+    @Getter
+    private final SourceRange sourceRange;
 
     public OpenLRuntimeException() {
         this(null, null, null);
@@ -74,6 +77,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
         this.sourceCode = module == null ? null : module.getCode();
         this.location = syntaxNode == null ? null : syntaxNode.getSourceLocation();
         this.sourceLocation = syntaxNode == null ? null : SourceCodeURLTool.makeSourceLocationURL(location, module);
+        this.sourceRange = module == null ? null : SourceCodeURLTool.rangeOf(location, module);
     }
 
     private static ISyntaxNode syntaxNodeOf(IBoundNode node) {
