@@ -28,7 +28,7 @@ To create project tags, proceed as follows:
     | Column         | Description                                                                                                                                                                   |
     |----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
     | **Extensible** | When selected, any user can create new tag values for this tag type. When cleared, only an administrator can add values, and a project carrying another value gets a warning. |
-    | **Nullable**   | When selected, a project may have no value for this tag type. When cleared, a project without a value gets a warning.                                                         |
+    | **Required**   | When selected, a project must have a value for this tag type, and a project without one gets a warning. When cleared, the tag type is optional.                               |
 
 4.  To delete a tag type, click the **Delete** icon in the **Actions** column of the tag type row and confirm the deletion.
 
