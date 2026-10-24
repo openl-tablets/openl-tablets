@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.openl.rules.project.migration.RulesXmlMigrations;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -47,7 +46,7 @@ public final class ConfigProjectDefaultModulesMigrator implements Migrator {
     }
 
     @Override
-    public List<Path> migrate(Path sourceFolder, Supplier<Class<?>> generatedInterface) throws IOException {
+    public List<Path> migrate(Path sourceFolder, MigrationContext context) throws IOException {
         var files = projectFiles(sourceFolder);
         return ConfigProjectIO.roundtrip(this, sourceFolder, descriptor -> transformAndGuard(descriptor, files));
     }

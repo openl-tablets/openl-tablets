@@ -122,7 +122,9 @@ from Maven.
 
 * **The functions `format`, `dateToString`, `stringToDate`, `parseFormattedDouble`, `addIgnoreNull` and
   `addArrayElementIgnoreNull` are removed.** A rule that still calls one of them no longer compiles, for example with
-  `Method 'format(java.lang.Double)' is not found.` Rewrite the call:
+  `Method 'format(java.lang.Double)' is not found.` The `openl:migrate` goal of the OpenL Maven plugin rewrites such
+  calls in the workbooks of a project, choosing the replacement by the types of the arguments. Otherwise, rewrite the
+  call:
 
   - **`format(amount)`** — `toString(amount, "#,##0.00")`
   - **`format(amount, pattern)`** — `toString(amount, pattern)`
@@ -133,9 +135,10 @@ from Maven.
   - **`addIgnoreNull(array, element)`** — `element == null ? array : add(array, element)`
   - **`addIgnoreNull(array, index, element)`** — `element == null ? array : addElement(array, index, element)`
 
-  `addArrayElementIgnoreNull` takes the same arguments as `addIgnoreNull` and is rewritten the same way. The
-  `DEFAULT_DOUBLE_FORMAT` constant is removed with them, so write its pattern `"#,##0.00"` instead. Check the
-  rewritten rules for these differences:
+  `addArrayElementIgnoreNull` takes the same arguments as `addIgnoreNull` and is rewritten the same way. The rewrite
+  writes the array and the element twice, so `openl:migrate` leaves a call where one of them is computed by another
+  call, such as `addIgnoreNull(names, lookup(id))`: that call would run twice. The `DEFAULT_DOUBLE_FORMAT` constant is
+  removed with them, so write its pattern `"#,##0.00"` instead. Check the rewritten rules for these differences:
 
   - The removed functions wrote and read numbers and dates in the language of the server. The replacements always use
     US English: a comma groups the digits, a point starts the fraction and month names are English. On a German server,
@@ -146,8 +149,9 @@ from Maven.
     for `toString(amount, pattern)` with an invalid pattern, and for `toDate` and `toNumber` with a text they cannot
     read. `toDate` and `toNumber` also need the whole text to be a date or a number: `toNumber("12abc")` is empty,
     while `parseFormattedDouble("12abc")` read `12`.
-  - `parseFormattedDouble(text, pattern)` has no direct replacement. `toNumber` reads the comma that groups the
-    digits. Remove other symbols of the pattern first, such as a currency sign: `toNumber(replace(text, "$", ""))`.
+  - `parseFormattedDouble(text, pattern)` has no direct replacement, so `openl:migrate` leaves it. `toNumber` reads
+    the comma that groups the digits. Remove other symbols of the pattern first, such as a currency sign:
+    `toNumber(replace(text, "$", ""))`.
 
 * **A number in a formula is written in digits only.** The `$` sign, the thousands separator and the `K`, `M`, `B`
   multipliers are removed from formulas, because they read differently across countries and `$` also starts a

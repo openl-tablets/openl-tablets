@@ -59,6 +59,8 @@ class MigrateMojoSelectionTest {
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.deploy.template-class"))));
         assertEquals(ids("groovy.jakarta"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("groovy.jakarta"))));
+        assertEquals(ids("rules.removed-functions"),
+                ids(MigrateMojo.selectMigrators(ALL, List.of("rules.removed-functions"))));
     }
 
     @Test
@@ -78,6 +80,8 @@ class MigrateMojoSelectionTest {
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config"))));
         assertEquals(ids("groovy.jakarta"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("groovy"))));
+        assertEquals(ids("rules.removed-functions"),
+                ids(MigrateMojo.selectMigrators(ALL, List.of("rules"))));
     }
 
     @Test
@@ -87,9 +91,9 @@ class MigrateMojoSelectionTest {
         assertEquals(ids("config.empty-tag",
                         "config.project.classpath",
                         "config.project.cw-processor",
+                        "groovy.jakarta",
                         "config.project.method-filter",
-                        "config.project.default-modules",
-                        "groovy.jakarta"),
+                        "config.project.default-modules"),
                 ids(MigrateMojo.selectMigrators(ALL, List.of("config.empty-tag", "config.project", "groovy"))));
     }
 
@@ -179,11 +183,12 @@ class MigrateMojoSelectionTest {
         return List.of("config.empty-tag",
                 "config.project.classpath",
                 "config.project.cw-processor",
+                "groovy.jakarta",
+                "rules.removed-functions",
                 "config.project.method-filter",
                 "config.project.default-modules",
                 "config.deploy.runtime-context",
-                "config.deploy.template-class",
-                "groovy.jakarta");
+                "config.deploy.template-class");
     }
 
     private static List<String> allConfigIds() {

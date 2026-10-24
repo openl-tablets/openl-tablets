@@ -45,7 +45,7 @@ Integrates OpenL rules compilation into the Maven lifecycle.
 | `generate`      | `generate-sources` | Generate Java interfaces and datatype classes from rules      |
 | `package`       | `package`          | Package rules as a ZIP artifact for deployment                |
 | `deploy`        | `deploy`           | Deploy the packaged artifact to an OpenL Tablets repository   |
-| `migrate`       |                    | Migrates or modernizes OpenL Project and Maven modules        |
+| `migrate`       |                    | Migrates or modernizes OpenL Project and Maven modules [3]    |
 | `prepare-bom`   | `package`          | Generates BOM with all OpenL projects [1]                     |
 | `prepare-pom`   | `validate`         | Writes `openl-pom.xml` for install/deploy [1]                 |
 | `pomless`       |                    | Converts classic pom-ful OpenL projects to pom-less [2]       |
@@ -59,6 +59,8 @@ Notes:
   `<dependenciesThreshold>`, and hoist non-OpenL deps, then prunes the converted modules from `<modules>`. Blocked
   projects (per-project config other than `dependenciesThreshold`/`deploymentPackage`, executions, profiles, …) are
   left untouched and reported. Pom edits re-serialise the model — review the diff.
+- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy scripts and rules that call removed functions, one commit
+  per step. `mvn openl:help -Dgoal=migrate -Ddetail` lists the steps; `-Dopenl.migrate.migrators=<id>` selects them.
 
 > [!Note]
 > `generate` creates a Java interface from the project's `<exposed-methods>` filter, for type-safe rule invocation.

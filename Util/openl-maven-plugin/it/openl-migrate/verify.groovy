@@ -10,6 +10,8 @@ try {
     //   * has a <method-filter> on the module.
     // After migration every default-restating element disappears, leaving only the synthesised
     // <exposed-methods> derived from the previous <method-filter>.
+    // rules/Format.xlsx calls the removed format() function with a Double and with a Date. Its test tables check
+    // the rewritten rules in the `verify` phase that follows the migration.
     def expectedRulesXml = '''<project>
     <exposed-methods>
         <include>pong</include>
@@ -68,15 +70,26 @@ interface LegacyService {
     assert buildLog.contains('Migrate: rules-deploy.xml (interceptingTemplateClassName to annotationTemplateClassName)')
     // GroovyJakartaMigrator logs a relative path, so the separator is the platform one.
     assert buildLog =~ /Migrate groovy[\\\/]LegacyService\.groovy/
+    // RulesRemovedFunctionsMigrator logs every rewritten piece of a cell and then the workbook, by its relative path.
+    assert buildLog.contains('Format!A2: format(amount) -> toString(amount, "#,##0.00")')
+    assert buildLog.contains('Format!A10: format(date) -> toString(date, "M/d/yy")')
+    assert buildLog =~ /Migrate: rules[\\\/]Format\.xlsx \(replace the functions removed in OpenL 7\.0\.0\)/
+
+    // The cells keep the rewritten code. A workbook keeps its texts in xl/sharedStrings.xml.
+    def strings = new java.util.zip.ZipFile(new File(folder, 'rules/Format.xlsx')).withCloseable { zip ->
+        zip.getInputStream(zip.getEntry('xl/sharedStrings.xml')).getText('UTF-8').replace('&quot;', '"')
+    }
+    assert strings.contains('return toString(amount, "#,##0.00");')
+    assert strings.contains('return toString(date, "M/d/yy");')
 
     // Tally every "Migrate: " line so an unexpected migrator (e.g. someone wires a noisy migrator without
     // updating this script) immediately surfaces. rules.xml: empty-tag + lib + classpath + cw-processor +
     // method-filter + default-modules = 5 lines; rules-deploy.xml: empty-tag + runtime-context +
-    // template-class = 3 lines; total = 8. (GroovyJakartaMigrator emits "Migrate <path>", not
-    // "Migrate: ", so it doesn't count here.)
+    // template-class = 3 lines; rules/Format.xlsx: removed-functions = 1 line; total = 9. (GroovyJakartaMigrator
+    // emits "Migrate <path>", not "Migrate: ", so it doesn't count here.)
     def migrateColonLines = buildLog.readLines().findAll { it.contains('Migrate: ') }
-    assert migrateColonLines.size() == 8 :
-            "expected exactly 8 'Migrate: ' lines, got ${migrateColonLines.size()}:\n${migrateColonLines.join('\n')}"
+    assert migrateColonLines.size() == 9 :
+            "expected exactly 9 'Migrate: ' lines, got ${migrateColonLines.size()}:\n${migrateColonLines.join('\n')}"
 
     // setup.groovy created a fresh local git repository and made an "initial" commit. After openl:migrate
     // every migrator that actually changed files produced its own SCM commit. Read the log subjects (one per
@@ -107,6 +120,7 @@ interface LegacyService {
     assert commitFragments.contains('migrate: drop default isProvideRuntimeContext=false')
     assert commitFragments.contains('migrate: interceptingTemplateClassName to annotationTemplateClassName')
     assert commitFragments.contains('migrate: groovy scripts from javax to jakarta')
+    assert commitFragments.contains('migrate: replace the functions removed in OpenL 7.0.0')
 
     // The commit body must include the Co-authored-by trailer for every migration commit. Sample one.
     def lastCommit = ['git', 'log', '-1', '--format=%B'].execute(null, folder)

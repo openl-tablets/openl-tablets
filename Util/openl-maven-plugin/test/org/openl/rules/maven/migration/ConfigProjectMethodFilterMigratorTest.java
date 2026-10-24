@@ -320,7 +320,7 @@ class ConfigProjectMethodFilterMigratorTest {
                 </project>
                 """);
 
-        new ConfigProjectMethodFilterMigrator().migrate(projectFolder, supplier);
+        new ConfigProjectMethodFilterMigrator().migrate(projectFolder, new MigrationContext(supplier, null));
 
         assertEquals(1, calls.get());
         assertEquals("""
@@ -363,7 +363,8 @@ class ConfigProjectMethodFilterMigratorTest {
                 </project>
                 """);
 
-        new ConfigProjectMethodFilterMigrator().migrate(projectFolder, () -> ApiInterface.class);
+        new ConfigProjectMethodFilterMigrator()
+                .migrate(projectFolder, new MigrationContext(() -> ApiInterface.class, null));
 
         assertEquals("""
                 <project>
@@ -388,7 +389,7 @@ class ConfigProjectMethodFilterMigratorTest {
         AtomicInteger calls = new AtomicInteger();
         Supplier<Class<?>> supplier = countingSupplier(calls, SampleInterface.class);
 
-        new ConfigProjectMethodFilterMigrator().migrate(projectFolder, supplier);
+        new ConfigProjectMethodFilterMigrator().migrate(projectFolder, new MigrationContext(supplier, null));
 
         assertEquals(0, calls.get());
         assertFalse(Files.exists(projectFolder.resolve("rules.xml")));
