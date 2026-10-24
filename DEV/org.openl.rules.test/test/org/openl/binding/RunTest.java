@@ -460,6 +460,14 @@ class RunTest {
     }
 
     @Test
+    void testLeadingZerosAreDecimal() {
+        assertToExpected("010", 10);
+        assertToExpected("08 + 09", 17);
+        assertToExpected("008 + 009", 17);
+        assertToExpected("0x10", 16);
+    }
+
+    @Test
     void testAggregate() {
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[2]", "aaa");
         assertToExpected("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[!@ startsWith(\"b\")]", "bb");
