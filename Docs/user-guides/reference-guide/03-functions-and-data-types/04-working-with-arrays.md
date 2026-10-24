@@ -91,20 +91,20 @@ The following table describes methods of transforming:
 
 The example above produces collection of vehicles, and in this collection, each vehicle is listed only once, without identical vehicles.
 
-The operator returns array of the `<expression> `type. The order of the elements is preserved. An empty element of the array gives no value, so the result can be shorter than the array.
+The operator returns array of the `<expression> `type. The order of the elements is preserved. TRANSFORM TO gives a value for every element, an empty one too, so the result has as many values as the array. TRANSFORM UNIQUE TO skips the empty elements.
 
 Any field, method of the collection element, or any OpenL Tablets function can be used in `<condition>` / `<expression>,` for example: `claims[order by lossDate], `where `lossDate `is a field of the **Claim** array element;`arrayOfCarModels[@ contains("Toyota")],`where `contains` is a method of String element of the `arrayOfCarModels` array.
 
 #### Empty Elements in Array Index Operators
 
-Every array index operator skips the empty elements of an array, which are `null`. The condition or expression is not evaluated for an empty element, and the element is not in the result. For example, for `values = new Integer[] {3, null, 1}`:
+Every array index operator except TRANSFORM TO skips the empty elements of an array, which are `null`. The condition or expression is not evaluated for an empty element, and the element is not in the result. TRANSFORM TO evaluates its expression for every element, an empty one too, so its result has as many values as the array. For example, for `values = new Integer[] {3, null, 1}`:
 
 | Expression                                | Result         |
 |-------------------------------------------|----------------|
 | `values[(x) select all having x == null]` | `{}`           |
 | `values[(x) order by x]`                  | `{1, 3}`       |
 | `values[(x) split by x]`                  | `{ {3}, {1} }` |
-| `values[(x) transform to x]`              | `{3, 1}`       |
+| `values[(x) transform to x]`              | `{3, null, 1}` |
 
 An empty field does not make its element empty. `drivers[select all having age == null]` returns the drivers whose age is empty, ORDER BY puts such drivers last in both directions, and SPLIT BY gathers them into one group. TRANSFORM TO keeps an empty result of the expression, while TRANSFORM UNIQUE TO drops it.
 
@@ -112,6 +112,7 @@ An operator applied to a missing array or collection, which is `null`, returns `
 
 To get a value for every element, an empty one included, use one of the following:
 
+-   TRANSFORM TO, such as `drivers[(d) transform to isEmpty(d) ? "-" : d.name]`. A field or a method of an empty element, as in `drivers[transform to name]`, gives an empty value, or 0 and false for a primitive type.
 -   `array.field`, such as `drivers.name`, returns the field of every element. An empty element gives an empty value, or 0 and false for a field of a primitive type.
 -   A rule called with the array runs for every element, and the rule can check its argument with `isEmpty`. For more information, see [Rules Applied to Array](#rules-applied-to-array).
 
@@ -163,7 +164,7 @@ For example, for `rates = new Double[] {1.5, 2.5, 3.5, 4.5}`:
 | `rates[(rate, i) split by i < 2]`                             | `{ {1.5, 2.5}, {3.5, 4.5} }` — the first two rates and the rest           |
 | `rates[(Double rate, Integer i) transform to rate * (i + 1)]` | `{1.5, 5.0, 10.5, 18.0}` — each rate multiplied by its number in the list |
 
-An empty element keeps its place in the count: for `values = new Integer[] {3, null, 1}`, `values[(x, i) transform to i]` returns `{0, 2}`. So `values[i]` is always the element itself.
+An empty element keeps its place in the count: for `values = new Integer[] {3, null, 1}`, `values[(x, i) select all having i > 1]` returns `{1}`. So `values[i]` is always the element itself.
 
 The index is an Integer. When a calculation needs another number type, declare the index as one, such as `Long`, `Double` or `BigDecimal`. A type that can lose part of the value, such as `Short` or `Float`, or a type that is not a number, such as `String`, is an error.
 

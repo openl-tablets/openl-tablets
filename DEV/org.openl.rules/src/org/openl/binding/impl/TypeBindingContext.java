@@ -144,6 +144,10 @@ public class TypeBindingContext extends BindingContextDelegator {
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             var newTarget = localvar.get(target, env);
+            if (newTarget == null && !(method instanceof IOwnTargetMethod) && !method.getMethod().isStatic()) {
+                // An empty element gives an empty result, as the call with the named element does.
+                return method.getMethod().getType().nullObject();
+            }
             return method.invoke(newTarget, params, env);
         }
 
