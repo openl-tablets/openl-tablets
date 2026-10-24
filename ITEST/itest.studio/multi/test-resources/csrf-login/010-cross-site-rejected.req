@@ -1,0 +1,7 @@
+POST /login HTTP/1.1
+Cookie: NO_JSESSIONID=noAuth
+Origin: https://evil.example
+Sec-Fetch-Site: cross-site
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=admin

@@ -1,0 +1,5 @@
+HTTP/1.1 401
+Access-Control-Allow-Origin: https://trusted.example
+Vary: Origin
+WWW-Authenticate: Basic
+

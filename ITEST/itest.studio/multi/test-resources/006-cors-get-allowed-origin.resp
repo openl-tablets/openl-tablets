@@ -1,0 +1,22 @@
+HTTP/1.1 200
+Access-Control-Allow-Origin: https://trusted.example
+Vary: Origin
+Content-Type: application/json
+
+[
+  {
+    "username": "admin",
+    "currentUser": true,
+    "superUser": true,
+    "unsafePassword": true,
+    "externalFlags": {
+      "emailExternal": false,
+      "emailVerified": false,
+      "displayNameExternal": false,
+      "firstNameExternal": false,
+      "lastNameExternal": false
+    },
+    "online": true,
+    "lastLoginTime": "*"
+  }
+]

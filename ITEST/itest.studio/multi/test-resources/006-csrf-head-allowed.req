@@ -1,0 +1,5 @@
+HEAD /rest/users HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Origin: https://evil.example
+Sec-Fetch-Site: cross-site
+

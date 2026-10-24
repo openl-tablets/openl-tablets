@@ -33,7 +33,8 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
   non-deprecated built-in function, in workbooks that follow the Reference Guide chapters: a new or changed rules
   feature updates its workbook too
 - **org.openl.rules.util** — Rule utility functions
-- **org.openl.spring** — Spring integration (`PassCoder` for password encoding lives here)
+- **org.openl.spring** — Spring integration (`PassCoder` for password encoding lives here) and, in `org.openl.web`,
+  the servlet-side helpers OpenL Studio and OpenL Rule Services share, such as the CORS origin list and headers
 
 ## Critical Systems — Handle with Extreme Care
 
