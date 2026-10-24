@@ -2,7 +2,7 @@ import i18next from 'i18next'
 
 i18next.addResourceBundle('en', 'tags', {
     extensible: 'Extensible',
-    nullable: 'Nullable',
+    required: 'Required',
     add_tag: 'Add Tag',
     tags: 'Tags',
     tag_type: 'Tag Type',

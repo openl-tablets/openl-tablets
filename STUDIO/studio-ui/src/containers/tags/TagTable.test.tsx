@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -27,7 +27,7 @@ const tagType = (id: number, name: string): TagType => ({ id, name, extensible: 
 const types = [tagType(1, 'Domain'), tagType(2, 'LOB'), tagType(3, 'Region')]
 
 const renderTable = ({
-    reorderTagTypes = vi.fn(), isLoading = false, found = new Map(), defineTags = vi.fn(),
+    reorderTagTypes = vi.fn(), isLoading = false, found = new Map(), defineTags = vi.fn(), updateTagType = vi.fn(),
 } = {}) => {
     render(
         <MemoryRouter>
@@ -41,7 +41,7 @@ const renderTable = ({
                 reorderTagTypes={reorderTagTypes}
                 tagTypes={types}
                 updateTag={vi.fn()}
-                updateTagType={vi.fn()}
+                updateTagType={updateTagType}
             />
         </MemoryRouter>
     )
@@ -54,6 +54,20 @@ const drag = (activeId: number, overId: number | null) => endDrag({
 } as unknown as DragEndEvent)
 
 describe('TagTable', () => {
+    it('asks whether a value is required, the opposite of the tag type being nullable', async () => {
+        const updateTagType = vi.fn()
+        renderTable({ updateTagType })
+
+        expect(screen.getByRole('columnheader', { name: 'tags:required' })).toBeInTheDocument()
+        // Every type here is nullable, so none of them is required.
+        const domainRequired = within(screen.getByText('Domain').closest('tr')!).getAllByRole('checkbox')[1]!
+        expect(domainRequired).not.toBeChecked()
+
+        await userEvent.click(domainRequired)
+        expect(updateTagType).toHaveBeenCalledWith(expect.objectContaining({ name: 'Domain', nullable: false }))
+    })
+
+
     it('shows the values the projects carry beside the configured ones, each opening its projects', async () => {
         const defineTags = vi.fn()
         renderTable({ found: new Map([[3, [{ value: 'Asia', projects: 2 }]]]), defineTags })

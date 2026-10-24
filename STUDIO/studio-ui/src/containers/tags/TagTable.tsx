@@ -174,8 +174,9 @@ export const TagTable: FC<TagTableProps> = ({
         void Promise.resolve(onUpdateTagType(tagType, null, e.target.checked))
     }
 
-    const onChangeTagTypeNullable = (tagType: TagType) => (e: CheckboxChangeEvent) => {
-        void Promise.resolve(onUpdateTagType(tagType, null, null, e.target.checked))
+    // The screen asks whether a value is required; the tag type keeps it as whether one may be missing.
+    const onChangeTagTypeRequired = (tagType: TagType) => (e: CheckboxChangeEvent) => {
+        void Promise.resolve(onUpdateTagType(tagType, null, null, !e.target.checked))
     }
 
     const handleDelete = (tagType: TagType) => {
@@ -204,10 +205,10 @@ export const TagTable: FC<TagTableProps> = ({
             ),
         },
         {
-            title: t('tags:nullable'),
-            key: 'nullable',
+            title: t('tags:required'),
+            key: 'required',
             render: (tagType: TagType) => (
-                <TagTableCheckboxCell isChecked={tagType.nullable} onChange={onChangeTagTypeNullable(tagType)} />
+                <TagTableCheckboxCell isChecked={!tagType.nullable} onChange={onChangeTagTypeRequired(tagType)} />
             ),
         },
         {
