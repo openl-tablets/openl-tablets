@@ -2,9 +2,9 @@
 
 ## Resume point
 
-- PR #2393 (`dead-code/delta-2026-10-24`) is open: maintain it first, then sweep the delta.
+- PR #2393 (`dead-code/delta-2026-10-24`) is open, green, Sonar 0, waiting on review only: maintain it first.
 - Everything up to `origin/main` 38bdb7c561 is swept, Java included. A run is: sweep the delta since that SHA, then
-  spend the rest on a NEW vein. Only docs, build config, i18n keys and dead TS imports have ever paid.
+  spend the rest on a NEW vein. With no delta, skip the reactor build: the last run's Error Prone/PMD still holds.
 - `dead-code/ledger` vanished from the remote once and was re-pushed from local history; if it is gone again,
   a human deletes it on purpose: stop and report instead of recreating it.
 
@@ -275,6 +275,7 @@
   backticked names in every AGENTS.md, `.claude/**/*.md` and `Docs/architecture` (paid 1 in
   #2305; re-run per delta touching them). The duplicate-entry scan paid once,
   on three `**/*.sql` Spotless includes; the `.aj`/`.apt`/`.scss` ones are prophylactic and KEPT — settled.
+  Also zero: Mockito `@Mock`/`@Spy`/`@Captor` fields, locale-variant bundles, vitest snapshots, `Docs/examples`.
 
 ## Human follow-ups
 
@@ -291,10 +292,9 @@
 
 ## Run log
 
-- 2026-10-17 (2nd): delta was 8 commits (EPBDS-7164 table formatting). Reactor green 29:17 cold; Error Prone, PMD
-  (studio-backend), tsc, removed-name index, Docs images and tokens at zero; no locale or bundle change. No commit.
 - 2026-10-18: delta was 15 commits (doc waves, guide sizes, postgres guard). Reactor green 25:09 cold; Error Prone,
   tsc, Docs images and tokens, AGENTS/README names at zero; new veins `@ts-ignore`, `eslint-disable` closed. No commit.
 - 2026-10-24: delta was 104 commits (audit log, studio-mcp, project ids, My Settings to browser). Reactor 25:56 cold,
   red only in ITEST McpTest (CRLF, pre-existing). i18n 2,057 keys, bundles, Docs, images, Error Prone at zero; found
   1 orphaned openapi key and 1 dead React import, #2393 opened (-3).
+- 2026-10-25: delta empty; #2393 green, unreviewed. Four new veins probed at zero, no build, no commit.
