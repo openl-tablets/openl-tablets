@@ -91,6 +91,16 @@ public class MethodBindingContext extends BindingContextDelegator {
         return null;
     }
 
+    /** Returns whether the field is an input parameter of this rule. */
+    public boolean isParameter(IOpenField field) {
+        for (var parameter : paramVars) {
+            if (parameter == field) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /*
      * (non-Javadoc)
      *

@@ -38,6 +38,12 @@ import org.openl.util.ClassUtils;
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode {
 
+    /**
+     * How the body of the Spreadsheet was read: its steps, its columns and the header whose value it returns.
+     *
+     * @return the builder of the structure, or {@code null} before the Spreadsheet is bound
+     */
+    @Getter
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
     @Getter
@@ -271,7 +277,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
         structureBuilder = new SpreadsheetStructureBuilder(tableSyntaxNode, bindingContext, header, getModule());
         var headerType = header.getName() + "Type";
         var openL = bindingContext.getOpenL();
-        spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
+        spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL, header.getName(), tableSyntaxNode.getUri());
 
         var autoType = tableSyntaxNode.getTableProperties().getAutoType();
         structureBuilder.addCellFields(spreadsheetOpenClass, autoType);
@@ -316,15 +322,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
 
     public Spreadsheet getSpreadsheet() {
         return (Spreadsheet) getMethod();
-    }
-
-    /**
-     * How the body of the Spreadsheet was read: its steps, its columns and the header whose value it returns.
-     *
-     * @return the builder of the structure, or {@code null} before the Spreadsheet is bound
-     */
-    public SpreadsheetStructureBuilder getStructureBuilder() {
-        return structureBuilder;
     }
 
     @Override

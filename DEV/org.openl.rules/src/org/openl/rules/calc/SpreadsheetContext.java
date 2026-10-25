@@ -6,17 +6,26 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
+import org.openl.binding.ILocalVar;
+import org.openl.binding.NodeBinders;
 import org.openl.binding.exception.FieldNotFoundException;
+import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.CastToWiderType;
+import org.openl.binding.impl.FieldBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetRangeField;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
@@ -30,6 +39,62 @@ public class SpreadsheetContext extends ComponentBindingContext {
                               XlsModuleOpenClass xlsModuleOpenClass) {
         super(delegate, type);
         this.xlsModuleOpenClass = xlsModuleOpenClass;
+    }
+
+    /** Resolves {@code current} to an in-scope field, or to this spreadsheet context when none exists. */
+    @Override
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) {
+        if (ISyntaxConstants.THIS_NAMESPACE.equals(namespace) && "current".equals(name)) {
+            var field = super.findVar(namespace, name, strictMatch);
+            return field != null && !(field instanceof ComponentOpenClass.ThisField)
+                    ? field
+                    : super.findVar(namespace, "this", true);
+        }
+        return super.findVar(namespace, name, strictMatch);
+    }
+
+    /** Warns only in array index conditions when an input parameter shadows a spreadsheet cell. */
+    public static void warnWhenCurrentParameterShadowsCell(ISyntaxNode node,
+                                                           IBindingContext bindingContext,
+                                                           IBoundNode target,
+                                                           String fieldName) {
+        if (!fieldName.startsWith("$") || !(target instanceof FieldBoundNode targetField)
+                || !(targetField.getBoundField() instanceof ILocalVar parameter)
+                || !"current".equals(target.getSyntaxNode().getText()) || !isInsideArrayIndexOperator(node)) {
+            return;
+        }
+
+        SpreadsheetContext spreadsheet = null;
+        MethodBindingContext method = null;
+        var context = bindingContext;
+        while (context instanceof BindingContextDelegator delegator) {
+            if (spreadsheet == null && context instanceof SpreadsheetContext spreadsheetContext) {
+                spreadsheet = spreadsheetContext;
+            }
+            if (context instanceof MethodBindingContext methodContext) {
+                method = methodContext;
+            }
+            if (spreadsheet != null && method != null) {
+                break;
+            }
+            context = delegator.getDelegate();
+        }
+        if (spreadsheet != null && method != null && method.isParameter(parameter)
+                && spreadsheet.getComponentOpenClass().getField(fieldName, true) != null) {
+            var message = ("'current.%s' refers to input parameter 'current'. "
+                    + "The spreadsheet also has '%s'. Use 'this.%s' for the spreadsheet cell.")
+                    .formatted(fieldName, fieldName, fieldName);
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, node));
+        }
+    }
+
+    private static boolean isInsideArrayIndexOperator(ISyntaxNode node) {
+        for (var parent = node.getParent(); parent != null; parent = parent.getParent()) {
+            if (NodeBinders.isAggregateIndexOperator(parent.getType())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -118,7 +118,28 @@ To get a value for every element, an empty one included, use one of the followin
 
 #### Array Index Operators and Arrays of the SpreadsheetResult Type
 
-Array index operators can be used with arrays which elements are of SpreadsheetResult data type. To refer to a cell of SpreadsheetResult element in the operator condition, the full `$columnName$rowName `or simplified reference format is used.
+Array index operators can be used with arrays whose elements have the SpreadsheetResult data type. To refer to a cell
+of an element in the operator condition, use the full `$columnName$rowName` or simplified reference format.
+
+Inside an array index operator in a spreadsheet table:
+
+- An unqualified cell reference refers to the array element, even if the containing spreadsheet has a cell with the
+  same name. Comparing two such element cells does not produce an ambiguity warning; qualify a spreadsheet cell
+  explicitly when it is needed.
+- `this.$<cell name>` refers to the containing spreadsheet. `current.$<cell name>` does the same when no variable
+  named `current` is in scope. For example, `$Losses[select first having $Type == current.$LiabType]` compares each
+  loss's **Type** with the spreadsheet's **LiabType**. A one-column spreadsheet supports `current.$LiabType` as a
+  simplified form of `current.$Value$LiabType`. A one-row spreadsheet similarly supports `this.$OtherColumn`. In a
+  spreadsheet with multiple columns or rows, `this` and `current` both use the current column or row.
+  References also work in compound conditions, such as
+  `$Losses[select first having $Type == current.$LiabType && $NumberOfYears < length(current.$Years)]`.
+  In OpenL Studio, hovering over either qualifier identifies the containing spreadsheet. For a table named
+  `PolicyPremium`, the tooltip reads `Spreadsheet PolicyPremium`.
+- If a variable named `current` is already in scope, it keeps its existing meaning. Use `this` for the containing
+  spreadsheet. Inside an array index operator, if an input parameter named `current` and the spreadsheet both have
+  the referenced cell, OpenL warns that `current.$Row` uses the parameter. It does not warn for `current` alone or for
+  a field that exists only on the parameter. Outside array index operators, `current` is also a synonym for `this`
+  when no variable named `current` is in scope; no shadowing warning is issued there.
 
 Consider an example with select operator. There is a rule which selects and returns spreadsheet result with value **2** in the \$Formula\$EmployeeClassId cell.
 

@@ -12,6 +12,7 @@ import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.SpreadsheetContext;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
@@ -120,6 +121,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         BindHelper.checkOnDeprecation(node, bindingContext, field);
+        SpreadsheetContext.warnWhenCurrentParameterShadowsCell(node, bindingContext, target, fieldName);
         return new FieldBoundNode(node, field, target, dims);
     }
 
