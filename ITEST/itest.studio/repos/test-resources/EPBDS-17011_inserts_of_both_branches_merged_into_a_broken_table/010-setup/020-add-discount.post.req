@@ -1,0 +1,42 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "SimpleRules",
+    "kind": "Rules",
+    "name": "discount",
+    "properties": {
+      "category": "Auto"
+    },
+    "returnType": "Double",
+    "args": [
+      {
+        "name": "plan",
+        "type": "String"
+      }
+    ],
+    "headers": [
+      {
+        "title": "Plan"
+      },
+      {
+        "title": "Discount"
+      }
+    ],
+    "rules": [
+      {
+        "Plan": "Basic",
+        "Discount": 0.05
+      },
+      {
+        "Plan": "Premium",
+        "Discount": 0.1
+      }
+    ]
+  }
+}
+

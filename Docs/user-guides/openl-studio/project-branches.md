@@ -185,8 +185,12 @@ contain the project when it is opened. Proceed as follows:
     **Receive their updates**, of the selected branch for **Send your updates**. A row both branches inserted there
     with the same values and comments is kept once, as your version has it. Merged cells a branch stretched over all
     the rows it inserted there, such as the header of a table over the columns each branch added at its end, are
-    stretched over the rows of both branches. Columns follow the same rule. A table that would touch the table under
-    it once it holds the rows both branches inserted into it pushes that table down. A table that grew or moved in one
+    stretched over the rows of both branches. Columns follow the same rule. The properties both branches add to a
+    table are joined under one properties cell, wherever each branch added them, and a property both add alike is
+    kept once. A column both branches add at the same place of a decision table under the same name, such as the
+    condition `C3`, keeps it in your version, and the column of the other branch takes the next number, `C4`. A
+    table that would touch the table under it once it holds the rows both branches inserted into it pushes that table
+    down. A table that grew or moved in one
     branch keeps the changes the other branch made in it. Each cell changed in one branch takes the change of that
     branch.
     The value, the style and the comment of a cell are merged separately, so one branch can change the text of a
@@ -201,9 +205,9 @@ contain the project when it is opened. Proceed as follows:
     -   Both branches change the value or the comment of the same cell, the merged cells of the same table or the
         pictures of the sheet differently.
     -   One branch inserts a row next to a row the other branch deletes, or deletes a row the other branch
-        changes. Columns follow the same rule. Rows both branches insert right under the header of a table, where
-        the table keeps its properties, and columns both insert before its first column, which holds the header,
-        conflict too.
+        changes. Columns follow the same rule. Both branches setting the same property of a table to different
+        values, inserting rows right under its header that are not properties, or inserting columns before its first
+        column, which holds the header, conflict too.
     -   One branch inserts or deletes rows of a table and the other branch inserts or deletes columns of it.
     -   Both branches move the same table on purpose to different places, or one branch removes a table the other
         changes. Tables a branch only pushes down or up, by inserting or deleting rows above them, are not moved on

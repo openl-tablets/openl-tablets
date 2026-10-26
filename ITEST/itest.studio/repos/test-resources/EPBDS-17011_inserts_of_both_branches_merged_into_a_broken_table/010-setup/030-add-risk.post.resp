@@ -1,0 +1,15 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "Rules",
+  "kind": "Rules",
+  "name": "risk",
+  "returnType": "String",
+  "signature": "risk(String country, String state)",
+  "file": "EPBDS-17011-Inserts/rules/Main.xlsx",
+  "sheet": "Rules",
+  "pos": "B10:D17"
+}
+

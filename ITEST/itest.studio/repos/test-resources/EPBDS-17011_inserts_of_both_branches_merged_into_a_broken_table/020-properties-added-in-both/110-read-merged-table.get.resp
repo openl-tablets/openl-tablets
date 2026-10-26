@@ -1,0 +1,109 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "discount",
+  "pos": "B2:D8",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "SimpleRules Double discount(String plan)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "properties",
+        "rowspan": 3
+      },
+      {
+        "cell": "C3",
+        "value": "description"
+      },
+      {
+        "cell": "D3",
+        "value": "Discounts of car plans"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C4",
+        "value": "lob"
+      },
+      {
+        "cell": "D4",
+        "value": [
+          "Auto"
+        ]
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C5",
+        "value": "category"
+      },
+      {
+        "cell": "D5",
+        "value": "Auto"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "Plan"
+      },
+      {
+        "cell": "C6",
+        "value": "Discount"
+      },
+      {
+        "cell": "D6"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "Basic"
+      },
+      {
+        "cell": "C7",
+        "value": 0.05
+      },
+      {
+        "cell": "D7"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "Premium"
+      },
+      {
+        "cell": "C8",
+        "value": 0.1
+      },
+      {
+        "cell": "D8"
+      }
+    ]
+  ],
+  "headerHeight": 4
+}
+

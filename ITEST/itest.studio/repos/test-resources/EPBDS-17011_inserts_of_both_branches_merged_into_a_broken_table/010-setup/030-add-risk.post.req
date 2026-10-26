@@ -1,0 +1,104 @@
+POST /rest/projects/{PROJECT_ID}/tables HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Main",
+  "sheetName": "Rules",
+  "table": {
+    "tableType": "RawSource",
+    "kind": "Rules",
+    "name": "risk",
+    "source": [
+      [
+        {
+          "value": "Rules String risk(String country, String state)"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": null
+        }
+      ],
+      [
+        {
+          "value": "C1"
+        },
+        {
+          "value": "C2"
+        },
+        {
+          "value": "RET1"
+        }
+      ],
+      [
+        {
+          "value": "country == c"
+        },
+        {
+          "value": "state == s"
+        },
+        {
+          "value": "r"
+        }
+      ],
+      [
+        {
+          "value": "String c"
+        },
+        {
+          "value": "String s"
+        },
+        {
+          "value": "String r"
+        }
+      ],
+      [
+        {
+          "value": "Country"
+        },
+        {
+          "value": "State"
+        },
+        {
+          "value": "Risk"
+        }
+      ],
+      [
+        {
+          "value": "US"
+        },
+        {
+          "value": "NY"
+        },
+        {
+          "value": "Low"
+        }
+      ],
+      [
+        {
+          "value": null
+        },
+        {
+          "value": "CA"
+        },
+        {
+          "value": "High"
+        }
+      ],
+      [
+        {
+          "value": "DE"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "Medium"
+        }
+      ]
+    ]
+  }
+}
+

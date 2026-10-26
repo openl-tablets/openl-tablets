@@ -1,0 +1,150 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "risk",
+  "pos": "B10:D19",
+  "source": [
+    [
+      {
+        "cell": "B10",
+        "value": "Rules String risk(String country, String state)",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": "C1"
+      },
+      {
+        "cell": "C11",
+        "value": "C2"
+      },
+      {
+        "cell": "D11",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": "country == c"
+      },
+      {
+        "cell": "C12",
+        "value": "state == s"
+      },
+      {
+        "cell": "D12",
+        "value": "r"
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": "String c"
+      },
+      {
+        "cell": "C13",
+        "value": "String s"
+      },
+      {
+        "cell": "D13",
+        "value": "String r"
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "Country"
+      },
+      {
+        "cell": "C14",
+        "value": "State"
+      },
+      {
+        "cell": "D14",
+        "value": "Risk"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "US",
+        "rowspan": 4
+      },
+      {
+        "cell": "C15",
+        "value": "NY"
+      },
+      {
+        "cell": "D15",
+        "value": "Low"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": "TX"
+      },
+      {
+        "cell": "D16",
+        "value": "Mid"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C17",
+        "value": "FL"
+      },
+      {
+        "cell": "D17",
+        "value": "Low"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C18",
+        "value": "CA"
+      },
+      {
+        "cell": "D18",
+        "value": "High"
+      }
+    ],
+    [
+      {
+        "cell": "B19",
+        "value": "DE"
+      },
+      {
+        "cell": "C19"
+      },
+      {
+        "cell": "D19",
+        "value": "Medium"
+      }
+    ]
+  ],
+  "headerHeight": 4
+}
+

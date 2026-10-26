@@ -18,12 +18,14 @@ public enum ConflictTableReason {
 
     /**
      * One branch inserted a row next to a row the other deleted, or deleted a row the other changed; columns alike.
-     * Both inserted rows right under the header, where the properties are, or columns before the first column.
+     * Both set a property differently, inserted rows right under the header that are not properties, or columns
+     * before the first column.
      */
     @Schema(description = """
             One branch inserted a row next to a row the other deleted, or deleted a row the other \
-            changed; columns follow the same rule. Both branches inserted rows right under the header of the table, \
-            where it keeps its properties, or columns before its first column, which holds the header""")
+            changed; columns follow the same rule. Both branches set the same property of the table to different \
+            values, inserted rows right under its header that are not properties, or columns before its first \
+            column, which holds the header""")
     @JsonProperty("rows")
     ROWS,
 
