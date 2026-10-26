@@ -8,6 +8,9 @@
         - `FooRules.xlsx` - rules for US market effective 2025-01-01 in Excel file
     - `PricingRules_US.xlsx` - rules for US market with no effective date (always active)
     - `SharedRules.xlsx` - rules shared across markets, effective date and properties-file-name-pattern agnostic
+    - `Rating/` - a module written as a folder of Markdown files, one table per file, see
+      [Markdown Tables](markdown-tables.md)
+        - `ageFactor.md` - a table, its header in the front matter and its body a Markdown table
 - `i18n/` is the conventional folder for localization property files, if used via msg() function
     - `message.properties` - messages for the ROOT locale (fallback)
     - `message_en_US.properties` - messages for English (United States)

@@ -9,4 +9,5 @@ description: The files of an OpenL Tablets project and the tables they hold, lai
 - [Rules Deployment Descriptor (`rules-deploy.xml`)](rules-deploy.xml.md)
 - [Rules Project Structure](project-structure.md)
 - [Table Types](table-types.md)
+- [Markdown Tables](markdown-tables.md)
 - [OpenL Maven Plugin (`openl-maven-plugin`)](openl-maven-plugin.md)
