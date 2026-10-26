@@ -1,0 +1,228 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "RawSource",
+  "kind": "Rules",
+  "name": "risk",
+  "pos": "B10:F19",
+  "source": [
+    [
+      {
+        "cell": "B10",
+        "value": "Rules String risk(String country, String state)",
+        "colspan": 5
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B11",
+        "value": "C1"
+      },
+      {
+        "cell": "C11",
+        "value": "C2"
+      },
+      {
+        "cell": "D11",
+        "value": "C3"
+      },
+      {
+        "cell": "E11",
+        "value": "C4"
+      },
+      {
+        "cell": "F11",
+        "value": "RET1"
+      }
+    ],
+    [
+      {
+        "cell": "B12",
+        "value": "country == c"
+      },
+      {
+        "cell": "C12",
+        "value": "state == s"
+      },
+      {
+        "cell": "D12",
+        "value": "country.startsWith(p)"
+      },
+      {
+        "cell": "E12",
+        "value": "state.length() > n"
+      },
+      {
+        "cell": "F12",
+        "value": "r"
+      }
+    ],
+    [
+      {
+        "cell": "B13",
+        "value": "String c"
+      },
+      {
+        "cell": "C13",
+        "value": "String s"
+      },
+      {
+        "cell": "D13",
+        "value": "String p"
+      },
+      {
+        "cell": "E13",
+        "value": "int n"
+      },
+      {
+        "cell": "F13",
+        "value": "String r"
+      }
+    ],
+    [
+      {
+        "cell": "B14",
+        "value": "Country"
+      },
+      {
+        "cell": "C14",
+        "value": "State"
+      },
+      {
+        "cell": "D14",
+        "value": "Prefix"
+      },
+      {
+        "cell": "E14",
+        "value": "Min Length"
+      },
+      {
+        "cell": "F14",
+        "value": "Risk"
+      }
+    ],
+    [
+      {
+        "cell": "B15",
+        "value": "US",
+        "rowspan": 4
+      },
+      {
+        "cell": "C15",
+        "value": "NY"
+      },
+      {
+        "cell": "D15",
+        "value": "U"
+      },
+      {
+        "cell": "E15",
+        "value": 2
+      },
+      {
+        "cell": "F15",
+        "value": "Low"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C16",
+        "value": "TX"
+      },
+      {
+        "cell": "D16",
+        "value": "U"
+      },
+      {
+        "cell": "E16",
+        "value": 2
+      },
+      {
+        "cell": "F16",
+        "value": "Mid"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C17",
+        "value": "FL"
+      },
+      {
+        "cell": "D17",
+        "value": "U"
+      },
+      {
+        "cell": "E17",
+        "value": 2
+      },
+      {
+        "cell": "F17",
+        "value": "Low"
+      }
+    ],
+    [
+      {
+        "covered": true
+      },
+      {
+        "cell": "C18",
+        "value": "CA"
+      },
+      {
+        "cell": "D18",
+        "value": "U"
+      },
+      {
+        "cell": "E18",
+        "value": 2
+      },
+      {
+        "cell": "F18",
+        "value": "High"
+      }
+    ],
+    [
+      {
+        "cell": "B19",
+        "value": "DE"
+      },
+      {
+        "cell": "C19"
+      },
+      {
+        "cell": "D19",
+        "value": "D"
+      },
+      {
+        "cell": "E19",
+        "value": 0
+      },
+      {
+        "cell": "F19",
+        "value": "Medium"
+      }
+    ]
+  ],
+  "headerHeight": 4
+}
+

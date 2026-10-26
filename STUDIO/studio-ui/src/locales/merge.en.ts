@@ -163,8 +163,9 @@ i18next.addResourceBundle('en', 'merge', {
         table_reason: {
             cells: 'Both branches changed the same cells differently.',
             rows: 'One branch inserted a row next to a row the other one deleted, or deleted a row the other one '
-                + 'changed. Columns follow the same rule. Both branches inserted rows right under the header of the '
-                + 'table, where it keeps its properties, or columns before its first column.',
+                + 'changed. Columns follow the same rule. Both branches set the same property of the table to '
+                + 'different values, inserted rows right under its header that are not properties, or columns before '
+                + 'its first column.',
             rowsAndColumns: 'One branch inserted or deleted rows of the table, and the other one columns, or so many '
                 + 'rows changed that they cannot be aligned.',
             moved: 'Both branches moved the table on purpose to different places.',

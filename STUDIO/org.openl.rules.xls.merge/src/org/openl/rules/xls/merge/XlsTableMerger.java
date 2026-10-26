@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -25,6 +26,7 @@ import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFShape;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -84,6 +86,15 @@ final class XlsTableMerger {
 
     private static final Set<CellPart> ALL_PARTS = Set.copyOf(EnumSet.allOf(CellPart.class));
     private static final CellSource CLEARED = new CellSource(null, null, Set.of());
+    /**
+     * The first cell of the rows of a table that hold its properties, right under its header.
+     */
+    private static final String PROPERTIES = "properties";
+    /**
+     * The name of a column of a decision table: its kind, such as {@code C} for a condition or {@code RET} for the
+     * return value, and its number.
+     */
+    private static final Pattern COLUMN_NAME = Pattern.compile("([A-Za-z]+)(\\d+)");
 
     private final Cursor base;
     private final Cursor our;
@@ -902,10 +913,11 @@ final class XlsTableMerger {
      * @return the alignments, or {@code null} when too many lines changed to align them
      */
     private static @Nullable Alignments alignments(Views views) {
-        var base = views.base().cellDigests();
-        var baseLines = lineDigests(base);
-        var ourAlignment = align(base, baseLines, views.our().cellDigests());
-        var theirAlignment = align(base, baseLines, views.their().cellDigests());
+        var base = Objects.requireNonNull(views.base());
+        var baseLines = lineDigests(base.cellDigests());
+        var baseShown = base.shownDigests();
+        var ourAlignment = align(baseLines, baseShown, Objects.requireNonNull(views.our()));
+        var theirAlignment = align(baseLines, baseShown, Objects.requireNonNull(views.their()));
         return ourAlignment == null || theirAlignment == null ? null : new Alignments(ourAlignment, theirAlignment);
     }
 
@@ -918,8 +930,14 @@ final class XlsTableMerger {
         return rowAlignments.computeIfAbsent(baseTable, table -> Optional.ofNullable(alignments(rows))).orElse(null);
     }
 
-    private static @Nullable LineAlignment align(long[][] base, long[] baseLines, long[][] side) {
-        return LineAlignment.align(baseLines, lineDigests(side), similarity(base, side));
+    /**
+     * Aligns the lines of BASE revision with the lines of another revision. Lines are told apart by the values of
+     * their cells, and lines changed in place are told by the values their cells show, merged cells included.
+     */
+    private static @Nullable LineAlignment align(long[] baseLines, long[][] baseShown, View side) {
+        return LineAlignment.align(baseLines,
+                lineDigests(side.cellDigests()),
+                similarity(baseShown, side.shownDigests()));
     }
 
     /**
@@ -947,6 +965,9 @@ final class XlsTableMerger {
     /**
      * Tells how alike the lines of two tables are: the number of values they share at the same positions, when they
      * share at least half of their values.
+     *
+     * @param cells      the digests of the values the cells of one table show, by line and position
+     * @param otherCells the digests of the values the cells of the other table show, by line and position
      */
     private static LineAlignment.Similarity similarity(long[][] cells, long[][] otherCells) {
         return (line, otherLine) -> {
@@ -1215,6 +1236,14 @@ final class XlsTableMerger {
         return transposed
                 ? new CellAddress(table.getFirstRow() + position, table.getFirstColumn() + line)
                 : new CellAddress(table.getFirstRow() + line, table.getFirstColumn() + position);
+    }
+
+    /**
+     * Tells whether a cell holds the name of the properties of a table.
+     */
+    private static boolean namesProperties(@Nullable Cell cell) {
+        return cell != null && cell.getCellType() == CellType.STRING
+                && PROPERTIES.equals(cell.getStringCellValue().strip());
     }
 
     /**
@@ -1505,6 +1534,60 @@ final class XlsTableMerger {
         }
 
         /**
+         * Digests of the values the cells show by line and position, as OpenL reads them: a cell that merged cells
+         * cover shows the value of their first cell.
+         *
+         * <p>A property a revision adds above the properties of a table stretches the properties cell over the row of
+         * the property that was there. That row still shows the same name of the properties, so it is still found as
+         * that row, not as the row added.
+         */
+        long[][] shownDigests() {
+            var digests = cellDigests();
+            cursor.sheet.getMergedRegions()
+                    .stream()
+                    .filter(region -> region.intersects(table))
+                    .forEach(region -> showFirstCell(digests, region));
+            return digests;
+        }
+
+        /**
+         * Gives the cells of this table that merged cells cover the digest of the first of the merged cells, which is
+         * the value they show whatever value a covered cell keeps.
+         */
+        private void showFirstCell(long[][] digests, CellRangeAddress region) {
+            var first = SheetUtil.getCell(cursor.sheet, region.getFirstRow(), region.getFirstColumn());
+            var shown = first == null ? 0 : XlsSheetShifts.digest(first);
+            var lastRow = Math.min(region.getLastRow(), table.getLastRow());
+            var lastColumn = Math.min(region.getLastColumn(), table.getLastColumn());
+            for (var row = Math.max(region.getFirstRow(), table.getFirstRow()); row <= lastRow; row++) {
+                for (var column = Math.max(region.getFirstColumn(), table.getFirstColumn()); column <= lastColumn;
+                     column++) {
+                    if (row != region.getFirstRow() || column != region.getFirstColumn()) {
+                        var line = transposed ? column - table.getFirstColumn() : row - table.getFirstRow();
+                        var position = transposed ? row - table.getFirstRow() : column - table.getFirstColumn();
+                        digests[line][position] = shown;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Tells whether a row of the table is a property of it: its first cell shows the name of the properties, by
+         * itself or as the first cell of merged cells that cover it.
+         */
+        boolean showsProperties(int line) {
+            if (transposed || line == 0) {
+                return false;
+            }
+            var address = address(line, 0);
+            var region = cursor.getMergedRegion(address.getRow(), address.getColumn());
+            var cell = region == null
+                    ? cell(line, 0)
+                    : SheetUtil.getCell(cursor.sheet, region.getFirstRow(), region.getFirstColumn());
+            return namesProperties(cell);
+        }
+
+        /**
          * Digests of the values of the cells of a line by position, {@code 0} for a cell with nothing in it.
          */
         long[] cellDigests(int line) {
@@ -1521,7 +1604,7 @@ final class XlsTableMerger {
          * comments.
          */
         boolean equalLine(int line, View other, int otherLine) {
-            return sameCells(line, other, otherLine, true);
+            return sameCells(line, other, otherLine, true, 0);
         }
 
         /**
@@ -1529,11 +1612,19 @@ final class XlsTableMerger {
          * their formatting.
          */
         boolean holdsLine(int line, View other, int otherLine) {
-            return sameCells(line, other, otherLine, false);
+            return sameCells(line, other, otherLine, false, 0);
         }
 
-        private boolean sameCells(int line, View other, int otherLine, boolean formatting) {
-            for (var position = 0; position < positions(); position++) {
+        /**
+         * Tells whether a property of this table and a property of another table hold the same name and value,
+         * whatever their first cells, of which only the first property shows the properties cell.
+         */
+        boolean holdsProperty(int line, View other, int otherLine) {
+            return sameCells(line, other, otherLine, false, 1);
+        }
+
+        private boolean sameCells(int line, View other, int otherLine, boolean formatting, int from) {
+            for (var position = from; position < positions(); position++) {
                 cursor.cell = cell(line, position);
                 other.cursor.cell = other.cell(otherLine, position);
                 var equal = XlsSheetsMatcher.equalValues(cursor, other.cursor)
@@ -1831,15 +1922,26 @@ final class XlsTableMerger {
         private int[] findAlike(LineAlignment.Hunk ourHunk, LineAlignment.Hunk theirHunk) {
             var ourLines = new HashMap<Long, List<Integer>>();
             for (var line = ourHunk.sideFrom(); line < ourHunk.sideTo(); line++) {
-                ourLines.computeIfAbsent(lineDigest(our.cellDigests(line)), digest -> new ArrayList<>()).add(line);
+                ourLines.computeIfAbsent(alikeDigest(our, line), digest -> new ArrayList<>()).add(line);
             }
             var alike = new int[theirHunk.sideTo() - theirHunk.sideFrom()];
             for (var i = 0; i < alike.length; i++) {
                 var theirLine = theirHunk.sideFrom() + i;
-                alike[i] = takeAlike(ourLines.getOrDefault(lineDigest(their.cellDigests(theirLine)), List.of()),
-                        theirLine);
+                alike[i] = takeAlike(ourLines.getOrDefault(alikeDigest(their, theirLine), List.of()), theirLine);
             }
             return alike;
+        }
+
+        /**
+         * The digest a line inserted is told alike by: its values, or the name and the value of a property, whose
+         * first cell is the properties cell only one of the properties shows.
+         */
+        private static long alikeDigest(View view, int line) {
+            var digests = view.cellDigests(line);
+            if (view.showsProperties(line)) {
+                digests[0] = 0;
+            }
+            return lineDigest(digests);
         }
 
         /**
@@ -1850,7 +1952,8 @@ final class XlsTableMerger {
         private int takeAlike(List<Integer> candidates, int theirLine) {
             for (var iterator = candidates.iterator(); iterator.hasNext(); ) {
                 var ourLine = iterator.next();
-                if (our.holdsLine(ourLine, their, theirLine)) {
+                var property = our.showsProperties(ourLine) && their.showsProperties(theirLine);
+                if (property ? our.holdsProperty(ourLine, their, theirLine) : our.holdsLine(ourLine, their, theirLine)) {
                     iterator.remove();
                     return ourLine;
                 }
@@ -1889,14 +1992,23 @@ final class XlsTableMerger {
          * Tells whether both revisions only inserted lines at the same place, which the merge keeps one after another.
          *
          * <p>Columns inserted before the first column of a table are not kept so, since that column holds the header
-         * of the table. Neither are rows inserted right under the header, where a table keeps its properties: the rows
-         * of each revision would start properties of their own.
+         * of the table. Neither are rows inserted right under the header, where a table keeps its properties, unless
+         * every one of them is a property: the properties of both revisions are then joined under one properties
+         * cell.
          */
         private boolean joint(LineAlignment.Hunk ourHunk, LineAlignment.Hunk theirHunk) {
             return ourHunk.baseFrom() == ourHunk.baseTo()
                     && theirHunk.baseFrom() == theirHunk.baseTo()
                     && ourHunk.baseFrom() == theirHunk.baseFrom()
-                    && ourHunk.baseFrom() > (base.transposed() ? 0 : 1);
+                    && (ourHunk.baseFrom() > (base.transposed() ? 0 : 1)
+                    || ourHunk.baseFrom() == 1 && properties(ourHunk, our) && properties(theirHunk, their));
+        }
+
+        /**
+         * Tells whether every line a structural change of a revision inserted is a property of the table.
+         */
+        private static boolean properties(LineAlignment.Hunk hunk, View side) {
+            return IntStream.range(hunk.sideFrom(), hunk.sideTo()).allMatch(side::showsProperties);
         }
 
         /**
@@ -1996,7 +2108,10 @@ final class XlsTableMerger {
         @Nullable TableConflictReason build() {
             if (!buildLines()) {
                 return TableConflictReason.CELLS;
+            } else if (repeatsProperty()) {
+                return TableConflictReason.ROWS;
             }
+            renumberColumns();
             return buildRegions() ? null : TableConflictReason.MERGED_CELLS;
         }
 
@@ -2016,6 +2131,10 @@ final class XlsTableMerger {
             collecting = true;
             notingChanges = byCells == null;
             buildLines();
+            if (repeatsProperty()) {
+                return TableConflictReason.ROWS;
+            }
+            renumberColumns();
             if (conflictCells.isEmpty()) {
                 return buildRegions() ? null : TableConflictReason.MERGED_CELLS;
             }
@@ -2247,7 +2366,7 @@ final class XlsTableMerger {
             }
             if (lines.alignments() == null) {
                 // A table taken whole from one revision has every merged cell of it placed with its lines.
-                return true;
+                return joinProperties();
             }
             var choice = XlsSheetMerger.choose(Set.copyOf(keys.get(Side.BASE).values()),
                     Set.copyOf(keys.get(Side.OUR).values()),
@@ -2262,7 +2381,201 @@ final class XlsTableMerger {
                     return false;
                 }
             }
+            return joinProperties();
+        }
+
+        /**
+         * Joins the properties of the merged table under one properties cell that covers all of them, whichever
+         * revision added each property and wherever it added it: above the properties the table has, after them, or
+         * as the first ones.
+         *
+         * @return {@code false} if the properties cell would cover other merged cells
+         */
+        private boolean joinProperties() {
+            var count = propertyLines();
+            if (count == 0) {
+                return true;
+            }
+            var first = address(1, 0);
+            IntStream.rangeClosed(1, count)
+                    .mapToObj(line -> cells.get(address(line, 0)))
+                    .filter(this::namesProperties)
+                    .findFirst()
+                    .ifPresent(label -> cells.put(first, label));
+            for (var line = 2; line <= count; line++) {
+                cells.put(address(line, 0), CLEARED);
+            }
+            if (count == 1) {
+                return true;
+            }
+            var region = area(first, address(count, 0));
+            if (regions.stream().anyMatch(region::intersects)) {
+                return false;
+            }
+            regions.add(region);
             return true;
+        }
+
+        /**
+         * The number of properties of the merged table: the rows right under its header that are properties in the
+         * revision each of them comes from.
+         */
+        private int propertyLines() {
+            var count = 0;
+            while (count + 1 < lines.lines().size() && isProperty(lines.lines().get(count + 1))) {
+                count++;
+            }
+            return count;
+        }
+
+        private boolean isProperty(Line line) {
+            return Arrays.stream(Side.values())
+                    .anyMatch(side -> line.of(side) >= 0 && views.of(side) != null
+                            && views.of(side).showsProperties(line.of(side)));
+        }
+
+        /**
+         * Gives each column THEIR revision inserted into a decision table a name of its own, where OUR revision
+         * inserted a column of that name at the same place: both revisions name the condition they add after the
+         * last one, such as {@code C3}, and a decision table cannot define a condition twice. The column of THEIR
+         * revision takes the next number of its kind, {@code C4}. The names identify the columns inside the table
+         * only.
+         */
+        private void renumberColumns() {
+            if (!transposed || !isDecisionTable()) {
+                return;
+            }
+            var position = namesPosition();
+            var names = new ArrayList<@Nullable String>();
+            for (var line = 0; line < lines.lines().size(); line++) {
+                names.add(columnName(line, position));
+            }
+            var used = new HashSet<String>();
+            for (var i = 0; i < names.size(); i++) {
+                var name = names.get(i);
+                var line = lines.lines().get(i);
+                if (name != null && !used.add(name) && line.our() < 0 && line.base() < 0 && lines.jointOf(i) != null) {
+                    var renamed = nextName(name, names);
+                    names.set(i, renamed);
+                    used.add(renamed);
+                    var address = address(i, position);
+                    cells.put(address, cells.get(address).withTyped(renamed));
+                }
+            }
+        }
+
+        /**
+         * Tells whether the merged table is a decision table that names its columns, by the keyword of its header.
+         */
+        private boolean isDecisionTable() {
+            var header = views.any().cell(0, 0);
+            if (header == null || header.getCellType() != CellType.STRING) {
+                return false;
+            }
+            var keyword = header.getStringCellValue().strip().split("\\s+", 2)[0];
+            return "Rules".equalsIgnoreCase(keyword) || "DT".equalsIgnoreCase(keyword);
+        }
+
+        /**
+         * The row of a decision table that names its columns: the first one under its header and its properties.
+         */
+        private int namesPosition() {
+            var any = views.any();
+            var rows = new View(any.cursor(), any.table(), false);
+            var position = 1;
+            while (position < rows.lines() && rows.showsProperties(position)) {
+                position++;
+            }
+            return position;
+        }
+
+        /**
+         * The name a column of the merged decision table takes, such as {@code C1}, or {@code null} when it has none.
+         */
+        private @Nullable String columnName(int line, int position) {
+            var name = valueText(cells.get(address(line, position)));
+            return name != null && COLUMN_NAME.matcher(name).matches() ? name : null;
+        }
+
+        /**
+         * The name of the kind of a column with the number after the highest one the table gives that kind.
+         */
+        private static String nextName(String name, List<@Nullable String> names) {
+            var kind = COLUMN_NAME.matcher(name);
+            var prefix = kind.matches() ? kind.group(1) : name;
+            var highest = names.stream()
+                    .filter(Objects::nonNull)
+                    .map(COLUMN_NAME::matcher)
+                    .filter(matcher -> matcher.matches() && matcher.group(1).equalsIgnoreCase(prefix))
+                    .mapToInt(matcher -> Integer.parseInt(matcher.group(2)))
+                    .max()
+                    .orElse(0);
+            return prefix + (highest + 1);
+        }
+
+        /**
+         * Tells whether the merged table sets a property twice: both revisions set it, each to another value.
+         */
+        private boolean repeatsProperty() {
+            var names = new HashSet<Long>();
+            for (var line = 1; line <= propertyLines(); line++) {
+                var name = propertyName(line);
+                if (name != 0 && !names.add(name)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * The digest of the name a property of the merged table takes, or {@code 0} when it has none.
+         */
+        private long propertyName(int line) {
+            var cell = valueCell(cells.get(address(line, 1)));
+            return cell == null ? 0 : XlsSheetShifts.digest(cell);
+        }
+
+        /**
+         * Tells whether a cell of the merged table takes the name of the properties as its value.
+         */
+        private boolean namesProperties(CellSource source) {
+            return XlsTableMerger.namesProperties(valueCell(source));
+        }
+
+        /**
+         * The text a cell of the merged table takes: the value typed for it, or the text of the cell it takes its value
+         * from; {@code null} for a cell without text.
+         */
+        private @Nullable String valueText(@Nullable CellSource source) {
+            if (source != null && source.typed() != null) {
+                return source.typed().strip();
+            }
+            var cell = valueCell(source);
+            return cell != null && cell.getCellType() == CellType.STRING ? cell.getStringCellValue().strip() : null;
+        }
+
+        /**
+         * The cell of a revision whose value a cell of the merged table takes, or {@code null} when it takes none.
+         */
+        private @Nullable Cell valueCell(@Nullable CellSource source) {
+            if (source == null) {
+                return null;
+            }
+            View view;
+            CellAddress address;
+            if (source.base() != null) {
+                view = views.base();
+                address = source.base();
+            } else if (source.our() == null || source.parts().contains(CellPart.VALUE)) {
+                view = views.their();
+                address = source.their();
+            } else {
+                view = views.our();
+                address = source.our();
+            }
+            return view == null || address == null
+                    ? null
+                    : SheetUtil.getCell(view.cursor().sheet, address.getRow(), address.getColumn());
         }
 
         /**
@@ -2275,6 +2588,10 @@ final class XlsTableMerger {
             var sideKeys = new LinkedHashMap<Span, RegionKey>();
             keys.put(side, sideKeys);
             for (Span span : view.regions()) {
+                if (isPropertiesCell(view, span)) {
+                    // The properties cell is laid over the properties of the merged table once the lines are placed.
+                    continue;
+                }
                 var key = key(side, span);
                 if (key == null) {
                     if (!place(span, side, Set.of())) {
@@ -2287,6 +2604,14 @@ final class XlsTableMerger {
                 }
             }
             return true;
+        }
+
+        /**
+         * Tells whether merged cells of a revision are the properties cell of the table: the first cell of its
+         * properties, stretched over them.
+         */
+        private static boolean isPropertiesCell(View view, Span span) {
+            return span.firstPosition() == 0 && span.lastPosition() == 0 && view.showsProperties(span.firstLine());
         }
 
         /**

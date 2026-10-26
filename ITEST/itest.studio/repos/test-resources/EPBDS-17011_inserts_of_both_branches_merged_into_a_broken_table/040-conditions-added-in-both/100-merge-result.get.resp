@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "success",
+  "summary": {
+    "sourceBranch": "EPBDS-17011-conditions",
+    "targetBranch": "master",
+    "before": "***",
+    "after": "***",
+    "projects": [
+      {
+        "id": "EW26JA2YWK9QZ",
+        "name": "EPBDS-17011-Inserts",
+        "path": "EPBDS-17011-Inserts",
+        "current": true,
+        "status": "modified",
+        "files": [
+          {
+            "path": "EPBDS-17011-Inserts/rules/Main.xlsx",
+            "type": "modified",
+            "sheets": [
+              {
+                "name": "Rules",
+                "takenFrom": "both"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "hiddenProjects": 0
+  }
+}
+

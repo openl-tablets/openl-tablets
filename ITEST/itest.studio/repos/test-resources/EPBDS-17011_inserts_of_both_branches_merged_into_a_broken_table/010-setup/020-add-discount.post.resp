@@ -1,0 +1,19 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "discount",
+  "properties": {
+    "category": "Auto"
+  },
+  "returnType": "Double",
+  "signature": "discount(String plan)",
+  "file": "EPBDS-17011-Inserts/rules/Main.xlsx",
+  "sheet": "Rules",
+  "pos": "B2:D6",
+  "category": "Auto"
+}
+

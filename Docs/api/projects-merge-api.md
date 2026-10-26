@@ -390,6 +390,9 @@ column when a branch inserted or deleted its columns, and a row changed in both 
 inserted at the same place of a table are all kept, those of your version first, and a row both inserted there with
 the same values and comments once, as your version has it; merged cells a branch stretched over all the rows it
 inserted there, such as the header of a table over the columns each branch added at its end, cover the rows of both.
+The properties both branches add to a table are joined under one properties cell, and a property both add alike is
+kept once; a column both add at the same place of a decision table under the same name, such as `C3`, keeps it in your
+version, and the column of their version takes the next number, `C4`.
 A table that would touch the table under it once it holds the rows both branches inserted into it pushes that table
 down. A workbook resolves automatically when every such sheet merges:
 
@@ -401,8 +404,8 @@ down. A workbook resolves automatically when every such sheet merges:
   a table or a sheet one branch removes while the other changes only its formatting or its sizes is removed, and a
   table one branch only formats is taken from the other branch when their changes cannot be merged row by row;
 - neither branch inserts a row next to a row the other deletes, and neither deletes a row the other changes; the same
-  holds for columns. The branches do not both insert rows right under the header of a table, where it keeps its
-  properties, nor columns before its first column, which holds the header;
+  holds for columns. The branches do not set the same property of a table to different values, nor both insert rows
+  right under its header that are not properties, nor columns before its first column, which holds the header;
 - one branch does not change the rows of a table while the other changes its columns, no inserted or deleted row or
   column crosses merged cells the other branch keeps, and no branch stretches merged cells over only some of the rows
   it inserted where the other branch inserted rows too;

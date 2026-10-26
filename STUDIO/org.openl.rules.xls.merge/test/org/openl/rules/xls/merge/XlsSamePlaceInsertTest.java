@@ -48,6 +48,28 @@ class XlsSamePlaceInsertTest {
 
     /** The rules of the countries at A1:B5 and the data of the drivers at E1:G4, each with a merged header. */
     private static final MergeFixture FIXTURE = new MergeFixture(XlsSamePlaceInsertTest::rulesAndDrivers);
+    /** One table with the property {@code category} at A1:C5, nothing beside it. */
+    private static final MergeFixture DISCOUNT = new MergeFixture(workbook -> {
+        var sheet = workbook.createSheet(RULES);
+        set(sheet, 0, 0, "SimpleRules Double discount(String plan)");
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:C1"));
+        set(sheet, 1, 0, "properties");
+        set(sheet, 1, 1, "category");
+        set(sheet, 1, 2, "Auto");
+        set(sheet, 2, 0, "Plan");
+        set(sheet, 2, 1, "Discount");
+        set(sheet, 3, 0, "Basic");
+        set(sheet, 3, 1, 0.05);
+        set(sheet, 4, 0, "Premium");
+        set(sheet, 4, 1, 0.1);
+    });
+    /** A decision table that names its columns, see {@link #risks(Workbook)}. */
+    private static final MergeFixture RISKS = new MergeFixture(XlsSamePlaceInsertTest::risks);
+    /** The same tables, the drivers with the property {@code category} at E2:G2. */
+    private static final MergeFixture CATEGORIZED = new MergeFixture(workbook -> {
+        rulesAndDrivers(workbook);
+        insertProperty(workbook.getSheet(RULES), 1, "category", "Auto");
+    });
     private static final String RATES = RULES + "/A1:B5";
     private static final String DRIVERS = RULES + "/E1:G4";
     /** The first column of the drivers. */
@@ -325,30 +347,178 @@ class XlsSamePlaceInsertTest {
     }
 
     @Test
-    void propertiesAddedInBothToATableWithoutThem_isConflict() throws IOException {
-        // Each branch would start the properties of the drivers in a row of its own.
-        var tables = FIXTURE.conflicts(XSSFWorkbook::new,
-                sheet -> insertProperty(sheet, 1, "category", "Auto"),
-                sheet -> insertProperty(sheet, 1, "state", "NY")).sheets().getFirst().tables();
+    void propertiesAddedInBothToATableWithoutThem_areJoinedUnderOneCell() throws IOException {
+        // Each branch starts the properties of the drivers in a row of its own: they become one properties cell.
+        var merged = FIXTURE.mergeXlsx(sheet -> insertProperty(sheet, 1, "category", "Auto"),
+                sheet -> insertProperty(sheet, 1, "state", "NY"));
 
-        assertEquals(TableConflictReason.ROWS, drivers(tables).reason());
+        assertProperties(merged, "category", "state");
     }
 
     @Test
     void propertiesAddedInBothAfterTheProperties_areMergedUnderOneCell() throws IOException {
         // The drivers have a property already, and each branch adds one after it, stretching the properties cell.
-        var fixture = new MergeFixture(workbook -> {
-            rulesAndDrivers(workbook);
-            insertProperty(workbook.getSheet(RULES), 1, "category", "Auto");
-        });
-        var merged = fixture.mergeXlsx(sheet -> addProperty(sheet, "state", "NY"),
+        var merged = CATEGORIZED.mergeXlsx(sheet -> addProperty(sheet, "state", "NY"),
                 sheet -> addProperty(sheet, "lob", "Personal"));
 
-        assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("E2:E4")));
+        assertProperties(merged, "category", "state", "lob");
+    }
+
+    @Test
+    void propertiesAddedInBothAboveTheProperties_areJoinedUnderOneCell() throws IOException {
+        // The drivers have a property already, and each branch adds one above it, as the Properties of OpenL Studio do.
+        // Their property has the value of the old one, so its row shares as many values with the old row as the row
+        // the properties cell moved away from: the old row is still told by the name of the properties it shows.
+        var merged = CATEGORIZED.mergeXlsx(sheet -> addPropertyAbove(sheet, "description", "Drivers of the policy"),
+                sheet -> addPropertyAbove(sheet, "lob", "Auto"));
+
+        assertProperties(merged, "description", "lob", "category");
+    }
+
+    @Test
+    void samePropertySetAlikeInBoth_isKeptOnce() throws IOException {
+        var merged = CATEGORIZED.mergeXlsx(sheet -> addPropertyAbove(sheet, "lob", "Auto"), sheet -> {
+            addPropertyAbove(sheet, "lob", "Auto");
+            set(sheet, 4, DRIVERS_COLUMN + 1, 31);
+        });
+
+        assertProperties(merged, "lob", "category");
+        assertEquals(31, number(merged, 4, DRIVERS_COLUMN + 1));
+    }
+
+    @Test
+    void samePropertySetAlikeAmongOthers_isKeptOnce() throws IOException {
+        // Only the first property a branch adds shows the properties cell, so the same property is told by its name
+        // and its value.
+        var merged = CATEGORIZED.mergeXlsx(sheet -> addPropertyAbove(sheet, "description", "Drivers", "lob", "Auto"),
+                sheet -> addPropertyAbove(sheet, "lob", "Auto"));
+
+        assertProperties(merged, "description", "lob", "category");
+    }
+
+    @Test
+    void samePropertySetDifferentlyInBoth_isConflict() throws IOException {
+        var tables = CATEGORIZED.conflicts(XSSFWorkbook::new,
+                sheet -> addPropertyAbove(sheet, "lob", "Commercial"),
+                sheet -> addPropertyAbove(sheet, "lob", "Personal")).sheets().getFirst().tables();
+
+        var drivers = tables.stream().filter(table -> (RULES + "/E1:G5").equals(table.id())).findFirst().orElseThrow();
+        assertEquals(TableConflictReason.ROWS, drivers.reason());
+    }
+
+    @Test
+    void rulesInsertedInBothIntoAGroup_stretchTheGroupOverAll() throws IOException {
+        // The rules of US share the country, merged over them, and each branch inserts a rule among them.
+        var merged = RISKS.mergeXlsx(sheet -> insertRule(sheet, "TX", "Mid"), sheet -> insertRule(sheet, "FL", "Low"));
+
+        assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A6:A9")));
+        assertEquals(List.of("NY", "TX", "FL", "CA"),
+                IntStream.rangeClosed(5, 8).mapToObj(row -> text(merged, row, 1)).toList());
+        assertEquals("DE", text(merged, 9, 0));
+    }
+
+    @Test
+    void conditionsAddedInBothAtTheSamePlace_takeNamesOfTheirOwn() throws IOException {
+        // Both branches name the condition they add C3: the condition of their branch becomes C4.
+        var merged = RISKS.mergeXlsx(sheet -> insertCondition(sheet, "country.startsWith(p)", "String p", "Prefix"),
+                sheet -> insertCondition(sheet, "state.length() > n", "int n", "Min Length"));
+
+        assertEquals(List.of("C1", "C2", "C3", "C4", "RET1"),
+                IntStream.rangeClosed(0, 4).mapToObj(column -> text(merged, 1, column)).toList());
+        assertEquals(List.of("Prefix", "Min Length"), List.of(text(merged, 4, 2), text(merged, 4, 3)));
+        assertTrue(merged.getMergedRegions().contains(CellRangeAddress.valueOf("A1:E1")));
+    }
+
+    @Test
+    void conditionAddedWhereTheirsRenamedAnother_takesTheNumberAfterAllNames() throws IOException {
+        // Their branch also renames C2 to C4, so the condition it adds takes C5, not a second C4.
+        var merged = RISKS.mergeXlsx(sheet -> insertCondition(sheet, "country.startsWith(p)", "String p", "Prefix"),
+                sheet -> {
+                    insertCondition(sheet, "state.length() > n", "int n", "Min Length");
+                    set(sheet, 1, 1, "C4");
+                });
+
+        assertEquals(List.of("C1", "C4", "C3", "C5", "RET1"),
+                IntStream.rangeClosed(0, 4).mapToObj(column -> text(merged, 1, column)).toList());
+    }
+
+    @Test
+    void propertyRenamedInTheirsToTheOneOursAdds_isConflict() throws IOException {
+        // Our branch adds lob above category, their branch renames category to lob: the table would set lob twice.
+        var tables = DISCOUNT.conflicts(XSSFWorkbook::new, sheet -> {
+            sheet.shiftRows(1, sheet.getLastRowNum(), 1);
+            set(sheet, 1, 0, "properties");
+            set(sheet, 1, 1, "lob");
+            set(sheet, 1, 2, "Personal");
+            cell(sheet, 2, 0).setBlank();
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:A3"));
+        }, sheet -> set(sheet, 1, 1, "lob")).sheets().getFirst().tables();
+
+        assertEquals(TableConflictReason.ROWS, tables.getFirst().reason());
+    }
+
+    /**
+     * Inserts a rule of US between NY and CA, the way OpenL Studio does: the merged country stretches over it.
+     */
+    private static void insertRule(Sheet sheet, String state, String risk) {
+        move(sheet, "A7:C8", 1, 0);
+        set(sheet, 6, 1, state);
+        set(sheet, 6, 2, risk);
+        sheet.removeMergedRegion(regionIndex(sheet, "A6:A7"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A6:A8"));
+    }
+
+    /**
+     * Adds a condition before the return value named C3, the way OpenL Studio does: the header stretches over it.
+     */
+    private static void insertCondition(Sheet sheet, String expression, String parameter, String title) {
+        move(sheet, "C2:C8", 0, 1);
+        set(sheet, 1, 2, "C3");
+        set(sheet, 2, 2, expression);
+        set(sheet, 3, 2, parameter);
+        set(sheet, 4, 2, title);
+        sheet.removeMergedRegion(regionIndex(sheet, "A1:C1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:D1"));
+    }
+
+    /**
+     * A decision table of risks at A1:C8 that names its columns, the rules of US sharing the country merged over them.
+     */
+    private static void risks(Workbook workbook) {
+        var sheet = workbook.createSheet(RULES);
+        var rows = List.of(List.of("Rules String risk(String country, String state)", "", ""),
+                List.of("C1", "C2", "RET1"),
+                List.of("country == c", "state == s", "r"),
+                List.of("String c", "String s", "String r"),
+                List.of("Country", "State", "Risk"),
+                List.of("US", "NY", "Low"),
+                List.of("", "CA", "High"),
+                List.of("DE", "", "Medium"));
+        for (var row = 0; row < rows.size(); row++) {
+            for (var column = 0; column < 3; column++) {
+                var value = rows.get(row).get(column);
+                if (!value.isEmpty()) {
+                    set(sheet, row, column, value);
+                }
+            }
+        }
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A1:C1"));
+        sheet.addMergedRegion(CellRangeAddress.valueOf("A6:A7"));
+    }
+
+    /**
+     * Checks the properties of the drivers: one properties cell over the properties named, in order, and the names of
+     * the fields right under them.
+     */
+    private static void assertProperties(Sheet merged, String... names) {
         assertEquals("properties", text(merged, 1, DRIVERS_COLUMN));
-        assertEquals(List.of("category", "state", "lob"),
-                IntStream.rangeClosed(1, 3).mapToObj(row -> text(merged, row, DRIVERS_COLUMN + 1)).toList());
-        assertEquals("name", text(merged, 4, DRIVERS_COLUMN));
+        if (names.length > 1) {
+            assertTrue(merged.getMergedRegions()
+                    .contains(new CellRangeAddress(1, names.length, DRIVERS_COLUMN, DRIVERS_COLUMN)));
+        }
+        assertEquals(List.of(names),
+                IntStream.rangeClosed(1, names.length).mapToObj(row -> text(merged, row, DRIVERS_COLUMN + 1)).toList());
+        assertEquals("name", text(merged, names.length + 1, DRIVERS_COLUMN));
     }
 
     /**
@@ -372,6 +542,23 @@ class XlsSamePlaceInsertTest {
         insertProperty(sheet, 2, name, value);
         cell(sheet, 2, DRIVERS_COLUMN).setBlank();
         sheet.addMergedRegion(CellRangeAddress.valueOf("E2:E3"));
+    }
+
+    /**
+     * Adds properties above the one the drivers have, the way OpenL Studio does: the properties cell moves up to the
+     * first new row and stretches over all of them.
+     *
+     * @param namesAndValues the name and the value of each property added, in order
+     */
+    private static void addPropertyAbove(Sheet sheet, String... namesAndValues) {
+        for (var i = namesAndValues.length - 2; i >= 0; i -= 2) {
+            insertProperty(sheet, 1, namesAndValues[i], namesAndValues[i + 1]);
+        }
+        var last = namesAndValues.length / 2 + 1;
+        for (var row = 2; row <= last; row++) {
+            cell(sheet, row, DRIVERS_COLUMN).setBlank();
+        }
+        sheet.addMergedRegion(new CellRangeAddress(1, last, DRIVERS_COLUMN, DRIVERS_COLUMN));
     }
 
     /**

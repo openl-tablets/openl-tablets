@@ -1,0 +1,39 @@
+PUT /rest/projects/{PROJECT_ID}/tables/{DISCOUNT_ID} HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "discount",
+  "properties": {
+    "category": "Auto",
+    "description": "Discounts of car plans"
+  },
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "plan",
+      "type": "String"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Plan"
+    },
+    {
+      "title": "Discount"
+    }
+  ],
+  "rules": [
+    {
+      "Plan": "Basic",
+      "Discount": 0.05
+    },
+    {
+      "Plan": "Premium",
+      "Discount": 0.1
+    }
+  ]
+}
+

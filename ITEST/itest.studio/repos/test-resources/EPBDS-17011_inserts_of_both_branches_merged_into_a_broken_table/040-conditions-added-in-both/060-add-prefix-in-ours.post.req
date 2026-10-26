@@ -1,0 +1,46 @@
+POST /rest/projects/{PROJECT_ID}/tables/{RISK_ID}/actions HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "operation": "insert",
+  "target": {
+    "type": "columns",
+    "position": 2,
+    "cells": [
+      [
+        {
+          "value": null
+        },
+        {
+          "value": "C3"
+        },
+        {
+          "value": "country.startsWith(p)"
+        },
+        {
+          "value": "String p"
+        },
+        {
+          "value": "Prefix"
+        },
+        {
+          "value": "U"
+        },
+        {
+          "value": "U"
+        },
+        {
+          "value": "U"
+        },
+        {
+          "value": "U"
+        },
+        {
+          "value": "D"
+        }
+      ]
+    ]
+  }
+}
+

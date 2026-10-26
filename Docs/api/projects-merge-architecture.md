@@ -71,9 +71,14 @@ flowchart TB
   created with the same content is kept once, at the place of your version, and a sheet holding one at different
   places is merged table by table even when nothing moved; a cell outside every table, styled but empty, is merged
   cell by cell,
-  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version, and
+  **`LineAlignment`** aligns the rows or the columns of a table changed in both versions with the base version — a
+  line changed in place is found by the values its cells show, a cell under merged cells showing the value of their
+  first cell, so a row the properties cell stretched over is still the row of that property — and
   the lines both versions inserted at one place are kept one after another, those of your version first and a line
-  both inserted alike once (`Joint`), merged cells stretched over them by either version covering them all; when
+  both inserted alike once (`Joint`), merged cells stretched over them by either version covering them all; the
+  properties both versions add are joined under one properties cell wherever each added them, a property told alike
+  by its name and value, and a column both add at the same place of a decision table under one name, such as `C3`,
+  takes the next number in their version; when
   both versions moved tables and one of them only pushed its tables by rows it inserted or deleted above them, the
   merged sheet follows the places of the other version, pushed by those rows (`Pushes`), and falls back to a
   conflict per moved table when those places do not fit together. The same pushes place the tables under a table
