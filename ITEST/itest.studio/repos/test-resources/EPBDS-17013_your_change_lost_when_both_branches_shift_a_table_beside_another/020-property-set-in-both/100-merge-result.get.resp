@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "status": "conflicts",
+  "conflictGroups": [
+    {
+      "projectName": "EPBDS-17013-Lost-Change",
+      "projectPath": "EPBDS-17013-Lost-Change",
+      "files": [
+        "EPBDS-17013-Lost-Change/rules/Main.xlsx"
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,30 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "***",
+      "tableType": "SimpleRules",
+      "kind": "Rules",
+      "name": "discount",
+      "properties": {
+        "category": "Auto"
+      },
+      "returnType": "Double",
+      "signature": "discount(String plan)",
+      "file": "EPBDS-17013-Lost-Change/rules/Main.xlsx",
+      "sheet": "Rules",
+      "pos": "A1:C5",
+      "category": "Auto",
+      "module": "Main",
+      "project": "EPBDS-17013-Lost-Change",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1,
+  "total": 1
+}
+

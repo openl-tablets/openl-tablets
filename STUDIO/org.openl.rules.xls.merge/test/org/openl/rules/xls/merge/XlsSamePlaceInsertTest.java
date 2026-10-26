@@ -506,6 +506,18 @@ class XlsSamePlaceInsertTest {
         sheet.addMergedRegion(CellRangeAddress.valueOf("A6:A7"));
     }
 
+    @Test
+    void samePropertySetDifferentlyWhereOurValueIsTheOldOne_isConflict() throws IOException {
+        // Both branches shift the cells of the drivers alone, the rules beside them stay. Our new value is the value
+        // the cell held before the shift, so the cells compared by their places tell no change of ours.
+        var tables = CATEGORIZED.conflicts(XSSFWorkbook::new,
+                sheet -> addPropertyAbove(sheet, "lob", "Auto"),
+                sheet -> addPropertyAbove(sheet, "lob", "Personal")).sheets().getFirst().tables();
+
+        var drivers = tables.stream().filter(table -> (RULES + "/E1:G5").equals(table.id())).findFirst().orElseThrow();
+        assertEquals(TableConflictReason.ROWS, drivers.reason());
+    }
+
     /**
      * Checks the properties of the drivers: one properties cell over the properties named, in order, and the names of
      * the fields right under them.
