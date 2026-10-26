@@ -1,8 +1,8 @@
 package org.openl.studio.projects.model.trace;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -89,11 +89,14 @@ public class TraceDebugMapper {
     private static final int MAX_TREE_CHILDREN = 100;
 
     /**
-     * Node budget for the one-shot full tree the business view downloads. The whole executed tree is
-     * listed up to this many nodes in a single response; a branch beyond it is cut and marked truncated.
-     * This bounds the response so one request replaces the thousands of lazy page fetches.
+     * Node budget of the first view of the tree the business view downloads. The upper levels of the executed
+     * tree are listed whole up to this many nodes in a single response; a deeper branch is loaded when it is
+     * expanded.
      */
     private static final int MAX_FULL_TREE_NODES = 50_000;
+
+    /** Node budget of a branch the business view loads on expand: the next few levels of it, in a quick response. */
+    private static final int MAX_BRANCH_NODES = 10_000;
 
     /** Default number of hotspots in the profile overview when the caller does not ask for a specific size. */
     public static final int DEFAULT_PROFILE_TOP = 20;
@@ -145,7 +148,8 @@ public class TraceDebugMapper {
             view.profile(buildProfileSummary(profileStats, options.profileTop(), completedTree.durationNanos(),
                     treeTruncated));
             if (options.includeTree() && options.fullTree()) {
-                view.treeNodes(toFlatTree(completedTree));
+                var flat = toFlatTree(completedTree);
+                view.treeNodes(flat.nodes()).treeDispatches(flat.dispatches());
             } else if (options.includeTree()) {
                 view.tree(toShallowCallNodeView(completedTree));
             }
@@ -562,8 +566,8 @@ public class TraceDebugMapper {
     /** A step's identity and timings, without its children — the part shared by the shallow node and the flat list. */
     private static StepValueView.StepValueViewBuilder stepViewBase(CallNode.Step step) {
         // A condition row (like a static cell) has no execution of its own — no timings.
-        boolean condition = step.decision() == DecisionRow.MATCHED || step.decision() == DecisionRow.UNMATCHED;
-        boolean noTimings = step.constant() || condition;
+        var condition = step.decision() == DecisionRow.MATCHED || step.decision() == DecisionRow.UNMATCHED;
+        var noTimings = step.constant() || condition;
         return StepValueView.builder()
                 .ref(step.ref())
                 .label(step.label())
@@ -578,88 +582,119 @@ public class TraceDebugMapper {
     }
 
     /**
-     * Serialize the whole executed tree in one list for the business view, so the client browses it offline
-     * without paging. The root comes first, and every call comes after the node that made it. A node names its
-     * caller by position and step, and carries no sub-calls of its own, so the list nests no deeper however
-     * deep the calls went.
+     * Serialize the executed tree in one list for the business view. The root comes first, and every call comes
+     * after the node that made it. A node names its caller by position and step, and carries no sub-calls of its
+     * own, so the list nests no deeper however deep the calls went.
      *
-     * <p>Bounded to {@link #MAX_FULL_TREE_NODES} calls below the root and to {@link #MAX_TREE_CHILDREN} calls per
-     * step. Calls beyond the bound are left out, and their step reports the full count so the client marks how
-     * many executions are omitted. The advanced view keeps the shallow, lazily paged tree.
+     * <p>Bounded to {@link #MAX_FULL_TREE_NODES} calls below the root. The list is filled level by level: every call
+     * of a step is listed, every iteration of a repeated call included, before the calls they made. A step whose
+     * calls do not fit is left out whole and reports how many calls it made, so the client loads its branch with
+     * {@link #toBranchView} when it is expanded. The advanced view keeps the shallow, lazily paged tree.
      */
-    static List<CallNodeView> toFlatTree(CallNode root) {
+    static CallTreeView toFlatTree(CallNode root) {
         return toFlatTree(root, MAX_FULL_TREE_NODES);
     }
 
     /** Same as {@link #toFlatTree(CallNode)} with an explicit node budget, so a test can force truncation. */
-    static List<CallNodeView> toFlatTree(CallNode root, int budget) {
-        var calls = new ArrayList<FlatCall>();
-        // How many calls of a step made it into the list, so a step that lost some reports its full count.
-        var kept = new IdentityHashMap<CallNode.Step, Integer>();
-        // The budget is spent in the order the calls ran: a call and everything below it before its next sibling.
-        // Every node on the way down keeps its place among its own calls and hands the next one out only when
-        // the budget can still take it, so nothing is read that the list will not hold.
-        var open = new ArrayDeque<CallCursor>();
-        open.push(new CallCursor(root, 0));
-        var left = budget;
-        while (left > 0 && !open.isEmpty()) {
-            var call = open.element().next();
-            if (call == null) {
-                open.pop();
-            } else {
-                left--;
-                kept.merge(call.step(), 1, Integer::sum);
-                calls.add(call);
-                open.push(new CallCursor(call.node(), calls.size()));
-            }
-        }
-        var nodes = new ArrayList<CallNodeView>(calls.size() + 1);
-        nodes.add(toFlatNode(root, kept).build());
-        calls.forEach(call -> nodes.add(toFlatNode(call.node(), kept)
-                .parent(call.parent())
-                .parentStep(call.step().ref())
-                .build()));
-        return nodes;
+    static CallTreeView toFlatTree(CallNode root, int budget) {
+        var flat = new FlatTree(budget);
+        flat.addRoot(root);
+        return flat.fill();
     }
 
     /**
-     * The calls of one node in the order they ran, handed out one at a time: step by step, at most
-     * {@link #MAX_TREE_CHILDREN} of each step.
+     * The branch below one step of one executed frame, in one flat list as {@link #toFlatTree} lists the tree.
+     * The frame is addressed by its {@code (uri, instance)}, unique per execution in the run.
+     *
+     * <p>The list starts with the calls of the step from {@code offset} on, and goes on level by level, bounded to
+     * {@link #MAX_BRANCH_NODES} calls. A step that made more calls than that is loaded in pages: the client asks
+     * again from the number of calls it holds. The list is empty if the frame or step is not in the tree.
      */
-    @RequiredArgsConstructor
-    private static final class CallCursor {
-        private final CallNode node;
-        /** The position of the node in the flat list, which its calls name as their caller. */
-        private final int position;
-        private int step;
-        private int call;
+    public static CallTreeView toBranchView(CallNode root, String uri, int instance, String stepRef, int offset) {
+        return toBranchView(root, uri, instance, stepRef, offset, MAX_BRANCH_NODES);
+    }
 
-        /** The next call of the node, or {@code null} once every listed call has been handed out. */
-        @Nullable FlatCall next() {
-            var steps = node.steps();
-            while (step < steps.size()) {
-                var current = steps.get(step);
-                if (call < Math.min(current.children().size(), MAX_TREE_CHILDREN)) {
-                    return new FlatCall(current.children().get(call++), position, current);
+    /** Same as {@link #toBranchView(CallNode, String, int, String, int)} with an explicit node budget, for tests. */
+    static CallTreeView toBranchView(CallNode root, String uri, int instance, String stepRef, int offset,
+                                     int budget) {
+        var flat = new FlatTree(budget);
+        stepChildren(root, uri, instance, stepRef).stream()
+                .skip(Math.max(0, offset))
+                .limit(budget)
+                .forEach(flat::addTop);
+        return flat.fill();
+    }
+
+    /**
+     * A flat list of the executed tree, filled level by level within a node budget. A step's calls go in whole or
+     * not at all, so a step either lists all its calls or reports how many it made.
+     */
+    private static final class FlatTree {
+        private final List<FlatCall> calls = new ArrayList<>();
+        /** The steps whose calls are listed. */
+        private final Set<CallNode.Step> listed = Collections.newSetFromMap(new IdentityHashMap<>());
+        /** The distinct dispatches by their position in the list sent beside the nodes. */
+        private final Map<DispatchInfo, Integer> dispatches = new LinkedHashMap<>();
+        private int left;
+
+        FlatTree(int budget) {
+            left = budget;
+        }
+
+        /** Put the root first. It is not counted against the budget. */
+        void addRoot(CallNode root) {
+            calls.add(new FlatCall(root, null, null));
+        }
+
+        /** Add a call of the requested step: it names no caller in the list. */
+        void addTop(CallNode node) {
+            left--;
+            calls.add(new FlatCall(node, null, null));
+        }
+
+        /** List the calls below the nodes added, the levels nearest them first, while the budget lasts. */
+        CallTreeView fill() {
+            // The list itself is the queue: a node's calls go to its end, after every node of the levels above.
+            for (var next = 0; next < calls.size() && left > 0; next++) {
+                for (var step : calls.get(next).node().steps()) {
+                    addCallsOf(step, next);
                 }
-                step++;
-                call = 0;
             }
-            return null;
+            var nodes = calls.stream().map(this::toView).toList();
+            return new CallTreeView(nodes, dispatches.isEmpty() ? null : List.copyOf(dispatches.keySet()));
+        }
+
+        private void addCallsOf(CallNode.Step step, int parent) {
+            var children = step.children();
+            if (!children.isEmpty() && children.size() <= left) {
+                left -= children.size();
+                listed.add(step);
+                children.forEach(child -> calls.add(new FlatCall(child, parent, step)));
+            }
+        }
+
+        private CallNodeView toView(FlatCall call) {
+            var node = call.node();
+            var steps = node.steps().stream()
+                    .map(step -> stepViewBase(step)
+                            .childrenTotal(listed.contains(step) || step.children().isEmpty()
+                                    ? null : step.children().size())
+                            .build())
+                    .toList();
+            var dispatch = node.dispatch();
+            var step = call.step();
+            return nodeViewBase(node, steps)
+                    .dispatch(null)
+                    .dispatchIndex(dispatch == null ? null
+                            : dispatches.computeIfAbsent(dispatch, unused -> dispatches.size()))
+                    .parent(call.parent())
+                    .parentStep(step == null ? null : step.ref())
+                    .build();
         }
     }
 
-    /** A node of the flat tree without its caller: its steps report the full count of the calls left out. */
-    private static CallNodeView.CallNodeViewBuilder toFlatNode(CallNode node, Map<CallNode.Step, Integer> kept) {
-        var steps = node.steps().stream().map(step -> {
-            int total = step.children().size();
-            return stepViewBase(step).childrenTotal(kept.getOrDefault(step, 0) < total ? total : null).build();
-        }).toList();
-        return nodeViewBase(node, steps);
-    }
-
-    /** A call on its way into the flat tree, with the position of its caller and the step that made it. */
-    private record FlatCall(CallNode node, int parent, CallNode.Step step) {
+    /** A call of the flat tree, with the position of its caller and the step that made it; neither for a top call. */
+    private record FlatCall(CallNode node, @Nullable Integer parent, CallNode.@Nullable Step step) {
     }
 
     /**
@@ -669,18 +704,23 @@ public class TraceDebugMapper {
      */
     public static TreeChildrenView toChildrenView(@Nullable CallNode root, String uri, int instance, String stepRef,
                                                   int offset, int limit) {
-        CallNode frame = root == null ? null : findNode(root, uri, instance);
-        List<CallNode> children = frame == null ? List.of() : frame.steps().stream()
-                .filter(step -> stepRef.equals(step.ref()))
-                .findFirst()
-                .map(CallNode.Step::children)
-                .orElse(List.of());
+        var children = root == null ? List.<CallNode>of() : stepChildren(root, uri, instance, stepRef);
         List<CallNodeView> page = children.stream()
                 .skip(Math.max(0, offset))
                 .limit(Math.max(1, limit))
                 .map(TraceDebugMapper::toShallowCallNodeView)
                 .toList();
         return new TreeChildrenView(page, children.size());
+    }
+
+    /** The calls one step of one executed frame made, or none if the frame or step is not in the tree. */
+    private static List<CallNode> stepChildren(CallNode root, String uri, int instance, String stepRef) {
+        var frame = findNode(root, uri, instance);
+        return frame == null ? List.of() : frame.steps().stream()
+                .filter(step -> stepRef.equals(step.ref()))
+                .findFirst()
+                .map(CallNode.Step::children)
+                .orElse(List.of());
     }
 
     /** Depth-first search for the retained frame with the given {@code (uri, instance)}; references are skipped. */
@@ -738,7 +778,7 @@ public class TraceDebugMapper {
      */
     public StepInputsView freezeStepInputs(DebugFrame frame, String stepRef,
                                            @Nullable ClassLoader classLoader, boolean includeSchema) {
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        var previous = Thread.currentThread().getContextClassLoader();
         if (classLoader != null) {
             Thread.currentThread().setContextClassLoader(classLoader);
         }
@@ -750,15 +790,15 @@ public class TraceDebugMapper {
             if (cell == null) {
                 return new StepInputsView(List.of(), null, null, null);
             }
-            Map<String, Object> executed = new HashMap<>();
+            var executed = new HashMap<String, Object>();
             for (DebugFrame.ExecutedStep step : frame.getExecutedSteps()) {
                 executed.put(step.ref(), step.value());
             }
-            Map<Object, Object> clones = new IdentityHashMap<>();
+            var clones = new IdentityHashMap<Object, Object>();
             List<ParameterValue> inputs = cell.getMethod() instanceof CompositeMethod composite
                     ? formulaInputs(composite, frame, spreadsheet, executed, clones, includeSchema)
                     : List.of();
-            ParameterValue result = stepResult(frame, cell, stepRef, executed, clones, includeSchema);
+            var result = stepResult(frame, cell, stepRef, executed, clones, includeSchema);
             // The step the run failed on carries the error too, so a business click lands on the failing step
             // and reads why it failed — not only the whole table's node, like the advanced view shows both.
             List<MessageDescription> errors = isErroringStep(frame, stepRef) ? buildErrors(frame) : null;
@@ -810,9 +850,9 @@ public class TraceDebugMapper {
         if (rowCol == null) {
             return null;
         }
-        SpreadsheetCell[][] cells = spreadsheet.getCells();
-        int row = rowCol[0];
-        int col = rowCol[1];
+        var cells = spreadsheet.getCells();
+        var row = rowCol[0];
+        var col = rowCol[1];
         SpreadsheetCell cell = row >= 0 && row < cells.length && col >= 0 && col < cells[row].length
                 ? cells[row][col] : null;
         return isDisplayCell(cell) ? cell : null;
@@ -856,7 +896,7 @@ public class TraceDebugMapper {
         if (cell == null) {
             return false;
         }
-        SpreadsheetCellType type = cell.getSpreadsheetCellType();
+        var type = cell.getSpreadsheetCellType();
         return type == SpreadsheetCellType.METHOD || type == SpreadsheetCellType.VALUE
                 || type == SpreadsheetCellType.CONSTANT;
     }
@@ -927,7 +967,7 @@ public class TraceDebugMapper {
         if (frame.getError() == null) {
             return false;
         }
-        CurrentLocation location = frame.getLocation();
+        var location = frame.getLocation();
         return location != null && stepRef.equals(location.ref());
     }
 

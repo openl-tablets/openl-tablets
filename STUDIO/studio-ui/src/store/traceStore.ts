@@ -7,6 +7,7 @@ import type {
     DebugFrameView,
     DebugStackView,
     DebugStatus,
+    DispatchInfo,
     ProfileSummaryView,
     RawTableView,
     StepType,
@@ -14,6 +15,7 @@ import type {
     TraceParameterValue,
     WatchView,
 } from 'types/trace'
+import { ApiHttpError } from 'services/apiCall'
 import traceService from 'services/traceService'
 import { walkDepthFirst } from 'utils/depthFirst'
 import { errorMessageOr } from 'utils/errorMessage'
@@ -46,6 +48,10 @@ interface SimpleOrderRange {
     end: number
 }
 
+/** Where the subtree of the last inspected row ends in the execution order, if a row was inspected. */
+const inspectedEnd = (ranges: Record<string, SimpleOrderRange>, key: string | null): number | null =>
+    key === null ? null : ranges[key]?.end ?? null
+
 /**
  * A clicked step, remembered so the Details panel can present the suspension as that step — like the
  * classic trace did: the owning table's inputs as Parameters, the step's own value as `return`.
@@ -59,6 +65,9 @@ export interface SimpleStepFocus {
     ownerUri: string
     ownerInstance: number
 }
+
+/** Where the loading of a step's calls stands: under way, or nothing more to load. */
+export type SimpleBranchState = 'loading' | 'ended'
 
 /** A tree row the simple mode inspects: its breakpoint key plus the frame the suspension lands in. */
 export interface SimpleInspectTarget {
@@ -124,23 +133,39 @@ interface DebugState {
     /** Raw table grids cached by tableId for the session; the structure is immutable while suspended. */
     rawTableCache: Record<string, RawTableView>
 
-    // Simple (business) mode: a full profiled run downloaded whole, browsed offline, inspected by re-running.
+    // Simple (business) mode: a full profiled run whose upper levels arrive at once and whose deep branches load
+    // from the tree the server keeps after the run; a row is inspected by re-running.
     /** Whether the advanced debugger UI is shown; the simple business view is the default. */
     advanced: boolean
     /** The executed call tree of the last simple-mode run. Immutable once captured — re-runs never touch it. */
     simpleTree: CallNodeView | null
-    /** Every step's sub-calls of that tree, downloaded up front so expanding never calls the backend. */
+    /** Session id of the run that recorded the tree; the server keeps the tree under it for the branches. */
+    simpleRunId: string | null
+    /** The sub-calls of the steps loaded on expand, keyed by `treeChildKey(uri, instance, step)`. */
     simpleChildren: Record<string, CallNodeView[]>
-    /** Execution-order ranges by breakpoint key, deciding whether a click can resume or must restart. */
-    simpleOrder: Record<string, SimpleOrderRange>
+    /**
+     * Steps whose calls are loading, so the row shows it, or that the kept tree has no more calls of, so their rows
+     * stop offering to load them; by the same key.
+     */
+    simpleBranchState: Record<string, SimpleBranchState>
+    /** True once the server reports the kept tree released: no branch loads until the trace runs again. */
+    simpleTreeReleased: boolean
+    /**
+     * Execution-order ranges by breakpoint key, deciding whether a click can resume or must restart. Null after a
+     * branch loaded: the order is numbered again on the next click, not on every load.
+     */
+    simpleOrder: Record<string, SimpleOrderRange> | null
     /** True once the tree has arrived and is browsable. */
     simpleReady: boolean
     /** True while the simple run executes and its tree arrives. */
     simpleLoading: boolean
     /** Breakpoint key of the row whose values are being shown, for the selection highlight. */
     simpleSelectedKey: string | null
-    /** End position of the last inspected row's subtree; a row starting after it can be resumed to, else restart. */
-    simpleLastInspected: number | null
+    /**
+     * Breakpoint key of the last inspected row; a row starting after its subtree can be resumed to, else restart.
+     * A key rather than a position: a branch loaded later renumbers the rows after it.
+     */
+    simpleLastInspected: string | null
     /** The clicked step when the last inspection was a step, so Details presents the step, not the frame. */
     simpleFocus: SimpleStepFocus | null
     /**
@@ -200,10 +225,12 @@ interface DebugState {
     fetchTreeChildren: (uri: string, instance: number, step: string) => Promise<void>
     /** Toggle the decision-table condition breakdown shown in both trees (business and advanced). */
     setShowDetailed: (value: boolean) => void
-    /** Simple mode Run: execute the whole trace recording its tree, then download the tree for offline browsing. */
+    /** Simple mode Run: execute the whole trace recording its tree, then download its upper levels for browsing. */
     simpleRun: () => Promise<void>
     /** Simple mode click: re-run execution through the clicked row so its inputs and result become readable. */
     simpleInspect: (target: SimpleInspectTarget) => Promise<void>
+    /** Load the next part of a step's branch from the kept tree; the calculation does not run again. */
+    loadSimpleBranch: (uri: string, instance: number, step: string) => Promise<void>
     reset: () => void
 }
 
@@ -212,12 +239,19 @@ export const treeChildKey = (uri: string, instance: number, step: string): strin
     JSON.stringify([uri, instance, step])
 
 /**
- * Put the full tree back together from the list the server sends (`treeNodes`). Each call is attached to the step
- * of its parent that made it, in the order of the list, which is the order the calls ran. The list holds no
- * nesting of its own, so a tree thousands of calls deep is rebuilt without recursion.
+ * Put a tree back together from a flat list the server sends (`treeNodes`, or a branch). Each call is attached to
+ * the step of its parent that made it, in the order of the list, which is the order the calls ran. The list holds no
+ * nesting of its own, so a tree thousands of calls deep is rebuilt without recursion. A node names its dispatch by
+ * position in `dispatches`, and gets that dispatch back.
+ *
+ * Returns the calls that name no parent: the root of `treeNodes`, or the calls of the step a branch was loaded for.
  */
-export const treeFromNodes = (nodes: CallNodeView[]): CallNodeView | null => {
-    const rebuilt = nodes.map(node => ({ ...node, steps: node.steps.map(step => ({ ...step })) }))
+export const callsFromNodes = (nodes: CallNodeView[], dispatches?: DispatchInfo[] | null): CallNodeView[] => {
+    const rebuilt = nodes.map(node => ({
+        ...node,
+        steps: node.steps.map(step => ({ ...step })),
+        ...(node.dispatchIndex == null ? {} : { dispatch: dispatches?.[node.dispatchIndex] ?? null }),
+    }))
     // The steps of a parent by reference, read once per parent, so attaching a call costs the same however many
     // steps its parent has.
     const stepsOf = new Map<CallNodeView, Map<string, StepValueView>>()
@@ -229,15 +263,22 @@ export const treeFromNodes = (nodes: CallNodeView[]): CallNodeView | null => {
         }
         return steps.get(ref)
     }
+    const tops: CallNodeView[] = []
     for (const node of rebuilt) {
         const parent = node.parent == null ? undefined : rebuilt[node.parent]
         const step = parent && node.parentStep != null ? stepOf(parent, node.parentStep) : undefined
         if (step) {
             (step.children ??= []).push(node)
+        } else if (node.parent == null) {
+            tops.push(node)
         }
     }
-    return rebuilt[0] ?? null
+    return tops
 }
+
+/** The root of the tree a business-view run sends (`treeNodes`), or null for an empty list. */
+export const treeFromNodes = (nodes: CallNodeView[], dispatches?: DispatchInfo[] | null): CallNodeView | null =>
+    callsFromNodes(nodes, dispatches)[0] ?? null
 
 /**
  * Number every call and step of a fully downloaded tree in execution order. `pre` is the position where
@@ -305,7 +346,10 @@ const initialState = {
     rawTableCache: {},
     advanced: false,
     simpleTree: null,
+    simpleRunId: null,
     simpleChildren: {},
+    simpleBranchState: {},
+    simpleTreeReleased: false,
     simpleOrder: {},
     simpleReady: false,
     simpleLoading: false,
@@ -321,7 +365,10 @@ const initialState = {
 /** The business-mode snapshot fields at rest, so a fresh run or a view switch returns the view to its Run prompt. */
 const SIMPLE_SNAPSHOT_RESET = {
     simpleTree: null,
+    simpleRunId: null,
     simpleChildren: {},
+    simpleBranchState: {},
+    simpleTreeReleased: false,
     simpleOrder: {},
     simpleReady: false,
     simpleLoading: false,
@@ -483,6 +530,7 @@ export const useTraceStore = create<DebugState>((set, get) => {
         beginRun({ status: 'pending' })
         try {
             try {
+                // The cancel keeps the tree of the business-view run: its deep branches still load after the click.
                 await traceService.cancelTrace(projectId)
             } catch {
                 // The fresh session started next supersedes it.
@@ -507,6 +555,17 @@ export const useTraceStore = create<DebugState>((set, get) => {
             set({ loading: false })
             restarting = false
         }
+    }
+
+    /** The execution order of the rows shown, numbered again once branches loaded since it was last numbered. */
+    const numberedOrder = (): Record<string, SimpleOrderRange> => {
+        const { simpleOrder, simpleTree, simpleChildren } = get()
+        if (simpleOrder) {
+            return simpleOrder
+        }
+        const order = simpleTree ? buildSimpleOrder(simpleTree, simpleChildren) : {}
+        set({ simpleOrder: order })
+        return order
     }
 
     // Apply a terminal socket status (completed/error/terminated): clear the live frames, focus and selection,
@@ -861,7 +920,12 @@ export const useTraceStore = create<DebugState>((set, get) => {
         simpleRun: async () => {
             const { projectId, tableId, fromModule, testRanges, inputJson } = get()
             if (!projectId || !tableId || get().simpleLoading) return
+            const previousRun = get().simpleRunId
             beginRun({ ...SIMPLE_SNAPSHOT_RESET, simpleLoading: true })
+            if (previousRun) {
+                // The tree of this window's previous run is no longer shown; the trees of other windows stay.
+                void traceService.releaseTree(projectId, previousRun).catch(() => undefined)
+            }
             const token = get().runId
             try {
                 // The simple run debugs with no breakpoints, so it always reaches the end in one go. Clear them
@@ -877,8 +941,8 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 await get().terminate()
                 set({ status: 'running' })
                 // One full profiled run: the response arrives once the whole calculation has finished,
-                // carrying the entire executed tree as one list (fullTree) — so the business view browses it
-                // offline without paging thousands of branches. Detailed titles (signature, result, cell
+                // carrying the upper levels of the executed tree as one list (fullTree); the deep branches load
+                // on expand from the tree the server keeps for this run. Detailed titles (signature, result, cell
                 // values) are the business view's default; the advanced debugger never asks for either,
                 // keeping its tree shallow and lazily paged.
                 const stack = await traceService.startTrace(projectId, launchOptions(
@@ -889,11 +953,10 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 ))
                 if (get().runId !== token) return
                 applyStack(stack)
-                const tree = treeFromNodes(stack.treeNodes ?? [])
+                const tree = treeFromNodes(stack.treeNodes ?? [], stack.treeDispatches)
                 if (tree) {
-                    // The tree arrived whole, so the order is built straight from it — no further fetches, no
-                    // per-page counters.
-                    set({ simpleTree: tree, simpleOrder: buildSimpleOrder(tree, {}), simpleReady: true })
+                    // The order is numbered when a row is first clicked, not as the tree arrives.
+                    set({ simpleTree: tree, simpleRunId: stack.sessionId ?? null, simpleOrder: null, simpleReady: true })
                 }
             } catch (error) {
                 if (get().runId === token) {
@@ -920,15 +983,16 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 variablesLoading: false, simpleSelectedKey: null, simpleInspectFrame: null, simpleFocus: null,
             })
             try {
-                const order = get().simpleOrder[key] ?? null
-                const last = get().simpleLastInspected
+                const ranges = numberedOrder()
+                const order = ranges[key] ?? null
+                const last = inspectedEnd(ranges, get().simpleLastInspected)
                 // The highlight follows the clicked row (selectionKey); the run follows the target (key). A
                 // table row also records its frame, so an error deep in the table it called keeps the clicked
                 // table selected rather than the throwing frame; a focused step tracks its owner instead.
                 // Drop the previous frame from the panel immediately: restartQuietly keeps the last table on
                 // purpose to avoid flashing the root, but when that last table is the throwing child, holding
                 // it until settle looks like a flicker of the error table before the clicked ancestor appears.
-                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order?.end ?? null, simpleFocus: focus ?? null,
+                set({ simpleSelectedKey: clickedKey, simpleLastInspected: order ? key : null, simpleFocus: focus ?? null,
                     simpleInspectFrame: focus ? null : { uri: frameUri, instance: frameInstance },
                     selectedFrameIndex: null, variables: null, variablesLoading: true })
                 // Execution can only move forward: a row is still reachable by resuming when it starts after
@@ -966,6 +1030,45 @@ export const useTraceStore = create<DebugState>((set, get) => {
                 clearInspectLoading()
             } finally {
                 inspecting = false
+            }
+        },
+
+        loadSimpleBranch: async (uri, instance, step) => {
+            const key = treeChildKey(uri, instance, step)
+            const { projectId, simpleRunId: run, simpleChildren, simpleBranchState, simpleTreeReleased } = get()
+            if (!projectId || !run || simpleBranchState[key] || simpleTreeReleased) {
+                return
+            }
+            const offset = simpleChildren[key]?.length ?? 0
+            const settle = (state: Record<string, SimpleBranchState>, ended: boolean) => {
+                const { [key]: _done, ...rest } = state
+                return ended ? { ...rest, [key]: 'ended' as const } : rest
+            }
+            set(s => ({ simpleBranchState: { ...s.simpleBranchState, [key]: 'loading' } }))
+            try {
+                const branch = await traceService.getTreeNode(projectId, run, uri, instance, step, offset)
+                // A new Run replaced the tree meanwhile: its calls carry the same (uri, instance) keys, so a branch
+                // of the previous run would land under them.
+                if (get().simpleRunId !== run) {
+                    return
+                }
+                const calls = callsFromNodes(branch.nodes, branch.dispatches)
+                set(s => ({
+                    simpleChildren: { ...s.simpleChildren, [key]: [...(s.simpleChildren[key] ?? []), ...calls]},
+                    // A loaded branch adds rows to the execution order, numbered again on the next click.
+                    simpleOrder: null,
+                    // A step the tree sent no calls of has no more: asking again would bring nothing.
+                    simpleBranchState: settle(s.simpleBranchState, calls.length === 0),
+                }))
+            } catch (error) {
+                if (get().simpleRunId === run) {
+                    set(s => ({
+                        simpleBranchState: settle(s.simpleBranchState, false),
+                        // A released tree answers no branch any more: stop asking until the trace runs again.
+                        ...(error instanceof ApiHttpError && error.status === 404 ? { simpleTreeReleased: true } : {}),
+                    }))
+                    notification.error({ title: errorMessageOr(error, 'Failed to load sub-calls') })
+                }
             }
         },
 

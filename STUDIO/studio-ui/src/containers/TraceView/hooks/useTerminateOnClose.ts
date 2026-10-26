@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import traceService from 'services/traceService'
+import { useTraceStore } from 'store'
 import { currentTraceLaunch } from 'services/traceLaunchToken'
 
 /**
  * Ends the debug session when the debugger window closes. There is no Stop button — closing the
- * window is how a trace is stopped — so the session must not be left running on the server.
+ * window is how a trace is stopped — so the session must not be left running on the server, nor the tree kept
+ * from the window's business-view run.
  *
  * The release is scoped to the document that still owns the session. It is skipped when the page is only
  * frozen for the back/forward cache (it may be restored), and when the launcher has reused this window for
@@ -24,7 +26,7 @@ export const useTerminateOnClose = (projectId: string | undefined): void => {
             // match would let a reused window delete a newer launch's session, and a differing token means
             // a newer launch owns the session now.
             if (openedWith === null || currentTraceLaunch() !== openedWith) return
-            traceService.releaseOnClose(projectId)
+            traceService.releaseOnClose(projectId, useTraceStore.getState().simpleRunId)
         }
         window.addEventListener('pagehide', release)
         return () => window.removeEventListener('pagehide', release)

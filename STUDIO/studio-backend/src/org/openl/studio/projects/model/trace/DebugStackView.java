@@ -19,10 +19,13 @@ import org.jspecify.annotations.Nullable;
  *                the now-empty stack; its branches are fetched one level at a time. {@code null} while the
  *                trace is still running, when the caller asked to omit it, or when the caller asked for
  *                {@code treeNodes}
- * @param treeNodes the whole executed tree in one list, when the caller asked for the full tree: the root
- *                first, then every call after the node that made it. A node names its caller by position and
- *                step, and carries no sub-calls of its own, so the response nests no deeper however deep the
- *                calls went. {@code null} otherwise
+ * @param treeNodes the executed tree in one list, when the caller asked for the full tree: the root first, then
+ *                every call after the node that made it. A node names its caller by position and step, and carries
+ *                no sub-calls of its own, so the response nests no deeper however deep the calls went. The list is
+ *                bounded: it holds the upper levels whole, and a step whose calls are left out reports how many it
+ *                made, so its branch is loaded when it is expanded. {@code null} otherwise
+ * @param treeDispatches the distinct dispatches of the {@code treeNodes}, which a node names by position;
+ *                {@code null} when no node was dispatched or no list was asked for
  * @param profile a bounded overview of the finished profiled run (the slowest tables), so a large run can
  *                be understood without pulling the full {@code tree}; {@code null} outside profiling mode
  *                and while the trace is still running
@@ -47,6 +50,9 @@ public record DebugStackView(
 
         @Parameter(description = "trace.field.stack.tree-nodes.desc")
         @Nullable List<CallNodeView> treeNodes,
+
+        @Parameter(description = "trace.field.stack.tree-dispatches.desc")
+        @Nullable List<DispatchInfo> treeDispatches,
 
         @Parameter(description = "trace.field.stack.profile.desc")
         @Nullable ProfileSummaryView profile,

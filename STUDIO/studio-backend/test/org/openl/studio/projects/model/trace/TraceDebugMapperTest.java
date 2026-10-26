@@ -182,9 +182,9 @@ class TraceDebugMapperTest {
         // One row per checked condition cell, mirroring the green/red highlight: 2 + 1 + 1.
         assertEquals(4, decision.conditions().size());
         assertTrue(decision.conditions().stream().anyMatch(
-                c -> c.condition().equals("State") && c.rule().equals("Senior") && !c.matched()));
+                c -> "State".equals(c.condition()) && "Senior".equals(c.rule()) && !c.matched()));
         assertTrue(decision.conditions().stream().anyMatch(
-                c -> c.condition().equals("Age") && c.rule().equals("Standard") && c.matched()));
+                c -> "Age".equals(c.condition()) && "Standard".equals(c.rule()) && c.matched()));
 
         // Suspended at entry: nothing evaluated and no rule fired → no explanation.
         assertNull(DecisionTableMapper.buildDecision(dt, List.of(), new int[0]));
@@ -314,11 +314,12 @@ class TraceDebugMapperTest {
         assertNull(stack.tree(), "the full tree replaces the lazy root");
         var nodes = stack.treeNodes();
         assertNotNull(nodes);
-        // The root first, then every call right after the node that made it, in the order they ran.
-        assertEquals(List.of("A", "B", "D", "E", "F", "C"), nodes.stream().map(CallNodeView::name).toList());
-        assertEquals(Arrays.asList(null, 0, 1, 1, 1, 0), nodes.stream().map(CallNodeView::parent).toList());
-        assertEquals(Arrays.asList(null, "R0C0", "R1C1", "R1C1", "R1C1", "R0C0"),
+        // The root first, then level by level, every call after the node that made it, in the order they ran.
+        assertEquals(List.of("A", "B", "C", "D", "E", "F"), nodes.stream().map(CallNodeView::name).toList());
+        assertEquals(Arrays.asList(null, 0, 0, 1, 1, 1), nodes.stream().map(CallNodeView::parent).toList());
+        assertEquals(Arrays.asList(null, "R0C0", "R0C0", "R1C1", "R1C1", "R1C1"),
                 nodes.stream().map(CallNodeView::parentStep).toList());
+        assertNull(stack.treeDispatches(), "no call was dispatched");
         assertTrue(nodes.stream().flatMap(node -> node.steps().stream()).allMatch(step -> step.children() == null),
                 "a node names its caller instead of carrying its sub-calls");
         assertTrue(nodes.stream().flatMap(node -> node.steps().stream()).allMatch(step -> step.childrenTotal() == null),
@@ -335,7 +336,7 @@ class TraceDebugMapperTest {
                     List.of(new CallNode.Step("R0C0", "$Next", ms(1), List.of(node))), null, null);
         }
 
-        var nodes = TraceDebugMapper.toFlatTree(node);
+        var nodes = TraceDebugMapper.toFlatTree(node).nodes();
 
         assertEquals(3_001, nodes.size(), "every call of the recursion is listed");
         assertEquals(2_999, nodes.getLast().parent(), "the deepest call names the one before it");
@@ -344,47 +345,124 @@ class TraceDebugMapperTest {
     }
 
     @Test
-    void fullTreeCapsAStepAtTheChildLimitAndReportsTheOmittedCount() {
-        // A step looped past MAX_TREE_CHILDREN keeps only the first 100 calls; the full count is reported so
-        // the client marks how many executions are omitted.
-        List<CallNode> kids = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
+    void fullTreeListsEveryIterationOfARepeatedCall() {
+        // A step looped 150 times lists every iteration, not only the first ones.
+        var kids = new ArrayList<CallNode>();
+        for (var i = 0; i < 150; i++) {
             kids.add(leaf("uB", "B", 1));
         }
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(200),
                 List.of(new CallNode.Step("R0C0", "$s", ms(200), kids)), null, null);
 
-        var nodes = TraceDebugMapper.toFlatTree(root);
+        var nodes = TraceDebugMapper.toFlatTree(root).nodes();
 
-        assertEquals(101, nodes.size(), "only the first 100 iterations are listed after the root");
-        assertEquals(150, nodes.getFirst().steps().getFirst().childrenTotal(),
-                "the full count marks the branch as truncated");
+        assertEquals(151, nodes.size(), "every iteration is listed after the root");
+        assertNull(nodes.getFirst().steps().getFirst().childrenTotal(), "nothing of the step is left out");
     }
 
     @Test
-    void fullTreeCutsBranchesBeyondTheNodeBudgetAndMarksThemTruncated() {
-        // With a tiny budget the list stops once the budget is spent: the first sub-call is included, the rest
-        // are cut and their step reports the full count so the client shows the truncation.
-        CallNode root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),
+    void fullTreeLeavesOutAStepWhoseCallsDoNotFitTheBudget() {
+        // A step's calls go in whole or not at all: three calls do not fit a budget of one.
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(20),
                 List.of(new CallNode.Step("R0C0", "$s", ms(20),
                         List.of(leaf("uB", "B", 5), leaf("uC", "C", 5), leaf("uD", "D", 5)))), null, null);
 
-        var nodes = TraceDebugMapper.toFlatTree(root, 1);
+        var nodes = TraceDebugMapper.toFlatTree(root, 1).nodes();
 
-        assertEquals(List.of("A", "B"), nodes.stream().map(CallNodeView::name).toList(),
-                "the budget admitted only the first sub-call");
+        assertEquals(List.of("A"), nodes.stream().map(CallNodeView::name).toList(), "only the root is listed");
         assertEquals(3, nodes.getFirst().steps().getFirst().childrenTotal(),
-                "the omitted sub-calls are reported as truncated");
+                "the step reports its calls, so the client loads them on expand");
     }
 
     @Test
-    void fullTreeSpendsTheBudgetOnAWholeBranchBeforeItsNextSibling() {
-        // The budget follows the order the calls ran: B and everything below it come before C.
-        var nodes = TraceDebugMapper.toFlatTree(lazyTreeFixture(), 3);
+    void fullTreeFillsTheBudgetLevelByLevel() {
+        // B and C, the calls of the root, come before the calls B made; those no longer fit the budget.
+        var nodes = TraceDebugMapper.toFlatTree(lazyTreeFixture(), 3).nodes();
 
-        assertEquals(List.of("A", "B", "D", "E"), nodes.stream().map(CallNodeView::name).toList());
-        assertEquals(2, nodes.getFirst().steps().getFirst().childrenTotal(), "C is cut, so A's step counts B and C");
-        assertEquals(3, nodes.get(1).steps().getFirst().childrenTotal(), "F is cut, so B's loop counts all three");
+        assertEquals(List.of("A", "B", "C"), nodes.stream().map(CallNodeView::name).toList());
+        assertNull(nodes.getFirst().steps().getFirst().childrenTotal(), "every call of A's step is listed");
+        assertEquals(3, nodes.get(1).steps().getFirst().childrenTotal(), "B's loop is left for later");
+    }
+
+    @Test
+    void fullTreeListsEveryIterationAtItsLevelBeforeTheDeepBranches() {
+        // The example of EPBDS-17009: 24 contract years, each calling many nested tables. The first view lists all
+        // the years; the tables below them load when a year is expanded.
+        var years = new ArrayList<CallNode>();
+        for (var year = 0; year < 24; year++) {
+            var tables = new ArrayList<CallNode>();
+            for (var table = 0; table < 100; table++) {
+                tables.add(leaf("uT", "T", 1));
+            }
+            years.add(new CallNode("uY", "Year", year, FrameKind.SPREADSHEET, ms(100),
+                    List.of(new CallNode.Step("R0C0", "$tables", ms(100), tables)), null, null));
+        }
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(2_400),
+                List.of(new CallNode.Step("R0C0", "$years", ms(2_400), years)), null, null);
+
+        var nodes = TraceDebugMapper.toFlatTree(root, 250).nodes();
+
+        assertEquals(24, nodes.stream().filter(node -> "Year".equals(node.name())).count(), "every year is listed");
+        assertEquals(1 + 24 + 200, nodes.size(), "the tables of the first two years fill the rest of the budget");
+        assertEquals(100, nodes.get(3).steps().getFirst().childrenTotal(), "the third year's tables load on expand");
+    }
+
+    @Test
+    void fullTreeSendsEachDistinctDispatchOnce() {
+        var dispatch = new DispatchInfo(List.of(new DispatchInfo.Candidate("state: CA", true),
+                new DispatchInfo.Candidate("state: NY", false)));
+        var other = new DispatchInfo(List.of(new DispatchInfo.Candidate("state: CA", false),
+                new DispatchInfo.Candidate("state: NY", true)));
+        var calls = List.of(dispatched(dispatch), dispatched(new DispatchInfo(List.copyOf(dispatch.candidates()))),
+                dispatched(other), leaf("uC", "C", 1));
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(4),
+                List.of(new CallNode.Step("R0C0", "$s", ms(4), calls)), null, null);
+
+        var tree = TraceDebugMapper.toFlatTree(root);
+
+        assertEquals(List.of(dispatch, other), tree.dispatches(), "equal dispatches are sent once");
+        assertEquals(Arrays.asList(null, 0, 0, 1, null), tree.nodes().stream().map(CallNodeView::dispatchIndex).toList());
+        assertTrue(tree.nodes().stream().allMatch(node -> node.dispatch() == null), "a node names its dispatch");
+    }
+
+    @Test
+    void fullTreeOfAStackViewCarriesTheDispatches() {
+        var dispatch = new DispatchInfo(List.of(new DispatchInfo.Candidate("state: CA", true)));
+        var root = new CallNode("uA", "A", 0, FrameKind.SPREADSHEET, ms(1),
+                List.of(new CallNode.Step("R0C0", "$s", ms(1), List.of(dispatched(dispatch)))), null, null);
+
+        var stack = TraceDebugMapper.toStackView(DebugStatus.COMPLETED, List.of(), null, root, List.of(),
+                new StackRenderOptions(true, TraceDebugMapper.DEFAULT_PROFILE_TOP, false, true), false);
+
+        assertEquals(List.of(dispatch), stack.treeDispatches());
+        assertEquals(0, stack.treeNodes().get(1).dispatchIndex());
+    }
+
+    @Test
+    void branchListsTheCallsOfTheStepThenTheLevelsBelow() {
+        var nodes = TraceDebugMapper.toBranchView(lazyTreeFixture(), "uA", 0, "R0C0", 0).nodes();
+
+        assertEquals(List.of("B", "C", "D", "E", "F"), nodes.stream().map(CallNodeView::name).toList());
+        assertEquals(Arrays.asList(null, null, 0, 0, 0), nodes.stream().map(CallNodeView::parent).toList(),
+                "the calls of the step name no caller; the calls below name theirs");
+        assertEquals(Arrays.asList(null, null, "R1C1", "R1C1", "R1C1"),
+                nodes.stream().map(CallNodeView::parentStep).toList());
+    }
+
+    @Test
+    void branchOfAStepWithMoreCallsThanTheBudgetIsLoadedInPages() {
+        var first = TraceDebugMapper.toBranchView(lazyTreeFixture(), "uA", 0, "R0C0", 0, 1).nodes();
+        var next = TraceDebugMapper.toBranchView(lazyTreeFixture(), "uA", 0, "R0C0", 1, 1).nodes();
+
+        assertEquals(List.of("B"), first.stream().map(CallNodeView::name).toList());
+        assertEquals(3, first.getFirst().steps().getFirst().childrenTotal(), "B's loop did not fit the page");
+        assertEquals(List.of("C"), next.stream().map(CallNodeView::name).toList(), "the next page starts at C");
+    }
+
+    @Test
+    void branchOfAFrameOrStepNotInTheTreeIsEmpty() {
+        assertTrue(TraceDebugMapper.toBranchView(lazyTreeFixture(), "uMissing", 9, "R0C0", 0).nodes().isEmpty());
+        assertTrue(TraceDebugMapper.toBranchView(lazyTreeFixture(), "uA", 0, "R9C9", 0).nodes().isEmpty());
     }
 
     @Test
@@ -533,6 +611,10 @@ class TraceDebugMapperTest {
 
     private static CallNode leaf(String uri, String name, long millis) {
         return new CallNode(uri, name, 0, FrameKind.SPREADSHEET, ms(millis), List.of(), null, null);
+    }
+
+    private static CallNode dispatched(DispatchInfo dispatch) {
+        return new CallNode("uD", "D", 0, FrameKind.SPREADSHEET, ms(1), List.of(), dispatch, null);
     }
 
     /** Root A → step calls B and C; B → loop step calls D, E, F. Three levels, for the lazy-tree tests. */

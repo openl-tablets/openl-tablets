@@ -47,6 +47,10 @@ frame's variables — all against a real, suspended execution rather than a pre-
   references to re-used steps. Structure only — no values are retained. The response also carries a bounded
   `profile` overview (the slowest tables); pass `includeTree=false` to get only that when the whole tree
   would be too large.
+- **Business-view tree** — with `fullTree=true` the response lists the upper levels of the executed tree at once,
+  and the server keeps the whole tree after the run, so the deep branches load on expand without running the
+  calculation again (`GET /tree/node`). The tree outlives the sessions that re-run the calculation to inspect a row,
+  and every run keeps a tree of its own, so trace windows open side by side each browse their own.
 - **Lazy variable freezing** — a frame's parameters/context/result are deep-cloned only when inspected,
   while suspended, and discarded when the frame returns. Large values load on demand.
 - **One session per client** — a browser session, or the credentials of a stateless client; starting a new
@@ -122,12 +126,16 @@ via `PUT /breakpoints`) apply immediately.
 - `detailedTitles` (boolean, default `false`) — build the detailed titles into the executed tree: each table node reads
   as its signature and result, and each spreadsheet cell as its value. It carries the values of the run, so it is off
   by default.
-- `fullTree` (boolean, default `false`) — return the whole executed tree in one response, so a client can browse it
-  without paging. The tree comes as the flat `treeNodes` list instead of `tree`: the root first, then every call
-  after the node that made it. A node names its caller by `parent` and `parentStep` and carries no sub-calls of its
-  own, so the response nests no deeper however deep the calls went — a rule that recursed until a
-  `StackOverflowError` included. The list is bounded by a node cap, and a branch beyond the cap is cut and marked
-  truncated. Without it `tree` holds the root only, and `GET /tree/children` pages its branches.
+- `fullTree` (boolean, default `false`) — the business view: return the executed tree as the flat `treeNodes` list
+  instead of `tree`, the root first, then every call after the node that made it. A node names its caller by `parent`
+  and `parentStep` and carries no sub-calls of its own, so the response nests no deeper however deep the calls went —
+  a rule that recursed until a `StackOverflowError` included. The list is filled level by level up to 50,000 calls:
+  every call of a step is listed, every iteration of a repeated call included, before the calls they made. A step
+  whose calls do not fit is left out whole and reports their count in `childrenTotal`. The versions of a dispatched
+  table come once for each distinct choice, in `treeDispatches`. The server keeps the whole tree after the run, under
+  the `sessionId` of the response, so `GET /tree/node` loads the steps left out (see
+  [Load the calls below a step of the kept tree](#17-load-the-calls-below-a-step-of-the-kept-tree)). Without it
+  `tree` holds the root only, and `GET /tree/children` pages its branches.
 
 **Request body** (optional, `application/json`): raw input for a regular method. Supports a structured form
 whose `params` is either a named object or a positional array (`{ "runtimeContext": {...}, "params": [...] }`),
@@ -337,7 +345,9 @@ the response small) → `GET /watch`.
 
 **Endpoint**: `DELETE /rest/projects/{projectId}/trace`
 
-Terminates the worker and clears the session and parameter registry. Idempotent.
+Terminates the worker and clears the session and parameter registry. Idempotent. The trees kept from the business-view
+runs (`fullTree=true`) stay, so the calls below their steps still load: another trace window may be browsing one, and
+each window releases its own with `DELETE /tree`.
 
 **Response**: `204 No Content`.
 
@@ -386,7 +396,49 @@ its own steps but not its sub-calls. `total` is the number of sub-calls of the s
 
 ---
 
-### 17. Export the trace
+### 17. Load the calls below a step of the kept tree
+
+**Endpoint**: `GET /rest/projects/{projectId}/trace/tree/node`
+
+Returns the calls one step of a node made, and the levels below them, from the tree kept from a business-view run
+(`fullTree=true`), as one flat list, so a deep part of the tree loads when it is expanded. The calculation is not run
+again: the calls are read from the tree the run recorded, which outlives its session. The clicks that re-run the
+calculation to inspect a row cancel their session and start sessions that record no tree, so the kept tree stays.
+
+Every run keeps a tree of its own. A tree is released by `DELETE /tree` — the business view sends it for its previous
+run when it runs again, and as its window closes — once the client sent no trace request for ten minutes, or — when the kept trees of all users hold more calls than one run may record — the tree read
+least recently first.
+
+**Query parameters**:
+- `run` (string, required) — the `sessionId` of the business-view run. The calls of another run are not found.
+- `uri` (string, required) — the source URI of the node.
+- `instance` (integer, required) — the zero-based execution index of the node in the run.
+- `step` (string, required) — the reference of the step whose calls to return.
+- `offset` (integer, default `0`, min `0`) — the number of calls of the step already loaded.
+
+**Response**: `200 OK` — [`CallTreeView`](#calltreeview): the calls of the step from `offset` on, then the levels below
+them, up to 10,000 calls. A step that made more calls is loaded in pages: ask again with the number of its calls held.
+A node or step not in the tree gives an empty list.
+
+**Errors**: `404 Not Found` — `trace.tree.released.message`, the tree of that run is released.
+
+---
+
+### 18. Release the kept tree of a run
+
+**Endpoint**: `DELETE /rest/projects/{projectId}/trace/tree`
+
+Releases the tree kept from one business-view run. The trees of the other runs of the client stay, so a trace window
+releases its own tree without touching the trees other windows browse. Idempotent.
+
+**Query parameters**:
+- `run` (string, required) — the `sessionId` of the business-view run.
+
+**Response**: `204 No Content`.
+
+---
+
+### 19. Export the trace
 
 **Endpoint**: `GET /rest/projects/{projectId}/trace/export`
 
@@ -448,7 +500,8 @@ interface DebugStackView {
   error?: DebugError;           // present only when status = error
   tree?: CallNodeView;          // root of the executed tree after completion (profiling; omitted if includeTree=false
                                 //   or fullTree=true)
-  treeNodes?: CallNodeView[];   // whole executed tree as one list, root first (fullTree=true only)
+  treeNodes?: CallNodeView[];   // the executed tree as one list, root first, upper levels whole (fullTree=true only)
+  treeDispatches?: DispatchInfo[]; // the distinct dispatches of treeNodes, named by CallNodeView.dispatchIndex
   profile?: ProfileSummaryView; // bounded hotspots overview after completion (profiling only)
   sessionId?: string;           // id of the session; the WebSocket status events carry the same id
 }
@@ -564,11 +617,12 @@ interface CallNodeView {
   durationMillis: number;      // total execution time (this table and everything it called)
   selfMillis: number;          // own time (total minus the tables it called)
   steps: StepValueView[];      // the executed sub-steps, each possibly with its own sub-calls
-  dispatch?: DispatchInfo;     // set when the table was chosen from overloaded versions
+  dispatch?: DispatchInfo;     // set when the table was chosen from overloaded versions (never in a flat list)
+  dispatchIndex?: number;      // in a flat list, the position of that dispatch among the list's dispatches
   refStep?: string;            // for a stepRef node, the ref of the original step it points at
   notRetained?: number;        // sub-calls that ran but were dropped once the tree reached its size limit
-  parent?: number;             // in treeNodes, the position of the node whose step made this call
-  parentStep?: string;         // in treeNodes, the ref of that step
+  parent?: number;             // in a flat list, the position of the node whose step made this call
+  parentStep?: string;         // in a flat list, the ref of that step
 }
 ```
 
@@ -577,9 +631,23 @@ values. A **`stepRef`** node is not a table: a formula computed or re-read anoth
 frame; the reference points at the original step (`refStep`) and carries no time or children of its own,
 so a shared step is never duplicated in the tree.
 
-In `treeNodes` a node's steps carry no `children`: each call is listed after its caller and points back at it
-with `parent` and `parentStep`. A client puts the tree together by attaching every node to that step of its
-parent, in list order, which is the order the calls ran.
+In a flat list — `treeNodes`, or the [`CallTreeView`](#calltreeview) of a step's calls — a node's steps carry no `children`: each
+call is listed after its caller and points back at it with `parent` and `parentStep`. A client puts the tree together by
+attaching every node to that step of its parent, in list order, which is the order the calls ran. A step whose calls the
+list left out reports their count in `childrenTotal`. A node names its dispatch by `dispatchIndex` in the dispatches
+sent beside the list, so the versions of a table called thousands of times are sent once for each distinct choice.
+
+### CallTreeView
+
+```typescript
+interface CallTreeView {
+  nodes: CallNodeView[];        // the calls of the step, then the levels below them
+  dispatches?: DispatchInfo[];  // the distinct dispatches of the nodes, named by dispatchIndex
+}
+```
+
+The calls below a step of the kept business-view tree (`GET /tree/node`). A call of the requested step names no `parent`: the client
+attaches it to that step, after the calls already loaded.
 
 ### DispatchInfo
 
@@ -847,6 +915,7 @@ message code of the table below; see [Errors](README.md#errors).
 | No active session | `404` | `trace.execution.task.message` |
 | Frame index out of range | `404` | `trace.frame.not.found.message` |
 | Lazy parameter id not found | `404` | `trace.parameter.not.found.message` |
+| Calls below a step of a business-view tree that is released, or of another run | `404` | `trace.tree.released.message` |
 | Command or inspection requires a suspended session | `409` | `trace.execution.not.suspended.message` |
 | Stack read while still running | `409` | `trace.execution.not.suspended.message` |
 | Malformed step `type` (not `into`/`over`/`out`) | `400` | converter message |

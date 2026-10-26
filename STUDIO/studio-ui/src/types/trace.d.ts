@@ -138,11 +138,14 @@ export interface DebugStackView {
      */
     tree?: CallNodeView | null
     /**
-     * The whole executed call tree in one list (`fullTree=true`): the root first, then every call after the node
-     * that made it. A node names its caller by `parent` and `parentStep` instead of carrying its sub-calls, so the
-     * response nests no deeper however deep the calls went.
+     * The executed call tree in one list (`fullTree=true`): the root first, then every call after the node that
+     * made it. A node names its caller by `parent` and `parentStep` instead of carrying its sub-calls, so the
+     * response nests no deeper however deep the calls went. The list holds the upper levels whole; a step whose
+     * calls are left out reports their count in `childrenTotal`, and its branch is loaded on expand.
      */
     treeNodes?: CallNodeView[] | null
+    /** The distinct dispatches of `treeNodes`, which a node names by `dispatchIndex`; absent when none. */
+    treeDispatches?: DispatchInfo[] | null
     /**
      * A bounded overview of the finished profiled run (the slowest tables), so a large run can be
      * understood without pulling the full `tree`; absent outside profiling mode and while it runs.
@@ -225,14 +228,29 @@ export interface CallNodeView {
     steps: StepValueView[]
     /** Set when the table was chosen by a dispatcher (versioned by dimension properties); absent otherwise. */
     dispatch?: DispatchInfo | null
+    /** In a flat list, the position of the node's dispatch in the dispatches sent beside the list. */
+    dispatchIndex?: number | null
     /** For a `stepRef` node, the reference of the already-executed step it points at; absent otherwise. */
     refStep?: string | null
     /** Sub-calls this node made that ran but were dropped once the tree hit its size limit; absent when all kept. */
     notRetained?: number | null
-    /** In `treeNodes`, the position of the node whose step made this call; absent for the root. */
+    /**
+     * In a flat list, the position of the node whose step made this call; absent for the root, and for a call of
+     * the step a branch was loaded for.
+     */
     parent?: number | null
-    /** In `treeNodes`, the reference of the parent's step that made this call; absent for the root. */
+    /** In a flat list, the reference of the parent's step that made this call; absent wherever `parent` is. */
     parentStep?: string | null
+}
+
+/**
+ * A branch of the tree kept from a business-view run, in one flat list: the calls of one step, then the levels
+ * below them. A call of the step names no `parent`.
+ */
+export interface CallTreeView {
+    nodes: CallNodeView[]
+    /** The distinct dispatches of the nodes, which a node names by `dispatchIndex`; absent when none. */
+    dispatches?: DispatchInfo[] | null
 }
 
 /** One page of a step's executed sub-calls, fetched on demand so a large executed tree loads lazily. */

@@ -23,7 +23,10 @@ import org.jspecify.annotations.Nullable;
  * @param durationMillis total execution time in milliseconds (this table and everything it called), excluding parked time
  * @param selfMillis     own execution time in milliseconds (total minus the time spent in the tables it called)
  * @param steps          the executed sub-steps, each of which may carry its own executed sub-calls
- * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null}
+ * @param dispatch       set when this table was selected by a dispatcher (overloaded by dimensions), otherwise {@code null};
+ *                       always {@code null} in a flat tree, whose nodes name the dispatch by {@code dispatchIndex}
+ * @param dispatchIndex  in a flat tree, the position of this table's dispatch in the list of the tree's dispatches,
+ *                       otherwise {@code null}
  * @param refStep        for a step-reference node, the reference of the step it points at, otherwise {@code null}
  * @param notRetained    sub-calls this node made that ran but were dropped because the tree hit its size limit, else {@code null}
  * @param parent         in a flat tree, the position of the calling node in the list, else {@code null}; the root
@@ -57,6 +60,9 @@ public record CallNodeView(
 
         @Parameter(description = "trace.field.call-node.dispatch.desc")
         @Nullable DispatchInfo dispatch,
+
+        @Schema(description = "trace.field.call-node.dispatch-index.desc")
+        @Nullable Integer dispatchIndex,
 
         @Schema(description = "trace.field.call-node.ref-step.desc")
         @Nullable String refStep,
