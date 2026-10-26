@@ -1,5 +1,5 @@
 <project>
-    <name>MD-POC_Value_types</name>
+    <name>EPBDS-17019_Format_errors</name>
     <modules>
         <module>
             <rules-root path="rules/Main"/>

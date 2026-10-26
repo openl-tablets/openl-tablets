@@ -1,5 +1,5 @@
 <project>
-    <name>MD-POC_Folder_versions</name>
+    <name>EPBDS-17019_Folder_versions</name>
     <modules>
         <module>
             <name>Auto</name>

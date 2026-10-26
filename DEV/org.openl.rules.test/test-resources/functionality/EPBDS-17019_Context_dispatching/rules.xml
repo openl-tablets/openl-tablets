@@ -1,5 +1,5 @@
 <project>
-    <name>MD-POC_Sort_bug</name>
+    <name>EPBDS-17019_Context_dispatching</name>
     <modules>
         <module>
             <rules-root path="rules/Main"/>
