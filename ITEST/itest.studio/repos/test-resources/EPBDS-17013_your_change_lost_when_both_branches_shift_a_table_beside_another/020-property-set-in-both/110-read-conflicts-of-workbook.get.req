@@ -1,0 +1,3 @@
+GET /rest/projects/{PROJECT_ID}/merge/conflicts/workbook?file=EPBDS-17013-Lost-Change%2Frules%2FMain.xlsx HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+

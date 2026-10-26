@@ -1,5 +1,8 @@
 package org.openl.rules.xls.merge;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -13,9 +16,15 @@ import org.jspecify.annotations.NullMarked;
  * positions finds as many unchanged rows as the best matching of the rows does. Otherwise some rows were inserted or
  * deleted inside the content, and the content below them moved. Columns are checked the same way.
  *
+ * <p>A part of the content moves too when the cells of some columns move up or down while the content beside them
+ * stays, such as the rows inserted into one of two tables that stand side by side; or when the cells of some rows
+ * move sideways while the content above or under them stays. So every column that changed is checked down its cells,
+ * and every row that changed along its cells.
+ *
  * <p>Rows or columns added after the content into empty cells do not move anything. Changes that cannot be told
  * apart from a move, such as several neighbouring rows edited into copies of their neighbours, count as a move.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @NullMarked
 final class XlsSheetShifts {
 
@@ -23,9 +32,6 @@ final class XlsSheetShifts {
      * The most cell comparisons a check of one sheet may take.
      */
     private static final long MAX_COMPARISONS = 50_000_000L;
-
-    private XlsSheetShifts() {
-    }
 
     /**
      * Checks whether either revision moved the content of the base revision of the sheet.
@@ -41,7 +47,28 @@ final class XlsSheetShifts {
     }
 
     private static boolean isMoved(Signature base, Signature other) {
-        return isMoved(base.rows, other.rows) || isMoved(base.columns, other.columns);
+        return isMoved(base.rows, other.rows) || isMoved(base.columns, other.columns) || movesPart(base, other);
+    }
+
+    /**
+     * Checks whether the cells of a column that changed moved up or down in it, or the cells of a row that changed
+     * moved along it, while the rest of the sheet stayed in place.
+     */
+    private static boolean movesPart(Signature base, Signature other) {
+        // Many changed rows and columns share one budget: a sheet too large to check takes a part of it as moved.
+        var budget = new Budget(MAX_COMPARISONS);
+        for (var column = 0; column < base.columns.length; column++) {
+            if (base.columns[column] != other.columns[column]
+                    && isMoved(base.column(column), other.column(column), budget)) {
+                return true;
+            }
+        }
+        for (var row = 0; row < base.rows.length; row++) {
+            if (base.rows[row] != other.rows[row] && isMoved(base.row(row), other.row(row), budget)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -60,6 +87,13 @@ final class XlsSheetShifts {
      * them at the same positions does.
      */
     static boolean isMoved(long[] base, long[] other) {
+        return isMoved(base, other, new Budget(MAX_COMPARISONS));
+    }
+
+    /**
+     * Checks it the same way, taking the comparisons from a budget: a check the budget cannot take answers a move.
+     */
+    static boolean isMoved(long[] base, long[] other, Budget budget) {
         var from = 0;
         var to = base.length;
         while (from < to && base[from] == other[from]) {
@@ -77,7 +111,7 @@ final class XlsSheetShifts {
         var length = to - from;
         // A matching that keeps one more element than in place pairs elements no further apart than this.
         var band = length - inPlace;
-        if ((long) band * length > MAX_COMPARISONS) {
+        if (!budget.spend((long) band * length)) {
             // Too many rows changed to tell a move from edits in place: take it as a move.
             return true;
         }
@@ -107,14 +141,38 @@ final class XlsSheetShifts {
     }
 
     /**
+     * The cell comparisons the checks of a sheet may still take.
+     */
+    @AllArgsConstructor
+    static final class Budget {
+
+        private long left;
+
+        /**
+         * Takes comparisons from the budget.
+         *
+         * @return {@code false} when the budget has fewer left, and takes none
+         */
+        boolean spend(long comparisons) {
+            if (comparisons > left) {
+                return false;
+            }
+            left -= comparisons;
+            return true;
+        }
+    }
+
+    /**
      * Content digests of every row and every column of a sheet, over the same area for every revision.
      */
     private static final class Signature {
 
+        private final Sheet sheet;
         private final long[] rows;
         private final long[] columns;
 
         private Signature(Sheet sheet, int rowCount, int columnCount) {
+            this.sheet = sheet;
             rows = new long[rowCount];
             columns = new long[columnCount];
             for (Row row : sheet) {
@@ -128,6 +186,34 @@ final class XlsSheetShifts {
                     }
                 }
             }
+        }
+
+        /**
+         * The digests of the cells of a column, from the first row to the last.
+         */
+        long[] column(int column) {
+            var digests = new long[rows.length];
+            for (var row = 0; row < digests.length; row++) {
+                digests[row] = digestAt(row, column);
+            }
+            return digests;
+        }
+
+        /**
+         * The digests of the cells of a row, from the first column to the last.
+         */
+        long[] row(int row) {
+            var digests = new long[columns.length];
+            for (var column = 0; column < digests.length; column++) {
+                digests[column] = digestAt(row, column);
+            }
+            return digests;
+        }
+
+        private long digestAt(int row, int column) {
+            var cells = sheet.getRow(row);
+            var cell = cells == null ? null : cells.getCell(column);
+            return cell == null ? 0 : digest(cell);
         }
     }
 

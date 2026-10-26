@@ -1,0 +1,41 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "tableType": "SimpleRules",
+  "kind": "Rules",
+  "name": "discount",
+  "properties": {
+    "lob": [
+      "Auto"
+    ],
+    "category": "Auto"
+  },
+  "returnType": "Double",
+  "args": [
+    {
+      "name": "plan",
+      "type": "String"
+    }
+  ],
+  "headers": [
+    {
+      "title": "Plan"
+    },
+    {
+      "title": "Discount"
+    }
+  ],
+  "rules": [
+    {
+      "Plan": "Basic",
+      "Discount": 0.05
+    },
+    {
+      "Plan": "Premium",
+      "Discount": 0.1
+    }
+  ]
+}
+

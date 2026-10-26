@@ -1,0 +1,766 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "sheets": [
+    {
+      "name": "Rules",
+      "status": "conflict",
+      "ours": true,
+      "base": true,
+      "theirs": true,
+      "tables": [
+        {
+          "id": "Rules/A1:C5",
+          "name": "SimpleRules Double discount(String plan)",
+          "reason": "rows",
+          "ours": {
+            "range": "A1:C6",
+            "cells": [
+              [
+                {
+                  "cell": "A1",
+                  "value": "SimpleRules Double discount(String plan)",
+                  "colspan": 3,
+                  "style": 0,
+                  "runs": [
+                    {
+                      "to": 11,
+                      "style": 1
+                    },
+                    {
+                      "to": 18,
+                      "style": 1
+                    },
+                    {
+                      "to": 27,
+                      "style": 2
+                    },
+                    {
+                      "to": 28,
+                      "style": 1
+                    },
+                    {
+                      "to": 34,
+                      "style": 1
+                    },
+                    {
+                      "to": 39,
+                      "style": 3
+                    },
+                    {
+                      "to": 40,
+                      "style": 1
+                    }
+                  ]
+                },
+                {
+                  "covered": true
+                },
+                {
+                  "covered": true
+                }
+              ],
+              [
+                {
+                  "cell": "A2",
+                  "value": "properties",
+                  "rowspan": 2,
+                  "style": 4
+                },
+                {
+                  "cell": "B2",
+                  "value": "lob",
+                  "style": 5
+                },
+                {
+                  "cell": "C2",
+                  "value": "Auto",
+                  "style": 5
+                }
+              ],
+              [
+                {
+                  "covered": true
+                },
+                {
+                  "cell": "B3",
+                  "value": "category",
+                  "style": 6
+                },
+                {
+                  "cell": "C3",
+                  "value": "Auto",
+                  "style": 6
+                }
+              ],
+              [
+                {
+                  "cell": "A4",
+                  "value": "Plan",
+                  "style": 7
+                },
+                {
+                  "cell": "B4",
+                  "value": "Discount",
+                  "style": 8
+                },
+                {
+                  "cell": "C4",
+                  "style": 8
+                }
+              ],
+              [
+                {
+                  "cell": "A5",
+                  "value": "Basic",
+                  "style": 9
+                },
+                {
+                  "cell": "B5",
+                  "value": 0.05,
+                  "style": 10
+                },
+                {
+                  "cell": "C5",
+                  "style": 11
+                }
+              ],
+              [
+                {
+                  "cell": "A6",
+                  "value": "Premium",
+                  "style": 12
+                },
+                {
+                  "cell": "B6",
+                  "value": 0.1,
+                  "style": 13
+                },
+                {
+                  "cell": "C6",
+                  "style": 14
+                }
+              ]
+            ],
+            "styles": [
+              {
+                "valign": "center",
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080"
+              },
+              {
+                "bold": true
+              },
+              {},
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#eeece1",
+                "align": "center",
+                "valign": "center",
+                "bold": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#b8cce4",
+                "align": "center",
+                "valign": "center",
+                "bold": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "valign": "center"
+              },
+              {
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              }
+            ],
+            "rows": 6,
+            "changedCells": [
+              "C2"
+            ],
+            "formattingChanged": false,
+            "conflictCells": []
+          },
+          "base": {
+            "range": "A1:C5",
+            "cells": [
+              [
+                {
+                  "cell": "A1",
+                  "value": "SimpleRules Double discount(String plan)",
+                  "colspan": 3,
+                  "style": 0,
+                  "runs": [
+                    {
+                      "to": 11,
+                      "style": 1
+                    },
+                    {
+                      "to": 18,
+                      "style": 1
+                    },
+                    {
+                      "to": 27,
+                      "style": 2
+                    },
+                    {
+                      "to": 28,
+                      "style": 1
+                    },
+                    {
+                      "to": 34,
+                      "style": 1
+                    },
+                    {
+                      "to": 39,
+                      "style": 3
+                    },
+                    {
+                      "to": 40,
+                      "style": 1
+                    }
+                  ]
+                },
+                {
+                  "covered": true
+                },
+                {
+                  "covered": true
+                }
+              ],
+              [
+                {
+                  "cell": "A2",
+                  "value": "properties",
+                  "style": 4
+                },
+                {
+                  "cell": "B2",
+                  "value": "category",
+                  "style": 4
+                },
+                {
+                  "cell": "C2",
+                  "value": "Auto",
+                  "style": 4
+                }
+              ],
+              [
+                {
+                  "cell": "A3",
+                  "value": "Plan",
+                  "style": 5
+                },
+                {
+                  "cell": "B3",
+                  "value": "Discount",
+                  "style": 6
+                },
+                {
+                  "cell": "C3",
+                  "style": 6
+                }
+              ],
+              [
+                {
+                  "cell": "A4",
+                  "value": "Basic",
+                  "style": 7
+                },
+                {
+                  "cell": "B4",
+                  "value": 0.05,
+                  "style": 8
+                },
+                {
+                  "cell": "C4",
+                  "style": 9
+                }
+              ],
+              [
+                {
+                  "cell": "A5",
+                  "value": "Premium",
+                  "style": 10
+                },
+                {
+                  "cell": "B5",
+                  "value": 0.1,
+                  "style": 11
+                },
+                {
+                  "cell": "C5",
+                  "style": 12
+                }
+              ]
+            ],
+            "styles": [
+              {
+                "valign": "center",
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080"
+              },
+              {
+                "bold": true
+              },
+              {},
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#eeece1",
+                "align": "center",
+                "valign": "center",
+                "bold": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#b8cce4",
+                "align": "center",
+                "valign": "center",
+                "bold": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "valign": "center"
+              },
+              {
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              }
+            ],
+            "rows": 5,
+            "changedCells": [],
+            "formattingChanged": false,
+            "conflictCells": []
+          },
+          "theirs": {
+            "range": "A1:C6",
+            "cells": [
+              [
+                {
+                  "cell": "A1",
+                  "value": "SimpleRules Double discount(String plan)",
+                  "colspan": 3,
+                  "style": 0,
+                  "runs": [
+                    {
+                      "to": 11,
+                      "style": 1
+                    },
+                    {
+                      "to": 18,
+                      "style": 1
+                    },
+                    {
+                      "to": 27,
+                      "style": 2
+                    },
+                    {
+                      "to": 28,
+                      "style": 1
+                    },
+                    {
+                      "to": 34,
+                      "style": 1
+                    },
+                    {
+                      "to": 39,
+                      "style": 3
+                    },
+                    {
+                      "to": 40,
+                      "style": 1
+                    }
+                  ]
+                },
+                {
+                  "covered": true
+                },
+                {
+                  "covered": true
+                }
+              ],
+              [
+                {
+                  "cell": "A2",
+                  "value": "properties",
+                  "rowspan": 2,
+                  "style": 4
+                },
+                {
+                  "cell": "B2",
+                  "value": "lob",
+                  "style": 5
+                },
+                {
+                  "cell": "C2",
+                  "value": "Personal",
+                  "style": 5
+                }
+              ],
+              [
+                {
+                  "covered": true
+                },
+                {
+                  "cell": "B3",
+                  "value": "category",
+                  "style": 6
+                },
+                {
+                  "cell": "C3",
+                  "value": "Auto",
+                  "style": 6
+                }
+              ],
+              [
+                {
+                  "cell": "A4",
+                  "value": "Plan",
+                  "style": 7
+                },
+                {
+                  "cell": "B4",
+                  "value": "Discount",
+                  "style": 8
+                },
+                {
+                  "cell": "C4",
+                  "style": 8
+                }
+              ],
+              [
+                {
+                  "cell": "A5",
+                  "value": "Basic",
+                  "style": 9
+                },
+                {
+                  "cell": "B5",
+                  "value": 0.05,
+                  "style": 10
+                },
+                {
+                  "cell": "C5",
+                  "style": 11
+                }
+              ],
+              [
+                {
+                  "cell": "A6",
+                  "value": "Premium",
+                  "style": 12
+                },
+                {
+                  "cell": "B6",
+                  "value": 0.1,
+                  "style": 13
+                },
+                {
+                  "cell": "C6",
+                  "style": 14
+                }
+              ]
+            ],
+            "styles": [
+              {
+                "valign": "center",
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080"
+              },
+              {
+                "bold": true
+              },
+              {},
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  },
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "color": "#808080",
+                "valign": "center",
+                "italic": true,
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#eeece1",
+                "align": "center",
+                "valign": "center",
+                "bold": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#b8cce4",
+                "align": "center",
+                "valign": "center",
+                "bold": true,
+                "border": {
+                  "top": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center"
+              },
+              {
+                "background": "#dce6f1",
+                "valign": "center"
+              },
+              {
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "align": "right",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              },
+              {
+                "background": "#dce6f1",
+                "valign": "center",
+                "border": {
+                  "bottom": {
+                    "style": "solid",
+                    "width": 1
+                  }
+                }
+              }
+            ],
+            "rows": 6,
+            "changedCells": [
+              "C2"
+            ],
+            "formattingChanged": false,
+            "conflictCells": []
+          }
+        }
+      ]
+    }
+  ],
+  "palette": false
+}
+

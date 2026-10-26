@@ -65,7 +65,9 @@ flowchart TB
   conditional formatting, of which their version gives none to an .xls workbook, nor to a sheet whose content
   moves; data validation and hyperlinks their version changed otherwise than yours leave the sheet a conflict.
   When that fails, for instance because
-  **`XlsSheetShifts`** tells that a version moved the content of the sheet, **`XlsTableMerger`** merges the sheet
+  **`XlsSheetShifts`** tells that a version moved the content of the sheet — whole rows or columns, or the cells of
+  a part of them, such as the rows inserted into one of two tables that stand side by side —
+  **`XlsTableMerger`** merges the sheet
   table by table instead: **`XlsSheetTables`** splits each version into tables at the rows and columns with no
   value, as the OpenL compiler does whatever their style, and pairs them by their headers; a table both versions
   created with the same content is kept once, at the place of your version, and a sheet holding one at different
