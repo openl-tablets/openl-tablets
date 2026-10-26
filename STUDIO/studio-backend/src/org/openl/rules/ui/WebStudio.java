@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import lombok.Getter;
@@ -48,7 +47,6 @@ import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.common.exception.NotFoundException;
@@ -674,19 +672,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return null;
         }
         return CollectionUtils.findFirst(project.getModules(), module -> moduleName.equals(module.getResolvedName()));
-    }
-
-    public void initProjectHistory() {
-        processProjectHistory(currentProject, ProjectHistoryService::init);
-    }
-
-    private static void processProjectHistory(ProjectDescriptor project, BiConsumer<String, File> func) {
-        for (Module module : project.getModules()) {
-            var moduleFile = module.getRulesPath().toFile();
-            var moduleHistoryPath = FolderHelper.resolveHistoryFolder(project.getProjectFolder(), module)
-                    .toString();
-            func.accept(moduleHistoryPath, moduleFile);
-        }
     }
 
     public ProjectDescriptor getProjectByName(String repositoryId, final String name) {

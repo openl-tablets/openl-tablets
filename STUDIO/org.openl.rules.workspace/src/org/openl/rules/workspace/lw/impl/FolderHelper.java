@@ -56,27 +56,6 @@ public final class FolderHelper {
                 : history.resolve(project.getFolderPath());
     }
 
-    /**
-     * Returns the module edit-history folder for the project located at the given folder.
-     *
-     * <p>The history is a sibling of the project folder: {@code <user dir>/.history/<project>/<module root>}.
-     */
-    public static Path resolveHistoryFolder(Path projectFolder, Module module) {
-        return resolveHistoryFolder(projectFolder, module.getRulesRootPath());
-    }
-
-    /**
-     * Returns the edit-history folder of the workbook at the given project-relative path.
-     *
-     * <p>Named by the path rather than by a module, for a caller writing a workbook the project does not
-     * declare as a module yet.
-     */
-    public static Path resolveHistoryFolder(Path projectFolder, String rulesRootPath) {
-        return projectFolder.resolveSibling(HISTORY_FOLDER)
-                .resolve(projectFolder.getFileName().toString())
-                .resolve(rulesRootPath);
-    }
-
     private static String normalizePath(Path p) {
         return p.toString().replace('\\', '/');
     }
