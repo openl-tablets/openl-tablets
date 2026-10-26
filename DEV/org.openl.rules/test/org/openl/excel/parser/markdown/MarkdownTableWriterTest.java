@@ -152,9 +152,29 @@ class MarkdownTableWriterTest {
         var text = write(GREETING, cells);
 
         assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges: [A3:A4]\n")
+                        "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), text);
         assertEquals(List.of(CellRangeAddress.valueOf("A3:A4")), parse(text).table().merges());
+    }
+
+    @Test
+    void rangeAddedIsALineOfItsOwnInReadingOrder() {
+        var first = write(GREETING, merge(set(cellsOf(GREETING), 5, 1, null), new CellRangeAddress(4, 5, 1, 1)));
+        var second = write(first, merge(set(cellsOf(first), 5, 0, null), new CellRangeAddress(4, 5, 0, 0)));
+
+        assertTrue(first.contains("merges:\n  - B3:B4\n---"), first);
+        // The range written before keeps its line, the new one comes before it as it stands before it in the table
+        assertTrue(second.contains("merges:\n  - A3:A4\n  - B3:B4\n---"), second);
+    }
+
+    @Test
+    void sameRangesKeepTheirLinesInTheOrderTheFileListsThem() {
+        var listed = GREETING.replace("description: Greeting by the hour\n",
+                        "description: Greeting by the hour\nmerges: [B3:B4, A3:A4]\n")
+                .replace("| 18-23 | Good Evening   |", "|       |                |");
+        var renamed = set(cellsOf(listed), 0, 0, "SmartRules String greet(Integer hour)");
+
+        assertEquals(listed.replace("greeting(Integer hour)", "greet(Integer hour)"), write(listed, renamed));
     }
 
     @Test
@@ -269,7 +289,7 @@ class MarkdownTableWriterTest {
 
         var merged = merge(set(cellsOf(broken), 5, 0, null), new CellRangeAddress(4, 5, 0, 0));
 
-        assertTrue(write(broken, merged).contains("description: Greeting by the hour\nmerges: [A3:A4]\n---"));
+        assertTrue(write(broken, merged).contains("description: Greeting by the hour\nmerges:\n  - A3:A4\n---"));
     }
 
     @Test
@@ -336,7 +356,7 @@ class MarkdownTableWriterTest {
                 """, text);
         assertEquals(table, parse(text).table());
         assertTrue(MarkdownTableWriter.newFile(merged)
-                .contains("description: Greeting by the hour\nmerges: [A3:A4]\n"));
+                .contains("description: Greeting by the hour\nmerges:\n  - A3:A4\n"));
         assertEquals(merged, parse(MarkdownTableWriter.newFile(merged)).table());
     }
 
