@@ -168,7 +168,7 @@
         <datasource-proxy.version>1.11.1</datasource-proxy.version>
         <xmlunit.version>2.14.0</xmlunit.version>
         <!-- Parses the user guides, which the tests of studio-docs validate -->
-        <commonmark.version>0.30.1</commonmark.version>
+        <commonmark.version>0.31.0</commonmark.version>
         <testcontainers.version>2.0.5</testcontainers.version>
         <testcontainers.keycloak.version>4.4.0</testcontainers.keycloak.version>
         <s3mock.version>5.2.3</s3mock.version>
