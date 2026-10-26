@@ -130,6 +130,17 @@ a cell at index -1. `ParsedGrid` hands the writable grid to the thread that took
 everybody else with the sheet as it was parsed; Studio queues the writes of one session behind one another
 (`WorkbookWrites`). Anything new that changes a workbook belongs inside that queue.
 
+### Markdown Modules (`org.openl.rules/src/org/openl/excel/parser/markdown/`, `excel/grid/Markdown*`)
+
+A module can be a folder of Markdown files, one table per file. The format is specified in
+[Markdown Tables](../Docs/ref/markdown-tables.md), the design in
+[Markdown Modules](../Docs/architecture/markdown-modules.md).
+
+**Rules**: a file reads as a workbook of one sheet, laid out as Excel holds the table, so nothing above the reader
+knows about Markdown — keep it so. A save writes only the keys and rows that changed (`MarkdownTableWriter`), and what
+a file cannot hold is refused with the reason (`SheetLayout`), never dropped. A change of the format updates the
+specification, the JavaDoc of `MarkdownTableParser` and the README of `Example-5-Markdown-Rules`.
+
 ### Decision Table Gap/Overlap Check (`org.openl.rules/src/org/openl/ie/constrainer/`)
 
 `ValidationAlgorithm` compiles the condition formulas of a decision table with parameters of the types `IntExp`,
