@@ -1,0 +1,17 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Farewells",
+    "path": "rules/Farewells.xlsx"
+  },
+  {
+    "name": "Greetings",
+    "path": "rules/Greetings.xlsx"
+  },
+  {
+    "name": "GreetingsTests",
+    "path": "tests/GreetingsTests.xlsx"
+  }
+]

@@ -546,7 +546,7 @@ public class ProjectDescriptor {
     }
 
     private boolean isNotTemporaryFile(Path file) throws IOException {
-        if (file.getFileName().startsWith("~$")) {
+        if (file.getFileName().toString().startsWith("~$")) {
             return false;
         }
         if (OS.isWindows() && Files.isHidden(file)) {

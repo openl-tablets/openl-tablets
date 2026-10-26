@@ -50,6 +50,21 @@ class ProjectDescriptorTest {
                 modules.stream().map(Module::getRulesRootPath).toList());
     }
 
+    /** The owner file Excel writes beside a workbook it holds open is no workbook, and no module. */
+    @Test
+    void leavesOutTheOwnerFileExcelWritesBesideAnOpenWorkbook(@TempDir Path projectFolder) throws Exception {
+        Files.write(projectFolder.resolve("Rates.xlsx"), new byte[0]);
+        Files.write(projectFolder.resolve("~$Rates.xlsx"), new byte[165]);
+        var descriptor = new ProjectDescriptor();
+        descriptor.setProjectFolder(projectFolder);
+        var wildcardModule = new Module();
+        wildcardModule.setRulesRootPath("*.xlsx");
+
+        var modules = descriptor.getAllModulesMatchingPathPattern(wildcardModule, "*.xlsx");
+
+        assertEquals(List.of("Rates.xlsx"), modules.stream().map(Module::getRulesRootPath).toList());
+    }
+
     @Test
     void readsAPathDeclaredWithBackslashesAsSlashes() {
         var declared = """
