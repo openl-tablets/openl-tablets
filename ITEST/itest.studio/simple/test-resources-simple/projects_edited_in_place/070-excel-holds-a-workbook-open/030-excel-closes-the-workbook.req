@@ -1,0 +1,2 @@
+DELETE /rest/repos/design-file/files/greetings/rules/~$Greetings.xlsx HTTP/1.1
+

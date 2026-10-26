@@ -15,3 +15,4 @@ and works with it through the projects API.
 - A test written in another module of the project names the project it is written in, so the editor can open it:
   the folder of the project, `greetings`, is not its name.
 - The local history of the module keeps the version the other program wrote before the next write.
+- Excel holds a workbook open beside its owner file, `~$` and the name of the workbook: the owner file is no module.

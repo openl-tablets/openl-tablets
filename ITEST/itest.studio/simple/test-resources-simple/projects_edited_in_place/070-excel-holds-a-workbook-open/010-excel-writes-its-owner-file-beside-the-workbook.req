@@ -1,0 +1,4 @@
+POST /rest/repos/design-file/files/greetings/rules/~$Greetings.xlsx HTTP/1.1
+Content-Type: application/octet-stream
+
+The owner file Excel writes: no workbook
