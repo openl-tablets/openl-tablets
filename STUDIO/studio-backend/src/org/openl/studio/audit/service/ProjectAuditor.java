@@ -149,11 +149,12 @@ public final class ProjectAuditor {
     /**
      * Announces a branch created in a design repository.
      *
-     * @param startPoint the branch or the revision the new branch starts from
+     * @param startPoint the branch or the revision the new branch starts from, or {@code null} for the current branch
+     *                   of the repository
      * @param project    the project the branch was created for, or {@code null} when it was created for a project
      *                   still to be made
      */
-    public void branchCreated(String repositoryId, String branch, String startPoint, @Nullable String project) {
+    public void branchCreated(String repositoryId, String branch, @Nullable String startPoint, @Nullable String project) {
         quietly(AuditAction.BRANCH_CREATED, () -> {
             var details = branchDetails(branch, project);
             details.put("startPoint", startPoint);
