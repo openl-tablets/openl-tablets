@@ -214,12 +214,20 @@ INITIAL_REVISION=$.content[0].revisionNo
 MCP_SESSION_ID=header:Mcp-Session-Id
 ```
 
-The captured value is available to later requests in the same first-level test folder. Captured values override
+The captured value is available to later requests in the same first-level test folder: the folder of the suite, so a
+value captured in `010-setup` reaches every scenario and `999-tierdown` of the suite. Captured values override
 hierarchical `itest.env` values, while programmatic `HttpClient.localEnv` values keep the highest priority. A missing
 value, a missing header or an expression selecting an object or array fails the test instead of leaving a stale variable
 in use. The body is read as JSON only when an entry selects from it. Response content encoding is decoded before
 evaluating JSONPath, including layered, case-insensitive `gzip` and `x-gzip` JSON responses whose comma-separated
 encoding names contain surrounding whitespace.
+
+**Capture what the server assigns instead of writing it down.** A project id, a table id or a revision comes from
+the response that creates it — `PROJECT_ID=$.id` beside the creation of the project, `TABLE_ID=$.id` beside
+`POST /rest/projects/{PROJECT_ID}/tables` — and the expected response matches it with `***`. A table that arrives in
+an uploaded workbook is found by name, `GET /rest/projects/{PROJECT_ID}/tables?kind=Rules&name=discount`, and captured
+as `$.content[0].id`. `itest.env` keeps only what the suite chooses itself, such as the name of the project or of a
+branch.
 
 ### Cookie/Session Handling
 
