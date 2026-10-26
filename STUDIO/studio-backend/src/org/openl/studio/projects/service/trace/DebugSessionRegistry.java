@@ -1,6 +1,8 @@
 package org.openl.studio.projects.service.trace;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,6 +25,12 @@ import org.openl.studio.session.ClientSessionScope;
  * across runs so the user can set them before starting and they apply to the next run. Everything is
  * released when a new session starts, on explicit cancel, when the workspace is reset, or when the client
  * ends — its HTTP session, or the idle credentials of a stateless client.
+ *
+ * <p>It also keeps the executed trees of the business-view runs ({@link TraceTreeSnapshot}), one for each run, so
+ * every open trace window loads the deep branches of its own run. A tree outlives its session: the clicks that re-run
+ * the calculation start and cancel sessions of their own. A tree is released by its window (a new run, the window
+ * closing), when the workspace is reset, when the client ends, or once idle; ending a session leaves them. Any trace
+ * request of the client counts as an access to its trees.
  */
 @Slf4j
 @Component
@@ -31,6 +39,8 @@ import org.openl.studio.session.ClientSessionScope;
 public class DebugSessionRegistry {
 
     private final AtomicReference<DebugSession> ref = new AtomicReference<>();
+    /** The kept trees by run. Guarded by this registry, so a tree is never kept and released at once. */
+    private final Map<String, TraceTreeSnapshot> trees = new HashMap<>();
     private final Set<String> breakpoints = ConcurrentHashMap.newKeySet();
     private final Set<String> watches = ConcurrentHashMap.newKeySet();
     private final DebugSessionReaper reaper;
@@ -49,6 +59,7 @@ public class DebugSessionRegistry {
 
     /** Register a new session, terminating any previous one. */
     public DebugSession start(DebugSession session) {
+        touchTrees();
         reaper.register(session);
         var previous = ref.getAndSet(session);
         if (previous != null) {
@@ -65,15 +76,55 @@ public class DebugSessionRegistry {
             return null;
         }
         session.touch();
+        touchTrees();
         return session;
     }
 
-    /** Terminate and drop the active session. */
+    /** Terminate and drop the active session. The kept tree stays. */
     public void clear() {
         var session = ref.getAndSet(null);
         if (session != null) {
             reaper.unregister(session);
             session.terminate();
+        }
+    }
+
+    /** Keep the executed tree of a finished business-view run. */
+    public synchronized void keepTree(TraceTreeSnapshot snapshot) {
+        trees.values().removeIf(TraceTreeSnapshot::isReleased);
+        release(trees.put(snapshot.getRunId(), snapshot));
+        reaper.register(snapshot);
+    }
+
+    /**
+     * The kept tree, if it was recorded by the given run of the given project and is not released yet, otherwise
+     * {@code null}.
+     */
+    public synchronized @Nullable CallNode tree(ProjectId projectId, String runId) {
+        var snapshot = trees.get(runId);
+        return snapshot == null ? null : snapshot.tree(projectId);
+    }
+
+    /** Release the kept tree of the given run. */
+    public synchronized void releaseTree(String runId) {
+        release(trees.remove(runId));
+    }
+
+    /** Release every kept tree. */
+    public synchronized void releaseTrees() {
+        trees.values().forEach(this::release);
+        trees.clear();
+    }
+
+    /** The client is at work: its trees are not idle, though no branch of them is read. */
+    private synchronized void touchTrees() {
+        trees.values().forEach(TraceTreeSnapshot::touch);
+    }
+
+    private void release(@Nullable TraceTreeSnapshot snapshot) {
+        if (snapshot != null) {
+            reaper.unregister(snapshot);
+            snapshot.release();
         }
     }
 
@@ -113,6 +164,7 @@ public class DebugSessionRegistry {
     public void onWorkspaceReset(WorkspaceResetEvent event) {
         try {
             clear();
+            releaseTrees();
         } catch (Exception e) {
             log.warn("Failed to clear debug session on workspace reset", e);
         }
@@ -122,6 +174,7 @@ public class DebugSessionRegistry {
     public void onDestroy() {
         try {
             clear();
+            releaseTrees();
         } catch (Exception e) {
             log.warn("Failed to clear debug session on destroy", e);
         }

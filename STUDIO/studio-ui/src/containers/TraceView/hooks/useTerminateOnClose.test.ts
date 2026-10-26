@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import traceService from 'services/traceService'
 import { stampTraceLaunch } from 'services/traceLaunchToken'
+import { useTraceStore } from 'store'
 import useTerminateOnClose from './useTerminateOnClose'
 
 vi.mock('services/traceService', () => ({
@@ -41,7 +42,18 @@ describe('useTerminateOnClose', () => {
 
         firePagehide()
 
-        expect(releaseOnClose).toHaveBeenCalledWith('p1')
+        expect(releaseOnClose).toHaveBeenCalledWith('p1', null)
+    })
+
+    it('releases the tree kept from the business-view run of the window', () => {
+        stampTraceLaunch()
+        useTraceStore.setState({ simpleRunId: 'run-1' })
+        renderHook(() => useTerminateOnClose('p1'))
+
+        firePagehide()
+
+        expect(releaseOnClose).toHaveBeenCalledWith('p1', 'run-1')
+        useTraceStore.setState({ simpleRunId: null })
     })
 
     it('keeps the session when the page is only frozen for the back/forward cache', () => {

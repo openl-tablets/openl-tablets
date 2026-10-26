@@ -18,7 +18,7 @@ class DebugSessionReaperTest {
 
     @Test
     void sweepTerminatesOnlySessionsIdlePastTheTimeout() {
-        var reaper = new DebugSessionReaper(60_000, 60_000, 16);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16, 1_000);
         var idle = sessionLastAccessedAt(0L);                            // far in the past
         var fresh = sessionLastAccessedAt(System.currentTimeMillis());   // just now
         reaper.register(idle);
@@ -33,7 +33,7 @@ class DebugSessionReaperTest {
 
     @Test
     void registerEvictsTheLeastRecentlyAccessedWhenOverTheLimit() {
-        var reaper = new DebugSessionReaper(60_000, 60_000, 2);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 2, 1_000);
         var oldest = sessionLastAccessedAt(1_000L);
         var middle = sessionLastAccessedAt(2_000L);
         var newest = sessionLastAccessedAt(3_000L);
@@ -49,7 +49,7 @@ class DebugSessionReaperTest {
 
     @Test
     void unregisterStopsTracking() {
-        var reaper = new DebugSessionReaper(60_000, 60_000, 16);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16, 1_000);
         var session = sessionLastAccessedAt(System.currentTimeMillis());
         reaper.register(session);
         assertEquals(1, reaper.trackedCount());
@@ -60,7 +60,7 @@ class DebugSessionReaperTest {
 
     @Test
     void stopTerminatesEveryRemainingSession() {
-        var reaper = new DebugSessionReaper(60_000, 60_000, 16);
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16, 1_000);
         var session = sessionLastAccessedAt(System.currentTimeMillis());
         reaper.register(session);
 
@@ -68,5 +68,59 @@ class DebugSessionReaperTest {
 
         verify(session).terminate();
         assertEquals(0, reaper.trackedCount());
+    }
+
+    private static TraceTreeSnapshot treeLastReadAt(long lastAccessMillis, long nodeCount) {
+        TraceTreeSnapshot tree = mock(TraceTreeSnapshot.class);
+        when(tree.getLastAccessMillis()).thenReturn(lastAccessMillis);
+        when(tree.getNodeCount()).thenReturn(nodeCount);
+        return tree;
+    }
+
+    @Test
+    void sweepReleasesOnlyTreesIdlePastTheTimeout() {
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16, 1_000);
+        var idle = treeLastReadAt(0L, 10);
+        var fresh = treeLastReadAt(System.currentTimeMillis(), 10);
+        reaper.register(idle);
+        reaper.register(fresh);
+
+        reaper.sweep();
+
+        verify(idle).release();
+        verify(fresh, never()).release();
+        assertEquals(1, reaper.trackedTreeCount());
+    }
+
+    @Test
+    void registerReleasesTheLeastRecentlyReadTreesOverTheNodeBudget() {
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16, 1_000);
+        var oldest = treeLastReadAt(1_000L, 400);
+        var middle = treeLastReadAt(2_000L, 400);
+        var newest = treeLastReadAt(3_000L, 400);
+        reaper.register(oldest);
+        reaper.register(middle);
+        reaper.register(newest); // 1,200 nodes exceed the budget of 1,000
+
+        verify(oldest).release();
+        verify(middle, never()).release();
+        verify(newest, never()).release();
+        assertEquals(2, reaper.trackedTreeCount(), "the trees of 800 nodes fit the budget");
+    }
+
+    @Test
+    void stopReleasesEveryTreeAndUnregisterStopsTracking() {
+        var reaper = new DebugSessionReaper(60_000, 60_000, 16, 1_000);
+        var kept = treeLastReadAt(System.currentTimeMillis(), 10);
+        var dropped = treeLastReadAt(System.currentTimeMillis(), 10);
+        reaper.register(kept);
+        reaper.register(dropped);
+        reaper.unregister(dropped);
+
+        reaper.stop();
+
+        verify(kept).release();
+        verify(dropped, never()).release();
+        assertEquals(0, reaper.trackedTreeCount());
     }
 }

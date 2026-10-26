@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +20,13 @@ import java.util.function.Consumer;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DebugStatus;
 import org.openl.studio.projects.model.trace.FrameKind;
+import org.openl.types.IOpenMethod;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleRuntimeEnv;
@@ -61,6 +66,13 @@ class TraceDebuggerIntegrationTest {
             return this;
         }
 
+        /** A call of a table versioned by dimension properties: the dispatcher picks the version it runs. */
+        FakeTable callThrough(OpenMethodDispatcher dispatcher, FakeTable version) {
+            var choose = new FakeChoice(version);
+            body.add(env -> env.getTracer().invoke(choose, null, NO_PARAMS, env, dispatcher));
+            return this;
+        }
+
         FakeTable boom() {
             body.add(env -> {
                 throw new IllegalStateException("boom");
@@ -91,6 +103,14 @@ class TraceDebuggerIntegrationTest {
         }
     }
 
+    /** A synthetic dispatch: runs the version a dispatcher chose. */
+    private record FakeChoice(FakeTable version) implements Invokable<Object, IRuntimeEnv> {
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return env.getTracer().invoke(version, target, params, env, version);
+        }
+    }
+
     /** A synthetic sub-step: a fired decision-table rule. */
     private record FakeRule(String name) implements Invokable<Object, IRuntimeEnv> {
         @Override
@@ -101,7 +121,7 @@ class TraceDebuggerIntegrationTest {
 
     private static final SourceClassifier CLASSIFIER = new SourceClassifier() {
         @Override
-        public FrameDescriptor describeFrame(Object source) {
+        public @Nullable FrameDescriptor describeFrame(Object source) {
             return source instanceof FakeTable t ? new FrameDescriptor(FrameKind.METHOD, t.uri, t.uri, null) : null;
         }
 
@@ -116,14 +136,14 @@ class TraceDebuggerIntegrationTest {
     };
 
     private static DebugBody program(TraceDebugger debugger) {
-        FakeTable t1 = new FakeTable("T1").cell(1, 0);
-        FakeTable t0 = new FakeTable("T0").cellCalling(0, 0, t1).cell(0, 1);
+        var t1 = new FakeTable("T1").cell(1, 0);
+        var t0 = new FakeTable("T0").cellCalling(0, 0, t1).cell(0, 1);
         return () -> run(debugger, t0);
     }
 
     /** Run a table on an environment that carries the debug session's tracer, so its invocations are observed. */
     private static void run(TraceDebugger debugger, Invokable<Object, IRuntimeEnv> root) {
-        IRuntimeEnv env = new SimpleRuntimeEnv();
+        var env = new SimpleRuntimeEnv();
         env.setTracer(debugger.tracer());
         env.getTracer().invoke(root, null, NO_PARAMS, env, root);
     }
@@ -134,14 +154,14 @@ class TraceDebuggerIntegrationTest {
 
     private static String topRef(TraceDebugger debugger) {
         List<DebugFrame> stack = debugger.stack();
-        CurrentLocation location = stack.getLast().getLocation();
+        var location = stack.getLast().getLocation();
         assertNotNull(location, "expected a current location");
         return location.ref();
     }
 
     @Test
     void stepIntoOverOutWalkTheStack() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program(debugger));
 
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
@@ -170,9 +190,9 @@ class TraceDebuggerIntegrationTest {
     @Test
     void capturesAWatchedCellOnEveryExecutionOfItsTable() {
         // T0 calls T1 twice; each T1 execution computes the watched cell R0C0.
-        FakeTable t1 = new FakeTable("T1").cell(0, 0);
-        FakeTable t0 = new FakeTable("T0").call(t1).call(t1);
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var t1 = new FakeTable("T1").cell(0, 0);
+        var t0 = new FakeTable("T0").call(t1).call(t1);
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody body = () -> run(debugger, t0);
 
         debugger.setWatches(Set.of("R0C0"));
@@ -194,16 +214,16 @@ class TraceDebuggerIntegrationTest {
     @Test
     void anInstanceIndexedBreakpointStopsOnThatExecutionOfARepeatedTable() {
         // T0 calls T1 twice; the breakpoint targets only T1's second execution (instance 1).
-        FakeTable t1 = new FakeTable("T1").cell(0, 0);
-        FakeTable t0 = new FakeTable("T0").call(t1).call(t1);
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var t1 = new FakeTable("T1").cell(0, 0);
+        var t0 = new FakeTable("T0").call(t1).call(t1);
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody body = () -> run(debugger, t0);
 
         debugger.setBreakpoints(Set.of("T1#R0C0@1"));
         debugger.start("instance-bp", null, false, body);
 
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
-        DebugFrame top = debugger.stack().get(debugger.stack().size() - 1);
+        var top = debugger.stack().get(debugger.stack().size() - 1);
         assertEquals("T1", top.getName());
         assertEquals(1, top.getInvocationIndex(), "stopped on T1's second execution, not the first");
         assertEquals(DebugStatus.COMPLETED, debugger.command(DebugCommand.RESUME, TIMEOUT));
@@ -211,7 +231,7 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void stepOverToFrameEndSuspendsAtItsExitWithTheResult() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program(debugger));
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
 
@@ -226,7 +246,7 @@ class TraceDebuggerIntegrationTest {
         // so the returned result can be rendered before the frame closes.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OVER, TIMEOUT));
         assertEquals(List.of("T0", "T1"), uris(debugger));
-        DebugFrame returning = debugger.stack().get(1);
+        var returning = debugger.stack().get(1);
         assertTrue(returning.isCompleted(), "the finished frame stays on the stack with its result");
         assertEquals("T1:done", returning.getResult());
 
@@ -250,14 +270,14 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void profilingRetainsAReturnedSubCallUnderTheCallingCell() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("profiling-worker", null, true, true, false, program(debugger));
         try {
             runUntilSubCallReturned(debugger);
-            DebugFrame t0 = debugger.stack().getFirst();
+            var t0 = debugger.stack().getFirst();
             assertTrue(t0.getExecutedChildren().containsKey("R0C0"),
                     "the returned sub-call is retained under the cell that called it");
-            CallNode t1 = t0.getExecutedChildren().get("R0C0").getFirst();
+            var t1 = t0.getExecutedChildren().get("R0C0").getFirst();
             assertEquals("T1", t1.name());
             assertEquals(FrameKind.METHOD, t1.kind());
             assertEquals(List.of("R1C0"), t1.steps().stream().map(CallNode.Step::ref).toList());
@@ -268,7 +288,7 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void withoutProfilingReturnedSubCallsAreNotRetained() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("plain-worker", null, true, program(debugger));
         try {
             runUntilSubCallReturned(debugger);
@@ -281,24 +301,43 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void profilingKeepsTheWholeTreeWithTimingsAfterCompletion() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         // No stop-at-entry, profiling on: it runs straight to completion, keeping the executed tree.
         debugger.start("completed-tree-worker", null, false, true, false, program(debugger));
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
 
-        CallNode tree = debugger.completedTree();
+        var tree = debugger.completedTree();
         assertNotNull(tree, "the whole executed tree outlives the empty stack on completion");
         assertEquals("T0", tree.name());
-        CallNode.Step caller = tree.steps().stream()
-                .filter(step -> step.ref().equals("R0C0")).findFirst().orElseThrow();
+        var caller = tree.steps().stream()
+                .filter(step -> "R0C0".equals(step.ref())).findFirst().orElseThrow();
         assertEquals(List.of("T1"), caller.children().stream().map(CallNode::name).toList());
         assertTrue(tree.durationNanos() >= 0, "the root carries its measured execution time");
         assertFalse(debugger.isTreeTruncated(), "a small run stays well under the node cap");
     }
 
     @Test
+    void callsOfAVersionedTableChosenAlikeShareOneDispatch() {
+        var version = mock(IOpenMethod.class);
+        when(version.getName()).thenReturn("Rate");
+        var dispatcher = mock(OpenMethodDispatcher.class);
+        when(dispatcher.getCandidates()).thenReturn(List.of(version));
+        var t1 = new FakeTable("T1");
+        var t0 = new FakeTable("T0").callThrough(dispatcher, t1).callThrough(dispatcher, t1);
+        var debugger = new TraceDebugger(CLASSIFIER);
+        debugger.start("dispatch-worker", null, false, true, false, () -> run(debugger, t0));
+        assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
+
+        var calls = debugger.completedTree().steps().stream().flatMap(step -> step.children().stream()).toList();
+        assertEquals(2, calls.size());
+        assertNotNull(calls.getFirst().dispatch());
+        assertSame(calls.getFirst().dispatch(), calls.get(1).dispatch(), "the run keeps one copy of each choice");
+        assertEquals(3, debugger.recordedNodes(), "T0 and both calls of T1");
+    }
+
+    @Test
     void withoutProfilingNoTreeIsKeptAfterCompletion() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("plain-completion-worker", null, false, program(debugger));
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
         assertNull(debugger.completedTree(), "off by default: nothing is kept after completion");
@@ -306,9 +345,9 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void breakOnExceptionSuspendsAtThrowingFrame() {
-        FakeTable t1 = new FakeTable("T1").boom();
-        FakeTable t0 = new FakeTable("T0").call(t1);
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var t1 = new FakeTable("T1").boom();
+        var t0 = new FakeTable("T0").call(t1);
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody program = () -> run(debugger, t0);
 
         // Run with no breakpoints: without break-on-exception this would just fail; instead it suspends.
@@ -317,9 +356,9 @@ class TraceDebuggerIntegrationTest {
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
         assertEquals(List.of("T0", "T1"), uris(debugger));
         assertNotNull(debugger.stack().get(1).getError(), "the throwing frame carries its error");
-        assertNotNull(debugger.stack().get(0).getError(),
+        assertNotNull(debugger.stack().getFirst().getError(),
                 "the live caller is stamped too, so inspecting it still reads the failure");
-        assertSame(debugger.stack().get(1).getError(), debugger.stack().get(0).getError(),
+        assertSame(debugger.stack().get(1).getError(), debugger.stack().getFirst().getError(),
                 "every live frame shares the same throwable instance");
 
         // Resuming lets the exception propagate; the session ends in error (it does not re-break per frame).
@@ -328,12 +367,12 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void aStackOverflowParksOnceWithTheStackWhereItRanOut() {
-        FakeTable recurse = new FakeTable("R");
+        var recurse = new FakeTable("R");
         recurse.call(recurse);
         // Reporting a status costs stack, as a WebSocket push does, so no room is left for it where the stack ran
         // out. Parking there used to overflow again and park a little higher each time.
-        AtomicInteger suspensions = new AtomicInteger();
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER, status -> {
+        var suspensions = new AtomicInteger();
+        var debugger = new TraceDebugger(CLASSIFIER, status -> {
             if (status == DebugStatus.SUSPENDED) {
                 suspensions.incrementAndGet();
             }
@@ -358,9 +397,9 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void runningThroughErrorsKeepsTheExecutedTreeWithTheFailedBranch() {
-        FakeTable t1 = new FakeTable("T1").boom();
-        FakeTable t0 = new FakeTable("T0").call(t1);
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var t1 = new FakeTable("T1").boom();
+        var t0 = new FakeTable("T0").call(t1);
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody program = () -> run(debugger, t0);
 
         // The business full run opts out of break-on-exception: instead of parking on the throwing frame, the
@@ -370,7 +409,7 @@ class TraceDebuggerIntegrationTest {
 
         assertEquals(DebugStatus.ERROR, debugger.awaitInitialHalt(TIMEOUT),
                 "the error ends the run instead of suspending on it");
-        CallNode tree = debugger.completedTree();
+        var tree = debugger.completedTree();
         assertNotNull(tree, "the executed tree outlives the failed run");
         assertEquals("T0", tree.name());
         List<String> children = tree.steps().stream()
@@ -380,8 +419,8 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void ruleFiredBreakpointSuspendsWhenARuleFires() {
-        FakeTable dt = new FakeTable("DT").rule("R3");
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var dt = new FakeTable("DT").rule("R3");
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody program = () -> run(debugger, dt);
 
         debugger.setBreakpoints(Set.of("DT#" + CurrentLocation.RULE_FIRED_REF));
@@ -390,7 +429,7 @@ class TraceDebuggerIntegrationTest {
 
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
         assertEquals(List.of("DT"), uris(debugger));
-        CurrentLocation location = debugger.stack().getFirst().getLocation();
+        var location = debugger.stack().getFirst().getLocation();
         assertNotNull(location, "expected a current location");
         assertEquals("R3", location.label(), "suspended at the fired rule");
 
@@ -399,8 +438,8 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void ruleFiringDoesNotSuspendWithoutARuleFiredBreakpoint() {
-        FakeTable dt = new FakeTable("DT").rule("R3");
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var dt = new FakeTable("DT").rule("R3");
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody program = () -> run(debugger, dt);
 
         debugger.start("test-worker", null, false, program);
@@ -411,8 +450,8 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void ruleBreakpointSuspendsOnlyOnTheNamedRule() {
-        FakeTable dt = new FakeTable("DT").rule("R1").rule("R2");
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var dt = new FakeTable("DT").rule("R1").rule("R2");
+        var debugger = new TraceDebugger(CLASSIFIER);
         DebugBody program = () -> run(debugger, dt);
 
         debugger.setBreakpoints(Set.of("DT#R2"));
@@ -420,7 +459,7 @@ class TraceDebuggerIntegrationTest {
 
         // R1 fires first but is not the named rule, so execution runs on to R2.
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
-        CurrentLocation location = debugger.stack().getFirst().getLocation();
+        var location = debugger.stack().getFirst().getLocation();
         assertNotNull(location, "expected a current location");
         assertEquals("R2", location.label(), "stopped at R2, not R1");
 
@@ -429,7 +468,7 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void stepOverRunsThroughCalleeTables() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program(debugger));
 
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
@@ -445,7 +484,7 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void resumeStopsAtBreakpoint() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.setBreakpoints(Set.of("T1"));
         debugger.start("test-worker", null, false, program(debugger));
 
@@ -457,14 +496,14 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void runToCompletionWithoutBreakpoints() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, false, program(debugger));
         assertEquals(DebugStatus.COMPLETED, debugger.awaitInitialHalt(TIMEOUT));
     }
 
     @Test
     void recordsExecutedStepValuesAsSubStepsRun() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program(debugger));
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
 
@@ -480,9 +519,9 @@ class TraceDebuggerIntegrationTest {
         // Once the call returns and the cell completes, its value is recorded — visible at the next cell.
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, TIMEOUT));
         assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_INTO, TIMEOUT));
-        DebugFrame root = debugger.stack().getFirst();
+        var root = debugger.stack().getFirst();
         assertFalse(root.getExecutedSteps().isEmpty(), "the executed cell must be recorded");
-        DebugFrame.ExecutedStep first = root.getExecutedSteps().getFirst();
+        var first = root.getExecutedSteps().getFirst();
         assertEquals("R0C0", first.ref());
         assertEquals("R0C0", first.value());
 
@@ -491,7 +530,7 @@ class TraceDebuggerIntegrationTest {
 
     @Test
     void terminateCancelsSuspendedSession() {
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         debugger.start("test-worker", null, true, program(debugger));
         assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(TIMEOUT));
 
@@ -512,14 +551,14 @@ class TraceDebuggerIntegrationTest {
             }
         };
 
-        TraceDebugger debugger = new TraceDebugger(CLASSIFIER);
+        var debugger = new TraceDebugger(CLASSIFIER);
         try {
             debugger.start("stuck-worker", null, false, spinning);
             assertTrue(inLoop.await(TIMEOUT, TimeUnit.MILLISECONDS), "the worker should reach its loop");
 
-            long startNanos = System.nanoTime();
+            var startNanos = System.nanoTime();
             debugger.terminate(100);
-            long elapsedMillis = (System.nanoTime() - startNanos) / 1_000_000;
+            var elapsedMillis = (System.nanoTime() - startNanos) / 1_000_000;
 
             // Terminate joins briefly then returns; it must not block on the runaway worker.
             assertTrue(elapsedMillis < TIMEOUT, "terminate must return promptly, not block on the worker");

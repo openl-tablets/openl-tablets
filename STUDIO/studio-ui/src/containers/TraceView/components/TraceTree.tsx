@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Empty, Segmented, Spin, Tooltip } from 'antd'
+import { Button, Empty, Segmented, Tooltip } from 'antd'
 import {
     CloseCircleFilled,
     DoubleRightOutlined,
@@ -15,7 +15,7 @@ import { displaySteps, isCondition } from './decisionRows'
 import DispatchBadge from './DispatchBadge'
 import { onActivate } from 'utils/keyboardActivate'
 import { kindIcon, stepIcon } from './TraceIcons'
-import { NotRetainedRow, treeIndent, toggleKey, Twisty } from './TreeRow'
+import { LoadingRow, MoreRow, NotRetainedRow, treeIndent, treeItem, toggleKey, Twisty } from './TreeRow'
 import { useFlashJump } from './useFlashJump'
 import { useStyles } from './TraceTree.styles'
 
@@ -41,19 +41,6 @@ interface TreeRow {
     /** For a "more" row, how many further executions were not rendered. */
     moreCount?: number
 }
-
-/**
- * Makes a row an item of the tree that runs the given action when it is clicked or activated from the keyboard.
- *
- * Only a frame is ever the selected item of the tree, so such a row is never selected.
- */
-const treeItem = (action: () => void) => ({
-    'aria-selected': false,
-    onClick: action,
-    onKeyDown: onActivate(action),
-    role: 'treeitem',
-    tabIndex: 0,
-})
 
 const hasChildren = (step: StepValueView): boolean =>
     (step.children?.length ?? 0) > 0 || (step.childrenTotal ?? 0) > 0
@@ -493,27 +480,19 @@ const TraceTree: React.FC = () => {
             ? () => void fetchTreeChildren(nodeUri, nodeInstance ?? 0, step.ref)
             : undefined
         return (
-            <div
+            <MoreRow
                 key={row.key}
-                className={cx(styles.row, styles.inactive)}
-                style={indent(row.depth)}
-                {...(loadMore && { ...treeItem(loadMore), 'data-testid': `tree-more-${row.key}` })}
-            >
-                <span className={styles.chevronSlot} />
-                <span className={cx(styles.leafLabel, loadMore && styles.moreLink)}>
-                    {t('tree.more', { count: row.moreCount })}
-                </span>
-            </div>
+                count={row.moreCount ?? 0}
+                depth={row.depth}
+                onLoad={loadMore}
+                testId={`tree-more-${row.key}`}
+                treeStyles={treeStyles}
+            />
         )
     }
 
-    const renderLoading = (row: TreeRow): React.ReactNode => (
-        <div key={row.key} className={cx(styles.row, styles.inactive)} style={indent(row.depth)}>
-            <span className={styles.chevronSlot} />
-            <Spin size="small" />
-            <span className={styles.leafLabel}>{t('tree.loading')}</span>
-        </div>
-    )
+    const renderLoading = (row: TreeRow): React.ReactNode =>
+        <LoadingRow key={row.key} depth={row.depth} treeStyles={treeStyles} />
 
     // A node whose sub-calls overflowed the tree's size limit: label how many were dropped, so the gap is
     // visible instead of silently missing. Not clickable — the dropped branches were never retained to load.

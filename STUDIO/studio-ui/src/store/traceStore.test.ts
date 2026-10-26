@@ -1,3 +1,5 @@
+import { notification } from 'antd'
+import { ApiHttpError } from 'services/apiCall'
 import traceService from 'services/traceService'
 import { buildSimpleOrder, treeFromNodes, useTraceStore } from 'store/traceStore'
 import type { MockedFunction } from 'vitest'
@@ -13,6 +15,8 @@ vi.mock('services/traceService', () => ({
         setBreakpoints: vi.fn(),
         getBreakpoints: vi.fn(),
         getTreeChildren: vi.fn(),
+        getTreeNode: vi.fn(),
+        releaseTree: vi.fn(),
         step: vi.fn(),
         resume: vi.fn(),
         pause: vi.fn(),
@@ -578,6 +582,8 @@ describe('traceStore actions', () => {
 })
 
 const getTreeChildren = traceService.getTreeChildren as MockedFunction<typeof traceService.getTreeChildren>
+const getTreeNode = traceService.getTreeNode as MockedFunction<typeof traceService.getTreeNode>
+const releaseTree = traceService.releaseTree as MockedFunction<typeof traceService.releaseTree>
 
 // A minimal executed tree: root uR calls uA twice from step S1 (lazily loaded), and uA has a plain step SA.
 const callNode = (uri: string, instance: number, steps: any[] = [], extra: object = {}): any =>
@@ -671,11 +677,11 @@ describe('traceStore simple mode', () => {
         expect(order['x@0']).toBeUndefined()
     })
 
-    it('runs the whole trace profiled and gets the full tree in one request for offline browsing', async () => {
+    it('runs the whole trace profiled and gets the upper levels of the tree in one request', async () => {
         cancelTrace.mockResolvedValue(undefined)
-        // The full tree arrives in the start response as one list of every call.
+        // The tree arrives in the start response as one list of calls, named by the run that recorded it.
         startTrace.mockResolvedValue({ status: 'completed', frames: [], treeNodes: sampleTreeNodes(),
-            profile: { nodeCount: 3 } } as any)
+            profile: { nodeCount: 3 }, sessionId: 'run-1' } as any)
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
 
         await useTraceStore.getState().simpleRun()
@@ -683,13 +689,147 @@ describe('traceStore simple mode', () => {
         const state = useTraceStore.getState()
         expect(startTrace).toHaveBeenCalledWith('p1', expect.objectContaining(
             { stopAtEntry: false, profiling: true, detailedTitles: true, fullTree: true, breakOnErrors: false }))
-        // No per-branch paging: the one request carries the whole tree.
+        // No per-step paging: the one request carries the upper levels whole.
         expect(getTreeChildren).not.toHaveBeenCalled()
         expect(state.simpleTree?.uri).toBe('uR')
+        expect(state.simpleRunId).toBe('run-1') // the deep branches load from the tree kept under it
         expect(state.simpleReady).toBe(true)
         expect(state.simpleLoading).toBe(false)
-        // The order is built straight from the rebuilt tree.
-        expect(state.simpleOrder['uA@1']).toEqual({ pre: 4, end: 5 })
+        // The order is numbered when a row is first clicked, not as the tree arrives.
+        expect(state.simpleOrder).toBeNull()
+    })
+
+    it('gives each node back the dispatch it names by position', () => {
+        const dispatch = { candidates: [{ label: 'state: CA', chosen: true }]}
+        const root = treeFromNodes([
+            callNode('uR', 0, [{ ref: 'S1', status: 'executed' }]),
+            callNode('uA', 0, [], { parent: 0, parentStep: 'S1', dispatchIndex: 0 }),
+            callNode('uA', 1, [], { parent: 0, parentStep: 'S1', dispatchIndex: 0 }),
+        ], [dispatch])
+
+        const calls = root?.steps[0]?.children ?? []
+        expect(calls.map(call => call.dispatch)).toEqual([dispatch, dispatch])
+        expect(calls[0]?.dispatch).toBe(calls[1]?.dispatch) // one object for every call chosen alike
+    })
+
+    /** A ready business view of the sample tree whose step S1 left its calls to load on expand. */
+    const primeBranchToLoad = (extra: object = {}) => useTraceStore.setState({
+        status: 'completed',
+        simpleReady: true,
+        simpleTree: sampleRoot(),
+        simpleRunId: 'run-1',
+        simpleOrder: buildSimpleOrder(sampleRoot(), {}),
+        ...extra,
+    } as any)
+
+    const S1 = JSON.stringify(['uR', 0, 'S1'])
+
+    it('loads a deep branch from the kept tree on expand, without running the calculation again', async () => {
+        primeBranchToLoad()
+        getTreeNode.mockResolvedValue({ nodes: sampleChildrenPage().children })
+
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+
+        const state = useTraceStore.getState()
+        expect(getTreeNode).toHaveBeenCalledWith('p1', 'run-1', 'uR', 0, 'S1', 0)
+        expect(startTrace).not.toHaveBeenCalled()
+        expect(cancelTrace).not.toHaveBeenCalled()
+        expect(state.simpleChildren[S1]?.map(call => `${call.uri}@${call.instance}`)).toEqual(['uA@0', 'uA@1'])
+        expect(state.simpleOrder).toBeNull() // numbered again on the next click, not on every load
+        expect(state.simpleBranchState[S1]).toBeUndefined()
+    })
+
+    it('loads the next calls of a step from the number already loaded', async () => {
+        primeBranchToLoad({ simpleChildren: { [S1]: [sampleChildrenPage().children[0]]} })
+        getTreeNode.mockResolvedValue({ nodes: [sampleChildrenPage().children[1]]})
+
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+
+        expect(getTreeNode).toHaveBeenCalledWith('p1', 'run-1', 'uR', 0, 'S1', 1)
+        expect(useTraceStore.getState().simpleChildren[S1]?.map(call => call.instance)).toEqual([0, 1])
+    })
+
+    it('drops a branch that arrives after a new Run replaced the tree', async () => {
+        primeBranchToLoad()
+        const late = deferred<any>()
+        getTreeNode.mockReturnValue(late.promise)
+
+        const loading = useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+        useTraceStore.setState({ simpleRunId: 'run-2', simpleChildren: {}, simpleBranchState: {} })
+        late.resolve({ nodes: sampleChildrenPage().children })
+        await loading
+
+        // The calls of the new run carry the same (uri, instance) keys; the old branch must not land under them.
+        expect(useTraceStore.getState().simpleChildren[S1]).toBeUndefined()
+    })
+
+    it('reports a branch that could not be loaded and lets the step load it again', async () => {
+        primeBranchToLoad()
+        getTreeNode.mockRejectedValueOnce(new Error('Network down'))
+
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+
+        expect(notification.error).toHaveBeenCalledWith({ title: 'Network down' })
+        expect(useTraceStore.getState().simpleBranchState[S1]).toBeUndefined()
+        getTreeNode.mockResolvedValue({ nodes: sampleChildrenPage().children })
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+        expect(useTraceStore.getState().simpleChildren[S1]).toHaveLength(2)
+    })
+
+    it('stops loading once the server reports the tree released', async () => {
+        primeBranchToLoad()
+        getTreeNode.mockRejectedValue(new ApiHttpError(404, 'The executed tree of this trace run was released.'))
+
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+        await useTraceStore.getState().loadSimpleBranch('uA', 0, 'SA')
+
+        expect(useTraceStore.getState().simpleTreeReleased).toBe(true)
+        expect(getTreeNode).toHaveBeenCalledTimes(1) // nothing more is asked of a released tree
+        expect(notification.error).toHaveBeenCalledWith(
+            { title: 'The executed tree of this trace run was released.' })
+    })
+
+    it('stops loading a step the kept tree has no more calls of', async () => {
+        primeBranchToLoad()
+        getTreeNode.mockResolvedValue({ nodes: []})
+
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+
+        expect(useTraceStore.getState().simpleBranchState[S1]).toBe('ended')
+        expect(getTreeNode).toHaveBeenCalledTimes(1)
+    })
+
+    it('releases the tree of the previous run of the window when it runs again', async () => {
+        primeBranchToLoad()
+        cancelTrace.mockResolvedValue(undefined)
+        releaseTree.mockResolvedValue(undefined)
+        startTrace.mockResolvedValue({ status: 'completed', frames: [], treeNodes: sampleTreeNodes(),
+            sessionId: 'run-2' } as any)
+        getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
+
+        await useTraceStore.getState().simpleRun()
+
+        expect(releaseTree).toHaveBeenCalledWith('p1', 'run-1')
+        expect(useTraceStore.getState().simpleRunId).toBe('run-2')
+    })
+
+    it('restarts for a call loaded inside the last inspected step — the loaded branch renumbers the order', async () => {
+        // S1 (positions 1..1 before its calls load) was inspected; loading its calls makes it span 1..5.
+        primeBranchToLoad({ status: 'suspended', simpleLastInspected: 'uR#S1@0' })
+        getTreeNode.mockResolvedValue({ nodes: sampleChildrenPage().children })
+        await useTraceStore.getState().loadSimpleBranch('uR', 0, 'S1')
+        cancelTrace.mockResolvedValue(undefined)
+        getStack.mockRejectedValue(new Error('no session'))
+        startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
+        setBreakpoints.mockResolvedValue(undefined)
+        resume.mockResolvedValue(undefined)
+
+        await useTraceStore.getState().simpleInspect(
+            { key: 'uA@1', frameUri: 'uA', frameInstance: 1, stepType: 'out', label: 'uA' })
+
+        // uA@1 (position 4) ran inside S1, so only a fresh run reaches it; the click keeps the kept tree.
+        expect(cancelTrace).toHaveBeenCalledWith('p1')
     })
 
     it('shows the executed tree when a rule error ends the run, so a failed trace is still browsable', async () => {
@@ -751,15 +891,25 @@ describe('traceStore simple mode', () => {
     })
 
     /** A store primed as if a simple run has finished and its tree is downloaded. */
-    const primeSimpleReady = (extra: object = {}) => useTraceStore.setState({
-        status: 'completed',
-        simpleReady: true,
-        simpleTree: sampleRoot(),
-        simpleOrder: buildSimpleOrder(sampleRoot(), {
+    /**
+     * A ready business view of the sample tree. Given `inspectedUpTo`, a previous inspection ran the trace up to that
+     * position of the execution order, so a click on a later row resumes.
+     */
+    const primeSimpleReady = (extra: object = {}, inspectedUpTo?: number) => {
+        const order = buildSimpleOrder(sampleRoot(), {
             [JSON.stringify(['uR', 0, 'S1'])]: sampleChildrenPage().children,
-        }),
-        ...extra,
-    } as any)
+        })
+        useTraceStore.setState({
+            status: 'completed',
+            simpleReady: true,
+            simpleTree: sampleRoot(),
+            simpleOrder: inspectedUpTo === undefined
+                ? order
+                : { ...order, 'inspected@0': { pre: inspectedUpTo, end: inspectedUpTo } },
+            ...(inspectedUpTo === undefined ? {} : { simpleLastInspected: 'inspected@0' }),
+            ...extra,
+        } as any)
+    }
 
     it('inspects a call by restarting and running THROUGH it with an inclusive breakpoint', async () => {
         primeSimpleReady()
@@ -826,7 +976,7 @@ describe('traceStore simple mode', () => {
     it('does nothing when the clicked row is already the one on screen', async () => {
         // A settled inspect has both the highlight and a selected frame; without a frame the same row
         // is allowed to retry (a failed inspect left the loading window empty).
-        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: 0,
+        primeSimpleReady({ status: 'suspended', simpleSelectedKey: 'uA@1', simpleLastInspected: 'uA@0',
             selectedFrameIndex: 0 })
 
         await useTraceStore.getState().simpleInspect(
@@ -839,7 +989,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('executes the very next step in place — its line is already current, so no breakpoint can reach it', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
+        primeSimpleReady({ status: 'suspended' }, 0)
         step.mockResolvedValue(suspended([
             { index: 0, uri: 'uR', instance: 0, completed: false, location: { kind: 'cell', ref: 'S1' } } as any]))
         getVariables.mockResolvedValue({ parameters: [], steps: [], errors: []})
@@ -857,7 +1007,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('remembers the clicked step so Details presents the step, not the paused frame', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
+        primeSimpleReady({ status: 'suspended' }, 0)
         setBreakpoints.mockResolvedValue(undefined)
         resume.mockResolvedValue(undefined)
         useTraceStore.setState({ frames: [{ index: 0, uri: 'uR', instance: 0, completed: true } as any]})
@@ -872,7 +1022,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('resumes instead of restarting when the clicked call starts after the last inspected subtree', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 3 }) // paused after uA@0
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 'uA@0' }) // paused after uA@0 (0..3)
         setBreakpoints.mockResolvedValue(undefined)
         resume.mockResolvedValue(undefined)
         useTraceStore.setState({ frames: [{ index: 0, uri: 'uA', instance: 0, completed: true } as any]})
@@ -886,7 +1036,7 @@ describe('traceStore simple mode', () => {
 
     it('restarts for a sub-call of the last inspected call — it already executed during the step out', async () => {
         // uR@0 was inspected: its whole subtree (0..5) has executed by now.
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 5 })
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 'uR@0' })
         cancelTrace.mockResolvedValue(undefined)
         getStack.mockRejectedValue(new Error('no session'))
         startTrace.mockResolvedValue(suspended([
@@ -919,7 +1069,7 @@ describe('traceStore simple mode', () => {
 
     it('drops the resume anchor when the run finishes without reaching the target', () => {
         getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
-        useTraceStore.setState({ simpleLastInspected: 5 })
+        useTraceStore.setState({ simpleLastInspected: 'uR@0' })
 
         // A conditionally-skipped target never fires its breakpoint; the run just finishes.
         useTraceStore.getState().onSocketStatus('completed')
@@ -929,7 +1079,7 @@ describe('traceStore simple mode', () => {
 
     it('clears the focus and selection when a skipped inspect terminates, so the row can be re-clicked', () => {
         getStack.mockResolvedValue({ status: 'completed', frames: []} as any)
-        useTraceStore.setState({ status: 'suspended', sessionId: 'live', simpleLastInspected: 5,
+        useTraceStore.setState({ status: 'suspended', sessionId: 'live', simpleLastInspected: 'uR@0',
             simpleSelectedKey: 'uA#S1@0',
             simpleFocus: { ref: 'S1', label: '$Value$S1', ownerUri: 'uA', ownerInstance: 0 } })
 
@@ -980,7 +1130,7 @@ describe('traceStore simple mode', () => {
             { index: 0, uri: 'uR', instance: 0, completed: true } as any,
             { index: 1, uri: 'uA', instance: 0, completed: false } as any,
         ]
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 9,
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 'uR@0',
             frames: previous, selectedFrameIndex: 1 })
         cancelTrace.mockResolvedValue(undefined)
         getStack.mockRejectedValue(new Error('no session'))
@@ -1000,7 +1150,7 @@ describe('traceStore simple mode', () => {
     })
 
     it('clears the inspect loading window when resume fails, and allows retrying the same row', async () => {
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 9 })
+        primeSimpleReady({ status: 'suspended', simpleLastInspected: 'uR@0' })
         cancelTrace.mockResolvedValue(undefined)
         getStack.mockRejectedValue(new Error('no session'))
         startTrace.mockResolvedValue(suspended([{ index: 0, uri: 'uR', instance: 0, completed: false } as any]))
@@ -1081,7 +1231,7 @@ describe('traceStore simple mode', () => {
         // The run-to branch neither raises `loading` nor flips status to 'running' until an awaited
         // breakpoint round-trip completes; without the single-flight guard a second click in that window
         // would restart and cancel the session the first inspect is about to resume.
-        primeSimpleReady({ status: 'suspended', simpleLastInspected: 0 })
+        primeSimpleReady({ status: 'suspended' }, 0)
         const slowCancel = deferred<void>()
         cancelTrace.mockReturnValue(slowCancel.promise) // the first inspect's restart parks on cancelTrace
         getStack.mockRejectedValue(new Error('no session'))

@@ -18,6 +18,7 @@ vi.mock('store', () => ({
 }))
 
 const inspect = vi.fn()
+const loadBranch = vi.fn()
 
 const callNode = (uri: string, instance: number, steps: object[] = [], extra: object = {}): object =>
     ({ uri, name: uri, instance, kind: 'spreadsheet', durationMillis: 0, selfMillis: 0, steps, ...extra })
@@ -44,6 +45,9 @@ const setStore = (extra: Record<string, unknown> = {}): void => {
     store.current = {
         simpleTree: sampleTree(),
         simpleChildren: sampleChildren(),
+        simpleBranchState: {},
+        simpleTreeReleased: false,
+        loadSimpleBranch: loadBranch,
         simpleReady: true,
         simpleLoading: false,
         simpleSelectedKey: null,
@@ -177,24 +181,129 @@ describe('SimpleTraceTree', () => {
         expect(screen.getByTestId('simple-node-tree/S1#1')).not.toHaveTextContent('#2')
     })
 
-    it('marks a capped step with how many executions the full tree omitted', async () => {
-        // The one-shot full tree keeps a looped step's first sub-calls inline and reports the full count;
-        // the rest read as omitted (the size-cap "not retained" marker), never silently missing.
-        const cappedTree = () => callNode('uR', 0, [
+    const S1 = JSON.stringify(['uR', 0, 'S1'])
+
+    it('loads the calls of a deep step from the kept tree when it is expanded, showing that they load', async () => {
+        // The first view left S1's calls out: the step reports their count, and they load on expand.
+        const tree = () => callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 2 }])
+        const root = tree()
+        setStore({ simpleTree: root, simpleChildren: {} })
+        const { rerender } = render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1'))
+
+        expect(loadBranch).toHaveBeenCalledWith('uR', 0, 'S1')
+        setStore({ simpleTree: root, simpleChildren: {}, simpleBranchState: { [S1]: 'loading' } })
+        rerender(<SimpleTraceTree />)
+        expect(screen.getByTestId('simple-loading-tree/S1/loading')).toHaveTextContent('tree.loading')
+
+        setStore({ simpleTree: root, simpleChildren: sampleChildren() })
+        rerender(<SimpleTraceTree />)
+        expect(screen.getByTestId('simple-node-tree/S1#1')).toHaveTextContent('uA')
+        expect(loadBranch).toHaveBeenCalledTimes(1)
+    })
+
+    it('offers the next calls of a step that is loaded in part', async () => {
+        const partTree = () => callNode('uR', 0, [
             { ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 5, children: [
                 callNode('uA', 0, [{ ref: 'SA', status: 'executed' }]),
                 callNode('uA', 1, [{ ref: 'SA', status: 'executed' }]),
             ]},
         ])
-        setStore({ simpleTree: cappedTree(), simpleChildren: {} })
+        setStore({ simpleTree: partTree(), simpleChildren: {} })
         render(<SimpleTraceTree />)
 
         await userEvent.click(screen.getByTestId('simple-toggle-tree/S1'))
 
-        expect(screen.getByTestId('simple-node-tree/S1#0')).toHaveTextContent('uA')
         expect(screen.getByTestId('simple-node-tree/S1#1')).toHaveTextContent('uA')
-        // 5 executed − 2 kept inline = 3 omitted, shown as the truncation marker.
+        expect(loadBranch).not.toHaveBeenCalled() // the calls here are shown; the rest wait for the reader
+        // The calls left out are not lost: they load on a click, unlike the calls the server did not keep.
+        expect(screen.queryByText('tree.notRetained')).not.toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('simple-more-tree/S1/more'))
+        expect(loadBranch).toHaveBeenCalledWith('uR', 0, 'S1')
+    })
+
+    it('marks the calls the server did not keep, which cannot be loaded', async () => {
+        const capped = () => callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed' }],
+            { notRetained: 3 })
+        setStore({ simpleTree: capped(), simpleChildren: {} })
+        render(<SimpleTraceTree />)
+
         expect(screen.getByText('tree.notRetained')).toBeInTheDocument()
+        expect(screen.queryByTestId('simple-more-tree/S1/more')).not.toBeInTheDocument()
+    })
+
+    const loop = (count: number, failedAt?: number) => callNode('uR', 0, [
+        { ref: 'S1', label: '$Value$S1', status: 'executed', children: Array.from({ length: count }, (_, i) =>
+            callNode('uA', i, [], i === failedAt ? { name: 'uA = ERROR' } : {})) },
+    ], failedAt === undefined ? {} : { name: 'uR = ERROR' })
+
+    it('shows the calls of a long loop a page at a time, without loading what is already here', async () => {
+        const root = loop(150)
+        setStore({ simpleTree: root, simpleChildren: {} })
+        render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1'))
+
+        expect(screen.getByTestId('simple-node-tree/S1#99')).toBeInTheDocument()
+        expect(screen.queryByTestId('simple-node-tree/S1#100')).not.toBeInTheDocument()
+        await userEvent.click(screen.getByTestId('simple-more-tree/S1/more'))
+        expect(screen.getByTestId('simple-node-tree/S1#149')).toBeInTheDocument()
+        expect(screen.queryByTestId('simple-more-tree/S1/more')).not.toBeInTheDocument()
+        expect(loadBranch).not.toHaveBeenCalled()
+    })
+
+    it('shows a failed iteration of a long loop on its error path', () => {
+        setStore({ simpleTree: loop(150, 120), simpleChildren: {} })
+        render(<SimpleTraceTree />)
+
+        expect(screen.getByTestId('simple-node-tree/S1#120')).toHaveTextContent('uA = ERROR')
+    })
+
+    it('stops offering to load the calls of a released tree', async () => {
+        const root = callNode('uR', 0, [{ ref: 'S1', label: '$Value$S1', status: 'executed', childrenTotal: 2 }])
+        setStore({ simpleTree: root, simpleChildren: {}, simpleTreeReleased: true })
+        render(<SimpleTraceTree />)
+
+        await userEvent.click(screen.getByTestId('simple-toggle-tree/S1'))
+
+        expect(loadBranch).not.toHaveBeenCalled()
+        expect(screen.getByText('tree.more')).toBeInTheDocument() // still says how many calls there are
+        expect(screen.queryByTestId('simple-more-tree/S1/more')).not.toBeInTheDocument() // but loads nothing
+    })
+
+    it('opens the error path into a branch that loads after the first view', () => {
+        // The failed step's calls were left out of the first view: they load at once, and their error path opens.
+        const failed = () => callNode('uR', 0, [
+            { ref: 'S1', label: '$Value = ERROR', status: 'executed', childrenTotal: 1 },
+        ], { name: 'uR = ERROR' })
+        const root = failed()
+        setStore({ simpleTree: root, simpleChildren: {} })
+        const { rerender } = render(<SimpleTraceTree />)
+
+        expect(loadBranch).toHaveBeenCalledWith('uR', 0, 'S1')
+        setStore({ simpleTree: root, simpleChildren: {
+            [S1]: [callNode('uA', 0, [{ ref: 'SA', label: '$Fail = ERROR', status: 'executed' }],
+                { name: 'uA = ERROR' })],
+        } })
+        rerender(<SimpleTraceTree />)
+
+        expect(screen.getByTestId('simple-step-tree/S1#0/SA')).toHaveTextContent('$Fail = ERROR')
+    })
+
+    it('shows a failed iteration past the first page of a branch that loads after the first view', () => {
+        const root = callNode('uR', 0, [
+            { ref: 'S1', label: '$Value = ERROR', status: 'executed', childrenTotal: 150 },
+        ], { name: 'uR = ERROR' })
+        setStore({ simpleTree: root, simpleChildren: {} })
+        const { rerender } = render(<SimpleTraceTree />)
+
+        setStore({ simpleTree: root, simpleChildren: {
+            [S1]: Array.from({ length: 150 }, (_, i) => callNode('uA', i, [], i === 120 ? { name: 'uA = ERROR' } : {})),
+        } })
+        rerender(<SimpleTraceTree />)
+
+        expect(screen.getByTestId('simple-node-tree/S1#120')).toHaveTextContent('uA = ERROR')
     })
 
     const decisionTree = () => {

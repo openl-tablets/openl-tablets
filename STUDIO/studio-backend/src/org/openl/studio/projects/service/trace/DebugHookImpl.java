@@ -3,6 +3,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,13 +12,16 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.dt.ActionInvoker;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.studio.projects.model.trace.DebugStatus;
+import org.openl.studio.projects.model.trace.DispatchInfo;
 import org.openl.studio.projects.model.trace.FrameKind;
 import org.openl.studio.projects.model.trace.TableProfile;
 import org.openl.types.IOpenMethod;
@@ -49,7 +53,7 @@ final class DebugHookImpl implements DebugHook {
      * the tree is now serialized lazily (a level at a time), this is a memory bound only, not a response-size
      * one.
      */
-    private static final int MAX_TREE_NODES = 5_000_000;
+    static final int MAX_TREE_NODES = 5_000_000;
 
     /**
      * Upper bound on the nodes any single branch may retain in its subtree. It keeps the earliest, deepest
@@ -70,14 +74,17 @@ final class DebugHookImpl implements DebugHook {
      */
     private @Nullable List<DebugFrame> overflowStack;
     /** Retain the structure of returned sub-calls so the executed call tree can be shown. Set before the worker runs. */
+    @Setter(AccessLevel.PACKAGE)
     private boolean profiling;
     /** Build the classic detailed titles (signature, result, cell values) into the tree — the business view only. */
+    @Setter(AccessLevel.PACKAGE)
     private boolean detailedTitles;
     /**
      * Suspend the worker at an uncaught rule error so it can be inspected. Default {@code true} — the interactive
      * debugger pauses on the throwing frame. A run-through (business) session sets it {@code false} so the error
      * terminates the run and the executed tree, with the failed branch, is delivered whole instead of parking on it.
      */
+    @Setter(AccessLevel.PACKAGE)
     private boolean breakOnErrors = true;
     /** Cell names or refs whose value is captured on every execution of their table. May be updated mid-run. */
     private final AtomicReference<Set<String>> watches = new AtomicReference<>(Set.of());
@@ -86,6 +93,7 @@ final class DebugHookImpl implements DebugHook {
     /** Per-table invocation counter, so each execution of a table gets a stable instance number. */
     private final Map<String, Integer> invocationCounts = new HashMap<>();
     /** Set when the capture cap was hit, so the response can say the watch series is incomplete. */
+    @Getter(AccessLevel.PACKAGE)
     private volatile boolean watchTruncated;
     /** Total time the worker spent parked at suspend points, subtracted from frame durations so think time is excluded. */
     private long parkedNanos;
@@ -100,8 +108,10 @@ final class DebugHookImpl implements DebugHook {
     private final AtomicReference<@Nullable CallNode> completedTree = new AtomicReference<>();
     /** Running count of retained tree nodes and the flag set once the node cap stops the tree from growing. */
     private int recordedNodes;
+    @Getter(AccessLevel.PACKAGE)
     private volatile boolean treeTruncated;
     /** Effective node cap; defaults to {@link #MAX_TREE_NODES}, lowered by tests to exercise truncation. */
+    @Setter(AccessLevel.PACKAGE)
     private int maxTreeNodes = MAX_TREE_NODES;
     /** Per-table profiling stats, accumulated as frames complete — independent of the retained (capped) tree. */
     private final Map<String, TableAccumulator> tableStats = new LinkedHashMap<>();
@@ -109,18 +119,12 @@ final class DebugHookImpl implements DebugHook {
     private @Nullable OpenMethodDispatcher pendingDispatch;
     /** The version the pending dispatcher selected (from its {@code rule} put), used to flag the chosen candidate. */
     private @Nullable IOpenMethod pendingChosen;
-
-    void setProfiling(boolean profiling) {
-        this.profiling = profiling;
-    }
-
-    void setDetailedTitles(boolean detailedTitles) {
-        this.detailedTitles = detailedTitles;
-    }
-
-    void setBreakOnErrors(boolean breakOnErrors) {
-        this.breakOnErrors = breakOnErrors;
-    }
+    /**
+     * The badge of every choice the run made, by the dispatcher and the version it chose, built once each: a run
+     * calls a versioned table thousands of times, while it makes only a few distinct choices.
+     */
+    private final Map<OpenMethodDispatcher, Map<@Nullable IOpenMethod, DispatchInfo>> dispatches =
+            new IdentityHashMap<>();
 
     /** Watch a set of cells by name ({@code $...} label) or ref, capturing their value on every execution. */
     void setWatches(Set<String> watches) {
@@ -136,25 +140,21 @@ final class DebugHookImpl implements DebugHook {
         return List.copyOf(captures);
     }
 
-    boolean isWatchTruncated() {
-        return watchTruncated;
-    }
-
     @Override
     public <T, E extends IRuntimeEnv, R> R bracketInvoke(Invokable<? super T, E> executor,
                                                          T target,
                                                          Object[] params,
                                                          E env,
                                                          Object source) {
-        SourceClassifier.FrameDescriptor descriptor = classifier.describeFrame(source);
+        var descriptor = classifier.describeFrame(source);
         if (descriptor != null) {
             return invokeFrame(descriptor, executor, target, params, env, source);
         }
         if (source instanceof OpenMethodDispatcher dispatcher) {
             // The dispatcher itself is transparent (no frame), but the version it selects — the next frame — is
             // badged with the choice, so run it while remembering which dispatcher is choosing.
-            OpenMethodDispatcher previousDispatch = pendingDispatch;
-            IOpenMethod previousChosen = pendingChosen;
+            var previousDispatch = pendingDispatch;
+            var previousChosen = pendingChosen;
             pendingDispatch = dispatcher;
             pendingChosen = null;
             try {
@@ -164,8 +164,8 @@ final class DebugHookImpl implements DebugHook {
                 pendingChosen = previousChosen;
             }
         }
-        DebugFrame top = stack.peek();
-        CurrentLocation location = classifier.describeSubStep(executor, env, top == null ? null : top.getSource());
+        var top = stack.peek();
+        var location = classifier.describeSubStep(executor, env, top == null ? null : top.getSource());
         if (location == null || top == null) {
             return executor.invoke(target, params, env);
         }
@@ -173,8 +173,8 @@ final class DebugHookImpl implements DebugHook {
         // cell it references before using it. Remember the enclosing step, so it can be restored when this
         // one completes — a table called from the rest of the enclosing formula belongs to it, not to the
         // step computed on the way.
-        CurrentLocation enclosing = top.getLocation();
-        Object enclosingStep = top.getCurrentStep();
+        var enclosing = top.getLocation();
+        var enclosingStep = top.getCurrentStep();
         // Mark the current line, suspend if requested, then run the step and record its value so a later
         // suspension can show the results of already-executed steps.
         top.setCurrentStep(executor);
@@ -184,14 +184,14 @@ final class DebugHookImpl implements DebugHook {
                 top.getInvocationIndex());
         // Time the step around its own execution, excluding parked time, so an inefficient step that makes no
         // sub-call is still tracked. Captured after the location suspend so the user's think time is not counted.
-        long stepEnter = System.nanoTime();
-        long parkedAtStepEnter = parkedNanos;
-        long nestedAtStepEnter = nestedStepNanos;
+        var stepEnter = System.nanoTime();
+        var parkedAtStepEnter = parkedNanos;
+        var nestedAtStepEnter = nestedStepNanos;
         // On failure the location intentionally stays on the failing step, so the exception break shows it.
         R result = executor.invoke(target, params, env);
         // A referenced cell computed on the way runs as a nested step of the same frame and is recorded on its
         // own; subtract that nested time so this step's own time does not count the referenced cell twice.
-        long wall = elapsed(stepEnter, parkedAtStepEnter);
+        var wall = elapsed(stepEnter, parkedAtStepEnter);
         top.recordExecutedStep(executor, ref, location.label(), result,
                 Math.max(0, wall - (nestedStepNanos - nestedAtStepEnter)));
         // A fired decision-table rule: remember which rule(s) fired, so the returned rule and its result stay
@@ -216,17 +216,17 @@ final class DebugHookImpl implements DebugHook {
 
     @Override
     public boolean onResolveNode(Object executor) {
-        DebugFrame top = stack.peek();
+        var top = stack.peek();
         if (top == null) {
             return false;
         }
-        DebugFrame.ExecutedStep original = top.executedStepFor(executor);
+        var original = top.executedStepFor(executor);
         if (original == null) {
             return false;
         }
         // A formula re-read a step that already executed: leave a reference to it, like the legacy
         // ref-to-node, but only under another step — a top-level re-read adds nothing to the tree.
-        CurrentLocation location = top.getLocation();
+        var location = top.getLocation();
         if (profiling && location != null && !stepRef(location).equals(original.ref())) {
             recordChild(top, stepRef(location), CallNode.referenceTo(StringPool.intern(top.getUri()),
                     StringPool.intern(original.ref()), StringPool.intern(original.label())));
@@ -280,18 +280,14 @@ final class DebugHookImpl implements DebugHook {
         return true;
     }
 
-    /** Lower the retained-tree node cap. Test seam only: exercise truncation without a huge profiled run. */
-    void setMaxTreeNodes(int maxTreeNodes) {
-        this.maxTreeNodes = maxTreeNodes;
-    }
-
-    boolean isTreeTruncated() {
-        return treeTruncated;
+    /** How many nodes the executed tree holds. Complete once the tree is. */
+    int recordedNodes() {
+        return recordedNodes;
     }
 
     /** Record a watched cell's value if this step is watched (by its name or ref), unless the cap is hit. */
     private void captureWatch(DebugFrame frame, CurrentLocation location, String ref, @Nullable Object value) {
-        String label = location.label();
+        var label = location.label();
         var watched = watches.get();
         if (!watched.contains(ref) && (label == null || !watched.contains(label))) {
             return;
@@ -309,7 +305,7 @@ final class DebugHookImpl implements DebugHook {
 
     /** The call path from the root frame to the current frame, as display names, for a capture. */
     private List<String> framePath() {
-        List<String> path = new ArrayList<>(stack.size());
+        var path = new ArrayList<String>(stack.size());
         Iterator<DebugFrame> it = stack.descendingIterator();
         while (it.hasNext()) {
             path.add(it.next().getName());
@@ -332,13 +328,13 @@ final class DebugHookImpl implements DebugHook {
                                                         Object source) {
         // The caller and the cell it is on are captured now, before the new frame is pushed, so the
         // returning frame can be attached to the exact step that made the call.
-        DebugFrame parent = stack.peek();
+        var parent = stack.peek();
         String callerRef = parent == null || parent.getLocation() == null ? null : stepRef(parent.getLocation());
-        long enterNanos = System.nanoTime();
-        long parkedAtEnter = parkedNanos;
-        long nestedAtEnter = nestedStepNanos;
-        int depth = stack.size() + 1;
-        DebugFrame frame = new DebugFrame(descriptor, source, target, params,
+        var enterNanos = System.nanoTime();
+        var parkedAtEnter = parkedNanos;
+        var nestedAtEnter = nestedStepNanos;
+        var depth = stack.size() + 1;
+        var frame = new DebugFrame(descriptor, source, target, params,
                 env == null ? null : env.getContext(), depth);
         // Number each execution of the table so a watched cell's captures form a per-instance series. Counted
         // always (not only while watching), so instances stay correct even for a watch added mid-run.
@@ -346,14 +342,16 @@ final class DebugHookImpl implements DebugHook {
         if (pendingDispatch != null) {
             // This frame is the version the pending dispatcher chose; badge it and consume the dispatch so only
             // the immediate child carries it.
-            frame.setDispatch(DispatchInfoFactory.of(pendingDispatch, pendingChosen));
+            var dispatcher = pendingDispatch;
+            frame.setDispatch(dispatches.computeIfAbsent(dispatcher, unused -> new IdentityHashMap<>())
+                    .computeIfAbsent(pendingChosen, chosen -> DispatchInfoFactory.of(dispatcher, chosen)));
             pendingDispatch = null;
             pendingChosen = null;
         }
         // Reserve this frame's slot in the bounded tree on ENTRY (top-down). A frame admitted here can always be
         // attached on exit — even after its own descendants have filled the cap. Reserving on attach instead
         // (bottom-up) drops a node whose subtree reached the cap, orphaning (losing) that whole recorded subtree.
-        boolean recorded = profiling && admitNode();
+        var recorded = profiling && admitNode();
         // Bound this frame's subtree by its parent's remaining budget and the per-branch cap, so a deep branch
         // entered early cannot use up the whole tree before its siblings run. A frame that was not admitted gets
         // no budget, so nothing is retained under it either.
@@ -410,7 +408,7 @@ final class DebugHookImpl implements DebugHook {
         if (profiling && (frame.isCompleted() || frame.getError() != null)) {
             // Aggregate this table's time on the fly for EVERY execution — independent of whether the node
             // is kept in the (capped) tree — so the hotspots overview stays accurate on a truncated run.
-            long selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
+            var selfNanos = Math.max(0, frame.getDurationNanos() - frame.getChildNanos());
             tableStats.computeIfAbsent(frame.getUri(),
                             uri -> new TableAccumulator(uri, frame.getName(), frame.getKind()))
                     .add(frame.getDurationNanos(), selfNanos);
@@ -421,7 +419,7 @@ final class DebugHookImpl implements DebugHook {
             // the pop. A returned root frame has no parent to hold it, so it becomes the completed tree. The
             // slot was reserved on entry (recorded), so a frame whose subtree filled the cap still attaches.
             if (recorded) {
-                CallNode node = frame.toCallNode(StringPool::intern, detailedTitles);
+                var node = frame.toCallNode(StringPool::intern, detailedTitles);
                 if (parent != null) {
                     parent.recordExecutedChild(callerRef, node);
                 } else {
@@ -437,13 +435,13 @@ final class DebugHookImpl implements DebugHook {
             pendingChosen = chosen;
             return;
         }
-        DebugFrame top = stack.peek();
+        var top = stack.peek();
         if (top == null) {
             return;
         }
         // Record decision-table condition results for the table view's green/red highlight. Condition
         // puts do not create step stops; the decision table's step stop is its fired rule.
-        ConditionCheck check = classifier.describeCondition(id, args);
+        var check = classifier.describeCondition(id, args);
         if (check != null) {
             top.recordConditionCheck(check);
         }
@@ -505,8 +503,8 @@ final class DebugHookImpl implements DebugHook {
     private void suspendAndAwait(int depth, List<DebugFrame> shown) {
         published.set(shown);
         listener.onStatusChanged(DebugStatus.SUSPENDED);
-        long parkStart = System.nanoTime();
-        DebugCommand command = channel.awaitCommand();
+        var parkStart = System.nanoTime();
+        var command = channel.awaitCommand();
         parkedNanos += System.nanoTime() - parkStart;
         stepController.arm(command, depth);
     }

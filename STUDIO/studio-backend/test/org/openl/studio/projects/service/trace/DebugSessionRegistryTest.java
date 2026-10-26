@@ -4,7 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.openl.rules.ui.WorkspaceResetEvent;
 import org.openl.rules.workspace.ProjectId;
 import org.openl.rules.workspace.ProjectIds;
+import org.openl.studio.projects.model.trace.FrameKind;
 
 class DebugSessionRegistryTest {
 
@@ -98,5 +104,69 @@ class DebugSessionRegistryTest {
 
         // A restart (profiling toggle, replay) cancels then re-launches; the input must survive the cancel.
         assertEquals("{\"policy\":1}", registry.lastInputJson());
+    }
+
+    private static CallNode tree() {
+        return new CallNode("u", "T", 0, FrameKind.SPREADSHEET, 1, List.of(), null, null);
+    }
+
+    @Test
+    void keptTreeOutlivesTheSessionAndAnswersOnlyItsOwnRun() {
+        var registry = registry();
+        var tree = tree();
+        registry.start(session(projectId("A")));
+        registry.keepTree(new TraceTreeSnapshot("run-1", projectId("A"), tree, 1));
+
+        // A click on a row cancels the session and starts another; the tree of the run stays.
+        registry.clear();
+        registry.start(session(projectId("A")));
+
+        assertSame(tree, registry.tree(projectId("A"), "run-1"));
+        assertNull(registry.tree(projectId("A"), "run-0"), "a branch of an earlier run is not found");
+        assertNull(registry.tree(projectId("B"), "run-1"), "nor a branch of another project");
+    }
+
+    @Test
+    void keepsATreeForEveryRunSoEveryWindowBrowsesItsOwn() {
+        var registry = registry();
+        var first = new TraceTreeSnapshot("run-1", projectId("A"), tree(), 1);
+        registry.keepTree(first);
+        registry.keepTree(new TraceTreeSnapshot("run-2", projectId("A"), tree(), 1));
+
+        assertNotNull(registry.tree(projectId("A"), "run-1"), "a run in another window keeps the first tree");
+        assertNotNull(registry.tree(projectId("A"), "run-2"));
+
+        registry.releaseTree("run-1");
+        assertNull(registry.tree(projectId("A"), "run-1"));
+        assertNull(first.tree(projectId("A")), "the released tree is freed, not only forgotten");
+        assertNotNull(registry.tree(projectId("A"), "run-2"), "releasing one run leaves the others");
+    }
+
+    @Test
+    void releaseOfEveryTreeAndWorkspaceResetDropTheKeptTrees() {
+        var registry = registry();
+        registry.keepTree(new TraceTreeSnapshot("run-1", projectId("A"), tree(), 1));
+        registry.keepTree(new TraceTreeSnapshot("run-2", projectId("A"), tree(), 1));
+        registry.releaseTrees();
+        assertNull(registry.tree(projectId("A"), "run-1"));
+        assertNull(registry.tree(projectId("A"), "run-2"));
+
+        registry.keepTree(new TraceTreeSnapshot("run-3", projectId("A"), tree(), 1));
+        registry.onWorkspaceReset(new WorkspaceResetEvent(this));
+        assertNull(registry.tree(projectId("A"), "run-3"));
+    }
+
+    @Test
+    void aTraceRequestOfTheClientKeepsItsTreesFromIdling() {
+        var registry = registry();
+        var kept = spy(new TraceTreeSnapshot("run-1", projectId("A"), tree(), 1));
+        registry.keepTree(kept);
+        clearInvocations(kept);
+
+        // A click on a row restarts the session and reads its stack: no branch is read, yet the window is in use.
+        registry.start(session(projectId("A")));
+        registry.find(projectId("A"));
+
+        verify(kept, times(2)).touch();
     }
 }

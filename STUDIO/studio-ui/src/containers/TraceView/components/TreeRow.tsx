@@ -1,17 +1,32 @@
 import React from 'react'
+import { Spin } from 'antd'
 import { CaretDownOutlined, CaretRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { onActivate } from 'utils/keyboardActivate'
 import type { TraceTreeStyles } from './TraceTree.styles'
 
 /**
  * Row primitives shared by the advanced ({@link TraceTree}) and business ({@link SimpleTraceTree}) trees:
- * indentation, the expand/collapse chevron, the expand-set updater, and the "not retained" marker. Each
- * tree keeps its own expansion state and toggle behaviour (the advanced tree also lazily fetches sub-calls)
- * and passes them in, so only the shared markup lives here.
+ * indentation, the expand/collapse chevron, the expand-set updater, and the "more", "loading" and "not retained"
+ * markers. Each tree keeps its own expansion state and toggle behaviour (both lazily fetch sub-calls) and passes
+ * them in, so only the shared markup lives here.
  */
 
 /** Indentation for a tree row at the given depth. */
 export const treeIndent = (depth: number): React.CSSProperties => ({ paddingLeft: 8 + depth * 14 })
+
+/**
+ * Makes a row an item of the tree that runs the given action when it is clicked or activated from the keyboard.
+ *
+ * Only a frame is ever the selected item of the tree, so such a row is never selected.
+ */
+export const treeItem = (action: () => void) => ({
+    'aria-selected': false,
+    onClick: action,
+    onKeyDown: onActivate(action),
+    role: 'treeitem',
+    tabIndex: 0,
+})
 
 /** State updater that flips a key's presence in the expanded set. */
 export const toggleKey = (key: string) => (prev: Set<string>): Set<string> => {
@@ -52,6 +67,50 @@ export const Twisty: React.FC<TwistyProps> = ({ expandKey, expanded, onToggle, t
         >
             {expanded.has(key) ? <CaretDownOutlined /> : <CaretRightOutlined />}
         </button>
+    )
+}
+
+/**
+ * The "+N more executions" row of a step whose sub-calls are not all shown. Given `onLoad`, a click loads the next
+ * of them; without it the row is a plain count.
+ */
+export const MoreRow: React.FC<{
+    depth: number
+    count: number
+    onLoad?: (() => void) | undefined
+    testId?: string
+    /** The tree's styles, read once by the tree: a row reads none of its own. */
+    treeStyles: TraceTreeStyles
+}> = ({ depth, count, onLoad, testId, treeStyles }) => {
+    const { styles, cx } = treeStyles
+    const { t } = useTranslation('trace')
+    return (
+        <div
+            className={cx(styles.row, styles.inactive)}
+            style={treeIndent(depth)}
+            {...(onLoad && { ...treeItem(onLoad), 'data-testid': testId })}
+        >
+            <span className={styles.chevronSlot} />
+            <span className={cx(styles.leafLabel, onLoad && styles.moreLink)}>{t('tree.more', { count })}</span>
+        </div>
+    )
+}
+
+/** The row a step shows while its sub-calls load. */
+export const LoadingRow: React.FC<{
+    depth: number
+    testId?: string
+    /** The tree's styles, read once by the tree: a row reads none of its own. */
+    treeStyles: TraceTreeStyles
+}> = ({ depth, testId, treeStyles }) => {
+    const { styles, cx } = treeStyles
+    const { t } = useTranslation('trace')
+    return (
+        <div className={cx(styles.row, styles.inactive)} data-testid={testId} style={treeIndent(depth)}>
+            <span className={styles.chevronSlot} />
+            <Spin size="small" />
+            <span className={styles.leafLabel}>{t('tree.loading')}</span>
+        </div>
     )
 }
 

@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,7 @@ import org.openl.studio.projects.messaging.SocketDebugListenerFactory;
 import org.openl.studio.projects.model.ParameterValue;
 import org.openl.studio.projects.model.trace.BreakpointTableView;
 import org.openl.studio.projects.model.trace.BreakpointsRequest;
+import org.openl.studio.projects.model.trace.CallTreeView;
 import org.openl.studio.projects.model.trace.CellHighlight;
 import org.openl.studio.projects.model.trace.DebugFrameVariables;
 import org.openl.studio.projects.model.trace.DebugStackView;
@@ -83,6 +85,7 @@ import org.openl.studio.projects.service.trace.TraceDebugStartRequest;
 import org.openl.studio.projects.service.trace.TraceExportService;
 import org.openl.studio.projects.service.trace.TraceHighlightService;
 import org.openl.studio.projects.service.trace.TraceParameterRegistry;
+import org.openl.studio.projects.service.trace.TraceTreeSnapshot;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -124,7 +127,7 @@ public class ProjectsTraceDebugController {
     public DebugStackView startTrace(
             @ProjectId @PathVariable("projectId") RulesProject project,
             @RequestParam("tableId") @Parameter(description = "trace.param.table-id.desc") String tableId,
-            @RequestParam(value = "testRanges", required = false) @Parameter(description = "trace.param.test-ranges.desc") String testRanges,
+            @Nullable @RequestParam(value = "testRanges", required = false) @Parameter(description = "trace.param.test-ranges.desc") String testRanges,
             @RequestParam(value = "fromModule", required = false) @Parameter(description = "trace.param.from-module.desc") String fromModule,
             @RequestParam(value = "stopAtEntry", defaultValue = "true") @Parameter(description = "trace.param.stop-at-entry.desc") boolean stopAtEntry,
             @RequestParam(value = "profiling", defaultValue = "false") @Parameter(description = "trace.param.profiling.desc") boolean profiling,
@@ -134,7 +137,7 @@ public class ProjectsTraceDebugController {
             @RequestParam(value = "profileTop", defaultValue = "20") @Min(1) @Parameter(description = "trace.param.profile-top.desc") int profileTop,
             @RequestParam(value = "view", defaultValue = "full") @Parameter(description = "trace.param.view.desc") StackViewMode view,
             @RequestParam(value = "fullTree", defaultValue = "false") @Parameter(description = "trace.param.full-tree.desc") boolean fullTree,
-            @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
+            @Nullable @RequestBody(required = false) @Parameter(description = "trace.param.input-json.desc") String inputJson) {
 
         parameterRegistry.clear();
         sessionRegistry.clear();
@@ -176,7 +179,23 @@ public class ProjectsTraceDebugController {
         // cache is not later pinned to a different module by a concurrent open (e.g. GET /breakpoint-tables).
         createMapper(session);
         session.getDebugger().awaitInitialHalt(STEP_TIMEOUT_MILLIS);
+        if (fullTree) {
+            keepTree(session);
+        }
         return inspectStack(session, renderOptions(includeTree, profileTop, view, fullTree));
+    }
+
+    /**
+     * Keep the executed tree of a finished business-view run, so its deep branches still load after the clicks
+     * on its rows have replaced the session that recorded it.
+     */
+    private void keepTree(DebugSession session) {
+        var debugger = session.getDebugger();
+        var tree = debugger.completedTree();
+        if (tree != null) {
+            sessionRegistry.keepTree(new TraceTreeSnapshot(session.getId(), session.getProjectId(), tree,
+                    debugger.recordedNodes()));
+        }
     }
 
     @Operation(summary = "trace.status.summary", description = "trace.status.desc")
@@ -213,6 +232,34 @@ public class ProjectsTraceDebugController {
             return TraceDebugMapper.toChildrenView(session.getDebugger().completedTree(), uri, instance, step,
                     offset, limit);
         });
+    }
+
+    @Operation(summary = "trace.tree-node.summary", description = "trace.tree-node.desc")
+    @ApiResponse(responseCode = "200", description = "trace.tree-node.200.desc")
+    @GetMapping("/tree/node")
+    public CallTreeView treeNode(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam("run") @Parameter(description = "trace.param.run.desc") String run,
+            @RequestParam("uri") @Parameter(description = "trace.param.node-uri.desc") String uri,
+            @RequestParam("instance") @Parameter(description = "trace.param.node-instance.desc") int instance,
+            @RequestParam("step") @Parameter(description = "trace.param.step-ref.desc") String step,
+            @RequestParam(value = "offset", defaultValue = "0") @Min(0) @Parameter(description = "trace.param.offset.desc") int offset) {
+        var tree = sessionRegistry.tree(project.getProjectId(), run);
+        if (tree == null) {
+            throw new NotFoundException("trace.tree.released.message");
+        }
+        return TraceDebugMapper.toBranchView(tree, uri, instance, step, offset);
+    }
+
+    @Operation(summary = "trace.tree-release.summary", description = "trace.tree-release.desc")
+    @ApiResponse(responseCode = "204", description = "trace.tree-release.204.desc")
+    @ChangesNothing
+    @DeleteMapping("/tree")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void releaseTree(
+            @ProjectId @PathVariable("projectId") RulesProject project,
+            @RequestParam("run") @Parameter(description = "trace.param.run.desc") String run) {
+        sessionRegistry.releaseTree(run);
     }
 
     @Operation(summary = "trace.step.summary", description = "trace.step.desc")
@@ -282,8 +329,8 @@ public class ProjectsTraceDebugController {
             @PathVariable("index") @Parameter(description = "trace.param.frame-index.desc") int index,
             @RequestParam("ref") @Parameter(description = "trace.param.step-ref.desc") String ref,
             @RequestParam(value = "includeSchema", defaultValue = "false") @Parameter(description = "trace.param.include-schema.desc") boolean includeSchema) {
-        DebugSession session = requireSession(project);
-        TraceDebugMapper mapper = createMapper(session);
+        var session = requireSession(project);
+        var mapper = createMapper(session);
         return withInspectableFrame(session, index,
                 frame -> mapper.freezeStepInputs(frame, ref, session.getClassLoader(), includeSchema));
     }

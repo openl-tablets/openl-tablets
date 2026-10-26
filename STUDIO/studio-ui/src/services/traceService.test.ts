@@ -87,19 +87,50 @@ describe('traceService endpoints', () => {
         expect((init as RequestInit).method).toBe('POST')
     })
 
-    it('releases the session on window close with a keepalive delete', () => {
+    it('releases the session and the tree of the window on close with keepalive deletes', () => {
         mockApiCall.mockResolvedValue(undefined as any)
-        traceService.releaseOnClose('p')
-        expect(mockApiCall).toHaveBeenLastCalledWith(
+        traceService.releaseOnClose('p', 'run-1')
+        // The trees of other windows stay: only this window's run is released.
+        expect(mockApiCall).toHaveBeenCalledWith(
             '/projects/p/trace',
+            { method: 'DELETE', keepalive: true },
+            expect.anything()
+        )
+        expect(mockApiCall).toHaveBeenLastCalledWith(
+            '/projects/p/trace/tree?run=run-1',
             { method: 'DELETE', keepalive: true },
             expect.anything()
         )
     })
 
+    it('releases only the session on close of a window that ran no business-view trace', () => {
+        mockApiCall.mockResolvedValue(undefined as any)
+        traceService.releaseOnClose('p', null)
+        expect(mockApiCall).toHaveBeenCalledTimes(1)
+    })
+
+    it('loads the calls below a step of the kept tree by its run, node, step and the calls already loaded', async () => {
+        mockApiCall.mockResolvedValue({ nodes: []} as any)
+        await traceService.getTreeNode('p', 'run-1', 'u/A?x=1', 2, 'R0C0', 100)
+        expect(mockApiCall).toHaveBeenLastCalledWith(
+            '/projects/p/trace/tree/node?run=run-1&uri=u%2FA%3Fx%3D1&instance=2&step=R0C0&offset=100',
+            undefined,
+            expect.anything()
+        )
+    })
+
+    it('cancels a session keeping the trees, and releases the tree of one run', async () => {
+        mockApiCall.mockResolvedValue(undefined as any)
+        await traceService.cancelTrace('p')
+        expect(mockApiCall).toHaveBeenLastCalledWith('/projects/p/trace', { method: 'DELETE' }, expect.anything())
+        await traceService.releaseTree('p', 'run-1')
+        expect(mockApiCall).toHaveBeenLastCalledWith('/projects/p/trace/tree?run=run-1', { method: 'DELETE' },
+            expect.anything())
+    })
+
     it('swallows a failed release — the window is already closing', async () => {
         mockApiCall.mockRejectedValue(new ApiHttpError(404, 'no session'))
-        traceService.releaseOnClose('p')
+        traceService.releaseOnClose('p', null)
         // Let the rejected promise settle; an unhandled rejection would fail the test run.
         await new Promise(resolve => setTimeout(resolve, 0))
         expect(mockApiCall).toHaveBeenCalledTimes(1)

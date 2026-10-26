@@ -182,6 +182,11 @@ public final class TraceDebugger {
         return hook.completedTree();
     }
 
+    /** How many nodes the executed tree holds; complete once {@link #completedTree()} is set. */
+    public int recordedNodes() {
+        return hook.recordedNodes();
+    }
+
     /** Per-table profiling stats accumulated over the run, for the hotspots overview; complete even when truncated. */
     public List<TableProfile> profileStats() {
         return hook.profileStats();

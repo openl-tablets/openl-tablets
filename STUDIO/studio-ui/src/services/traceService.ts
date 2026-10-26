@@ -4,6 +4,7 @@ import { expandRawTable } from './rawTables'
 import type { RawTableViewData } from 'types/tables'
 import type {
     BreakpointTableView,
+    CallTreeView,
     CellHighlight,
     DebugFrameVariables,
     DebugStackView,
@@ -115,6 +116,9 @@ const TRACE_API_OPTIONS: ApiCallOptions = { throwError: true, suppressErrorPages
 
 const base = (projectId: string): string => `/projects/${encodeURIComponent(projectId)}/trace`
 
+/** The address of the tree kept from one business-view run. */
+const keptTree = (projectId: string, run: string): string => `${base(projectId)}/tree?run=${encodeURIComponent(run)}`
+
 /**
  * API client for the interactive trace debugger.
  * All endpoints require project-level READ access and retry on transient network errors.
@@ -188,6 +192,27 @@ export const traceService = {
         })
         return retryApiCall<TreeChildrenView>(
             `${base(projectId)}/tree/children?${params.toString()}`,
+            undefined,
+            TRACE_API_OPTIONS
+        )
+    },
+
+    /**
+     * Fetch the calls below a step of a node of the tree kept from a business-view run, as one flat list. The
+     * calculation is not run again. `run` is the session id of that run, so the calls of another run are never
+     * returned; `offset` is the number of the step's calls already loaded.
+     */
+    getTreeNode: async (
+        projectId: string,
+        run: string,
+        uri: string,
+        instance: number,
+        step: string,
+        offset: number
+    ): Promise<CallTreeView> => {
+        const params = new URLSearchParams({ run, uri, instance: String(instance), step, offset: String(offset) })
+        return retryApiCall<CallTreeView>(
+            `${base(projectId)}/tree/node?${params.toString()}`,
             undefined,
             TRACE_API_OPTIONS
         )
@@ -317,18 +342,32 @@ export const traceService = {
             TRACE_API_OPTIONS
         ),
 
-    /** Terminate the debug session. Returns 204 on success, 404 if none. */
+    /**
+     * Terminate the debug session. Returns 204 on success, 404 if none. The trees kept from the business-view runs
+     * stay: another trace window may be browsing one, and each window releases its own with {@link releaseTree}.
+     */
     cancelTrace: async (projectId: string): Promise<void> =>
         retryApiCall<void>(base(projectId), { method: 'DELETE' }, TRACE_API_OPTIONS),
 
+    /** Release the tree kept from a business-view run, as its window starts a new run. */
+    releaseTree: async (projectId: string, run: string): Promise<void> =>
+        retryApiCall<void>(keptTree(projectId, run), { method: 'DELETE' }, TRACE_API_OPTIONS),
+
     /**
-     * Terminate the debug session as the debugger window closes. Fire-and-forget: keepalive lets the
-     * request outlive the closing page, and its outcome (including a 404 when no session is left) is
-     * irrelevant to a window that is already gone.
+     * Terminate the debug session as the debugger window closes, and release the tree kept from the window's
+     * business-view run. Fire-and-forget: keepalive lets the requests outlive the closing page, and their outcome
+     * (including a 404 when no session is left) is irrelevant to a window that is already gone.
      */
-    releaseOnClose: (projectId: string): void => {
-        void apiCall(base(projectId), { method: 'DELETE', keepalive: true }, TRACE_API_OPTIONS)
-            .catch(() => { /* the window is closing; there is nobody to report to */ })
+    releaseOnClose: (projectId: string, run: string | null): void => {
+        const release = (url: string): void => {
+            void apiCall(url, { method: 'DELETE', keepalive: true }, TRACE_API_OPTIONS)
+                .catch(() => { /* the window is closing; there is nobody to report to */ })
+        }
+        release(base(projectId))
+        // Only the tree of this window's run: another window may be browsing a tree of its own.
+        if (run) {
+            release(keptTree(projectId, run))
+        }
     },
 }
 
