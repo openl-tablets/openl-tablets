@@ -1,5 +1,6 @@
 package org.openl.excel.parser.markdown;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.SequencedMap;
 import java.util.stream.Collectors;
@@ -28,9 +29,22 @@ record RulesTable(String header,
     }
 
     /**
-     * Returns merged ranges in A1 notation, joined with commas, the way the front matter lists them.
+     * Returns merged ranges in A1 notation, joined with commas, in reading order: the same ranges give the same text
+     * in whatever order they are listed.
      */
     static String mergesText(List<CellRangeAddress> merges) {
-        return merges.stream().map(CellRangeAddress::formatAsString).collect(Collectors.joining(", "));
+        return inReadingOrder(merges).stream()
+                .map(CellRangeAddress::formatAsString)
+                .collect(Collectors.joining(", "));
+    }
+
+    /**
+     * Returns merged ranges in reading order: by the row of their first cell, then by its column.
+     */
+    static List<CellRangeAddress> inReadingOrder(List<CellRangeAddress> merges) {
+        return merges.stream()
+                .sorted(Comparator.comparingInt(CellRangeAddress::getFirstRow)
+                        .thenComparingInt(CellRangeAddress::getFirstColumn))
+                .toList();
     }
 }

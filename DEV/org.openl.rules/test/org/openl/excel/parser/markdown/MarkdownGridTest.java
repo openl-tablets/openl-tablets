@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -99,7 +100,7 @@ class MarkdownGridTest {
 
         var text = Files.readString(file, StandardCharsets.UTF_8);
         assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges: [A3:A4]\n")
+                        "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), text);
     }
 
@@ -291,7 +292,8 @@ class MarkdownGridTest {
                 table: SmartRules String salutation(Integer hour)
                 properties:
                   description: Greeting by the hour
-                merges: [A3:A4]
+                merges:
+                  - A3:A4
                 ---
 
                 | Hour | Greeting |
@@ -328,7 +330,7 @@ class MarkdownGridTest {
         // A time is written with no zone, which every date type reads in the zone of the reader
         assertEquals("2024-01-31T18:30:00", MarkdownGrid.textOf(Date.from(LocalDate.of(2024, Month.JANUARY, 31).atTime(18, 30)
                 .atZone(ZoneId.systemDefault()).toInstant())));
-        assertEquals("HOURS", MarkdownGrid.textOf(java.util.concurrent.TimeUnit.HOURS));
+        assertEquals("HOURS", MarkdownGrid.textOf(TimeUnit.HOURS));
         assertEquals("a\\,b,c", MarkdownGrid.textOf(new String[]{"a,b", "c"}));
         assertEquals("NaN", MarkdownGrid.textOf(Double.NaN));
     }

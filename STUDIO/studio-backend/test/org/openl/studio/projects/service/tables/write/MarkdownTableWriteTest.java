@@ -52,7 +52,7 @@ class MarkdownTableWriteTest {
 
     /** The greeting with the afternoon and the evening under one merged hour. */
     private static final String MERGED = GREETING.replace("description: Greeting by the hour\n",
-                    "description: Greeting by the hour\nmerges: [A3:A4]\n")
+                    "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
             .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |");
 
     @TempDir
@@ -118,7 +118,7 @@ class MarkdownTableWriteTest {
                 new RawTableSourceAction.Merge(new MergeTarget.Cells(4, 0, 2, 1)));
 
         assertEquals(GREETING.replace("description: Greeting by the hour\n",
-                        "description: Greeting by the hour\nmerges: [A3:A4]\n")
+                        "description: Greeting by the hour\nmerges:\n  - A3:A4\n")
                 .replace("| 18-23 | Good Evening   |", "|       | Good Evening   |"), written());
     }
 
@@ -128,7 +128,7 @@ class MarkdownTableWriteTest {
 
         apply(new RawTableSourceAction.Unmerge(new UnmergeTarget.Cells(4, 0)));
 
-        assertEquals(MERGED.replace("merges: [A3:A4]\n", ""), written());
+        assertEquals(MERGED.replace("merges:\n  - A3:A4\n", ""), written());
     }
 
     @Test
@@ -138,7 +138,7 @@ class MarkdownTableWriteTest {
         apply(new RawTableSourceAction.Delete(new DeleteTarget.Rows(5, 1)));
 
         // A merge left over a single cell is a merge no longer
-        assertEquals(MERGED.replace("merges: [A3:A4]\n", "").replace("|       | Good Evening   |\n", ""), written());
+        assertEquals(MERGED.replace("merges:\n  - A3:A4\n", "").replace("|       | Good Evening   |\n", ""), written());
     }
 
     @Test

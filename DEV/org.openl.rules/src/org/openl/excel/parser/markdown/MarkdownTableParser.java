@@ -33,9 +33,9 @@ import org.openl.util.StringUtils;
  *
  * <p>The header of the table is the front matter of the file: the {@code table} key holds the text of the first table
  * cell, such as {@code Rules String Greeting(Integer hour)}. The {@code properties} key holds the table properties, a
- * name and a value on each line under it, and {@code merges} lists the merged ranges of the body in A1 notation. Values
- * are read as written: {@code NO} stays {@code NO}, and a list is joined with commas. Any other key is a problem: the
- * table is read without it.
+ * name and a value on each line under it, and {@code merges} lists the merged ranges of the body in A1 notation, a
+ * range to a line under it. Values are read as written: {@code NO} stays {@code NO}, and a list is joined with commas.
+ * Any other key is a problem: the table is read without it.
  *
  * <p>The body is the first GFM table or code block after the front matter. Every row of a GFM table, its first row
  * included, is a row of the body; a code block is the only body cell, as the code of a {@code Method}. A file with

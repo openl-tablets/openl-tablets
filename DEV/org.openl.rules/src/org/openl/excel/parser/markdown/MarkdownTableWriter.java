@@ -13,6 +13,7 @@ import java.util.Set;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -27,6 +28,9 @@ import org.openl.util.StringUtils;
  * <p>Only the front matter and the body of the table are written; the text around them stays as it is. What did not
  * change keeps its text too: a key of the front matter whose value is the same, and a row of the body whose cells
  * are the same. So a change to a cell touches its row alone, and the file stays easy to compare and to merge.
+ *
+ * <p>The merged ranges are written a range to a line under the {@code merges} key, in reading order, so a range added
+ * or taken away is a line of its own. The same ranges keep their lines, in whatever order the file lists them.
  *
  * <p>A changed row is written with its cells padded to the widths of the delimiter row, so a table aligned by hand
  * stays aligned while a value fits. A body of one cell, read from a code block, stays a code block.
@@ -97,7 +101,7 @@ final class MarkdownTableWriter {
             table.properties().forEach((name, value) -> text.add(INDENT + rendered(name, value)));
         }
         if (!table.merges().isEmpty()) {
-            text.add(rendered(MERGES, RulesTable.mergesText(table.merges())));
+            text.addAll(mergesLines(table.merges()));
         }
         text.add(DELIMITER);
         text.addAll(newBody(table));
@@ -126,7 +130,7 @@ final class MarkdownTableWriter {
         var lines = file.lines();
         if (original.header().equals(table.header())
                 && sameProperties(original, table)
-                && original.merges().equals(table.merges())) {
+                && RulesTable.mergesText(original.merges()).equals(RulesTable.mergesText(table.merges()))) {
             return lines.subList(0, file.frontMatterEnd() + 1);
         }
         var keys = file.keys();
@@ -138,7 +142,7 @@ final class MarkdownTableWriter {
         // Ranges the table is read without stay as written until the ranges change, even when no range is left
         var merges = RulesTable.mergesText(table.merges());
         if (!merges.isEmpty() || written(file, MERGES, merges).isPresent()) {
-            text.addAll(key(file, MERGES, merges));
+            text.addAll(written(file, MERGES, merges).orElseGet(() -> mergesLines(table.merges())));
         }
         keys.stream()
                 .filter(key -> !TABLE_KEYS.contains(key.name()))
@@ -229,7 +233,18 @@ final class MarkdownTableWriter {
     }
 
     private static String rendered(String name, String value) {
-        return MERGES.equals(name) ? name + ": [" + value + "]" : name + ": " + scalar(value);
+        return name + ": " + scalar(value);
+    }
+
+    /**
+     * Returns the lines of the merged ranges: the {@code merges} key, then a range to a line under it in reading
+     * order, so that a range added or taken away changes a line of its own.
+     */
+    private static List<String> mergesLines(List<CellRangeAddress> merges) {
+        var lines = new ArrayList<String>();
+        lines.add(MERGES + ":");
+        RulesTable.inReadingOrder(merges).forEach(range -> lines.add(INDENT + "- " + range.formatAsString()));
+        return lines;
     }
 
     /**
@@ -420,7 +435,7 @@ final class MarkdownTableWriter {
         var widths = new int[width];
         for (var column = 0; column < Math.min(width, segments.length); column++) {
             var segment = segments[column];
-            widths[column] = segment.strip().equals(DELIMITER) ? 0 : Math.max(segment.length() - 2, 0);
+            widths[column] = DELIMITER.equals(segment.strip()) ? 0 : Math.max(segment.length() - 2, 0);
         }
         return widths;
     }

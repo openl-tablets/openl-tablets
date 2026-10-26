@@ -102,7 +102,8 @@ class MarkdownTableCopyTest {
                 table: SmartRules String salutation(Integer hour)
                 properties:
                   description: Greeting by the hour
-                merges: [A3:A4]
+                merges:
+                  - A3:A4
                 ---
 
                 | Hour | Greeting |
@@ -163,7 +164,8 @@ class MarkdownTableCopyTest {
         assertEquals("""
                 ---
                 table: SmartRules Double rateCopy(Integer age, String state)
-                merges: [A2:A3]
+                merges:
+                  - A2:A3
                 ---
 
                 | Age | State | Rate |

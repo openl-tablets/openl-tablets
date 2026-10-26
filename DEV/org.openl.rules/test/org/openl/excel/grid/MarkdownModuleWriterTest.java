@@ -82,7 +82,8 @@ class MarkdownModuleWriterTest {
                 table: SmartRules Double rate(Integer age, String state)
                 properties:
                   description: Rates by age
-                merges: [A2:A3]
+                merges:
+                  - A2:A3
                 ---
 
                 | Age | State | Rate |

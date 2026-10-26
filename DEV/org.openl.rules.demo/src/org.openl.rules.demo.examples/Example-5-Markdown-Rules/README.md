@@ -19,8 +19,9 @@ policy.
   category stands in the folder of the category, as it stands on the sheet of the category in a workbook.
 - The front matter of a file is the header of its table: the `table` key holds the text of the first table cell.
   The `properties` key holds the table properties, a name and a value on each line under it, such as
-  `description: Yearly premium of a policy`. The `merges` key lists the merged cells of the table, such as `[A1:B1]`,
-  counted from the first row of the table. Any other key is an error, and the table is read without it.
+  `description: Yearly premium of a policy`. The `merges` key lists the merged cells of the table, a range to a line
+  under it, such as `- A1:B1`, counted from the first row of the table. A range added or taken away is a line of its
+  own, so two changes of one table merge as text. Any other key is an error, and the table is read without it.
 - The properties take three columns of the table, as in a workbook. A body narrower than that has the last cell of each
   of its rows merged over the columns it lacks; a body that keeps these columns apart writes them as empty columns.
 - The first table after the front matter is the body of the table: every row of it, its first row included, is a
