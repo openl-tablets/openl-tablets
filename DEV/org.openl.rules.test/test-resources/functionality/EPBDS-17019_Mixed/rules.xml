@@ -1,5 +1,5 @@
 <project>
-    <name>MD-POC_Mixed</name>
+    <name>EPBDS-17019_Mixed</name>
     <modules>
         <module>
             <rules-root path="rules/Model"/>

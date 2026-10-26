@@ -1,5 +1,5 @@
 <project>
-    <name>MD-POC_DT_Execution</name>
+    <name>EPBDS-17019_Sort_bug</name>
     <modules>
         <module>
             <rules-root path="rules/Main"/>

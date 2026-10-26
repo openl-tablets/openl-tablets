@@ -42,13 +42,13 @@ Content-Type: application/json
     },
     {
       "startedTime": "*",
-      "name": "markdown_markdown",
-      "servicePath": "markdown",
+      "name": "EPBDS-17019_EPBDS-17019",
+      "servicePath": "EPBDS-17019",
       "urls": {
-        "RESTFUL": "markdown/markdown"
+        "RESTFUL": "EPBDS-17019/EPBDS-17019"
       },
       "hasManifest": false,
-      "deploymentName": "markdown",
+      "deploymentName": "EPBDS-17019",
       "status": "DEPLOYED"
     },
     {
