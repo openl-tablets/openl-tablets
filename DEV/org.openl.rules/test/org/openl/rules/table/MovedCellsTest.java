@@ -31,7 +31,9 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
+import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.source.impl.URLSourceCodeModule;
 
 /**
@@ -133,6 +135,59 @@ class MovedCellsTest {
             assertEquals("24", sheet.getRow(1).getCell(0).getCTCell().getV());
             assertEquals(bottom.getIndex(), sheet.getRow(2).getCell(0).getCellStyle().getIndex());
             assertEquals(styles, workbook.getNumCellStyles(), "no style is added");
+        }
+    }
+
+    /** A table moved where it has room to grow keeps what its cells store, and its merged title only in one cell. */
+    @Test
+    void movesATableAsStored() throws Exception {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet();
+            var title = sheet.createRow(1);
+            title.createCell(1).setCellValue("Data Item first");
+            title.createCell(2);
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, 2));
+            var fields = sheet.createRow(2);
+            fields.createCell(1).setCellValue(" id");
+            fields.createCell(2).setCellValue("Name ");
+            var values = sheet.createRow(3);
+            values.createCell(1).getCTCell().setV("1");
+            values.createCell(2).setCellValue("one");
+            var styles = workbook.getNumCellStyles();
+            var grid = grid(workbook);
+
+            var moved = new TableServiceImpl().moveTable(new GridTable(new GridRegion(1, 1, 3, 2), grid));
+
+            var top = moved.getTop();
+            var left = moved.getLeft();
+            assertEquals("Data Item first", sheet.getRow(top).getCell(left).getStringCellValue());
+            assertFalse(sheet.getRow(top).getCell(left + 1).getCTCell().isSetV(), "the merge holds its title once");
+            assertTrue(sheet.getMergedRegions().contains(new CellRangeAddress(top, top, left, left + 1)));
+            assertEquals(" id", sheet.getRow(top + 1).getCell(left).getStringCellValue());
+            assertEquals("Name ", sheet.getRow(top + 1).getCell(left + 1).getStringCellValue());
+            assertEquals("1", sheet.getRow(top + 2).getCell(left).getCTCell().getV());
+            assertEquals(styles, workbook.getNumCellStyles(), "no style is added");
+            assertNull(sheet.getRow(1).getCell(1), "the table leaves its place");
+        }
+    }
+
+    /** A part of a table written elsewhere keeps the value of a merge reaching into it from outside the part. */
+    @Test
+    void writesTheValueOfAMergeReachingIntoThePart() throws Exception {
+        try (var workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet();
+            sheet.createRow(0).createCell(0).setCellValue("group");
+            sheet.createRow(1).createCell(0);
+            sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 0));
+            var grid = grid(workbook);
+            var builder = new TableBuilder(grid, null);
+
+            builder.beginTable(1, 1);
+            var written = builder.getTableRegion();
+            builder.writeGridTable(new GridTable(new GridRegion(1, 0, 1, 0), grid));
+            builder.endTable();
+
+            assertEquals("group", sheet.getRow(written.getTop()).getCell(written.getLeft()).getStringCellValue());
         }
     }
 
