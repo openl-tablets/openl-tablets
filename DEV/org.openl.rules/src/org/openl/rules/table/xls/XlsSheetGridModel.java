@@ -217,8 +217,21 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     @Override
     public void copyCellValue(int colFrom, int rowFrom, int colTo, int rowTo) {
+        copyCellValue(this, colFrom, rowFrom, colTo, rowTo);
+    }
+
+    /**
+     * Copies the value of a cell of another sheet into a cell of this one, as
+     * {@link #copyCellValue(int, int, int, int)} does on one sheet.
+     *
+     * <p>A cell of another workbook is copied by its value, since what one workbook stores refers to its own texts and
+     * styles.
+     *
+     * @param source the sheet the cell is copied from
+     */
+    public void copyCellValue(XlsSheetGridModel source, int colFrom, int rowFrom, int colTo, int rowTo) {
         var sheet = getSheetToWrite();
-        Cell cellFrom = PoiExcelHelper.getCell(colFrom, rowFrom, sheet);
+        Cell cellFrom = PoiExcelHelper.getCell(colFrom, rowFrom, source == this ? sheet : source.getSheet());
         if (cellFrom != null) {
             copyCellValue(cellFrom, PoiExcelHelper.getOrCreateCell(colTo, rowTo, sheet));
         } else {
@@ -231,7 +244,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     private static void copyCellValue(Cell cellFrom, Cell cellTo) {
         cellTo.setBlank();
-        if (cellFrom instanceof XSSFCell from && cellTo instanceof XSSFCell to && !isSharedFormula(from)) {
+        if (cellFrom instanceof XSSFCell from && cellTo instanceof XSSFCell to && !isSharedFormula(from)
+                && from.getSheet().getWorkbook() == to.getSheet().getWorkbook()) {
             copyStoredValue(from, to);
             return;
         }

@@ -154,8 +154,8 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("endTable() call without prior beginTable() call");
         }
-        for (var y = currentRow; y < height; ++y) {
-            for (var x = 0; x < width; ++x) {
+        for (var y = currentRow; y < height; y++) {
+            for (var x = 0; x < width; x++) {
                 writeCell(x, y, 1, 1, "");
             }
         }
@@ -304,6 +304,10 @@ public class TableBuilder {
     /**
      * Writes table grid.
      *
+     * <p>A table of the same workbook, such as one moved on its sheet, is written as it is stored: every cell keeps
+     * the notation of its value, its text untrimmed and the fonts of its parts. A table of another workbook is written
+     * by its values. A cell a merge covers below or right of its top-left cell stays empty.
+     *
      * @param table table grid
      * @throws IllegalArgumentException if table is null
      * @throws IllegalStateException    if method is called without prior <code>beginTable()</code> call
@@ -313,34 +317,51 @@ public class TableBuilder {
         if (region == null) {
             throw new IllegalStateException("beginTable() has to be called");
         }
+        var source = table.getGrid() instanceof XlsSheetGridModel grid && isSameWorkbook(grid) ? grid : null;
         for (var i = 0; i < table.getWidth(); i++) {
             for (var j = 0; j < table.getHeight(); j++) {
                 var cell = table.getCell(i, j);
-                writeGridCell(cell, i, j);
+                writeGridCell(source, table.getRegion(), cell, i, j);
             }
         }
         currentRow += table.getHeight();
     }
 
+    private boolean isSameWorkbook(XlsSheetGridModel grid) {
+        return grid.getSheetSource().getSheet().getWorkbook() == gridModel.getSheetSource().getSheet().getWorkbook();
+    }
+
     /**
      * Writes a cell of a table grid with its value, style, comment and meta info.
+     *
+     * @param source the sheet of the cell when it is of the same workbook, so it is copied as it is stored
+     * @param table  the region of the table written, in its sheet
      */
-    private void writeGridCell(ICell cell, int i, int j) {
+    private void writeGridCell(@Nullable XlsSheetGridModel source, IGridRegion table, ICell cell, int i, int j) {
         var cellWidth = cell.getWidth();
         var cellHeight = cell.getHeight();
-        Object cellValue;
-        if (cell.getFormula() != null) {
-            cellValue = "=" + cell.getFormula();
-        } else {
-            cellValue = cell.getObjectValue();
-        }
         var style = cell.getStyle();
-        writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
-        Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
-                currentRow + j + region.getTop(),
-                gridModel.getSheetToWrite());
-        if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
-            newCell.setCellValue(cellValue.toString());
+        var column = i + region.getLeft();
+        var row = currentRow + j + region.getTop();
+        var area = cell.getAbsoluteRegion();
+        var covered = isCovered(cell, area, table);
+        Object cellValue = null;
+        if (source != null) {
+            writeCell(i, currentRow + j, cellWidth, cellHeight, null, style);
+            if (!covered) {
+                // A merge reaching in from outside the table shows the value of its top-left cell here.
+                gridModel.copyCellValue(source, area.getLeft(), area.getTop(), column, row);
+            }
+        } else {
+            if (!covered) {
+                cellValue = cell.getFormula() != null ? "=" + cell.getFormula() : cell.getObjectValue();
+            }
+            writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
+        }
+        var newCell = PoiExcelHelper.getOrCreateCell(column, row, gridModel.getSheetToWrite());
+        if (source == null && cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
+            // A text that reads as a formula is kept as the text it is.
+            newCell.setCellValue(String.valueOf(cellValue));
         }
         var iCellComment = cell.getComment();
         if (iCellComment != null) {
@@ -356,11 +377,22 @@ public class TableBuilder {
             comment.setString(xlxComment.getString());
             newCell.setCellComment(comment);
         }
-        if (metaInfoWriter != null && newCell != null) {
+        if (metaInfoWriter != null) {
             metaInfoWriter.setMetaInfo(newCell.getRowIndex(),
                     newCell.getColumnIndex(),
                     metaInfoWriter.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn()));
         }
+    }
+
+    /**
+     * Whether a merge of the table covers the cell below or right of its top-left cell, where the merge holds no
+     * value. A merge reaching into the table from outside it covers nothing written.
+     *
+     * @param area the region of the sheet the cell covers
+     */
+    private static boolean isCovered(ICell cell, IGridRegion area, IGridRegion table) {
+        var topLeft = area.getLeft() == cell.getAbsoluteColumn() && area.getTop() == cell.getAbsoluteRow();
+        return !topLeft && GridRegionUtils.contains(table, area.getLeft(), area.getTop());
     }
 
     /**

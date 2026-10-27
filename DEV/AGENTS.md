@@ -91,8 +91,9 @@ write changes lives only in that workbook until it is saved, so it must not be c
 `XlsWorkbookSourceCodeModule.save()` clears the mark. Reading through `getSheet()` and writing into what it
 returned loses the change whenever the workbook is collected in between.
 
-**A moved cell keeps what it stores.** Inserting and deleting rows or columns, and merging cells, move a cell with
-`IWritableGrid.copyCellValue` and its style as it is. Reading a value and writing it back stores it differently:
+**A moved cell keeps what it stores.** Inserting and deleting rows or columns, merging cells and moving a table
+within its workbook (`TableBuilder.writeGridTable`) move a cell with `IWritableGrid.copyCellValue` and its style as it
+is; a cell a merge covers stays empty. Reading a value and writing it back stores it differently:
 `24` as `24.0`, a date in a new style of the default date format, a text trimmed and without the fonts of its parts.
 Every moved cell then shows as changed in a diff and in a merge of the workbook.
 
