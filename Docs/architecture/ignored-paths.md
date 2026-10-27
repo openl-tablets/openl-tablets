@@ -51,13 +51,15 @@ flowchart LR
   | `check`, `read`, `checkHistory`, `readHistory` | Nothing is found |
   | `save` of one file, `copyHistory` to an ignored path | Refused with `AccessDeniedException` |
   | `save` of several files or of a folder | The ignored files are left out |
-  | A `FULL` save of a folder that holds ignored files | Saved as `DIFF`, with the deletion of every other file it is not given, so the ignored files stay |
   | `delete`, `deleteHistory` | A deletion that names an ignored file deletes nothing; a deleted folder goes with everything in it, as a deleted project does |
   | `getMergeScope`, `merge` | The changes leave the ignored files out |
+  | A `FULL` save of a folder that holds ignored files | Passed on to a repository that keeps the ignored files itself (`IgnoringRepository`: Git and the file system); for another one, such as Azure Blob, saved as `DIFF`, with the deletion of every other file it is not given |
 
   Everything that reads projects through a repository inherits it: the project list, the Files tab, search,
   compare, the ZIP export and the deployment. A copy of a project in the workspace is built from what the
-  repository gives, so it holds no ignored file, and its save keeps the ignored files of the repository.
+  repository gives, so it holds no ignored file, and its save keeps the ignored files of the repository. The
+  workspace takes the same setting (`LocalWorkspaceManagerImpl`), so a file put into a copy by hand, such as the
+  output of a build, is not listed either, and a module path with a wildcard finds no workbook in it.
 - **The Files API.** A working copy of an opened project is written without the repository, so
   `ProjectFilesServiceImpl` refuses a write that names an ignored path with `403` `file.path.ignored.message`: a file
   written there would never reach the repository. An upload of an archive or of several files leaves the ignored
@@ -65,6 +67,18 @@ flowchart LR
 - **A project uploaded as a ZIP archive** leaves the ignored files out through the `zipFilter` bean, a
   `PathFilter` over the same patterns. `IgnoredPathsConfiguration` declares both beans, `ignoredPaths` and
   `zipFilter`, in Java configuration.
+- **A repository on the file system** (`FileSystemRepository`) is given the setting too (`ignored-paths`, which
+  `RepositoryInstatiator` answers from the system setting) and keeps the same paths out of reach by itself:
+  - a path a request names is matched as the file system resolves it too, so neither a link nor a short name of
+    Windows, such as `GIT~1`, gets around the patterns;
+  - a full save of a folder keeps its ignored files;
+  - a listing does not read an ignored folder, nor does the repository watcher (`FileChangesMonitor`), so a fetch into
+    `.git` or a build is no change;
+  - the version of a folder (`LocalRepository.getVersion`) leaves the ignored files out;
+  - `InPlaceRepository`, which a project edited in place is read through, takes the patterns of its design repository,
+    and the project is resolved with `FileSystemRepository.ignores`, so a module path with a wildcard finds no
+    workbook in an ignored folder (`ProjectResolver.resolve(Path, Predicate)`). See
+    [Changes Made Outside OpenL Studio](changes-made-outside.md#projects-edited-in-place).
 
 ## What is out of scope
 

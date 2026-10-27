@@ -166,3 +166,8 @@ folder. So the projects of a design repository on the file system are edited whe
   instead, as the session builds the module from its workbooks again after the refusal and no refresh call is needed.
 - **Safety.** A write of a workbook is refused when another program changed the file since it was read (above), and
   a write of a table or a file based on an outdated read is refused by its version.
+- **Ignored paths.** The folder of the projects is often a working copy of a developer, with the `.git` folder, the
+  output of a build and the files of an IDE. `InPlaceRepository` keeps out of reach the paths the design repository
+  ignores ([Ignored Paths](ignored-paths.md)). The repository watcher does not read an ignored folder, so a fetch of
+  Git or a build is no change of the projects. A module path with a wildcard finds no workbook in an ignored folder:
+  `WebStudio` and `ProjectModel` resolve a project with `FileSystemRepository.ignores` of its repository.

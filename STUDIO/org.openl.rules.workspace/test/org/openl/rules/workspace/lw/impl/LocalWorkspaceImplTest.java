@@ -20,6 +20,8 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
+import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 
 class LocalWorkspaceImplTest {
@@ -28,14 +30,29 @@ class LocalWorkspaceImplTest {
     Path userDir;
 
     private MetainfoRegistry registry;
+    private DesignTimeRepository designTimeRepository;
     private LocalWorkspaceImpl workspace;
 
     @BeforeEach
     void init() {
         registry = MetainfoRegistry.open(userDir);
-        var designTimeRepository = mock(DesignTimeRepository.class);
+        designTimeRepository = mock(DesignTimeRepository.class);
         when(designTimeRepository.getRulesLocation()).thenReturn("DESIGN/rules/");
-        workspace = new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry, false);
+        workspace = new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry, false,
+                IgnoredPaths.of(null));
+    }
+
+    @Test
+    void theCopiesLeaveTheIgnoredPathsOut() throws IOException {
+        var ignoring = new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry, false,
+                IgnoredPaths.of("**/target/**"));
+        Files.createDirectories(userDir.resolve("P1/target"));
+        Files.writeString(userDir.resolve("P1/rules.xml"), "<project/>");
+        Files.writeString(userDir.resolve("P1/target/Copy.xlsx"), "build output");
+
+        var files = ignoring.getRepository("design").list("P1/").stream().map(FileData::getName).toList();
+
+        assertEquals(List.of("P1/rules.xml"), files);
     }
 
     @Test

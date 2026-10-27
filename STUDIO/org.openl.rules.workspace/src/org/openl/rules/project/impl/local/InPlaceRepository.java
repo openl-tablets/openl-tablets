@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.FileData;
 
 /**
@@ -15,7 +16,8 @@ import org.openl.rules.repository.api.FileData;
  * folder of the design repository. So a project here is always opened and never modified, and nothing is recorded
  * about it in the metainfo registry of the user, which holds the copies of the projects in the workspace.
  *
- * <p>The paths of this repository are the paths of the design repository on the file system.
+ * <p>The paths of this repository are the paths of the design repository on the file system, and it keeps the same
+ * paths out of reach as the design repository does.
  */
 public class InPlaceRepository extends LocalRepository {
 
@@ -26,10 +28,12 @@ public class InPlaceRepository extends LocalRepository {
      * @param root            the folder of the design repository on the file system
      * @param workspaceFolder the folder of the user workspace, which keeps the edit history of the projects
      * @param registry        the metainfo registry of the user
+     * @param ignoredPaths    the paths the design repository neither shows nor changes
      */
-    public InPlaceRepository(Path root, Path workspaceFolder, MetainfoRegistry registry) {
+    public InPlaceRepository(Path root, Path workspaceFolder, MetainfoRegistry registry, IgnoredPaths ignoredPaths) {
         super(root, registry);
         this.workspaceFolder = workspaceFolder;
+        ignore(ignoredPaths);
     }
 
     @Override

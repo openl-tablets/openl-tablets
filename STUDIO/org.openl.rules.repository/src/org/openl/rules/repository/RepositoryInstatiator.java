@@ -34,6 +34,9 @@ import org.openl.util.StringUtils;
 @Slf4j
 public final class RepositoryInstatiator {
 
+    /** The parameter a repository is given the {@link IgnoredPaths#PROPERTY} setting by, if it takes it. */
+    private static final String IGNORED_PATHS = "ignored-paths";
+
     /**
      * The repository factories declared on the class path, looked up once.
      *
@@ -66,7 +69,9 @@ public final class RepositoryInstatiator {
      * Creates the repository a configuration describes.
      *
      * <p>The repository keeps the paths the {@link IgnoredPaths#PROPERTY} setting lists out of reach, and the
-     * {@code .git} folder always: see {@link PathCheckedRepository}.
+     * {@code .git} folder always: see {@link PathCheckedRepository}. A repository with an {@code ignoredPaths}
+     * parameter is given the setting too, to apply it where only the repository can, such as to the real paths of a
+     * file system.
      *
      * @param prefix the prefix of the properties of the repository, such as {@code repository.design}
      * @param props  the properties by name
@@ -85,24 +90,35 @@ public final class RepositoryInstatiator {
             repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
                 var ignoredPaths = IgnoredPaths.of(props.apply(IgnoredPaths.PROPERTY));
-                return new PathCheckedRepository(factory.create(key -> {
-                    if ("id".equals(key)) {
-                        // A repository id is the last part of its prefix, such as 'design' in 'repository.design'.
-                        var dot = prefix.lastIndexOf('.');
-                        return prefix.substring(dot + 1);
-                    }
-                    var value = props.apply(prefix + '.' + key);
-                    if (Objects.isNull(value)) {
-                        // If not found the property with the specific prefix, then use defaults for the factory.
-                        value = props.apply(factory.getRefID() + '.' + key);
-                    }
-                    return value;
-                }), ignoredPaths);
+                return new PathCheckedRepository(factory.create(key -> parameterOf(key, prefix, factory, props)),
+                        ignoredPaths);
             }
         }
         throw new IllegalArgumentException("Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s".formatted(
                 factoryId,
                 prefix, String.join(", ", repos)));
+    }
+
+    /** The value of a parameter of the repository a configuration describes, or the default of its factory. */
+    private static @Nullable String parameterOf(String key,
+                                                String prefix,
+                                                RepositoryFactory factory,
+                                                UnaryOperator<String> props) {
+        if ("id".equals(key)) {
+            // A repository id is the last part of its prefix, such as 'design' in 'repository.design'.
+            var dot = prefix.lastIndexOf('.');
+            return prefix.substring(dot + 1);
+        }
+        if (IGNORED_PATHS.equals(key)) {
+            // One setting serves every repository.
+            return props.apply(IgnoredPaths.PROPERTY);
+        }
+        var value = props.apply(prefix + '.' + key);
+        if (Objects.isNull(value)) {
+            // If not found the property with the specific prefix, then use defaults for the factory.
+            value = props.apply(factory.getRefID() + '.' + key);
+        }
+        return value;
     }
 
     public static @Nullable String getRefID(@Nullable String factoryId) {

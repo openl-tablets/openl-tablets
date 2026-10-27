@@ -16,6 +16,7 @@ import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
@@ -50,16 +51,20 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     // Project type (rules/deployment) -> Lock Engine
     private final Map<String, LockEngine> lockEngines = new HashMap<>();
     private final DesignTimeRepository designTimeRepository;
+    /** The paths the workspaces neither show nor change, as the design repositories do. */
+    private final IgnoredPaths ignoredPaths;
 
     // for tests
     public LocalWorkspaceManagerImpl() {
         designTimeRepository = null;
         inPlace = false;
+        ignoredPaths = IgnoredPaths.of(null);
     }
 
     public LocalWorkspaceManagerImpl(PropertyResolver propertyResolver, DesignTimeRepository designTimeRepository) {
         workspaceHome = propertyResolver.getProperty("user.workspace.home");
         inPlace = "single".equals(propertyResolver.getProperty("user.mode"));
+        ignoredPaths = IgnoredPaths.of(propertyResolver.getProperty(IgnoredPaths.PROPERTY));
         this.designTimeRepository = designTimeRepository;
     }
 
@@ -86,7 +91,8 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
                 userWorkspace,
                 designTimeRepository,
                 registryOf(userId),
-                inPlace);
+                inPlace,
+                ignoredPaths);
         workspace.addWorkspaceListener(this);
         return workspace;
     }

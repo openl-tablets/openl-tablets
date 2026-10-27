@@ -1,6 +1,7 @@
 package org.openl.rules.project.resolving;
 
 import java.nio.file.Path;
+import java.util.function.Predicate;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -24,4 +25,16 @@ public interface ResolvingStrategy {
      */
     ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException;
 
+    /**
+     * Describes the project as {@link #resolveProject(Path)} does, finding no module in an ignored file or folder.
+     *
+     * <p>A strategy that finds its modules in the root of the project only takes no such file.
+     *
+     * @param folder  Project root.
+     * @param ignored tells the files and the folders of the project no module is found in
+     * @return {@link ProjectDescriptor} that describes project
+     */
+    default ProjectDescriptor resolveProject(Path folder, Predicate<Path> ignored) throws ProjectResolvingException {
+        return resolveProject(folder);
+    }
 }

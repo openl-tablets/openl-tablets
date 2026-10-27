@@ -17,6 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.LocalRepository;
@@ -56,7 +57,7 @@ class RulesProjectInPlaceTest {
         var designData = design.listFolders("DESIGN/rules/").getFirst();
 
         registry = MetainfoRegistry.open(userDir);
-        inPlace = new InPlaceRepository(designRoot, userDir, registry);
+        inPlace = new InPlaceRepository(designRoot, userDir, registry, IgnoredPaths.of("**/pom.xml"));
         inPlace.setId("design");
         inPlace.initialize();
         var localData = new FileData();

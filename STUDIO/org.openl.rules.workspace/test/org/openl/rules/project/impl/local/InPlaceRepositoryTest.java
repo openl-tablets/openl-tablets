@@ -4,18 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.FileData;
 
 /**
@@ -41,7 +45,7 @@ class InPlaceRepositoryTest {
         registry.save("Rating",
                 new ProjectMetainfo("design", "other/Rating", null, "rev-1", "jdoe", 1751980000000L, 7L, null, Map.of()));
         Files.createDirectories(designRoot.resolve("Rating"));
-        repository = new InPlaceRepository(designRoot, userDir, registry);
+        repository = new InPlaceRepository(designRoot, userDir, registry, IgnoredPaths.of("**/pom.xml"));
         repository.setId("design");
         repository.initialize();
     }
@@ -57,6 +61,23 @@ class InPlaceRepositoryTest {
         assertNull(saved.getUniqueId(), "nothing is recorded about the file");
         assertFalse(registry.isDirty("Rating"));
         assertFalse(repository.getProjectState("Rating/rules.xml").isModified());
+    }
+
+    @Test
+    void keepsTheIgnoredFilesOfTheDesignRepositoryOutOfReach() throws IOException {
+        Files.writeString(designRoot.resolve("Rating/rules.xml"), "<project/>");
+        Files.writeString(designRoot.resolve("Rating/pom.xml"), "<project/>");
+        Files.createDirectories(designRoot.resolve("Rating/.git"));
+        Files.writeString(designRoot.resolve("Rating/.git/config"), "[core]");
+        var pom = new FileData();
+        pom.setName("Rating/pom.xml");
+
+        assertEquals(List.of("Rating/rules.xml"), repository.list("Rating/").stream().map(FileData::getName).toList());
+        assertNull(repository.check("Rating/.git/config"));
+        assertThrows(AccessDeniedException.class,
+                () -> repository.save(pom, new ByteArrayInputStream(new byte[0])));
+        assertFalse(repository.delete(pom));
+        assertEquals("<project/>", Files.readString(designRoot.resolve("Rating/pom.xml")));
     }
 
     @Test

@@ -24,6 +24,7 @@ import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
 import org.openl.rules.project.impl.local.ProjectMetainfo;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
@@ -119,7 +120,8 @@ class LocalWorkspaceInPlaceTest {
     }
 
     private LocalWorkspaceImpl workspace(boolean inPlace) {
-        return new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry, inPlace);
+        return new LocalWorkspaceImpl("jdoe", userDir.toFile(), designTimeRepository, registry, inPlace,
+                IgnoredPaths.of(null));
     }
 
     /** A copy of the project opened into the workspace before. */

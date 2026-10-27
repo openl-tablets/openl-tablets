@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.annotation.XmlAccessType;
@@ -116,9 +117,8 @@ public class ProjectDescriptor {
         var parent = projectFolder.getParent();
         if (parent == null) {
             return projectFolder.toUri().toString();
-        } else {
-            return parent.toUri().relativize(projectFolder.toUri()).toString();
         }
+        return parent.toUri().relativize(projectFolder.toUri()).toString();
     }
 
     public URL[] getClassPathUrls() {
@@ -368,10 +368,12 @@ public class ProjectDescriptor {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof ProjectDescriptor that))
+        }
+        if (!(o instanceof ProjectDescriptor that)) {
             return false;
+        }
         return Objects.equals(name, that.name);
     }
 
@@ -384,8 +386,20 @@ public class ProjectDescriptor {
     private static final JAXBSerializer SERIALIZER = new JAXBSerializer(ProjectDescriptor.class);
 
     public ProjectDescriptor expand() throws IOException {
+        return expand(file -> false);
+    }
+
+    /**
+     * Completes the descriptor read from the project folder: names the project and its modules, and finds the
+     * modules a path with a wildcard declares.
+     *
+     * <p>No module is found in an ignored file or folder, such as the output folder of a build.
+     *
+     * @param ignored tells the files and the folders of the project no module is found in
+     */
+    public ProjectDescriptor expand(Predicate<Path> ignored) throws IOException {
         fillProjectName();
-        fillModulesByPattern();
+        fillModulesByPattern(ignored);
 
         for (Module module : getModules()) {
             module.setProject(this);
@@ -440,7 +454,7 @@ public class ProjectDescriptor {
         }).toList();
     }
 
-    private void fillModulesByPattern() throws IOException {
+    private void fillModulesByPattern(Predicate<Path> ignored) throws IOException {
         var readModules = getModules();
         if (readModules.isEmpty()) {
             readModules = defaultModules();
@@ -455,7 +469,7 @@ public class ProjectDescriptor {
         // Process modules with wildcard path
         for (Module module : readModules) {
             if (module.isModuleWithWildcard()) {
-                var newModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath()).stream()
+                var newModules = getAllModulesMatchingPathPattern(module, module.getRulesRootPath(), ignored).stream()
                         .filter(m -> !containsInProcessedModules(processedModules, m, getProjectFolder()))
                         .toList();
                 processedModules.addAll(newModules);
@@ -512,6 +526,19 @@ public class ProjectDescriptor {
      * <p>Matches are returned in path order so the module order is stable across file systems.
      */
     public List<Module> getAllModulesMatchingPathPattern(Module module, String pathPattern) throws IOException {
+        return getAllModulesMatchingPathPattern(module, pathPattern, file -> false);
+    }
+
+    /**
+     * Resolves modules matched by a path pattern, finding none in an ignored file or folder.
+     *
+     * <p>Matches are returned in path order so the module order is stable across file systems.
+     *
+     * @param ignored tells the files and the folders of the project no module is found in
+     */
+    public List<Module> getAllModulesMatchingPathPattern(Module module,
+                                                         String pathPattern,
+                                                         Predicate<Path> ignored) throws IOException {
         var matchedModules = new ArrayList<Module>();
 
         var ptrn = pathPattern.trim();
@@ -519,9 +546,14 @@ public class ProjectDescriptor {
 
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
             @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                return ignored.test(dir) ? FileVisitResult.SKIP_SUBTREE : FileVisitResult.CONTINUE;
+            }
+
+            @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 var relativePath = rootPath.relativize(file).toString().replace("\\", "/");
-                if (isNotTemporaryFile(file) && FileUtils.pathMatches(ptrn, relativePath)) {
+                if (FileUtils.pathMatches(ptrn, relativePath) && !ignored.test(file) && isNotTemporaryFile(file)) {
                     var modulePath = file.toAbsolutePath();
                     var m = new Module();
                     m.setProject(ProjectDescriptor.this);
@@ -562,7 +594,7 @@ public class ProjectDescriptor {
         return true;
     }
 
-    public static ProjectDescriptor read(Path path) {
+    public static @Nullable ProjectDescriptor read(Path path) {
         var file = Files.isDirectory(path) ? path.resolve(FILE_NAME) : path;
         if (!Files.isRegularFile(file)) {
             return null;
@@ -579,7 +611,7 @@ public class ProjectDescriptor {
         }
     }
 
-    public static ProjectDescriptor read(InputStream in) {
+    public static @Nullable ProjectDescriptor read(InputStream in) {
         try {
             return (ProjectDescriptor) SERIALIZER.unmarshal(in);
         } catch (JAXBException e) {
@@ -653,11 +685,11 @@ public class ProjectDescriptor {
     static class ModulesAdapter extends XmlAdapter<ModulesXml, List<Module>> {
         @Override
         public List<Module> unmarshal(ModulesXml v) {
-            return (v == null || v.module == null) ? new ArrayList<>() : v.module;
+            return v == null || v.module == null ? new ArrayList<>() : v.module;
         }
 
         @Override
-        public ModulesXml marshal(List<Module> v) {
+        public @Nullable ModulesXml marshal(List<Module> v) {
             if (v == null || v.isEmpty()) {
                 return null;
             }
@@ -707,7 +739,7 @@ public class ProjectDescriptor {
         }
 
         @Override
-        public ClasspathXml marshal(List<String> v) {
+        public @Nullable ClasspathXml marshal(List<String> v) {
             if (v == null || v.isEmpty()) {
                 return null;
             }
