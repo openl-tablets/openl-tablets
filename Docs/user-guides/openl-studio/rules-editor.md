@@ -355,7 +355,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     [System Settings](administration/02-system-settings.md) and **Excel Formatting** is on. Otherwise a save writes the
     OpenL table style over them, or the table is drawn in the look of OpenL Studio, which does not show them. The indent
     buttons are shown with them, and in a TBasic or ColumnMatch table in every case: these tables read their structure
-    from the indent.
+    from the indent. In a table of an `.xlsx` file, the toolbar ends with the marks for a piece of a cell text,
+    described below.
 
     The fill color and font color buttons open the palette of Excel:
 
@@ -403,8 +404,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 
     Elsewhere — in a Spreadsheet, in a Datatype, in a table written as a plain grid — a cell of a line just
     added is written as plain text: nothing is known about it until the table is saved and read again.
-2.  To draw the attention of reviewers to a piece of a text, mark it. Open the cell, select the piece, and above
-    the cell click one of the marks:
+2.  To draw the attention of reviewers to a piece of a text, mark it. Open the cell, select the piece, and on the
+    toolbar above the table click one of the marks:
 
     | Mark        | In OpenL Studio                         | In the Excel file |
     |-------------|-----------------------------------------|-------------------|
@@ -413,11 +414,13 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     | **Success** | bold, in the success color of the theme | bold, Green       |
     | **Info**    | bold, in the info color of the theme    | bold, Light Blue  |
 
-    ![A word of an expression marked as a warning, with the marks above the open cell](images/edit-text-marks.png "Marking a piece of a text")
+    ![A word of an expression marked as a warning, with the marks at the end of the toolbar](images/edit-text-marks.png "Marking a piece of a text")
 
     *Marking a piece of a text*
 
-    **Clear Mark** takes the marks off the selected piece. Text typed inside a marked piece takes its mark.
+    **Clear Mark** takes the marks off the selected piece. Text typed inside a marked piece takes its mark. The marks
+    are available only while a cell holding a text is open, and clicking one leaves the cell open with the piece still
+    selected.
 
     A mark changes the text only. It is saved into the Excel file as rich text of the cell, so Excel shows it the
     same way, and the cell keeps its style: no cell style is added to the Excel file. A mark does not change how

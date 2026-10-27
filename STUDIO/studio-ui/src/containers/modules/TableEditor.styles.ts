@@ -79,11 +79,6 @@ export const useStyles = createStyles(({ css, token }, onPaper: boolean) => {
         outline: none;
         cursor: text;
     `,
-        /** The marks a piece of the text being written is given, offered above the open cell. */
-        marksBar: css`
-        display: flex;
-        gap: ${token.marginXXS}px;
-    `,
         /** The open cell, which the field fills. */
         open: css`
         width: 100%;

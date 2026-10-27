@@ -424,8 +424,11 @@ Report: `coverage/lcov.info`. A line is uncovered when `DA:<line>,0`.
   bold in one of four standard colours of Excel: the read sends it as any other run, the edit buffer replays it the
   same way, and `marksOf` reads it back. The marks are written in `MarkedTextField`, a `contentEditable` field that
   reads the text and its marks back from the pieces it shows; a cell holding no marks keeps the plain antd field.
-  The bar of marks presses with `preventDefault` on `mousedown`, so the field keeps the focus and the selection,
-  and the swap between the two fields is not taken for the reader leaving the cell.
+  The marks sit on the table toolbar (`TableEditToolbar`), not over the cell, where they would hide its neighbours.
+  `OpenCell` leaves one stable `Marker` in a `MarkerSlot` while its text can be marked, and the toolbar reads the
+  slot with `useSyncExternalStore`: neither a keystroke nor opening a cell redraws the table for it. The mark
+  buttons press with `preventDefault` on `mousedown`, so the field keeps the focus and the selection, and the swap
+  between the two fields is not taken for the reader leaving the cell.
 - **A tree is built as far as it is opened.** Ant Design's `Tree` walks every node of its `treeData` each time
   it is drawn, open or closed: a whole test value of 1.77 million nodes ran the browser out of memory before its
   first line was read. A node is given its children only once the reader opens it, and lists them a step at a
