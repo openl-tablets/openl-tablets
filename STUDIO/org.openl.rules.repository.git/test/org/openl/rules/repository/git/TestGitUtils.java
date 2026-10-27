@@ -12,12 +12,14 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class TestGitUtils {
-    private TestGitUtils() {
-    }
 
     static FileData createFileData(String path, String text) {
         return createFileData(path, text, "Comment for " + path);
@@ -60,6 +62,28 @@ final class TestGitUtils {
         }
 
         assertTrue(contains, "Files list does not contain the file '" + fileName + "'");
+    }
+
+    /**
+     * A new local Git repository that ignores the given paths.
+     *
+     * @param local                   the folder of the repository
+     * @param localRepositoriesFolder the folder of the local copies of the repositories
+     * @param ignoredPaths            the ignored paths, see {@link GitRepository#setIgnoredPaths(String)}
+     */
+    static GitRepository createLocalRepository(File local,
+                                               File localRepositoriesFolder,
+                                               String ignoredPaths) throws IOException {
+        var repo = new GitRepository();
+        repo.setId("design");
+        var uri = local.getAbsolutePath();
+        repo.setUri(uri);
+        var repositoriesFolder = localRepositoriesFolder.getAbsolutePath();
+        repo.setLocalRepositoriesFolder(repositoriesFolder);
+        repo.setGcAutoDetach(false);
+        repo.setIgnoredPaths(ignoredPaths);
+        repo.initialize(mockGitRootFactory("design", uri, local, repositoriesFolder, false, true));
+        return repo;
     }
 
     static GitRootFactory mockGitRootFactory(String repositoryId, String uri, File gitRoot, String localRepositoriesFolder, boolean remote, boolean empty) throws IOException {

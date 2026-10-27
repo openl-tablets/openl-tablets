@@ -185,7 +185,7 @@ class LazyFileData extends FileData {
 
     private @Nullable RevCommit findFileCommit(Git git) throws IOException {
         try {
-            return GitRepository.findFirstCommit(git, fromCommit, fullPath);
+            return gitRepo.findFirstCommit(git, fromCommit, fullPath);
         } catch (GitAPIException | MissingObjectException | IncorrectObjectTypeException e) {
             log.error(e.getMessage(), e);
             return null;

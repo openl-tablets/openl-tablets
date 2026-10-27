@@ -577,6 +577,8 @@ from Maven.
     repository.
   - A project uploaded as a ZIP archive leaves these files out, as it left out `.svn`, `CVS` and `.cvsignore`, now
     whatever their letter case.
+  - In a Git repository, a revision that changes only these files, such as a version bump in `pom.xml` made by a CI
+    pipeline, is a technical revision: the history of the project hides it unless technical revisions are shown.
   - Clear the setting to show these files again. To add the build output folder, such as `target`, keep the defaults
     by referring to them: `repository.ignored-paths = ${repository.default-ignored-paths}, **/target/**`.
 
