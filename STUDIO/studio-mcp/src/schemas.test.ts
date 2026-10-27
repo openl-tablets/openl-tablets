@@ -6,6 +6,7 @@ import {
   appendTableSchema,
   appendTableColumnsSchema,
   appendTableRowsSchema,
+  closeProjectSchema,
   copyTableSchema,
   createProjectSchema,
   createProjectTableSchema,
@@ -18,6 +19,7 @@ import {
   mergeProjectBranchesSchema,
   projectIdSchema,
   runTableSchema,
+  saveProjectSchema,
   insertTableColumnsSchema,
   insertTableRowsSchema,
   updateTableCellSchema,
@@ -347,6 +349,31 @@ describe("current project filters", () => {
       projectName: "Rules",
       branch: "main",
     }).success).toBe(false);
+  });
+});
+
+describe("commit comments", () => {
+  const project = { projectId: "p1" };
+  const lorem = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
+    + "dolore magna aliqua. ";
+  // Neither the 255th nor the 256th character is a space, so the trimmed comment of a save keeps its length.
+  const comment = (length: number) => lorem.repeat(3).slice(0, length);
+  const cases = [
+    ["save", saveProjectSchema, project],
+    ["close", closeProjectSchema, project],
+    ["delete", deleteProjectSchema, { ...project, confirmProjectName: "Rating" }],
+    ["create", createProjectSchema, { repository: "design", projectName: "Rating" }],
+  ] as const;
+
+  it.each(cases)("%s states and keeps the 255 characters Studio stores", (_, schema, base) => {
+    expect(schema.safeParse({ ...base, comment: comment(255) }).success).toBe(true);
+    const tooLong = schema.safeParse({ ...base, comment: comment(256) });
+    expect(tooLong.success).toBe(false);
+    expect(tooLong.error?.issues[0]).toMatchObject({
+      path: ["comment"],
+      message: "A commit comment has at most 255 characters.",
+    });
+    expect(z.toJSONSchema(schema, { io: "input" }).properties?.comment).toMatchObject({ maxLength: 255 });
   });
 });
 

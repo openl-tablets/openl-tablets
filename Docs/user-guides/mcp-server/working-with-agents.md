@@ -22,7 +22,8 @@ The tools lead the agent through the same steps a user takes in OpenL Studio:
 2.  Before working on a project, the agent reads the instructions given for it in `AGENTS.md` files. For more
     information, see [Giving the Agent Project Instructions](#giving-the-agent-project-instructions).
 3.  To change a project of a Git repository, the agent opens it, changes the tables or the files, checks that the
-    project compiles, runs its tests, and saves the project with a comment, which becomes the commit message.
+    project compiles, runs its tests, and saves the project with a comment, which becomes the commit message. A
+    comment has at most 255 characters, as OpenL Studio keeps no more.
 4.  A project of the `local` repository is changed directly: it is not opened, saved, or closed, and its changes are
     not committed.
 

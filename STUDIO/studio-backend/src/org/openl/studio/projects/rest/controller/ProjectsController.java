@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,6 +72,7 @@ import org.openl.rules.testmethod.export.TestResultExport;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.WorkbookWrites;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.workspace.ProjectIds;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.ConflictException;
@@ -302,7 +304,10 @@ public class ProjectsController {
     @Operation(summary = "projects.delete.summary")
     public void deleteProject(@ProjectId @PathVariable("projectId") RulesProject project,
                               @Parameter(description = "projects.delete.param.comment.desc")
-                              @RequestParam(value = "comment", required = false) @Nullable String comment) {
+                              @RequestParam(value = "comment", required = false)
+                              @Size(max = CommentValidator.MAX_COMMENT_LENGTH,
+                                      message = "{openl.constraints.comment.too-long.message}")
+                              @Nullable String comment) {
         projectService.delete(project, comment);
     }
 

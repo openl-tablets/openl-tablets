@@ -1,5 +1,7 @@
 package org.openl.studio.projects.model;
 
+import jakarta.validation.constraints.Size;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -7,6 +9,7 @@ import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
 import org.openl.rules.project.abstraction.ProjectStatus;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.studio.projects.converter.ProjectStatusDeserializer;
 
 /**
@@ -30,6 +33,7 @@ public record ProjectStatusUpdateModel(
         @Parameter(description = """
                 Change comment used when the project has modifications to save and its repository \
                 supports comments.""")
+        @Size(max = CommentValidator.MAX_COMMENT_LENGTH, message = "{openl.constraints.comment.too-long.message}")
         String comment,
 
         @Parameter(description = """

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +45,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.utils.AclPathUtils;
@@ -78,6 +81,7 @@ import org.openl.util.StringUtils;
 // recognize as a path variable binding.
 @SuppressWarnings("java:S6856")
 @RestController
+@Validated
 @RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Design Repository")
 public class DesignTimeRepositoryController {
@@ -162,7 +166,8 @@ public class DesignTimeRepositoryController {
     public ProjectViewModel createProject(@DesignRepository("repo-name") Repository repository,
                                           @Parameter(description = "repos.create-project.param.project-name.desc") @PathVariable("project-name") String projectName,
                                           @Parameter(description = "repos.create-project.param.path.desc") @RequestParam(value = "path", required = false) String path,
-                                          @Parameter(description = "repos.create-project.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
+                                          @Parameter(description = "repos.create-project.param.comment.desc") @RequestParam(value = "comment", required = false)
+                                          @Size(max = CommentValidator.MAX_COMMENT_LENGTH, message = "{openl.constraints.comment.too-long.message}") String comment,
                                           @Parameter(description = "repos.create-project.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/octet-stream"))) @RequestParam(value = "template", required = false) List<MultipartFile> files,
                                           @Parameter(description = "repos.create-project.param.template-type.desc") @RequestParam(value = "templateType", required = false) String templateType,
                                           @Parameter(description = "repos.create-project.param.template-category.desc") @RequestParam(value = "templateCategory", required = false) String templateCategory,
