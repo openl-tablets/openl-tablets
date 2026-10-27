@@ -13,7 +13,9 @@ HTTP/1.1 200 OK
         "listChanged": false
       },
       "extensions": {
-        "io.modelcontextprotocol/skills": {}
+        "io.modelcontextprotocol/skills": {
+          "directoryRead": true
+        }
       }
     },
     "instructions": "This server connects you to OpenL Studio*skill://planning/SKILL.md*",

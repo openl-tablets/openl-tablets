@@ -2,7 +2,7 @@ import { McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/se
 import { SERVER_INFO, mcpToolName } from "./constants.js";
 import { registerAllTools, getAllTools, executeTool } from "./handlers/index.js";
 import type { OpenLClient } from "./client.js";
-import { SKILLS_EXTENSION, registerSkills, SKILLS_OVERVIEW } from "./skills.js";
+import { SKILLS, SKILLS_OVERVIEW } from "./skills.js";
 import { traceToolCall } from "./tool-telemetry.js";
 
 /**
@@ -59,7 +59,6 @@ export function createConfiguredServer(client: OpenLClient): McpServer {
       capabilities: {
         tools: { listChanged: false },
         resources: { listChanged: false },
-        extensions: { [SKILLS_EXTENSION]: {} },
       },
     },
   );
@@ -77,7 +76,7 @@ export function createConfiguredServer(client: OpenLClient): McpServer {
       })),
     );
   }
-  registerSkills(server);
+  SKILLS.attach(server);
 
   return server;
 }
