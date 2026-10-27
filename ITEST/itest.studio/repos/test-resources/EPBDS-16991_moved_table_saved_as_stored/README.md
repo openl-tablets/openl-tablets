@@ -17,4 +17,12 @@ stored as Excel stores them, and its title is merged over both columns.
   they were stored, and its title stays in the first cell of the merge only.
 - `030-every-table-compiles` — `first` stands at `B20:C28`, `second` where it was, and nothing fails to compile.
 
+`030-append-a-whole-number` — EPBDS-16992: a whole number written into a cell was saved as Java writes a `double`,
+`67.0`, beside the cells Excel saved as `66`.
+
+- `010-append-a-row-with-a-json-integer` — a row with the id `67`, sent as a JSON number.
+- `020-whole-numbers-are-saved-as-excel-saves-them` — the new id is stored as `67`, the id `4` appended before as
+  `4`, beside the moved id `1`.
+- `030-every-table-compiles` — `first` is one row longer, and nothing fails to compile.
+
 `999-tierdown` closes the project without its changes and deletes it.

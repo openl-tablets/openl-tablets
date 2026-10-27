@@ -1,8 +1,10 @@
 package org.openl.rules.table.xls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -18,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellType;
 
@@ -29,6 +34,7 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.actions.UndoableSetValueAction;
+import org.openl.rules.table.xls.writers.XlsCellDateWriter;
 import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
 import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.types.java.JavaOpenClass;
@@ -79,6 +85,43 @@ class XlsCellNumberWriterTest {
             var cell = workbook.getSheetAt(0).getRow(5).getCell(2);
             assertEquals(CellType.NUMERIC, cell.getCellType());
             assertEquals(1.5, cell.getNumericCellValue());
+        }
+    }
+
+    /** A number is stored as Excel stores it: a whole one without a fraction, whatever type it was written as. */
+    @ParameterizedTest
+    @CsvSource({"67, 67", "67.0, 67", "-3.0, -3", "-0.0, 0", "1.5, 1.5", "1.0E20, 1.0E20"})
+    void storesNumbersAsExcel(String written, String stored) throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var cell = workbook.createSheet().createRow(0).createCell(0);
+            var writer = new XlsCellNumberWriter(mock(XlsSheetGridModel.class));
+            writer.setCellToWrite(cell);
+            // The cast keeps the conditional from unboxing an Integer into a double.
+            writer.setValueToWrite(written.contains(".") ? (Number) Double.valueOf(written) : Integer.valueOf(written));
+
+            writer.writeCellValue();
+
+            assertEquals(stored, cell.getCTCell().getV());
+            assertFalse(cell.getCTCell().isSetT(), "a number is the type a cell has by default");
+            // Excel has no negative zero, so -0.0 reads back as 0.
+            assertEquals(Double.parseDouble(written), cell.getNumericCellValue(), 0.0);
+        }
+    }
+
+    /** A date of no time of the day is stored as the whole number Excel counts days by. */
+    @Test
+    void storesWholeDaysAsExcel() throws IOException {
+        try (var workbook = new XSSFWorkbook()) {
+            var cell = workbook.createSheet().createRow(0).createCell(0);
+            var grid = mock(XlsSheetGridModel.class, RETURNS_DEEP_STUBS);
+            when(grid.getSheetSource().getSheet().getWorkbook()).thenReturn(workbook);
+            var writer = new XlsCellDateWriter(grid);
+            writer.setCellToWrite(cell);
+            writer.setValueToWrite(new GregorianCalendar(2023, Calendar.MARCH, 15).getTime());
+
+            writer.writeCellValue();
+
+            assertEquals("45000", cell.getCTCell().getV());
         }
     }
 

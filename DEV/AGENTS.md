@@ -95,7 +95,8 @@ returned loses the change whenever the workbook is collected in between.
 within its workbook (`TableBuilder.writeGridTable`) move a cell with `IWritableGrid.copyCellValue` and its style as it
 is; a cell a merge covers stays empty. Reading a value and writing it back stores it differently:
 `24` as `24.0`, a date in a new style of the default date format, a text trimmed and without the fonts of its parts.
-Every moved cell then shows as changed in a diff and in a merge of the workbook.
+Every moved cell then shows as changed in a diff and in a merge of the workbook. A number written anew is stored as
+Excel stores it, a whole one without a fraction (`PoiExcelHelper.setNumber`, `setDate`).
 
 A saved workbook says so (`XlsWorkbookSourceCodeModule.isSavedSinceRead()`): what was compiled from it no longer
 answers for the file. A compilation reads every workbook again, so the mark belongs to one compilation, and OpenL

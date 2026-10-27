@@ -17,7 +17,7 @@ public class XlsCellDateWriter extends AXlsCellWriter {
     @Override
     public void writeCellValue() {
         var dateValue = (Date) getValueToWrite();
-        getCellToWrite().setCellValue(dateValue);
+        PoiExcelHelper.setDate(getCellToWrite(), dateValue);
 
         var previousStyle = getCellToWrite().getCellStyle();
         getCellToWrite().setCellStyle(
