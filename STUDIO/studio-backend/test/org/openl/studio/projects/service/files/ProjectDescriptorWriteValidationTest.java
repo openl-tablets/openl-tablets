@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyIterable;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -39,6 +40,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -100,7 +102,8 @@ class ProjectDescriptorWriteValidationTest {
 
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
-                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
+                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
+                IgnoredPaths.of(null));
     }
 
     @Test
@@ -263,6 +266,8 @@ class ProjectDescriptorWriteValidationTest {
     @Test
     void descriptorOfRepositoryMountIsNotValidated() throws Exception {
         FileRoot repoMount = mock(FileRoot.class);
+        // A mount on the repository root names its files as the repository does.
+        when(repoMount.repositoryPathOf(anyString())).thenAnswer(call -> call.getArgument(0));
         var tree = new AProjectFolder(new HashMap<>(), mock(AProject.class), repository, "");
         when(repoMount.writeFolder()).thenReturn(tree);
         when(repoMount.readFolder(null)).thenReturn(tree);

@@ -38,6 +38,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
@@ -134,7 +135,8 @@ class ProjectFilesClosedProjectGitTest {
         project = closedProject(design, design.check(PROJECT));
         root = rootOf(project);
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
-                new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
+                new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
+                IgnoredPaths.of(null));
     }
 
     @AfterEach
@@ -367,7 +369,7 @@ class ProjectFilesClosedProjectGitTest {
         };
         return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), new ProjectDescriptorCleaner(acl), new BeanValidationProvider(List.of()),
-                uploads);
+                uploads, IgnoredPaths.of(null));
     }
 
     /** A workbook of one Datatype, at B2 of the sheet the module is named after. */

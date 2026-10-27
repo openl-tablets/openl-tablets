@@ -26548,6 +26548,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "ignoredPaths": {
+            "type": "string",
+            "description": "***"
+          },
           "projectHistoryCount": {
             "type": "integer",
             "format": "int32",

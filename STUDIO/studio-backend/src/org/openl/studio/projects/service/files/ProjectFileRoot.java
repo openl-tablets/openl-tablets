@@ -138,6 +138,17 @@ public class ProjectFileRoot implements FileRoot {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A project with no design repository has the path it has in the mount.
+     */
+    @Override
+    public String repositoryPathOf(String path) {
+        var folder = project.getDesignFolderName();
+        return folder == null ? path : folder + "/" + path;
+    }
+
     // The finally block releases the project lock, which is not an AutoCloseable resource.
     @SuppressWarnings("java:S2093")
     @Override

@@ -14,6 +14,7 @@ import lombok.Setter;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.studio.settings.converter.SettingPropertyName;
 import org.openl.studio.settings.model.constraint.DatePatternConstraint;
 import org.openl.studio.settings.model.constraint.PeriodConstraint;
@@ -54,6 +55,15 @@ public final class AdministrationSettings implements SettingsHolder {
     @Setter
     @SettingPropertyName(PROJECT_DETECT_BY_EXCEL_FILES)
     private Boolean detectProjectsByExcelFiles;
+
+    @Getter
+    @Parameter(description = """
+            The paths no repository shows or changes, such as build files or the files of a version \
+            control system: Ant-style patterns relative to the repository root, separated by commas. The .git \
+            folder is always ignored.""")
+    @Setter
+    @SettingPropertyName(IgnoredPaths.PROPERTY)
+    private String ignoredPaths;
 
     @Getter
     @Parameter(description = "Update table properties ('createdOn', 'modifiedBy' etc.) on editing.")
@@ -138,6 +148,7 @@ public final class AdministrationSettings implements SettingsHolder {
         detectProjectsByExcelFiles = Optional.ofNullable(properties.getProperty(PROJECT_DETECT_BY_EXCEL_FILES))
                 .map(Boolean::parseBoolean)
                 .orElse(false);
+        ignoredPaths = properties.getProperty(IgnoredPaths.PROPERTY);
         datePattern = properties.getProperty(DATE_PATTERN);
         timeFormat = properties.getProperty(TIME_PATTERN);
         updateSystemProperties = Optional.ofNullable(properties.getProperty(UPDATE_SYSTEM_PROPERTIES))
@@ -166,6 +177,7 @@ public final class AdministrationSettings implements SettingsHolder {
     public void store(PropertiesHolder properties) {
         properties.setProperty(PROJECT_HISTORY_COUNT, projectHistoryCount);
         properties.setProperty(PROJECT_DETECT_BY_EXCEL_FILES, detectProjectsByExcelFiles);
+        properties.setProperty(IgnoredPaths.PROPERTY, ignoredPaths);
         properties.setProperty(DATE_PATTERN, datePattern);
         properties.setProperty(TIME_PATTERN, timeFormat);
         properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
@@ -183,6 +195,7 @@ public final class AdministrationSettings implements SettingsHolder {
         properties.revertProperties(USER_WORKSPACE_HOME,
                 PROJECT_HISTORY_COUNT,
                 PROJECT_DETECT_BY_EXCEL_FILES,
+                IgnoredPaths.PROPERTY,
                 DATE_PATTERN,
                 TIME_PATTERN,
                 UPDATE_SYSTEM_PROPERTIES,

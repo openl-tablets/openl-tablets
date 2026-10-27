@@ -137,6 +137,7 @@ Described in [Managing System Settings][system].
 | Testing                | Thread Number for Tests                                      | `test.run.thread.count`         |
 | Projects               | The maximum count of saved changes for each project per user | `project.history.count`         |
 | Projects               | Detect projects by Excel files                               | `project.detect-by-excel-files` |
+| Projects               | Ignored Paths                                                | `repository.ignored-paths`      |
 | Other                  | Format tables on save                                        | `table.format-on-save`          |
 | Other                  | Update table properties                                      | `update.system.properties`      |
 | Other                  | Date Format                                                  | `data.format.date`              |
@@ -156,6 +157,12 @@ The following related properties have no field in the UI:
 - **`user.workspace.home`** — directory that stores local copies of the projects opened by users.
 - **`data.format.datetime`** — composed of `data.format.date` and `data.format.time`.
 - **`admin.notification-file`** — file that stores the message sent from [Managing Notifications][notifications].
+- **`repository.default-ignored-paths`** — the paths `repository.ignored-paths` ignores by default. Refer to it to
+  add paths of your own without repeating the defaults:
+  `repository.ignored-paths = ${repository.default-ignored-paths}, **/target/**`, or the environment variable
+  `REPOSITORY_IGNORED-PATHS` with the same value. Docker Compose reads `${...}` in a value as a variable of its own,
+  so a compose file doubles the dollar sign:
+  `REPOSITORY_IGNORED-PATHS: "$${repository.default-ignored-paths}, **/target/**"`.
 
 #### Audit Log
 

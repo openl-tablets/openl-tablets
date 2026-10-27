@@ -1,0 +1,7 @@
+HTTP/1.1 403
+Content-Type: application/json
+
+{
+  "code": "openl.error.403.file.path.ignored.message",
+  "message": "***"
+}

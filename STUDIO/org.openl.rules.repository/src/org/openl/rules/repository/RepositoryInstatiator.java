@@ -8,7 +8,10 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.function.UnaryOperator;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.ObjectUtils;
@@ -27,12 +30,9 @@ import org.openl.util.StringUtils;
  *
  * @author Yury Molchan
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
-public class RepositoryInstatiator {
-
-    private RepositoryInstatiator() {
-        // Utility class
-    }
+public final class RepositoryInstatiator {
 
     /**
      * The repository factories declared on the class path, looked up once.
@@ -62,6 +62,15 @@ public class RepositoryInstatiator {
         return List.copyOf(factories);
     }
 
+    /**
+     * Creates the repository a configuration describes.
+     *
+     * <p>The repository keeps the paths the {@link IgnoredPaths#PROPERTY} setting lists out of reach, and the
+     * {@code .git} folder always: see {@link PathCheckedRepository}.
+     *
+     * @param prefix the prefix of the properties of the repository, such as {@code repository.design}
+     * @param props  the properties by name
+     */
     public static Repository newRepository(String prefix, UnaryOperator<String> props) {
         var factoryId = props.apply(prefix + ".factory");
         if (Objects.isNull(factoryId)) {
@@ -75,6 +84,7 @@ public class RepositoryInstatiator {
         for (RepositoryFactory factory : FACTORIES) {
             repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
+                var ignoredPaths = IgnoredPaths.of(props.apply(IgnoredPaths.PROPERTY));
                 return new PathCheckedRepository(factory.create(key -> {
                     if ("id".equals(key)) {
                         // A repository id is the last part of its prefix, such as 'design' in 'repository.design'.
@@ -87,7 +97,7 @@ public class RepositoryInstatiator {
                         value = props.apply(factory.getRefID() + '.' + key);
                     }
                     return value;
-                }));
+                }), ignoredPaths);
             }
         }
         throw new IllegalArgumentException("Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s".formatted(
@@ -95,7 +105,7 @@ public class RepositoryInstatiator {
                 prefix, String.join(", ", repos)));
     }
 
-    public static String getRefID(String factoryId) {
+    public static @Nullable String getRefID(@Nullable String factoryId) {
         if (factoryId == null) {
             return null;
         }

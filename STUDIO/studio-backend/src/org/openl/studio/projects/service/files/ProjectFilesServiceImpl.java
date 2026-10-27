@@ -33,6 +33,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -84,6 +85,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     private final ProjectDescriptorCleaner descriptorCleaner;
     private final BeanValidationProvider validationProvider;
     private final UploadFormatting uploadFormatting;
+    private final IgnoredPaths ignoredPaths;
 
     /**
      * Held by a write based on a version from the comparison to the end of the write, so that two writes based on the
@@ -192,7 +194,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                              @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
         root.requireModifiable();
-        validateResourcePath(destinationPath);
+        validateWritePath(root, destinationPath);
         lockIfClosed(root);
         try {
             var source = findExistingArtefact(root.readFolder(null), sourcePath);
@@ -215,7 +217,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                              @NotBlank String sourcePath,
                              @NotBlank String destinationPath) {
         root.requireModifiable();
-        validateResourcePath(destinationPath);
+        validateWritePath(root, destinationPath);
         lockIfClosed(root);
         try {
             var source = findExistingArtefact(root.readFolder(null), sourcePath);
@@ -242,7 +244,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                @NotNull InputStream content,
                                boolean createFolders) {
         root.requireModifiable();
-        validateResourcePath(path);
+        validateWritePath(root, path);
         lockIfClosed(root);
         try {
             addFile(root, path, content, createFolders);
@@ -278,7 +280,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
                                           boolean createFolders,
                                           @NotNull ConflictPolicy conflictPolicy) {
         root.requireModifiable();
-        validateResourcePath(path);
+        validateWritePath(root, path);
         // A closed project is reserved before the path is looked at, so the policy decides on the state it writes.
         lockIfClosed(root);
         try {
@@ -303,7 +305,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     @Override
     public void createFolder(@NotNull FileRoot root, @NotBlank String path, boolean createParents) {
         root.requireModifiable();
-        validateResourcePath(path);
+        validateWritePath(root, path);
         lockForEditing(root, path);
         var segments = path.split("/");
         try {
@@ -395,17 +397,20 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * skipped. For {@code REPLACE} the base folder is made to contain exactly the uploaded
      * entries, and the user must be allowed to delete every file the replace removes.
      *
+     * <p>An entry at an ignored path is left out, as an uploaded project leaves it out.
+     *
      * @return the mount-relative paths of the files written
      */
     private List<String> writeEntries(FileRoot root,
                                       String basePath,
-                                      List<FileEntry> entries,
+                                      List<FileEntry> uploaded,
                                       ConflictPolicy conflictPolicy,
                                       String comment) {
+        uploaded.forEach(entry -> validateResourcePath(entry.fullPath()));
+        var entries = uploaded.stream().filter(entry -> !isIgnored(root, entry.fullPath())).toList();
         if (conflictPolicy == ConflictPolicy.REPLACE && entries.isEmpty()) {
             throw new BadRequestException("file.archive.empty.message");
         }
-        entries.forEach(entry -> validateResourcePath(entry.fullPath()));
         var current = root.readFolder(null);
         var written = new LinkedHashMap<String, byte[]>();
         for (FileEntry entry : entries) {
@@ -530,7 +535,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         lockIfClosed(root);
         try {
             var current = root.readFolder(null);
-            written.keySet().forEach(this::validateResourcePath);
+            written.keySet().forEach(path -> validateWritePath(root, path));
             requireWritable(current, written.keySet());
             var items = new ArrayList<FileItem>();
             written.forEach((path, content) -> {
@@ -956,6 +961,24 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         } catch (IOException e) {
             throw new BadRequestException("file.path.invalid.message");
         }
+    }
+
+    /**
+     * Validates the path a write names, and refuses a path the repositories ignore: a file written there would never
+     * reach the repository.
+     *
+     * @throws BadRequestException if the path is invalid
+     * @throws ForbiddenException  if the path is ignored
+     */
+    private void validateWritePath(FileRoot root, String path) {
+        validateResourcePath(path);
+        if (isIgnored(root, path)) {
+            throw new ForbiddenException("file.path.ignored.message", path);
+        }
+    }
+
+    private boolean isIgnored(FileRoot root, String path) {
+        return ignoredPaths.matches(root.repositoryPathOf(path));
     }
 
     private AProjectArtefact findArtefactByPath(AProjectFolder rootFolder, String path) {

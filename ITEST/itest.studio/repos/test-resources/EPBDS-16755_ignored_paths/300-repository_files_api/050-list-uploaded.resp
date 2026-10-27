@@ -1,0 +1,20 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "type": "folder",
+    "path": "EPBDS-16755/uploaded/sub",
+    "name": "sub",
+    "basePath": "EPBDS-16755/uploaded"
+  },
+  {
+    "type": "file",
+    "path": "EPBDS-16755/uploaded/a.dat",
+    "name": "a.dat",
+    "basePath": "EPBDS-16755/uploaded",
+    "extension": "dat",
+    "size": "*",
+    "lastModified": "*"
+  }
+]

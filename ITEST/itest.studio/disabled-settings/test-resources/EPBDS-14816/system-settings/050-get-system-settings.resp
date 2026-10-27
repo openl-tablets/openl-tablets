@@ -10,6 +10,7 @@ Content-Type: application/json
     "value": true,
     "readOnly": true
   },
+  "ignoredPaths": "**/.git*/**, **/pom.xml, **/.mvn/**, **/mvnw*, **/.dockerignore, **/.svn/**, **/CVS/**, **/.cvsignore",
   "updateSystemProperties": {
     "value": true,
     "readOnly": true

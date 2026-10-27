@@ -48,6 +48,16 @@ public interface FileRoot {
     void requireModifiable();
 
     /**
+     * The path a file of the mount has in its repository. The ignored paths of the repositories are matched against
+     * it.
+     *
+     * @param path a mount-relative path
+     */
+    default String repositoryPathOf(String path) {
+        return path;
+    }
+
+    /**
      * Waits until the project index publishes a modification the mount committed to a design repository, so
      * the next request that lists or reads the projects sees it.
      *
