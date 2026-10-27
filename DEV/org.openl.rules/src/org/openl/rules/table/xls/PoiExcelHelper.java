@@ -1,11 +1,14 @@
 package org.openl.rules.table.xls;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.With;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFOptimiser;
@@ -15,6 +18,7 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -23,6 +27,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.model.ThemesTable;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -34,10 +39,8 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.TextRun;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PoiExcelHelper {
-
-    private PoiExcelHelper() {
-    }
 
     /**
      * For more information, see {@link HSSFWorkbook#MAX_STYLES}
@@ -58,7 +61,10 @@ public final class PoiExcelHelper {
     /** How many characters longer an escaped character is written than shown: seven for one. */
     private static final int ESCAPE_EXTRA = 6;
 
-    public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
+    /** The whole numbers Excel shows in all their digits: it keeps 15 significant digits of a number. */
+    private static final double WHOLE_NUMBER_LIMIT = 1e15;
+
+    public static @Nullable Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         var row = sheet.getRow(rowIndex);
         if (row != null) {
             return row.getCell(colIndex, Row.MissingCellPolicy.RETURN_NULL_AND_BLANK);
@@ -73,6 +79,43 @@ public final class PoiExcelHelper {
         }
         var cell = row.getCell(colIndex);
         return cell != null ? cell : row.createCell(colIndex);
+    }
+
+    /**
+     * Writes a number into a cell as Excel stores it: a whole number as {@code 67}, not {@code 67.0}, and with no
+     * type of its own, since a number is the type a cell has unless it says otherwise.
+     *
+     * <p>Apache POI stores every number of an {@code .xlsx} workbook as Java writes a {@code double}, typed as a
+     * number. A cell written so differs from the cells Excel wrote beside it, though it reads back the same.
+     *
+     * <p>A number with a fraction and a whole number of more than 15 digits keep the notation of Java. A cell of an
+     * {@code .xls} workbook, which stores numbers in binary, and a formula cell, which keeps the number as its last
+     * result, are written as Apache POI writes them.
+     */
+    public static void setNumber(Cell cell, double value) {
+        cell.setCellValue(value);
+        storeAsExcel(cell, value);
+    }
+
+    /**
+     * Writes a date into a cell as the number of days Excel counts it by, stored as {@link #setNumber} stores a
+     * number: a date of no time of the day is a whole number.
+     */
+    public static void setDate(Cell cell, Date date) {
+        cell.setCellValue(date);
+        storeAsExcel(cell, cell.getNumericCellValue());
+    }
+
+    private static void storeAsExcel(Cell cell, double value) {
+        if (cell instanceof XSSFCell xssf && cell.getCellType() == CellType.NUMERIC) {
+            var ct = xssf.getCTCell();
+            if (ct.isSetT()) {
+                ct.unsetT();
+            }
+            if (value == Math.rint(value) && Math.abs(value) < WHOLE_NUMBER_LIMIT) {
+                ct.setV(Long.toString(Math.round(value)));
+            }
+        }
     }
 
     /**
@@ -91,11 +134,10 @@ public final class PoiExcelHelper {
             @SuppressWarnings("unchecked")
             var style = (T) workbook.createCellStyle();
             return style;
-        } else {
-            @SuppressWarnings("unchecked")
-            var style = (T) workbook.createCellStyle();
-            return style;
         }
+        @SuppressWarnings("unchecked")
+        var style = (T) workbook.createCellStyle();
+        return style;
     }
 
     public static CellStyle cloneStyleFrom(Cell cell) {
@@ -104,7 +146,7 @@ public final class PoiExcelHelper {
         return newStyle;
     }
 
-    public static Font getCellFont(Cell cell) {
+    public static Font getCellFont(@Nullable Cell cell) {
         Font font = null;
         if (cell != null) {
             var style = cell.getCellStyle();
@@ -361,7 +403,7 @@ public final class PoiExcelHelper {
 
     // The array is one RGB color, not a list: null stands for no color, which table views keep as missing.
     @SuppressWarnings("java:S1168")
-    public static short[] toRgb(Color color) {
+    public static short @Nullable [] toRgb(@Nullable Color color) {
         if (color == null) {
             return null;
         }
@@ -558,10 +600,9 @@ public final class PoiExcelHelper {
     public static short[] getFontColor(Font font, Workbook workbook) {
         if (font instanceof XSSFFont fFont) {
             return toRgb(colourOf(fFont, workbook));
-        } else {
-            short x = font.getColor();
-            return toRgb(x, (HSSFWorkbook) workbook);
         }
+        short x = font.getColor();
+        return toRgb(x, (HSSFWorkbook) workbook);
     }
 
     /**
@@ -743,7 +784,10 @@ public final class PoiExcelHelper {
      *
      * <p>A colour that is {@code null} is left as the style already has it.
      */
-    public static void setCellFillColors(CellStyle style, short[] foreground, short[] background, Workbook workbook) {
+    public static void setCellFillColors(CellStyle style,
+                                         short @Nullable [] foreground,
+                                         short @Nullable [] background,
+                                         Workbook workbook) {
         if (style instanceof HSSFCellStyle) {
             var hssfWorkbook = (HSSFWorkbook) workbook;
             if (foreground != null) {
@@ -768,7 +812,7 @@ public final class PoiExcelHelper {
      *
      * <p>A colour that is {@code null} is left as the font already has it.
      */
-    public static void setFontColor(Font font, short[] color, Workbook workbook) {
+    public static void setFontColor(Font font, short @Nullable [] color, Workbook workbook) {
         if (color == null) {
             return;
         }

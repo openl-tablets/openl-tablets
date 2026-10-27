@@ -1,5 +1,7 @@
 package org.openl.rules.xls.merge;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,6 +32,29 @@ class XlsSheetCopierTest {
         ZipSecureFile.setMinInflateRatio(0.001);
     }
 
+    /** A copied number is stored as its source stores it: {@code 24}, not {@code 24.0}, and with no type. */
+    @Test
+    void copiesNumbersAsStored() throws IOException {
+        try (var src = new XSSFWorkbook(); var dest = new XSSFWorkbook()) {
+            var row = src.createSheet("Numbers").createRow(0);
+            row.createCell(0).getCTCell().setV("24");
+            row.createCell(1).getCTCell().setV("1.1000000000000001");
+            var formula = row.createCell(2).getCTCell();
+            formula.addNewF().setStringValue("A1+1");
+            formula.setV("25");
+
+            XlsSheetCopier.copy(src, src.getSheetAt(0), dest, dest.createSheet("Numbers"), null);
+
+            var copied = dest.getSheetAt(0).getRow(0);
+            for (var column = 0; column < 3; column++) {
+                var ct = copied.getCell(column).getCTCell();
+                assertEquals(row.getCell(column).getCTCell().getV(), ct.getV(), "value of column " + column);
+                assertFalse(ct.isSetT(), "type of column " + column);
+            }
+            assertEquals("A1+1", copied.getCell(2).getCellFormula());
+        }
+    }
+
     @Test
     void testFunctional() throws IOException {
         var files = FUNC_TEST.toFile().listFiles();
@@ -40,7 +65,7 @@ class XlsSheetCopierTest {
             if (file.isDirectory()) {
                 continue;
             }
-            if (!file.getPath().endsWith(".xlsx") && file.getPath().equals(".xls")) {
+            if (!file.getPath().endsWith(".xlsx") && ".xls".equals(file.getPath())) {
                 continue;
             }
             var destCopyFile = TARGET.resolve(FUNC_TEST.relativize(Path.of(file.getPath())));

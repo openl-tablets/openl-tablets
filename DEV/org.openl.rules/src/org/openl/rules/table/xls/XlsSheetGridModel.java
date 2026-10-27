@@ -264,7 +264,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 }
                 break;
             case NUMERIC:
-                cellTo.setCellValue(cellFrom.getNumericCellValue());
+                PoiExcelHelper.setNumber(cellTo, cellFrom.getNumericCellValue());
                 break;
             case STRING:
                 cellTo.setCellValue(cellFrom.getRichStringCellValue());

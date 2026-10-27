@@ -23,7 +23,7 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
             cellToWrite.setCellValue(numberValue.toString());
             return;
         }
-        cellToWrite.setCellValue(doubleValue);
+        PoiExcelHelper.setNumber(cellToWrite, doubleValue);
 
         if (DateUtil.isCellDateFormatted(cellToWrite)) {
             // Previously the cell was formatted as a date. Change format to number.

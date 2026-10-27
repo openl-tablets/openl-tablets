@@ -15,6 +15,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
@@ -26,6 +28,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.ss.util.SheetUtil;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFPicture;
@@ -46,10 +49,8 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTDxf;
  *
  * @author Vladyslab Pikus
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class XlsSheetCopier {
-
-    private XlsSheetCopier() {
-    }
 
     /**
      * Copy content from {@code srcSheet} to {@code destSheet}. If {@code destSheet} has content, it will be erased
@@ -265,7 +266,7 @@ public final class XlsSheetCopier {
             case STRING -> dest.cell.setCellValue(src.cell.getRichStringCellValue());
             case ERROR -> dest.cell.setCellErrorValue(src.cell.getErrorCellValue());
             case BOOLEAN -> dest.cell.setCellValue(src.cell.getBooleanCellValue());
-            case NUMERIC -> dest.cell.setCellValue(src.cell.getNumericCellValue());
+            case NUMERIC -> numberOf(src.cell).accept(dest.cell);
             case FORMULA -> {
                 if (src.cell.isPartOfArrayFormulaGroup() && !startsArrayFormula(src.cell)) {
                     valueOf(src.cell, src.cell.getCachedFormulaResultType()).accept(dest.cell);
@@ -376,10 +377,7 @@ public final class XlsSheetCopier {
      */
     private static Consumer<Cell> valueOf(Cell cell, CellType type) {
         return switch (type) {
-            case NUMERIC -> {
-                var value = cell.getNumericCellValue();
-                yield dest -> dest.setCellValue(value);
-            }
+            case NUMERIC -> numberOf(cell);
             case STRING -> {
                 var value = cell.getRichStringCellValue();
                 yield dest -> dest.setCellValue(value);
@@ -395,6 +393,32 @@ public final class XlsSheetCopier {
             default -> dest -> {
                 // no value
             };
+        };
+    }
+
+    /**
+     * Writes into another cell the number a cell holds, as the cell stores it.
+     *
+     * <p>Apache POI writes a number as Java writes a {@code double}, so {@code 24} would be stored as {@code 24.0} and
+     * show as changed in the merged workbook. The text and the type of a stored number carry no reference to the
+     * workbook, so they are copied as they are.
+     */
+    private static Consumer<Cell> numberOf(Cell cell) {
+        var value = cell.getNumericCellValue();
+        if (!(cell instanceof XSSFCell xssf) || !xssf.getCTCell().isSetV()) {
+            return dest -> dest.setCellValue(value);
+        }
+        var text = xssf.getCTCell().getV();
+        var typed = xssf.getCTCell().isSetT();
+        return dest -> {
+            dest.setCellValue(value);
+            if (dest instanceof XSSFCell to) {
+                var ct = to.getCTCell();
+                ct.setV(text);
+                if (!typed && ct.isSetT()) {
+                    ct.unsetT();
+                }
+            }
         };
     }
 

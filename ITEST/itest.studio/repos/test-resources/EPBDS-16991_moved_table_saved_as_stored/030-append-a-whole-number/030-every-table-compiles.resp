@@ -1,0 +1,29 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "S0YZWK59AJR31VX0",
+      "kind": "Data",
+      "name": "first",
+      "pos": "B20:C29"
+    },
+    {
+      "id": "1GS4FEJC75ZHQYFK",
+      "kind": "Datatype",
+      "name": "Item",
+      "pos": "B2:C4"
+    },
+    {
+      "id": "TJBKDAACCMMRPMPP",
+      "kind": "Data",
+      "name": "second",
+      "pos": "B14:C18"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 3,
+  "total": 3
+}
