@@ -15,7 +15,7 @@ All paths are under `STUDIO/studio-mcp/src`.
   its transport.
 - **`mcp-core.ts`** — one `McpServer` with every tool of the registry and the skills registered on it; the server
   offers no prompts.
-- **`skills.ts`** — the OpenL skills as resources and the `skills/list` and `skills/get` methods.
+- **`skills.ts`** — the OpenL skills, which the skills extension of the MCP SDK serves.
 - **`handlers/`** — the tools, one module per category. `handlers/common.ts` holds the registry, argument validation,
   the answer of a tool and error mapping; `handlers/wait.ts` the wait for Studio's background work;
   `handlers/table-edit.ts` the end of every table edit: the id Studio answers for a renamed table, and the read that
@@ -43,8 +43,8 @@ All paths are under `STUDIO/studio-mcp/src`.
   OpenTelemetry SDK; `build-requires.ts`, a plugin of the bundler, bundles the packages a dependency loads with a
   `require` of its own instead of leaving them to a `node_modules` folder the war does not carry; `build-licenses.ts`, a
   plugin of the bundler, lists the libraries the bundle ships in `dist/mcp-licenses.json`, and `build-skills.ts`,
-  another, embeds the skills of `STUDIO/studio-mcp/skills` as the module `virtual:skills`, which the tests import
-  through the same plugin.
+  another, embeds the files of the skills of `STUDIO/studio-mcp/skills` as the module `virtual:skills`, which the
+  tests import through the same plugin.
 
 ## The Path of a Request
 
@@ -125,15 +125,16 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 - **Source** — one folder per skill in `STUDIO/studio-mcp/skills`, in the layout of the
   [Agent Skills specification](https://agentskills.io/specification). Each holds only what the tools,
   `openl_get_started` and the guides Studio serves do not say.
-- **Build** — the bundler reads every file of a skill as UTF-8 text, hidden files such as `.DS_Store` left out, and
-  the YAML frontmatter of its `SKILL.md`; a hidden folder of `skills/` holds no skill. A skill without `SKILL.md`,
-  `name` or `description`, a description over 1024 characters, a compatibility that is empty or over 500
-  characters, metadata that is not a map of texts, a `name` other than its folder, a binary file, or more than 512
-  files or 16 MiB fails the build.
-- **Protocol** — the server declares `io.modelcontextprotocol/skills` in its capabilities, without `directoryRead`.
-  Every file is a resource `skill://<skill>/<path>`; a `SKILL.md` takes its name and description from its
-  frontmatter. `skills/list` answers every skill in one page, `skills/get` one by the URI of its `SKILL.md`, and an
-  unknown URI is `-32602`. An entry carries the frontmatter as JSON and every file with its SHA-256 digest and size.
+- **Build** — the bundler loads `skills/` with the skills extension of the MCP SDK and embeds the text of every file
+  it serves; hidden files and folders, such as `.DS_Store`, are left out. A skill the extension refuses — one
+  against the specification, such as a `name` other than its folder or a description over 1024 characters, or over
+  the limits of 512 files or 16 MiB — or a file that is not UTF-8 text fails the build.
+- **Protocol** — the SDK serves the embedded files (`SkillsExtension` of `@modelcontextprotocol/server/ext/skills`)
+  and declares `io.modelcontextprotocol/skills` in the capabilities, with `directoryRead`. Every file is a resource
+  `skill://<skill>/<path>`, which the template `skill://{+path}` reads; `resources/list` names each `SKILL.md` by
+  the name and description of its frontmatter. `skills/list` answers the skills, `skills/get` one by the URI of its
+  `SKILL.md`, and `resources/directory/read` the files of a folder of a skill. An entry carries the frontmatter as
+  JSON and every file with its SHA-256 digest and size.
 - **Clients without the extension** — the `instructions` of the server, which a client gives its agent when it
   connects, send the agent to `openl_get_started` first and list the skills with their URIs and descriptions, as
   `openl_get_started` does too, so an agent reads the skill that matches its task as resources.

@@ -194,7 +194,7 @@ and walk it level by level with `openl_expand_trace_tree`.
 ## Skills
 
 The server serves the OpenL skills of `skills/` through the MCP skills extension (SEP-2640,
-`io.modelcontextprotocol/skills`, declared without `directoryRead`):
+`io.modelcontextprotocol/skills`, declared with `directoryRead`):
 
 - `planning` — the entry point for building, changing, or fixing anything in a project
 - `branching` — task branches, sync with the base, conflicts, merge, hotfixes, cleanup
@@ -206,8 +206,9 @@ The server serves the OpenL skills of `skills/` through the MCP skills extension
 Every file of a skill is a resource `skill://<skill>/<path>`: read `skill://<skill>/SKILL.md` with `resources/read`
 and resolve its relative links against the folder of that `SKILL.md`. `skills/list` answers every skill — its
 frontmatter as JSON and every file with its SHA-256 digest and size — and `skills/get` one skill by the URI of its
-`SKILL.md`; an unknown URI is `-32602`. A client without the extension finds the skills in the server instructions,
-which also send the agent to `openl_get_started` first, and in `openl_get_started` itself.
+`SKILL.md`; an unknown URI is `-32602`. `resources/directory/read` lists the files of a folder of a skill. A client
+without the extension finds the skills in the server instructions, which also send the agent to `openl_get_started`
+first, and in `openl_get_started` itself.
 
 ## Local projects (repository: local)
 
@@ -335,10 +336,10 @@ OpenL Studio and where the server keeps its state; the
   to find in a `node_modules` folder the war does not carry: the OpenTelemetry SDK loads `forwarded-parse` and
   `@grpc/grpc-js` so. A call that still loads a package at run time works only in `dist/` of the module, where
   `node_modules` is found, so `ITEST/itest.studio/telemetry` checks the bundle inside OpenL Studio.
-- The `skills` plugin of the bundler (`src/build-skills.ts`) embeds the skills of `skills/` in the bundle as the module
-  `virtual:skills`; `vitest.config.js` applies it too, so the tests import the skills the bundle carries. A skill the
-  Agent Skills specification or the limits of the extension refuse fails the build. `yaml` reads the frontmatter at
-  build time only, so the bundle does not carry it.
+- The `skills` plugin of the bundler (`src/build-skills.ts`) embeds the text of every file of the skills of `skills/`
+  in the bundle as the module `virtual:skills`, which `SkillsExtension` of the MCP SDK serves;
+  `vitest.config.js` applies it too, so the tests import the skills the bundle carries. A skill the skills extension
+  of the SDK refuses fails the build.
 - The `licenses` plugin of the bundler (`src/build-licenses.ts`) writes `dist/mcp-licenses.json`, which the jar
   carries as `licenses/mcp-licenses.json`: every package the bundle takes code of, with its license file and its
   NOTICE, for the About dialog of OpenL Studio. A package whose license is outside the `--onlyAllow` list of the
