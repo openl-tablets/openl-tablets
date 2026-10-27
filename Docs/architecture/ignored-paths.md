@@ -72,7 +72,10 @@ flowchart LR
   `IgnoredPathsTreeFilter`, after the cheaper comparison of the object ids). A commit that changes only the
   ignored files of a project is a technical revision of it, and the project stands on its latest commit that changes
   anything else (`findFirstCommit`): the history marks it as current, and a save based on it is not taken for a save
-  of an old version.
+  of an old version. A merge conflict in an ignored file keeps the version of the branch merged into: no one resolves
+  it in OpenL Studio, as no one sees the file. `validateMergeConflict` leaves such files out of the conflict a user
+  is asked to resolve, and `resolveConflict` writes the version the tip of the branch holds, or deletes the file when
+  the branch holds none, whoever resolves the rest: a resolution given for an ignored file is left out.
 - **A repository on the file system** (`FileSystemRepository`) is given the setting too (`ignored-paths`, which
   `RepositoryInstatiator` answers from the system setting) and keeps the same paths out of reach by itself:
   - a path a request names is matched as the file system resolves it too, so neither a link nor a short name of
