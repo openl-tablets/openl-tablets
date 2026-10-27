@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -24,6 +23,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.InPlaceRepository;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.MetainfoRegistry;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.PathCheckedRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -66,19 +66,24 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
      * workspace.
      */
     private final boolean inPlace;
+    /** The paths the workspace copies neither show nor change, as the design repositories do. */
+    private final IgnoredPaths ignoredPaths;
 
     LocalWorkspaceImpl(String userId,
                        File location,
                        DesignTimeRepository designTimeRepository,
                        MetainfoRegistry metainfoRegistry,
-                       boolean inPlace) {
+                       boolean inPlace,
+                       IgnoredPaths ignoredPaths) {
         this.userId = userId;
         this.location = location;
         this.designTimeRepository = designTimeRepository;
         this.metainfoRegistry = metainfoRegistry;
         this.inPlace = inPlace;
+        this.ignoredPaths = ignoredPaths;
 
         localRepository = new LocalRepository(location.toPath(), metainfoRegistry);
+        localRepository.ignore(ignoredPaths);
         localRepository.initialize();
         localProjects.set(loadProjects());
     }
@@ -94,7 +99,9 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             id = LOCAL_ID;
         }
         // Create a new instance with id and name.
-        return named(new LocalRepository(localRepository.getRoot(), metainfoRegistry), id);
+        var repository = new LocalRepository(localRepository.getRoot(), metainfoRegistry);
+        repository.ignore(ignoredPaths);
+        return named(repository, id);
     }
 
     /** Gives the repository the id and the name of the design repository it holds the projects of. */
@@ -225,21 +232,24 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
      * workspace.
      */
     private Optional<InPlaceRepository> inPlaceRepository(String repositoryId) {
-        return Optional.ofNullable(inPlaceRoot(repositoryId))
-                .map(root -> named(new InPlaceRepository(root, location.toPath(), metainfoRegistry), repositoryId));
+        return Optional.ofNullable(inPlaceDesign(repositoryId))
+                .map(design -> named(new InPlaceRepository(design.getRoot(),
+                        location.toPath(),
+                        metainfoRegistry,
+                        design.getIgnoredPaths()), repositoryId));
     }
 
     /**
-     * The folder the projects of the design repository are edited in, or {@code null} when they are copied into the
-     * workspace.
+     * The design repository on the file system whose projects are edited in place, or {@code null} when they are
+     * copied into the workspace.
      *
      * <p>Projects are edited in place only in single-user mode, and only in a design repository on the file system.
      */
-    private @Nullable Path inPlaceRoot(String repositoryId) {
+    private @Nullable FileSystemRepository inPlaceDesign(String repositoryId) {
         var repository = designTimeRepository.getRepository(repositoryId);
         while (repository != null) {
             if (repository instanceof FileSystemRepository fileSystem) {
-                return fileSystem.supports().isLocal() ? fileSystem.getRoot() : null;
+                return fileSystem.supports().isLocal() ? fileSystem : null;
             }
             repository = unwrap(repository);
         }

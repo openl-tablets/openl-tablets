@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -26,21 +27,25 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             log.debug("Project in folder '{}' has been resolved as project descriptor based project.",
                     descriptorFile);
             return true;
-        } else {
-            log.debug(
-                    "Project descriptor based strategy is failed to resolve project folder '{}': there is no file '{}' in the folder.",
-                    descriptorFile,
-                    ProjectDescriptor.FILE_NAME);
-            return false;
         }
+        log.debug(
+                "Project descriptor based strategy is failed to resolve project folder '{}': there is no file '{}' in the folder.",
+                descriptorFile,
+                ProjectDescriptor.FILE_NAME);
+        return false;
     }
 
     @Override
     public ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException {
+        return resolveProject(folder, file -> false);
+    }
+
+    @Override
+    public ProjectDescriptor resolveProject(Path folder, Predicate<Path> ignored) throws ProjectResolvingException {
         var globalErrorMessages = new LinkedHashSet<String>();
         var propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
-            var projectDescriptor = ProjectDescriptor.read(folder).expand();
+            var projectDescriptor = ProjectDescriptor.read(folder).expand(ignored);
             var processor = buildProcessor(propertiesFileNameProcessorBuilder, projectDescriptor, globalErrorMessages);
 
             var globalWarnMessages = new LinkedHashSet<String>();

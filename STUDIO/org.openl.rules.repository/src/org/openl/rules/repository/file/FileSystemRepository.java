@@ -6,24 +6,31 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.FileSystemException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.IgnoringRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -40,10 +47,17 @@ import org.openl.util.FileUtils;
 /**
  * A simple implementation of a file-system-based repository. This repository does not support versioning.
  *
+ * <p>The {@link IgnoredPaths ignored paths} are out of reach: an ignored file is not listed and reading it finds
+ * nothing, writing it is refused with {@link AccessDeniedException}, and a deletion that names it deletes nothing. A
+ * deleted folder goes with everything in it, its ignored files included, as a deleted project does. A path a request
+ * names is matched as the file system resolves it too, so neither a short name of Windows, such as {@code GIT~1}, nor
+ * a link gets around the patterns. A save of a whole folder keeps the ignored files it holds, and the changes of an
+ * ignored folder are not watched.
+ *
  * @author Yury Molchan
  */
 @Slf4j
-public class FileSystemRepository implements Repository, Closeable {
+public class FileSystemRepository implements Repository, IgnoringRepository, Closeable {
 
     @Getter
     @Setter
@@ -57,9 +71,26 @@ public class FileSystemRepository implements Repository, Closeable {
     @Getter
     @Setter
     private String name;
+    /** The paths the repository neither shows nor changes. */
+    @Getter
+    private IgnoredPaths ignoredPaths = IgnoredPaths.of(null);
+    /** The root as the file system resolves it, kept while the root stays the same. */
+    private @Nullable ResolvedRoot resolvedRoot;
 
     public void setUri(String path) {
         this.root = Path.of(path);
+    }
+
+    @Override
+    public void setIgnoredPaths(String setting) {
+        ignore(IgnoredPaths.of(setting));
+    }
+
+    /**
+     * Keeps the given paths out of reach. Call it before the repository is used.
+     */
+    public final void ignore(IgnoredPaths paths) {
+        this.ignoredPaths = paths;
     }
 
     public void initialize() {
@@ -88,43 +119,141 @@ public class FileSystemRepository implements Repository, Closeable {
     @Override
     public List<FileData> list(String path) throws IOException {
         var directory = resolveInRoot(path);
-        if (Files.isDirectory(directory)) {
-            try (var stream = Files.walk(directory)) {
-                var list = new ArrayList<FileData>();
-                stream.filter(file -> Files.isRegularFile(file) && !FileReplacement.isTemporary(file)).forEach(file -> {
-                    try {
-                        list.add(getFileData(file));
-                    } catch (Exception ex) {
-                        log.warn("Failed to resolve file '{}' in the directory '{}'.",
-                                file.getFileName(),
-                                directory,
-                                ex);
-                    }
-                });
-                return list;
-            }
+        var list = new ArrayList<FileData>();
+        if (Files.isDirectory(directory) && !isIgnored(directory)) {
+            walkListed(directory, file -> {
+                if (!FileReplacement.isTemporary(file)) {
+                    addFileData(list, file, directory);
+                }
+            });
         }
-        return Collections.emptyList();
+        return list;
+    }
+
+    /**
+     * Walks the files of a folder the listings show: a file, or a link to one, whose path is not ignored. An ignored
+     * folder is not read.
+     */
+    void walkListed(Path directory, Consumer<Path> onFile) throws IOException {
+        Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                return isListed(dir) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                var regular = attrs.isRegularFile() || attrs.isSymbolicLink() && Files.isRegularFile(file);
+                if (regular && isListed(file)) {
+                    onFile.accept(file);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    private void addFileData(List<FileData> list, Path file, Path directory) {
+        try {
+            list.add(getFileData(file));
+        } catch (Exception ex) {
+            log.warn("Failed to resolve file '{}' in the directory '{}'.", file.getFileName(), directory, ex);
+        }
     }
 
     @Override
-    public FileData check(String name) throws IOException {
+    public @Nullable FileData check(String name) throws IOException {
         var file = resolveInRoot(name);
-        if (Files.exists(file)) {
+        if (Files.exists(file) && !isIgnored(file)) {
             return getFileData(file);
         }
         return null;
     }
 
     @Override
-    public FileItem read(String name) throws IOException {
+    public @Nullable FileItem read(String name) throws IOException {
         var file = resolveInRoot(name);
-        if (Files.exists(file)) {
+        if (Files.exists(file) && !isIgnored(file)) {
             var data = getFileData(file);
             var stream = Files.newInputStream(file);
             return new FileItem(data, stream);
         }
         return null;
+    }
+
+    /**
+     * Tells whether a file or a folder in the repository is ignored, such as the output folder of a build found in a
+     * project folder. A path outside the repository is not.
+     */
+    public boolean ignores(Path file) {
+        var absolute = file.toAbsolutePath().normalize();
+        var base = root.toAbsolutePath().normalize();
+        return absolute.startsWith(base)
+                && ignoredPaths.matches(base.relativize(absolute).toString().replace('\\', '/'));
+    }
+
+    /**
+     * Tells whether a file or a folder met while listing is shown: its path is not ignored. A listing reads the names
+     * the file system gives, so the path is matched as it is.
+     */
+    boolean isListed(Path file) {
+        return !ignoredPaths.matches(nameOf(file));
+    }
+
+    /**
+     * Tells whether a path a request names is ignored. It is matched as it is written and as the file system
+     * resolves it, the links and the short names of Windows followed.
+     */
+    private boolean isIgnored(Path file) {
+        return ignoredPaths.matches(nameOf(file)) || ignoredPaths.matches(realNameOf(file));
+    }
+
+    /**
+     * The path of a file as the file system resolves it, relative to the root of the repository when it is inside it.
+     * A file that does not exist yet is resolved by its nearest folder that exists. A path that cannot be resolved is
+     * returned as it is written.
+     */
+    private String realNameOf(Path file) {
+        var absolute = file.toAbsolutePath().normalize();
+        var missing = new ArrayDeque<Path>();
+        var existing = absolute;
+        while (existing.getParent() != null && !Files.exists(existing, LinkOption.NOFOLLOW_LINKS)) {
+            missing.push(existing.getFileName());
+            existing = existing.getParent();
+        }
+        try {
+            var real = existing.toRealPath();
+            for (var part : missing) {
+                real = real.resolve(part);
+            }
+            var realRoot = realRoot();
+            var relative = real.startsWith(realRoot) ? realRoot.relativize(real) : real.subpath(0, real.getNameCount());
+            return relative.toString().replace('\\', '/');
+        } catch (IOException e) {
+            return nameOf(file);
+        }
+    }
+
+    private Path realRoot() throws IOException {
+        var resolved = resolvedRoot;
+        if (resolved == null || !resolved.root().equals(root)) {
+            resolved = new ResolvedRoot(root, root.toRealPath());
+            resolvedRoot = resolved;
+        }
+        return resolved.real();
+    }
+
+    private record ResolvedRoot(Path root, Path real) {
+    }
+
+    /** The path of a file relative to the root of the repository, its folders separated by {@code /}. */
+    private String nameOf(Path file) {
+        return root.relativize(file).toString().replace('\\', '/');
+    }
+
+    private void refuseIgnored(Path file) throws AccessDeniedException {
+        if (isIgnored(file)) {
+            throw new AccessDeniedException(nameOf(file), null, "The path is ignored by the repository.");
+        }
     }
 
     @Override
@@ -135,8 +264,12 @@ public class FileSystemRepository implements Repository, Closeable {
     }
 
     private FileData write(FileData data, InputStream stream) throws IOException {
-        var dataName = data.getName();
-        var file = resolveInRoot(dataName);
+        var file = resolveInRoot(data.getName());
+        refuseIgnored(file);
+        return writeTo(file, data, stream);
+    }
+
+    private FileData writeTo(Path file, FileData data, InputStream stream) throws IOException {
         var parent = file.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
@@ -150,12 +283,19 @@ public class FileSystemRepository implements Repository, Closeable {
         return getFileData(file);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>An ignored file is left out.
+     */
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         var result = new ArrayList<FileData>();
         for (FileItem fileItem : fileItems) {
-            var saved = write(fileItem.getData(), fileItem.getStream());
-            result.add(saved);
+            var file = resolveInRoot(fileItem.getData().getName());
+            if (!isIgnored(file)) {
+                result.add(writeTo(file, fileItem.getData(), fileItem.getStream()));
+            }
         }
         invokeListener();
         return result;
@@ -164,6 +304,9 @@ public class FileSystemRepository implements Repository, Closeable {
     @Override
     public boolean delete(FileData data) throws IOException {
         var file = resolveInRoot(data.getName());
+        if (isIgnored(file)) {
+            return false;
+        }
         try {
             // A folder is deleted with everything in it, which deleting a project relies on.
             FileUtils.delete(file);
@@ -184,19 +327,27 @@ public class FileSystemRepository implements Repository, Closeable {
         var deleted = false;
         for (var fd : data) {
             var f = resolveInRoot(fd.getName());
-            try {
-                Files.delete(f);
-                deleted = true;
-
-                deleteEmptyParentFolders(f);
-            } catch (IOException ignored) {
-                // For example, if the file doesn't exist.
-            }
+            deleted |= !isIgnored(f) && deleteQuietly(f);
         }
         if (deleted) {
             invokeListener();
         }
         return deleted;
+    }
+
+    /**
+     * Deletes a file and the folders it leaves empty.
+     *
+     * @return {@code false} when the file cannot be deleted, for example, when it does not exist
+     */
+    private boolean deleteQuietly(Path file) {
+        try {
+            Files.delete(file);
+        } catch (IOException ignored) {
+            return false;
+        }
+        deleteEmptyParentFolders(file);
+        return true;
     }
 
     private void deleteEmptyParentFolders(Path file) {
@@ -226,7 +377,11 @@ public class FileSystemRepository implements Repository, Closeable {
 
     private FileData copy(String srcName, FileData destData) throws IOException {
         var srcFile = resolveInRoot(srcName);
+        if (isIgnored(srcFile)) {
+            throw new FileNotFoundException("File '%s' is not found.".formatted(srcName));
+        }
         var destFile = resolveInRoot(destData.getName());
+        refuseIgnored(destFile);
         Files.createDirectories(destFile.getParent());
         try (var content = Files.newInputStream(srcFile)) {
             replace(content, destFile);
@@ -269,7 +424,7 @@ public class FileSystemRepository implements Repository, Closeable {
     @Override
     public void setListener(Listener callback) {
         if (monitor == null) {
-            monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), listenerTimerPeriod);
+            monitor = new ChangesMonitor(new FileChangesMonitor(getRoot(), this::isListed), listenerTimerPeriod);
         }
         monitor.setListener(callback);
     }
@@ -278,7 +433,7 @@ public class FileSystemRepository implements Repository, Closeable {
     public List<FileData> listHistory(String name) {
         var file = resolveInRoot(name);
         try {
-            if (Files.exists(file)) {
+            if (Files.exists(file) && !isIgnored(file)) {
                 var data = getFileData(file);
                 return Collections.singletonList(data);
             }
@@ -289,7 +444,7 @@ public class FileSystemRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileData checkHistory(String name, String version) throws IOException {
+    public @Nullable FileData checkHistory(String name, String version) throws IOException {
         if (version == null || Objects.equals(version, getVersion(name))) {
             return check(name);
         }
@@ -297,7 +452,7 @@ public class FileSystemRepository implements Repository, Closeable {
     }
 
     @Override
-    public FileItem readHistory(String name, String version) throws IOException {
+    public @Nullable FileItem readHistory(String name, String version) throws IOException {
         if (version == null || Objects.equals(version, getVersion(name))) {
             return read(name);
         }
@@ -331,8 +486,7 @@ public class FileSystemRepository implements Repository, Closeable {
         }
         var data = new FileData();
 
-        var relativePath = root.relativize(file).toString();
-        data.setName(relativePath.replace('\\', '/'));
+        data.setName(nameOf(file));
         data.setModifiedAt(new Date(Files.getLastModifiedTime(file).toMillis()));
         data.setVersion(getVersion(file));
         if (Files.isRegularFile(file)) {
@@ -369,7 +523,7 @@ public class FileSystemRepository implements Repository, Closeable {
         var directory = resolveInRoot(path);
         if (Files.isDirectory(directory)) {
             try (var stream = Files.list(directory)) {
-                stream.filter(Files::isDirectory).forEach(file -> {
+                stream.filter(file -> Files.isDirectory(file) && isListed(file)).forEach(file -> {
                     try {
                         files.add(getFileData(file));
                     } catch (Exception ex) {
@@ -404,30 +558,27 @@ public class FileSystemRepository implements Repository, Closeable {
         return Collections.emptyList();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A change of an ignored file is left out, and a full save keeps the ignored files of the folder.
+     */
     @Override
-    public FileData save(FileData folderData,
-                         Iterable<FileItem> files,
-                         ChangesetType changesetType) throws IOException {
+    public @Nullable FileData save(FileData folderData,
+                                   Iterable<FileItem> files,
+                                   ChangesetType changesetType) throws IOException {
+        var folder = resolveInRoot(folderData.getName());
+        refuseIgnored(folder);
         // Add new files and update existing ones
         var savedFiles = new ArrayList<Path>();
         for (var change : files) {
-            var data = change.getData();
-            var file = resolveInRoot(data.getName());
-            savedFiles.add(file);
-            Files.createDirectories(file.getParent());
-
-            var stream = change.getStream();
-            if (stream != null) {
-                replace(stream, file);
-                if (data.getModifiedAt() != null) {
-                    Files.setLastModifiedTime(file, fromMillis(data.getModifiedAt().getTime()));
-                }
-            } else {
-                deleteFile(file);
+            var file = resolveInRoot(change.getData().getName());
+            if (!isIgnored(file)) {
+                apply(change, file);
+                savedFiles.add(file);
             }
         }
 
-        var folder = resolveInRoot(folderData.getName());
         if (changesetType == ChangesetType.FULL) {
             removeAbsentFiles(folder, savedFiles);
         }
@@ -436,19 +587,35 @@ public class FileSystemRepository implements Repository, Closeable {
         return saved;
     }
 
+    /** Writes a file a change gives content, and deletes one it gives none. */
+    private static void apply(FileItem change, Path file) throws IOException {
+        Files.createDirectories(file.getParent());
+        var stream = change.getStream();
+        if (stream != null) {
+            replace(stream, file);
+            var modifiedAt = change.getData().getModifiedAt();
+            if (modifiedAt != null) {
+                Files.setLastModifiedTime(file, fromMillis(modifiedAt.getTime()));
+            }
+        } else {
+            deleteFile(file);
+        }
+    }
+
     private void removeAbsentFiles(Path directory, Collection<Path> toSave) throws IOException {
         if (!Files.exists(directory)) {
             return;
         }
         Files.walkFileTree(directory, new SimpleFileVisitor<>() {
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                if (!toSave.contains(file)) {
-                    try {
-                        Files.delete(file);
-                    } catch (IOException e) {
-                        log.warn("Failed to delete a file: '{}'", file, e);
-                    }
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                return isListed(dir) ? FileVisitResult.CONTINUE : FileVisitResult.SKIP_SUBTREE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                if (!toSave.contains(file) && isListed(file)) {
+                    deleteAbsentFile(file);
                 }
                 return FileVisitResult.CONTINUE;
             }
@@ -459,19 +626,20 @@ public class FileSystemRepository implements Repository, Closeable {
                     throw exc;
                 }
                 // Don't delete the root folder of the change
-                if (dir.equals(directory)) {
-                    return FileVisitResult.CONTINUE;
-                }
-                try (var stream = Files.list(dir)) {
-                    if (stream.findAny().isEmpty()) {
-                        Files.delete(dir);
-                    }
-                } catch (IOException e) {
-                    log.warn("Failed to delete an empty directory: '{}'", dir, e);
+                if (!dir.equals(directory)) {
+                    deleteIfEmpty(dir);
                 }
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    private static void deleteAbsentFile(Path file) {
+        try {
+            Files.delete(file);
+        } catch (IOException e) {
+            log.warn("Failed to delete a file: '{}'", file, e);
+        }
     }
 
 }

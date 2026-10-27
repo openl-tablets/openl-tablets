@@ -176,7 +176,7 @@ public class PathCheckedRepository implements BranchRepository {
         // FIXME: this Iterable cannot be used multiple times due delegating it to the Stream API.
         //     It needs to refactor the Repository API to allow the following:
         //     files.peek(x -> validatePath(x.getData().getName()))
-        if (changesetType == ChangesetType.FULL) {
+        if (changesetType == ChangesetType.FULL && !(delegate instanceof IgnoringRepository)) {
             var existing = filesOf(folderData);
             if (existing.stream().anyMatch(fileData -> isIgnored(fileData.getName()))) {
                 // A full save deletes every file it is not given, the ignored ones too. So the given files are saved

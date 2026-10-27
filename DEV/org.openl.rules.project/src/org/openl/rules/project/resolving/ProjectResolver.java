@@ -2,6 +2,9 @@ package org.openl.rules.project.resolving;
 
 import java.nio.file.Path;
 import java.util.ServiceLoader;
+import java.util.function.Predicate;
+
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -22,7 +25,7 @@ public class ProjectResolver {
      * @param folder Folder to check
      * @return <code>null</code> if it is not OpenL project and {@link ResolvingStrategy} for this project otherwise.
      */
-    public ResolvingStrategy isRulesProject(Path folder) {
+    public @Nullable ResolvingStrategy isRulesProject(Path folder) {
         var strategies = ServiceLoader.load(ResolvingStrategy.class);
 
         for (ResolvingStrategy strategy : strategies) {
@@ -33,10 +36,22 @@ public class ProjectResolver {
         return null;
     }
 
-    public ProjectDescriptor resolve(Path file) throws ProjectResolvingException {
+    public @Nullable ProjectDescriptor resolve(Path file) throws ProjectResolvingException {
+        return resolve(file, path -> false);
+    }
+
+    /**
+     * Describes the project in a folder, finding no module in an ignored file or folder of it, such as the output
+     * folder of a build.
+     *
+     * @param file    Folder to check
+     * @param ignored tells the files and the folders of the project no module is found in
+     * @return <code>null</code> if it is not OpenL project and the description of the project otherwise.
+     */
+    public @Nullable ProjectDescriptor resolve(Path file, Predicate<Path> ignored) throws ProjectResolvingException {
         var strategy = isRulesProject(file);
         if (strategy != null) {
-            return strategy.resolveProject(file);
+            return strategy.resolveProject(file, ignored);
         }
         return null;
     }

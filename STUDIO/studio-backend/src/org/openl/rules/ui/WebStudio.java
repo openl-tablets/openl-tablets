@@ -409,11 +409,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
             var repoId = project.getRepository().getId();
             List<ProjectDescriptor> projectDescriptors = projects.computeIfAbsent(repoId, k -> new ArrayList<>());
             // A project edited in place is in a folder of the design repository, the others are in the workspace.
-            var repoRoot = project.getRepository() instanceof LocalRepository own
-                    ? own.getRoot()
-                    : localWorkspace.getRepository(project.getRepository().getId()).getRoot();
-            var folder = repoRoot.resolve(project.getFolderPath());
-            var resolvedDescriptor = projectResolver.resolve(folder);
+            var repository = project.getRepository() instanceof LocalRepository own
+                    ? own
+                    : localWorkspace.getRepository(project.getRepository().getId());
+            var folder = repository.getRoot().resolve(project.getFolderPath());
+            // A project edited in place holds the files its repository ignores, such as the output of a build.
+            var resolvedDescriptor = projectResolver.resolve(folder, repository::ignores);
             if (resolvedDescriptor != null) {
                 resolvedDescriptor.getModules().sort(MODULES_COMPARATOR);
                 projectDescriptors.add(resolvedDescriptor);

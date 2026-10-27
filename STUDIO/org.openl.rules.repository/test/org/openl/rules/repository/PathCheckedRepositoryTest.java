@@ -15,6 +15,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
@@ -188,6 +189,20 @@ class PathCheckedRepositoryTest {
         changes.getValue().forEach(change -> saved.add(change.getData().getName()
                 + (change.getStream() == null ? " deleted" : "")));
         assertEquals(List.of("p/rules.xml", "p/Old.xlsx deleted"), saved);
+    }
+
+    /** A repository that keeps the ignored files itself is given a full save as it is, with no listing first. */
+    @Test
+    void aFullSaveIsPassedOnToARepositoryThatKeepsTheIgnoredFilesItself() throws IOException {
+        var delegate = mock(BranchRepository.class, withSettings().extraInterfaces(IgnoringRepository.class));
+        var repository = new PathCheckedRepository(delegate, IgnoredPaths.of("**/pom.xml"));
+        var folder = fileData("p");
+
+        repository.save(folder, List.of(item("p/rules.xml", "rules")), ChangesetType.FULL);
+
+        verify(delegate).save(eq(folder), any(), eq(ChangesetType.FULL));
+        verify(delegate, never()).list(anyString());
+        verify(delegate, never()).listFiles(anyString(), any());
     }
 
     @Test

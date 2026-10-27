@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -23,13 +24,36 @@ class FileChangesMonitorTest {
 
     private static final FileTime WRITTEN = FileTime.fromMillis(1_700_000_000_000L);
 
+    /** Every folder is watched. */
+    private static final Predicate<Path> ALL = folder -> true;
+
     @TempDir
     Path root;
 
     @Test
+    void doesNotWatchTheIgnoredFolders() throws IOException {
+        write("project/rules.xml", "<project/>");
+        write(".git/HEAD", "ref: refs/heads/main");
+        var repository = new FileSystemRepository();
+        repository.setRoot(root);
+        repository.setIgnoredPaths("**/target/**");
+        var monitor = new FileChangesMonitor(root, repository::isListed);
+        var revision = monitor.getRevision();
+
+        write(".git/objects/ab/cdef", "object");
+        write("project/target/Rules.zip", "build");
+
+        assertEquals(revision, monitor.getRevision());
+
+        write("project/pom.xml", "<project/>");
+
+        assertNotEquals(revision, monitor.getRevision());
+    }
+
+    @Test
     void keepsTheRevisionWhileNothingChanges() throws IOException {
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
 
         var revision = monitor.getRevision();
 
@@ -40,7 +64,7 @@ class FileChangesMonitorTest {
     @Test
     void tellsAFileAddedInANestedFolder() throws IOException {
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         write("project/rules/Bank Rating.xlsx", "workbook");
@@ -52,7 +76,7 @@ class FileChangesMonitorTest {
     void tellsAFileRemoved() throws IOException {
         write("project/rules.xml", "<project/>");
         write("project/rules/Bank Rating.xlsx", "workbook");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         Files.delete(root.resolve("project/rules/Bank Rating.xlsx"));
@@ -63,7 +87,7 @@ class FileChangesMonitorTest {
     @Test
     void tellsAFileRenamed() throws IOException {
         write("project/rules/Bank Rating.xlsx", "workbook");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         Files.move(root.resolve("project/rules/Bank Rating.xlsx"), root.resolve("project/rules/Rating.xlsx"));
@@ -74,7 +98,7 @@ class FileChangesMonitorTest {
     @Test
     void tellsAFileWrittenAtTheSameTimeWithAnotherSize() throws IOException {
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         // Written again within the same tick of the file system clock: only the size tells.
@@ -86,7 +110,7 @@ class FileChangesMonitorTest {
     @Test
     void tellsAFileWrittenWithTheSameSizeAtAnotherTime() throws IOException {
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         Files.setLastModifiedTime(root.resolve("project/rules.xml"), FileTime.fromMillis(1_800_000_000_000L));
@@ -96,7 +120,7 @@ class FileChangesMonitorTest {
 
     @Test
     void countsEachChangeOnce() throws IOException {
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         write("project/rules.xml", "<project/>");
@@ -113,7 +137,7 @@ class FileChangesMonitorTest {
                 write("p" + project + "/" + "level/".repeat(depth) + "Rules" + depth + ".xlsx", "workbook");
             }
         }
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         // The folders are read at once by several readers: none of the files may be lost, or a pass would differ.
@@ -129,7 +153,7 @@ class FileChangesMonitorTest {
     @Test
     void leavesFoldersOut() throws IOException {
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         Files.createDirectories(root.resolve("project/rules/empty"));
@@ -140,7 +164,7 @@ class FileChangesMonitorTest {
     @Test
     void leavesTheTemporaryFileOfAWriteOut() throws IOException {
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         write("project/.rules.xml" + FileReplacement.TEMPORARY_SUFFIX, "<project/> half");
@@ -151,7 +175,7 @@ class FileChangesMonitorTest {
     @Test
     void answersAMissingFolderAsEmpty() throws IOException {
         var folder = root.resolve("design");
-        var monitor = new FileChangesMonitor(folder);
+        var monitor = new FileChangesMonitor(folder, ALL);
         var revision = monitor.getRevision();
 
         assertEquals(revision, monitor.getRevision());
@@ -169,7 +193,7 @@ class FileChangesMonitorTest {
         Files.setLastModifiedTime(target, WRITTEN);
         var folder = Files.createDirectories(root.resolve("design/project"));
         Files.createSymbolicLink(folder.resolve("Shared.xlsx"), target);
-        var monitor = new FileChangesMonitor(root.resolve("design"));
+        var monitor = new FileChangesMonitor(root.resolve("design"), ALL);
         var revision = monitor.getRevision();
 
         Files.writeString(target, "workbook written");
@@ -182,7 +206,7 @@ class FileChangesMonitorTest {
     void leavesABrokenLinkOut() throws IOException {
         var folder = Files.createDirectories(root.resolve("project"));
         write("project/rules.xml", "<project/>");
-        var monitor = new FileChangesMonitor(root);
+        var monitor = new FileChangesMonitor(root, ALL);
         var revision = monitor.getRevision();
 
         Files.createSymbolicLink(folder.resolve("Gone.xlsx"), root.resolve("nowhere/Gone.xlsx"));
@@ -198,7 +222,7 @@ class FileChangesMonitorTest {
         var locked = root.resolve("project");
         Files.setPosixFilePermissions(locked, PosixFilePermissions.fromString("---------"));
         try {
-            var monitor = new FileChangesMonitor(root);
+            var monitor = new FileChangesMonitor(root, ALL);
 
             assertThrows(UncheckedIOException.class, monitor::getRevision);
         } finally {

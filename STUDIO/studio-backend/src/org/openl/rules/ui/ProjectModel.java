@@ -845,6 +845,16 @@ public class ProjectModel {
     }
 
     /**
+     * Describes the project in a folder as its repository holds it: no module is found in a file the repository
+     * ignores, such as a workbook in the output folder of a build of a project edited in place.
+     */
+    private ProjectDescriptor resolve(Path projectFolder) throws ProjectResolvingException {
+        var repository = getLocalRepository();
+        Predicate<Path> ignored = repository == null ? file -> false : repository::ignores;
+        return studio.getProjectResolver().resolve(projectFolder, ignored);
+    }
+
+    /**
      * Where this project's edits are kept: the folder of a project edited in place, else the workspace. Nothing when
      * the model stands outside a workspace.
      */
@@ -1276,8 +1286,7 @@ public class ProjectModel {
      */
     private @Nullable Module findReloadedModule(Path projectFolder,
                                                 Module moduleInfo) throws ProjectResolvingException {
-        var projectResolver = studio.getProjectResolver();
-        var projectDescriptor = projectResolver.resolve(projectFolder);
+        var projectDescriptor = resolve(projectFolder);
         for (Module module : projectDescriptor.getModules()) {
             if (moduleInfo.getName().equals(module.getName())) {
                 return module;
@@ -1423,9 +1432,8 @@ public class ProjectModel {
             return moduleInfo.getProject();
         }
         try {
-            var projectResolver = studio.getProjectResolver();
             var localFile = project.getLocalRepository().getRoot().resolve(project.getFolderPath());
-            return projectResolver.resolve(localFile);
+            return resolve(localFile);
         } catch (Exception e) {
             // Fail-safe behavior for mock tests where studio.getProjectResolver() is not set.
             return moduleInfo.getProject();
@@ -1642,7 +1650,7 @@ public class ProjectModel {
         }
         ProjectFiles current;
         try {
-            current = ProjectFiles.of(studio.getProjectResolver().resolve(compiled.folder()));
+            current = ProjectFiles.of(resolve(compiled.folder()));
         } catch (ProjectResolvingException | RuntimeException e) {
             log.debug("The project in '{}' cannot be read again.", compiled.folder(), e);
             current = null;
