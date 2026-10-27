@@ -91,6 +91,11 @@ write changes lives only in that workbook until it is saved, so it must not be c
 `XlsWorkbookSourceCodeModule.save()` clears the mark. Reading through `getSheet()` and writing into what it
 returned loses the change whenever the workbook is collected in between.
 
+**A moved cell keeps what it stores.** Inserting and deleting rows or columns, and merging cells, move a cell with
+`IWritableGrid.copyCellValue` and its style as it is. Reading a value and writing it back stores it differently:
+`24` as `24.0`, a date in a new style of the default date format, a text trimmed and without the fonts of its parts.
+Every moved cell then shows as changed in a diff and in a merge of the workbook.
+
 A saved workbook says so (`XlsWorkbookSourceCodeModule.isSavedSinceRead()`): what was compiled from it no longer
 answers for the file. A compilation reads every workbook again, so the mark belongs to one compilation, and OpenL
 Studio tells by it whether what it compiled is out of date.

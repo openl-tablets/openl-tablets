@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "2Z84YJBQHWAVNEW2",
+      "kind": "Datatype",
+      "name": "Option",
+      "pos": "B2:C8"
+    },
+    {
+      "id": "R09B0VWB4VVRRKNA",
+      "kind": "Rules",
+      "name": "OptionsOf",
+      "pos": "B11:H19"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}

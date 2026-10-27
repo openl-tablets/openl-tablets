@@ -16,6 +16,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -78,6 +80,27 @@ class HttpDataTest {
         var expected = createResponse(tempDir.resolve("expected.resp"), "image/png", "1234");
 
         assertEquals("Body ==> array lengths differ, expected: <6> but was: <7>", failure(actual, expected));
+    }
+
+    /** A workbook is compared as the zip archive it is, so a spec of its parts matches what a part stores. */
+    @Test
+    void workbookBodyIsComparedAsZip(@TempDir Path tempDir) throws IOException {
+        var xlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        var output = new ByteArrayOutputStream();
+        try (var zip = new ZipOutputStream(output)) {
+            zip.putNextEntry(new ZipEntry("xl/worksheets/sheet1.xml"));
+            zip.write("<c r=\"A1\"><v>24</v></c>".getBytes(StandardCharsets.UTF_8));
+        }
+        Files.write(tempDir.resolve("book.xlsx"), output.toByteArray());
+        var actual = createResponse(tempDir.resolve("actual.resp"), xlsx, "&book.xlsx");
+        var matching = createResponse(tempDir.resolve("matching.resp"), xlsx, "xl/worksheets/sheet1.xml = *<v>24</v>*");
+        var whole = createResponse(tempDir.resolve("whole.resp"), xlsx, "&book.xlsx");
+        var different = createResponse(tempDir.resolve("different.resp"), xlsx,
+                "xl/worksheets/sheet1.xml = *<v>24.0</v>*");
+
+        assertDoesNotThrow(() -> actual.assertTo(matching));
+        assertDoesNotThrow(() -> actual.assertTo(whole));
+        assertTrue(failure(actual, different).startsWith("Body > xl/worksheets/sheet1.xml ==> expected"));
     }
 
     /** An event stream is compared as text, so its events match the wildcards of the expected one. */

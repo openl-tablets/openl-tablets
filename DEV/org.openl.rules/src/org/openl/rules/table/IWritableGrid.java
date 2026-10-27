@@ -12,11 +12,30 @@ public interface IWritableGrid extends IGrid {
 
     int addMergedRegion(IGridRegion reg);
 
+    /**
+     * Moves a merged region to another place, where its top-left cell already holds the value the merge shows.
+     *
+     * <p>The cells the moved merge covers below and right of its top-left cell are emptied. The top-left cell keeps
+     * what it holds, empty or not: no value is taken from the other cells, as {@link #addMergedRegion} takes one.
+     *
+     * @param from the merged region to undo
+     * @param to   the region to merge instead
+     */
+    void moveMergedRegion(IGridRegion from, IGridRegion to);
+
     void clearCell(int col, int row);
 
     void createCell(int col, int row, Object value, String formula, ICellStyle style, String comment, String prevCommentAuthor);
 
     void copyCell(int colFrom, int rowFrom, int colTo, int rowTo);
+
+    /**
+     * Copies the value of a cell into another cell as it is stored, a formula with its last result included.
+     *
+     * <p>A copied cell reads and saves as the original one did, in the same notation. The target keeps its style and
+     * its comment. A source cell that does not exist empties the target.
+     */
+    void copyCellValue(int colFrom, int rowFrom, int colTo, int rowTo);
 
     /**
      * Finds a rectangular area of given width and height on the grid that can be used for writing. The returned region

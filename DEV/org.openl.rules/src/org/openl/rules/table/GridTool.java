@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.actions.AUndoableCellAction;
@@ -24,11 +27,8 @@ import org.openl.rules.table.ui.CellStyle;
 /**
  * Created by ymolchan on 8/13/2014.
  */
-public class GridTool {
-
-    private GridTool() {
-        // Utility class
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class GridTool {
 
     private static final String PROPERTIES_SECTION_NAME = "properties";
     private static final boolean COLUMNS = true;
@@ -110,10 +110,9 @@ public class GridTool {
         if (isColumns) {
             // merged region contains column which we copy/remove
             return GridRegionUtils.width(region) > numberOfRowsOrColumns && GridRegionUtils.contains(region, regionOfTable.getLeft() + firstRowOrColumn, region.getTop());
-        } else {
-            // merged region contains row which we copy/remove
-            return GridRegionUtils.height(region) > numberOfRowsOrColumns && GridRegionUtils.contains(region, region.getLeft(), regionOfTable.getTop() + firstRowOrColumn);
         }
+        // merged region contains row which we copy/remove
+        return GridRegionUtils.height(region) > numberOfRowsOrColumns && GridRegionUtils.contains(region, region.getLeft(), regionOfTable.getTop() + firstRowOrColumn);
     }
 
     public static IUndoableGridTableAction insertColumns(int nCols,
@@ -322,11 +321,11 @@ public class GridTool {
     /**
      * @return null if set new property with empty or same value
      */
-    public static IUndoableGridTableAction insertProp(IGridRegion tableRegion,
-                                                      IGrid grid,
-                                                      String newPropName,
-                                                      Object newPropValue,
-                                                      MetaInfoWriter metaInfoWriter) {
+    public static @Nullable IUndoableGridTableAction insertProp(IGridRegion tableRegion,
+                                                                IGrid grid,
+                                                                String newPropName,
+                                                                @Nullable Object newPropValue,
+                                                                MetaInfoWriter metaInfoWriter) {
         if (newPropValue == null) {
             return null;
         }
@@ -334,9 +333,8 @@ public class GridTool {
         var propertyRowIndex = getPropertyRowIndex(tableRegion, grid, newPropName);
         if (propertyRowIndex > 0) {
             return setExistingPropertyValue(tableRegion, grid, newPropValue, propertyRowIndex, metaInfoWriter);
-        } else {
-            return insertNewProperty(tableRegion, grid, newPropName, newPropValue, metaInfoWriter);
         }
+        return insertNewProperty(tableRegion, grid, newPropName, newPropValue, metaInfoWriter);
     }
 
     public static int getPropertyRowIndex(IGridRegion tableRegion, IGrid grid, String newPropName) {
@@ -578,16 +576,14 @@ public class GridTool {
                         leftCell);
             }
             return new UndoableResizeMergedRegionAction(propHeaderRegion, 1, INSERT, ROWS);
-        } else {
-            return new UndoableCompositeAction(
-                    resizeMergedRegions(grid, firstPropertyRow, 1, ROWS, tableRegion, metaInfoWriter));
         }
-
+        return new UndoableCompositeAction(
+                resizeMergedRegions(grid, firstPropertyRow, 1, ROWS, tableRegion, metaInfoWriter));
     }
 
     public static boolean tableWithoutPropertySection(String propsHeader) {
         var containsPropSection = false;
-        if (propsHeader != null && propsHeader.equals(PROPERTIES_SECTION_NAME)) {
+        if (PROPERTIES_SECTION_NAME.equals(propsHeader)) {
             containsPropSection = true;
         }
         return !containsPropSection;
@@ -610,19 +606,27 @@ public class GridTool {
         return clearActions;
     }
 
-    private static AUndoableCellAction shiftCell(int colFrom,
-                                                 int rowFrom,
-                                                 int colTo,
-                                                 int rowTo,
-                                                 IGrid grid,
-                                                 MetaInfoWriter metaInfoWriter) {
+    /**
+     * Moves a cell. A cell a merge covers below or right of its top-left cell holds no value of its own, so only its
+     * style moves, as it is.
+     */
+    private static IUndoableGridTableAction shiftCell(int colFrom,
+                                                      int rowFrom,
+                                                      int colTo,
+                                                      int rowTo,
+                                                      IGrid grid,
+                                                      MetaInfoWriter metaInfoWriter) {
 
         if (!grid.isPartOfTheMergedRegion(colFrom, rowFrom) || grid.isTopLeftCellInMergedRegion(colFrom, rowFrom)) {
-            // non top left cell of merged region have to be skipped
             return new UndoableShiftValueAction(colFrom, rowFrom, colTo, rowTo, metaInfoWriter);
         }
 
-        return new SetBorderStyleAction(colTo, rowTo, grid.getCell(colFrom, rowFrom).getStyle(), false, metaInfoWriter);
+        var style = grid.getCell(colFrom, rowFrom).getStyle();
+        return table -> {
+            if (style != null) {
+                ((IWritableGrid) table.getGrid()).setCellStyle(colTo, rowTo, style);
+            }
+        };
     }
 
     private static List<IUndoableGridTableAction> shiftColumns(int startColumn,
@@ -780,10 +784,12 @@ public class GridTool {
             shrinkMergedRegions(table, startColumn, nCols, COLUMNS, region, metaInfoWriter);
             var firstToMove = region.getLeft() + startColumn + nCols;
             var h = GridRegionUtils.height(region);
-            var actions = new ArrayList<IUndoableGridTableAction>();
-            actions.addAll(shiftColumns(firstToMove, nCols, REMOVE, region, grid, metaInfoWriter));
-            actions.addAll(clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, grid, metaInfoWriter));
-            new UndoableCompositeAction(actions).doAction(table);
+            new UndoableCompositeAction(shiftColumns(firstToMove, nCols, REMOVE, region, grid, metaInfoWriter))
+                    .doAction(table);
+            // The columns left behind are cleared once the merges have moved off them, so no cell of one stays.
+            new UndoableCompositeAction(
+                    clearCells(region.getRight() + 1 - nCols, nCols, region.getTop(), h, grid, metaInfoWriter))
+                    .doAction(table);
         };
     }
 
@@ -802,10 +808,12 @@ public class GridTool {
             shrinkMergedRegions(table, startRow, nRows, ROWS, region, metaInfoWriter);
             var w = GridRegionUtils.width(region);
             var firstToMove = region.getTop() + startRow + nRows;
-            var actions = new ArrayList<IUndoableGridTableAction>();
-            actions.addAll(shiftRows(firstToMove, nRows, REMOVE, region, grid, metaInfoWriter));
-            actions.addAll(clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, grid, metaInfoWriter));
-            new UndoableCompositeAction(actions).doAction(table);
+            new UndoableCompositeAction(shiftRows(firstToMove, nRows, REMOVE, region, grid, metaInfoWriter))
+                    .doAction(table);
+            // The rows left behind are cleared once the merges have moved off them, so no cell of one stays.
+            new UndoableCompositeAction(
+                    clearCells(region.getLeft(), w, region.getBottom() + 1 - nRows, nRows, grid, metaInfoWriter))
+                    .doAction(table);
         };
     }
 

@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "***",
+  "identical": false,
+  "sheets": [
+    {
+      "id": "0",
+      "name": "Options",
+      "type": "sheet",
+      "status": "changed",
+      "children": [
+        {
+          "id": "0-0",
+          "name": "Datatype Option",
+          "type": "table",
+          "status": "equal"
+        },
+        {
+          "id": "0-1",
+          "name": "SmartRules Collect Option[] OptionsOf(String group)",
+          "type": "table",
+          "status": "changed",
+          "changes": [
+            {
+              "property": "size",
+              "first": "7x11",
+              "second": "7x9"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
