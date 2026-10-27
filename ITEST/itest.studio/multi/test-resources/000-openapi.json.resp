@@ -28428,7 +28428,9 @@ Content-Type: application/json
           },
           "comment": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "maxLength": 255,
+            "minLength": 0
           },
           "path": {
             "type": "string",
@@ -32207,7 +32209,9 @@ Content-Type: application/json
           },
           "comment": {
             "type": "string",
-            "description": "***"
+            "description": "***",
+            "maxLength": 255,
+            "minLength": 0
           },
           "discardChanges": {
             "type": "boolean",

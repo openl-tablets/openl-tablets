@@ -25,4 +25,11 @@ booleans — some as a `TRUE()` formula with its result — dates in a format of
 - `050-only-the-rows-taken-away-differ` — only the cells of the two rows taken away are marked.
 - `060-drop` — the comparison is released.
 
+`040-a-comment-longer-than-a-repository-keeps` — EPBDS-16994: a repository keeps a comment of at most 255
+characters, and a longer one was refused with no word of what was too long.
+
+- `010-the-save-is-refused` — a save with a comment of 256 characters is refused, naming the comment.
+- `020-the-delete-is-refused` — so is a delete.
+- `030-the-project-keeps-its-changes` — nothing was saved: the project is still being edited.
+
 `999-tierdown` closes the project without its changes and deletes it.

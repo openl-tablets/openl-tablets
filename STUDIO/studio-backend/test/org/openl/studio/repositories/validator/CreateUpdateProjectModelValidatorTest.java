@@ -531,7 +531,10 @@ class CreateUpdateProjectModelValidatorTest extends AbstractConstraintValidatorT
                 model.getPath(),
                 bindingResult.getFieldError("path"));
 
-        assertFieldError("comment", "Invalid comment.", model.getComment(), bindingResult.getFieldError("comment"));
+        assertFieldError("comment",
+                "The comment is not valid: Invalid comment.",
+                model.getComment(),
+                bindingResult.getFieldError("comment"));
     }
 
     @Test

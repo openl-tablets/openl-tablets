@@ -2,12 +2,16 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
 
-public class CommentValidator {
-    private static final int MAX_COMMENT_LENGTH = 255;
+public final class CommentValidator {
+
+    /** The most characters of a comment a repository keeps: a database repository stores it in a column of 255. */
+    public static final int MAX_COMMENT_LENGTH = 255;
     private final Pattern pattern;
     private final String invalidMessage;
 
@@ -23,7 +27,7 @@ public class CommentValidator {
      * @throws IllegalArgumentException when the comment does not match the repository's pattern, or is longer than
      *                                  the maximum
      */
-    public void validate(String comment) {
+    public void validate(@Nullable String comment) {
         if (comment == null) {
             comment = "";
         }
@@ -31,8 +35,8 @@ public class CommentValidator {
             throw new IllegalArgumentException(invalidMessage);
         }
         if (comment.length() > MAX_COMMENT_LENGTH) {
-            throw new IllegalArgumentException(
-                    "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
+            throw new IllegalArgumentException("it has %d characters, more than the %d a repository keeps"
+                    .formatted(comment.length(), MAX_COMMENT_LENGTH));
         }
     }
 
@@ -41,9 +45,8 @@ public class CommentValidator {
         if (customComments) {
             return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.comment-validation-pattern"),
                     Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
-        } else {
-            return new CommentValidator(null, null);
         }
+        return new CommentValidator(null, null);
     }
 
 }

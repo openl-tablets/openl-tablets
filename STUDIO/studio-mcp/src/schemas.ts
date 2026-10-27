@@ -43,6 +43,14 @@ const branchNameSchema = z.string().describe("Git branch name (e.g., 'main', 'de
 
 const commentSchema = z.string().optional().describe("Commit comment describing the change (e.g., 'Updated CA premium rates', 'Fixed calculation bug')");
 
+/** The most characters of a commit comment Studio keeps: a database repository stores it in a column of 255. */
+const MAX_COMMIT_COMMENT_LENGTH = 255;
+
+const commitCommentTooLong = `A commit comment has at most ${MAX_COMMIT_COMMENT_LENGTH} characters.`;
+
+/** A commit comment of a design project, which Studio refuses when it is longer than it keeps. */
+const commitCommentSchema = z.string().max(MAX_COMMIT_COMMENT_LENGTH, commitCommentTooLong);
+
 /** A tool that lists a page of a list the server holds whole: repositories, deploy repositories. */
 export const pagedListSchema = z.strictObject({
   response_format: ResponseFormat,
@@ -104,7 +112,7 @@ export const openProjectSchema = z.strictObject({
 export const closeProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   saveChanges: z.boolean().optional().describe("If true, save changes before closing. A comment is required when the repository supports comments. If false or omitted and project has unsaved changes, will error unless discardChanges is true."),
-  comment: commentSchema.describe("Commit comment. Required for saveChanges when the repository supports comments; ignored when it does not."),
+  comment: commitCommentSchema.optional().describe("Commit comment of at most 255 characters. Required for saveChanges when the repository supports comments; ignored when it does not."),
   discardChanges: z.boolean().optional().describe("If true, close without saving (unsaved changes will be lost). When project is EDITING, you must also set confirmDiscard: true to confirm."),
   confirmDiscard: z.boolean().optional().describe("When closing with discardChanges: true and project has unsaved changes, must be set to true (explicitly) to confirm. Omitted or false will return a confirmation prompt. Ask the user first, then call again with confirmDiscard: true."),
   response_format: ResponseFormat,
@@ -514,7 +522,7 @@ export const resolveMergeConflictsSchema = z.strictObject({
 export const deleteProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   confirmProjectName: nonBlankString.describe("Required safety confirmation: exact project name returned by openl_get_project(). The delete is rejected if it does not match."),
-  comment: z.string().optional().describe("Optional deletion commit message, validated by the repository's comment template when configured."),
+  comment: commitCommentSchema.optional().describe("Optional deletion commit message of at most 255 characters, validated by the repository's comment template when configured."),
   response_format: ResponseFormat,
 });
 
@@ -550,8 +558,8 @@ export const createProjectSchema = z.strictObject({
   branch: branchNameSchema.optional().describe(
     "Target branch for either BLANK creation or CLONING. Omit for the repository's configured/default branch. Studio selects an existing branch case-insensitively; when the branch does not exist, Studio may create it from the repository base branch. Use openl_list_branches() first to avoid accidental branch creation."
   ),
-  comment: commentSchema.describe(
-    "Change comment for repositories that support comments. Applied to both BLANK creation and CLONING; Studio supplies its configured create/copy comment when omitted. Omit for repositories whose features.comments is false."
+  comment: commitCommentSchema.optional().describe(
+    "Change comment of at most 255 characters for repositories that support comments. Applied to both BLANK creation and CLONING; Studio supplies its configured create/copy comment when omitted. Omit for repositories whose features.comments is false."
   ),
   response_format: ResponseFormat,
 });
@@ -566,7 +574,7 @@ export const deployProjectSchema = z.strictObject({
 
 export const saveProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  comment: nonBlankString.optional().describe("Commit comment, required when the repository supports comments. Omit for repositories whose features.comments is false. Save only works when project status is EDITING; after save a new revision is created and project transitions to OPENED."),
+  comment: nonBlankString.max(MAX_COMMIT_COMMENT_LENGTH, commitCommentTooLong).optional().describe("Commit comment of at most 255 characters, required when the repository supports comments. Omit for repositories whose features.comments is false. Save only works when project status is EDITING; after save a new revision is created and project transitions to OPENED."),
   closeAfterSave: z.boolean().optional().describe("Optional. If true, close the project after saving (sends status CLOSED with the comment when supported in one request). Use when user asks to 'save and close'."),
   response_format: ResponseFormat,
 });
