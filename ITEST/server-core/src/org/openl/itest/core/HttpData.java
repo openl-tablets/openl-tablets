@@ -366,7 +366,9 @@ final class HttpData {
                 JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expectedBody));
                 Comparators.compareJsonObjects(expectedNode, actualNode, BODY_SUBJECT);
             }
-            case "application/zip" ->
+            // A workbook is a zip archive of XML parts, so a part can be matched as it is stored.
+            case "application/zip",
+                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ->
                     Comparators.zip(BODY_SUBJECT, decoder.apply(expectedBody), decoder.apply(this.body));
             default -> assertArrayEquals(decoder.apply(expectedBody), decoder.apply(this.body), BODY_SUBJECT);
         }

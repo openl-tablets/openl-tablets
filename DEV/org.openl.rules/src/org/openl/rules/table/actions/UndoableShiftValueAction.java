@@ -2,7 +2,6 @@ package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IWritableGrid;
 
@@ -22,7 +21,11 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         this.rowFrom = rowFrom;
     }
 
-    // Read the initial cell -> move its merged region -> write the cell to the destination
+    /**
+     * Moves the cell with its merged region to the destination.
+     *
+     * <p>The value moves as it is stored, so the moved cell saves as it did before.
+     */
     @Override
     public void doAction(IGridTable table) {
         var grid = (IWritableGrid) table.getGrid();
@@ -30,8 +33,6 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
 
         var cell = grid.getCell(colFrom, rowFrom);
 
-        var value = cell.getObjectValue();
-        var formula = cell.getFormula();
         var style = cell.getStyle();
         String comment = null;
         String commentAuthor = null;
@@ -41,23 +42,19 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         }
         var metaInfo = metaInfoWriter.getMetaInfo(rowFrom, colFrom);
 
+        // The value moves before the merge: a merge empties the cells it covers, and they can include this one.
+        grid.copyCellValue(colFrom, rowFrom, getCol(), getRow());
         if (rrFrom != null) {
-            grid.removeMergedRegion(rrFrom);
-            grid.addMergedRegion(new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
+            grid.moveMergedRegion(rrFrom, new GridRegion(rrFrom.getTop() + getRow() - rowFrom,
                     rrFrom.getLeft() + getCol() - colFrom,
                     rrFrom.getBottom() + getRow() - rowFrom,
                     rrFrom.getRight() + getCol() - colFrom));
         }
 
-        grid.setCellFormula(getCol(), getRow(), formula);
-        grid.setCellValue(getCol(), getRow(), value);
-        grid.setCellStyle(getCol(), getRow(), style);
+        if (style != null) {
+            grid.setCellStyle(getCol(), getRow(), style);
+        }
         grid.setCellComment(getCol(), getRow(), comment, commentAuthor);
         metaInfoWriter.setMetaInfo(getRow(), getCol(), metaInfo);
-
-        var newCell = grid.getCell(getCol(), getRow());
-        if (cell.getType() == IGrid.CELL_TYPE_STRING && newCell.getType() == IGrid.CELL_TYPE_FORMULA) {
-            grid.setCellStringValue(getCol(), getRow(), cell.getObjectValue().toString());
-        }
     }
 }

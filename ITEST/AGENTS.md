@@ -255,6 +255,10 @@ opens no session, so the reset belongs on the request after it.
 - **XML**: normalized comparison
 - **Plain text** (`text/plain`, `text/csv`, `text/html`, …) and **event streams** (`text/event-stream`): regex-based
   matching
+- **Zip archives** (`application/zip`) and **`.xlsx` workbooks**: entry by entry against an expected archive, or
+  against a spec of one line per entry — `name` or `name = content`, both with wildcards, and a lone `*` line
+  allowing entries the spec does not list. A spec line such as `xl/worksheets/sheet1.xml = *<c r="D14"*><v>27</v>*`
+  checks a cell as the workbook stores it
 - **Binary**: byte array comparison
 
 ### Wildcard Patterns in Response Files

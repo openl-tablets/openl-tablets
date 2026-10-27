@@ -22,6 +22,7 @@ import org.apache.poi.ss.usermodel.CellPropertyType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -34,6 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STCellFormulaType;
 
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -95,9 +97,48 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         cellWriters.put(AXlsCellWriter.STRING_WRITER, new XlsCellStringWriter(this));
     }
 
+    /**
+     * Merges the cells of the region.
+     *
+     * <p>The merge shows the first value of the region. A top-left cell holding a value keeps it as it is. An empty
+     * one takes the first value the region holds, moved as it is stored. A date moved into a top-left cell of no date
+     * format gets one, so it is still read as a date.
+     *
+     * <p>The other cells of the region are emptied and keep their styles.
+     */
     @Override
     public int addMergedRegion(IGridRegion reg) {
-        var topLeftCellValue = findFirstValueInRegion(reg);
+        var first = findFirstValueInRegion(reg);
+        if (first != null && (first.getColumn() != reg.getLeft() || first.getRow() != reg.getTop())) {
+            moveIntoTopLeft(first, reg);
+        }
+        return merge(reg);
+    }
+
+    /**
+     * Moves a merged region of the sheet to another place, where its top-left cell already holds the value it shows.
+     *
+     * <p>Unlike {@link #addMergedRegion(IGridRegion)} the merge takes no value from the cells it covers: they are
+     * emptied, and the top-left cell keeps what it holds, empty or not.
+     */
+    @Override
+    public void moveMergedRegion(IGridRegion from, IGridRegion to) {
+        removeMergedRegion(from);
+        merge(to);
+    }
+
+    private void moveIntoTopLeft(ICell first, IGridRegion reg) {
+        var value = first.getObjectValue();
+        var topLeft = PoiExcelHelper.getOrCreateCell(reg.getLeft(), reg.getTop(), getSheetToWrite());
+        if (value instanceof Date && !DateUtil.isCellDateFormatted(topLeft)) {
+            setCellValue(reg.getLeft(), reg.getTop(), value);
+        } else {
+            copyCellValue(first.getColumn(), first.getRow(), reg.getLeft(), reg.getTop());
+        }
+    }
+
+    /** Empties the cells the region covers below and right of its top-left one, and merges the region. */
+    private int merge(IGridRegion reg) {
         for (var row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (var column = reg.getLeft(); column <= reg.getRight(); column++) {
                 if (column != reg.getLeft() || row != reg.getTop()) {
@@ -105,7 +146,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
                 }
             }
         }
-        setCellValue(reg.getLeft(), reg.getTop(), topLeftCellValue);
         getMergedRegionsPool().add(reg);
         return getSheetToWrite()
                 .addMergedRegion(new CellRangeAddress(reg.getTop(), reg.getBottom(), reg.getLeft(), reg.getRight()));
@@ -118,12 +158,13 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         return mergedRegionsPool;
     }
 
-    private Object findFirstValueInRegion(IGridRegion reg) {
+    /** The first cell of the region holding a value, row by row from the top-left cell. */
+    private @Nullable ICell findFirstValueInRegion(IGridRegion reg) {
         for (var row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (var column = reg.getLeft(); column <= reg.getRight(); column++) {
-                var cellValue = getCell(column, row).getObjectValue();
-                if (cellValue != null) {
-                    return cellValue;
+                var cell = getCell(column, row);
+                if (cell.getObjectValue() != null) {
+                    return cell;
                 }
             }
         }
@@ -174,8 +215,26 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         cellTo.removeCellComment();
     }
 
+    @Override
+    public void copyCellValue(int colFrom, int rowFrom, int colTo, int rowTo) {
+        var sheet = getSheetToWrite();
+        Cell cellFrom = PoiExcelHelper.getCell(colFrom, rowFrom, sheet);
+        if (cellFrom != null) {
+            copyCellValue(cellFrom, PoiExcelHelper.getOrCreateCell(colTo, rowTo, sheet));
+        } else {
+            Cell cellTo = PoiExcelHelper.getCell(colTo, rowTo, sheet);
+            if (cellTo != null) {
+                cellTo.setBlank();
+            }
+        }
+    }
+
     private static void copyCellValue(Cell cellFrom, Cell cellTo) {
         cellTo.setBlank();
+        if (cellFrom instanceof XSSFCell from && cellTo instanceof XSSFCell to && !isSharedFormula(from)) {
+            copyStoredValue(from, to);
+            return;
+        }
         switch (cellFrom.getCellType()) {
             case BLANK:
                 break;
@@ -196,9 +255,44 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             case STRING:
                 cellTo.setCellValue(cellFrom.getRichStringCellValue());
                 break;
+            case ERROR:
+                cellTo.setCellErrorValue(cellFrom.getErrorCellValue());
+                break;
             default:
                 throw new IllegalArgumentException("Unknown cell type: " + cellFrom.getCellType());
         }
+    }
+
+    /**
+     * Copies a cell of an {@code .xlsx} workbook as Excel stored it: type, text of the value, text of a formula and
+     * its last result.
+     *
+     * <p>Reading the value and writing it back would store it in another notation: {@code 24} as {@code 24.0}, a
+     * date as a number in a new style, a text trimmed and without the fonts of its parts.
+     *
+     * <p>The target keeps its address and its style.
+     */
+    private static void copyStoredValue(XSSFCell from, XSSFCell to) {
+        var target = to.getCTCell();
+        var address = target.getR();
+        var styled = target.isSetS();
+        var style = target.getS();
+        target.set(from.getCTCell());
+        target.setR(address);
+        if (styled) {
+            target.setS(style);
+        } else if (target.isSetS()) {
+            target.unsetS();
+        }
+    }
+
+    /**
+     * Whether the cell shares its formula with other cells or is part of an array formula. Such a formula is read
+     * relative to the cells it spans, so it cannot be copied as it is stored.
+     */
+    private static boolean isSharedFormula(XSSFCell cell) {
+        var ct = cell.getCTCell();
+        return ct.isSetF() && ct.getF().getT() != STCellFormulaType.NORMAL;
     }
 
     @Override
@@ -213,7 +307,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public IGridRegion findEmptyRect(int width, int height) {
+    public @Nullable IGridRegion findEmptyRect(int width, int height) {
         var lastRow = getSheet().getLastRowNum();
         var top = lastRow + 2;
         var left = 1;

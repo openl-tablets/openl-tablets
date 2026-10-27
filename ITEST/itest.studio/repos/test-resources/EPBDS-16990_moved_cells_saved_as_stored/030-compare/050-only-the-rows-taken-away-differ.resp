@@ -1,0 +1,893 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "0-1",
+  "name": "SmartRules Collect Option[] OptionsOf(String group)",
+  "status": "changed",
+  "first": {
+    "source": [
+      [
+        {
+          "cell": "B11",
+          "value": "SmartRules Collect Option[] OptionsOf(String group)",
+          "colspan": 7
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "cell": "B12",
+          "value": "Group"
+        },
+        {
+          "cell": "C12",
+          "value": "Code"
+        },
+        {
+          "cell": "D12",
+          "value": "Order"
+        },
+        {
+          "cell": "E12",
+          "value": "Rate"
+        },
+        {
+          "cell": "F12",
+          "value": "Active"
+        },
+        {
+          "cell": "G12",
+          "value": "Since"
+        },
+        {
+          "cell": "H12",
+          "value": "Note"
+        }
+      ],
+      [
+        {
+          "cell": "B13",
+          "value": "Fruit",
+          "rowspan": 3
+        },
+        {
+          "cell": "C13",
+          "value": "Apple"
+        },
+        {
+          "cell": "D13",
+          "value": 24,
+          "style": 0
+        },
+        {
+          "cell": "E13",
+          "value": 0.0001,
+          "style": 0
+        },
+        {
+          "cell": "F13",
+          "value": true,
+          "formula": "=TRUE()"
+        },
+        {
+          "cell": "G13",
+          "value": "2023-03-15",
+          "style": 0
+        },
+        {
+          "cell": "H13",
+          "value": "Ends with a space"
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C14",
+          "value": "Pear"
+        },
+        {
+          "cell": "D14",
+          "value": 25,
+          "style": 0
+        },
+        {
+          "cell": "E14",
+          "value": 0.0002,
+          "style": 0
+        },
+        {
+          "cell": "F14",
+          "value": false
+        },
+        {
+          "cell": "G14",
+          "value": "2023-03-16",
+          "style": 0
+        },
+        {
+          "cell": "H14",
+          "value": "Plain"
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C15",
+          "value": "Plum"
+        },
+        {
+          "cell": "D15",
+          "value": 26,
+          "style": 0
+        },
+        {
+          "cell": "E15",
+          "value": 0.0003,
+          "style": 0
+        },
+        {
+          "cell": "F15",
+          "value": true,
+          "formula": "=TRUE()"
+        },
+        {
+          "cell": "G15",
+          "value": "2023-03-17",
+          "style": 0
+        },
+        {
+          "cell": "H15",
+          "value": "Bold part",
+          "runs": [
+            {
+              "to": 4,
+              "style": 1
+            },
+            {
+              "to": 9
+            }
+          ]
+        }
+      ],
+      [
+        {
+          "cell": "B16",
+          "value": "Colour",
+          "rowspan": 3
+        },
+        {
+          "cell": "C16",
+          "value": "Red"
+        },
+        {
+          "cell": "D16",
+          "value": 27,
+          "style": 0
+        },
+        {
+          "cell": "E16",
+          "value": 0.0004,
+          "style": 0
+        },
+        {
+          "cell": "F16",
+          "value": false
+        },
+        {
+          "cell": "G16",
+          "value": "2023-03-18",
+          "style": 0
+        },
+        {
+          "cell": "H16",
+          "value": "Plain"
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C17",
+          "value": "Green"
+        },
+        {
+          "cell": "D17",
+          "value": 28,
+          "style": 0
+        },
+        {
+          "cell": "E17",
+          "value": 0.0005,
+          "style": 0
+        },
+        {
+          "cell": "F17",
+          "value": true,
+          "formula": "=TRUE()"
+        },
+        {
+          "cell": "G17",
+          "value": "2023-03-19",
+          "style": 0
+        },
+        {
+          "cell": "H17",
+          "value": "Ends with a space"
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C18",
+          "value": "Blue"
+        },
+        {
+          "cell": "D18",
+          "value": 29,
+          "style": 0
+        },
+        {
+          "cell": "E18",
+          "value": 0.0006,
+          "style": 0
+        },
+        {
+          "cell": "F18",
+          "value": false
+        },
+        {
+          "cell": "G18",
+          "value": "2023-03-20",
+          "style": 0
+        },
+        {
+          "cell": "H18",
+          "value": "Bold part",
+          "runs": [
+            {
+              "to": 4,
+              "style": 1
+            },
+            {
+              "to": 9
+            }
+          ]
+        }
+      ],
+      [
+        {
+          "cell": "B19",
+          "value": "Size",
+          "rowspan": 3
+        },
+        {
+          "cell": "C19",
+          "value": "Small"
+        },
+        {
+          "cell": "D19",
+          "value": 30,
+          "style": 0
+        },
+        {
+          "cell": "E19",
+          "value": 0.0007,
+          "style": 0
+        },
+        {
+          "cell": "F19",
+          "value": true,
+          "formula": "=TRUE()"
+        },
+        {
+          "cell": "G19",
+          "value": "2023-03-21",
+          "style": 0
+        },
+        {
+          "cell": "H19",
+          "value": "Plain"
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C20",
+          "value": "Medium"
+        },
+        {
+          "cell": "D20",
+          "value": 31,
+          "style": 0
+        },
+        {
+          "cell": "E20",
+          "value": 0.0008,
+          "style": 0
+        },
+        {
+          "cell": "F20",
+          "value": false
+        },
+        {
+          "cell": "G20",
+          "value": "2023-03-22",
+          "style": 0
+        },
+        {
+          "cell": "H20",
+          "value": "Ends with a space"
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C21",
+          "value": "Large"
+        },
+        {
+          "cell": "D21",
+          "value": 32,
+          "style": 0
+        },
+        {
+          "cell": "E21",
+          "value": 0.0009,
+          "style": 0
+        },
+        {
+          "cell": "F21",
+          "value": true,
+          "formula": "=TRUE()"
+        },
+        {
+          "cell": "G21",
+          "value": "2023-03-23",
+          "style": 0
+        },
+        {
+          "cell": "H21",
+          "value": "Bold part",
+          "runs": [
+            {
+              "to": 4,
+              "style": 1
+            },
+            {
+              "to": 9
+            }
+          ]
+        }
+      ]
+    ],
+    "styles": [
+      {
+        "align": "right"
+      },
+      {
+        "bold": true
+      }
+    ],
+    "changedCells": [
+      "B13",
+      "C13",
+      "D13",
+      "E13",
+      "F13",
+      "G13",
+      "H13",
+      "B14",
+      "C14",
+      "D14",
+      "E14",
+      "F14",
+      "G14",
+      "H14"
+    ]
+  },
+  "second": {
+    "source": [
+      [
+        {
+          "cell": "B11",
+          "value": "SmartRules Collect Option[] OptionsOf(String group)",
+          "colspan": 7,
+          "style": 0,
+          "runs": [
+            {
+              "to": 10,
+              "style": 1
+            },
+            {
+              "to": 27,
+              "style": 1
+            },
+            {
+              "to": 37,
+              "style": 2
+            },
+            {
+              "to": 38,
+              "style": 1
+            },
+            {
+              "to": 44,
+              "style": 1
+            },
+            {
+              "to": 50,
+              "style": 3
+            },
+            {
+              "to": 51,
+              "style": 1
+            }
+          ]
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        },
+        {
+          "covered": true
+        }
+      ],
+      [
+        {
+          "cell": "B12",
+          "value": "Group",
+          "style": 4
+        },
+        {
+          "cell": "C12",
+          "value": "Code",
+          "style": 5
+        },
+        {
+          "cell": "D12",
+          "value": "Order",
+          "style": 5
+        },
+        {
+          "cell": "E12",
+          "value": "Rate",
+          "style": 5
+        },
+        {
+          "cell": "F12",
+          "value": "Active",
+          "style": 5
+        },
+        {
+          "cell": "G12",
+          "value": "Since",
+          "style": 5
+        },
+        {
+          "cell": "H12",
+          "value": "Note",
+          "style": 5
+        }
+      ],
+      [
+        {
+          "cell": "B13",
+          "value": "Fruit",
+          "style": 6
+        },
+        {
+          "cell": "C13",
+          "value": "Plum",
+          "style": 7
+        },
+        {
+          "cell": "D13",
+          "value": 26,
+          "style": 8
+        },
+        {
+          "cell": "E13",
+          "value": 0.0003,
+          "style": 8
+        },
+        {
+          "cell": "F13",
+          "value": true,
+          "formula": "=TRUE()",
+          "style": 7
+        },
+        {
+          "cell": "G13",
+          "value": "2023-03-17",
+          "style": 8
+        },
+        {
+          "cell": "H13",
+          "value": "Bold part",
+          "style": 7
+        }
+      ],
+      [
+        {
+          "cell": "B14",
+          "value": "Colour",
+          "rowspan": 3,
+          "style": 9
+        },
+        {
+          "cell": "C14",
+          "value": "Red",
+          "style": 10
+        },
+        {
+          "cell": "D14",
+          "value": 27,
+          "style": 11
+        },
+        {
+          "cell": "E14",
+          "value": 0.0004,
+          "style": 11
+        },
+        {
+          "cell": "F14",
+          "value": false,
+          "style": 10
+        },
+        {
+          "cell": "G14",
+          "value": "2023-03-18",
+          "style": 11
+        },
+        {
+          "cell": "H14",
+          "value": "Plain",
+          "style": 10
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C15",
+          "value": "Green",
+          "style": 7
+        },
+        {
+          "cell": "D15",
+          "value": 28,
+          "style": 8
+        },
+        {
+          "cell": "E15",
+          "value": 0.0005,
+          "style": 8
+        },
+        {
+          "cell": "F15",
+          "value": true,
+          "formula": "=TRUE()",
+          "style": 7
+        },
+        {
+          "cell": "G15",
+          "value": "2023-03-19",
+          "style": 8
+        },
+        {
+          "cell": "H15",
+          "value": "Ends with a space",
+          "style": 7
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C16",
+          "value": "Blue",
+          "style": 7
+        },
+        {
+          "cell": "D16",
+          "value": 29,
+          "style": 8
+        },
+        {
+          "cell": "E16",
+          "value": 0.0006,
+          "style": 8
+        },
+        {
+          "cell": "F16",
+          "value": false,
+          "style": 7
+        },
+        {
+          "cell": "G16",
+          "value": "2023-03-20",
+          "style": 8
+        },
+        {
+          "cell": "H16",
+          "value": "Bold part",
+          "style": 7
+        }
+      ],
+      [
+        {
+          "cell": "B17",
+          "value": "Size",
+          "rowspan": 3,
+          "style": 12
+        },
+        {
+          "cell": "C17",
+          "value": "Small",
+          "style": 10
+        },
+        {
+          "cell": "D17",
+          "value": 30,
+          "style": 11
+        },
+        {
+          "cell": "E17",
+          "value": 0.0007,
+          "style": 11
+        },
+        {
+          "cell": "F17",
+          "value": true,
+          "formula": "=TRUE()",
+          "style": 10
+        },
+        {
+          "cell": "G17",
+          "value": "2023-03-21",
+          "style": 11
+        },
+        {
+          "cell": "H17",
+          "value": "Plain",
+          "style": 10
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C18",
+          "value": "Medium",
+          "style": 7
+        },
+        {
+          "cell": "D18",
+          "value": 31,
+          "style": 8
+        },
+        {
+          "cell": "E18",
+          "value": 0.0008,
+          "style": 8
+        },
+        {
+          "cell": "F18",
+          "value": false,
+          "style": 7
+        },
+        {
+          "cell": "G18",
+          "value": "2023-03-22",
+          "style": 8
+        },
+        {
+          "cell": "H18",
+          "value": "Ends with a space",
+          "style": 7
+        }
+      ],
+      [
+        {
+          "covered": true
+        },
+        {
+          "cell": "C19",
+          "value": "Large",
+          "style": 13
+        },
+        {
+          "cell": "D19",
+          "value": 32,
+          "style": 14
+        },
+        {
+          "cell": "E19",
+          "value": 0.0009,
+          "style": 14
+        },
+        {
+          "cell": "F19",
+          "value": true,
+          "formula": "=TRUE()",
+          "style": 13
+        },
+        {
+          "cell": "G19",
+          "value": "2023-03-23",
+          "style": 14
+        },
+        {
+          "cell": "H19",
+          "value": "Bold part",
+          "style": 13
+        }
+      ]
+    ],
+    "styles": [
+      {
+        "valign": "center",
+        "border": {
+          "top": {
+            "style": "solid",
+            "width": 1
+          },
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "color": "#808080"
+      },
+      {
+        "bold": true
+      },
+      {},
+      {
+        "background": "#e7e6e6",
+        "align": "center",
+        "valign": "center",
+        "bold": true,
+        "border": {
+          "top": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#b4c6e7",
+        "align": "center",
+        "valign": "center",
+        "bold": true,
+        "border": {
+          "top": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "valign": "center"
+      },
+      {
+        "background": "#d9e1f2",
+        "valign": "center"
+      },
+      {
+        "background": "#d9e1f2",
+        "align": "right",
+        "valign": "center"
+      },
+      {
+        "valign": "center",
+        "border": {
+          "top": {
+            "style": "dotted",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#d9e1f2",
+        "valign": "center",
+        "border": {
+          "top": {
+            "style": "dotted",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#d9e1f2",
+        "align": "right",
+        "valign": "center",
+        "border": {
+          "top": {
+            "style": "dotted",
+            "width": 1
+          }
+        }
+      },
+      {
+        "valign": "center",
+        "border": {
+          "top": {
+            "style": "dotted",
+            "width": 1
+          },
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#d9e1f2",
+        "valign": "center",
+        "border": {
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      },
+      {
+        "background": "#d9e1f2",
+        "align": "right",
+        "valign": "center",
+        "border": {
+          "bottom": {
+            "style": "solid",
+            "width": 1
+          }
+        }
+      }
+    ]
+  }
+}
