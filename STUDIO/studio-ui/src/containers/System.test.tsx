@@ -38,10 +38,12 @@ vi.mock('../components', () => ({
             <input name={name} type="checkbox" />
         </label>
     ),
-    Input: ({ label, name, rules }: { label: string, name: string | string[], rules?: unknown[] }) => {
+    Input: ({ label, name, rules, tooltip }: {
+        label: string, name: string | string[], rules?: unknown[], tooltip?: string
+    }) => {
         inputRules.set(String(name), rules ?? [])
         return (
-            <label>
+            <label title={tooltip}>
                 {label}
                 <input name={String(name)} type="text" />
             </label>
@@ -69,6 +71,7 @@ describe('System', () => {
             detectProjectsByExcelFiles: false,
             dispatchingValidationEnabled: true,
             formatTablesOnSave: true,
+            ignoredPaths: '**/pom.xml',
             projectHistoryCount: 100,
             testRunThreadCount: 4,
             timeFormat: 'hh:mm:ss a',
@@ -97,6 +100,16 @@ describe('System', () => {
             'title',
             'system:detect_projects_by_excel_files_info'
         )
+    })
+
+    it('offers the paths the repositories ignore after the project detection and says what they do', async () => {
+        render(<System />)
+
+        const paths = await screen.findByRole('textbox', { name: 'system:ignored_paths' })
+        expect(paths).toHaveAttribute('name', 'ignoredPaths')
+        expect(paths.closest('label')).toHaveAttribute('title', 'system:ignored_paths_info')
+        const detection = screen.getByRole('checkbox', { name: 'system:detect_projects_by_excel_files' })
+        expect(detection.compareDocumentPosition(paths) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('offers to format every table saved, first among the other settings, and says what it does', async () => {

@@ -29,6 +29,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Repository;
@@ -71,7 +72,8 @@ class ProjectFilesVersionTest {
                 mock(ProjectFileLookupService.class), () -> new UserInfo("user1"), mock(DesignTimeRepository.class));
         service = new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
-                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
+                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
+                IgnoredPaths.of(null));
 
         var fileData = new FileData();
         fileData.setName("Project1/data.txt");

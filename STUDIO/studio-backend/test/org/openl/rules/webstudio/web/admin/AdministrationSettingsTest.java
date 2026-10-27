@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.repository.IgnoredPaths;
 
 class AdministrationSettingsTest {
 
@@ -31,6 +32,21 @@ class AdministrationSettingsTest {
         settings.setDetectProjectsByExcelFiles(false);
         settings.store(properties);
         verify(properties).setProperty(AdministrationSettings.PROJECT_DETECT_BY_EXCEL_FILES, false);
+    }
+
+    @Test
+    void readsAndWritesThePathsTheRepositoriesIgnore() {
+        var properties = mock(PropertiesHolder.class);
+        when(properties.getProperty(IgnoredPaths.PROPERTY)).thenReturn("**/pom.xml");
+        var settings = new AdministrationSettings();
+
+        settings.load(properties);
+
+        assertEquals("**/pom.xml", settings.getIgnoredPaths());
+
+        settings.setIgnoredPaths("**/pom.xml, **/target/**");
+        settings.store(properties);
+        verify(properties).setProperty(IgnoredPaths.PROPERTY, "**/pom.xml, **/target/**");
     }
 
     @Test
@@ -99,6 +115,7 @@ class AdministrationSettingsTest {
                 AdministrationSettings.USER_WORKSPACE_HOME,
                 AdministrationSettings.PROJECT_HISTORY_COUNT,
                 AdministrationSettings.PROJECT_DETECT_BY_EXCEL_FILES,
+                IgnoredPaths.PROPERTY,
                 AdministrationSettings.DATE_PATTERN,
                 AdministrationSettings.TIME_PATTERN,
                 AdministrationSettings.UPDATE_SYSTEM_PROPERTIES,

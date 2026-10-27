@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
@@ -33,6 +34,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.repository.IgnoredPaths;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -350,7 +352,8 @@ class FileRootWriteBatchTest {
     private static ProjectFilesServiceImpl service(AclProjectsHelper acl) {
         return new ProjectFilesServiceImpl(acl, mock(FileNodeMapper.class), mock(FileSearchSupport.class),
                 new FileArchiveSupport(acl), mock(ProjectDescriptorCleaner.class),
-                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)));
+                new BeanValidationProvider(List.of()), new UploadFormatting(mock(TableFormatting.class)),
+                IgnoredPaths.of(null));
     }
 
     private static AclProjectsHelper grantAllAcl() {
@@ -361,6 +364,8 @@ class FileRootWriteBatchTest {
 
     private static FileRoot mountOf(AProjectFolder tree) {
         FileRoot root = mock(FileRoot.class);
+        // A mount on the repository root names its files as the repository does.
+        when(root.repositoryPathOf(anyString())).thenAnswer(call -> call.getArgument(0));
         when(root.writeFolder()).thenReturn(tree);
         when(root.readFolder(null)).thenReturn(tree);
         return root;
@@ -403,7 +408,7 @@ class FileRootWriteBatchTest {
     static byte[] zip(String... nameThenContent) throws IOException {
         var bytes = new ByteArrayOutputStream();
         try (var zos = new ZipOutputStream(bytes)) {
-            for (int i = 0; i < nameThenContent.length; i += 2) {
+            for (var i = 0; i < nameThenContent.length; i += 2) {
                 zos.putNextEntry(new ZipEntry(nameThenContent[i]));
                 zos.write(nameThenContent[i + 1].getBytes(StandardCharsets.UTF_8));
                 zos.closeEntry();

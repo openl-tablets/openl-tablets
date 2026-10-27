@@ -17,6 +17,7 @@ interface SystemSettings {
     dispatchingValidationEnabled: boolean
     detectProjectsByExcelFiles: boolean
     formatTablesOnSave: boolean
+    ignoredPaths: string
     projectHistoryCount: number
     testRunThreadCount: number | string
     timeFormat: string
@@ -175,6 +176,11 @@ export const System: React.FC = () => {
                 label={t('system:detect_projects_by_excel_files')}
                 name="detectProjectsByExcelFiles"
                 tooltip={t('system:detect_projects_by_excel_files_info')}
+            />
+            <Input
+                label={t('system:ignored_paths')}
+                name="ignoredPaths"
+                tooltip={t('system:ignored_paths_info')}
             />
             <Divider titlePlacement="start">{t('system:other')}</Divider>
             <Checkbox

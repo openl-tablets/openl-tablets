@@ -21,36 +21,6 @@
 
     <bean id="currentUserInfo" class="org.openl.studio.security.CurrentUserInfo"/>
 
-    <bean id="excludedFolders" class="java.util.LinkedHashSet">
-        <constructor-arg>
-            <list>
-                <value>.svn</value>
-                <value>CVS</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="excludedFiles" class="java.util.LinkedHashSet">
-        <constructor-arg>
-            <list>
-                <value>.cvsignore</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean id="zipFilter" class="org.openl.rules.workspace.filter.AndPathFilter">
-        <constructor-arg>
-            <list>
-                <bean class="org.openl.rules.workspace.filter.FolderNamePathFilter">
-                    <constructor-arg ref="excludedFolders"/>
-                </bean>
-                <bean class="org.openl.rules.workspace.filter.FileNamePathFilter">
-                    <constructor-arg ref="excludedFiles"/>
-                </bean>
-            </list>
-        </constructor-arg>
-    </bean>
-
     <bean class="org.openl.rules.testmethod.TestSuiteExecutor" destroy-method="destroy">
         <constructor-arg value="${test.run.thread.count}"/>
     </bean>

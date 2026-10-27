@@ -567,6 +567,19 @@ from Maven.
   the context path from the file name, so deploy `openl-studio.war` as `webstudio.war` to keep the `/webstudio`
   path. The Docker images and the DEMO package need nothing.
 
+* **OpenL Studio neither shows nor changes the build files and the files of version control systems.** The new
+  setting `repository.ignored-paths`, **Ignored Paths** in the **System** section of the administration, lists them:
+  by default the files of Git, such as `.gitignore` and the `.github` folder, the Maven files `pom.xml`, `mvnw` and
+  `.mvn`, `.dockerignore`, and the files of Subversion and CVS. The `.git` folder is always ignored.
+
+  - The `pom.xml` of a project is no longer listed, exported in a ZIP archive or deployed, and a save of the project
+    keeps it as the repository holds it. A tool that read it from a deployment or an export reads it from the
+    repository.
+  - A project uploaded as a ZIP archive leaves these files out, as it left out `.svn`, `CVS` and `.cvsignore`, now
+    whatever their letter case.
+  - Clear the setting to show these files again. To add the build output folder, such as `target`, keep the defaults
+    by referring to them: `repository.ignored-paths = ${repository.default-ignored-paths}, **/target/**`.
+
 * **OpenL Studio starts its MCP server on a free port of the loopback interface.** OpenL Studio serves the server at
   `/mcp` of its own address; the Docker image carries Node.js, and a WAR deployment starts the server when Node.js is
   on the `PATH`. Set `mcp.enabled=false` to keep the server off. A reverse proxy in front of OpenL Studio that forwards
