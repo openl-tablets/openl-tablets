@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -1266,6 +1267,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     /**
      * Refuses a merge with conflicts that cannot be resolved automatically, and resolves the rest.
      *
+     * <p>A conflict in an ignored file is resolved by the version of the branch merged into: OpenL Studio shows such a
+     * file to no one, and never changes it.
+     *
      * @return the workbooks resolved automatically, our version standing for the branch merged into when their
      * changes are merged into our branch
      */
@@ -1290,8 +1294,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         var ourCommit = ourId == null ? null : getVersionName(repository, tags, ourId);
         var theirCommit = theirId == null ? null : getVersionName(repository, tags, theirId);
 
-        Set<String> conflictedFiles = mergeResult.getConflicts().keySet();
-        Map<String, String> diffs = ourId != null && theirId != null
+        var conflictedFiles = new HashSet<>(mergeResult.getConflicts().keySet());
+        conflictedFiles.removeAll(ignoredConflictsOf(mergeResult));
+        Map<String, String> diffs = ourId != null && theirId != null && !conflictedFiles.isEmpty()
                 ? diffConflictedFiles(repository, ourId, theirId, conflictedFiles)
                 : new HashMap<>();
         var conflict = new MergeConflict(baseCommit, ourCommit, theirCommit, diffs);
@@ -1303,9 +1308,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             // The resolution merges these workbooks: one that fails to merge stays listed, to be resolved by hand.
             keepMergeable(toAutoResolve, conflict);
             throw conflict.without(toAutoResolve.keySet()).toException(toAutoResolve);
-        } else if (!toAutoResolve.isEmpty()) {
-            resolveConflictsAutomatically(mergeResult, conflict, toAutoResolve, theirToOur, branchFrom, userInfo);
         }
+        // Every conflict is in a workbook that merges or in an ignored file: the merge resolves them all.
+        resolveConflictsAutomatically(mergeResult, conflict, toAutoResolve, theirToOur, branchFrom, userInfo);
         return MergeConflictDetails.mergedWorkbooks(toAutoResolve);
     }
 
@@ -1487,6 +1492,9 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
     }
 
+    /**
+     * Merges the conflicted workbooks and keeps the version of the branch merged into of the conflicted ignored files.
+     */
     private void resolveConflictsAutomatically(MergeResult mergeResult,
                                                MergeConflict conflict,
                                                Map<String, WorkbookDiffResult> toAutoResolve,
@@ -1502,8 +1510,10 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             ourBranch = branchFrom;
             theirBranch = branch;
         }
+        var ignored = ignoredConflictsOf(mergeResult);
         try {
             var conflictResolveData = autoResolveConflicts(toAutoResolve,
+                    ignored,
                     conflict.ourCommit(),
                     ourBranch,
                     conflict.theirCommit(),
@@ -1512,6 +1522,11 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         } catch (Exception e) {
             // A merge stopped while the workbooks were merged is no conflict.
             stopIfInterrupted();
+            if (toAutoResolve.isEmpty()) {
+                // Only ignored files conflict, which no one resolves: the merge fails instead of asking for nothing.
+                throw new IOException("The conflicts in the ignored files %s cannot be resolved.".formatted(ignored),
+                        e);
+            }
             // The workbooks stay in the conflict, to be resolved as any other conflicted file.
             log.warn("The conflicted workbooks {} cannot be merged automatically.", toAutoResolve.keySet(), e);
             throw conflict.toException(null);
@@ -1547,6 +1562,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     private ConflictResolveData autoResolveConflicts(Map<String, WorkbookDiffResult> toAutoResolve,
+                                                     Collection<String> ignored,
                                                      String ourCommit,
                                                      String ourBranch,
                                                      String theirCommit,
@@ -1554,6 +1570,8 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         var autoResolved = new ArrayList<FileItem>();
         var sb = new StringBuilder("Merge commit with ").append(theirCommit)
                 .append("\n\n Automatically resolved conflicts:");
+        // An ignored file keeps the version of the branch merged into, which resolveConflict() writes.
+        ignored.forEach(file -> sb.append("\n\t").append(file).append(" (").append(branch).append(')'));
         var output = new ByteArrayOutputStream();
         BiConsumer<String, String> appendSheetMergeLog = (sheetName, branchName) -> {
             sb.append("\n\t\t").append(sheetName);
@@ -2748,8 +2766,12 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
         var changedFiles = new HashSet<String>();
         for (FileItem change : conflictResolveData.getResolvedFiles()) {
-            applyChangeInWorkspace(change, changedFiles);
+            // A resolution is no way to write an ignored file: it keeps the version of the branch merged into.
+            if (!ignoredPaths.matches(change.getData().getName())) {
+                applyChangeInWorkspace(change, changedFiles);
+            }
         }
+        keepTargetVersions(ignoredConflictsOf(mergeResult), changedFiles);
 
         for (String changed : status.getChanged()) {
             if (!changedFiles.contains(changed)) {
@@ -2771,6 +2793,35 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
 
         return commitChangedFiles(conflictResolveCommit);
+    }
+
+    /** The conflicted files of a merge that are ignored, in the order of their paths. */
+    private Set<String> ignoredConflictsOf(MergeResult mergeResult) {
+        return mergeResult.getConflicts()
+                .keySet()
+                .stream()
+                .filter(ignoredPaths::matches)
+                .collect(Collectors.toCollection(TreeSet::new));
+    }
+
+    /**
+     * Resolves the conflicts in the ignored files no resolution gave by the versions the branch a merge goes into
+     * holds: a file the branch does not hold is deleted.
+     */
+    private void keepTargetVersions(Set<String> ignored,
+                                    Set<String> changedFiles) throws IOException, GitAPIException {
+        ignored.removeAll(changedFiles);
+        if (ignored.isEmpty()) {
+            return;
+        }
+        var repository = git().getRepository();
+        var target = getVersionName(repository, git().tagList().call(), resolveBranchId(repository));
+        for (var path : ignored) {
+            var file = parseHistory0(path, target, new ReadHistoryVisitor(target));
+            try (var change = new FileItem(path, file == null ? null : file.getStream())) {
+                applyChangeInWorkspace(change, changedFiles);
+            }
+        }
     }
 
     // A revision is a commit id or passes isValidRefName, which rejects .. and absolute names; taint analysis misses it.
