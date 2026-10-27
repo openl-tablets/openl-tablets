@@ -238,6 +238,20 @@ class MarkdownGridTest {
     }
 
     @Test
+    void fileNoModuleCompilesIsRewrittenThroughTheSaver() throws Exception {
+        var saved = new AtomicReference<String>();
+        var sheet = MarkdownGrid.read("file:/Proj/rules/Greetings/greeting.md", GREETING, saved::set);
+
+        assertEquals("Good Morning", sheet.getCell(1, 3).getStringValue());
+        sheet.setCellValue(1, 3, "Morning");
+        sheet.save();
+
+        assertEquals(GREETING.replace("| 0-11  | Good Morning   |", "| 0-11  | Morning        |"), saved.get());
+        assertEquals("file:/Proj/rules/Greetings/greeting.md?sheet=Greetings", sheet.getUri());
+        assertNull(sheet.getSheetSource());
+    }
+
+    @Test
     void newFileIsWrittenFromTheTableWrittenOnItsSheet() throws Exception {
         var saved = new AtomicReference<String>();
         var sheet = MarkdownGrid.create("Proj/rules/Rating/Factors/bonus.md", saved::set);

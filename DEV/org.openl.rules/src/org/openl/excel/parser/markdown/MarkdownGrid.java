@@ -51,6 +51,9 @@ import org.openl.util.StringUtils;
  */
 public final class MarkdownGrid extends AGrid implements IWritableGrid {
 
+    /** The cells of a file not written yet. */
+    private static final SheetCells NO_CELLS = new SheetCells(new String[0][], List.of());
+
     /** The address of the sheet, which the tables written on it are known by. */
     @Getter
     private final String uri;
@@ -102,15 +105,35 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return parsed(sheetSource.getUri(),
+                sheetSource,
+                text,
+                written -> workbook.save(out -> out.write(written.getBytes(StandardCharsets.UTF_8))));
+    }
+
+    /**
+     * Opens the sheet of a Markdown file no module compiles, such as a file a tool rewrites.
+     *
+     * <p>The save hands the text of the file to the saver, which rewrites the file.
+     *
+     * @param fileUri the address of the file
+     * @param text    the text of the file
+     * @param saver   rewrites the file with the text it is given
+     * @throws MarkdownFormatException when the file breaks the format
+     * @throws MarkdownWriteException  when the file holds no table
+     */
+    public static MarkdownGrid read(String fileUri, String text, Saver saver) {
+        return parsed(sheetUriOf(fileUri), null, text, saver);
+    }
+
+    private static MarkdownGrid parsed(String uri,
+                                       @Nullable XlsSheetSourceCodeModule sheetSource,
+                                       String text,
+                                       Saver saver) {
         var mark = MarkdownTableWriter.markOf(text);
         var file = MarkdownTableParser.parse(text.substring(mark.length()))
                 .orElseThrow(() -> new MarkdownWriteException(MarkdownTableWriter.NO_TABLE));
-        return new MarkdownGrid(sheetSource.getUri(),
-                sheetSource,
-                file,
-                mark,
-                SheetLayout.cellsOf(file.table()),
-                written -> workbook.save(out -> out.write(written.getBytes(StandardCharsets.UTF_8))));
+        return new MarkdownGrid(uri, sheetSource, file, mark, SheetLayout.cellsOf(file.table()), saver);
     }
 
     /**
@@ -123,9 +146,13 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
      * @param saver   creates the file with the text it is given
      */
     public static MarkdownGrid create(String fileUri, Saver saver) {
+        return new MarkdownGrid(sheetUriOf(fileUri), null, null, "", NO_CELLS, saver);
+    }
+
+    /** The address of the one sheet of a file, named as a module names it. */
+    private static String sheetUriOf(String fileUri) {
         var path = StringTool.decodeURL(fileUri);
-        var uri = fileUri + "?sheet=" + StringTool.encodeURL(MarkdownReader.sheetNameOf(path));
-        return new MarkdownGrid(uri, null, null, "", new SheetCells(new String[0][], List.of()), saver);
+        return fileUri + "?sheet=" + StringTool.encodeURL(MarkdownReader.sheetNameOf(path));
     }
 
     /**
@@ -144,8 +171,7 @@ public final class MarkdownGrid extends AGrid implements IWritableGrid {
         var path = StringTool.decodeURL(fileUri);
         var workbook = new XlsWorkbookSourceCodeModule(new MarkdownFileSource(file, fileUri));
         var sheet = new XlsSheetSourceCodeModule(new UnwrittenSheet(MarkdownReader.sheetNameOf(path)), workbook);
-        return new MarkdownGrid(sheet.getUri(), sheet, null, "", new SheetCells(new String[0][], List.of()),
-                saver);
+        return new MarkdownGrid(sheet.getUri(), sheet, null, "", NO_CELLS, saver);
     }
 
     /** The sheet of a file not written yet: it has a name, and nothing to read. */
