@@ -67,6 +67,12 @@ flowchart LR
 - **A project uploaded as a ZIP archive** leaves the ignored files out through the `zipFilter` bean, a
   `PathFilter` over the same patterns. `IgnoredPathsConfiguration` declares both beans, `ignoredPaths` and
   `zipFilter`, in Java configuration.
+- **A Git repository** (`GitRepository`) is given the setting too. A full save of a folder keeps its ignored files
+  (`removeAbsentFiles`), and the walk that tells whether a commit changes a path leaves them out (`createTreeWalk`,
+  `IgnoredPathsTreeFilter`, after the cheaper comparison of the object ids). A commit that changes only the
+  ignored files of a project is a technical revision of it, and the project stands on its latest commit that changes
+  anything else (`findFirstCommit`): the history marks it as current, and a save based on it is not taken for a save
+  of an old version.
 - **A repository on the file system** (`FileSystemRepository`) is given the setting too (`ignored-paths`, which
   `RepositoryInstatiator` answers from the system setting) and keeps the same paths out of reach by itself:
   - a path a request names is matched as the file system resolves it too, so neither a link nor a short name of

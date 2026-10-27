@@ -460,6 +460,7 @@ Revisions can also be accessed through the editor by selecting **More \> Revisio
 
 The features **Show technical revisions** and **Search history** are available in OpenL Studio when the repository type is Git.<br/>
 The **Show technical revisions** toggle, when on, allows users to see revisions that are not directly related to the current project (for example, changes related to code updates or changes in other projects).<br/>
+A revision that changes only the files the system settings ignore, such as a version bump in the `pom.xml` of the project made by a CI pipeline, is a technical revision too. A revision that changes any other file of the project is not. The project stands on its latest revision that is not technical, so the history always marks it as current. For more information on ignored files, see [Managing System Settings](administration/02-system-settings.md).<br/>
 The **Search history** field helps users quickly locate specific revisions by searching through the comments, modified by, and revision IDs.
 
 ### Closing a Project

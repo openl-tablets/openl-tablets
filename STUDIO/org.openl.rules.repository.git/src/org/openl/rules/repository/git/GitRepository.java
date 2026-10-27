@@ -41,6 +41,8 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.CommitCommand;
@@ -109,6 +111,8 @@ import org.eclipse.jgit.util.RawCharSequence;
 import org.eclipse.jgit.util.io.NullOutputStream;
 import org.jspecify.annotations.Nullable;
 
+import org.openl.rules.repository.IgnoredPaths;
+import org.openl.rules.repository.IgnoringRepository;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchStatus;
 import org.openl.rules.repository.api.BranchTreeRevision;
@@ -137,7 +141,7 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 @Slf4j
-public class GitRepository implements BranchRepository, Closeable {
+public class GitRepository implements BranchRepository, IgnoringRepository, Closeable {
     /**
      * Keeps the paths where the first two trees of a walk differ. A folder they hold alike is not entered, however
      * much the other trees changed in it.
@@ -159,22 +163,40 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     };
 
+    @Getter
+    @Setter
     private String id;
+    @Getter
+    @Setter
     private String name;
+    @Setter
     private String uri;
+    @Setter
     private String login;
+    @Setter
     private String password;
+    @Setter
     private String localRepositoriesFolder;
+    @Getter
     private String branch = Constants.MASTER;
+    @Getter
     private String baseBranch = branch;
     private String tagPrefix = StringUtils.EMPTY;
+    @Setter
     private int listenerTimerPeriod = 10;
+    @Setter
     private int connectionTimeout = 60;
     private volatile boolean noVerify;
+    /** If null, don't modify "gc.autoDetach" state. Otherwise, save it as a git repository setting. */
+    @Setter
     private Boolean gcAutoDetach;
+    @Setter
     private int failedAuthenticationSeconds;
+    @Setter
     private Integer maxAuthenticationAttempts;
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
+    /** The paths whose changes make no revision of a project: a commit that changes only them is technical. */
+    private IgnoredPaths ignoredPaths = IgnoredPaths.of(null);
 
     private boolean useLFS;
 
@@ -193,29 +215,6 @@ public class GitRepository implements BranchRepository, Closeable {
     private ReentrantLock remoteRepoLock = new ReentrantLock();
 
     private boolean closed;
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getBaseBranch() {
-        return baseBranch;
-    }
 
     @Override
     public List<FileData> list(String path) throws IOException {
@@ -887,22 +886,6 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public void setLocalRepositoriesFolder(String localRepositoriesFolder) {
-        this.localRepositoriesFolder = localRepositoriesFolder;
-    }
-
     public void setBranch(String branch) {
         this.branch = StringUtils.isBlank(branch) ? Constants.MASTER : branch;
         this.baseBranch = this.branch;
@@ -912,20 +895,14 @@ public class GitRepository implements BranchRepository, Closeable {
         this.tagPrefix = StringUtils.trimToEmpty(tagPrefix);
     }
 
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        this.listenerTimerPeriod = listenerTimerPeriod;
-    }
-
-    public void setConnectionTimeout(int connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
-    }
-
-    public void setFailedAuthenticationSeconds(int failedAuthenticationSeconds) {
-        this.failedAuthenticationSeconds = failedAuthenticationSeconds;
-    }
-
-    public void setMaxAuthenticationAttempts(Integer maxAuthenticationAttempts) {
-        this.maxAuthenticationAttempts = maxAuthenticationAttempts;
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A commit that changes only ignored files is a technical revision, and a full save of a folder keeps them.
+     */
+    @Override
+    public void setIgnoredPaths(String setting) {
+        this.ignoredPaths = IgnoredPaths.of(setting);
     }
 
     public void setProtectedBranches(String... patterns) {
@@ -946,13 +923,6 @@ public class GitRepository implements BranchRepository, Closeable {
     @Override
     public boolean isBranchProtected(String branch) {
         return protectedBranchFilter.accept(branch);
-    }
-
-    /**
-     * If null, don't modify "gc.autoDetach" state. Otherwise, save it as a git repository setting.
-     */
-    public void setGcAutoDetach(Boolean gcAutoDetach) {
-        this.gcAutoDetach = gcAutoDetach;
     }
 
     private static TreeWalk buildTreeWalk(Repository repository,
@@ -1270,7 +1240,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private void applyMergeCommit(MergeResult mergeResult,
                                   String mergeMessage,
                                   UserInfo mergeAuthor) throws GitAPIException {
-        if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.MERGED_NOT_COMMITTED)) {
+        if (mergeResult.getMergeStatus() == MergeResult.MergeStatus.MERGED_NOT_COMMITTED) {
             git().commit()
                     .setMessage(mergeMessage)
                     .setNoVerify(noVerify)
@@ -1803,7 +1773,7 @@ public class GitRepository implements BranchRepository, Closeable {
                 maxCount = page.getPageSize();
             }
             try (var or = repository.newObjectReader()) {
-                TreeWalk tw = createTreeWalk(or, name);
+                var tw = createTreeWalk(or, name);
 
                 var stop = false;
                 while (!stop && processed < maxCount && iterator.hasNext()) {
@@ -2073,12 +2043,18 @@ public class GitRepository implements BranchRepository, Closeable {
         return tagRef != null ? getLocalTagName(tagRef) : commitId.getName();
     }
 
-    static RevCommit findFirstCommit(Git git, ObjectId startCommit, String path) throws IOException, GitAPIException {
+    /**
+     * The latest commit, from the given one back, that changes the path: a commit that changes only ignored files of
+     * a folder does not count.
+     */
+    @Nullable RevCommit findFirstCommit(Git git,
+                                        ObjectId startCommit,
+                                        String path) throws IOException, GitAPIException {
         // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
         var repository = git.getRepository();
         try (var or = repository.newObjectReader()) {
-            TreeWalk tw = createTreeWalk(or, path);
+            var tw = createTreeWalk(or, path);
             var commits = new DescendantsFirstCommits(git.log().add(startCommit).call().iterator());
             while (commits.hasNext()) {
                 var commit = commits.next();
@@ -2207,9 +2183,15 @@ public class GitRepository implements BranchRepository, Closeable {
         return trees;
     }
 
-    private static TreeWalk createTreeWalk(ObjectReader or, String path) {
-        TreeFilter t = AndTreeFilter.create(PathFilterGroup.create(Set.of(PathFilter.create(path))),
-                TreeFilter.ANY_DIFF);
+    /**
+     * A walk over the changes of the path, the ignored files of a folder left out: a commit that changes only them
+     * changes nothing of the folder.
+     */
+    private TreeWalk createTreeWalk(ObjectReader or, String path) {
+        // The cheap comparison of the object ids comes first: the patterns are matched only against what differs.
+        var t = AndTreeFilter.create(new TreeFilter[]{PathFilterGroup.create(Set.of(PathFilter.create(path))),
+                TreeFilter.ANY_DIFF,
+                new IgnoredPathsTreeFilter(ignoredPaths)});
         var tw = new TreeWalk(or);
         tw.setFilter(t);
         tw.setRecursive(t.shouldBeRecursive());
@@ -2476,7 +2458,7 @@ public class GitRepository implements BranchRepository, Closeable {
     private static ObjectId resolveBranchTip(Repository repository, String branch) throws IOException {
         var ref = findBranchRef(repository, branch);
         if (ref == null) {
-            throw new IOException(String.format("Cannot find branch '%s'.", branch));
+            throw new IOException("Cannot find branch '%s'.".formatted(branch));
         }
         return ref.getObjectId();
     }
@@ -2816,11 +2798,6 @@ public class GitRepository implements BranchRepository, Closeable {
     }
 
     @Override
-    public String getBranch() {
-        return branch;
-    }
-
-    @Override
     public void createRepositoryBranch(String newBranch, @Nullable String startPoint) throws IOException {
         requireValidBranchName(newBranch);
         initializeGit(true);
@@ -3149,6 +3126,7 @@ public class GitRepository implements BranchRepository, Closeable {
         repo.protectedBranchFilter = protectedBranchFilter;
         repo.baseBranch = baseBranch; // Base branch is only one
         repo.setTagPrefix(tagPrefix);
+        repo.ignoredPaths = ignoredPaths;
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
         repo.git.set(git());
@@ -3211,18 +3189,28 @@ public class GitRepository implements BranchRepository, Closeable {
 
         if (found != null) {
             for (File file : found) {
-                if (file.isDirectory()) {
-                    removeAbsentFiles(baseAbsolutePath, file, toSave);
-                } else if (!toSave.contains(file)) {
-                    var relativePath = file.getAbsolutePath()
-                            .substring(baseAbsolutePath.length())
-                            .replace('\\', '/');
-                    if (relativePath.startsWith("/")) {
-                        relativePath = relativePath.substring(1);
-                    }
-                    git().rm().addFilepattern(relativePath).call();
+                var relativePath = file.getAbsolutePath()
+                        .substring(baseAbsolutePath.length())
+                        .replace('\\', '/');
+                if (relativePath.startsWith("/")) {
+                    relativePath = relativePath.substring(1);
+                }
+                // A full save keeps the ignored files: no one in OpenL Studio sees them to save them.
+                if (!ignoredPaths.matches(relativePath)) {
+                    removeAbsentFile(baseAbsolutePath, file, relativePath, toSave);
                 }
             }
+        }
+    }
+
+    private void removeAbsentFile(String baseAbsolutePath,
+                                  File file,
+                                  String relativePath,
+                                  Collection<File> toSave) throws GitAPIException {
+        if (file.isDirectory()) {
+            removeAbsentFiles(baseAbsolutePath, file, toSave);
+        } else if (!toSave.contains(file)) {
+            git().rm().addFilepattern(relativePath).call();
         }
     }
 
@@ -3283,7 +3271,7 @@ public class GitRepository implements BranchRepository, Closeable {
         if (baseVersion != null) {
             List<Ref> tags = git().tagList().call();
 
-            RevCommit commit = findFirstCommit(git(), resolveBranchId(), path);
+            var commit = findFirstCommit(git(), resolveBranchId(), path);
             if (commit != null) {
                 String lastVersion = getVersionName(git().getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);
@@ -3357,9 +3345,8 @@ public class GitRepository implements BranchRepository, Closeable {
     Git getClosableGit() throws IOException {
         if (closed) {
             return Git.open(getLocalGitRoot());
-        } else {
-            return new Git(git().getRepository());
         }
+        return new Git(git().getRepository());
     }
 
     /**
@@ -3376,9 +3363,8 @@ public class GitRepository implements BranchRepository, Closeable {
     private File getLocalGitRoot() throws IOException {
         if (localGitRoot != null) {
             return localGitRoot;
-        } else {
-            throw new IOException("Git repository is not initialized");
         }
+        throw new IOException("Git repository is not initialized");
     }
 
     private CredentialsProvider getCredentialsProvider(GitActionType actionType) {
@@ -3484,7 +3470,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class GitRevisionGetter implements RevisionGetter {
         @Override
-        public Object getRevision() {
+        public @Nullable Object getRevision() {
             try {
                 initializeGit(true);
 
@@ -3523,7 +3509,7 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
-    private class ListCommand implements WalkCommand<List<FileData>> {
+    private final class ListCommand implements WalkCommand<List<FileData>> {
 
         private final ObjectId start;
         private final RevCommit revCommit;
@@ -3583,13 +3569,12 @@ public class GitRepository implements BranchRepository, Closeable {
             if (rootWalk != null) {
                 if (rootWalk.getFilter() == TreeFilter.ALL) {
                     return collectFolderData(rootWalk, baseFolder);
-                } else {
-                    // Only a folder holds folders, and a path naming one file is walked as a tree otherwise.
-                    if (rootWalk.getTreeCount() > 0 && FileMode.TREE.equals(rootWalk.getFileMode(0))) {
-                        try (var dirWalk = new TreeWalk(repository)) {
-                            dirWalk.addTree(rootWalk.getObjectId(0));
-                            return collectFolderData(dirWalk, baseFolder);
-                        }
+                }
+                // Only a folder holds folders, and a path naming one file is walked as a tree otherwise.
+                if (rootWalk.getTreeCount() > 0 && FileMode.TREE.equals(rootWalk.getFileMode(0))) {
+                    try (var dirWalk = new TreeWalk(repository)) {
+                        dirWalk.addTree(rootWalk.getObjectId(0));
+                        return collectFolderData(dirWalk, baseFolder);
                     }
                 }
             }
@@ -3613,33 +3598,31 @@ public class GitRepository implements BranchRepository, Closeable {
 
     private class CheckCommand implements WalkCommand<FileData> {
         @Override
-        public FileData apply(Repository repository,
-                              TreeWalk rootWalk,
-                              String baseFolder) throws IOException {
+        public @Nullable FileData apply(Repository repository,
+                                        TreeWalk rootWalk,
+                                        String baseFolder) throws IOException {
             if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
                 return createFileData(rootWalk, "", resolveBranchId());
-            } else {
-                return null;
             }
+            return null;
         }
     }
 
     private class ReadCommand implements WalkCommand<FileItem> {
         @Override
-        public FileItem apply(Repository repository,
-                              TreeWalk rootWalk,
-                              String baseFolder) throws IOException {
+        public @Nullable FileItem apply(Repository repository,
+                                        TreeWalk rootWalk,
+                                        String baseFolder) throws IOException {
             if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
                 var fileData = createFileData(rootWalk, "", resolveBranchId());
                 var loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
                 return new FileItem(fileData, loader.openStream());
-            } else {
-                return null;
             }
+            return null;
         }
     }
 
-    private class ListHistoryVisitor implements HistoryVisitor<List<FileData>> {
+    private final class ListHistoryVisitor implements HistoryVisitor<List<FileData>> {
         private final Repository repository;
         private final List<FileData> history = new ArrayList<>();
         private FileData last;
@@ -3683,7 +3666,7 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
-    private class ListFilesHistoryVisitor implements HistoryVisitor<List<FileData>> {
+    private final class ListFilesHistoryVisitor implements HistoryVisitor<List<FileData>> {
         private final String version;
         private final Repository repository;
         private final List<FileData> history = new ArrayList<>();
@@ -3717,9 +3700,10 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
-    private class CheckHistoryVisitor implements HistoryVisitor<FileData> {
+    private final class CheckHistoryVisitor implements HistoryVisitor<FileData> {
         private final String version;
         private final Repository repository;
+        @Getter
         private FileData result;
 
         private CheckHistoryVisitor(String version) {
@@ -3743,16 +3727,12 @@ public class GitRepository implements BranchRepository, Closeable {
 
             return false;
         }
-
-        @Override
-        public FileData getResult() {
-            return result;
-        }
     }
 
-    private class ReadHistoryVisitor implements HistoryVisitor<FileItem> {
+    private final class ReadHistoryVisitor implements HistoryVisitor<FileItem> {
         private final String version;
         private final Repository repository;
+        @Getter
         private FileItem result;
 
         private ReadHistoryVisitor(String version) {
@@ -3778,14 +3758,9 @@ public class GitRepository implements BranchRepository, Closeable {
 
             return false;
         }
-
-        @Override
-        public FileItem getResult() {
-            return result;
-        }
     }
 
-    private static class PatternIdRevFilter extends PatternMatchRevFilter {
+    private static final class PatternIdRevFilter extends PatternMatchRevFilter {
         private PatternIdRevFilter(String pattern) {
             super(pattern, true, true, Pattern.CASE_INSENSITIVE);
         }
@@ -3804,7 +3779,7 @@ public class GitRepository implements BranchRepository, Closeable {
         }
     }
 
-    private static class SubStringIdRevFilter extends SubStringRevFilter {
+    private static final class SubStringIdRevFilter extends SubStringRevFilter {
         private SubStringIdRevFilter(String patternText) {
             super(patternText);
         }
