@@ -357,7 +357,7 @@ standard colours as Excel does.
 A change of the marks alone is neither a difference of Compare nor a conflict of a merge of branches: both compare
 the text of a cell. A merge copies a cell with its runs, so the marks of the side taken are kept.
 
-**Editing.** The cell editor offers the four marks and **Clear Mark** above an open cell holding a text, an
+**Editing.** The table toolbar offers the four marks and **Clear Mark**, active while an open cell holds a text, an
 expression or a text of several lines. A cell holding marks is written in a field that shows them, and text typed
 inside a marked piece takes its mark; one without is written in the plain field. Pasted text loses its fonts.
 

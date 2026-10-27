@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Dropdown, Popover, Tooltip } from 'antd'
-import { ClearOutlined } from '@ant-design/icons'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Dropdown, Popover } from 'antd'
 import { useTheme } from 'antd-style'
 import { useTranslation } from 'react-i18next'
-import { MARK_COLORS, markInksOf, markRange } from 'components/textMarks'
+import { markInksOf, markRange } from 'components/textMarks'
 import type { RawTextMark, RawTextMarkColor } from 'types/tables'
 import type { TableCellEditor } from '../../services/modules'
 import { CellValueEditor, type EditorKind } from './CellValueEditor'
@@ -11,6 +10,40 @@ import { MarkedTextField, selectionIn, type TextSelection } from './MarkedTextFi
 import { RANGE_PANEL, RangeEditor } from './RangeEditor'
 import { paperToken } from '../../styles/paper'
 import { useStyles } from './TableEditor.styles'
+
+/** Lays a mark over the selected piece of the text being written, or takes the marks off it with null. */
+export type Marker = (color: RawTextMarkColor | null) => void
+
+/**
+ * Where the open cell leaves its marker for the band of actions.
+ *
+ * <p>It is kept apart from the state of the table: the marker is handed over each time a cell is opened or closed,
+ * and the table drawn again for it would draw every cell it holds once more.
+ */
+export interface MarkerSlot {
+    get: () => Marker | null
+    set: (marker: Marker | null) => void
+    subscribe: (listener: () => void) => () => void
+}
+
+/** An empty slot for the marker of the open cell. */
+export const markerSlot = (): MarkerSlot => {
+    let marker: Marker | null = null
+    const listeners = new Set<() => void>()
+    return {
+        get: () => marker,
+        set: next => {
+            marker = next
+            listeners.forEach(listener => listener())
+        },
+        subscribe: listener => {
+            listeners.add(listener)
+            return () => {
+                listeners.delete(listener)
+            }
+        },
+    }
+}
 
 interface OpenCellProps {
     /** What the cell held when it was opened, which is where the writing starts from. */
@@ -35,6 +68,13 @@ interface OpenCellProps {
     onSwitching: (open: boolean) => void
     /** Whether the table is drawn on the paper of a workbook, which the field then lies on too. */
     onPaper: boolean
+    /**
+     * Told how to mark the text while the cell holds a text that can be marked, and told null once it does not.
+     *
+     * <p>The marks are offered on the band of actions over the table rather than over the cell, where they would
+     * cover the cells around it.
+     */
+    onMarker: (marker: Marker | null) => void
 }
 
 /**
@@ -45,7 +85,7 @@ interface OpenCellProps {
  * the tab would answer a key at a time. Here a keystroke redraws the one cell it is typed into.
  */
 export const OpenCell: React.FC<OpenCellProps> = ({
-    from, marks: fromMarks, markable, several, own, asked, address, onCommit, onCancel, onSwitching, onPaper,
+    from, marks: fromMarks, markable, several, own, asked, address, onCommit, onCancel, onSwitching, onPaper, onMarker,
 }) => {
     const { t } = useTranslation('repository')
     const { styles } = useStyles(onPaper)
@@ -118,6 +158,20 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     useEffect(() => {
         marking.current = false
     }, [marks])
+
+    // The table is handed one marker for as long as the text can be marked, and it reaches the text as it is now.
+    // A marker handed afresh at every keystroke would draw the whole table again at every keystroke.
+    const marker = useRef(mark)
+    useLayoutEffect(() => {
+        marker.current = mark
+    })
+    useEffect(() => {
+        if (!marked) {
+            return undefined
+        }
+        onMarker(color => marker.current(color))
+        return () => onMarker(null)
+    }, [marked, onMarker])
 
     // A field the reader writes in closes the cell by losing the focus. The bounds of a range are entered in a
     // panel of its own, and going to that panel takes the focus out of the field — so what closes a range cell
@@ -215,45 +269,6 @@ export const OpenCell: React.FC<OpenCellProps> = ({
             </div>
         </Dropdown>
     )
-
-    // The marks are offered above the cell, where they cover no other cell of its row. Pressing one keeps the
-    // focus in the field, so the selection it marks stays where the reader put it.
-    const bar = (
-        <div aria-label={t('browser.module.marks_bar')} className={styles.marksBar} role="toolbar">
-            {MARK_COLORS.map(color => (
-                <Tooltip key={color} title={t(`browser.module.mark_${color}`)}>
-                    <Button
-                        aria-label={t(`browser.module.mark_${color}`)}
-                        data-testid={`table-cell-mark-${color}`}
-                        icon={<span style={{ color: inks[color], fontWeight: 700 }}>A</span>}
-                        onClick={() => mark(color)}
-                        onMouseDown={event => event.preventDefault()}
-                        size="small"
-                        type="text"
-                    />
-                </Tooltip>
-            ))}
-            <Tooltip title={t('browser.module.mark_clear')}>
-                <Button
-                    aria-label={t('browser.module.mark_clear')}
-                    data-testid="table-cell-mark-clear"
-                    icon={<ClearOutlined />}
-                    onClick={() => mark(null)}
-                    onMouseDown={event => event.preventDefault()}
-                    size="small"
-                    type="text"
-                />
-            </Tooltip>
-        </div>
-    )
-
-    if (marked) {
-        return (
-            <Popover open arrow={false} content={bar} placement="topLeft" trigger={[]}>
-                {inCell}
-            </Popover>
-        )
-    }
 
     // The bounds of a range are entered under the cell rather than in the cell, the way the old editor
     // dropped its panel there — and the cell keeps the way out to writing it as text.

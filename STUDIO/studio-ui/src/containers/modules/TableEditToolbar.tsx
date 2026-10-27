@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useMemo, useSyncExternalStore } from 'react'
 import {
     AlignCenterOutlined,
     AlignLeftOutlined,
     AlignRightOutlined,
     BgColorsOutlined,
     BoldOutlined,
+    ClearOutlined,
     CloseOutlined,
     DeleteColumnOutlined,
     DeleteRowOutlined,
@@ -20,10 +21,13 @@ import {
     UndoOutlined,
 } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
+import { useTheme } from 'antd-style'
 import { useTranslation } from 'react-i18next'
+import { MARK_COLORS, markInksOf } from 'components/textMarks'
 import type { RawCellColor, RawCellStyleInput, RawTableCell } from 'types/tables'
 import type { CellAt } from './tableEdits'
 import { CellColourPicker } from './CellColourPicker'
+import type { MarkerSlot } from './OpenCell'
 import { useStyles } from './TableEditToolbar.styles'
 
 interface TableEditToolbarProps {
@@ -50,6 +54,10 @@ interface TableEditToolbarProps {
      * which read their structure from it.
      */
     indenting: boolean
+    /** Whether pieces of a cell text can be marked: in a table of an `.xlsx` workbook, not of an `.xls` one. */
+    marking: boolean
+    /** Where the open cell leaves how to mark the selected piece of its text; empty while it holds none to mark. */
+    markers: MarkerSlot
     onUndo: () => void
     onRedo: () => void
     onSave: () => void
@@ -75,7 +83,8 @@ const MAX_INDENT = 15
 
 /**
  * The band of editing actions, the one the legacy editor had: save and take back, rows and columns, alignment,
- * font, colours and indent — in one strip, in that order, with a rule between each group.
+ * font, colours and indent — in one strip, in that order, with a rule between each group. The marks on a piece of a
+ * cell text close it.
  *
  * <p>Every action here changes the table on screen alone. Nothing reaches the server until the reader saves,
  * and then all of it goes at once.
@@ -83,6 +92,9 @@ const MAX_INDENT = 15
  * <p>The actions on the look of a cell are offered only where the reader's formatting is kept and seen; elsewhere
  * the save would write the OpenL table style over it, or the screen would not show it. The indent stays for the tables
  * whose structure it is.
+ *
+ * <p>The marks act on the text being written in the open cell, on the piece of it the reader selected. Pressing one
+ * keeps the focus in the cell, so that piece stays selected.
  */
 export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     picked,
@@ -105,9 +117,15 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     whole,
     formatting,
     indenting,
+    marking,
+    markers,
 }) => {
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
+    const token = useTheme()
+    const inks = useMemo(() => markInksOf(token, [token.colorBgContainer]), [token])
+    // Read here rather than handed down, so the table is not drawn again each time a cell is opened or closed.
+    const onMark = useSyncExternalStore(markers.subscribe, markers.get)
 
     const row = picked?.row ?? -1
     const style = cell?.style
@@ -116,16 +134,19 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
         key: string,
         icon: React.ReactNode,
         onClick: () => void,
-        options: { disabled?: boolean, on?: boolean, why?: string | null } = {}
+        options: { disabled?: boolean, on?: boolean, why?: string | null, keepFocus?: boolean } = {}
     ) => (
         // A button that is off says why it is off, so the reader is not left guessing at a grey icon.
         <Tooltip key={key} title={options.disabled && options.why ? options.why : t(`browser.module.edit_${key}`)}>
             <Button
+                aria-label={t(`browser.module.edit_${key}`)}
                 className={cx(styles.button, options.on && styles.on)}
                 data-testid={`table-edit-${key}`}
                 disabled={options.disabled ?? picked === null}
                 icon={icon}
                 onClick={onClick}
+                // An action on the text being written leaves the focus, and the selection, in the open cell.
+                onMouseDown={options.keepFocus ? event => event.preventDefault() : undefined}
                 size="small"
                 type="text"
             />
@@ -146,6 +167,9 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
     )
 
     const rule = <span className={styles.rule} />
+
+    /** How the marks are offered: only while a cell holding a text is open. */
+    const marked = { disabled: onMark === null, why: t('browser.module.edit_mark_open_cell'), keepFocus: true }
 
     /**
      * Why an action is off, for the one the table's header stands in the way of.
@@ -212,6 +236,15 @@ export const TableEditToolbar: React.FC<TableEditToolbarProps> = ({
                     {action('indent', <MenuFoldOutlined />,
                         () => onStyle({ indent: Math.min(MAX_INDENT, (style?.indent ?? 0) + INDENT_STEP) }),
                         { disabled: picked === null || (style?.indent ?? 0) >= MAX_INDENT })}
+                </>
+            )}
+            {marking && (
+                <>
+                    {rule}
+                    {MARK_COLORS.map(color => action(`mark_${color}`,
+                        <span style={{ color: onMark === null ? undefined : inks[color], fontWeight: 700 }}>A</span>,
+                        () => onMark?.(color), marked))}
+                    {action('mark_clear', <ClearOutlined />, () => onMark?.(null), marked)}
                 </>
             )}
             <span className={styles.pending} />

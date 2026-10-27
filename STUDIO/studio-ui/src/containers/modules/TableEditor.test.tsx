@@ -1781,7 +1781,8 @@ describe('TableEditor marks', () => {
         await userEvent.dblClick(screen.getByText('Good Morning'))
         const input = screen.getByTestId<HTMLInputElement>('table-cell-input')
         input.setSelectionRange(5, 12)
-        fireEvent.click(screen.getByTestId('table-cell-mark-error'))
+        // The marks are on the band of actions over the table, and pressing one leaves the cell open.
+        await userEvent.click(screen.getByTestId('table-edit-mark_error'))
 
         const field = await screen.findByTestId('table-cell-marked-input')
         expect(field.querySelector('[data-mark="error"]')).toHaveTextContent('Morning')
@@ -1801,7 +1802,7 @@ describe('TableEditor marks', () => {
         const field = screen.getByTestId('table-cell-marked-input')
         expect(field.querySelector('[data-mark="error"]')).toHaveTextContent('Morning')
         selectIn(field, { from: 0, to: 12 })
-        fireEvent.click(screen.getByTestId('table-cell-mark-clear'))
+        fireEvent.click(screen.getByTestId('table-edit-mark_clear'))
 
         const input = await screen.findByTestId('table-cell-input')
         fireEvent.keyDown(input, { key: 'Enter' })
@@ -1831,7 +1832,7 @@ describe('TableEditor marks', () => {
         await userEvent.dblClick(screen.getByText('Good Morning'))
 
         expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
-        expect(screen.queryByTestId('table-cell-mark-error')).not.toBeInTheDocument()
+        expect(screen.queryByTestId('table-edit-mark_error')).not.toBeInTheDocument()
     })
 
     it('offers no marks for the header of the table', async () => {
@@ -1841,6 +1842,21 @@ describe('TableEditor marks', () => {
         await userEvent.dblClick(screen.getByText('Rules String Greeting(Integer hour)'))
 
         expect(screen.getByTestId('table-cell-input')).toBeInTheDocument()
-        expect(screen.queryByTestId('table-cell-mark-error')).not.toBeInTheDocument()
+        expect(screen.getByTestId('table-edit-mark_error')).toBeDisabled()
+    })
+
+    it('offers the marks while a cell holding a text is open, and takes them back once it closes', async () => {
+        draw()
+        await waitFor(() => expect(getTableEditors).toHaveBeenCalled())
+
+        await userEvent.click(screen.getByText('Good Morning'))
+        expect(screen.getByTestId('table-edit-mark_error')).toBeDisabled()
+
+        await userEvent.dblClick(screen.getByText('Good Morning'))
+        expect(screen.getByTestId('table-edit-mark_error')).toBeEnabled()
+        expect(screen.getByTestId('table-edit-mark_clear')).toBeEnabled()
+
+        fireEvent.keyDown(screen.getByTestId('table-cell-input'), { key: 'Escape' })
+        await waitFor(() => expect(screen.getByTestId('table-edit-mark_error')).toBeDisabled())
     })
 })

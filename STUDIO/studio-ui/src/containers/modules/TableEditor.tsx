@@ -15,7 +15,7 @@ import { marksOf, sameMarks } from '../../components/textMarks'
 import type { RawCellStyleInput, RawTableCell, RawTextMark, TableLayout } from 'types/tables'
 import type { EditorKind } from './CellValueEditor'
 import { withoutFirstRows } from './hiddenRows'
-import { OpenCell } from './OpenCell'
+import { markerSlot, OpenCell } from './OpenCell'
 import { TableEditToolbar } from './TableEditToolbar'
 import { useStyles } from './TableEditor.styles'
 import {
@@ -303,6 +303,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
     // Picking another way of writing the cell takes the pointer out of the field, which is not the reader
     // leaving the cell — without this the cell would close on the way to the menu and never switch at all.
     const switching = useRef(false)
+    // How the open cell marks its text, which the band of actions offers; empty while it holds no text to mark.
+    const [markers] = useState(markerSlot)
     // The cell already closed, so a second closer of the same cell writes nothing more; see closeCell.
     const closedCell = useRef<CellAt | null>(null)
     // Whether cells are written and unsaved, where a callback can read it without being renewed on every one
@@ -725,6 +727,7 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                         marks={open.marks}
                         onCancel={() => closeCell(false)}
                         onCommit={(value, marks) => closeCell(true, value, marks)}
+                        onMarker={markers.set}
                         onPaper={paper}
                         onSwitching={opened => { switching.current = opened }}
                         own={ownKind(at, asked)}
@@ -804,6 +807,8 @@ export const TableEditor: React.FC<TableEditorProps> = ({
                     dirty={dirty}
                     formatting={formatting}
                     indenting={indenting}
+                    markers={markers}
+                    marking={canMark}
                     onCancel={stopEditing}
                     onInsertColumn={() => step({ kind: 'insertColumn', at: at.column })}
                     onInsertRow={() => step({ kind: 'insertRow', at: at.row + rowsOfChosen })}

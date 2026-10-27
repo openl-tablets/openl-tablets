@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { markerSlot } from './OpenCell'
 import { TableEditToolbar } from './TableEditToolbar'
 
 vi.mock('react-i18next', () => {
@@ -40,6 +41,8 @@ const draw = (over: Partial<Parameters<typeof TableEditToolbar>[0]> = {}) => {
             blocked={null}
             canRedo={false}
             cell={{ value: 'Good Morning' }}
+            markers={markerSlot()}
+            marking={false}
             picked={{ row: 1, column: 1 }}
             saving={false}
             {...acted}
@@ -193,5 +196,37 @@ describe('TableEditToolbar', () => {
 
         expect(screen.getByTestId('table-edit-save')).toBeDisabled()
         expect(screen.getByTestId('table-edit-undo')).toBeDisabled()
+    })
+
+    it('offers the marks in a workbook that holds them, with nothing to mark until a cell holding a text is open', () => {
+        draw({ marking: true })
+
+        for (const key of ['error', 'warning', 'success', 'info', 'clear']) {
+            expect(screen.getByTestId(`table-edit-mark_${key}`)).toBeDisabled()
+        }
+    })
+
+    it('offers no marks in a workbook that cannot hold them', () => {
+        const markers = markerSlot()
+        markers.set(vi.fn())
+        draw({ marking: false, markers })
+
+        expect(screen.queryByTestId('table-edit-mark_error')).not.toBeInTheDocument()
+    })
+
+    it('marks the text of the open cell and keeps the focus in the cell', async () => {
+        const onMark = vi.fn()
+        const markers = markerSlot()
+        draw({ marking: true, markers })
+        // The open cell hands its marker over after the band of actions is drawn, and the marks come on then.
+        act(() => markers.set(onMark))
+
+        const warning = screen.getByTestId('table-edit-mark_warning')
+        // A press that took the focus would close the cell and lose the piece of the text the reader selected.
+        expect(fireEvent.mouseDown(warning)).toBe(false)
+        await userEvent.click(warning)
+        await userEvent.click(screen.getByTestId('table-edit-mark_clear'))
+
+        expect(onMark.mock.calls).toEqual([['warning'], [null]])
     })
 })
