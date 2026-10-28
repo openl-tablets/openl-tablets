@@ -32,6 +32,9 @@ import java.math.BigInteger;
  *   <li>Integer divide-by-zero (byte, short, int, long, BigInteger, BigDecimal) throws
  *       {@link ArithmeticException}.</li>
  *   <li>Floating-point divide-by-zero (float, double) returns {@code NaN}, following IEEE 754.</li>
+ *   <li>Double operands count as the decimals they show, a computed number of 16 or 17 digits as its double
+ *       ({@link DecimalArithmetic}):
+ *       {@code remainder(1.1, 0.1) == 0.0}, while Java's {@code 1.1 % 0.1} is {@code 2.7755575615628914E-17}.</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
  *
@@ -83,7 +86,7 @@ public final class Remainder {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return dividend % divisor;
+        return DecimalArithmetic.remainder(dividend, divisor);
     }
 
     public static BigInteger remainder(BigInteger dividend, BigInteger divisor) {

@@ -51,7 +51,7 @@ class RoundExpectedResultTest {
             "MyM7Test2");
 
     private final Map<String, Collection<Integer>> partialSuccessTests = Map.of(
-            "MyM4_2Test", List.of(1),
+            "MyM4_2Test", List.of(0, 1, 2),
             "MyM7_2Test", Arrays.asList(1, 3));
 
     @Test

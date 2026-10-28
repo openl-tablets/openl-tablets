@@ -94,6 +94,13 @@ The two pairs give the same result when $a$ and $b$ have the same sign or when $
 
 **Zero divisor ($b = 0$):** `mod(a, 0)` returns the dividend `a` so rules do not have to guard against zero. The other three functions (`quotient`, `floorDiv`, `remainder`) are undefined for $b = 0$ — they raise an arithmetic error for integer types or produce the usual IEEE 754 special values (`±Infinity`, `NaN`) for `Float`/`Double` types.
 
+**Decimal fractions:** `Double` values are divided with the decimals the numbers show, so the identities hold for them
+too: `quotient(0.3, 0.1)` is `3` and `remainder(0.3, 0.1)` is `0`, while dividing the binary values gives
+`2.9999999999999996`. A dividend within a rounding of a multiple of the divisor counts as that multiple: its
+`remainder` and `mod` are `0`, and `quotient` and `floorDiv` count the multiple. A dividend of the other sign that is
+smaller than a rounding of the divisor leaves a `mod` that rounds to the divisor itself: `mod(-1e-20, 1)` is `1`, the
+`Double` nearest to the exact `0.99999999999999999999`, and `floorDiv(-1e-20, 1)` is `-1`.
+
 **Null handling:** if any argument is `null`, every function returns `null`.
 
 **Non-finite floating-point operands:** a `NaN` input propagates to `NaN`; an infinite input produces `±Infinity` or `NaN` as the rounding rule dictates.

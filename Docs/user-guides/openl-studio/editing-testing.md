@@ -282,8 +282,8 @@ server no longer has a Test or Run result, the window says **No results to show*
 **No measurements**. If the browser blocks the window, the dialog stays open and explains how to allow it.
 
 A fractional number is rounded when a decimal with at least two fewer digits lies within two floating-point steps of
-it, as the saved workbook does: a rule that computes `1.73 * 12` returns `20.759999999999998`, and the window shows
-`20.76`. The test compares the value the rule returned, not the one shown. A comparison that failed is shown exactly
+it, as the saved workbook does: a rule that computes `1.1 ** 3` returns `1.3310000000000004`, and the window shows
+`1.331`. The test compares the value the rule returned, not the one shown. A comparison that failed is shown exactly
 when its actual and expected numbers would read the same once rounded, and so is a failed comparison of a value with
 inner structure, whose fields are read later. Without a precision a test accepts a difference of one floating-point
 step, so a value two steps away fails; see
@@ -357,7 +357,7 @@ A rule table can be run on its own, without a test table for it.
     *Result of running a table*
 
     A fractional number of the input or the result, inner fields included, is rounded the way the test results
-    window rounds it: a table that computes `1.73 * 12` shows `20.76`.
+    window rounds it: a table that computes `1.1 ** 3` shows `1.331`.
 
     A table that returns a spreadsheet shows it as the table its author wrote: a row per step, a column per
     spreadsheet column, and the calculated value in every cell, unrounded.

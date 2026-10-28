@@ -48,6 +48,18 @@ from Maven.
   rule whose condition cell is empty. At a negative bound that is a power of two, such as `-1` or `-4`, the number
   next to the bound fell on the wrong side.
 
+* **Arithmetic on `Double` values computes with the decimals the numbers show.** The operators `+`, `-`, `*`, `/`,
+  `%`, `++`, `--` and their assignments, and the functions `remainder`, `quotient`, `floorDiv` and `mod`, round the
+  exact result of the written numbers once to the nearest `Double`: `0.1 + 0.2` is `0.3`, `1.15 * 100` is `115` and
+  `1.1 % 0.1` is `0`. Before, they computed in binary and gave `0.30000000000000004`, `114.99999999999999` and
+  `2.7755575615628914E-17`. A test that expects such a binary result, or compares it with `====`, needs the decimal
+  one. A number of 16 or 17 digits with a fraction is a computed one, such as the quotient `1 / 3`: it counts as its
+  `Double`, and a result of it within the rounding it carries of a shorter decimal is that decimal. So `1 / 3 * 3` is
+  `1.0` and `9 / 35 * 7` is `1.8`, where binary gave `1.0` and `1.7999999999999998`. `quotient` and `floorDiv` agree
+  with `remainder` and `mod`: a dividend within a rounding of a multiple of the divisor counts as that multiple, and
+  `mod` of a multiple is `0.0`, not `-0.0`. `Float` values and the functions `sum`, `product` and `avg` still compute in
+  binary.
+
 * **A test compares a `BigDecimal` result with all its digits.** Without a precision, the expected value must equal
   the result, and with a precision `(n)` their difference may be up to `1E-n`, computed without rounding. Before, both
   were rounded to a `Double`, so a test passed when they differed after about the 16th digit: `0.6666666666666667`

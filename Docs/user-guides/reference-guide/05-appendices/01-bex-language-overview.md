@@ -110,6 +110,15 @@ The full list of OpenL Tablets operators in order of priority is as follows:
 | ! or not                                      | Logical NOT operator reverses the logical state of its operand. <br/>If a condition is true, then Logical NOT operator will make it false.                                                                                                                                                                                                                                                                                                                                                |
 | (Datatype) x                                  | Cast operator converts the operand value `x` to the specified `Datatype` type.                                                                                                                                                                                                                                                                                                                                                                                                       |
 
+The operators `+`, `-`, `*`, `/`, `%`, `++`, `--` and their assignments compute `Double` and `double` values with the
+decimals the numbers show, as a calculator does: `0.1 + 0.2` is `0.3`, `1.15 * 100` is `115` and `1.1 % 0.1` is `0`.
+The exact result is rounded once to the nearest `Double`, so `1 / 3` is `0.3333333333333333`. A number of 16 or 17
+digits with a fraction is a computed one, such as that quotient: it counts as its `Double`, which is nearer to the
+result it was rounded from. A result of a computed number within the rounding it carries of a shorter decimal is that
+decimal, so `1 / 3 * 3` is `1` and `9 / 35 * 7` is `1.8`. `NaN`, infinities and division by zero follow the IEEE 754
+standard: `1.0 / 0` is `Infinity`. `Float` values compute in binary, as in Java, and so does `**`, as `pow` does:
+`1.1 ** 2` is `1.2100000000000002`, while `1.1 * 1.1` is `1.21`.
+
 When comparing elements of different types, such as an array and an element of the array, or different datatypes, or string and integer, a warning message is displayed. An example is as follows:
 
 `Warning: Compared elements have different types ('java.lang.String[]', 'java.lang.String'). Comparing these types always returns true. banks.bankRatings[select all having rating == "A"]`

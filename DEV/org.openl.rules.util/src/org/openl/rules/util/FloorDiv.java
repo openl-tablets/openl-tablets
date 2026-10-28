@@ -12,7 +12,7 @@ import java.math.RoundingMode;
  * <p>
  * Matches {@link Math#floorDiv(int, int)} / {@link Math#floorDiv(long, long)} for integer types.
  * <p>
- * Formula for floating-point:
+ * Formula for {@link Float}:
  * <pre>{@code
  *   floor(dividend / divisor)
  * }</pre>
@@ -23,6 +23,13 @@ import java.math.RoundingMode;
  *       {@link Integer}, {@link java.math.BigDecimal} → {@link java.math.BigDecimal}, …).</li>
  *   <li>Integer / BigInteger / BigDecimal divide-by-zero throws {@link ArithmeticException}.</li>
  *   <li>Float / double divide-by-zero follows IEEE 754: returns {@code ±Infinity} or {@code NaN}.</li>
+ *   <li>Double operands count as the decimals they show, a computed number of 16 or 17 digits as its double
+ *       ({@link DecimalArithmetic}):
+ *       {@code floorDiv(0.3, 0.1) == 3.0}, while Java's {@code 0.3 / 0.1} is {@code 2.9999999999999996}. The result
+ *       is the whole number of divisors that {@link Modular#mod(Double, Double)} leaves the rest of, so
+ *       {@code dividend == divisor * floorDiv + mod} for the decimals: a dividend within a rounding of a multiple of
+ *       the divisor counts as that multiple. A dividend of the other sign, smaller than a rounding of the divisor,
+ *       still gives {@code -1}: {@code floorDiv(-1e-20, 1.0) == -1.0}, and its mod rounds to the divisor.</li>
  *   <li>{@code NaN} and {@code ±Infinity} inputs propagate naturally through {@link Math#floor(double)}.</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
@@ -72,7 +79,7 @@ public final class FloorDiv {
         if (dividend == null || divisor == null) {
             return null;
         }
-        return Math.floor(dividend / divisor);
+        return DecimalArithmetic.wholeQuotient(dividend, divisor, true);
     }
 
     public static BigInteger floorDiv(BigInteger dividend, BigInteger divisor) {
