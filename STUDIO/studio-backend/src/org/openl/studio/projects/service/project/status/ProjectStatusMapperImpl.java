@@ -82,8 +82,7 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
 
     // Read-only check: do not initiate any compilation. A status read must only
     // report whatever is already registered in the client-scoped compilation registry.
-    @Nullable
-    private ProjectModel resolveModel(RulesProject project) {
+    private @Nullable ProjectModel resolveModel(RulesProject project) {
         var projectId = project.getProjectId();
         return compilationJobRegistry.find(projectId, project.getBranch())
                 .map(CompilationJob::project)
@@ -229,8 +228,8 @@ public class ProjectStatusMapperImpl implements ProjectStatusMapper {
         if (dependencyManager == null || currentModule == null) {
             return List.of();
         }
-        var loaders = dependencyManager.findAllProjectDependencyLoaders(currentModule.getProject());
-        if (loaders == null || loaders.isEmpty()) {
+        var loaders = dependencyManager.findLoadersCompiledWith(currentModule.getProject());
+        if (loaders.isEmpty()) {
             return List.of();
         }
         var projectCompilationCompleted = projectModel.isProjectCompilationCompleted();

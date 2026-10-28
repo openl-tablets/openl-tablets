@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -145,8 +146,8 @@ class ProjectStatusMapperImplTest {
         var openedLoader = loader(opened, null);
         var otherLoader = loader(other, mock(CompiledDependency.class));
         var dependencyManager = mock(WebStudioWorkspaceRelatedDependencyManager.class);
-        when(dependencyManager.findAllProjectDependencyLoaders(descriptor))
-                .thenReturn(List.of(openedLoader, otherLoader));
+        when(dependencyManager.findLoadersCompiledWith(descriptor))
+                .thenReturn(new LinkedHashSet<>(List.of(openedLoader, otherLoader)));
         when(model.getWebStudioWorkspaceDependencyManager()).thenReturn(dependencyManager);
         when(model.getModuleInfo()).thenReturn(opened);
         when(model.isProjectCompilationCompleted()).thenReturn(false);

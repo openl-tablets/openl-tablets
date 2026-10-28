@@ -535,6 +535,9 @@ public class ProjectModel {
      * last, and a reader asking how it is going must not be made to wait for it to end. What the answer reads
      * are the results already published by the compilation, so a status read a moment before a module finishes
      * simply does not count that module — the next read does.
+     *
+     * <p>Only the modules the compilation takes in are counted. A dependency project that is not included
+     * automatically counts with the modules the project uses, which are found as the modules using them compile.
      */
     public ProjectCompilationStatus getCompilationStatus() {
         var module = this.moduleInfo;
@@ -549,7 +552,7 @@ public class ProjectModel {
         if (dependencyManager == null) {
             return status.build();
         }
-        var loaders = dependencyManager.findAllProjectDependencyLoaders(module.getProject());
+        var loaders = dependencyManager.findLoadersCompiledWith(module.getProject());
         if (isProjectCompilationCompleted()) {
             return compiledThroughStatus(status, loaders);
         }
@@ -574,18 +577,15 @@ public class ProjectModel {
         return status.setModulesCompiled(1).addModulesCount(1).build();
     }
 
-    /** A project compiled through counts its modules from the project loaders rather than one by one. */
+    /** A project compiled through has every module it took in compiled, and its messages are the project's. */
     private ProjectCompilationStatus compiledThroughStatus(ProjectCompilationStatus.Builder status,
                                                            Collection<IDependencyLoader> loaders) {
         var compiled = this.compiledOpenClass.get();
         if (compiled != null) {
             status.addMessages(compiled.getAllMessages());
         }
-        loaders.stream().filter(IDependencyLoader::isProjectLoader).forEach(loader -> {
-            var modules = loader.getProject().getModules().size();
-            status.addModulesCount(modules).addModulesCompiled(modules);
-        });
-        return status.build();
+        var modules = (int) loaders.stream().filter(loader -> !loader.isProjectLoader()).count();
+        return status.addModulesCount(modules).addModulesCompiled(modules).build();
     }
 
     /** What one loader adds while the project is still compiling: a module of it, or another project's messages. */
@@ -878,17 +878,37 @@ public class ProjectModel {
         return TableSyntaxNode.EMPTY_ARRAY;
     }
 
+    /**
+     * The tables of every module the compilation of the project takes in, compiled so far.
+     *
+     * <p>A dependency project that is not included automatically brings only the tables of the modules the project
+     * uses, even when other modules of it were compiled for another project.
+     */
     public synchronized Set<TableSyntaxNode> getAllTableSyntaxNodes() {
         if (webStudioWorkspaceDependencyManager == null) {
             return new LinkedHashSet<>();
         }
-        var modules = webStudioWorkspaceDependencyManager
-                .findAllProjectDependencyLoaders(getProjectDescriptor())
-                .stream()
+        var loaders = webStudioWorkspaceDependencyManager.findLoadersCompiledWith(getProjectDescriptor());
+        var wholeProjects = loaders.stream()
                 .filter(IDependencyLoader::isProjectLoader)
-                .map(e -> getModuleSyntaxNodesByProject(e.getProject().getName()))
-                .flatMap(Collection::stream);
+                .map(loader -> loader.getProject().getName())
+                .collect(Collectors.toSet());
+        var usedModules = loaders.stream()
+                .filter(loader -> !loader.isProjectLoader() && !wholeProjects.contains(loader.getProject().getName()))
+                .map(ProjectModel::moduleNodeOf)
+                .filter(Objects::nonNull);
+        var modules = Stream.concat(
+                wholeProjects.stream().flatMap(project -> getModuleSyntaxNodesByProject(project).stream()),
+                usedModules);
         return tablesOf(modules);
+    }
+
+    private static @Nullable XlsModuleSyntaxNode moduleNodeOf(IDependencyLoader loader) {
+        var compiled = loader.getRefToCompiledDependency();
+        return compiled != null
+                && compiled.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo() instanceof XlsMetaInfo metaInfo
+                ? metaInfo.getXlsModuleNode()
+                : null;
     }
 
     /**

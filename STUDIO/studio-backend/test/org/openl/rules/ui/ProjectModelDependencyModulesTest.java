@@ -15,11 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
@@ -36,10 +38,11 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 
 /**
- * What the session compiles in the background when it opens a module of another project while the project opened
- * before is still compiling.
+ * Which modules of a dependency project the session compiles and counts: all of them for a project included
+ * automatically, only those used for one that is not — also when a module of another project is opened while the
+ * project opened before is still compiling.
  */
-class ProjectModelBackgroundCompilationTest {
+class ProjectModelDependencyModulesTest {
 
     private static final int RATES_MODULES = 20;
 
@@ -48,15 +51,17 @@ class ProjectModelBackgroundCompilationTest {
 
     private ProjectDescriptor rates;
     private ProjectDescriptor policies;
+    private ProjectDescriptor quotes;
     private ProjectModel model;
 
     @BeforeEach
     void writeProjects() throws Exception {
         rates = ProjectResolver.getInstance().resolve(writeRates());
-        policies = ProjectResolver.getInstance().resolve(writePolicies());
+        policies = ProjectResolver.getInstance().resolve(writeUsingRates("Policies", "Policy", false));
+        quotes = ProjectResolver.getInstance().resolve(writeUsingRates("Quotes", "Quote", true));
         var studio = mock(WebStudio.class);
         when(studio.getProjectResolver()).thenReturn(ProjectResolver.getInstance());
-        when(studio.getAllProjects()).thenReturn(List.of(rates, policies));
+        when(studio.getAllProjects()).thenReturn(List.of(rates, policies, quotes));
         model = new ProjectModel(studio);
     }
 
@@ -91,36 +96,13 @@ class ProjectModelBackgroundCompilationTest {
                 .filter(loader -> loader.getRefToCompiledDependency() != null)
                 .count();
         assertTrue(compiledRates < RATES_MODULES, "only some modules of the first project are compiled");
-    }
-
-    /** Opening the first project again compiles it whole on the manager its compilation was stopped on. */
-    @Test
-    void compilesTheStoppedProjectWhenItIsOpenedAgain() throws Exception {
-        model.setModuleInfo(module(rates, "Rate01"));
-        model.setModuleInfo(module(policies, "Policy"));
-        awaitCompiled(model);
-
-        model.setModuleInfo(module(rates, "Rate02"));
-        awaitCompiled(model);
-
-        assertTrue(model.isProjectCompilationCompleted(), "the first project is compiled");
-        assertNotNull(loaderOf(rates).getRefToCompiledDependency(), "the first project is compiled as a whole");
-        assertFalse(model.getCompiledOpenClass().hasErrors(),
-                String.valueOf(model.getCompiledOpenClass().getAllMessages()));
-    }
-
-    /** Opening another module of a project that is still compiling ends with the project compiled. */
-    @Test
-    void compilesTheProjectWhenAnotherOfItsModulesIsOpenedWhileItCompiles() throws Exception {
-        model.setModuleInfo(module(rates, "Rate01"));
-        var replaced = model.getCurrentCompilation();
-
-        model.setModuleInfo(module(rates, "Rate02"));
-        awaitCompiled(model);
-
-        assertTrue(replaced.future().isDone(), "the compilation replaced ends");
-        assertTrue(model.isProjectCompilationCompleted(), "the project is compiled");
-        assertNotNull(loaderOf(rates).getRefToCompiledDependency(), "the project is compiled as a whole");
+        assertCounted(2, "the module opened and the one module of the first project it uses");
+        var tables = model.getAllTableSyntaxNodes()
+                .stream()
+                .map(table -> table.getHeaderLineValue().getValue())
+                .collect(Collectors.toSet());
+        assertEquals(Set.of("Environment", "Method Double premium()", "Method Double rate()"), tables,
+                "the tables of the modules compiled for the first project alone are left out");
     }
 
     /**
@@ -191,6 +173,74 @@ class ProjectModelBackgroundCompilationTest {
         return !loader.isProjectLoader() && loader.getModule().getName().equals(name);
     }
 
+    /** A dependency project that is not included automatically counts with the one module the project uses. */
+    @Test
+    void countsOnlyTheModuleUsedOfAProjectNotIncludedAutomatically() throws Exception {
+        model.setModuleInfo(module(policies, "Policy"));
+        awaitCompiled(model);
+
+        assertTrue(model.isProjectCompilationCompleted(), "the project is compiled");
+        assertCounted(2, "the module opened and the one module of Rates it uses");
+        assertEquals(List.of("Policy", "All"), modulesCompiledWithTheProject());
+    }
+
+    /** A dependency project included automatically counts with all its modules. */
+    @Test
+    void countsEveryModuleOfAProjectIncludedAutomatically() throws Exception {
+        model.setModuleInfo(module(quotes, "Quote"));
+        awaitCompiled(model);
+
+        assertTrue(model.isProjectCompilationCompleted(), "the project is compiled");
+        assertFalse(model.getCompiledOpenClass().hasErrors(),
+                String.valueOf(model.getCompiledOpenClass().getAllMessages()));
+        assertCounted(1 + RATES_MODULES, "the module opened and every module of Rates");
+    }
+
+    private void assertCounted(int modules, String message) {
+        var status = model.getCompilationStatus();
+        assertEquals(modules, status.getModulesCount(), message);
+        assertEquals(modules, status.getModulesCompiled(), message);
+    }
+
+    private List<String> modulesCompiledWithTheProject() {
+        return model.getWebStudioWorkspaceDependencyManager()
+                .findLoadersCompiledWith(model.getModuleInfo().getProject())
+                .stream()
+                .filter(loader -> !loader.isProjectLoader())
+                .map(loader -> loader.getModule().getName())
+                .toList();
+    }
+
+    /** Opening the first project again compiles it whole on the manager its compilation was stopped on. */
+    @Test
+    void compilesTheStoppedProjectWhenItIsOpenedAgain() throws Exception {
+        model.setModuleInfo(module(rates, "Rate01"));
+        model.setModuleInfo(module(policies, "Policy"));
+        awaitCompiled(model);
+
+        model.setModuleInfo(module(rates, "Rate02"));
+        awaitCompiled(model);
+
+        assertTrue(model.isProjectCompilationCompleted(), "the first project is compiled");
+        assertNotNull(loaderOf(rates).getRefToCompiledDependency(), "the first project is compiled as a whole");
+        assertFalse(model.getCompiledOpenClass().hasErrors(),
+                String.valueOf(model.getCompiledOpenClass().getAllMessages()));
+    }
+
+    /** Opening another module of a project that is still compiling ends with the project compiled. */
+    @Test
+    void compilesTheProjectWhenAnotherOfItsModulesIsOpenedWhileItCompiles() throws Exception {
+        model.setModuleInfo(module(rates, "Rate01"));
+        var replaced = model.getCurrentCompilation();
+
+        model.setModuleInfo(module(rates, "Rate02"));
+        awaitCompiled(model);
+
+        assertTrue(replaced.future().isDone(), "the compilation replaced ends");
+        assertTrue(model.isProjectCompilationCompleted(), "the project is compiled");
+        assertNotNull(loaderOf(rates).getRefToCompiledDependency(), "the project is compiled as a whole");
+    }
+
     private IDependencyLoader loaderOf(ProjectDescriptor project) {
         return model.getWebStudioWorkspaceDependencyManager()
                 .findDependencyLoader(AbstractDependencyManager.buildResolvedDependency(project));
@@ -223,29 +273,35 @@ class ProjectModelBackgroundCompilationTest {
         return project;
     }
 
-    /** A project using one module of Rates, which it does not include whole. */
-    private Path writePolicies() throws IOException {
-        var project = Files.createDirectories(dir.resolve("Policies"));
+    /**
+     * A project of one module using the rate of Rates. Included automatically, Rates is included whole; otherwise the
+     * module names the one module of Rates it uses.
+     */
+    private Path writeUsingRates(String name, String module, boolean autoIncluded) throws IOException {
+        var project = Files.createDirectories(dir.resolve(name));
         Files.writeString(project.resolve("rules.xml"), """
                 <project>
-                  <name>Policies</name>
+                  <name>%s</name>
                   <modules>
                     <module>
-                      <name>Policy</name>
-                      <rules-root path="Policy.xls"/>
+                      <name>%s</name>
+                      <rules-root path="%s.xls"/>
                     </module>
                   </modules>
                   <dependencies>
                     <dependency>
                       <name>Rates</name>
-                      <autoIncluded>false</autoIncluded>
+                      <autoIncluded>%s</autoIncluded>
                     </dependency>
                   </dependencies>
                 </project>
-                """);
-        writeModule(project, "Policy",
-                new String[][]{{"Environment"}, {"dependency", "All"}},
-                new String[][]{{"Method Double premium()"}, {"return rate() * 100;"}});
+                """.formatted(name, module, module, autoIncluded));
+        var premium = new String[][]{{"Method Double premium()"}, {"return rate() * 100;"}};
+        if (autoIncluded) {
+            writeModule(project, module, premium);
+        } else {
+            writeModule(project, module, new String[][]{{"Environment"}, {"dependency", "All"}}, premium);
+        }
         return project;
     }
 
