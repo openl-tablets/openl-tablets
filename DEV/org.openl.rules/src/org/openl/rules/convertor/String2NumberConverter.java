@@ -22,6 +22,10 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
      * no fraction, so {@code 300%} is 3 and {@code 250%} cannot be parsed.
      * <p>
      * An exponent is written with a small or a capital letter, so {@code 1.5e3} and {@code 1.5E3} are the same number.
+     * <p>
+     * Without a format, commas may group the thousands of the whole part, as in {@code 1,000.00} or {@code 12,345,678}.
+     * A comma between other digits, as in {@code 12,34.00} or {@code 1,00,000}, makes the text not a number. A format
+     * reads commas as it defines them.
      *
      * @param data   an input string to parse
      * @param format a format of parsed string. If it is null then a default format will be used.
@@ -45,6 +49,9 @@ abstract class String2NumberConverter<T extends Number> implements IString2DataC
             // Configure to parse percents
             df.setMultiplier(100);
             text = data.substring(0, data.length() - 1);
+        }
+        if (format == null) {
+            text = NumberNotation.removeThousandsSeparators(text);
         }
         var position = new ParsePosition(0);
         var number = parseNumber(df, text, position);

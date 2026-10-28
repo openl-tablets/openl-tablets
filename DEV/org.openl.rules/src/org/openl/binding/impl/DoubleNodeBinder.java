@@ -14,13 +14,18 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.java.JavaOpenClass;
 
 /**
+ * Binds a fractional number literal, such as {@code 1.5}, {@code 1.5e3}, {@code 2.5f} or {@code 1,000.00}.
+ *
+ * <p>Commas may group the thousands of the whole part. A literal that ends with {@code f} is a {@code float}. Other
+ * literals are a {@code double}, or a {@code BigDecimal} when they are too large for a {@code double}.
+ *
  * @author snshor
  */
 public class DoubleNodeBinder extends NumberLiteralNodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
-        var s = node.getText();
+        var s = digits(node);
 
         var len = s.length();
 

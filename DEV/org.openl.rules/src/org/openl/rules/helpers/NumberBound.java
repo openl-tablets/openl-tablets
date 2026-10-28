@@ -1,7 +1,6 @@
 package org.openl.rules.helpers;
 
 import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 import org.openl.rules.convertor.NumberNotation;
 
@@ -11,9 +10,8 @@ import org.openl.rules.convertor.NumberNotation;
  * <p>A bound may group the thousands of its whole part with commas and may end with a {@code K}, {@code M} or
  * {@code B} multiplier. So {@code 1,500}, {@code 2.5K} and {@code 1M} are 1500, 2500 and 1000000.
  *
- * <p>A comma must separate groups of exactly three digits, so {@code 77,99} and {@code 1,0000} are not numbers.
- * Formulas accept only the multipliers: there a comma separates values. A currency sign, such as {@code $1,500}, is
- * not a part of a number.
+ * <p>A comma must separate groups of exactly three digits, so {@code 77,99} and {@code 1,0000} are not numbers. A
+ * currency sign, such as {@code $1,500}, is not a part of a number.
  *
  * @param number     the number without the commas and the multiplier
  * @param multiplier 1, or the value of the multiplier
@@ -21,14 +19,9 @@ import org.openl.rules.convertor.NumberNotation;
  */
 record NumberBound(String number, long multiplier) {
 
-    // Linear: possessive quantifiers never backtrack.
-    @SuppressWarnings("java:S8786")
-    private static final Pattern GROUPED = Pattern.compile("[-+]?+\\d{1,3}+(?:,\\d{3}+)++(?:\\.\\d++)?+");
-
     /**
-     * Splits a bound into its number and its multiplier.
-     *
-     * @throws NumberFormatException when a comma does not separate groups of three digits
+     * Splits a bound into its number and its multiplier. A comma that does not separate groups of three digits stays in
+     * the number, so its value cannot be read.
      */
     static NumberBound of(String text) {
         var end = text.length();
@@ -36,20 +29,13 @@ record NumberBound(String number, long multiplier) {
         if (multiplier > 1) {
             end--;
         }
-        var number = text.substring(0, end);
-        if (number.indexOf(',') >= 0) {
-            if (!GROUPED.matcher(number).matches()) {
-                throw new NumberFormatException("For input string: \"" + text + "\"");
-            }
-            number = number.replace(",", "");
-        }
-        return new NumberBound(number, multiplier);
+        return new NumberBound(NumberNotation.removeThousandsSeparators(text.substring(0, end)), multiplier);
     }
 
     /**
      * Returns the value of a whole number bound.
      *
-     * @throws NumberFormatException when the number is not a whole number
+     * @throws NumberFormatException when the number is not a whole number or has a misplaced comma
      * @throws ArithmeticException   when the value overflows a {@code long}
      */
     long toLong() {
@@ -59,8 +45,8 @@ record NumberBound(String number, long multiplier) {
     /**
      * Returns the value of a bound. A multiplied value is rounded once, so {@code 1.005K} is exactly 1005.
      *
-     * @throws NumberFormatException when the number ends with a dot or a type letter or has an exponent, as a Java
-     *                               number may
+     * @throws NumberFormatException when the number ends with a dot or a type letter, has an exponent, as a Java
+     *                               number may, or has a misplaced comma
      */
     double toDouble() {
         if (number.isEmpty() || !Character.isDigit(number.charAt(number.length() - 1)) || number.indexOf('e') >= 0

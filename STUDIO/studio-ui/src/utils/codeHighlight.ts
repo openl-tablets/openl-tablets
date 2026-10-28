@@ -33,13 +33,14 @@ const anyOf = (...patterns: RegExp[]): RegExp =>
 /**
  * A number as OpenL writes one: a date (`2026-10-15`), a time (`12:30`), an amount in thousands (`1,000.50`), a
  * percentage (`10%`), a number of thousands, millions or billions (`1K`, `2.5M`, `3B`), and a number as Java writes it.
- * Each is one token, so it is coloured whole, its separators included.
+ * Each is one token, so it is coloured whole, its separators included. Commas group three digits of a number that
+ * starts with 1 to 9, as the compiler reads them, so `max(0,500)` holds two numbers.
  */
 const OPENL_NUMBER = anyOf(
     /\d{4}-\d{2}-\d{2}/,
     /\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?/,
     /0[xX][\da-fA-F]+/,
-    /\d{1,3}(?:,\d{3})+(?:\.\d+)?(?:[eE][-+]?\d+)?(?:%|[KMB]|[lLfFdD])?/,
+    /[1-9]\d{0,2}(?:,\d{3})+(?:\.\d+)?[KMB]?/,
     /\d+(?:\.\d+)?(?:[eE][-+]?\d+)?(?:%|[KMB]|[lLfFdD])?/,
     /\.\d+(?:[eE][-+]?\d+)?%?/
 )

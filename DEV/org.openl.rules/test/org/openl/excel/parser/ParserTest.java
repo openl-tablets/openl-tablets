@@ -237,9 +237,25 @@ class ParserTest {
     }
 
     @Test
-    void testRemovedBusinessLiterals() throws OpenLConfigurationException {
-        _testErrorMsg("1,000", "Encountered");
+    void testDollarStartsIdentifier() throws OpenLConfigurationException {
         _testType("$100", "identifier");
+    }
+
+    @Test
+    void testGroupedParseAndBind() throws Exception {
+        _testLiteralParseAndBind(new IntNodeBinder(), "1,000", 1000, int.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "12,345,678", 12345678, int.class, "literal.integer");
+        _testLiteralParseAndBind(new IntNodeBinder(), "12,345,678,901", 12345678901L, long.class, "literal.integer");
+        _testLiteralParseAndBind(new DoubleNodeBinder(), "1,000.00", 1000.0, double.class, "literal.real");
+        _testLiteralParseAndBind(new DoubleNodeBinder(), "123,456.789", 123456.789, double.class, "literal.real");
+    }
+
+    @Test
+    void testWrongThousandsSeparators() throws OpenLConfigurationException {
+        _testErrorMsg("12,34.00", "Encountered");
+        _testErrorMsg("1,00,000", "Encountered");
+        _testErrorMsg("100.000,001", "Encountered");
+        _testErrorMsg("1,0000", "Encountered");
     }
 
     @Test
@@ -367,6 +383,8 @@ class ParserTest {
         _testLiteralParseAndBind(binder, "5K", 5000, int.class, "literal.multiplied");
         _testLiteralParseAndBind(binder, "2.5M", 2500000, int.class, "literal.multiplied");
         _testLiteralParseAndBind(binder, "1.50K", 1500, int.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "1,500K", 1500000, int.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "1,000.5K", 1000500, int.class, "literal.multiplied");
         _testLiteralParseAndBind(binder, "2B", 2000000000, int.class, "literal.multiplied");
         _testLiteralParseAndBind(binder, "3B", 3000000000L, long.class, "literal.multiplied");
         _testLiteralParseAndBind(binder,
