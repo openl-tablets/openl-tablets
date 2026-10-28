@@ -405,9 +405,12 @@ Returns the calls one step of a node made, and the levels below them, from the t
 again: the calls are read from the tree the run recorded, which outlives its session. The clicks that re-run the
 calculation to inspect a row cancel their session and start sessions that record no tree, so the kept tree stays.
 
-Every run keeps a tree of its own. A tree is released by `DELETE /tree` — the business view sends it for its previous
-run when it runs again, and as its window closes — once the client sent no trace request for ten minutes, or — when the kept trees of all users hold more calls than one run may record — the tree read
-least recently first.
+Every run keeps a tree of its own. A tree is released:
+- by `DELETE /tree` — the business view sends it for its previous run when it runs again, and as its window closes;
+- once the client sent no trace request for ten minutes;
+- when the client changes a workbook, or its workspace is reset;
+- when the client ends — its browser session, or the idle credentials of a stateless client;
+- when the kept trees of all users hold more calls than one run may record — the tree read least recently first.
 
 **Query parameters**:
 - `run` (string, required) — the `sessionId` of the business-view run. The calls of another run are not found.
@@ -631,11 +634,12 @@ values. A **`stepRef`** node is not a table: a formula computed or re-read anoth
 frame; the reference points at the original step (`refStep`) and carries no time or children of its own,
 so a shared step is never duplicated in the tree.
 
-In a flat list — `treeNodes`, or the [`CallTreeView`](#calltreeview) of a step's calls — a node's steps carry no `children`: each
-call is listed after its caller and points back at it with `parent` and `parentStep`. A client puts the tree together by
-attaching every node to that step of its parent, in list order, which is the order the calls ran. A step whose calls the
-list left out reports their count in `childrenTotal`. A node names its dispatch by `dispatchIndex` in the dispatches
-sent beside the list, so the versions of a table called thousands of times are sent once for each distinct choice.
+In a flat list — `treeNodes`, or the [`CallTreeView`](#calltreeview) of a step's calls — a node's steps carry no
+`children`: each call is listed after its caller and points back at it with `parent` and `parentStep`. A client puts
+the tree together by attaching every node to that step of its parent, in list order, which is the order the calls
+ran. A step whose calls the list left out reports their count in `childrenTotal`. A node names its dispatch by
+`dispatchIndex` in the dispatches sent beside the list, so the versions of a table called thousands of times are sent
+once for each distinct choice.
 
 ### CallTreeView
 
@@ -646,8 +650,8 @@ interface CallTreeView {
 }
 ```
 
-The calls below a step of the kept business-view tree (`GET /tree/node`). A call of the requested step names no `parent`: the client
-attaches it to that step, after the calls already loaded.
+The calls below a step of the kept business-view tree (`GET /tree/node`). A call of the requested step names no
+`parent`: the client attaches it to that step, after the calls already loaded.
 
 ### DispatchInfo
 
