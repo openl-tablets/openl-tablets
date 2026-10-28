@@ -188,6 +188,9 @@ final class RulesCodeIO {
      * Replaces the pieces in the cell, from the last one to the first, so that the positions of the others stay
      * valid. A piece that is no longer in its place, or that overlaps another one, as the same piece reported twice,
      * is left as it is.
+     * <p>
+     * The new text keeps the style of the cell and is stored as a shared string, also in a cell that held an inline
+     * string.
      */
     private static boolean replace(Cell cell, List<CellEdit> edits) {
         var text = cell.getStringCellValue();
@@ -209,6 +212,8 @@ final class RulesCodeIO {
             }
         }
         if (replaced) {
+            // POI changes only the cached value of an inline string, which readers ignore
+            cell.setBlank();
             cell.setCellValue(result.toString());
         }
         return replaced;
