@@ -1005,6 +1005,19 @@ public class ProjectModel {
         currentCompilation.get().future().cancel(false);
     }
 
+    /**
+     * Stops the compilation of the project in the background, whichever project it compiles: a compilation asked for
+     * next replaces it, and its result would be thrown away. The module it compiles at this moment is finished and
+     * kept for the next compilation, and a caller waiting on it is answered at once.
+     */
+    private void stopBackgroundCompilation() {
+        var dependencyManager = this.webStudioWorkspaceDependencyManager;
+        if (dependencyManager != null) {
+            dependencyManager.stopBackgroundLoads();
+        }
+        currentCompilation.get().future().cancel(false);
+    }
+
     public void reset(ReloadType reloadType) throws ProjectResolvingException {
         reset(reloadType, moduleInfo);
     }
@@ -1230,6 +1243,8 @@ public class ProjectModel {
             return;
         }
 
+        // Stopped before anything else, so that it starts no other module while this one is prepared.
+        stopBackgroundCompilation();
         var projectFolder = moduleInfo.getProject().getProjectFolder();
         if (reloadType == ReloadType.FORCED) {
             this.moduleInfo = findReloadedModule(projectFolder, moduleInfo);
@@ -1306,6 +1321,7 @@ public class ProjectModel {
             if (this.webStudioWorkspaceDependencyManager == null || prepareWorkspaceDependencyManager) {
                 prepareWorkspaceDependencyManager(projectDescriptor);
             }
+            stopBackgroundCompilation();
             this.compilationInProgress = true;
             this.projectCompilationCompleted.set(null);
             cycle = new RegisteredCompilation();

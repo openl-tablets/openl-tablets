@@ -39,9 +39,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
     @Override
     protected boolean isActualDependency() {
-        final var currentThreadVersion = webStudioWorkspaceRelatedDependencyManager.getThreadVersion().get();
-        final var version = webStudioWorkspaceRelatedDependencyManager.getVersion().get();
-        return currentThreadVersion >= version;
+        return webStudioWorkspaceRelatedDependencyManager.isActualForThread();
     }
 
     private CompiledDependency createFailedCompiledDependency(ClassLoader classLoader, Exception ex) {
