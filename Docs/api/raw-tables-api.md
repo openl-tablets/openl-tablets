@@ -389,8 +389,8 @@ The request applies one edit to the raw source of any table. The `operation` sel
   value, even when the block takes away the line the value stood on. A merged cell inside the block goes away with it,
   value included, and one left a single cell is no longer merged.
 - **`update`** — overwrites a cell, a row, a column, or a rectangle. The table is not resized. Target types: `cell`
-  (`row`, `column`, `value`), `row` and `column` (`position`, `cells`), and `range` (`row`, `column`, `cells`; more than
-  one cell).
+  (`row`, `column`, `value`, optional `marks`; see [Marking Pieces of a Text](#marking-pieces-of-a-text)), `row` and
+  `column` (`position`, `cells`), and `range` (`row`, `column`, `cells`; more than one cell).
 - **`merge`** — merges a rectangle and keeps the value of the top-left cell. Target type `cells` with `row`, `column`,
   `rowspan`, and `colspan`.
 - **`unmerge`** — splits the merged cell that covers a position. Target type `cells` with `row` and `column`.
@@ -422,8 +422,13 @@ the table or the request named the table by an id it had before.
 - `openl.error.400.table.action.style.colour.invalid.message` — a colour is given both as a theme colour and as `rgb`,
   as neither, or as `rgb` with a `tint`.
 - `openl.error.400.table.action.style.colour.not-standard.message` — an `rgb` colour is not a standard colour of Excel.
+- `openl.error.400.table.action.marks.header.message` — `marks` on the header cell of the table.
+- `openl.error.400.table.action.marks.not-text.message` — `marks` on a value that is not a text.
+- `openl.error.400.table.action.marks.invalid.message` — a mark leaves the text, covers no character, or overlaps or
+  precedes the mark before it.
+- `openl.error.400.table.action.marks.xls.message` — `marks` on a cell of an `.xls` file.
 - A validation response with a list of `fields` — a value that is not a string, a number, a boolean, or an array
-  of them.
+  of them; a mark without `from`, `to` or `color`, or with an unknown `color`.
 
 ### Appending and Inserting Structural Blocks
 
@@ -438,6 +443,30 @@ against the table dimensions after the whole block is added.
 - An insert allocates the whole block before it applies the inline merges. The rows or columns at and after the
   position shift together and keep their merges. An inline merge does not expand when another item of the same request
   is inserted.
+
+### Marking Pieces of a Text
+
+An `update` of a `cell` may carry `marks`: pieces of its text value written bold in one of four colours. A mark names
+`from`, the index in the text of its first character, `to`, the index after its last character, and `color`:
+
+- `error` — what is wrong or must not be missed; Red in Excel.
+- `warning` — what needs care; Orange in Excel.
+- `success` — what is right or confirmed; Green in Excel.
+- `info` — what is worth a note; Light Blue in Excel.
+
+```json
+{"operation": "update", "target": {"type": "cell", "row": 3, "column": 1, "value": "Rate is 0.15 for new clients",
+  "marks": [{"from": 8, "to": 12, "color": "warning"}]}}
+```
+
+- The marks follow the order of the text and do not overlap. Two marks of one colour that touch are written as one.
+- A mark changes the text only: the cell keeps its style, no cell style is added to the workbook, and the cell compiles
+  as before.
+- An empty list writes the text with no marks. Without `marks`, a new value is written with no marks, and a value
+  written unchanged keeps the marks it has.
+- A value written as a number, a date, a boolean or an Excel formula keeps no marks.
+- A read with `styles=true` returns the marks as [`runs`](#style-of-a-cell) whose style is bold in the colour of the
+  mark.
 
 ### Styling Cells
 
