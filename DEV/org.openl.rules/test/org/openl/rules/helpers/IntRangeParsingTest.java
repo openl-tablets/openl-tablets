@@ -115,15 +115,6 @@ class IntRangeParsingTest {
     }
 
     @Test
-    void testDollarSymbol() {
-        assertEquals("[13..200]", new IntRange("$13 - 200").toString());
-        assertEquals("[11..32)", new IntRange("[$11; $32)").toString());
-        assertEquals("> 2", new IntRange(">$2").toString());
-        assertEquals("10", new IntRange("$10").toString());
-        assertEquals(">= 2", new IntRange("$2 +").toString());
-    }
-
-    @Test
     void testKMB() {
         assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("1M+"));
         assertEquals(new IntRange(1000000, Long.MAX_VALUE), new IntRange("  1M+  "));
@@ -132,7 +123,7 @@ class IntRangeParsingTest {
         assertEquals(new IntRange(1000, 36000000), new IntRange("  1K   ..   36M  "));
         assertEquals(new IntRange(Long.MIN_VALUE, 24000), new IntRange("<=24K"));
         assertEquals(new IntRange(10000000000L, 10000000000L), new IntRange("10B"));
-        assertEquals(new IntRange(-5000, 5000), new IntRange("[-5K; $5K]"));
+        assertEquals(new IntRange(-5000, 5000), new IntRange("[-5K; 5K]"));
     }
 
     @Test
@@ -141,7 +132,7 @@ class IntRangeParsingTest {
         assertEquals(new IntRange(123456, Long.MAX_VALUE), new IntRange("123,456+"));
         assertEquals("> 123456", new IntRange(">123,456").toString());
         assertEquals("123456", new IntRange("123,456").toString());
-        assertEquals("1234567", new IntRange("$1,234,567").toString());
+        assertEquals("1234567", new IntRange("1,234,567").toString());
         assertEquals("[123456..987654)", new IntRange("[123,456 - 987,654)").toString());
         assertEquals("[123456..987654]", new IntRange(">=123,456 <=987,654").toString());
         assertEquals("[123456..987654]", new IntRange("123,456 and more 987,654 or less").toString());
@@ -167,6 +158,12 @@ class IntRangeParsingTest {
             "10,000,000,000B",
             "[1K; 77,99]"})
     void testWrongBusinessNumbers(String range) {
+        checkWrong(range);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"$10", "$13 - 200", "[$11; $32)", ">$2", "$2 +", "$1,234,567", "[-5K; $5K]"})
+    void testCurrencySignIsNotANumber(String range) {
         checkWrong(range);
     }
 

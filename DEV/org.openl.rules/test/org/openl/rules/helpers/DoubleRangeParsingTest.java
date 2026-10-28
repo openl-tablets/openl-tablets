@@ -99,13 +99,6 @@ class DoubleRangeParsingTest {
     }
 
     @Test
-    void testDollarSymbol() {
-        assertEquals(new DoubleRange(10.5, 10.5), new DoubleRange("$10.5"));
-        assertEquals(new DoubleRange("[1.5; 3.2)"), new DoubleRange("[$1.5; $3.2)"));
-        assertEquals(new DoubleRange("> 2"), new DoubleRange(">$2"));
-    }
-
-    @Test
     void testKMB() {
         assertEquals(new DoubleRange(1100000, Double.POSITIVE_INFINITY), new DoubleRange("1.1M+"));
         assertEquals(new DoubleRange(2330000000d, 2330000000d), new DoubleRange("2.33B"));
@@ -130,8 +123,7 @@ class DoubleRangeParsingTest {
         assertEquals(new DoubleRange("[123456.7 - 987654)"), new DoubleRange("[123,456.7 - 987,654)"));
         assertEquals(new DoubleRange(123456.7, 987654), new DoubleRange(">=123,456.7 <=987,654"));
         assertEquals(new DoubleRange(123456.7, 987654), new DoubleRange("123,456.7 and more 987,654 or less"));
-        assertEquals(new DoubleRange(1234.5, 1234.5), new DoubleRange("$1,234.5"));
-        assertEquals(new DoubleRange(1234567.89, 1234567.89), new DoubleRange("$1,234,567.89"));
+        assertEquals(new DoubleRange(1234567.89, 1234567.89), new DoubleRange("1,234,567.89"));
     }
 
     @ParameterizedTest
@@ -152,6 +144,12 @@ class DoubleRangeParsingTest {
             "-$5",
             "[1.5K; 77,99.5]"})
     void testWrongBusinessNumbers(String range) {
+        checkWrong(range);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"$10.5", "[$1.5; $3.2)", ">$2", "$1,234.5", "$2.5K - 1M"})
+    void testCurrencySignIsNotANumber(String range) {
         checkWrong(range);
     }
 

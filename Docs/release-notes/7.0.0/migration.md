@@ -155,14 +155,19 @@ from Maven.
     the comma that groups the digits. Remove other symbols of the pattern first, such as a currency sign:
     `(Double) toNumber(replace(text, "$", ""))`.
 
-* **A number in a formula has no `$` sign and no thousands separator.** Both are removed from formulas, because they
-  read differently across countries and `$` also starts a reference to a spreadsheet step. A formula that still uses
-  one of them no longer compiles. Rewrite the number:
+* **A number has no `$` sign, and a number in a formula has no thousands separator.** The `$` sign is removed from
+  formulas and ranges, and the thousands separator from formulas, because they read differently across countries and
+  `$` also starts a reference to a spreadsheet step. A formula or a range that still uses one of them usually no
+  longer compiles. Do not rely on that: `$600` also names a step called `600` or a variable called `$600`, and a
+  formula next to such a step compiles with its value. Search the formulas for a `$` before a digit and rewrite the
+  number:
 
-  | Before         | After        |
-  |----------------|--------------|
-  | `= $600 * 2`   | `= 600 * 2`  |
-  | `= $2,500 + x` | `= 2500 + x` |
+  | Before            | After         |
+  |-------------------|---------------|
+  | `= $600 * 2`      | `= 600 * 2`   |
+  | `= $2,500 + x`    | `= 2500 + x`  |
+  | `>= $2,500`       | `>= 2500`     |
+  | `[$1K .. $10K)`   | `[1K .. 10K)` |
 
   The `K`, `M` and `B` multipliers stay, and their value is exact now. `1.5M` is the `Integer` `1500000` as before,
   while a value with a fraction, such as `1.0005K`, is the `Double` `1000.5` instead of being rounded to an `Integer`.
@@ -171,8 +176,8 @@ from Maven.
   In a formula, the comma separates values, so a comma between digits changes the result instead of failing:
   `{1,500}` is an array of `1` and `500`, and `max(1,000)` compares `1` with `0`. Search the formulas for it.
 
-  Ranges keep these forms, so `[1K .. 10K)` and `>= $2,500` in a condition, a lookup header or a range field work as
-  before. A comma in a range has to separate groups of three digits now. In a condition column of ranges of a smart
+  Ranges keep the thousands separator and the multipliers, so `[1K .. 10K)` and `>= 2,500` in a condition, a lookup
+  header or a range field work as before. A comma in a range has to separate groups of three digits now. In a condition column of ranges of a smart
   rule or a simple rule, `77,99` was the number `7799`; now it is the list of `77` and `99`, which makes the column a
   column of lists, where `1,500` is the list of `1` and `500` too. Write such a number without the comma.
 

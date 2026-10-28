@@ -77,9 +77,9 @@ public class IntRange extends Range<Long> implements INumberRange {
      * Constructor for <code>IntRange</code>. Tries to parse range text with variety of formats. Supported range
      * formats: "<min number> - <max number>" or "[<, <=, >, >=]<number>" or "<number>+".
      *
-     * <p>A bound is a whole number. It may start with a {@code $} sign, may group its thousands with commas and may end
-     * with a {@code K}, {@code M} or {@code B} multiplier, so {@code $1,500} is 1500 and {@code 10K} is 10000. A comma
-     * must separate groups of exactly three digits.
+     * <p>A bound is a whole number. It may group its thousands with commas and may end with a {@code K}, {@code M} or
+     * {@code B} multiplier, so {@code 1,500} is 1500 and {@code 10K} is 10000. A comma must separate groups of exactly
+     * three digits.
      */
     public IntRange(String range) {
         Type rangeType;
