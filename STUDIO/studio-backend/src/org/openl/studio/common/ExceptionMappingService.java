@@ -144,7 +144,7 @@ public class ExceptionMappingService {
                 .filter(violation -> isFieldError(violation.getPropertyPath()))
                 .sorted(Comparator.comparing(violation -> violation.getPropertyPath().toString(), String.CASE_INSENSITIVE_ORDER))
                 .map(violation -> new org.openl.studio.common.model.FieldError.Builder()
-                        .code(buildErrorCode(violation.getMessageTemplate()))
+                        .code(codeOf(violation))
                         .field(violation.getPropertyPath().toString())
                         .rejectedValue(violation.getInvalidValue())
                         .message(violation.getMessage())
@@ -156,12 +156,22 @@ public class ExceptionMappingService {
                 .filter(violation -> !isFieldError(violation.getPropertyPath()))
                 .sorted(Comparator.comparing(ConstraintViolation::getMessageTemplate, String.CASE_INSENSITIVE_ORDER))
                 .map(violation -> BaseError.builder()
-                        .code(buildErrorCode(violation.getMessageTemplate()))
+                        .code(codeOf(violation))
                         .message(violation.getMessage())
                         .build())
                 .forEach(builder::addError);
 
         return builder.build();
+    }
+
+    /**
+     * Names the error after the constraint the value failed, such as {@code openl.error.Size}.
+     *
+     * <p>A request parameter thus reports the same code as a request body field with the same constraint, whatever
+     * message the constraint is given.
+     */
+    private static String codeOf(ConstraintViolation<?> violation) {
+        return buildErrorCode(violation.getConstraintDescriptor().getAnnotation().annotationType().getSimpleName());
     }
 
     private boolean isFieldError(Path propertyPath) {

@@ -7,10 +7,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.UncheckedIOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.file.FileSystemException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import jakarta.validation.Constraint;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Payload;
+import jakarta.validation.Validation;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +50,7 @@ import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.common.exception.ForbiddenException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.model.BaseError;
+import org.openl.studio.common.model.ValidationError;
 import org.openl.util.FileLockedException;
 
 class ApiExceptionControllerAdviceTest {
@@ -245,6 +260,33 @@ class ApiExceptionControllerAdviceTest {
         assertEquals("Failed to parse multipart servlet request", error.message);
     }
 
+    /** A request parameter is named by its constraint, as a request body field is, whatever its message. */
+    @Test
+    void constraintViolation_isNamedByTheConstraint() throws Exception {
+        var method = Endpoint.class.getDeclaredMethod("comment", String.class, Integer.class);
+        ConstraintViolationException violations;
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            var validator = factory.getValidator();
+            var found = new HashSet<ConstraintViolation<?>>(validator.forExecutables()
+                    .validateParameters(new Endpoint(), method, new Object[]{"Too long", 0}));
+            found.addAll(validator.validate(new Refused()));
+            violations = new ConstraintViolationException(found);
+        }
+
+        var response = advice().handleConstraintViolationException(violations,
+                new ServletWebRequest(new MockHttpServletRequest()));
+
+        var error = assertInstanceOf(ValidationError.class, response.getBody());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(2, error.getFields().size());
+        assertEquals("openl.error.Size", error.getFields().get(0).code);
+        assertEquals("The comment can have at most 3 characters.", error.getFields().get(0).message);
+        assertEquals("openl.error.Min", error.getFields().get(1).code);
+        assertEquals(1, error.getErrors().size());
+        assertEquals("openl.error.AlwaysRefused", error.getErrors().getFirst().code);
+        assertEquals("The user with such SID does not exist.", error.getErrors().getFirst().message);
+    }
+
     @Test
     void invalidEnumValue_givesFriendlyMessage() {
         assertEquals("Invalid enum format for field 'color'", describeParseFailure("{\"color\":\"PURPLE\"}"));
@@ -293,5 +335,35 @@ class ApiExceptionControllerAdviceTest {
     private static final class Holder {
         public Color color;
         public int count;
+    }
+
+    static class Endpoint {
+        @SuppressWarnings("unused")
+        void comment(@Size(max = 3, message = "{openl.constraints.comment.too-long.message}") String comment,
+                @Min(1) Integer count) {
+            // only its parameters are validated
+        }
+    }
+
+    @AlwaysRefused
+    static class Refused {
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Constraint(validatedBy = AlwaysRefusedValidator.class)
+    @interface AlwaysRefused {
+        String message() default "{openl.constraints.principal-sid.not.exists.message}";
+
+        Class<?>[] groups() default {};
+
+        Class<? extends Payload>[] payload() default {};
+    }
+
+    public static class AlwaysRefusedValidator implements ConstraintValidator<AlwaysRefused, Object> {
+        @Override
+        public boolean isValid(Object value, ConstraintValidatorContext context) {
+            return false;
+        }
     }
 }

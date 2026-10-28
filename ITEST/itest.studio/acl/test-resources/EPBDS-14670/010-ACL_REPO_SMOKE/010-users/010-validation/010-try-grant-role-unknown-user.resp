@@ -5,7 +5,7 @@ Content-Type: application/json
   "message": "Bad Request",
   "fields": [
     {
-      "code": "openl.error.{openl.constraints.principal-sid.not.exists.message}",
+      "code": "openl.error.SidExistsConstraint",
       "message": "The user with such SID does not exist.",
       "field": "updateAclRepositoryRulesForSid.sid",
       "rejectedValue": {
