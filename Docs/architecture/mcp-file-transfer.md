@@ -284,9 +284,10 @@ tools, and sends it back by an upload link, which costs the context nothing eith
 written whole.
 
 A tool answers a link as text of its JSON result — the URL, the method, the expiry of a transfer link, the size when
-it is known, the MIME type when it is known, the location in the repository (D10), a ready `curl` command and a short
-note — never as a `resource_link` or a Markdown link: a client may fetch or preview a link it renders, which would
-pull the bytes into the context. The command quotes every word for a POSIX shell: `curl -fsS -o <name> <url>` for a
+it is known, the location in the repository (D10), a ready `curl` command and a short note — never as a
+`resource_link` or a Markdown link: a client may fetch or preview a link it renders, which would pull the bytes into
+the context. The answer names no MIME type: Studio picks the type of a file from its name alone, so the name the file
+is saved under already tells it. The command quotes every word for a POSIX shell: `curl -fsS -o <name> <url>` for a
 download, `curl -fsS -T <file> <url>` for a transfer link of an upload, and
 `curl -fsS --data-binary @<file> -H 'Content-Type: application/octet-stream' <url>` for an upload in single-user mode.
 
