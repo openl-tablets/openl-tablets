@@ -9,6 +9,7 @@ import lombok.Getter;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.vm.IRuntimeEnv;
 
 class SplitByIndexNode extends ABoundNode {
@@ -86,10 +87,10 @@ class SplitByIndexNode extends ABoundNode {
             Object ary = Array.newInstance(componentType.getInstanceClass(), listSize);
 
             for (var j = 0; j < listSize; j++) {
-                Array.set(ary, j, list.get(j));
+                ArrayElements.set(ary, j, list.get(j));
             }
 
-            Array.set(result, i, ary);
+            ArrayElements.set(result, i, ary);
 
         }
 

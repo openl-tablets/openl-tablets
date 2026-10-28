@@ -10,13 +10,15 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * @author snshor
  */
 
 public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
-    public static Iterator<Object> fromArrayObj(Object ary) {
+    public static Iterator<Object> fromArrayObj(@Nullable Object ary) {
         if (ary == null) {
             return empty();
         }
@@ -24,7 +26,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
         return new AnyArrayIterator(ary);
     }
 
-    static class AnyArrayIterator extends AIndexedIterator<Object> {
+    static final class AnyArrayIterator extends AIndexedIterator<Object> {
         private final Object ary;
 
         private AnyArrayIterator(Object ary) {
@@ -34,7 +36,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
         @Override
         protected Object indexedElement(int i) {
-            return Array.get(ary, i);
+            return ArrayElements.get(ary, i);
         }
 
     }

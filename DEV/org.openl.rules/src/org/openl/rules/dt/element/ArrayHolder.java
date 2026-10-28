@@ -1,10 +1,9 @@
 package org.openl.rules.dt.element;
 
-import java.lang.reflect.Array;
-
 import org.openl.binding.BindingDependencies;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.util.ArrayElements;
 import org.openl.vm.IRuntimeEnv;
 
 public class ArrayHolder {
@@ -45,13 +44,12 @@ public class ArrayHolder {
             for (var i = 0; i < values2.length; i++) {
                 if (values2[i] != null) {
                     var array = invokeValues(values2[i], componentType.getComponentClass(), target, dtParams, env);
-                    Array.set(res, i, array);
+                    ArrayElements.set(res, i, array);
                 }
             }
             return res;
-        } else {
-            return invokeValues(values1, componentType, target, dtParams, env);
         }
+        return invokeValues(values1, componentType, target, dtParams, env);
     }
 
     /**
@@ -67,9 +65,9 @@ public class ArrayHolder {
         for (var i = 0; i < values.length; i++) {
             if (values[i] instanceof CompositeMethod compositeMethod) {
                 var result = compositeMethod.invoke(target, dtParams, env);
-                Array.set(res, i, result);
+                ArrayElements.set(res, i, result);
             } else {
-                Array.set(res, i, values[i] == null ? valueType.nullObject() : values[i]);
+                ArrayElements.set(res, i, values[i] == null ? valueType.nullObject() : values[i]);
             }
         }
         return res;

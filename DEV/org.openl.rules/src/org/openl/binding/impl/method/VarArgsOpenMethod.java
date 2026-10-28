@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
+import org.openl.util.ArrayElements;
 import org.openl.vm.IRuntimeEnv;
 
 public class VarArgsOpenMethod extends AOpenMethodDelegator {
@@ -52,9 +53,9 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
 
         for (var i = 0; i < countOfParametersForVarArgs; i++) {
             if (parameterCasts == null) {
-                Array.set(params, i, methodParameters[i + indexOfFirstVarArg]);
+                ArrayElements.set(params, i, methodParameters[i + indexOfFirstVarArg]);
             } else {
-                Array.set(params,
+                ArrayElements.set(params,
                         i,
                         parameterCasts[i] != null ? parameterCasts[i].convert(methodParameters[i + indexOfFirstVarArg])
                                 : methodParameters[i + indexOfFirstVarArg]);

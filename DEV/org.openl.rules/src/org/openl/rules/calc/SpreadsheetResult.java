@@ -15,7 +15,11 @@ import java.util.function.UnaryOperator;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlTransient;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.collections4.BidiMap;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
@@ -24,6 +28,7 @@ import org.openl.rules.table.Point;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 
@@ -32,6 +37,7 @@ import org.openl.util.CollectionUtils;
  */
 @XmlRootElement
 @CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class, normalize = true)
+@NoArgsConstructor
 @AllowOnlyStrictFieldMatchType
 public class SpreadsheetResult implements Serializable {
 
@@ -43,9 +49,12 @@ public class SpreadsheetResult implements Serializable {
     private static final int MAX_VALUE_LENGTH = 10 * 1024;
 
     // The cells hold whatever values the steps compute; the result serializes along whenever they do.
+    @Getter
     @SuppressWarnings("java:S1948")
     Object[][] results;
+    @Setter
     String[] columnNames;
+    @Setter
     String[] rowNames;
     transient String[] rowNamesForResultModel;
     transient String[] columnNamesForResultModel;
@@ -54,11 +63,15 @@ public class SpreadsheetResult implements Serializable {
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
      */
+    @Getter(onMethod_ = {@XmlTransient})
+    @Setter
     private transient ILogicalTable logicalTable;
 
     /**
      * Spreadsheet open class. This field is used for output bean generation.
      */
+    @Getter(onMethod_ = {@XmlTransient})
+    @Setter
     private transient CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
     /**
@@ -66,11 +79,12 @@ public class SpreadsheetResult implements Serializable {
      * Maps logical index to physical index (where physical includes description rows/columns).
      * These are not serialized and are only used for UI rendering.
      */
+    @Getter(onMethod_ = {@XmlTransient})
+    @Setter
     private transient BidiMap<Integer, Integer> rowOffsets;
+    @Getter(onMethod_ = {@XmlTransient})
+    @Setter
     private transient BidiMap<Integer, Integer> columnOffsets;
-
-    public SpreadsheetResult() {
-    }
 
     public SpreadsheetResult(Object[][] results,
                              String[] rowNames,
@@ -240,10 +254,6 @@ public class SpreadsheetResult implements Serializable {
         return rowNames.length;
     }
 
-    public Object[][] getResults() {
-        return results;
-    }
-
     public void setResults(Object[][] results) {
         this.results = results.clone();
     }
@@ -253,27 +263,19 @@ public class SpreadsheetResult implements Serializable {
         return columnNames.length;
     }
 
-    public String[] getColumnNames() {
+    public String @Nullable[] getColumnNames() {
         return columnNames != null ? columnNames.clone() : null;
     }
 
-    public void setColumnNames(String[] columnNames) {
-        this.columnNames = columnNames;
-    }
-
-    public String[] getRowNames() {
+    public String @Nullable[] getRowNames() {
         return rowNames != null ? rowNames.clone() : null;
-    }
-
-    public void setRowNames(String[] rowNames) {
-        this.rowNames = rowNames;
     }
 
     public Object getValue(int row, int column) {
         return results[row][column];
     }
 
-    public Object getValue(String row, String column) {
+    public @Nullable Object getValue(String row, String column) {
         var p = getPoint(ASpreadsheetField.createFieldName(column, row));
         return p != null ? getValue(p.getRow(), p.getColumn()) : null;
     }
@@ -306,61 +308,7 @@ public class SpreadsheetResult implements Serializable {
         return rowNames[row];
     }
 
-    /**
-     * @return logical representation of calculated spreadsheet table it is needed for web studio to display results
-     */
-    @XmlTransient
-    public ILogicalTable getLogicalTable() {
-        return logicalTable;
-    }
-
-    public void setLogicalTable(ILogicalTable logicalTable) {
-        this.logicalTable = logicalTable;
-    }
-
-    /**
-     * Gets the row offset mapping for display purposes.
-     * Maps logical row index to physical row index in the original spreadsheet.
-     *
-     * @return the row offset mapping, or null if not set
-     */
-    @XmlTransient
-    public BidiMap<Integer, Integer> getRowOffsets() {
-        return rowOffsets;
-    }
-
-    /**
-     * Sets the row offset mapping for display purposes.
-     * This is transient and only used for UI rendering.
-     *
-     * @param rowOffsets the row offset mapping
-     */
-    public void setRowOffsets(BidiMap<Integer, Integer> rowOffsets) {
-        this.rowOffsets = rowOffsets;
-    }
-
-    /**
-     * Gets the column offset mapping for display purposes.
-     * Maps logical column index to physical column index in the original spreadsheet.
-     *
-     * @return the column offset mapping, or null if not set
-     */
-    @XmlTransient
-    public BidiMap<Integer, Integer> getColumnOffsets() {
-        return columnOffsets;
-    }
-
-    /**
-     * Sets the column offset mapping for display purposes.
-     * This is transient and only used for UI rendering.
-     *
-     * @param columnOffsets the column offset mapping
-     */
-    public void setColumnOffsets(BidiMap<Integer, Integer> columnOffsets) {
-        this.columnOffsets = columnOffsets;
-    }
-
-    public Object getFieldValue(String name) {
+    public @Nullable Object getFieldValue(String name) {
         var fieldCoordinates = getPoint(name);
 
         if (fieldCoordinates != null) {
@@ -372,7 +320,7 @@ public class SpreadsheetResult implements Serializable {
     /**
      * @see SpreadsheetResultBeanByteCodeGenerator
      */
-    public Object getModelValue(String name) {
+    public @Nullable Object getModelValue(String name) {
         var p = getPoint(name);
 
         if (p != null) {
@@ -394,9 +342,8 @@ public class SpreadsheetResult implements Serializable {
         try {
             if (CollectionUtils.isEmpty(rowNames) || CollectionUtils.isEmpty(columnNames)) {
                 return "[EMPTY]";
-            } else {
-                return printTable();
             }
+            return printTable();
         } catch (Exception e) {
             // If it's impossible to print the table, fallback to default
             // toString() implementation
@@ -413,9 +360,8 @@ public class SpreadsheetResult implements Serializable {
         }
         if (value.length() > MAX_VALUE_LENGTH) {
             return value.substring(0, MAX_VALUE_LENGTH) + " ... TRUNCATED ...";
-        } else {
-            return value;
         }
+        return value;
     }
 
     private String printTable() {
@@ -427,14 +373,14 @@ public class SpreadsheetResult implements Serializable {
             var maxWidth = Math.min(MAX_WIDTH, getWidth());
             var maxHeight = Math.min(MAX_HEIGHT, getHeight());
 
-            int[] width = getColumnWidths(maxWidth, maxHeight, d);
+            var width = getColumnWidths(maxWidth, maxHeight, d);
 
             for (var i = 0; i <= maxHeight; i++) {
                 for (var j = 0; j <= maxWidth; j++) {
                     if (j != 0) {
                         sb.append(" | ");
                     }
-                    String cell = getCellText(i, j, d);
+                    var cell = getCellText(i, j, d);
 
                     sb.append(cell);
                     for (var k = 0; k < width[j] - cell.length(); k++) {
@@ -494,19 +440,9 @@ public class SpreadsheetResult implements Serializable {
 
         if (value == null) {
             return "";
-        } else {
-            String s = Arrays.deepToString(new Object[]{value});
-            return s.substring(1, s.length() - 1);
         }
-    }
-
-    @XmlTransient
-    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultOpenClass() {
-        return customSpreadsheetResultOpenClass;
-    }
-
-    public void setCustomSpreadsheetResultOpenClass(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
+        String s = Arrays.deepToString(new Object[]{value});
+        return s.substring(1, s.length() - 1);
     }
 
     public Map<String, Object> toMap() {
@@ -594,7 +530,7 @@ public class SpreadsheetResult implements Serializable {
         for (var i = 0; i < rowNamesForResultModel.length; i++) {
             for (var j = 0; j < columnNamesForResultModel.length; j++) {
                 if (columnNamesForResultModel[j] != null && rowNamesForResultModel[i] != null) {
-                    String fName = getCellValueName(i, j, isSingleRow, isSingleColumn, namingStrategy);
+                    var fName = getCellValueName(i, j, isSingleRow, isSingleColumn, namingStrategy);
                     values.put(freeName(values, fName),
                             convertSpreadsheetResult(getValue(i, j),
                                     spreadsheetResultsToMap,
@@ -676,8 +612,8 @@ public class SpreadsheetResult implements Serializable {
         return convertSpreadsheetResult(v, toType, toTypeOpenClass, false, spreadsheetResultBeanPropertyNamingStrategy);
     }
 
-    public static Object convertBeansToSpreadsheetResults(Object v,
-                                                          Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
+    public static @Nullable Object convertBeansToSpreadsheetResults(@Nullable Object v,
+                                                                    Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
         if (v == null) {
             return null;
         }
@@ -715,7 +651,8 @@ public class SpreadsheetResult implements Serializable {
         }
         if (newArray != null) {
             for (var i = 0; i < len; i++) {
-                Array.set(newArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
+                var element = convertBeansToSpreadsheetResults(ArrayElements.get(v, i), mapClassToSprOpenClass);
+                ArrayElements.set(newArray, i, element);
             }
             return newArray;
         }
@@ -777,18 +714,17 @@ public class SpreadsheetResult implements Serializable {
                 Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
             Object newArray = Array.newInstance(componentType, len);
             for (var i = 0; i < len; i++) {
-                Array.set(newArray,
+                ArrayElements.set(newArray,
                         i,
-                        convertSpreadsheetResult(Array.get(v, i),
+                        convertSpreadsheetResult(ArrayElements.get(v, i),
                                 componentType,
                                 null,
                                 spreadsheetResultsToMap,
                                 namingStrategy));
             }
             return newArray;
-        } else {
-            return v;
         }
+        return v;
     }
 
     /**
@@ -805,9 +741,9 @@ public class SpreadsheetResult implements Serializable {
         Object tmpArray = Array
                 .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
         for (var i = 0; i < len; i++) {
-            Array.set(tmpArray,
+            ArrayElements.set(tmpArray,
                     i,
-                    convertSpreadsheetResult(Array.get(v, i),
+                    convertSpreadsheetResult(ArrayElements.get(v, i),
                             toType != null && toType.isArray() ? toType.getComponentType() : null,
                             toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
                                     : null,
@@ -821,7 +757,7 @@ public class SpreadsheetResult implements Serializable {
         if (c != null) {
             Object newArray = Array.newInstance(c, len);
             for (var i = 0; i < len; i++) {
-                Array.set(newArray, i, Array.get(tmpArray, i));
+                ArrayElements.set(newArray, i, ArrayElements.get(tmpArray, i));
             }
             return newArray;
         }
@@ -836,7 +772,7 @@ public class SpreadsheetResult implements Serializable {
         Class<?> c = null;
         var f = true;
         for (var i = 0; i < len; i++) {
-            Object v1 = Array.get(array, i);
+            Object v1 = ArrayElements.get(array, i);
             if (v1 != null) {
                 if (c == null) {
                     c = v1.getClass();
@@ -882,13 +818,11 @@ public class SpreadsheetResult implements Serializable {
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
                     .createBean(spreadsheetResult, namingStrategy);
-        } else {
-            if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
-                return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
-            } else {
-                return spreadsheetResult.toMap(false, null);
-            }
         }
+        if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null) {
+            return spreadsheetResult.getCustomSpreadsheetResultOpenClass().createBean(spreadsheetResult, null);
+        }
+        return spreadsheetResult.toMap(false, null);
     }
 
     private static Object convertMap(Map<?, ?> v, UnaryOperator<Object> function) {
@@ -919,10 +853,12 @@ public class SpreadsheetResult implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         var that = (SpreadsheetResult) o;
 

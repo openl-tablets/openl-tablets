@@ -3,6 +3,8 @@ package org.openl.rules.cloner;
 import java.lang.reflect.Array;
 import java.util.function.UnaryOperator;
 
+import org.openl.util.ArrayElements;
+
 /**
  * This cloner do cloning of the array.
  *
@@ -23,8 +25,8 @@ class ArrayCloner implements ICloner<Object> {
     public void clone(Object o, UnaryOperator<Object> cloner, Object target) {
         var length = Array.getLength(target);
         for (var i = 0; i < length; i++) {
-            var element = Array.get(o, i);
-            Array.set(target, i, cloner.apply(element));
+            var element = ArrayElements.get(o, i);
+            ArrayElements.set(target, i, cloner.apply(element));
         }
     }
 }

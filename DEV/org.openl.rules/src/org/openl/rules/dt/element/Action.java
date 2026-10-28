@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -17,7 +19,6 @@ import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
-import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -28,13 +29,13 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -58,9 +59,9 @@ public class Action extends FunctionalRow implements IAction {
                   DecisionTable decisionTableInvocableMethod) {
         super(name, row, decisionTable, scale);
         this.actionType = actionType;
-        this.skipEmptyResult = decisionTableInvocableMethod
-                .getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
-                .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing());
+        var methodProperties = decisionTableInvocableMethod.getMethodProperties();
+        this.skipEmptyResult = methodProperties != null
+                && DTEmptyResultProcessingEnum.SKIP == methodProperties.getEmptyResultProcessing();
     }
 
     @Override
@@ -89,7 +90,7 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     @Override
-    public Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
+    public @Nullable Object executeAction(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
 
         if (target instanceof IDynamicObject object) {
             target = new RuleExecutionObject(ruleExecutionType, object, ruleN);
@@ -103,9 +104,9 @@ public class Action extends FunctionalRow implements IAction {
             Object[] dest = new Object[getNumberOfParams()];
             loadValues(dest, 0, ruleN, target, params, env);
 
-            Object returnValue = dest[0];
-            IOpenMethod method = getMethod();
-            IOpenClass methodType = method.getType();
+            var returnValue = dest[0];
+            var method = getMethod();
+            var methodType = method.getType();
 
             // Check that returnValue object has the same type as a return type
             // of method. If they are same return returnValue as result of
@@ -132,16 +133,16 @@ public class Action extends FunctionalRow implements IAction {
             return;
         }
         if (dimension > 0) {
-            int size = Array.getLength(o);
+            var size = Array.getLength(o);
             if (dimension == 1) {
-                for (int i = 0; i < size; i++) {
-                    Object v = Array.get(o, i);
-                    Object g = setCustomSpreadsheetResultOpenClassToArray(v, customSpreadsheetResultOpenClass);
-                    Array.set(o, i, g);
+                for (var i = 0; i < size; i++) {
+                    Object v = ArrayElements.get(o, i);
+                    var g = setCustomSpreadsheetResultOpenClassToArray(v, customSpreadsheetResultOpenClass);
+                    ArrayElements.set(o, i, g);
                 }
             } else {
-                for (int i = 0; i < size; i++) {
-                    setCustomSpreadsheetResultOpenClassToArray(Array.get(o, i),
+                for (var i = 0; i < size; i++) {
+                    setCustomSpreadsheetResultOpenClassToArray(ArrayElements.get(o, i),
                             dimension - 1,
                             customSpreadsheetResultOpenClass);
                 }
@@ -152,7 +153,7 @@ public class Action extends FunctionalRow implements IAction {
     private Object setCustomSpreadsheetResultOpenClassToArray(Object e,
                                                               CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (e instanceof SpreadsheetResult spreadsheetResult) {
-            SpreadsheetResult newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
+            var newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
             newSpreadsheetResult.setCustomSpreadsheetResultOpenClass(customSpreadsheetResultOpenClass);
             return newSpreadsheetResult;
         }
@@ -162,8 +163,8 @@ public class Action extends FunctionalRow implements IAction {
     private Object ifSpreadsheetResultUseDTSprType(Object value, IRuntimeEnv env) {
         if (singleActionReturnType instanceof CustomSpreadsheetResultOpenClass) {
             SimpleRuntimeEnv simpleRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
-            IRulesMethodWrapper methodWrapper = simpleRuntimeEnv.getMethodWrapper();
-            IOpenClass t = methodWrapper.getType();
+            var methodWrapper = simpleRuntimeEnv.getMethodWrapper();
+            var t = methodWrapper.getType();
             if (t.isArray()) {
                 t = t.getComponentClass();
             }
@@ -231,7 +232,7 @@ public class Action extends FunctionalRow implements IAction {
                               IOpenClass ruleExecutionType,
                               TableSyntaxNode tableSyntaxNode) throws SyntaxNodeException {
 
-        IOpenClass methodType = getActionMethodType(decisionTable, header, bindingContext, tableSyntaxNode);
+        var methodType = getActionMethodType(decisionTable, header, bindingContext, tableSyntaxNode);
 
         prepare(decisionTable,
                 methodType,
@@ -242,9 +243,9 @@ public class Action extends FunctionalRow implements IAction {
                 ruleExecutionType,
                 tableSyntaxNode);
 
-        IParameterDeclaration[] params = getParams();
-        CompositeMethod method = getMethod();
-        String code = Optional.ofNullable(method.getMethodBodyBoundNode())
+        var params = getParams();
+        var method = getMethod();
+        var code = Optional.ofNullable(method.getMethodBodyBoundNode())
                 .map(IBoundNode::getSyntaxNode)
                 .map(ISyntaxNode::getModule)
                 .map(IOpenSourceCodeModule::getCode)
@@ -302,12 +303,12 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private static void deferCustomSpreadsheetResultTypeUpdate(DecisionTable decisionTable, CompositeMethod method) {
-        IOpenClass t = method.getBodyType();
+        var t = method.getBodyType();
         if (t != null) {
             while (t.isArray()) {
                 t = t.getComponentClass();
             }
-            IOpenClass g = t;
+            var g = t;
             decisionTable.getDeferredChanges().add(() -> {
                 if (g instanceof CustomSpreadsheetResultOpenClass || g instanceof SpreadsheetResultOpenClass) {
                     decisionTable.getCustomSpreadsheetResultType().updateWithType(g);
@@ -331,7 +332,7 @@ public class Action extends FunctionalRow implements IAction {
 
         if (EXTRA_RET.equals(
                 methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())) {
-            ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
+            var extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
             params = new IParameterDeclaration[]{extraParam};
             paramInitialized = new BitSet(1);
             paramInitialized.set(0);
@@ -350,7 +351,7 @@ public class Action extends FunctionalRow implements IAction {
                                                         OpenL openl,
                                                         IBindingContext bindingContext) throws SyntaxNodeException {
 
-        IOpenSourceCodeModule source = super.getExpressionSource(tableSyntaxNode,
+        var source = super.getExpressionSource(tableSyntaxNode,
                 signature,
                 methodType,
                 declaringClass,

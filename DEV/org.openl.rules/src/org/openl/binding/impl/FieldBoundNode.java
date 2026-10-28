@@ -10,6 +10,7 @@ import org.openl.exception.OpenLRuntimeException;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.ArrayElements;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -78,29 +79,28 @@ public class FieldBoundNode extends ATargetBoundNode {
             return boundField.get(target, env);
         } else if (target == null) {
             return null;
-        } else {
-            var paramsLength = Array.getLength(target);
-
-            // create an array of results
-            if (targetType == null) {
-                targetType = getType().getInstanceClass();
-            }
-            Class<?> componentType = targetType.getComponentType();
-            var nextDim = --dims;
-            Object results = Array.newInstance(componentType, paramsLength);
-
-            // populate the results array by invoking method for single parameter
-            for (var i = 0; i < paramsLength; i++) {
-                Object element = Array.get(target, i);
-                var value = evaluateDim(element, env, nextDim, componentType);
-                // Do not try to set null value in primitive type.
-                // And no needs to set null values for a just initialized array.
-                if (value != null) {
-                    Array.set(results, i, value);
-                }
-            }
-            return results;
         }
+        var paramsLength = Array.getLength(target);
+
+        // create an array of results
+        if (targetType == null) {
+            targetType = getType().getInstanceClass();
+        }
+        Class<?> componentType = targetType.getComponentType();
+        var nextDim = --dims;
+        Object results = Array.newInstance(componentType, paramsLength);
+
+        // populate the results array by invoking method for single parameter
+        for (var i = 0; i < paramsLength; i++) {
+            Object element = ArrayElements.get(target, i);
+            var value = evaluateDim(element, env, nextDim, componentType);
+            // Do not try to set null value in primitive type.
+            // And no needs to set null values for a just initialized array.
+            if (value != null) {
+                ArrayElements.set(results, i, value);
+            }
+        }
+        return results;
     }
 
     @Override

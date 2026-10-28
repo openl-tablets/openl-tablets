@@ -8,6 +8,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.util.ArrayElements;
 import org.openl.util.OpenClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -95,7 +96,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
             var paramNum = multiCallParameterIndexes[i];
             var array = params[paramNum];
             var length = Array.getLength(array);
-            callParameters[paramNum] = Array.get(array, rest % length);
+            callParameters[paramNum] = ArrayElements.get(array, rest % length);
             rest /= length;
         }
     }
@@ -115,7 +116,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
             value = methodCaller.invoke(target, callParameters, env);
         }
         if (results != null) {
-            Array.set(results, index, value);
+            ArrayElements.set(results, index, value);
         }
     }
 

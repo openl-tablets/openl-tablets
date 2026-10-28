@@ -10,10 +10,12 @@ import java.lang.reflect.Array;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
+import org.openl.util.ArrayElements;
 import org.openl.util.IntegerValuesUtils;
 
 @RequiredArgsConstructor
@@ -28,12 +30,12 @@ public class ArrayFieldIndex implements IOpenIndex {
     }
 
     @Override
-    public Object getValue(Object container, Object index) {
+    public @Nullable Object getValue(Object container, Object index) {
         if (index != null) {
             var len = Array.getLength(container);
 
             for (var i = 0; i < len; i++) {
-                Object obj = Array.get(container, i);
+                Object obj = ArrayElements.get(container, i);
 
                 var fieldValue = indexField.get(obj, null);
 

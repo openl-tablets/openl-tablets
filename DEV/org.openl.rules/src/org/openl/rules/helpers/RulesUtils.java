@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jspecify.annotations.Nullable;
 
@@ -32,6 +34,7 @@ import org.openl.rules.annotations.ArrayResultType;
 import org.openl.rules.annotations.IgnoreNonVarargsMatching;
 import org.openl.rules.cloner.Cloner;
 import org.openl.types.impl.StaticDomainOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
 import org.openl.util.math.MathUtils;
@@ -41,10 +44,8 @@ import org.openl.util.math.MathUtils;
  *
  * @author snshor
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RulesUtils {
-
-    private RulesUtils() {
-    }
 
     // SMALL
 
@@ -747,7 +748,7 @@ public final class RulesUtils {
         return array != null && Arrays.stream(array).anyMatch(range -> range != null && rangeContains.test(range));
     }
 
-    public static boolean contains(DoubleRange[] array, Double elem) {
+    public static boolean contains(DoubleRange @Nullable[] array, Double elem) {
         if (array == null) {
             return false;
         }
@@ -759,7 +760,7 @@ public final class RulesUtils {
         return false;
     }
 
-    public static boolean contains(CharRange[] array, Character elem) {
+    public static boolean contains(CharRange @Nullable[] array, Character elem) {
         if (array == null) {
             return false;
         }
@@ -771,7 +772,7 @@ public final class RulesUtils {
         return false;
     }
 
-    public static boolean contains(DateRange[] array, Date elem) {
+    public static boolean contains(DateRange @Nullable[] array, Date elem) {
         if (array == null) {
             return false;
         }
@@ -783,7 +784,7 @@ public final class RulesUtils {
         return false;
     }
 
-    public static boolean contains(StringRange[] array, CharSequence elem) {
+    public static boolean contains(StringRange @Nullable[] array, CharSequence elem) {
         if (array == null) {
             return false;
         }
@@ -881,7 +882,7 @@ public final class RulesUtils {
         return ArrayTool.containsAll(ary1, ary2);
     }
 
-    public static boolean contains(IntRange[] ary1, Integer[] ary2) {
+    public static boolean contains(IntRange[] ary1, Integer @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -893,7 +894,7 @@ public final class RulesUtils {
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
 
-    public static boolean contains(IntRange[] ary1, int[] ary2) {
+    public static boolean contains(IntRange[] ary1, int @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -905,7 +906,7 @@ public final class RulesUtils {
         return ary2.length > 0;
     }
 
-    public static boolean contains(DoubleRange[] ary1, Double[] ary2) {
+    public static boolean contains(DoubleRange[] ary1, Double @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -917,7 +918,7 @@ public final class RulesUtils {
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
 
-    public static boolean contains(DoubleRange[] ary1, double[] ary2) {
+    public static boolean contains(DoubleRange[] ary1, double @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -929,7 +930,7 @@ public final class RulesUtils {
         return ary2.length > 0;
     }
 
-    public static boolean contains(CharRange[] ary1, Character[] ary2) {
+    public static boolean contains(CharRange[] ary1, Character @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -941,7 +942,7 @@ public final class RulesUtils {
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
 
-    public static boolean contains(CharRange[] ary1, char[] ary2) {
+    public static boolean contains(CharRange[] ary1, char @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -953,7 +954,7 @@ public final class RulesUtils {
         return ary2.length > 0;
     }
 
-    public static boolean contains(StringRange[] ary1, CharSequence[] ary2) {
+    public static boolean contains(StringRange[] ary1, CharSequence @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -965,7 +966,7 @@ public final class RulesUtils {
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
 
-    public static boolean contains(StringRange[] ary1, String[] ary2) {
+    public static boolean contains(StringRange[] ary1, String @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -977,7 +978,7 @@ public final class RulesUtils {
         return Arrays.stream(ary2).anyMatch(Objects::nonNull);
     }
 
-    public static boolean contains(DateRange[] ary1, Date[] ary2) {
+    public static boolean contains(DateRange[] ary1, Date @Nullable[] ary2) {
         if (ary2 == null) {
             return false;
         }
@@ -1434,7 +1435,7 @@ public final class RulesUtils {
         var result = Array.newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(),
                 values.size());
         for (var i = 0; i < values.size(); i++) {
-            Array.set(result, i, values.get(i));
+            ArrayElements.set(result, i, values.get(i));
         }
         return result;
     }
@@ -1442,16 +1443,15 @@ public final class RulesUtils {
     private static List<Object> flattenInternal(int dim, Object v) {
         if (dim == 0) {
             return Collections.singletonList(v);
-        } else {
-            if (v == null || Array.getLength(v) == 0) {
-                return Collections.emptyList();
-            }
-            var values = new ArrayList<Object>();
-            for (var i = 0; i < Array.getLength(v); i++) {
-                values.addAll(flattenInternal(dim - 1, Array.get(v, i)));
-            }
-            return values;
         }
+        if (v == null || Array.getLength(v) == 0) {
+            return Collections.emptyList();
+        }
+        var values = new ArrayList<Object>();
+        for (var i = 0; i < Array.getLength(v); i++) {
+            values.addAll(flattenInternal(dim - 1, ArrayElements.get(v, i)));
+        }
+        return values;
     }
 
     /**
@@ -1481,7 +1481,7 @@ public final class RulesUtils {
      */
     @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)
     @IgnoreNonVarargsMatching
-    public static Object addAll(Object... arrays) {
+    public static @Nullable Object addAll(@Nullable Object... arrays) {
         if (arrays == null || arrays.length == 0) {
             return null;
         }
@@ -1496,14 +1496,14 @@ public final class RulesUtils {
                     var length = Array.getLength(arrays[i]);
                     for (var j = 0; j < length; j++) {
                         var openCast = addAllMethodDetails.getOpenCasts()[i];
-                        Object v = Array.get(arrays[i], j);
-                        Array.set(result, p, castElement(openCast, v));
+                        Object v = ArrayElements.get(arrays[i], j);
+                        ArrayElements.set(result, p, castElement(openCast, v));
                         p++;
                     }
                 }
             } else {
                 var openCast = addAllMethodDetails.getOpenCasts()[i];
-                Array.set(result, p, castElement(openCast, arrays[i]));
+                ArrayElements.set(result, p, castElement(openCast, arrays[i]));
                 p++;
             }
         }
@@ -1534,7 +1534,7 @@ public final class RulesUtils {
 
     @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)
     @IgnoreNonVarargsMatching
-    public static Object add(Object... arrays) {
+    public static @Nullable Object add(Object... arrays) {
         return addAll(arrays);
     }
 
@@ -1550,13 +1550,13 @@ public final class RulesUtils {
         Object result = Array.newInstance(type, size);
         var i = 0;
         for (Object item : domain) {
-            Array.set(result, i, item);
+            ArrayElements.set(result, i, item);
             i++;
         }
         return result;
     }
 
-    public static boolean instanceOf(Object o, Class<?> clazz) {
+    public static boolean instanceOf(@Nullable Object o, @Nullable Class<?> clazz) {
         if (o == null) {
             return false;
         }
@@ -1566,7 +1566,7 @@ public final class RulesUtils {
         return clazz.isAssignableFrom(o.getClass());
     }
 
-    public static Object staticField(Object instance, String fieldName) {
+    public static @Nullable Object staticField(Object instance, String fieldName) {
         try {
             Class<?> aClass = instance != null ? instance.getClass() : null;
             while (aClass != null) {

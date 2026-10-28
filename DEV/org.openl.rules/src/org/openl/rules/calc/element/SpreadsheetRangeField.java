@@ -10,6 +10,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.calc.ASpreadsheetField;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
 import org.openl.types.IOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDescriptionHolder {
@@ -65,14 +66,14 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
         var calc = (SpreadsheetResultCalculator) target;
         Object array = Array.newInstance(rangeType, size);
         var i = 0;
-        for (var x = startColumnIndex; x <= endColumnIndex; ++x) {
-            for (var y = startRowIndex; y <= endRowIndex; ++y) {
+        for (var x = startColumnIndex; x <= endColumnIndex; x++) {
+            for (var y = startRowIndex; y <= endRowIndex; y++) {
                 var v = calc.getValue(y, x);
                 var openCast = casts[x - startColumnIndex][y - startRowIndex];
                 if (openCast != null && openCast.isImplicit()) {
                     v = openCast.convert(v);
                 }
-                Array.set(array, i, v);
+                ArrayElements.set(array, i, v);
                 i++;
             }
         }
