@@ -120,16 +120,14 @@ from Maven.
   `for (int i = 0; i < n; i++)` becomes `for (int i = 0; i < n; i += 1)`. Where a rule uses the value of `x++`
   itself, as in `y = x++`, read it first: `y = x; x += 1;`.
 
-* **The functions `format`, `dateToString`, `stringToDate`, `parseFormattedDouble`, `addIgnoreNull` and
+* **The functions `dateToString`, `stringToDate`, `parseFormattedDouble`, `addIgnoreNull` and
   `addArrayElementIgnoreNull` are removed.** A rule that still calls one of them no longer compiles, for example with
-  `Method 'format(java.lang.Double)' is not found.` The `openl:migrate` goal of the OpenL Maven plugin rewrites such
-  calls in the workbooks of a project, choosing the replacement by the types of the arguments. Otherwise, rewrite the
-  call:
+  `Method 'dateToString(java.util.Date)' is not found.` The `openl:migrate` goal of the OpenL Maven plugin rewrites
+  such calls in the workbooks of a project, choosing the replacement by the types of the arguments. Otherwise, rewrite
+  the call:
 
-  - **`format(amount)`** — `toString(amount, "#,##0.00")`
-  - **`format(amount, pattern)`** — `toString(amount, pattern)`
-  - **`format(date)`, `dateToString(date)`** — `toString(date, "M/d/yy")`
-  - **`format(date, pattern)`, `dateToString(date, pattern)`** — `toString(date, pattern)`
+  - **`dateToString(date)`** — `toString(date, "M/d/yy")`
+  - **`dateToString(date, pattern)`** — `toString(date, pattern)`
   - **`stringToDate(text)`** — `toDate(text)`
   - **`parseFormattedDouble(text)`** — `(Double) toNumber(text)`
   - **`addIgnoreNull(array, element)`** — `element == null ? array : add(array, element)`
@@ -142,18 +140,32 @@ from Maven.
 
   - The removed functions wrote and read numbers and dates in the language of the server. The replacements always use
     US English: a comma groups the digits, a point starts the fraction and month names are English. On a German server,
-    `format(1234.5)` gave `1.234,50`, while `toString(1234.5, "#,##0.00")` gives `1,234.50`.
-  - `toString(date)` without a pattern gives `04/30/2015`, where `format(date)` gave `4/30/15`. The pattern `M/d/yy`
-    keeps the short form.
+    `dateToString(date, "MMMM")` gave `Mai`, while `toString(date, "MMMM")` gives `May`.
+  - `toString(date)` without a pattern gives `04/30/2015`, where `dateToString(date)` gave `4/30/15`. The pattern
+    `M/d/yy` keeps the short form.
   - A replacement returns an empty value where the removed function stopped the call with an error. This is the case
-    for `toString(amount, pattern)` with an invalid pattern, and for `toDate` and `toNumber` with a text they cannot
-    read. `toDate` and `toNumber` also need the whole text to be a date or a number: `toNumber("12abc")` is empty,
+    for `toDate` and `toNumber` with a text they cannot read. `toDate` and `toNumber` also need the whole text to be a date or a number: `toNumber("12abc")` is empty,
     while `parseFormattedDouble("12abc")` read `12`.
   - `toNumber` returns a `Number`, which a rule cannot return as a `Double` or use in arithmetic. The `(Double)` cast
     turns it into a `Double`, as `parseFormattedDouble` returned, and keeps an empty value empty.
   - `parseFormattedDouble(text, pattern)` has no direct replacement, so `openl:migrate` leaves it. `toNumber` reads
     the comma that groups the digits. Remove other symbols of the pattern first, such as a currency sign:
     `(Double) toNumber(replace(text, "$", ""))`.
+
+* **`format(value)` and `format(value, pattern)` write a number or a date as `toString` does.**
+  `format(value, pattern)` gives the text of `toString(value, pattern)`, `format(amount)` the text of
+  `toString(amount, "#,##0.00")`, such as `1,234.50`, and `format(date)` the text of `toString(date)`. A rule that
+  calls `format` compiles as before and `openl:migrate` leaves it, but its result changes:
+
+  - `format(date)` gives `04/30/2015` instead of `4/30/15`. Write `format(date, "M/d/yy")` to keep the old text.
+  - `format` uses US English instead of the language of the server, as `toString` does. On a German server,
+    `format(1234.5)` gave `1.234,50` and now gives `1,234.50`.
+  - `format(amount)` of an empty value returns an empty value, where the old `format` wrote `0.00`. Write
+    `format(amount == null ? 0 : amount)` to keep the old text.
+  - `format(amount, pattern)` with an invalid pattern returns an empty value instead of stopping the call with an
+    error.
+
+  `format(pattern, values)`, which fills a text such as `format("{0} days", n)`, works as before.
 
 * **A number has no `$` sign.** The `$` sign is removed from formulas and ranges, because it reads differently across
   countries and also starts a reference to a spreadsheet step. A formula or a range that still uses it usually no

@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -44,13 +47,12 @@ class RulesRemovedFunctionsMigratorTest {
     @Test
     void rewritesRemovedFunctionsByArgumentTypes(@TempDir Path folder) throws Exception {
         var workbook = writeProject(folder, List.of(
-                List.of(row("Method String amount(Double amount)"), row("return format(amount);")),
-                List.of(row("Method String amountOf(double amount)"), row("return format(amount, \"#,##0\");")),
                 List.of(row("Method String days(Integer n)"), row("return format(\"{0} days\", n);")),
                 List.of(row("Method String isoDay(String text)"),
                         row("Date d = stringToDate(text);"),
                         row("return dateToString(d, \"yyyy-MM-dd\");")),
-                List.of(row("Method String shortDate(String text)"), row("return format(stringToDate(text));")),
+                List.of(row("Method String shortDate(String text)"),
+                        row("return format(stringToDate(text), \"M/d/yy\");")),
                 List.of(row("Method String fixed(Double amount)"),
                         row("return toString(amount, DEFAULT_DOUBLE_FORMAT);")),
                 List.of(row("Method Double number(String text)"), row("return parseFormattedDouble(text);")),
@@ -69,12 +71,6 @@ class RulesRemovedFunctionsMigratorTest {
 
         assertEquals(List.of(workbook.toRealPath()), changed);
         assertEquals(List.of(
-                "Method String amount(Double amount)",
-                "return toString(amount, \"#,##0.00\");",
-                "",
-                "Method String amountOf(double amount)",
-                "return toString(amount, \"#,##0\");",
-                "",
                 "Method String days(Integer n)",
                 "return format(\"{0} days\", n);",
                 "",
@@ -83,7 +79,7 @@ class RulesRemovedFunctionsMigratorTest {
                 "return toString(d, \"yyyy-MM-dd\");",
                 "",
                 "Method String shortDate(String text)",
-                "return toString(toDate(text), \"M/d/yy\");",
+                "return format(toDate(text), \"M/d/yy\");",
                 "",
                 "Method String fixed(Double amount)",
                 "return toString(amount, \"#,##0.00\");",
@@ -105,7 +101,7 @@ class RulesRemovedFunctionsMigratorTest {
                 "",
                 "Spreadsheet SpreadsheetResult calc(Date date)",
                 "Step|Value",
-                "Text|= toString(date, \"M/d/yy\") + \" / \" + toString(date, \"yyyy\")"), read(workbook));
+                "Text|= toString(date, \"M/d/yy\") + \" / \" + format(date, \"yyyy\")"), read(workbook));
         assertEquals(List.of(), errors(compile(folder)));
 
         var factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
@@ -113,8 +109,6 @@ class RulesRemovedFunctionsMigratorTest {
                 .build();
         var rules = factory.newInstance();
         var type = factory.getInterfaceClass();
-        assertEquals("1,234.50", type.getMethod("amount", Double.class).invoke(rules, 1234.5));
-        assertEquals("1,235", type.getMethod("amountOf", double.class).invoke(rules, 1234.6));
         assertEquals("2 days", type.getMethod("days", Integer.class).invoke(rules, 2));
         assertEquals("2015-04-30", type.getMethod("isoDay", String.class).invoke(rules, "04/30/2015"));
         assertEquals("4/30/15", type.getMethod("shortDate", String.class).invoke(rules, "04/30/2015"));
@@ -136,7 +130,7 @@ class RulesRemovedFunctionsMigratorTest {
     @Test
     void rewritesCellStoredAsInlineString(@TempDir Path folder) throws IOException {
         var workbook = writeProject(folder, new SXSSFWorkbook(), List.of(
-                List.of(row("Method String amount(Double amount)"), row("return format(amount);"))));
+                List.of(row("Method String day(Date date)"), row("return dateToString(date);"))));
         assertTrue(inlineStrings(workbook));
         var compilations = new AtomicInteger();
 
@@ -146,22 +140,36 @@ class RulesRemovedFunctionsMigratorTest {
         }));
 
         assertEquals(List.of(workbook.toRealPath()), changed);
-        assertEquals(List.of("Method String amount(Double amount)", "return toString(amount, \"#,##0.00\");"),
-                read(workbook));
+        assertEquals(List.of("Method String day(Date date)", "return toString(date, \"M/d/yy\");"), read(workbook));
         assertEquals(2, compilations.get());
         assertEquals(List.of(), errors(compile(folder)));
     }
 
     @Test
-    void leavesProjectThatCompiles(@TempDir Path folder) throws IOException {
+    void leavesProjectThatCompiles(@TempDir Path folder) throws Exception {
         var workbook = writeProject(folder, List.of(
-                List.of(row("Method String days(Integer n)"), row("return format(\"{0} days\", n);"))));
+                List.of(row("Method String days(Integer n)"), row("return format(\"{0} days\", n);")),
+                List.of(row("Method String amount(Double amount)"), row("return format(amount);")),
+                List.of(row("Method String amountOf(double amount)"), row("return format(amount, \"#,##0\");")),
+                List.of(row("Method String day(Date date)"), row("return format(date);")),
+                List.of(row("Method String year(Date date)"), row("return format(date, \"yyyy\");"))));
         var bytes = Files.readAllBytes(workbook);
 
         var changed = new RulesRemovedFunctionsMigrator().migrate(folder, context(folder));
 
         assertEquals(List.of(), changed);
         assertArrayEquals(bytes, Files.readAllBytes(workbook));
+        var factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
+                .setProject(folder.toString())
+                .build();
+        var rules = factory.newInstance();
+        var type = factory.getInterfaceClass();
+        var date = new GregorianCalendar(2015, Calendar.APRIL, 30).getTime();
+        assertEquals("2 days", type.getMethod("days", Integer.class).invoke(rules, 2));
+        assertEquals("1,234.50", type.getMethod("amount", Double.class).invoke(rules, 1234.5));
+        assertEquals("1,235", type.getMethod("amountOf", double.class).invoke(rules, 1234.6));
+        assertEquals("04/30/2015", type.getMethod("day", Date.class).invoke(rules, date));
+        assertEquals("2015", type.getMethod("year", Date.class).invoke(rules, date));
     }
 
     @Test

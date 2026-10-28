@@ -35,6 +35,18 @@ class NumbersTest {
     }
 
     @Test
+    void format() {
+        assertNull(Numbers.format(null));
+        assertNull(Numbers.format(null, "#,##0.00"));
+        assertNull(Numbers.format(1, null));
+        assertNull(Numbers.format(1, "#.#.#"));
+        assertEquals("1,234.50", Numbers.format(1234.5));
+        assertEquals("-0.12", Numbers.format(-0.123));
+        assertEquals("1,000,000.00", Numbers.format(1_000_000));
+        assertEquals("1,234.50", Numbers.format(1234.5, "#,##0.00"));
+    }
+
+    @Test
     void toStringForInteger() {
         var number100 = 100;
         assertEquals("100", Numbers.toString(number100));

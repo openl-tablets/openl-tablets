@@ -35,8 +35,9 @@ import org.openl.rules.table.xls.XlsUrlParser;
  * {@link RulesRemovedFunctionsMigrator}. It rewrites the rules code in the workbooks of the project that fails to
  * compile with an error one of the fixes is for.
  * <p>
- * Only the code the compiler rejects is changed, so a valid call that looks like a removed one, such as
- * {@code format("{0} days", n)}, stays as it is. The compiler names the cell of each error and the piece of its text,
+ * Only the code the compiler rejects is changed, so a valid call that looks like a removed one, such as a call of a
+ * rule of the project named {@code dateToString}, stays as it is. The compiler names the cell of each error and the
+ * piece of its text,
  * a row of a Method table body included. An error in the code a table generates from its cells is left for a manual
  * fix. Only the workbooks of the modules of the project are changed, not those of a dependency.
  * <p>
