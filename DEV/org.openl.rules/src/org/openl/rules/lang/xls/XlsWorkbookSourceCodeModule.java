@@ -131,7 +131,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
             wbColors.add(cellStyle.getRightBorderColor());
         }
 
-        var numFonts = workbook.getNumberOfFontsAsInt();
+        var numFonts = workbook.getNumberOfFonts();
         for (var i = 0; i < numFonts; i++) {
             var font = workbook.getFontAt(i);
             wbColors.add(font.getColor());

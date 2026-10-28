@@ -99,7 +99,7 @@ public class XlsCell implements ICell {
         var font = gridModel.getSheetSource()
                 .getSheet()
                 .getWorkbook()
-                .getFontAt(cell.getCellStyle().getFontIndexAsInt());
+                .getFontAt(cell.getCellStyle().getFontIndex());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 

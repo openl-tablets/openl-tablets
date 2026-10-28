@@ -64,15 +64,6 @@ class PoiCellStyle implements CellStyle {
         return format.getFontIndex();
     }
 
-    /**
-     * @deprecated Use {@link #getFontIndex()} instead.
-     */
-    @Deprecated(since = "5.24.6")
-    @Override
-    public int getFontIndexAsInt() {
-        return format.getFontIndex();
-    }
-
     @Override
     public void setHidden(boolean hidden) {
         // The style is read from the workbook and never changed.
