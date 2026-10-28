@@ -9,12 +9,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -123,6 +126,25 @@ class RulesRemovedFunctionsMigratorTest {
     }
 
     @Test
+    void rewritesCellStoredAsInlineString(@TempDir Path folder) throws IOException {
+        var workbook = writeProject(folder, new SXSSFWorkbook(), List.of(
+                List.of(row("Method String amount(Double amount)"), row("return format(amount);"))));
+        assertTrue(inlineStrings(workbook));
+        var compilations = new AtomicInteger();
+
+        var changed = new RulesRemovedFunctionsMigrator().migrate(folder, new MigrationContext(null, () -> {
+            compilations.incrementAndGet();
+            return compile(folder);
+        }));
+
+        assertEquals(List.of(workbook.toRealPath()), changed);
+        assertEquals(List.of("Method String amount(Double amount)", "return toString(amount, \"#,##0.00\");"),
+                read(workbook));
+        assertEquals(2, compilations.get());
+        assertEquals(List.of(), errors(compile(folder)));
+    }
+
+    @Test
     void leavesProjectThatCompiles(@TempDir Path folder) throws IOException {
         var workbook = writeProject(folder, List.of(
                 List.of(row("Method String days(Integer n)"), row("return format(\"{0} days\", n);"))));
@@ -178,9 +200,16 @@ class RulesRemovedFunctionsMigratorTest {
      * all its columns.
      */
     private static Path writeProject(Path folder, List<List<String[]>> tables) throws IOException {
+        return writeProject(folder, new XSSFWorkbook(), tables);
+    }
+
+    /**
+     * Writes the tables with the workbook, which decides how the texts of the cells are stored.
+     */
+    private static Path writeProject(Path folder, Workbook book, List<List<String[]>> tables) throws IOException {
         Files.writeString(folder.resolve("rules.xml"), RULES_XML);
         var file = folder.resolve("Main.xlsx");
-        try (var workbook = new XSSFWorkbook(); var out = Files.newOutputStream(file)) {
+        try (var workbook = book; var out = Files.newOutputStream(file)) {
             var sheet = workbook.createSheet("Main");
             var r = 0;
             for (var table : tables) {
@@ -199,6 +228,15 @@ class RulesRemovedFunctionsMigratorTest {
             workbook.write(out);
         }
         return file;
+    }
+
+    /**
+     * Tells whether the first sheet keeps the texts of its cells inside the cells instead of in shared strings.
+     */
+    private static boolean inlineStrings(Path file) throws IOException {
+        try (var in = Files.newInputStream(file); var workbook = new XSSFWorkbook(in)) {
+            return workbook.getSheetAt(0).getRow(0).getCell(0).getCTCell().isSetIs();
+        }
     }
 
     /**
