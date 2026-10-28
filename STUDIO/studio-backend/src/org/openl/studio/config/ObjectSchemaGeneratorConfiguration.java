@@ -7,6 +7,7 @@ import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.victools.jsonschema.generator.CustomDefinition;
 import com.github.victools.jsonschema.generator.FieldScope;
+import com.github.victools.jsonschema.generator.MemberScope;
 import com.github.victools.jsonschema.generator.Option;
 import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerationContext;
@@ -15,6 +16,7 @@ import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
 import com.github.victools.jsonschema.module.jackson.JacksonModule;
 import com.github.victools.jsonschema.module.swagger2.Swagger2Module;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -96,11 +98,26 @@ public class ObjectSchemaGeneratorConfiguration {
                 // What a map holds, as the values a key may carry; see MapEntriesAttributeOverride for the
                 // maps whose values have no type of their own, and for why a map has to say this at all.
                 .with(Option.MAP_VALUES_AS_ADDITIONAL_PROPERTIES);
+        // A generated bean describes a property in its @Parameter; a @Schema of the property still wins.
+        configBuilder.forFields().withDescriptionResolver(ObjectSchemaGeneratorConfiguration::parameterDescription);
+        configBuilder.forMethods().withDescriptionResolver(ObjectSchemaGeneratorConfiguration::parameterDescription);
         configBuilder.forTypesInGeneral()
                 .withCustomDefinitionProvider(new JacksonBeanSchemaProvider(objectMapper))
                 .withCustomDefinitionProvider(ObjectSchemaGeneratorConfiguration::localeAsText)
                 .withTypeAttributeOverride(new MapEntriesAttributeOverride());
         return configBuilder;
+    }
+
+    /**
+     * The description the {@link Parameter} of a field or of its getter gives, or {@code null} without one. The
+     * elements of a list or an array field are not described by it.
+     */
+    private static @Nullable String parameterDescription(MemberScope<?, ?> member) {
+        if (member.isFakeContainerItemScope()) {
+            return null;
+        }
+        var parameter = member.getAnnotationConsideringFieldAndGetter(Parameter.class);
+        return parameter == null || parameter.description().isEmpty() ? null : parameter.description();
     }
 
     /** Describes a locale as the text it is written as, such as {@code en_US}. Other types are left as they are. */

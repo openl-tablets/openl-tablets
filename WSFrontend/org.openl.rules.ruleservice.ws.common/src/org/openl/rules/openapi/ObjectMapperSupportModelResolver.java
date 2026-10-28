@@ -2,11 +2,16 @@ package org.openl.rules.openapi;
 
 import static io.swagger.v3.core.util.RefUtils.constructRef;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.stream.Stream;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 
@@ -17,14 +22,19 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.AnnotationsUtils;
+import io.swagger.v3.core.util.ObjectMapperFactory;
 import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
+import io.swagger.v3.oas.models.media.ByteArraySchema;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -35,6 +45,11 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.util.JAXBUtils;
 
 class ObjectMapperSupportModelResolver extends ModelResolver {
+
+    private static final String ARRAY_TYPE = "array";
+    private static final String BYTE_FORMAT = "byte";
+    private static final ObjectMapper EXAMPLE_MAPPER = ObjectMapperFactory.buildStrictGenericObjectMapper();
+
     public ObjectMapperSupportModelResolver(ObjectMapper mapper) {
         super(mapper);
     }
@@ -128,7 +143,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         io.swagger.v3.oas.annotations.media.Schema declaredSchemaAnnotation = AnnotationsUtils
                 .getSchemaDeclaredAnnotation(type.getRawClass());
 
-        String disc = (declaredSchemaAnnotation == null) ? "" : declaredSchemaAnnotation.discriminatorProperty();
+        String disc = declaredSchemaAnnotation == null ? "" : declaredSchemaAnnotation.discriminatorProperty();
         var avoidDisc = false;
         if (disc.isEmpty()) {
             final var beanDesc = _mapper.getSerializationConfig().introspect(type);
@@ -170,6 +185,111 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         }
     }
 
+    /**
+     * Describes a property by the {@link Parameter} of its field, getter or setter: its description and example.
+     *
+     * <p>They describe the property only. The elements of a list or a map and the schema of a datatype the
+     * property refers to keep their own description.
+     *
+     * <p>A description or an example the {@code @Schema} of the property gives, as a MixIn does, wins. An example
+     * that cannot be read as the property type is left out. A property that refers to a datatype is written as a
+     * bare reference, so its description is not shown.
+     */
+    @Override
+    protected boolean applyBeanValidatorAnnotations(BeanPropertyDefinition propDef,
+                                                    Schema property,
+                                                    Annotation[] annotations,
+                                                    Schema parent,
+                                                    boolean applyNotNullAnnotations) {
+        var modified = super.applyBeanValidatorAnnotations(propDef,
+                property,
+                annotations,
+                parent,
+                applyNotNullAnnotations);
+        var parameter = findAnnotation(propDef, Parameter.class);
+        if (parameter == null) {
+            return modified;
+        }
+        var schema = findAnnotation(propDef, io.swagger.v3.oas.annotations.media.Schema.class);
+        if (StringUtils.isNotBlank(parameter.description()) && (schema == null || schema.description().isEmpty())) {
+            property.setDescription(parameter.description());
+        }
+        if (StringUtils.isNotBlank(parameter.example()) && (schema == null || schema.example().isEmpty())) {
+            var value = toExample(property, parseExample(property, propDef.getPrimaryMember(), parameter.example()));
+            if (value != null) {
+                property.setExample(value);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Finds an annotation declared on the property itself. The annotations of a property also carry the
+     * {@code @Parameter} of the property that holds the bean, which must not describe this one.
+     */
+    private static <A extends Annotation> @Nullable A findAnnotation(BeanPropertyDefinition propDef, Class<A> type) {
+        return Stream.of(propDef.getField(), propDef.getGetter(), propDef.getSetter())
+                .filter(Objects::nonNull)
+                .map(member -> member.getAnnotation(type))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Stores an example the way the schema of the property compares and writes it.
+     *
+     * <p>An array schema holds a list, so the same example read for a parent type and for its subtype is equal and
+     * the subtype does not repeat the property it inherits. A binary schema holds the bytes of the value in base64.
+     */
+    private static @Nullable Object toExample(Schema property, @Nullable Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (ARRAY_TYPE.equals(property.getType())) {
+            return toList(value);
+        }
+        if (BYTE_FORMAT.equals(property.getFormat())) {
+            var binary = new ByteArraySchema();
+            binary.setExample(value);
+            return binary.getExample() instanceof byte[] bytes ? Base64.getEncoder().encodeToString(bytes) : null;
+        }
+        return value;
+    }
+
+    /**
+     * Reads an example: a JSON value as it is, any other text by the property type.
+     *
+     * <p>A JSON string is read by the property type without its quotes. A single JSON value of an array property
+     * is read by the property type too, as an array of one element.
+     */
+    private @Nullable Object parseExample(Schema property, @Nullable Annotated member, String example) {
+        var text = example;
+        try {
+            var node = EXAMPLE_MAPPER.readTree(example);
+            if (node.isTextual()) {
+                text = node.textValue();
+            } else if (!node.isNull() && (node.isContainerNode() || !ARRAY_TYPE.equals(property.getType()))) {
+                return node;
+            }
+        } catch (IOException e) {
+            // not JSON: converted by the property type below
+        }
+        return member == null ? text : stringToRawType(member, text);
+    }
+
+    private static @Nullable Object toList(@Nullable Object value) {
+        if (value == null || !value.getClass().isArray()) {
+            return value;
+        }
+        var length = Array.getLength(value);
+        var list = new ArrayList<@Nullable Object>(length);
+        for (var i = 0; i < length; i++) {
+            list.add(toList(Array.get(value, i)));
+        }
+        return list;
+    }
+
     @Override
     protected boolean applyBeanValidatorAnnotations(Schema property, Annotation[] annotations, Schema parent, boolean applyNotNullAnnotations) {
         var modified = super.applyBeanValidatorAnnotations(property, annotations, parent, applyNotNullAnnotations);
@@ -197,7 +317,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     }
 
     @Override
-    public Schema resolve(AnnotatedType annotatedType, ModelConverterContext context, Iterator<ModelConverter> next) {
+    public @Nullable Schema resolve(AnnotatedType annotatedType, ModelConverterContext context, Iterator<ModelConverter> next) {
         if (annotatedType == null) {
             return null;
         }
@@ -208,9 +328,8 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         var name = resolveSchemaName(annotatedType);
         if (name != null && context.getDefinedModels().containsKey(name)) {
             return context.getDefinedModels().get(name);
-        } else {
-            return super.resolve(annotatedType, context, next);
         }
+        return super.resolve(annotatedType, context, next);
     }
 
     /**
@@ -230,11 +349,11 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
 
         final Annotation resolvedSchemaOrArrayAnnotation = AnnotationsUtils.mergeSchemaAnnotations(annotatedType.getCtxAnnotations(), type);
         final io.swagger.v3.oas.annotations.media.Schema resolvedSchemaAnnotation =
-                resolvedSchemaOrArrayAnnotation instanceof io.swagger.v3.oas.annotations.media.ArraySchema as ?
-                        as.schema() :
-                        (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
+                resolvedSchemaOrArrayAnnotation instanceof ArraySchema as
+                        ? as.schema()
+                        : (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
 
-        final BeanDescription beanDesc = introspectSerializedType(type);
+        final var beanDesc = introspectSerializedType(type);
 
         var name = annotatedType.getName();
         if (StringUtils.isBlank(name)) {
@@ -263,7 +382,9 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
         var jsonSerialize = recurBeanDesc.getClassAnnotations().get(JsonSerialize.class);
         while (jsonSerialize != null && !Void.class.equals(jsonSerialize.as())) {
             var asName = jsonSerialize.as().getName();
-            if (visited.contains(asName)) break;
+            if (visited.contains(asName)) {
+                break;
+            }
             visited.add(asName);
 
             recurBeanDesc = _mapper.getSerializationConfig().introspect(

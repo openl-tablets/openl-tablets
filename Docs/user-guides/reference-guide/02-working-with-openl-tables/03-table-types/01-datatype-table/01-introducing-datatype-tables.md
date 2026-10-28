@@ -121,5 +121,7 @@ If a datatype is used as an input or output in a rule exposed as an API endpoint
 
 -   Example values are retrieved from the Example column and used to illustrate the expected data format for each attribute.
 -   Descriptions are extracted from the Description column, as shown in the Schema screenshot. These are displayed in the API schema to provide additional context for each field.
+    -   A description and an example describe the field only. The elements of a list, an array or a map field are not described by them.
+    -   A field of another data type is shown as a reference to that data type, without a description. The description of the field is never shown on the referenced data type.
 -   Default value, along with a list of Allowed values (when applicable), is presented within a collapsible section under an expandable arrow icon.
 -   Fields marked as Mandatory are indicated with an asterisk (*) in the schema view, helping users identify required fields at a glance.
