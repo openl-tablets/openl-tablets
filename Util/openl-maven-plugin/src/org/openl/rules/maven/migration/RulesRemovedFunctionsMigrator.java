@@ -42,7 +42,7 @@ public final class RulesRemovedFunctionsMigrator implements Migrator {
             CodeFix.function("dateToString", DATE, Date.class),
             CodeFix.function("dateToString", WITH_PATTERN, Date.class, String.class),
             CodeFix.function("stringToDate", "toDate({0})", String.class),
-            CodeFix.function("parseFormattedDouble", "toNumber({0})", String.class),
+            CodeFix.function("parseFormattedDouble", "(Double) toNumber({0})", String.class),
             CodeFix.function("addIgnoreNull", ADD, Object[].class, Object.class),
             CodeFix.function("addIgnoreNull", ADD_AT, Object[].class, Integer.class, Object.class),
             CodeFix.function("addArrayElementIgnoreNull", ADD, Object[].class, Object.class),
