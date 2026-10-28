@@ -2,6 +2,7 @@ package org.openl.rules.maven.migration;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -52,7 +53,8 @@ class RulesRemovedFunctionsMigratorTest {
                 List.of(row("Method String shortDate(String text)"), row("return format(stringToDate(text));")),
                 List.of(row("Method String fixed(Double amount)"),
                         row("return toString(amount, DEFAULT_DOUBLE_FORMAT);")),
-                List.of(row("Method Number number(String text)"), row("return parseFormattedDouble(text);")),
+                List.of(row("Method Double number(String text)"), row("return parseFormattedDouble(text);")),
+                List.of(row("Method Double twice(String text)"), row("return parseFormattedDouble(text) * 2;")),
                 List.of(row("Method String[] addName(String[] names, String name)"),
                         row("return addIgnoreNull(names, name);")),
                 List.of(row("Method String[] insertName(String[] names, String name)"),
@@ -86,8 +88,11 @@ class RulesRemovedFunctionsMigratorTest {
                 "Method String fixed(Double amount)",
                 "return toString(amount, \"#,##0.00\");",
                 "",
-                "Method Number number(String text)",
-                "return toNumber(text);",
+                "Method Double number(String text)",
+                "return (Double) toNumber(text);",
+                "",
+                "Method Double twice(String text)",
+                "return ((Double) toNumber(text)) * 2;",
                 "",
                 "Method String[] addName(String[] names, String name)",
                 "return name == null ? names : add(names, name);",
@@ -114,8 +119,11 @@ class RulesRemovedFunctionsMigratorTest {
         assertEquals("2015-04-30", type.getMethod("isoDay", String.class).invoke(rules, "04/30/2015"));
         assertEquals("4/30/15", type.getMethod("shortDate", String.class).invoke(rules, "04/30/2015"));
         assertEquals("0.50", type.getMethod("fixed", Double.class).invoke(rules, 0.5));
-        var number = (Number) type.getMethod("number", String.class).invoke(rules, "1,441.33");
-        assertEquals(1441.33, number.doubleValue());
+        var number = type.getMethod("number", String.class);
+        assertEquals(1441.33, number.invoke(rules, "1,441.33"));
+        assertEquals(12.0, number.invoke(rules, "12"));
+        assertNull(number.invoke(rules, "12abc"));
+        assertEquals(2882.66, type.getMethod("twice", String.class).invoke(rules, "1,441.33"));
         var names = new String[]{"a"};
         var addName = type.getMethod("addName", String[].class, String.class);
         assertArrayEquals(names, (String[]) addName.invoke(rules, names, null));

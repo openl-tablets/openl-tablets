@@ -131,7 +131,7 @@ from Maven.
   - **`format(date)`, `dateToString(date)`** — `toString(date, "M/d/yy")`
   - **`format(date, pattern)`, `dateToString(date, pattern)`** — `toString(date, pattern)`
   - **`stringToDate(text)`** — `toDate(text)`
-  - **`parseFormattedDouble(text)`** — `toNumber(text)`
+  - **`parseFormattedDouble(text)`** — `(Double) toNumber(text)`
   - **`addIgnoreNull(array, element)`** — `element == null ? array : add(array, element)`
   - **`addIgnoreNull(array, index, element)`** — `element == null ? array : addElement(array, index, element)`
 
@@ -149,9 +149,11 @@ from Maven.
     for `toString(amount, pattern)` with an invalid pattern, and for `toDate` and `toNumber` with a text they cannot
     read. `toDate` and `toNumber` also need the whole text to be a date or a number: `toNumber("12abc")` is empty,
     while `parseFormattedDouble("12abc")` read `12`.
+  - `toNumber` returns a `Number`, which a rule cannot return as a `Double` or use in arithmetic. The `(Double)` cast
+    turns it into a `Double`, as `parseFormattedDouble` returned, and keeps an empty value empty.
   - `parseFormattedDouble(text, pattern)` has no direct replacement, so `openl:migrate` leaves it. `toNumber` reads
     the comma that groups the digits. Remove other symbols of the pattern first, such as a currency sign:
-    `toNumber(replace(text, "$", ""))`.
+    `(Double) toNumber(replace(text, "$", ""))`.
 
 * **A number in a formula is written in digits only.** The `$` sign, the thousands separator and the `K`, `M`, `B`
   multipliers are removed from formulas, because they read differently across countries and `$` also starts a
