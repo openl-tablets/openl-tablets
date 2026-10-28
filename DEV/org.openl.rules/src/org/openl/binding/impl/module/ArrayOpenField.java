@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.ArrayElements;
 import org.openl.vm.IRuntimeEnv;
 
 @RequiredArgsConstructor
@@ -36,13 +37,13 @@ public class ArrayOpenField implements IOpenField {
         var length = Array.getLength(target);
         Object arrayResult = Array.newInstance(componentClass.getInstanceClass(), length);
         for (var i = 0; i < length; i++) {
-            Object arrayElement = Array.get(target, i);
+            Object arrayElement = ArrayElements.get(target, i);
             if (componentClass.isArray()) {
                 arrayElement = processArray(arrayElement, env, componentClass);
             } else {
                 arrayElement = field.get(arrayElement, env);
             }
-            Array.set(arrayResult, i, arrayElement);
+            ArrayElements.set(arrayResult, i, arrayElement);
         }
         return arrayResult;
     }

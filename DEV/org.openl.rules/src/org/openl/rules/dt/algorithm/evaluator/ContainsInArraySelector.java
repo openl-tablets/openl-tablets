@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
+import org.openl.util.ArrayElements;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class ContainsInArraySelector implements IIntSelector {
@@ -23,8 +24,8 @@ public class ContainsInArraySelector implements IIntSelector {
 
         var array = condition.getParamValue(0, ruleN);
         var size = Array.getLength(array);
-        for (var i = 0; i < size; ++i) {
-            if (Objects.equals(Array.get(array, i), value)) {
+        for (var i = 0; i < size; i++) {
+            if (Objects.equals(ArrayElements.get(array, i), value)) {
                 return true;
             }
         }

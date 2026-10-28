@@ -2,6 +2,8 @@ package org.openl.rules.runtime;
 
 import java.lang.reflect.Array;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.exception.AmbiguousFieldException;
@@ -13,6 +15,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.util.DomainUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -26,10 +29,8 @@ import org.openl.vm.IRuntimeEnv;
  * a dependent module. A bean of the same datatype from another class loader is checked by its readable properties;
  * a field it does not have is not checked.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ValidationHandler {
-
-    private ValidationHandler() {
-    }
 
     /**
      * Checks the arguments of a rule before it runs.
@@ -45,7 +46,7 @@ public final class ValidationHandler {
         if (args != null) {
             // An argument the signature does not declare has no vocabulary to check.
             var count = Math.min(args.length, methodSignature.getNumberOfParameters());
-            for (int i = 0; i < count; i++) {
+            for (var i = 0; i < count; i++) {
                 doValidate(env, module, args[i], methodSignature.getParameterType(i));
             }
         }
@@ -70,9 +71,9 @@ public final class ValidationHandler {
                                         @Nullable IOpenClass module,
                                         Object objs,
                                         IOpenClass openType) {
-        int length = Array.getLength(objs);
-        for (int i = 0; i < length; i++) {
-            doValidate(env, module, Array.get(objs, i), openType.getComponentClass());
+        var length = Array.getLength(objs);
+        for (var i = 0; i < length; i++) {
+            doValidate(env, module, ArrayElements.get(objs, i), openType.getComponentClass());
         }
     }
 
@@ -135,7 +136,7 @@ public final class ValidationHandler {
 
     private static void validateAliasValue(Object value, DomainOpenClass domainOpenClass) {
         IDomain domain = domainOpenClass.getDomain();
-        boolean isInDomain = domain.selectObject(value);
+        var isInDomain = domain.selectObject(value);
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(value, domainOpenClass.getName(), DomainUtils.toString(domain));
         }

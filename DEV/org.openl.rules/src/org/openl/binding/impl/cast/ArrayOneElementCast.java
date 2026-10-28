@@ -4,8 +4,10 @@ import java.lang.reflect.Array;
 import java.util.Objects;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.types.IOpenClass;
+import org.openl.util.ArrayElements;
 
 final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
 
@@ -21,22 +23,21 @@ final class ArrayOneElementCast implements IArrayOneElementCast, IOpenCast {
     }
 
     @Override
-    public Object convert(Object from) {
+    public @Nullable Object convert(Object from) {
         if (from == null) {
             return null;
         }
 
         if (from.getClass().isArray()) {
             if (Array.getLength(from) == 1) {
-                return openCast.convert(Array.get(from, 0));
-            } else {
-                throw new ClassCastException("""
-                        Cannot convert '%s' to '%s'. \
-                        The number of elements in the array is '%s' instead of only one element that is expected.""".formatted(
-                        from.getClass().getTypeName(),
-                        to.getName(),
-                        Array.getLength(from)));
+                return openCast.convert(ArrayElements.get(from, 0));
             }
+            throw new ClassCastException("""
+                    Cannot convert '%s' to '%s'. \
+                    The number of elements in the array is '%s' instead of only one element that is expected.""".formatted(
+                    from.getClass().getTypeName(),
+                    to.getName(),
+                    Array.getLength(from)));
         }
         throw new ClassCastException(
                 "Cannot convert from '%s' to '%s'.".formatted(from.getClass().getTypeName(), to.getName()));

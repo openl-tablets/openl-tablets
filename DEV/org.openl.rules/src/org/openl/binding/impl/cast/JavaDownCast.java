@@ -3,9 +3,12 @@ package org.openl.binding.impl.cast;
 import java.lang.reflect.Array;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.openl.binding.ICastFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayElements;
 
 final class JavaDownCast implements IOpenCast {
 
@@ -23,7 +26,7 @@ final class JavaDownCast implements IOpenCast {
             if (arrayLength > 0) {
                 var minDim = Integer.MAX_VALUE;
                 for (var i = 0; i < arrayLength; i++) {
-                    var p = calcArrayMinDim(Array.get(from, i));
+                    var p = calcArrayMinDim(ArrayElements.get(from, i));
                     if (minDim > p) {
                         minDim = p;
                     }
@@ -35,31 +38,30 @@ final class JavaDownCast implements IOpenCast {
     }
 
     @Override
-    public Object convert(Object from) {
+    public @Nullable Object convert(Object from) {
         if (from == null) {
             return null;
         }
         if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
             return from;
-        } else {
-            Class<?> fromClass = from.getClass();
-            IOpenClass fromOpenClass = JavaOpenClass.getOpenClass(fromClass);
-            var t = fromOpenClass;
-            var d = 0;
-            while (t.isArray()) {
-                t = t.getComponentClass();
-                d++;
-            }
-            if (d > 0 && t.getInstanceClass() == Object.class) {
-                var dim = calcArrayMinDim(from);
-                fromOpenClass = JavaOpenClass.OBJECT.getArrayType(dim);
-            }
-            var openCast = castFactory.getCast(fromOpenClass, to);
-            if (openCast != null && !(openCast instanceof JavaDownCast)) {
-                return openCast.convert(from);
-            }
-            return to.getInstanceClass().cast(from);
         }
+        Class<?> fromClass = from.getClass();
+        IOpenClass fromOpenClass = JavaOpenClass.getOpenClass(fromClass);
+        var t = fromOpenClass;
+        var d = 0;
+        while (t.isArray()) {
+            t = t.getComponentClass();
+            d++;
+        }
+        if (d > 0 && t.getInstanceClass() == Object.class) {
+            var dim = calcArrayMinDim(from);
+            fromOpenClass = JavaOpenClass.OBJECT.getArrayType(dim);
+        }
+        var openCast = castFactory.getCast(fromOpenClass, to);
+        if (openCast != null && !(openCast instanceof JavaDownCast)) {
+            return openCast.convert(from);
+        }
+        return to.getInstanceClass().cast(from);
     }
 
     /*

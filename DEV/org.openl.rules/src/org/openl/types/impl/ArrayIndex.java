@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayElements;
 
 @RequiredArgsConstructor
 public class ArrayIndex implements IOpenIndex {
@@ -25,7 +26,7 @@ public class ArrayIndex implements IOpenIndex {
         if (container == null || ind == null || ind < 0 || ind >= Array.getLength(container)) {
             return getElementType().nullObject();
         }
-        return Array.get(container, ind);
+        return ArrayElements.get(container, ind);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class ArrayIndex implements IOpenIndex {
 
     @Override
     public void setValue(Object container, Object index, Object value) {
-        Array.set(container, (Integer) index, value);
+        ArrayElements.set(container, (Integer) index, value);
     }
 
 }

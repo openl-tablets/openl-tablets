@@ -2,20 +2,21 @@ package org.openl.binding.impl.cast;
 
 import java.lang.reflect.Array;
 
-import org.openl.types.IOpenClass;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import org.openl.types.IOpenClass;
+import org.openl.util.ArrayElements;
+
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 final class ArrayCast implements IOpenCast {
 
     private final IOpenClass toComponentType;
     private final IOpenCast openCast;
 
-    ArrayCast(IOpenClass to, IOpenCast openCast) {
-        this.toComponentType = to;
-        this.openCast = openCast;
-    }
-
     @Override
-    public Object convert(Object from) {
+    public @Nullable Object convert(Object from) {
         if (from == null) {
             return null;
         }
@@ -28,9 +29,9 @@ final class ArrayCast implements IOpenCast {
         var length = Array.getLength(from);
         Object convertedArray = Array.newInstance(toClass, length);
         for (var i = 0; i < length; i++) {
-            Object fromValue = Array.get(from, i);
+            Object fromValue = ArrayElements.get(from, i);
             var toValue = openCast.convert(fromValue);
-            Array.set(convertedArray, i, toValue);
+            ArrayElements.set(convertedArray, i, toValue);
         }
         return convertedArray;
     }

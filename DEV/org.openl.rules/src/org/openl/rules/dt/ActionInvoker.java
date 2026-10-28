@@ -16,12 +16,14 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.Invokable;
+import org.openl.util.ArrayElements;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
@@ -38,8 +40,8 @@ public class ActionInvoker implements Invokable {
     private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
         var returnValuesLength = Array.getLength(returnValues);
         for (var i = 0; i < returnValuesLength; i++) {
-            if (f[i] && Array.get(returnValues, i) != null) {
-                returnValue.add(Array.get(returnValues, i));
+            if (f[i] && ArrayElements.get(returnValues, i) != null) {
+                returnValue.add(ArrayElements.get(returnValues, i));
             }
         }
         return returnValue;
@@ -51,8 +53,12 @@ public class ActionInvoker implements Invokable {
                                    boolean[] f) {
         var returnValuesLength = Array.getLength(returnValues);
         for (var i = 0; i < returnValuesLength; i++) {
-            if (f[i] && isValidResult(Array.get(keyValues, i)) && isValidResult(Array.get(returnValues, i))) {
-                returnValue.put(Array.get(keyValues, i), Array.get(returnValues, i));
+            if (f[i]) {
+                var key = ArrayElements.get(keyValues, i);
+                var value = ArrayElements.get(returnValues, i);
+                if (isValidResult(key) && isValidResult(value)) {
+                    returnValue.put(key, value);
+                }
             }
         }
         return returnValue;
@@ -61,9 +67,8 @@ public class ActionInvoker implements Invokable {
     private Object processReturnValue(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
         if (type.isArray()) {
             return toArray(returnValues, f, type);
-        } else {
-            return toCollectionOrMap(returnValues, keyValues, f, type);
         }
+        return toCollectionOrMap(returnValues, keyValues, f, type);
     }
 
     private Object toArray(Object returnValues, boolean[] f, IOpenClass type) {
@@ -78,7 +83,7 @@ public class ActionInvoker implements Invokable {
         if (c == 0) {
             var retLength = 0;
             for (var i = 0; i < returnValuesLength; i++) {
-                if (isValidResult(Array.get(returnValues, i))) {
+                if (isValidResult(ArrayElements.get(returnValues, i))) {
                     retLength++;
                 }
             }
@@ -88,8 +93,8 @@ public class ActionInvoker implements Invokable {
         }
         var j = 0;
         for (var i = 0; i < returnValuesLength; i++) {
-            if ((f[i] || c == 0) && (isValidResult(Array.get(returnValues, i)))) {
-                Array.set(ret, j, Array.get(returnValues, i));
+            if ((f[i] || c == 0) && (isValidResult(ArrayElements.get(returnValues, i)))) {
+                ArrayElements.set(ret, j, ArrayElements.get(returnValues, i));
                 j++;
             }
         }
@@ -184,9 +189,8 @@ public class ActionInvoker implements Invokable {
     private static Object newReturnValues(IOpenClass type, int length) {
         if (type.isArray()) {
             return Array.newInstance(type.getComponentClass().getInstanceClass(), length);
-        } else {
-            return new Object[length];
         }
+        return new Object[length];
     }
 
     private static boolean[] newFlagsIfAbsent(boolean[] f, int length) {
@@ -235,8 +239,8 @@ public class ActionInvoker implements Invokable {
                                              int[] rules) {
         for (var i = 0; i < rules.length; i++) {
             var actionResult = action.executeAction(rules[i], target, params, env);
-            if (isValidResult(actionResult) && (Array.get(values, i) == null || !f[i])) {
-                Array.set(values, i, actionResult);
+            if (isValidResult(actionResult) && (ArrayElements.get(values, i) == null || !f[i])) {
+                ArrayElements.set(values, i, actionResult);
                 f[i] = true;
             }
         }
@@ -249,14 +253,10 @@ public class ActionInvoker implements Invokable {
         return firedRules.stream().mapToInt(e -> e).toArray();
     }
 
+    @AllArgsConstructor
     private static class SmartIterator {
         Iterator<Integer> itr1;
         IIntIterator itr2;
-
-        public SmartIterator(Iterator<Integer> itr1, IIntIterator itr2) {
-            this.itr1 = itr1;
-            this.itr2 = itr2;
-        }
 
         public boolean hasNext() {
             return itr1.hasNext() || itr2.hasNext();

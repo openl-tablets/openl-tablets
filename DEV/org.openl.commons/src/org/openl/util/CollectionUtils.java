@@ -9,12 +9,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
+
 /**
  * An util class for collections and arrays.
  *
  * @author Yury Molchan
  */
-public class CollectionUtils {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class CollectionUtils {
 
     /**
      * Return {@code true} if a collection is null or is empty.
@@ -115,7 +120,7 @@ public class CollectionUtils {
      */
     // Public utility contract: a null collection gives a null result, which its tests pin down.
     @SuppressWarnings("java:S1168")
-    public static <I, O> List<O> map(Iterable<I> col, Mapper<? super I, ? extends O> mapper) {
+    public static <I, O> @Nullable List<O> map(@Nullable Iterable<I> col, Mapper<? super I, ? extends O> mapper) {
         if (col == null) {
             return null;
         }
@@ -139,7 +144,7 @@ public class CollectionUtils {
      * @return the first element of the collection which matches the predicate or null if none could be found.
      * @throws NullPointerException if the predicate is null.
      */
-    public static <T> T findFirst(Iterable<T> col, Predicate<? super T> predicate) {
+    public static <T> @Nullable T findFirst(@Nullable Iterable<T> col, Predicate<? super T> predicate) {
         if (col == null) {
             return null;
         }
@@ -165,7 +170,7 @@ public class CollectionUtils {
      */
     // Public utility contract: a null collection gives a null result, as documented.
     @SuppressWarnings("java:S1168")
-    public static <T> List<T> findAll(Iterable<T> col, Predicate<? super T> predicate) {
+    public static <T> @Nullable List<T> findAll(@Nullable Iterable<T> col, Predicate<? super T> predicate) {
         if (col == null) {
             return null;
         }
@@ -192,14 +197,14 @@ public class CollectionUtils {
         return false;
     }
 
-    public static Object toArray(Collection<?> list, Class<?> instanceClass) {
+    public static @Nullable Object toArray(@Nullable Collection<?> list, Class<?> instanceClass) {
         if (list == null) {
             return null;
         }
         Object result = Array.newInstance(instanceClass, list.size());
         var i = 0;
         for (Object el : list) {
-            Array.set(result, i, el);
+            ArrayElements.set(result, i, el);
             i++;
         }
         return result;

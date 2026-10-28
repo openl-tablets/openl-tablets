@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
@@ -49,6 +50,7 @@ import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ArrayElements;
 import org.openl.util.ArrayUtils;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -165,18 +167,17 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
-    public IOpenClass getClosestClass(ModuleSpecificType openClass) {
+    public @Nullable IOpenClass getClosestClass(ModuleSpecificType openClass) {
         return getParentClass(openClass);
     }
 
     @Override
-    public IOpenClass getParentClass(ModuleSpecificType openClass) {
+    public @Nullable IOpenClass getParentClass(ModuleSpecificType openClass) {
         if (openClass instanceof CustomSpreadsheetResultOpenClass csroc) {
             if (getModule().isDependencyModule(csroc.getModule(), new IdentityHashMap<>())) {
                 return getModule().buildOrGetCombinedSpreadsheetResult(this, csroc);
-            } else {
-                return AnySpreadsheetResultOpenClass.INSTANCE;
             }
+            return AnySpreadsheetResultOpenClass.INSTANCE;
         }
         return null;
     }
@@ -592,14 +593,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 var len = Array.getLength(v);
                 var array = Array.newInstance(componentType, len);
                 for (var i = 0; i < len; i++) {
-                    Array.set(array, i, apply(Array.get(v, i), componentType));
+                    ArrayElements.set(array, i, apply(ArrayElements.get(v, i), componentType));
                 }
                 return array;
-            } else {
-                var array = Array.newInstance(componentType, 1);
-                Array.set(array, 0, apply(v, componentType));
-                return array;
             }
+            var array = Array.newInstance(componentType, 1);
+            ArrayElements.set(array, 0, apply(v, componentType));
+            return array;
         }
 
         /**
@@ -889,9 +889,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private static String getJavaTypeName(Class<?> instanceClass) {
         if (instanceClass.isPrimitive()) {
             return ClassUtils.primitiveToWrapper(instanceClass).getName();
-        } else {
-            return instanceClass.getCanonicalName();
         }
+        return instanceClass.getCanonicalName();
     }
 
     /**
@@ -912,7 +911,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         var column = point.getColumn();
         return new FieldDescription(typeName,
                 simpleRefByRow || !simpleRefByColumn ? rowNames[row] : null,
-                !simpleRefByRow ? columnNames[column] : null,
+                simpleRefByRow ? null : columnNames[column],
                 descriptions[row][column],
                 DomainOpenClass.vocabularyValues(field.getType()));
     }
@@ -998,12 +997,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
 
         var that = (CustomSpreadsheetResultOpenClass) o;
 
@@ -1013,7 +1015,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     @Override
     public int hashCode() {
         var result = super.hashCode();
-        result = 31 * result + (module != null ? module.hashCode() : 0);
-        return result;
+        return 31 * result + (module != null ? module.hashCode() : 0);
     }
 }

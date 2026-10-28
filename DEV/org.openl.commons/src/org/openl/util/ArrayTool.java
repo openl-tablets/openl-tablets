@@ -6,12 +6,14 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ArrayTool {
 
-    private ArrayTool() {
-    }
-
-    private static class ArrayIterator<T> implements Iterator<T> {
+    private static final class ArrayIterator<T> implements Iterator<T> {
         private int index;
         private final int size;
         private final T[] array;
@@ -43,13 +45,13 @@ public final class ArrayTool {
 
     public static final Object[] ZERO_OBJECT = {};
 
-    public static boolean contains(Object array, Object test) {
+    public static boolean contains(@Nullable Object array, Object test) {
         if (array == null) {
             return false;
         }
         var size = Array.getLength(array);
-        for (var i = 0; i < size; ++i) {
-            Object obj = Array.get(array, i);
+        for (var i = 0; i < size; i++) {
+            Object obj = ArrayElements.get(array, i);
             if (Objects.equals(test, obj)) {
                 return true;
             }
@@ -62,7 +64,7 @@ public final class ArrayTool {
      * Returns true if array container contains all the elements of array testArray
      */
 
-    public static <T> boolean containsAll(T[] container, T[] testArray) {
+    public static <T> boolean containsAll(T @Nullable[] container, T @Nullable[] testArray) {
         if (container == null || testArray == null) {
             return false;
         }
@@ -84,7 +86,7 @@ public final class ArrayTool {
      * @param array array
      * @return true if array is empty; false - otherwise
      */
-    public static boolean isEmpty(Object[] array) {
+    public static boolean isEmpty(Object @Nullable[] array) {
         if (array != null) {
             for (Object element : array) {
                 if (element != null) {
@@ -95,7 +97,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(int[] ary1, int[] ary2) {
+    public static boolean containsAll(int @Nullable[] ary1, int @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -107,7 +109,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(byte[] ary1, byte[] ary2) {
+    public static boolean containsAll(byte @Nullable[] ary1, byte @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -119,7 +121,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(short[] ary1, short[] ary2) {
+    public static boolean containsAll(short @Nullable[] ary1, short @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -131,7 +133,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(long[] ary1, long[] ary2) {
+    public static boolean containsAll(long @Nullable[] ary1, long @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -143,7 +145,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(char[] ary1, char[] ary2) {
+    public static boolean containsAll(char @Nullable[] ary1, char @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -155,7 +157,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(float[] ary1, float[] ary2) {
+    public static boolean containsAll(float @Nullable[] ary1, float @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -167,7 +169,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(String[] ary1, String[] ary2) {
+    public static boolean containsAll(String @Nullable[] ary1, String @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -179,7 +181,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(double[] ary1, double[] ary2) {
+    public static boolean containsAll(double @Nullable[] ary1, double @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -191,7 +193,7 @@ public final class ArrayTool {
         return true;
     }
 
-    public static boolean containsAll(boolean[] ary1, boolean[] ary2) {
+    public static boolean containsAll(boolean @Nullable[] ary1, boolean @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return false;
         }
@@ -205,7 +207,7 @@ public final class ArrayTool {
 
     // Rules reach it through RulesUtils.intersection, where a null array gives a null result.
     @SuppressWarnings("java:S1168")
-    public static String[] intersection(String[] ary1, String[] ary2) {
+    public static String @Nullable[] intersection(String @Nullable[] ary1, String @Nullable[] ary2) {
         if (ary1 == null || ary2 == null) {
             return null;
         }
@@ -226,17 +228,17 @@ public final class ArrayTool {
      */
     // Public utility contract: a null object gives a null result, as documented.
     @SuppressWarnings("java:S1168")
-    public static Object[] toArray(Object object) {
+    public static Object @Nullable[] toArray(@Nullable Object object) {
         if (object == null) {
             return null;
         }
         final Class<?> clazz = object.getClass().isArray() ? object.getClass().getComponentType() : object.getClass();
         final Class<?> componentType = clazz.isPrimitive() ? ClassUtils.primitiveToWrapper(clazz) : clazz;
 
-        int size = !object.getClass().isArray() ? 1 : Array.getLength(object);
+        int size = object.getClass().isArray() ? Array.getLength(object) : 1;
         final var newArray = (Object[]) Array.newInstance(componentType, size);
         for (var i = 0; i < size; i++) {
-            newArray[i] = Array.get(object, i);
+            newArray[i] = ArrayElements.get(object, i);
         }
         return newArray;
     }
@@ -255,7 +257,7 @@ public final class ArrayTool {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T[] removeNulls(T[] array) {
+    public static <T> T[] removeNulls(T @Nullable[] array) {
         T[] result;
 
         var valuableSize = getNotNullValuesCount(array);

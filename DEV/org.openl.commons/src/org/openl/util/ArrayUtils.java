@@ -5,10 +5,12 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
-public final class ArrayUtils {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
-    private ArrayUtils() {
-    }
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ArrayUtils {
 
     public static boolean deepEquals(Object e1, Object e2) {
         return switch (e1) {
@@ -32,7 +34,7 @@ public final class ArrayUtils {
      * @param expectedClass classTo
      * @return transformed array if it's possible to convert
      */
-    public static Object repackArray(Object o, Class<?> expectedClass) {
+    public static @Nullable Object repackArray(@Nullable Object o, Class<?> expectedClass) {
         if (o == null) {
             return null;
         }
@@ -51,12 +53,11 @@ public final class ArrayUtils {
         if (!returnType.equals(expectedType) && o.getClass().isArray() && expectedType
                 .isAssignableFrom(returnType) && dim1 == dim2 && dim1 > 0) {
             return convert(o, expectedClass.getComponentType(), dim1);
-        } else {
-            return o;
         }
+        return o;
     }
 
-    public static Object convert(Object o, UnaryOperator<Object> converter) {
+    public static Object convert(@Nullable Object o, UnaryOperator<Object> converter) {
         if (o == null || !o.getClass().isArray()) {
             return converter.apply(o);
         }
@@ -64,7 +65,7 @@ public final class ArrayUtils {
         var cache = new Object[size];
         Class<?> componentType = null;
         for (var i = 0; i < size; i++) {
-            var element = Array.get(o, i);
+            var element = ArrayElements.get(o, i);
             element = convert(element, converter);
             cache[i] = element;
             componentType = ClassUtils.commonType(componentType, element != null ? element.getClass() : null);
@@ -82,11 +83,12 @@ public final class ArrayUtils {
         Object result = Array.newInstance(newType, size);
         if (dimension == 1) {
             for (var i = 0; i < size; i++) {
-                Array.set(result, i, Array.get(o, i));
+                ArrayElements.set(result, i, ArrayElements.get(o, i));
             }
         } else {
             for (var i = 0; i < size; i++) {
-                Array.set(result, i, convert(Array.get(o, i), newType.getComponentType(), dimension - 1));
+                var element = convert(ArrayElements.get(o, i), newType.getComponentType(), dimension - 1);
+                ArrayElements.set(result, i, element);
             }
         }
         return result;

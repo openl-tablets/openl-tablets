@@ -8,6 +8,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.RangeIndexDecisionTableRuleNode;
 import org.openl.rules.dt.element.ConditionCasts;
+import org.openl.util.ArrayElements;
 
 /**
  * An index for a condition that looks for the condition column value inside an array passed to the decision table,
@@ -36,7 +37,7 @@ public class ContainsInInputArrayIndexV2 extends EqualsIndexV2 {
         if (value != null) {
             var length = Array.getLength(value);
             for (var i = 0; i < length; i++) {
-                for (int ruleN : findIndex(Array.get(value, i))) {
+                for (int ruleN : findIndex(ArrayElements.get(value, i))) {
                     rules.set(ruleN);
                 }
             }
