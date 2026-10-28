@@ -29,7 +29,6 @@ import org.apache.poi.hssf.record.Record;
 import org.apache.poi.hssf.record.SSTRecord;
 import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 
 import org.openl.excel.parser.AlignedValue;
@@ -185,13 +184,11 @@ public class WorkbookListener implements HSSFListener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void processFormula(FormulaRecord frec) {
         int row = frec.getRow();
         int column = frec.getColumn();
 
-        CellType cellType = CellType.forInt(frec.getCachedResultType());
-        switch (cellType) {
+        switch (frec.getCachedResultType()) {
             case NUMERIC:
                 Object value = getDateOrIntOrDouble(frec, frec.getValue());
                 if (indent > 0) {

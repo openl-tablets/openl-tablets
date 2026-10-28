@@ -21,6 +21,7 @@ import org.apache.poi.ss.formula.SheetIdentifier;
 import org.apache.poi.ss.formula.SheetRangeIdentifier;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellPropertyType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -164,7 +165,7 @@ final class TypedValues {
     private static void formatAsDate(Cell cell, String format) {
         if (!DateUtil.isCellDateFormatted(cell)) {
             var dataFormat = cell.getSheet().getWorkbook().createDataFormat().getFormat(format);
-            CellUtil.setCellStyleProperty(cell, CellUtil.DATA_FORMAT, dataFormat);
+            CellUtil.setCellStyleProperty(cell, CellPropertyType.DATA_FORMAT, dataFormat);
         }
     }
 

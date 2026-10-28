@@ -25,7 +25,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.SheetVisibility;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.util.Removal;
 
 import org.openl.util.FileTool;
 import org.openl.util.FileUtils;
@@ -184,16 +183,6 @@ class StreamWorkbook implements Workbook {
     @Override
     public int getNumberOfFonts() {
         return delegator.getNumberOfFonts();
-    }
-
-    /**
-     * @deprecated Use {@link #getNumberOfFonts()} instead.
-     */
-    @Override
-    @Removal(version = "6.0.0")
-    @Deprecated(forRemoval = true, since = "5.27.0")
-    public int getNumberOfFontsAsInt() {
-        return delegator.getNumberOfFontsAsInt();
     }
 
     @Override

@@ -2,7 +2,6 @@ package org.openl.excel.parser.event;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -43,6 +42,7 @@ import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
 import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.formula.WorkbookDependentFormula;
@@ -96,26 +96,15 @@ public class TableStyleListener implements HSSFListener {
 
             final var formatListener = new StyleTrackingListener(this);
 
-            // Default HSSFEventFactory does not include ContinueRecord items in the stream and it breaks Comments
-            // parsing
-            // for some cases. So we used to override processEvents() and initialize RecordFactoryInputStream
-            // to include ContinueRecord items in the stream.
-            var factory = new HSSFEventFactory() {
-                @Override
-                public void processEvents(HSSFRequest req, InputStream in) {
-                    // Include ContinueRecord items
-                    var recordStream = new RecordFactoryInputStream(in, true);
-
-                    Record r;
-                    while ((r = recordStream.nextRecord()) != null) {
-                        formatListener.processRecord(r);
-                    }
+            // HSSFEventFactory skips ContinueRecord items, and comments cannot be parsed without them.
+            // So the records are read directly, with ContinueRecord items included.
+            try (var in = directory.createDocumentInputStream(HSSFWorkbook.getWorkbookDirEntryName(directory))) {
+                var recordStream = new RecordFactoryInputStream(in, true);
+                Record r;
+                while ((r = recordStream.nextRecord()) != null) {
+                    formatListener.processRecord(r);
                 }
-            };
-
-            var request = new HSSFRequest();
-            request.addListenerForAllRecords(formatListener);
-            factory.processWorkbookEvents(request, poifs);
+            }
 
             if (palette == null) {
                 palette = new PaletteRecord();
