@@ -1,5 +1,8 @@
 package org.openl.gen;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Type;
 
@@ -12,12 +15,18 @@ import org.openl.util.StringUtils;
  * <p>The annotations are written by name, so the generator needs no OpenAPI package. A class loaded without one
  * on the class path carries them unread.
  *
+ * <p>The description and the example go into a {@code @Parameter} of the property. They describe the property
+ * only: a {@code @Schema} would describe the type of the property too, so the text would show on the elements of
+ * a list or a map and on the schema of a datatype the property refers to.
+ *
  * <p>The values of an array of a vocabulary describe its elements, so they go into the {@code @ArraySchema} of
  * the property; a plain {@code @Schema} on an array would restrict the array itself to one of the words. An
  * array of arrays keeps the erased element schema: an annotation describes one level of elements.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OpenApiSchemaAnnotations {
 
+    private static final String PARAMETER = "Lio/swagger/v3/oas/annotations/Parameter;";
     private static final String SCHEMA = "Lio/swagger/v3/oas/annotations/media/Schema;";
     private static final String ARRAY_SCHEMA = "Lio/swagger/v3/oas/annotations/media/ArraySchema;";
 
@@ -25,9 +34,6 @@ public final class OpenApiSchemaAnnotations {
     @FunctionalInterface
     public interface Target {
         AnnotationVisitor visitAnnotation(String descriptor, boolean visible);
-    }
-
-    private OpenApiSchemaAnnotations() {
     }
 
     /**
@@ -43,29 +49,31 @@ public final class OpenApiSchemaAnnotations {
                              String typeDescriptor,
                              String description,
                              String example,
-                             String[] allowableValues) {
-        var hasValues = allowableValues != null && allowableValues.length > 0;
-        var hasText = StringUtils.isNotBlank(description) || StringUtils.isNotBlank(example);
-        var dimensions = arrayDimensions(typeDescriptor);
-        var scalarValues = hasValues && dimensions == 0;
-        if (hasValues && dimensions == 1) {
-            var arraySchema = target.visitAnnotation(ARRAY_SCHEMA, true);
-            if (hasText) {
-                var schema = arraySchema.visitAnnotation("arraySchema", SCHEMA);
-                visitText(schema, description, example);
+                             String @Nullable [] allowableValues) {
+        if (StringUtils.isNotBlank(description) || StringUtils.isNotBlank(example)) {
+            var parameter = target.visitAnnotation(PARAMETER, true);
+            visitText(parameter, description, example);
+            parameter.visitEnd();
+        }
+        if (allowableValues == null || allowableValues.length == 0) {
+            return;
+        }
+        switch (arrayDimensions(typeDescriptor)) {
+            case 0 -> {
+                var schema = target.visitAnnotation(SCHEMA, true);
+                visitAllowableValues(schema, allowableValues);
                 schema.visitEnd();
             }
-            var elements = arraySchema.visitAnnotation("schema", SCHEMA);
-            visitAllowableValues(elements, allowableValues);
-            elements.visitEnd();
-            arraySchema.visitEnd();
-        } else if (hasText || scalarValues) {
-            var schema = target.visitAnnotation(SCHEMA, true);
-            visitText(schema, description, example);
-            if (scalarValues) {
-                visitAllowableValues(schema, allowableValues);
+            case 1 -> {
+                var arraySchema = target.visitAnnotation(ARRAY_SCHEMA, true);
+                var elements = arraySchema.visitAnnotation("schema", SCHEMA);
+                visitAllowableValues(elements, allowableValues);
+                elements.visitEnd();
+                arraySchema.visitEnd();
             }
-            schema.visitEnd();
+            default -> {
+                // an array of arrays keeps the erased element schema
+            }
         }
     }
 
@@ -83,12 +91,12 @@ public final class OpenApiSchemaAnnotations {
         return type.getSort() == Type.ARRAY ? type.getDimensions() : 0;
     }
 
-    private static void visitText(AnnotationVisitor schema, String description, String example) {
+    private static void visitText(AnnotationVisitor parameter, String description, String example) {
         if (StringUtils.isNotBlank(description)) {
-            schema.visit("description", description);
+            parameter.visit("description", description);
         }
         if (StringUtils.isNotBlank(example)) {
-            schema.visit("example", example);
+            parameter.visit("example", example);
         }
     }
 }

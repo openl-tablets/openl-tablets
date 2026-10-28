@@ -30,7 +30,8 @@ class SpreadsheetResultBeanByteCodeGeneratorTest {
 
     /**
      * A cell of a vocabulary type publishes the values the type allows, on the elements when the cell holds an
-     * array. The annotations are read from the byte code: the swagger package is not on the class path here.
+     * array. Its description goes into a parameter of the getter. The annotations are read from the byte code: the
+     * swagger package is not on the class path here.
      */
     @Test
     void publishesTheValuesOfAVocabularyCell() {
@@ -42,8 +43,9 @@ class SpreadsheetResultBeanByteCodeGeneratorTest {
 
         var members = ByteCodeAnnotations.read(byteCode);
         var kind = of(members, "getKind", "Lio/swagger/v3/oas/annotations/media/Schema;");
-        assertEquals("The kind", kind.get("description"));
         assertEquals(List.of(values), list(kind.get("allowableValues")));
+        var parameter = of(members, "getKind", "Lio/swagger/v3/oas/annotations/Parameter;");
+        assertEquals("The kind", parameter.get("description"));
         var kinds = of(members, "getKinds", "Lio/swagger/v3/oas/annotations/media/ArraySchema;");
         assertEquals(List.of(values), list(map(kinds.get("schema")).get("allowableValues")));
     }

@@ -189,8 +189,7 @@ Content-Type: application/json
             "type" : "array",
             "description" : "My List 2",
             "items" : {
-              "type" : "object",
-              "description" : "My List 2"
+              "type" : "object"
             }
           },
           "theMapArr" : {
@@ -199,10 +198,8 @@ Content-Type: application/json
             "items" : {
               "type" : "object",
               "additionalProperties" : {
-                "type" : "object",
-                "description" : "the Map arr 2"
-              },
-              "description" : "the Map arr 2"
+                "type" : "object"
+              }
             }
           },
           "vBoolean" : {
@@ -336,7 +333,6 @@ Content-Type: application/json
       },
       "SpreadsheetResult" : {
         "type" : "object",
-        "description" : "test1 2",
         "properties" : {
           "columnNames" : {
             "type" : "array",
