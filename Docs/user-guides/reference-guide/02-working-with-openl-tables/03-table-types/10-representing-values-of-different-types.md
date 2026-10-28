@@ -74,6 +74,9 @@ The following are valid date value examples:
 * `5/7/1981`
 * `10/20/2002`
 
+A date without a time is the start of that day, both for `Date` and for `java.time.LocalDateTime`: `2026-01-01` is
+read as `2026-01-01T00:00`.
+
 OpenL Tablets recognizes all Excel date formats.
 
 ###### Representing Boolean Values

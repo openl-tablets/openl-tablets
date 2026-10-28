@@ -6,14 +6,27 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Reads a {@link LocalDateTime} from a text.
+ *
+ * <p>The text is a date with a time, in the ISO form {@code 2026-01-01T10:20} or the US form
+ * {@code 1/01/2026 10:20 AM}.
+ *
+ * <p>A date without a time is the start of that day: {@code 2026-01-01} and {@code 1/01/2026} are read as
+ * {@code 2026-01-01T00:00}. Such a date takes the forms a {@code LocalDate} is read from.
+ */
 public class String2LocalDateTimeConvertor implements IString2DataConvertor<LocalDateTime> {
 
     private final List<DateTimeFormatter> supportedFormats = List.of(
             DateTimeFormatter.ISO_LOCAL_DATE_TIME,
             DateTimeFormatter.ofPattern("M/dd/yyyy H:mm a", Locale.US));
 
+    private static final String2LocalDateConvertor DATE_CONVERTOR = new String2LocalDateConvertor();
+
     @Override
-    public LocalDateTime parse(String data, String format) {
+    public @Nullable LocalDateTime parse(String data, String format) {
         // format - ignore this parameter
         if (data == null) {
             return null;
@@ -25,7 +38,11 @@ public class String2LocalDateTimeConvertor implements IString2DataConvertor<Loca
                 // Loop on
             }
         }
-        throw new IllegalArgumentException("Cannot convert '%s' to LocalDateTime type".formatted(data));
+        try {
+            return DATE_CONVERTOR.parse(data, format).atStartOfDay();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Cannot convert '%s' to LocalDateTime type".formatted(data), e);
+        }
     }
 
 }
