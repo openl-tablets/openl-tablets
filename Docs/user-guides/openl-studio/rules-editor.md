@@ -840,9 +840,10 @@ To create a table:
 
 3. Enter the table name, where the table type has one. The field opens empty and is required wherever it is shown.
 
-   The name must be a valid identifier — letters, digits, `_` and `$`, not starting with a digit — because it
-   becomes the name OpenL compiles. It may match an existing table name: signatures and properties supplied by the
-   file name, a Properties table, or the table's own properties section distinguish table overloads and versions.
+   The name must be a valid identifier — letters and digits of any script, `_` and `$`, not starting with a digit —
+   because it becomes the name OpenL compiles. It may match an existing table name: signatures and properties supplied
+   by the file name, a Properties table, or the table's own properties section distinguish table overloads and
+   versions.
    Constants, Environment, Properties and Free Form tables carry no name and do not show the field.
 
 4. In **Module**, choose the module that receives the table, then choose the sheet. Both fields suggest what the

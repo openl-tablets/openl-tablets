@@ -5,10 +5,14 @@ import type { ProjectProperty } from 'types/tables'
 /**
  * A legal OpenL table name, matching the identifier rule the compiler applies to the table header.
  *
- * <p>A letter of any script counts, as `Character.isJavaIdentifierStart` does on the server: OpenL compiles a
- * Cyrillic or Greek name, so a dialog must not be the only thing refusing one.
+ * <p>It follows `Character.isJavaIdentifierStart` and `Character.isJavaIdentifierPart`, as the server does. A name
+ * starts with a letter of any script, a letter number, a currency sign or a connector such as `_`. Digits, combining
+ * marks and format characters may follow. OpenL compiles a Korean, Cyrillic or Hindi name, so a dialog must not be
+ * the only thing refusing one.
+ *
+ * <p>The control characters Java ignores in a name are not accepted here: nobody types them into a dialog.
  */
-export const IDENTIFIER = /^[\p{L}_$][\p{L}\p{Nd}_$]*$/u
+export const IDENTIFIER = /^[\p{L}\p{Nl}\p{Sc}\p{Pc}][\p{L}\p{Nl}\p{Sc}\p{Pc}\p{Nd}\p{Mn}\p{Mc}\p{Cf}]*$/u
 
 /** The property a copy declares to become a new version of the table it was copied from. */
 export const VERSION_PROPERTY = 'version'
