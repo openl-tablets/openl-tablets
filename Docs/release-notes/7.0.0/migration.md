@@ -375,15 +375,12 @@ from Maven.
 * **`treeView` and `profiles` are gone from `/rest/users/profile`.** `GET` no longer returns them, and a `PUT` that
   still sends `treeView` answers `400` with `Unknown field 'treeView'`. Drop the field from the body.
 * **A `PUT /rest/users/profile` that leaves a field out keeps the stored value**, for a name, the e-mail and the display
-  name as for a setting. It used to clear a missing name, refuse a missing e-mail or display name, save a missing flag
-  as `false` and a missing `testsPerPage` or `testsFailuresPerTest` as `0`, and answer `500` on a missing `treeView`
-  after the names and the e-mail were already saved. An e-mail or a display name that is sent still cannot be empty,
-  and a request that fails now changes nothing.
+  name. It used to clear a missing name, refuse a missing e-mail or display name, and answer `500` on a missing
+  `treeView` after the names and the e-mail were already saved. An e-mail or a display name that is sent still cannot
+  be empty, and a request that fails now changes nothing.
 * **`PUT /rest/users/{username}` is for administrators only.** A non-administrator now receives `403` even when
   `{username}` is their own. Use `PUT /rest/users/info` to edit your own information or `PUT /rest/users/profile` to
   change your own password with the current password.
-* **`testsPerPage` and `testsFailuresPerTest` take `-1` for all, or a positive number.** Any other value answers
-  `400`.
 * **A project id is an opaque 13-character value.** Every project id of the REST API and of the WebSocket
   destinations used to be the Base64 of `repository:name`, and a project name was accepted in its place: the
   `{projectId}` of every `/rest/projects/{projectId}/...` path, `{project-id}` of `/rest/acls/projects/{project-id}`,
