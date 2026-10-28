@@ -14,9 +14,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
@@ -244,6 +246,7 @@ public class Table implements ITable {
         var hasError = validateOnErrors(bindingContext, dataBase, columns);
 
         if (hasError) {
+            dataContextCache = null;
             return;
         }
 
@@ -429,8 +432,17 @@ public class Table implements ITable {
             this.dataContextCache = Collections.unmodifiableList(dataContexts);
         } else {
             dataArray = Array.newInstance(dataModel.getInstanceClass(), rows - startRow);
+            var multiRowGroups = getMultiRowGroups();
+            // the references of a row find the multi-row elements the row defined
+            var dataContexts = multiRowGroups.isEmpty() ? null : new ArrayList<DatatypeArrayMultiRowElementContext>();
             for (var rowNum = startRow; rowNum < rows; rowNum++) {
-                processRow(openlAdapter, startRow, rowNum);
+                var context = processRow(openlAdapter, multiRowGroups, startRow, rowNum);
+                if (dataContexts != null) {
+                    dataContexts.add(context);
+                }
+            }
+            if (dataContexts != null) {
+                this.dataContextCache = Collections.unmodifiableList(dataContexts);
             }
         }
     }
@@ -452,36 +464,52 @@ public class Table implements ITable {
                                           int startRow,
                                           int rows) throws OpenLCompilationException {
 
-        // group descriptors by KEY
-        var descriptorGroups = new TreeMap<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>>();
-        for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
-            var key = descriptor.getGroupKey();
-            var descriptorsByKey = descriptorGroups.computeIfAbsent(key, k -> new ArrayList<>());
-            if (descriptor.getField() != null && !descriptor.isReference()) {
-                descriptorsByKey.add(descriptor);
-            }
-        }
-
+        var groups = groupColumns(descriptor -> descriptor.getField() != null && !descriptor.isReference());
         try {
-            parseRowsAndPopulateRootLiteral(resultContainer,
-                    dataContexts,
-                    new ArrayList<>(descriptorGroups.values()),
-                    openlAdapter,
-                    startRow,
-                    rows);
+            parseRowsAndPopulateRootLiteral(resultContainer, dataContexts, groups, openlAdapter, startRow, rows);
         } catch (SyntaxNodeException e) {
             openlAdapter.getBindingContext().addError(e);
         }
     }
 
+    /**
+     * Groups the columns by the object they define, in the order of the depth of the objects.
+     *
+     * <p>A group keeps its place even when the filter accepts none of its columns.
+     */
+    private List<ColumnGroup> groupColumns(Predicate<ColumnDescriptor> filter) {
+        var columnsByKey = new TreeMap<ColumnDescriptor.ColumnGroupKey, List<ColumnDescriptor>>();
+        for (ColumnDescriptor descriptor : dataModel.getDescriptors()) {
+            columnsByKey.computeIfAbsent(descriptor.getGroupKey(), k -> new ArrayList<>()).add(descriptor);
+        }
+        var groups = new ArrayList<ColumnGroup>(columnsByKey.size());
+        for (var entry : columnsByKey.entrySet()) {
+            var columns = entry.getValue().stream().filter(filter).toList();
+            var cells = columnsByKey.entrySet()
+                    .stream()
+                    .filter(other -> entry.getKey().contains(other.getKey()))
+                    .flatMap(other -> other.getValue().stream())
+                    .toList();
+            groups.add(new ColumnGroup(columns, cells));
+        }
+        return groups;
+    }
+
+    /**
+     * The columns that define an object, and every column of the object and of the objects nested in it, whose cells
+     * tell whether a row has values for the object.
+     */
+    private record ColumnGroup(List<ColumnDescriptor> columns, List<ColumnDescriptor> cells) {
+    }
+
     private void parseRowsAndPopulateRootLiteral(List<Object> resultContainer,
                                                  List<DatatypeArrayMultiRowElementContext> dataContexts,
-                                                 List<List<ColumnDescriptor>> allDescriptors,
+                                                 List<ColumnGroup> groups,
                                                  OpenlToolAdaptor openlAdapter,
                                                  int startRow,
                                                  int rows) throws OpenLCompilationException {
 
-        List<ColumnDescriptor> descriptors = allDescriptors.getFirst();
+        List<ColumnDescriptor> descriptors = groups.getFirst().columns();
 
         var rowValues = parseRootRowValues(descriptors, openlAdapter, startRow, rows);
 
@@ -509,8 +537,8 @@ public class Table implements ITable {
             env.pushLocalFrame(new Object[]{context});
             env.pushThis(literal);
             try {
-                for (List<ColumnDescriptor> allDescriptor : allDescriptors) {
-                    parseRowsAndPopulateLiteral(literal, allDescriptor, openlAdapter, env, rowNum + startRow, height);
+                for (var group : groups) {
+                    parseRowsAndPopulateLiteral(literal, group, openlAdapter, env, rowNum + startRow, height);
                 }
                 bindDataIndexWithTableRowNum(resultContainer.size(), rowNum + startRow);
                 resultContainer.add(literal);
@@ -567,18 +595,20 @@ public class Table implements ITable {
     }
 
     private void parseRowsAndPopulateLiteral(Object literal,
-                                             List<ColumnDescriptor> descriptors,
+                                             ColumnGroup group,
                                              OpenlToolAdaptor openlAdapter,
                                              IRuntimeEnv env,
                                              int rowNum,
                                              int height) {
 
+        var descriptors = group.columns();
         if (descriptors.isEmpty()) {
             return;
         }
         var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
 
         var rowValues = parseRowValues(descriptors, openlAdapter, rowNum, height);
+        var emptyRows = findEmptyRows(group, rowNum, height, rowValues.length);
 
         var pkDescriptor = descriptors.getFirst();
 
@@ -586,25 +616,47 @@ public class Table implements ITable {
         var shouldSkipMergingSameValues = !pkDescriptor.isPrimaryKey() && !pkDescriptor
                 .isDeclaredClassSupportMultirow();
 
-        for (var i = 0; i < rowValues.length; i++) {
-            boolean isSameRow;
-            var thisRow = rowValues[i];
-            context.setRow(i);
-            if (prevRow == null || shouldSkipMergingSameValues) {
-                isSameRow = false;
-            } else {
-                if (pkDescriptor.isPrimaryKey()) {
-                    isSameRow = pkDescriptor.isSameValue(thisRow[0], prevRow[0]);
+        try {
+            for (var i = 0; i < rowValues.length; i++) {
+                boolean isSameRow;
+                var thisRow = rowValues[i];
+                context.setRow(i);
+                if (prevRow == null || shouldSkipMergingSameValues) {
+                    isSameRow = false;
                 } else {
-                    isSameRow = hasSameValues(descriptors, thisRow, prevRow);
+                    if (pkDescriptor.isPrimaryKey()) {
+                        isSameRow = pkDescriptor.isSameValue(thisRow[0], prevRow[0]);
+                    } else {
+                        isSameRow = hasSameValues(descriptors, thisRow, prevRow);
+                    }
+                }
+                context.setRowValueIsTheSameAsPrevious(isSameRow);
+                context.setRowValueIsEmpty(emptyRows[i]);
+                setFieldValues(literal, descriptors, thisRow, context, env);
+
+                prevRow = thisRow;
+            }
+        } finally {
+            context.setRowValueIsEmpty(false);
+        }
+    }
+
+    /**
+     * Finds the rows whose cells are blank in every column of the object of the group and of the objects nested in it,
+     * the references included.
+     */
+    private boolean[] findEmptyRows(ColumnGroup group, int rowNum, int height, int lines) {
+        var emptyRows = new boolean[lines];
+        Arrays.fill(emptyRows, true);
+        for (var descriptor : group.cells()) {
+            var cells = logicalTable.getSubtable(descriptor.getColumnIdx(), rowNum, 1, height).getSource();
+            for (var i = 0; i < lines; i++) {
+                if (StringUtils.isNotBlank(cells.getCell(0, i).getStringValue())) {
+                    emptyRows[i] = false;
                 }
             }
-            context.setRowValueIsTheSameAsPrevious(isSameRow);
-            setFieldValues(literal, descriptors, thisRow, env);
-
-            prevRow = thisRow;
         }
-
+        return emptyRows;
     }
 
     /**
@@ -640,27 +692,50 @@ public class Table implements ITable {
     private static void setFieldValues(Object literal,
                                        List<ColumnDescriptor> descriptors,
                                        Object[] thisRow,
+                                       DatatypeArrayMultiRowElementContext context,
                                        IRuntimeEnv env) {
         for (var k = 0; k < thisRow.length; k++) {
             var descriptor = descriptors.get(k);
             var thisValue = thisRow[k];
             if (descriptor.isValuesAnArray()) {
                 var currentValue = descriptor.getFieldValue(literal, env);
-                var thisLen = Array.getLength(thisValue);
-                if (currentValue == null || Array.getLength(currentValue) == 0) {
-                    descriptor.setFieldValue(literal, thisLen == 0 ? null : thisValue, env);
-                } else if (thisLen != 0) {
-                    var currentLen = Array.getLength(currentValue);
-                    Object newArray = Array.newInstance(thisValue.getClass().getComponentType(),
-                            currentLen + thisLen);
-                    System.arraycopy(currentValue, 0, newArray, 0, currentLen);
-                    System.arraycopy(thisValue, 0, newArray, currentLen, thisLen);
-                    descriptor.setFieldValue(literal, newArray, env);
+                // a value the rows did not set, such as a default one, gives place to the values of the rows
+                var valueOfRows = context.isValueOfRows(currentValue) ? currentValue : null;
+                var newValue = appendValues(valueOfRows, thisValue);
+                if (newValue != valueOfRows) {
+                    descriptor.setFieldValue(literal, newValue, env);
+                    context.addValueOfRows(newValue);
                 }
             } else {
                 descriptor.setFieldValue(literal, thisValue, env);
             }
         }
+    }
+
+    /**
+     * Appends the values of a row to the values of an array or a collection. A collection takes the values of the row
+     * in place.
+     *
+     * @return the values of both, or the given values when the row has none
+     */
+    @SuppressWarnings("unchecked")
+    private static @Nullable Object appendValues(@Nullable Object values, @Nullable Object rowValues) {
+        if (ColumnDescriptor.sizeOf(rowValues) == 0) {
+            return values;
+        }
+        if (ColumnDescriptor.sizeOf(values) == 0) {
+            return rowValues;
+        }
+        if (values instanceof Collection<?> collection) {
+            ((Collection<Object>) collection).addAll((Collection<?>) rowValues);
+            return values;
+        }
+        var length = Array.getLength(values);
+        var rowLength = Array.getLength(rowValues);
+        var all = Array.newInstance(rowValues.getClass().getComponentType(), length + rowLength);
+        System.arraycopy(values, 0, all, 0, length);
+        System.arraycopy(rowValues, 0, all, length, rowLength);
+        return all;
     }
 
     private Object createLiteral() throws OpenLCompilationException {
@@ -681,7 +756,16 @@ public class Table implements ITable {
         return literal;
     }
 
-    private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
+    /**
+     * Loads a row of the table into an object. The columns of the multi-row groups take every line of the row, as the
+     * rows of a Data table do.
+     *
+     * @return the state of the multi-row elements the row defined
+     */
+    private DatatypeArrayMultiRowElementContext processRow(OpenlToolAdaptor openlAdapter,
+                                                           List<ColumnGroup> multiRowGroups,
+                                                           int startRow,
+                                                           int rowNum) throws OpenLCompilationException {
 
         var constructor = isConstructor();
         Object literal = null;
@@ -694,7 +778,9 @@ public class Table implements ITable {
         }
 
         var env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
-        env.pushLocalFrame(new Object[]{new DatatypeArrayMultiRowElementContext()});
+        var context = new DatatypeArrayMultiRowElementContext();
+        env.pushLocalFrame(new Object[]{context});
+        populateMultiRowGroups(literal, multiRowGroups, openlAdapter, env, rowNum);
         var hasError = false;
         Set<String> fieldWithValue = new HashSet<>();
         if (Objects.equals(tableSyntaxNode.getType(), XlsNodeTypes.XLS_TEST_METHOD.toString())) {
@@ -716,6 +802,9 @@ public class Table implements ITable {
                     .collect(Collectors.toSet());
         }
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
+            if (!multiRowGroups.isEmpty() && isMultiRowColumn(columnDescriptor)) {
+                continue;
+            }
             var hasValue = false;
             if (columnDescriptor.getField() instanceof FieldChain fieldChain && fieldChain.getFields().length > 1) {
                 String fieldName = FieldChain.makeNames(
@@ -732,6 +821,59 @@ public class Table implements ITable {
         var idx = rowNum - startRow;
         bindDataIndexWithTableRowNum(idx, rowNum);
         Array.set(dataArray, idx, literal);
+        return context;
+    }
+
+    /**
+     * Groups the columns that define the elements of collections in several lines of a row. The columns of a group
+     * define the same object, and the groups follow the depth of their objects.
+     *
+     * <p>The columns of the expected result and the expected error are not grouped. A table without such columns, or
+     * one that calls a constructor, has no groups.
+     */
+    private List<ColumnGroup> getMultiRowGroups() {
+        if (isConstructor()) {
+            return List.of();
+        }
+        return groupColumns(Table::isMultiRowColumn).stream().filter(group -> !group.columns().isEmpty()).toList();
+    }
+
+    private static boolean isMultiRowColumn(ColumnDescriptor descriptor) {
+        if (descriptor.getField() == null || descriptor.isReference() || !descriptor.isSupportMultirows()) {
+            return false;
+        }
+        // the columns before a multi-row column support multiple rows too, the expected ones included
+        var name = descriptor.getField().getName();
+        var expectedResult = name.startsWith(TestMethodHelper.EXPECTED_RESULT_NAME);
+        var expectedError = name.startsWith(TestMethodHelper.EXPECTED_ERROR);
+        return !expectedResult && !expectedError;
+    }
+
+    /**
+     * Populates the object of a row by the multi-row groups, comparing the lines of the row as a Data table compares
+     * the lines of a record.
+     *
+     * <p>The references of the row resolve later. They start from the state of a row whose lines differ, as without
+     * the groups.
+     */
+    private void populateMultiRowGroups(@Nullable Object literal,
+                                        List<ColumnGroup> multiRowGroups,
+                                        OpenlToolAdaptor openlAdapter,
+                                        IRuntimeEnv env,
+                                        int rowNum) {
+        if (multiRowGroups.isEmpty()) {
+            return;
+        }
+        var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
+        env.pushThis(literal);
+        try {
+            for (var group : multiRowGroups) {
+                parseRowsAndPopulateLiteral(literal, group, openlAdapter, env, rowNum, 1);
+            }
+        } finally {
+            env.popThis();
+            context.setRowValueIsTheSameAsPrevious(false);
+        }
     }
 
     private void bindDataIndexWithTableRowNum(Integer idx, Integer rowNum) {
