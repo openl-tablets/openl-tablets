@@ -3,6 +3,8 @@
 **Status**: BETA — the endpoints form the **Projects: Trace (BETA)** group of the OpenAPI spec (`/rest/openapi.json`)
 **Base Path**: `/rest/projects/{projectId}/trace`
 
+`{projectId}` is the project id the API hands out. The workflows and examples use `6Q2M8XK4ZT0RB` for the project.
+
 > [!Note]
 > This is the **interactive debugger** API. See [Architecture Design](projects-trace-architecture.md) for how suspension
 > and the live stack work.
@@ -831,47 +833,47 @@ sequenceDiagram
 
 ```
 1. (optional) Set breakpoints up front
-   PUT /rest/projects/MyProject/trace/breakpoints   { "uris": ["<tableUri>#R0C1"] }
+   PUT /rest/projects/6Q2M8XK4ZT0RB/trace/breakpoints   { "uris": ["<tableUri>#R0C1"] }
 
 2. Start, suspended at entry
-   POST /rest/projects/MyProject/trace?tableId=DT_RiskAssessment
+   POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=DT_RiskAssessment
    → 200 DebugStackView { status: suspended, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
 
 3. Step into the calculation
-   POST /rest/projects/MyProject/trace/step?type=into
+   POST /rest/projects/6Q2M8XK4ZT0RB/trace/step?type=into
    → 200 DebugStackView (current line advanced)
 
 4. Inspect the current frame
-   GET /rest/projects/MyProject/trace/frames/0/variables
-   GET /rest/projects/MyProject/trace/frames/0/highlights      (overlay for the client-rendered table)
-   GET /rest/projects/MyProject/tables/{tableId}?raw=true      (the table content itself)
+   GET /rest/projects/6Q2M8XK4ZT0RB/trace/frames/0/variables
+   GET /rest/projects/6Q2M8XK4ZT0RB/trace/frames/0/highlights      (overlay for the client-rendered table)
+   GET /rest/projects/6Q2M8XK4ZT0RB/tables/{tableId}?raw=true      (the table content itself)
 
 5. Run to the next breakpoint / completion
-   POST /rest/projects/MyProject/trace/resume   → 202
-   (WebSocket: suspended or completed) → GET /rest/projects/MyProject/trace/stack
+   POST /rest/projects/6Q2M8XK4ZT0RB/trace/resume   → 202
+   (WebSocket: suspended or completed) → GET /rest/projects/6Q2M8XK4ZT0RB/trace/stack
 
 6. Finish
-   DELETE /rest/projects/MyProject/trace   → 204
+   DELETE /rest/projects/6Q2M8XK4ZT0RB/trace   → 204
 ```
 
 ### Workflow 2: Break when a decision-table rule fires
 
 ```
-1. PUT /rest/projects/MyProject/trace/breakpoints   { "uris": ["<dtUri>#rule"] }
+1. PUT /rest/projects/6Q2M8XK4ZT0RB/trace/breakpoints   { "uris": ["<dtUri>#rule"] }
    (or "<dtUri>#SeniorDriver" for one specific rule)
-2. POST /rest/projects/MyProject/trace?tableId=...&stopAtEntry=false
+2. POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=...&stopAtEntry=false
    → suspends the moment a rule's conditions all match, before its action runs
-3. GET /rest/projects/MyProject/trace/frames/{i}/variables → decision: { firedRules:["SeniorDriver"], conditions:[...] }
+3. GET /rest/projects/6Q2M8XK4ZT0RB/trace/frames/{i}/variables → decision: { firedRules:["SeniorDriver"], conditions:[...] }
 ```
 
 ### Workflow 3: Profile a calculation (executed call tree)
 
 ```
-1. POST /rest/projects/MyProject/trace?tableId=...&stopAtEntry=false&profiling=true&includeTree=false
+1. POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=...&stopAtEntry=false&profiling=true&includeTree=false
    → runs to completion; the response carries profile: ProfileSummaryView (bounded hotspots),
      not the full tree — safe on a large run
 2. Read profile.hotspots[]: the slowest tables by selfMillis, with count and totalMillis.
-   (Omit includeTree=false, or GET /rest/projects/MyProject/trace/stack, to also get the full tree: CallNodeView.)
+   (Omit includeTree=false, or GET /rest/projects/6Q2M8XK4ZT0RB/trace/stack, to also get the full tree: CallNodeView.)
 3. To inspect a slow branch live: restart with a breakpoint on that table and step from there
    (the UI's "replay" does exactly this — the remembered input is reused automatically).
 ```
@@ -879,7 +881,7 @@ sequenceDiagram
 ### Workflow 4: Debug a single test case
 
 ```
-1. POST /rest/projects/MyProject/trace?tableId=TEST_RiskAssessment&testRanges=2
+1. POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=TEST_RiskAssessment&testRanges=2
    → 200 DebugStackView (suspended at the entry of test case 2)
 2. Step / inspect as above. Cases run sequentially; the worker stops at each case entry.
 ```
@@ -887,10 +889,10 @@ sequenceDiagram
 ### Workflow 5: Watch a factor across coverages
 
 ```
-1. PUT /rest/projects/MyProject/trace/watches   { "cells": ["$VehiclePriceFactor"] }
-2. POST /rest/projects/MyProject/trace?tableId=...&stopAtEntry=false&includeTree=false
+1. PUT /rest/projects/6Q2M8XK4ZT0RB/trace/watches   { "cells": ["$VehiclePriceFactor"] }
+2. POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=...&stopAtEntry=false&includeTree=false
    → runs to completion, capturing the cell on every execution of its table
-3. GET /rest/projects/MyProject/trace/watch
+3. GET /rest/projects/6Q2M8XK4ZT0RB/trace/watch
    → series[0].points: the factor's value per coverage — the outlier (e.g. 83.372 among 1.0) stands out
 4. To inspect an outlier live: replay to its table (points[i].ref / series.tableUri) with a breakpoint.
 ```
@@ -899,7 +901,7 @@ sequenceDiagram
 
 ```
 1. Suspend inside a Spreadsheet frame (step until status=suspended on a cell).
-2. GET /rest/projects/MyProject/trace/frames/{i}/variables
+2. GET /rest/projects/6Q2M8XK4ZT0RB/trace/frames/{i}/variables
    → steps: [ { ref:"R0C1", label:"$Value$Base", status:"executed", value:{...}, durationMillis: 1.2 },
               { ref:"R1C1", label:"$Formula$Total", status:"current" }, ... ]
    Inspect the computed value of an executed cell while a later cell is current.
@@ -932,37 +934,37 @@ message code of the table below; see [Errors](README.md#errors).
 
 ```bash
 # Start (suspended at entry), capture the stack
-curl -X POST "http://localhost:8080/rest/projects/MyProject/trace?tableId=DT_RiskAssessment" \
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace?tableId=DT_RiskAssessment" \
   -H "Content-Type: application/json" \
   -d '{ "params": { "age": 35, "income": 75000, "creditScore": 720 },
         "runtimeContext": { "lob": "Personal", "usState": "NY" } }'
 
 # Step into
-curl -X POST "http://localhost:8080/rest/projects/MyProject/trace/step?type=into"
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/step?type=into"
 
 # Inspect the top frame's variables
-curl "http://localhost:8080/rest/projects/MyProject/trace/frames/0/variables"
+curl "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/frames/0/variables"
 
 # Highlight overlay for the client-rendered table
-curl "http://localhost:8080/rest/projects/MyProject/trace/frames/0/highlights"
+curl "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/frames/0/highlights"
 # → [ { "cell": "C5", "state": "current" } ]
 
 # Run to completion
-curl -X POST "http://localhost:8080/rest/projects/MyProject/trace/resume"   # 202
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/resume"   # 202
 
 # Terminate
-curl -X DELETE "http://localhost:8080/rest/projects/MyProject/trace"        # 204
+curl -X DELETE "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace"        # 204
 ```
 
 ### Set a breakpoint before running
 
 ```bash
 # By table name — stops on every overloaded/dimensional version of the table
-curl -X PUT "http://localhost:8080/rest/projects/MyProject/trace/breakpoints" \
+curl -X PUT "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/breakpoints" \
   -H "Content-Type: application/json" \
   -d '{ "uris": ["VehiclePremiumCalculation"] }'
 
-curl -X POST "http://localhost:8080/rest/projects/MyProject/trace?tableId=DT_RiskAssessment&stopAtEntry=false"
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace?tableId=DT_RiskAssessment&stopAtEntry=false"
 # Runs to the breakpoint and returns the stack suspended there.
 ```
 
@@ -970,7 +972,7 @@ curl -X POST "http://localhost:8080/rest/projects/MyProject/trace?tableId=DT_Ris
 
 ```bash
 # Only tables reachable from the traced table; names deduplicated
-curl "http://localhost:8080/rest/projects/MyProject/trace/breakpoint-tables?fields=name"
+curl "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/breakpoint-tables?fields=name"
 # → [ { "name": "SetContext" }, { "name": "VehiclePremiumCalculation" }, ... ]
 ```
 

@@ -3,7 +3,8 @@
 **Status**: BETA — the endpoints form the **Projects: Merge (BETA)** group of the OpenAPI spec (`/rest/openapi.json`)
 **Base Path**: `/rest/projects/{projectId}/merge`
 
-`{projectId}` is the project id the API hands out.
+`{projectId}` is the project id the API hands out. The examples use `6Q2M8XK4ZT0RB`, the id of a project kept in the
+folder `MyProject`; the file paths of a merge start with that folder.
 
 ---
 
@@ -585,7 +586,7 @@ avoid requesting missing versions by checking `fileAvailability` in the conflict
 
 **Example**:
 ```bash
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=ours
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=ours
 ```
 
 **Errors**:
@@ -630,7 +631,7 @@ through `GET /rest/projects/{projectId}/merge/conflicts/files`, which is why thi
 
 **Example**: what the other branch changed in the workbook
 ```bash
-POST /rest/projects/MyProject/merge/conflicts/compare?file=MyProject%2Frules%2FMain.xlsx&first=base&second=theirs
+POST /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/compare?file=MyProject%2Frules%2FMain.xlsx&first=base&second=theirs
 ```
 
 **Errors**:
@@ -699,7 +700,7 @@ side. A client resolves each conflict, puts the parts together and sends the res
 
 **Example**:
 ```bash
-GET /rest/projects/MyProject/merge/conflicts/text?file=MyProject%2Fi18n%2Fmessage.properties
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/text?file=MyProject%2Fi18n%2Fmessage.properties
 ```
 
 **Errors**:
@@ -852,7 +853,7 @@ resolution.
 
 **Example**:
 ```bash
-GET /rest/projects/MyProject/merge/conflicts/workbook?file=MyProject%2Frules%2FRates.xlsx
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/workbook?file=MyProject%2Frules%2FRates.xlsx
 ```
 
 **Errors**:
@@ -934,7 +935,7 @@ workbook comes as merged.
 
 **Example**:
 ```bash
-curl -X POST "http://localhost:8080/rest/projects/MyProject/merge/conflicts/workbook?file=MyProject%2Frules%2FRates.xlsx" \
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/workbook?file=MyProject%2Frules%2FRates.xlsx" \
   -H 'Content-Type: application/json' \
   -d '{"decisions": [{"id": "Rates/A1:B6", "side": "theirs"}, {"id": "Notes", "side": "base"}]}' \
   -o Rates.xlsx
@@ -987,7 +988,7 @@ curl -X POST "http://localhost:8080/rest/projects/MyProject/merge/conflicts/work
 
 **Resolution Format**:
 ```bash
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resolve \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/resolve \
   -F 'resolutions[0].filePath=MyProject/rules/Main.xlsx' \
   -F 'resolutions[0].strategy=OURS' \
   -F 'resolutions[1].filePath=MyProject/rules.xml' \
@@ -1403,7 +1404,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
 ```
 1. Check merge status
-   POST /rest/projects/MyProject/merge/check
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge/check
    {
      "mode": "receive",
      "otherBranch": "feature-123"
@@ -1412,7 +1413,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
    Response: { "status": "mergeable", "canMerge": true, "scope": { "projects": [...], ... }, ... }
 
 2. Perform merge
-   POST /rest/projects/MyProject/merge
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge
    {
      "mode": "receive",
      "otherBranch": "feature-123"
@@ -1420,7 +1421,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
    Response: 202 Accepted
 
-   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge   (once the status topic reports the end)
 
    Response: { "status": "success", "summary": { "projects": [...], ... } }
 ```
@@ -1431,7 +1432,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
 ```
 1. Attempt merge
-   POST /rest/projects/MyProject/merge
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge
    {
      "mode": "receive",
      "otherBranch": "feature-123"
@@ -1439,7 +1440,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
    Response: 202 Accepted
 
-   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge   (once the status topic reports the end)
 
    Response: {
      "status": "conflicts",
@@ -1450,7 +1451,7 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
    }
 
 2. Get detailed conflicts
-   GET /rest/projects/MyProject/merge/conflicts
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts
 
    Response: {
      "conflictGroups": [{ "files": ["MyProject/rules/Main.xlsx", "MyProject/rules.xml"] }],
@@ -1465,11 +1466,11 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
    }
 
 3. Download conflict versions for review
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=ours
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=theirs
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=ours
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules%2FMain.xlsx&side=theirs
 
 4. Resolve conflicts
-   POST /rest/projects/MyProject/merge/conflicts/resolve
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/resolve
    Content-Type: multipart/form-data
 
    resolutions[0].filePath=MyProject/rules/Main.xlsx
@@ -1490,25 +1491,25 @@ a branch changed its lines: a part no branch changed holds its `text` alone.
 
 ```
 1. Merge with conflicts detected
-   POST /rest/projects/MyProject/merge
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge
    { "mode": "receive", "otherBranch": "feature-123" }
 
    Response: 202 Accepted
 
-   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge   (once the status topic reports the end)
 
    Response: { "status": "conflicts", ... }
 
 2. Download all versions for manual merge
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=base
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=ours
-   GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=theirs
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules.xml&side=base
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules.xml&side=ours
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules.xml&side=theirs
 
 3. Manually merge files locally (external tool)
    - User creates merged-rules.xml combining changes
 
 4. Upload custom resolution
-   POST /rest/projects/MyProject/merge/conflicts/resolve
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/resolve
    Content-Type: multipart/form-data
 
    resolutions[0].filePath=MyProject/rules.xml
@@ -1535,17 +1536,17 @@ before its next step, and `GET /merge` answers `{ "status": "cancelled" }`.
 
 ```
 1. Merge with conflicts detected
-   POST /rest/projects/MyProject/merge
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge
    { "mode": "receive", "otherBranch": "feature-123" }
 
    Response: 202 Accepted
 
-   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge   (once the status topic reports the end)
 
    Response: { "status": "conflicts", ... }
 
 2. User decides not to proceed
-   DELETE /rest/projects/MyProject/merge/conflicts
+   DELETE /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts
 
    Response: 204 No Content
 ```
@@ -1556,18 +1557,18 @@ before its next step, and `GET /merge` answers `{ "status": "cancelled" }`.
 
 ```
 1. Check merge status
-   POST /rest/projects/MyProject/merge/check
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge/check
    { "mode": "send", "otherBranch": "release-2.0" }
 
    Response: { "status": "mergeable", "canMerge": false, "blockedBy": "bypass-required", ... }
 
 2. Confirm the bypass
-   POST /rest/projects/MyProject/merge?force=true
+   POST /rest/projects/6Q2M8XK4ZT0RB/merge?force=true
    { "mode": "send", "otherBranch": "release-2.0" }
 
    Response: 202 Accepted
 
-   GET /rest/projects/MyProject/merge   (once the status topic reports the end)
+   GET /rest/projects/6Q2M8XK4ZT0RB/merge   (once the status topic reports the end)
 
    Response: { "status": "success" }
 ```
@@ -1647,7 +1648,7 @@ without branches, or its repository has no other branch. A project the user may 
 
 **Request**:
 ```bash
-POST /rest/projects/MyProject/merge/check
+POST /rest/projects/6Q2M8XK4ZT0RB/merge/check
 ```
 
 **Response**: `409 Conflict`
@@ -1670,7 +1671,7 @@ POST /rest/projects/MyProject/merge/check
 
 **Request**:
 ```bash
-GET /rest/projects/MyProject/merge/conflicts
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts
 ```
 
 **Response**: `404 Not Found`
@@ -1691,7 +1692,7 @@ GET /rest/projects/MyProject/merge/conflicts
 
 **Request**:
 ```bash
-POST /rest/projects/MyProject/merge
+POST /rest/projects/6Q2M8XK4ZT0RB/merge
 {"mode": "receive", "otherBranch": "merged-branch"}
 ```
 
@@ -1713,7 +1714,7 @@ POST /rest/projects/MyProject/merge
 
 **Request**:
 ```bash
-POST /rest/projects/MyProject/merge/conflicts/resolve
+POST /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/resolve
 resolutions[0].filePath=MyProject/rules.xml
 resolutions[0].strategy=CUSTOM
 # No file uploaded
@@ -1780,7 +1781,7 @@ The examples omit authentication; add the credentials your OpenL Studio accepts.
 
 ```bash
 # Step 1: Check if merge is possible
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge/check \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/check \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "receive",
@@ -1796,7 +1797,7 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge/check \
 }
 
 # Step 2: Perform the merge
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "receive",
@@ -1806,7 +1807,7 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
 # Response: 202 Accepted
 
 # Read the result once /user/topic/projects/{projectId}/merge/status reports the end
-curl http://localhost:8080/rest/projects/MyProject/merge
+curl http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge
 
 # Response (success)
 {
@@ -1821,7 +1822,7 @@ curl http://localhost:8080/rest/projects/MyProject/merge
 **Scenario**: Merge current `main` branch into `release-2.0`
 
 ```bash
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "send",
@@ -1831,7 +1832,7 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
 # Response: 202 Accepted
 
 # Read the result once /user/topic/projects/{projectId}/merge/status reports the end
-curl http://localhost:8080/rest/projects/MyProject/merge
+curl http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge
 
 # Response (success)
 {
@@ -1847,7 +1848,7 @@ curl http://localhost:8080/rest/projects/MyProject/merge
 
 ```bash
 # Step 1: Merge detects conflicts
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "receive",
@@ -1857,7 +1858,7 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
 # Response: 202 Accepted
 
 # Read the result once /user/topic/projects/{projectId}/merge/status reports the end
-curl http://localhost:8080/rest/projects/MyProject/merge
+curl http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge
 
 # Response (conflicts)
 {
@@ -1876,13 +1877,13 @@ curl http://localhost:8080/rest/projects/MyProject/merge
 
 # Step 2: Download versions for review
 curl -o ours-pricing.xlsx \
-  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=ours"
+  "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=ours"
 
 curl -o theirs-pricing.xlsx \
-  "http://localhost:8080/rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=theirs"
+  "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules%2FPricingRules.xlsx&side=theirs"
 
 # Step 3: Resolve with mixed strategies
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resolve \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/resolve \
   -F 'resolutions[0].filePath=MyProject/rules/PricingRules.xlsx' \
   -F 'resolutions[0].strategy=OURS' \
   -F 'resolutions[1].filePath=MyProject/rules/ValidationRules.xlsx' \
@@ -1912,14 +1913,14 @@ curl -X POST http://localhost:8080/rest/projects/MyProject/merge/conflicts/resol
 
 ```bash
 # Step 1: Merge detects conflicts
-curl -X POST http://localhost:8080/rest/projects/MyProject/merge \
+curl -X POST http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge \
   -H "Content-Type: application/json" \
   -d '{"mode":"receive","otherBranch":"feature-abc"}'
 
 # Response: 202 Accepted
 
 # Read the result once /user/topic/projects/{projectId}/merge/status reports the end
-curl http://localhost:8080/rest/projects/MyProject/merge
+curl http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge
 
 # Response (conflicts detected)
 {
@@ -1928,7 +1929,7 @@ curl http://localhost:8080/rest/projects/MyProject/merge
 }
 
 # Step 2: User decides to cancel
-curl -X DELETE http://localhost:8080/rest/projects/MyProject/merge/conflicts
+curl -X DELETE http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/merge/conflicts
 
 # Response: 204 No Content
 # Conflict session cleared
@@ -1949,13 +1950,13 @@ When using CUSTOM strategy, review all three versions, and request only the vers
 
 ```bash
 # Download the base version (common ancestor)
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=base
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules.xml&side=base
 
 # Download your version (current branch)
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=ours
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules.xml&side=ours
 
 # Download their version (merging branch)
-GET /rest/projects/MyProject/merge/conflicts/files?file=MyProject%2Frules.xml&side=theirs
+GET /rest/projects/6Q2M8XK4ZT0RB/merge/conflicts/files?file=MyProject%2Frules.xml&side=theirs
 ```
 
 ### 3. Resolve Every Conflicted File in One Request

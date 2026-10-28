@@ -294,7 +294,7 @@ taken.
 ## Contract Changes
 
 - **REST** — every project path variable, `{project-id}` of `/acls/projects/{project-id}`, the `projectId` of the
-  deployment requests, `sourceProject` of a copy and the `dependsOn` filter take the 12-character id only.
+  deployment requests, `sourceProject` of a copy and the `dependsOn` filter take the 13-character id only.
   - The `409` for an ambiguous project name, `project.identifier.ambiguous.message`, and its `candidates` are gone:
     an id names one project.
   - `sourceRepositoryId` of a copy is gone: the id of the source names its repository. A request that still sends it
