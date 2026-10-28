@@ -77,6 +77,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
      * can claim stays small however many writes arrive at once.
      */
     private static final int MAX_DESCRIPTOR_SIZE = 1024 * 1024;
+    /** A file stands where the path names a folder. */
+    private static final String PATH_NOT_FOLDER = "file.path.not.folder.message";
 
     private final AclProjectsHelper aclProjectsHelper;
     private final FileNodeMapper resourceMapper;
@@ -197,11 +199,12 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         validateWritePath(root, destinationPath);
         lockIfClosed(root);
         try {
-            var source = findExistingArtefact(root.readFolder(null), sourcePath);
+            var current = root.readFolder(null);
+            var source = findExistingArtefact(current, sourcePath);
             requirePermission(source, BasePermission.READ);
             requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.copy.into.itself.message");
             lockForEditing(root, destinationPath);
-            var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
+            var targetFolder = resolveOrCreateFolders(root, current, destinationPath,
                     true, "file.copy.path.conflict.message");
             copyArtefact(source, targetFolder, FilePaths.name(destinationPath));
             root.awaitIndex();
@@ -220,12 +223,13 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         validateWritePath(root, destinationPath);
         lockIfClosed(root);
         try {
-            var source = findExistingArtefact(root.readFolder(null), sourcePath);
+            var current = root.readFolder(null);
+            var source = findExistingArtefact(current, sourcePath);
             requirePermission(source, BasePermission.READ);
             requirePermission(source, BasePermission.DELETE);
             requireNotPlacedIntoItself(source, sourcePath, destinationPath, "file.move.into.itself.message");
             lockForEditing(root, sourcePath, destinationPath);
-            var targetFolder = resolveOrCreateFolders(root.writeFolder(), destinationPath,
+            var targetFolder = resolveOrCreateFolders(root, current, destinationPath,
                     true, "file.move.path.conflict.message");
             String fileName = FilePaths.name(destinationPath);
             copyArtefact(source, targetFolder, fileName);
@@ -247,7 +251,7 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         validateWritePath(root, path);
         lockIfClosed(root);
         try {
-            addFile(root, path, content, createFolders);
+            addFile(root, root.readFolder(null), path, content, createFolders);
         } finally {
             unlockIfClosed(root);
         }
@@ -255,16 +259,19 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
 
     /**
      * Adds a new file. The caller has checked the mount and the path and reserved a closed project.
+     *
+     * @param current the mount as it is read now
      */
-    private void addFile(FileRoot root, String path, InputStream content, boolean createFolders) {
+    private void addFile(FileRoot root, AProjectFolder current, String path, InputStream content,
+                         boolean createFolders) {
         try {
             // An opened project is reserved only once the content is known to be writable, so a rejected
             // write leaves no lock behind. A closed project is reserved beforehand, as it is for the other
             // modifications, so the content is not validated against a state another user is changing.
             try (var validatedContent = validateContent(root, path, content)) {
                 lockForEditing(root, path);
-                var targetFolder = resolveOrCreateFolders(root.writeFolder(), path,
-                        createFolders, "file.path.not.folder.message");
+                var targetFolder = resolveOrCreateFolders(root, current, path,
+                        createFolders, PATH_NOT_FOLDER);
                 targetFolder.addResource(FilePaths.name(path), formatted(root, path, validatedContent));
             }
             root.awaitIndex();
@@ -284,9 +291,10 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         // A closed project is reserved before the path is looked at, so the policy decides on the state it writes.
         lockIfClosed(root);
         try {
-            var existing = findArtefactByPath(root.readFolder(null), path);
+            var current = root.readFolder(null);
+            var existing = findArtefactByPath(current, path);
             if (existing == null) {
-                addFile(root, path, content, createFolders);
+                addFile(root, current, path, content, createFolders);
                 return FileWriteOutcome.CREATED;
             }
             if (existing.isFolder()) {
@@ -307,25 +315,10 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         root.requireModifiable();
         validateWritePath(root, path);
         lockForEditing(root, path);
-        var segments = path.split("/");
+        var folders = path.split("/");
         try {
-            var current = root.writeFolder();
-            for (var i = 0; i < segments.length; i++) {
-                var segment = segments[i];
-                if (current.hasArtefact(segment)) {
-                    var artefact = current.getArtefact(segment);
-                    if (!artefact.isFolder()) {
-                        throw new ConflictException("file.path.not.folder.message", artefact.getInternalPath());
-                    }
-                    current = (AProjectFolder) artefact;
-                } else {
-                    if (!createParents && i < segments.length - 1) {
-                        throw new NotFoundException("file.parent.not.found.message", segment);
-                    }
-                    requirePermission(current, BasePermission.CREATE);
-                    current = current.addFolder(segment);
-                }
-            }
+            // The last folder is the one created, so only the folders holding it must exist.
+            openFolders(root, root.readFolder(null), folders, folders.length - 1, createParents, PATH_NOT_FOLDER);
         } catch (ProjectException e) {
             throw failed(e, "file.create.failed.message");
         } finally {
@@ -564,7 +557,8 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
         for (var path : paths) {
             var found = findArtefactByPath(current, path);
             if (found == null) {
-                receiving.add(deepestFolder(current, path.split("/"), "file.path.not.folder.message").folder());
+                var folders = FilePaths.parentFolders(path);
+                receiving.add(deepestFolder(current, folders, PATH_NOT_FOLDER).folder());
             } else if (found.isFolder()) {
                 throw new ConflictException("file.create.failed.message");
             } else {
@@ -575,16 +569,18 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * The deepest folder of a path the mount holds, and how many folders of the path lead to it.
+     * The deepest of the nested folders the mount holds, and how many of them lead to it.
      *
-     * <p>The last segment names the file and is not walked. A file standing where the path needs a folder is
-     * refused.
+     * <p>A file standing where a folder is named is refused.
+     *
+     * @param current a folder of the mount as it is read, with its files in their folders
+     * @param folders the names of the nested folders, from the outermost one
      */
-    private Reached deepestFolder(AProjectFolder current, String[] segments, String conflictMessageKey) {
+    private Reached deepestFolder(AProjectFolder current, String[] folders, String conflictMessageKey) {
         var folder = current;
         var depth = 0;
-        while (depth < segments.length - 1) {
-            var artefact = findArtefactByPath(folder, segments[depth]);
+        while (depth < folders.length) {
+            var artefact = findArtefactByPath(folder, folders[depth]);
             if (artefact == null) {
                 break;
             }
@@ -783,34 +779,58 @@ public class ProjectFilesServiceImpl implements ProjectFilesService {
     }
 
     /**
-     * Resolves existing parent folders of the given path within the project, optionally creating
-     * missing intermediate folders. Checks CREATE permission on the deepest existing folder.
+     * Resolves the parent folders of the given path within the mount, optionally creating the missing
+     * ones. Checks CREATE permission on the deepest existing folder.
      *
-     * @param rootFolder         the writable root folder
+     * @param current            the mount as it is read now
      * @param fullPath           full resource path including file name
-     * @param createMissing      if {@code true}, create missing intermediate folders;
-     *                           if {@code false}, throw {@link NotFoundException}
+     * @param createMissing      if {@code true}, create missing parent folders;
+     *                           if {@code false}, throw {@link NotFoundException} for the first missing one
      * @param conflictMessageKey error message key when a path segment is not a folder
-     * @return the parent folder where the resource should be placed
+     * @return the writable parent folder where the resource should be placed
      */
-    private AProjectFolder resolveOrCreateFolders(AProjectFolder rootFolder,
+    private AProjectFolder resolveOrCreateFolders(FileRoot root,
+                                                  AProjectFolder current,
                                                   String fullPath,
                                                   boolean createMissing,
                                                   String conflictMessageKey) throws ProjectException {
-        var segments = fullPath.split("/");
-        var reached = deepestFolder(rootFolder, segments, conflictMessageKey);
-        if (!createMissing && reached.depth() < segments.length - 1) {
-            throw new NotFoundException("file.parent.not.found.message", segments[reached.depth()]);
-        }
+        var folders = FilePaths.parentFolders(fullPath);
+        return openFolders(root, current, folders, folders.length, createMissing, conflictMessageKey);
+    }
 
+    /**
+     * Opens the nested folders in the writable state of the mount, creating the ones it does not hold.
+     * Checks CREATE permission on the deepest existing folder.
+     *
+     * <p>The folders the mount already holds are found in its current state, so an existing folder is
+     * opened whether or not missing folders may be created. The writable state of a project lists its
+     * files by their paths, not in their folders, so each folder is opened there by its name.
+     *
+     * @param current            the mount as it is read now
+     * @param folders            the names of the nested folders, from the outermost one
+     * @param required           how many of the outer folders must exist when missing ones are not created
+     * @param createMissing      if {@code false}, throw {@link NotFoundException} for the first required
+     *                           folder that is missing
+     * @param conflictMessageKey error message key when a file stands where a folder is named
+     * @return the innermost folder
+     */
+    private AProjectFolder openFolders(FileRoot root,
+                                       AProjectFolder current,
+                                       String[] folders,
+                                       int required,
+                                       boolean createMissing,
+                                       String conflictMessageKey) throws ProjectException {
+        var reached = deepestFolder(current, folders, conflictMessageKey);
+        if (!createMissing && reached.depth() < required) {
+            throw new NotFoundException("file.parent.not.found.message", folders[reached.depth()]);
+        }
         requirePermission(reached.folder(), BasePermission.CREATE);
-
-        var targetFolder = reached.folder();
-        for (var i = reached.depth(); i < segments.length - 1; i++) {
-            targetFolder = targetFolder.addFolder(segments[i]);
+        var folder = root.writeFolder();
+        for (var name : folders) {
+            // A file standing where a folder is named was refused above.
+            folder = folder.hasArtefact(name) ? (AProjectFolder) folder.getArtefact(name) : folder.addFolder(name);
         }
-
-        return targetFolder;
+        return folder;
     }
 
     /**

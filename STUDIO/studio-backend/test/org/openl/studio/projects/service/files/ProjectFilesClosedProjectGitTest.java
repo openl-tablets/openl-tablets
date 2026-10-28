@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.files;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -49,6 +50,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.studio.common.exception.ConflictException;
+import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.common.validation.BeanValidationProvider;
 import org.openl.studio.projects.service.protection.ProtectedBranchBypassService;
 import org.openl.studio.projects.service.tables.TableFormatting;
@@ -191,6 +193,55 @@ class ProjectFilesClosedProjectGitTest {
         assertEquals(FileWriteOutcome.CREATED, outcome);
         assertEquals(List.of(CURRENT_USER + "Save readme.txt"), newCommits());
         assertEquals("Hello", read("notes/readme.txt"));
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeAddsAFileToAnExistingFolderWithoutCreatingFolders() throws Exception {
+        var outcome = service.writeResource(root, "docs/guide/outline.txt", IOUtils.toInputStream("Outline"), false,
+                ConflictPolicy.FAIL);
+        service.createResource(root, "docs/summary.txt", IOUtils.toInputStream("Summary"), false);
+
+        assertEquals(FileWriteOutcome.CREATED, outcome);
+        assertEquals(List.of(CURRENT_USER + "Save summary.txt", CURRENT_USER + "Save outline.txt"), newCommits());
+        assertEquals("Outline", read("docs/guide/outline.txt"));
+        assertEquals("Summary", read("docs/summary.txt"));
+        assertEquals("Previous introduction", read("docs/guide/intro.txt"));
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeRefusesAMissingFolderWithoutCreatingFolders() throws Exception {
+        var content = IOUtils.toInputStream("Hello");
+
+        var refused = assertThrows(NotFoundException.class,
+                () -> service.writeResource(root, "docs/missing/readme.txt", content, false, ConflictPolicy.FAIL));
+
+        assertEquals("openl.error.404.file.parent.not.found.message", refused.getErrorCode());
+        assertArrayEquals(new Object[] {"missing"}, refused.getArgs());
+        assertEquals(List.of(), newCommits());
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void writeRefusesAFileStandingWhereTheParentFolderIsNamed() throws Exception {
+        var content = IOUtils.toInputStream("Hello");
+
+        var refused = assertThrows(ConflictException.class,
+                () -> service.writeResource(root, "docs/guide/intro.txt/readme.txt", content, true,
+                        ConflictPolicy.FAIL));
+
+        assertEquals("openl.error.409.file.path.not.folder.message", refused.getErrorCode());
+        assertEquals(List.of(), newCommits());
+        assertLeftClosedAndUnlocked(project);
+    }
+
+    @Test
+    void folderIsCreatedInAnExistingFolderWithoutCreatingParents() throws Exception {
+        service.createFolder(root, "docs/guide/drafts", false);
+        service.createResource(root, "docs/guide/drafts/plan.txt", IOUtils.toInputStream("Plan"), false);
+
+        assertEquals("Plan", read("docs/guide/drafts/plan.txt"));
         assertLeftClosedAndUnlocked(project);
     }
 

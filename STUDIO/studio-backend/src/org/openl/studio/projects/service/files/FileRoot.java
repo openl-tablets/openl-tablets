@@ -29,6 +29,10 @@ public interface FileRoot {
 
     /**
      * Writable artefact tree for the current state. Mutations applied to it are committed to the mount.
+     *
+     * <p>The tree may list the files by their paths rather than in their folders, so a folder is not looked
+     * up in it by walking down the path: the folders are found in {@link #readFolder(String) the current
+     * state}, and opened here by their names.
      */
     AProjectFolder writeFolder();
 
