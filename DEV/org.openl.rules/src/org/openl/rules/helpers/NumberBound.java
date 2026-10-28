@@ -3,6 +3,8 @@ package org.openl.rules.helpers;
 import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
+import org.openl.rules.convertor.NumberNotation;
+
 /**
  * A number bound of an {@link IntRange} or a {@link DoubleRange}, written the way business users write amounts.
  *
@@ -11,7 +13,7 @@ import java.util.regex.Pattern;
  * 1000000.
  *
  * <p>A comma must separate groups of exactly three digits, so {@code 77,99} and {@code 1,0000} are not numbers.
- * Formulas do not accept these forms: there a comma separates values and {@code $} starts a step reference.
+ * Formulas accept only the multipliers: there a comma separates values and {@code $} starts a step reference.
  *
  * @param number     the number without the {@code $} sign, the commas and the multiplier
  * @param multiplier 1, or the value of the multiplier
@@ -31,7 +33,7 @@ record NumberBound(String number, long multiplier) {
     static NumberBound of(String text) {
         var start = text.startsWith("$") ? 1 : 0;
         var end = text.length();
-        var multiplier = end > start ? multiplier(text.charAt(end - 1)) : 1L;
+        var multiplier = end > start ? NumberNotation.multiplier(text.charAt(end - 1)) : 1L;
         if (multiplier > 1) {
             end--;
         }
@@ -43,15 +45,6 @@ record NumberBound(String number, long multiplier) {
             number = number.replace(",", "");
         }
         return new NumberBound(number, multiplier);
-    }
-
-    private static long multiplier(char suffix) {
-        return switch (suffix) {
-            case 'K' -> 1_000L;
-            case 'M' -> 1_000_000L;
-            case 'B' -> 1_000_000_000L;
-            default -> 1L;
-        };
     }
 
     /**

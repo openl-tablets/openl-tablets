@@ -155,15 +155,18 @@ from Maven.
     the comma that groups the digits. Remove other symbols of the pattern first, such as a currency sign:
     `(Double) toNumber(replace(text, "$", ""))`.
 
-* **A number in a formula is written in digits only.** The `$` sign, the thousands separator and the `K`, `M`, `B`
-  multipliers are removed from formulas, because they read differently across countries and `$` also starts a
-  reference to a spreadsheet step. A formula that still uses one of them no longer compiles. Rewrite the number:
+* **A number in a formula has no `$` sign and no thousands separator.** Both are removed from formulas, because they
+  read differently across countries and `$` also starts a reference to a spreadsheet step. A formula that still uses
+  one of them no longer compiles. Rewrite the number:
 
   | Before         | After        |
   |----------------|--------------|
   | `= $600 * 2`   | `= 600 * 2`  |
-  | `= 1.5M`       | `= 1500000`  |
   | `= $2,500 + x` | `= 2500 + x` |
+
+  The `K`, `M` and `B` multipliers stay, and their value is exact now. `1.5M` is the `Integer` `1500000` as before,
+  while a value with a fraction, such as `1.0005K`, is the `Double` `1000.5` instead of being rounded to an `Integer`.
+  A value beyond the `Integer` limits, such as `3B`, is a `Long` instead of a compilation error.
 
   In a formula, the comma separates values, so a comma between digits changes the result instead of failing:
   `{1,500}` is an array of `1` and `500`, and `max(1,000)` compares `1` with `0`. Search the formulas for it.

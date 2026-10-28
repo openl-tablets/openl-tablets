@@ -22,6 +22,7 @@ import org.openl.binding.impl.CharNodeBinder;
 import org.openl.binding.impl.DoubleNodeBinder;
 import org.openl.binding.impl.IntNodeBinder;
 import org.openl.binding.impl.LiteralBoundNode;
+import org.openl.binding.impl.MultipliedNumberNodeBinder;
 import org.openl.binding.impl.PercentNodeBinder;
 import org.openl.binding.impl.StringNodeBinder;
 import org.openl.conf.OpenLConfigurationException;
@@ -237,8 +238,6 @@ class ParserTest {
 
     @Test
     void testRemovedBusinessLiterals() throws OpenLConfigurationException {
-        _testErrorMsg("10K", "Encountered");
-        _testErrorMsg("1.5M", "Encountered");
         _testErrorMsg("1,000", "Encountered");
         _testType("$100", "identifier");
     }
@@ -360,6 +359,32 @@ class ParserTest {
         _testLiteralParseAndBind(new PercentNodeBinder(), "1.1%", 0.011, double.class, "literal.percent");
         _testLiteralParseAndBind(new PercentNodeBinder(), "33.3%", 0.333, double.class, "literal.percent");
         _testLiteralParseAndBind(new PercentNodeBinder(), "99.99%", 0.9999, double.class, "literal.percent");
+    }
+
+    @Test
+    void testMultipliedParseAndBind() throws Exception {
+        var binder = new MultipliedNumberNodeBinder();
+        _testLiteralParseAndBind(binder, "5K", 5000, int.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "2.5M", 2500000, int.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "1.50K", 1500, int.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "2B", 2000000000, int.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "3B", 3000000000L, long.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder,
+                "10000000000B",
+                new BigInteger("10000000000000000000"),
+                BigInteger.class,
+                "literal.multiplied");
+
+        // The fraction is kept, and the value is rounded once
+        _testLiteralParseAndBind(binder, "1.0005K", 1000.5, double.class, "literal.multiplied");
+        _testLiteralParseAndBind(binder, "0.0000001M", 0.1, double.class, "literal.multiplied");
+    }
+
+    @Test
+    void testMultiplierIsUpperCase() throws OpenLConfigurationException {
+        _testErrorMsg("10k", "Encountered");
+        _testErrorMsg("10KB", "Encountered");
+        _testErrorMsg("1e3K", "Encountered");
     }
 
     @Test
