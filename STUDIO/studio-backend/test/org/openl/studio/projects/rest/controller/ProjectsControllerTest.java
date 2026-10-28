@@ -55,6 +55,8 @@ import org.openl.studio.projects.messaging.SocketProjectAllTestsExecutionProgres
 import org.openl.studio.projects.model.ModuleViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.ProjectTypeKind;
+import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
@@ -193,6 +195,19 @@ class ProjectsControllerTest {
 
         assertEquals(List.of("Rules", "Data"), controller.getModuleSheets(project, "Main"));
         verify(projectService).getModuleSheets(project, "Main");
+    }
+
+    @Test
+    void getTypesDelegatesToProjectService() {
+        var projectService = mock(WorkspaceProjectService.class);
+        var controller = controller(projectService);
+        var project = mock(RulesProject.class);
+        var expected = List.of(new ProjectTypeView("Country", ProjectTypeKind.VOCABULARY, "Provider", "ID", "Main",
+                List.of(), List.of("US", "CA")));
+        when(projectService.getTypes(project)).thenReturn(expected);
+
+        assertEquals(expected, controller.getTypes(project));
+        verify(projectService).getTypes(project);
     }
 
     @Test

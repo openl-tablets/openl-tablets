@@ -1,0 +1,112 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Address",
+    "kind": "datatype",
+    "project": "EPBDS-16427-Provider",
+    "projectId": "***",
+    "module": "Main",
+    "fields": [
+      {
+        "name": "zip",
+        "type": "Integer",
+        "collection": false
+      }
+    ],
+    "values": []
+  },
+  {
+    "name": "Base",
+    "kind": "datatype",
+    "project": "EPBDS-16427-Consumer",
+    "projectId": "***",
+    "module": "Main",
+    "fields": [
+      {
+        "name": "id",
+        "type": "String",
+        "collection": false
+      }
+    ],
+    "values": []
+  },
+  {
+    "name": "Country",
+    "kind": "vocabulary",
+    "project": "EPBDS-16427-Provider",
+    "projectId": "***",
+    "module": "Main",
+    "fields": [],
+    "values": [
+      "US",
+      "CA"
+    ]
+  },
+  {
+    "name": "Policy",
+    "kind": "datatype",
+    "project": "EPBDS-16427-Consumer",
+    "projectId": "***",
+    "module": "Main",
+    "fields": [
+      {
+        "name": "id",
+        "type": "String",
+        "collection": false
+      },
+      {
+        "name": "number",
+        "type": "String",
+        "collection": false
+      },
+      {
+        "name": "address",
+        "type": "Address",
+        "collection": false
+      },
+      {
+        "name": "vehicles",
+        "type": "Vehicle[]",
+        "collection": true
+      },
+      {
+        "name": "country",
+        "type": "Country",
+        "collection": false
+      }
+    ],
+    "values": []
+  },
+  {
+    "name": "Vehicle",
+    "kind": "datatype",
+    "project": "EPBDS-16427-Provider",
+    "projectId": "***",
+    "module": "Main",
+    "fields": [
+      {
+        "name": "make",
+        "type": "String",
+        "collection": false
+      },
+      {
+        "name": "year",
+        "type": "Integer",
+        "collection": false
+      },
+      {
+        "name": "used",
+        "type": "Boolean",
+        "collection": false
+      },
+      {
+        "name": "color",
+        "type": "String",
+        "collection": false
+      }
+    ],
+    "values": []
+  }
+]

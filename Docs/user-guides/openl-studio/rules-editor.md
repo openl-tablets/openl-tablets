@@ -785,9 +785,10 @@ To create a table:
    *Selecting the table type*
 
    - **Datatype** — Type, Name, Default Value, Mandatory, Description, and Examples. Type accepts a value directly or
-     a value selected from simple types, vocabularies, and datatypes visible to the module. **Extends** suggests only
-     the project's complex datatypes and writes the selected parent into the header; it does not offer
-     `SpreadsheetResult`. Select the **Mandatory** check box to write `true`; clear it to leave the cell empty.
+     a value selected from simple types, vocabularies, and datatypes of the project and of the projects it depends
+     on, as the project compiles them: a datatype or a vocabulary whose own table has errors is not offered.
+     **Extends** suggests only those complex datatypes and writes the selected parent into the header; it does not
+     offer `SpreadsheetResult`. Select the **Mandatory** check box to write `true`; clear it to leave the cell empty.
    - **Vocabulary** — one value column and a simple **Base Type**, written in angle brackets in the Datatype header.
      The value cells use that type's editor.
    - **Constants** — Type, Name, and Default Value. Type is selected from simple types, and Default Value uses the
@@ -815,16 +816,17 @@ To create a table:
    - **Test** and **Run** — columns generated from the signature of the selected executable table: one for every
      value a call has to supply, plus `_res_` for the expected result, which Run omits. An argument of a datatype
      contributes one column per field, named by the path OpenL reads it back with — `policy.mainDriver.age` — as
-     deep as the datatypes nest. An argument of any other type, a collection included, stays one column. The target
-     can be any executable table in the project, whichever module holds it. Test excludes a table that returns
+     deep as the datatypes nest, a datatype of a project the project depends on included. An argument of any other
+     type, a collection included, stays one column. The target can be any executable table in the project,
+     whichever module holds it. Test excludes a table that returns
      nothing because there would be no result to assert; Run includes it because Run only calls the table. The new
      table opens named after the table it exercises — `PremiumTest`, `PremiumRun` — and can be renamed. A Test or Run
      table is placed with the project's tests: selecting the type moves the destination to a module under `tests/`,
      and a module created for it goes under `tests/` too.
      Select **Transposed** to put the generated fields down rows and test or run cases across columns.
-   - **Data** — columns generated from the selected Datatype. Select **Transposed** to put fields down rows and data
-     records across columns. Test, Run and Data display every word in generated titles in Title Case, such as
-     **Main Driver Age**.
+   - **Data** — columns generated from the selected Datatype, one of the project or of a project it depends on.
+     Select **Transposed** to put fields down rows and data records across columns. Test, Run and Data display every
+     word in generated titles in Title Case, such as **Main Driver Age**.
    - **Environment** — Key and Value. Key is suggested from the three keywords OpenL acts on — `dependency`,
      `import` and `include`. An Environment table carries no name of its own.
    - **Properties** — Property and Value. Property is suggested from the properties that may appear in a Properties

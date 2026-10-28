@@ -433,12 +433,26 @@ export interface DatatypeField {
     type: string
 }
 
-/** A Datatype table as the modal reads it — a vocabulary included, which is written with the same keyword. */
-export interface ProjectDatatype {
-    /** The datatype this one inherits its first fields from, if any. */
-    extends?: string
-    fields: DatatypeField[]
-    /** The values a vocabulary accepts, written as text. Empty for a datatype, which declares fields instead. */
+/** A field of a type, as the compiler resolved it. */
+export interface ProjectTypeField extends DatatypeField {
+    /** Whether the field is an array. */
+    collection: boolean
+}
+
+/**
+ * A type the rules of a project may name, as the compiler resolved it — a type of a project it depends on included.
+ */
+export interface ProjectType {
+    name: string
+    /** A datatype declares fields; a vocabulary, written with the same keyword, declares the values it accepts. */
+    kind: 'datatype' | 'vocabulary'
+    /** The project declaring the type: this one or one it depends on. */
+    project?: string
+    projectId?: string
+    module?: string
+    /** Every field of a datatype, the inherited ones first. Empty for a vocabulary. */
+    fields: ProjectTypeField[]
+    /** The values a vocabulary accepts, written as text. Empty for a datatype. */
     values: string[]
 }
 

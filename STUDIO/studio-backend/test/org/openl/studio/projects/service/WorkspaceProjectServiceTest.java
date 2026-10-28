@@ -2333,6 +2333,29 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void the_types_of_a_project_are_read_from_its_compiled_model() throws Exception {
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class)));
+        var project = mock(RulesProject.class);
+        stubCompiledProject(service, project, Set.of());
+
+        assertTrue(service.getTypes(project).isEmpty());
+
+        // The types are those of the compiled project, so the answer opens it and waits for its compilation.
+        verify(service).openProject(project);
+    }
+
+    @Test
+    void a_project_declaring_no_module_names_no_type_and_is_not_opened() throws Exception {
+        var service = spy(newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class)));
+        var project = mock(RulesProject.class);
+        doReturn(emptyModulesDescriptor()).when(service).getProjectDescriptor(project);
+
+        assertTrue(service.getTypes(project).isEmpty());
+
+        verify(service, never()).openProject(project);
+    }
+
+    @Test
     void created_table_is_found_when_its_name_is_longer_than_a_shortened_one() throws Exception {
         var summaryTableReader = mock(SummaryTableReader.class);
         var service = spy(newService(
