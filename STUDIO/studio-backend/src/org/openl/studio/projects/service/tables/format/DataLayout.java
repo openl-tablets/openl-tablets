@@ -7,6 +7,9 @@ import java.util.function.IntPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBindHelper;
 import org.openl.rules.data.ITable;
@@ -32,6 +35,10 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  * table by their keys. A column of a Test table whose field starts with {@code _res_} or {@code _error_} holds the
  * result the test expects: its title is a title of what the table gives, and its values are what it gives.
  *
+ * <p>A row of the table may take several lines: its key is merged over them, and the elements of a collection take a
+ * line each. Once any row of the table takes several lines, a line above every row after the first one sets the rows
+ * apart, as a group of rules is set apart in a decision table.
+ *
  * <p>A table written transposed holds a field in each row and the values of one row in each column. It takes the
  * roles the way it is compiled, so each place runs the other way.
  *
@@ -40,6 +47,7 @@ import org.openl.studio.projects.model.tables.RawTableRole;
  * Its keys are the ones the compiler would read: in a Data table the first field, unless it is {@code _PK_}, and in a
  * Test and a Run table every field that takes its values from a Data table by a {@code >} reference.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class DataLayout {
 
     /** The row of field names, the first row of the body. */
@@ -47,9 +55,6 @@ final class DataLayout {
 
     /** The row of the tables the fields take their values from, when the body has one. */
     private static final int REFERENCES = 1;
-
-    private DataLayout() {
-    }
 
     /**
      * The places of the body of a Data table, whose IDs name its rows.
@@ -97,9 +102,30 @@ final class DataLayout {
      */
     private static BodyLayout.Placed layOut(TableBody body, boolean calls, Set<Integer> keys) {
         var fields = body.upright();
-        var places = new Places(hasReferences(fields) ? REFERENCES + 1 : REFERENCES, keys,
-                calls ? resultColumns(fields)::contains : column -> true);
-        return new BodyLayout.Placed(fields, places);
+        var titlesRow = hasReferences(fields) ? REFERENCES + 1 : REFERENCES;
+        var places = new Places(titlesRow, keys, calls ? resultColumns(fields)::contains : column -> true);
+        var groups = recordGroups(fields, titlesRow + 1, body.transposed());
+        return body.transposed()
+                ? new BodyLayout.Placed(fields, places, Set.of(), groups)
+                : new BodyLayout.Placed(fields, places, groups, Set.of());
+    }
+
+    /**
+     * The lines of the sheet that start a row of the table after its first one, where a row of the table takes
+     * several lines: its key merged over them, the elements of a collection one per line. A table whose every row
+     * takes one line has no groups. A line is a row of the sheet, or a column of it where the table is transposed.
+     */
+    private static Set<Integer> recordGroups(ILogicalTable fields, int firstRecord, boolean transposed) {
+        var starts = new HashSet<Integer>();
+        var severalLines = false;
+        for (var record = firstRecord; record < fields.getHeight(); record++) {
+            var region = fields.getRow(record).getCell(0, 0).getAbsoluteRegion();
+            severalLines |= fields.getRow(record).getSource().getHeight() > 1;
+            if (record > firstRecord) {
+                starts.add(transposed ? region.getLeft() : region.getTop());
+            }
+        }
+        return severalLines ? Set.copyOf(starts) : Set.of();
     }
 
     /**
