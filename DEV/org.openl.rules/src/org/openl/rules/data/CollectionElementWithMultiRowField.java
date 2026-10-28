@@ -66,9 +66,8 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     private Object getForArray(int elementIndex, Object arr) {
         if (arr == null || Array.getLength(arr) < elementIndex + 1) {
             return getType().nullObject();
-        } else {
-            return Array.get(arr, elementIndex);
         }
+        return Array.get(arr, elementIndex);
     }
 
     @SuppressWarnings("unchecked")
@@ -76,9 +75,8 @@ public class CollectionElementWithMultiRowField extends AOpenField {
         var list = (List<Object>) v;
         if (v == null || list.size() < elementIndex + 1) {
             return getType().nullObject();
-        } else {
-            return list.get(elementIndex);
         }
+        return list.get(elementIndex);
     }
 
     @Override
@@ -102,8 +100,9 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     private void setForArray(Object target, Object value, IRuntimeEnv env, Object v, int elementIndex) {
         if (v == null) {
             if (!isPkField()) {
-                Object array = Array.newInstance(this.getType().getInstanceClass(), 1);
-                Array.set(array, 0, value);
+                // the element keeps its index, as in a list
+                Object array = Array.newInstance(this.getType().getInstanceClass(), elementIndex + 1);
+                Array.set(array, elementIndex, value);
                 setIntoTarget(target, array, env);
             }
         } else if (Array.getLength(v) < elementIndex + 1) {

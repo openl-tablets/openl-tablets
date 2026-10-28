@@ -8,9 +8,14 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -32,25 +37,35 @@ public class ColumnDescriptor {
 
     static final Object PREV_RES_EMPTY = new Object();
 
+    @Getter(AccessLevel.PROTECTED)
     private final IOpenField field;
     private final StringValue displayValue;
     private final OpenL openl;
+    @Getter
     private final boolean valuesAnArray;
+    @Getter
+    @Setter
     private boolean supportMultirows;
 
     /**
      * Flag indicating that current column descriptor is a constructor.<br>
      * See {@link DataTableBindHelper#CONSTRUCTOR_FIELD}.
      */
+    @Getter
     private final boolean constructor;
 
     private Map<String, Integer> uniqueIndex;
+    @Getter
     private final IdentifierNode[] fieldChainTokens;
+    @Getter
+    @Setter
     private ColumnGroupKey groupKey;
+    @Getter
     private final int columnIdx;
+    @Getter
     private final boolean primaryKey; // true if current descriptor is PK
 
-    public ColumnDescriptor(IOpenField field,
+    public ColumnDescriptor(@Nullable IOpenField field,
                             StringValue displayValue,
                             OpenL openl,
                             boolean constructor,
@@ -111,13 +126,8 @@ public class ColumnDescriptor {
                 return new ColumnGroupKey(fields, field.getName(), true);
             }
             return new ColumnGroupKey(fields - 1, fields > 1 ? field.getName() : "this", primaryKey);
-        } else {
-            return ColumnGroupKey.DEFAULT;
         }
-    }
-
-    protected IOpenField getField() {
-        return field;
+        return ColumnGroupKey.DEFAULT;
     }
 
     public Object getColumnValue(Object target) {
@@ -149,19 +159,17 @@ public class ColumnDescriptor {
                         null,
                         valuesTable,
                         ota);
-            } else {
-                return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
             }
-        } else {
-            return getSingleValue(valuesTable, ota, paramType);
+            return loadMultiRowArray(valuesTable, ota, paramType, aggregateType);
         }
+        return getSingleValue(valuesTable, ota, paramType);
     }
 
     public String getName() {
         return field == null ? "this" : field.getName();
     }
 
-    public IOpenClass getType() {
+    public @Nullable IOpenClass getType() {
         return field == null ? null : field.getType();
     }
 
@@ -170,14 +178,6 @@ public class ColumnDescriptor {
             uniqueIndex = table.makeUniqueIndex(idx, cxt);
         }
         return uniqueIndex;
-    }
-
-    public boolean isConstructor() {
-        return constructor;
-    }
-
-    public IdentifierNode[] getFieldChainTokens() {
-        return fieldChainTokens;
     }
 
     /**
@@ -226,7 +226,7 @@ public class ColumnDescriptor {
         return env.popThis();
     }
 
-    public void setFieldValue(Object literal, Object res, IRuntimeEnv env) {
+    public void setFieldValue(Object literal, @Nullable Object res, IRuntimeEnv env) {
         if (field == null) {
             return;
         }
@@ -237,7 +237,7 @@ public class ColumnDescriptor {
         }
     }
 
-    public Object getFieldValue(Object literal, IRuntimeEnv env) {
+    public @Nullable Object getFieldValue(Object literal, IRuntimeEnv env) {
         return field != null ? field.get(literal, env) : null;
     }
 
@@ -299,12 +299,24 @@ public class ColumnDescriptor {
         return valuesAnArray ? isSameArrayValue(res, prevRes) : isSameSingleValue(res, prevRes);
     }
 
-    private static boolean isSameArrayValue(Object res, Object prevRes) {
-        var resIsEmpty = Array.getLength(res) == 0;
+    private static boolean isSameArrayValue(@Nullable Object res, @Nullable Object prevRes) {
+        if (prevRes == PREV_RES_EMPTY) {
+            return false;
+        }
+        return sizeOf(res) == 0 || Objects.deepEquals(prevRes, res);
+    }
 
-        return (resIsEmpty && Array.getLength(prevRes) == 0)
-                || Arrays.deepEquals((Object[]) prevRes, (Object[]) res)
-                || (prevRes != PREV_RES_EMPTY && resIsEmpty);
+    /**
+     * Returns the number of the values of an array or a collection. A missing value has none.
+     */
+    static int sizeOf(@Nullable Object values) {
+        if (values == null) {
+            return 0;
+        }
+        if (values instanceof Collection<?> collection) {
+            return collection.size();
+        }
+        return Array.getLength(values);
     }
 
     private boolean isSameSingleValue(Object res, Object prevRes) {
@@ -403,34 +415,6 @@ public class ColumnDescriptor {
         return fields[fields.length - 1];
     }
 
-    public boolean isSupportMultirows() {
-        return supportMultirows;
-    }
-
-    public void setSupportMultirows(boolean supportMultirows) {
-        this.supportMultirows = supportMultirows;
-    }
-
-    public boolean isValuesAnArray() {
-        return valuesAnArray;
-    }
-
-    public int getColumnIdx() {
-        return columnIdx;
-    }
-
-    public ColumnGroupKey getGroupKey() {
-        return groupKey;
-    }
-
-    public boolean isPrimaryKey() {
-        return primaryKey;
-    }
-
-    public void setGroupKey(ColumnGroupKey key) {
-        this.groupKey = key;
-    }
-
     public static final class ColumnGroupKey implements Comparable<ColumnGroupKey> {
 
         private static final ColumnGroupKey DEFAULT = new ColumnGroupKey(0, "this", false);
@@ -455,6 +439,14 @@ public class ColumnDescriptor {
                 return i;
             }
             return path.compareTo(o.path);
+        }
+
+        /**
+         * Checks whether the columns of the other group define the object of this group or an object nested in it.
+         */
+        boolean contains(ColumnGroupKey other) {
+            var nested = other.level > level && other.path.startsWith(path + ".");
+            return nested || equals(other);
         }
 
         @Override

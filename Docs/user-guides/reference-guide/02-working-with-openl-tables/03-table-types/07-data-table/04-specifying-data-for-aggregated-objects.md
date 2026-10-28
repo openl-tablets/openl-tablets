@@ -55,6 +55,10 @@ The following rules and limitations apply:
 
     A primary key column can be defined, for example, `policy.vehicles._PK_,` if data columns cannot be used for this purpose. Thus, the primary key cannot be left empty.
 
+-   Lines that have no values for an array element, nor for the objects nested in it, and come before the first element of the array, belong to the first element. A reference to another table counts as a value.
+
+    For example, the vehicles of a policy can start one line below the line of the policy.
+
 -   In non-keys columns where only one value is expected to be entered, the value is retrieved from the first line of the test case and all other lines are ignored.
 
     Even if these following lines are filled with values, no equality verification is performed.
