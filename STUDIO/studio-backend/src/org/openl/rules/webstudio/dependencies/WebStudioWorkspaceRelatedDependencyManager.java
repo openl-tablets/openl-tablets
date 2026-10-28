@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -13,17 +14,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
 import org.openl.CompiledOpenClass;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
@@ -354,6 +360,68 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     public void expand(Set<ProjectDescriptor> projects) {
         var dependencyLoaders = buildDependencyLoaders(projects);
         addDependencyLoaders(dependencyLoaders);
+    }
+
+    /**
+     * Finds what a compilation of the project takes in: the project, every project it includes automatically, all
+     * their modules, and every module these use.
+     *
+     * <p>A dependency project that is not included automatically ({@code autoIncluded} is {@code false}) takes part
+     * only with the modules the others use, and with what those use in turn. Which modules a module uses is known
+     * once the module is compiled, so what is found grows while the project compiles.
+     *
+     * @return the project and module loaders of the compilation, the project and its modules first, in the order
+     *     the project declares them; empty when the project is not loaded here
+     */
+    public Set<IDependencyLoader> findLoadersCompiledWith(ProjectDescriptor project) {
+        var loaders = getDependencyLoaders().stream()
+                .collect(Collectors.toMap(IDependencyLoader::getDependency, Function.identity(), (one, other) -> one));
+        var found = new LinkedHashSet<IDependencyLoader>();
+        var queue = new ArrayDeque<IDependencyLoader>();
+        var projectLoader = loaders.get(buildResolvedDependency(project));
+        if (projectLoader != null) {
+            queue.add(projectLoader);
+        }
+        while (!queue.isEmpty()) {
+            var loader = queue.poll();
+            if (found.add(loader)) {
+                queue.addAll(usedBy(loader, loaders));
+            }
+        }
+        return found;
+    }
+
+    /**
+     * What the compilation of the loader takes in directly: the projects its project includes automatically, and
+     * the modules of a project or the modules a compiled module uses.
+     */
+    private static List<IDependencyLoader> usedBy(IDependencyLoader loader,
+                                                  Map<ResolvedDependency, IDependencyLoader> loaders) {
+        var project = loader.getProject();
+        var used = loader.isProjectLoader()
+                ? project.getModules().stream().map(AbstractDependencyManager::buildResolvedDependency)
+                : usedByCompiled(loader);
+        return Stream.concat(autoIncluded(project), used)
+                .map(loaders::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    private static Stream<ResolvedDependency> usedByCompiled(IDependencyLoader loader) {
+        var compiled = loader.getRefToCompiledDependency();
+        if (compiled != null
+                && compiled.getCompiledOpenClass().getOpenClassWithErrors() instanceof ModuleOpenClass module) {
+            return module.getDependencies().stream().map(CompiledDependency::getDependency);
+        }
+        return Stream.empty();
+    }
+
+    private static Stream<ResolvedDependency> autoIncluded(ProjectDescriptor project) {
+        // A Maven artifact without a name is a jar on the classpath, not a project.
+        return ProjectExternalDependenciesHelper.autoIncludedProjects(project)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(AbstractDependencyManager::buildResolvedDependency);
     }
 
     public void registerOnCompilationCompleteListener(
