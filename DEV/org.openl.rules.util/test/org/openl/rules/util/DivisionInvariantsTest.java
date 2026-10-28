@@ -99,6 +99,55 @@ class DivisionInvariantsTest {
         assertEquals(a, n * q + r, 1e-12);
     }
 
+    @Test
+    void identityDoubleOfDecimals() {
+        // Java's 0.3 / 0.1 is 2.9999999999999996 and 0.3 % 0.1 is 0.09999999999999998.
+        assertEquals(3.0, Quotient.quotient(0.3, 0.1));
+        assertEquals(0.0, Remainder.remainder(0.3, 0.1));
+        assertEquals(3.0, FloorDiv.floorDiv(0.3, 0.1));
+        assertEquals(0.0, Modular.mod(0.3, 0.1));
+        assertEquals(-4.0, FloorDiv.floorDiv(-0.3, 0.08));
+        assertEquals(0.02, Modular.mod(-0.3, 0.08));
+        // The exact remainder 0.30000000000000002 rounds to the divisor: it is zero, as the quotient 3 tells
+        assertEquals(3.0, Quotient.quotient(0.9000000000000001, 0.30000000000000004));
+        assertEquals(0.0, Remainder.remainder(0.9000000000000001, 0.30000000000000004));
+        assertEquals(0.0, Modular.mod(0.9000000000000001, 0.30000000000000004));
+        // A tiny dividend of the other sign is no multiple: its mod 0.99999999999999999999 rounds to the divisor
+        assertEquals(-1e-20, Remainder.remainder(-1e-20, 1.0));
+        assertEquals(-1.0, FloorDiv.floorDiv(-1e-20, 1.0));
+        assertEquals(1.0, Modular.mod(-1e-20, 1.0));
+        assertEquals(-1.0, FloorDiv.floorDiv(1e-20, -1.0));
+        assertEquals(-1.0, Modular.mod(1e-20, -1.0));
+    }
+
+    @Test
+    void identityDoubleOfComputedMultiples() {
+        // 7 * (1 / 3) is 2.333333333333333, below 7 times the double 1 / 3, which it counts as: the quotient 7.0
+        // rounds up
+        var third = 1.0 / 3;
+        var x = DecimalArithmetic.multiply(third, 7);
+        assertEquals(2.333333333333333, x);
+        assertEquals(6.0, Quotient.quotient(x, third));
+        assertEquals(0.33333333333333315, Remainder.remainder(x, third));
+        assertEquals(6.0, FloorDiv.floorDiv(x, third));
+        assertEquals(0.33333333333333315, Modular.mod(x, third));
+        assertEquals(-6.0, Quotient.quotient(-x, third));
+        assertEquals(-7.0, FloorDiv.floorDiv(-x, third));
+        assertEquals(1.6653345369377348E-16, Modular.mod(-x, third));
+        // The remainder rounds to the divisor, so the dividend counts as a multiple, though -1.9999999999999998 shows
+        assertEquals(-2.0, Quotient.quotient(-143.40000000000003, 71.70000000000002));
+        assertEquals(-0.0, Remainder.remainder(-143.40000000000003, 71.70000000000002));
+        assertEquals(-2.0, FloorDiv.floorDiv(-143.40000000000003, 71.70000000000002));
+        assertEquals(0.0, Modular.mod(-143.40000000000003, 71.70000000000002));
+        assertEquals(2.0, Quotient.quotient(2 * (1.0 / 15), 1.0 / 15));
+        // A quotient toward zero keeps the sign of a zero
+        assertEquals(-0.0, Quotient.quotient(-0.0018499999999999999, 0.00185));
+        // A multiple of the divisor has a positive zero mod
+        assertEquals(0.0, Modular.mod(-0.3, 0.1));
+        assertEquals(0.0, Modular.mod(-12.0, 3.0));
+        assertEquals(0.0, Modular.mod(12.0, -3.0));
+    }
+
     @ParameterizedTest(name = "BigInteger ({0}, {1})")
     @FieldSource("INT_PAIRS")
     void identityBigInteger(int a, int n) {

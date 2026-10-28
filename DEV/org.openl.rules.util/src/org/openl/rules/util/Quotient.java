@@ -8,7 +8,7 @@ import java.math.BigInteger;
  * Unlike Excel's {@code INT} (which floors toward negative infinity), {@code QUOTIENT} always discards the
  * fractional part: {@code QUOTIENT(-10, 3) == -3}, whereas {@code INT(-10/3) == -4}.
  * <p>
- * Formula for floating-point types:
+ * Formula for {@link Float}:
  * <pre>{@code
  *   val = dividend / divisor
  *   return (val >= 0) ? floor(val) : ceil(val)
@@ -22,6 +22,12 @@ import java.math.BigInteger;
  *       {@link Integer}, {@link java.math.BigDecimal} → {@link java.math.BigDecimal}, …).</li>
  *   <li>Integer divide-by-zero throws {@link ArithmeticException} (Java's {@code /} operator).</li>
  *   <li>Float/double divide-by-zero follows IEEE 754: returns {@code ±Infinity} or {@code NaN}.</li>
+ *   <li>Double operands count as the decimals they show, a computed number of 16 or 17 digits as its double
+ *       ({@link DecimalArithmetic}):
+ *       {@code quotient(0.3, 0.1) == 3.0}, while Java's {@code 0.3 / 0.1} is {@code 2.9999999999999996}. The result
+ *       is the whole number of divisors that {@link Remainder#remainder(Double, Double)} leaves the rest of, so
+ *       {@code dividend == divisor * quotient + remainder} for the decimals: a dividend within a rounding of a
+ *       multiple of the divisor counts as that multiple.</li>
  *   <li>{@code NaN} / {@code ±Infinity} inputs propagate naturally through the formula.</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
  * </ul>
@@ -72,8 +78,7 @@ public final class Quotient {
         if (dividend == null || divisor == null) {
             return null;
         }
-        var val = dividend / divisor;
-        return val >= 0.0d ? Math.floor(val) : Math.ceil(val);
+        return DecimalArithmetic.wholeQuotient(dividend, divisor, false);
     }
 
     public static BigInteger quotient(BigInteger dividend, BigInteger divisor) {

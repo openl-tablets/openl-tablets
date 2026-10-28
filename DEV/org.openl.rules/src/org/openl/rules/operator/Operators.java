@@ -10,6 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.annotations.IgnoreVarargsMatching;
 import org.openl.rules.annotations.Operator;
+import org.openl.rules.util.DecimalArithmetic;
 import org.openl.rules.util.Maths;
 import org.openl.rules.util.Remainder;
 import org.openl.rules.util.dates.DateInterval;
@@ -87,7 +88,7 @@ public class Operators {
     }
 
     public static double add(double x, double y) {
-        return x + y;
+        return DecimalArithmetic.add(x, y);
     }
 
     public static Byte add(Byte x, Byte y) {
@@ -141,7 +142,7 @@ public class Operators {
         } else if (y == null) {
             return x;
         }
-        return x + y;
+        return DecimalArithmetic.add(x, y);
     }
 
     public static BigInteger add(BigInteger x, BigInteger y) {
@@ -184,7 +185,7 @@ public class Operators {
     }
 
     public static double subtract(double x, double y) {
-        return x - y;
+        return DecimalArithmetic.subtract(x, y);
     }
 
     public static Byte subtract(Byte x, Byte y) {
@@ -250,7 +251,7 @@ public class Operators {
         } else if (y == null) {
             return x;
         }
-        return x - y;
+        return DecimalArithmetic.subtract(x, y);
     }
 
     public static BigInteger subtract(BigInteger x, BigInteger y) {
@@ -297,7 +298,7 @@ public class Operators {
     }
 
     public static double multiply(double x, double y) {
-        return x * y;
+        return DecimalArithmetic.multiply(x, y);
     }
 
     public static Byte multiply(Byte x, Byte y) {
@@ -339,7 +340,7 @@ public class Operators {
         if (x == null || y == null) {
             return null;
         }
-        return x * y;
+        return DecimalArithmetic.multiply(x, y);
     }
 
     public static BigInteger multiply(BigInteger x, BigInteger y) {
@@ -378,7 +379,7 @@ public class Operators {
     }
 
     public static double divide(double x, double y) {
-        return x / y;
+        return DecimalArithmetic.divide(x, y);
     }
 
     public static Double divide(Byte x, Byte y) {
@@ -420,7 +421,7 @@ public class Operators {
         if (x == null || y == null) {
             return null;
         }
-        return x / y;
+        return DecimalArithmetic.divide(x, y);
     }
 
     public static BigDecimal divide(BigInteger x, BigInteger y) {
@@ -456,7 +457,7 @@ public class Operators {
     @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static double dec(double x) {
-        return x - 1;
+        return subtract(x, 1d);
     }
 
     /**
@@ -616,7 +617,7 @@ public class Operators {
     @SuppressWarnings("java:S1133")
     @Deprecated(since = "5.22.7")
     public static double inc(double x) {
-        return x + 1;
+        return add(x, 1d);
     }
 
     /**

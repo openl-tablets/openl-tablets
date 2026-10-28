@@ -9,10 +9,16 @@ import java.math.BigInteger;
  * <p>
  * Contract:
  * <ul>
- *   <li>{@code MOD(a, b) == 0} when {@code a} is exactly divisible by {@code b}.</li>
+ *   <li>{@code MOD(a, b) == 0} when {@code a} is exactly divisible by {@code b}, a positive zero for
+ *       floating-point types.</li>
  *   <li>{@code MOD(a, 0) == a} (returns the dividend instead of throwing; deviates from Excel's
  *       {@code #DIV/0!} for rule-engine ergonomics).</li>
  *   <li>All overloads return {@code null} when any argument is {@code null}.</li>
+ *   <li>Double operands count as the decimals they show, a computed number of 16 or 17 digits as its double
+ *       ({@link DecimalArithmetic}): {@code mod(1.1, 0.1) == 0.0}.
+ *       The remainder plus the divisor is rounded once, and a remainder that rounds to the divisor is zero. A
+ *       dividend of the other sign, smaller than a rounding of the divisor, leaves a sum nearest to the divisor
+ *       itself: {@code mod(-1e-20, 1.0) == 1.0}, with {@code floorDiv(-1e-20, 1.0) == -1.0}.</li>
  *   <li><b>Floating-point edge cases</b> — the sign-of-divisor guarantee applies to finite divisors only.
  *       For {@link #mod(Float, Float)} / {@link #mod(Double, Double)}:
  *       <ul>
@@ -128,8 +134,11 @@ public final class Modular {
             throw new ArithmeticException("/ by zero");
         }
         var remainder = dividend % divisor;
-        if (remainder == 0.0f || Float.isInfinite(divisor) || Float.isNaN(remainder)) {
+        if (Float.isInfinite(divisor) || Float.isNaN(remainder)) {
             return remainder;
+        }
+        if (remainder == 0.0f) {
+            return 0.0f;
         }
         return hasDifferentSigns(remainder, divisor) ? remainder + divisor : remainder;
     }
@@ -138,18 +147,11 @@ public final class Modular {
         if (divisor == 0.0d) {
             throw new ArithmeticException("/ by zero");
         }
-        var remainder = dividend % divisor;
-        if (remainder == 0.0d || Double.isInfinite(divisor) || Double.isNaN(remainder)) {
-            return remainder;
-        }
-        return hasDifferentSigns(remainder, divisor) ? remainder + divisor : remainder;
+        var mod = DecimalArithmetic.floorMod(dividend, divisor);
+        return mod == 0.0d && !Double.isInfinite(divisor) ? 0.0d : mod;
     }
 
     private static boolean hasDifferentSigns(float a, float b) {
         return (a < 0.0f && b > 0.0f) || (a > 0.0f && b < 0.0f);
-    }
-
-    private static boolean hasDifferentSigns(double a, double b) {
-        return (a < 0.0d && b > 0.0d) || (a > 0.0d && b < 0.0d);
     }
 }
