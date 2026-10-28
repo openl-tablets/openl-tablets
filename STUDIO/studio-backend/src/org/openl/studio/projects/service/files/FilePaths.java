@@ -1,5 +1,7 @@
 package org.openl.studio.projects.service.files;
 
+import java.util.Arrays;
+
 import org.openl.util.FileUtils;
 
 /**
@@ -31,6 +33,15 @@ public final class FilePaths {
         }
         var slash = path.lastIndexOf('/');
         return slash < 0 ? "" : path.substring(0, slash);
+    }
+
+    /**
+     * Names of the folders that hold the file at the path, from the outermost one. A path without a parent
+     * yields no names.
+     */
+    static String[] parentFolders(String path) {
+        var segments = path.split("/");
+        return Arrays.copyOf(segments, segments.length - 1);
     }
 
     /**
