@@ -99,6 +99,22 @@ public final class Dates {
     }
 
     /**
+     * Converts a date to a string using the {@code MM/dd/yyyy} pattern. The same as {@link #toString(Date)}.
+     */
+    public static @Nullable String format(@Nullable Date date) {
+        return toString(date);
+    }
+
+    /**
+     * Converts a date to a string using a pattern. The same as {@link #toString(Date, String)}.
+     *
+     * @see SimpleDateFormat
+     */
+    public static @Nullable String format(@Nullable Date date, @Nullable String pattern) {
+        return toString(date, pattern);
+    }
+
+    /**
      * Converts a string to a date in the ISO form {@code yyyy-MM-dd} or in the US form {@code MM/dd/yy}.
      * <p>
      * The whole string must be a date: more text after the date gives {@code null}. Blanks around the date are

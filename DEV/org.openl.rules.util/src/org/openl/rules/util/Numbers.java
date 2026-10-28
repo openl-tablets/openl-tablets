@@ -136,4 +136,26 @@ public final class Numbers {
             return null;
         }
     }
+
+    /**
+     * Converts a number to a string with two decimals and the digits grouped by a comma: {@code 1234.5} gives
+     * {@code "1,234.50"}. The same as {@link #toString(Number, String)} with the {@code #,##0.00} pattern.
+     *
+     * @param number any instance of {@link Number}
+     * @return string representation of a given number, or {@code null} for {@code null}
+     */
+    public static @Nullable String format(@Nullable Number number) {
+        return toString(number, "#,##0.00");
+    }
+
+    /**
+     * Converts a number to a string using a pattern. The same as {@link #toString(Number, String)}.
+     *
+     * @param number  any instance of {@link Number}
+     * @param pattern target pattern
+     * @return string representation of a given number, or {@code null} for {@code null} or an invalid pattern
+     */
+    public static @Nullable String format(@Nullable Number number, @Nullable String pattern) {
+        return toString(number, pattern);
+    }
 }

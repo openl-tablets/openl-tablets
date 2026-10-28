@@ -10,8 +10,8 @@ try {
     //   * has a <method-filter> on the module.
     // After migration every default-restating element disappears, leaving only the synthesised
     // <exposed-methods> derived from the previous <method-filter>.
-    // rules/Format.xlsx calls the removed format() function with a Double and with a Date. Its test tables check
-    // the rewritten rules in the `verify` phase that follows the migration.
+    // rules/Format.xlsx calls format() with a Double, which stays, and the removed dateToString() with a Date.
+    // Its test tables check both rules in the `verify` phase that follows the migration.
     def expectedRulesXml = '''<project>
     <exposed-methods>
         <include>pong</include>
@@ -71,15 +71,15 @@ interface LegacyService {
     // GroovyJakartaMigrator logs a relative path, so the separator is the platform one.
     assert buildLog =~ /Migrate groovy[\\\/]LegacyService\.groovy/
     // RulesRemovedFunctionsMigrator logs every rewritten piece of a cell and then the workbook, by its relative path.
-    assert buildLog.contains('Format!A2: format(amount) -> toString(amount, "#,##0.00")')
-    assert buildLog.contains('Format!A10: format(date) -> toString(date, "M/d/yy")')
+    assert !buildLog.contains('format(amount) ->')
+    assert buildLog.contains('Format!A10: dateToString(date) -> toString(date, "M/d/yy")')
     assert buildLog =~ /Migrate: rules[\\\/]Format\.xlsx \(replace the functions removed in OpenL 7\.0\.0\)/
 
     // The cells keep the rewritten code. A workbook keeps its texts in xl/sharedStrings.xml.
     def strings = new java.util.zip.ZipFile(new File(folder, 'rules/Format.xlsx')).withCloseable { zip ->
         zip.getInputStream(zip.getEntry('xl/sharedStrings.xml')).getText('UTF-8').replace('&quot;', '"')
     }
-    assert strings.contains('return toString(amount, "#,##0.00");')
+    assert strings.contains('return format(amount);')
     assert strings.contains('return toString(date, "M/d/yy");')
 
     // Tally every "Migrate: " line so an unexpected migrator (e.g. someone wires a noisy migrator without

@@ -65,6 +65,14 @@ class DatesTest {
     }
 
     @Test
+    void testFormat() {
+        assertNull(Dates.format(null));
+        assertNull(Dates.format(null, "dd.MM.yyyy"));
+        assertEquals("07/12/1980", Dates.format(new Date(80, 6, 12, 23, 59)));
+        assertEquals("12-Jul-1980", Dates.format(new Date(80, 6, 12), "dd-MMM-yyyy"));
+    }
+
+    @Test
     void testToDate() {
         assertNull(Dates.toDate(null));
         assertNull(Dates.toDate(""));
