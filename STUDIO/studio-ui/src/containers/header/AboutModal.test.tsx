@@ -40,7 +40,7 @@ const MCP: License[] = [
 
 const SERVER: License[] = [
     { name: 'Eclipse Jetty', version: '12.1.14', identifier: 'EPL-2.0 OR Apache-2.0', notice: 'Eclipse Jetty' },
-    { name: 'Alpine Linux', version: '3.23.6', url: 'https://pkgs.alpinelinux.org/packages?branch=v3.23' },
+    { name: 'Alpine Linux', version: '3.24.3', url: 'https://pkgs.alpinelinux.org/packages?branch=v3.24' },
 ]
 
 /** The list of a side as the server answers, failing as it does for a list it has not. */
@@ -153,7 +153,7 @@ describe('AboutModal', () => {
         const items = within(screen.getByRole('list')).getAllByRole('listitem')
         expect(items.map(item => item.textContent)).toEqual([
             'Eclipse Jetty 12.1.14EPL-2.0 OR Apache-2.0 common:about.notice',
-            'Alpine Linux 3.23.6common:about.license',
+            'Alpine Linux 3.24.3common:about.license',
         ])
         expect(linksOf(items[1]!)).toEqual([['common:about.license', SERVER[1]!.url]])
     })

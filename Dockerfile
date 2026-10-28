@@ -56,7 +56,7 @@ done
 apk del wget gnupg
 EOT
 
-FROM eclipse-temurin:25-jre-alpine-3.23 AS openl
+FROM eclipse-temurin:25-jre-alpine-3.24 AS openl
 
 LABEL org.opencontainers.image.url="https://openl-tablets.org/"
 LABEL org.opencontainers.image.vendor="OpenL Tablets"
@@ -286,7 +286,7 @@ COPY --from=log4j /log4j-layout-template-json-*.jar $OPENL_APP/webapps/ROOT/WEB-
 
 # Only the OpenL Studio image runs the MCP server its webapp carries in WEB-INF/mcp and serves at /mcp, so only it gets
 # Node.js: the nodejs package of Alpine, which links the libraries of the system and holds the English locale data
-# only, about half the size of the official build. Alpine 3.23 packages the major version node.version of the root
+# only, about half the size of the official build. Alpine 3.24 packages the major version node.version of the root
 # pom.xml names. The Rule Services images get none.
 USER root
 RUN if [ -d "$OPENL_APP/webapps/ROOT/WEB-INF/mcp" ]; then apk add --no-cache nodejs; fi
