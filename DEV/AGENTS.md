@@ -61,6 +61,12 @@ cd DEV/org.openl.rules && mvn clean compile && mvn test
 
 **Gotchas**: Watch for shift/reduce conflicts in JavaCC output. Always test backward compatibility.
 
+**Identifiers** follow `Character.isJavaIdentifierStart`/`isJavaIdentifierPart` of the running JDK. The `START` and
+`PART` classes match ASCII exactly and take any other character but the ellipsis `…`; the lexical action
+`checkIdentifier` rejects the non-ASCII ones Java does not accept with `TableNameChecker.indexOfInvalidChar`, the rule
+the binders check table, field and parameter names with. A new token made of non-ASCII characters is cut out of
+`START` too, or an identifier swallows it.
+
 ### Binding System (`org.openl.rules/src/org/openl/binding/`)
 
 Type resolution, method binding, overload resolution. Performance-sensitive.

@@ -1,7 +1,19 @@
 import { property } from './propertyFixture'
-import { isValidPropertyValue, sheetNameFrom, toPropertyGroups } from './shared'
+import { IDENTIFIER, isValidPropertyValue, sheetNameFrom, toPropertyGroups } from './shared'
 
 describe('shared', () => {
+    describe('IDENTIFIER', () => {
+        it.each(['NewTable', '_rate', '$total', '€Rate', 'Ⅻ', '면간거리', 'имя', 'नाम', 'a\u0301', 'Hour24', 'a\u200d'])(
+            'accepts the Java identifier %s',
+            name => expect(IDENTIFIER.test(name)).toBe(true)
+        )
+
+        it.each(['24Hour', 'New Table', 'Rate-A', 'a.b', '・', 'サービス・コード', '\u0301a', '\u200da', ''])(
+            'refuses %j, which is not a Java identifier',
+            name => expect(IDENTIFIER.test(name)).toBe(false)
+        )
+    })
+
     describe('sheetNameFrom', () => {
         it('trims surrounding spaces, then clips to the length Excel accepts', () => {
             expect(sheetNameFrom('  Spaced  ')).toBe('Spaced')

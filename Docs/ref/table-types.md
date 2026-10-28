@@ -66,7 +66,8 @@ Constants [<tableName>]
 
 > [!Note]
 > All names in the header (table name, parameter names, datatype names) must follow Java identifier rules: start with
-> a letter or underscore, followed by letters, digits, or underscores. No spaces or special characters allowed.
+> a letter of any script, `_` or `$`, followed by letters, digits, or underscores. No spaces or special characters
+> allowed.
 
 ### Table Type Keywords
 

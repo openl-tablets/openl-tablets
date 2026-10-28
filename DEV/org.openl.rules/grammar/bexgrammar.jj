@@ -443,6 +443,36 @@ TOKEN :
 
 /* IDENTIFIERS */
 
+TOKEN_MGR_DECLS :
+{
+  /**
+   * Rejects the identifier of the token, unless it is a Java identifier.
+   * <p>
+   * The rule is the one of {@link org.openl.util.TableNameChecker#indexOfInvalidChar}. A name in back quotes is not
+   * checked. The error points to the first character that breaks the rule, as if no token could start there.
+   */
+  private void checkIdentifier(Token t, int from, int to)
+  {
+    var image = t.image;
+    var i = image.charAt(from) == '`' ? -1 : org.openl.util.TableNameChecker.indexOfInvalidChar(image, from, to);
+    if (i >= 0)
+    {
+      var state = i == 0 ? curLexState : DEFAULT;
+      throw new TokenMgrError(false, state, t.beginLine, t.beginColumn + i, "", image.charAt(i),
+        TokenMgrError.LEXICAL_ERROR);
+    }
+  }
+
+  /** Checks both identifiers of the range variable {@code $first:$second}. */
+  private void checkRangeVariable(Token t)
+  {
+    var image = t.image;
+    var colon = image.charAt(1) == '`' ? image.indexOf('`', 2) + 1 : image.indexOf(':');
+    checkIdentifier(t, 1, colon);
+    checkIdentifier(t, colon + 2, image.length());
+  }
+}
+
 < DEFAULT, REF_IDENTIFIER >
 TOKEN :
 {
@@ -450,48 +480,38 @@ TOKEN :
     ("`" < ANY >
     (< ANY >)*) "`"
     |
-    (< LETTER >
+    (< START >
     (
-      < LETTER >
-    | < DIGIT >
+      < PART >
     )* ) >
+  {
+    checkIdentifier(matchedToken, 0, matchedToken.image.length());
+  }
   : DEFAULT
 | 
-  < #LETTER : 
+  /*
+   * ASCII characters follow Character.isJavaIdentifierStart. Any other character, but the ellipsis, can start
+   * an identifier here, and checkIdentifier() rejects it unless Java accepts it.
+   */
+  < #START : 
     [ 
     "$",
     "A"-"Z",
     "_", 
     "a"-"z", 
-    "\u00c0"-"\u00d6", 
-    "\u00d8"-"\u00f6", 
-    "\u00f8"-"\u00ff", 
-    "\u0100"-"\u1fff", 
-    "\u3040"-"\u318f", 
-    "\u3300"-"\u337f", 
-    "\u3400"-"\u3d2d", 
-    "\u4e00"-"\u9fff", 
-    "\uf900"-"\ufaff" 
+    "\u0080"-"\u2025",
+    "\u2027"-"\uffff"
     ] 
   >
 | 
-  < #DIGIT : 
-    [ 
+  /* ASCII characters follow Character.isJavaIdentifierPart. */
+  < #PART : 
+    < START >
+  | [ 
+    "\u0000"-"\u0008",
+    "\u000e"-"\u001b",
     "0"-"9", 
-    "\u0660"-"\u0669", 
-    "\u06f0"-"\u06f9", 
-    "\u0966"-"\u096f", 
-    "\u09e6"-"\u09ef", 
-    "\u0a66"-"\u0a6f", 
-    "\u0ae6"-"\u0aef", 
-    "\u0b66"-"\u0b6f", 
-    "\u0be7"-"\u0bef", 
-    "\u0c66"-"\u0c6f", 
-    "\u0ce6"-"\u0cef", 
-    "\u0d66"-"\u0d6f", 
-    "\u0e50"-"\u0e59", 
-    "\u0ed0"-"\u0ed9", 
-    "\u1040"-"\u1049" 
+    "\u007f"
     ] 
   >
 |
@@ -501,6 +521,9 @@ TOKEN :
 TOKEN :
 {
   < RANGE_VARIABLE : "$" < IDENTIFIER > ":$" < IDENTIFIER > >
+  {
+    checkRangeVariable(matchedToken);
+  }
 }
 
 /* COMMENTS */

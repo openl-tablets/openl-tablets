@@ -1,5 +1,6 @@
 package org.openl.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -46,6 +47,19 @@ class TableNameCheckerTest {
 
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("αMethod"));
         assertFalse(TableNameChecker.isInvalidJavaIdentifier("εβδομάδα"));
+    }
+
+    @Test
+    void supplementaryCharacters() {
+        assertFalse(TableNameChecker.isInvalidJavaIdentifier("𝑥𝟙"));
+        assertTrue(TableNameChecker.isInvalidJavaIdentifier("a😀"));
+    }
+
+    @Test
+    void indexOfInvalidChar() {
+        assertEquals(-1, TableNameChecker.indexOfInvalidChar("$a:$b", 1, 2));
+        assertEquals(1, TableNameChecker.indexOfInvalidChar("a\u0301", 1, 2));
+        assertEquals(4, TableNameChecker.indexOfInvalidChar("𝑥𝟙×", 0, 5));
     }
 
     @Test
