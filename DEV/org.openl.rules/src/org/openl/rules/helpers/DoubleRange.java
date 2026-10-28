@@ -14,9 +14,9 @@ import org.openl.rules.range.RangeParser;
  * The <code>DoubleRange</code> class stores range of floats. Examples : "1.2-3", "2 .. 4", "123.456 ... 1000.00001"
  * (Important: using of ".." and "..." requires spaces between numbers and separator).
  *
- * <p>A bound may start with a {@code $} sign, may group the thousands of its whole part with commas and may end with
- * a {@code K}, {@code M} or {@code B} multiplier, so {@code $1,234.5} is 1234.5 and {@code 2.5M} is 2500000. A comma
- * must separate groups of exactly three digits.
+ * <p>A bound may group the thousands of its whole part with commas and may end with a {@code K}, {@code M} or
+ * {@code B} multiplier, so {@code 1,234.5} is 1234.5 and {@code 2.5M} is 2500000. A comma must separate groups of
+ * exactly three digits.
  */
 // Range.equals already compares the bounds this range keeps, reading them through getType, getLeft and getRight.
 // A parameter that is not read selects the overload by its type: the engine resolves casts and distances by signature.

@@ -71,8 +71,8 @@ const TBASIC_OPERATIONS = /^(?:IF|ELSE|END|WHILE|FOR|EACH|SUB|FUNCTION|RETURN|BR
 
 /**
  * The grammar of an OpenL expression: the Java grammar of the code editor, with the words OpenL keeps of Java, its
- * word operators and its numbers. A `$` before a number starts an amount (`$1,000`); before a name, it is part of the
- * name (`$Premium`). The dots between the bounds of a range (`18..25`) are an operator, not the start of a number.
+ * word operators and its numbers. A `$` is a part of a name, such as `$Premium`, and never starts a number. The dots
+ * between the bounds of a range (`18..25`) are an operator, not the start of a number.
  */
 const openlGrammar = clike({
     name: 'openl',
@@ -83,7 +83,6 @@ const openlGrammar = clike({
     atoms: words('true false null'),
     number: OPENL_NUMBER,
     hooks: {
-        $: (stream: StringStream) => (stream.match(OPENL_NUMBER) ? 'number' : false),
         '.': (stream: StringStream) => (stream.match(/^\.\.?/) ? 'operator' : false),
     },
 })

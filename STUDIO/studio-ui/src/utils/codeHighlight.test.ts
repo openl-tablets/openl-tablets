@@ -76,18 +76,19 @@ describe('highlight', () => {
         })
 
         it('reads a business literal as one number, its separators included', () => {
-            const numbers = tokens('$1,000.50 + 10% * 1K - 2.5M + 2026-10-15 + 12:30 + 1e3')
+            const numbers = tokens('1,000.50 + 10% * 1K - 2.5M + 2026-10-15 + 12:30 + 1e3')
                 ?.filter(([, colour]) => colour === syntax.number).map(([text]) => text)
 
-            expect(numbers).toEqual(['$1,000.50', '10%', '1K', '2.5M', '2026-10-15', '12:30', '1e3'])
+            expect(numbers).toEqual(['1,000.50', '10%', '1K', '2.5M', '2026-10-15', '12:30', '1e3'])
         })
 
         it('reads the bounds of a range as numbers and a name starting with $ as a name', () => {
-            const pieces = tokens('[18..25) + $Premium')
+            const pieces = tokens('[18..25) + $Premium + $100')
 
             expect(pieces).toContainEqual(['18', syntax.number])
             expect(pieces).toContainEqual(['25', syntax.number])
             expect(pieces?.find(([text]) => text === '$Premium')?.[1]).not.toBe(syntax.number)
+            expect(pieces?.find(([text]) => text === '$100')?.[1]).not.toBe(syntax.number)
         })
 
         it('reads an operator OpenL writes in words as one keyword', () => {

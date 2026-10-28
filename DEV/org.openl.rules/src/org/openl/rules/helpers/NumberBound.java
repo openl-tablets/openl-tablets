@@ -8,14 +8,14 @@ import org.openl.rules.convertor.NumberNotation;
 /**
  * A number bound of an {@link IntRange} or a {@link DoubleRange}, written the way business users write amounts.
  *
- * <p>A bound may start with a {@code $} sign, may group the thousands of its whole part with commas and may end with
- * a {@code K}, {@code M} or {@code B} multiplier. So {@code $1,500}, {@code 2.5K} and {@code 1M} are 1500, 2500 and
- * 1000000.
+ * <p>A bound may group the thousands of its whole part with commas and may end with a {@code K}, {@code M} or
+ * {@code B} multiplier. So {@code 1,500}, {@code 2.5K} and {@code 1M} are 1500, 2500 and 1000000.
  *
  * <p>A comma must separate groups of exactly three digits, so {@code 77,99} and {@code 1,0000} are not numbers.
- * Formulas accept only the multipliers: there a comma separates values and {@code $} starts a step reference.
+ * Formulas accept only the multipliers: there a comma separates values. A currency sign, such as {@code $1,500}, is
+ * not a part of a number.
  *
- * @param number     the number without the {@code $} sign, the commas and the multiplier
+ * @param number     the number without the commas and the multiplier
  * @param multiplier 1, or the value of the multiplier
  * @author Yury Molchan
  */
@@ -31,13 +31,12 @@ record NumberBound(String number, long multiplier) {
      * @throws NumberFormatException when a comma does not separate groups of three digits
      */
     static NumberBound of(String text) {
-        var start = text.startsWith("$") ? 1 : 0;
         var end = text.length();
-        var multiplier = end > start ? NumberNotation.multiplier(text.charAt(end - 1)) : 1L;
+        var multiplier = end > 0 ? NumberNotation.multiplier(text.charAt(end - 1)) : 1L;
         if (multiplier > 1) {
             end--;
         }
-        var number = text.substring(start, end);
+        var number = text.substring(0, end);
         if (number.indexOf(',') >= 0) {
             if (!GROUPED.matcher(number).matches()) {
                 throw new NumberFormatException("For input string: \"" + text + "\"");

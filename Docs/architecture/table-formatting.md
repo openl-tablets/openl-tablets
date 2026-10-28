@@ -473,7 +473,7 @@ Text is coloured by the code editor's highlight style for the current Studio the
 - **`date`** — the number hue.
 
 A value of a data type is coloured whole, its separators included: all of `2026-10-15`, `1,000.50`, `[18..25)` or
-`$1K` takes one colour. Only code is split into tokens.
+`1K` takes one colour. Only code is split into tokens.
 
 Code keeps the table's proportional font. A monospace font would widen every column holding code.
 
