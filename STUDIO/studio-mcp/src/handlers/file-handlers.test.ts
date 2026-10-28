@@ -111,11 +111,12 @@ describe("openl_read_project_file", () => {
       method: "GET",
       expiresAt: "2026-10-23T10:15:00Z",
       size: 4,
-      mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       repositoryPath: "Bank Rating/rules/Model.xlsx",
       branch: "main",
       curl: "curl -fsS -o 'Model.xlsx' 'http://localhost:8080/transfers/k3Jx'",
     });
+    // The extension of the file tells its type
+    expect(dataOf(result)).not.toHaveProperty("mimeType");
   });
 
   it.each([

@@ -9,7 +9,7 @@ import type * as Types from "../types.js";
 import { formatPage } from "../formatters.js";
 import { IN_PLACE_NOTE, isEditedInPlace, sanitizeError } from "../utils.js";
 import { isNotFoundError } from "../http.js";
-import { downloadLink, INLINE_TEXT_BYTES, inlineText, mimeTypeOf, uploadLink } from "../transfer-links.js";
+import { downloadLink, INLINE_TEXT_BYTES, inlineText, uploadLink } from "../transfer-links.js";
 import { registerTool, formatResult, rethrowConflictAsActionable, textResult, type ToolResponse } from "./common.js";
 
 export function registerFileHandlers(): void {
@@ -37,17 +37,14 @@ export function registerFileHandlers(): void {
         return formatResult(await downloadLink(client, { kind: "archive", projectId, path, ...at }),
           args.response_format);
       }
-      let mimeType: string | undefined;
       if (meta.size !== undefined && meta.size <= INLINE_TEXT_BYTES) {
-        const file = await client.readProjectFile(projectId, path, at);
-        const text = inlineText(file);
+        const text = inlineText(await client.readProjectFile(projectId, path, at));
         if (text !== undefined) {
           // The text stays verbatim: its version is told apart from it
           return { content: [{ type: "text", text }, ...versionNote(meta.version)] };
         }
-        mimeType = mimeTypeOf(file.contentType) || undefined;
       }
-      const link = await downloadLink(client, { kind: "download", projectId, path, ...at }, { size: meta.size, mimeType });
+      const link = await downloadLink(client, { kind: "download", projectId, path, ...at }, meta.size);
       return formatResult(meta.version === undefined ? link : { ...link, version: meta.version }, args.response_format);
     },
   });

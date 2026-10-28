@@ -40,17 +40,6 @@ interface UploadTarget {
   sha256?: string;
 }
 
-/** What a download link answers about the file, when the tool knows it. */
-interface FileFacts {
-  size?: number;
-  mimeType?: string;
-}
-
-/** The media type of a content type, without its parameters: `text/plain` of `text/plain; charset=utf-8`. */
-export function mimeTypeOf(contentType: string): string {
-  return contentType.split(";")[0].trim().toLowerCase();
-}
-
 /**
  * The text of a file a tool answers inline: a file of up to {@link INLINE_TEXT_BYTES} bytes whose content type is
  * text — `text/*`, or a JSON, XML or YAML type — decoded in the charset the type names, or UTF-8. Anything else is
@@ -69,15 +58,19 @@ export function inlineText(file: Types.ProjectFileResponse): string | undefined 
 }
 
 function isTextType(contentType: string): boolean {
-  const type = mimeTypeOf(contentType);
+  // The media type without its parameters: `text/plain` of `text/plain; charset=utf-8`
+  const type = contentType.split(";")[0].trim();
   return type.startsWith("text/") || /^application\/([\w.+-]+\+)?(json|xml|yaml|x-yaml)$/.test(type);
 }
 
-/** A link that downloads the target, with where the file lives in its repository and a `curl` command to run. */
+/**
+ * A link that downloads the target, with its size when the tool knows it, where the file lives in its repository and
+ * a `curl` command to run.
+ */
 export async function downloadLink(
   client: OpenLClient,
   target: DownloadTarget,
-  facts: FileFacts = {},
+  size?: number,
 ): Promise<Record<string, unknown>> {
   const [{ url, expiresAt }, location] = await Promise.all([
     linkOf(client, target, () => singleUserDownloadUrl(client, target)),
@@ -87,8 +80,7 @@ export async function downloadLink(
     url,
     method: "GET",
     ...(expiresAt ? { expiresAt } : {}),
-    ...(facts.size === undefined ? {} : { size: facts.size }),
-    ...(facts.mimeType ? { mimeType: facts.mimeType } : {}),
+    ...(size === undefined ? {} : { size }),
     ...location,
     curl: `curl -fsS -o ${quote(localName(target))} ${quote(url)}`,
     note: expiresAt

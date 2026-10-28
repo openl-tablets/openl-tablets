@@ -226,11 +226,11 @@ describe("project branch and merge handlers", () => {
         url: "http://localhost:8080/rest/projects/p1/merge/conflicts/files?file=Rating%2Frules%2Fconfig.txt&side=theirs",
         method: "GET",
         size: 5001,
-        mimeType: "text/plain",
         repositoryPath: "Rating/rules/config.txt",
         branch: "feature",
       });
       expect(dataOf(response)).not.toHaveProperty("expiresAt");
+      expect(dataOf(response)).not.toHaveProperty("mimeType");
       expect(harness.mockHttp.history.post).toHaveLength(0);
     });
 

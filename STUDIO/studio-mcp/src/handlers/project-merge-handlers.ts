@@ -8,7 +8,7 @@ import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { downloadLink, INLINE_TEXT_BYTES, inlineText, mimeTypeOf } from "../transfer-links.js";
+import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 import { waitForResult, type WaitOptions } from "./wait.js";
@@ -390,10 +390,7 @@ export function registerProjectMergeHandlers(): void {
       if (text !== undefined) {
         return textResult(text);
       }
-      return formatResult(await downloadLink(client, link, {
-        size: response.data.length,
-        mimeType: mimeTypeOf(response.contentType) || undefined,
-      }), args.response_format);
+      return formatResult(await downloadLink(client, link, response.data.length), args.response_format);
     },
   });
 
