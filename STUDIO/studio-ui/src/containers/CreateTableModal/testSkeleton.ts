@@ -10,8 +10,8 @@ import { EXPECTED_RESULT, type TableArgument, type TablePreset, type TargetColum
  */
 export const EXECUTABLE_KINDS = ['Rules', 'Spreadsheet', 'Method', 'TBasic', 'Column Match']
 
-/** The fields of a project datatype, or `null` when the name is not one — a value of it stays a single column. */
-export type FieldsOfType = (typeName: string) => Promise<DatatypeField[] | null>
+/** The fields of a datatype, or `null` when the name is not one — a value of it stays a single column. */
+export type FieldsOfType = (typeName: string) => DatatypeField[] | null
 
 /** A Test or Run table under construction: the table it exercises, and the columns that call it. */
 export interface TargetStructure {
@@ -41,26 +41,23 @@ export const parseArguments = (signature: string | undefined): TableArgument[] =
  * The columns one value of the given type needs, descending into the fields of a datatype.
  *
  * <p>A datatype already on the path is not opened again: one that refers back to itself, directly or through
- * another, describes an endless chain of columns. Each branch carries its own path, so the fields of one level are
- * read at the same time rather than one after another — a signature nesting several datatypes would otherwise wait
- * out one round-trip per type it reaches.
+ * another, describes an endless chain of columns.
  */
-const collectColumns = async (
+const collectColumns = (
     type: string,
     path: string,
     names: string,
     ancestors: ReadonlySet<string>,
     fieldsOf: FieldsOfType
-): Promise<TargetColumn[]> => {
-    const fields = ancestors.has(type) ? null : await fieldsOf(type)
+): TargetColumn[] => {
+    const fields = ancestors.has(type) ? null : fieldsOf(type)
     if (!fields?.length) {
         // The title reads as one phrase, so the whole path is titled at once rather than segment by segment.
         return [{ name: path, title: title(names), type }]
     }
     const onPath = new Set(ancestors).add(type)
-    const branches = await Promise.all(fields.map(field =>
-        collectColumns(field.type, `${path}.${field.name}`, `${names} ${field.name}`, onPath, fieldsOf)))
-    return branches.flat()
+    return fields.flatMap(field =>
+        collectColumns(field.type, `${path}.${field.name}`, `${names} ${field.name}`, onPath, fieldsOf))
 }
 
 /**
@@ -72,14 +69,8 @@ const collectColumns = async (
  * <p>Every other argument stays a single column. A simple value fills one cell, and a collection is filled from
  * several rows of the same test case rather than from a column per element.
  */
-export const expandArguments = async (
-    argumentsValue: TableArgument[],
-    fieldsOf: FieldsOfType
-): Promise<TargetColumn[]> => {
-    const perArgument = await Promise.all(argumentsValue.map(argument =>
-        collectColumns(argument.type, argument.name, argument.name, new Set(), fieldsOf)))
-    return perArgument.flat()
-}
+export const expandArguments = (argumentsValue: TableArgument[], fieldsOf: FieldsOfType): TargetColumn[] =>
+    argumentsValue.flatMap(argument => collectColumns(argument.type, argument.name, argument.name, new Set(), fieldsOf))
 
 /**
  * The Test or Run table a tested table calls for.
@@ -87,12 +78,12 @@ export const expandArguments = async (
  * <p>A Test table ends with the column its result is compared against; a Run table only calls, so it has none. The
  * expected result stays one column whatever its type — a whole object is what a generated test compares.
  */
-export const buildTargetStructure = async (
+export const buildTargetStructure = (
     table: ProjectTable,
     preset: 'test' | 'run',
     fieldsOf: FieldsOfType
-): Promise<TargetStructure> => {
-    const columns = await expandArguments(parseArguments(table.signature), fieldsOf)
+): TargetStructure => {
+    const columns = expandArguments(parseArguments(table.signature), fieldsOf)
     return {
         table,
         columns: preset === 'test'

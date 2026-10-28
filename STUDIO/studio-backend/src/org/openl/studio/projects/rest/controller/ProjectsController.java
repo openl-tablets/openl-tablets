@@ -93,6 +93,7 @@ import org.openl.studio.projects.model.ProjectBranchInfo;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectMigrationView;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.ProjectsPageResponse;
 import org.openl.studio.projects.model.PropertyDefinitionView;
@@ -585,6 +586,12 @@ public class ProjectsController {
         // The properties are the same for every project, but the path variable is still resolved: resolving it is
         // what checks that the caller may read this project.
         return metadataService.getProperties(tableType);
+    }
+
+    @GetMapping("/{projectId}/types")
+    @Operation(summary = "projects.types.list.summary", description = "projects.types.list.desc")
+    public List<ProjectTypeView> getTypes(@ProjectId @PathVariable("projectId") RulesProject project) {
+        return projectService.getTypes(project);
     }
 
     @GetMapping("/{projectId}/tables/{tableId}")

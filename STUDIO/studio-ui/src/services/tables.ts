@@ -3,8 +3,8 @@ import i18n from '../i18n'
 import type {
     CopyTableRequest,
     CreateTableRequest,
-    ProjectDatatype,
     ProjectTable,
+    ProjectType,
     SummaryTable,
     TableCopyInfo,
     TableInput,
@@ -93,33 +93,15 @@ export const getProjectTables = async (projectId: string, kinds: string[]): Prom
 }
 
 /**
- * One Datatype table: the fields it declares, the datatype it extends, and — for a vocabulary, written with the
- * same keyword — the values it accepts.
+ * The datatypes and vocabularies the rules of a project may name, by name — those of the projects it depends on
+ * included.
  *
- * <p>The tables list carries none of them, so a type a table is about to be built from is read in full when it is
- * picked.
+ * <p>They are what the compiler made of the project: a datatype lists every field it has, the inherited ones first,
+ * whichever way its table is laid out. A type whose own table did not compile is not among them.
  */
-export const getDatatype = async (projectId: string, tableId: string): Promise<ProjectDatatype> => {
-    const table = await apiCall(
-        `/projects/${projectId}/tables/${encodeURIComponent(tableId)}`,
-        undefined,
-        LOCAL_LOAD_API_OPTIONS
-    ) as {
-        extends?: string
-        fields?: { name?: string, type?: string }[]
-        values?: { value?: unknown }[]
-    } | null
-    return {
-        ...(table?.extends ? { extends: table.extends } : {}),
-        fields: asArray<{ name?: string, type?: string }>(table?.fields)
-            .filter(field => field.name)
-            .map(field => ({ name: field.name ?? '', type: field.type ?? '' })),
-        values: asArray<{ value?: unknown }>(table?.values)
-            .map(entry => entry.value)
-            .filter(value => value !== null && value !== undefined)
-            .map(String),
-    }
-}
+export const getProjectTypes = async (projectId: string): Promise<ProjectType[]> => asArray<ProjectType>(
+    await apiCall(`/projects/${projectId}/types`, undefined, LOCAL_LOAD_API_OPTIONS)
+)
 
 export const createTable = async (
     projectId: string,

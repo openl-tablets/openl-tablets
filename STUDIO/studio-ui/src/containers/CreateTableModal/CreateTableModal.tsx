@@ -16,12 +16,12 @@ import { SuggestInput } from 'components/SuggestInput'
 import { useGlobalEvents } from 'hooks'
 import { errorMessage } from 'utils/errorMessage'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
-import { createTable, getDatatype, getProjectTables } from 'services/tables'
+import { createTable, getProjectTables, getProjectTypes } from 'services/tables'
 import type {
     DatatypeField,
-    ProjectDatatype,
-    ProjectTable,
     ProjectProperty,
+    ProjectTable,
+    ProjectType,
     RawTableCellInput,
     SummaryTable,
 } from 'types/tables'
@@ -50,7 +50,6 @@ import {
     minimumRows,
     normalizeFreeFormColumns,
     normalizeRows,
-    ownValue,
     SIGNATURE_PRESETS,
     SIMPLE_TYPES,
     TABLE_PRESETS,
@@ -139,9 +138,32 @@ export interface CreateTableModalDetail {
     onSuccess?: (table: SummaryTable, moduleName: string) => void
 }
 
-/** Both are written with the `Datatype` keyword; the table type is what tells a vocabulary from a datatype. */
-const namesOf = (types: ProjectTable[], tableType: string): string[] =>
-    types.filter(type => type.tableType === tableType).map(type => type.name)
+/** Both are written with the `Datatype` keyword; what they declare is what tells a vocabulary from a datatype. */
+const namesOf = (types: ProjectType[], kind: ProjectType['kind']): string[] =>
+    types.filter(type => type.kind === kind).map(type => type.name)
+
+/** What a table is built from: the fields of each datatype, and every value each vocabulary offers. */
+interface TypeIndex {
+    fieldsOf: FieldsOfType
+    vocabularyValues: Record<string, string[]>
+}
+
+/**
+ * Indexes the types by the name the rules write them with.
+ *
+ * <p>The server answers each name once, for the type the rules mean by it, its dependencies' types included. A name
+ * it does not know — a simple type, an array, a half-typed one — has no fields, and a value of it stays one cell. The
+ * first value of a vocabulary seeds an example cell, and the whole set restricts its editor.
+ */
+const indexTypes = (types: ProjectType[]): TypeIndex => {
+    const byName = new Map(types.map(type => [type.name, type]))
+    return {
+        fieldsOf: typeName => byName.get(typeName.trim())?.fields ?? null,
+        vocabularyValues: Object.fromEntries(types
+            .filter(type => type.kind === 'vocabulary')
+            .map(type => [type.name, type.values])),
+    }
+}
 
 const rawCellValue = (value: TableCellValue | undefined): TableCellValue | null =>
     value === undefined || value === '' ? null : value
@@ -240,15 +262,14 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     const { styles, cx } = useStyles()
     const [modules, setModules] = useState<ModuleOption[]>([])
     // What the project holds. Each is asked for once: only the sheets belong to a module rather than to the project.
-    const [datatypes, setDatatypes] = useState<ProjectTable[]>([])
-    // Fields of the datatypes an author has picked. The tables list carries none, so each is read once, on demand.
-    const [datatypeFields, setDatatypeFields] = useState<Record<string, DatatypeField[]>>({})
+    // The types are read whole, every field and every value of each, so nothing is read again while the dialog is open.
+    const [types, setTypes] = useState<ProjectType[]>([])
     const [properties, setProperties] = useState<ProjectProperty[]>([])
     // The tables a test can call. Read when a Test or a Run table is being written, and not before.
     const [executables, setExecutables] = useState<ProjectTable[]>([])
     const [loadingModules, setLoadingModules] = useState(true)
     const [loadingTargets, setLoadingTargets] = useState(false)
-    const [loadingSkeleton, setLoadingSkeleton] = useState(false)
+    const [choosingTarget, setChoosingTarget] = useState(false)
     const [creating, setCreating] = useState(false)
     const [selectedModule, setSelectedModule] = useState('')
     const [tableName, setTableName] = useState('')
@@ -270,21 +291,9 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         regrid(typeof next === 'function' ? next(current.rows) : next, current.keys, current.nextKey)), [])
     const sheetLoader = useSheetLoader(t('project:create_table_modal.options_load_failed'))
     const { sheets, sheetName, setSheetName } = sheetLoader
-    // Identifies the latest skeleton load; a response from an older one must not overwrite the current selection.
-    const skeletonToken = useRef(0)
-    // Counted apart from the skeleton: a table type that exercises nothing starts no skeleton load of its own, and
-    // the list of callable tables asked for by the type before it must not still choose a table for it.
+    // Identifies the latest choice of a table to exercise: the list of callable tables asked for by a type the
+    // author has left, or by a default the author has overridden, must not still choose a table.
     const targetToken = useRef(0)
-    // And once more for a type's fields: two names read in quick succession may answer out of order, and only the
-    // one the author has settled on may size the grid.
-    const fieldsToken = useRef(0)
-    // Datatypes are cached as the requests themselves: expanding a tested argument walks the datatypes it nests
-    // within one turn, long before a state update could be seen by the walk that follows it.
-    const datatypeCache = useRef(new Map<string, Promise<ProjectDatatype>>())
-    // Every value each vocabulary offers, by name. A cache rather than state: reads are followed by a skeleton
-    // update, and the context hands out this very object, so values learned after it was memoized are visible then.
-    // Type names are project data, so the cache has no prototype for names such as `constructor` to collide with.
-    const vocabularyValues = useRef<Record<string, string[]>>(Object.create(null) as Record<string, string[]>)
     // The request for the callable tables rather than its answer, so two quick switches between Test and Run, or a
     // switch and an opened list, share the one that is already on its way.
     const executablesRequest = useRef<Promise<ProjectTable[]> | null>(null)
@@ -296,18 +305,20 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         globalThis.dispatchEvent(new CustomEvent('openCreateTableModal', { detail: null }))
     }, [])
 
+    const typeIndex = useMemo(() => indexTypes(types), [types])
+
     const context = useMemo<TableBuildContext>(() => ({
         resultType,
-        resultFields: ownValue(datatypeFields, resultType) ?? [],
+        resultFields: typeIndex.fieldsOf(resultType) ?? [],
         arguments: argumentsValue,
         vocabularyType,
         extendsType,
         datatypeName,
-        dataFields: ownValue(datatypeFields, datatypeName) ?? [],
+        dataFields: typeIndex.fieldsOf(datatypeName) ?? [],
         targetName: target?.table.name ?? '',
         targetColumns: target?.columns ?? [],
-        vocabularyValues: vocabularyValues.current,
-    }), [argumentsValue, datatypeFields, datatypeName, extendsType, resultType, target, vocabularyType])
+        vocabularyValues: typeIndex.vocabularyValues,
+    }), [argumentsValue, datatypeName, extendsType, resultType, target, typeIndex, vocabularyType])
 
     const gridWidth = rows[0]?.length ?? 1
     const columns = useMemo(
@@ -324,13 +335,13 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         },
         {
             label: t('project:create_table_modal.type_groups.vocabularies'),
-            options: asOptions(namesOf(datatypes, 'Vocabulary')),
+            options: asOptions(namesOf(types, 'vocabulary')),
         },
         {
             label: t('project:create_table_modal.type_groups.datatypes'),
-            options: asOptions([...namesOf(datatypes, 'Datatype'), ...complexTypes]),
+            options: asOptions([...namesOf(types, 'datatype'), ...complexTypes]),
         },
-    ].filter(group => group.options.length), [datatypes, t])
+    ].filter(group => group.options.length), [types, t])
 
     /** Types a cell may hold. SpreadsheetResult is not among them: only a method signature can name it. */
     const typeOptions = useMemo(() => buildTypeOptions([]), [buildTypeOptions])
@@ -376,12 +387,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         setRows(current => measureRows(forPreset, nextContext, seed ?? current))
     }
 
-    const resetRowsForPreset = (
-        nextPreset: TablePreset,
-        knownTypes: ProjectTable[],
-        nextDatatypeName = namesOf(knownTypes, 'Datatype')[0] ?? '',
-        knownFields: Record<string, DatatypeField[]> = datatypeFields
-    ) => {
+    /** `index` is the dialog's own, unless the types have just arrived. */
+    const resetRowsForPreset = (nextPreset: TablePreset, nextDatatypeName: string, index = typeIndex) => {
         const nextContext: TableBuildContext = {
             resultType: defaultResultType(nextPreset),
             resultFields: [],
@@ -389,137 +396,44 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
             vocabularyType: DEFAULT_VOCABULARY_TYPE,
             extendsType: '',
             datatypeName: nextDatatypeName,
-            dataFields: ownValue(knownFields, nextDatatypeName) ?? [],
+            dataFields: index.fieldsOf(nextDatatypeName) ?? [],
             targetName: '',
             targetColumns: [],
-            vocabularyValues: vocabularyValues.current,
+            vocabularyValues: index.vocabularyValues,
         }
         resizeRows(nextPreset, nextContext, initialRows(nextPreset, nextContext))
-    }
-
-    const applyTarget = (
-        structure: TargetStructure,
-        nextPreset: 'test' | 'run',
-        updateTableName: boolean
-    ) => {
-        setTarget(structure)
-        const nextContext: TableBuildContext = {
-            ...context,
-            targetName: structure.table.name,
-            targetColumns: structure.columns,
-            // Read from the ref rather than from the context: the context was memoized before the types were.
-            vocabularyValues: vocabularyValues.current,
-        }
-        setRows(measureRows(nextPreset, nextContext, initialRows(nextPreset, nextContext)))
-        if (updateTableName) {
-            // A generated table is named after the table it exercises; the author is free to rename it.
-            const generated = targetTableName(structure.table.name, nextPreset)
-            setTableName(generated)
-            // The destination module is read at the same time and points the sheet field at one of its worksheets.
-            // The tested table has the last word, so it waits for that answer instead of racing it — otherwise the
-            // sheet the table is written to is whichever request the server happened to answer first.
-            void moduleRead.current.then(() => setSheetName(sheetNameFrom(structure.table.name || generated)))
-        }
-    }
-
-    /**
-     * Reads one type the project declares: the fields of a datatype, or the values of a vocabulary.
-     *
-     * <p>Inherited fields come first, and a vocabulary's values are remembered so its editor can offer them. A name
-     * the project does not declare has neither: a value of it is written as one cell rather than opened up. A type
-     * already being read is not read again — one extending itself, directly or through another, describes an endless
-     * chain of fields.
-     */
-    const typeReader = (known: ProjectTable[]) => {
-        // Declared types are indexed once per reader: expanding a tested argument looks up every field's type, and a
-        // project declaring hundreds of datatypes would otherwise be scanned once per column.
-        const declaredByName = new Map(known.map(table => [table.name, table]))
-        const read = async (typeName: string, reading: Set<string>): Promise<ProjectDatatype | null> => {
-            const declared = declaredByName.get(typeName)
-            if (!declared || reading.has(typeName)) {
-                return null
-            }
-            reading.add(typeName)
-            let request = datatypeCache.current.get(typeName)
-            if (!request) {
-                // One unreadable type leaves its column unopened rather than failing the whole skeleton.
-                request = getDatatype(detail.projectId, declared.id).catch(() => ({ fields: [], values: []}))
-                datatypeCache.current.set(typeName, request)
-            }
-            const structure = await request
-            if (declared.tableType === 'Vocabulary') {
-                vocabularyValues.current[typeName] = structure.values
-            }
-            const parent = structure.extends ? await read(structure.extends, reading) : null
-            return { ...structure, fields: [...parent?.fields ?? [], ...structure.fields]}
-        }
-        return (typeName: string) => read(typeName, new Set())
-    }
-
-    const fieldsOf = (known: ProjectTable[]): FieldsOfType => {
-        const read = typeReader(known)
-        return async typeName => (await read(typeName))?.fields ?? null
-    }
-
-    /**
-     * Learns every value of each vocabulary among these types.
-     *
-     * <p>The first value seeds an example cell and the complete set restricts its editor. Only vocabularies are read:
-     * a datatype names no value a single cell could hold, and reading one to find that out would cost a request per
-     * column.
-     */
-    const readVocabularies = async (types: string[], known = datatypes): Promise<void> => {
-        const read = typeReader(known)
-        const vocabularies = new Set(known.filter(table => table.tableType === 'Vocabulary').map(table => table.name))
-        const declaredTypes = new Set(types.map(type => type.trim()))
-        const requested = [...declaredTypes].filter(type => vocabularies.has(type))
-        // Mark each declared vocabulary before its values arrive. Its cell becomes a restricted empty selection
-        // immediately, so Create cannot submit the previous type's value while the request is still in flight.
-        requested.forEach(type => {
-            vocabularyValues.current[type] ??= []
-        })
-        await Promise.all(requested.map(read))
-    }
-
-    /** Re-renders value cells after a vocabulary's finite choices arrive without changing the grid's shape. */
-    const refreshVocabularyEditors = (types: string[]) => {
-        void readVocabularies(types).then(() => setRows(current => [...current]))
     }
 
     /**
      * Builds the Test or Run table for a tested table and puts it in the grid.
      *
-     * <p>The columns come from the signature the tested table declares, so the only thing read from the server is
-     * the datatypes an argument of one opens up into — and each of those only once.
+     * <p>The columns come from the signature the tested table declares, an argument of a datatype opened into the
+     * fields the dialog already holds, so nothing is read from the server. `index` is the dialog's own, unless the
+     * types have just arrived.
      */
-    const loadTarget = async (
+    const buildTarget = (
         table: ProjectTable,
         nextPreset: 'test' | 'run',
         updateTableName = true,
-        knownTypes = datatypes
+        index = typeIndex
     ) => {
-        const token = ++skeletonToken.current
-        setLoadingSkeleton(true)
-        try {
-            const structure = await buildTargetStructure(table, nextPreset, fieldsOf(knownTypes))
-            await readVocabularies(structure.columns.map(column => column.type), knownTypes)
-            if (token !== skeletonToken.current) {
-                return
-            }
-            applyTarget(structure, nextPreset, updateTableName)
-        } catch (error) {
-            if (token !== skeletonToken.current) {
-                return
-            }
-            setTarget(null)
-            notification.error({
-                title: t('project:create_table_modal.tested_table_load_failed'),
-                description: errorMessage(error),
-            })
-        } finally {
-            if (token === skeletonToken.current) {
-                setLoadingSkeleton(false)
-            }
+        const structure = buildTargetStructure(table, nextPreset, index.fieldsOf)
+        setTarget(structure)
+        const nextContext: TableBuildContext = {
+            ...context,
+            targetName: structure.table.name,
+            targetColumns: structure.columns,
+            vocabularyValues: index.vocabularyValues,
+        }
+        setRows(measureRows(nextPreset, nextContext, initialRows(nextPreset, nextContext)))
+        if (updateTableName) {
+            // A generated table is named after the table it exercises; the author is free to rename it.
+            const generated = targetTableName(table.name, nextPreset)
+            setTableName(generated)
+            // The destination module is read at the same time and points the sheet field at one of its worksheets.
+            // The tested table has the last word, so it waits for that answer instead of racing it — otherwise the
+            // sheet the table is written to is whichever request the server happened to answer first.
+            void moduleRead.current.then(() => setSheetName(sheetNameFrom(table.name || generated)))
         }
     }
 
@@ -564,27 +478,27 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
     /**
      * Points a Test or a Run table at the table it exercises.
      *
-     * <p>The table already chosen survives a switch between Test and Run, and its datatypes are cached, so that
-     * switch asks the server for nothing. Without one there is nothing to build a skeleton from: the project's
-     * callable tables are read, and the first of them is taken.
+     * <p>The table already chosen survives a switch between Test and Run, so that switch asks the server for
+     * nothing. Without one there is nothing to build a skeleton from: the project's callable tables are read, and the
+     * first of them is taken.
      */
     const selectTargetTable = async (nextPreset: 'test' | 'run', kept: TargetStructure | null, token: number) => {
         if (kept) {
             // The name follows the tested table only when that table changes; a name the author already has stays.
-            await loadTarget(kept.table, nextPreset, false)
+            buildTarget(kept.table, nextPreset, false)
             return
         }
-        setLoadingSkeleton(true)
+        setChoosingTarget(true)
         try {
             const first = (await loadExecutables(detail.projectId))
                 .find(table => canTargetTable(table, nextPreset))
             if (token === targetToken.current && first) {
-                await loadTarget(first, nextPreset, true)
+                buildTarget(first, nextPreset, true)
             }
         } finally {
             // A project offering no callable table leaves the spinner to this branch: nothing else clears it.
             if (token === targetToken.current) {
-                setLoadingSkeleton(false)
+                setChoosingTarget(false)
             }
         }
     }
@@ -597,7 +511,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         // What every table type needs is asked for once, and the three answers are independent of one another.
         Promise.all([
             getProjectModules(detail.projectId),
-            getProjectTables(detail.projectId, ['Datatype']),
+            // As the compiler resolved them, so a type of a project this one depends on is offered and opened up too.
+            getProjectTypes(detail.projectId),
             // The ones a Properties table's contents may name: the only table written here that carries any.
             getProjectProperties(detail.projectId, 'Properties'),
             // Opening on Create Test opens on a Test table, so the tables one can call are read here after all:
@@ -619,16 +534,17 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 const resolvedModule = current?.name ?? available[0]?.name ?? ''
                 setModules(available)
                 setSelectedModule(resolvedModule)
-                setDatatypes(loadedTypes)
+                setTypes(loadedTypes)
+                const loadedIndex = indexTypes(loadedTypes)
                 setProperties(loadedProperties)
-                const firstDatatype = namesOf(loadedTypes, 'Datatype')[0] ?? ''
+                const firstDatatype = namesOf(loadedTypes, 'datatype')[0] ?? ''
                 setDatatypeName(firstDatatype)
                 const sourceTable = callable.find(table => table.id === detail.sourceTableId)
                 if (sourceTable) {
                     setPreset('test')
-                    void loadTarget(sourceTable, 'test', true, loadedTypes)
+                    buildTarget(sourceTable, 'test', true, loadedIndex)
                 } else {
-                    resetRowsForPreset('datatype', loadedTypes, firstDatatype)
+                    resetRowsForPreset('datatype', firstDatatype, loadedIndex)
                     if (detail.sourceTableId) {
                         // A table the Create Test button offered that the project no longer lists as callable. The
                         // modal opens on its own default rather than on nothing at all.
@@ -648,10 +564,10 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                     return
                 }
                 setModules([])
-                setDatatypes([])
+                setTypes([])
                 setProperties([])
                 setSelectedModule('')
-                resetRowsForPreset('datatype', [])
+                resetRowsForPreset('datatype', '')
                 notification.error({
                     title: t('project:create_table_modal.modules_load_failed'),
                     description: errorMessage(error),
@@ -736,7 +652,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     const sheetOptions = useMemo(() => asOptions(sheets), [sheets])
 
-    const datatypeOptions = useMemo(() => asOptions(namesOf(datatypes, 'Datatype')), [datatypes])
+    const datatypeOptions = useMemo(() => asOptions(namesOf(types, 'datatype')), [types])
 
     const targetOptions = useMemo(() => isTargeted(preset)
         ? executables
@@ -761,12 +677,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         // Taken for every type, not only the two that exercise a table: leaving one of them is what has to cancel
         // the table it was still choosing.
         const token = ++targetToken.current
-        const fieldsVersion = ++fieldsToken.current
-        // A skeleton being built for the type being left has to be cancelled too. Only `loadTarget` moves this
-        // count, and a switch to a type that exercises no table never calls it, so its answer would otherwise
-        // still pass its own guard and stamp a Test skeleton over the type just chosen.
-        skeletonToken.current++
-        setLoadingSkeleton(false)
+        // The table being chosen for the type being left no longer clears the spinner, so it is cleared here.
+        setChoosingTarget(false)
         setPreset(value)
         setResultType(defaultResultType(value))
         setArgumentsValue([blankArgument()])
@@ -777,17 +689,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         // one already chosen; every other type is not written against a table at all.
         const keptTarget = isTargeted(value) && isTargeted(preset) ? target : null
         setTarget(keptTarget)
-        if (value === 'data') {
-            // A Data table's columns are the datatype's fields, so they have to be in hand before the grid is built.
-            void loadFields(datatypeName).then(dataFields => {
-                if (fieldsVersion === fieldsToken.current) {
-                    rememberFields(datatypeName, dataFields)
-                    resetRowsForPreset(value, datatypes, datatypeName, { [datatypeName]: dataFields })
-                }
-            })
-        } else {
-            resetRowsForPreset(value, datatypes, datatypeName)
-        }
+        resetRowsForPreset(value, datatypeName)
         // Only move the destination when the author picked an existing module; a name they typed themselves stays.
         // Trimmed, as every other read of the field is: a stray space must not make a declared module look new and
         // leave a Test table behind in the rules module.
@@ -810,7 +712,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         if (!columnsFollowSignature) {
             return
         }
-        const nextContext = { ...context, arguments: nextArguments, vocabularyValues: vocabularyValues.current }
+        const nextContext = { ...context, arguments: nextArguments }
         const currentArguments = argumentsValue.filter(isCompleteArgument)
         const completeNextArguments = nextArguments.filter(isCompleteArgument)
         // Declaring or dropping an argument moves a column: it is inserted among the inputs, ahead of the outputs.
@@ -821,37 +723,17 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         const shapeChanged = completeNextArguments.length !== currentArguments.length
         if (shapeChanged) {
             // Each column of the rebuilt example holds a value of its argument's type, a vocabulary's among them.
-            // Guarded like every other rebuild: leaving the table type, or moving the signature again, must not let
-            // this answer stamp the example of the shape it was started for over the grid now on screen.
-            const token = ++fieldsToken.current
-            void readVocabularies(nextArguments.map(argument => argument.type)).then(() => {
-                if (token === fieldsToken.current) {
-                    resizeRows(preset, nextContext, initialRows(preset, nextContext))
-                }
-            })
+            resizeRows(preset, nextContext, initialRows(preset, nextContext))
             return
         }
         const typesChanged = completeNextArguments.some((argument, index) =>
             argument.type.trim() !== currentArguments[index]?.type.trim())
-        if (typesChanged) {
-            // The columns stay in place, but a newly declared vocabulary needs its finite choices before the cell can
-            // switch to the restricted editor. Keep the values already entered; invalid ones remain visible as empty
-            // selections and keep Create disabled until the author replaces them.
-            refreshVocabularyEditors(completeNextArguments.map(argument => argument.type))
-            return
+        // When only a type changed, the columns stay in place, and each cell takes the editor of its new type. The
+        // values already entered are kept; invalid ones remain visible as empty selections and keep Create disabled
+        // until the author replaces them.
+        if (!typesChanged) {
+            resizeRows(preset, nextContext)
         }
-        resizeRows(preset, nextContext)
-    }
-
-    /** Reads the fields of the datatype a Data table or a result type names. */
-    const loadFields = async (name: string): Promise<DatatypeField[]> => {
-        const loaded = await fieldsOf(datatypes)(name) ?? []
-        await readVocabularies(loaded.map(field => field.type))
-        return loaded
-    }
-
-    const rememberFields = (name: string, fields: DatatypeField[]) => {
-        setDatatypeFields(current => ({ ...current, [name]: fields }))
     }
 
     /**
@@ -863,15 +745,11 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         const declared = name.trim()
         return SIMPLE_TYPES.includes(declared)
             || declared === SPREADSHEET_RESULT
-            || datatypes.some(table => table.name === declared)
+            || typeIndex.fieldsOf(declared) !== null
     }
 
     const handleResultTypeChange = (value: string) => {
         setResultType(value)
-        if (preset === 'rules') {
-            refreshVocabularyEditors([value])
-            return
-        }
         if (!columnsFollowSignature) {
             return
         }
@@ -885,14 +763,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         // one up with the author's trailing space would find no fields and collapse the grid to its one fallback
         // column, discarding whatever was typed in the others.
         const declared = value.trim()
-        const token = ++fieldsToken.current
-        void loadFields(declared).then(resultFields => {
-            // An earlier type's fields may arrive after a later one's; only the newest may move the columns.
-            if (token === fieldsToken.current) {
-                rememberFields(declared, resultFields)
-                resizeRows(preset, { ...context, resultType: declared, resultFields })
-            }
-        })
+        resizeRows(preset, { ...context, resultType: declared, resultFields: typeIndex.fieldsOf(declared) ?? []})
     }
 
     /**
@@ -948,9 +819,6 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
                 return dependentColumns.has(columnIndex) ? '' : currentRow[columnIndex] ?? ''
             })
         })))
-        if (preset === 'datatype') {
-            void readVocabularies([String(value)]).then(() => setRows(current => [...current]))
-        }
     }
 
     const insertRow = (index: number) => {
@@ -983,13 +851,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 
     const handleDatatypeChange = (value: string) => {
         setDatatypeName(value)
-        const token = ++fieldsToken.current
-        void loadFields(value).then(dataFields => {
-            if (token === fieldsToken.current) {
-                rememberFields(value, dataFields)
-                resizeRows('data', { ...context, datatypeName: value, dataFields }, [])
-            }
-        })
+        resizeRows('data', { ...context, datatypeName: value, dataFields: typeIndex.fieldsOf(value) ?? []}, [])
     }
 
     const handleVocabularyTypeChange = (value: string) => {
@@ -1003,7 +865,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         targetToken.current++
         const table = executables.find(candidate => candidate.id === tableId)
         if (table && isTargeted(preset)) {
-            void loadTarget(table, preset)
+            buildTarget(table, preset)
         }
     }
 
@@ -1310,7 +1172,7 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
         }
     }
 
-    const busy = loadingModules || loadingSkeleton || sheetLoader.loading
+    const busy = loadingModules || choosingTarget || sheetLoader.loading
 
     return (
         <Modal
@@ -1606,8 +1468,8 @@ const CreateTableForm: React.FC<{ detail: CreateTableModalDetail }> = ({ detail 
 /**
  * Writes a new table into a module of the project, building its skeleton from the table type the author chooses.
  *
- * <p>The form is mounted only while the dialog is open, so closing it discards every field, every cached datatype
- * and the project's callable-table list rather than holding them until the page is reloaded.
+ * <p>The form is mounted only while the dialog is open, so closing it discards every field, the project's types and
+ * its callable-table list rather than holding them until the page is reloaded.
  */
 export const CreateTableModal: React.FC = () => {
     const { detail } = useGlobalEvents<CreateTableModalDetail>('openCreateTableModal')

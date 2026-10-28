@@ -66,8 +66,26 @@ whatever its type — a whole object is what a generated test compares — and a
 calls.
 
 The signature is text the compiler already parsed: the tables list carries it, and reading a header the compiler
-read is not the same as parsing OpenL. What the dialog cannot see is what a type means, so the datatypes an
-argument opens up are read one by one — and only the ones an argument actually names.
+read is not the same as parsing OpenL. What a type means comes from the compiler too: the dialog holds every type the
+project may name with all its fields, so opening an argument up asks the server for nothing.
+
+### Types come from the compiler
+
+The dialog never works out what a datatype holds from the cells of its table. It asks the compiled project, which has
+already resolved every type the rules may name:
+
+- **A type of a dependency** is there, beside the project's own. Each name comes once, for the type the rules mean
+  by it, so a type is found by the name the rules write it with.
+- **Inherited fields** come first, then the type's own, as the binder orders them. The dialog walks no `extends`.
+- **A transposed datatype** — its fields running across the sheet — is read upright, as the binder turned it before
+  binding. The tables API reads a table as it is laid out, never as compiled, so it cannot tell such a table's fields
+  from its types.
+- **A vocabulary** comes with every value it accepts, so its cells are restricted from the start.
+
+A project that does not compile cleanly is still compiled, errors and all, and answers with every type that bound.
+A type whose own table did not compile is missing: it is not offered, and a value of it stays one cell. The dialog
+does not fall back to reading the table's cells, which would bring back a second, guessing reader of the type system
+for exactly the tables the compiler could not read.
 
 A free-form table is the exception to all of this. OpenL does not recognize it, so it has no header to write and
 no name to give: the grid is the table, its columns are named the way a sheet names them, and OpenL names the
@@ -207,7 +225,9 @@ SimpleLookup Integer rate(String make, String year, String area)
 One question per resource, each asked of the thing that owns the answer:
 
 - **The project's modules** — so the destination can be chosen.
-- **The project's types** — its Datatype tables, which is what a vocabulary is written as too.
+- **The project's types** — `/projects/{projectId}/types` answers with every datatype and vocabulary its rules may
+  name, by name, as the compiler resolved them: those of the projects it depends on included, each datatype with all
+  its fields and each vocabulary with its values. One request, so nothing about a type is asked for again.
 - **The properties applicable to the requested place** — with a table kind,
   `/projects/{projectId}/properties` describes the properties a table of that kind may declare on itself; asked for
   `Properties`, it describes what may appear in the contents of a Properties table, which declares them for the
@@ -225,9 +245,6 @@ One question per resource, each asked of the thing that owns the answer:
   so a value left untouched reaches the copy as the one the source declared.
 - **The tables a test can call** — the same tables list, narrowed to the kinds OpenL compiles into a method.
 - **A module's worksheets** — the only one of these that belongs to a module rather than to the project.
-- **The fields of one datatype or the values of one vocabulary** — read when an author picks it, when a tested
-  argument opens up into it, or when a typed value needs its finite choices, because the list names tables, not their
-  contents.
 
 Nothing else. No table is generated on the server: every skeleton, the generated ones included, is laid out in the
 dialog, out of what these answers say the project holds. A server that lays a table out is a second place where
@@ -235,16 +252,16 @@ table shapes are decided, and the dialog would show one thing while another was 
 
 The resources stay separate and are requested when they are needed. Only what every table type needs is asked for
 on opening — the modules, the project's types, and the properties. The rest is asked for when it is wanted: a
-module's sheets when the destination moves, a datatype's fields when one is picked, and the callable tables when a
-Test or a Run table is being written. This keeps independent resources from waiting for one another and avoids
-fetching project-level data again when only the module changes.
+module's sheets when the destination moves, and the callable tables when a Test or a Run table is being written.
+This keeps independent resources from waiting for one another and avoids fetching project-level data again when only
+the module changes.
 
 The callable tables are worth deferring: the list is the project's whole compiled surface, and most tables being
 written are not tests. Opening the dialog from Create Test is the exception — that opens straight onto a Test
 table, whose skeleton is built from the signature the list carries.
 
-Two of them are not resources of their own: a project's types and its callable tables are both **tables**, and the
-tables list already filters by kind.
+The callable tables are not a resource of their own: they are **tables**, and the tables list already filters by
+kind.
 
 Copying uses the same resources and adds one read:
 

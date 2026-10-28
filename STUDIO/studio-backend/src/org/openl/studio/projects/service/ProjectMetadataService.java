@@ -16,26 +16,38 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
+import org.openl.base.INamedThing;
 import org.openl.excel.parser.ExcelUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.constraints.RegexpValueConstraint;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.model.ProjectTypeFieldView;
+import org.openl.studio.projects.model.ProjectTypeKind;
+import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.studio.projects.service.tables.TableModules;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.impl.DomainOpenClass;
+import org.openl.util.DomainUtils;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Describes what a project holds: the properties its tables may carry, and the worksheets of one of its modules.
+ * Describes what a project holds: the properties its tables may carry, the types its rules may name, and the
+ * worksheets of one of its modules.
  *
  * @author Yury Molchan
  */
@@ -46,6 +58,9 @@ public class ProjectMetadataService {
 
     private static final Comparator<PropertyDefinitionView> BY_NAME = Comparator
             .comparing(PropertyDefinitionView::name, String.CASE_INSENSITIVE_ORDER);
+
+    private static final Comparator<ProjectTypeView> TYPES_BY_NAME = Comparator
+            .comparing(ProjectTypeView::name, String.CASE_INSENSITIVE_ORDER);
 
     /**
      * Every property of the dictionary.
@@ -104,6 +119,66 @@ public class ProjectMetadataService {
                 .distinct()
                 .sorted(BY_NAME)
                 .toList();
+    }
+
+    /**
+     * The datatypes and vocabularies the rules of a compiled project may name, by name.
+     *
+     * <p>They are read from what the compiler made of the project, so the types of the projects it depends on are
+     * among them, and a datatype lists the fields it inherits before its own, whichever way its table is laid out.
+     * Each name is answered once, for the type the rules mean by it.
+     *
+     * <p>A project compiled with errors still answers: a type whose own table did not compile is the only one
+     * missing.
+     *
+     * @param model the project, compiled
+     */
+    public List<ProjectTypeView> getTypes(ProjectModel model) {
+        var compiled = model.getCompiledOpenClass();
+        if (compiled == null) {
+            return List.of();
+        }
+        var modules = TableModules.ofWorkspaceAddressed(model);
+        var openClass = compiled.getOpenClassWithErrors();
+        return openClass.getTypes()
+                .stream()
+                // The module knows each type by its Java name too, so a type of another package may share a name:
+                // the one the rules mean by that name is kept.
+                .filter(type -> openClass.findType(type.getName()) == type)
+                .<ProjectTypeView>mapMulti((type, views) -> {
+                    switch (type) {
+                        case DatatypeOpenClass datatype -> views.accept(typeView(datatype, ProjectTypeKind.DATATYPE,
+                                modules, datatype.getFields().stream().map(ProjectMetadataService::fieldView).toList(),
+                                List.of()));
+                        case DomainOpenClass vocabulary -> views.accept(typeView(vocabulary,
+                                ProjectTypeKind.VOCABULARY, modules, List.of(),
+                                List.of(DomainUtils.values(vocabulary.getDomain()))));
+                        default -> {
+                            // A spreadsheet result or a Java class: no table the dialog writes is built from one.
+                        }
+                    }
+                })
+                .sorted(TYPES_BY_NAME)
+                .toList();
+    }
+
+    private static ProjectTypeView typeView(IOpenClass type, ProjectTypeKind kind, TableModules modules,
+            List<ProjectTypeFieldView> fields, List<String> values) {
+        var metaInfo = type.getMetaInfo();
+        var location = modules.locationOf(metaInfo == null ? null : metaInfo.getSourceUrl());
+        return new ProjectTypeView(type.getName(),
+                kind,
+                location == null ? null : location.projectName(),
+                location == null ? null : location.projectId(),
+                location == null ? null : location.module(),
+                fields,
+                values);
+    }
+
+    /** A field as the rules write its type: an array keeps its brackets, and a Java class its short name. */
+    private static ProjectTypeFieldView fieldView(IOpenField field) {
+        var type = field.getType();
+        return new ProjectTypeFieldView(field.getName(), type.getDisplayName(INamedThing.SHORT), type.isArray());
     }
 
     /**

@@ -118,6 +118,7 @@ import org.openl.studio.projects.model.ProjectDependencyViewModel;
 import org.openl.studio.projects.model.ProjectInclude;
 import org.openl.studio.projects.model.ProjectRepositoryModel;
 import org.openl.studio.projects.model.ProjectStatusUpdateModel;
+import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.ProjectViewModel;
 import org.openl.studio.projects.model.merge.MergeConflictInfo;
 import org.openl.studio.projects.model.project.status.DetailedMessageDescription;
@@ -2220,6 +2221,21 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                 .filter(module -> module.getName() != null)
                 .map(module -> ModuleViewModel.module(module.getName(), module.getRulesRootPath()))
                 .toList();
+    }
+
+    /**
+     * The datatypes and vocabularies the rules of the project may name, as the compiler resolved them.
+     *
+     * <p>The answer waits for the project to compile. A project declaring no module names no type.
+     *
+     * @param project project whose types are read
+     * @return the types, by name
+     */
+    public List<ProjectTypeView> getTypes(RulesProject project) {
+        if (getProjectDescriptor(project).getModules().isEmpty()) {
+            return List.of();
+        }
+        return metadataService.getTypes(openProject(project).awaitCompiled());
     }
 
     /**

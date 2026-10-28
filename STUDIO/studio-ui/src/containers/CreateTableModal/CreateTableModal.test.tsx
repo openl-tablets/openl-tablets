@@ -5,8 +5,8 @@ import type { Dayjs } from 'dayjs'
 import { notification } from 'antd'
 import type { MockedFunction } from 'vitest'
 import { getModuleSheets, getProjectModules, getProjectProperties } from 'services/projects'
-import { createTable, getDatatype, getProjectTables } from 'services/tables'
-import type { CreateTableRequest, ProjectDatatype, ProjectProperty, ProjectTable } from 'types/tables'
+import { createTable, getProjectTables, getProjectTypes } from 'services/tables'
+import type { CreateTableRequest, ProjectProperty, ProjectTable, ProjectType } from 'types/tables'
 import { property } from '../tableModals/propertyFixture'
 import { defaultModulePath } from '../tableModals/shared'
 import { CreateTableModal, type CreateTableModalDetail } from './CreateTableModal'
@@ -21,7 +21,7 @@ vi.mock('services/projects', () => ({
 vi.mock('services/tables', () => ({
     createTable: vi.fn(),
     getProjectTables: vi.fn(),
-    getDatatype: vi.fn(),
+    getProjectTypes: vi.fn(),
 }))
 
 vi.mock('antd', async () => {
@@ -186,9 +186,15 @@ vi.mock('react-i18next', () => {
     return { useTranslation: () => ({ t, i18n: { language: 'en' } }) }
 })
 
-const projectTypes: ProjectTable[] = [
-    { id: 'country-id', tableType: 'Vocabulary', name: 'Country' },
-    { id: 'customer-id', tableType: 'Datatype', name: 'Customer' },
+const field = (name: string, type: string, collection = false) => ({ name, type, collection })
+
+const datatype = (name: string, fields: ProjectType['fields'], project = 'Project'): ProjectType =>
+    ({ name, kind: 'datatype', project, fields, values: []})
+
+// What the compiler made of the project: a vocabulary and a datatype, each with everything it declares.
+const projectTypes: ProjectType[] = [
+    { name: 'Country', kind: 'vocabulary', project: 'Project', fields: [], values: ['USA', 'Canada']},
+    datatype('Customer', [field('name', 'String'), field('age', 'Integer')]),
 ]
 
 // What a test can call. The signature is what a Test or Run table is generated from, so the list carries it.
@@ -236,7 +242,7 @@ const projectProperties: ProjectProperty[] = [
 
 const mockGetModules = getProjectModules as MockedFunction<typeof getProjectModules>
 const mockGetTables = getProjectTables as MockedFunction<typeof getProjectTables>
-const mockGetDatatype = getDatatype as MockedFunction<typeof getDatatype>
+const mockGetTypes = getProjectTypes as MockedFunction<typeof getProjectTypes>
 const mockGetProperties = getProjectProperties as MockedFunction<typeof getProjectProperties>
 const mockGetSheets = getModuleSheets as MockedFunction<typeof getModuleSheets>
 const mockCreateTable = createTable as MockedFunction<typeof createTable>
@@ -268,14 +274,9 @@ describe('CreateTableModal', () => {
             { name: 'Main', path: 'rules/Main.xlsx' },
             { name: 'Pricing', path: 'rules/Pricing.xlsx' },
         ])
-        // The tables list answers by kind: the datatypes of the project, or what a test can call.
-        mockGetTables.mockImplementation(async (_projectId, kinds) => kinds.includes('Datatype')
-            ? projectTypes
-            : executableTables)
-        // The datatypes list holds a datatype and a vocabulary; `GET /tables/{id}` answers for whichever is read.
-        mockGetDatatype.mockImplementation(async (_projectId, tableId) => tableId === 'country-id'
-            ? { fields: [], values: ['USA', 'Canada']}
-            : { fields: [{ name: 'name', type: 'String' }, { name: 'age', type: 'Integer' }], values: []})
+        // The tables list is read for what a test can call; the types come whole in a request of their own.
+        mockGetTables.mockResolvedValue(executableTables)
+        mockGetTypes.mockResolvedValue(projectTypes)
         mockGetProperties.mockResolvedValue(projectProperties)
         mockGetSheets.mockResolvedValue(['Main', 'Rates'])
         mockCreateTable.mockResolvedValue({
@@ -505,7 +506,7 @@ describe('CreateTableModal', () => {
         expect(screen.getByTestId('create-table-cell-1-0')).toBeInTheDocument()
     })
 
-    it('loads a vocabulary when a complete Smart Rules argument changes type', async () => {
+    it('offers the values of a vocabulary a complete Smart Rules argument changes to', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
@@ -518,18 +519,12 @@ describe('CreateTableModal', () => {
         await user.clear(screen.getByTestId('create-table-argument-type-0'))
         await user.type(screen.getByTestId('create-table-argument-type-0'), 'Country')
 
-        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'country-id'))
         const country = screen.getByTestId('create-table-cell-0-0')
         expect(within(country).getAllByRole('option').map(option => option.getAttribute('value')))
             .toEqual(['', 'USA', 'Canada'])
         expect(createButton()).toBeDisabled()
     })
-
-    it('loads a vocabulary selected as the Rules result type', async () => {
-        let resolveCountry: ((value: ProjectDatatype) => void) | undefined
-        mockGetDatatype.mockImplementationOnce(() => new Promise<ProjectDatatype>(resolve => {
-            resolveCountry = resolve
-        }))
+    it('offers the values of a vocabulary selected as the Rules result type', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
@@ -539,21 +534,11 @@ describe('CreateTableModal', () => {
         await user.clear(screen.getByTestId('create-table-result-type'))
         await user.type(screen.getByTestId('create-table-result-type'), 'Country')
 
-        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'country-id'))
-        expect(within(screen.getByTestId('create-table-cell-0-1')).getAllByRole('option')
-            .map(option => option.getAttribute('value'))).toEqual([''])
-        expect(createButton()).toBeDisabled()
-
-        await act(async () => {
-            resolveCountry?.({ fields: [], values: ['USA', 'Canada']})
-        })
-
         expect(within(screen.getByTestId('create-table-cell-0-1')).getAllByRole('option')
             .map(option => option.getAttribute('value')))
             .toEqual(['', 'USA', 'Canada'])
         expect(createButton()).toBeDisabled()
     })
-
     it('does not submit stale cells hidden by a free-text result type', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
@@ -727,7 +712,7 @@ describe('CreateTableModal', () => {
         expect(createButton()).toBeDisabled()
     })
 
-    it('reads a datatype\'s fields when a Data table needs them, and reads them once', async () => {
+    it('builds a Data table on the fields of its datatype without asking the server again', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
@@ -735,88 +720,26 @@ describe('CreateTableModal', () => {
 
         await user.selectOptions(screen.getByTestId('create-table-type'), 'data')
 
-        // The tables list names the project's datatypes; the fields come from the datatype itself.
-        await waitFor(() => expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('NameAge'))
-        expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'customer-id')
-
-        await user.selectOptions(screen.getByTestId('create-table-datatype'), 'Customer')
-
-        // Already known: picking the same datatype again asks nobody.
-        expect(mockGetDatatype).toHaveBeenCalledTimes(1)
+        expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('NameAge')
+        // The types came whole when the dialog opened; nothing else describes them.
+        expect(mockGetTypes).toHaveBeenCalledTimes(1)
+        expect(mockGetTables).not.toHaveBeenCalled()
     })
-
-    it('does not apply Data fields after the author switched to another table type', async () => {
-        let resolveCustomer: ((value: ProjectDatatype) => void) | undefined
-        mockGetDatatype.mockImplementationOnce(() => new Promise<ProjectDatatype>(resolve => {
-            resolveCustomer = resolve
-        }))
+    it('sizes a Data table to the datatype picked for it', async () => {
+        mockGetTypes.mockResolvedValue([...projectTypes, datatype('Policy', [field('approved', 'Boolean')])])
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
 
         await user.selectOptions(screen.getByTestId('create-table-type'), 'data')
-        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'customer-id'))
-        await user.selectOptions(screen.getByTestId('create-table-type'), 'constants')
-        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('Integer')
-
-        await act(async () => {
-            resolveCustomer?.({
-                fields: [{ name: 'name', type: 'String' }, { name: 'age', type: 'Integer' }],
-                values: [],
-            })
-        })
-
-        expect(screen.getByTestId('create-table-type')).toHaveValue('constants')
-        expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('Integer')
-    })
-
-    it('keeps the fields of the latest Data datatype when requests answer out of order', async () => {
-        const types = [
-            ...projectTypes,
-            { id: 'policy-id', tableType: 'Datatype', name: 'Policy' },
-        ]
-        mockGetTables.mockImplementation(async (_projectId, kinds) => kinds.includes('Datatype')
-            ? types
-            : executableTables)
-        let resolveCustomer: ((value: ProjectDatatype) => void) | undefined
-        let resolvePolicy: ((value: ProjectDatatype) => void) | undefined
-        mockGetDatatype.mockImplementation((_projectId, tableId) => new Promise<ProjectDatatype>(resolve => {
-            if (tableId === 'customer-id') {
-                resolveCustomer = resolve
-            } else {
-                resolvePolicy = resolve
-            }
-        }))
-        const user = userEvent.setup({ delay: null })
-        render(<CreateTableModal />)
-        await openModal()
-        await waitFor(() => expect(screen.getByTestId('create-table-type')).toHaveValue('datatype'))
-
-        await user.selectOptions(screen.getByTestId('create-table-type'), 'data')
-        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'customer-id'))
         await user.selectOptions(screen.getByTestId('create-table-datatype'), 'Policy')
-        await waitFor(() => expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'policy-id'))
-        await act(async () => {
-            resolvePolicy?.({
-                fields: [{ name: 'approved', type: 'Boolean' }],
-                values: [],
-            })
-        })
-        await waitFor(() => expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('Approved'))
+
+        expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('Approved')
+        expect(screen.getByTestId('create-table-skeleton')).not.toHaveTextContent('Name')
         await user.selectOptions(screen.getByTestId('create-table-cell-0-0'), 'FALSE')
-
-        await act(async () => {
-            resolveCustomer?.({
-                fields: [{ name: 'name', type: 'String' }, { name: 'age', type: 'Integer' }],
-                values: [],
-            })
-        })
-
-        expect(screen.getByTestId('create-table-datatype')).toHaveValue('Policy')
         expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('FALSE')
     })
-
     it('lets a Spreadsheet name its own columns and add more of them', async () => {
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
@@ -960,35 +883,30 @@ describe('CreateTableModal', () => {
     })
 
     it('opens a vocabulary column on a value that vocabulary accepts', async () => {
-        mockGetTables.mockImplementation(async (_projectId, kinds) => kinds.includes('Datatype')
-            ? projectTypes
-            : [{
-                id: 'rate-id',
-                tableType: 'SimpleRules',
-                name: 'Rate',
-                returnType: 'Double',
-                signature: 'Rate(Country origin)',
-            }])
+        mockGetTables.mockResolvedValue([{
+            id: 'rate-id',
+            tableType: 'SimpleRules',
+            name: 'Rate',
+            returnType: 'Double',
+            signature: 'Rate(Country origin)',
+        }])
         render(<CreateTableModal />)
 
         await openModal({ sourceTableId: 'rate-id' })
 
         // A vocabulary declares values rather than fields, so its column is one cell — holding one of those values.
         await waitFor(() => expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('USA'))
-        expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'country-id')
         expect(screen.getByTestId('create-table-skeleton')).toHaveTextContent('OriginResult')
     })
 
     it('opens a Test table on the columns a datatype argument expands into', async () => {
-        mockGetTables.mockImplementation(async (_projectId, kinds) => kinds.includes('Datatype')
-            ? projectTypes
-            : [{
-                id: 'premium-id',
-                tableType: 'SimpleRules',
-                name: 'Premium',
-                returnType: 'Double',
-                signature: 'Premium(Customer customer)',
-            }])
+        mockGetTables.mockResolvedValue([{
+            id: 'premium-id',
+            tableType: 'SimpleRules',
+            name: 'Premium',
+            returnType: 'Double',
+            signature: 'Premium(Customer customer)',
+        }])
         render(<CreateTableModal />)
 
         await openModal({ sourceTableId: 'premium-id' })
@@ -996,12 +914,42 @@ describe('CreateTableModal', () => {
         // A datatype argument is opened into one column per field, addressed by the path OpenL reads it back with.
         await waitFor(() => expect(screen.getByTestId('create-table-skeleton'))
             .toHaveTextContent('Customer NameCustomer AgeResult'))
-        expect(mockGetDatatype).toHaveBeenCalledWith('project-id', 'customer-id')
         expect(screen.getByTestId('create-table-cell-0-0')).toHaveValue('Text1')
         expect(screen.getByTestId('create-table-cell-0-1')).toHaveValue(1)
         expect(screen.getByTestId('create-table-cell-0-2')).toHaveValue(1)
     })
 
+    it('opens a Test table on the fields of a datatype a dependency declares, nested ones included', async () => {
+        // `Policy` and the `Address` it nests come from a project this one depends on; the inherited `id` comes
+        // first, as the compiler resolved it.
+        mockGetTypes.mockResolvedValue([
+            ...projectTypes,
+            datatype('Address', [field('zip', 'Integer')], 'Provider'),
+            datatype('Policy', [field('id', 'String'), field('address', 'Address'), field('drivers', 'Customer[]', true)],
+                'Provider'),
+        ])
+        mockGetTables.mockResolvedValue([{
+            id: 'quote-id',
+            tableType: 'SimpleRules',
+            name: 'Quote',
+            returnType: 'Double',
+            signature: 'Quote(Policy policy)',
+        }])
+        const user = userEvent.setup({ delay: null })
+        render(<CreateTableModal />)
+
+        await openModal({ sourceTableId: 'quote-id' })
+
+        // A collection stays one column, filled from several rows of the same test case.
+        await waitFor(() => expect(screen.getByTestId('create-table-skeleton'))
+            .toHaveTextContent('Policy IdPolicy Address ZipPolicy DriversResult'))
+        // A type of a dependency is offered beside the project's own.
+        await user.selectOptions(screen.getByTestId('create-table-type'), 'data')
+        expect(within(screen.getByTestId('create-table-datatype')).getAllByRole('option')
+            .map(option => option.textContent).filter(Boolean))
+            .toEqual(['Customer', 'Address', 'Policy'])
+        expect(mockGetTypes).toHaveBeenCalledTimes(1)
+    })
     it('creates the first module when the project has no modules', async () => {
         mockGetModules.mockResolvedValueOnce([])
         const user = userEvent.setup({ delay: null })
@@ -1366,9 +1314,9 @@ describe('CreateTableModal', () => {
         await openModal()
         await waitFor(() => expect(screen.getByTestId('create-table-module')).toHaveValue('Main'))
 
-        // Opening asks for the datatypes every table type offers, and for nothing only a test would need.
-        expect(mockGetTables).toHaveBeenCalledTimes(1)
-        expect(mockGetTables).toHaveBeenCalledWith('project-id', ['Datatype'])
+        // Opening asks for the types every table type offers, and for nothing only a test would need.
+        expect(mockGetTypes).toHaveBeenCalledWith('project-id')
+        expect(mockGetTables).not.toHaveBeenCalled()
 
         await user.selectOptions(screen.getByTestId('create-table-type'), 'test')
 
@@ -1377,16 +1325,11 @@ describe('CreateTableModal', () => {
             'project-id',
             ['Rules', 'Spreadsheet', 'Method', 'TBasic', 'Column Match']
         )
-        expect(mockGetTables).toHaveBeenCalledTimes(2)
+        expect(mockGetTables).toHaveBeenCalledTimes(1)
     })
 
     it('asks for the callable tables again after the list failed to load', async () => {
-        mockGetTables.mockImplementation(async (_projectId, kinds) => {
-            if (kinds.includes('Datatype')) {
-                return projectTypes
-            }
-            throw new Error('compilation failed')
-        })
+        mockGetTables.mockRejectedValue(new Error('compilation failed'))
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
@@ -1404,7 +1347,7 @@ describe('CreateTableModal', () => {
         await user.selectOptions(screen.getByTestId('create-table-type'), 'datatype')
         await user.selectOptions(screen.getByTestId('create-table-type'), 'test')
 
-        await waitFor(() => expect(mockGetTables).toHaveBeenCalledTimes(3))
+        await waitFor(() => expect(mockGetTables).toHaveBeenCalledTimes(2))
     })
 
     it('reads the callable tables once when Create Test opens on one of them', async () => {
@@ -1415,14 +1358,14 @@ describe('CreateTableModal', () => {
 
         // A Test table opens on a Test table, so the list is read after all: the tested table's signature is what
         // the skeleton is built from, and the list is where the project names it.
-        expect(mockGetTables).toHaveBeenCalledTimes(2)
+        expect(mockGetTables).toHaveBeenCalledTimes(1)
         const targetSelect = screen.getByTestId('create-table-target')
         expect(within(targetSelect).getByRole('option', { name: 'Eligibility' })).toBeInTheDocument()
 
         // Looking for another table asks nobody: the list is already in hand.
         await user.click(targetSelect)
 
-        expect(mockGetTables).toHaveBeenCalledTimes(2)
+        expect(mockGetTables).toHaveBeenCalledTimes(1)
     })
 
     it('offers a void method to Run but not to Test', async () => {
@@ -1436,9 +1379,7 @@ describe('CreateTableModal', () => {
             },
             ...executableTables,
         ]
-        mockGetTables.mockImplementation(async (_projectId, kinds) => kinds.includes('Datatype')
-            ? projectTypes
-            : targets)
+        mockGetTables.mockResolvedValue(targets)
         const user = userEvent.setup({ delay: null })
         render(<CreateTableModal />)
         await openModal()
@@ -1479,8 +1420,8 @@ describe('CreateTableModal', () => {
 
         await waitFor(() => expect(screen.getByTestId('create-table-target')).toHaveValue('source-table-id'))
         expect(screen.getByTestId('create-table-header')).toHaveTextContent('Run Eligibility EligibilityTest')
-        // One list for both types: the datatypes at opening, the callable tables when Test was chosen.
-        expect(mockGetTables).toHaveBeenCalledTimes(2)
+        // One list for both types: the callable tables, read when Test was chosen.
+        expect(mockGetTables).toHaveBeenCalledTimes(1)
     })
 
     it('refuses a Datatype declaring no field', async () => {

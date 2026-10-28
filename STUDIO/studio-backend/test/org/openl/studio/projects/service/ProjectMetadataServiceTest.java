@@ -16,16 +16,24 @@ import java.util.List;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
+import org.openl.CompiledOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.studio.common.exception.BadRequestException;
+import org.openl.studio.projects.model.ProjectTypeFieldView;
+import org.openl.studio.projects.model.ProjectTypeKind;
+import org.openl.studio.projects.model.ProjectTypeView;
 import org.openl.studio.projects.model.PropertyDefinitionView;
 import org.openl.studio.projects.model.PropertyValueView;
 import org.openl.studio.projects.service.files.FileRoot;
 import org.openl.studio.projects.service.files.ProjectFileRootFactory;
 import org.openl.studio.projects.service.files.ProjectFilesService;
+import org.openl.types.IOpenClass;
 
 class ProjectMetadataServiceTest {
 
@@ -36,6 +44,61 @@ class ProjectMetadataServiceTest {
 
     private final ProjectMetadataService service =
             new ProjectMetadataService(projectFilesService, projectFileRootFactory);
+
+    @Test
+    void listsTheTypesOfAProjectAsTheCompilerResolvedThem() {
+        var model = mock(ProjectModel.class);
+        when(model.getCompiledOpenClass())
+                .thenReturn(new RulesEngineFactory<>("test/rules/EPBDS-16427/Types.xlsx").getCompiledOpenClass());
+
+        var types = service.getTypes(model);
+
+        // By name; a spreadsheet result is not among them, as no table is written of one.
+        assertEquals(List.of("Address", "Base", "Country", "Driver", "Policy", "Vehicle"),
+                types.stream().map(ProjectTypeView::name).toList());
+        var policy = type(types, "Policy");
+        assertEquals(ProjectTypeKind.DATATYPE, policy.kind());
+        // The inherited field comes first, then the declared ones, a collection told apart.
+        assertEquals(List.of(new ProjectTypeFieldView("id", "String", false),
+                new ProjectTypeFieldView("number", "String", false),
+                new ProjectTypeFieldView("address", "Address", false),
+                new ProjectTypeFieldView("drivers", "Driver[]", true),
+                new ProjectTypeFieldView("country", "Country", false)), policy.fields());
+        assertTrue(policy.values().isEmpty());
+        // A datatype laid out across the sheet has its fields read as the binder reads them.
+        assertEquals(List.of("make", "year", "used", "color"),
+                type(types, "Vehicle").fields().stream().map(ProjectTypeFieldView::name).toList());
+        assertEquals(List.of("String", "Integer", "Boolean", "String"),
+                type(types, "Vehicle").fields().stream().map(ProjectTypeFieldView::type).toList());
+        var country = type(types, "Country");
+        assertEquals(ProjectTypeKind.VOCABULARY, country.kind());
+        assertEquals(List.of("US", "CA"), country.values());
+        assertTrue(country.fields().isEmpty());
+    }
+
+    @Test
+    void answersEachNameOnceForTheTypeTheRulesMeanByIt() {
+        // Two datatypes of one name in different packages: the module knows both, by their Java names, and resolves
+        // the name to one of them.
+        var meant = new DatatypeOpenClass("Address", "org.provider");
+        var other = new DatatypeOpenClass("Address", "org.consumer");
+        var openClass = mock(IOpenClass.class);
+        when(openClass.getTypes()).thenReturn(List.of(other, meant));
+        when(openClass.findType("Address")).thenReturn(meant);
+        var compiled = mock(CompiledOpenClass.class);
+        when(compiled.getOpenClassWithErrors()).thenReturn(openClass);
+        var model = mock(ProjectModel.class);
+        when(model.getCompiledOpenClass()).thenReturn(compiled);
+
+        var types = service.getTypes(model);
+
+        assertEquals(List.of("Address"), types.stream().map(ProjectTypeView::name).toList());
+    }
+
+    @Test
+    void namesNoTypeOfAProjectNotCompiled() {
+        assertTrue(service.getTypes(mock(ProjectModel.class)).isEmpty());
+    }
 
     @Test
     void describesWhatAValueOfEachPropertyLooksLike() {
@@ -172,5 +235,9 @@ class ProjectMetadataServiceTest {
         when(resource.getContent()).thenReturn(new ByteArrayInputStream(bytes.toByteArray()));
         when(projectFileRootFactory.of(project)).thenReturn(root);
         when(projectFilesService.getResource(root, "rules/Main.xlsx", null)).thenReturn(resource);
+    }
+
+    private static ProjectTypeView type(List<ProjectTypeView> types, String name) {
+        return types.stream().filter(type -> type.name().equals(name)).findFirst().orElseThrow();
     }
 }

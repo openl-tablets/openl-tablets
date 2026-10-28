@@ -111,6 +111,9 @@ endpoints read and write, and in `tableType` that selects it.
 - **`GET /rest/projects/{projectId}/tables`** — a page of the tables of the project, with the `id` of each. The filters
   are `kind`, `name`, `module`, `scope`, `header`, `text`, and `properties.<name>`, and `includeOther=true` adds the tables
   that OpenL does not recognize.
+- **`GET /rest/projects/{projectId}/types`** — the datatypes and vocabularies the rules of the project may name, as the
+  compiler resolved them, those of the projects it depends on included: each datatype with all its fields, the
+  inherited ones first, each vocabulary with its values. A type whose own table did not compile is missing.
 - **`POST /rest/projects/{projectId}/tables`** — creates a table in a module and answers `201 Created` with its summary.
 - **`GET /rest/projects/{projectId}/tables/{tableId}`** — reads the table in the model of its type, or, with `raw=true`,
   as a matrix of cells.

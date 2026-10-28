@@ -8,8 +8,8 @@ import {
     createTable,
     deleteTable,
     formatProject,
-    getDatatype,
     getProjectTables,
+    getProjectTypes,
     getTableCopyInfo,
     updateTableProperties,
 } from './tables'
@@ -213,38 +213,29 @@ describe('copyTable', () => {
     })
 })
 
-describe('getDatatype', () => {
+describe('getProjectTypes', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
 
-    it('reads the fields of one datatype, which the list does not carry', async () => {
-        mockApiCall.mockResolvedValueOnce({
-            extends: 'Party',
-            fields: [{ name: 'name', type: 'String' }, { name: 'age' }],
-        })
-
-        await expect(getDatatype('project-id', 'customer id')).resolves.toEqual({
-            extends: 'Party',
-            // A field OpenL could not type is still a column; it is the example value that has nothing to go on.
-            fields: [{ name: 'name', type: 'String' }, { name: 'age', type: '' }],
+    it('reads every type of the project in one request', async () => {
+        const policy = {
+            name: 'Policy',
+            kind: 'datatype',
+            project: 'Provider',
+            fields: [{ name: 'number', type: 'String', collection: false }],
             values: [],
-        })
-        expect(mockApiCall.mock.calls[0]![0]).toBe('/projects/project-id/tables/customer%20id')
+        }
+        mockApiCall.mockResolvedValueOnce([policy])
+
+        await expect(getProjectTypes('project-id')).resolves.toEqual([policy])
+        expect(mockApiCall.mock.calls[0]![0]).toBe('/projects/project-id/types')
     })
 
-    it('reads a datatype extending nothing without an empty parent', async () => {
-        mockApiCall.mockResolvedValueOnce({ fields: [{ name: 'name', type: 'String' }]})
+    it('reads an answer without a list as no types', async () => {
+        mockApiCall.mockResolvedValueOnce(null)
 
-        await expect(getDatatype('project-id', 'customer-id')).resolves
-            .toEqual({ fields: [{ name: 'name', type: 'String' }], values: []})
-    })
-
-    it('reads the values of a vocabulary, which is written with the same keyword', async () => {
-        // A vocabulary declares values rather than fields, and a value of any type is written as it reads.
-        mockApiCall.mockResolvedValueOnce({ type: 'Integer', values: [{ value: 1 }, { value: 2 }, {}]})
-
-        await expect(getDatatype('project-id', 'limits-id')).resolves.toEqual({ fields: [], values: ['1', '2']})
+        await expect(getProjectTypes('project-id')).resolves.toEqual([])
     })
 })
 
