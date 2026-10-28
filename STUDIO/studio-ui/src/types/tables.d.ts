@@ -420,6 +420,11 @@ export interface TableLayout {
      * is transposed. Everything before it is the table's headings.
      */
     firstDataLine: number
+    /**
+     * The number of lines each case takes, in the order of the cases; absent when every case takes one line. A case
+     * takes several lines where it defines the elements of a collection one per line.
+     */
+    caseLines?: number[]
 }
 
 /** One field a Datatype table declares. */

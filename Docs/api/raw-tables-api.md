@@ -82,9 +82,11 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 - `totalRows` — the number of rows of the table when the window leaves rows out. Read-only.
 - `headerHeight` — the number of rows at the top that the header takes: the header line, the properties, and the
   service rows of a decision table. Read-only.
-- `layout` — for a test table: `transposed` is `true` where a case is a column rather than a row, and `firstDataLine` is
-  the line where the data begins. Absent for the other tables and for a test table whose cases have identifiers of their
-  own. Read-only.
+- `layout` — for a test table: `transposed` is `true` where a case is a column rather than a row, `firstDataLine` is
+  the line where the data begins, and `caseLines` is the number of lines each case takes, in the order of the cases —
+  a case takes several lines where it defines the elements of a collection one per line. `caseLines` is absent where
+  every case takes one line. `layout` is absent for the other tables and for a test table whose cases have identifiers
+  of their own. Read-only.
 - `messages`, `runState`, `partial` — read-only; see [Table Endpoints](README.md#table-endpoints). The version of the
   table is answered in the `ETag` header, not in the body; see [Versions](#versions).
 

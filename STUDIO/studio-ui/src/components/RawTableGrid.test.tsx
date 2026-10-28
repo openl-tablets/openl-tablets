@@ -90,6 +90,57 @@ describe('RawTableGrid', () => {
         expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2'])
     })
 
+    it('numbers a case once beside all the rows it takes', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test count countTest' }, { covered: true }],
+            [{ cell: 'A2', value: 'pol.name' }, { cell: 'B2', value: 'pol.vehicles.name' }],
+            [{ cell: 'A3', value: 'P1', rowspan: 2 }, { cell: 'B3', value: 'A' }],
+            [{ covered: true }, { cell: 'B4', value: 'B' }],
+            [{ cell: 'A5', value: 'P2' }, { cell: 'B5', value: 'C' }],
+        ]
+
+        render(<RawTableGrid layout={{ firstDataLine: 2, caseLines: [2, 1]}} rows={table} testId="grid" />)
+
+        const numbers = screen.getAllByTestId('table-line-number')
+        expect(numbers.map(cell => cell.textContent)).toEqual(['1', '2'])
+        expect(numbers.map(number => number.closest('td')?.rowSpan)).toEqual([2, 1])
+    })
+
+    it('numbers a case once above all the columns it takes', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test count countTest' }, { covered: true }, { covered: true }, { covered: true }],
+            [{ cell: 'A2', value: 'pol.name' }, { cell: 'B2', value: 'P1', colspan: 2 }, { covered: true },
+                { cell: 'D2', value: 'P2' }],
+            [{ cell: 'A3', value: 'pol.vehicles.name' }, { cell: 'B3', value: 'A' }, { cell: 'C3', value: 'B' },
+                { cell: 'D3', value: 'C' }],
+        ]
+
+        render(<RawTableGrid
+            layout={{ firstDataLine: 1, transposed: true, caseLines: [2, 1]}}
+            rows={table}
+            testId="grid"
+        />)
+
+        const numbers = screen.getAllByTestId('table-line-number')
+        expect(numbers.map(cell => cell.textContent)).toEqual(['1', '2'])
+        expect(numbers.map(number => number.closest('td')?.colSpan)).toEqual([2, 1])
+    })
+
+    it('numbers every line when the lines of the cases no longer fit the table', () => {
+        const table: RawTableCell[][] = [
+            [{ cell: 'A1', value: 'Test greeting greetingTest' }, { covered: true }],
+            [{ cell: 'A2', value: 'name' }, { cell: 'B2', value: '_res_' }],
+            [{ cell: 'A3', value: 'John' }, { cell: 'B3', value: 'Hi, John' }],
+            [{ cell: 'A4', value: 'Mary' }, { cell: 'B4', value: 'Hello, Mary' }],
+            // A line added in the editor, which the compiled cases know nothing about.
+            [{ cell: 'A5', value: 'Ann' }, { cell: 'B5', value: 'Hi, Ann' }],
+        ]
+
+        render(<RawTableGrid layout={{ firstDataLine: 2, caseLines: [2]}} rows={table} testId="grid" />)
+
+        expect(screen.getAllByTestId('table-line-number').map(cell => cell.textContent)).toEqual(['1', '2', '3'])
+    })
+
     it('heads the table with the letters of its columns and the numbers of its rows on the sheet', async () => {
         const onPick = vi.fn()
         const table: RawTableCell[][] = [

@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
+import java.util.List;
 
+import org.apache.poi.ss.usermodel.Sheet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -59,6 +61,61 @@ class TableLayoutsTest {
         assertFalse(layout.transposed(), "a line of this table's data is a row");
         // The header line, the field names and the column titles come first; the cases follow.
         assertEquals(3, layout.firstDataLine());
+        assertNull(layout.caseLines(), "every case takes one line");
+    }
+
+    @Test
+    void readsTheLinesOfCasesWrittenInSeveralRows(@TempDir Path dir) throws Exception {
+        var multiRow = TableTestProjects.projectModel(dir, "Rules", sheet -> {
+            writePolicyTypes(sheet);
+            // The first case defines two vehicles, one per row; the second one.
+            TableTestProjects.row(sheet, 11, 1, "Test count downTheRowsTest");
+            TableTestProjects.row(sheet, 12, 1, "pol.name", "pol.vehicles.name", "_res_");
+            TableTestProjects.row(sheet, 13, 1, "Policy", "Vehicle", "Count");
+            TableTestProjects.row(sheet, 14, 1, "P1", "A", "2");
+            TableTestProjects.row(sheet, 15, 2, "B");
+            TableTestProjects.row(sheet, 16, 1, "P2", "C", "1");
+            TableTestProjects.merge(sheet, 14, 15, 1, 1);
+            TableTestProjects.merge(sheet, 14, 15, 3, 3);
+        });
+
+        var layout = TableLayouts.of(multiRow, TableTestProjects.table(multiRow, "downTheRowsTest"));
+
+        assertNotNull(layout);
+        assertEquals(3, layout.firstDataLine());
+        assertEquals(List.of(2, 1), layout.caseLines());
+    }
+
+    @Test
+    void readsTheLinesOfCasesWrittenInSeveralColumns(@TempDir Path dir) throws Exception {
+        var multiColumn = TableTestProjects.projectModel(dir, "Rules", sheet -> {
+            writePolicyTypes(sheet);
+            // The same cases, written the other way round: the first case takes two columns.
+            TableTestProjects.row(sheet, 11, 1, "Test count acrossTheColumnsTest");
+            TableTestProjects.row(sheet, 12, 1, "pol.name", "Policy", "P1", "", "P2");
+            TableTestProjects.row(sheet, 13, 1, "pol.vehicles.name", "Vehicle", "A", "B", "C");
+            TableTestProjects.row(sheet, 14, 1, "_res_", "Count", "2", "", "1");
+            TableTestProjects.merge(sheet, 12, 12, 3, 4);
+            TableTestProjects.merge(sheet, 14, 14, 3, 4);
+        });
+
+        var layout = TableLayouts.of(multiColumn, TableTestProjects.table(multiColumn, "acrossTheColumnsTest"));
+
+        assertNotNull(layout);
+        assertTrue(layout.transposed());
+        assertEquals(2, layout.firstDataLine());
+        assertEquals(List.of(2, 1), layout.caseLines());
+    }
+
+    /** The types and the rule the tables of several lines per case test, from the second row of the sheet. */
+    private static void writePolicyTypes(Sheet sheet) {
+        TableTestProjects.row(sheet, 1, 1, "Datatype Vehicle");
+        TableTestProjects.row(sheet, 2, 1, "String", "name");
+        TableTestProjects.row(sheet, 4, 1, "Datatype Policy");
+        TableTestProjects.row(sheet, 5, 1, "String", "name");
+        TableTestProjects.row(sheet, 6, 1, "Vehicle[]", "vehicles");
+        TableTestProjects.row(sheet, 8, 1, "Method Integer count(Policy pol)");
+        TableTestProjects.row(sheet, 9, 1, "return length(pol.vehicles);");
     }
 
     @Test
