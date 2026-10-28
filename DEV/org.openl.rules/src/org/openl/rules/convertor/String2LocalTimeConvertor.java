@@ -3,18 +3,20 @@ package org.openl.rules.convertor;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.List;
 import java.util.Locale;
+
+import org.jspecify.annotations.Nullable;
 
 public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTime> {
 
     private final List<DateTimeFormatter> supportedFormats = List.of(
             DateTimeFormatter.ISO_LOCAL_TIME,
-            DateTimeFormatter.ofPattern("H:mm a", Locale.US),
-            DateTimeFormatter.ofPattern("hh:mm a", Locale.US));
+            DateTimeFormatter.ofPattern("h:mm a", Locale.US).withResolverStyle(ResolverStyle.STRICT));
 
     @Override
-    public LocalTime parse(String data, String format) {
+    public @Nullable LocalTime parse(String data, String format) {
         // format - ignore this parameter
         if (data == null) {
             return null;

@@ -20,16 +20,25 @@ class String2LocalDateTimeConvertorTest {
             "2026-01-01T10:20, 2026-01-01T10:20",
             "2026-01-01T10:20:30.5, 2026-01-01T10:20:30.5",
             "1/01/2026 10:20 AM, 2026-01-01T10:20",
+            // The US form takes an hour of 1 to 12 with AM or PM
+            "1/1/2026 9:05 PM, 2026-01-01T21:05",
+            "1/01/2026 12:20 AM, 2026-01-01T00:20",
+            "1/01/2026 12:20 PM, 2026-01-01T12:20",
             // A date without a time is the start of that day
             "2026-01-01, 2026-01-01T00:00",
-            "12/31/2026, 2026-12-31T00:00"})
+            "12/31/2026, 2026-12-31T00:00",
+            "5/7/1981, 1981-05-07T00:00"})
     void testParse(String value, LocalDateTime expected) {
         assertEquals(expected, converter.parse(value, null));
     }
 
-    // Empty, not a date, an unfinished time, a misprint and a date with a text after it
+    // Empty, not a date, an unfinished time, a misprint and a date with a text after it.
+    // A day the month does not have is refused, not moved to the last day: 2/30/2026 is not 2026-02-28.
+    // The US form takes no hour over 12 and no hour 0.
     @ParameterizedTest
-    @ValueSource(strings = {"", "Kin-Dza-Dza", "2026-01-01T", "2026-13-01", "2026-01-01 abc"})
+    @ValueSource(strings = {"", "Kin-Dza-Dza", "2026-01-01T", "2026-13-01", "2026-01-01 abc",
+            "2026-02-30", "2/30/2026", "2/30/2026 9:05 PM",
+            "1/01/2026 22:20 PM", "1/01/2026 0:20 AM"})
     void testParseInvalid(String value) {
         var e = assertThrows(IllegalArgumentException.class, () -> converter.parse(value, null));
         assertEquals("Cannot convert '%s' to LocalDateTime type".formatted(value), e.getMessage());
