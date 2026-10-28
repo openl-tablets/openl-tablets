@@ -1,5 +1,10 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
 
@@ -13,19 +18,17 @@ import org.openl.studio.projects.model.tables.TableLayout;
  *
  * <p>Answered for a test table, which is the one a screen has something to do with it: a test table is a table
  * of cases, and a reader refers to them by number — the third case, the one that failed. The numbers are
- * nowhere in the workbook. They follow from where the data begins and from which way the table is written,
- * both of which the compiler knows and the cells do not.
+ * nowhere in the workbook. They follow from where the data begins, from which way the table is written and from
+ * the lines each case takes, all of which the compiler knows and the cells do not.
  *
  * <p>Read from the compiled table rather than counted off its rows, so it holds however the table is written:
  * data down the rows, data across the columns, and a table of a single line.
  *
  * @author Vladyslav Pikus
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public final class TableLayouts {
-
-    private TableLayouts() {
-    }
 
     /**
      * How the given table is laid out, or {@code null} where nothing about it is worth saying.
@@ -55,13 +58,30 @@ public final class TableLayouts {
         // table is written the usual way round and a column of it where the table is transposed.
         var downTheRows = data.getHeaderTable().isNormalOrientation();
         var grid = table.getGridTable();
-        var first = data.getRowTable(0).getCell(0, 0);
+        var origin = downTheRows ? grid.getGridRow(0, 0) : grid.getGridColumn(0, 0);
+        var end = origin + (downTheRows ? grid.getHeight() : grid.getWidth());
+        var starts = new int[data.getNumberOfRows()];
+        for (var i = 0; i < starts.length; i++) {
+            var cell = data.getRowTable(i).getCell(0, 0);
+            starts[i] = downTheRows ? cell.getAbsoluteRow() : cell.getAbsoluteColumn();
+        }
         return TableLayout.builder()
                 .transposed(!downTheRows)
-                .firstDataLine(downTheRows
-                        ? first.getAbsoluteRow() - grid.getGridRow(0, 0)
-                        : first.getAbsoluteColumn() - grid.getGridColumn(0, 0))
+                .firstDataLine(starts[0] - origin)
+                .caseLines(caseLinesOf(starts, end))
                 .build();
+    }
+
+    /**
+     * The number of lines each case takes, from where the cases begin to the end of the table, or {@code null}
+     * where every case takes one line.
+     */
+    private static @Nullable List<Integer> caseLinesOf(int[] starts, int end) {
+        var lines = new ArrayList<Integer>(starts.length);
+        for (var i = 0; i < starts.length; i++) {
+            lines.add((i + 1 < starts.length ? starts[i + 1] : end) - starts[i]);
+        }
+        return lines.stream().allMatch(line -> line == 1) ? null : lines;
     }
 
     /** Whether the table names its own cases, which is the table's business and not the screen's. */

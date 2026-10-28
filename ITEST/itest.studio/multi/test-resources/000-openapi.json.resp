@@ -35742,6 +35742,14 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "caseLines": {
+            "type": "array",
+            "description": "***",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
           "firstDataLine": {
             "type": "integer",
             "format": "int32",

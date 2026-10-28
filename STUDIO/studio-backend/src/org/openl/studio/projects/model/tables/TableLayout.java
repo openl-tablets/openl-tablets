@@ -1,11 +1,15 @@
 package org.openl.studio.projects.model.tables;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Builder;
+import org.jspecify.annotations.Nullable;
 
 /**
- * How a table is laid out on its sheet: which way round it is written, and where its data begins.
+ * How a table is laid out on its sheet: which way round it is written, where its data begins, and how many lines
+ * each of its cases takes.
  *
  * <p>Both are read from the compiled table. Neither can be worked out from the cells: a table written the
  * other way round looks like any other table of text, and the headings above its data are only headings
@@ -27,5 +31,12 @@ public record TableLayout(
                 column, where the table is transposed. Everything before it is the table's headings, and \
                 every line from it to the end of the table is data. A screen drawing the table without its \
                 header rows counts those out of this position itself""")
-        int firstDataLine) {
+        int firstDataLine,
+
+        @Parameter(description = """
+                The number of lines each case of the table takes, in the order of the cases. A case takes \
+                several lines where it defines the elements of a collection one per line. Absent where every \
+                case takes one line""")
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        @Nullable List<Integer> caseLines) {
 }

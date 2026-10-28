@@ -139,6 +139,34 @@ const edgeOf = (row: number, column: number, cell: RawTableCell, height: number,
     return `${top ? 'top ' : ''}${left ? 'left ' : ''}${bottom ? 'bottom ' : ''}${right ? 'right' : ''}`.trimEnd()
 }
 
+/** The number of a case beside the table, and the lines of the table the case takes. */
+interface CaseNumber {
+    number: number
+    lines: number
+}
+
+/**
+ * The numbers of the cases of a table, by the line each case begins on.
+ *
+ * A case takes the lines the layout gives it. Where the layout gives none, or its lines no longer add up to the
+ * lines drawn, as after a line is added in the editor, each line is a case of its own.
+ */
+const caseNumbersOf = (layout: TableLayout | undefined, lines: number): Map<number, CaseNumber> => {
+    const numbers = new Map<number, CaseNumber>()
+    if (layout === undefined) {
+        return numbers
+    }
+    const given = layout.caseLines
+    const fits = given !== undefined && given.reduce((sum, caseLines) => sum + caseLines, 0) === lines
+    const spans = fits ? given : Array.from({ length: lines }, () => 1)
+    let line = layout.firstDataLine
+    spans.forEach((caseLines, index) => {
+        numbers.set(line, { number: index + 1, lines: caseLines })
+        line += caseLines
+    })
+    return numbers
+}
+
 /**
  * The cell's Excel styling. A cell the screen paints keeps its font and alignment but not its own
  * background, which would otherwise sit over the paint. A muted cell keeps everything but the colours,
@@ -445,15 +473,29 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                 ? undefined
                 : roleLinesOf(roles, role, { rows: cell.rowspan ?? 1, columns: cell.colspan ?? 1 }, look.lines)
         }), [cellRoles, look, roles, rows])
-    // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
-    // table, counted down the rows or across the columns according to how the table is written.
     // The grid is as wide as its widest row; a covered cell takes a place of its own in the matrix, so the
     // count is the column count the browser lays the table out in.
     const columns = rows.reduce((widest, row) => Math.max(widest, row.length), 0)
-    // How many lines of data there are, and so how many numbers: from where the data begins to the end of the
-    // table, counted down the rows or across the columns according to how the table is written.
+    // How many lines of data there are: from where the data begins to the end of the table, counted down the rows
+    // or across the columns according to how the table is written. The cases of the table take them.
     const extent = layout?.transposed ? columns : rows.length
     const lines = layout === undefined ? 0 : Math.max(0, extent - layout.firstDataLine)
+    const caseNumbers = React.useMemo(() => caseNumbersOf(layout, lines), [layout, lines])
+    /**
+     * The margin beside a line of the table: blank beside the headings, the number of a case on the line it begins
+     * on, spanning the lines it takes, and nothing on the other lines of a case, which that number spans.
+     */
+    const lineNumberOf = (line: number, span: 'rowSpan' | 'colSpan') => {
+        if (layout === undefined || line < layout.firstDataLine) {
+            return <td key={line} className={styles.lineNumber} />
+        }
+        const found = caseNumbers.get(line)
+        return found && (
+            <td key={line} className={styles.lineNumber} {...{ [span]: found.lines }}>
+                <span data-testid="table-line-number">{found.number}</span>
+            </td>
+        )
+    }
     // Where the first cell drawn lies on the sheet, when the headings of the sheet are drawn.
     const origin = headings === undefined ? undefined : placeOf(headings.from)
     /** The heading of a row or a column, which picks it where the screen lets it be picked. */
@@ -490,26 +532,14 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
             {layout?.transposed && lines > 0 && (
                 <tr>
                     {origin && <td className={styles.heading} />}
-                    {Array.from({ length: columns }, (unused, column) => (
-                        <td key={column} className={styles.lineNumber}>
-                            {column >= layout.firstDataLine
-                                ? <span data-testid="table-line-number">{column - layout.firstDataLine + 1}</span>
-                                : null}
-                        </td>
-                    ))}
+                    {Array.from({ length: columns }, (unused, column) => lineNumberOf(column, 'colSpan'))}
                 </tr>
             )}
             {rows.map((row, rowIndex) => (
                 <tr key={rowKey(row, rowIndex)} className={styles.row}>
                     {origin && headingOf(String(origin.row + rowIndex + 1), { row: rowIndex })}
                     {/* A table written the usual way round is numbered down its side, as the Editor did. */}
-                    {layout !== undefined && !layout.transposed && (
-                        <td className={styles.lineNumber}>
-                            {rowIndex >= layout.firstDataLine
-                                ? <span data-testid="table-line-number">{rowIndex - layout.firstDataLine + 1}</span>
-                                : null}
-                        </td>
-                    )}
+                    {layout !== undefined && !layout.transposed && lineNumberOf(rowIndex, 'rowSpan')}
                     {row.map((cell, columnIndex) => {
                         if (cell.covered) return null
                         const decoration = decorate?.(cell, rowIndex, columnIndex)
