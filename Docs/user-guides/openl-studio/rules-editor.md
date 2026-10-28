@@ -60,6 +60,8 @@ For more information on project and module dependencies, see [OpenL Tablets Refe
 
 The first opened module page is displayed right after the module is loaded, while loading of the whole project continues in the background. The **Compiling N of M** indicator beside the module name shows how many modules are compiled, and the tree shows a skeleton until the tables of the module are read. The compilation problems panel at the bottom of the page lists errors and warnings as more modules are compiled, and the number of errors is shown in the tree next to the tables that have them.
 
+Opening a module of another project stops loading the project opened before: only the module being compiled at that moment is finished. The modules of a dependency project are loaded only as far as the new project uses them, so a dependency project that is not included automatically (`autoIncluded` is `false`) is not loaded as a whole.
+
 ![](images/loading-progress-bar.jpeg)
 
 *Loading progress indicator*

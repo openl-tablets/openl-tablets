@@ -42,12 +42,15 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final Set<ProjectDescriptor> projects;
-    @Getter
     private final AtomicLong version = new AtomicLong(0);
-    @Getter
     private final ThreadLocal<Long> threadVersion = new ThreadLocal<>();
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
+    private final AtomicLong backgroundGeneration = new AtomicLong(0);
+    private final ThreadLocal<Long> threadBackgroundGeneration = new ThreadLocal<>();
+    private final ThreadLocal<Boolean> threadRefused = new ThreadLocal<>();
+    /** Whether this manager still compiles what it is asked for. */
+    @Getter
     private volatile boolean active = true;
     private volatile boolean paused;
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onCompilationCompleteListeners = new CopyOnWriteArrayList<>();
@@ -111,7 +114,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     /**
      * Loads the dependency for the compilation the thread takes part in. The first request of a thread fixes the
      * version it compiles; a nested request is served only while that version is still the current one. A stopped
-     * manager loads nothing.
+     * manager loads nothing, and neither does a background load another one has replaced.
      */
     private CompiledDependency loadForThreadVersion(ResolvedDependency dependency,
                                                     @Nullable ThreadPriority priority)
@@ -123,28 +126,26 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 log.debug("Dependency '{}' is requested with '{}' priority.",
                         dependency.getNode().getIdentifier(),
                         priority == null ? ThreadPriority.HIGH : priority);
-                if (active) {
+                if (isWanted()) {
                     return loadDependencySync(dependency);
-                } else {
-                    return interrupted(dependency);
                 }
+                return interrupted(dependency);
             } finally {
                 threadVersion.remove();
             }
         } else {
-            if (active && Objects.equals(currentThreadVersion, version.get())) {
+            if (isWanted() && Objects.equals(currentThreadVersion, version.get())) {
                 log.debug("Dependency '{}' is requested with '{}' priority.",
                         dependency.getNode().getIdentifier(),
                         priority == null ? ThreadPriority.HIGH : priority);
                 return loadDependencySync(dependency);
-            } else {
-                return interrupted(dependency);
             }
+            return interrupted(dependency);
         }
     }
 
     private synchronized CompiledDependency loadDependencySync(ResolvedDependency dependency) throws OpenLCompilationException {
-        while (paused && active) {
+        while (paused && isWanted()) {
             try {
                 this.wait(50);
             } catch (InterruptedException e) {
@@ -152,15 +153,36 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 throw new OpenLCompilationException("Compilation is interrupted", e);
             }
         }
-        // A manager told to stop while this one waited starts nothing: the wait ends on the stop as well.
-        if (!active) {
+        // What was told to stop while it waited starts nothing: the wait ends on the stop as well.
+        if (!isWanted()) {
             return interrupted(dependency);
         }
         return super.loadDependency(dependency);
     }
 
+    /**
+     * Whether what the current thread compiles is still wanted: the manager runs, and the thread does not serve a
+     * background load that another one has replaced.
+     */
+    private boolean isWanted() {
+        var generation = threadBackgroundGeneration.get();
+        return active && (generation == null || generation == backgroundGeneration.get());
+    }
+
+    /**
+     * Whether what the current thread has just compiled may be kept: nothing it was compiled from has been reset
+     * since, and no dependency it asked for was refused. A module a replaced background load finishes is kept.
+     */
+    boolean isActualForThread() {
+        return threadVersion.get() >= version.get() && !Boolean.TRUE.equals(threadRefused.get());
+    }
+
     /** What a request answers once this manager has been told to stop: nothing compiled, and why. */
     private CompiledDependency interrupted(ResolvedDependency dependency) {
+        if (threadBackgroundGeneration.get() != null) {
+            // What this background thread compiles from here on lacks the dependency, so it is not kept.
+            threadRefused.set(true);
+        }
         return new CompiledDependency(dependency,
                 new CompiledOpenClass(NullOpenClass.the, List.of(new CompilationInterruptedOpenLErrorMessage())),
                 resolveDependencyType(dependency));
@@ -180,11 +202,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         version.incrementAndGet();
     }
 
-    /** Whether this manager still compiles what it is asked for. */
-    public boolean isActive() {
-        return active;
-    }
-
     public void pause() {
         paused = true;
         awaitSynchronizedBlocks();
@@ -201,32 +218,64 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         paused = false;
     }
 
+    /**
+     * Loads the dependency in the background, yielding to every load asked for in the foreground, and hands the
+     * result to the consumer.
+     *
+     * <p>A load interrupted by a reset of what it compiles starts again. A load replaced by
+     * {@link #stopBackgroundLoads()} starts nothing more; left unfinished by it, the load ends without calling the
+     * consumer.
+     */
     public void loadDependencyAsync(ResolvedDependency dependency, Consumer<CompiledDependency> consumer) {
-        executorService.submit(() -> {
-            try {
-                threadPriority.set(ThreadPriority.LOW);
-                CompiledDependency compiledDependency;
-                try {
-                    compiledDependency = this.loadDependency(dependency);
-                } catch (OpenLCompilationException e) {
-                    compiledDependency = new CompiledDependency(dependency,
-                            new CompiledOpenClass(NullOpenClass.the, List.of(new OpenLErrorMessage(e))),
-                            resolveDependencyType(dependency));
-                }
-                if (compiledDependency.getCompiledOpenClass()
-                        .getAllMessages()
-                        .stream()
-                        .anyMatch(CompilationInterruptedOpenLErrorMessage.class::isInstance)) {
-                    if (active) {
-                        loadDependencyAsync(dependency, consumer);
-                    }
-                } else {
-                    consumer.accept(compiledDependency);
-                }
-            } finally {
-                threadPriority.remove();
+        var generation = backgroundGeneration.get();
+        executorService.submit(() -> loadInBackground(dependency, consumer, generation));
+    }
+
+    private void loadInBackground(ResolvedDependency dependency,
+                                  Consumer<CompiledDependency> consumer,
+                                  long generation) {
+        try {
+            threadPriority.set(ThreadPriority.LOW);
+            threadBackgroundGeneration.set(generation);
+            if (!isWanted()) {
+                return;
             }
-        });
+            CompiledDependency compiledDependency;
+            try {
+                compiledDependency = this.loadDependency(dependency);
+            } catch (OpenLCompilationException e) {
+                compiledDependency = new CompiledDependency(dependency,
+                        new CompiledOpenClass(NullOpenClass.the, List.of(new OpenLErrorMessage(e))),
+                        resolveDependencyType(dependency));
+            }
+            if (compiledDependency.getCompiledOpenClass()
+                    .getAllMessages()
+                    .stream()
+                    .anyMatch(CompilationInterruptedOpenLErrorMessage.class::isInstance)) {
+                if (isWanted()) {
+                    executorService.submit(() -> loadInBackground(dependency, consumer, generation));
+                }
+            } else {
+                consumer.accept(compiledDependency);
+            }
+        } finally {
+            threadPriority.remove();
+            threadBackgroundGeneration.remove();
+            threadRefused.remove();
+        }
+    }
+
+    /**
+     * Stops the loads asked for in the background so far.
+     *
+     * <p>The module being compiled at this moment is finished and kept, and nothing after it is started. What waits
+     * for a module the stop refuses — the project above all — is not kept, and its load ends without calling the
+     * consumer. Every module compiled stays as it is and is reused by the next load.
+     *
+     * <p>Loads asked for afterwards run as usual, and so do the loads asked for in the foreground.
+     */
+    public void stopBackgroundLoads() {
+        backgroundGeneration.incrementAndGet();
     }
 
     protected Set<IDependencyLoader> initDependencyLoaders() {
