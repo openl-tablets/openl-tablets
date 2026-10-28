@@ -372,6 +372,10 @@ from Maven.
   `400` with `openl.error.400.table.action.row.width.message` and appends nothing, as the raw table actions do. A row
   wider than the table answers this code too, instead of `openl.error.400.table.append.column.count.message`. Send
   `{"value": null}` for a blank cell.
+* **A request parameter that breaks a constraint is coded by the constraint**, as a request body field is. Its `code`
+  used to hold the message key in braces, such as `openl.error.{jakarta.validation.constraints.Min.message}`. It is
+  now `openl.error.Min`, `openl.error.Size` for a comment that is too long, and `openl.error.SidExistsConstraint`
+  for an ACL request naming a user or a group that does not exist. The `message` is unchanged.
 * **`treeView` and `profiles` are gone from `/rest/users/profile`.** `GET` no longer returns them, and a `PUT` that
   still sends `treeView` answers `400` with `Unknown field 'treeView'`. Drop the field from the body.
 * **A `PUT /rest/users/profile` that leaves a field out keeps the stored value**, for a name, the e-mail and the display

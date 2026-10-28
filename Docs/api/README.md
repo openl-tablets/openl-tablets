@@ -91,7 +91,8 @@ An error answers with a body of this form, where `<key>` is the message code, an
 
 - **`400 Bad Request`** — the request is malformed or refused by a rule of the endpoint. A request body that fails
   validation answers `{"message": "Bad Request", "fields": [{"code": "...", "message": "...", "field": "...",
-  "rejectedValue": ...}]}`.
+  "rejectedValue": ...}]}`. A body field or a request parameter that breaks a constraint is coded by the constraint,
+  such as `openl.error.NotBlank` or `openl.error.Size`, whatever message the endpoint gives it.
 - **`401 Unauthorized`** — the request has no valid credentials.
 - **`403 Forbidden`** — the user may not do it, or the endpoint is closed to personal access tokens. A refusal by a
   security rule answers `{"message": "Access Denied"}`.
