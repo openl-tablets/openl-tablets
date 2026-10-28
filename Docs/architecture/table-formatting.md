@@ -75,7 +75,10 @@ One modifier draws a separator inside the body:
 - **`group`** — a line above the first line of a group. A group is the rules that share a merged condition
   value, or the conditions of a ColumnMatch table indented under one name. Merged decision tables are hard to read
   without it. The columns of a lookup that share a merged horizontal value are a group too, with a line on the left
-  of the first of them from the titles down: it does not cross the signature, the properties or the code.
+  of the first of them from the titles down: it does not cross the signature, the properties or the code. In a Data,
+  a Test and a Run table a row is a group once any row of the table takes several lines — its key merged over them,
+  the elements of a collection a line each: a line above every row after the first one sets the rows apart, or on
+  the left of it in a transposed table.
 
 ### Roles per table type
 
