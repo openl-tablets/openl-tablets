@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -104,7 +105,7 @@ public class Table implements ITable {
     }
 
     @Override
-    public String getColumnName(int n) {
+    public @Nullable String getColumnName(int n) {
         var columnDescriptor = dataModel.getDescriptor(n);
         return columnDescriptor != null ? columnDescriptor.getName() : null;
     }
@@ -148,7 +149,7 @@ public class Table implements ITable {
     }
 
     @Override
-    public synchronized String getPrimaryIndexKey(int row) {
+    public synchronized @Nullable String getPrimaryIndexKey(int row) {
         if (primaryIndexMap == null) {
             return null;
         }
@@ -302,13 +303,12 @@ public class Table implements ITable {
                         valuesTable,
                         dataBase,
                         bindingContext);
-            } else {
-                fkDescriptor.populateLiteralByForeignKey(target,
-                        valuesTable,
-                        dataBase,
-                        bindingContext,
-                        env);
             }
+            fkDescriptor.populateLiteralByForeignKey(target,
+                    valuesTable,
+                    dataBase,
+                    bindingContext,
+                    env);
         } catch (SyntaxNodeException e) {
             bindingContext.addError(e);
         }
@@ -483,7 +483,7 @@ public class Table implements ITable {
 
         List<ColumnDescriptor> descriptors = allDescriptors.getFirst();
 
-        Object[][] rowValues = parseRootRowValues(descriptors, openlAdapter, startRow, rows);
+        var rowValues = parseRootRowValues(descriptors, openlAdapter, startRow, rows);
 
         var env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         for (var rowNum = 0; rowNum < rowValues.length; rowNum++) {
@@ -578,7 +578,7 @@ public class Table implements ITable {
         }
         var context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
 
-        Object[][] rowValues = parseRowValues(descriptors, openlAdapter, rowNum, height);
+        var rowValues = parseRowValues(descriptors, openlAdapter, rowNum, height);
 
         var pkDescriptor = descriptors.getFirst();
 
@@ -672,14 +672,13 @@ public class Table implements ITable {
                 dim++;
             }
             return Array.newInstance(type, new int[dim]);
-        } else {
-            var literal = dataModel.newInstance();
-            if (literal == null) {
-                throw new OpenLCompilationException(
-                        "Cannot create an instance of '%s'.".formatted(dataModel.getName()));
-            }
-            return literal;
         }
+        var literal = dataModel.newInstance();
+        if (literal == null) {
+            throw new OpenLCompilationException(
+                    "Cannot create an instance of '%s'.".formatted(dataModel.getName()));
+        }
+        return literal;
     }
 
     private void processRow(OpenlToolAdaptor openlAdapter, int startRow, int rowNum) throws OpenLCompilationException {
@@ -703,14 +702,16 @@ public class Table implements ITable {
             fieldWithValue = Arrays.stream(dataModel.getDescriptors())
                     .filter(d -> {
                         var lTable = logicalTable.getSubtable(d.getColumnIdx(), rowNum, 1, 1);
-                        var nonEmptyResCell = !(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
-                                .getStringValue() != null && d.getField() != null;
-                        return nonEmptyResCell && d.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
-                                d.getField() instanceof FieldChain fieldChain && fieldChain.getFields().length > 1;
+                        var hasField = d.getField() != null;
+                        var severalCells = !(lTable.getHeight() == 1 && lTable.getWidth() == 1);
+                        var nonEmptyResCell = hasField
+                                && (severalCells || lTable.getCell(0, 0).getStringValue() != null);
+                        return nonEmptyResCell && d.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)
+                                && d.getField() instanceof FieldChain fieldChain && fieldChain.getFields().length > 1;
                     })
                     .map(d -> {
                         var fieldChain = (FieldChain) d.getField();
-                        return (FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1)));
+                        return FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1));
                     })
                     .collect(Collectors.toSet());
         }
@@ -759,8 +760,8 @@ public class Table implements ITable {
                 if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
                         .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default value.
                     return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, false);
-                } else if (columnDescriptor.getField() != null && columnDescriptor.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
-                        !columnDescriptor.isValuesAnArray() && !hasError && hasValue) {
+                } else if (columnDescriptor.getField() != null && columnDescriptor.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)
+                        && !columnDescriptor.isValuesAnArray() && !hasError && hasValue) {
                     return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, true);
                 }
             }
