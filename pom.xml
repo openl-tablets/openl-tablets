@@ -119,6 +119,9 @@
         <!-- Newer lz4-java than kafka-clients pulls in by default, fixing CVE-2026-59949.
              Remove once Kafka ships this version by default. -->
         <lz4.version>1.12.1</lz4.version>
+        <!-- Newer snappy-java than kafka-clients pulls in by default, fixing CVE-2026-90559.
+             Remove once Kafka ships this version by default. -->
+        <snappy.version>1.1.10.12</snappy.version>
 
         <!-- Open Telemetry -->
         <!-- !!! also in the Dockerfile !!! -->
@@ -906,6 +909,11 @@
                 <groupId>at.yawk.lz4</groupId>
                 <artifactId>lz4-java</artifactId>
                 <version>${lz4.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial.snappy</groupId>
+                <artifactId>snappy-java</artifactId>
+                <version>${snappy.version}</version>
             </dependency>
             <!-- //Kafka -->
             <!-- Open Telemetry -->
