@@ -15,7 +15,7 @@ import org.openl.types.java.JavaOpenClass;
  * Binds a whole number literal.
  *
  * <p>A number is decimal even when it starts with zeros, so {@code 010} is ten. A {@code 0x} prefix makes it
- * hexadecimal. There are no octal numbers.
+ * hexadecimal. There are no octal numbers. Commas may group the thousands, as in {@code 12,345,678}.
  *
  * <p>The literal is an {@code int} when it fits, a {@code long} when it fits or ends with {@code L}, and a
  * {@code BigInteger} otherwise.
@@ -27,7 +27,7 @@ public class IntNodeBinder extends NumberLiteralNodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        var s = node.getText();
+        var s = digits(node);
 
         if (s.charAt(0) == '+') {
             s = s.substring(1);

@@ -17,6 +17,14 @@ import org.openl.types.java.JavaOpenClass;
 abstract class NumberLiteralNodeBinder extends ANodeBinder {
 
     /**
+     * Returns the literal as written, without the commas that group its thousands. The grammar accepts a comma only
+     * between groups of three digits.
+     */
+    static String digits(ISyntaxNode node) {
+        return node.getText().replace(",", "");
+    }
+
+    /**
      * Binds a whole number to an {@code int} when it fits, to a {@code long} when it fits, and to a
      * {@code BigInteger} otherwise.
      */

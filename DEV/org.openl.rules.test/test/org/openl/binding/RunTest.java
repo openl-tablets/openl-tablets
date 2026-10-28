@@ -451,11 +451,25 @@ class RunTest {
     }
 
     @Test
-    void testRemovedBusinessLiteral() {
-        assertToExpected("int[] ary = {1,000}; ary.length", 2);
-        assertToExpected("int[] ary = {1,500}; ary[1]", 500);
-        assertToExpected("max(1,000)", 1);
+    void testDollarStartsIdentifier() {
         assertErrorStartWith("$100 + 1", "Identifier '$100' is not found");
+    }
+
+    @Test
+    void testGroupedNumbers() {
+        assertToExpected("1,000 + 12,345,678", 12346678);
+        assertToExpected("1,000.50 * 2", 2001.0);
+        assertToExpected("12,345,678,901", 12345678901L);
+        assertToExpected("1,500K", 1500000);
+        assertToExpected("int[] ary = {1,000}; ary.length", 1);
+        assertToExpected("int[] ary = {1,000,2}; ary[1]", 2);
+        assertToExpected("int[] ary = {10,500,600}; ary[0]", 10500600);
+        // A space or a leading zero keeps the comma a separator of values
+        assertToExpected("int[] ary = {1, 500}; ary[1]", 500);
+        assertToExpected("int[] ary = {1, 000}; ary.length", 2);
+        assertToExpected("int[] ary = {10, 500, 600}; ary.length", 3);
+        assertToExpected("max(1, 000)", 1);
+        assertToExpected("max(0,500)", 500);
     }
 
     @Test

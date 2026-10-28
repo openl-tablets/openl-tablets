@@ -54,7 +54,13 @@ class String2NumberConverterTest {
                 arguments("1.5e1%", 0.15d),
                 arguments("NaN", Double.NaN),
                 arguments("Infinity", Double.POSITIVE_INFINITY),
-                arguments("-Infinity", Double.NEGATIVE_INFINITY));
+                arguments("-Infinity", Double.NEGATIVE_INFINITY),
+                arguments("1,000.00", 1000L),
+                arguments("12,345,678", 12345678L),
+                arguments("-1,234.5", -1234.5d),
+                arguments("999,999.999", 999999.999d),
+                arguments("1,000%", 10L),
+                arguments("1,234.5e2", 123450L));
     }
 
     @ParameterizedTest(name = "\"{0}\" is parsed as {1}")
@@ -63,6 +69,34 @@ class String2NumberConverterTest {
         String2NumberConverter<Number> converter = getNumberConverter();
         var result = converter.parse(text, null);
         assertEquals(expected, result);
+    }
+
+    // A comma separates groups of exactly three digits of the whole part, and the first group does not start with 0
+    @ParameterizedTest
+    @ValueSource(strings = {"12,34.00", "1,00,000", "100.000,001", "1,0000", "1234,567", "0,500", ",100", "1,000,",
+            "1,000.000,001", "1,000 000", "-,100"})
+    void testParseWrongThousandsSeparators(String text) {
+        String2NumberConverter<Number> converter = getNumberConverter();
+        var e = assertThrows(NumberFormatException.class, () -> converter.parse(text, null));
+        assertEquals("Cannot convert '%s' to a number.".formatted(text), e.getMessage());
+    }
+
+    static Stream<Arguments> testParseThousandsOfEveryType() {
+        return Stream.of(
+                arguments(Short.class, "12,345", (short) 12345),
+                arguments(Integer.class, "12,345,678", 12345678),
+                arguments(Long.class, "-12,345,678,901", -12345678901L),
+                arguments(Float.class, "1,000.5", 1000.5f),
+                arguments(Double.class, "1,000.00", 1000d),
+                arguments(Double.class, "-1,000.00", -1000d),
+                arguments(BigInteger.class, "123,456,789,012,345,678,901", new BigInteger("123456789012345678901")),
+                arguments(BigDecimal.class, "1,000.25", new BigDecimal("1000.25")));
+    }
+
+    @ParameterizedTest(name = "{0} reads \"{1}\" as {2}")
+    @MethodSource
+    void testParseThousandsOfEveryType(Class<?> type, String text, Number expected) {
+        assertEquals(expected, String2DataConvertorFactory.parse(type, text, null));
     }
 
     @Test

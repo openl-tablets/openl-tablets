@@ -39,6 +39,12 @@ Byte, Character, Short, Long, Float, BigInteger, and BigDecimal data types are r
 
 There is no range limits for BigInteger and BigDecimal. Using these values can cause performance issues and thus must be avoided.
 
+A number in a cell or in a formula may group the thousands of its whole part with commas, three digits per group, for example, `1,000.50` or `12,345,678`. A comma between other digits, as in `12,34.00`, `1,00,000` or `100.000,001`, does not make a number. The following rules apply:
+
+-   In a formula, a comma groups the thousands only in a number that starts with `1` to `9`. Any other comma separates values: `max(0,500)` and `max(1, 500)` compare two numbers. Write a space after a comma that separates values, because `{10,500,600}` is an array of one number, `10500600`, while `{10, 500, 600}` holds three numbers.
+-   In a cell of a Data or Test table that holds an array, every comma separates the elements, so `1,000` there is the array of `1` and `0`.
+-   A currency sign, such as `$` in `$1,000`, is not a part of a number.
+
 ### Range Data Types
 
 **Range Data Types** can be used when a business rule must be applied to a group of values. For example, a driver's insurance premium coefficient is usually the same for all drivers from within a particular age group. In such situation, a range of ages can be defined, and one rule for all drivers from within that range can be created. The way to inform OpenL Tablets that the rule must be applied to a group of drivers is to declare driver's age as the range data type.

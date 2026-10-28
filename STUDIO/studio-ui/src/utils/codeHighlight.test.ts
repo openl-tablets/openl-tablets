@@ -76,10 +76,17 @@ describe('highlight', () => {
         })
 
         it('reads a business literal as one number, its separators included', () => {
-            const numbers = tokens('1,000.50 + 10% * 1K - 2.5M + 2026-10-15 + 12:30 + 1e3')
+            const numbers = tokens('1,000.50 + 10% * 1K - 2.5M + 2026-10-15 + 12:30 + 1e3 + 1,500K')
                 ?.filter(([, colour]) => colour === syntax.number).map(([text]) => text)
 
-            expect(numbers).toEqual(['1,000.50', '10%', '1K', '2.5M', '2026-10-15', '12:30', '1e3'])
+            expect(numbers).toEqual(['1,000.50', '10%', '1K', '2.5M', '2026-10-15', '12:30', '1e3', '1,500K'])
+        })
+
+        it('reads a comma between other digits as a separator of values', () => {
+            const numbers = tokens('max(0,500) + max(12,34)')
+                ?.filter(([, colour]) => colour === syntax.number).map(([text]) => text)
+
+            expect(numbers).toEqual(['0', '500', '12', '34'])
         })
 
         it('reads the bounds of a range as numbers and a name starting with $ as a name', () => {

@@ -155,33 +155,38 @@ from Maven.
     the comma that groups the digits. Remove other symbols of the pattern first, such as a currency sign:
     `(Double) toNumber(replace(text, "$", ""))`.
 
-* **A number has no `$` sign, and a number in a formula has no thousands separator.** The `$` sign is removed from
-  formulas and ranges, and the thousands separator from formulas, because they read differently across countries and
-  `$` also starts a reference to a spreadsheet step. A formula or a range that still uses one of them usually no
+* **A number has no `$` sign.** The `$` sign is removed from formulas and ranges, because it reads differently across
+  countries and also starts a reference to a spreadsheet step. A formula or a range that still uses it usually no
   longer compiles. Do not rely on that: `$600` also names a step called `600` or a variable called `$600`, and a
-  formula next to such a step compiles with its value. Search the formulas for a `$` before a digit and rewrite the
-  number:
+  formula next to such a step compiles with its value. Search the formulas for a `$` before a digit and remove the
+  sign:
 
-  | Before            | After         |
-  |-------------------|---------------|
-  | `= $600 * 2`      | `= 600 * 2`   |
-  | `= $2,500 + x`    | `= 2500 + x`  |
-  | `>= $2,500`       | `>= 2500`     |
-  | `[$1K .. $10K)`   | `[1K .. 10K)` |
+  | Before          | After         |
+  |-----------------|---------------|
+  | `= $600 * 2`    | `= 600 * 2`   |
+  | `= $2,500 + x`  | `= 2,500 + x` |
+  | `>= $2,500`     | `>= 2500`     |
+  | `[$1K .. $10K)` | `[1K .. 10K)` |
 
   The `K`, `M` and `B` multipliers stay, and their value is exact now. `1.5M` is the `Integer` `1500000` as before,
   while a value with a fraction, such as `1.0005K`, is the `Double` `1000.5` instead of being rounded to an `Integer`.
   A value beyond the `Integer` limits, such as `3B`, is a `Long` instead of a compilation error.
 
-  In a formula, the comma separates values, so a comma between digits changes the result instead of failing:
-  `{1,500}` is an array of `1` and `500`, and `max(1,000)` compares `1` with `0`. Search the formulas for it.
+  A comma groups the thousands only between groups of exactly three digits, as in `1,000.00` or `12,345,678`. In a
+  formula, it does so in a number that starts with `1` to `9`, as before, and any other comma separates values:
+  `max(0,500)` and `max(12,34)` compare two numbers.
 
-  Ranges keep the thousands separator and the multipliers, so `[1K .. 10K)` and `>= 2,500` in a condition, a lookup
-  header or a range field work as before. A comma in a range has to separate groups of three digits now. In a condition column of ranges of a smart
-  rule or a simple rule, `77,99` was the number `7799`; now it is the list of `77` and `99`, which makes the column a
-  column of lists, where `1,500` is the list of `1` and `500` too. Write such a number without the comma.
+  > [!Note]
+  > A comma between digits stays ambiguous in a formula that lists values, such as an array or the arguments of a
+  > function: `{10,500,600}` is an array of one number, `10500600`, and `{1,000}` an array of `1000`. Write a space
+  > after a comma that separates values: `{10, 500, 600}` holds three numbers, and `{1, 000}` holds `1` and `0`.
 
-  Number values in Data and Test tables never accepted these forms and are not affected.
+  A range used to drop every comma: in a condition column of ranges of a smart rule or a simple rule, `77,99` was the
+  number `7799`. Now it is the list of `77` and `99`, which makes the column a column of lists, where `1,500` is the
+  list of `1` and `500` too. Write such a number without the comma.
+
+  A text cell of a number type in a Data, Test or Spreadsheet table reads the commas that group thousands too, such as
+  `1,000.50`, while before it did not compile. An array cell keeps separating its values by every comma.
 
 * **A whole number in a formula is decimal, even when it starts with zeros.** Octal numbers are removed, so `010` is
   `10` instead of `8`, and `0777` is `777` instead of `511`. `08`, `09`, `008` and `009` compile, and the numbers from
