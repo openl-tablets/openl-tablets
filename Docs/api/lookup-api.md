@@ -16,7 +16,7 @@ GET /rest/projects/{projectId}/tables/{tableId}
 
 ```json
 {
-  "id": "d2bb169ab4ac556aa8b147f99a723719",
+  "id": "7Q2K9MX4RB8TZ1HD",
   "tableType": "SmartLookup",
   "kind": "Rules",
   "name": "CoverageRate",

@@ -42,7 +42,7 @@ GET /rest/projects/{projectId}/tables/{tableId}?raw=true
 
 ```json
 {
-  "id": "5bd8922c903afffdfb749b3841eddcf1",
+  "id": "N4T8Y2DR6FX1MB5C",
   "tableType": "RawSource",
   "kind": "Rules",
   "name": "Greeting1",
@@ -499,7 +499,7 @@ It answers `200` with the identifiers of the tables formatted and of the ones le
 several partial tables:
 
 ```json
-{ "formatted": ["f55d6ff710d930c7cf6d43a377446bcd"], "skipped": [] }
+{ "formatted": ["N4T8Y2DR6FX1MB5C"], "skipped": [] }
 ```
 
 - A table of the kind `Other`, a table of an `.xls` file and a table of a dependency project are in neither list.

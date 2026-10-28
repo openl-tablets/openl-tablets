@@ -3,7 +3,9 @@
 **Status**: BETA — the endpoints form the **Projects: Trace (BETA)** group of the OpenAPI spec (`/rest/openapi.json`)
 **Base Path**: `/rest/projects/{projectId}/trace`
 
-`{projectId}` is the project id the API hands out. The workflows and examples use `6Q2M8XK4ZT0RB` for the project.
+`{projectId}` is the project id and `tableId` the table id the API hands out. The workflows and examples use
+`6Q2M8XK4ZT0RB` for the project, `4D7RX2KQ9MTB8C1E` for the decision table `DT_RiskAssessment` and
+`9B3VZH6N2WQ5KF0A` for its test table `TEST_RiskAssessment`.
 
 > [!Note]
 > This is the **interactive debugger** API. See [Architecture Design](projects-trace-architecture.md) for how suspension
@@ -836,7 +838,7 @@ sequenceDiagram
    PUT /rest/projects/6Q2M8XK4ZT0RB/trace/breakpoints   { "uris": ["<tableUri>#R0C1"] }
 
 2. Start, suspended at entry
-   POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=DT_RiskAssessment
+   POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=4D7RX2KQ9MTB8C1E
    → 200 DebugStackView { status: suspended, frames: [ { index:0, name:"DT_RiskAssessment", ... } ] }
 
 3. Step into the calculation
@@ -881,7 +883,7 @@ sequenceDiagram
 ### Workflow 4: Debug a single test case
 
 ```
-1. POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=TEST_RiskAssessment&testRanges=2
+1. POST /rest/projects/6Q2M8XK4ZT0RB/trace?tableId=9B3VZH6N2WQ5KF0A&testRanges=2
    → 200 DebugStackView (suspended at the entry of test case 2)
 2. Step / inspect as above. Cases run sequentially; the worker stops at each case entry.
 ```
@@ -934,7 +936,7 @@ message code of the table below; see [Errors](README.md#errors).
 
 ```bash
 # Start (suspended at entry), capture the stack
-curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace?tableId=DT_RiskAssessment" \
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace?tableId=4D7RX2KQ9MTB8C1E" \
   -H "Content-Type: application/json" \
   -d '{ "params": { "age": 35, "income": 75000, "creditScore": 720 },
         "runtimeContext": { "lob": "Personal", "usState": "NY" } }'
@@ -964,7 +966,7 @@ curl -X PUT "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace/breakpoints
   -H "Content-Type: application/json" \
   -d '{ "uris": ["VehiclePremiumCalculation"] }'
 
-curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace?tableId=DT_RiskAssessment&stopAtEntry=false"
+curl -X POST "http://localhost:8080/rest/projects/6Q2M8XK4ZT0RB/trace?tableId=4D7RX2KQ9MTB8C1E&stopAtEntry=false"
 # Runs to the breakpoint and returns the stack suspended there.
 ```
 

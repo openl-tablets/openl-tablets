@@ -16,7 +16,7 @@ GET /rest/projects/{projectId}/tables/{tableId}
 
 ```json
 {
-  "id": "572eb024e1c3f2b1b94d76740067e605",
+  "id": "3VJ6N0WC5PQ8EKGA",
   "tableType": "Data",
   "kind": "Data",
   "name": "CoverageFormData",

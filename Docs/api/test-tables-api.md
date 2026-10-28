@@ -18,7 +18,7 @@ GET /rest/projects/{projectId}/tables/{tableId}
 
 ```json
 {
-  "id": "5d64e98cfb043d16d9aedc659e4b2674",
+  "id": "9B3VZH6N2WQ5KF0A",
   "tableType": "Test",
   "kind": "Test",
   "name": "CoverageRateTest",
