@@ -86,7 +86,7 @@ The following rules apply:
 
 -   Infinities in IntRange are represented as `Long.MIN_VALUE` for -∞ and `Long.MAX_VALUE` for +∞.
 -   Using of ".." and "..." requires spaces between numbers and dots.
--   Numbers can be enhanced with the `$` sign as a prefix, commas that group the thousands and `K`, `M`, `B` as a postfix, for example, `$1,500` is `1500` and `2K` is `2000`. A comma must separate groups of three digits. In a smart or simple rules column that holds arrays, such as `1, 3`, a comma separates the array elements instead. An IntRange border is a whole number, so `1.5K` requires a DoubleRange. Formulas do not accept these forms.
+-   Numbers can be enhanced with the `$` sign as a prefix, commas that group the thousands and `K`, `M`, `B` as a postfix, for example, `$1,500` is `1500` and `2K` is `2000`. A comma must separate groups of three digits. In a smart or simple rules column that holds arrays, such as `1, 3`, a comma separates the array elements instead. An IntRange border is a whole number, so `1.5K` requires a DoubleRange. Formulas accept only the `K`, `M`, `B` multipliers.
 -   For negative values, use the '`-`' (minus) sign before the number, for example, `-<number>`.
 
 ### Void Data Type

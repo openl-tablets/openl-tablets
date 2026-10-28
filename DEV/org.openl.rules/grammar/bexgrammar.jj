@@ -362,6 +362,10 @@ TOKEN :
     ([ "0"-"9" ])+ ("." ([ "0"-"9" ])+)? (< EXPONENT >)? "%"
   >
 | 
+  < MULTIPLIED_LITERAL : 
+    ([ "0"-"9" ])+ ("." ([ "0"-"9" ])+)? [ "K", "M", "B" ]
+  >
+| 
   < #EXPONENT : [ "e", "E" ] ([ "+", "-" ])? ([ "0"-"9" ])+ >
 | 
   < CHARACTER_LITERAL :
@@ -1502,6 +1506,11 @@ void Literal() :
   < PERCENT_LITERAL >
   {
     literal("literal.percent", pos(token), token.image);
+  }
+| 
+  < MULTIPLIED_LITERAL >
+  {
+    literal("literal.multiplied", pos(token), token.image);
   }
 | 
   < FLOATING_POINT_LITERAL >

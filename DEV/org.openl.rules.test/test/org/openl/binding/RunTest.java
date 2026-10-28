@@ -455,8 +455,24 @@ class RunTest {
         assertToExpected("int[] ary = {1,000}; ary.length", 2);
         assertToExpected("int[] ary = {1,500}; ary[1]", 500);
         assertToExpected("max(1,000)", 1);
-        assertErrorStartWith("10M is more or equal 1K", "Encountered");
         assertErrorStartWith("$100 + 1", "Identifier '$100' is not found");
+    }
+
+    @Test
+    void testMultipliedNumbers() {
+        assertToExpected("10M is more or equal 1K", true);
+        assertToExpected("10K is more or equal 1L", true);
+        assertToExpected("1K is more or equal 100", true);
+        assertToExpected("-1K is more or equal 100", false);
+        assertToExpected("2.5K", 2500);
+        assertToExpected("3B", 3000000000L);
+        assertToExpected("1.0005K", 1000.5);
+        assertToExpected("1.005K == 1005", true);
+        assertToExpected("Integer x = 1.5K; x", 1500);
+        assertToExpected("1.5K / 1K", 1.5);
+        assertToExpected("2 * 1.5M", 3000000);
+        assertToExpected("int[] ary = {1K, 2.5K}; ary[1]", 2500);
+        assertToExpected("double[] ary = {1K, 1.0005K}; ary[1]", 1000.5);
     }
 
     @Test

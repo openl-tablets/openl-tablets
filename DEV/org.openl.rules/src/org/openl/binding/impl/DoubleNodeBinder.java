@@ -10,15 +10,13 @@ import java.math.BigDecimal;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
  * @author snshor
  */
-public class DoubleNodeBinder extends ANodeBinder {
+public class DoubleNodeBinder extends NumberLiteralNodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
@@ -36,17 +34,5 @@ public class DoubleNodeBinder extends ANodeBinder {
         }
 
         return new LiteralBoundNode(node, new BigDecimal(s), JavaOpenClass.getOpenClass(BigDecimal.class));
-    }
-
-    @Override
-    public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
-        IBoundNode boundNode = bindChildNode(node, bindingContext);
-        IOpenCast cast = getCast(boundNode, type, bindingContext, false);
-
-        if (cast == null) {
-            return boundNode;
-        }
-
-        return new CastNode(null, boundNode, cast, type);
     }
 }

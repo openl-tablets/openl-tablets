@@ -8,9 +8,7 @@ import java.math.BigInteger;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -24,7 +22,7 @@ import org.openl.types.java.JavaOpenClass;
  *
  * @author snshor
  */
-public class IntNodeBinder extends ANodeBinder {
+public class IntNodeBinder extends NumberLiteralNodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
@@ -50,24 +48,6 @@ public class IntNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Long.parseLong(s, radix), JavaOpenClass.LONG);
         }
 
-        var value = new BigInteger(s, radix);
-        if (value.bitLength() < Integer.SIZE) {
-            return new LiteralBoundNode(node, value.intValue(), JavaOpenClass.INT);
-        } else if (value.bitLength() < Long.SIZE) {
-            return new LiteralBoundNode(node, value.longValue(), JavaOpenClass.LONG);
-        }
-        return new LiteralBoundNode(node, value, JavaOpenClass.getOpenClass(BigInteger.class));
-    }
-
-    @Override
-    public IBoundNode bindType(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) throws Exception {
-        IBoundNode boundNode = bindChildNode(node, bindingContext);
-        IOpenCast cast = getCast(boundNode, type, bindingContext, false);
-
-        if (cast == null) {
-            return boundNode;
-        }
-
-        return new CastNode(null, boundNode, cast, type);
+        return wholeNumber(node, new BigInteger(s, radix));
     }
 }

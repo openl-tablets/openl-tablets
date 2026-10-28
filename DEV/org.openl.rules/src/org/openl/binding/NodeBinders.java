@@ -26,6 +26,7 @@ import org.openl.binding.impl.LiteralNodeBinder;
 import org.openl.binding.impl.LocalVarBinder;
 import org.openl.binding.impl.MethodHeaderNodeBinder;
 import org.openl.binding.impl.MethodNodeBinder;
+import org.openl.binding.impl.MultipliedNumberNodeBinder;
 import org.openl.binding.impl.NewArrayNodeBinder;
 import org.openl.binding.impl.NewNodeBinder;
 import org.openl.binding.impl.NotExistNodeBinder;
@@ -69,6 +70,7 @@ public class NodeBinders {
         BINDERS.put("literal.integer", new IntNodeBinder());
         BINDERS.put("literal.real", new DoubleNodeBinder());
         BINDERS.put("literal.percent", new PercentNodeBinder());
+        BINDERS.put("literal.multiplied", new MultipliedNumberNodeBinder());
         BINDERS.put("literal.string", new StringNodeBinder());
         BINDERS.put("literal.char", new CharNodeBinder());
         BINDERS.put("array.init", new ArrayInitializationBinder());
