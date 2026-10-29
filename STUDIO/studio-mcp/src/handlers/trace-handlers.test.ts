@@ -475,9 +475,10 @@ describe("trace tools", () => {
       harness.client
     );
 
-    expect(calls).toEqual(["put", "run", "watch"]); // set → run → read
-    // The breakpoints are cleared before the watches are set.
-    expect(harness.mockHttp.history.put.map(bodyOf)).toEqual([{ uris: [] }, { cells: ["$VehiclePriceFactor"] }]);
+    expect(calls).toEqual(["put", "run", "watch", "put"]); // set → run → read → clear
+    // The breakpoints are cleared before the watches are set, and the watches after the read.
+    expect(harness.mockHttp.history.put.map(bodyOf))
+      .toEqual([{ uris: [] }, { cells: ["$VehiclePriceFactor"] }, { cells: [] }]);
     const startParams = queryOf(harness.mockHttp.history.post[0]);
     const watchFields = harness.mockHttp.history.get[0].params?.fields;
     expect(startParams.stopAtEntry).toBe("false");
@@ -489,6 +490,43 @@ describe("trace tools", () => {
     expect(watchFields).toContain("value(name,description,lazy,parameterId,value)");
     expect(watchFields).not.toContain("schema");
     expect(textOf(result)).toContain("83.372");
+  });
+
+  it.each([
+    [false, "The run computed no cell named '$BankRating': check the name"],
+    [true, "No value of '$BankRating' was captured before the capture ended"],
+  ])("openl_watch_trace_cells tells a cell no series answers of a run truncated: %s", async (truncated, note) => {
+    harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply(204);
+    harness.mockHttp.onPut(`${projectPath}/trace/watches`).reply(204);
+    harness.mockHttp.onPost(`${projectPath}/trace`).reply(200, { status: "completed", frames: [] });
+    harness.mockHttp.onGet(`${projectPath}/trace/watch`).reply(200, { truncated, series: [] });
+
+    const data = dataOf<any>(await executeTool("watch_trace_cells", {
+      projectId, tableId: "calc_42", cells: ["$BankRating"],
+    }, harness.client));
+
+    expect(data.note).toContain(note);
+  });
+
+  it("openl_watch_trace_cells tells a cell a stopped run may not have reached and the error it stopped on", async () => {
+    harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply(204);
+    harness.mockHttp.onPut(`${projectPath}/trace/watches`).reply(204);
+    harness.mockHttp.onPost(`${projectPath}/trace`).reply(200, {
+      status: "suspended", frames: [], error: { summary: "Division by zero" },
+    });
+    harness.mockHttp.onGet(`${projectPath}/trace/watch`).reply(200, {
+      series: [{ name: "$Factor", table: "Rates", total: 1, points: [{ instance: 0, value: { name: "$Factor", value: 2 } }] }],
+    });
+
+    const data = dataOf<any>(await executeTool("watch_trace_cells", {
+      projectId, tableId: "calc_42", cells: ["$Factor", "$BankRating"],
+    }, harness.client));
+
+    // The run stopped before it may have reached the cell, so the name is only possibly wrong
+    expect(data.note).toContain("No value of '$BankRating' was captured before the capture ended");
+    expect(data.note).not.toContain("computed no cell");
+    expect(data.note).toContain("stopped before its end, suspended");
+    expect(data).toMatchObject({ status: "suspended", error: { summary: "Division by zero" } });
   });
 
   it("openl_watch_trace_cells marks a series cut to its first points, though the run stayed under its capture limit", async () => {
