@@ -257,6 +257,16 @@ describe("trace tools", () => {
     expect(textOf(result)).toContain("completed");
   });
 
+  it("openl_resume_trace with attach returns a stop the run reached after a timeout, without resuming past it", async () => {
+    harness.mockHttp.onGet(`${projectPath}/trace/status`).reply(200, { status: "suspended" });
+    harness.mockHttp.onGet(`${projectPath}/trace/stack`).reply(200, suspendedStack);
+
+    const result = await executeTool("resume_trace", { projectId, attach: true }, harness.client);
+
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+    expect(dataOf<{ status: string }>(result).status).toBe("suspended");
+  });
+
   it("openl_resume_trace rejects the resume 409 when the session is terminal (not merely running)", async () => {
     harness.mockHttp.onPost(`${projectPath}/trace/resume`).reply(409, { message: "trace.execution.not.suspended.message" });
     harness.mockHttp.onGet(`${projectPath}/trace/status`).reply(200, { status: "completed" });

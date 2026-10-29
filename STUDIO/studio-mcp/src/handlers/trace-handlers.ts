@@ -318,7 +318,7 @@ export function registerTraceHandlers(): void {
     description:
       "Resume the suspended debug session and wait (inside this call — no agent-side polling) until it stops again: at the next breakpoint, at an exception, or at completion. Unlike openl_step_trace(out), which only runs the current frame to its exit, resume runs to the NEXT breakpoint or the end. " +
       "Returns the stack (compact — steps for the active frame only) at the stop; on a terminal 'error' status it carries the structured 'error', and on 'completed' of a profiling run the constant-size 'profile' overview (set includeTree: true for the one-level 'tree' root, then drill in with openl_expand_trace_tree). " +
-      "On timeout (default 30s) the still-running status is returned — call openl_resume_trace again to keep waiting (it re-attaches without re-resuming), or openl_stop_trace to give up.",
+      "On timeout (default 30s) the still-running status is returned — call openl_resume_trace again with attach: true to keep waiting without resuming again, as the run may have stopped meanwhile, or openl_stop_trace to give up.",
     schema: schemas.resumeTraceSchema,
     annotations: {
       openWorldHint: true,
@@ -326,8 +326,11 @@ export function registerTraceHandlers(): void {
     handler: async (args, client, extra): Promise<ToolResponse> => {
       const timeoutMs = args.timeoutMs ?? DEFAULT_RESUME_TIMEOUT_MS;
 
+      // Attaching waits for the run an earlier call resumed: resuming again would run past a stop it reached since
       try {
-        await client.traceResume(args.projectId);
+        if (!args.attach) {
+          await client.traceResume(args.projectId);
+        }
       } catch (error) {
         // Re-attach path: a previous resume timed out and the worker is still
         // running — the 409 then only means "not suspended", so fall through
@@ -365,7 +368,7 @@ export function registerTraceHandlers(): void {
           status: outcome.stillRunning,
           message:
             `Trace is still ${outcome.stillRunning} after waiting ${Math.round(timeoutMs / 1000)}s — the rule may be computing or looping. ` +
-            `Call openl_resume_trace again to keep waiting (optionally with a larger timeoutMs), or openl_stop_trace to terminate.`,
+            `Call openl_resume_trace again with attach: true to keep waiting (optionally with a larger timeoutMs), or openl_stop_trace to terminate.`,
         };
         return formatResult(timedOut);
       }
