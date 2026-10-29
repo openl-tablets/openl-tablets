@@ -218,6 +218,7 @@ export function registerTableHandlers(): void {
       "Create a table from its whole RawSource matrix of cells in the module moduleName, or in a new module at modulePath, an .xlsx path. Build the grid as the OpenL guides (openl_get_guides) describe it, or copy the source of a table, covered cells and spans included. Values are scalars or one-dimensional arrays of scalars; cell styles are refused. The answer describes the table, not its compilation: call openl_project_status afterwards.",
     schema: schemas.createProjectTableSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {

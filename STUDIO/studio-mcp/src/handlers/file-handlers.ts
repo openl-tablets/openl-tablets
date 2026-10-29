@@ -137,6 +137,7 @@ export function registerFileHandlers(): void {
       "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, which needs curl 7.76 or newer, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -236,6 +237,7 @@ export function registerFileHandlers(): void {
       "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
     schema: schemas.fileTransferSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: transferHandler("copy", "Copied", " (copy has no overwrite option)"),

@@ -279,6 +279,7 @@ export function registerTraceHandlers(): void {
       "Start a debug session for a table and run to its first stop; the answer is the stack: the status and the frames from the root to the current one. stopAtEntry, true by default, stops at the entry of the first frame; go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame. A test table takes testRanges (such as '2'), which a replay does not remember, a rule its inputJson; with neither, the input of the previous run is replayed. profiling: true with stopAtEntry: false and breakpoints: [] completes the run in this call (left out, breakpoints keeps the set of the session) and answers 'profile', of a constant size: the slowest tables (hotspots with selfMillis, totalMillis and count), nodeCount, distinctTables and totalMillis. Pass the input with every profiling call: a replay of a run that did not profile answers the whole stack, which can exceed the response limit. includeTree: true adds the root of the executed call tree, one level deep, which openl_expand_trace_tree walks. A user has one session: a new start ends the previous one, and an idle one ends after about 10 minutes.",
     schema: schemas.startTraceSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -308,6 +309,7 @@ export function registerTraceHandlers(): void {
       "(openl_resume_trace differs: it runs to the next breakpoint or completion, not just to this frame's exit.)",
     schema: schemas.stepTraceSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -338,6 +340,7 @@ export function registerTraceHandlers(): void {
       "On timeout (default 30s) the still-running status is returned — call openl_resume_trace again with attach: true to keep waiting without resuming again, as the run may have stopped meanwhile, or openl_stop_trace to give up.",
     schema: schemas.resumeTraceSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {
@@ -459,6 +462,7 @@ export function registerTraceHandlers(): void {
       "Works without a session — set breakpoints before openl_start_trace; changes during a session apply at the next frame enter or line change.",
     schema: schemas.setTraceBreakpointsSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -538,6 +542,7 @@ export function registerTraceHandlers(): void {
       "Terminate the debug session and free its worker and lazy-value registry. Idempotent — succeeds even when no session is active. Breakpoints survive (they are session-scoped, not run-scoped).",
     schema: schemas.projectOnlySchema,
     annotations: {
+      destructiveHint: false,
       idempotentHint: true,
       openWorldHint: true,
     },
@@ -556,6 +561,7 @@ export function registerTraceHandlers(): void {
       "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, label, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. A series lists its first 100 points: one marked 'truncated' leaves later executions out, which its 'total' counts, and a 'note' tells when the run reached its capture limit, after which the totals count only what it captured. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
     schema: schemas.watchTraceCellsSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
