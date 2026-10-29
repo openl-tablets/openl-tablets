@@ -354,12 +354,14 @@ OpenL Studio and where the server keeps its state; the
   (`PORT=0`), and calls OpenL Studio at the address `McpProxyServlet` passes with every request in `OpenL-Base-Url`.
   Studio reads the port from the end of the line the server logs once it listens, `listening on <host>, port <port>`:
   keep it.
-- Every call to OpenL Studio names its caller back: the `OpenL-Client-Address` of the request to the server, with the
-  secret of the run (`OPENL_MCP_SECRET`) in `OpenL-Mcp-Secret` (`callerHeaders` of `auth.ts`). The audit log of Studio
-  records what the client does with that address, which it takes only with the secret. Never send the secret
-  anywhere else. Studio passes each request on with the secret too, and the server refuses a request to `/mcp`
-  without it with `403` (`comesThroughStudio` of `http-server.ts`), so another local process cannot name the address
-  the secret goes to. A server run without a secret takes every request.
+- Every call to OpenL Studio names its caller back: the `OpenL-Client-Address` of the request to the server and the
+  `clientInfo` of the MCP client in `OpenL-Mcp-Client`, with the secret of the run (`OPENL_MCP_SECRET`) in
+  `OpenL-Mcp-Secret` (`callerHeaders` of `auth.ts`). A session takes the `clientInfo` of its `initialize` request; a
+  tool call of the stateless protocol takes the one of its `_meta` envelope (`clientInfoOf` of `mcp-core.ts`). The
+  audit log of Studio records what the client does with that address and name, which it takes only with the secret.
+  Never send the secret anywhere else. Studio passes each request on with the secret too, and the server refuses a
+  request to `/mcp` without it with `403` (`comesThroughStudio` of `http-server.ts`), so another local process cannot
+  name the address the secret goes to. A server run without a secret takes every request.
 - The package is private: it ships only inside OpenL Studio and has no release line of its own.
 
 ### Running and debugging

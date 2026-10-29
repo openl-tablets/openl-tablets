@@ -54,6 +54,7 @@ import org.openl.studio.audit.model.AuditQuery;
 import org.openl.studio.audit.model.AuditSubjectType;
 import org.openl.studio.audit.model.AuditTargetType;
 import org.openl.studio.config.AsyncExecutors;
+import org.openl.studio.mcp.McpCallsAccess;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
 
 @SpringJUnitConfig(classes = {DBTestConfiguration.class, AuditServiceTest.Config.class})
@@ -122,6 +123,36 @@ class AuditServiceTest {
         assertEquals(AuditOutcome.SUCCESS, event.outcome());
         assertEquals(Map.of("reason", "expired"), event.details());
         assertTrue(event.time().isAfter(Instant.now().minusSeconds(60)));
+    }
+
+    @Test
+    void tellsAnActionMadeThroughTheMcpServerAndNamesItsClient() {
+        signIn("jdoe");
+        var request = new MockHttpServletRequest();
+        request.setRemoteAddr("10.0.0.5");
+        request.addHeader("OpenL-Mcp-Secret", McpCallsAccess.newSecret());
+        request.addHeader("OpenL-Client-Address", "203.0.113.7");
+        request.addHeader("OpenL-Mcp-Client", "claude-code 2.1.0");
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+        auditService.recordEvent(AuditEvent.builder()
+                .action(AuditAction.PROJECT_DELETED)
+                .details(Map.of("comment", "Removed"))
+                .build());
+        request.removeHeader("OpenL-Mcp-Client");
+        auditService.recordEvent(AuditEvent.builder().action(AuditAction.PROJECT_SAVED).build());
+        request.addHeader("OpenL-Mcp-Client", "a".repeat(150));
+        auditService.recordEvent(AuditEvent.builder().action(AuditAction.PROJECT_COPIED).build());
+
+        var events = all();
+        var saved = only(events.stream().filter(event -> event.action() == AuditAction.PROJECT_SAVED).toList());
+        assertEquals(Map.of(AuditService.VIA, AuditService.VIA_MCP), saved.details(), "A client that named itself not");
+        var deleted = only(events.stream().filter(event -> event.action() == AuditAction.PROJECT_DELETED).toList());
+        assertEquals("203.0.113.7", deleted.clientAddress());
+        assertEquals(Map.of("comment", "Removed", AuditService.VIA, AuditService.VIA_MCP,
+                AuditService.MCP_CLIENT, "claude-code 2.1.0"), deleted.details());
+        var copied = only(events.stream().filter(event -> event.action() == AuditAction.PROJECT_COPIED).toList());
+        assertEquals("a".repeat(99) + "…", copied.details().get(AuditService.MCP_CLIENT), "A long name is cut");
     }
 
     @Test

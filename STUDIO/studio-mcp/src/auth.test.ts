@@ -8,6 +8,7 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
 import { MockHttp } from "./testing/mock-http.js";
 import { OpenLClient } from "./client.js";
+import { callerHeaders } from "./auth.js";
 import type { OpenLConfig } from "./types.js";
 
 /** The `Authorization` header a client of `config` sends. */
@@ -59,5 +60,27 @@ describe("authentication of the calls to OpenL Studio", () => {
     await expect(client.listRepositories()).rejects.toMatchObject({ kind: "status" });
 
     expect(errors.mock.calls.map(([line]) => String(line))).toContain("[Auth] 401 Unauthorized: Unauthorized (No Auth)");
+  });
+});
+
+describe("the caller a call to OpenL Studio names", () => {
+  it("is named with the secret of the server alone", () => {
+    expect(callerHeaders(undefined, "203.0.113.7", { name: "claude-code", version: "2.1.0" })).toEqual({});
+    expect(callerHeaders("s3cret", undefined)).toEqual({ "OpenL-Mcp-Secret": "s3cret" });
+    expect(callerHeaders("s3cret", "203.0.113.7", { name: "claude-code", version: "2.1.0" })).toEqual({
+      "OpenL-Mcp-Secret": "s3cret",
+      "OpenL-Client-Address": "203.0.113.7",
+      "OpenL-Mcp-Client": "claude-code 2.1.0",
+    });
+  });
+
+  it("names the client as a header can carry it", () => {
+    const named = (name: string, version?: string): string | undefined =>
+      callerHeaders("s3cret", undefined, { name, version })["OpenL-Mcp-Client"];
+
+    expect(named("Cursor")).toBe("Cursor");
+    expect(named("Клиент", "1\n2")).toBe("?????? 1?2");
+    expect(named("a".repeat(150), "1.0")).toBe("a".repeat(100));
+    expect(named(" ")).toBeUndefined();
   });
 });

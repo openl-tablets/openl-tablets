@@ -15,7 +15,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/server";
 import type { McpServer } from "@modelcontextprotocol/server";
 import { Client } from "@modelcontextprotocol/client";
 import { OpenLClient } from "./client.js";
-import { createConfiguredServer } from "./mcp-core.js";
+import { clientInfoOf, createConfiguredServer } from "./mcp-core.js";
 import { mcpToolName } from "./constants.js";
 import { getAllTools } from "./handlers/index.js";
 
@@ -138,5 +138,19 @@ describe("MCP core — tool-call error channel", () => {
     await expect(
       client.callTool({ name: "openl_does_not_exist", arguments: {} }),
     ).rejects.toThrow(/Tool openl_\w+ not found/);
+  });
+});
+
+describe("the client a request names in its envelope", () => {
+  it("is read from the envelope of the stateless protocol, and nothing else", () => {
+    const info = "io.modelcontextprotocol/clientInfo";
+
+    expect(clientInfoOf({ [info]: { name: "claude-code", version: "2.1.0" } }))
+      .toEqual({ name: "claude-code", version: "2.1.0" });
+    expect(clientInfoOf({ [info]: { name: "Cursor", version: 3 } })).toEqual({ name: "Cursor", version: undefined });
+    expect(clientInfoOf(undefined)).toBeUndefined();
+    expect(clientInfoOf({})).toBeUndefined();
+    expect(clientInfoOf({ [info]: { version: "1" } })).toBeUndefined();
+    expect(clientInfoOf({ [info]: "claude-code" })).toBeUndefined();
   });
 });

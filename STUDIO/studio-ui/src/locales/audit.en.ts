@@ -185,5 +185,10 @@ i18next.addResourceBundle('en', 'audit', {
         before: 'Before',
         removed: 'Removed',
         version: 'Version',
+        via: 'Through',
+        mcpClient: 'MCP client',
+    },
+    vias: {
+        mcp: 'MCP server',
     },
 })

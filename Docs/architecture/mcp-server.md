@@ -154,6 +154,10 @@ each exchange on:
 - **Secret of the run** — the servlet passes each request on with the secret of the run in `OpenL-Mcp-Secret`, and
   studio-mcp refuses a request without it with `403`. Another process that reaches the loopback port straight cannot
   name an `OpenL-Base-Url` of its own and so take the secret the calls to Studio carry.
+- **MCP client** — each call names the MCP client as well, in `OpenL-Mcp-Client`: the `clientInfo` name and version
+  the client sent in its `initialize` request (2025 protocol) or in the `_meta` envelope of the request (2026-07-28),
+  in printable ASCII and cut to 100 characters. Studio takes it with the secret alone, and the audit log adds
+  `via: mcp` and `mcpClient` to the details of the events of the call.
 - **Streaming** — the answer is copied as it comes and flushed whenever no more of it is waiting, so each event of a
   stream reaches the client when studio-mcp writes it.
 - **Limits and errors** — 5 seconds to connect and no limit on the exchange. A client that goes away fails the async

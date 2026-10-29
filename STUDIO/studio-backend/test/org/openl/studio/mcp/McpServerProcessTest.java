@@ -31,6 +31,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 
 import org.openl.info.OpenLVersion;
+import org.openl.studio.mcp.McpCalls.McpCall;
 
 /**
  * Starts fake MCP servers with the Node.js runtime found on the PATH; the tests that need it are skipped without one.
@@ -125,8 +126,8 @@ class McpServerProcessTest {
         server(true, NODE).configure(second);
 
         assertNotEquals(first.get("OPENL_MCP_SECRET"), second.get("OPENL_MCP_SECRET"));
-        assertNull(McpCalls.clientAddressOf(callOf(first.get("OPENL_MCP_SECRET"))), "The secret of a run that is over");
-        assertEquals("203.0.113.7", McpCalls.clientAddressOf(callOf(second.get("OPENL_MCP_SECRET"))));
+        assertNull(McpCalls.callOf(callOf(first.get("OPENL_MCP_SECRET"))), "The secret of a run that is over");
+        assertEquals(new McpCall("203.0.113.7", null), McpCalls.callOf(callOf(second.get("OPENL_MCP_SECRET"))));
     }
 
     /** A call of the MCP server with the given secret, for a client at 203.0.113.7. */

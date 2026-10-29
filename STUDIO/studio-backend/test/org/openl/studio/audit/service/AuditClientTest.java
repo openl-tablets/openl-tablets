@@ -18,7 +18,14 @@ import org.openl.studio.mcp.McpCallsAccess;
 
 class AuditClientTest {
 
-    private static final AuditClient NO_CLIENT = new AuditClient(null, null);
+    private static final AuditClient NO_CLIENT = AuditClient.builder().build();
+    /** The client of a request from 10.0.0.7 of a user signed in with the login form. */
+    private static final AuditClient FORM_CLIENT = AuditClient.builder()
+            .address("10.0.0.7")
+            .authentication(AuditAuthentication.FORM)
+            .build();
+    /** The client of a request from 10.0.0.7 that tells nothing of a sign-in. */
+    private static final AuditClient ADDRESS_ONLY = AuditClient.builder().address("10.0.0.7").build();
 
     @AfterEach
     void tearDown() {
@@ -33,7 +40,7 @@ class AuditClientTest {
                 List.of()));
         request("10.0.0.7");
 
-        assertEquals(new AuditClient("10.0.0.7", AuditAuthentication.FORM), AuditClient.current());
+        assertEquals(FORM_CLIENT, AuditClient.current());
     }
 
     @Test
@@ -70,7 +77,7 @@ class AuditClientTest {
         Thread.ofVirtual().start(task).join();
         task.run();
 
-        assertEquals(List.of(new AuditClient("10.0.0.7", null), new AuditClient("10.0.0.7", null)), seen);
+        assertEquals(List.of(ADDRESS_ONLY, ADDRESS_ONLY), seen);
         assertEquals(NO_CLIENT, AuditClient.current());
     }
 
@@ -102,7 +109,7 @@ class AuditClientTest {
         AuditClient.runAsApplication(() -> seen.add(AuditClient.current()));
 
         assertEquals(List.of(NO_CLIENT), seen);
-        assertEquals(new AuditClient("10.0.0.7", AuditAuthentication.FORM), AuditClient.current());
+        assertEquals(FORM_CLIENT, AuditClient.current());
     }
 
     private static MockHttpServletRequest request(String address) {

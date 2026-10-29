@@ -117,23 +117,58 @@ describe("createHttpSessionClient", () => {
     }
   });
 
-  it("names no caller without the secret of the server or without the address", async () => {
+  it("names no caller without the secret of the server", async () => {
     vi.stubEnv("OPENL_MCP_SECRET", "");
     try {
-      const without = [
-        createHttpSessionClient("http://127.0.0.1:8080", headers({ "openl-client-address": "203.0.113.7" })),
-      ];
-      vi.stubEnv("OPENL_MCP_SECRET", "s3cret");
-      without.push(createHttpSessionClient("http://127.0.0.1:8080", headers({})));
+      const client = createHttpSessionClient(
+        "http://127.0.0.1:8080",
+        headers({ "openl-client-address": "203.0.113.7" }),
+        { name: "claude-code", version: "2.1.0" },
+      );
+      const mock = new MockHttp(client);
+      mock.onGet("/repos").reply(200, []);
 
-      for (const client of without) {
+      await client.listRepositories();
+
+      expect(Object.keys(mock.history.get[0].headers).filter((name) => name.startsWith("OpenL-"))).toEqual([]);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+});
+
+describe("the MCP client the calls to OpenL Studio are made for", () => {
+  it.each([
+    ["legacy", {}],
+    ["modern", { versionNegotiation: { mode: { pin: "2026-07-28" as const } } }],
+  ])("is named in each call of a %s client, with the secret of the server", async (era, options) => {
+    vi.stubEnv("OPENL_MCP_SECRET", "s3cret");
+    const mocks: MockHttp[] = [];
+    await using server = await listen(createHttpApp({
+      baseUrl: "http://localhost:8080",
+      clientFactory: (baseUrl, headers, mcpClient) => {
+        const client = createHttpSessionClient(baseUrl, headers, mcpClient);
         const mock = new MockHttp(client);
         mock.onGet("/repos").reply(200, []);
-        await client.listRepositories();
-        expect(mock.history.get[0].headers).not.toHaveProperty("OpenL-Client-Address");
-        expect(mock.history.get[0].headers).not.toHaveProperty("OpenL-Mcp-Secret");
+        mocks.push(mock);
+        return client;
+      },
+    }));
+    const client = new Client({ name: "claude-code", version: "2.1.0" }, options);
+    try {
+      await client.connect(new StreamableHTTPClientTransport(mcpUrl(server), { requestInit: { headers: fromStudio } }));
+      expect(client.getProtocolEra()).toBe(era);
+
+      await client.callTool({ name: "openl_list_repositories", arguments: {} });
+
+      const calls = mocks.flatMap((mock) => mock.history.get);
+      expect(calls.length).toBeGreaterThan(0);
+      for (const call of calls) {
+        expect(call.headers["OpenL-Mcp-Client"]).toBe("claude-code 2.1.0");
+        expect(call.headers["OpenL-Mcp-Secret"]).toBe("s3cret");
       }
     } finally {
+      await client.close();
       vi.unstubAllEnvs();
     }
   });

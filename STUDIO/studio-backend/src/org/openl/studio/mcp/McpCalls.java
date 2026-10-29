@@ -20,12 +20,23 @@ import org.openl.util.StringUtils;
  * {@code /mcp}. OpenL Studio names the address of that client in each request it passes to the server, and the server
  * names it back in each of its calls.
  *
+ * <p>A call names the MCP client too, by the name and the version the client reported to the server.
+ *
  * <p>Each run of the server gets a secret of its own in its environment, and sends it with each of its calls. Only a
  * request that carries the secret of the server running now is taken for one of its calls, so a client cannot claim
- * another address by sending the header itself.
+ * another address or name by sending the headers itself.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class McpCalls {
+
+    /**
+     * A call the MCP server makes for its client.
+     *
+     * @param clientAddress the address of the client, or {@code null} when the call names none
+     * @param client        the name and the version of the client, or {@code null} when the client named itself not
+     */
+    public record McpCall(@Nullable String clientAddress, @Nullable String client) {
+    }
 
     /** The variable of the environment of the server that holds its secret. */
     static final String SECRET_VARIABLE = "OPENL_MCP_SECRET";
@@ -33,6 +44,8 @@ public final class McpCalls {
     static final String SECRET_HEADER = "OpenL-Mcp-Secret";
     /** The header that names the address of the client: in a request to the server, and in a call of the server. */
     static final String CLIENT_ADDRESS_HEADER = "OpenL-Client-Address";
+    /** The header a call of the server names its client in. */
+    static final String CLIENT_HEADER = "OpenL-Mcp-Client";
 
     private static final int SECRET_BYTES = 32;
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -53,12 +66,13 @@ public final class McpCalls {
         return SECRET.get();
     }
 
-    /**
-     * The address of the client of the MCP server a request is a call for, or null when the request is no call of the
-     * running MCP server or names no address.
-     */
-    public static @Nullable String clientAddressOf(HttpServletRequest request) {
-        return isCallOfServer(request) ? StringUtils.trimToNull(request.getHeader(CLIENT_ADDRESS_HEADER)) : null;
+    /** The call of the running MCP server a request is, or null when it is none. */
+    public static @Nullable McpCall callOf(HttpServletRequest request) {
+        if (!isCallOfServer(request)) {
+            return null;
+        }
+        return new McpCall(StringUtils.trimToNull(request.getHeader(CLIENT_ADDRESS_HEADER)),
+                StringUtils.trimToNull(request.getHeader(CLIENT_HEADER)));
     }
 
     /** Whether a request carries the secret of the server running now. */
