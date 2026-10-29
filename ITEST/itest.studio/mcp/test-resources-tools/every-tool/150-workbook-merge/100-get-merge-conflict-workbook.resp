@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"file\":\"McpTools/rules/Main.xlsx\",\"palette\":false,\"sheets\":[{\"name\":\"Rules\",\"status\":\"conflict\",\"inVersions\":{\"ours\":true,\"base\":true,\"theirs\":true},\"tables\":[{\"id\":\"Rules/B2:C6\",\"name\":\"SimpleRules Double AgeFactor(Integer age)\",\"reason\":\"cells\",\"byCells\":true,\"ranges\":{\"ours\":\"B2:C6\",\"base\":\"B2:C6\",\"theirs\":\"B2:C6\",\"merged\":\"B2:C6\"},\"conflictCells\":[{\"row\":2,\"column\":1,\"cell\":\"C4\",\"ourCell\":\"C4\",\"theirCell\":\"C4\",\"ours\":{\"cell\":\"C4\",\"value\":1.4},\"theirs\":{\"cell\":\"C4\",\"value\":1.6}}]}]}]}}"
+        "text": "{\"data\":{\"file\":\"McpTools/rules/Main.xlsx\",\"palette\":false,\"sheets\":[{\"name\":\"Rules\",\"status\":\"conflict\",\"inVersions\":{\"ours\":true,\"base\":true,\"theirs\":true},\"tables\":[{\"id\":\"Rules/B2:C6\",\"name\":\"SimpleRules Double AgeFactor(Integer age)\",\"reason\":\"cells\",\"byCells\":true,\"ranges\":{\"ours\":\"B2:C6\",\"base\":\"B2:C6\",\"theirs\":\"B2:C6\",\"merged\":\"B2:C6\"},\"conflictCells\":[{\"row\":2,\"column\":1,\"cell\":\"C4\",\"ours\":{\"value\":1.4},\"theirs\":{\"value\":1.6}}]}]}]}}"
       }
     ],
     "resultType": "complete",

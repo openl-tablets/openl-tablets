@@ -290,7 +290,11 @@ anonymous (single-user Studio).
   `alreadyOpen`; a save whether it `saved` — false with nothing to save — and, when `closeAfterSave` asked for it, that
   it `closed`; a close that it `closed`, with `saved` or `discarded`; a local-change restore the `historyId` it
   `restored`; a merge-conflict cancellation that it `cancelled`; a project creation or copy its `projectId`, `branch`
-  and `revision`; a branch creation and a deploy the branch `created`, the deployment `deployed` or `redeployed`.
+  and `revision`; a branch creation and a deploy the branch `created`, the deployment `deployed` or `redeployed`. A
+  merge answers its `summary`, or the conflicts with a one-line `nextAction`; a branch deletion the branch, its
+  divergence, its base branch and any risk it accepted.
+- A cell of a conflicted workbook names no A1 address of its own, as its place in the grid and the range of its version
+  give it; a conflict cell names `ourCell` and `theirCell` only where a version moved it.
 
 - Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output.
 - Only the tools whose answer has a Markdown view of its own take `response_format`: `openl_list_repositories`, `openl_list_projects`, `openl_list_tables`, `openl_list_deployments`, `openl_get_table_dependencies` and `openl_get_test_results`. Every other tool answers JSON, which a Markdown format would only wrap in a code block, and refuses the argument: its schema in every session of every agent would cost more than the answer it changes.

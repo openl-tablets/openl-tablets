@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"branch\":\"feature\",\"forced\":false,\"safety\":{\"currentBranch\":\"feature\",\"divergenceStatus\":\"unmerged\",\"projectStatus\":\"OPENED\",\"unsavedChanges\":false,\"baseBranch\":\"master\",\"mergeCheck\":{\"sourceBranch\":\"feature\",\"targetBranch\":\"master\",\"status\":\"mergeable\",\"canMerge\":true,\"scope\":{\"projects\":[{\"id\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"path\":\"McpTools\",\"current\":true,\"status\":\"modified\",\"changedFiles\":1,\"changedInBoth\":[\"McpTools/docs/notes.txt\"]}],\"hiddenProjects\":0}},\"reason\":\"Branch 'feature' has commits that are not merged into base branch 'master'.\"},\"dataLossConfirmed\":true,\"message\":\"Deleted branch 'feature'.\"}}"
+        "text": "{\"data\":{\"deleted\":\"feature\",\"divergenceStatus\":\"unmerged\",\"baseBranch\":\"master\",\"dataLossConfirmed\":true,\"reason\":\"Branch 'feature' has commits that are not merged into base branch 'master'.\"}}"
       }
     ],
     "resultType": "complete",

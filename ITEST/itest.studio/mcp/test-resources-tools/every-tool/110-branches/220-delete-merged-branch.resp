@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"branch\":\"hotfix\",\"forced\":false,\"safety\":{\"currentBranch\":\"hotfix\",\"divergenceStatus\":\"up-to-date\",\"projectStatus\":\"OPENED\",\"unsavedChanges\":false,\"baseBranch\":\"master\",\"mergeCheck\":{\"sourceBranch\":\"hotfix\",\"targetBranch\":\"master\",\"status\":\"up-to-date\",\"canMerge\":true}},\"dataLossConfirmed\":false,\"message\":\"Deleted branch 'hotfix'.\"}}"
+        "text": "{\"data\":{\"deleted\":\"hotfix\",\"divergenceStatus\":\"up-to-date\",\"baseBranch\":\"master\"}}"
       }
     ],
     "resultType": "complete",
