@@ -8,9 +8,9 @@ import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { formatPage } from "../formatters.js";
 import { IN_PLACE_NOTE, isEditedInPlace, sanitizeError } from "../utils.js";
-import { isNotFoundError } from "../http.js";
+import { isConflictError, isNotFoundError } from "../http.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText, uploadLink } from "../transfer-links.js";
-import { registerTool, formatResult, rethrowConflictAsActionable, textResult, type ToolResponse } from "./common.js";
+import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
 
 /**
  * Where a search starts. Studio takes `from` only for an ANCESTORS search and walks a SUBTREE search from the root of
@@ -105,7 +105,8 @@ export function registerFileHandlers(): void {
         branch: args.branch,
         version: args.version,
       }).catch((error: unknown) => (args.version === undefined
-        ? rethrowConflictAsActionable(error, `A file is already at '${args.path}', and nothing was written. To replace it, read it with openl_read_project_file and pass the 'version' it answers.`)
+        ? rethrowWhenFileExists(error, client, args.projectId, args.path, args.branch,
+          `A file is already at '${args.path}', and nothing was written. To replace it, read it with openl_read_project_file and pass the 'version' it answers.`)
         : Promise.reject(error)));
       const branch = args.branch ? { branch: args.branch } : {};
 
@@ -260,6 +261,25 @@ async function isFile(client: OpenLClient, projectId: string, path: string, bran
     .then(() => true, (error: unknown) => (isNotFoundError(error) ? false : Promise.reject(error)));
 }
 
+/**
+ * Rethrow the 409 of a write at `path` as `message` when a file is there: Studio tells that cause in no words of its
+ * own. Any other 409 — a project another user locked, a file where a folder of the path should be — passes on with
+ * the reason Studio gives.
+ */
+async function rethrowWhenFileExists(
+  error: unknown,
+  client: OpenLClient,
+  projectId: string,
+  path: string,
+  branch: string | undefined,
+  message: string,
+): Promise<never> {
+  if (isConflictError(error) && await isFile(client, projectId, path, branch)) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidRequest, message);
+  }
+  throw error;
+}
+
 /** The note beside the text of a file read inline: its version, which a replacement or a deletion names back. */
 function versionNote(version: string | undefined): { type: "text"; text: string }[] {
   return version === undefined ? [] : [{
@@ -372,8 +392,8 @@ function transferHandler(
         { branch: args.branch },
       );
     } catch (error) {
-      rethrowConflictAsActionable(
-        error,
+      await rethrowWhenFileExists(
+        error, client, args.projectId, args.destinationPath, args.branch,
         `Cannot ${action} to '${args.destinationPath}': a file already exists there${conflictNote}. ` +
           `Choose a different destinationPath, or delete the existing file first with openl_delete_project_file.`
       );
