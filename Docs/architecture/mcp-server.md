@@ -104,8 +104,8 @@ sequenceDiagram
     C->>S: POST /mcp, Authorization: Token <pat> (none in single mode)
     S->>S: check the credentials as for /rest, 401 when they are not valid
     S->>P: the request
-    P->>N: the method, path, query, headers and body, with OpenL-Base-Url and OpenL-Public-Url
-    N->>R: /rest/... at OpenL-Base-Url, with the same Authorization
+    P->>N: the request as it came, with OpenL-Base-Url, OpenL-Public-Url, OpenL-Client-Address, OpenL-Mcp-Secret
+    N->>R: /rest/... at OpenL-Base-Url, with the same Authorization, OpenL-Client-Address and the secret of the run
     R-->>N: JSON, or 202 notReady while Studio works
     N->>R: read the result again until it is ready
     N-->>P: the tool result, as JSON or an event stream
@@ -145,6 +145,15 @@ each exchange on:
 - **Public address** — `OpenL-Public-Url` tells studio-mcp the address of Studio the client opened: the URL of the
   request as `ForwardedHeaderFilter` restores it from `X-Forwarded-*`, cut at the context path. The filter hides the
   forwarded headers from the webapp, so studio-mcp gets none of them.
+- **Client address** — `OpenL-Client-Address` tells studio-mcp the address of its client, the remote address of the
+  request, which the container restores behind a proxy. studio-mcp calls the REST API itself, from the address of
+  Studio, so it names that address back in each call, with the secret Studio gave its run in `OPENL_MCP_SECRET`
+  (`OpenL-Mcp-Secret`). Studio takes the address only from a call that carries the secret of the run of now
+  (`McpCalls`), and the audit log records it as the address of the client. Each of the three headers replaces one of
+  the same name the client sent.
+- **Secret of the run** — the servlet passes each request on with the secret of the run in `OpenL-Mcp-Secret`, and
+  studio-mcp refuses a request without it with `403`. Another process that reaches the loopback port straight cannot
+  name an `OpenL-Base-Url` of its own and so take the secret the calls to Studio carry.
 - **Streaming** — the answer is copied as it comes and flushed whenever no more of it is waiting, so each event of a
   stream reaches the client when studio-mcp writes it.
 - **Limits and errors** — 5 seconds to connect and no limit on the exchange. A client that goes away fails the async
@@ -196,7 +205,7 @@ sequenceDiagram
     J->>S: contextInitialized
     S->>S: refresh(): security chains, REST
     S->>L: start()
-    L->>N: node WEB-INF/mcp/index.mjs (PORT=0, HOST=127.0.0.1, OPENL_VERSION, OTEL_SDK_DISABLED, OTEL_SERVICE_NAME)
+    L->>N: node WEB-INF/mcp/index.mjs (PORT=0, HOST=127.0.0.1, OPENL_VERSION, OPENL_MCP_SECRET, OTEL_*)
     N-->>L: stdout: listening on 127.0.0.1, port <port>
     Note over J,N: serving traffic
     S->>L: destroy() — the settings changed, the refresh destroys the beans
@@ -235,6 +244,9 @@ The bean passes studio-mcp its configuration in the environment, on top of the e
 - **`PORT`** — `0`, any free port;
 - **`HOST`** — `127.0.0.1`, so only the loopback interface reaches the server;
 - **`OPENL_VERSION`** — the version of Studio, which the server reports in `serverInfo`;
+- **`OPENL_MCP_SECRET`** — a random secret of this run, which the calls of the server to the REST API carry, so Studio
+  tells them from any other request, and which the requests Studio passes on carry, so the server takes no other
+  (see [The `/mcp` servlet](#32-the-mcp-servlet));
 - **`NODE_USE_ENV_PROXY`** — removed, so that Node.js does not send the calls to Studio through the proxy of the
   environment;
 - **`OTEL_SDK_DISABLED`** — `false` when Studio sends traces or metrics, `true` otherwise, so the server loads the

@@ -108,6 +108,8 @@ interface HttpClientOptions {
   /** Milliseconds a request may take unless it names its own timeout. */
   timeout: number;
   headers?: Record<string, string>;
+  /** Headers read anew for every request, on top of `headers`. */
+  headersOf?: () => Record<string, string>;
   /** Called with every failed request before it is thrown. */
   onError?: (error: HttpError) => void;
 }
@@ -226,7 +228,7 @@ export class HttpClient {
     data: unknown,
     options: HttpRequestOptions = {},
   ): Promise<HttpResponse<T>> {
-    const headers = { ...this.options.headers, ...options.headers };
+    const headers = { ...this.options.headers, ...this.options.headersOf?.(), ...options.headers };
     const request: HttpRequest = {
       ...options,
       method,

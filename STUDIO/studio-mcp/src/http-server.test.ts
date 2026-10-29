@@ -31,6 +31,11 @@ function mcpUrl(server: HttpServer): URL {
   return new URL(`http://127.0.0.1:${(server.address() as AddressInfo).port}/mcp`);
 }
 
+/** The headers of a request that sends JSON and takes JSON or an event stream. */
+const json = { "content-type": "application/json", accept: "application/json, text/event-stream" };
+/** The header OpenL Studio passes a request on with, for the secret `s3cret` of the run. */
+const fromStudio = { "openl-mcp-secret": "s3cret" };
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -95,6 +100,43 @@ describe("createHttpSessionClient", () => {
 
     expect(mock.history.get[0].headers.Authorization).toBe("Bearer eyJ.payload.sig");
   });
+
+  it("names the address of its caller back to OpenL Studio, with the secret of the server alone", async () => {
+    vi.stubEnv("OPENL_MCP_SECRET", "s3cret");
+    try {
+      const client = createHttpSessionClient("http://127.0.0.1:8080", headers({ "openl-client-address": "203.0.113.7" }));
+      const mock = new MockHttp(client);
+      mock.onGet("/repos").reply(200, []);
+
+      await client.listRepositories();
+
+      expect(mock.history.get[0].headers["OpenL-Client-Address"]).toBe("203.0.113.7");
+      expect(mock.history.get[0].headers["OpenL-Mcp-Secret"]).toBe("s3cret");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("names no caller without the secret of the server or without the address", async () => {
+    vi.stubEnv("OPENL_MCP_SECRET", "");
+    try {
+      const without = [
+        createHttpSessionClient("http://127.0.0.1:8080", headers({ "openl-client-address": "203.0.113.7" })),
+      ];
+      vi.stubEnv("OPENL_MCP_SECRET", "s3cret");
+      without.push(createHttpSessionClient("http://127.0.0.1:8080", headers({})));
+
+      for (const client of without) {
+        const mock = new MockHttp(client);
+        mock.onGet("/repos").reply(200, []);
+        await client.listRepositories();
+        expect(mock.history.get[0].headers).not.toHaveProperty("OpenL-Client-Address");
+        expect(mock.history.get[0].headers).not.toHaveProperty("OpenL-Mcp-Secret");
+      }
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });
 
 describe("HTTP MCP transport protocol negotiation", () => {
@@ -146,7 +188,6 @@ describe("HTTP MCP transport protocol negotiation", () => {
 });
 
 describe("idle legacy sessions", () => {
-  const json = { "content-type": "application/json", accept: "application/json, text/event-stream" };
   const inSession = (sessionId: string) => ({ "mcp-session-id": sessionId, "mcp-protocol-version": "2025-11-25" });
 
   /** Opens a session the way a 2025-11-25 client does, and answers its ID. */
@@ -213,6 +254,83 @@ describe("idle legacy sessions", () => {
     } finally {
       // The open stream would keep the server from closing.
       stream.abort();
+    }
+  });
+
+  it("names to OpenL Studio the address each request of a session comes from", async () => {
+    vi.stubEnv("OPENL_MCP_SECRET", "s3cret");
+    const mocks: MockHttp[] = [];
+    await using server = await listen(createHttpApp({
+      baseUrl: "http://localhost:8080",
+      clientFactory: (baseUrl, headers) => {
+        const client = createHttpSessionClient(baseUrl, headers);
+        const mock = new MockHttp(client);
+        mock.onGet("/repos").reply(200, []);
+        mocks.push(mock);
+        return client;
+      },
+    }));
+    const url = mcpUrl(server);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { ...json, ...fromStudio, "openl-client-address": "10.0.0.5" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "initialize",
+          params: { protocolVersion: "2025-11-25", capabilities: {}, clientInfo: { name: "roaming", version: "1.0.0" } },
+        }),
+      });
+      await response.text();
+      const sessionId = response.headers.get("mcp-session-id") ?? "";
+
+      const call = await fetch(url, {
+        method: "POST",
+        headers: { ...json, ...fromStudio, ...inSession(sessionId), "openl-client-address": "10.0.0.9" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 2,
+          method: "tools/call",
+          params: { name: "openl_list_repositories", arguments: {} },
+        }),
+      });
+      await call.text();
+
+      const calls = mocks.flatMap((mock) => mock.history.get);
+      expect(calls.length).toBeGreaterThan(0);
+      expect(calls.map((sent) => sent.headers["OpenL-Client-Address"])).toEqual(calls.map(() => "10.0.0.9"));
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+});
+
+describe("requests that do not come through OpenL Studio", () => {
+  it.each([
+    ["no secret", {}],
+    ["another secret", { "openl-mcp-secret": "guessed" }],
+  ])("are refused with %s, so the secret is sent to no address they name", async (_, secret) => {
+    vi.stubEnv("OPENL_MCP_SECRET", "s3cret");
+    const clientFactory = vi.fn(createHttpSessionClient);
+    await using server = await listen(createHttpApp({ clientFactory }));
+    try {
+      const response = await fetch(mcpUrl(server), {
+        method: "POST",
+        headers: { ...json, ...secret, "openl-base-url": "http://127.0.0.1:9" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "initialize",
+          params: { protocolVersion: "2025-11-25", capabilities: {}, clientInfo: { name: "local", version: "1.0.0" } },
+        }),
+      });
+      await response.text();
+
+      expect(response.status).toBe(403);
+      expect(clientFactory).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
     }
   });
 });

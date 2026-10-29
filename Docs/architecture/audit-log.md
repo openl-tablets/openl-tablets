@@ -36,7 +36,9 @@ is never recorded; a personal access token is named by its public id.
 signed-in user, or for no one when OpenL Studio acts by itself, and with the way that user signed in
 (`AuthenticationMethods`). The address of the client comes from the current request, or from the request that started
 the task recording the event (`AuditClient`): behind a proxy, it is the address the proxy forwards only when the
-container reads the forwarded headers, as the OpenL Studio image does (see [Deployment](../DEPLOYMENT.md)). The event is
+container reads the forwarded headers, as the OpenL Studio image does (see [Deployment](../DEPLOYMENT.md)). A call the
+built-in MCP server makes for its client names the address of that client, which Studio passed it, with the secret of
+the run of the server (`McpCalls`, see [Built-in MCP Server](mcp-server.md)). The event is
 saved in the transaction of the caller, so a change and its event are saved together, and an event of a change that is
 rolled back is rolled back too. Outside a transaction the event is saved at once.
 

@@ -34,8 +34,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * {@link McpServerProcess}.
  *
  * <p>The server calls OpenL Studio at the address in the {@code OpenL-Base-Url} header and learns the address of
- * OpenL Studio the client opened from the {@code OpenL-Public-Url} header. A request is answered with {@code 502}
- * when the server cannot be reached.
+ * OpenL Studio the client opened from the {@code OpenL-Public-Url} header, and the address of the client from the
+ * {@code OpenL-Client-Address} header, which it names back in its calls ({@link McpCalls}). Each of them replaces the
+ * header of the same name the client sent.
+ *
+ * <p>Each request carries the secret of the run of the server in the {@code OpenL-Mcp-Secret} header too, so the
+ * server takes only the requests OpenL Studio passes on. A request is answered with {@code 502} when the server cannot
+ * be reached.
  *
  * @author Yury Molchan
  */
@@ -128,9 +133,14 @@ final class McpProxy implements AutoCloseable {
                 Collections.list(request.getHeaders(name)).forEach(value -> builder.header(name, value));
             }
         }
-        return builder.setHeader(BASE_URL, baseUrl(request))
+        builder.setHeader(BASE_URL, baseUrl(request))
                 .setHeader(PUBLIC_URL, publicUrl(request))
-                .build();
+                .setHeader(McpCalls.CLIENT_ADDRESS_HEADER, request.getRemoteAddr());
+        var secret = McpCalls.secret();
+        if (secret != null) {
+            builder.setHeader(McpCalls.SECRET_HEADER, secret);
+        }
+        return builder.build();
     }
 
     /** The body of the request as it arrives, or none for a request that carries none. */

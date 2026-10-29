@@ -14,6 +14,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.studio.audit.model.AuditAuthentication;
+import org.openl.studio.mcp.McpCallsAccess;
 
 class AuditClientTest {
 
@@ -33,6 +34,25 @@ class AuditClientTest {
         request("10.0.0.7");
 
         assertEquals(new AuditClient("10.0.0.7", AuditAuthentication.FORM), AuditClient.current());
+    }
+
+    @Test
+    void namesTheClientOfTheMcpServerForACallTheServerMakes() {
+        var request = request("10.0.0.5");
+        request.addHeader("OpenL-Mcp-Secret", McpCallsAccess.newSecret());
+        request.addHeader("OpenL-Client-Address", "203.0.113.7");
+
+        assertEquals("203.0.113.7", AuditClient.current().address());
+    }
+
+    @Test
+    void namesTheAddressARequestComesFromWhenItClaimsAnotherOne() {
+        McpCallsAccess.newSecret();
+        var request = request("10.0.0.5");
+        request.addHeader("OpenL-Mcp-Secret", "guessed");
+        request.addHeader("OpenL-Client-Address", "203.0.113.7");
+
+        assertEquals("10.0.0.5", AuditClient.current().address());
     }
 
     @Test
@@ -85,9 +105,10 @@ class AuditClientTest {
         assertEquals(new AuditClient("10.0.0.7", AuditAuthentication.FORM), AuditClient.current());
     }
 
-    private static void request(String address) {
+    private static MockHttpServletRequest request(String address) {
         var request = new MockHttpServletRequest();
         request.setRemoteAddr(address);
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        return request;
     }
 }

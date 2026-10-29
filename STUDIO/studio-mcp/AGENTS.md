@@ -260,7 +260,8 @@ anonymous (single-user Studio).
 - The server speaks the Streamable HTTP transport at `/mcp`: the modern `2026-07-28` protocol, and the sessionful protocol of legacy 2025 clients.
 - `McpProxyServlet` of OpenL Studio passes each request on to the server once the security of Studio has checked it, and tells the server where to call Studio in the `OpenL-Base-Url` header and the address of Studio the client opened in the `OpenL-Public-Url` header.
 - Browser origins are a matter of OpenL Studio: its `cors.allowed.*` settings answer `/mcp` as `/rest`, and `cors.exposed.headers` exposes `Mcp-Session-Id` to an allowed origin for legacy clients. The server checks no `Origin`.
-- Every legacy MCP session owns a distinct `OpenLClient`. Never reuse a client across MCP sessions.
+- Every legacy MCP session owns a distinct `OpenLClient`. Never reuse a client across MCP sessions. Each request of a
+  session names the address its client calls from now (`OpenLClient.callsFrom`), as it may go on from another one.
 - Most legacy clients never close their session, so opening a session closes the others no request has used for
   `LEGACY_SESSION_IDLE_MS`, the 30-minute HTTP session timeout of Studio. A session with a request in progress, its
   stream of server messages included, is in use.
@@ -353,6 +354,12 @@ OpenL Studio and where the server keeps its state; the
   (`PORT=0`), and calls OpenL Studio at the address `McpProxyServlet` passes with every request in `OpenL-Base-Url`.
   Studio reads the port from the end of the line the server logs once it listens, `listening on <host>, port <port>`:
   keep it.
+- Every call to OpenL Studio names its caller back: the `OpenL-Client-Address` of the request to the server, with the
+  secret of the run (`OPENL_MCP_SECRET`) in `OpenL-Mcp-Secret` (`callerHeaders` of `auth.ts`). The audit log of Studio
+  records what the client does with that address, which it takes only with the secret. Never send the secret
+  anywhere else. Studio passes each request on with the secret too, and the server refuses a request to `/mcp`
+  without it with `403` (`comesThroughStudio` of `http-server.ts`), so another local process cannot name the address
+  the secret goes to. A server run without a secret takes every request.
 - The package is private: it ships only inside OpenL Studio and has no release line of its own.
 
 ### Running and debugging

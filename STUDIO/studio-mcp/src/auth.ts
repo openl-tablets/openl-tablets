@@ -15,6 +15,16 @@ export function authorizationHeaders(authorization: string | undefined): Record<
   return authorization ? { Authorization: authorization } : {};
 }
 
+/**
+ * The headers that name the client of the MCP server in a call to OpenL Studio: its address, with the secret OpenL
+ * Studio gave the server, which OpenL Studio checks before it takes the address. None without both.
+ */
+export function callerHeaders(mcpSecret: string | undefined, clientAddress: string | undefined): Record<string, string> {
+  return mcpSecret && clientAddress
+    ? { "OpenL-Mcp-Secret": mcpSecret, "OpenL-Client-Address": clientAddress }
+    : {};
+}
+
 /** Explains a 401 answer in the log: the message of OpenL Studio and the scheme of the credentials, not the secret. */
 export function logUnauthorized(error: HttpError, authorization: string | undefined): void {
   if (error.response?.status !== 401) {

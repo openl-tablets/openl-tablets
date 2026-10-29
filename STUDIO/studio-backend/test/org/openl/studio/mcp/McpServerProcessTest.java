@@ -2,6 +2,7 @@ package org.openl.studio.mcp;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.core.io.FileSystemResourceLoader;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
 
 import org.openl.info.OpenLVersion;
@@ -112,6 +114,27 @@ class McpServerProcessTest {
         server(true, NODE).configure(env);
 
         assertEquals(OpenLVersion.getVersion(), env.get("OPENL_VERSION"));
+    }
+
+    @Test
+    void givesEachRunASecretOfItsOwnThatTellsItsCalls() {
+        var first = new HashMap<String, String>();
+        var second = new HashMap<String, String>();
+
+        server(true, NODE).configure(first);
+        server(true, NODE).configure(second);
+
+        assertNotEquals(first.get("OPENL_MCP_SECRET"), second.get("OPENL_MCP_SECRET"));
+        assertNull(McpCalls.clientAddressOf(callOf(first.get("OPENL_MCP_SECRET"))), "The secret of a run that is over");
+        assertEquals("203.0.113.7", McpCalls.clientAddressOf(callOf(second.get("OPENL_MCP_SECRET"))));
+    }
+
+    /** A call of the MCP server with the given secret, for a client at 203.0.113.7. */
+    private static MockHttpServletRequest callOf(String secret) {
+        var request = new MockHttpServletRequest();
+        request.addHeader("OpenL-Mcp-Secret", secret);
+        request.addHeader("OpenL-Client-Address", "203.0.113.7");
+        return request;
     }
 
     @Test

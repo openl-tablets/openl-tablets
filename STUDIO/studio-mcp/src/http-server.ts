@@ -7,7 +7,7 @@
  * and its CORS settings have let it through.
  */
 
-import { randomUUID } from "node:crypto";
+import { randomUUID, timingSafeEqual } from "node:crypto";
 import { once } from "node:events";
 import type { AddressInfo } from "node:net";
 import {
@@ -47,6 +47,8 @@ export const LEGACY_SESSION_IDLE_MS = 30 * 60 * 1000;
 /** The session of a legacy 2025 client. */
 interface LegacySession {
   transport: NodeStreamableHTTPServerTransport;
+  /** The client of OpenL Studio the session works with. */
+  client: OpenLClient;
   /** The requests of the session in progress, its stream of server messages included. */
   inProgress: number;
   /** When the session opened, or its last request ended. */
@@ -60,6 +62,20 @@ function jsonRpcError(code: number, message: string): Record<string, unknown> {
 function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(body));
+}
+
+/**
+ * Whether a request comes through OpenL Studio. OpenL Studio passes the secret of the run (`OPENL_MCP_SECRET`) with
+ * each request it passes on, so a request another process sends to the port straight is refused: it could name an
+ * address the calls to OpenL Studio, which carry the secret, would go to. A server run without a secret takes every
+ * request.
+ */
+function comesThroughStudio(req: IncomingMessage): boolean {
+  const secret = process.env.OPENL_MCP_SECRET;
+  if (!secret) return true;
+  const sent = Buffer.from(String(req.headers["openl-mcp-secret"] ?? ""));
+  const expected = Buffer.from(secret);
+  return sent.length === expected.length && timingSafeEqual(sent, expected);
 }
 
 /** The JSON body of a request, or the answer that refuses it. */
@@ -87,19 +103,23 @@ async function readJsonBody(
 
 /**
  * The client of OpenL Studio a request to the MCP server works with, at the address of Studio the request names: the
- * `Authorization` header of the request, which OpenL Studio has checked at `/mcp`, and the address of Studio its
- * caller opened, which OpenL Studio passes in the `OpenL-Public-Url` header. Never share anonymous mutable state.
+ * `Authorization` header of the request, which OpenL Studio has checked at `/mcp`, the address of Studio its caller
+ * opened, which OpenL Studio passes in the `OpenL-Public-Url` header, and the address of the caller, which it passes in
+ * `OpenL-Client-Address` and the calls name back with the secret of the server (`OPENL_MCP_SECRET`). Never share
+ * anonymous mutable state.
  */
 export function createHttpSessionClient(baseUrl: string, headers?: Headers): OpenLClient {
   return new OpenLClient({
     baseUrl,
     authorization: headers?.get("authorization") ?? undefined,
     publicUrl: headers?.get("openl-public-url") ?? undefined,
+    clientAddress: headers?.get("openl-client-address") ?? undefined,
+    mcpSecret: process.env.OPENL_MCP_SECRET,
   });
 }
 
-/** The server of a session, built for the headers of the request that opens it. */
-type SessionServerFactory = (headers: Headers) => ReturnType<typeof createConfiguredServer>;
+/** The server of a session and the client of OpenL Studio it works with, built for the request that opens it. */
+type SessionServerFactory = (headers: Headers) => { server: ReturnType<typeof createConfiguredServer>; client: OpenLClient };
 
 /**
  * The handler of the requests of legacy 2025 clients: an initializing POST opens a session, every other request names
@@ -132,21 +152,24 @@ function createLegacyHandler(
         sessions.set(id, session);
       },
     });
-    const session: LegacySession = { transport, inProgress: 0, usedAt: Date.now() };
+    const { server, client } = serverFor(headers);
+    const session: LegacySession = { transport, client, inProgress: 0, usedAt: Date.now() };
     transport.onclose = () => {
       if (transport.sessionId) sessions.delete(transport.sessionId);
     };
-    await serverFor(headers).connect(transport);
+    await server.connect(transport);
     return session;
   };
 
-  // A session is in use until the response of its request ends.
+  // A session is in use until the response of its request ends. Its client may go on from another address.
   const serveInSession = async (
     session: LegacySession,
     req: IncomingMessage,
     res: ServerResponse,
     body: unknown,
+    headers: Headers,
   ): Promise<void> => {
+    session.client.callsFrom(headers.get("openl-client-address") ?? undefined);
     session.inProgress++;
     res.once("close", () => {
       session.inProgress--;
@@ -169,7 +192,7 @@ function createLegacyHandler(
         sendJson(res, opens ? 400 : 404, jsonRpcError(UNKNOWN_SESSION, "Invalid or missing MCP session ID"));
         return;
       }
-      await serveInSession(session, req, res, body);
+      await serveInSession(session, req, res, body, headers);
     } catch (error) {
       console.error("Failed to handle legacy MCP request:", sanitizeError(error));
       if (!res.headersSent) sendJson(res, 500, jsonRpcError(ProtocolErrorCode.InternalError, "Internal server error"));
@@ -211,7 +234,10 @@ export function createHttpApp(overrides: HttpServerOverrides = {}): RequestListe
 
   // The protocol of legacy 2025 clients is sessionful. Each MCP session owns a
   // distinct OpenLClient — including anonymous sessions.
-  const handleLegacy = createLegacyHandler((headers) => createConfiguredServer(clientOf(headers)));
+  const handleLegacy = createLegacyHandler((headers) => {
+    const client = clientOf(headers);
+    return { server: createConfiguredServer(client), client };
+  });
 
   const handleMcp = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     let body: unknown;
@@ -234,10 +260,12 @@ export function createHttpApp(overrides: HttpServerOverrides = {}): RequestListe
 
   const route = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
     const path = new URL(req.url ?? "/", "http://localhost").pathname;
-    if (path === "/mcp" || path === "/mcp/") {
+    if (path !== "/mcp" && path !== "/mcp/") {
+      sendJson(res, 404, { error: "Not found", path, method: req.method });
+    } else if (comesThroughStudio(req)) {
       await handleMcp(req, res);
     } else {
-      sendJson(res, 404, { error: "Not found", path, method: req.method });
+      sendJson(res, 403, jsonRpcError(ProtocolErrorCode.InvalidRequest, "The request did not come through OpenL Studio"));
     }
   };
 

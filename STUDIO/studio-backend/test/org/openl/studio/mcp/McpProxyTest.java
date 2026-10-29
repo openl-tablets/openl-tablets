@@ -13,11 +13,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import jakarta.servlet.AsyncEvent;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -39,7 +41,7 @@ class McpProxyTest {
     private final CountDownLatch released = new CountDownLatch(1);
     private HttpServer server;
 
-    private record Received(String method, String uri, com.sun.net.httpserver.Headers headers, String body) {
+    private record Received(String method, String uri, Headers headers, String body) {
     }
 
     @BeforeEach
@@ -58,11 +60,15 @@ class McpProxyTest {
     @Test
     void passesTheRequestWithTheAddressOfStudioTheClientOpened() throws Exception {
         serve(exchange -> answer(exchange, "application/json", "{\"result\":{}}"));
+        var secret = McpCalls.newSecret();
         var request = request("POST");
         request.setQueryString("trace=1");
         request.addHeader("Authorization", "Token openl_pat_a.b");
         request.addHeader("Mcp-Session-Id", "s1");
         request.addHeader("OpenL-Public-Url", "https://attacker.example.com/");
+        request.addHeader("OpenL-Client-Address", "198.51.100.66");
+        request.addHeader("OpenL-Mcp-Secret", "guessed");
+        request.setRemoteAddr("203.0.113.7");
         request.addHeader("Connection", "keep-alive");
         request.setContentType("application/json");
         request.setContent("{\"jsonrpc\":\"2.0\"}".getBytes(UTF_8));
@@ -76,6 +82,9 @@ class McpProxyTest {
         assertEquals("s1", sent.headers().getFirst("Mcp-Session-Id"));
         assertEquals("https://studio.example.com/studio/", sent.headers().getFirst("OpenL-Public-Url"));
         assertEquals(1, sent.headers().get("OpenL-Public-Url").size());
+        assertEquals(List.of("203.0.113.7"), sent.headers().get("OpenL-Client-Address"),
+                "The address the request came from, never the one the client named");
+        assertEquals(List.of(secret), sent.headers().get("OpenL-Mcp-Secret"), "The secret of the run of the server");
         assertEquals("http://10.0.0.5:8080/studio", sent.headers().getFirst("OpenL-Base-Url"));
         assertEquals("{\"jsonrpc\":\"2.0\"}", sent.body());
         assertEquals(200, response.getStatus());
@@ -101,7 +110,7 @@ class McpProxyTest {
 
         var response = proxy(request, false);
 
-        await().atMost(10, SECONDS).until(() -> response.getContentAsString().equals("data: 1\n\n"));
+        await().atMost(10, SECONDS).until(() -> "data: 1\n\n".equals(response.getContentAsString()));
         assertTrue(request.isAsyncStarted());
         released.countDown();
         await().atMost(10, SECONDS).until(() -> !request.isAsyncStarted());
