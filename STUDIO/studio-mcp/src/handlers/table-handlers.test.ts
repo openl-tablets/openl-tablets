@@ -38,7 +38,7 @@ describe("reading tables", () => {
     expect(response.pagination).toEqual({ limit: 50, offset: 25, total_count: 26, has_more: false });
   });
 
-  it("openl_get_table forwards startRow/maxRows/styles to the raw view query and returns the slice", async () => {
+  it("openl_get_table forwards startRow/maxRows/styles to the raw view query and returns the slice without addresses", async () => {
     harness.mockHttp.onGet(tablePath("calculatePremium_1234")).reply(200, rawTable("calculatePremium_1234",
       [[{ cell: "A3", value: "Age", style: { bold: true, background: "#ccccff" } }]], { totalRows: 120 }));
 
@@ -51,10 +51,8 @@ describe("reading tables", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 2, maxRows: 1, cutMerges: true, styles: true });
-    expect(dataOf(result)).toMatchObject({
-      totalRows: 120,
-      source: [[{ cell: "A3", style: { background: "#ccccff" } }]],
-    });
+    expect(dataOf(result)).toMatchObject({ totalRows: 120 });
+    expect(dataOf(result).source).toEqual([[{ value: "Age", style: { bold: true, background: "#ccccff" } }]]);
   });
 
   /** Rows of five cells, as many as `count`, from row `first` of the sheet. */
@@ -284,7 +282,7 @@ describe("openl_get_table cut by rows", () => {
     const response = JSON.parse(textOf(result));
     const delivered = response.data.source.length;
     expect(delivered).toBeLessThan(400);
-    expect(response.data.source[0][0]).toEqual({ cell: "B4", value: "Dog", rowspan: delivered, mergedArea: "B4:B403" });
+    expect(response.data.source[0][0]).toEqual({ value: "Dog", rowspan: delivered, mergedArea: "B4:B403" });
   });
 });
 

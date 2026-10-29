@@ -92,7 +92,8 @@ export function registerTableActionHandlers(): void {
       "- update_range: overwrite the cells from ('row', 'column') with the lines of 'cells', more than one cell.\n" +
       "- merge: merge 'rowspan' × 'colspan' cells from ('row', 'column'); unmerge: split the merged cell covering " +
       "('row', 'column').\n" +
-      "Positions count from 0: row 0 is the header, column 0 the leading labels. A line holds one cell per column of " +
+      "Positions count from 0 in the whole table: row 0 is the header, column 0 the leading labels, and row r of a " +
+      "slice openl_get_table read is row window.startRow + r. A line holds one cell per column of " +
       "a row, or per row of a column: { value: null } for a blank cell, { covered: true } where a merged cell covers " +
       "the position, as openl_get_table marks it. A value is a scalar or a one-dimensional array of scalars; one " +
       "starting with '=' is an OpenL formula, written as text. A 'formula', such as '=B2*C2', writes an Excel formula " +
