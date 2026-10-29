@@ -535,7 +535,7 @@ export function registerTraceHandlers(): void {
     name: "watch_trace_cells",
     title: "Watch Cells Across a Run",
     description:
-      "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, label, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. The series of a cell deep in a combinatorial branch is capped: 'total' counts every execution, and 'truncated' tells that late ones were dropped. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
+      "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, label, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. A series lists its first 100 points: one marked 'truncated' leaves later executions out, which its 'total' counts, and a 'note' tells when the run reached its capture limit, after which the totals count only what it captured. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
     schema: schemas.watchTraceCellsSchema,
     annotations: {
       openWorldHint: true,
@@ -560,18 +560,20 @@ export function registerTraceHandlers(): void {
         args.withSchema ? undefined : WATCH_FIELDS,
       ).catch((error: unknown) => rethrowTraceStateError(error, "watch read"));
 
-      // The server truncates when a cell fires more times than the capture cap.
-      // Surface guidance to reach a dropped execution (each series' `total` gives
-      // the full count).
-      let payload: unknown = watch;
-      if (watch.truncated) {
-        payload = {
-          note:
-            "Some series were truncated by the server (their 'total' exceeds the returned points, so late executions are missing). " +
-            "Inspect a specific execution with a '<ref>@N' breakpoint, or watch a higher-level cell.",
-          ...watch,
-        };
-      }
+      // Studio cuts each series to its first points and says so only by its total, and it stops capturing at a
+      // limit for the whole run, after which the totals count what was captured: both are told
+      const series = watch.series.map((one) => (one.points.length < (one.total ?? 0) ? { ...one, truncated: true } : one));
+      const notes = [
+        ...(series.some((one) => "truncated" in one) ? [
+          "A series marked truncated lists its first points only, its 'total' counting them all: reach a later " +
+            "execution with a '<ref>@N' breakpoint.",
+        ] : []),
+        ...(watch.truncated ? [
+          "The run reached its capture limit, so a 'total' counts only the executions captured before it: watch " +
+            "fewer cells, or a cell of a higher level.",
+        ] : []),
+      ];
+      const payload = notes.length > 0 ? { note: notes.join(" "), ...watch, series } : { ...watch, series };
 
       return formatResult(payload);
     },
