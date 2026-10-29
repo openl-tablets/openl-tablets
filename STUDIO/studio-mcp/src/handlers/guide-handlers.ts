@@ -46,7 +46,7 @@ now oriented — do not call this tool again in this session.
    \`openl_get_guides(ids)\`. Do not guess OpenL table syntax, functions, or project
    layout from memory — look them up.
 4. **Edit**: open the project first (\`openl_open_project\`; design repositories only),
-   unless \`capabilities.canOpen\` of \`openl_get_project\` is absent — a project edited in
+   unless the \`capabilities\` of \`openl_get_project\` lack \`canOpen\` — a project edited in
    place, of a file repository in single-user mode, is always open and has every edit
    written straight into its files. Then use the table tools (\`openl_list_tables\`, \`openl_get_table\`,
    \`openl_update_table\`, ...) or the project-file tools.

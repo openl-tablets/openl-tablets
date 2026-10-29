@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"projectId\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"branch\":\"master\",\"status\":\"CLOSED\",\"repository\":\"design\",\"modifiedBy\":\"Ada Admin\",\"modifiedAt\":\"#-#-#T#:#:#-#:#\",\"revision\":\"@\",\"path\":\"McpTools\",\"comment\":\"Create the project\",\"branchDefault\":true,\"inDefaultBranch\":true,\"repositoryInfo\":{\"id\":\"design\",\"name\":\"Design\",\"type\":\"repo-git\",\"features\":{\"branches\":true,\"searchable\":true,\"mappedFolders\":true,\"comments\":true}},\"capabilities\":{\"canDelete\":true,\"canOpen\":true,\"canDeploy\":true,\"canCompare\":true,\"canViewHistory\":true,\"canManage\":true,\"canCopy\":true,\"canManageBranches\":true,\"canMerge\":true,\"canExport\":true}}}"
+        "text": "{\"data\":{\"projectId\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"branch\":\"master\",\"status\":\"CLOSED\",\"repository\":\"design\",\"modifiedBy\":\"Ada Admin\",\"modifiedAt\":\"#-#-#T#:#:#-#:#\",\"revision\":\"@\",\"path\":\"McpTools\",\"comment\":\"Create the project\",\"branchDefault\":true,\"inDefaultBranch\":true,\"repositoryInfo\":{\"id\":\"design\",\"name\":\"Design\",\"type\":\"repo-git\",\"features\":{\"branches\":true,\"searchable\":true,\"mappedFolders\":true,\"comments\":true}},\"capabilities\":[\"canDelete\",\"canOpen\",\"canDeploy\",\"canCompare\",\"canViewHistory\",\"canManage\",\"canCopy\",\"canManageBranches\",\"canMerge\",\"canExport\"]}}"
       }
     ],
     "resultType": "complete",
