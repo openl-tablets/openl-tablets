@@ -1,7 +1,8 @@
-# This workflow will build a project with Maven every day (aka Nightly Build)
-# and deploys the built docker images to the GitHub Packages.
+# This workflow builds the project and publishes staging Docker images, not a release:
+# - every day (aka Nightly Build) and by default, to the GitHub Packages, tagged as 'latest';
+# - with a release candidate tag, e.g. 7.0.0-ea.1, to the DockerHub, built with that version and never as 'latest'.
 
-name: Build GitHub packages
+name: Staging Docker Images
 
 on:
   schedule:
@@ -13,18 +14,36 @@ on:
       branch:
         description: 'Branch to build'
         required: false
+      tag:
+        description: 'Release candidate tag to publish to DockerHub, e.g. 7.0.0-ea.1. Empty: GitHub packages, as latest'
+        required: false
+
+run-name: Staging Docker images ${{ inputs.tag || 'latest' }}
 
 jobs:
   deploy:
 
-    name: Deploy
+    name: Publish to ${{ inputs.tag && 'DockerHub' || 'GitHub packages' }}
 
     permissions:
       packages: write
 
     runs-on: ubuntu-latest
 
+    env:
+      RC_TAG: ${{ inputs.tag }}
+      REPO: ${{ inputs.tag && 'openltablets' || format('ghcr.io/{0}', github.repository_owner) }}
+
     steps:
+
+      # A pre-release suffix is required, so a release candidate never overwrites the images of a release.
+      - name: Check the release candidate tag
+        if: ${{ inputs.tag }}
+        run: |
+          if [[ ! "$RC_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+-[A-Za-z0-9][A-Za-z0-9.]*$ ]]; then
+            echo "::error::'$RC_TAG' is not a release candidate tag like 7.0.0-ea.1"
+            exit 1
+          fi
 
       - name: Configure GIT
         run: |
@@ -44,6 +63,10 @@ jobs:
           java-version: 25
           cache: 'maven'
 
+      - name: Set the release candidate version
+        if: ${{ inputs.tag }}
+        run: mvn versions:set -DnewVersion="$RC_TAG" -DgenerateBackupPoms=false -DprocessAllModules "-Dstyle.color=always"
+
       - name: Build with Maven
         run: mvn package -T1C -DskipTests "-Dstyle.color=always"
 
@@ -61,40 +84,52 @@ jobs:
           docker run --privileged --rm tonistiigi/binfmt --install all
           docker buildx create --use
 
+      - name: Login to GitHub packages
+        if: ${{ !inputs.tag }}
+        run: echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Login to DockerHub
+        if: ${{ inputs.tag }}
+        env:
+          DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+        run: echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_LOGIN" --password-stdin
+
       - name: Build docker images ${{ env.TAG_VERSION }}
         run: |
           echo Platforms: ${BUILD_PLATFORMS}
-          repo=ghcr.io/${{ github.repository_owner }}
-          created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          version="org.opencontainers.image.version=x"
-          revision="org.opencontainers.image.revision=${GITHUB_SHA}"
-          echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-          docker buildx build -t $repo/ws:${{ env.TAG_VERSION }} -t $repo/ws:latest . \
-            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
-            --platform ${BUILD_PLATFORMS} --push \
-            --label $created --label $version --label $revision \
-            --label "org.opencontainers.image.title=OpenL RuleServices" \
-            --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
-          docker buildx build -t $repo/ws:${{ env.TAG_VERSION }}-all -t $repo/ws:latest-all . \
-            --build-arg APP=WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
-            --platform ${BUILD_PLATFORMS} --push \
-            --label $created --label $version --label $revision \
-            --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
-            --label "org.opencontainers.image.description=An OpenL web service with extra modules"
-          docker buildx build -t $repo/webstudio:${{ env.TAG_VERSION }} -t $repo/webstudio:latest . \
-            --build-arg APP=STUDIO/studio-backend/target/webapp \
-            --platform ${BUILD_PLATFORMS} --push \
-            --label $created --label $version --label $revision \
-            --label "org.opencontainers.image.title=OpenL Studio" \
-            --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
+          created="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          publish() { # <image> <tag suffix> <webapp> <title> <description>
+            local tags=(-t "$REPO/$1:$TAG_VERSION$2")
+            if [ -z "$RC_TAG" ]; then
+              tags+=(-t "$REPO/$1:latest$2")
+            fi
+            docker buildx build "${tags[@]}" . \
+              --build-arg APP="$3" \
+              --platform "$BUILD_PLATFORMS" --push \
+              --label "org.opencontainers.image.created=$created" \
+              --label "org.opencontainers.image.version=$TAG_VERSION" \
+              --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+              --label "org.opencontainers.image.title=$4" \
+              --label "org.opencontainers.image.description=$5"
+          }
+          publish ws '' WSFrontend/org.openl.rules.ruleservice.ws/target/webapp \
+            'OpenL RuleServices' 'A minimal image with OpenL web service to run OpenL rules'
+          publish ws -all WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp \
+            'OpenL RuleServices (All)' 'An OpenL web service with extra modules'
+          publish webstudio '' STUDIO/studio-backend/target/webapp \
+            'OpenL Studio' 'A web application to develop, run, test and trace OpenL rules'
 
       - name: Summary
         run: |
-          echo '`docker run -p 8080:8080 ghcr.io/${{ github.repository_owner }}/webstudio:${{ env.TAG_VERSION }}`' >> $GITHUB_STEP_SUMMARY
-          echo '`docker run -p 8080:8080 ghcr.io/${{ github.repository_owner }}/ws:${{ env.TAG_VERSION }}`' >> $GITHUB_STEP_SUMMARY
-          echo '`docker run -p 8080:8080 ghcr.io/${{ github.repository_owner }}/ws:${{ env.TAG_VERSION }}-all`' >> $GITHUB_STEP_SUMMARY
+          {
+            echo "\`docker run -p 8080:8080 $REPO/webstudio:$TAG_VERSION\`"
+            echo "\`docker run -p 8080:8080 $REPO/ws:$TAG_VERSION\`"
+            echo "\`docker run -p 8080:8080 $REPO/ws:$TAG_VERSION-all\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Clean up old versions of RuleServices
+        if: ${{ !inputs.tag }}
         uses: actions/delete-package-versions@v5
         with:
           package-name: 'ws'
@@ -102,6 +137,7 @@ jobs:
           min-versions-to-keep: 50 # 5 versions * 2 variants * 5 manifests
 
       - name: Clean up old versions of Studio
+        if: ${{ !inputs.tag }}
         uses: actions/delete-package-versions@v5
         with:
           package-name: 'webstudio'

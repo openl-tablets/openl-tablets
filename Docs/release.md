@@ -3,8 +3,13 @@
 1. Ensure all required tickets and issues are resolved, all required branches and commits are merged, and tests are updated.
 2. Run the [Build](https://github.com/openl-tablets/openl-tablets/actions/workflows/build.yml) action.
    It must be green.
-3. Run the [Build GitHub packages](https://github.com/openl-tablets/openl-tablets/actions/workflows/deploy.yml) action.
-   This action builds the project and publishes its Docker images to [GitHub packages](https://github.com/orgs/openl-tablets/packages?repo_name=openl-tablets).
+3. Run the [Staging Docker Images](https://github.com/openl-tablets/openl-tablets/actions/workflows/deploy.yml) action.
+   It builds the project and publishes staging Docker images; it releases nothing.
+    - **Tag left empty** — the images go to [GitHub packages](https://github.com/orgs/openl-tablets/packages?repo_name=openl-tablets)
+      as `latest`, the same as the nightly run.
+    - **Release candidate tag**, e.g. `7.0.0-ea.1` — the project is built with that version, and the images go to the
+      [DockerHub](https://hub.docker.com/u/openltablets) under that tag only, never as `latest`. A tag without a
+      pre-release suffix, such as `7.0.0`, is rejected so that the images of a release are never overwritten.
 4. Execute all automation tests.
 5. Execute all performance tests.
 6. Execute all backward compatibility tests.
