@@ -156,7 +156,9 @@ non-deprecated built-in function to users.
 the numbers show through `org.openl.rules.util.DecimalArithmetic`, so `0.1 + 0.2` is `0.3`. A number of 16 or 17
 digits with a fraction is a computed one and counts as its double, and a result of it within the rounding it carries
 of a decimal of at most 13 digits is that decimal (`DecimalArithmetic.snap`), so `1 / 3 * 3` is `1`. A function
-documented to give the same result as an operator computes through it too, never with the Java operators.
+documented to give the same result as an operator computes through it too, never with the Java operators. `sum`, `avg`
+and `product` of `Double` add or multiply the values with Kahan compensation and round once (`DecimalSums`), and
+`median` averages its two middle values through `DecimalArithmetic`; `Float` values stay binary.
 
 **Exact products of doubles**: the decimal arithmetic takes the rounding error of a product and the rest of a quotient
 from `ExactProduct`, never from `Math.fma`. Without the fused multiply-add instruction — x86-64 before Haswell, or a

@@ -18,21 +18,11 @@ public final class Avg {
     }
 
     /**
-     * Returns the average of values.
+     * Returns the average of values, computed with the decimals the numbers show, a computed number as its double, and
+     * rounded once.
      */
     public static <T extends Number> Double avg(T... values) {
-        return process(values, new Result<T, Double>() {
-            @Override
-            public void processNonNull(T value) {
-                var doubleValue = value.doubleValue();
-                current = current == null ? doubleValue : (current + doubleValue);
-            }
-
-            @Override
-            public Double result() {
-                return current == null ? null : (current / counter);
-            }
-        });
+        return DecimalSums.avg(values);
     }
 
     /**

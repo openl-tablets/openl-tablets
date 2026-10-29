@@ -17,27 +17,19 @@ public final class Sum {
     }
 
     /**
-     * Returns the sum of values.
+     * Returns the sum of values, computed with the decimals the numbers show, a computed number as its double, and
+     * rounded once.
      */
     public static <T extends Number> Double sum(T... values) {
-        return process(values, new Result<T, Double>() {
-            @Override
-            public void processNonNull(T value) {
-                current = current == null ? value.doubleValue() : current + value.doubleValue();
-            }
-        });
+        return DecimalSums.sum(values);
     }
 
     /**
-     * Returns the sum of values.
+     * Returns the sum of values, computed with the decimals the numbers show, a computed number as its double, and
+     * rounded once.
      */
     public static Double sum(Double... values) {
-        return process(values, new Result<Double, Double>() {
-            @Override
-            public void processNonNull(Double value) {
-                current = current == null ? value : current + value;
-            }
-        });
+        return DecimalSums.sum(values);
     }
 
     /**

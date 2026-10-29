@@ -3,7 +3,9 @@ package org.openl.util.math;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
 
+import org.openl.rules.util.DecimalArithmetic;
 import org.openl.util.ArrayTool;
 
 /**
@@ -331,6 +333,15 @@ public class MathUtils {
 
     // MEDIAN
     public static <T extends Number> Double median(T[] values) {
+        return median(values, MathUtils::decimalMean);
+    }
+
+    public static Float median(Float[] values) {
+        Double median = median(values, MathUtils::binaryMean);
+        return median == null ? null : median.floatValue();
+    }
+
+    private static <T extends Number> Double median(T[] values, DoubleBinaryOperator mean) {
         if (values == null) {
             return null;
         }
@@ -339,12 +350,7 @@ public class MathUtils {
             return null;
         }
         double[] doubleArray = numberArrayToDoubleArray(values);
-        return median(doubleArray);
-    }
-
-    public static Float median(Float[] values) {
-        Double median = median((Number[]) values);
-        return median == null ? null : median.floatValue();
+        return median(doubleArray, mean);
     }
 
     public static BigDecimal median(BigInteger[] values) {
@@ -400,6 +406,10 @@ public class MathUtils {
     }
 
     public static Double median(double[] values) {
+        return median(values, MathUtils::decimalMean);
+    }
+
+    private static Double median(double[] values, DoubleBinaryOperator mean) {
         if (values == null) {
             return null;
         }
@@ -409,7 +419,7 @@ public class MathUtils {
         } else if (length == 1) {
             return values[0];
         } else if (length == 2) {
-            return (values[0] + values[1]) * 0.5;
+            return mean.applyAsDouble(values[0], values[1]);
         }
         double[] copy = Arrays.copyOf(values, length);
         Arrays.sort(copy);
@@ -421,8 +431,18 @@ public class MathUtils {
         if (length % 2 == 0) {
             return copy[index];
         } else {
-            return (copy[index] + copy[index + 1]) * 0.5;
+            return mean.applyAsDouble(copy[index], copy[index + 1]);
         }
+    }
+
+    // The mean of the decimals the values show, rounded once, as the average of Double values is
+    private static double decimalMean(double a, double b) {
+        return DecimalArithmetic.add(a, b) * 0.5;
+    }
+
+    // Float values compute in binary
+    private static double binaryMean(double a, double b) {
+        return (a + b) * 0.5;
     }
 
     public static Double median(byte[] values) {
@@ -442,7 +462,7 @@ public class MathUtils {
     }
 
     public static Float median(float[] values) {
-        Double median = median(floatArrayToDoubleArray(values));
+        Double median = median(floatArrayToDoubleArray(values), MathUtils::binaryMean);
         return median == null ? null : median.floatValue();
     }
 
