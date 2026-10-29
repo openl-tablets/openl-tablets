@@ -132,6 +132,7 @@ describe("formatters", () => {
         "# Deployments",
         "",
         "## Bank",
+        "- **ID**: cHJvZHVjdGlvbjpCYW5r",
         "- **Repository**: production",
         "- **Bank**: deployed by admin at 2026-10-10T04:15:51-09:00, from design revision db8f4ba6",
         "- **Rates**: deployed by admin at 2026-10-10T04:16:02-09:00",

@@ -11,7 +11,7 @@ export function registerDeploymentHandlers(): void {
     name: "list_deploy_repositories",
     title: "List Deployment Repositories",
     description:
-      "List all deployment repositories in OpenL Studio. Returns repository names, their types, and status information. Use this to discover all available deployment repositories before deploying projects.",
+      "List the production repositories a project is deployed to, each with its 'id', 'name' and type; openl_deploy_project takes either.",
     schema: schemas.pagedListSchema,
     annotations: {
       readOnlyHint: true,
@@ -30,7 +30,7 @@ export function registerDeploymentHandlers(): void {
     name: "list_deployments",
     title: "List Active Deployments",
     description:
-      "List active deployments across production environments, optionally filtered by production repository ID and deployed project name. Returns deployment names, repositories, and deployed project revisions.",
+      "List the deployments of the production repositories, filtered by repository and deployed project. Each deployment answers its 'id', which openl_deploy_project takes to deploy to it again, its name and repository; the revisions and authors of its projects come only with the project filter, the exact name of a deployed project.",
     schema: schemas.listDeploymentsSchema,
     annotations: {
       readOnlyHint: true,
@@ -54,7 +54,8 @@ export function registerDeploymentHandlers(): void {
     description:
       "Deploy a project to a production repository, where OpenL Rule Services runs its rules. A new deployment " +
       "takes deploymentName and productionRepositoryId; deploymentId, from openl_list_deployments, deploys the " +
-      "project to that deployment again, as a newer version or a rollback.",
+      "project to that deployment again, as a newer version or a rollback. Save the project first: Studio refuses " +
+      "one with unsaved changes, and deploys the projects it depends on with it.",
     schema: schemas.deployProjectSchema,
     annotations: {
       openWorldHint: true,

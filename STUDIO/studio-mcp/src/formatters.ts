@@ -564,6 +564,7 @@ function formatDeployments(deployments: Types.DeploymentViewModelShort[]): strin
   for (const deploy of deployments) {
     lines.push(
       `## ${deploy.name}`,
+      `- **ID**: ${deploy.id}`,
       `- **Repository**: ${deploy.repository}`,
       ...(deploy.items ?? []).map(deployedItemLine),
       "",

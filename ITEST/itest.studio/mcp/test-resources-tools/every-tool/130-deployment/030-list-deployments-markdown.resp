@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "# Deployments\n\n## McpTools\n- **Repository**: production\n- **McpTools**: deployed by admin at #-#-#T#:#:#.#-#:#*\n\n\n---\n**Pagination**\n- Showing items 1-1\n- Total: 1"
+        "text": "# Deployments\n\n## McpTools\n- **ID**: *\n- **Repository**: production\n- **McpTools**: deployed by admin at #-#-#T#:#:#.#-#:#*\n\n\n---\n**Pagination**\n- Showing items 1-1\n- Total: 1"
       }
     ],
     "resultType": "complete",

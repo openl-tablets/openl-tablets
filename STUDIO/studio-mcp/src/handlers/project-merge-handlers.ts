@@ -498,7 +498,7 @@ export function registerProjectMergeHandlers(): void {
     name: "cancel_merge_conflicts",
     title: "Clear Pending Merge Conflicts",
     description:
-      "Abort the pending merge-conflict workflow by clearing its session state. This does not modify files or branches, but the stored conflict analysis is discarded; run the merge again to recreate it.",
+      "Abort the pending merge: clear its conflict state, discarding the stored conflict analysis, and stop a merge Studio still runs. Files and branches stay as they are; run the merge again to recreate the conflicts.",
     schema: schemas.projectOnlySchema,
     annotations: {
       destructiveHint: true,
