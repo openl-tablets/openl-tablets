@@ -397,6 +397,10 @@ OpenL Studio and where the server keeps its state; the
 - The code is ECMAScript 2025, which every Node.js 24 runs (`engines` of `package.json`): use its built-ins —
   `replaceAll`, `at`, `Object.groupBy`, iterator helpers, `Set` methods, `Promise.withResolvers` — rather than
   hand-written equivalents.
+- A tool description and the descriptions of its arguments say what an agent acts on: what the tool does, its
+  limits and refusals, and how to continue. They leave out why the design is so, the Studio endpoint a tool calls,
+  and what the server does inside: every agent loads them in every session. Rules several tools share go into one
+  tool rather than into each description.
 - Every tool schema is a `z.strictObject`: an unknown argument, also a nested one, is refused, not ignored.
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
   leaves out what tells it nothing: the `$schema` dialect and the safe-integer bounds of `.int()`. Zod still checks

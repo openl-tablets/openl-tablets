@@ -33,7 +33,7 @@ const paginationShape = {
 // The ids take a short description, as most tools take one of them and every agent loads their schemas every session
 export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The 'projectId' openl_list_projects answered, as it is.");
 
-const repositoryNameSchema = z.string().describe("Repository identifier. Pass either the 'id' or the 'name' field from openl_list_repositories() — the tool accepts both (and is case-insensitive). DO NOT invent values like 'Design Repository' or 'design-repo'; the actual names are typically short tokens (e.g. 'Design'). Always call openl_list_repositories() first if you don't already have the value in context.");
+const repositoryNameSchema = z.string().describe("The 'id' or 'name' of a repository, as openl_list_repositories answers them; never a made-up one.");
 
 /** A string with more than whitespace in it, trimmed. */
 const nonBlankString = z.string().trim().min(1);
@@ -246,7 +246,7 @@ const valueOrFormula = (cell: { value?: unknown; formula?: string }): boolean =>
 
 /** A cell value for a raw table-source edit. */
 const rawCellInputSchema = z.strictObject({
-  value: cellValueSchema.optional().describe("Cell value as a scalar or representable one-dimensional scalar array. Null or omitted is an empty cell. A text starting with '=' is an OpenL formula, such as '= $Base * 2', and is written as text."),
+  value: cellValueSchema.optional().describe("A scalar or a one-dimensional array of scalars; null or left out for an empty cell. A text starting with '=' is an OpenL formula, such as '= $Base * 2', and is written as text."),
   formula: excelFormulaSchema,
   colspan: z.number().int().min(1).optional().describe("Number of columns this cell spans (>= 2 to merge; omit or 1 for a single column)."),
   rowspan: z.number().int().min(1).optional().describe("Number of rows this cell spans (>= 2 to merge; omit or 1 for a single row)."),
@@ -261,7 +261,7 @@ const rawTableCellSchema = rawCellInputSchema.extend({
   formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2', as openl_get_table returns it beside the value it computed. The cell is written as this Excel formula and 'value' is ignored; omit it to write 'value'. An OpenL formula is a 'value' starting with '='."),
   cell: z.string().optional(),
   mergedArea: z.string().optional(),
-}).describe("Writable raw cell. Studio exposes style only when reading with styles=true; table write APIs do not support changing style, so style is intentionally rejected.");
+}).describe("A cell as openl_get_table answers it, without a style: styles are read-only.");
 
 // =============================================================================
 // Raw table-source edits (POST /projects/{projectId}/tables/{tableId}/actions)
@@ -571,15 +571,15 @@ const rawTableViewSchema = z.strictObject({
     headerHeight: z.number().int().optional().describe("Read-only number of header rows, tolerated when a get response is round-tripped."),
     layout: z.unknown().optional().describe("Read-only layout of a Test table, tolerated when a get response is round-tripped."),
     pos: z.string().optional(),
-    source: z.array(z.array(rawTableCellSchema)).describe("Complete 2D source matrix. Preserve cell positions, covered placeholders, and spans when replacing a table. Remove read-only style objects returned by styles=true; Studio table write APIs cannot change formatting."),
+    source: z.array(z.array(rawTableCellSchema)).describe("Every row of the table, with its covered cells and spans."),
     totalRows: z.number().int().optional().describe("Total row count when the response contains a window."),
     version: tableVersionSchema.optional().describe("The version a get response carries, tolerated when it is round-tripped; an update requires it."),
-}).describe("Complete RawSource table structure. Typed table DTOs are intentionally unsupported because they cannot reliably round-trip workbook content.");
+}).describe("A whole table as a RawSource matrix of cells.");
 
 export const updateTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
-  view: rawTableViewSchema.extend({ version: tableVersionSchema }).describe("Full, non-windowed RawSource structure from openl_get_table() with modifications applied. Send the complete source matrix, not only changed cells; a view carrying totalRows is rejected, and the handler independently rejects a source with fewer rows than the live table."),
+  view: rawTableViewSchema.extend({ version: tableVersionSchema }).describe("The whole view openl_get_table answered, changed; not a slice."),
 }).superRefine((value, ctx) => {
   if (value.view.totalRows !== undefined) {
     ctx.addIssue({
