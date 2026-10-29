@@ -47,7 +47,8 @@ async function readTableBack(
  * `tableIdChanged`/`previousTableId` and a `note` when present) as JSON.
  *
  * A table that does not compile after the edit is answered with `compiles: false`
- * and the `errors` of its compilation: the edit was applied, but the table needs a fix.
+ * and the `errors` of its compilation, each led by the cell it points to: the edit was applied, but the table needs
+ * a fix.
  *
  * @param args       the arguments of the edit: the table
  * @param reportedId the id Studio answered for the table, when the edit renamed it
@@ -80,9 +81,13 @@ export async function finishTableEdit(
       `The table could not be read back under id '${currentId}', but the ${editVerb} WAS applied. Run openl_project_status to see whether the project compiles.`,
     );
   }
+  // An error names the cell it points to, the one to fix, when it points to one
   const errors = (table?.messages ?? [])
     .filter((item) => item.severity === "ERROR")
-    .map((item) => item.summary ?? "");
+    .map((item) => {
+      const cell = item.location?.cell;
+      return typeof cell === "string" ? `${cell}: ${item.summary ?? ""}` : item.summary ?? "";
+    });
   if (errors.length > 0) {
     notes.push(
       `The table does NOT compile after the ${editVerb}, which WAS applied: fix the errors, or restore the module from its local edit history (openl_list_project_local_changes, openl_restore_project_local_change).`,

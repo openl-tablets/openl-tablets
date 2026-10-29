@@ -95,7 +95,7 @@ describe("raw table-source edits", () => {
     harness.mockHttp.onGet(tablePath).reply(200, {
       id: "t1", name: "PolicyPremiumCalculation", tableType: "RawSource", kind: "Test", source: [],
       messages: [
-        { severity: "ERROR", summary: "Expected one of the parameters of the method, but found 'P5'." },
+        { severity: "ERROR", summary: "Expected one of the parameters of the method, but found 'P5'.", location: { cell: "C7" } },
         { severity: "WARN", summary: "A warning that does not stop the compilation." },
         { severity: "ERROR", summary: "Table '3229' is not found." },
       ],
@@ -108,7 +108,7 @@ describe("raw table-source edits", () => {
       success: true,
       recompileTriggered: true,
       compiles: false,
-      errors: ["Expected one of the parameters of the method, but found 'P5'.", "Table '3229' is not found."],
+      errors: ["C7: Expected one of the parameters of the method, but found 'P5'.", "Table '3229' is not found."],
     });
     expect(dataOf(result).note).toContain("The table does NOT compile after the edit, which WAS applied");
   });
