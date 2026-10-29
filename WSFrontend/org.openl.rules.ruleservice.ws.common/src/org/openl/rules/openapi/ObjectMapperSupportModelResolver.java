@@ -8,13 +8,17 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -23,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
@@ -34,6 +39,7 @@ import io.swagger.v3.core.util.ReflectionUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import io.swagger.v3.oas.models.media.ByteArraySchema;
 import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.Schema;
@@ -50,8 +56,75 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
     private static final String BYTE_FORMAT = "byte";
     private static final ObjectMapper EXAMPLE_MAPPER = ObjectMapperFactory.buildStrictGenericObjectMapper();
 
+    // Concurrent: the converters of a build are global, so another thread may resolve a schema with this resolver
+    private final Map<JavaType, Map<String, BeanPropertyDefinition>> deserializedProperties = new ConcurrentHashMap<>();
+    private final Map<JavaType, BeanDescription> serializedTypes = new ConcurrentHashMap<>();
+
     public ObjectMapperSupportModelResolver(ObjectMapper mapper) {
         super(mapper);
+    }
+
+    /**
+     * Resolves the access mode of a property as the parent does.
+     *
+     * <p>The parent reads all the properties of the type again for every property it resolves, which makes a type
+     * with hundreds of properties take seconds. Here the properties of a type are read once per resolver.
+     */
+    @Override
+    protected @Nullable AccessMode resolveAccessMode(@Nullable BeanPropertyDefinition propDef,
+                                                     JavaType type,
+                                                     io.swagger.v3.oas.annotations.media.@Nullable Schema schema) {
+        if (propDef == null || schema != null
+                && (schema.accessMode() != AccessMode.AUTO || schema.readOnly() || schema.writeOnly())) {
+            return super.resolveAccessMode(propDef, type, schema);
+        }
+        var access = findAccess(propDef);
+        var hasGetter = propDef.hasGetter();
+        var hasSetter = propDef.hasSetter();
+        var hasConstructorParameter = propDef.hasConstructorParameter();
+        var hasField = propDef.hasField();
+        var deserialized = access == null ? findDeserializedProperty(type, propDef.getInternalName()) : null;
+        if (deserialized != null) {
+            access = findAccess(deserialized);
+            hasGetter |= deserialized.hasGetter();
+            hasSetter |= deserialized.hasSetter();
+            hasConstructorParameter |= deserialized.hasConstructorParameter();
+            hasField |= deserialized.hasField();
+        }
+        if (access != null) {
+            return switch (access) {
+                case READ_ONLY -> AccessMode.READ_ONLY;
+                case READ_WRITE -> AccessMode.READ_WRITE;
+                case WRITE_ONLY -> AccessMode.WRITE_ONLY;
+                case AUTO -> AccessMode.AUTO;
+            };
+        }
+        return !hasGetter && !hasField && (hasConstructorParameter || hasSetter) ? AccessMode.WRITE_ONLY : null;
+    }
+
+    private static JsonProperty.@Nullable Access findAccess(BeanPropertyDefinition propDef) {
+        return propDef instanceof POJOPropertyBuilder builder ? builder.findAccess() : null;
+    }
+
+    private @Nullable BeanPropertyDefinition findDeserializedProperty(JavaType type, @Nullable String internalName) {
+        if (StringUtils.isBlank(internalName)) {
+            return null;
+        }
+        return deserializedProperties.computeIfAbsent(type, this::readDeserializedProperties).get(internalName);
+    }
+
+    /**
+     * Reads the properties the type is deserialized with, by their internal names. The first property of a name
+     * wins.
+     */
+    private Map<String, BeanPropertyDefinition> readDeserializedProperties(JavaType type) {
+        var properties = new HashMap<String, BeanPropertyDefinition>();
+        for (var prop : _mapper.getDeserializationConfig().introspect(type).findProperties()) {
+            if (StringUtils.isNotBlank(prop.getInternalName())) {
+                properties.putIfAbsent(prop.getInternalName(), prop);
+            }
+        }
+        return properties;
     }
 
     private Object stringToRawType(Annotated a, String value) {
@@ -353,7 +426,7 @@ class ObjectMapperSupportModelResolver extends ModelResolver {
                         ? as.schema()
                         : (io.swagger.v3.oas.annotations.media.Schema) resolvedSchemaOrArrayAnnotation;
 
-        final var beanDesc = introspectSerializedType(type);
+        final var beanDesc = serializedTypes.computeIfAbsent(type, this::introspectSerializedType);
 
         var name = annotatedType.getName();
         if (StringUtils.isBlank(name)) {
