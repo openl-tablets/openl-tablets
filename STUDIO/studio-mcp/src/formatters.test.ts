@@ -792,6 +792,20 @@ describe("formatters", () => {
       expect(huge).toContain(RESPONSE_LIMITS.TRUNCATION_MESSAGE);
     });
 
+    it("leaves out the files farthest from the project first, naming them, when the chain is over the limit", () => {
+      const doc = formatAgentsDocument([
+        { path: "foo/Project-1/AGENTS.md", content: "project guidance" },
+        { path: "foo/AGENTS.md", content: "y".repeat(20_000) },
+        { path: "AGENTS.md", content: "z".repeat(20_000) },
+      ]);
+
+      expect(doc.length).toBeLessThanOrEqual(RESPONSE_LIMITS.MAX_CHARACTERS);
+      expect(doc).toContain("project guidance");
+      expect(doc).toContain("## /foo/AGENTS.md");
+      expect(doc).not.toContain("## /AGENTS.md");
+      expect(doc).toContain("leaves out `/AGENTS.md`");
+    });
+
     it("returns a short note when there are no files", () => {
       expect(formatAgentsDocument([])).toBe("No AGENTS.md files apply to this project.");
     });
