@@ -769,12 +769,6 @@ export interface RawTableView {
   totalRows?: number;
 }
 
-/** Raw source rows accepted by POST .../tables/{tableId}/lines. */
-export interface RawTableAppend {
-  tableType: "RawSource";
-  rows: RawTableCell[][];
-}
-
 /**
  * A cell to write via a raw table-source edit (POST .../tables/{id}/actions).
  * Mirrors `RawCellInput` in the studio OpenAPI — the input counterpart of

@@ -91,7 +91,7 @@ describe("MCP core — tool-call error channel", () => {
   it("does not advertise repeatable side effects as idempotent", async () => {
     const tools = await client.listTools();
     for (const name of [
-      "openl_append_table",
+      "openl_edit_table",
       "openl_start_project_tests",
       "openl_deploy_project",
       "openl_redeploy_project",

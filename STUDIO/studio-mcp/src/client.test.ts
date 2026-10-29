@@ -389,17 +389,12 @@ describe("OpenLClient", () => {
       expect(mockHttp.history.get[0].params).toEqual({ raw: true, maxRows: 25, cutMerges: true });
     });
 
-    it.each([
-      ["an append", (tableId: string) => client.appendProjectTable("design-project1", tableId, {
-        tableType: "RawSource", rows: [[{ value: "SAFE" }, { value: 1000 }]],
-      }, "v1"), "lines"],
-      ["an action", (tableId: string) => client.editTableSource("design-project1", tableId, {
-        operation: "insert", target: { type: "row", position: 1 },
-      }, "v1"), "actions"],
-    ])("answers the table id Studio gives in the 200 answer to %s, at the encoded table path", async (_case, edit, endpoint) => {
-      mockHttp.onPost(`${tablesPath}/Customer%201234/${endpoint}`).reply(200, { id: "Customer_5678" });
+    it("answers the table id Studio gives in the 200 answer to an action, at the encoded table path", async () => {
+      mockHttp.onPost(`${tablesPath}/Customer%201234/actions`).reply(200, { id: "Customer_5678" });
 
-      await expect(edit("Customer 1234")).resolves.toBe("Customer_5678");
+      await expect(client.editTableSource("design-project1", "Customer 1234", {
+        operation: "insert", target: { type: "row", position: 1 },
+      }, "v1")).resolves.toBe("Customer_5678");
     });
 
     it("deletes a table by its encoded id", async () => {

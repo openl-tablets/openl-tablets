@@ -1273,22 +1273,6 @@ export class OpenLClient {
   }
 
   /**
-   * Append lines to a project table
-   *
-   * @param appendData - Raw source rows to append
-   * @param version - The version of the table the append is based on, as a read or the previous edit answered it
-   * @returns the table's id after the append when Studio answered one, otherwise undefined (204 — id unchanged)
-   */
-  async appendProjectTable(
-    projectId: string,
-    tableId: string,
-    appendData: Types.RawTableAppend,
-    version: string
-  ): Promise<string | undefined> {
-    return this.writeTable("post", `${tablePath(projectId, tableId)}/lines`, appendData, version);
-  }
-
-  /**
    * Apply a single in-place edit to a table's raw source (append, insert,
    * delete, update, merge or unmerge a row/column/cell). The table is handled
    * in raw format regardless of its type.

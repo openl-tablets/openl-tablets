@@ -51,7 +51,7 @@ async function validateRawSourceReplacementRows(
 }
 
 /**
- * LLM clients frequently send the nested payload (appendData/view/table) as a
+ * LLM clients frequently send the nested payload (view/table) as a
  * JSON *string* instead of an object; the client would then POST a bare JSON string
  * and the backend rejects it with an opaque 400. Parse such a string back into a
  * value so validation (and the handler) see the real object. A string that LOOKS
@@ -90,7 +90,7 @@ function formatValidationError(payloadArg: string, toolName: string, error: ZodE
 
 /**
  * The name and the validation hooks of a tool whose `payloadArg` argument holds a nested object payload, such as
- * "appendData". The preprocessor only coerces JSON strings; the shared executor performs the single schema parse and
+ * "view". The preprocessor only coerces JSON strings; the shared executor performs the single schema parse and
  * calls the formatter below if validation fails.
  */
 function structuredPayloadTool(toolName: string, payloadArg: string): {
@@ -115,7 +115,7 @@ export function registerTableHandlers(): void {
     name: "list_tables",
     compiled: true,
     title: "List Project Tables",
-    description: "List tables/rules in a project with optional filters for kind, name, and properties. Results are paginated (default 50, maximum 200): when a complete inventory is required, follow pagination.has_more and call again with pagination.next_offset until has_more is false. Returns table metadata including 'tableId' (the 'id' field) which is required for calling openl_get_table(), openl_update_table(), openl_append_table(), or openl_run_table(). Use the 'tableId' field from the response to reference specific tables in other API calls. A table keeps its id while it is edited or moved; a rename gives it a new id, which the edit tools return as 'tableId'.",
+    description: "List tables/rules in a project with optional filters for kind, name, and properties. Results are paginated (default 50, maximum 200): when a complete inventory is required, follow pagination.has_more and call again with pagination.next_offset until has_more is false. Returns table metadata including 'tableId' (the 'id' field) which is required for calling openl_get_table(), openl_update_table(), openl_edit_table(), or openl_run_table(). Use the 'tableId' field from the response to reference specific tables in other API calls. A table keeps its id while it is edited or moved; a rename gives it a new id, which the edit tools return as 'tableId'.",
     schema: schemas.listTablesSchema,
     annotations: {
       readOnlyHint: true,
@@ -187,7 +187,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Replace Entire Table",
     description:
-      "Replace the ENTIRE table RawSource matrix with a modified version; a cell sent with the value it holds is left as it is. Typed table DTOs are intentionally unsupported. Use for modifying, reordering, or structural changes that preserve or add rows; row removal is rejected, so use the delete_rows action of openl_edit_table with an explicit position/count. Prefer openl_edit_table for isolated edits and append_table for additions. Required workflow: call get_table() without styles=true, preserve the complete matrix including covered cells/spans and scalar or one-dimensional multi-value cell values, modify it, then pass the full RawSource object here. Arrays must be non-empty and contain only scalar values; [null], nested arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. Before writing, the tool reads one live row to verify the submitted source is not shorter than the table; this prevents a sliced view from deleting unseen rows even if totalRows was removed. Studio table write APIs cannot change formatting, so cell style is read-only and rejected. The 'version' openl_get_table answered stays in the view and is required: Studio refuses the write when the table changed since — in Excel, on disk or through another client — and writes nothing, so read the table again and repeat the change. The response returns the CURRENT tableId, a new one when the edit renamed the table, and the table's new 'version'. The tool reads the table back to trigger recompilation, so openl_project_status reflects the change.",
+      "Replace the ENTIRE table RawSource matrix with a modified version; a cell sent with the value it holds is left as it is. Typed table DTOs are intentionally unsupported. Use for modifying, reordering, or structural changes that preserve or add rows; row removal is rejected, so use the delete_rows action of openl_edit_table with an explicit position/count. Prefer openl_edit_table for isolated edits and additions. Required workflow: call get_table() without styles=true, preserve the complete matrix including covered cells/spans and scalar or one-dimensional multi-value cell values, modify it, then pass the full RawSource object here. Arrays must be non-empty and contain only scalar values; [null], nested arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. Before writing, the tool reads one live row to verify the submitted source is not shorter than the table; this prevents a sliced view from deleting unseen rows even if totalRows was removed. Studio table write APIs cannot change formatting, so cell style is read-only and rejected. The 'version' openl_get_table answered stays in the view and is required: Studio refuses the write when the table changed since — in Excel, on disk or through another client — and writes nothing, so read the table again and repeat the change. The response returns the CURRENT tableId, a new one when the edit renamed the table, and the table's new 'version'. The tool reads the table back to trigger recompilation, so openl_project_status reflects the change.",
     schema: schemas.updateTableSchema,
     annotations: {
       destructiveHint: true,
@@ -204,26 +204,6 @@ export function registerTableHandlers(): void {
       // Studio answers the new id of a table the update renamed.
       const reportedId = await client.updateTable(projectId, tableId, view);
       return finishTableEdit(client, args, reportedId, `Successfully updated table ${tableId}`, "update");
-    },
-  });
-
-  registerTool({
-    ...structuredPayloadTool("append_table", "appendData"),
-    compiled: true,
-    title: "Append Raw Source Rows",
-    description:
-      "Append RawSource rows to an existing table. Typed append DTOs are intentionally unsupported. Every row must cover ALL columns of the table; Studio rejects a row of another width and writes nothing. Cell values may be scalars or Studio's one-dimensional multi-value arrays; arrays must be non-empty and contain only scalars, while [null], nested arrays, objects, and string elements surrounded by Studio-trimmed whitespace or control characters are rejected. Use { value: null } for a blank cell and preserve covered placeholders for merged regions. For modifying or reordering use openl_edit_table or update_table; remove rows/columns only with its delete actions. 'version' from openl_get_table or the previous edit is required: Studio appends nothing to a table changed since. The response returns the CURRENT tableId and the table's new 'version', and the read-back triggers recompilation.",
-    schema: schemas.appendTableSchema,
-    annotations: {
-      openWorldHint: true,
-    },
-    handler: async (args, client): Promise<ToolResponse> => {
-      const { projectId, tableId, appendData, version } = args;
-      const reportedId = await client.appendProjectTable(projectId, tableId, appendData, version);
-      return finishTableEdit(
-        client, args, reportedId,
-        `Successfully appended ${appendData.rows.length} raw source row(s) to table ${tableId}`, "append",
-      );
     },
   });
 

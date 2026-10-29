@@ -37,7 +37,7 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (67 Total)
+## Tools (66 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -104,11 +104,10 @@ the current branch into the other branch.
 - `openl_delete_project` - Delete a project after exact current-name confirmation
 - `openl_delete_project_branch` - Delete a non-base branch after exact branch confirmation and a safe-delete preflight against the repository base; unmerged commits, unsaved changes, or unverifiable divergence require explicit data-loss confirmation, while protected bypass also requires force confirmation
 
-### Rules/Tables Tools (10)
+### Rules/Tables Tools (9)
 - `openl_list_tables` - List project tables with pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required
 - `openl_get_table` - Get the authoritative `RawSource` 2D cell matrix, including context-parsed one-dimensional multi-value arrays; `startRow`/`maxRows` read a large table in row slices of exactly those rows (a merged cell the edge of a slice cuts keeps its value and names its whole area in `mergedArea`, so every row of a long merge is readable) and `styles=true` includes read-only Excel cell styles. Every answer states its rows in `window` next to `data`: `startRow`, `endRow`, `rows`, `totalRows`, `complete` (whether it holds every row) and `nextStartRow` while rows remain. A sliced response carries `totalRows` and is for reading or `openl_edit_table` only. The answer carries the table's `version`, which the edit tools take back
 - `openl_update_table` - Replace the complete `RawSource` matrix while preserving or adding rows (a cell sent with the value it holds is left as it is), including scalar and representable one-dimensional array values returned by `openl_get_table`; before writing, it reads one live row and rejects a shorter source even if `totalRows` was removed, preventing a sliced view from deleting unseen rows. Remove rows with the `delete_rows` action of `openl_edit_table`. Call `openl_get_table` without `styles=true`: Studio write APIs cannot change formatting, and `style` is rejected rather than silently ignored. The `version` of the view is required and sent in `If-Match`, so Studio refuses the write when the table changed since the read
-- `openl_append_table` - Append full-width `RawSource` rows with scalar or representable one-dimensional array cell values; the required `version` is sent in `If-Match`
 - `openl_create_project_table` - Create a table from a complete `RawSource` matrix in an existing module, or pass `modulePath` (an `.xlsx` project-relative path) to create a new module; cell values may be scalars or representable one-dimensional arrays, while cell formatting is unsupported by Studio write APIs
 - `openl_delete_table` - Delete an entire table (to remove a row/column WITHIN a table, use `openl_edit_table` below); the required `version` is sent in `If-Match`
 - `openl_run_table` - Execute a regular (non-Test) table with JSON input and wait for its result, treating Studio's `202 {"status":"notReady"}` result response as still running; provide parameters by name, directly or under `params`, or in order, under `params` or as a top-level array, any of them also as a JSON string; for a method whose only parameter is an array, a top-level array is that parameter's value. `timeoutMs` bounds the complete start-and-result workflow (default 2 minutes), and cancellation, timeout, or any other failed workflow clears the pending Studio run. Studio keeps only one run per client, so concurrent calls through the same MCP session are rejected rather than allowed to replace each other's result
@@ -227,7 +226,7 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 
 **For local, these work:**
 - `openl_list_projects` (call without repository filter, follow pagination to completion, then filter by `repository: "local"` in the response; the `repository: "local"` filter may fail because the "local" repository is often not returned by `openl_list_repositories`), `openl_get_project`;
-- Table tools: `openl_list_tables`, `openl_get_table`, `openl_update_table`, `openl_append_table`, `openl_create_project_table`, `openl_copy_table`, `openl_delete_table`, dependency/property discovery, and the raw table-source edits of `openl_edit_table`;
+- Table tools: `openl_list_tables`, `openl_get_table`, `openl_update_table`, `openl_create_project_table`, `openl_copy_table`, `openl_delete_table`, dependency/property discovery, and the raw table-source edits of `openl_edit_table`;
 - Module/sheet discovery and regular table execution: `openl_list_project_modules`, `openl_list_module_sheets`, `openl_run_table`;
 - Project deletion: `openl_delete_project` after exact project-name confirmation;
 - Test execution and results: `openl_start_project_tests`, `openl_get_test_results_summary`, `openl_get_test_results`, `openl_get_test_results_by_table` (the project is not opened before running tests for local).

@@ -124,6 +124,17 @@ describe("raw table-source edits", () => {
     expect(textOf(result)).toContain("now known by the id 't1_renamed'");
   });
 
+  it("tells an applied edit whose table cannot be read back", async () => {
+    harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
+    harness.mockHttp.onGet(tablePath).reply(503, { message: "Compilation model is unavailable" });
+
+    const result = await executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[a, b]], }, harness.client);
+
+    expect(dataOf(result)).toMatchObject({ success: true, recompileTriggered: false });
+    expect(dataOf(result).note).toContain("the edit WAS applied");
+  });
+
   it.each([
     ["append_columns", "without cells", {}, /'append_columns' needs 'cells'/],
     ["append_rows", "with a zero colspan", { cells: [[{ value: "a", colspan: 0 }]] }, /cells/],
