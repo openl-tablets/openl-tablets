@@ -871,7 +871,7 @@ export const searchProjectFilesSchema = z.strictObject({
   scope: z
     .enum(["SUBTREE", "ANCESTORS"])
     .optional()
-    .describe("SUBTREE (default) searches within the project; ANCESTORS walks up to the repository root."),
+    .describe("SUBTREE (default) searches within the project; ANCESTORS walks up from 'from' to the repository root, finding at each level the text file, such as a .md, .json or .yaml file up to 1 MB, whose exact name 'pattern' gives, not a glob, whatever content, extensions and type say; it answers its content up to 5,000 bytes and contentOmitted beyond."),
   recursive: z
     .boolean()
     .optional()
