@@ -751,7 +751,7 @@ export const getTestResultsSchema = z.strictObject({
   summary: z.boolean().default(false).describe("Read only the time of the run and how many tests passed and failed."),
   tableId: tableIdSchema.optional().describe("The test table to read whole; omit to read every test table, page by page."),
   failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
-  failures: z.number().int().positive().default(5).describe("Number of failed test units to include in the summary (default: 5, min: 1)"),
+  failures: z.number().int().positive().default(5).describe("With failuresOnly, how many failed tests each test table lists, 5 by default; a test table with more names how many it leaves out in omittedFailures. The results of one tableId list them all."),
   page: z.number().int().nonnegative().optional().describe("Page number (0-based). Mutually exclusive with offset"),
   offset: z.number().int().nonnegative().optional().describe("Offset for pagination. Mutually exclusive with page"),
   size: z.number().int().positive().max(200).optional().describe("Page size (number of results per page, maximum 200)"),

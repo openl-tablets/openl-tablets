@@ -875,6 +875,8 @@ export interface TestCaseExecutionResult {
   numberOfTests: number;
   numberOfFailures: number;
   testUnits: TestUnitExecutionResult[];
+  /** How many failed tests the list leaves out, when Studio lists only the first of them. */
+  omittedFailures?: number;
 }
 
 /** Tests execution summary (from OpenAPI) */

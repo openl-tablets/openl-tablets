@@ -1482,6 +1482,8 @@ export class OpenLClient {
       tableId: options?.tableId,
       failuresOnly: options?.failuresOnly || undefined,
       failures: options?.failures,
+      // The results of one test table hold every failure it has
+      allFailures: options?.tableId ? true : undefined,
       page: options?.page,
       offset: options?.offset,
       size: options?.size ?? options?.limit,
