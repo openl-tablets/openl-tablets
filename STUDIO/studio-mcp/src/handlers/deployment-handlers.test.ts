@@ -75,10 +75,10 @@ describe("deployment tools", () => {
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 
-  it("openl_redeploy_project posts the project to the deployment it names", async () => {
+  it("openl_deploy_project deploys the project again to the deployment deploymentId names", async () => {
     harness.mockHttp.onPost("/deployments/deploy%20001").reply(204);
 
-    const result = await executeTool("redeploy_project", {
+    const result = await executeTool("deploy_project", {
       deploymentId: "deploy 001",
       projectId: "design-project1",
       comment: "Redeploy latest",
@@ -90,5 +90,15 @@ describe("deployment tools", () => {
       message: "Successfully redeployed deploy 001 with project design-project1",
       deploymentId: "deploy 001",
     });
+  });
+
+  it.each([
+    [{ deploymentId: "d1", deploymentName: "project1" }, /takes no deploymentName/],
+    [{ deploymentName: "project1" }, /needs deploymentName and productionRepositoryId/],
+    [{}, /needs deploymentName and productionRepositoryId/],
+  ])("openl_deploy_project refuses %j before any request", async (args, message) => {
+    await expect(executeTool("deploy_project", { projectId: "design-project1", ...args }, harness.client))
+      .rejects.toThrow(message);
+    expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 });

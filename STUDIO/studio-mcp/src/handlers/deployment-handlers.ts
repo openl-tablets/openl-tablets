@@ -50,55 +50,36 @@ export function registerDeploymentHandlers(): void {
 
   registerTool({
     name: "deploy_project",
-    title: "Deploy Project to Production",
+    title: "Deploy Project",
     description:
-      "Deploy a project to production environment. Publishes rules to a deployment repository for runtime execution. Use production repository name (not ID) - e.g., 'Production Deployment' instead of 'production-deploy'.",
+      "Deploy a project to a production repository, where OpenL Rule Services runs its rules. A new deployment " +
+      "takes deploymentName and productionRepositoryId; deploymentId, from openl_list_deployments, deploys the " +
+      "project to that deployment again, as a newer version or a rollback.",
     schema: schemas.deployProjectSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      // Convert production repository name to ID for API call
-      const productionRepositoryId = await client.getProductionRepositoryIdByName(args.productionRepositoryId);
-
+      const { projectId, deploymentId, deploymentName, productionRepositoryId, comment } = args;
+      if (deploymentId !== undefined) {
+        await client.redeployProject(deploymentId, { projectId, comment });
+        return formatResult({
+          success: true,
+          message: `Successfully redeployed ${deploymentId} with project ${projectId}`,
+          deploymentId,
+        });
+      }
+      // The schema has checked that a new deployment names both
+      const name = deploymentName as string;
+      const repository = productionRepositoryId as string;
       await client.deployProject({
-        projectId: args.projectId,
-        deploymentName: args.deploymentName,
-        productionRepositoryId: productionRepositoryId,
-        comment: args.comment,
+        projectId,
+        deploymentName: name,
+        // The caller names the repository; Studio takes its id
+        productionRepositoryId: await client.getProductionRepositoryIdByName(repository),
+        comment,
       });
-
-      const result = {
-        success: true,
-        message: `Successfully deployed ${args.deploymentName} to ${args.productionRepositoryId}`,
-      };
-
-      return formatResult(result);
-    },
-  });
-
-  registerTool({
-    name: "redeploy_project",
-    title: "Redeploy with New Version",
-    description:
-      "Redeploy an existing deployment with a new project version. Use this to update a deployment with a newer version of the project or rollback to a previous version.",
-    schema: schemas.redeployProjectSchema,
-    annotations: {
-      openWorldHint: true,
-    },
-    handler: async (args, client): Promise<ToolResponse> => {
-      await client.redeployProject(args.deploymentId, {
-        projectId: args.projectId,
-        comment: args.comment,
-      });
-
-      const result = {
-        success: true,
-        message: `Successfully redeployed ${args.deploymentId} with project ${args.projectId}`,
-        deploymentId: args.deploymentId,
-      };
-
-      return formatResult(result);
+      return formatResult({ success: true, message: `Successfully deployed ${name} to ${repository}` });
     },
   });
 }
