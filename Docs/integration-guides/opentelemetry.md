@@ -10,10 +10,14 @@ docker run --rm -p 8080:8080 \
     openltablets/ws
 ```
 
-This minimal configuration traces both OpenL rules execution and the default instrumentations, such as DB queries, HTTP networking, and Kafka messaging.
+This minimal configuration traces both OpenL rules execution and the default instrumentations, such as HTTP networking and Kafka messaging.
 To suppress the undesired agent instrumentation, add `OTEL_INSTRUMENTATION_[NAME]_ENABLED=false` to the configuration where `NAME` is the corresponding instrumentation name.
 See [Suppressing specific agent instrumentation](https://opentelemetry.io/docs/zero-code/java/agent/disable/#suppressing-specific-agent-instrumentation).
 The instrumentation name of the OpenL rules agent is `openl-rules`.
+
+The images do not trace Hibernate and JDBC by default: they give a span for every DB query, and one request of OpenL Studio makes so many of them that the trace is unreadable and the collector cannot keep up.
+To trace DB queries, set `OTEL_INSTRUMENTATION_HIBERNATE_ENABLED=true`, `OTEL_INSTRUMENTATION_JDBC_ENABLED=true` or both.
+The images set these two variables, so a file given by `OTEL_JAVAAGENT_CONFIGURATION_FILE` cannot turn them on; use the variables instead.
 
 Note: In large projects, when a significant number (much more than 1,000) of OpenL methods is invoked internally, it can considerably decrease performance.
 In this case, it is reasonable to disable tracing of OpenL rules execution by defining `OTEL_INSTRUMENTATION_OPENL_RULES_ENABLED=false` as follows:
@@ -42,7 +46,7 @@ Each part reports a service of its own, named after `OTEL_SERVICE_NAME` (`OpenL`
 
 | Part          | Service name | What it sends                                                              |
 |---------------|--------------|----------------------------------------------------------------------------|
-| Java backend  | `OpenL`      | What the Java agent instruments: REST requests, rules, DB queries.         |
+| Java backend  | `OpenL`      | What the Java agent instruments: REST requests, rules.                     |
 | MCP server    | `OpenL-mcp`  | A span for each request at `/mcp`, each tool call, each call to Studio.    |
 | Browser pages | `OpenL-ui`   | A span for each request a page sends to OpenL Studio.                      |
 

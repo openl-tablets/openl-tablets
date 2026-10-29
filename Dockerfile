@@ -162,6 +162,10 @@ JAVA_OPTS="$JAVA_OPTS -Dlog4j2.configurationFile=$OPENL_DIR/log4j2-$LOGGING_FORM
 # format, instead of the agent's simple logger, which writes plain text lines to stderr
 export OTEL_JAVAAGENT_LOGGING="${OTEL_JAVAAGENT_LOGGING:-application}"
 
+# Hibernate and JDBC give a span for every query: one request of OpenL Studio makes so many that the collector hangs
+export OTEL_INSTRUMENTATION_HIBERNATE_ENABLED="${OTEL_INSTRUMENTATION_HIBERNATE_ENABLED:-false}"
+export OTEL_INSTRUMENTATION_JDBC_ENABLED="${OTEL_INSTRUMENTATION_JDBC_ENABLED:-false}"
+
 if [ -z "$OTEL_JAVAAGENT_ENABLED" ] && [ -z "$(env | grep -E '^OTEL_EXPORTER_')" ]; then
     echo "INFO: OpenTelemetry has been disabled because of no OTEL_EXPORTER_*** are defined"
     export OTEL_JAVAAGENT_ENABLED=false
