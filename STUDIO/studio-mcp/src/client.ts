@@ -615,14 +615,19 @@ export class OpenLClient {
   async openProject(
     projectId: string,
     options?: { revision?: string; openDependencies?: boolean }
-  ): Promise<void> {
-    await this.getProjectAndEnsureNotLocal(projectId);
+  ): Promise<"opened" | "already_open"> {
+    const project = await this.getProjectAndEnsureNotLocal(projectId);
+    // Studio refuses to open an opened project again: one asked for nothing else is left as it is
+    if (!options?.revision && !options?.openDependencies && (project.status === "OPENED" || project.status === "EDITING")) {
+      return "already_open";
+    }
     const updateModel: Types.ProjectStatusUpdateModel = {
       status: "OPENED",
       ...options,
     };
 
     await this.http.patch(projectPath(projectId), updateModel);
+    return "opened";
   }
 
   /**

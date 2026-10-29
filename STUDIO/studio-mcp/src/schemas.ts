@@ -71,9 +71,9 @@ export const listDeploymentsSchema = z.strictObject({
 });
 
 export const listProjectsSchema = z.strictObject({
-  repository: z.string().optional().describe("Filter by repository name (display name, not ID). Use the 'name' field from openl_list_repositories() response (e.g., if list_repositories returns {id: 'design-repo', name: 'Design Repository'}, use 'Design Repository' here, NOT 'design-repo'). Omit to show projects from all repositories."),
+  repository: repositoryNameSchema.optional(),
   status: z.enum(PROJECT_STATUSES).optional().describe("Filter by project status."),
-  dependsOn: z.string().optional().describe("Return projects that depend on this project identifier."),
+  dependsOn: z.string().optional().describe("The projectId of a project: return the projects that depend on it."),
   name: z.string().optional().describe("Project name filter (partial, case-insensitive)."),
   author: z.string().optional().describe("Last-modifying author filter (partial, case-insensitive)."),
   branch: z.string().optional().describe("Branch filter (partial, case-insensitive)."),
@@ -86,13 +86,13 @@ export const listProjectsSchema = z.strictObject({
 
 export const getProjectSchema = z.strictObject({
   projectId: projectIdSchema,
-  include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe(`Optional response expansions from the Studio API. ${STATUS_INCLUDE_NOTE}`),
+  include: z.array(z.enum(["status", "descriptor"])).optional().describe(`What to add: the compile status (status) or the rules.xml descriptor (descriptor). ${STATUS_INCLUDE_NOTE}`),
 });
 
 export const projectStatusSchema = z.strictObject({
   projectId: projectIdSchema,
   branch: branchNameSchema.optional().describe(
-    "Optional target branch: the tool switches an opened design project to this branch before reading its state. Omit for repositories that do not support branches and for repository 'local'."
+    "Optional target branch: the tool puts the project on this branch before reading its state, switching an opened project and opening a closed one. Omit for repositories that do not support branches and for repository 'local'."
   ),
   timeoutMs: z.number().int().positive().max(600000).default(30000).describe(
     "Max time in milliseconds to wait for Studio to compile an idle project. On expiry, the status is returned as compiling (no error). Default 30000 (30 seconds). Cap 600000 (10 minutes)."

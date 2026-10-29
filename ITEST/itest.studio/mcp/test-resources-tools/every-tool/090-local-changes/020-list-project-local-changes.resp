@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"#_current\",\"modifiedOn\":\"#-#-#T#:#:***Z\",\"current\":true},*"
+        "text": "{\"data\":[{\"historyId\":\"#_current\",\"modifiedOn\":\"#-#-#T#:#:***Z\",\"current\":true},*"
       }
     ],
     "resultType": "complete",
