@@ -488,7 +488,7 @@ export function registerProjectMergeHandlers(): void {
     name: "delete_project",
     title: "Delete Project",
     description:
-      "Permanently delete a project through Studio. This may create a deletion commit in its design repository. Safety guard: confirmProjectName is required and must exactly match the project's current backend name; the handler reads the project immediately before deletion. An optional comment becomes the deletion commit message only when the repository supports comments.",
+      "Permanently delete a project through Studio. This may create a deletion commit in its design repository. Safety guard: confirmProjectName is required and must exactly match the project's current backend name; the handler reads the project immediately before deletion. An optional comment becomes the deletion commit message only when the repository supports comments. In a repository with branches it deletes the project on its current branch only, answered as deletedOnBranch: another branch that holds the project keeps it.",
     schema: schemas.deleteProjectSchema,
     annotations: {
       destructiveHint: true,
@@ -504,12 +504,8 @@ export function registerProjectMergeHandlers(): void {
         );
       }
       await client.deleteProject(args.projectId, args.comment);
-      return formatResult({
-        success: true,
-        projectId: args.projectId,
-        projectName: project.name,
-        message: `Deleted project '${project.name}'.`,
-      });
+      // Studio deletes the project on the branch it is on, which the agent must not take for every branch
+      return formatResult({ success: true, ...(project.branch ? { deletedOnBranch: project.branch } : { deleted: true }) });
     },
   });
 
