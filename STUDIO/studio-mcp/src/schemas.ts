@@ -14,8 +14,6 @@ const STATUS_INCLUDE_NOTE =
   "'status' adds compileState: 'idle' means Studio has not compiled the project yet, not that it compiles; " +
   "openl_project_status compiles it and reports its errors.";
 
-/** The table kinds as the description of a filter names them: `'Rules', 'Spreadsheet'`. */
-const TABLE_KIND_LIST = TABLE_KINDS.map((kind) => "'" + kind + "'").join(", ");
 
 const ResponseFormat = z
   .enum(RESPONSE_FORMATS)
@@ -122,9 +120,9 @@ export const closeProjectSchema = z.strictObject({
 
 export const listTablesSchema = z.strictObject({
   projectId: projectIdSchema,
-  kind: z.array(z.string()).optional().describe(`Filter by table kinds (array of strings). Valid values: ${TABLE_KIND_LIST}. Omit to show all kinds.`),
+  kind: z.array(z.enum(TABLE_KINDS)).optional().describe("Filter by table kinds. Omit to show all kinds."),
   name: z.string().optional().describe("Filter by table name fragment (e.g., 'calculate', 'Premium'). Omit to show all tables."),
-  properties: z.record(z.string(), z.string()).optional().describe("Filter by project properties. Properties must be prefixed with 'properties.' in the query string (e.g., properties.state='CA', properties.lob='Auto'). This is handled automatically by the API client."),
+  properties: z.record(z.string(), z.string()).optional().describe("Filter by table properties, such as { state: 'CA', lob: 'Auto' }."),
   response_format: ResponseFormat,
   ...paginationShape,
 });
@@ -210,7 +208,7 @@ export const projectModuleSchema = z.strictObject({
 
 export const listTablePropertyDefinitionsSchema = z.strictObject({
   projectId: projectIdSchema,
-  tableType: nonBlankString.optional().describe("Optional public table kind. Omit for properties allowed inside a Properties table; provide a kind to get properties allowed on that table kind."),
+  tableType: z.enum(TABLE_KINDS).optional().describe("A table kind, for the properties allowed on it; omit for those allowed in a Properties table."),
 });
 
 export const copyTableSchema = z.strictObject({

@@ -115,7 +115,8 @@ export function registerTableHandlers(): void {
     name: "list_tables",
     compiled: true,
     title: "List Project Tables",
-    description: "List tables/rules in a project with optional filters for kind, name, and properties. Results are paginated (default 50, maximum 200): when a complete inventory is required, follow pagination.has_more and call again with pagination.next_offset until has_more is false. Returns table metadata including 'tableId' (the 'id' field) which is required for calling openl_get_table(), openl_update_table(), openl_edit_table(), or openl_run_table(). Use the 'tableId' field from the response to reference specific tables in other API calls. A table keeps its id while it is edited or moved; a rename gives it a new id, which the edit tools return as 'tableId'.",
+    description:
+      "List the tables of a project, filtered by kind, name fragment and table properties, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. A table's 'id' is the tableId openl_get_table, openl_update_table, openl_edit_table and openl_run_table take; it stays while the table is edited or moved, and a rename gives a new one, which the edit tools answer.",
     schema: schemas.listTablesSchema,
     annotations: {
       readOnlyHint: true,
