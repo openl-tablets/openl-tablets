@@ -185,7 +185,7 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' (FILE, FOLDER or ANY) and a case-insensitive 'content' substring. Content is found in text files only, never inside XLSX, XLS, ZIP or images: find those by path or extension. Only the top level is searched unless recursive=true, even with a '**' glob; match files in subfolders with a '**/' pattern, such as '**/*.xlsx'. Scope SUBTREE, the default, searches the project, also at an earlier 'revision'; ANCESTORS walks up to the root of the repository. To list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, and more with fields; the answer is paged by limit and offset. 'branch' pins the branch of the project.",
+      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' and a case-insensitive 'content' substring. Only the top level is searched unless recursive=true; to list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, more with fields; the answer is paged by limit and offset.",
     schema: schemas.searchProjectFilesSchema,
     annotations: {
       readOnlyHint: true,

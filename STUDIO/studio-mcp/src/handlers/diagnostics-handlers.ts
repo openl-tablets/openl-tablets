@@ -59,7 +59,7 @@ export function registerDiagnosticsHandlers(): void {
     name: "get_server_info",
     title: "Get Server Info",
     description:
-      "Report the OpenL Studio this server works with, as Markdown: its version and the address its users open it at. With full: true, also its build number, start and current time, operating system, architecture, Java, CPUs and their load, threads, and the memory of the machine and of the JVM. Quote it in bug reports. The path of a document openl_get_guides names is relative to this address, so a person can open the document in a browser. Read-only.",
+      "Report the OpenL Studio this server works with, as Markdown: its version and the address its users open it at. With full: true, also its build number, start and current time, operating system, architecture, Java, CPUs and their load, threads, and the memory of the machine and of the JVM. Quote it in bug reports. The path of a document openl_get_guides names is relative to this address, so a person can open the document in a browser.",
     schema: schemas.getServerInfoSchema,
     annotations: {
       readOnlyHint: true,

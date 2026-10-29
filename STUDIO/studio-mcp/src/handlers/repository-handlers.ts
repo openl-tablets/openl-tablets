@@ -31,7 +31,7 @@ export function registerRepositoryHandlers(): void {
     name: "list_branches",
     title: "List Git Branches",
     description:
-      "List all Git branch names in a repository. Use this to see available branches before switching or comparing versions. Pass either the id or name from openl_list_repositories() — both are accepted (case-insensitive). Do not invent example values; call openl_list_repositories() first if not in context.",
+      "List the Git branches of a repository, named by its id or name from openl_list_repositories, in any case.",
     schema: schemas.listBranchesSchema,
     annotations: {
       readOnlyHint: true,

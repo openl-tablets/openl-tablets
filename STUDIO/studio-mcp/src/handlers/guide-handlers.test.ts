@@ -79,7 +79,7 @@ describe("guidance tools", () => {
     }, harness.client);
 
     const text = textOf(result);
-    expect(text).toContain("*Important note about this document*");
+    expect(text).toContain("*The AGENTS.md files that apply");
     // Root file precedes the project file (root-first, project last = highest priority).
     expect(text.indexOf("## /foo/AGENTS.md")).toBeLessThan(text.indexOf("## /foo/P1/AGENTS.md"));
     expect(text.indexOf("root guidance")).toBeLessThan(text.indexOf("project guidance"));

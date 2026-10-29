@@ -840,9 +840,7 @@ export function hasMoreItems(offset: number, delivered: number, pageSize: number
  * from the document alone.
  */
 export const AGENTS_DOCUMENT_NOTE =
-  "*Important note about this document*\n" +
-  "This is the aggregated content of all AGENTS.md files, ordered from the root folder to the project folder.\n" +
-  "In case of conflicting instructions, each later AGENTS.md file takes precedence over the earlier ones. The root file has the lowest priority.";
+  "*The AGENTS.md files that apply, from the root folder to the project folder: a later file overrides an earlier one.*";
 
 /**
  * Render a project's applicable AGENTS.md files as a single markdown document.

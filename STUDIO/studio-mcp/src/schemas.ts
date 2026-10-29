@@ -843,15 +843,15 @@ export const searchProjectFilesSchema = z.strictObject({
   pattern: z
     .string()
     .optional()
-    .describe("Ant-glob path pattern, e.g. 'rules/**/*.xlsx' or '**/*.xml'. This can find binary files by path, but content is never searched inside them."),
+    .describe("Ant-glob path pattern, such as 'rules/**/*.xlsx' or '**/*.xml'."),
   content: z
     .string()
     .optional()
-    .describe("Case-insensitive substring to match inside TEXT files only. Studio does not inspect binary content such as XLSX/XLS/ZIP/images; use pattern/extensions to locate binary files instead."),
+    .describe("Case-insensitive substring found in text files only, never inside XLSX, XLS, ZIP or images: find those by pattern or extensions."),
   extensions: z
     .array(z.string())
     .optional()
-    .describe("Filter by file extensions without the dot, e.g. ['xlsx','xml']. With content, only matching text files are inspected; binary extensions such as xlsx can be located but not searched internally."),
+    .describe("File extensions without the dot, such as ['xlsx','xml']."),
   type: z
     .enum(["FILE", "FOLDER", "ANY"])
     .optional()
@@ -863,7 +863,7 @@ export const searchProjectFilesSchema = z.strictObject({
   recursive: z
     .boolean()
     .optional()
-    .describe("Whether to descend into nested folders. IMPORTANT: defaults to false (top level only) — set true to search the whole project/subtree. A '**' glob still needs recursive:true to actually descend."),
+    .describe("Search the nested folders too; false, the default, searches the top level only, even with a '**' pattern."),
   from: z
     .string()
     .optional()
@@ -890,7 +890,7 @@ export const getProjectAgentContextSchema = z.strictObject({
     .max(1024)
     .optional()
     .describe(
-      "Optional project-relative sub-folder to start the walk-up from, e.g. 'rules' or 'rules/pricing'. Use this to get the AGENTS.md chain that applies to a file deeper inside the project ('the AGENTS.md nearest the edited file wins'). Omit to start at the project root. Do NOT include the project name; the path is relative to the project root."
+      "A folder of the project, such as 'rules/pricing', for the guidance of a file inside it; the project root when omitted."
     ),
   branch: fileBranchSchema,
 });
