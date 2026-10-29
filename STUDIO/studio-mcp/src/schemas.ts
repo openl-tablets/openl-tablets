@@ -30,14 +30,15 @@ const paginationShape = {
   offset: z.number().int().nonnegative().default(0),
 };
 
-export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("Project ID returned by backend. Use the exact 'projectId' value from openl_list_projects() response without modification or reformatting.");
+// The ids take a short description, as most tools take one of them and every agent loads their schemas every session
+export const projectIdSchema = z.string().min(1, "Project ID must not be empty.").describe("The 'projectId' openl_list_projects answered, as it is.");
 
 const repositoryNameSchema = z.string().describe("Repository identifier. Pass either the 'id' or the 'name' field from openl_list_repositories() — the tool accepts both (and is case-insensitive). DO NOT invent values like 'Design Repository' or 'design-repo'; the actual names are typically short tokens (e.g. 'Design'). Always call openl_list_repositories() first if you don't already have the value in context.");
 
 /** A string with more than whitespace in it, trimmed. */
 const nonBlankString = z.string().trim().min(1);
 
-const tableIdSchema = z.string().describe("Table identifier - unique ID assigned by OpenL Studio (e.g., '9d8vgdp7SqnnDpLZ'). It stays the same while the table is edited or moved; a rename gives the table a new id, which the edit tools return as 'tableId'.");
+const tableIdSchema = z.string().describe("The 'id' of the table openl_list_tables answered, or the 'tableId' of its last edit.");
 
 const branchNameSchema = z.string().describe("Git branch name (e.g., 'main', 'development', 'feature/new-rules')");
 
