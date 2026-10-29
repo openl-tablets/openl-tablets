@@ -76,7 +76,7 @@ export function registerDeploymentHandlers(): void {
         projectId,
         deploymentName: name,
         // The caller names the repository; Studio takes its id
-        productionRepositoryId: await client.getProductionRepositoryIdByName(repository),
+        productionRepositoryId: await client.getProductionRepositoryId(repository),
         comment,
       });
       return formatResult({ success: true, message: `Successfully deployed ${name} to ${repository}` });

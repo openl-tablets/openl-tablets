@@ -64,6 +64,18 @@ describe("deployment tools", () => {
     });
   });
 
+  it.each(["production-deploy", "PRODUCTION DEPLOYMENT"])(
+    "openl_deploy_project deploys to the repository %j names by its id or name, in any case", async (repository) => {
+      harness.mockHttp.onGet("/production-repos").reply(200, deployRepositories);
+      harness.mockHttp.onPost("/deployments").reply(204);
+
+      await executeTool("deploy_project", {
+        projectId: "design-project1", deploymentName: "project1", productionRepositoryId: repository,
+      }, harness.client);
+
+      expect(bodyOf(harness.mockHttp.history.post[0])).toMatchObject({ productionRepositoryId: "production-deploy" });
+    });
+
   it("openl_deploy_project names the available repositories when the name is unknown", async () => {
     harness.mockHttp.onGet("/production-repos").reply(200, deployRepositories);
 
@@ -71,7 +83,7 @@ describe("deployment tools", () => {
       projectId: "design-project1",
       deploymentName: "project1",
       productionRepositoryId: "Nope",
-    }, harness.client)).rejects.toThrow(/"Nope" not found.*Production Deployment, Staging Deployment/);
+    }, harness.client)).rejects.toThrow(/"Nope" not found.*\(Production Deployment\), .*\(Staging Deployment\)/);
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 

@@ -193,7 +193,7 @@ and walk it level by level with `openl_expand_trace_tree`.
 ### Deployment (3)
 - `openl_list_deploy_repositories` - List deployment repositories
 - `openl_list_deployments` - List active deployments
-- `openl_deploy_project` - Deploy to production: a new deployment by `deploymentName` and `productionRepositoryId`, or the project again to the deployment `deploymentId` names, as a newer version or a rollback
+- `openl_deploy_project` - Deploy to production: a new deployment by `deploymentName` and `productionRepositoryId` (the id or the name of the repository, in any case), or the project again to the deployment `deploymentId` names, as a newer version or a rollback
 
 ### Diagnostics (1)
 - `openl_get_server_info` - Report the OpenL Studio the server works with, as Markdown: `Server: OpenL Studio <version>` and `URL: <address>` — the address its users open, restored from the `X-Forwarded-*` headers or the first `Forwarded` element of the request, its `Host` otherwise, with the context path of Studio. `full: true` adds the build number, the start and the current time, OS, architecture, Java, CPUs and their load, threads, and the memory of the machine and of the JVM, from `/rest/public/info/build.json` and `/rest/public/info/sys.json`. The `path` of a document from `openl_list_guides` is relative to that address
