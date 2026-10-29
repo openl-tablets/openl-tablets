@@ -266,6 +266,9 @@ export interface TableMetadata {
   signature?: string;
   file?: string;
   pos?: string;
+  /** The name and the id of the project of the table, the one the list was asked for. */
+  project?: string;
+  projectId?: string;
 }
 
 /** Fields shared by executable and datatype nodes in the Studio dependency graph. */
