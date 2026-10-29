@@ -535,7 +535,7 @@ export const createProjectSchema = z.strictObject({
 export const deployProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   deploymentName: z.string().optional().describe("The name of a new deployment."),
-  productionRepositoryId: z.string().optional().describe("The 'name' of the production repository of a new deployment, from openl_list_deploy_repositories."),
+  productionRepositoryId: z.string().optional().describe("The 'id' or 'name' of the production repository of a new deployment, as openl_list_deploy_repositories and openl_list_deployments answer them."),
   deploymentId: z.string().optional().describe("The 'id' of a deployment to deploy the project to again, from openl_list_deployments."),
   comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
 }).superRefine((data, ctx) => {

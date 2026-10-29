@@ -108,6 +108,15 @@ function traceStackParams(options?: Types.TraceStackOptions): Record<string, unk
 }
 
 /** The path of a project in the Studio API, by its opaque id. */
+/** The repository a user-supplied id or name names: the exact id, the exact name, then either ignoring case. */
+function matchRepository<R extends { id: string; name: string }>(repositories: R[], idOrName: string): R | undefined {
+  const needle = idOrName.toLowerCase();
+  return repositories.find(r => r.id === idOrName)
+    ?? repositories.find(r => r.name === idOrName)
+    ?? repositories.find(r => r.id.toLowerCase() === needle)
+    ?? repositories.find(r => r.name.toLowerCase() === needle);
+}
+
 function projectPath(projectId: string): string {
   return `/projects/${encodeURIComponent(projectId)}`;
 }
@@ -311,11 +320,7 @@ export class OpenLClient {
   /** The design repository a user-supplied id or name names, matched as {@link getRepositoryIdByName} tells. */
   private async findRepository(repositoryIdOrName: string): Promise<Types.Repository> {
     const repositories = await this.listRepositories();
-    const needle = repositoryIdOrName.toLowerCase();
-    const match = repositories.find(r => r.id === repositoryIdOrName)
-      ?? repositories.find(r => r.name === repositoryIdOrName)
-      ?? repositories.find(r => r.id.toLowerCase() === needle)
-      ?? repositories.find(r => r.name.toLowerCase() === needle);
+    const match = matchRepository(repositories, repositoryIdOrName);
     if (match) return match;
 
     const available = repositories.map(r => `${r.id} (${r.name})`).join(", ");
@@ -361,24 +366,21 @@ export class OpenLClient {
   }
 
   /**
-   * Map production repository name to repository ID
+   * The id of the production repository a user-supplied id or name names, matched as a design repository is
    *
-   * This function allows users to work with production repository names (user-friendly)
-   * while the server uses repository IDs internally for API calls.
-   *
-   * @param repositoryName - Production repository name (e.g., "Production Deployment")
+   * @param repositoryIdOrName - The id (e.g. "production-deploy") or the name (e.g. "Production Deployment")
    * @returns Repository ID (e.g., "production-deploy")
-   * @throws Error if repository name not found
+   * @throws Error if no repository has that id or name
    */
-  async getProductionRepositoryIdByName(repositoryName: string): Promise<string> {
+  async getProductionRepositoryId(repositoryIdOrName: string): Promise<string> {
     const repositories = await this.listDeployRepositories();
-    const repository = repositories.find(r => r.name === repositoryName);
+    const repository = matchRepository(repositories, repositoryIdOrName);
 
     if (!repository) {
-      const availableNames = repositories.map(r => r.name).join(", ");
+      const available = repositories.map(r => `${r.id} (${r.name})`).join(", ");
       throw new Error(
-        `Production repository with name "${repositoryName}" not found. ` +
-        `Available production repositories: ${availableNames || "none"}. ` +
+        `Production repository "${repositoryIdOrName}" not found. ` +
+        `Available production repositories: ${available || "none"}. ` +
         `Use openl_list_deploy_repositories() to see all available production repositories.`
       );
     }
