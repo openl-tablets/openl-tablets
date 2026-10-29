@@ -395,6 +395,33 @@ describe("project branch and merge handlers", () => {
       });
     });
 
+    it("reads the rest of a conflicted text from a conflict, with the merged lines before it", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
+
+      const response = dataOf<any>(await executeTool("get_merge_conflict_text", {
+        projectId: "p1", file: "rules.xml", fromConflict: 1, }, harness.client));
+
+      expect(response.conflicts).toBe(2);
+      expect(response.blocks.map((block: any) => block.kind)).toEqual(["merged", "conflict", "merged"]);
+      expect(response.blocks[1].conflict).toBe(1);
+      await expect(executeTool("get_merge_conflict_text", { projectId: "p1", file: "rules.xml", fromConflict: 2 },
+        harness.client)).rejects.toThrow(/no conflict 2/);
+    });
+
+    it("cuts a conflicted text over the size limit by whole blocks, continued at the next conflict", async () => {
+      const big = (n: number) => ({ kind: "conflict", ours: `${n}${"o".repeat(6_000)}\n`, base: "", theirs: "t\n" });
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, {
+        blocks: [big(0), { kind: "merged", text: "m\n" }, big(1), big(2), big(3), big(4)],
+      });
+
+      const response = JSON.parse(textOf(await executeTool("get_merge_conflict_text", {
+        projectId: "p1", file: "notes.txt", }, harness.client)));
+
+      expect(response.truncated).toBe(true);
+      expect(response.truncation_message).toMatch(/continue with fromConflict=\d/);
+      expect(response.data.conflicts).toBe(5);
+    });
+
     it("refuses decisions that are not one per conflict before resolving anything", async () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
         conflictGroups: [{ projectName: "Rating", files: ["rules.xml"] }],
