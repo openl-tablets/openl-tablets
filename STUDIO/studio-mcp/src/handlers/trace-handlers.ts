@@ -168,6 +168,23 @@ function withStepValues(
 }
 
 /**
+ * The note on the watched cells no series answers. A name the run never computed reads as an empty series. A run that
+ * stopped early or reached its capture limit may not have reached the cell, so its name is wrong only possibly.
+ */
+function unseenCellsNote(cells: string[], watch: Types.WatchView, whole: boolean): string[] {
+  const seen = new Set(watch.series.map((series) => series.name));
+  const unseen = cells.filter((cell) => !seen.has(cell));
+  const names = unseen.map((cell) => "'" + cell + "'").join(", ");
+  const check = "check the name as openl_inspect_trace_frame lists the steps of the table, such as '$Value$BankRating'.";
+  if (unseen.length === 0) {
+    return [];
+  }
+  return [whole
+    ? `The run computed no cell named ${names}: ${check}`
+    : `No value of ${names} was captured before the capture ended: if the run should have reached it, ${check}`];
+}
+
+/**
  * Shared 404 guidance: the debug session belongs to the client and is idle-reaped.
  * Interpolated by both rethrow helpers so the wording stays in one place.
  */
@@ -533,6 +550,7 @@ export function registerTraceHandlers(): void {
 
   registerTool({
     name: "watch_trace_cells",
+    compiled: true,
     title: "Watch Cells Across a Run",
     description:
       "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, label, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. A series lists its first 100 points: one marked 'truncated' leaves later executions out, which its 'total' counts, and a 'note' tells when the run reached its capture limit, after which the totals count only what it captured. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
@@ -553,12 +571,14 @@ export function registerTraceHandlers(): void {
       // the studio build and retain a large call tree this tool discards). The
       // server caps points per series, so the response is bounded.
       await client.setTraceWatches(args.projectId, args.cells);
-      await client.startTrace({ ...args, stopAtEntry: false });
+      const stack = await client.startTrace({ ...args, stopAtEntry: false });
 
       const watch = await client.getTraceWatch(
         args.projectId,
         args.withSchema ? undefined : WATCH_FIELDS,
       ).catch((error: unknown) => rethrowTraceStateError(error, "watch read"));
+      // A watch set stays set for the session: a later trace would capture the cells again, up to the capture limit
+      await client.setTraceWatches(args.projectId, []).catch(() => undefined);
 
       // Studio cuts each series to its first points and says so only by its total, and it stops capturing at a
       // limit for the whole run, after which the totals count what was captured: both are told
@@ -572,8 +592,13 @@ export function registerTraceHandlers(): void {
           "The run reached its capture limit, so a 'total' counts only the executions captured before it: watch " +
             "fewer cells, or a cell of a higher level.",
         ] : []),
+        ...unseenCellsNote(args.cells, watch, stack.status === "completed" && !watch.truncated),
+        ...(stack.status === "completed" ? [] : [
+          `The run stopped before its end, ${stack.status}: the series hold the executions before the stop.`,
+        ]),
       ];
-      const payload = notes.length > 0 ? { note: notes.join(" "), ...watch, series } : { ...watch, series };
+      const stop = stack.status === "completed" ? {} : { status: stack.status, ...(stack.error ? { error: stack.error } : {}) };
+      const payload = notes.length > 0 ? { note: notes.join(" "), ...stop, ...watch, series } : { ...watch, series };
 
       return formatResult(payload);
     },
