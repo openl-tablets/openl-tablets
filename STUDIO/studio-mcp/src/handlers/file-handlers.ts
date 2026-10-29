@@ -68,7 +68,8 @@ export function registerFileHandlers(): void {
       const at = { version: args.revision, branch: args.branch };
       // The content of an earlier commit replaces nothing: only the version of the working copy is told
       const current = (version: string | undefined): string | undefined => (args.revision ? undefined : version);
-      const meta = isFolderPath(path) ? undefined : await client.getProjectFileMeta(projectId, path, at);
+      const meta = isFolderPath(path) ? undefined : await client.getProjectFileMeta(projectId, path, at)
+        .catch((error: unknown) => (isNotFoundError(error) ? noFileAt(path) : Promise.reject(error)));
       if (!meta || meta.type === "folder") {
         return formatResult(await downloadLink(client, { kind: "archive", projectId, path, ...at }),
           );
@@ -216,11 +217,15 @@ export function registerFileHandlers(): void {
       // The backend file-search has no server-side paging (it returns the full
       // match set), so — like openl_list_deployments/openl_list_repositories — we
       // paginate the returned array client-side and report pagination metadata.
-      const results = await client.searchProjectFiles(args.projectId, query, {
+      const found = await client.searchProjectFiles(args.projectId, query, {
         branch: args.branch,
         fields: args.fields,
       });
-      return textResult(formatPage(results.filter(inStartFolder(args)), "json", limit, offset));
+      // An ANCESTORS search answers each file whole, up to 1 MB: a file larger than an inline text goes without it
+      const results = found.filter(inStartFolder(args)).map((node) => (node.content !== undefined && Buffer.byteLength(node.content, "utf8") > INLINE_TEXT_BYTES
+        ? { ...node, content: undefined, contentOmitted: true }
+        : node));
+      return textResult(formatPage(results, "json", limit, offset));
     },
   });
 
@@ -262,6 +267,14 @@ async function isFile(client: OpenLClient, projectId: string, path: string, bran
   // Studio answers the metadata of a file only
   return client.getProjectFileMeta(projectId, path, { branch })
     .then(() => true, (error: unknown) => (isNotFoundError(error) ? false : Promise.reject(error)));
+}
+
+/** The refusal of a read of a path no file takes, which may name a folder without the slash that ends one. */
+function noFileAt(path: string): never {
+  throw new ProtocolError(
+    ProtocolErrorCode.InvalidParams,
+    `No file is at '${path}'. A folder is read as a ZIP archive by a path that ends with '/': '${path}/'.`,
+  );
 }
 
 /**

@@ -599,4 +599,30 @@ describe("delete, search, copy and move", () => {
       projectId: "p1", sourcePath: "a.xlsx", destinationPath: "b.xlsx",
     }, harness.client)).rejects.toThrow(/locked by another user/);
   });
+
+  it("answers a path no file takes with the slash a folder needs", async () => {
+    harness.mockHttp.onGet("/projects/p1/files/rules").reply(404, { message: "Not found" });
+
+    await expect(executeTool("read_project_file", { projectId: "p1", path: "rules" }, harness.client))
+      .rejects.toThrow(/No file is at 'rules'.*'rules\/'/);
+  });
+
+  it("answers an ANCESTORS match larger than an inline text without its content", async () => {
+    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, [
+      { path: "AGENTS.md", name: "AGENTS.md", type: "file", content: "short" },
+      { path: "../AGENTS.md", name: "AGENTS.md", type: "file", content: "x".repeat(6_000) },
+      // 2,000 characters of 3 bytes each
+      { path: "../../AGENTS.md", name: "AGENTS.md", type: "file", content: "規".repeat(2_000) },
+    ]);
+
+    const result = await executeTool("search_project_files", {
+      projectId: "p1", scope: "ANCESTORS", from: "rules", pattern: "AGENTS.md",
+    }, harness.client);
+
+    expect(dataOf<any[]>(result)).toEqual([
+      { path: "AGENTS.md", name: "AGENTS.md", type: "file", content: "short" },
+      { path: "../AGENTS.md", name: "AGENTS.md", type: "file", contentOmitted: true },
+      { path: "../../AGENTS.md", name: "AGENTS.md", type: "file", contentOmitted: true },
+    ]);
+  });
 });
