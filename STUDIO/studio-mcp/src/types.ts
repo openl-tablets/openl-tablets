@@ -566,6 +566,8 @@ export interface ResolveConflictsResponse {
 }
 
 export interface Repository {
+  /** The id of the repository in Studio's access control, which no tool takes. */
+  aclId?: string;
   /** Repository ID */
   id: string;
   /** Repository name */

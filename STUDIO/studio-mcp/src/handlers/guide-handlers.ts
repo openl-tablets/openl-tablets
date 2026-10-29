@@ -116,7 +116,7 @@ export function registerGuideHandlers(): void {
     name: "list_guides",
     title: "List Guides",
     description:
-      "List the OpenL reference documentation OpenL Studio serves for its own version — METADATA ONLY (id, type, title, path, size in bytes), never bodies; fetch bodies with openl_get_guides. 'specification' entries are config-file/project-layout specs (rules.xml, rules-deploy.xml, project structure, table types, openl-maven-plugin), 'guide' entries are the Reference Guide chapters (table types, table properties, functions and data types, projects, BEX/function appendices). 'path' is the address of the document relative to the address of OpenL Studio (openl_get_server_info), so a person can open it in a browser. Filter with 'type' and/or case-insensitive 'search' over id+title; results are paginated (limit/offset). Read-only.",
+      "List the OpenL reference documentation OpenL Studio serves for its own version — METADATA ONLY (id, title, size in bytes), never bodies; fetch bodies with openl_get_guides. 'specification' entries are config-file/project-layout specs (rules.xml, rules-deploy.xml, project structure, table types, openl-maven-plugin), 'guide' entries are the Reference Guide chapters (table types, table properties, functions and data types, projects, BEX/function appendices). An id starts with 'spec/' or 'guide/', its type; openl_get_guides names the path a person opens the document at. Filter with 'type' and/or case-insensitive 'search' over id+title; results are paginated (limit/offset).",
     schema: schemas.listGuidesSchema,
     annotations: {
       readOnlyHint: true,
@@ -126,7 +126,9 @@ export function registerGuideHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { limit, offset } = args;
 
-      const entries = await listGuides(client, { type: args.type, search: args.search });
+      // The id tells the type of an entry, and openl_get_guides the path a person opens it at
+      const entries = (await listGuides(client, { type: args.type, search: args.search }))
+        .map(({ type, path, ...entry }) => entry);
       return textResult(formatPage(entries, "json", limit, offset));
     },
   });

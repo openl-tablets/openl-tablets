@@ -21,7 +21,7 @@ export function registerDeploymentHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { limit, offset } = args;
 
-      const repositories = await client.listDeployRepositories();
+      const repositories = (await client.listDeployRepositories()).map(({ aclId, ...repository }) => repository);
       return textResult(formatPage(repositories, "json", limit, offset));
     },
   });

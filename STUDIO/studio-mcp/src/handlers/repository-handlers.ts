@@ -22,7 +22,7 @@ export function registerRepositoryHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { limit, offset } = args;
 
-      const repositories = await client.listRepositories();
+      const repositories = (await client.listRepositories()).map(({ aclId, ...repository }) => repository);
       return textResult(formatPage(repositories, args.response_format, limit, offset, { dataType: "repositories" }));
     },
   });
@@ -85,7 +85,14 @@ export function registerRepositoryHandlers(): void {
       const offset = args.offset ?? revisions.pageNumber * revisions.pageSize;
       const { pageSize: limit, total } = revisions;
 
-      return formatResult(revisions, "json", {
+      // The revisions alone: the page Studio wraps them in is told by the pagination, a short revision is a prefix of
+      // its revision, and a flag that is false tells nothing
+      const items = revisions.content.map(({ shortRevisionNo, deleted, technicalRevision, ...revision }) => ({
+        ...revision,
+        ...(deleted ? { deleted } : {}),
+        ...(technicalRevision ? { technicalRevision } : {}),
+      }));
+      return formatResult(items, "json", {
         pagination: { limit, offset, total, hasMore: hasMoreItems(offset, revisions.numberOfElements, limit, total) },
       });
     },

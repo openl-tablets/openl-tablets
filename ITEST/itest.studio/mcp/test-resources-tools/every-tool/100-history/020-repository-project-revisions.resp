@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"content\":[{\"revisionNo\":\"@\",\"shortRevisionNo\":\"@\",\"createdAt\":\"#-#-#T#:#:#-#:#\",\"fullComment\":\"Build the rules\",\"author\":{\"email\":\"admin@example.com\",\"displayName\":\"Ada Admin\"},\"deleted\":false,\"technicalRevision\":false},{\"revisionNo\":\"@\",\"shortRevisionNo\":\"@\",\"createdAt\":\"#-#-#T#:#:#-#:#\",\"fullComment\":\"Create the project\",\"author\":{\"email\":\"admin@example.com\",\"displayName\":\"Ada Admin\"},\"deleted\":false,\"technicalRevision\":false}],\"pageNumber\":0,\"pageSize\":50,\"numberOfElements\":2},\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false}}"
+        "text": "{\"data\":[{\"revisionNo\":\"@\",\"createdAt\":\"#-#-#T#:#:#-#:#\",\"fullComment\":\"Build the rules\",\"author\":{\"email\":\"admin@example.com\",\"displayName\":\"Ada Admin\"}},{\"revisionNo\":\"@\",\"createdAt\":\"#-#-#T#:#:#-#:#\",\"fullComment\":\"Create the project\",\"author\":{\"email\":\"admin@example.com\",\"displayName\":\"Ada Admin\"}}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false}}"
       }
     ],
     "resultType": "complete",
