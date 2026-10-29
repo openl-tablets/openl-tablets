@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"id\":\"guide/working-with-openl-tables/table-types/spreadsheet-table/parsing-a-spreadsheet-table\",\"type\":\"guide\",\"title\":\"Parsing A Spreadsheet Table\",\"path\":\"docs/reference-guide/02-working-with-openl-tables/03-table-types/03-spreadsheet-table/01-parsing-a-spreadsheet-table.md\",\"size\":#},*"
+        "text": "{\"data\":[{\"id\":\"guide/working-with-openl-tables/table-types/spreadsheet-table/parsing-a-spreadsheet-table\",\"title\":\"Parsing A Spreadsheet Table\",\"size\":#},*"
       }
     ],
     "resultType": "complete",

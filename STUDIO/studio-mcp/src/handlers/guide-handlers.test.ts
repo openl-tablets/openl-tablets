@@ -42,11 +42,10 @@ describe("guidance tools", () => {
     const parsed = JSON.parse(textOf(result));
     expect(parsed.data).toHaveLength(1);
     const path = "reference-guide/02-working-with-openl-tables/01-table-types/02-decision-table/03-smart-rules-tables.md";
+    // The id tells the type, and openl_get_guides the path
     expect(parsed.data[0]).toEqual({
       id: GUIDE_IDS.smartRules,
-      type: "guide",
       title: "Smart Rules Table",
-      path: `docs/${path}`,
       size: Buffer.byteLength(GUIDE_PAGES[path]),
     });
     expect(parsed.pagination).toMatchObject({ total_count: 1 });

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"aclId\":\"UFJPRDpwcm9kdWN0aW9u\",\"id\":\"production\",\"name\":\"Deployment\",\"type\":\"repo-jdbc\",\"capabilities\":{\"canManage\":true}}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
+        "text": "{\"data\":[{\"id\":\"production\",\"name\":\"Deployment\",\"type\":\"repo-jdbc\",\"capabilities\":{\"canManage\":true}}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
       }
     ],
     "resultType": "complete",
