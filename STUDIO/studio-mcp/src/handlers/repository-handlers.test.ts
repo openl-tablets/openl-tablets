@@ -17,10 +17,9 @@ describe("repository tools", () => {
   it("openl_list_repositories pages the repositories", async () => {
     harness.mockHttp.onGet("/repos").reply(200, mockRepositories);
 
-    const first = JSON.parse(textOf(await executeTool("list_repositories", { limit: 1, response_format: "json" }, harness.client)));
+    const first = JSON.parse(textOf(await executeTool("list_repositories", { limit: 1 }, harness.client)));
     const second = JSON.parse(textOf(await executeTool("list_repositories", {
-      limit: 1, offset: 1, response_format: "json",
-    }, harness.client)));
+      limit: 1, offset: 1, }, harness.client)));
 
     expect(first.data.map((repository: { id: string }) => repository.id)).toEqual(["design"]);
     expect(first.pagination).toMatchObject({ has_more: true, next_offset: 1, total_count: 2 });
@@ -42,7 +41,6 @@ describe("repository tools", () => {
 
     const result = await executeTool("list_repository_features", {
       repository: "PRODUCTION REPOSITORY",
-      response_format: "json",
     }, harness.client);
 
     expect(dataOf(result)).toEqual({ branches: false, comments: true, mappedFolders: false, searchable: false });
@@ -61,7 +59,6 @@ describe("repository tools", () => {
 
     const result = await executeTool("list_repository_features", {
       repository: "design-file",
-      response_format: "json",
     }, harness.client);
 
     expect(dataOf(result)).toEqual({ branches: false, comments: false, mappedFolders: true, searchable: false });
@@ -83,7 +80,6 @@ describe("repository tools", () => {
       projectId,
       page: 0,
       size: 2,
-      response_format: "json",
     }, harness.client);
 
     expect(JSON.parse(textOf(result)).pagination).toEqual({
@@ -108,7 +104,6 @@ describe("repository tools", () => {
       projectId,
       offset: 25,
       size: 50,
-      response_format: "json",
     }, harness.client);
 
     expect(JSON.parse(textOf(result)).pagination).toMatchObject({

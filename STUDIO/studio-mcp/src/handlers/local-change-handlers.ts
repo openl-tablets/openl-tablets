@@ -22,9 +22,7 @@ export function registerLocalChangeHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const changes = await client.getProjectLocalChanges(args.projectId, args.moduleName);
 
-      return formatResult(changes, args.response_format, {
-        dataType: "local_changes",
-      });
+      return formatResult(changes);
     },
   });
 
@@ -53,7 +51,7 @@ export function registerLocalChangeHandlers(): void {
         historyId: args.historyId,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 }

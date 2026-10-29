@@ -243,7 +243,7 @@ export function registerTraceHandlers(): void {
         includeTree: args.profiling ? (args.includeTree ?? false) : undefined,
       });
 
-      return formatResult(stack, args.response_format);
+      return formatResult(stack);
     },
   });
 
@@ -275,7 +275,7 @@ export function registerTraceHandlers(): void {
         result = { ...stack, variables };
       }
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -334,10 +334,10 @@ export function registerTraceHandlers(): void {
             `Trace is still ${outcome.stillRunning} after waiting ${Math.round(timeoutMs / 1000)}s — the rule may be computing or looping. ` +
             `Call openl_resume_trace again to keep waiting (optionally with a larger timeoutMs), or openl_stop_trace to terminate.`,
         };
-        return formatResult(timedOut, args.response_format);
+        return formatResult(timedOut);
       }
 
-      return formatResult(outcome.stack, args.response_format);
+      return formatResult(outcome.stack);
     },
   });
 
@@ -391,7 +391,7 @@ export function registerTraceHandlers(): void {
         result = { ...variables, highlights, grid };
       }
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -418,7 +418,7 @@ export function registerTraceHandlers(): void {
         client.getTraceBreakpointTables(args.projectId),
       ]);
 
-      return formatResult({ breakpoints, targets }, args.response_format);
+      return formatResult({ breakpoints, targets });
     },
   });
 
@@ -441,7 +441,7 @@ export function registerTraceHandlers(): void {
         args.withSchema ? undefined : "name,description,value",
       ).catch((error: unknown) => rethrowTraceStateError(error, "lazy value fetch"));
 
-      return formatResult(param, args.response_format);
+      return formatResult(param);
     },
   });
 
@@ -477,7 +477,7 @@ export function registerTraceHandlers(): void {
         ? { children, total, hasMore, nextOffset: offset + children.length }
         : { children, total, hasMore };
 
-      return formatResult(payload, args.response_format);
+      return formatResult(payload);
     },
   });
 
@@ -543,7 +543,7 @@ export function registerTraceHandlers(): void {
         };
       }
 
-      return formatResult(payload, args.response_format);
+      return formatResult(payload);
     },
   });
 }

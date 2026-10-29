@@ -270,7 +270,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const branches = await client.listProjectBranches(args.projectId, args.scope);
-      return formatResult(branches, args.response_format);
+      return formatResult(branches);
     },
   });
 
@@ -287,7 +287,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const result = await client.checkProjectMerge(args.projectId, mergeRequest(args));
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -306,7 +306,7 @@ export function registerProjectMergeHandlers(): void {
       const check = await client.checkProjectMerge(args.projectId, request);
 
       if (check.status === "up-to-date") {
-        return formatResult({ success: true, status: "up-to-date", check }, args.response_format);
+        return formatResult({ success: true, status: "up-to-date", check });
       }
       const forceBypassAllowed = args.force === true && check.blockedBy === "bypass-required";
       if (args.force === true && !forceBypassAllowed) {
@@ -339,7 +339,7 @@ export function registerProjectMergeHandlers(): void {
             }
           : { check }),
       };
-      return formatResult(response, args.response_format);
+      return formatResult(response);
     },
   });
 
@@ -356,7 +356,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const conflicts = await client.getMergeConflicts(args.projectId);
-      return formatResult(conflicts, args.response_format);
+      return formatResult(conflicts);
     },
   });
 
@@ -383,14 +383,14 @@ export function registerProjectMergeHandlers(): void {
           `The ${args.side} version of '${args.file}' does not hold the file: fileAvailability marks it false.`);
       }
       if (available && !available.text) {
-        return formatResult(await downloadLink(client, link), args.response_format);
+        return formatResult(await downloadLink(client, link));
       }
       const response = await client.readMergeConflictFile(args.projectId, args.file, args.side);
       const text = inlineText(response);
       if (text !== undefined) {
         return textResult(text);
       }
-      return formatResult(await downloadLink(client, link, response.data.length), args.response_format);
+      return formatResult(await downloadLink(client, link, response.data.length));
     },
   });
 
@@ -408,7 +408,7 @@ export function registerProjectMergeHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const workbook = await client.getMergeConflictWorkbook(args.projectId, args.file);
       const data = args.table ? workbookTable(args.file, workbook, args.table) : workbookOverview(args.file, workbook);
-      return formatResult(data, args.response_format);
+      return formatResult(data);
     },
   });
 
@@ -425,7 +425,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const { blocks } = await client.getMergeConflictText(args.projectId, args.file);
-      return formatResult(textOverview(args.file, blocks), args.response_format);
+      return formatResult(textOverview(args.file, blocks));
     },
   });
 
@@ -456,7 +456,7 @@ export function registerProjectMergeHandlers(): void {
       const resolutions = await Promise.all(args.resolutions.map(
         (resolution) => fileResolution(client, args.projectId, resolution)));
       const response = await client.resolveMergeConflicts(args.projectId, resolutions, args.message);
-      return formatResult(response, args.response_format);
+      return formatResult(response);
     },
   });
 
@@ -472,7 +472,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       await client.cancelMergeConflicts(args.projectId);
-      return formatResult({ success: true, message: "Pending merge conflict state was cleared." }, args.response_format);
+      return formatResult({ success: true, message: "Pending merge conflict state was cleared." });
     },
   });
 
@@ -501,7 +501,7 @@ export function registerProjectMergeHandlers(): void {
         projectId: args.projectId,
         projectName: project.name,
         message: `Deleted project '${project.name}'.`,
-      }, args.response_format);
+      });
     },
   });
 
@@ -573,7 +573,7 @@ export function registerProjectMergeHandlers(): void {
         // A risky delete reaches this point only with confirmDataLoss=true.
         dataLossConfirmed: safety.reason !== undefined,
         message: `Deleted branch '${args.branch}'.`,
-      }, args.response_format);
+      });
     },
   });
 }

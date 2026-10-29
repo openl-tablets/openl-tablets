@@ -127,7 +127,7 @@ export function registerGuideHandlers(): void {
       const { limit, offset } = args;
 
       const entries = await listGuides(client, { type: args.type, search: args.search });
-      return textResult(formatPage(entries, args.response_format, limit, offset));
+      return textResult(formatPage(entries, "json", limit, offset));
     },
   });
 

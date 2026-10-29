@@ -270,6 +270,7 @@ anonymous (single-user Studio).
 ## Response formatting
 
 - Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output.
+- Only the tools whose answer has a Markdown view of its own take `response_format`: `openl_list_repositories`, `openl_list_projects`, `openl_list_tables`, `openl_list_deployments`, `openl_get_table_dependencies` and the three test-result tools. Every other tool answers JSON, which a Markdown format would only wrap in a code block, and refuses the argument: its schema in every session of every agent would cost more than the answer it changes.
 - No tool carries file bytes as base64 or as an embedded resource: a file other than a short text is answered with a link (see Project Files Tools), never as a `resource_link` either, since a client may fetch or preview a link it renders.
 - List operations return pagination metadata.
 - Large responses are truncated at a 25K-character limit — except `openl_get_guides` bodies, which are returned verbatim (sizes are published in the index so callers can budget). A response over the limit is cut by whole items (a list by items with the pagination moved to match, `openl_get_table` by rows with `totalRows` and the `startRow` to continue from), and the note names only a way to continue that the tool has.

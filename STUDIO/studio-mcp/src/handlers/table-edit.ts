@@ -10,7 +10,7 @@
  */
 
 import type { OpenLClient } from "../client.js";
-import type { RawTableView, ResponseFormat } from "../types.js";
+import type { RawTableView } from "../types.js";
 import { formatResult, type ToolResponse } from "./common.js";
 
 /**
@@ -44,20 +44,19 @@ async function readTableBack(
  * Reads the table back to trigger the studio recompile (noting a failure with
  * the tool's own verb, e.g. "update"/"append"/"edit"), and answers the standard
  * result (`success`, `message`, `recompileTriggered`, current `tableId` and its `version`, plus
- * `tableIdChanged`/`previousTableId` and a `note` when present) in the format
- * the caller asked for.
+ * `tableIdChanged`/`previousTableId` and a `note` when present) as JSON.
  *
  * A table that does not compile after the edit is answered with `compiles: false`
  * and the `errors` of its compilation: the edit was applied, but the table needs a fix.
  *
- * @param args       the arguments of the edit: the table, and the format of the answer
+ * @param args       the arguments of the edit: the table
  * @param reportedId the id Studio answered for the table, when the edit renamed it
  * @param message    the success message for this specific edit
  * @param editVerb   the verb of the edit for the recompile-miss note ("update", "append", "edit")
  */
 export async function finishTableEdit(
   client: OpenLClient,
-  args: { projectId: string; tableId: string; response_format?: ResponseFormat },
+  args: { projectId: string; tableId: string },
   reportedId: string | undefined,
   message: string,
   editVerb: string,
@@ -99,5 +98,5 @@ export async function finishTableEdit(
     ...(table?.version === undefined ? {} : { version: table.version }),
     ...(idChanged ? { tableIdChanged: true, previousTableId: requestedId } : {}),
     ...(notes.length > 0 ? { note: notes.join(" ") } : {}),
-  }, args.response_format);
+  });
 }

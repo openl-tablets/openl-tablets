@@ -13,7 +13,7 @@ export function registerRepositoryHandlers(): void {
     title: "List Design Repositories",
     description:
       "List all design repositories in OpenL Studio. Returns repository information including 'id' (internal identifier) and 'name' (display name). Use the 'name' field when working with repositories in other tools. Either the 'id' or 'name' is accepted by other tools (case-insensitive). The actual values are usually short tokens like 'design' — never invent values such as 'Design Repository' or 'design-repo'.",
-    schema: schemas.pagedListSchema,
+    schema: schemas.listRepositoriesSchema,
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
@@ -45,7 +45,7 @@ export function registerRepositoryHandlers(): void {
       const repositoryId = await client.getRepositoryIdByName(args.repository);
       const branches = await client.listBranches(repositoryId);
 
-      return textResult(formatPage(branches, args.response_format, limit, offset));
+      return textResult(formatPage(branches, "json", limit, offset));
     },
   });
 
@@ -63,7 +63,7 @@ export function registerRepositoryHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const features = await client.getRepositoryFeatures(args.repository);
 
-      return formatResult(features, args.response_format);
+      return formatResult(features);
     },
   });
 
@@ -85,9 +85,8 @@ export function registerRepositoryHandlers(): void {
       const offset = args.offset ?? revisions.pageNumber * revisions.pageSize;
       const { pageSize: limit, total } = revisions;
 
-      return formatResult(revisions, args.response_format, {
+      return formatResult(revisions, "json", {
         pagination: { limit, offset, total, hasMore: hasMoreItems(offset, revisions.numberOfElements, limit, total) },
-        dataType: "revisions",
       });
     },
   });

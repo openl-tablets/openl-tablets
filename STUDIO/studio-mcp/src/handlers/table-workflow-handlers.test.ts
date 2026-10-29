@@ -33,7 +33,6 @@ describe("table workflow handlers", () => {
       tableId: "t1",
       inputJson: { params: { age: 25 }, runtimeContext: { state: "CA" } },
       fromModule: "Main",
-      response_format: "json",
     }, harness.client);
 
     const [start] = harness.mockHttp.history.post;
@@ -58,7 +57,6 @@ describe("table workflow handlers", () => {
       tableId: "t1",
       inputJson: [],
       withSchema: true,
-      response_format: "json",
     }, harness.client);
 
     expect(queryOf(harness.mockHttp.history.get[0])).toEqual({});
@@ -195,12 +193,10 @@ describe("table workflow handlers", () => {
     ]);
 
     await executeTool("get_table_dependencies", {
-      projectId: "p1", module: "Main", layer: "datatype", response_format: "json",
-    }, harness.client);
+      projectId: "p1", module: "Main", layer: "datatype", }, harness.client);
     await executeTool("get_table_dependencies", {
-      projectId: "p1", tableId: "Rate #1", direction: "DEPENDENTS", depth: 3, response_format: "json",
-    }, harness.client);
-    await executeTool("get_table_dependencies", { projectId: "p1", tableId: "Rate", response_format: "json" }, harness.client);
+      projectId: "p1", tableId: "Rate #1", direction: "DEPENDENTS", depth: 3, }, harness.client);
+    await executeTool("get_table_dependencies", { projectId: "p1", tableId: "Rate" }, harness.client);
 
     expect(harness.mockHttp.history.get.map(({ url, params }) => ({ url, params }))).toEqual([
       { url: "/projects/p1/tables/graph", params: { module: "Main", layer: "datatype" } },
@@ -232,8 +228,7 @@ describe("table workflow handlers", () => {
     harness.mockHttp.onGet("/projects/p1/properties", { params: { tableType: "Rules" } }).reply(200, properties);
 
     const result = await executeTool("list_table_property_definitions", {
-      projectId: "p1", tableType: "Rules", response_format: "json",
-    }, harness.client);
+      projectId: "p1", tableType: "Rules", }, harness.client);
 
     expect(dataOf(result)).toEqual(properties);
   });
@@ -252,7 +247,6 @@ describe("table workflow handlers", () => {
       name: "CopiedRate",
       sheetName: "Rates",
       properties: [{ name: "state", value: "CA" }],
-      response_format: "json",
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({

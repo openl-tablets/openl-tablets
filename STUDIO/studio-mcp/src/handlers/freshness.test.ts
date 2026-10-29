@@ -34,7 +34,7 @@ describe("a project whose files changed on disk", () => {
       ? [200, pageOf([{ id: "t1", name: "Added" }])]
       : [500, { message: "read before the compilation from the files ended" }]);
 
-    const result = await executeTool("list_tables", { projectId: "p1", response_format: "json" }, harness.client);
+    const result = await executeTool("list_tables", { projectId: "p1" }, harness.client);
 
     expect(dataOf(result)).toEqual([expect.objectContaining({ id: "t1" })]);
   });

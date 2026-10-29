@@ -13,8 +13,7 @@ Authorization: Token ${PAT}
   "params": {
     "name": "openl_list_branches",
     "arguments": {
-      "repository": "design",
-      "response_format": "markdown"
+      "repository": "design"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

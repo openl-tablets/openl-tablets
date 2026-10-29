@@ -42,7 +42,7 @@ describe("project lists and details", () => {
     harness.mockHttp.onGet("/projects", { params: { repository: "design", offset: 0, size: 50 } })
       .reply(200, pageOf([projectView("OPENED", { id: "design:Project 1:hash123", name: "Project 1" })]));
 
-    const result = await executeTool("list_projects", { repository: "Design Repository", response_format: "json" }, harness.client);
+    const result = await executeTool("list_projects", { repository: "Design Repository" }, harness.client);
 
     expect(dataOf(result)).toEqual([expect.objectContaining({ name: "Project 1", projectId: "design:Project 1:hash123" })]);
   });
@@ -60,7 +60,6 @@ describe("project lists and details", () => {
 
     const result = await executeTool("list_projects", {
       include: ["summary", "status"],
-      response_format: "json",
     }, harness.client);
 
     expect(JSON.parse(textOf(result))).toMatchObject({
@@ -81,9 +80,9 @@ describe("project lists and details", () => {
     });
 
     const first = textOf(await executeTool("list_projects", { limit: 50, offset: 0, response_format: "markdown" }, harness.client));
-    const second = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 50, response_format: "json" }, harness.client)));
-    const third = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 100, response_format: "json" }, harness.client)));
-    const shifted = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 25, response_format: "json" }, harness.client)));
+    const second = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 50 }, harness.client)));
+    const third = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 100 }, harness.client)));
+    const shifted = JSON.parse(textOf(await executeTool("list_projects", { limit: 50, offset: 25 }, harness.client)));
 
     expect(first).toContain("Total: 120");
     expect(first).toContain("More results available (next offset: 50)");
@@ -112,7 +111,7 @@ describe("project lists and details", () => {
   it("openl_get_project answers the project Studio describes", async () => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED"));
 
-    const result = await executeTool("get_project", { projectId: "design-project1", response_format: "json" }, harness.client);
+    const result = await executeTool("get_project", { projectId: "design-project1" }, harness.client);
 
     expect(dataOf(result)).toEqual(projectView("OPENED"));
   });
@@ -122,10 +121,9 @@ describe("project lists and details", () => {
     harness.mockHttp.onGet("/projects/p1/modules").reply(200, modules);
     harness.mockHttp.onGet("/projects/p1/modules/Main%20Rules/sheets").reply(200, ["Rates", "Tests"]);
 
-    const moduleResult = await executeTool("list_project_modules", { projectId: "p1", response_format: "json" }, harness.client);
+    const moduleResult = await executeTool("list_project_modules", { projectId: "p1" }, harness.client);
     const sheetResult = await executeTool("list_module_sheets", {
-      projectId: "p1", moduleName: "Main Rules", response_format: "json",
-    }, harness.client);
+      projectId: "p1", moduleName: "Main Rules", }, harness.client);
 
     expect(dataOf(moduleResult)).toEqual(modules);
     expect(dataOf(sheetResult)).toEqual(["Rates", "Tests"]);
@@ -141,7 +139,7 @@ describe("project status", () => {
       .replyOnce(200, withStatus(compiled("ok", [], 34)));
     harness.mockHttp.onGet(`${projectPath}/tables`, { params: { offset: 0, size: 1 } }).reply(200, pageOf([], { pageSize: 1, total: 0 }));
 
-    const response = dataOf(await executeTool("project_status", { projectId, response_format: "json" }, harness.client));
+    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(response.compileState).toBe("ok");
     expect(response.compilation.tests.total).toBe(34);
@@ -167,7 +165,7 @@ describe("project status", () => {
     harness.mockHttp.onGet(`${projectPath}/modules`).reply(200, [{ name: "Main Rules", path: "rules/Main.xlsx" }]);
     harness.mockHttp.onPost(`${projectPath}/modules/Main%20Rules/compile`).reply((config) => [config.params?.reset ? 202 : 400]);
 
-    const response = dataOf(await executeTool("project_status", { projectId, response_format: "json" }, harness.client));
+    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(harness.mockHttp.history.post).toHaveLength(1);
     expect(response.compileState).toBe("ok");
@@ -178,7 +176,7 @@ describe("project status", () => {
   it("reports a compilation already running as compiling, with a note to call again", async () => {
     harness.mockHttp.onGet(projectPath).reply(200, withStatus({ projectId, branch: "main", compileState: "compiling" }));
 
-    const response = dataOf(await executeTool("project_status", { projectId, response_format: "json" }, harness.client));
+    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(response.compileState).toBe("compiling");
     expect(response.note).toContain("Call openl_project_status again");
@@ -194,8 +192,7 @@ describe("project status", () => {
     harness.mockHttp.onGet(`${projectPath}/tables`).timeout();
 
     const response = dataOf(await executeTool("project_status", {
-      projectId, timeoutMs: 5_000, response_format: "json",
-    }, harness.client));
+      projectId, timeoutMs: 5_000, }, harness.client));
 
     expect(response.compileState).toBe("compiling");
     expect(response.note).toContain("Call openl_project_status again");
@@ -212,7 +209,7 @@ describe("project status", () => {
       return [204];
     });
 
-    const result = await executeTool("project_status", { projectId, branch: "develop", response_format: "json" }, harness.client);
+    const result = await executeTool("project_status", { projectId, branch: "develop" }, harness.client);
 
     expect(dataOf(result).branch).toBe("develop");
     expect(harness.mockHttp.history.patch).toHaveLength(1);
@@ -221,7 +218,7 @@ describe("project status", () => {
   it("reads the status of the branch the project is opened on without switching it", async () => {
     harness.mockHttp.onGet(projectPath).reply(200, withStatus({ ...compiled("ok"), branch: "develop" }));
 
-    const result = await executeTool("project_status", { projectId, branch: "develop", response_format: "json" }, harness.client);
+    const result = await executeTool("project_status", { projectId, branch: "develop" }, harness.client);
 
     expect(dataOf(result)).toMatchObject({ compileState: "ok", branch: "develop" });
     expect(harness.mockHttp.history.patch).toHaveLength(0);
@@ -232,7 +229,7 @@ describe("project status", () => {
       { id: 7, summary: "Datatype 'Foo' not found", severity: "ERROR" },
     ])));
 
-    const response = dataOf(await executeTool("project_status", { projectId, response_format: "json" }, harness.client));
+    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(response.compileState).toBe("errors");
     expect(response.compilation.messages.items).toEqual([{ id: 7, summary: "Datatype 'Foo' not found", severity: "ERROR" }]);
@@ -252,7 +249,7 @@ describe("project status", () => {
     };
     harness.mockHttp.onGet(projectPath).reply(200, withStatus(fixture));
 
-    const response = dataOf(await executeTool("project_status", { projectId, response_format: "json" }, harness.client));
+    const response = dataOf(await executeTool("project_status", { projectId }, harness.client));
 
     expect(response.compilation).toEqual({
       messages: { items: [], total: 1, errors: 0, warnings: 0 },
@@ -276,8 +273,7 @@ describe("project status", () => {
     ])));
 
     const response = dataOf(await executeTool("project_status", {
-      projectId, ...options, response_format: "json",
-    }, harness.client));
+      projectId, ...options, }, harness.client));
 
     expect(response.compilation.messages.items.map((item: { summary: string }) => item.summary)).toEqual(summaries);
   });
@@ -292,7 +288,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("CLOSED"));
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
-    const result = await executeTool("open_project", { projectId: "design-project1", ...args, response_format: "json" }, harness.client);
+    const result = await executeTool("open_project", { projectId: "design-project1", ...args }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([patch]);
     expect(dataOf(result)).toEqual({ success: true, message });
@@ -303,8 +299,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("open_project", {
-      projectId: "design-project1", branch: "develop", response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", branch: "develop", }, harness.client);
 
     expect(harness.mockHttp.history.get).toHaveLength(1);
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ branch: "develop" }]);
@@ -316,8 +311,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("open_project", {
-      projectId: "design-project1", branch: "develop", revision: "abc123", openDependencies: true, response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", branch: "develop", revision: "abc123", openDependencies: true, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([
       { status: "OPENED", revision: "abc123", openDependencies: true, branch: "develop" },
@@ -361,8 +355,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("save_project", {
-      projectId: "design-project1", response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true }]);
     expect(dataOf(result)).toEqual({ success: true, message: "Project saved" });
@@ -373,8 +366,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("save_project", {
-      projectId: "design-project1", comment: "Save and close", closeAfterSave: true, response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", comment: "Save and close", closeAfterSave: true, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "CLOSED" }]);
     expect(dataOf(result)).toEqual({
@@ -395,8 +387,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("close_project", {
-      projectId: "design-project1", ...args, response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", ...args, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([patch]);
     expect(dataOf(result)).toEqual({ success: true, message });
@@ -409,8 +400,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("close_project", {
-      projectId: "design-project1", saveChanges: true, response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", saveChanges: true, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, status: "CLOSED" }]);
     expect(dataOf(result)).toEqual({ success: true, message: "Project saved and closed successfully" });
@@ -420,8 +410,7 @@ describe("open, save and close", () => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("EDITING"));
 
     const result = await executeTool("close_project", {
-      projectId: "design-project1", discardChanges: true, response_format: "json",
-    }, harness.client);
+      projectId: "design-project1", discardChanges: true, }, harness.client);
 
     expect(dataOf(result)).toMatchObject({ success: false, confirmationRequired: true });
     expect(dataOf(result).message).toContain("confirmDiscard");
@@ -452,8 +441,7 @@ describe("branches, creation and copies", () => {
     harness.mockHttp.onPost(`${projectPath}/branches`).reply(201);
 
     const result = await executeTool("create_project_branch", {
-      projectId, branchName: "feature/test-branch", revision, response_format: "json",
-    }, harness.client);
+      projectId, branchName: "feature/test-branch", revision, }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ branch: "feature/test-branch", revision });
     expect(dataOf(result)).toMatchObject({ success: true, message });
@@ -464,8 +452,7 @@ describe("branches, creation and copies", () => {
     harness.mockHttp.onPut("/repos/design/projects/Offer-CW").reply(200, { id: createdId, revision: "abc123", branch: branch ?? "main" });
 
     const result = await executeTool("create_project", {
-      repository: "Design Repository", projectName: "Offer-CW", branch, response_format: "json",
-    }, harness.client);
+      repository: "Design Repository", projectName: "Offer-CW", branch, }, harness.client);
 
     expect(dataOf(result)).toMatchObject({
       mode: "create",
@@ -484,8 +471,7 @@ describe("branches, creation and copies", () => {
       .reply(200, { id: createdId, revision: "def456", branch: branch ?? "main" });
 
     const result = await executeTool("create_project", {
-      repository: "design", template: sourceProjectId, projectName: "Offer-CW", branch, response_format: "json",
-    }, harness.client);
+      repository: "design", template: sourceProjectId, projectName: "Offer-CW", branch, }, harness.client);
 
     expect(dataOf(result)).toMatchObject({
       mode: "copy",

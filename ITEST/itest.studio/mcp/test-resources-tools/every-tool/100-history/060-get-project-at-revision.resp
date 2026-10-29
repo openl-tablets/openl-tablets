@@ -1,0 +1,22 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"data\":{\"id\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"branch\":\"master\",\"status\":\"VIEWING_VERSION\",\"repository\":\"design\",\"modifiedBy\":\"Ada Admin\",\"modifiedAt\":\"#-#-#T#:#:#-#:#\",\"revision\":\"@\",\"path\":\"McpTools\",\"comment\":\"Create the project\",\"branchDefault\":true,\"inDefaultBranch\":true,\"overwritesNewerRevision\":true,\"repositoryInfo\":{\"id\":\"design\",\"name\":\"Design\",\"type\":\"repo-git\",\"features\":{\"branches\":true,\"searchable\":true,\"mappedFolders\":true,\"comments\":true}},\"capabilities\":{\"canWrite\":true,\"canDelete\":true,\"canClose\":true,\"canDeploy\":true,\"canCompare\":true,\"canViewHistory\":true,\"canManage\":true,\"canCopy\":true,\"canManageBranches\":true,\"canMerge\":true,\"canExport\":true}}}"
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

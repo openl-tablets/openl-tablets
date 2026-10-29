@@ -51,8 +51,13 @@ const commitCommentTooLong = `A commit comment has at most ${MAX_COMMIT_COMMENT_
 /** A commit comment of a design project, which Studio refuses when it is longer than it keeps. */
 const commitCommentSchema = z.string().max(MAX_COMMIT_COMMENT_LENGTH, commitCommentTooLong);
 
-/** A tool that lists a page of a list the server holds whole: repositories, deploy repositories. */
+/** A tool that lists a page of a list the server holds whole: deploy repositories. */
 export const pagedListSchema = z.strictObject({
+  ...paginationShape,
+});
+
+/** The design repositories, a page of a list the server holds whole. */
+export const listRepositoriesSchema = z.strictObject({
   response_format: ResponseFormat,
   ...paginationShape,
 });
@@ -81,7 +86,6 @@ export const listProjectsSchema = z.strictObject({
 export const getProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   include: z.array(z.enum(PROJECT_INCLUDES)).optional().describe(`Optional response expansions from the Studio API. ${STATUS_INCLUDE_NOTE}`),
-  response_format: ResponseFormat,
 });
 
 export const projectStatusSchema = z.strictObject({
@@ -98,7 +102,6 @@ export const projectStatusSchema = z.strictObject({
   maxMessages: z.number().int().positive().max(1000).optional().describe(
     "Cap the number of items returned in compilation.messages.items. The list is sorted ERROR → WARN → INFO first so the most actionable items are preserved when capped. Pair with severity to bound very large diagnostic lists. Default: no cap (relies on the response-format character truncation)."
   ),
-  response_format: ResponseFormat,
 });
 
 export const openProjectSchema = z.strictObject({
@@ -106,7 +109,6 @@ export const openProjectSchema = z.strictObject({
   branch: branchNameSchema.optional().describe("Open project on a specific Git branch (e.g., 'main', 'development', 'feature/new-rules')"),
   revision: z.string().optional().describe("Open project at a specific Git revision/commit hash for read-only viewing"),
   openDependencies: z.boolean().optional().describe("Also open dependency projects (backend default false)."),
-  response_format: ResponseFormat,
 });
 
 export const closeProjectSchema = z.strictObject({
@@ -115,7 +117,6 @@ export const closeProjectSchema = z.strictObject({
   comment: commitCommentSchema.optional().describe("Commit comment of at most 255 characters. Required for saveChanges when the repository supports comments; ignored when it does not."),
   discardChanges: z.boolean().optional().describe("If true, close without saving (unsaved changes will be lost). When project is EDITING, you must also set confirmDiscard: true to confirm."),
   confirmDiscard: z.boolean().optional().describe("When closing with discardChanges: true and project has unsaved changes, must be set to true (explicitly) to confirm. Omitted or false will return a confirmation prompt. Ask the user first, then call again with confirmDiscard: true."),
-  response_format: ResponseFormat,
 });
 
 export const listTablesSchema = z.strictObject({
@@ -133,7 +134,6 @@ export const getTableSchema = z.strictObject({
   startRow: z.number().int().min(0).optional().describe("Zero-based index of the first source row; omit to start at the top. Combine with maxRows to read a large table in slices: the next slice starts at startRow plus maxRows."),
   maxRows: z.number().int().min(1).optional().describe("Maximum number of source rows, counted from startRow; omit to read to the end. A windowed response carries totalRows. A slice holds exactly these rows: a merged cell that its edge cuts comes back cut, its first cell in the slice holding the value of the merged cell and naming its whole area in mergedArea."),
   styles: z.boolean().optional().describe("If true, each raw cell carries its Excel style (background/font colour, bold/italic/underline, alignment, indent, borders)."),
-  response_format: ResponseFormat,
 });
 
 /** The version of a table a write is based on, as openl_get_table or the previous edit answered it. */
@@ -147,7 +147,6 @@ const tableActionBase = {
   projectId: projectIdSchema,
   tableId: tableIdSchema,
   version: tableVersionSchema,
-  response_format: ResponseFormat,
 };
 
 /** A tool that names one table: its project and its id. */
@@ -170,7 +169,6 @@ export const runTableSchema = z.strictObject({
   fromModule: nonBlankString.optional().describe("Optional module name whose runtime context should be used. Usually omit; discover module names with openl_list_project_modules()."),
   withSchema: z.boolean().optional().describe("Include result and parameter JSON Schemas. Default false because schemas can be large."),
   timeoutMs: z.number().int().positive().max(600000).default(120000).describe("Maximum time for the complete Studio start-and-result workflow, in milliseconds. Default 120000 (2 minutes), maximum 600000 (10 minutes). A timeout cancels the pending Studio run."),
-  response_format: ResponseFormat,
 });
 
 export const getTableDependenciesSchema = z.strictObject({
@@ -198,7 +196,6 @@ export const getTableDependenciesSchema = z.strictObject({
 /** The arguments of a tool that names only the project. */
 export const projectOnlySchema = z.strictObject({
   projectId: projectIdSchema,
-  response_format: ResponseFormat,
 });
 
 /**
@@ -208,13 +205,11 @@ export const projectOnlySchema = z.strictObject({
 export const projectModuleSchema = z.strictObject({
   projectId: projectIdSchema,
   moduleName: nonBlankString.describe("Module name exactly as returned by openl_list_project_modules()."),
-  response_format: ResponseFormat,
 });
 
 export const listTablePropertyDefinitionsSchema = z.strictObject({
   projectId: projectIdSchema,
   tableType: nonBlankString.optional().describe("Optional public table kind. Omit for properties allowed inside a Properties table; provide a kind to get properties allowed on that table kind."),
-  response_format: ResponseFormat,
 });
 
 export const copyTableSchema = z.strictObject({
@@ -228,7 +223,6 @@ export const copyTableSchema = z.strictObject({
     name: nonBlankString.describe("Property name."),
     value: z.string().optional().describe("Property value in display-string form. A blank value removes the property."),
   })).optional().describe("Replacement table properties. Omit to retain the source table's properties."),
-  response_format: ResponseFormat,
 });
 
 const scalarCellValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
@@ -276,7 +270,6 @@ export const appendTableSchema = z.strictObject({
     rows: z.array(z.array(rawTableCellSchema).min(1)).min(1).describe("Non-empty source rows to append. Every row must cover the table's full width; use { value: null } for an intentionally blank cell."),
   }).describe("RawSource append payload. Typed table append DTOs are intentionally unsupported because they are lossy and incomplete."),
   version: tableVersionSchema,
-  response_format: ResponseFormat,
 });
 
 // =============================================================================
@@ -413,7 +406,6 @@ export const updateTableRangeSchema = z.strictObject({
 
 export const listBranchesSchema = z.strictObject({
   repository: repositoryNameSchema,
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
@@ -421,7 +413,6 @@ export const createBranchSchema = z.strictObject({
   projectId: projectIdSchema,
   branchName: branchNameSchema,
   revision: z.string().optional().describe("Revision to branch from. Allows to branch from specific revision, tag or another branch. If not specified, HEAD revision will be used."),
-  response_format: ResponseFormat,
 });
 
 export const listProjectBranchesSchema = z.strictObject({
@@ -429,7 +420,6 @@ export const listProjectBranchesSchema = z.strictObject({
   scope: z.enum(BRANCH_SCOPES).default("project").describe(
     "Branches to list: 'project' (default) returns branches that already hold the project and can be switched to; 'repository' returns every repository branch, including merge targets that do not hold the project yet.",
   ),
-  response_format: ResponseFormat,
 });
 
 const mergeRequestFields = {
@@ -452,21 +442,18 @@ function requireForceConfirmation(
 
 export const checkProjectMergeSchema = z.strictObject({
   ...mergeRequestFields,
-  response_format: ResponseFormat,
 });
 
 export const mergeProjectBranchesSchema = z.strictObject({
   ...mergeRequestFields,
   force: z.boolean().optional().describe("Bypass eligible protected-target restrictions. Default false. Use only after Studio reports blockedBy='bypass-required'."),
   confirmForce: confirmForceSchema,
-  response_format: ResponseFormat,
 }).superRefine(requireForceConfirmation);
 
 export const readMergeConflictFileSchema = z.strictObject({
   projectId: projectIdSchema,
   file: nonBlankString.describe("Project-relative conflicted file path from openl_get_merge_conflicts()."),
   side: z.enum(["BASE", "OURS", "THEIRS"]).describe("Version to read: common ancestor, current branch, or merging branch."),
-  response_format: ResponseFormat,
 });
 
 export const getMergeConflictWorkbookSchema = z.strictObject({
@@ -475,13 +462,11 @@ export const getMergeConflictWorkbookSchema = z.strictObject({
   table: nonBlankString.optional().describe(
     "The id of one conflicting table from the overview. Omit to list every sheet and conflicting table with its conflicting cells; give it to read that table in your, the base and their version, and merged cell by cell.",
   ),
-  response_format: ResponseFormat,
 });
 
 export const getMergeConflictTextSchema = z.strictObject({
   projectId: projectIdSchema,
   file: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
-  response_format: ResponseFormat,
 });
 
 const textDecisionSchema = z.union([
@@ -534,14 +519,12 @@ export const resolveMergeConflictsSchema = z.strictObject({
     }),
   ])).min(1).describe("One resolution for every conflicted file of the pending conflict."),
   message: z.string().optional().describe("Commit message; Studio builds one from the conflict when omitted."),
-  response_format: ResponseFormat,
 });
 
 export const deleteProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   confirmProjectName: nonBlankString.describe("Required safety confirmation: exact project name returned by openl_get_project(). The delete is rejected if it does not match."),
   comment: commitCommentSchema.optional().describe("Optional deletion commit message of at most 255 characters, validated by the repository's comment template when configured."),
-  response_format: ResponseFormat,
 });
 
 export const deleteProjectBranchSchema = z.strictObject({
@@ -553,7 +536,6 @@ export const deleteProjectBranchSchema = z.strictObject({
   ),
   force: z.boolean().optional().describe("Bypass protected-branch restrictions for eligible managers. Default false."),
   confirmForce: confirmForceSchema,
-  response_format: ResponseFormat,
 }).superRefine((value, ctx) => {
   if (value.branch !== value.confirmBranchName) {
     ctx.addIssue({ code: "custom", path: ["confirmBranchName"], message: "confirmBranchName must exactly equal branch." });
@@ -579,7 +561,6 @@ export const createProjectSchema = z.strictObject({
   comment: commitCommentSchema.optional().describe(
     "Change comment of at most 255 characters for repositories that support comments. Applied to both BLANK creation and CLONING; Studio supplies its configured create/copy comment when omitted. Omit for repositories whose features.comments is false."
   ),
-  response_format: ResponseFormat,
 });
 
 export const deployProjectSchema = z.strictObject({
@@ -587,14 +568,12 @@ export const deployProjectSchema = z.strictObject({
   deploymentName: z.string().describe("Name for the deployment (e.g., 'InsuranceRules', 'AutoPremium'). This will be the deployment identifier."),
   productionRepositoryId: z.string().describe("Target production repository name (display name, not ID). Use the 'name' field from openl_list_deploy_repositories() response (e.g., if list_deploy_repositories returns {id: 'production-deploy', name: 'Production Deployment'}, use 'Production Deployment' here, NOT 'production-deploy'). Must be configured in OpenL Studio."),
   comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
-  response_format: ResponseFormat,
 });
 
 export const saveProjectSchema = z.strictObject({
   projectId: projectIdSchema,
   comment: nonBlankString.max(MAX_COMMIT_COMMENT_LENGTH, commitCommentTooLong).optional().describe("Commit comment of at most 255 characters, required when the repository supports comments. Omit for repositories whose features.comments is false. Save only works when project status is EDITING; after save a new revision is created and project transitions to OPENED."),
   closeAfterSave: z.boolean().optional().describe("Optional. If true, close the project after saving (sends status CLOSED with the comment when supported in one request). Use when user asks to 'save and close'."),
-  response_format: ResponseFormat,
 });
 
 // Table content contracts are deliberately RawSource-only. Studio's typed table
@@ -619,7 +598,6 @@ export const updateTableSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema,
   view: rawTableViewSchema.extend({ version: tableVersionSchema }).describe("Full, non-windowed RawSource structure from openl_get_table() with modifications applied. Send the complete source matrix, not only changed cells; a view carrying totalRows is rejected, and the handler independently rejects a source with fewer rows than the live table."),
-  response_format: ResponseFormat,
 }).superRefine((value, ctx) => {
   if (value.view.totalRows !== undefined) {
     ctx.addIssue({
@@ -640,7 +618,6 @@ export const createProjectTableSchema = z.strictObject({
   modulePath: z.string().min(6).regex(/\.xlsx$/i).optional().describe("Project-relative .xlsx path for a new module. When omitted, moduleName must identify an existing module."),
   sheetName: z.string().optional().describe("Name of the sheet where the table will be created within the Excel file. If not provided, the table name will be used as the sheet name."),
   table: createTableViewSchema,
-  response_format: ResponseFormat,
 });
 
 // =============================================================================
@@ -669,7 +646,6 @@ export const startTraceSchema = z.strictObject({
   breakOnErrors: z.boolean().optional().describe("Suspend on an uncaught rule error so its frame can be inspected (backend default true). Set false to let the error terminate the run."),
   breakpoints: z.array(z.string()).optional().describe("Initial breakpoint set — REPLACES the current set before starting. Key forms: '<name>' (entry of any same-named table), '<uri>' (entry of that table), '<uri>#R{r}C{c}' (spreadsheet cell), '<uri>#rule' (any decision-table rule fires), '<uri>#<ruleName>' (specific rule fires). Append '@N' to any key to break only on the table's N-th execution (0-based) — e.g. '<uri>#R48C0@3' hits the 4th run; N matches frames[].instance and a watch series' instance, so a watch outlier at instance 3 is reached with '@3'. Without '@N' a cell breakpoint hits EVERY pass."),
   ...traceProfileParams,
-  response_format: ResponseFormat,
 });
 
 export const stepTraceSchema = z.strictObject({
@@ -677,14 +653,12 @@ export const stepTraceSchema = z.strictObject({
   type: z.enum(["into", "over", "out"]).describe("'out' (main tool for declarative rules — decision tables, spreadsheets, rating): run the current frame to its own exit so its result is inspectable, then continue in the caller. 'into' / 'over' are ADVANCED (imperative TBasic / loops): 'into' enters the next call or sub-step; 'over' advances to the next sub-step of the current frame (nested calls run through). For 'which table returned what', prefer 'out' plus breakpoints over stepping through expressions."),
   withValues: z.boolean().optional().describe("After the step, also return the active frame's variables (the same content as openl_inspect_trace_frame on the top frame) as 'variables' — saves the usual step→inspect round-trip when you step 'out' to read a frame's result. Default false."),
   ...traceProfileParams,
-  response_format: ResponseFormat,
 });
 
 export const resumeTraceSchema = z.strictObject({
   projectId: projectIdSchema,
   timeoutMs: z.number().int().positive().max(600000).optional().describe("Maximum time to wait for the next suspension or completion, in milliseconds. Default 30000, cap 600000. On timeout the current (still running) status is returned — call openl_resume_trace again to keep waiting, or openl_stop_trace to give up."),
   ...traceProfileParams,
-  response_format: ResponseFormat,
 });
 
 export const inspectTraceFrameSchema = z.strictObject({
@@ -694,20 +668,17 @@ export const inspectTraceFrameSchema = z.strictObject({
   full: z.boolean().optional().describe("Return the complete untrimmed response, including value JSON schemas (default false — trimmed via ?fields to save tokens)."),
   onlyExecutedSteps: z.boolean().optional().describe("Keep only executed steps (drop pending/current-without-value) so the response is just the computed factors (default false)."),
   excludeStepValues: z.array(z.union([z.number(), z.string(), z.boolean()])).optional().describe("Drop executed steps whose scalar value equals one of these — to hide neutral factors and surface the outlier (e.g. [1] in rating, where a factor of 1.0 means 'no effect'). Lazy step values are resolved before the comparison, so a neutral factor that came lazy is dropped too. Do not use for tables where those values are meaningful."),
-  response_format: ResponseFormat,
 });
 
 export const setTraceBreakpointsSchema = z.strictObject({
   projectId: projectIdSchema,
   breakpoints: z.array(z.string()).optional().describe("When provided, REPLACES the whole breakpoint set (empty array clears all). Key forms: '<name>' (entry of any same-named table), '<uri>' (entry of that table), '<uri>#R{r}C{c}' (spreadsheet cell), '<uri>#rule' (any decision-table rule fires), '<uri>#<ruleName>' (specific rule fires). Append '@N' to any key to break only on the table's N-th execution (0-based, matching frames[].instance and a watch series' instance) — e.g. '<uri>#R48C0@3'. Omit to just read the current set and available targets."),
-  response_format: ResponseFormat,
 });
 
 export const getTraceValueSchema = z.strictObject({
   projectId: projectIdSchema,
   parameterId: z.number().int().nonnegative().describe("Parameter ID from a lazy ParameterValue (lazy: true) returned by openl_inspect_trace_frame."),
   withSchema: z.boolean().optional().describe("Also return the value's JSON Schema (default false — the schema is large and rarely needed; the value itself already shows the structure)."),
-  response_format: ResponseFormat,
 });
 
 export const expandTraceTreeSchema = z.strictObject({
@@ -717,7 +688,6 @@ export const expandTraceTreeSchema = z.strictObject({
   step: z.string().describe("Reference of the step within that node to expand, e.g. 'R1C0' — a step whose `childrenTotal` > 0 (a step with childrenTotal 0 or absent made no sub-calls)."),
   offset: z.number().int().nonnegative().optional().describe("Index of the first sub-call to return, for paging a loop's thousands of children (default 0). When the response's total exceeds offset + returned children, call again with offset advanced by the returned count (the reply's nextOffset)."),
   limit: z.number().int().min(1).max(200).optional().describe("How many sub-calls to return per page (backend default 100). Keep it modest — a page of many wide nodes can still be large."),
-  response_format: ResponseFormat,
 });
 
 export const watchTraceCellsSchema = z.strictObject({
@@ -728,7 +698,6 @@ export const watchTraceCellsSchema = z.strictObject({
   inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: JSON input { params, runtimeContext? }. Omit BOTH inputJson and testRanges to replay the previous run's remembered input."),
   fromModule: z.string().optional().describe("Module name to run in the context of a specific opened module. Usually omit."),
   withSchema: z.boolean().optional().describe("Include each watched value's JSON Schema (default false — the schema is large and rarely needed; a value that came lazy still carries its parameterId for openl_get_trace_value)."),
-  response_format: ResponseFormat,
 });
 
 // =============================================================================
@@ -737,7 +706,6 @@ export const watchTraceCellsSchema = z.strictObject({
 
 export const getRepositoryFeaturesSchema = z.strictObject({
   repository: repositoryNameSchema,
-  response_format: ResponseFormat,
 });
 
 export const getProjectRevisionsSchema = z.strictObject({
@@ -747,7 +715,6 @@ export const getProjectRevisionsSchema = z.strictObject({
   offset: z.number().int().nonnegative().optional().describe("Item offset (0-based). Mutually exclusive with page."),
   page: z.number().int().nonnegative().optional().describe("Page number (0-based). Mutually exclusive with offset; the backend defaults to 0 when both are omitted."),
   size: z.number().int().positive().max(200).default(50).describe("Page size (default: 50, max: 200)"),
-  response_format: ResponseFormat,
 }).refine(
   (data) => data.page === undefined || data.offset === undefined,
   { error: "page and offset are mutually exclusive" },
@@ -761,7 +728,6 @@ export const restoreProjectLocalChangeSchema = z.strictObject({
   projectId: projectIdSchema,
   moduleName: nonBlankString.describe("Module name used with openl_list_project_local_changes()."),
   historyId: nonBlankString.describe("Local history entry ID to restore, from openl_list_project_local_changes()."),
-  response_format: ResponseFormat,
 });
 
 // =============================================================================
@@ -773,7 +739,6 @@ export const startProjectTestsSchema = z.strictObject({
   tableId: tableIdSchema.optional().describe("Table ID to run tests for a specific table. Table type can be test table or any other table. If not provided, tests for all test tables in the project will be run."),
   testRanges: z.string().optional().describe("Test ranges to run. Can be provided only if tableId is Test table. Example: '1-3,5' to run tests with numbers 1,2,3 and 5. If not provided, all tests in the test table will be run."),
   fromModule: z.string().optional().describe("Module name to run tests from."),
-  response_format: ResponseFormat,
 });
 
 export const getTestResultsSummarySchema = z.strictObject({
@@ -863,7 +828,6 @@ export const readProjectFileSchema = z.strictObject({
     .optional()
     .describe("Historical revision (commit hash) to read. Omit to read the working copy. An unknown revision yields 404."),
   branch: fileBranchSchema,
-  response_format: ResponseFormat,
 });
 
 /** The version of a file a write replaces or a deletion removes, as openl_read_project_file answered it. */
@@ -893,7 +857,6 @@ export const writeProjectFileSchema = writeProjectFileBaseSchema.extend({
     .string()
     .optional()
     .describe("Optional commit message. PRESENT → the write is committed to Git after saving the project (a new revision is created). ABSENT → the write stays in the project WORKING COPY (commit it later with openl_save_project). NOTE: committing saves ALL pending project changes (OpenL has no per-file commit), and only works for design (Git) repositories — not 'local'."),
-  response_format: ResponseFormat,
 });
 
 export const createUploadLinkSchema = writeProjectFileBaseSchema.extend({
@@ -908,7 +871,6 @@ export const createUploadLinkSchema = writeProjectFileBaseSchema.extend({
     .regex(/^[0-9a-fA-F]{64}$/, "sha256 is the hex SHA-256 of the file, 64 characters.")
     .optional()
     .describe("Hex SHA-256 the uploaded file must have, e.g. from `sha256sum`; where Studio authenticates its clients, it refuses other content and writes nothing."),
-  response_format: ResponseFormat,
 });
 
 export const deleteProjectFileSchema = z.strictObject({
@@ -918,7 +880,6 @@ export const deleteProjectFileSchema = z.strictObject({
     .optional()
     .describe(`Required to delete a file. ${fileVersionText} A folder is deleted without it.`),
   branch: fileBranchSchema,
-  response_format: ResponseFormat,
 });
 
 export const searchProjectFilesSchema = z.strictObject({
@@ -960,7 +921,6 @@ export const searchProjectFilesSchema = z.strictObject({
     .string()
     .optional()
     .describe("Comma-separated response fields to return per result (e.g. 'path,name,type'). When omitted, the full response is returned."),
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
@@ -1015,7 +975,6 @@ export const listGuidesSchema = z.strictObject({
     .describe(
       "Case-insensitive substring matched against each entry's id and title (e.g. 'decision table', 'spreadsheet', 'rules.xml')."
     ),
-  response_format: ResponseFormat,
   ...paginationShape,
 });
 
@@ -1042,7 +1001,6 @@ const copyMovePairSchema = {
     .min(1)
     .describe("Project-relative destination path (e.g. 'rules/Model-copy.xlsx'). Intermediate folders are created automatically."),
   branch: fileBranchSchema,
-  response_format: ResponseFormat,
 };
 
 /** A copy or a move of a file within a project. */
@@ -1056,5 +1014,4 @@ export const redeployProjectSchema = z.strictObject({
   deploymentId: z.string().describe("Deployment ID to redeploy (from list_deployments response)"),
   projectId: projectIdSchema,
   comment: commentSchema,
-  response_format: ResponseFormat,
 });

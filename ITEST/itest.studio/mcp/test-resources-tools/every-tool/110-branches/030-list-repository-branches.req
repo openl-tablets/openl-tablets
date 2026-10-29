@@ -14,8 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_list_project_branches",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "scope": "repository",
-      "response_format": "markdown"
+      "scope": "repository"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

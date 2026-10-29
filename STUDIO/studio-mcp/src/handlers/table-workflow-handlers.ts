@@ -70,7 +70,7 @@ export function registerTableWorkflowHandlers(): void {
           },
           extra,
         );
-        return formatResult(result, args.response_format);
+        return formatResult(result);
       } catch (error) {
         // Studio may schedule the run before the start response is observed;
         // every failed workflow must clear it so a later run cannot inherit stale state.
@@ -120,7 +120,7 @@ export function registerTableWorkflowHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const properties = await client.listTablePropertyDefinitions(args.projectId, args.tableType);
-      return formatResult(properties, args.response_format);
+      return formatResult(properties);
     },
   });
 
@@ -142,7 +142,7 @@ export function registerTableWorkflowHandlers(): void {
         properties: args.properties,
         sheetName: args.sheetName,
       });
-      return formatResult({ ...copied, success: true, tableId: copied.id }, args.response_format);
+      return formatResult({ ...copied, success: true, tableId: copied.id });
     },
   });
 }

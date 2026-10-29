@@ -20,8 +20,8 @@ describe("deployment tools", () => {
   it("openl_list_deploy_repositories reads the deployment repositories, not the design ones, on every call", async () => {
     harness.mockHttp.onGet("/production-repos").reply(200, deployRepositories);
 
-    const first = await executeTool("list_deploy_repositories", { response_format: "json" }, harness.client);
-    await executeTool("list_deploy_repositories", { response_format: "json" }, harness.client);
+    const first = await executeTool("list_deploy_repositories", {}, harness.client);
+    await executeTool("list_deploy_repositories", {}, harness.client);
 
     expect(dataOf(first)).toEqual(deployRepositories);
     expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual(["/production-repos", "/production-repos"]);
@@ -50,7 +50,6 @@ describe("deployment tools", () => {
       deploymentName: "project1",
       productionRepositoryId: "Production Deployment",
       comment: "Deploy test",
-      response_format: "json",
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
@@ -83,7 +82,6 @@ describe("deployment tools", () => {
       deploymentId: "deploy 001",
       projectId: "design-project1",
       comment: "Redeploy latest",
-      response_format: "json",
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ projectId: "design-project1", comment: "Redeploy latest" });

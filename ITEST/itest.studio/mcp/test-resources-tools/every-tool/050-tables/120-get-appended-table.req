@@ -14,8 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_get_table",
     "arguments": {
       "projectId": "${PROJECT_ID}",
-      "tableId": "${DRIVER_ID}",
-      "response_format": "markdown"
+      "tableId": "${DRIVER_ID}"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

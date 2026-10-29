@@ -32,7 +32,7 @@ export function registerTestingHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const result = await client.startProjectTests(args.projectId, args);
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
