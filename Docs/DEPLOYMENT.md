@@ -19,6 +19,8 @@ Docker images. The OpenL Tablets DEMO package runs both on Jetty without Docker;
 - **Nightly builds** — the images are pushed to the GitHub Container Registry as `ghcr.io/openl-tablets/webstudio`
   and `ghcr.io/openl-tablets/ws` with the tags `latest` and `<version>-<commit>`. The "all" variant of Rule Services
   has the tags `latest-all` and `<version>-<commit>-all`.
+- **Release candidates** — staging images built with a pre-release version, e.g. `7.0.0-ea.1`, are published to
+  [Docker Hub](https://hub.docker.com/u/openltablets) with that version as the only tag, never as `latest`.
 - **The "all" variant** — adds the Git, AWS S3 and Azure Blob repositories and the database log storage to
   Rule Services.
 
