@@ -71,7 +71,7 @@ export function registerTestingHandlers(): void {
         extra,
       );
       // Only a read of the failed tests is cut to `failures` of them
-      const results = args.failuresOnly ? withOmittedFailures(read) : read;
+      const results = withoutValueSchemas(args.failuresOnly ? withOmittedFailures(read) : read);
       if (args.tableId !== undefined) {
         // The results of one test table are never cut
         return formatResult(results, format, { dataType: "test_results", skipTruncation: true });
@@ -108,6 +108,26 @@ function withOmittedFailures(results: Types.TestsExecutionSummary): Types.TestsE
       const omitted = testCase.numberOfFailures - failed;
       return omitted > 0 ? { ...testCase, omittedFailures: omitted } : testCase;
     }),
+  };
+}
+
+/**
+ * The results without the JSON schema Studio writes beside every parameter of every test: the same schema of a type
+ * again for each test, often most of a page, which the values themselves already show.
+ */
+function withoutValueSchemas(results: Types.TestsExecutionSummary): Types.TestsExecutionSummary {
+  const plain = (values?: Types.TraceParameterValue[]): Types.TraceParameterValue[] | undefined =>
+    values?.map(({ schema, ...value }) => value);
+  return {
+    ...results,
+    testCases: results.testCases.map((testCase) => ({
+      ...testCase,
+      testUnits: testCase.testUnits.map((unit) => ({
+        ...unit,
+        ...(unit.parameters ? { parameters: plain(unit.parameters) } : {}),
+        ...(unit.contextParameters ? { contextParameters: plain(unit.contextParameters) } : {}),
+      })),
+    })),
   };
 }
 
