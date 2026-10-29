@@ -253,6 +253,14 @@ async function fileResolution(
   const content = "decisions" in resolution
     ? await client.mergeConflictWorkbook(projectId, resolution.file, resolution.decisions)
     : await mergedText(client, projectId, resolution.file, resolution.conflicts);
+  if ((typeof content === "string" ? content.length : content.byteLength) === 0) {
+    // Studio takes no empty upload as the content of a file
+    throw new ProtocolError(
+      ProtocolErrorCode.InvalidParams,
+      `'${resolution.file}' as decided would be empty, which Studio cannot store as merged content. Keep a line, or ` +
+        "take a version with a strategy: one fileAvailability marks false deletes the file.",
+    );
+  }
   return { file: resolution.file, strategy: "CUSTOM", content };
 }
 
