@@ -12,7 +12,7 @@ export function registerRepositoryHandlers(): void {
     name: "list_repositories",
     title: "List Design Repositories",
     description:
-      "List all design repositories in OpenL Studio. Returns repository information including 'id' (internal identifier) and 'name' (display name). Use the 'name' field when working with repositories in other tools. Either the 'id' or 'name' is accepted by other tools (case-insensitive). The actual values are usually short tokens like 'design' — never invent values such as 'Design Repository' or 'design-repo'.",
+      "List the design repositories, each with its 'id' and 'name' and the features it supports (branches, comments, searchable, mapped folders). Every tool takes a repository by its id or name in any case: use the values listed, never a made-up one.",
     schema: schemas.listRepositoriesSchema,
     annotations: {
       readOnlyHint: true,

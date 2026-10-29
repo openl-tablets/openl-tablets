@@ -62,8 +62,8 @@ export const listRepositoriesSchema = z.strictObject({
 });
 
 export const listDeploymentsSchema = z.strictObject({
-  repository: z.string().optional().describe("Production repository ID to filter deployments by."),
-  project: z.string().optional().describe("Deployed project name to filter deployments by."),
+  repository: z.string().optional().describe("The id of a production repository to filter deployments by."),
+  project: z.string().optional().describe("The exact name of a deployed project to filter deployments by; it adds the revisions and authors of its deployments."),
   response_format: ResponseFormat,
   ...paginationShape,
 });
@@ -419,7 +419,7 @@ export const mergeProjectBranchesSchema = z.strictObject({
 
 export const readMergeConflictFileSchema = z.strictObject({
   projectId: projectIdSchema,
-  file: nonBlankString.describe("Project-relative conflicted file path from openl_get_merge_conflicts()."),
+  file: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it, relative to the repository."),
   side: z.enum(["BASE", "OURS", "THEIRS"]).describe("Version to read: common ancestor, current branch, or merging branch."),
 });
 
