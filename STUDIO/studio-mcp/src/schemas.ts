@@ -639,6 +639,7 @@ export const stepTraceSchema = z.strictObject({
 
 export const resumeTraceSchema = z.strictObject({
   projectId: projectIdSchema,
+  attach: z.boolean().optional().describe("Wait for the next stop of a run an earlier call left running at its timeout, without resuming the session again: a resume would run past a stop the run reached since."),
   timeoutMs: z.number().int().positive().max(600000).optional().describe("Maximum time to wait for the next suspension or completion, in milliseconds. Default 30000, cap 600000. On timeout the current (still running) status is returned — call openl_resume_trace again to keep waiting, or openl_stop_trace to give up."),
   ...traceProfileParams,
 });
