@@ -120,6 +120,31 @@ async function readProjectStatus(
   return client.getProjectStatus(projectId);
 }
 
+/** A project whose compile status may leave out what the project names already. */
+type AnsweredProject = Omit<Types.ProjectViewModel, "compileStatus"> & { compileStatus?: Partial<Types.ProjectStatusView> };
+
+/**
+ * A project as the project tools answer it: its compile status leaves out the id, the branch, the revision and the
+ * last change the project names already, which an agent would otherwise read twice. A value that differs stays.
+ */
+function withoutRepeatedStatus(project: Types.ProjectViewModel): AnsweredProject {
+  if (!project.compileStatus) {
+    return project;
+  }
+  const { projectId, branch, revision, lastModifiedBy, ...status } = project.compileStatus;
+  const sameChange = lastModifiedBy?.author === project.modifiedBy && lastModifiedBy?.date === project.modifiedAt;
+  return {
+    ...project,
+    compileStatus: {
+      ...(projectId === project.id ? {} : { projectId }),
+      ...(branch === project.branch ? {} : { branch }),
+      ...(revision === project.revision ? {} : { revision }),
+      ...(sameChange ? {} : { lastModifiedBy }),
+      ...status,
+    },
+  };
+}
+
 export function registerProjectHandlers(): void {
   registerTool({
     name: "list_projects",
@@ -139,8 +164,12 @@ export function registerProjectHandlers(): void {
         // The client may name the repository; Studio takes its id.
         repository: repository ? await client.getRepositoryIdByName(repository) : undefined,
       });
-      // Each project carries its opaque id as projectId, the name the other tools take it by, and only so
-      const transformedProjects = projectsPage.items.map(({ id, ...project }) => ({ projectId: id, ...project }));
+      // Each project carries its opaque id as projectId, the name the other tools take it by, and only so. The
+      // repository of a page is the same for many projects, and openl_list_repository_features tells it.
+      const transformedProjects = projectsPage.items.map((project) => {
+        const { id, repositoryInfo, ...rest } = withoutRepeatedStatus(project);
+        return { projectId: id, ...rest };
+      });
 
       const paginated = paginateCollection({ ...projectsPage, items: transformedProjects }, filters.offset);
 
@@ -166,7 +195,7 @@ export function registerProjectHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const project = await client.getProject(args.projectId, args.include);
 
-      const { id, ...answered } = project;
+      const { id, ...answered } = withoutRepeatedStatus(project);
       return formatResult({ projectId: id, ...answered });
     },
   });

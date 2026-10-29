@@ -5,7 +5,7 @@
 
 import { describe, it, expect } from "vitest";
 import { executeTool, getAllTools } from "./index.js";
-import type { ProjectStatusView } from "../types.js";
+import type { ProjectStatusView, ProjectViewModel } from "../types.js";
 import { STATUS_SUMMARY_QUERY } from "../client.js";
 import { bodyOf } from "../testing/mock-http.js";
 import { mockRepositories, pageOf, projectView } from "../testing/openl-api-mocks.js";
@@ -116,6 +116,39 @@ describe("project lists and details", () => {
 
     const { id, ...project } = projectView("OPENED");
     expect(dataOf(result)).toEqual({ projectId: id, ...project });
+  });
+
+  it("openl_list_projects leaves out the repository details of each project", async () => {
+    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED", {
+      repositoryInfo: { name: "Design", features: { branches: true, comments: true } },
+    })]));
+
+    const result = await executeTool("list_projects", {}, harness.client);
+
+    expect(dataOf(result)[0]).toMatchObject({ projectId: "design:project1:hash123", repository: "design" });
+    expect(dataOf(result)[0]).not.toHaveProperty("repositoryInfo");
+  });
+
+  it("answers the compile status of a project without what the project names already", async () => {
+    const compileStatus = {
+      projectId: "design:project1:hash123", branch: "main", revision: "r1", compileState: "ok",
+      lastModifiedBy: { author: "admin", date: "2024-01-01T00:00:00Z" },
+    };
+    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", {
+      branch: "main", revision: "r1", repositoryInfo: { name: "Design" }, compileStatus,
+    } as Partial<ProjectViewModel>));
+    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED", {
+      branch: "main", revision: "r2", compileStatus,
+    } as Partial<ProjectViewModel>)]));
+
+    const project = dataOf(await executeTool("get_project", { projectId: "design-project1" }, harness.client));
+    const listed = dataOf(await executeTool("list_projects", {}, harness.client))[0];
+
+    expect(project.compileStatus).toEqual({ compileState: "ok" });
+    // openl_get_project keeps the repository of its one project
+    expect(project.repositoryInfo).toEqual({ name: "Design" });
+    // A value the project does not name already stays
+    expect(listed.compileStatus).toEqual({ revision: "r1", compileState: "ok" });
   });
 
   it("openl_list_project_modules and openl_list_module_sheets read the modules and the worksheets of a project", async () => {
