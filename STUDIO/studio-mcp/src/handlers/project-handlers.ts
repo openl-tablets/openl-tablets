@@ -6,7 +6,7 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
-import { paginateCollection } from "../formatters.js";
+import { paginateCollection, type Truncation } from "../formatters.js";
 import { isNotFoundError, isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, type ToolResponse } from "./common.js";
 import { refreshFromDisk } from "./freshness.js";
@@ -67,6 +67,25 @@ function shapeStatusResponse(
       ...status.compilation,
       messages: { ...status.compilation.messages, items },
     },
+  };
+}
+
+/**
+ * The cut of a status over the size limit of an answer: its leading compile messages, the errors first, so the answer
+ * stays a whole status rather than a preview of its text. Nothing to cut without messages.
+ */
+function messageTruncation(status: Types.ProjectStatusView): Truncation | undefined {
+  const { compilation } = status;
+  const items = compilation?.messages?.items;
+  if (!compilation?.messages || !items?.length) {
+    return undefined;
+  }
+  const { messages } = compilation;
+  return {
+    items: items.length,
+    unit: "compile messages",
+    cut: (count) => ({ ...status, compilation: { ...compilation, messages: { ...messages, items: items.slice(0, count) } } }),
+    next: () => "choose the messages to read with severity or maxMessages",
   };
 }
 
@@ -232,7 +251,7 @@ export function registerProjectHandlers(): void {
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 
-      return formatResult(payload);
+      return formatResult(payload, "json", { truncation: messageTruncation(payload) });
     },
   });
 
