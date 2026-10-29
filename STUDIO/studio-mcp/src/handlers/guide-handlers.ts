@@ -52,7 +52,7 @@ now oriented — do not call this tool again in this session.
    \`openl_update_table\`, ...) or the project-file tools.
 5. **Validate after every edit**: \`openl_project_status\` for compile
    errors, then run tests (\`openl_start_project_tests\` →
-   \`openl_get_test_results_summary\`).
+   \`openl_get_test_results\` with \`summary: true\`).
 6. **Persist / ship**: \`openl_save_project\` commits to Git; \`openl_deploy_project\`
    deploys. Neither applies to projects in the 'local' repository — those have no
    open/save/close or Git operations — and saving does not apply to a project edited in

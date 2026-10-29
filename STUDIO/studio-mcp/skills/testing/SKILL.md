@@ -44,8 +44,8 @@ Data tables) fetch the Reference Guide's Test table chapter with `openl_get_guid
    those in test tables; with errors, fix, save and recheck. Without a terminal state the compile state is
    "unverified" — never infer it from test results. Between a fix and its re-run, repeat step 2 only if someone else
    may have changed the project; step 3 always runs.
-4. **Run** `openl_start_project_tests`, then read the summary. Read per-row detail (`openl_get_test_results_by_table`)
-   for every table with rows added in this task and every table reported failing.
+4. **Run** `openl_start_project_tests`, then read the summary. Read per-row detail (`openl_get_test_results` with its
+   `tableId`) for every table with rows added in this task and every table reported failing.
 5. **On a failure**, classify before changing anything:
    - rule logic → fix the rule, save, re-run;
    - reference or lookup data the rule reads → report what is missing or wrong;

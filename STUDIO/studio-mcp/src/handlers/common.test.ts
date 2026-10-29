@@ -41,7 +41,7 @@ describe("tool registry", () => {
       .filter((tool) => "response_format" in (tool.inputSchema.properties as Record<string, unknown>))
       .map((tool) => tool.name);
     expect(formatted.toSorted()).toEqual([
-      "get_table_dependencies", "get_test_results", "get_test_results_by_table", "get_test_results_summary",
+      "get_table_dependencies", "get_test_results",
       "list_deployments", "list_projects", "list_repositories", "list_tables",
     ]);
   });

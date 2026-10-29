@@ -709,16 +709,32 @@ export const startProjectTestsSchema = z.strictObject({
   fromModule: z.string().optional().describe("Module name to run tests from."),
 });
 
-export const getTestResultsSummarySchema = z.strictObject({
-  projectId: projectIdSchema,
-  failuresOnly: z.boolean().optional().describe("Include only failed tests."),
-  failures: z.number().int().positive().default(5).describe("Number of failed test units to include in the summary (default: 5, min: 1)"),
-  unpaged: z.boolean().default(false).describe("Return all results without pagination"),
-  response_format: ResponseFormat,
-});
+/** Whether the options of a test-result read go together: paging options exclude each other, and a summary pages nothing. */
+function checkTestResultOptions(data: {
+  summary: boolean;
+  tableId?: string;
+  page?: number;
+  offset?: number;
+  size?: number;
+  limit?: number;
+  unpaged: boolean;
+}, ctx: z.RefinementCtx): void {
+  const paged = data.page !== undefined || data.offset !== undefined || data.size !== undefined || data.limit !== undefined;
+  if (data.page !== undefined && data.offset !== undefined) {
+    ctx.addIssue({ code: "custom", path: ["page"], message: "page and offset are mutually exclusive." });
+  }
+  if (data.unpaged && paged) {
+    ctx.addIssue({ code: "custom", path: ["unpaged"], message: "unpaged is mutually exclusive with page, offset, size, and limit." });
+  }
+  if (data.summary && (paged || data.tableId !== undefined)) {
+    ctx.addIssue({ code: "custom", path: ["summary"], message: "A summary takes no tableId, page, offset, size or limit." });
+  }
+}
 
-/** The fields of a full test-result read, the table filter aside. */
-const testResultFields = {
+export const getTestResultsSchema = z.strictObject({
+  projectId: projectIdSchema,
+  summary: z.boolean().default(false).describe("Read only the time of the run and how many tests passed and failed."),
+  tableId: tableIdSchema.optional().describe("The test table to read whole; omit to read every test table, page by page."),
   failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
   failures: z.number().int().positive().default(5).describe("Number of failed test units to include in the summary (default: 5, min: 1)"),
   page: z.number().int().nonnegative().optional().describe("Page number (0-based). Mutually exclusive with offset"),
@@ -727,37 +743,7 @@ const testResultFields = {
   limit: z.number().int().positive().max(200).optional().describe("Page size (alias for size, maps to size parameter)"),
   unpaged: z.boolean().default(false).describe("Return all results without pagination or a size limit, which can exceed what the client accepts. Mutually exclusive with page, offset, size, and limit"),
   response_format: ResponseFormat,
-};
-
-/** Whether the paging options of a test-result read exclude each other as they must. */
-function isValidTestResultPaging(data: {
-  page?: number;
-  offset?: number;
-  size?: number;
-  limit?: number;
-  unpaged: boolean;
-}): boolean {
-  // page vs offset
-  if (data.page !== undefined && data.offset !== undefined) {
-    return false;
-  }
-  // unpaged vs page/offset/size/limit
-  return !(data.unpaged && (data.page !== undefined || data.offset !== undefined || data.size !== undefined || data.limit !== undefined));
-}
-
-const TEST_RESULT_PAGING_ERROR =
-  "Invalid pagination parameters: page and offset are mutually exclusive; unpaged is mutually exclusive with page, offset, size, and limit";
-
-export const getTestResultsSchema = z.strictObject({
-  projectId: projectIdSchema,
-  ...testResultFields,
-}).refine(isValidTestResultPaging, { error: TEST_RESULT_PAGING_ERROR });
-
-export const getTestResultsByTableSchema = z.strictObject({
-  projectId: projectIdSchema,
-  tableId: tableIdSchema.describe("Table ID to filter test results for a specific table"),
-  ...testResultFields,
-}).refine(isValidTestResultPaging, { error: TEST_RESULT_PAGING_ERROR });
+}).superRefine(checkTestResultOptions);
 
 // =============================================================================
 // Project Files (BETA) Schemas

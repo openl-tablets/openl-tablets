@@ -37,7 +37,7 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (66 Total)
+## Tools (64 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -58,7 +58,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_list_repository_features` - Get repository features, including whether change comments are supported
 - `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch
 
-### Project Tools (16)
+### Project Tools (14)
 - `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. A `compileState` of `idle` (`include: status`) means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
 - `openl_get_project` - Get project details
 - `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again; a project whose files another program changed since Studio compiled them is compiled again from those files, with a note to read its tables again — every tool that reads or edits what Studio compiled does the same by itself
@@ -70,9 +70,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_list_project_local_changes` - View one module's workspace history using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`. It is no check for unsaved changes: `openl_project_status` reports the pending changes
 - `openl_restore_project_local_change` - Restore one module to a listed local version using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`
 - `openl_start_project_tests` - Start project test execution
-- `openl_get_test_results_summary` - Get brief test execution summary; waits internally through Studio's `202 {"status":"notReady"}` responses until the asynchronous run finishes
-- `openl_get_test_results` - Get full test execution results with pagination; waits internally for completed results instead of requiring agent-side polling. A page is cut by whole test tables to the 25K-character limit (`pagination.next_offset` continues it); only `unpaged: true` returns every test table without a limit, an answer that can exceed what the client accepts
-- `openl_get_test_results_by_table` - Get the test results of one test table, which Studio filters and pages by the `tableId` of the summary; waits while the run is in progress
+- `openl_get_test_results` - Read the results of the run, waiting internally through Studio's `202 {"status":"notReady"}` responses until it finishes: `summary: true` reads only the time of the run and the counts of passed and failed tests; `tableId` reads one test table whole, which Studio filters and pages; otherwise every test table, a page cut by whole test tables to the 25K-character limit (`pagination.next_offset` continues it), and only `unpaged: true` returns every test table without a limit, an answer that can exceed what the client accepts. One tool reads all three views of the one Studio endpoint, so their shared options are described once
 - `openl_list_project_modules` - List declared project modules, including path patterns and their matched modules
 - `openl_list_module_sheets` - List worksheets in a project module
 
@@ -229,7 +227,7 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 - Table tools: `openl_list_tables`, `openl_get_table`, `openl_update_table`, `openl_create_project_table`, `openl_copy_table`, `openl_delete_table`, dependency/property discovery, and the raw table-source edits of `openl_edit_table`;
 - Module/sheet discovery and regular table execution: `openl_list_project_modules`, `openl_list_module_sheets`, `openl_run_table`;
 - Project deletion: `openl_delete_project` after exact project-name confirmation;
-- Test execution and results: `openl_start_project_tests`, `openl_get_test_results_summary`, `openl_get_test_results`, `openl_get_test_results_by_table` (the project is not opened before running tests for local).
+- Test execution and results: `openl_start_project_tests`, `openl_get_test_results` (the project is not opened before running tests for local).
 
 **For local, do not use:**
 - `openl_open_project`, `openl_save_project`, `openl_close_project` (no commits or status changes);
@@ -280,7 +278,7 @@ anonymous (single-user Studio).
 ## Response formatting
 
 - Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output.
-- Only the tools whose answer has a Markdown view of its own take `response_format`: `openl_list_repositories`, `openl_list_projects`, `openl_list_tables`, `openl_list_deployments`, `openl_get_table_dependencies` and the three test-result tools. Every other tool answers JSON, which a Markdown format would only wrap in a code block, and refuses the argument: its schema in every session of every agent would cost more than the answer it changes.
+- Only the tools whose answer has a Markdown view of its own take `response_format`: `openl_list_repositories`, `openl_list_projects`, `openl_list_tables`, `openl_list_deployments`, `openl_get_table_dependencies` and `openl_get_test_results`. Every other tool answers JSON, which a Markdown format would only wrap in a code block, and refuses the argument: its schema in every session of every agent would cost more than the answer it changes.
 - No tool carries file bytes as base64 or as an embedded resource: a file other than a short text is answered with a link (see Project Files Tools), never as a `resource_link` either, since a client may fetch or preview a link it renders.
 - List operations return pagination metadata.
 - Large responses are truncated at a 25K-character limit — except `openl_get_guides` bodies, which are returned verbatim (sizes are published in the index so callers can budget). A response over the limit is cut by whole items (a list by items with the pagination moved to match, `openl_get_table` by rows with `totalRows` and the `startRow` to continue from), and the note names only a way to continue that the tool has.
