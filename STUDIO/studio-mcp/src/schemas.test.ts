@@ -4,14 +4,13 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
   appendTableSchema,
-  appendTableColumnsSchema,
-  appendTableRowsSchema,
   closeProjectSchema,
   copyTableSchema,
   createProjectSchema,
   createProjectTableSchema,
   deleteProjectBranchSchema,
   deleteProjectSchema,
+  editTableSchema,
   getProjectRevisionsSchema,
   getTableDependenciesSchema,
   listProjectBranchesSchema,
@@ -20,12 +19,6 @@ import {
   projectIdSchema,
   runTableSchema,
   saveProjectSchema,
-  insertTableColumnsSchema,
-  insertTableRowsSchema,
-  updateTableCellSchema,
-  updateTableColumnSchema,
-  updateTableRangeSchema,
-  updateTableRowSchema,
   updateTableSchema,
 } from "./schemas.js";
 
@@ -67,49 +60,20 @@ const rawCellWriteSchemas = [
       appendData: { tableType: "RawSource", rows: [[{ value }]] },
     }),
   },
-  {
-    name: "append rows",
-    schema: appendTableRowsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", cells: [[{ value }]] }),
-  },
-  {
-    name: "append columns",
-    schema: appendTableColumnsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", cells: [[{ value }]] }),
-  },
-  {
-    name: "insert rows",
-    schema: insertTableRowsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 1, cells: [[{ value }]] }),
-  },
-  {
-    name: "insert columns",
-    schema: insertTableColumnsSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 1, cells: [[{ value }]] }),
-  },
-  {
-    name: "update row",
-    schema: updateTableRowSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 0, cells: [{ value }] }),
-  },
-  {
-    name: "update column",
-    schema: updateTableColumnSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", position: 0, cells: [{ value }] }),
-  },
-  {
-    name: "update cell",
-    schema: updateTableCellSchema,
-    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0, value }),
-  },
-  {
-    name: "update range",
-    schema: updateTableRangeSchema,
-    input: (value: unknown) => ({
-      projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0,
-      cells: [[{ value }, { value: null }]],
-    }),
-  },
+  ...([
+    ["append_rows", (value: unknown) => ({ cells: [[{ value }]] })],
+    ["append_columns", (value: unknown) => ({ cells: [[{ value }]] })],
+    ["insert_rows", (value: unknown) => ({ position: 1, cells: [[{ value }]] })],
+    ["insert_columns", (value: unknown) => ({ position: 1, cells: [[{ value }]] })],
+    ["update_row", (value: unknown) => ({ position: 0, cells: [[{ value }]] })],
+    ["update_column", (value: unknown) => ({ position: 0, cells: [[{ value }]] })],
+    ["update_cell", (value: unknown) => ({ row: 0, column: 0, value })],
+    ["update_range", (value: unknown) => ({ row: 0, column: 0, cells: [[{ value }, { value: null }]] })],
+  ] as const).map(([action, args]) => ({
+    name: `edit ${action}`,
+    schema: editTableSchema,
+    input: (value: unknown) => ({ projectId: "p1", tableId: "t1", version: "v1", action, ...args(value) }),
+  })),
 ];
 
 describe("opaque project identifiers", () => {
@@ -173,7 +137,7 @@ describe("RawSource-only table contracts", () => {
   });
 
   it("publishes the same scalar-or-array value domain without an object alternative", () => {
-    const json = z.toJSONSchema(updateTableCellSchema) as Record<string, any>;
+    const json = z.toJSONSchema(editTableSchema) as Record<string, any>;
     const serializedValueSchema = JSON.stringify(json.properties.value);
 
     expect(serializedValueSchema).toContain('"type":"array"');
@@ -190,8 +154,8 @@ describe("RawSource-only table contracts", () => {
     });
 
   it("explains the supported cell-value domain in validation errors", () => {
-    const objectResult = updateTableCellSchema.safeParse({
-      projectId: "p1", tableId: "t1", version: "v1", row: 0, column: 0, value: { unsupported: true },
+    const objectResult = editTableSchema.safeParse({
+      projectId: "p1", tableId: "t1", version: "v1", action: "update_cell", row: 0, column: 0, value: { unsupported: true },
     });
 
     expect(objectResult.success).toBe(false);

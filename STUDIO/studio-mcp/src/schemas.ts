@@ -274,136 +274,113 @@ export const appendTableSchema = z.strictObject({
 });
 
 // =============================================================================
-// Raw table-source actions (POST /projects/{projectId}/tables/{tableId}/actions)
+// Raw table-source edits (POST /projects/{projectId}/tables/{tableId}/actions)
 //
-// One narrow tool per operation×orientation. Each applies a SINGLE in-place edit
-// to the table's RAW source (any table type), like every table-content tool.
-// Positions are
-// 0-based; row 0 is the header row and column 0 carries the leading labels, so
-// insert positions start at 1. An edit that renames the table changes its id —
-// the tools surface the new id the same way update/append do.
+// One tool for every in-place edit of a table's raw source, as Studio takes them at one endpoint: the action names
+// the edit, and each action takes its own arguments.
 // =============================================================================
 
-const rowCellsSchema = z.array(actionCellSchema).min(1).describe(
-  "Row cells, left to right. Required and non-empty — provide one cell per column (use { value: null } for a blank cell, { covered: true } for a position an existing merged cell covers, as openl_get_table marks it). A cell may set colspan/rowspan to merge. Must not be wider than the table.",
-);
-const columnCellsSchema = z.array(actionCellSchema).min(1).describe(
-  "Column cells, top to bottom. Required and non-empty — provide one cell per row (use { value: null } for a blank cell, { covered: true } for a position an existing merged cell covers, such as row 0 under a title that spans the table, as openl_get_table marks it). A cell may set colspan/rowspan to merge. Must not be taller than the table.",
-);
+/** The edits of openl_edit_table, by the arguments each takes; a name ending in `?` may be left out. */
+export const EDIT_ACTIONS = {
+  append_rows: ["cells"],
+  append_columns: ["cells"],
+  insert_rows: ["position", "cells"],
+  insert_columns: ["position", "cells"],
+  delete_rows: ["position", "count?"],
+  delete_columns: ["position", "count?"],
+  update_row: ["position", "cells"],
+  update_column: ["position", "cells"],
+  update_cell: ["row", "column", "value?", "formula?"],
+  update_range: ["row", "column", "cells"],
+  merge: ["row", "column", "rowspan", "colspan"],
+  unmerge: ["row", "column"],
+} as const;
 
-/** One or more lines (rows or columns), each a non-empty list of cells — the 2D block shared by the rows/columns/range tools. */
-const cellBlockSchema = z.array(z.array(actionCellSchema).min(1)).min(1);
-/** One or more rows: outer = rows (top to bottom), inner = cells in that row (left to right). */
-const rowsBlockSchema = cellBlockSchema.describe(
-  "Rows top to bottom, each a non-empty list of cells left to right (one cell per column; use { value: null } for a blank cell). Pass one row to add/insert a single row, several for a block. Each row as wide as the table.",
-);
-/** One or more columns: outer = columns (left to right), inner = cells in that column (top to bottom). */
-const columnsBlockSchema = cellBlockSchema.describe(
-  "Columns left to right, each a non-empty list of cells top to bottom (one cell per row; use { value: null } for a blank cell). Pass one column to add/insert a single column, several for a block. Each column as tall as the table.",
-);
+export type EditAction = keyof typeof EDIT_ACTIONS;
 
-export const updateTableRowSchema = z.strictObject({
+const EDIT_ARGUMENTS = ["position", "count", "row", "column", "rowspan", "colspan", "cells", "value", "formula"] as const;
+
+/** The actions that add or remove whole rows or columns, where the header row and the label column stay. */
+const LINE_ACTIONS: ReadonlySet<EditAction> = new Set([
+  "insert_rows", "insert_columns", "delete_rows", "delete_columns",
+]);
+
+type EditArguments = Partial<Record<(typeof EDIT_ARGUMENTS)[number], unknown>> & {
+  action: EditAction;
+  position?: number;
+  rowspan?: number;
+  colspan?: number;
+  cells?: Array<Array<{ colspan?: number; rowspan?: number }>>;
+  formula?: string;
+};
+
+/** Whether a block of cells covers more than one cell: two cells, or one that spans others. */
+function coversManyCells(cells: NonNullable<EditArguments["cells"]>): boolean {
+  const only = cells.length === 1 && cells[0].length === 1 ? cells[0][0] : undefined;
+  return !only || (only.colspan ?? 1) > 1 || (only.rowspan ?? 1) > 1;
+}
+
+/** Why an action refuses an argument: it needs the argument left out, or does not take the one given. */
+function argumentIssue(action: EditAction, name: string, present: boolean): string | undefined {
+  const takes = EDIT_ACTIONS[action] as readonly string[];
+  if (!present && takes.includes(name)) {
+    return `'${action}' needs '${name}'.`;
+  }
+  const refused = present && !takes.includes(name) && !takes.includes(`${name}?`);
+  return refused ? `'${action}' does not take '${name}'.` : undefined;
+}
+
+/** Why `update_cell` refuses what it sets the cell to: neither a value nor a formula, or both. */
+function cellContentIssue(data: EditArguments): { path: string; message: string } | undefined {
+  if (data.value === undefined && data.formula === undefined) {
+    return { path: "value", message: "'update_cell' needs 'value', null to clear the cell, or 'formula'." };
+  }
+  return valueOrFormula(data) ? undefined : { path: "formula", message: VALUE_OR_FORMULA };
+}
+
+/** The arguments an edit takes: each it needs, none it does not, and the bounds of its action. */
+function checkEditArguments(data: EditArguments, ctx: z.RefinementCtx): void {
+  for (const name of EDIT_ARGUMENTS) {
+    const message = argumentIssue(data.action, name, data[name] !== undefined);
+    if (message) {
+      ctx.addIssue({ code: "custom", path: [name], message });
+    }
+  }
+  if (LINE_ACTIONS.has(data.action) && data.position === 0) {
+    ctx.addIssue({ code: "custom", path: ["position"], message: "Row 0 and column 0 stay: 'position' starts at 1." });
+  }
+  if ((data.action === "update_row" || data.action === "update_column") && data.cells && data.cells.length !== 1) {
+    ctx.addIssue({ code: "custom", path: ["cells"], message: `'${data.action}' takes one line of cells.` });
+  }
+  const content = data.action === "update_cell" ? cellContentIssue(data) : undefined;
+  if (content) {
+    ctx.addIssue({ code: "custom", path: [content.path], message: content.message });
+  }
+  if (data.action === "merge" && (data.rowspan ?? 1) * (data.colspan ?? 1) === 1) {
+    ctx.addIssue({ code: "custom", path: ["rowspan"], message: "A merge must cover more than one cell." });
+  }
+  if (data.action === "update_range" && data.cells && !coversManyCells(data.cells)) {
+    ctx.addIssue({
+      code: "custom", path: ["cells"], message: "A range must cover more than one cell: use 'update_cell' for one.",
+    });
+  }
+}
+
+export const editTableSchema = z.strictObject({
   ...tableActionBase,
-  position: z.number().int().min(0).describe("0-based index of the row to overwrite (0..height-1). The table is not resized."),
-  cells: rowCellsSchema,
-});
-
-export const updateTableColumnSchema = z.strictObject({
-  ...tableActionBase,
-  position: z.number().int().min(0).describe("0-based index of the column to overwrite (0..width-1). The table is not resized."),
-  cells: columnCellsSchema,
-});
-
-export const updateTableCellSchema = z.strictObject({
-  ...tableActionBase,
-  row: z.number().int().min(0).describe("0-based row index of the cell (0..height-1)."),
-  column: z.number().int().min(0).describe("0-based column index of the cell (0..width-1)."),
-  value: cellValueSchema.optional().describe("New scalar or representable one-dimensional scalar-array value. Required unless 'formula' is given — pass null explicitly to clear so the intent is unambiguous. A text starting with '=' is an OpenL formula, such as '= $Base * 2', and is written as text."),
-  formula: excelFormulaSchema,
-}).refine(valueOrFormula, { error: VALUE_OR_FORMULA })
-  .refine((cell) => cell.formula !== undefined || cell.value !== undefined, {
-    error: "Pass 'value' (null to clear the cell) or 'formula'.",
-  });
-
-export const mergeTableCellsSchema = z.strictObject({
-  ...tableActionBase,
-  row: z.number().int().min(0).describe("0-based row index of the top-left cell of the range (0..height-1)."),
-  column: z.number().int().min(0).describe("0-based column index of the top-left cell of the range (0..width-1)."),
-  rowspan: z.number().int().min(1).describe("Number of rows the merged cell spans (>= 1)."),
-  colspan: z.number().int().min(1).describe("Number of columns the merged cell spans (>= 1)."),
-}).refine((d) => d.rowspan * d.colspan > 1, {
-  // A 1×1 merge is a no-op; the range must cover more than one cell (the tool's contract).
-  error: "A merge must cover more than one cell: rowspan × colspan must be greater than 1.",
-  path: ["rowspan"],
-});
-
-export const unmergeTableCellsSchema = z.strictObject({
-  ...tableActionBase,
-  row: z.number().int().min(0).describe("0-based row index of any cell in the merged region (0..height-1)."),
-  column: z.number().int().min(0).describe("0-based column index of any cell in the merged region (0..width-1)."),
-});
-
-// -----------------------------------------------------------------------------
-// Row / column table-source actions — append/insert/delete ONE OR MORE rows or
-// columns with a single tool per operation. The studio takes one block target
-// (`rows`/`columns`, accepting one or more), so a single row/column is just a
-// one-element block. (Cell- and range-level edits stay separate below: they are
-// different shapes, not a one-vs-many choice.)
-// -----------------------------------------------------------------------------
-
-export const appendTableRowsSchema = z.strictObject({
-  ...tableActionBase,
-  cells: rowsBlockSchema,
-});
-
-export const appendTableColumnsSchema = z.strictObject({
-  ...tableActionBase,
-  cells: columnsBlockSchema,
-});
-
-export const insertTableRowsSchema = z.strictObject({
-  ...tableActionBase,
-  position: z.number().int().min(1).describe("0-based index the first new row will occupy (1..height; height appends to the end). Rows at and below it shift down."),
-  cells: rowsBlockSchema,
-});
-
-export const insertTableColumnsSchema = z.strictObject({
-  ...tableActionBase,
-  position: z.number().int().min(1).describe("0-based index the first new column will occupy (1..width; width appends to the end). Columns at and to the right of it shift right."),
-  cells: columnsBlockSchema,
-});
-
-export const deleteTableRowsSchema = z.strictObject({
-  ...tableActionBase,
-  position: z.number().int().min(1).describe("0-based index of the first body row to delete (1..height-1). The header row (0) cannot be deleted. Rows below the deleted block shift up."),
-  count: z.number().int().min(1).optional().describe("Number of rows to delete starting at 'position' (default 1)."),
-});
-
-export const deleteTableColumnsSchema = z.strictObject({
-  ...tableActionBase,
-  position: z.number().int().min(1).describe("0-based index of the first column to delete (1..width-1). The leading-label column (0) cannot be deleted. Columns to the right of the deleted block shift left."),
-  count: z.number().int().min(1).optional().describe("Number of columns to delete starting at 'position' (default 1)."),
-});
-
-export const updateTableRangeSchema = z.strictObject({
-  ...tableActionBase,
-  row: z.number().int().min(0).describe("0-based row index of the top-left cell of the range (0..height-1)."),
-  column: z.number().int().min(0).describe("0-based column index of the top-left cell of the range (0..width-1)."),
-  cells: cellBlockSchema.describe(
-    "Block rows top to bottom, each a non-empty list of cells left to right. Anchored at ('row','column'); must cover more than one cell and fit within the table (the table is not resized).",
+  action: z.enum(Object.keys(EDIT_ACTIONS) as [EditAction, ...EditAction[]]).describe("The edit to make."),
+  position: z.number().int().min(0).optional().describe("The row or column the action starts at."),
+  count: z.number().int().min(1).optional().describe("How many rows or columns to delete; 1 by default."),
+  row: z.number().int().min(0).optional().describe("The row of the cell, or of the top-left cell of a range."),
+  column: z.number().int().min(0).optional().describe("The column of the cell, or of the top-left cell of a range."),
+  rowspan: z.number().int().min(1).optional().describe("How many rows the merged cell spans."),
+  colspan: z.number().int().min(1).optional().describe("How many columns the merged cell spans."),
+  cells: z.array(z.array(actionCellSchema).min(1)).min(1).optional().describe(
+    "Lines of cells: rows top to bottom for a row action and a range, columns left to right for a column action.",
   ),
-}).refine((d) => {
-  // The range must cover more than one cell. Only a single un-spanned cell fails
-  // that — a lone cell with colspan/rowspan still covers more than one cell (the
-  // studio's UpdateRange allows colspan/rowspan), so don't reject it locally.
-  const only = d.cells.length === 1 && d.cells[0].length === 1 ? d.cells[0][0] : undefined;
-  if (!only) return true; // 2+ input cells already cover more than one cell
-  return (only.colspan ?? 1) > 1 || (only.rowspan ?? 1) > 1;
-}, {
-  // A single un-spanned cell — use openl_update_table_cell instead.
-  error: "An update range must cover more than one cell. For a single cell use openl_update_table_cell.",
-  path: ["cells"],
-});
+  value: cellValueSchema.optional().describe("The value of the cell; null clears it. A text starting with '=' is an OpenL formula, written as text."),
+  formula: excelFormulaSchema,
+}).superRefine(checkEditArguments);
 
 export const listBranchesSchema = z.strictObject({
   repository: repositoryNameSchema,
@@ -604,7 +581,7 @@ export const updateTableSchema = z.strictObject({
     ctx.addIssue({
       code: "custom",
       path: ["view", "totalRows"],
-      message: "A windowed RawSource view cannot replace the whole table because omitted rows would be deleted. Use narrow raw table actions to edit a large table; remove rows only with openl_delete_table_rows and an explicit position/count.",
+      message: "A windowed RawSource view cannot replace the whole table because omitted rows would be deleted. Use openl_edit_table to edit a large table; remove rows only with its delete_rows action and an explicit position/count.",
     });
   }
 });

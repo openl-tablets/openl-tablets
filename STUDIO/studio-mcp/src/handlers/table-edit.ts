@@ -1,6 +1,6 @@
 /**
  * The end of every table edit, shared by the full update/append tools
- * (`table-handlers.ts`) and the raw-source actions (`table-action-handlers.ts`).
+ * (`table-handlers.ts`) and the raw-source edit tool (`table-action-handlers.ts`).
  *
  * Studio keeps the id of a table while it stays the same table: a move keeps it,
  * and only a rename, or a change of the table's `id` property, gives it a new one,
@@ -39,7 +39,7 @@ async function readTableBack(
 }
 
 /**
- * Shared post-edit tail for the table-editing tools (update/append/raw actions).
+ * Shared post-edit tail for the table-editing tools (update/append/raw edits).
  *
  * Reads the table back to trigger the studio recompile (noting a failure with
  * the tool's own verb, e.g. "update"/"append"/"edit"), and answers the standard

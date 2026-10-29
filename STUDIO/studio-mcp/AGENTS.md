@@ -37,7 +37,7 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (78 Total)
+## Tools (67 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -106,30 +106,41 @@ the current branch into the other branch.
 
 ### Rules/Tables Tools (10)
 - `openl_list_tables` - List project tables with pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required
-- `openl_get_table` - Get the authoritative `RawSource` 2D cell matrix, including context-parsed one-dimensional multi-value arrays; `startRow`/`maxRows` read a large table in row slices of exactly those rows (a merged cell the edge of a slice cuts keeps its value and names its whole area in `mergedArea`, so every row of a long merge is readable) and `styles=true` includes read-only Excel cell styles. Every answer states its rows in `window` next to `data`: `startRow`, `endRow`, `rows`, `totalRows`, `complete` (whether it holds every row) and `nextStartRow` while rows remain. A sliced response carries `totalRows` and is for reading or narrow raw actions only. The answer carries the table's `version`, which the edit tools take back
-- `openl_update_table` - Replace the complete `RawSource` matrix while preserving or adding rows (a cell sent with the value it holds is left as it is), including scalar and representable one-dimensional array values returned by `openl_get_table`; before writing, it reads one live row and rejects a shorter source even if `totalRows` was removed, preventing a sliced view from deleting unseen rows. Remove rows with `openl_delete_table_rows`. Call `openl_get_table` without `styles=true`: Studio write APIs cannot change formatting, and `style` is rejected rather than silently ignored. The `version` of the view is required and sent in `If-Match`, so Studio refuses the write when the table changed since the read
+- `openl_get_table` - Get the authoritative `RawSource` 2D cell matrix, including context-parsed one-dimensional multi-value arrays; `startRow`/`maxRows` read a large table in row slices of exactly those rows (a merged cell the edge of a slice cuts keeps its value and names its whole area in `mergedArea`, so every row of a long merge is readable) and `styles=true` includes read-only Excel cell styles. Every answer states its rows in `window` next to `data`: `startRow`, `endRow`, `rows`, `totalRows`, `complete` (whether it holds every row) and `nextStartRow` while rows remain. A sliced response carries `totalRows` and is for reading or `openl_edit_table` only. The answer carries the table's `version`, which the edit tools take back
+- `openl_update_table` - Replace the complete `RawSource` matrix while preserving or adding rows (a cell sent with the value it holds is left as it is), including scalar and representable one-dimensional array values returned by `openl_get_table`; before writing, it reads one live row and rejects a shorter source even if `totalRows` was removed, preventing a sliced view from deleting unseen rows. Remove rows with the `delete_rows` action of `openl_edit_table`. Call `openl_get_table` without `styles=true`: Studio write APIs cannot change formatting, and `style` is rejected rather than silently ignored. The `version` of the view is required and sent in `If-Match`, so Studio refuses the write when the table changed since the read
 - `openl_append_table` - Append full-width `RawSource` rows with scalar or representable one-dimensional array cell values; the required `version` is sent in `If-Match`
 - `openl_create_project_table` - Create a table from a complete `RawSource` matrix in an existing module, or pass `modulePath` (an `.xlsx` project-relative path) to create a new module; cell values may be scalars or representable one-dimensional arrays, while cell formatting is unsupported by Studio write APIs
-- `openl_delete_table` - Delete an entire table (to remove a row/column WITHIN a table, use the raw action tools below); the required `version` is sent in `If-Match`
+- `openl_delete_table` - Delete an entire table (to remove a row/column WITHIN a table, use `openl_edit_table` below); the required `version` is sent in `If-Match`
 - `openl_run_table` - Execute a regular (non-Test) table with JSON input and wait for its result, treating Studio's `202 {"status":"notReady"}` result response as still running; provide parameters by name, directly or under `params`, or in order, under `params` or as a top-level array, any of them also as a JSON string; for a method whose only parameter is an array, a top-level array is that parameter's value. `timeoutMs` bounds the complete start-and-result workflow (default 2 minutes), and cancellation, timeout, or any other failed workflow clears the pending Studio run. Studio keeps only one run per client, so concurrent calls through the same MCP session are rejected rather than allowed to replace each other's result
 - `openl_get_table_dependencies` - Get the executable and datatype dependency graph: omit `tableId` for a whole-project/module view with optional `layer` (`executable`/`datatype`/`all`), or provide it for a table's dependency/dependent neighborhood. JSON returns the adjacency list, including bounded first/last value previews for vocabularies; Markdown visualizes executable calls as a Mermaid flowchart and the data model with declared fields, `Name<Type>` vocabulary headers, bounded values (`+ N more` when truncated), and reference cardinalities as a Mermaid ER diagram, plus a separate inheritance diagram when needed
 - `openl_list_table_property_definitions` - List properties allowed in a table context, including types and enum values
 - `openl_copy_table` - Copy a table server-side inside the project while preserving formatting, merged cells, comments, and structure
 
-### Raw Table-Source Action Tools (12)
-In-place edits to a table's raw source (any table type). One tool per operation×orientation handles **one OR more** rows/columns — pass a single row/column or several; the studio takes a single `rows`/`columns` block target (one row/column is just a one-element block), so there is no separate "row" vs "rows" tool. Positions are 0-based (row 0 is the header, column 0 the leading labels). `cells` is required and non-empty (one cell per column/row; use `{ value: null }` for a blank cell, and `{ covered: true }` for a position an existing merged cell covers, such as row 0 under a title that spans the table — Studio refuses to write it). Writable values use the same round-trip contract as full-table writes: string/number/boolean/null scalars or one-dimensional arrays of those scalars. Arrays must be non-empty; `[null]`, nested arrays, objects, and string elements surrounded by characters Studio trims (whitespace or ISO controls) are rejected. Each tool returns the table's CURRENT `tableId` (plus `previousTableId` when the edit renamed the table) and its new `version`, and reads the table back to trigger a recompile; a table that does not compile after the edit is answered with `compiles: false` and the `errors` of its compilation. Every tool requires the `version` — from `openl_get_table` or the previous edit — and sends it in `If-Match`: Studio refuses an edit of a table that changed since, in Excel, on disk or through another client, and writes nothing.
+### Raw Table-Source Edit Tool (1)
+In-place edits to a table's raw source (any table type), one tool for every edit Studio takes at
+`POST /projects/{projectId}/tables/{tableId}/actions`. The `action` names the edit, and each action takes only its
+own arguments — one it needs and left out, or one it does not take, is refused before Studio is called. One tool
+instead of one per edit keeps the rules the edits share in one description, which every agent loads in every session.
 
-Rows / columns (one or many):
-- `openl_append_table_rows` / `openl_append_table_columns` - Add one or more rows/columns to the end (`cells` is a 2D array, one inner list per row/column)
-- `openl_insert_table_rows` / `openl_insert_table_columns` - Insert one or more rows/columns at `position` 1..
-- `openl_delete_table_rows` / `openl_delete_table_columns` - Delete `count` (default 1) rows/columns from `position` 1.. (the header row / label column 0 cannot be deleted)
+- `openl_edit_table` - `append_rows` / `append_columns` add the lines of `cells` at the end; `insert_rows` /
+  `insert_columns` add them at `position` 1..; `delete_rows` / `delete_columns` remove `count` (default 1) from
+  `position` 1.. (the header row and the label column 0 stay); `update_row` / `update_column` overwrite the line at
+  `position` with the one line of `cells`; `update_cell` sets the cell at (`row`, `column`) to `value` (null clears
+  it), or with `formula` instead to an Excel formula; `update_range` overwrites more than one cell from (`row`, `column`); `merge` merges `rowspan`×`colspan`
+  cells from (`row`, `column`), `unmerge` splits the merged cell covering it
 
-Cells / ranges:
-- `openl_update_table_row` / `openl_update_table_column` - Overwrite the cells of the row/column at `position`
-- `openl_update_table_cell` - Set a single cell's value at (`row`, `column`); a value starting with `=` is an OpenL formula written as text, and `formula`, sent instead of `value`, writes an Excel formula
-- `openl_update_table_range` - Overwrite a rectangular range (> 1 cell) anchored at (`row`, `column`)
-- `openl_merge_table_cells` - Merge a `rowspan`×`colspan` range from (`row`, `column`)
-- `openl_unmerge_table_cells` - Unmerge the cell covering (`row`, `column`)
+Positions are 0-based (row 0 is the header, column 0 the leading labels). `cells` is always a list of lines (rows
+for row actions and a range, columns for column actions), each a non-empty list of cells: `{ value: null }` for a
+blank cell, and `{ covered: true }` for a position an existing merged cell covers, such as row 0 under a title that
+spans the table — Studio refuses to write it. A value starting with `=` is an OpenL formula, written as text; a cell's `formula`,
+such as `=B2*C2`, writes an Excel formula instead of a value, and Studio refuses the two together. Writable values use the same round-trip contract as full-table writes:
+string/number/boolean/null scalars or one-dimensional arrays of those scalars. Arrays must be non-empty; `[null]`,
+nested arrays, objects, and string elements surrounded by characters Studio trims (whitespace or ISO controls) are
+rejected. The tool returns the table's CURRENT `tableId` (plus `previousTableId` when the edit renamed the table) and
+its new `version`, and reads the table back to trigger a recompile; a table that does not compile after the edit is
+answered with `compiles: false` and the `errors` of its compilation. The `version` — from `openl_get_table` or the
+previous edit — is required and sent in `If-Match`: Studio refuses an edit of a table that changed since, in Excel,
+on disk or through another client, and writes nothing.
 
 ### Project Files Tools (7, BETA)
 Operate on ANY file in a project by exact project-relative path (not just Excel rule files). Writes/uploads/deletes/copies/moves land in the project **working copy** — commit them with `openl_save_project` — except in a project edited in place, whose files take them at once, with nothing to commit. Use the optional `branch` to pin the project's branch (omit for `local`/non-branch repositories). No file content travels as base64: a text file of up to 5,000 bytes is read inline, and every other file goes by a **link** the agent runs `curl` with, so its bytes never enter the conversation ([MCP File Transfer Links](../../Docs/architecture/mcp-file-transfer.md)). Where Studio authenticates, the link is a transfer link of Studio — no credential in it, 15 minutes by default, an upload one used once; in single-user mode it is the address of the REST API. A link answer carries the URL, the method, the expiry, the size when known, where the file lives in its repository (`repositoryId`, `repositoryPath`, `branch`) and a ready `curl` command.
@@ -216,7 +227,7 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 
 **For local, these work:**
 - `openl_list_projects` (call without repository filter, follow pagination to completion, then filter by `repository: "local"` in the response; the `repository: "local"` filter may fail because the "local" repository is often not returned by `openl_list_repositories`), `openl_get_project`;
-- Table tools: `openl_list_tables`, `openl_get_table`, `openl_update_table`, `openl_append_table`, `openl_create_project_table`, `openl_copy_table`, `openl_delete_table`, dependency/property discovery, and the raw table-source action tools (`openl_insert_table_rows`/`openl_delete_table_rows`/`openl_update_table_cell`/`openl_merge_table_cells`/…);
+- Table tools: `openl_list_tables`, `openl_get_table`, `openl_update_table`, `openl_append_table`, `openl_create_project_table`, `openl_copy_table`, `openl_delete_table`, dependency/property discovery, and the raw table-source edits of `openl_edit_table`;
 - Module/sheet discovery and regular table execution: `openl_list_project_modules`, `openl_list_module_sheets`, `openl_run_table`;
 - Project deletion: `openl_delete_project` after exact project-name confirmation;
 - Test execution and results: `openl_start_project_tests`, `openl_get_test_results_summary`, `openl_get_test_results`, `openl_get_test_results_by_table` (the project is not opened before running tests for local).
@@ -294,7 +305,7 @@ anonymous (single-user Studio).
 - A table's semantic kind still appears in list/run/dependency metadata and is
   encoded by the OpenL grid itself. That metadata is not authorization to expose
   a typed content contract.
-- Prefer the narrow raw table-source action tools for isolated edits. When a full
+- Prefer `openl_edit_table` for isolated edits. When a full
   replacement is necessary, call `openl_get_table` without `styles=true` and
   round-trip the complete `source`, preserving blank/covered cells and spans.
 - Raw cell values use Studio's round-trip-safe domain everywhere: scalar

@@ -44,8 +44,8 @@ describe("a project whose files changed on disk", () => {
     harness.mockHttp.onPost("/projects/p1/tables/t1/actions").reply(204);
     harness.mockHttp.onGet("/projects/p1/tables/t1").reply(200, { id: "t1", name: "T", tableType: "RawSource" });
 
-    await executeTool("update_table_cell", {
-      projectId: "p1", tableId: "t1", version: "v1", row: 1, column: 1, value: "x",
+    await executeTool("edit_table", {
+      projectId: "p1", tableId: "t1", version: "v1", action: "update_cell", row: 1, column: 1, value: "x",
     }, harness.client);
 
     // Studio compares the version with the tables compiled from the files as they are, and refuses a table changed
