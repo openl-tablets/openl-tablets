@@ -102,14 +102,17 @@ describe("formatters", () => {
   });
 
   describe("toMarkdown", () => {
-    it("lists repositories by name, id and type", () => {
+    it("lists repositories by name, id, type and features", () => {
       const markdown = toMarkdown(
-        { data: [{ id: "design", name: "Design | Main", type: "repo-git", aclId: "design" }] },
+        { data: [{
+          id: "design", name: "Design | Main", type: "repo-git", aclId: "design",
+          features: { branches: true, comments: true, mappedFolders: false },
+        }] },
         "repositories",
       );
 
-      expect(markdown).toContain("| Name | ID | Type |");
-      expect(markdown).toContain("| Design \\| Main | design | repo-git |");
+      expect(markdown).toContain("| Name | ID | Type | Features |");
+      expect(markdown).toContain("| Design \\| Main | design | repo-git | branches, comments |");
     });
 
     const deployments = [{
@@ -194,6 +197,16 @@ describe("formatters", () => {
         "2 editing, 1 opened. Projects: Bank (ZGVzaWduOkJhbms=), Rates (ZGVzaWduOlJhdGVz), Auto (ZGVzaWduOkF1dG8=).",
       );
       expect(result.length).toBeLessThan(500); // Should be brief
+    });
+
+    it("names every repository with its id and its features", () => {
+      const data = [
+        { id: "design", name: "Design", features: { branches: true, comments: true, searchable: false } },
+        { id: "local", name: "Local" },
+      ];
+
+      expect(toMarkdownConcise({ data }, "repositories"))
+        .toContain("Repositories: Design (design: branches, comments), Local (local).");
     });
 
     it("should handle single item", () => {

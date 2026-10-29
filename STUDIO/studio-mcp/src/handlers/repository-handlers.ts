@@ -50,24 +50,6 @@ export function registerRepositoryHandlers(): void {
   });
 
   registerTool({
-    name: "list_repository_features",
-    title: "Get Repository Features",
-    description:
-      "Get features supported by a design repository, including branching, search, and change comments. Check these flags before operations that depend on them. Pass either the id or name from openl_list_repositories() — both are accepted (case-insensitive). Do not invent example values; call openl_list_repositories() first if not in context.",
-    schema: schemas.getRepositoryFeaturesSchema,
-    annotations: {
-      readOnlyHint: true,
-      openWorldHint: true,
-      idempotentHint: true,
-    },
-    handler: async (args, client): Promise<ToolResponse> => {
-      const features = await client.getRepositoryFeatures(args.repository);
-
-      return formatResult(features);
-    },
-  });
-
-  registerTool({
     name: "repository_project_revisions",
     title: "Get Project Revision History",
     description:

@@ -194,7 +194,7 @@ export function registerProjectHandlers(): void {
         repository: repository ? await client.getRepositoryIdByName(repository) : undefined,
       });
       // Each project carries its opaque id as projectId, the name the other tools take it by, and only so. The
-      // repository of a page is the same for many projects, and openl_list_repository_features tells it; the capabilities
+      // repository of a page is the same for many projects, and openl_list_repositories tells it; the capabilities
       // of a project, openl_get_project.
       const transformedProjects = projectsPage.items.map((project) => {
         const { id, repositoryInfo, capabilities, ...rest } = answeredProject(project);
@@ -360,7 +360,7 @@ export function registerProjectHandlers(): void {
     name: "create_project_branch",
     title: "Create Project Branch",
     description:
-      "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Only for a repository with branches (features.branches of openl_list_repository_features; canManageBranches in the capabilities of openl_get_project): the folder of a file repository has none, a project edited in place included.",
+      "Create a branch in a project's repository from a revision, a tag or another branch; without a revision, from HEAD. Only for a repository with branches (features.branches of openl_list_repositories; canManageBranches in the capabilities of openl_get_project): the folder of a file repository has none, a project edited in place included.",
     schema: schemas.createBranchSchema,
     annotations: {
       destructiveHint: false,
