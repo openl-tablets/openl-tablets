@@ -125,7 +125,9 @@ export function registerTableHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const { response_format: format, projectId, ...filters } = args;
       const tablesPage = await client.listTablesPage(projectId, filters);
-      const paginated = paginateCollection(tablesPage, filters.offset);
+      // Every table of the page belongs to the project the caller named, which Studio repeats in each of them
+      const tables = tablesPage.items.map(({ project, projectId: _, ...table }) => table);
+      const paginated = paginateCollection({ ...tablesPage, items: tables }, filters.offset);
 
       return formatResult(paginated.data, format, {
         pagination: paginated.pagination,

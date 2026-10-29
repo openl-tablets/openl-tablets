@@ -37,7 +37,7 @@ const projects = (count: number, status: "OPENED" | "CLOSED") => Array.from({ le
   projectView(status, { id: `design:p${i}:hash${i}`, name: `p${i}`, path: `p${i}` }));
 
 describe("project lists and details", () => {
-  it("openl_list_projects resolves the repository by its display name and adds a flat projectId", async () => {
+  it("openl_list_projects resolves the repository by its display name and answers each id once, as projectId", async () => {
     harness.mockHttp.onGet("/repos").reply(200, mockRepositories);
     harness.mockHttp.onGet("/projects", { params: { repository: "design", offset: 0, size: 50 } })
       .reply(200, pageOf([projectView("OPENED", { id: "design:Project 1:hash123", name: "Project 1" })]));
@@ -45,6 +45,7 @@ describe("project lists and details", () => {
     const result = await executeTool("list_projects", { repository: "Design Repository" }, harness.client);
 
     expect(dataOf(result)).toEqual([expect.objectContaining({ name: "Project 1", projectId: "design:Project 1:hash123" })]);
+    expect(dataOf(result)[0]).not.toHaveProperty("id");
   });
 
   it("openl_list_projects returns requested summary and status expansions", async () => {
@@ -113,7 +114,8 @@ describe("project lists and details", () => {
 
     const result = await executeTool("get_project", { projectId: "design-project1" }, harness.client);
 
-    expect(dataOf(result)).toEqual(projectView("OPENED"));
+    const { id, ...project } = projectView("OPENED");
+    expect(dataOf(result)).toEqual({ projectId: id, ...project });
   });
 
   it("openl_list_project_modules and openl_list_module_sheets read the modules and the worksheets of a project", async () => {

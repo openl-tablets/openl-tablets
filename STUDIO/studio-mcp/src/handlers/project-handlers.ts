@@ -139,8 +139,8 @@ export function registerProjectHandlers(): void {
         // The client may name the repository; Studio takes its id.
         repository: repository ? await client.getRepositoryIdByName(repository) : undefined,
       });
-      // Each project carries its opaque id once more as projectId, the field the other tools take
-      const transformedProjects = projectsPage.items.map((project) => ({ ...project, projectId: project.id }));
+      // Each project carries its opaque id as projectId, the name the other tools take it by, and only so
+      const transformedProjects = projectsPage.items.map(({ id, ...project }) => ({ projectId: id, ...project }));
 
       const paginated = paginateCollection({ ...projectsPage, items: transformedProjects }, filters.offset);
 
@@ -166,7 +166,8 @@ export function registerProjectHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const project = await client.getProject(args.projectId, args.include);
 
-      return formatResult(project);
+      const { id, ...answered } = project;
+      return formatResult({ projectId: id, ...answered });
     },
   });
 
