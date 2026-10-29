@@ -121,15 +121,24 @@ public final class ProjectAuditor {
     /**
      * Announces a project deleted, and the roles that were held on it when its access rights went with it.
      *
+     * <p>A deleted project has no folder in its repository any more, so the folder it had is told by the caller. The
+     * events name it as the other events of the project do.
+     *
+     * @param path               the folder the project had before it was deleted, as {@link Place#pathOf(AProject)}
+     *                           told it, or {@code null} when the repository tells its projects apart by name
      * @param removedPermissions the permissions held on the project, by subject, when its access rights were removed;
      *                           empty when they were kept
      */
-    public void deleted(AProject project, @Nullable String comment, Map<Sid, List<Permission>> removedPermissions) {
+    public void deleted(AProject project,
+                        @Nullable String path,
+                        @Nullable String comment,
+                        Map<Sid, List<Permission>> removedPermissions) {
         quietly(AuditAction.PROJECT_DELETED, () -> {
-            var details = detailsOf(project);
+            var details = detailsOf(project, path);
             details.put(COMMENT, comment);
             announce(AuditAction.PROJECT_DELETED, project, details);
-            roleAuditor.announce(Place.project(project), AclRoleAuditor.rolesOf(removedPermissions), Map.of());
+            var place = Place.project(project.getRepository().getId(), project.getBusinessName(), path);
+            roleAuditor.announce(place, AclRoleAuditor.rolesOf(removedPermissions), Map.of());
         });
     }
 
@@ -256,9 +265,13 @@ public final class ProjectAuditor {
     }
 
     private static Map<String, @Nullable Object> detailsOf(AProject project) {
+        return detailsOf(project, Place.pathOf(project));
+    }
+
+    private static Map<String, @Nullable Object> detailsOf(AProject project, @Nullable String path) {
         var details = new LinkedHashMap<String, @Nullable Object>();
         details.put(REPOSITORY, repositoryOf(project));
-        details.put("path", Place.pathOf(project));
+        details.put("path", path);
         details.put(BRANCH, branchOf(project));
         return details;
     }

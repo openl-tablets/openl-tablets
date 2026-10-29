@@ -218,6 +218,8 @@ What the events tell, and what they leave out:
 - **An event of a project names its design repository and branch**, and its revision when the action made one. A
   project is named by its business name, as the access rights of a project are. In a repository with mapped folders
   its folder is named too: `path`, and `sourcePath` of the project copied, `projectPath` of the project deployed.
+  The repository forgets the folder of a deleted project, so `WorkspaceProjectService.delete` reads it before the
+  deletion and hands it to `projectDeleted` and to the roles revoked with the project.
 - **A branch belongs to its repository**: creating, deleting or merging one changes every project on it, so the target
   is the repository, and the details name the branch and the project the action was made from. The log keeps that
   project in the `project` column, as it keeps the project a bypass and a deployment were made from, so a search by
