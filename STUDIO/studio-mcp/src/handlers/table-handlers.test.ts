@@ -146,40 +146,12 @@ describe("structured table payloads", () => {
       table: { tableType: "SimpleRules", name: "CreditCategory", signature: "String CreditCategory(Integer creditScore)", rules: [] },
     }],
     ["create_project_table", "no tableType", { table: { name: "X", fields: [] } }],
-    ["append_table", "no tableType", { appendData: { rules: [{ "Commission Type": "UDI", "Partner Code": "CIDP_CL_FB" }] } }],
-    ["append_table", "a miscased RawSource", { appendData: { tableType: "rawsource", rows: [[{ value: 1 }]] } }],
-    ["append_table", "a typed Data append", { appendData: { tableType: "Data", rules: [{ a: 1 }] } }],
-    ["append_table", "a typed Spreadsheet append", {
-      appendData: { tableType: "Spreadsheet", rows: [{ name: "Step1" }, { name: "Step2" }], cells: [[{ value: "=1+1" }]] },
-    }],
-    ["append_table", "a typed Datatype append", {
-      appendData: { tableType: "Datatype", fields: [{ name: "age", type: "Integer", requried: true }] },
-    }],
+    ["update_table", "a miscased RawSource", { view: { tableType: "rawsource", name: "calc", source: [[{ value: 1 }]] } }],
     ["update_table", "a typed view", { view: { tableType: "SimpleRules", name: "calc", rules: [] } }],
   ])("%s refuses %s with the raw-only guidance, before any request", async (tool, _case, payload) => {
     await expect(executeTool(tool, { projectId: "p1", moduleName: "Main", tableId: "t1", ...payload }, harness.client))
       .rejects.toThrow(/tableType must be exactly "RawSource"\. Typed table DTOs are intentionally unsupported/);
     expectNoRequest();
-  });
-
-  it("openl_append_table accepts appendData sent as a JSON string and forwards a real object", async () => {
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
-    harness.mockHttp.onPost(`${tablePath("t1")}/lines`).reply(200);
-
-    // The whole payload arrives as a JSON *string*, not an object.
-    const result = await executeTool("append_table", {
-      projectId: "p1",
-      tableId: "t1",
-      appendData: '{"tableType":"RawSource","rows":[[{"value":2035},{"value":"01/01/2035"},{"value":1000}]]}',
-      version: "v1",
-    }, harness.client);
-
-    expect(textOf(result)).toContain("Successfully appended");
-    // The stringified payload reached the backend as a parsed object, not a string literal.
-    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
-      tableType: "RawSource",
-      rows: [[{ value: 2035 }, { value: "01/01/2035" }, { value: 1000 }]],
-    });
   });
 
   it("openl_update_table accepts view sent as a JSON string and forwards a real object", async () => {
@@ -194,7 +166,7 @@ describe("structured table payloads", () => {
   });
 
   it.each([
-    ["append_table", "appendData", '{"tableType":"RawSource","rows":[', /not valid JSON/],
+    ["update_table", "view", '{"tableType":"RawSource","source":[', /not valid JSON/],
     ["update_table", "view", "SimpleRules", /Invalid arguments for update_table/],
   ])("%s refuses a %s string that is no JSON object, before any request", async (tool, payloadArg, value, message) => {
     await expect(executeTool(tool, { projectId: "p1", tableId: "t1", [payloadArg]: value }, harness.client)).rejects.toThrow(message);
@@ -313,82 +285,6 @@ describe("openl_get_table cut by rows", () => {
     const delivered = response.data.source.length;
     expect(delivered).toBeLessThan(400);
     expect(response.data.source[0][0]).toEqual({ cell: "B4", value: "Dog", rowspan: delivered, mergedArea: "B4:B403" });
-  });
-});
-
-describe("openl_append_table", () => {
-  const append = (tableId: string, rows: object[][]) =>
-    executeTool("append_table", {
-      projectId: "p1", tableId, appendData: { tableType: "RawSource", rows }, version: "v1", }, harness.client);
-
-  it("appends the rows, keeps the id of a table edited in place, and reads the table back", async () => {
-    harness.mockHttp.onPost(`${tablePath("t1")}/lines`).reply(204);
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
-
-    const rows = [[{ value: "A1" }, { value: "B1" }], [{ value: "A2" }, { value: "B2" }]];
-    const payload = dataOf(await append("t1", rows));
-
-    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ tableType: "RawSource", rows });
-    expect(payload).toEqual({
-      success: true,
-      message: "Successfully appended 2 raw source row(s) to table t1",
-      recompileTriggered: true,
-      tableId: "t1",
-      version: "v1",
-    });
-    expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual([tablePath("t1")]);
-  });
-
-  it("appends to the version of the table it names", async () => {
-    harness.mockHttp.onPost(`${tablePath("t1")}/lines`).reply(204);
-    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
-
-    await executeTool("append_table", {
-      projectId: "p1", tableId: "t1", appendData: { tableType: "RawSource", rows: [[{ value: 1 }]] }, version: "v1",
-    }, harness.client);
-
-    expect(harness.mockHttp.history.post[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
-  });
-
-  it("passes on Studio's refusal of a row of another width, with no read of the table before it", async () => {
-    harness.mockHttp.onPost(`${tablePath("t1")}/lines`).reply(400, {
-      code: "table.action.row.width",
-      message: "The row has 2 cells but the table is 5 columns wide. A row must have exactly one cell per column.",
-    });
-
-    await expect(append("t1", [[{ value: "R2" }, { value: "01/01/2025" }]]))
-      .rejects.toThrow(/The row has 2 cells but the table is 5 columns wide/);
-    expect(harness.mockHttp.history.get).toHaveLength(0);
-  });
-
-  it("reports the new id Studio answers with 200/{id} for a renamed table", async () => {
-    const oldId = "aaaa0000aaaa0000";
-    const newId = "bbbb1111bbbb1111";
-    harness.mockHttp.onGet(tablePath(newId)).reply(200, rawTable(newId));
-    harness.mockHttp.onPost(`${tablePath(oldId)}/lines`).reply(200, { id: newId });
-
-    const payload = dataOf(await append(oldId, [[{ value: "R2" }]]));
-
-    expect(payload).toMatchObject({
-      success: true,
-      tableId: newId,
-      tableIdChanged: true,
-      previousTableId: oldId,
-      recompileTriggered: true,
-    });
-    expect(payload.note).toContain(`now known by the id '${newId}'`);
-    // Recompile read targeted the studio-reported id.
-    expect(harness.mockHttp.history.get.map((request) => request.url)).toEqual([tablePath(newId)]);
-  });
-
-  it("tells an applied append whose table cannot be read back", async () => {
-    harness.mockHttp.onPost(`${tablePath("t1")}/lines`).reply(204);
-    harness.mockHttp.onGet(tablePath("t1")).reply(503, { message: "Compilation model is unavailable" });
-
-    const payload = dataOf(await append("t1", [[{ value: 1 }]]));
-
-    expect(payload).toMatchObject({ success: true, recompileTriggered: false });
-    expect(payload.note).toContain("the append WAS applied");
   });
 });
 

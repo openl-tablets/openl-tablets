@@ -3,7 +3,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import {
-  appendTableSchema,
   closeProjectSchema,
   copyTableSchema,
   createProjectSchema,
@@ -52,14 +51,6 @@ const rawCellWriteSchemas = [
       view: { ...rawTable, source: [[{ value }]] },
     }),
   },
-  {
-    name: "append table",
-    schema: appendTableSchema,
-    input: (value: unknown) => ({
-      projectId: "p1", tableId: "t1", version: "v1",
-      appendData: { tableType: "RawSource", rows: [[{ value }]] },
-    }),
-  },
   ...([
     ["append_rows", (value: unknown) => ({ cells: [[{ value }]] })],
     ["append_columns", (value: unknown) => ({ cells: [[{ value }]] })],
@@ -85,15 +76,13 @@ describe("opaque project identifiers", () => {
 });
 
 describe("RawSource-only table contracts", () => {
-  it("publishes only RawSource for create, update, and append", () => {
+  it("publishes only RawSource for create and update", () => {
     const createJson = z.toJSONSchema(createProjectTableSchema) as Record<string, any>;
     const updateJson = z.toJSONSchema(updateTableSchema) as Record<string, any>;
-    const appendJson = z.toJSONSchema(appendTableSchema) as Record<string, any>;
 
     expect(createJson.properties.table.properties.tableType.const).toBe("RawSource");
     expect(updateJson.properties.view.properties.tableType.const).toBe("RawSource");
-    expect(appendJson.properties.appendData.properties.tableType.const).toBe("RawSource");
-    expect(JSON.stringify({ createJson, updateJson, appendJson })).not.toMatch(
+    expect(JSON.stringify({ createJson, updateJson })).not.toMatch(
       /SimpleRules|SmartRules|SpreadsheetAppend|DatatypeAppend|EditableTableView|"style"/,
     );
   });
@@ -179,11 +168,8 @@ describe("RawSource-only table contracts", () => {
       tableId: "t1",
       view: { tableType: "RawSource", name: "Rate", source: [[styledCell]] },
     }).success).toBe(false);
-    expect(appendTableSchema.safeParse({
-      projectId: "p1",
-      tableId: "t1",
-      version: "v1",
-      appendData: { tableType: "RawSource", rows: [[styledCell]] },
+    expect(editTableSchema.safeParse({
+      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[styledCell]],
     }).success).toBe(false);
   });
 
@@ -199,19 +185,15 @@ describe("RawSource-only table contracts", () => {
     }).success).toBe(false);
   });
 
-  it("requires at least one raw append row", () => {
-    expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [] },
-    }).success).toBe(false);
-    expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [[{ value: null }]] },
-    }).success).toBe(true);
-    expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [[]] },
-    }).success).toBe(false);
-    expect(appendTableSchema.safeParse({
-      projectId: "p1", tableId: "t1", version: "v1", appendData: { tableType: "RawSource", rows: [[{ value: "x", colspan: 0 }]] },
-    }).success).toBe(false);
+  it("requires at least one appended row of at least one cell", () => {
+    const append = (cells: unknown): boolean => editTableSchema.safeParse({
+      projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells,
+    }).success;
+
+    expect(append([])).toBe(false);
+    expect(append([[{ value: null }]])).toBe(true);
+    expect(append([[]])).toBe(false);
+    expect(append([[{ value: "x", colspan: 0 }]])).toBe(false);
   });
 
   it.each(["Datatype", "SimpleRules", "Spreadsheet", "Test"])(
@@ -222,12 +204,6 @@ describe("RawSource-only table contracts", () => {
       }).success).toBe(false);
       expect(updateTableSchema.safeParse({
         projectId: "p1", tableId: "t1", view: { ...rawTable, tableType },
-      }).success).toBe(false);
-      expect(appendTableSchema.safeParse({
-        projectId: "p1", tableId: "t1", version: "v1", appendData: {
-          tableType,
-          rows: [[{ value: "x" }]],
-        },
       }).success).toBe(false);
     },
   );

@@ -238,7 +238,7 @@ export function registerProjectHandlers(): void {
     name: "save_project",
     title: "Save Project",
     description:
-      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, append_table, or other edits. Does not work for repository 'local', nor when capabilities.canSave of openl_get_project is absent: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
+      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when capabilities.canSave of openl_get_project is absent: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
     schema: schemas.saveProjectSchema,
     annotations: {
       openWorldHint: true,

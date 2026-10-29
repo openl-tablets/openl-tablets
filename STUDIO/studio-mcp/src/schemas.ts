@@ -263,16 +263,6 @@ const rawTableCellSchema = rawCellInputSchema.extend({
   mergedArea: z.string().optional(),
 }).describe("Writable raw cell. Studio exposes style only when reading with styles=true; table write APIs do not support changing style, so style is intentionally rejected.");
 
-export const appendTableSchema = z.strictObject({
-  projectId: projectIdSchema,
-  tableId: tableIdSchema,
-  appendData: z.strictObject({
-    tableType: z.literal("RawSource"),
-    rows: z.array(z.array(rawTableCellSchema).min(1)).min(1).describe("Non-empty source rows to append. Every row must cover the table's full width; use { value: null } for an intentionally blank cell."),
-  }).describe("RawSource append payload. Typed table append DTOs are intentionally unsupported because they are lossy and incomplete."),
-  version: tableVersionSchema,
-});
-
 // =============================================================================
 // Raw table-source edits (POST /projects/{projectId}/tables/{tableId}/actions)
 //
