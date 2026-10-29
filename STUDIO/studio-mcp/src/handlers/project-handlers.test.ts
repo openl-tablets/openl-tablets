@@ -325,6 +325,22 @@ describe("project status", () => {
 
     expect(response.compilation.messages.items.map((item: { summary: string }) => item.summary)).toEqual(summaries);
   });
+
+  it("cuts a status over the size limit by whole messages, errors first, and says how to read the rest", async () => {
+    const items = Array.from({ length: 400 }, (_, id) => ({
+      id, summary: `${id % 2 ? "WARN" : "ERROR"} ${"x".repeat(100)}`, severity: id % 2 ? "WARN" : "ERROR",
+    }));
+    harness.mockHttp.onGet(projectPath).reply(200, withStatus(compiled("errors", items)));
+
+    const text = textOf(await executeTool("project_status", { projectId }, harness.client));
+
+    const response = JSON.parse(text);
+    expect(text.length).toBeLessThanOrEqual(25_000);
+    expect(response.data.compileState).toBe("errors");
+    expect(response.data.compilation.messages.items.length).toBeLessThan(400);
+    expect(response.data.compilation.messages.items[0].severity).toBe("ERROR");
+    expect(response.truncation_message).toContain("compile messages; choose the messages to read with severity");
+  });
 });
 
 describe("open, save and close", () => {
