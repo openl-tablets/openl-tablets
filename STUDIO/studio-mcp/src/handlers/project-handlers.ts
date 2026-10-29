@@ -237,6 +237,7 @@ export function registerProjectHandlers(): void {
       "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
     schema: schemas.projectStatusSchema,
     annotations: {
+      destructiveHint: false,
       readOnlyHint: false,
       openWorldHint: true,
       idempotentHint: true,
@@ -262,6 +263,7 @@ export function registerProjectHandlers(): void {
       "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions; a project open already is left as it is when neither asks otherwise. Use this before making changes to project tables or rules — unless the capabilities of openl_get_project lack canOpen: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
     schema: schemas.openProjectSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -295,6 +297,7 @@ export function registerProjectHandlers(): void {
       "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when the capabilities of openl_get_project lack canSave: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
     schema: schemas.saveProjectSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -378,6 +381,7 @@ export function registerProjectHandlers(): void {
       "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Only for a repository with branches (features.branches of openl_list_repository_features; canManageBranches in the capabilities of openl_get_project): the folder of a file repository has none, a project edited in place included.",
     schema: schemas.createBranchSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {

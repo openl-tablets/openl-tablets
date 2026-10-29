@@ -32,6 +32,7 @@ export function registerTableWorkflowHandlers(): void {
       "Execute a regular (non-Test) table with caller-provided JSON and return its result. The tool waits for the result inside the call. Pass inputJson as an object keyed by method parameter name, as { params, runtimeContext? } with params keyed by name or listed in order, or as an array of the argument values in order, each also as a JSON string; for a method whose only parameter is an array, a top-level array is that parameter's value. Set withSchema only when the result/parameter JSON Schemas are needed because they can be large. Studio keeps one table run per client, so wait for an active call to finish before starting another. Use openl_start_project_tests and the test-result tools for Test tables. Cancelling the MCP call also cancels and clears the Studio run.",
     schema: schemas.runTableSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {
@@ -132,6 +133,7 @@ export function registerTableWorkflowHandlers(): void {
       "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties. The copy remains in the working copy—use openl_save_project for Git-backed projects.",
     schema: schemas.copyTableSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {

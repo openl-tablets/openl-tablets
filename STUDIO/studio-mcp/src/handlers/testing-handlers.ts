@@ -27,6 +27,7 @@ export function registerTestingHandlers(): void {
       "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Returns execution status and metadata. Retrieve results with openl_get_test_results, which waits until Studio finishes instead of requiring agent-side polling.",
     schema: schemas.startProjectTestsSchema,
     annotations: {
+      destructiveHint: false,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
@@ -49,6 +50,8 @@ export function registerTestingHandlers(): void {
       "read the summary and the test tables you need instead.",
     schema: schemas.getTestResultsSchema,
     annotations: {
+      readOnlyHint: true,
+      idempotentHint: true,
       openWorldHint: true,
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {

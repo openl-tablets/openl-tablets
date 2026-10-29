@@ -58,6 +58,18 @@ describe("tool registry", () => {
     });
   });
 
+  it("advertises as destructive only the tools that replace or remove data", () => {
+    // MCP takes a tool that is not read-only for destructive unless it says otherwise
+    const destructive = getAllTools()
+      .filter(({ annotations }) => !annotations?.readOnlyHint && annotations?.destructiveHint !== false)
+      .map(({ name }) => name);
+    expect(destructive.toSorted()).toEqual([
+      "cancel_merge_conflicts", "close_project", "delete_project", "delete_project_branch", "delete_project_file",
+      "delete_table", "deploy_project", "edit_table", "merge_project_branches", "move_project_file",
+      "resolve_merge_conflicts", "restore_project_local_change", "update_table", "write_project_file",
+    ]);
+  });
+
   it("leaves a field with a default out of the required ones", () => {
     const required = (name: string): unknown =>
       getAllTools().find((tool) => tool.name === name)?.inputSchema.required;
