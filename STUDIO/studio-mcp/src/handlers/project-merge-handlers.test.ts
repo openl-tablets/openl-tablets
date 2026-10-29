@@ -88,9 +88,7 @@ describe("project branch and merge handlers", () => {
       nextAction: expect.stringContaining("openl_get_merge_conflicts"),
     });
     expect(result).not.toHaveProperty("check");
-    expect(result.nextAction).toEqual(expect.stringContaining("does not predict conflicts"));
-    expect(result.nextAction).toEqual(expect.stringContaining(
-      "resolve them with openl_resolve_merge_conflicts only as the user decides"));
+    expect(result.nextAction).toEqual(expect.stringContaining("only as the user decides"));
   });
 
   it("tolerates a null merge blocker as equivalent to an omitted blocker", async () => {
@@ -305,10 +303,10 @@ describe("project branch and merge handlers", () => {
             row: 1,
             column: 1,
             cell: "B2",
-            ourCell: "B2",
+            // The address in a version is named only where it moved the cell
             theirCell: "B1",
-            ours: { cell: "B2", value: 10 },
-            theirs: { cell: "B2", value: 20 },
+            ours: { value: 10 },
+            theirs: { value: 20 },
           }],
         },
         {
@@ -335,11 +333,11 @@ describe("project branch and merge handlers", () => {
         conflictCells: ["B2"],
         formattingChanged: false,
         cells: [
-          [{ cell: "A1", value: "Rules rate", colspan: 2 }, { covered: true }],
-          [{ cell: "A2", value: "US" }, { cell: "B2", value: 20 }],
+          [{ value: "Rules rate", colspan: 2 }, { covered: true }],
+          [{ value: "US" }, { value: 20 }],
         ],
       });
-      expect(table.merged.cells[1]).toEqual([{ cell: "A2", value: "USA" }, { cell: "B2", value: 1 }]);
+      expect(table.merged.cells[1]).toEqual([{ value: "USA" }, { value: 1 }]);
       expect(table.merged.changedCells).toEqual(["A2"]);
       expect(table.merged.conflicts[0]).toMatchObject({ cell: "B2", ours: { value: 10 }, theirs: { value: 20 } });
     });
@@ -627,13 +625,10 @@ describe("project branch and merge handlers", () => {
       { mode: "send", otherBranch: "main" },
     ]);
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
+      deleted: "feature/rates",
+      divergenceStatus: "unmerged",
+      baseBranch: "main",
       dataLossConfirmed: true,
-      safety: {
-        baseBranch: "main",
-        currentBranch: "feature/rates",
-        divergenceStatus: "unmerged",
-        unsavedChanges: false,
-      },
     });
   });
 

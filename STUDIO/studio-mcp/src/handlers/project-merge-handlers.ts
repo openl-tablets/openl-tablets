@@ -97,11 +97,13 @@ function mergeRequest(
   return { mode: args.mode, otherBranch: args.otherBranch };
 }
 
-/** A cell as an agent reads it: its value, its formula, its comment and its merging, without its formatting. */
+/**
+ * A cell as an agent reads it: its value, its formula, its comment and its merging, without its formatting, and
+ * without its A1 address, which its place in the grid and the range of its version give.
+ */
 function cellOf(cell: Types.ConflictWorkbookCell): Record<string, unknown> {
   if (cell.covered) return { covered: true };
   return {
-    ...(cell.cell ? { cell: cell.cell } : {}),
     value: cell.value ?? null,
     ...(cell.formula ? { formula: cell.formula } : {}),
     ...(cell.comment ? { comment: cell.comment } : {}),
@@ -120,8 +122,9 @@ function conflictCellsOf(merged: Types.ConflictTableMerge): Record<string, unkno
     row: conflict.row,
     column: conflict.column,
     cell: conflict.cell,
-    ourCell: conflict.ourCell,
-    theirCell: conflict.theirCell,
+    // The address of the cell in either version, only where the version moved it
+    ...(conflict.ourCell === conflict.cell ? {} : { ourCell: conflict.ourCell }),
+    ...(conflict.theirCell === conflict.cell ? {} : { theirCell: conflict.theirCell }),
     ours: cellOf(conflict.ours),
     theirs: cellOf(conflict.theirs),
   }));
@@ -362,14 +365,12 @@ export function registerProjectMergeHandlers(): void {
         MERGE_WAIT,
         extra,
       );
+      // The answer of a success holds what it changed; the check before it holds nothing new
       const response = {
         ...result,
         ...(result.status === "conflicts"
-          ? {
-              nextAction:
-                "The relationship precheck does not predict conflicts; the actual merge found conflicts Studio keeps for this client. Call openl_get_merge_conflicts on this same MCP server, inspect BASE/OURS/THEIRS with openl_read_merge_conflict_file, a conflicted text file line by line with openl_get_merge_conflict_text and a conflicted workbook with openl_get_merge_conflict_workbook. Do not choose a side on your own: present the conflicts to the user, and resolve them with openl_resolve_merge_conflicts only as the user decides, or leave the resolution to the user in Studio and call openl_cancel_merge_conflicts to clear this pending MCP session state.",
-            }
-          : { check }),
+          ? { nextAction: "Show the conflicts to the user: openl_get_merge_conflicts lists them; resolve each only as the user decides." }
+          : {}),
       };
       return formatResult(response);
     },
@@ -430,7 +431,7 @@ export function registerProjectMergeHandlers(): void {
     name: "get_merge_conflict_workbook",
     title: "Get Merge Conflict Workbook",
     description:
-      "Read the conflicts of a conflicted Excel file of the pending merge, as Studio merges it table by table: a file that your, the base and their version all hold, as fileAvailability of openl_get_merge_conflicts tells. A workbook both branches added has no base version and is resolved whole, with a strategy. Without table: every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell — the cells only one branch changed are merged by Studio — and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in (ourCell, theirCell) and what your (ours) and their (theirs) version holds there. With table: that table's cells in your, the base and their version, and in the merged table, whose conflicting cells hold the base value until decided and whose changedCells Studio took from the one branch that changed them. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides.",
+      "Read the conflicts of a conflicted Excel file of the pending merge, as Studio merges it table by table: a file that your, the base and their version all hold, as fileAvailability of openl_get_merge_conflicts tells. A workbook both branches added has no base version and is resolved whole, with a strategy. Without table: every sheet either branch changed (status ours/theirs/merged/conflict; a conflicting sheet with a reason is resolved only as a whole) and every conflicting table, its id, reason and ranges; a table with byCells: true is merged cell by cell — the cells only one branch changed are merged by Studio — and lists its conflictCells, each with row and column in the merged table (from 0), the cell your and their version have it in (ourCell, theirCell) and what your (ours) and their (theirs) version holds there. With table: that table's cells in your, the base and their version, and in the merged table, whose conflicting cells hold the base value until decided and whose changedCells Studio took from the one branch that changed them. Present the conflicts to the user; resolve with openl_resolve_merge_conflicts only as the user decides. A cell names no A1 address of its own: the cell in row r and column c of a grid lies r rows below and c columns right of the first cell of its range.",
     schema: schemas.getMergeConflictWorkbookSchema,
     annotations: {
       readOnlyHint: true,
@@ -594,13 +595,13 @@ export function registerProjectMergeHandlers(): void {
       }
 
       await client.deleteProjectBranch(args.projectId, args.branch, args.force === true);
+      // A risky delete reaches this point only with confirmDataLoss=true, the risk it accepted in reason
       return formatResult({
-        branch: args.branch,
-        forced: args.force === true,
-        safety,
-        // A risky delete reaches this point only with confirmDataLoss=true.
-        dataLossConfirmed: safety.reason !== undefined,
-        message: `Deleted branch '${args.branch}'.`,
+        deleted: args.branch,
+        divergenceStatus: safety.divergenceStatus,
+        ...(safety.baseBranch ? { baseBranch: safety.baseBranch } : {}),
+        ...(args.force === true ? { forced: true } : {}),
+        ...(safety.reason === undefined ? {} : { dataLossConfirmed: true, reason: safety.reason }),
       });
     },
   });

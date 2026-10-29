@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"status\":\"conflicts\",\"conflictGroups\":[{\"projectName\":\"McpTools\",\"projectPath\":\"McpTools\",\"files\":[\"McpTools/docs/notes.txt\"]}],\"nextAction\":\"The relationship precheck does not predict conflicts; the actual merge found conflicts Studio keeps for this client. Call openl_get_merge_conflicts on this same MCP server, inspect BASE/OURS/THEIRS with openl_read_merge_conflict_file, a conflicted text file line by line with openl_get_merge_conflict_text and a conflicted workbook with openl_get_merge_conflict_workbook. Do not choose a side on your own: present the conflicts to the user, and resolve them with openl_resolve_merge_conflicts only as the user decides, or leave the resolution to the user in Studio and call openl_cancel_merge_conflicts to clear this pending MCP session state.\"}}"
+        "text": "{\"data\":{\"status\":\"conflicts\",\"conflictGroups\":[{\"projectName\":\"McpTools\",\"projectPath\":\"McpTools\",\"files\":[\"McpTools/docs/notes.txt\"]}],\"nextAction\":\"Show the conflicts to the user: openl_get_merge_conflicts lists them; resolve each only as the user decides.\"}}"
       }
     ],
     "resultType": "complete",
