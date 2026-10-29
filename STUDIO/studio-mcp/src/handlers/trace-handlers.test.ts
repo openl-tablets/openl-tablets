@@ -284,6 +284,26 @@ describe("trace tools", () => {
     expect(harness.mockHttp.history.get[1].params).toEqual({ includeSchema: true });
   });
 
+  it.each([
+    ["inspect_trace_frame", { frameIndex: 0 }, (data: any) => data.context],
+    ["step_trace", { type: "out", withValues: true }, (data: any) => data.variables.context],
+  ])("openl_%s leaves out the fields of the runtime context the run left unset", async (tool, args, contextOf) => {
+    harness.mockHttp.onPost(`${projectPath}/trace/step`).reply(200, suspendedStack);
+    harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`).reply(200, {
+      parameters: [],
+      context: { name: "context", description: "DefaultRulesRuntimeContext", lazy: false,
+        value: { currentDate: null, lob: "Auto", usState: null, country: null } },
+      steps: [],
+      errors: [],
+    });
+
+    const result = await executeTool(tool, { projectId, ...args }, harness.client);
+
+    expect(contextOf(dataOf(result))).toEqual({
+      name: "context", description: "DefaultRulesRuntimeContext", lazy: false, value: { lob: "Auto" },
+    });
+  });
+
   it("openl_inspect_trace_frame filters steps by onlyExecutedSteps and excludeStepValues, resolving lazy values", async () => {
     harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`).reply(200, {
       parameters: [],
