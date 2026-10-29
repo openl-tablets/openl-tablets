@@ -41,13 +41,11 @@ export function registerTestingHandlers(): void {
     name: "get_test_results",
     title: "Get Test Results",
     description:
-      "Read the results of the tests openl_start_project_tests started, waiting until Studio has run them. " +
-      "summary: true reads only the time of the run and how many tests passed and failed. tableId reads the results " +
-      "of one test table whole. Otherwise the answer holds every test table, page by page: a page is cut by whole " +
-      "test tables to 25,000 characters, and pagination.next_offset names the test table to continue from. Expected " +
-      "and actual values of spreadsheet results make test tables large: failuresOnly reads only the failed tests, and " +
-      "unpaged: true reads every test table in one answer without a limit, which can exceed what the client accepts — " +
-      "read the summary and the test tables you need instead.",
+      "Read the results of the tests openl_start_project_tests started, waiting until Studio has run them: with " +
+      "summary: true the time of the run and the counts of passed and failed tests, with tableId one test table " +
+      "whole, otherwise every test table, a page cut by whole test tables to 25,000 characters. Expected and actual " +
+      "values of spreadsheet results make test tables large: read the summary, the failures and the test tables you " +
+      "need rather than unpaged: true.",
     schema: schemas.getTestResultsSchema,
     annotations: {
       readOnlyHint: true,
@@ -72,29 +70,34 @@ export function registerTestingHandlers(): void {
       );
       // Only a read of the failed tests is cut to `failures` of them
       const results = withoutValueSchemas(args.failuresOnly ? withOmittedFailures(read) : read);
+      // The page Studio read is told once, by the pagination of the answer
+      const { pageNumber, pageSize: studioPageSize, numberOfElements, total, ...answer } = results;
       if (args.tableId !== undefined) {
         // The results of one test table are never cut
-        return formatResult(results, format, { dataType: "test_results", skipTruncation: true });
+        return formatResult(answer, format, { dataType: "test_results", skipTruncation: true });
       }
 
-      const pageSize = results.pageSize || args.size || args.limit || 50;
-      const offset = args.offset ?? (results.pageNumber || 0) * pageSize;
-      const hasMore = args.unpaged !== true
-        && hasMoreItems(offset, results.numberOfElements, pageSize, results.total);
-      return formatResult(results, format, {
+      const pageSize = studioPageSize || args.limit || 50;
+      const offset = args.offset ?? (pageNumber || 0) * pageSize;
+      const hasMore = args.unpaged !== true && hasMoreItems(offset, numberOfElements, pageSize, total);
+      return formatResult(answer, format, {
         pagination: {
           limit: pageSize,
           offset,
+          total,
           hasMore,
         },
         dataType: "test_results",
         // Only an unpaged read asks for everything; a page is cut to the response limit by whole test tables
         skipTruncation: args.unpaged === true,
-        truncation: testTableTruncation(results, offset),
+        truncation: testTableTruncation(answer, offset),
       });
     },
   });
 }
+
+/** The results of the tests without the page of them Studio read, which the pagination of the answer tells. */
+type TestResultsAnswer = Omit<Types.TestsExecutionSummary, "pageNumber" | "pageSize" | "numberOfElements" | "total">;
 
 /**
  * The results with the number of failed tests each test table leaves out: with `failuresOnly`, Studio lists at most
@@ -132,11 +135,11 @@ function withoutValueSchemas(results: Types.TestsExecutionSummary): Types.TestsE
 }
 
 /** The cut of a page of test results: its leading test tables, continued from the offset of the next one. */
-function testTableTruncation(results: Types.TestsExecutionSummary, offset: number): Truncation {
+function testTableTruncation(answer: TestResultsAnswer, offset: number): Truncation {
   return {
-    items: results.testCases.length,
+    items: answer.testCases.length,
     unit: "test tables",
-    cut: (count) => ({ ...results, testCases: results.testCases.slice(0, count), numberOfElements: count }),
+    cut: (count) => ({ ...answer, testCases: answer.testCases.slice(0, count) }),
     next: (count) => `continue with offset=${offset + count}`,
   };
 }

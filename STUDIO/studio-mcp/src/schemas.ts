@@ -723,21 +723,16 @@ export const startProjectTestsSchema = z.strictObject({
 function checkTestResultOptions(data: {
   summary: boolean;
   tableId?: string;
-  page?: number;
   offset?: number;
-  size?: number;
   limit?: number;
   unpaged: boolean;
 }, ctx: z.RefinementCtx): void {
-  const paged = data.page !== undefined || data.offset !== undefined || data.size !== undefined || data.limit !== undefined;
-  if (data.page !== undefined && data.offset !== undefined) {
-    ctx.addIssue({ code: "custom", path: ["page"], message: "page and offset are mutually exclusive." });
-  }
+  const paged = data.offset !== undefined || data.limit !== undefined;
   if (data.unpaged && paged) {
-    ctx.addIssue({ code: "custom", path: ["unpaged"], message: "unpaged is mutually exclusive with page, offset, size, and limit." });
+    ctx.addIssue({ code: "custom", path: ["unpaged"], message: "unpaged is mutually exclusive with offset and limit." });
   }
   if (data.summary && (paged || data.tableId !== undefined)) {
-    ctx.addIssue({ code: "custom", path: ["summary"], message: "A summary takes no tableId, page, offset, size or limit." });
+    ctx.addIssue({ code: "custom", path: ["summary"], message: "A summary takes no tableId, offset or limit." });
   }
 }
 
@@ -745,13 +740,11 @@ export const getTestResultsSchema = z.strictObject({
   projectId: projectIdSchema,
   summary: z.boolean().default(false).describe("Read only the time of the run and how many tests passed and failed."),
   tableId: tableIdSchema.optional().describe("The test table to read whole; omit to read every test table, page by page."),
-  failuresOnly: z.boolean().optional().describe("Show only failed tests (default: false)"),
+  failuresOnly: z.boolean().optional().describe("Read only the failed tests."),
   failures: z.number().int().positive().default(5).describe("With failuresOnly, how many failed tests each test table lists, 5 by default; a test table with more names how many it leaves out in omittedFailures. The results of one tableId list them all."),
-  page: z.number().int().nonnegative().optional().describe("Page number (0-based). Mutually exclusive with offset"),
-  offset: z.number().int().nonnegative().optional().describe("Offset for pagination. Mutually exclusive with page"),
-  size: z.number().int().positive().max(200).optional().describe("Page size (number of results per page, maximum 200)"),
-  limit: z.number().int().positive().max(200).optional().describe("Page size (alias for size, maps to size parameter)"),
-  unpaged: z.boolean().default(false).describe("Return all results without pagination or a size limit, which can exceed what the client accepts. Mutually exclusive with page, offset, size, and limit"),
+  offset: z.number().int().nonnegative().optional().describe("The test table to start from, as pagination.next_offset names it."),
+  limit: z.number().int().positive().max(200).optional().describe("How many test tables a page holds, 50 by default."),
+  unpaged: z.boolean().default(false).describe("Read every test table in one answer without a size limit, which can exceed what the client accepts."),
   response_format: ResponseFormat,
 }).superRefine(checkTestResultOptions);
 

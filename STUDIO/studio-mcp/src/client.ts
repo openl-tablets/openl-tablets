@@ -1462,10 +1462,8 @@ export class OpenLClient {
       tableId?: string;
       failuresOnly?: boolean;
       failures?: number;
-      page?: number;
       offset?: number;
-      size?: number;
-      limit?: number; // Alias for size
+      limit?: number;
       unpaged?: boolean;
       signal?: AbortSignal;
       timeoutMs?: number;
@@ -1477,9 +1475,8 @@ export class OpenLClient {
       failures: options?.failures,
       // The results of one test table hold every failure it has
       allFailures: options?.tableId ? true : undefined,
-      page: options?.page,
       offset: options?.offset,
-      size: options?.size ?? options?.limit,
+      size: options?.limit,
       unpaged: options?.unpaged || undefined,
     };
 
