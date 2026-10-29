@@ -100,7 +100,7 @@ export function registerGuideHandlers(): void {
     name: "get_started",
     title: "Get Started",
     description:
-      "Read-only. Call this FIRST, once per session, before any other openl_ tool. Returns the mandatory workflow protocol, the OpenL skills (step-by-step workflows served as skill:// resources), and a workspace orientation: when to call openl_get_project_agent_context (before working on or creating any project), how to discover the OpenL reference documentation OpenL Studio serves (openl_list_guides / openl_get_guides), and the edit → validate → save loop. Takes no arguments.",
+      "Call this FIRST, once per session, before any other openl_ tool. Returns the mandatory workflow protocol, the OpenL skills (step-by-step workflows served as skill:// resources), and a workspace orientation: when to call openl_get_project_agent_context (before working on or creating any project), how to discover the OpenL reference documentation OpenL Studio serves (openl_list_guides / openl_get_guides), and the edit → validate → save loop.",
     schema: schemas.getStartedSchema,
     annotations: {
       readOnlyHint: true,
@@ -137,7 +137,7 @@ export function registerGuideHandlers(): void {
     name: "get_guides",
     title: "Get Guides",
     description:
-      "Return the FULL markdown bodies of 1-5 documents by the exact ids from openl_list_guides (e.g. 'spec/rules.xml', 'guide/introduction/basic-concepts'). Unknown ids fail with an error naming them — this tool never falls back to the index; look ids up with openl_list_guides first. Bodies are returned verbatim and are NOT truncated, so mind each entry's size from the index and request only what you need. Links and images in a body are relative to the path of its document. Read-only.",
+      "Return the FULL markdown bodies of 1-5 documents by the exact ids from openl_list_guides (e.g. 'spec/rules.xml', 'guide/introduction/basic-concepts'). Unknown ids fail with an error naming them — this tool never falls back to the index; look ids up with openl_list_guides first. Bodies are returned verbatim and are NOT truncated, so mind each entry's size from the index and request only what you need. Links and images in a body are relative to the path of its document.",
     schema: schemas.getGuidesSchema,
     annotations: {
       readOnlyHint: true,
@@ -170,7 +170,7 @@ export function registerGuideHandlers(): void {
     name: "get_project_agent_context",
     title: "Get Project Agent Context",
     description:
-      "Resolve the agent guidance (AGENTS.md hierarchy) that applies to a project — call this BEFORE working on or creating anything in the project. Starting at the project directory — or the optional 'folder' sub-directory — this walks UP through every parent folder to the repository root, collects every AGENTS.md found, and returns them concatenated in ONE markdown document ordered from the root folder (lowest priority) down to the project folder (highest priority); on conflicting instructions, each later section overrides the earlier ones. AGENTS.md files live not only in the project but often in a workspace/monorepo root above it. Levels with no AGENTS.md are skipped (not an error); a project with none returns a short 'no files' note. When the guidance references reference guides by id, those ids are listed at the end — fetch them with openl_get_guides. The search direction is fixed — to search a project's own subtree by glob/content instead, use openl_search_project_files.",
+      "Read the agent guidance that applies to a project; call this BEFORE working on or creating anything in it. The answer is one Markdown document of every AGENTS.md from the repository root down to the project folder, or to its 'folder', where a later file overrides an earlier one; a project with none answers a short note. The ids of the guides the guidance references end the document: read them with openl_get_guides.",
     schema: schemas.getProjectAgentContextSchema,
     annotations: {
       readOnlyHint: true,
