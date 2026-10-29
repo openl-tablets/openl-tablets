@@ -120,7 +120,7 @@ describe("openl_read_project_file", () => {
     authenticating();
 
     const result = await executeTool("read_project_file", {
-      projectId: "p1", path: "rules/Model.xlsx", version: "r1",
+      projectId: "p1", path: "rules/Model.xlsx", revision: "r1",
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({
@@ -137,6 +137,18 @@ describe("openl_read_project_file", () => {
     });
     // The extension of the file tells its type
     expect(dataOf(result)).not.toHaveProperty("mimeType");
+    // The content of an earlier commit replaces nothing
+    expect(dataOf(result)).not.toHaveProperty("version");
+  });
+
+  it("answers the text of an earlier commit without a version to replace the file by", async () => {
+    answerMeta("readme.md", 4);
+    answerFile("readme.md", Buffer.from("old\n"), "text/markdown");
+
+    const result = await executeTool("read_project_file", { projectId: "p1", path: "readme.md", revision: "r1" },
+      harness.client);
+
+    expect(result.content).toEqual([{ type: "text", text: "old\n" }]);
   });
 
   it.each([
@@ -493,7 +505,7 @@ describe("delete, search, copy and move", () => {
     expect(dataOf(result)).toEqual(nodes);
   });
 
-  it("openl_search_project_files forwards extensions/type/scope=ANCESTORS/recursive/from/version", async () => {
+  it("openl_search_project_files forwards extensions/type/scope=ANCESTORS/recursive/from/revision", async () => {
     harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
     const query = {
       extensions: ["xlsx", "xml"],
@@ -501,12 +513,11 @@ describe("delete, search, copy and move", () => {
       scope: "ANCESTORS",
       recursive: true,
       from: "rules",
-      version: "abc123",
     };
 
-    await executeTool("search_project_files", { projectId: "p1", ...query }, harness.client);
+    await executeTool("search_project_files", { projectId: "p1", ...query, revision: "abc123" }, harness.client);
 
-    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(query);
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ ...query, version: "abc123" });
   });
 
   it.each([
