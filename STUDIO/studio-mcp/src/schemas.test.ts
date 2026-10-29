@@ -107,6 +107,14 @@ describe("RawSource-only table contracts", () => {
     expect(updateTableSchema.safeParse({ projectId: "p1", tableId: "t1", view }).success).toBe(true);
   });
 
+  it("accepts back the formula and the Excel note of a cell, which openl_get_table answers", () => {
+    const view = { ...rawTable, source: [[{ value: 42, formula: "=B2*2", comment: "Checked by Ada" }]] };
+
+    expect(updateTableSchema.parse({ projectId: "p1", tableId: "t1", view }).view.source[0][0])
+      .toEqual({ value: 42, formula: "=B2*2", comment: "Checked by Ada" });
+    expect(createProjectTableSchema.safeParse({ projectId: "p1", moduleName: "Main", table: view }).success).toBe(true);
+  });
+
   it.each(rawCellWriteSchemas)("accepts Studio multi-value arrays for $name", ({ schema, input }) => {
     for (const value of [
       ["MA2", "FA+", "SPA"],

@@ -311,6 +311,9 @@ anonymous (single-user Studio).
   trims (whitespace or ISO controls) are not representable. MCP checks the shape
   of a scalar or a flat array; Studio refuses the rest and does all context-dependent
   OpenL parsing and workbook serialization.
+- A read cell may carry its `formula` (its `value` is the computed result) and its Excel `comment`. The write
+  schemas take both back, so a read view round-trips: Studio writes the `formula` as the Excel formula of the cell,
+  ignoring its `value`, and keeps the read-only `comment`. A cell sent without its formula takes its `value`.
 - Cell styles are read-only in Studio's table REST API. `styles=true` is useful
   for inspection, but every MCP table write schema rejects `style`; never
   advertise formatting edits unless Studio adds a working write contract.
