@@ -60,10 +60,11 @@ values, and an offer to apply the fix.
 - `profile.hotspots` ranks by time and holds only the top N; a watch series is capped
   (compare its length with `total`). Absence from either is not proof a table or factor is
   fine — go to the suspect directly with a watch or breakpoint.
-- On replay send neither input nor test ranges — the last input is remembered.
-- A trace 404 is usually a stale project session: open the project and retry once; then
-  re-list projects and tables (table ids change when an edit relocates a table). Still
-  failing — report the exact error and what you ruled out.
+- On replay of a rule send no input — its last input is remembered; a test table takes its
+  test ranges again, as they are not.
+- A trace 404 means no debug session — it ends after about 10 idle minutes or with a new
+  start — or a frame or value id it does not hold: start the session again. Still failing —
+  report the exact error and what you ruled out.
 - If the trace cannot run, say so. Never present hand-reading of tables as a trace result.
 - A run ending in `error` carries the failing table, step and exception — that frame is the
   first pointer.
