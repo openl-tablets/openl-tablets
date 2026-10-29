@@ -14,11 +14,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import jakarta.servlet.http.HttpSession;
 
 import org.junit.jupiter.api.AfterEach;
@@ -29,7 +27,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -56,12 +53,12 @@ import org.openl.studio.audit.model.AuditAuthentication;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.session.ClientSessions;
+import org.openl.studio.session.CredentialClient;
 
 class SignInAuditorTest {
 
-    private static final Duration IDLE = Duration.ofMinutes(30);
-
-    private final AtomicLong clock = new AtomicLong();
+    private final ClientSessions clientSessions = mock(ClientSessions.class);
     private AuditService auditService;
     private SignInAuditor auditor;
 
@@ -69,7 +66,7 @@ class SignInAuditorTest {
     void setUp() {
         auditService = mock(AuditService.class);
         when(auditService.isEnabled()).thenReturn(true);
-        auditor = new SignInAuditor(auditService, IDLE, clock::get);
+        auditor = new SignInAuditor(auditService, clientSessions);
     }
 
     @AfterEach
@@ -162,78 +159,59 @@ class SignInAuditorTest {
     }
 
     @Test
-    void recordsTheFirstRequestOfCredentialsAsASignIn() {
-        auditor.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
-        auditor.preHandle(basicRequest("jsmith"), new MockHttpServletResponse(), new Object());
+    void opensTheClientOfARequestSoThatItsStartIsHeard() {
+        assertTrue(auditor.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object()));
 
-        clock.addAndGet(Duration.ofMinutes(29).toNanos());
-        auditor.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
+        verify(clientSessions).open();
+    }
+
+    @Test
+    void recordsTheStartAndTheEndsOfTheSessionOfAClientOfCredentials() {
+        var client = new CredentialClient("jdoe", signedIn("jdoe"));
+
+        auditor.started(client);
+        auditor.timedOut(client);
+        auditor.restarted(List.of(client));
 
         var events = recordedAll();
-        assertEquals(List.of("jdoe", "jsmith"), events.stream().map(AuditEvent::actor).toList(),
-                "A request soon after the last one is the same use of the credentials");
-        assertEquals(AuditAction.SIGN_IN, events.getFirst().action());
-        assertEquals(AuditOutcome.SUCCESS, events.getFirst().outcome());
-        assertEquals(AuditAuthentication.BASIC, events.getFirst().authentication());
+        assertEquals(List.of(AuditAction.SESSION_STARTED, AuditAction.SESSION_ENDED, AuditAction.SESSION_ENDED),
+                events.stream().map(AuditEvent::action).toList());
+        assertEquals(List.of(Map.of(), Map.of(SignInAuditor.REASON, SignInAuditor.TIMED_OUT),
+                        Map.of(SignInAuditor.REASON, SignInAuditor.RESTARTED)),
+                events.stream().map(AuditEvent::details).toList());
+        events.forEach(event -> {
+            assertEquals("jdoe", event.actor());
+            assertEquals(AuditOutcome.SUCCESS, event.outcome());
+            assertEquals(AuditAuthentication.BASIC, event.authentication(), "Told without a request");
+        });
     }
 
     @Test
-    void recordsASignInAgainOnceTheCredentialsWereIdle() {
-        auditor.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
-        auditor.preHandle(basicRequest("jsmith"), new MockHttpServletResponse(), new Object());
-        clock.addAndGet(IDLE.toNanos());
-
-        auditor.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
-        auditor.preHandle(basicRequest("jsmith"), new MockHttpServletResponse(), new Object());
-
-        assertEquals(List.of("jdoe", "jsmith", "jdoe", "jsmith"),
-                recordedAll().stream().map(AuditEvent::actor).toList());
-    }
-
-    @Test
-    void takesCredentialsForIdleAfterTheIdleTimeOfASession() {
-        var servletContext = new MockServletContext();
-        servletContext.setSessionTimeout(30);
-        var configured = new SignInAuditor(auditService, servletContext);
-
-        configured.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
-        configured.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
-
-        assertEquals("jdoe", recorded().actor(), "The second request continues the use the first one started");
-    }
-
-    @Test
-    void namesThePersonalAccessTokenASignInUsed() {
-        var request = requestTo("/rest/projects");
-        request.addHeader(HttpHeaders.AUTHORIZATION, "Token openl_pat_abc123DEF4567890.secret");
-        SecurityContextHolder.getContext().setAuthentication(
+    void namesThePersonalAccessTokenOfAClient() {
+        var client = new CredentialClient("jdoe|pat:abc123DEF4567890",
                 new PatAuthenticationToken("jdoe", null, List.of(), "abc123DEF4567890"));
 
-        auditor.preHandle(request, new MockHttpServletResponse(), new Object());
+        auditor.started(client);
+        auditor.timedOut(client);
 
-        var event = recorded();
-        assertEquals("jdoe", event.actor());
-        assertEquals(AuditAuthentication.TOKEN, event.authentication());
-        assertEquals(Map.of(SignInAuditor.TOKEN, "abc123DEF4567890"), event.details());
+        var events = recordedAll();
+        assertEquals(AuditAuthentication.TOKEN, events.getFirst().authentication());
+        assertEquals(Map.of(SignInAuditor.TOKEN, "abc123DEF4567890"), events.getFirst().details());
+        assertEquals(Map.of(SignInAuditor.REASON, SignInAuditor.TIMED_OUT, SignInAuditor.TOKEN, "abc123DEF4567890"),
+                events.getLast().details());
     }
 
     @Test
-    void recordsNoSignInOfABrowserCallingWithItsSession() {
-        var request = basicRequest("jdoe");
-        request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                new SecurityContextImpl(signedIn("jdoe")));
-        auditor.preHandle(request, new MockHttpServletResponse(), new Object());
-        auditor.preHandle(requestTo("/rest/projects"), new MockHttpServletResponse(), new Object());
-
-        verify(auditService, never()).recordEvent(any());
-    }
-
-    @Test
-    void recordsNoSignInWhileTheLogIsOff() {
+    void opensAndRecordsNoClientWhileTheLogIsOff() {
         when(auditService.isEnabled()).thenReturn(false);
+        var client = new CredentialClient("jdoe", signedIn("jdoe"));
 
         auditor.preHandle(basicRequest("jdoe"), new MockHttpServletResponse(), new Object());
+        auditor.started(client);
+        auditor.timedOut(client);
+        auditor.restarted(List.of(client));
 
+        verify(clientSessions, never()).open();
         verify(auditService, never()).recordEvent(any());
     }
 

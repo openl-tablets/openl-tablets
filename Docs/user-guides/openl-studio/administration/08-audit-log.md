@@ -55,13 +55,15 @@ The log records these actions:
 
 - **Sign in** — a sign-in through the login form, SAML or OpenID Connect. A refused sign-in is recorded for every
   way of signing in, including Basic authentication, a bearer token and a personal access token, with the reason.
-  A script or an agent that sends its credentials with every request, such as a personal access token, signs in
-  anew every time: its sign-in is recorded at its first request, and again at the first one after its credentials
-  were not used for as long as a session may stay idle, 30 minutes by default. A personal access token is named by
-  its public identifier.
 - **Sign out** — a sign-out, including one the identity provider asks for.
-- **Session ended** — a session that ended without a sign-out: left idle for longer than a session may stay, 30
-  minutes by default, marked as timed out, or ended by a restart of OpenL Studio, marked as restarted.
+- **Session started** — a script or an agent that sends its credentials with every request, such as a personal access
+  token, signs in with every request and opens no browser session, but OpenL Studio keeps a session for it, with its
+  state, such as its compiled projects. The session starts at the first request of the credentials, and at the first
+  one after the session ended. A personal access token is named by its public identifier.
+- **Session ended** — a session, of a browser or of a script, that ended without a sign-out: left unused for longer
+  than a session may stay idle, 30 minutes by default, marked as timed out, or ended by a restart of OpenL Studio,
+  marked as restarted. A script whose sessions start and end again and again had its state set up anew each time,
+  and its projects compiled again.
 - **User created**, **User changed**, **User deleted** — a user created, deleted, or with a new name, display name,
   e-mail or e-mail verification, with the values before and after. A user that the identity provider creates or
   changes at sign-in is marked as coming from the identity provider.

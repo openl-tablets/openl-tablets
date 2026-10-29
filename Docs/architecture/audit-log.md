@@ -70,12 +70,21 @@ flowchart LR
 
 - **A sign-in** is recorded when it opens a session: the login form, SAML or OAuth2.
 - **A request that carries its own credentials** — Basic authentication, a bearer token, a personal access token —
-  signs in anew every time, so its sign-in is recorded once for a use of the credentials: at their first request, and
-  at the first one after they were idle for the time an HTTP session may stay idle (`session-timeout` of `web.xml`).
-  `SignInAuditor` is a `HandlerInterceptor` of the REST API for this: it tells credentials apart as
-  `ClientSessions.credentialOf` does, so a browser calling with its session records nothing, and a personal access
-  token is named by its public id. It remembers when each credential made its last request, on this node, and forgets
-  the idle ones once a minute.
+  signs in with every request and opens no HTTP session, but OpenL Studio keeps a client session for its credentials
+  (`ClientSessions`, see [Client Sessions](client-sessions.md)). Its start is a `sessionStarted` event and its end a
+  `sessionEnded` one, so the pairs tell how often OpenL Studio set the state of a client up anew — a script whose
+  session keeps starting over compiles its projects again every time. No sign-in is recorded for it: a sign-in is
+  what a user does to open a session. `SignInAuditor` is a `HandlerInterceptor` of the REST API that opens the client
+  session of every such request (`ClientSessions.open`), even one that asks for nothing the session keeps. It is also
+  the `ClientSessionListener` that hears of the client sessions: one starts at the first request of the credentials,
+  and at the first one after it ended. Credentials are told apart as `ClientSessions.credentialOf` does, so a browser
+  calling with its session records nothing, and a personal access token is named by its public id. A client session
+  is kept on its node.
+- **A client session of credentials ends** after it made no request for the time an HTTP session may stay idle
+  (`session-timeout` of `web.xml`): the sweep of `ClientSessions`, once a minute, releases it and records its end
+  with the reason `timedOut`. A restart ends every client session, each with the reason `restarted`: they are listed
+  before the refresh, which ends them with the old context, and recorded after it. A stop ends them with no event, as
+  it ends the browser sessions.
 - **A refused sign-in** is recorded for every way of signing in, with the reason (`badCredentials`,
   `locked`, `disabled`, `expired`, `invalidToken`, `error`). The `authenticationEventPublisher` of
   `CommonAuthenticationConfig` serves the OpenL authentication manager and the login-form chains alike; a refusal
@@ -322,8 +331,8 @@ REST API (`SettingsAuditor.eventOf`), and its details list the properties `added
   deployment are compared with the last start.
 - `applicationRestarted` — after a refresh of the context. A save of the settings writes the settings file, and the
   next check of the file, by the timer every ten seconds or by the next request, refreshes the context and ends every
-  HTTP session. A request can set the refresh off on its own thread, so `AuditClient.runAsApplication` records it
-  and the ends of the sessions it makes for no client.
+  HTTP session and every client session of credentials. A request can set the refresh off on its own thread, so
+  `AuditClient.runAsApplication` records it and the ends of the sessions it makes for no client.
 - `applicationStopped` — when the servlet context is destroyed, before the Spring context closes. A server stopped and
   started again records a stop and a start: only a refresh within a running server is a restart. A server killed or
   crashed records no stop.
