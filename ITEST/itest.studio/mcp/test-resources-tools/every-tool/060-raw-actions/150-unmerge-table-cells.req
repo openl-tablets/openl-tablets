@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json, text/event-stream
 MCP-Protocol-Version: 2026-07-28
 Mcp-Method: tools/call
-Mcp-Name: openl_unmerge_table_cells
+Mcp-Name: openl_edit_table
 Authorization: Token ${PAT}
 
 {
@@ -11,10 +11,11 @@ Authorization: Token ${PAT}
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "openl_unmerge_table_cells",
+    "name": "openl_edit_table",
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${GRADE_ID}",
+      "action": "unmerge",
       "version": ${GRADE_VERSION},
       "row": 0,
       "column": 0

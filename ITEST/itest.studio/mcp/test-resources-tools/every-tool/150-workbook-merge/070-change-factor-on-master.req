@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json, text/event-stream
 MCP-Protocol-Version: 2026-07-28
 Mcp-Method: tools/call
-Mcp-Name: openl_update_table_cell
+Mcp-Name: openl_edit_table
 Authorization: Token ${PAT}
 
 {
@@ -11,10 +11,11 @@ Authorization: Token ${PAT}
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "openl_update_table_cell",
+    "name": "openl_edit_table",
     "arguments": {
       "projectId": "${PROJECT_ID}",
       "tableId": "${AGE_FACTOR_ID}",
+      "action": "update_cell",
       "version": ${AGE_FACTOR_VERSION},
       "row": 2,
       "column": 1,
