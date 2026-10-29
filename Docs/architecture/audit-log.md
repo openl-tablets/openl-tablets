@@ -3,7 +3,7 @@
 OpenL Studio keeps an audit log of who did what and when: who signed in and out, whose sign-in was refused, who changed
 users, groups, personal access tokens and access rights, whose request was refused for lack of permission, who created,
 saved, deleted and deployed projects and changed the branches of their repositories, who changed the system settings,
-and who read the log.
+when OpenL Studio started, restarted and stopped, and who read the log.
 Administrators read it on the **Audit Log** page or through `GET /rest/admin/audit`. This page describes where the
 events come from, how they are kept and how they are read. The user guide describes the page:
 [Reviewing the Audit Log](../user-guides/openl-studio/administration/08-audit-log.md).
@@ -88,9 +88,14 @@ flowchart LR
 - **A sign-out** is published by the logout handler the login form chain adds itself, and by
   `logoutEventPublishingHandler`, which the SAML and OAuth2 logout filters run first. A sign-out the SAML identity
   provider asks for is published the same way.
-- **A session that times out** is a sign-out with the reason `timedOut`: an `HttpSessionDestroyedEvent` of a session
-  that was idle for at least the time it may stay idle names the user signed in to it. A session ended by a sign-out
-  or by a stop of the application was used just before, so it records nothing more.
+- **A session that ends without a sign-out** is a `sessionEnded` event, so a sign-out is always what a user or an
+  identity provider asked for. The user did not end the session, so the event keeps apart from `signOut`.
+- **A session that times out** ends with the reason `timedOut`: an `HttpSessionDestroyedEvent` of a session that was
+  idle for at least the time it may stay idle names the user signed in to it.
+- **A session a restart ends** ends with the reason `restarted`: `SpringInitializer` marks every session
+  (`SignInAuditor.endedByRestart`) before it invalidates it, and skips one that has just ended by itself, see
+  [Starts, Restarts and Stops](#starts-restarts-and-stops). A session ended by a sign-out or by a stop of the
+  application was used just before, so it records nothing more.
 
 A failure to record a sign-in is logged and never fails the sign-in.
 
@@ -307,6 +312,24 @@ REST API (`SettingsAuditor.eventOf`), and its details list the properties `added
   settings through the REST API makes, compares nothing and keeps the requests waiting for no bcrypt.
 - **A failure is logged without any value** and never fails the start. The snapshot stays as it was, so the next
   start announces the change.
+
+## Starts, Restarts and Stops
+
+`SpringInitializer` runs OpenL Studio, and `ApplicationAuditor` announces what it does to it (category
+`application`). OpenL Studio does these actions itself, so their events name no user and no client.
+
+- `applicationStarted` — once the context is ready to handle requests, with `version`, before the settings of the
+  deployment are compared with the last start.
+- `applicationRestarted` — after a refresh of the context. A save of the settings writes the settings file, and the
+  next check of the file, by the timer every ten seconds or by the next request, refreshes the context and ends every
+  HTTP session. A request can set the refresh off on its own thread, so `AuditClient.runAsApplication` records it
+  and the ends of the sessions it makes for no client.
+- `applicationStopped` — when the servlet context is destroyed, before the Spring context closes. A server stopped and
+  started again records a stop and a start: only a refresh within a running server is a restart. A server killed or
+  crashed records no stop.
+
+In a cluster each node records its own starts, restarts and stops. A failure to record one is logged and never fails
+the action.
 
 ## Reading
 

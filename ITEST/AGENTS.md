@@ -235,10 +235,11 @@ Cookies persist **within each subdirectory** and reset when entering a new subdi
 
 Requests authenticate themselves: every request that needs a user carries `Authorization: Basic <base64(user:pass)>`,
 and a WebSocket handshake connects to `/ws` with the same header. The login form (`POST /login` followed by
-requests riding on the session cookie) is exercised in exactly one place — the `003`–`008` sequence at the root of
-`itest.studio/multi/test-resources`, which proves the form works — and is not a way to sign a scenario in; the `csrf-login/` probes
-exercise the form's cross-site protection with a rejected or a failed sign-in, never a successful one. Nor is a
-`GET /` before a scenario: the root serves a static page and prepares nothing.
+requests riding on the session cookie) is exercised in two places only — the `003`–`008` sequence at the root of
+`itest.studio/multi/test-resources`, which proves the form works, and `audit_log/070-settings`, whose session of the
+form is what a restart must end so that the audit log records its end — and is not a way to sign a scenario in; the
+`csrf-login/` probes exercise the form's cross-site protection with a rejected or a failed sign-in, never a
+successful one. Nor is a `GET /` before a scenario: the root serves a static page and prepares nothing.
 
 A request carrying `Authorization` opens no session and is served from the state kept for its credential, so a cookie
 captured earlier in the folder — another user's session — never lends that user's workspace to the request (see

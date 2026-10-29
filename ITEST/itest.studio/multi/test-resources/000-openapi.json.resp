@@ -2046,6 +2046,7 @@ Content-Type: application/json
                   "project",
                   "deployment",
                   "settings",
+                  "application",
                   "audit"
                 ]
               },
@@ -2064,6 +2065,7 @@ Content-Type: application/json
                 "enum": [
                   "signIn",
                   "signOut",
+                  "sessionEnded",
                   "userCreated",
                   "userUpdated",
                   "passwordChanged",
@@ -2092,6 +2094,9 @@ Content-Type: application/json
                   "protectionBypassed",
                   "projectDeployed",
                   "settingsChanged",
+                  "applicationStarted",
+                  "applicationRestarted",
+                  "applicationStopped",
                   "auditLogRead",
                   "auditLogPurged"
                 ]
@@ -27173,6 +27178,7 @@ Content-Type: application/json
             "enum": [
               "signIn",
               "signOut",
+              "sessionEnded",
               "userCreated",
               "userUpdated",
               "passwordChanged",
@@ -27201,6 +27207,9 @@ Content-Type: application/json
               "protectionBypassed",
               "projectDeployed",
               "settingsChanged",
+              "applicationStarted",
+              "applicationRestarted",
+              "applicationStopped",
               "auditLogRead",
               "auditLogPurged"
             ]
@@ -27235,6 +27244,7 @@ Content-Type: application/json
               "project",
               "deployment",
               "settings",
+              "application",
               "audit"
             ]
           },

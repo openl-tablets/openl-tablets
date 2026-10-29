@@ -21,6 +21,10 @@ public enum AuditAction {
     @JsonProperty("signOut")
     SIGN_OUT(AuditCategory.AUTHENTICATION),
 
+    @Schema(description = "A session ended without a sign-out: it was left idle, or a restart ended it.")
+    @JsonProperty("sessionEnded")
+    SESSION_ENDED(AuditCategory.AUTHENTICATION),
+
     @Schema(description = "A user was created.")
     @JsonProperty("userCreated")
     USER_CREATED(AuditCategory.USER),
@@ -132,6 +136,18 @@ public enum AuditAction {
     @Schema(description = "System settings got other values, all those one save changed.")
     @JsonProperty("settingsChanged")
     SETTINGS_CHANGED(AuditCategory.SETTINGS),
+
+    @Schema(description = "OpenL Studio started.")
+    @JsonProperty("applicationStarted")
+    APPLICATION_STARTED(AuditCategory.APPLICATION),
+
+    @Schema(description = "OpenL Studio restarted without a stop to apply the settings saved.")
+    @JsonProperty("applicationRestarted")
+    APPLICATION_RESTARTED(AuditCategory.APPLICATION),
+
+    @Schema(description = "OpenL Studio stopped.")
+    @JsonProperty("applicationStopped")
+    APPLICATION_STOPPED(AuditCategory.APPLICATION),
 
     @Schema(description = "The audit log was read or exported.")
     @JsonProperty("auditLogRead")

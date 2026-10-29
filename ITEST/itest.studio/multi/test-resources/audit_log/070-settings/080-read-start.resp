@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "category": "application",
+      "action": "applicationStarted",
+      "outcome": "success",
+      "details": {
+        "version": "***"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": 1
+}

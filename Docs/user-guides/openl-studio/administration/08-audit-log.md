@@ -3,8 +3,9 @@
 The audit log records who signed in to OpenL Studio and when, whose sign-in was refused, who signed out, who changed
 users, groups, personal access tokens and access rights, which requests were refused for lack of permission, who
 created, saved, deleted and deployed projects and changed the branches of their repositories, who changed the
-system settings, and who read the log itself. OpenL Studio keeps it in its database in every user mode but
-Single-User, which has no sign-in. Only users with administrator privileges see it.
+system settings, when OpenL Studio started, restarted and stopped, and who read the log itself. OpenL Studio keeps it
+in its database in every user mode but Single-User, which has no sign-in. Only users with administrator privileges see
+it.
 
 In the navigation menu, click **Audit Log**. The page lists the events, the newest first, a page at a time. The list
 counts up to 10,000 events: when more match, it shows `10000+` and pages through the newest 10,000. Narrow the
@@ -19,7 +20,8 @@ Each event shows the following:
 - **ID** — the number of the event, which tells it apart in the log and in an export.
 - **Time** — when the event happened, to the second, in the time zone of the browser.
 - **User** — who did the action. A refused sign-in names a user only when a user name was typed; a token is never
-  recorded in its place. An action OpenL Studio does by itself, such as removing old events, names no user.
+  recorded in its place. An action OpenL Studio does by itself, such as removing old events or a restart, names no
+  user.
 - **Signed in with** — how the user signed in, or tried to: **Login form**, **Basic authentication**, **Personal
   access token**, **Bearer token**, **OpenID Connect** or **SAML**. So an action a script or an agent did with a token
   tells so. An action that goes on after its request is answered tells it only for a token, OpenID Connect or SAML.
@@ -57,8 +59,9 @@ The log records these actions:
   anew every time: its sign-in is recorded at its first request, and again at the first one after its credentials
   were not used for as long as a session may stay idle, 30 minutes by default. A personal access token is named by
   its public identifier.
-- **Sign out** — a sign-out, including one the identity provider asks for. A session left idle for longer than it
-  may stay ends with a sign-out too, marked as timed out.
+- **Sign out** — a sign-out, including one the identity provider asks for.
+- **Session ended** — a session that ended without a sign-out: left idle for longer than a session may stay, 30
+  minutes by default, marked as timed out, or ended by a restart of OpenL Studio, marked as restarted.
 - **User created**, **User changed**, **User deleted** — a user created, deleted, or with a new name, display name,
   e-mail or e-mail verification, with the values before and after. A user that the identity provider creates or
   changes at sign-in is marked as coming from the identity provider.
@@ -109,6 +112,11 @@ The log records these actions:
   environment of the server sets, such as the values of a Helm chart, changes with a restart: the next start
   records the settings added, changed and removed since the last start by their names only, marked as coming from
   the server environment. No value of the environment is recorded.
+- **OpenL Studio started** — a start of OpenL Studio, with its version.
+- **OpenL Studio restarted** — a restart that applied the saved system settings without a stop of the server. It
+  ends every browser session, so the users sign in again, and each session it ended is recorded as ended.
+- **OpenL Studio stopped** — a stop of OpenL Studio. A server stopped and started again records a stop and a start.
+  A server that was killed or crashed records no stop.
 - **Audit log read** — a view or an export of the log, with the filters it was made with. Every export is recorded.
   A view is recorded once, when it starts: searching, filtering and turning the pages, with nothing else done in
   between, add no event. Any other action of the user, a new sign-in included, makes the next view recorded again.

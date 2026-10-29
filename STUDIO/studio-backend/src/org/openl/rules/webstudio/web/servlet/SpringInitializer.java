@@ -33,7 +33,10 @@ import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.studio.audit.service.ApplicationAuditor;
+import org.openl.studio.audit.service.AuditClient;
 import org.openl.studio.audit.service.EnvironmentSettingsAuditor;
+import org.openl.studio.audit.service.SignInAuditor;
 
 @WebListener
 @Slf4j
@@ -135,6 +138,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         // Run migration which require context to be initialized
         Migrator.migrateAfterContentInitialized(applicationContext, fromVersion);
+        applicationContext.getBean(ApplicationAuditor.class).started();
         // The deployment sets its settings once for a run, so they are compared at the start, never at a refresh.
         applicationContext.getBean(EnvironmentSettingsAuditor.class).compareWithLastStart();
         startTimer();
@@ -169,6 +173,9 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         var servletContext = sce.getServletContext();
         servletContext.removeAttribute(THIS);
         servletContext.removeAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+        if (applicationContext.isActive()) {
+            applicationContext.getBean(ApplicationAuditor.class).stopped();
+        }
         applicationContext.close();
         // Release JGit's process-wide resources only after the context has closed every repository, so a repository
         // teardown cannot submit work to an already-terminated JGit worker.
@@ -221,13 +228,33 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         try {
             log.info("Refreshing Spring context to reload application configuration...");
             applicationContext.refresh();
-            log.info("Cleaning up HTTP Sessions...");
-            for (HttpSession session : new ArrayList<>(cache.values())) {
-                session.invalidate();
-            }
+            // OpenL Studio restarts itself, whichever request happened to find the settings changed.
+            AuditClient.runAsApplication(this::finishRestart);
             log.info("OpenL Studio has been reloaded.");
         } finally {
             write.unlock();
+        }
+    }
+
+    /**
+     * Records the restart and ends every HTTP session, so that each user signs in to the reloaded configuration.
+     */
+    private void finishRestart() {
+        applicationContext.getBean(ApplicationAuditor.class).restarted();
+        log.info("Cleaning up HTTP Sessions...");
+        new ArrayList<>(cache.values()).forEach(SpringInitializer::endSession);
+    }
+
+    /**
+     * Ends a session the restart leaves behind. A session that has just ended by itself is skipped: it ends only once.
+     */
+    private static void endSession(HttpSession session) {
+        try {
+            // The users did not sign out themselves, so the audit log records the end of their sessions.
+            SignInAuditor.endedByRestart(session);
+            session.invalidate();
+        } catch (IllegalStateException e) {
+            log.debug("The session '{}' has already ended.", session.getId());
         }
     }
 
