@@ -40,7 +40,10 @@ After a change of the settings of OpenL Studio, the server restarts, and the cli
 ### The Token Is Refused
 
 The server answers `401 Unauthorized`, and the agent cannot connect. The token is missing, mistyped, expired, or
-deleted:
+deleted. The answer tells what to do, for a client that shows it; the agent passes it on when a token stops working
+in the middle of a session. A token whose secret is right is told why it was refused: it has expired, or its user is
+disabled, locked or expired, which an administrator of OpenL Studio sets right. Any other token is told only that it
+is not valid:
 
 -   Check that the client sends the `Authorization` header as `Token <token>`, or as `Bearer <token>` with an access
     token of the identity provider when OpenL Studio signs users in through OAuth2.

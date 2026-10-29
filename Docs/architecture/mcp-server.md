@@ -44,6 +44,12 @@ Non-goals: horizontal scaling, MCP client development, a rewrite of the server i
 
 - **Personal Access Tokens (PAT)** — available in every mode but `single`: `openl_pat_<publicId>.<secret>`, shown
   once and stored hashed, sent as `Authorization: Token <pat>`, and acting with the current authorities of its owner.
+  A refused token gets `401` with what to do about it, as `message` of a JSON body and as `error_description` of
+  `WWW-Authenticate: Token error="invalid_token"` (RFC 6750 style), for a client that shows it; a tool that fails
+  mid-session hands the message to the agent. Only a caller who sent the right secret learns the reason — the token
+  expired, or its owner is disabled, locked or expired; a wrong secret, an unknown token, an owner who no longer exists
+  and a value that is no token get one common answer. A token that cannot be checked, as when the database cannot be read, gets `500` and
+  the failure is logged (`PatAuthenticationFilter`).
 - **Client state** — a REST client with credentials opens no HTTP session; Studio keeps the state of its compilations,
   runs, test results, debug session and merge conflicts for the credential, and in `single` mode for the one user
   ([Client Sessions](client-sessions.md)).

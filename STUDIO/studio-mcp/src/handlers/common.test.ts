@@ -124,6 +124,18 @@ describe("errors of OpenL Studio", () => {
     expect(msg).not.toContain("Field errors");
   });
 
+  it("passes on what OpenL Studio says to do about a refused token, so the agent can tell the user", async () => {
+    harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(401, {
+      code: "openl.error.401.token.expired.message",
+      message: "The personal access token has expired. Create a new token in Personal Access Tokens of OpenL Studio "
+        + "and use it instead.",
+    });
+
+    const msg = (await callAndCatch()).message;
+    expect(msg).toBe("OpenL Studio API error (401): The personal access token has expired. Create a new token in "
+      + "Personal Access Tokens of OpenL Studio and use it instead.");
+  });
+
   it("tells the agent to read the table again when a workbook changed outside Studio, as no refresh call exists", async () => {
     harness.mockHttp.onPost(/\/tables\/t1\/actions$/).reply(409, {
       code: "openl.error.409.workbook.changed.outside.message",

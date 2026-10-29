@@ -12,7 +12,7 @@ Content-Type: application/json
       "action": "signIn",
       "outcome": "failure",
       "details": {
-        "reason": "badCredentials"
+        "reason": "malformedToken"
       }
     },
     {
@@ -24,7 +24,7 @@ Content-Type: application/json
       "action": "signIn",
       "outcome": "failure",
       "details": {
-        "reason": "badCredentials",
+        "reason": "unknownToken",
         "token": "abc123DEF4567890"
       }
     },

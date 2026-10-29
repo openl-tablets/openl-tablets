@@ -2,9 +2,11 @@ package org.openl.studio.security.pat.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,12 +21,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
+import org.openl.studio.security.pat.model.ExpiredPatException;
+import org.openl.studio.security.pat.model.PatRefusal;
 import org.openl.studio.security.pat.model.PatToken;
+import org.openl.studio.security.pat.model.PatValidationResult;
+import org.openl.studio.security.pat.model.UnknownPatException;
 
 /**
  * Unit tests for {@link PatValidationServiceImpl}.
@@ -94,10 +101,9 @@ class PatValidationServiceImplTest {
         var result = validationService.validate(patToken);
 
         // Assert
-        // Security Note: Returns INVALID without revealing the specific reason (token doesn't exist).
-        // This prevents token enumeration attacks where attackers try to discover valid token IDs.
-        assertFalse(result.valid());
-        assertNull(result.token());
+        // Security Note: The reason is for the audit log only; the caller gets the answer of any token that is not
+        // valid, so token ids cannot be enumerated.
+        assertRefused(result, UnknownPatException.class, null);
 
         verify(tokenDao, times(1)).getByPublicId(NONEXISTENT_ID);
     }
@@ -115,10 +121,30 @@ class PatValidationServiceImplTest {
         var result = validationService.validate(patToken);
 
         // Assert
-        assertFalse(result.valid());
-        assertNull(result.token());
+        assertRefused(result, BadCredentialsException.class, "jdoe");
 
         verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
+    }
+
+    @Test
+    void anExpiredTokenWithAWrongSecretIsRefusedForTheSecret() {
+        var storedToken = createToken(TEST_PUBLIC_ID, "jdoe", TEST_SECRET, FIXED_TIME.minusSeconds(3600));
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenReturn(storedToken);
+
+        var result = validationService.validate(new PatToken(TEST_PUBLIC_ID, WRONG_SECRET));
+
+        assertRefused(result, BadCredentialsException.class, "jdoe");
+    }
+
+    @Test
+    void leavesAFailureToReadTheTokenToTheCaller() {
+        var failure = new IllegalStateException("The database is down");
+        when(tokenDao.getByPublicId(TEST_PUBLIC_ID)).thenThrow(failure);
+
+        var thrown = assertThrows(IllegalStateException.class,
+                () -> validationService.validate(new PatToken(TEST_PUBLIC_ID, TEST_SECRET)));
+
+        assertSame(failure, thrown);
     }
 
     @Test
@@ -278,10 +304,17 @@ class PatValidationServiceImplTest {
         var result = validationService.validate(patToken);
 
         // Assert
-        assertFalse(result.valid());
-        assertNull(result.token(), "Expired token should not be returned even with correct secret");
+        assertRefused(result, ExpiredPatException.class, "jdoe");
 
         verify(tokenDao, times(1)).getByPublicId(TEST_PUBLIC_ID);
+    }
+
+    private static void assertRefused(PatValidationResult result, Class<?> reason, String owner) {
+        assertFalse(result.valid());
+        assertNull(result.token());
+        var refusal = assertInstanceOf(PatRefusal.class, result.refusal());
+        assertEquals(reason, refusal.reason().getClass());
+        assertEquals(owner, refusal.owner());
     }
 
     /**

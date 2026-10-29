@@ -19,9 +19,9 @@ Each event shows the following:
 
 - **ID** — the number of the event, which tells it apart in the log and in an export.
 - **Time** — when the event happened, to the second, in the time zone of the browser.
-- **User** — who did the action. A refused sign-in names a user only when a user name was typed; a token is never
-  recorded in its place. An action OpenL Studio does by itself, such as removing old events or a restart, names no
-  user.
+- **User** — who did the action. A refused sign-in names a user only when a user name was typed, or when a
+  personal access token OpenL Studio knows was sent: then the owner of the token; a token is never recorded in its
+  place. An action OpenL Studio does by itself, such as removing old events or a restart, names no user.
 - **Signed in with** — how the user signed in, or tried to: **Login form**, **Basic authentication**, **Personal
   access token**, **Bearer token**, **OpenID Connect** or **SAML**. So an action a script or an agent did with a token
   tells so. An action that goes on after its request is answered tells it only for a token, OpenID Connect or SAML.
@@ -60,6 +60,8 @@ The log records these actions:
 
 - **Sign in** — a sign-in through the login form, SAML or OpenID Connect. A refused sign-in is recorded for every
   way of signing in, including Basic authentication, a bearer token and a personal access token, with the reason.
+  For a personal access token, the reason tells an unknown token, a value that is not a token, a wrong secret, an
+  expired token and an owner who may not sign in apart.
 - **Sign out** — a sign-out, including one the identity provider asks for.
 - **Session started** — a script or an agent that sends its credentials with every request, such as a personal access
   token, signs in with every request and opens no browser session, but OpenL Studio keeps a session for it, with its

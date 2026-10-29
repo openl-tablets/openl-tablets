@@ -1,15 +1,20 @@
 package org.openl.studio.security.pat.service;
 
+import java.util.Objects;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.studio.security.pat.model.PatAuthResolution;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.security.pat.model.PatRefusal;
 import org.openl.studio.security.pat.model.PatToken;
 
 /**
@@ -21,23 +26,14 @@ import org.openl.studio.security.pat.model.PatToken;
  *
  * @since 6.0.0
  */
+@RequiredArgsConstructor
 @Validated
 public class PatAuthServiceImpl implements PatAuthService {
 
+    private static final AccountStatusUserDetailsChecker USER_CHECKER = new AccountStatusUserDetailsChecker();
+
     private final PatValidationService validator;
     private final UserDetailsService userDetailsService;
-
-    /**
-     * Constructs a new PatAuthServiceImpl.
-     *
-     * @param validator          the PAT validation service
-     * @param userDetailsService the user details service for loading user credentials
-     */
-    public PatAuthServiceImpl(PatValidationService validator,
-                              UserDetailsService userDetailsService) {
-        this.validator = validator;
-        this.userDetailsService = userDetailsService;
-    }
 
     /**
      * {@inheritDoc}
@@ -48,29 +44,29 @@ public class PatAuthServiceImpl implements PatAuthService {
      * <p>
      * <strong>Security Note:</strong> This method also verifies that the user account
      * is enabled, not locked, and not expired before granting authentication.
-     * All validation failures return INVALID status without revealing the specific reason.
+     * A refusal names its reason, for the audit log and for the caller who sent the right secret.
      * </p>
      */
     @Transactional(readOnly = true)
     @Override
     public PatAuthResolution resolveAuthentication(@Valid @NotNull PatToken pat) {
         var result = validator.validate(pat);
-        if (!result.valid()) {
-            return PatAuthResolution.invalid();
+        if (result.refusal() instanceof PatRefusal refusal) {
+            return PatAuthResolution.refused(refusal);
         }
 
-        var token = result.token();
-        var user = userDetailsService.loadUserByUsername(token.getLoginName());
-
-        // Security check: verify user account is enabled and not locked
-        // Return INVALID for all failures to prevent information disclosure
-        if (!user.isEnabled() || !user.isAccountNonLocked()
-                || !user.isAccountNonExpired() || !user.isCredentialsNonExpired()) {
-            return PatAuthResolution.invalid();
+        var owner = Objects.requireNonNull(result.token()).getLoginName();
+        try {
+            var user = userDetailsService.loadUserByUsername(owner);
+            // Security check: the user account is enabled, not locked and not expired
+            USER_CHECKER.check(user);
+            return PatAuthResolution.valid(new PatAuthenticationToken(user, null, user.getAuthorities(),
+                    pat.publicId()));
+        } catch (AuthenticationException e) {
+            // The owner is not found, or cannot sign in. A failure to read the owner is left to the caller, as the
+            // transaction it failed in cannot be committed.
+            return PatAuthResolution.refused(new PatRefusal(e, owner));
         }
-        var auth = new PatAuthenticationToken(user, null, user.getAuthorities(), pat.publicId());
-
-        return PatAuthResolution.valid(auth);
     }
 
 }

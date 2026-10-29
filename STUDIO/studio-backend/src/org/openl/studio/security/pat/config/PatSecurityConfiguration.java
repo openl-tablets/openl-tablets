@@ -4,9 +4,11 @@ import java.time.Clock;
 import java.util.Collection;
 import java.util.function.BiFunction;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
@@ -125,12 +127,17 @@ public class PatSecurityConfiguration {
      *
      * @param patAuthService the PAT authentication service
      * @param eventPublisher publishes every refused token, which the audit log records
+     * @param messageSource  the messages of the answer to a refused token
+     * @param objectMapper   writes the answer to a refused token
      * @return configured PAT authentication filter
      */
     @Bean
     public PatAuthenticationFilter patAuthenticationFilter(PatAuthService patAuthService,
-                                                           AuthenticationEventPublisher eventPublisher) {
-        return new PatAuthenticationFilter(patAuthService, eventPublisher);
+                                                           AuthenticationEventPublisher eventPublisher,
+                                                           @Qualifier("validationMessageSource")
+                                                           MessageSource messageSource,
+                                                           ObjectMapper objectMapper) {
+        return new PatAuthenticationFilter(patAuthService, eventPublisher, messageSource, objectMapper);
     }
 
 }
