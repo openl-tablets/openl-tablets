@@ -246,11 +246,12 @@ describe("trace tools", () => {
     const data = dataOf<any>(await executeTool("step_trace", { projectId, type: "over", withValues: true }, harness.client));
 
     expect(data.frames[0].steps).toEqual([
-      { ref: "R0C0", label: "$Base", status: "executed", value: { name: "R0C0", lazy: false, value: 100 } },
+      { ref: "R0C0", label: "$Base", status: "executed", value: { value: 100 } },
       { ref: "R1C0", label: "$Factor", cell: "C11", status: "current" },
       { ref: "R2C0", label: "$Total", cell: "C12", status: "pending" },
     ]);
-    expect(data.variables).toEqual({ parameters: [], errors: [] });
+    // A step value names no ref, nor its lazy default; an empty list of errors is left out
+    expect(data.variables).toEqual({ parameters: [] });
   });
 
   it("openl_resume_trace resumes, polls the status until it leaves running, then returns the stack", async () => {
@@ -365,7 +366,7 @@ describe("trace tools", () => {
     const result = await executeTool(tool, { projectId, ...args }, harness.client);
 
     expect(contextOf(dataOf(result))).toEqual({
-      name: "context", description: "DefaultRulesRuntimeContext", lazy: false, value: { lob: "Auto" },
+      name: "context", description: "DefaultRulesRuntimeContext", value: { lob: "Auto" },
     });
   });
 

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"status\":\"suspended\",\"variables\":{\"parameters\":[{\"name\":\"driver\",\"description\":\"Driver\",\"lazy\":true,\"parameterId\":1}],\"context\":{\"name\":\"context\",\"description\":\"DefaultRulesRuntimeContext\",\"lazy\":false,\"value\":{}},\"gridColumns\":[\"Value\"],\"gridRows\":[\"Base\",\"Factor\",\"Total\"],\"errors\":[]},\"frames\":[{\"index\":0,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"steps\":[{\"ref\":\"R0C0\",\"label\":\"$Base\",\"status\":\"executed\",\"value\":{\"name\":\"R0C0\",\"lazy\":false,\"value\":100}},{\"ref\":\"R1C0\",\"label\":\"$Factor\",\"cell\":\"C11\",\"status\":\"current\"},{\"ref\":\"R2C0\",\"label\":\"$Total\",\"cell\":\"C12\",\"status\":\"pending\"}]}]}}"
+        "text": "{\"data\":{\"status\":\"suspended\",\"variables\":{\"parameters\":[{\"name\":\"driver\",\"description\":\"Driver\",\"lazy\":true,\"parameterId\":1}],\"gridColumns\":[\"Value\"],\"gridRows\":[\"Base\",\"Factor\",\"Total\"]},\"frames\":[{\"index\":0,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"steps\":[{\"ref\":\"R0C0\",\"label\":\"$Base\",\"status\":\"executed\",\"value\":{\"value\":100}},{\"ref\":\"R1C0\",\"label\":\"$Factor\",\"cell\":\"C11\",\"status\":\"current\"},{\"ref\":\"R2C0\",\"label\":\"$Total\",\"cell\":\"C12\",\"status\":\"pending\"}]}]}}"
       }
     ],
     "resultType": "complete",
