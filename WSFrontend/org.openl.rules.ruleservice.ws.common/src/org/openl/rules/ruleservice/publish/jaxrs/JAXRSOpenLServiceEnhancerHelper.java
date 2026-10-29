@@ -55,6 +55,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.jspecify.annotations.Nullable;
@@ -72,6 +74,7 @@ import org.openl.gen.FieldDescription;
 import org.openl.gen.OpenApiSchemaAnnotations;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.method.ITablePropertiesMethod;
+import org.openl.rules.openapi.OpenAPIConfiguration;
 import org.openl.rules.openapi.OpenAPIRefResolver;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.annotations.ApiErrors;
@@ -87,7 +90,8 @@ import org.openl.util.JAXBUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
-public class JAXRSOpenLServiceEnhancerHelper {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class JAXRSOpenLServiceEnhancerHelper {
 
     private static final String VALUE = "value";
     private static final String PATH_PARAMETER = "\\{[^}]*}";
@@ -98,10 +102,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
     private static final String INTEGER_TYPE = "integer";
     private static final String INT32_FORMAT = "int32";
     private static final String IMPLEMENTATION = "implementation";
-
-    private JAXRSOpenLServiceEnhancerHelper() {
-        // Utility class
-    }
 
     public static final int MAX_PARAMETERS_COUNT_FOR_GET = 3;
     public static final int UNPROCESSABLE_ENTITY = 422;
@@ -138,7 +138,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final Class<?> originalClass;
         private final ClassLoader classLoader;
         private Set<String> usedPaths;
-        private final Set<String> nicknames = new HashSet<>();
+        private final Set<String> nicknames = new HashSet<>(OpenAPIConfiguration.RESERVED_OPERATION_IDS);
         private final boolean provideRuntimeContext;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix;
         private final Object targetService;
@@ -777,9 +777,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av.visit(VALUE, path);
                 av.visitEnd();
                 return path;
-            } else {
-                return originalMethod.getAnnotation(Path.class).value();
             }
+            return originalMethod.getAnnotation(Path.class).value();
         }
 
         private void addSwaggerMethodAnnotation(MethodVisitor mv, IOpenMember openMember, Method originalMethod, String nickname, PathItem

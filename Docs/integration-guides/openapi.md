@@ -63,3 +63,9 @@ Example:
 ```
 
 Properties come from the standard OpenL Rule Services configuration sources (`application.properties`, JVM `-D` system properties, environment variables, and so on).
+
+### Operation IDs
+
+An operation takes the name of its method as its operationId. Methods of the same name get an index: `calculate`, `calculate_1`, `calculate_2`.
+
+A name of a JavaScript object member also gets an index, for example `toString_1`, because Swagger UI and RapiDoc cannot load a schema with such an operationId. These names are `constructor`, `hasOwnProperty`, `isPrototypeOf`, `propertyIsEnumerable`, `toLocaleString`, `toString`, `valueOf`, `__defineGetter__`, `__defineSetter__`, `__lookupGetter__`, `__lookupSetter__` and `__proto__`. The rule applies to an operationId declared in an annotation template too. The path of the operation keeps the method name.

@@ -3,6 +3,7 @@ package org.openl.rules.openapi;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 
@@ -23,17 +24,35 @@ import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.XML;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Customization of the OpenAPI schema generation with the converters of common types.
  *
  * @apiNote Yury Molchan
  */
-public class OpenAPIConfiguration {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class OpenAPIConfiguration {
 
-    private OpenAPIConfiguration() {
-        // Utility class
-    }
+    /**
+     * Names an operationId must not take. An operation named so gets the name with an index.
+     *
+     * <p>They are the members of a JavaScript object. swagger-js, which Swagger UI and RapiDoc use, finds an
+     * operation by its operationId in a plain object, so any of these names fails the whole schema to load.
+     */
+    public static final Set<String> RESERVED_OPERATION_IDS = Set.of("constructor",
+            "hasOwnProperty",
+            "isPrototypeOf",
+            "propertyIsEnumerable",
+            "toLocaleString",
+            "toString",
+            "valueOf",
+            "__defineGetter__",
+            "__defineSetter__",
+            "__lookupGetter__",
+            "__lookupSetter__",
+            "__proto__");
 
     public static void configure() {
         // Stub method to trigger static initialization
@@ -93,7 +112,7 @@ public class OpenAPIConfiguration {
             // Configure converters in the needed order
             singleton.addConverter(getConverters(objectMapper));
 
-            var result = new Reader(openAPI).read(clazz);
+            var result = new OperationIdReader(openAPI).read(clazz);
 
             // Order alphabetically
             if (result.getComponents() != null) {
@@ -132,6 +151,26 @@ public class OpenAPIConfiguration {
                 // Restore in the revers order due addConverter put the element in the beginning of the list.
                 singleton.addConverter(converter);
             }
+        }
+    }
+
+    /**
+     * Reads the OpenAPI schema of a class. An operationId never takes a reserved name, whether it is declared or
+     * taken from the method name.
+     */
+    private static final class OperationIdReader extends Reader {
+
+        private OperationIdReader(OpenAPI openAPI) {
+            super(openAPI);
+        }
+
+        @Override
+        protected String getOperationId(String operationId) {
+            var id = operationId;
+            for (var c = 1; RESERVED_OPERATION_IDS.contains(id) || !id.equals(super.getOperationId(id)); c++) {
+                id = operationId + "_" + c;
+            }
+            return id;
         }
     }
 
