@@ -101,9 +101,21 @@ export function formatSchemaValidationError(name: string, error: z.ZodError): st
   return hints.length > 0 ? `${message}\n\n${hints.join(" ")}` : message;
 }
 
+/**
+ * The JSON Schema a tool publishes. Every agent loads it in every session, so it leaves out what tells the agent
+ * nothing: the dialect, and the bounds of a safe integer Zod puts on every integer. `executeTool` still validates the
+ * arguments with the Zod schema.
+ */
 function getInputSchema(schema: ZodType): Record<string, unknown> {
   // The input side: a field with a default may be omitted by the client.
-  const inputSchema = z.toJSONSchema(schema, { io: "input" }) as Record<string, unknown>;
+  const inputSchema = z.toJSONSchema(schema, {
+    io: "input",
+    override: ({ jsonSchema }) => {
+      if (jsonSchema.maximum === Number.MAX_SAFE_INTEGER) delete jsonSchema.maximum;
+      if (jsonSchema.minimum === Number.MIN_SAFE_INTEGER) delete jsonSchema.minimum;
+    },
+  }) as Record<string, unknown>;
+  delete inputSchema.$schema;
   // MCP tool input schemas always have an object root. Zod emits object-only
   // unions as a top-level anyOf without repeating that shared root type.
   inputSchema.type ??= "object";

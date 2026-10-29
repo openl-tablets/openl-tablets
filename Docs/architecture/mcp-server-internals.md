@@ -60,9 +60,10 @@ All paths are under `STUDIO/studio-mcp/src`.
    client of its own. The client also knows the address of OpenL Studio the caller opened, for
    `openl_get_server_info`, from `OpenL-Public-Url`.
 4. The server registers every tool; an unknown one answers with the `InvalidParams` error `Tool <name> not found` of
-   the SDK. Each tool is registered with a schema that publishes its JSON Schema and passes the arguments on;
-   `executeTool` validates them against the strict schema of the tool, nested keys included, with the hints of the
-   tool, and the handler runs.
+   the SDK. Each tool is registered with a schema that publishes its JSON Schema and passes the arguments on. The
+   published schema leaves out the dialect and the bounds of a safe integer Zod puts on every integer, which every
+   agent would load in every session and which tell it nothing; `executeTool` validates the arguments against the
+   strict schema of the tool, nested keys included, with the hints of the tool, and the handler runs.
 5. `OpenLClient` calls `/rest` of the address in `OpenL-Base-Url`, with a fixed timeout of 30 seconds per call. The
    `Authorization` header of the request, which Studio has checked at `/mcp`, goes to Studio as it is. The client keeps
    no cookie: Studio keeps the state of a client for its credential.

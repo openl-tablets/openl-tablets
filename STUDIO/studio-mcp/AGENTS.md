@@ -391,6 +391,9 @@ OpenL Studio and where the server keeps its state; the
   `replaceAll`, `at`, `Object.groupBy`, iterator helpers, `Set` methods, `Promise.withResolvers` — rather than
   hand-written equivalents.
 - Every tool schema is a `z.strictObject`: an unknown argument, also a nested one, is refused, not ignored.
+- An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
+  leaves out what tells it nothing: the `$schema` dialect and the safe-integer bounds of `.int()`. Zod still checks
+  them when the tool runs.
 - A mistake of the caller throws `ProtocolError` with `InvalidParams` or `InvalidRequest`; any other `Error` reaches
   the agent as an internal error.
 - Long work waits inside one call — `waitForResult` of `handlers/wait.ts` for Studio's `202 notReady` — honours the
