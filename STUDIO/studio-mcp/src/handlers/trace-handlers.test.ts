@@ -198,6 +198,34 @@ describe("trace tools", () => {
     expect(data.variables?.parameters[0].name).toBe("policy");
   });
 
+  it("openl_step_trace with withValues lists every step of the active frame once, with its value and cell", async () => {
+    const frame = suspendedStack.frames[0];
+    harness.mockHttp.onPost(`${projectPath}/trace/step`).reply(200, {
+      ...suspendedStack,
+      frames: [{ ...frame, steps: [
+        { ref: "R1C0", label: "$Factor", cell: "C11", status: "current" },
+        { ref: "R2C0", label: "$Total", cell: "C12", status: "pending" },
+      ] }],
+    });
+    harness.mockHttp.onGet(`${projectPath}/trace/frames/0/variables`).reply(200, {
+      parameters: [],
+      steps: [
+        { ref: "R0C0", label: "$Base", status: "executed", value: { name: "R0C0", lazy: false, value: 100 } },
+        { ref: "R1C0", label: "$Factor", status: "current" },
+      ],
+      errors: [],
+    });
+
+    const data = dataOf<any>(await executeTool("step_trace", { projectId, type: "over", withValues: true }, harness.client));
+
+    expect(data.frames[0].steps).toEqual([
+      { ref: "R0C0", label: "$Base", status: "executed", value: { name: "R0C0", lazy: false, value: 100 } },
+      { ref: "R1C0", label: "$Factor", cell: "C11", status: "current" },
+      { ref: "R2C0", label: "$Total", cell: "C12", status: "pending" },
+    ]);
+    expect(data.variables).toEqual({ parameters: [], errors: [] });
+  });
+
   it("openl_resume_trace resumes, polls the status until it leaves running, then returns the stack", async () => {
     harness.mockHttp.onPost(`${projectPath}/trace/resume`).reply(202);
     const statuses = ["running", "running", "suspended"];
