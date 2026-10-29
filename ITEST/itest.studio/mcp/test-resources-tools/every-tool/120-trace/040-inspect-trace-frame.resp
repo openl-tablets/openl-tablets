@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"parameters\":[{\"name\":\"driver\",\"description\":\"Driver\",\"lazy\":true,\"parameterId\":2}],\"context\":{\"name\":\"context\",\"description\":\"DefaultRulesRuntimeContext\",\"lazy\":false,\"value\":{}},\"steps\":[{\"ref\":\"R0C0\",\"label\":\"$Base\",\"status\":\"executed\",\"value\":{\"name\":\"R0C0\",\"lazy\":false,\"value\":100}},{\"ref\":\"R1C0\",\"label\":\"$Factor\",\"status\":\"current\"},{\"ref\":\"R2C0\",\"label\":\"$Total\",\"status\":\"pending\"}],\"gridColumns\":[\"Value\"],\"gridRows\":[\"Base\",\"Factor\",\"Total\"],\"errors\":[]}}"
+        "text": "{\"data\":{\"parameters\":[{\"name\":\"driver\",\"description\":\"Driver\",\"lazy\":true,\"parameterId\":2}],\"steps\":[{\"ref\":\"R0C0\",\"label\":\"$Base\",\"status\":\"executed\",\"value\":{\"value\":100}},{\"ref\":\"R1C0\",\"label\":\"$Factor\",\"status\":\"current\"},{\"ref\":\"R2C0\",\"label\":\"$Total\",\"status\":\"pending\"}],\"gridColumns\":[\"Value\"],\"gridRows\":[\"Base\",\"Factor\",\"Total\"]}}"
       }
     ],
     "resultType": "complete",

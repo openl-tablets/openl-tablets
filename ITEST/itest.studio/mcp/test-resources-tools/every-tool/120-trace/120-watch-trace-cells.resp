@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"series\":[{\"name\":\"$Factor\",\"table\":\"Premium\",\"tableUri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"points\":[{\"instance\":0,\"label\":\"Premium #1\",\"path\":[\"Premium\"],\"ref\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12#R1C0\",\"value\":{\"name\":\"$Factor\",\"description\":\"Double\",\"lazy\":false,\"value\":1.2}}],\"total\":1}],\"truncated\":false}}"
+        "text": "{\"data\":{\"series\":[{\"name\":\"$Factor\",\"table\":\"Premium\",\"tableUri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"points\":[{\"instance\":0,\"path\":[\"Premium\"],\"ref\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12#R1C0\",\"value\":{\"description\":\"Double\",\"value\":1.2}}],\"total\":1}],\"truncated\":false}}"
       }
     ],
     "resultType": "complete",

@@ -184,6 +184,41 @@ function unseenCellsNote(cells: string[], watch: Types.WatchView, whole: boolean
     : `No value of ${names} was captured before the capture ended: if the run should have reached it, ${check}`];
 }
 
+/** A traced value without `lazy: false`, its default, and without a name that `repeated` already tells. */
+function trimmedValue(value: Types.TraceParameterValue, repeated?: string): Partial<Types.TraceParameterValue> {
+  return Object.fromEntries(Object.entries(value)
+    .filter(([key, field]) => !(key === "lazy" && field === false) && !(key === "name" && field === repeated)));
+}
+
+/**
+ * The variables of a frame as the trace tools answer them: each value without its defaults, a step value without the
+ * ref of its step as its name, and without a runtime context that holds no field or a list of no errors.
+ */
+function trimmedVariables(variables: Types.DebugFrameVariables): Partial<Types.DebugFrameVariables> {
+  const trimmed = (key: string, value: unknown): [string, unknown] | [] => {
+    switch (key) {
+      case "parameters":
+        return [key, (value as Types.TraceParameterValue[]).map((parameter) => trimmedValue(parameter))];
+      case "context": {
+        const context = value as Types.TraceParameterValue;
+        const fields = context.value;
+        const empty = typeof fields === "object" && fields !== null && !Array.isArray(fields) && Object.keys(fields).length === 0;
+        return empty ? [] : [key, trimmedValue(context)];
+      }
+      case "result":
+        return [key, trimmedValue(value as Types.TraceParameterValue)];
+      case "steps":
+        return [key, (value as Types.DebugFrameVariables["steps"]).map((step) =>
+          (step.value ? { ...step, value: trimmedValue(step.value, step.ref) } : step))];
+      case "errors":
+        return (value as unknown[]).length === 0 ? [] : [key, value];
+      default:
+        return [key, value];
+    }
+  };
+  return Object.fromEntries(Object.entries(variables).map(([key, value]) => trimmed(key, value)).filter((entry) => entry.length > 0));
+}
+
 /**
  * A stack as the trace tools answer it, without what tells an agent nothing: the id of the session, which no tool
  * takes, and of each frame its depth when it follows the index, its active flag, which the last frame carries, its
@@ -346,7 +381,7 @@ export function registerTraceHandlers(): void {
       const active = stack.frames.find((f) => f.active) ?? stack.frames.at(-1);
       if (args.withValues && stack.status === "suspended" && active) {
         const variables = await client.getTraceFrameVariables(args.projectId, active.index, INSPECT_FIELDS);
-        result = compactStack(withStepValues(stack, active.index, withoutUnsetContext(variables)));
+        result = compactStack(withStepValues(stack, active.index, trimmedVariables(withoutUnsetContext(variables)) as Types.DebugFrameVariables));
       }
 
       return formatResult(result);
@@ -457,7 +492,7 @@ export function registerTraceHandlers(): void {
         args.projectId,
       );
 
-      let result: unknown = variables;
+      let result: unknown = trimmedVariables(variables);
       if (overlay) {
         const [highlights, stack] = await overlay;
         // The overlay is keyed by A1 cell address; the grid to paint it on comes
@@ -466,7 +501,7 @@ export function registerTraceHandlers(): void {
         const grid = frame
           ? await client.getTable(args.projectId, frame.tableId)
           : undefined;
-        result = { ...variables, highlights, grid };
+        result = { ...trimmedVariables(variables), highlights, grid };
       }
 
       return formatResult(result);
@@ -580,7 +615,7 @@ export function registerTraceHandlers(): void {
     compiled: true,
     title: "Watch Cells Across a Run",
     description:
-      "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, label, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. A series lists its first 100 points: one marked 'truncated' leaves later executions out, which its 'total' counts, and a 'note' tells when the run reached its capture limit, after which the totals count only what it captured. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
+      "Watch scalar cells, such as '$VehiclePriceFactor', across a whole run: one 'series' per cell, with a point for each execution of its table (instance, ref, path and the value; a large value comes lazy, expanded by openl_get_trace_value with its parameterId). Do not watch a cell holding an aggregate, such as a whole spreadsheet result: every point would carry it; break on it and inspect the frame instead. To see why a point stands out, break on '<point.ref>@<point.instance>' and replay. A series lists its first 100 points: one marked 'truncated' leaves later executions out, which its 'total' counts, and a 'note' tells when the run reached its capture limit, after which the totals count only what it captured. testRanges or inputJson give the input, as for openl_start_trace. The call starts a new session, clears the breakpoints and runs to the end; value schemas are left out unless withSchema: true.",
     schema: schemas.watchTraceCellsSchema,
     annotations: {
       destructiveHint: false,
@@ -610,9 +645,14 @@ export function registerTraceHandlers(): void {
 
       // Studio cuts each series to its first points and says so only by its total, and it stops capturing at a
       // limit for the whole run, after which the totals count what was captured: both are told
-      const series = watch.series.map((one) => (one.points.length < (one.total ?? 0) ? { ...one, truncated: true } : one));
+      // A point names its value as the series does, and counts its executions by its 0-based instance alone
+      const series = watch.series.map((one) => ({
+        ...one,
+        points: one.points.map(({ label, value, ...point }) => (value ? { ...point, value: trimmedValue(value, one.name) } : point)),
+        ...(one.points.length < (one.total ?? 0) ? { truncated: true } : {}),
+      }));
       const notes = [
-        ...(series.some((one) => "truncated" in one) ? [
+        ...(series.some((one) => one.truncated) ? [
           "A series marked truncated lists its first points only, its 'total' counting them all: reach a later " +
             "execution with a '<ref>@N' breakpoint.",
         ] : []),
