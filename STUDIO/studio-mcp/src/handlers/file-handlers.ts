@@ -17,7 +17,7 @@ export function registerFileHandlers(): void {
     name: "read_project_file",
     title: "Read Project File",
     description:
-      "Read a file of a project by its project-relative path. Maps to GET /projects/{projectId}/files/{path}. " +
+      "Read a file of a project by its project-relative path. " +
       `A text file of up to ${INLINE_TEXT_BYTES} bytes — text as the Content-Type OpenL Studio answers for it says: text/*, JSON, XML or YAML — is returned inline, verbatim. ` +
       "Any other file — a larger text, a workbook, an image, an archive — and a folder, as a ZIP archive, is returned as a download LINK: JSON with the url, a ready `curl` command that saves it locally, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
       "Run the curl command in a shell: the bytes never enter the conversation. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and may be fetched again; an agent that has the repository itself can read repositoryPath there instead. " +
@@ -126,7 +126,7 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or folder from a project by its project-relative path. Maps to DELETE /projects/{projectId}/files/{path}. A file is deleted by the 'version' openl_read_project_file answered for it, which is required: Studio deletes nothing when the file changed since — on disk or through another client. A folder is deleted without it. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
+      "Delete a file or folder from a project by its project-relative path. A file is deleted by the 'version' openl_read_project_file answered for it, which is required: Studio deletes nothing when the file changed since — on disk or through another client. A folder is deleted without it. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
@@ -159,7 +159,7 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search a project's files and folders by ant-glob path 'pattern' (e.g. 'rules/**/*.xlsx'), file 'extensions', resource 'type' (FILE/FOLDER/ANY), and/or a case-insensitive 'content' substring. Maps to POST /projects/{projectId}/file-search. CONTENT LIMITATION: Studio searches inside TEXT files only. It does not inspect binary formats such as XLSX/XLS/ZIP/images; find those only by path pattern, extension, or name, then read/download them separately. Combining content with a binary-only pattern or extension therefore returns no matches even when that text is visible in an Excel workbook. IMPORTANT: set recursive=true to search nested folders — by default (recursive omitted/false) only the project's TOP LEVEL is searched, and a '**' glob alone does NOT descend (so a project-wide search needs recursive=true, and to match files in subfolders use a '**/' pattern such as '**/*.xlsx', not '*.xlsx'). Scope SUBTREE (default) searches within the project and may target a historical 'version'; scope ANCESTORS walks up to the repository root. Returns matching nodes (path, name, type, size, ...), paginated client-side via 'limit'/'offset' (the response carries pagination metadata; the server returns the full match set). Use 'branch' to pin the project's branch. Use this for questions like \"where is portability loading mentioned in XML or Markdown?\" (content, recursive=true) or \"list every xlsx under rules\" (pattern '**/*.xlsx', recursive=true, without content). To LIST a folder, search 'from' it with no other criteria (recursive=true for its whole subtree); every match carries its size and lastModified, so no separate metadata read is needed.",
+      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' (FILE, FOLDER or ANY) and a case-insensitive 'content' substring. Content is found in text files only, never inside XLSX, XLS, ZIP or images: find those by path or extension. Only the top level is searched unless recursive=true, even with a '**' glob; match files in subfolders with a '**/' pattern, such as '**/*.xlsx'. Scope SUBTREE, the default, searches the project, also at an earlier 'version'; ANCESTORS walks up to the root of the repository. To list a folder, search 'from' it with no other criteria. Each match carries its path, name, type, size and lastModified; the answer is paged by limit and offset. 'branch' pins the branch of the project.",
     schema: schemas.searchProjectFilesSchema,
     annotations: {
       readOnlyHint: true,
@@ -197,7 +197,7 @@ export function registerFileHandlers(): void {
     name: "copy_project_file",
     title: "Copy Project File",
     description:
-      "Copy a file within a project to a new project-relative path. Maps to POST /projects/{projectId}/file-copy. Intermediate destination folders are created automatically. There is NO overwrite option — if destinationPath already exists the call fails with HTTP 409; choose a different destination or delete the existing file first. The copy is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to scaffold a new module from an existing one or clone a test set.",
+      "Copy a file within a project to a new project-relative path. Intermediate destination folders are created automatically. There is NO overwrite option — if destinationPath already exists the call fails with HTTP 409; choose a different destination or delete the existing file first. The copy is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to scaffold a new module from an existing one or clone a test set.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,
@@ -209,7 +209,7 @@ export function registerFileHandlers(): void {
     name: "move_project_file",
     title: "Move or Rename Project File",
     description:
-      "Move or rename a file within a project. Maps to POST /projects/{projectId}/file-move. Intermediate destination folders are created automatically and the source file is deleted after the move. A destination collision fails with HTTP 409. The move is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to rename a file or relocate it to another folder.",
+      "Move or rename a file within a project. Intermediate destination folders are created automatically and the source file is deleted after the move. A destination collision fails with HTTP 409. The move is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to rename a file or relocate it to another folder.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,
