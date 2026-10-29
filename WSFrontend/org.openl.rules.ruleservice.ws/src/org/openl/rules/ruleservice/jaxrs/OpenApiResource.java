@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.jaxrs;
 
 import java.lang.ref.SoftReference;
-import java.util.function.Function;
+import java.util.function.Supplier;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -24,48 +24,49 @@ import org.jspecify.annotations.Nullable;
 /**
  * A REST service for providing OpenAPI schema for each OpenL service independently.
  *
+ * <p>The schema is built once for both formats and all requests: a big service takes seconds to describe. The server
+ * of the schema is the address it is requested from, without the query, so a schema requested through another host
+ * or proxy names that one.
+ *
  * @author Yury Molchan
  */
 @Path("/openapi.{type:json|yaml}")
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public class OpenApiResource {
 
-    private final Function<UriInfo, OpenAPI> processor;
-    private SoftReference<OpenAPI> model; // Cached OpenAPI schema both formats are written from
-    private SoftReference<String> jsonApi; // Cached OpenAPI schema in JSON format
-    private SoftReference<String> yamlApi; // Cached OpenAPI schema in YAML format
+    private static final String YAML_MEDIA_TYPE = "application/yaml";
+
+    private final Supplier<OpenAPI> processor;
+    private @Nullable SoftReference<Documents> documents;
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, "application/yaml"})
+    @Produces({MediaType.APPLICATION_JSON, YAML_MEDIA_TYPE})
     @Operation(hidden = true)
     public Response getOpenAPI(@Context UriInfo uriInfo,
                                @Nullable @PathParam("type") String type) throws JsonProcessingException {
-        if (StringUtils.isNotBlank(type) && "yaml".equalsIgnoreCase(type.trim())) {
-            var openAPI = yamlApi != null ? yamlApi.get() : null;
-            if (openAPI == null) {
-                openAPI = Yaml.mapper().writeValueAsString(getModel(uriInfo));
-                yamlApi = new SoftReference<>(openAPI);
-            }
-            return Response.status(Response.Status.OK).entity(openAPI).type("application/yaml").build();
+        var serverUrl = StringUtils.substringBeforeLast(uriInfo.getAbsolutePath().toString(), "/");
+        var written = getDocuments();
+        if (type != null && "yaml".equalsIgnoreCase(type.trim())) {
+            return Response.ok(withServer(written.yaml(), serverUrl), YAML_MEDIA_TYPE).build();
         }
-        var openAPI = jsonApi != null ? jsonApi.get() : null;
-        if (openAPI == null) {
-            openAPI = Json.mapper().writeValueAsString(getModel(uriInfo));
-            jsonApi = new SoftReference<>(openAPI);
-        }
-        return Response.status(Response.Status.OK).entity(openAPI).type(MediaType.APPLICATION_JSON_TYPE).build();
+        return Response.ok(withServer(written.json(), serverUrl), MediaType.APPLICATION_JSON).build();
     }
 
-    /**
-     * Returns the OpenAPI schema of the service. It is built once for both formats: a big service takes seconds to
-     * describe.
-     */
-    private OpenAPI getModel(UriInfo uriInfo) {
-        var openAPI = model != null ? model.get() : null;
-        if (openAPI == null) {
-            openAPI = processor.apply(uriInfo);
-            model = new SoftReference<>(openAPI);
+    private synchronized Documents getDocuments() throws JsonProcessingException {
+        var written = documents != null ? documents.get() : null;
+        if (written == null) {
+            var openAPI = processor.get();
+            written = new Documents(Json.mapper().writeValueAsString(openAPI), Yaml.mapper().writeValueAsString(openAPI));
+            documents = new SoftReference<>(written);
         }
-        return openAPI;
+        return written;
+    }
+
+    private static String withServer(String document, String serverUrl) {
+        return document.replace(DefaultOpenApiProcessor.REQUEST_SERVER_URL, serverUrl);
+    }
+
+    /** The schema of the service in both formats. The server it is requested from is not named yet. */
+    private record Documents(String json, String yaml) {
     }
 }

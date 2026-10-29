@@ -30,6 +30,10 @@ To change the output of openapi.json, create the `openapi-configuration.json` fi
 
 For the description of the `openapi-configuration.json` file, see "[Swagger 2.X Integration and Configuration](https://github.com/swagger-api/swagger-core/wiki/Swagger-2.X---Integration-and-Configuration#configuration)".
 
+### Server URL
+
+The first server of the schema is the address the schema is requested from, without the query. A schema requested through a proxy or another host names that address, in both openapi.json and openapi.yaml. Servers listed in `openapi-configuration*.json` follow it.
+
 ### Multiple Configuration Files
 
 OpenL Rule Services scans the classpath for every file matching the `openapi-configuration*.json` pattern and merges them on top of the auto-generated schema. This makes it possible to split overrides across modules or layer environment-specific tweaks on top of a shared base.

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import jakarta.ws.rs.core.UriInfo;
+import java.util.function.Supplier;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +20,7 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -143,20 +144,23 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         }
     }
 
-    private Function<UriInfo, OpenAPI> buildOpenApiProcessor(Class<?> serviceClass,
-                                                             ObjectMapper serviceObjectMapper,
-                                                             OpenLService service) throws RuleServiceInstantiationException {
+    private Supplier<OpenAPI> buildOpenApiProcessor(Class<?> serviceClass,
+                                                    ObjectMapper serviceObjectMapper,
+                                                    OpenLService service) throws RuleServiceInstantiationException {
         var openApiMapper = Json.mapper().copy().setDefaultMergeable(true);
-        Function<UriInfo, OpenAPI> chain = new DefaultOpenApiProcessor(openApiMapper, service.getName());
+        var defaults = new DefaultOpenApiProcessor(openApiMapper, service.getName());
+        Function<OpenAPI, OpenAPI> chain = Function.identity();
         if (authenticationEnabled) {
             chain = chain.andThen(new SecurityOpenApiProcessor(openApiMapper));
         }
-        return chain.andThen(new CustomOpenApiProcessor(openApiMapper, service.getClassLoader(), environment))
+        var processors = chain
+                .andThen(new CustomOpenApiProcessor(openApiMapper, service.getClassLoader(), environment))
                 .andThen(new FinalizingOpenApiProcessor(serviceClass, serviceObjectMapper));
+        return () -> processors.apply(defaults.get());
     }
 
     @Override
-    public OpenLService getServiceByDeploy(String deployPath) {
+    public @Nullable OpenLService getServiceByDeploy(String deployPath) {
         Objects.requireNonNull(deployPath, "deployPath cannot be null");
         for (OpenLService service : runningServices.keySet()) {
             if (Objects.equals(service.getDeployPath(), deployPath)) {
