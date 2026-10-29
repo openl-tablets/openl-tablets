@@ -167,6 +167,10 @@ previous); idle sessions are reaped after ~10 minutes.
 - `openl_watch_trace_cells` - Watch **scalar** cells (a single number/string factor, e.g. `['$VehiclePriceFactor']`) across a whole run and return one series per cell with its value at every execution of its table — "show me this factor across all coverages" without dumping frames; spot the outlier, then jump straight to that pass with a `<point.ref>@<point.instance>` breakpoint + replay. Do NOT watch a cell whose value is a big aggregate object (a whole spreadsheet result like `$RateCardPremium`) — it makes every point huge; drill into an aggregate with a breakpoint + inspect instead. Captures cells inside lazy result branches too. Each point's value is a ParameterValue (lazy when large — expand with `openl_get_trace_value`); value JSON Schemas are omitted unless `withSchema: true`. It starts a new session, ending the current one, clears the breakpoints before the run and the watches after it, and tells a cell name the run never computed and a run that stopped before its end. A series lists its first 100 points and is marked `truncated` when its `total` counts more (reach a later execution with a `<ref>@N` breakpoint); a `note` tells when the run reached its capture limit, after which the totals count only what it captured
 - `openl_stop_trace` - Terminate the session (idempotent; breakpoints survive)
 
+A stack lists its frames from the root to the active one, the last, and only the active frame lists its steps. A
+frame names its `depth` only when it differs from `index` + 1, its `completed` and `error` flags only when true, and its
+`location` only when no listed current step repeats it; the stack names no session id, which no tool takes.
+
 Lifecycle (status values are lowercase): `running ⇄ suspended → completed | error | terminated`.
 Stepping and inspection are valid only while `suspended`; on a terminal status read the
 final state (structured `error`, profiling `profile`/`tree`) from the stack that the last

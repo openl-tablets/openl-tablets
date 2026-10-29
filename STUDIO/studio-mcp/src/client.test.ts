@@ -622,7 +622,7 @@ describe("OpenLClient", () => {
       const stack = await client.startTrace({ projectId: "p1", tableId: "calc_42", inputJson: { params: { age: 30 } } });
 
       const [request] = mockHttp.history.post;
-      expect(queryOf(request)).toEqual({ tableId: "calc_42" });
+      expect(queryOf(request)).toEqual({ tableId: "calc_42", view: "compact" });
       expect(bodyOf(request)).toEqual({ params: { age: 30 } });
       expect(request.headers["Content-Type"]).toBe("application/json");
       expect(stack).toEqual(suspendedStack);
@@ -655,6 +655,7 @@ describe("OpenLClient", () => {
         breakOnErrors: "false",
         includeTree: "false",
         profileTop: "30",
+        view: "compact",
       });
       expect(request.data).toBeUndefined();
     });

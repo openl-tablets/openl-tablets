@@ -30,6 +30,33 @@ describe("trace tools", () => {
     await expect(executeTool(tool, { projectId, ...args }, harness.client)).rejects.toThrow(message);
   });
 
+  it("openl_start_trace answers the compact stack without the fields that tell an agent nothing", async () => {
+    harness.mockHttp.onPost(`${projectPath}/trace`).reply(200, {
+      status: "suspended",
+      sessionId: "s-1",
+      frames: [
+        { index: 0, depth: 1, uri: "u0", tableId: "t0", name: "Premium", kind: "spreadsheet", active: false,
+          completed: false, error: false, location: { kind: "cell", ref: "R1C0", label: "$Factor" } },
+        { index: 1, depth: 2, uri: "u1", tableId: "t1", name: "AgeFactor", kind: "decisionTable", active: true,
+          completed: false, error: false, location: { kind: "dtrule", ref: "R2" },
+          steps: [{ ref: "R2", label: "R2", status: "current" }] },
+      ],
+    });
+
+    const data = dataOf<any>(await executeTool("start_trace", { projectId, tableId: "t0" }, harness.client));
+
+    expect(queryOf(harness.mockHttp.history.post[0]).view).toBe("compact");
+    expect(data).toEqual({
+      status: "suspended",
+      frames: [
+        { index: 0, uri: "u0", tableId: "t0", name: "Premium", kind: "spreadsheet",
+          location: { kind: "cell", ref: "R1C0", label: "$Factor" } },
+        { index: 1, uri: "u1", tableId: "t1", name: "AgeFactor", kind: "decisionTable",
+          steps: [{ ref: "R2", label: "R2", status: "current" }] },
+      ],
+    });
+  });
+
   it("openl_start_trace replaces the breakpoint set BEFORE starting when breakpoints are given", async () => {
     const calls: string[] = [];
     harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply((config) => {

@@ -1528,6 +1528,8 @@ export class OpenLClient {
       breakOnErrors: request.breakOnErrors,
       includeTree: request.includeTree,
       profileTop: request.profileTop,
+      // Only the active frame lists its steps, as a step and a resume answer
+      view: "compact",
     };
     const url = `${projectPath(request.projectId)}/trace`;
     return (await this.http.post<Types.DebugStackView>(url, request.inputJson, { params })).data;
