@@ -129,6 +129,19 @@ async function filterSteps(
 }
 
 /**
+ * The variables of a frame without the fields of the runtime context the run left unset: a context has a dozen
+ * fields, mostly null, which every inspection would repeat.
+ */
+function withoutUnsetContext(variables: Types.DebugFrameVariables): Types.DebugFrameVariables {
+  const value = variables.context?.value;
+  if (!variables.context || value === null || typeof value !== "object" || Array.isArray(value)) {
+    return variables;
+  }
+  const set = Object.fromEntries(Object.entries(value).filter(([, field]) => field !== null));
+  return { ...variables, context: { ...variables.context, value: set } };
+}
+
+/**
  * Shared 404 guidance: the debug session belongs to the client and is idle-reaped.
  * Interpolated by both rethrow helpers so the wording stays in one place.
  */
@@ -266,7 +279,7 @@ export function registerTraceHandlers(): void {
       const active = stack.frames.find((f) => f.active) ?? stack.frames.at(-1);
       if (args.withValues && stack.status === "suspended" && active) {
         const variables = await client.getTraceFrameVariables(args.projectId, active.index, INSPECT_FIELDS);
-        result = { ...stack, variables };
+        result = { ...stack, variables: withoutUnsetContext(variables) };
       }
 
       return formatResult(result);
@@ -367,7 +380,7 @@ export function registerTraceHandlers(): void {
       ).catch((error: unknown) => rethrowTraceStateError(error, "frame inspection"));
 
       const variables = await filterSteps(
-        frameVariables,
+        withoutUnsetContext(frameVariables),
         { onlyExecuted: args.onlyExecutedSteps, excludeValues: args.excludeStepValues },
         client,
         args.projectId,
