@@ -513,9 +513,17 @@ describe("project branch and merge handlers", () => {
     const response = await executeTool("delete_project", {
       projectId: "p1", confirmProjectName: "Rating", comment: "Remove retired project", }, harness.client);
     expect(harness.mockHttp.history.delete[0].params).toEqual({ comment: "Remove retired project" });
-    expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      success: true, projectName: "Rating",
-    });
+    // A repository without branches deletes the project as a whole
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ success: true, deleted: true });
+  });
+
+  it("tells that a project is deleted on its current branch only", async () => {
+    harness.mockHttp.onGet("/projects/p1").reply(200, { id: "p1", name: "Rating", branch: "feature" });
+    harness.mockHttp.onDelete("/projects/p1").reply(204);
+
+    const response = await executeTool("delete_project", { projectId: "p1", confirmProjectName: "Rating" }, harness.client);
+
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ success: true, deletedOnBranch: "feature" });
   });
 
   it("protects base/protected branches and preserves slashes when force-deleting", async () => {
