@@ -139,7 +139,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Get Table Structure & Data",
     description:
-      "Get a table as its authoritative RawSource 2D cell matrix. Cell values are scalar string/number/boolean/null values or Studio's one-dimensional multi-value arrays; representable values can be submitted unchanged through every raw write tool. Typed/parsed table views are intentionally unsupported because they are incomplete and cannot safely round-trip workbook content. Every answer states its rows in 'window' next to the data: startRow, endRow, rows, totalRows, complete (whether it holds every row of the table) and nextStartRow while rows remain. startRow/maxRows read a large table in row slices of exactly those rows (a windowed response carries totalRows; a merged cell cut at the edge of a slice keeps its value and names its whole area in mergedArea), and styles=true adds each cell's Excel style. A window cannot replace the whole table: openl_update_table rejects totalRows and independently refuses a source with fewer rows than the live table, so removing the marker cannot erase omitted rows. For a large table whose complete response becomes a preview, use openl_edit_table instead. A table keeps its id while it is edited or moved; Studio still serves an id from before a rename, and answers 410 for a deleted table. The answer carries the 'version' of the table: pass it to the edit tools, so that an edit over a table changed since — in Excel, on disk or through another client — is refused instead of overwriting that change.",
+      "Get a table as its authoritative RawSource 2D cell matrix. A cell carries no address of its own: the cell in row r and column c of 'source' lies window.startRow + r rows below and c columns right of the first cell of 'pos', which names the whole table also for a slice; compilation messages name cells by those addresses. Cell values are scalar string/number/boolean/null values or Studio's one-dimensional multi-value arrays; representable values can be submitted unchanged through every raw write tool. Typed/parsed table views are intentionally unsupported because they are incomplete and cannot safely round-trip workbook content. Every answer states its rows in 'window' next to the data: startRow, endRow, rows, totalRows, complete (whether it holds every row of the table) and nextStartRow while rows remain. startRow/maxRows read a large table in row slices of exactly those rows (a windowed response carries totalRows; a merged cell cut at the edge of a slice keeps its value and names its whole area in mergedArea), and styles=true adds each cell's Excel style. A window cannot replace the whole table: openl_update_table rejects totalRows and independently refuses a source with fewer rows than the live table, so removing the marker cannot erase omitted rows. For a large table whose complete response becomes a preview, use openl_edit_table instead. A table keeps its id while it is edited or moved; Studio still serves an id from before a rename, and answers 410 for a deleted table. The answer carries the 'version' of the table: pass it to the edit tools, so that an edit over a table changed since — in Excel, on disk or through another client — is refused instead of overwriting that change.",
     schema: schemas.getTableSchema,
     annotations: {
       readOnlyHint: true,
@@ -152,7 +152,7 @@ export function registerTableHandlers(): void {
       // Studio names the rows of the table only when the window leaves some out
       const totalRows = table.totalRows ?? startRow + table.source.length;
 
-      return formatResult(table, "json", { truncation: rowTruncation(table, startRow, totalRows) });
+      return formatResult(withoutAddresses(table), "json", { truncation: rowTruncation(table, startRow, totalRows) });
     },
   });
 
@@ -262,10 +262,18 @@ function rowTruncation(table: Types.RawTableView, startRow: number, totalRows: n
   return {
     items: table.source.length,
     unit: "rows",
-    cut: (count) => ({ ...table, source: leadingRows(table.source, count), totalRows }),
+    cut: (count) => withoutAddresses({ ...table, source: leadingRows(table.source, count), totalRows }),
     next: (count) => `continue with startRow=${startRow + count}`,
     metadata: (count) => ({ window: rowWindow(startRow, count, totalRows) }),
   };
+}
+
+/**
+ * A table read without the A1 address of each cell, which its position in the source and the `pos` of the table
+ * give: the addresses take about 40% of a read.
+ */
+function withoutAddresses(table: Types.RawTableView): Types.RawTableView {
+  return { ...table, source: table.source.map((row) => row.map(({ cell, ...rest }) => rest)) };
 }
 
 /**

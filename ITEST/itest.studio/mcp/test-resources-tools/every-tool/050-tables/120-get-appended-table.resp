@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"startRow\":0,\"endRow\":3,\"rows\":4,\"totalRows\":4,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"pos\":\"B2:C5\",\"source\":[[{\"cell\":\"B2\",\"value\":\"Datatype Driver\",\"colspan\":2},{\"covered\":true}],[{\"cell\":\"B3\",\"value\":\"String\"},{\"cell\":\"C3\",\"value\":\"name\"}],[{\"cell\":\"B4\",\"value\":\"Integer\"},{\"cell\":\"C4\",\"value\":\"age\"}],[{\"cell\":\"B5\",\"value\":\"Boolean\"},{\"cell\":\"C5\",\"value\":\"married\"}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"startRow\":0,\"endRow\":3,\"rows\":4,\"totalRows\":4,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Datatype\",\"name\":\"Driver\",\"pos\":\"B2:C5\",\"source\":[[{\"value\":\"Datatype Driver\",\"colspan\":2},{\"covered\":true}],[{\"value\":\"String\"},{\"value\":\"name\"}],[{\"value\":\"Integer\"},{\"value\":\"age\"}],[{\"value\":\"Boolean\"},{\"value\":\"married\"}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
       }
     ],
     "resultType": "complete",

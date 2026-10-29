@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"window\":{\"startRow\":0,\"endRow\":4,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:C6\",\"source\":[[{\"cell\":\"B2\",\"value\":\"SimpleRules String Grade(Integer score)\",\"colspan\":2},{\"covered\":true}],[{\"cell\":\"B3\",\"value\":\"Score\"},{\"cell\":\"C3\",\"value\":\"Grade\"}],[{\"cell\":\"B4\",\"value\":\"< 50\"},{\"cell\":\"C4\",\"value\":\"F\"}],[{\"cell\":\"B5\",\"value\":\">= 50\"},{\"cell\":\"C5\",\"value\":\"P\"}],[{\"cell\":\"B6\",\"value\":\">= 90\"},{\"cell\":\"C6\",\"value\":\"A+\"}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
+        "text": "{\"window\":{\"startRow\":0,\"endRow\":4,\"rows\":5,\"totalRows\":5,\"complete\":true},\"data\":{\"id\":\"*\",\"tableType\":\"RawSource\",\"kind\":\"Rules\",\"name\":\"Grade\",\"pos\":\"B2:C6\",\"source\":[[{\"value\":\"SimpleRules String Grade(Integer score)\",\"colspan\":2},{\"covered\":true}],[{\"value\":\"Score\"},{\"value\":\"Grade\"}],[{\"value\":\"< 50\"},{\"value\":\"F\"}],[{\"value\":\">= 50\"},{\"value\":\"P\"}],[{\"value\":\">= 90\"},{\"value\":\"A+\"}]],\"headerHeight\":1,\"version\":\"@@@\"}}"
       }
     ],
     "resultType": "complete",
