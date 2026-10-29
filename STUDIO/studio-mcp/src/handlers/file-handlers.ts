@@ -65,7 +65,9 @@ export function registerFileHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const { projectId, path } = args;
-      const at = { version: args.version, branch: args.branch };
+      const at = { version: args.revision, branch: args.branch };
+      // The content of an earlier commit replaces nothing: only the version of the working copy is told
+      const current = (version: string | undefined): string | undefined => (args.revision ? undefined : version);
       const meta = isFolderPath(path) ? undefined : await client.getProjectFileMeta(projectId, path, at);
       if (!meta || meta.type === "folder") {
         return formatResult(await downloadLink(client, { kind: "archive", projectId, path, ...at }),
@@ -75,11 +77,12 @@ export function registerFileHandlers(): void {
         const text = inlineText(await client.readProjectFile(projectId, path, at));
         if (text !== undefined) {
           // The text stays verbatim: its version is told apart from it
-          return { content: [{ type: "text", text }, ...versionNote(meta.version)] };
+          return { content: [{ type: "text", text }, ...versionNote(current(meta.version))] };
         }
       }
       const link = await downloadLink(client, { kind: "download", projectId, path, ...at }, meta.size);
-      return formatResult(meta.version === undefined ? link : { ...link, version: meta.version });
+      const version = current(meta.version);
+      return formatResult(version === undefined ? link : { ...link, version });
     },
   });
 
@@ -189,7 +192,7 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' (FILE, FOLDER or ANY) and a case-insensitive 'content' substring. Content is found in text files only, never inside XLSX, XLS, ZIP or images: find those by path or extension. Only the top level is searched unless recursive=true, even with a '**' glob; match files in subfolders with a '**/' pattern, such as '**/*.xlsx'. Scope SUBTREE, the default, searches the project, also at an earlier 'version'; ANCESTORS walks up to the root of the repository. To list a folder, search 'from' it with no other criteria. Each match carries its path, name, type, size and lastModified; the answer is paged by limit and offset. 'branch' pins the branch of the project.",
+      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' (FILE, FOLDER or ANY) and a case-insensitive 'content' substring. Content is found in text files only, never inside XLSX, XLS, ZIP or images: find those by path or extension. Only the top level is searched unless recursive=true, even with a '**' glob; match files in subfolders with a '**/' pattern, such as '**/*.xlsx'. Scope SUBTREE, the default, searches the project, also at an earlier 'revision'; ANCESTORS walks up to the root of the repository. To list a folder, search 'from' it with no other criteria. Each match carries its path, name, type, size and lastModified; the answer is paged by limit and offset. 'branch' pins the branch of the project.",
     schema: schemas.searchProjectFilesSchema,
     annotations: {
       readOnlyHint: true,
@@ -206,7 +209,7 @@ export function registerFileHandlers(): void {
         extensions: args.extensions,
         type: args.type,
         scope: args.scope,
-        version: args.version,
+        version: args.revision,
         ...searchStart(args),
       };
 

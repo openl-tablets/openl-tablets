@@ -792,10 +792,10 @@ export const readProjectFileSchema = z.strictObject({
     .describe(
       "Project-relative path of a file (e.g. 'rules.xml', 'rules/Model.xlsx'), or of a folder ('rules/', or empty for the project root), which is answered as a ZIP archive by link. List a folder with openl_search_project_files."
     ),
-  version: z
+  revision: z
     .string()
     .optional()
-    .describe("Historical revision (commit hash) to read. Omit to read the working copy. An unknown revision yields 404."),
+    .describe("A commit to read the file at, as openl_repository_project_revisions lists it; omit for the working copy. Not the 'version' a write or a deletion takes, which the answer then leaves out."),
   branch: fileBranchSchema,
 });
 
@@ -880,10 +880,10 @@ export const searchProjectFilesSchema = z.strictObject({
     .string()
     .optional()
     .describe("A project-relative folder: SUBTREE lists its entries, everything under it with recursive; ANCESTORS walks up from it."),
-  version: z
+  revision: z
     .string()
     .optional()
-    .describe("Historical revision (commit hash) to search; SUBTREE scope only."),
+    .describe("A commit to search the files at, SUBTREE scope only; omit for the working copy."),
   branch: fileBranchSchema,
   fields: z
     .string()
