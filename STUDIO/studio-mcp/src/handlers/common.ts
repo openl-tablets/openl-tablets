@@ -14,7 +14,7 @@ import { z, type ZodType } from "zod";
 import type { OpenLClient } from "../client.js";
 import type { ResponseFormat } from "../types.js";
 import { sanitizeError, extractApiErrorInfo, sanitizeJson, type ExtractedErrorInfo } from "../utils.js";
-import { isConflictError, isHttpError, type HttpError } from "../http.js";
+import { isHttpError, type HttpError } from "../http.js";
 import { formatResponse, type FormatOptions } from "../formatters.js";
 import { refreshWhenChangedOnDisk } from "./freshness.js";
 
@@ -202,20 +202,6 @@ async function keepCurrent(
     return;
   }
   await refreshWhenChangedOnDisk(client, projectId, extra?.signal);
-}
-
-/**
- * Rethrow an HTTP 409 (conflict) as a ProtocolError with the given actionable message; rethrow anything else
- * unchanged so it reaches {@link handleToolError}.
- *
- * Only for a call whose 409 Studio explains in no words of its own: a copy or a move onto a file that exists answers
- * "Failed to copy the resource.".
- */
-export function rethrowConflictAsActionable(error: unknown, conflictMessage: string): never {
-  if (isConflictError(error)) {
-    throw new ProtocolError(ProtocolErrorCode.InvalidRequest, conflictMessage);
-  }
-  throw error;
 }
 
 /** Caps how many field/global error lines are folded into one error message. */

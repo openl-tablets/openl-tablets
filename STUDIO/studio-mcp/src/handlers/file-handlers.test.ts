@@ -356,6 +356,7 @@ describe("openl_write_project_file", () => {
 
   it("tells to read the version of a file already at the path, which a write without one leaves as it is", async () => {
     harness.mockHttp.onPost("/projects/p1/files/docs/x.md").reply(409, { message: "A file already exists at 'docs/x.md'." });
+    answerMeta("docs/x.md", 2);
 
     await expect(executeTool("write_project_file", { projectId: "p1", path: "docs/x.md", content: "v2" },
       harness.client)).rejects.toThrow(/read it with openl_read_project_file and pass the 'version'/);
@@ -570,11 +571,21 @@ describe("delete, search, copy and move", () => {
     ["move_project_file", "file-move"],
   ])("openl_%s explains a destination already there", async (tool, endpoint) => {
     harness.mockHttp.onPost(`/projects/p1/${endpoint}`).reply(409, { message: "Conflict" });
+    answerMeta("b.xlsx", 2);
 
     await expect(executeTool(tool, {
       projectId: "p1",
       sourcePath: "a.xlsx",
       destinationPath: "b.xlsx",
     }, harness.client)).rejects.toThrow(/to 'b\.xlsx': a file already exists there/);
+  });
+
+  it("passes on the reason Studio gives a conflict when no file is at the destination", async () => {
+    harness.mockHttp.onPost("/projects/p1/file-copy").reply(409, { message: "The project is locked by another user." });
+    harness.mockHttp.onGet("/projects/p1/files/b.xlsx").reply(404, { message: "Not found" });
+
+    await expect(executeTool("copy_project_file", {
+      projectId: "p1", sourcePath: "a.xlsx", destinationPath: "b.xlsx",
+    }, harness.client)).rejects.toThrow(/locked by another user/);
   });
 });
