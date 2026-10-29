@@ -491,6 +491,29 @@ describe("trace tools", () => {
     expect(textOf(result)).toContain("83.372");
   });
 
+  it("openl_watch_trace_cells marks a series cut to its first points, though the run stayed under its capture limit", async () => {
+    harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply(204);
+    harness.mockHttp.onPut(`${projectPath}/trace/watches`).reply(204);
+    harness.mockHttp.onPost(`${projectPath}/trace`).reply(200, { status: "completed", frames: [] });
+    const points = Array.from({ length: 100 }, (_, i) => ({ instance: i, value: { name: "$Factor", value: 1 } }));
+    harness.mockHttp.onGet(`${projectPath}/trace/watch`).reply(200, {
+      truncated: false,
+      series: [
+        { name: "$Factor", table: "Rates", total: 300, points },
+        { name: "$Base", table: "Rates", total: 1, points: [points[0]] },
+      ],
+    });
+
+    const data = dataOf<any>(await executeTool("watch_trace_cells", {
+      projectId, tableId: "calc_42", cells: ["$Factor", "$Base"],
+    }, harness.client));
+
+    expect(data.series[0].truncated).toBe(true);
+    expect(data.series[1]).not.toHaveProperty("truncated");
+    expect(data.note).toContain("marked truncated");
+    expect(data.note).not.toContain("capture limit");
+  });
+
   it("openl_watch_trace_cells surfaces the server's truncation (total + a note) when the series is capped", async () => {
     harness.mockHttp.onPut(`${projectPath}/trace/breakpoints`).reply(204);
     harness.mockHttp.onPut(`${projectPath}/trace/watches`).reply(204);
