@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"status\":\"completed\",\"frames\":[{\"index\":0,\"depth\":1,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"active\":false,\"completed\":true,\"error\":false,\"durationMillis\":#.#,\"selfMillis\":#.#},{\"index\":1,\"depth\":2,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\"tableId\":\"*\",\"name\":\"AgeFactor\",\"kind\":\"decisionTable\",\"active\":true,\"completed\":true,\"error\":false,\"steps\":[{\"ref\":\"R1\",\"label\":\"R1\",\"status\":\"pending\"},{\"ref\":\"R2\",\"label\":\"R2\",\"status\":\"pending\"},{\"ref\":\"R3\",\"label\":\"R3\",\"status\":\"pending\",\"durationMillis\":#.#}],\"durationMillis\":#.#,\"selfMillis\":#.#}],\"sessionId\":\"@-@-@-@-@\"}}"
+        "text": "{\"data\":{\"status\":\"completed\",\"frames\":[{\"index\":0,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"durationMillis\":#.#,\"selfMillis\":#.#,\"completed\":true},{\"index\":1,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\"tableId\":\"*\",\"name\":\"AgeFactor\",\"kind\":\"decisionTable\",\"steps\":[{\"ref\":\"R1\",\"label\":\"R1\",\"status\":\"pending\"},{\"ref\":\"R2\",\"label\":\"R2\",\"status\":\"pending\"},{\"ref\":\"R3\",\"label\":\"R3\",\"status\":\"pending\",\"durationMillis\":#.#}],\"durationMillis\":#.#,\"selfMillis\":#.#,\"completed\":true}]}}"
       }
     ],
     "resultType": "complete",

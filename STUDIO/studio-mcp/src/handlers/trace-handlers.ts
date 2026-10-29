@@ -185,6 +185,28 @@ function unseenCellsNote(cells: string[], watch: Types.WatchView, whole: boolean
 }
 
 /**
+ * A stack as the trace tools answer it, without what tells an agent nothing: the id of the session, which no tool
+ * takes, and of each frame its depth when it follows the index, its active flag, which the last frame carries, its
+ * completed and error flags while false, and its location when a listed current step repeats it.
+ */
+function compactStack<S extends Types.DebugStackView>(stack: S): Omit<S, "sessionId" | "frames"> & { frames: object[] } {
+  const { sessionId, frames, ...rest } = stack as S & { sessionId?: string };
+  return {
+    ...rest,
+    frames: frames.map(({ depth, active, completed, error, location, ...frame }) => {
+      const repeated = frame.steps?.some((step) => step.status === "current" && step.ref === location?.ref);
+      return {
+        ...frame,
+        ...(depth === frame.index + 1 ? {} : { depth }),
+        ...(completed ? { completed } : {}),
+        ...(error ? { error } : {}),
+        ...(location && !repeated ? { location } : {}),
+      };
+    }),
+  };
+}
+
+/**
  * Shared 404 guidance: the debug session belongs to the client and is idle-reaped.
  * Interpolated by both rethrow helpers so the wording stays in one place.
  */
@@ -294,7 +316,7 @@ export function registerTraceHandlers(): void {
         includeTree: args.profiling ? (args.includeTree ?? false) : undefined,
       });
 
-      return formatResult(stack);
+      return formatResult(compactStack(stack));
     },
   });
 
@@ -320,11 +342,11 @@ export function registerTraceHandlers(): void {
 
       // Bundle the active frame's variables so a `step out → inspect` cycle is
       // one call. Only meaningful while suspended with a frame on the stack.
-      let result: unknown = stack;
+      let result: unknown = compactStack(stack);
       const active = stack.frames.find((f) => f.active) ?? stack.frames.at(-1);
       if (args.withValues && stack.status === "suspended" && active) {
         const variables = await client.getTraceFrameVariables(args.projectId, active.index, INSPECT_FIELDS);
-        result = withStepValues(stack, active.index, withoutUnsetContext(variables));
+        result = compactStack(withStepValues(stack, active.index, withoutUnsetContext(variables)));
       }
 
       return formatResult(result);
@@ -393,7 +415,7 @@ export function registerTraceHandlers(): void {
         return formatResult(timedOut);
       }
 
-      return formatResult(outcome.stack);
+      return formatResult(compactStack(outcome.stack));
     },
   });
 
