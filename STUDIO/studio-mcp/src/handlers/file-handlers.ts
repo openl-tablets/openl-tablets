@@ -12,6 +12,41 @@ import { isNotFoundError } from "../http.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText, uploadLink } from "../transfer-links.js";
 import { registerTool, formatResult, rethrowConflictAsActionable, textResult, type ToolResponse } from "./common.js";
 
+/**
+ * Where a search starts. Studio takes `from` only for an ANCESTORS search and walks a SUBTREE search from the root of
+ * the project, matching `pattern` against paths relative to it: a SUBTREE search from a folder becomes a recursive
+ * search of a pattern under that folder — its entries, or everything under it with `recursive` — so it lists the
+ * folder rather than the top level of the project.
+ */
+function searchStart(args: z.output<typeof schemas.searchProjectFilesSchema>): Pick<Types.FileSearchQuery, "pattern" | "recursive" | "from"> {
+  const folder = startFolder(args);
+  if (!folder) {
+    return { pattern: args.pattern, recursive: args.recursive, from: args.from };
+  }
+  const pattern = args.pattern?.replace(/^\/+/, "");
+  const everything = pattern ? `**/${pattern}` : "**";
+  const below = args.recursive ? everything : (pattern ?? "*");
+  return { pattern: `${folder}/${below}`, recursive: true };
+}
+
+/** The folder a SUBTREE search starts from, without its leading and trailing slashes; nothing for the project root. */
+function startFolder(args: z.output<typeof schemas.searchProjectFilesSchema>): string | undefined {
+  // Split rather than matched, which a long run of slashes slows
+  const folder = args.from?.split("/").filter(Boolean).join("/");
+  return args.scope === "ANCESTORS" || !folder ? undefined : folder;
+}
+
+/**
+ * Whether a match is an entry of the folder a search without `recursive` starts from. Studio searches under that
+ * folder recursively, so a '**' pattern matches the entries of its nested folders too.
+ */
+function inStartFolder(args: z.output<typeof schemas.searchProjectFilesSchema>): (node: { path: string }) => boolean {
+  const folder = startFolder(args);
+  return folder === undefined || args.recursive
+    ? () => true
+    : ({ path }) => !path.slice(folder.length + 1).replace(/\/$/, "").includes("/");
+}
+
 export function registerFileHandlers(): void {
   registerTool({
     name: "read_project_file",
@@ -166,14 +201,12 @@ export function registerFileHandlers(): void {
       // Undefined fields are dropped by JSON serialization, so an empty query
       // matches everything in scope.
       const query: Types.FileSearchQuery = {
-        pattern: args.pattern,
         content: args.content,
         extensions: args.extensions,
         type: args.type,
         scope: args.scope,
-        recursive: args.recursive,
-        from: args.from,
         version: args.version,
+        ...searchStart(args),
       };
 
       // The backend file-search has no server-side paging (it returns the full
@@ -183,7 +216,7 @@ export function registerFileHandlers(): void {
         branch: args.branch,
         fields: args.fields,
       });
-      return textResult(formatPage(results, "json", limit, offset));
+      return textResult(formatPage(results.filter(inStartFolder(args)), "json", limit, offset));
     },
   });
 
