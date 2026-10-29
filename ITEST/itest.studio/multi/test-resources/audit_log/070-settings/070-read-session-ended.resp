@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "form",
+      "category": "authentication",
+      "action": "sessionEnded",
+      "outcome": "success",
+      "details": {
+        "reason": "restarted"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": "###"
+}

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -27,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -236,16 +238,46 @@ class SignInAuditorTest {
     }
 
     @Test
-    void recordsTheSignOutOfASessionLeftIdle() {
+    void recordsTheEndOfASessionLeftIdle() {
         var now = System.currentTimeMillis();
         auditor.onSessionEnd(new HttpSessionDestroyedEvent(sessionOf(signedIn("jdoe"), now - 1_801_000)));
         auditor.onSessionEnd(new HttpSessionDestroyedEvent(sessionOf(signedIn("jsmith"), now)));
 
         var event = recorded();
-        assertEquals(AuditAction.SIGN_OUT, event.action());
+        assertEquals(AuditAction.SESSION_ENDED, event.action());
         assertEquals("jdoe", event.actor());
         assertEquals(AuditAuthentication.FORM, event.authentication());
         assertEquals(Map.of(SignInAuditor.REASON, SignInAuditor.TIMED_OUT), event.details());
+    }
+
+    @Test
+    void recordsTheEndOfASessionARestartEnded() {
+        var ended = new MockHttpSession();
+        ended.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                new SecurityContextImpl(signedIn("jdoe")));
+        SignInAuditor.endedByRestart(ended);
+        var signedOut = new MockHttpSession();
+        signedOut.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                new SecurityContextImpl(signedIn("jsmith")));
+
+        auditor.onSessionEnd(new HttpSessionDestroyedEvent(ended));
+        auditor.onSessionEnd(new HttpSessionDestroyedEvent(signedOut));
+
+        var event = recorded();
+        assertEquals(AuditAction.SESSION_ENDED, event.action());
+        assertEquals("jdoe", event.actor());
+        assertEquals(AuditAuthentication.FORM, event.authentication());
+        assertEquals(Map.of(SignInAuditor.REASON, SignInAuditor.RESTARTED), event.details());
+    }
+
+    @Test
+    void recordsNothingForASessionThatTellsNothingMore() {
+        var session = mock(HttpSession.class);
+        when(session.getAttribute(anyString())).thenThrow(new IllegalStateException("invalidated"));
+
+        auditor.onSessionEnd(new HttpSessionDestroyedEvent(session));
+
+        verify(auditService, never()).recordEvent(any());
     }
 
     @Test

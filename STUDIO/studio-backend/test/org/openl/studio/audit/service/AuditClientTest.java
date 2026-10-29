@@ -71,6 +71,20 @@ class AuditClientTest {
         assertEquals(List.of("10.0.0.8", "10.0.0.7"), seen);
     }
 
+    @Test
+    void anActionOfOpenLStudioNamesNoClientEvenOnTheThreadOfARequest() {
+        SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated("jdoe",
+                null,
+                List.of()));
+        request("10.0.0.7");
+        var seen = new ArrayList<AuditClient>();
+
+        AuditClient.runAsApplication(() -> seen.add(AuditClient.current()));
+
+        assertEquals(List.of(NO_CLIENT), seen);
+        assertEquals(new AuditClient("10.0.0.7", AuditAuthentication.FORM), AuditClient.current());
+    }
+
     private static void request(String address) {
         var request = new MockHttpServletRequest();
         request.setRemoteAddr(address);

@@ -23,10 +23,13 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
+import org.openl.studio.audit.service.ApplicationAuditor;
+
 class HealthCheckServletTest {
 
     private final HealthCheckServlet servlet = new HealthCheckServlet();
     private final MockServletContext servletContext = new MockServletContext();
+    private final ApplicationAuditor applicationAuditor = mock(ApplicationAuditor.class);
 
     @Test
     void startup() throws Exception {
@@ -91,11 +94,13 @@ class HealthCheckServletTest {
         servletContext.setAttribute(SpringInitializer.class.getName(), initializer);
 
         assertResponse("/healthcheck/readiness", 503, null, "");
+        verify(applicationAuditor).stopped();
     }
 
     private SpringInitializer initializeSpringContext(boolean active) {
         var applicationContext = mock(XmlWebApplicationContext.class);
         when(applicationContext.isActive()).thenReturn(active);
+        when(applicationContext.getBean(ApplicationAuditor.class)).thenReturn(applicationAuditor);
         var initializer = new SpringInitializer();
         ReflectionTestUtils.setField(initializer, "applicationContext", applicationContext);
         servletContext.setAttribute(SpringInitializer.class.getName(), initializer);

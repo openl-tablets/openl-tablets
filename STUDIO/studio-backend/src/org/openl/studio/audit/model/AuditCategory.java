@@ -42,6 +42,10 @@ public enum AuditCategory {
     @JsonProperty("settings")
     SETTINGS,
 
+    @Schema(description = "OpenL Studio itself: its starts, restarts and stops.")
+    @JsonProperty("application")
+    APPLICATION,
+
     @Schema(description = "Reading and cleaning the audit log itself.")
     @JsonProperty("audit")
     AUDIT

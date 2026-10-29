@@ -42,15 +42,16 @@ import org.openl.studio.security.pat.model.PatAuthenticationToken;
 import org.openl.studio.session.ClientSessions;
 
 /**
- * Records sign-ins, failed sign-ins and sign-outs in the audit log.
+ * Records sign-ins, failed sign-ins, sign-outs and the ends of sessions in the audit log.
  *
  * <p>A sign-in is recorded when it opens a session: through the login form, SAML or OAuth2. A request that carries
  * its own credentials — Basic authentication, a bearer token, a personal access token — signs in anew every time,
  * so a sign-in is recorded for its first request, and again for the first one after the credentials were idle for
  * the time an HTTP session may stay idle. Refused credentials are recorded every time.
  *
- * <p>A sign-out is recorded when a user signs out, and when a session ends after it was left idle for longer than
- * it may stay, marked as timed out.
+ * <p>A sign-out is recorded when a user signs out, or the identity provider signs the user out. A session that ends
+ * without a sign-out is recorded as ended: after it was left idle for longer than it may stay, marked as timed out,
+ * and when a restart of OpenL Studio ends it, marked as restarted.
  *
  * <p>A failed sign-in names the user only when a user name was typed. A token is never recorded: some of them
  * are read as the name of their holder. A personal access token is named by its public id instead.
@@ -63,8 +64,12 @@ public class SignInAuditor implements HandlerInterceptor {
 
     static final String REASON = "reason";
     static final String TOKEN = "token";
-    /** The reason of the sign-out of a session that was left idle for longer than it may stay. */
+    /** The reason of the end of a session that was left idle for longer than it may stay. */
     static final String TIMED_OUT = "timedOut";
+    /** The reason of the end of a session a restart of OpenL Studio ended. */
+    static final String RESTARTED = "restarted";
+    /** The session attribute that tells why the session is ended. */
+    private static final String END_REASON = SignInAuditor.class.getName() + ".endReason";
     private static final long SWEEP_INTERVAL_NANOS = Duration.ofMinutes(1).toNanos();
 
     private final AuditService auditService;
@@ -128,25 +133,48 @@ public class SignInAuditor implements HandlerInterceptor {
     }
 
     /**
-     * Records the sign-out of a session that ended after it was left idle for longer than it may stay.
+     * Records the end of a session that was left idle for longer than it may stay, or that a restart of OpenL Studio
+     * ended.
      *
      * <p>A session that ends otherwise, by a sign-out or a stop of the application, was used just before, and
      * records nothing here.
      */
     @EventListener
     public void onSessionEnd(HttpSessionDestroyedEvent event) {
-        if (!timedOut(event.getSession(), System.currentTimeMillis())) {
+        var reason = endReasonOf(event.getSession(), System.currentTimeMillis());
+        if (reason == null) {
             return;
         }
         event.getSecurityContexts().stream()
                 .map(SecurityContext::getAuthentication)
                 .filter(Objects::nonNull)
                 .forEach(authentication -> recordQuietly(AuditEvent.builder()
-                        .action(AuditAction.SIGN_OUT)
+                        .action(AuditAction.SESSION_ENDED)
                         .actor(authentication.getName())
                         .authentication(AuthenticationMethods.ofSession(authentication))
-                        .details(Map.of(REASON, TIMED_OUT))
+                        .details(Map.of(REASON, reason))
                         .build()));
+    }
+
+    /**
+     * Marks a session a restart of OpenL Studio is about to end, so that its end is recorded.
+     */
+    public static void endedByRestart(HttpSession session) {
+        session.setAttribute(END_REASON, RESTARTED);
+    }
+
+    /**
+     * Why a session ended, when it ended without a sign-out: it timed out, or a restart ended it.
+     */
+    private static @Nullable String endReasonOf(HttpSession session, long now) {
+        if (timedOut(session, now)) {
+            return TIMED_OUT;
+        }
+        try {
+            return session.getAttribute(END_REASON) instanceof String reason ? reason : null;
+        } catch (IllegalStateException e) {
+            return null;
+        }
     }
 
     /**

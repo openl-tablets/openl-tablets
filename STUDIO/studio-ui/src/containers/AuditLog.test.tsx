@@ -526,10 +526,32 @@ describe('AuditLog', () => {
         await loaded()
 
         await pick('action', 'audit:categories.authentication')
-        await lastQuery({ actions: ['signIn', 'signOut']})
+        await lastQuery({ actions: ['signIn', 'signOut', 'sessionEnded']})
         await pick('action', 'audit:actions.auditLogRead')
 
         await lastQuery({ actions: ['auditLogRead']})
+    })
+
+    it('filters by the starts, restarts and stops of OpenL Studio, and names a session a restart ended', async () => {
+        const ended: audit.AuditEvent = {
+            id: 4,
+            time: '2026-10-19T10:25:00Z',
+            actor: 'jdoe',
+            authentication: 'form',
+            category: 'authentication',
+            action: 'sessionEnded',
+            outcome: 'success',
+            details: { reason: 'restarted' },
+        }
+        mockGetEvents.mockResolvedValue({ content: [ended], pageNumber: 0, pageSize: 50, total: 1 })
+        renderAuditLog()
+        await loaded()
+
+        const rows = within(screen.getByRole('table'))
+        expect(rows.getByText('audit:actions.sessionEnded')).toBeInTheDocument()
+        expect(rows.getByText('audit:reasons.restarted')).toBeInTheDocument()
+        await pick('action', 'audit:categories.application')
+        await lastQuery({ actions: ['applicationStarted', 'applicationRestarted', 'applicationStopped']})
     })
 
     it('filters by the outcome and by how the users signed in', async () => {

@@ -9,4 +9,6 @@ access token created and deleted by its name. A role on the design repositories 
 revoked is recorded with the roles before and after, and the change of a role the user may not make is recorded as a
 refused request. A project created from an archive and deleted is recorded with the
 role its creator got on it and lost with it. A save of two system settings and the save that restores them are
-each recorded as one change of the settings, with the values before and after.
+each recorded as one change of the settings, with the values before and after. The saves restart OpenL Studio, which
+is recorded, and so is the end of the session of the login form the restart ended; the start of OpenL Studio is
+recorded once, with its version.

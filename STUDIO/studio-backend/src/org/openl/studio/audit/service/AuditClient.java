@@ -17,7 +17,8 @@ import org.openl.studio.audit.model.AuditAuthentication;
  * client to the task, as they carry the user.
  *
  * <p>Outside a request and the tasks it started there is no client address, and a user name and a password tell
- * nothing of the way the user signed in.
+ * nothing of the way the user signed in. An action OpenL Studio does itself has no client either, even when a request
+ * happened to set it off.
  *
  * @param address        the address of the client, or {@code null} outside a request
  * @param authentication the way the signed-in user signed in, or {@code null} when nothing tells it
@@ -38,19 +39,29 @@ public record AuditClient(@Nullable String address, @Nullable AuditAuthenticatio
      */
     public static Runnable carry(Runnable task) {
         var client = current();
-        return () -> {
-            var outer = CARRIED.get();
-            CARRIED.set(client);
-            try {
-                task.run();
-            } finally {
-                if (outer == null) {
-                    CARRIED.remove();
-                } else {
-                    CARRIED.set(outer);
-                }
+        return () -> runFor(client, task);
+    }
+
+    /**
+     * Runs an action OpenL Studio does itself, such as a restart: its events are recorded for no client, even on the
+     * thread of a request.
+     */
+    public static void runAsApplication(Runnable action) {
+        runFor(new AuditClient(null, null), action);
+    }
+
+    private static void runFor(AuditClient client, Runnable task) {
+        var outer = CARRIED.get();
+        CARRIED.set(client);
+        try {
+            task.run();
+        } finally {
+            if (outer == null) {
+                CARRIED.remove();
+            } else {
+                CARRIED.set(outer);
             }
-        };
+        }
     }
 
     private static AuditClient ofRequest() {

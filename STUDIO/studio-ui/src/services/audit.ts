@@ -5,7 +5,7 @@ import apiCall from './apiCall'
  * actions of each come in the order the audit log offers them.
  */
 export const AUDIT_ACTIONS = {
-    authentication: ['signIn', 'signOut'],
+    authentication: ['signIn', 'signOut', 'sessionEnded'],
     user: [
         'userCreated',
         'userUpdated',
@@ -32,6 +32,7 @@ export const AUDIT_ACTIONS = {
     ],
     deployment: ['projectDeployed'],
     settings: ['settingsChanged'],
+    application: ['applicationStarted', 'applicationRestarted', 'applicationStopped'],
     audit: ['auditLogRead', 'auditLogPurged'],
 } as const
 export const AUDIT_OUTCOMES = ['success', 'failure', 'denied'] as const
