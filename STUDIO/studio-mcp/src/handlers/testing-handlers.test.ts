@@ -152,6 +152,20 @@ describe("test results", () => {
     expect(discount).not.toHaveProperty("omittedFailures");
   });
 
+  it("openl_get_test_results answers the parameters of a test without the schema of their types", async () => {
+    const unit = {
+      id: "1", status: "TR_OK" as const, executionTimeMs: 1,
+      parameters: [{ name: "age", description: "Integer", value: 25, schema: { type: "integer" } }],
+    };
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: [{ ...testCase("Test_premium", "Test_premium_1", 1, 0), testUnits: [unit] }],
+    }));
+
+    const result = await executeTool("get_test_results", { projectId: "design-project1" }, harness.client);
+
+    expect(dataOf<any>(result).testCases[0].testUnits[0].parameters).toEqual([{ name: "age", description: "Integer", value: 25 }]);
+  });
+
   it("openl_get_test_results renders the summary of the run", async () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ executionTimeMs: 250.5, numberOfTests: 10, numberOfFailures: 2 }));
 
