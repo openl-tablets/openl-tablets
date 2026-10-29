@@ -1,0 +1,26 @@
+HTTP/1.1 200 OK
+
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "# McpTools\n\nPremium rules: keep `AgeFactor` in sync with `PremiumTest`.\n"
+      },
+      {
+        "type": "text",
+        "text": "version: * — pass it as 'version' to openl_write_project_file or openl_delete_project_file to replace or delete this file."
+      }
+    ],
+    "resultType": "complete",
+    "_meta": {
+      "io.modelcontextprotocol/serverInfo": {
+        "name": "studio-mcp",
+        "version": "*",
+        "description": "The MCP server built into OpenL Studio"
+      }
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}

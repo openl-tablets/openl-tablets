@@ -1,5 +1,5 @@
 HTTP/1.1 200
-Content-Type: application/octet-stream
+Content-Type: text/plain
 Content-Disposition: attachment; filename=messages.properties; filename*=UTF-8''messages.properties
 
 greeting=replaced by OVERWRITE

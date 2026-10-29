@@ -1,5 +1,5 @@
 HTTP/1.1 200
-Content-Type: application/octet-stream
+Content-Type: text/plain
 Content-Disposition: attachment; filename=message_de.properties; filename*=UTF-8''message_de.properties
 
 &merged_de.properties

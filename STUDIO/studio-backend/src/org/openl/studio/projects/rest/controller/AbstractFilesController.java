@@ -13,7 +13,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -181,8 +180,7 @@ public abstract class AbstractFilesController {
         var fileName = resource.getName();
         // The version of the file read, which a write of the file names back in the If-Match header.
         response.setHeader(HttpHeaders.ETAG, EntityVersions.entityTag(filesService.getVersion(resource)));
-        response.setContentType(MediaTypeFactory.getMediaType(fileName)
-                .orElse(MediaType.APPLICATION_OCTET_STREAM).toString());
+        response.setContentType(FileMediaTypes.of(fileName).toString());
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName));
         try (var content = resource.getContent()) {
             content.transferTo(response.getOutputStream());
