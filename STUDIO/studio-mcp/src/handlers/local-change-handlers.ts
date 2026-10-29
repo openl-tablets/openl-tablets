@@ -44,15 +44,7 @@ export function registerLocalChangeHandlers(): void {
         args.historyId,
       );
 
-      const result = {
-        success: true,
-        message: `Successfully restored project module to local history version '${args.historyId}'`,
-        projectId: args.projectId,
-        moduleName: args.moduleName,
-        historyId: args.historyId,
-      };
-
-      return formatResult(result);
+      return formatResult({ restored: args.historyId });
     },
   });
 }

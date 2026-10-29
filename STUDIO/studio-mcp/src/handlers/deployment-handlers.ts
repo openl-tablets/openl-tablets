@@ -64,23 +64,14 @@ export function registerDeploymentHandlers(): void {
       const { projectId, deploymentId, deploymentName, productionRepositoryId, comment } = args;
       if (deploymentId !== undefined) {
         await client.redeployProject(deploymentId, { projectId, comment });
-        return formatResult({
-          success: true,
-          message: `Successfully redeployed ${deploymentId} with project ${projectId}`,
-          deploymentId,
-        });
+        return formatResult({ redeployed: deploymentId });
       }
       // The schema has checked that a new deployment names both
       const name = deploymentName as string;
-      const repository = productionRepositoryId as string;
-      await client.deployProject({
-        projectId,
-        deploymentName: name,
-        // The caller names the repository; Studio takes its id
-        productionRepositoryId: await client.getProductionRepositoryId(repository),
-        comment,
-      });
-      return formatResult({ success: true, message: `Successfully deployed ${name} to ${repository}` });
+      // The caller names the repository; Studio takes its id
+      const repository = await client.getProductionRepositoryId(productionRepositoryId as string);
+      await client.deployProject({ projectId, deploymentName: name, productionRepositoryId: repository, comment });
+      return formatResult({ deployed: name, productionRepositoryId: repository });
     },
   });
 }

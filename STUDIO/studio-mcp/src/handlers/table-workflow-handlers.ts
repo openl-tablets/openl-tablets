@@ -9,6 +9,7 @@ import * as schemas from "../schemas.js";
 import { isRequestTimeout } from "../http.js";
 import { registerTool, formatResult, type ToolResponse } from "./common.js";
 import { waitForResult } from "./wait.js";
+import { finishTableEdit } from "./table-edit.js";
 import type { OpenLClient } from "../client.js";
 
 // The result of a run, without the input the caller sent, which Studio echoes as parameters
@@ -128,7 +129,7 @@ export function registerTableWorkflowHandlers(): void {
     compiled: true,
     title: "Copy Table",
     description:
-      "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties. The copy remains in the working copy—use openl_save_project for Git-backed projects.",
+      "Copy a table inside the same project using Studio's server-side copy operation, preserving formatting, merged cells, comments, and complete table structure. Provide the destination module and new table name; optionally choose a sheet, create a new .xlsx module with modulePath, or replace the source properties. The copy remains in the working copy—use openl_save_project for Git-backed projects. The answer gives the 'tableId' and 'version' of the copy, and 'compiles: false' with its errors when it does not compile.",
     schema: schemas.copyTableSchema,
     annotations: {
       destructiveHint: false,
@@ -142,7 +143,7 @@ export function registerTableWorkflowHandlers(): void {
         properties: args.properties,
         sheetName: args.sheetName,
       });
-      return formatResult({ ...copied, success: true, tableId: copied.id });
+      return finishTableEdit(client, { projectId: args.projectId, tableId: copied.id }, undefined, "copy");
     },
   });
 }

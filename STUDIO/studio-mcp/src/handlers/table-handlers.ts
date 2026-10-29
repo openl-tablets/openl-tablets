@@ -175,13 +175,7 @@ export function registerTableHandlers(): void {
       const requestedId = args.tableId;
       await client.deleteTable(projectId, requestedId, args.version);
 
-      const result = {
-        success: true,
-        message: `Successfully deleted table ${requestedId}`,
-        note: "The table area is cleared regardless of type; the table no longer exists once the project recompiles. Run openl_project_status to confirm the project still compiles.",
-      };
-
-      return formatResult(result);
+      return formatResult({ deleted: requestedId });
     },
   });
 
@@ -206,7 +200,7 @@ export function registerTableHandlers(): void {
 
       // Studio answers the new id of a table the update renamed.
       const reportedId = await client.updateTable(projectId, tableId, view);
-      return finishTableEdit(client, args, reportedId, `Successfully updated table ${tableId}`, "update");
+      return finishTableEdit(client, args, reportedId, "update");
     },
   });
 
@@ -215,7 +209,7 @@ export function registerTableHandlers(): void {
     compiled: true,
     title: "Create New Table",
     description:
-      "Create a table from its whole RawSource matrix of cells in the module moduleName, or in a new module at modulePath, an .xlsx path. Build the grid as the OpenL guides (openl_get_guides) describe it, or copy the source of a table, covered cells and spans included. Values are scalars or one-dimensional arrays of scalars; cell styles are refused. The answer describes the table, not its compilation: call openl_project_status afterwards.",
+      "Create a table from its whole RawSource matrix of cells in the module moduleName, or in a new module at modulePath, an .xlsx path. Build the grid as the OpenL guides (openl_get_guides) describe it, or copy the source of a table, covered cells and spans included. Values are scalars or one-dimensional arrays of scalars; cell styles are refused. The answer gives the 'tableId' and 'version' of the new table, and 'compiles: false' with its errors when it does not compile.",
     schema: schemas.createProjectTableSchema,
     annotations: {
       destructiveHint: false,
@@ -229,16 +223,7 @@ export function registerTableHandlers(): void {
         table: args.table,
       });
 
-      const result = {
-        success: true,
-        tableId: createdTable.id,
-        tableName: createdTable.name,
-        tableType: createdTable.tableType,
-        file: createdTable.file,
-        message: `Successfully created ${createdTable.tableType} table '${createdTable.name}' in module '${args.moduleName}'`,
-      };
-
-      return formatResult(result);
+      return finishTableEdit(client, { projectId: args.projectId, tableId: createdTable.id }, undefined, "creation");
     },
   });
 }

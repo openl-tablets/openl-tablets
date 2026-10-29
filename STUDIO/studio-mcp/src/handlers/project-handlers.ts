@@ -272,21 +272,8 @@ export function registerProjectHandlers(): void {
         ? await client.openOnBranch(args.projectId, args.branch, options)
         : await client.openProject(args.projectId, options);
 
-      const onBranch = args.branch ? ` on branch '${args.branch}'` : "";
-      const atRevision = args.revision ? ` at revision '${args.revision}'` : "";
-      const messages = {
-        switched_branch: `Branch switched to '${args.branch}' successfully`,
-        already_open: "The project is open already",
-        opened: `Project opened successfully${onBranch}${atRevision}`,
-      };
-      const message = messages[action];
-
-      const result = {
-        success: true,
-        message,
-      };
-
-      return formatResult(result);
+      // The branch and the revision are the ones the call asked for
+      return formatResult(action === "already_open" ? { alreadyOpen: true } : { opened: true });
     },
   });
 
@@ -301,11 +288,9 @@ export function registerProjectHandlers(): void {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      const result = await client.saveProject(args.projectId, args.comment, {
+      return formatResult(await client.saveProject(args.projectId, args.comment, {
         closeAfterSave: args.closeAfterSave,
-      });
-
-      return formatResult(result);
+      }));
     },
   });
 
@@ -335,7 +320,7 @@ export function registerProjectHandlers(): void {
       const currentProject = await client.getProject(args.projectId);
       if (currentProject.status !== "EDITING") {
         await client.closeProject(args.projectId);
-        return reply({ success: true, message: "Project closed successfully" });
+        return reply({ closed: true });
       }
 
       if (args.saveChanges === true) {
@@ -347,9 +332,7 @@ export function registerProjectHandlers(): void {
           );
         }
         await client.saveProject(args.projectId, args.comment, { closeAfterSave: true });
-        return reply({ success: true, message: supportsComments
-          ? `Project saved and closed successfully with comment: "${args.comment}"`
-          : "Project saved and closed successfully" });
+        return reply({ closed: true, saved: true });
       }
 
       if (args.discardChanges !== true) {
@@ -364,13 +347,12 @@ export function registerProjectHandlers(): void {
       // Only confirmDiscard: true discards the changes; false or undefined asks the user first
       if (args.confirmDiscard !== true) {
         return reply({
-          success: false,
           confirmationRequired: true,
           message: "The project has unsaved changes. Closing without saving will discard all changes permanently. Ask the user: 'Do you really want to close without saving? All unsaved changes will be lost.' If the user confirms, call openl_close_project again with the same projectId, discardChanges: true, and confirmDiscard: true (confirmDiscard must be set to true explicitly, not just provided).",
         });
       }
       await client.closeProject(args.projectId, { discardChanges: true });
-      return reply({ success: true, message: "Project closed (unsaved changes discarded)" });
+      return reply({ closed: true, discarded: true });
     },
   });
 
@@ -386,16 +368,7 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       await client.createBranch(args.projectId, args.branchName, args.revision);
-
-      const fromRevision = args.revision ? ` from revision ${args.revision}` : "";
-      const result = {
-        success: true,
-        message: `Successfully created branch '${args.branchName}'${fromRevision}`,
-        branchName: args.branchName,
-        revision: args.revision,
-      };
-
-      return formatResult(result);
+      return formatResult({ created: args.branchName });
     },
   });
 
@@ -406,7 +379,7 @@ export function registerProjectHandlers(): void {
       "Create a new OpenL project in a design repository. Two modes, selected by the `template` argument:\n" +
       "• CREATE (omit `template`): create a BLANK project from the \"Empty Project\" template OpenL Studio ships, as a user of Studio does.\n" +
       "• COPY (pass `template` = an existing project's exact projectId from openl_list_projects): use Studio's server-side project-copy API to copy that source project's FULL structure and rename its descriptor to projectName. Do not pass the displayed project name because mapped repositories may contain multiple projects with the same name.\n" +
-      "Both modes are written and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches() when branches are supported; Studio also supports creating a missing branch from the base branch. Omit `comment` when repository features.comments is false. Returns the new project name, revision, and Studio's opaque projectId. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
+      "Both modes are written and indexed atomically. Omit `branch` for the repository's configured/default branch, or pass a target branch from openl_list_branches() when branches are supported; Studio also supports creating a missing branch from the base branch. Omit `comment` when repository features.comments is false. Answers the projectId, branch and revision of the new project. A name collision, missing copy source, or missing permission is rejected with an actionable error. Local repositories are not supported.",
     schema: schemas.createProjectSchema,
     annotations: {
       readOnlyHint: false,
@@ -443,19 +416,7 @@ export function registerProjectHandlers(): void {
         throw error;
       }
 
-      const result = {
-        success: true,
-        mode: source ? "copy" : "create",
-        projectId: created.id,
-        projectName: args.projectName,
-        ...(source ? { source } : {}),
-        repository: args.repository,
-        branch: created.branch,
-        revision: created.revision,
-        message: createdMessage(source, args.projectName, args.repository, created),
-      };
-
-      return formatResult(result);
+      return formatResult({ projectId: created.id, branch: created.branch, revision: created.revision });
     },
   });
 
@@ -492,17 +453,4 @@ export function registerProjectHandlers(): void {
       return formatResult(sheets);
     },
   });
-}
-
-/** The message of a created or copied project: where it is, on which branch and at which revision. */
-function createdMessage(
-  source: string | undefined,
-  projectName: string,
-  repository: string,
-  created: Types.CreateProjectResult,
-): string {
-  const what = source ? `Copied '${source}' to` : "Created project";
-  const branch = created.branch ? ` (branch '${created.branch}')` : "";
-  const revision = created.revision ? ` at revision ${created.revision}` : "";
-  return `${what} '${projectName}' in repository '${repository}'${branch}${revision}.`;
 }

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"tableId\":\"*\",\"tableName\":\"Premium\",\"tableType\":\"SimpleSpreadsheet\",\"file\":\"McpTools/rules/Main.xlsx\",\"message\":\"Successfully created SimpleSpreadsheet table 'Premium' in module 'Main'\"}}"
+        "text": "{\"data\":{\"tableId\":\"*\"}}"
       }
     ],
     "resultType": "complete",

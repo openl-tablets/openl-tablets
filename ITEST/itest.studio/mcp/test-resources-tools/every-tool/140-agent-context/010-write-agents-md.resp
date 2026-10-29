@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"path\":\"AGENTS.md\",\"action\":\"created\",\"bytesWritten\":72,\"committed\":false,\"message\":\"Wrote 72 byte(s) to 'AGENTS.md' in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.\"}}"
+        "text": "{\"data\":{\"path\":\"AGENTS.md\",\"action\":\"created\",\"bytesWritten\":72,\"committed\":false,\"message\":\"Wrote 72 byte(s) to 'AGENTS.md' in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.\"}}"
       }
     ],
     "resultType": "complete",

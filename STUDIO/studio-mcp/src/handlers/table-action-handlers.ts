@@ -16,63 +16,43 @@ import { finishTableEdit } from "./table-edit.js";
 
 type EditArgs = z.output<typeof schemas.editTableSchema>;
 
-/** An edit: what it did, for the answer, and the action Studio takes for it. */
-interface Edit {
-  pastTense: string;
-  build: (args: EditArgs) => Types.RawTableSourceAction;
-}
+/** The action Studio takes for an edit. */
+type Edit = (args: EditArgs) => Types.RawTableSourceAction;
 
 // The schema has checked that every argument an action needs is there
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 /** Rows or columns added: Studio takes them as one block, however many there are. */
-function addLines(operation: "append" | "insert", type: "rows" | "columns", pastTense: string): Edit {
-  return {
-    pastTense,
-    build: ({ cells, position }) => ({
-      operation, target: { type, cells: cells!, ...(position === undefined ? {} : { position }) },
-    }),
-  };
+function addLines(operation: "append" | "insert", type: "rows" | "columns"): Edit {
+  return ({ cells, position }) => ({
+    operation, target: { type, cells: cells!, ...(position === undefined ? {} : { position }) },
+  });
 }
 
-function deleteLines(type: "rows" | "columns", pastTense: string): Edit {
-  return { pastTense, build: ({ position, count }) => ({ operation: "delete", target: { type, position, count: count ?? 1 } }) };
+function deleteLines(type: "rows" | "columns"): Edit {
+  return ({ position, count }) => ({ operation: "delete", target: { type, position, count: count ?? 1 } });
 }
 
-function updateLine(type: "row" | "column", pastTense: string): Edit {
-  return { pastTense, build: ({ position, cells }) => ({ operation: "update", target: { type, position, cells: cells![0] } }) };
+function updateLine(type: "row" | "column"): Edit {
+  return ({ position, cells }) => ({ operation: "update", target: { type, position, cells: cells![0] } });
 }
 
 const EDITS: Record<schemas.EditAction, Edit> = {
-  append_rows: addLines("append", "rows", "appended rows to"),
-  append_columns: addLines("append", "columns", "appended columns to"),
-  insert_rows: addLines("insert", "rows", "inserted rows into"),
-  insert_columns: addLines("insert", "columns", "inserted columns into"),
-  delete_rows: deleteLines("rows", "deleted rows from"),
-  delete_columns: deleteLines("columns", "deleted columns from"),
-  update_row: updateLine("row", "updated a row of"),
-  update_column: updateLine("column", "updated a column of"),
-  update_cell: {
-    pastTense: "updated a cell of",
-    // An Excel formula goes alone; otherwise the value is always sent, as null clears the cell
-    build: ({ row, column, value, formula }) => ({
-      operation: "update", target: { type: "cell", row, column, ...(formula === undefined ? { value: value! } : { formula }) },
-    }),
-  },
-  update_range: {
-    pastTense: "updated a range of",
-    build: ({ row, column, cells }) => ({ operation: "update", target: { type: "range", row, column, cells } }),
-  },
-  merge: {
-    pastTense: "merged cells of",
-    build: ({ row, column, rowspan, colspan }) => ({
-      operation: "merge", target: { type: "cells", row, column, rowspan, colspan },
-    }),
-  },
-  unmerge: {
-    pastTense: "unmerged cells of",
-    build: ({ row, column }) => ({ operation: "unmerge", target: { type: "cells", row, column } }),
-  },
+  append_rows: addLines("append", "rows"),
+  append_columns: addLines("append", "columns"),
+  insert_rows: addLines("insert", "rows"),
+  insert_columns: addLines("insert", "columns"),
+  delete_rows: deleteLines("rows"),
+  delete_columns: deleteLines("columns"),
+  update_row: updateLine("row"),
+  update_column: updateLine("column"),
+  // An Excel formula goes alone; otherwise the value is always sent, as null clears the cell
+  update_cell: ({ row, column, value, formula }) => ({
+    operation: "update", target: { type: "cell", row, column, ...(formula === undefined ? { value: value! } : { formula }) },
+  }),
+  update_range: ({ row, column, cells }) => ({ operation: "update", target: { type: "range", row, column, cells } }),
+  merge: ({ row, column, rowspan, colspan }) => ({ operation: "merge", target: { type: "cells", row, column, rowspan, colspan } }),
+  unmerge: ({ row, column }) => ({ operation: "unmerge", target: { type: "cells", row, column } }),
 };
 
 /* eslint-enable @typescript-eslint/no-non-null-assertion */
@@ -105,9 +85,8 @@ export function registerTableActionHandlers(): void {
     annotations: { destructiveHint: true, openWorldHint: true },
     compiled: true,
     handler: async (args, client): Promise<ToolResponse> => {
-      const edit = EDITS[args.action];
-      const reportedId = await client.editTableSource(args.projectId, args.tableId, edit.build(args), args.version);
-      return finishTableEdit(client, args, reportedId, `Successfully ${edit.pastTense} table ${args.tableId}`, "edit");
+      const reportedId = await client.editTableSource(args.projectId, args.tableId, EDITS[args.action](args), args.version);
+      return finishTableEdit(client, args, reportedId, "edit");
     },
   });
 }

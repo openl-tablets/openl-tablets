@@ -59,7 +59,7 @@ describe("project branch and merge handlers", () => {
 
     expect(harness.mockHttp.history.post.map((request) => request.url)).toEqual(["/projects/p1/merge/check"]);
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      success: true, status: "up-to-date",
+      status: "up-to-date",
     });
   });
 
@@ -82,8 +82,8 @@ describe("project branch and merge handlers", () => {
     expect(harness.mockHttp.history.post[1].params).toEqual({ force: false });
     expect(harness.mockHttp.history.get.filter((request) => request.url === "/projects/p1/merge")).toHaveLength(2);
     const result = dataOf<Record<string, unknown>>(response);
+    expect(result).not.toHaveProperty("success");
     expect(result).toMatchObject({
-      success: false,
       status: "conflicts",
       nextAction: expect.stringContaining("openl_get_merge_conflicts"),
     });
@@ -111,7 +111,6 @@ describe("project branch and merge handlers", () => {
     }, harness.client);
 
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      success: true,
       status: "success",
     });
   });
@@ -525,7 +524,7 @@ describe("project branch and merge handlers", () => {
     harness.mockHttp.onDelete("/projects/p1/merge/conflicts").reply(204);
     const response = await executeTool("cancel_merge_conflicts", {
       projectId: "p1", }, harness.client);
-    expect(dataOf<Record<string, unknown>>(response)).toMatchObject({ success: true });
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ cancelled: true });
   });
 
   it("deletes a project only after its current name matches confirmation", async () => {
@@ -541,7 +540,7 @@ describe("project branch and merge handlers", () => {
       projectId: "p1", confirmProjectName: "Rating", comment: "Remove retired project", }, harness.client);
     expect(harness.mockHttp.history.delete[0].params).toEqual({ comment: "Remove retired project" });
     // A repository without branches deletes the project as a whole
-    expect(dataOf<Record<string, unknown>>(response)).toEqual({ success: true, deleted: true });
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ deleted: true });
   });
 
   it("tells that a project is deleted on its current branch only", async () => {
@@ -550,7 +549,7 @@ describe("project branch and merge handlers", () => {
 
     const response = await executeTool("delete_project", { projectId: "p1", confirmProjectName: "Rating" }, harness.client);
 
-    expect(dataOf<Record<string, unknown>>(response)).toEqual({ success: true, deletedOnBranch: "feature" });
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ deletedOnBranch: "feature" });
   });
 
   it("protects base/protected branches and preserves slashes when force-deleting", async () => {
@@ -630,7 +629,6 @@ describe("project branch and merge handlers", () => {
       { mode: "send", otherBranch: "main" },
     ]);
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      success: true,
       dataLossConfirmed: true,
       safety: {
         baseBranch: "main",

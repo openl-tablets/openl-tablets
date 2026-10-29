@@ -42,9 +42,9 @@ async function readTableBack(
  * Shared post-edit tail for the table-editing tools (update/append/raw edits).
  *
  * Reads the table back to trigger the studio recompile (noting a failure with
- * the tool's own verb, e.g. "update"/"append"/"edit"), and answers the standard
- * result (`success`, `message`, `recompileTriggered`, current `tableId` and its `version`, plus
- * `tableIdChanged`/`previousTableId` and a `note` when present) as JSON.
+ * the tool's own verb, e.g. "update"/"edit"), and answers the current `tableId` and its `version`, with the
+ * `previousTableId` of a renamed table, `recompileTriggered: false` when the read failed and a `note` when present.
+ * A failed edit throws, so the answer carries no success flag or message of its own.
  *
  * A table that does not compile after the edit is answered with `compiles: false`
  * and the `errors` of its compilation, each led by the cell it points to: the edit was applied, but the table needs
@@ -52,14 +52,12 @@ async function readTableBack(
  *
  * @param args       the arguments of the edit: the table
  * @param reportedId the id Studio answered for the table, when the edit renamed it
- * @param message    the success message for this specific edit
  * @param editVerb   the verb of the edit for the recompile-miss note ("update", "append", "edit")
  */
 export async function finishTableEdit(
   client: OpenLClient,
   args: { projectId: string; tableId: string },
   reportedId: string | undefined,
-  message: string,
   editVerb: string,
 ): Promise<ToolResponse> {
   const { projectId, tableId: requestedId } = args;
@@ -95,13 +93,11 @@ export async function finishTableEdit(
   }
 
   return formatResult({
-    success: true,
-    message,
-    recompileTriggered,
-    ...(errors.length > 0 ? { compiles: false, errors } : {}),
     tableId: currentId,
     ...(table?.version === undefined ? {} : { version: table.version }),
-    ...(idChanged ? { tableIdChanged: true, previousTableId: requestedId } : {}),
+    ...(idChanged ? { previousTableId: requestedId } : {}),
+    ...(recompileTriggered ? {} : { recompileTriggered }),
+    ...(errors.length > 0 ? { compiles: false, errors } : {}),
     ...(notes.length > 0 ? { note: notes.join(" ") } : {}),
   });
 }

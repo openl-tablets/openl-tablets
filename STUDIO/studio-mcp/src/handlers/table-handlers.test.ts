@@ -121,8 +121,9 @@ describe("reading tables", () => {
 });
 
 describe("structured table payloads", () => {
-  it("openl_create_project_table sends a complete RawSource table", async () => {
+  it("openl_create_project_table sends a complete RawSource table and answers the version of the new table", async () => {
     harness.mockHttp.onPost(tablesPath).reply(201, { id: "t1", name: "LoanApplication", tableType: "RawSource", file: "Main.xlsx" });
+    harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1"));
     const table = { tableType: "RawSource", kind: "Datatype", name: "LoanApplication", source: [[{ value: "Datatype LoanApplication" }]] };
 
     const result = await executeTool("create_project_table", {
@@ -132,11 +133,7 @@ describe("structured table payloads", () => {
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ moduleName: "Main", table });
-    expect(dataOf(result)).toMatchObject({
-      success: true,
-      tableId: "t1",
-      message: "Successfully created RawSource table 'LoanApplication' in module 'Main'",
-    });
+    expect(dataOf(result)).toEqual({ tableId: "t1", version: "v1" });
   });
 
   it.each([
@@ -160,7 +157,7 @@ describe("structured table payloads", () => {
 
     const result = await executeTool("update_table", { projectId: "p1", tableId: "t1", view: JSON.stringify(view) }, harness.client);
 
-    expect(textOf(result)).toContain("Successfully updated table");
+    expect(dataOf(result)).toMatchObject({ tableId: "t1" });
     expect(bodyOf(harness.mockHttp.history.put[0])).toEqual(view);
   });
 
@@ -182,13 +179,7 @@ describe("openl_update_table", () => {
     const result = await executeTool("update_table", {
       projectId: "p1", tableId: "Rules.xls_1234", view, }, harness.client);
 
-    expect(dataOf(result)).toEqual({
-      success: true,
-      message: "Successfully updated table Rules.xls_1234",
-      recompileTriggered: true,
-      tableId: "Rules.xls_1234",
-      version: "v1",
-    });
+    expect(dataOf(result)).toEqual({ tableId: "Rules.xls_1234", version: "v1" });
     // The row-count probe before the PUT, and the recompile read after it
     expect(harness.mockHttp.history.get.map((request) => request.params)).toEqual([
       { raw: true, startRow: 0, maxRows: 1, cutMerges: true },
@@ -204,7 +195,7 @@ describe("openl_update_table", () => {
       projectId: "p1", tableId: "t1", view: rawTable("t1", undefined, { version: "v1" }), }, harness.client);
 
     expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
-    expect(dataOf(result)).toMatchObject({ success: true, tableId: "t1", version: "v2" });
+    expect(dataOf(result)).toMatchObject({ tableId: "t1", version: "v2" });
   });
 
   it("passes on Studio's refusal of a write over a table changed since it was read", async () => {
@@ -288,14 +279,13 @@ describe("openl_get_table cut by rows", () => {
 });
 
 describe("openl_delete_table", () => {
-  it("deletes the table and reports success", async () => {
+  it("deletes the table and names it", async () => {
     harness.mockHttp.onDelete(tablePath("t1")).reply(204);
 
     const result = await executeTool("delete_table", { projectId: "p1", tableId: "t1", version: "v1" }, harness.client);
 
     expect(harness.mockHttp.history.delete).toHaveLength(1);
-    expect(textOf(result)).toContain("Successfully deleted table t1");
-    expect(textOf(result)).toContain("openl_project_status");
+    expect(dataOf(result)).toEqual({ deleted: "t1" });
   });
 
   it("refuses a deletion that names no version of the table before reaching the backend", async () => {

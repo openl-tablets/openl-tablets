@@ -345,17 +345,17 @@ describe("project status", () => {
 
 describe("open, save and close", () => {
   it.each([
-    [{}, { status: "OPENED" }, "Project opened successfully"],
-    [{ branch: "develop" }, { status: "OPENED", branch: "develop" }, "Project opened successfully on branch 'develop'"],
-    [{ revision: "abc123" }, { status: "OPENED", revision: "abc123" }, "Project opened successfully at revision 'abc123'"],
-  ])("openl_open_project opens a closed project as %j asks", async (args, patch, message) => {
+    [{}, { status: "OPENED" }],
+    [{ branch: "develop" }, { status: "OPENED", branch: "develop" }],
+    [{ revision: "abc123" }, { status: "OPENED", revision: "abc123" }],
+  ])("openl_open_project opens a closed project as %j asks", async (args, patch) => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("CLOSED"));
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
     const result = await executeTool("open_project", { projectId: "design-project1", ...args }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([patch]);
-    expect(dataOf(result)).toEqual({ success: true, message });
+    expect(dataOf(result)).toEqual({ opened: true });
   });
 
   it("openl_open_project leaves an opened project as it is, which Studio would refuse to open again", async () => {
@@ -364,7 +364,7 @@ describe("open, save and close", () => {
     const result = await executeTool("open_project", { projectId: "design-project1" }, harness.client);
 
     expect(harness.mockHttp.history.patch).toHaveLength(0);
-    expect(dataOf(result).message).toBe("The project is open already");
+    expect(dataOf(result)).toEqual({ alreadyOpen: true });
   });
 
   it("openl_open_project switches the branch alone of an opened project", async () => {
@@ -376,7 +376,7 @@ describe("open, save and close", () => {
 
     expect(harness.mockHttp.history.get).toHaveLength(1);
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ branch: "develop" }]);
-    expect(dataOf(result)).toEqual({ success: true, message: "Branch switched to 'develop' successfully" });
+    expect(dataOf(result)).toEqual({ opened: true });
   });
 
   it("openl_open_project opens an opened project again on the branch at the revision asked for (EPBDS-16798)", async () => {
@@ -389,10 +389,7 @@ describe("open, save and close", () => {
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([
       { status: "OPENED", revision: "abc123", openDependencies: true, branch: "develop" },
     ]);
-    expect(dataOf(result)).toEqual({
-      success: true,
-      message: "Project opened successfully on branch 'develop' at revision 'abc123'",
-    });
+    expect(dataOf(result)).toEqual({ opened: true });
   });
 
   it("openl_open_project reports why it failed to open on a branch, without a second attempt", async () => {
@@ -417,8 +414,7 @@ describe("open, save and close", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "Save and close", status: "CLOSED" }]);
-    expect(textOf(result)).toContain("success");
-    expect(textOf(result)).toContain("Save and close");
+    expect(dataOf(result)).toEqual({ saved: true, closed: true });
   });
 
   it("openl_save_project omits the comment for a file repository", async () => {
@@ -431,7 +427,7 @@ describe("open, save and close", () => {
       projectId: "design-project1", }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true }]);
-    expect(dataOf(result)).toEqual({ success: true, message: "Project saved" });
+    expect(dataOf(result)).toEqual({ saved: true });
   });
 
   it("openl_save_project closes a project without unsaved changes when closeAfterSave asks for it", async () => {
@@ -442,20 +438,16 @@ describe("open, save and close", () => {
       projectId: "design-project1", comment: "Save and close", closeAfterSave: true, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "CLOSED" }]);
-    expect(dataOf(result)).toEqual({
-      success: true,
-      message: "There are no changes in the project; nothing to save. The project is closed.",
-    });
+    expect(dataOf(result)).toEqual({ saved: false, closed: true });
   });
 
   it.each([
-    ["a project without unsaved changes", "OPENED", {}, { status: "CLOSED" }, "Project closed successfully"],
+    ["a project without unsaved changes", "OPENED", {}, { status: "CLOSED" }, { closed: true }],
     ["saving the changes", "EDITING", { saveChanges: true, comment: "Save before close" },
-      { save: true, comment: "Save before close", status: "CLOSED" },
-      'Project saved and closed successfully with comment: "Save before close"'],
+      { save: true, comment: "Save before close", status: "CLOSED" }, { closed: true, saved: true }],
     ["discarding the changes", "EDITING", { discardChanges: true, confirmDiscard: true },
-      { status: "CLOSED", discardChanges: true }, "Project closed (unsaved changes discarded)"],
-  ] as const)("openl_close_project closes %s in one PATCH", async (_case, status, args, patch, message) => {
+      { status: "CLOSED", discardChanges: true }, { closed: true, discarded: true }],
+  ] as const)("openl_close_project closes %s in one PATCH", async (_case, status, args, patch, answer) => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView(status));
     harness.mockHttp.onPatch(lifecyclePath).reply(204);
 
@@ -463,7 +455,7 @@ describe("open, save and close", () => {
       projectId: "design-project1", ...args, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([patch]);
-    expect(dataOf(result)).toEqual({ success: true, message });
+    expect(dataOf(result)).toEqual(answer);
   });
 
   it("openl_close_project saves and closes a file repository project without a comment", async () => {
@@ -476,7 +468,7 @@ describe("open, save and close", () => {
       projectId: "design-project1", saveChanges: true, }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, status: "CLOSED" }]);
-    expect(dataOf(result)).toEqual({ success: true, message: "Project saved and closed successfully" });
+    expect(dataOf(result)).toEqual({ closed: true, saved: true });
   });
 
   it("openl_close_project asks for confirmDiscard before discarding unsaved changes", async () => {
@@ -485,7 +477,8 @@ describe("open, save and close", () => {
     const result = await executeTool("close_project", {
       projectId: "design-project1", discardChanges: true, }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({ success: false, confirmationRequired: true });
+    expect(dataOf(result)).toMatchObject({ confirmationRequired: true });
+    expect(dataOf(result)).not.toHaveProperty("success");
     expect(dataOf(result).message).toContain("confirmDiscard");
     expect(harness.mockHttp.history.patch).toHaveLength(0);
   });
@@ -507,17 +500,14 @@ describe("branches, creation and copies", () => {
   /** The id Studio answers a create or a copy with, the one the project list shows. */
   const createdId = "T19W2T33ZAYMF";
 
-  it.each([
-    ["abc123", "Successfully created branch 'feature/test-branch' from revision abc123"],
-    [undefined, "Successfully created branch 'feature/test-branch'"],
-  ])("openl_create_project_branch creates the branch from the revision %s", async (revision, message) => {
+  it.each(["abc123", undefined])("openl_create_project_branch creates the branch from the revision %s", async (revision) => {
     harness.mockHttp.onPost(`${projectPath}/branches`).reply(201);
 
     const result = await executeTool("create_project_branch", {
       projectId, branchName: "feature/test-branch", revision, }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ branch: "feature/test-branch", revision });
-    expect(dataOf(result)).toMatchObject({ success: true, message });
+    expect(dataOf(result)).toEqual({ created: "feature/test-branch" });
   });
 
   it.each([undefined, "dev"])("openl_create_project creates an empty project on the branch %s and answers its id", async (branch) => {
@@ -527,13 +517,7 @@ describe("branches, creation and copies", () => {
     const result = await executeTool("create_project", {
       repository: "Design Repository", projectName: "Offer-CW", branch, }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({
-      mode: "create",
-      projectId: createdId,
-      projectName: "Offer-CW",
-      branch: branch ?? "main",
-      revision: "abc123",
-    });
+    expect(dataOf(result)).toEqual({ projectId: createdId, branch: branch ?? "main", revision: "abc123" });
   });
 
   it.each([undefined, "dev"])("openl_create_project copies a project on Studio onto the branch %s", async (branch) => {
@@ -546,13 +530,7 @@ describe("branches, creation and copies", () => {
     const result = await executeTool("create_project", {
       repository: "design", template: sourceProjectId, projectName: "Offer-CW", branch, }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({
-      mode: "copy",
-      projectId: createdId,
-      branch: branch ?? "main",
-      revision: "def456",
-      message: expect.stringContaining(`Copied '${sourceProjectId}'`),
-    });
+    expect(dataOf(result)).toEqual({ projectId: createdId, branch: branch ?? "main", revision: "def456" });
   });
 
   it.each([

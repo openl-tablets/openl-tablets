@@ -43,13 +43,7 @@ describe("local change handlers", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.post[0].params).toEqual({ module: "Main Rules" });
-    expect(dataOf(response)).toEqual({
-      success: true,
-      message: "Successfully restored project module to local history version 'Revision Version'",
-      projectId: "design:Project",
-      moduleName: "Main Rules",
-      historyId: "Revision Version",
-    });
+    expect(dataOf(response)).toEqual({ restored: "Revision Version" });
   });
 
   it("requires an explicit project and module for both local-history operations", async () => {

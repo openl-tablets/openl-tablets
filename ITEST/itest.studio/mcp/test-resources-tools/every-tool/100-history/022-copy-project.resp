@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"mode\":\"copy\",\"projectId\":\"Y6F4YG1RVP1GN\",\"projectName\":\"McpToolsCopy\",\"source\":\"T19W2T33ZAYMF\",\"repository\":\"design\",\"branch\":\"master\",\"revision\":\"@\",\"message\":\"Copied 'T19W2T33ZAYMF' to 'McpToolsCopy' in repository 'design' (branch 'master') at revision @.\"}}"
+        "text": "{\"data\":{\"projectId\":\"Y6F4YG1RVP1GN\",\"branch\":\"master\",\"revision\":\"@\"}}"
       }
     ],
     "resultType": "complete",
