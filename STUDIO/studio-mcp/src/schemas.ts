@@ -436,6 +436,7 @@ export const getMergeConflictWorkbookSchema = z.strictObject({
 export const getMergeConflictTextSchema = z.strictObject({
   projectId: projectIdSchema,
   file: nonBlankString.describe("Conflicted text file path exactly as openl_get_merge_conflicts() lists it."),
+  fromConflict: z.number().int().min(0).optional().describe("The conflict to start at, with the merged lines before it, to read the rest of a file an answer cut."),
 });
 
 const textDecisionSchema = z.union([

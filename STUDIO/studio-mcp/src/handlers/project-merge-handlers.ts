@@ -8,6 +8,7 @@ import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
+import type { Truncation } from "../formatters.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText } from "../transfer-links.js";
 import { conflictCount, mergedTextOf } from "../text-merge.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
@@ -210,15 +211,39 @@ function mergedLinesOf(text: string): Record<string, unknown> {
   };
 }
 
-/** A conflicted text file as an agent reads it: the merged lines around the conflicts, and each conflict numbered. */
-function textOverview(file: string, blocks: Types.ConflictTextBlock[]): Record<string, unknown> {
+/**
+ * A conflicted text file as an agent reads it: the merged lines around the conflicts, and each conflict numbered.
+ * `fromConflict` starts it at a conflict, with the merged lines before it, to read the rest of a file one answer
+ * could not hold.
+ */
+function textOverview(
+  file: string,
+  blocks: Types.ConflictTextBlock[],
+  fromConflict = 0,
+): { file: string; conflicts: number; blocks: Array<Record<string, unknown>> } {
   let conflict = 0;
+  const all = blocks.map((block) => block.kind === "merged"
+    ? { kind: "merged", ...mergedLinesOf(block.text) }
+    : { kind: "conflict", conflict: conflict++, ours: block.ours, base: block.base, theirs: block.theirs });
+  const at = all.findIndex((block) => block.conflict === fromConflict);
+  if (fromConflict > 0 && at < 0) {
+    throw new ProtocolError(ProtocolErrorCode.InvalidParams,
+      `'${file}' has ${conflict} conflicts, numbered from 0: there is no conflict ${fromConflict}.`);
+  }
+  return { file, conflicts: conflict, blocks: all.slice(fromConflict > 0 ? Math.max(at - 1, 0) : 0) };
+}
+
+/** The cut of a conflicted text over the size limit of an answer: its leading blocks, continued at a conflict. */
+function textTruncation(overview: ReturnType<typeof textOverview>): Truncation {
+  const { blocks } = overview;
   return {
-    file,
-    conflicts: conflictCount(blocks),
-    blocks: blocks.map((block) => block.kind === "merged"
-      ? { kind: "merged", ...mergedLinesOf(block.text) }
-      : { kind: "conflict", conflict: conflict++, ours: block.ours, base: block.base, theirs: block.theirs }),
+    items: blocks.length,
+    unit: "blocks",
+    cut: (count) => ({ ...overview, blocks: blocks.slice(0, count) }),
+    next: (count) => {
+      const next = blocks.slice(count).find((block) => block.kind === "conflict");
+      return next ? `continue with fromConflict=${String(next.conflict)}` : "the rest holds no conflict";
+    },
   };
 }
 
@@ -433,7 +458,8 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const { blocks } = await client.getMergeConflictText(args.projectId, args.file);
-      return formatResult(textOverview(args.file, blocks));
+      const overview = textOverview(args.file, blocks, args.fromConflict);
+      return formatResult(overview, "json", { truncation: textTruncation(overview) });
     },
   });
 
