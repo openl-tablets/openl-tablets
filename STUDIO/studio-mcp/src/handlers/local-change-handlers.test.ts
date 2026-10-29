@@ -24,7 +24,11 @@ describe("local change handlers", () => {
       moduleName: "Main Rules",
     }, harness.client);
 
-    expect(dataOf(response)).toEqual(items);
+    // Each entry is named by the historyId a restore takes
+    expect(dataOf(response)).toEqual([
+      { historyId: "1787821200000_current", modifiedOn: "2026-08-27T09:00:00Z", current: true },
+      { historyId: "Revision Version" },
+    ]);
   });
 
   it("restores the requested project module and identifies it in the result", async () => {

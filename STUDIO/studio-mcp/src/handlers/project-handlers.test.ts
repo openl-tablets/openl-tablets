@@ -358,6 +358,15 @@ describe("open, save and close", () => {
     expect(dataOf(result)).toEqual({ success: true, message });
   });
 
+  it("openl_open_project leaves an opened project as it is, which Studio would refuse to open again", async () => {
+    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("EDITING"));
+
+    const result = await executeTool("open_project", { projectId: "design-project1" }, harness.client);
+
+    expect(harness.mockHttp.history.patch).toHaveLength(0);
+    expect(dataOf(result).message).toBe("The project is open already");
+  });
+
   it("openl_open_project switches the branch alone of an opened project", async () => {
     harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED"));
     harness.mockHttp.onPatch(lifecyclePath).reply(204);

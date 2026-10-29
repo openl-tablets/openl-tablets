@@ -12,7 +12,7 @@ export function registerLocalChangeHandlers(): void {
     name: "list_project_local_changes",
     title: "List Local Change History",
     description:
-      "List a module's local edit history for an explicitly identified project. Returns versions, timestamps, and which version is current. The project must be opened first with openl_open_project; repository 'local' is unsupported because local projects cannot be opened. Use openl_list_project_modules to obtain the required moduleName. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
+      "List a module's local edit history for an explicitly identified project. Returns each version by the historyId openl_restore_project_local_change takes, with its time, and marks the current one, which a restore leaves as it is. The project must be opened first with openl_open_project; repository 'local' is unsupported because local projects cannot be opened. Use openl_list_project_modules to obtain the required moduleName. It is no check for unsaved changes: openl_project_status reports the pending changes of the project.",
     schema: schemas.projectModuleSchema,
     annotations: {
       readOnlyHint: true,
@@ -22,7 +22,8 @@ export function registerLocalChangeHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const changes = await client.getProjectLocalChanges(args.projectId, args.moduleName);
 
-      return formatResult(changes);
+      // Each entry is named by the historyId openl_restore_project_local_change takes
+      return formatResult(changes.map(({ id, ...change }) => ({ historyId: id, ...change })));
     },
   });
 

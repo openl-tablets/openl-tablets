@@ -215,7 +215,7 @@ export function registerProjectHandlers(): void {
     name: "get_project",
     title: "Get Project Details",
     description:
-      "Get comprehensive project information including details, modules, dependencies, and metadata. Returns full project structure, configuration, and status. Its 'capabilities' tell which lifecycle tools apply: canOpen, canSave, canClose and canManageBranches are left out when the operation is not available — for a project edited in place (a file repository in single-user mode) the first three always are, as the project is always open and every edit is already in its files.",
+      "Get a project: its name, branch, status, repository, last change and revision, and its 'capabilities', the operations it takes. canOpen, canSave, canClose and canManageBranches are left out when the operation is not available: for a project edited in place (a file repository in single-user mode) the first three always are, as the project is always open and every edit is already in its files. include adds its compile status (status) or its rules.xml descriptor (descriptor).",
     schema: schemas.getProjectSchema,
     annotations: {
       readOnlyHint: true,
@@ -234,7 +234,7 @@ export function registerProjectHandlers(): void {
     name: "project_status",
     title: "Get Project Status",
     description:
-      "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch switches the opened design project to that branch first. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
+      "Get the project's compile state, diagnostics, pending changes, and module/test summary. A supplied branch puts the project on that branch first, opening a closed one. If Studio has not compiled the project yet (idle), the tool compiles it through the tables API before answering, waiting up to timeoutMs. A compilation that is already running, or outlasts timeoutMs, is reported as compiling: call the tool again for its result. Edits made through the MCP table tools already trigger recompilation. A project whose files another program, such as Excel or an IDE, changed since Studio compiled them is compiled again from those files, with a note to read its tables again: what was read before is what the files held before the change.",
     schema: schemas.projectStatusSchema,
     annotations: {
       readOnlyHint: false,
@@ -259,31 +259,25 @@ export function registerProjectHandlers(): void {
     name: "open_project",
     title: "Open Project for Editing",
     description:
-      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions. Use this before making changes to project tables or rules — unless the capabilities of openl_get_project lack canOpen: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
+      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions; a project open already is left as it is when neither asks otherwise. Use this before making changes to project tables or rules — unless the capabilities of openl_get_project lack canOpen: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
     schema: schemas.openProjectSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      let action: "opened" | "switched_branch" = "opened";
-
-      if (args.branch) {
-        action = await client.openOnBranch(args.projectId, args.branch, {
-          revision: args.revision,
-          openDependencies: args.openDependencies,
-        });
-      } else {
-        await client.openProject(args.projectId, {
-          revision: args.revision,
-          openDependencies: args.openDependencies,
-        });
-      }
+      const options = { revision: args.revision, openDependencies: args.openDependencies };
+      const action = args.branch
+        ? await client.openOnBranch(args.projectId, args.branch, options)
+        : await client.openProject(args.projectId, options);
 
       const onBranch = args.branch ? ` on branch '${args.branch}'` : "";
       const atRevision = args.revision ? ` at revision '${args.revision}'` : "";
-      const message = action === "switched_branch"
-        ? `Branch switched to '${args.branch}' successfully`
-        : `Project opened successfully${onBranch}${atRevision}`;
+      const messages = {
+        switched_branch: `Branch switched to '${args.branch}' successfully`,
+        already_open: "The project is open already",
+        opened: `Project opened successfully${onBranch}${atRevision}`,
+      };
+      const message = messages[action];
 
       const result = {
         success: true,
