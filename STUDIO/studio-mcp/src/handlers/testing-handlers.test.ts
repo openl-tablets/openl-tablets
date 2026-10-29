@@ -136,6 +136,22 @@ describe("test results", () => {
     expect(harness.mockHttp.history.get).toHaveLength(0);
   });
 
+  it("openl_get_test_results names the failed tests a test table leaves out of its list", async () => {
+    const failed = (id: string) => ({ id, description: id, status: "TR_NEQ" as const, executionTimeMs: 1 });
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({
+      testCases: [
+        { ...testCase("Test_premium", "Test_premium_1", 9, 7), testUnits: ["1", "2", "3", "4", "5"].map(failed) },
+        { ...testCase("Test_discount", "Test_discount_1", 2, 1), testUnits: [failed("1")] },
+      ],
+    }));
+
+    const result = await executeTool("get_test_results", { projectId: "design-project1", failuresOnly: true }, harness.client);
+
+    const [premium, discount] = dataOf<any>(result).testCases;
+    expect(premium.omittedFailures).toBe(2);
+    expect(discount).not.toHaveProperty("omittedFailures");
+  });
+
   it("openl_get_test_results renders the summary of the run", async () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ executionTimeMs: 250.5, numberOfTests: 10, numberOfFailures: 2 }));
 
@@ -229,7 +245,8 @@ describe("test results", () => {
     expect(text).toContain("Test_calculatePremium");
     expect(text).not.toContain("Test_calculateDiscount");
     // The paging of the caller goes to Studio with the table, not over the whole run.
-    expect(harness.mockHttp.history.get[0].params).toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, page: 1, size: 20 });
+    expect(harness.mockHttp.history.get[0].params)
+      .toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, allFailures: true, page: 1, size: 20 });
   });
 
   /** 13 test tables whose expected and actual values make each of them about 5,000 characters long. */

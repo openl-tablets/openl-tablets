@@ -62,11 +62,13 @@ export function registerTestingHandlers(): void {
         return formatResult(counts, format, { dataType: "test_results_summary" });
       }
 
-      const results = await waitForResult(
+      const read = await waitForResult(
         (request) => client.getTestResults(projectId, { ...options, ...request }),
         TEST_RESULTS_WAIT,
         extra,
       );
+      // Only a read of the failed tests is cut to `failures` of them
+      const results = args.failuresOnly ? withOmittedFailures(read) : read;
       if (args.tableId !== undefined) {
         // The results of one test table are never cut
         return formatResult(results, format, { dataType: "test_results", skipTruncation: true });
@@ -89,6 +91,21 @@ export function registerTestingHandlers(): void {
       });
     },
   });
+}
+
+/**
+ * The results with the number of failed tests each test table leaves out: with `failuresOnly`, Studio lists at most
+ * `failures` of them per test table, and the agent must not take a cut list for every failure.
+ */
+function withOmittedFailures(results: Types.TestsExecutionSummary): Types.TestsExecutionSummary {
+  return {
+    ...results,
+    testCases: results.testCases.map((testCase) => {
+      const failed = testCase.testUnits.filter((unit) => unit.status !== "TR_OK").length;
+      const omitted = testCase.numberOfFailures - failed;
+      return omitted > 0 ? { ...testCase, omittedFailures: omitted } : testCase;
+    }),
+  };
 }
 
 /** The cut of a page of test results: its leading test tables, continued from the offset of the next one. */
