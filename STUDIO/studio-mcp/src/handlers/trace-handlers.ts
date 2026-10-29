@@ -142,6 +142,32 @@ function withoutUnsetContext(variables: Types.DebugFrameVariables): Types.DebugF
 }
 
 /**
+ * The stack with the variables of its active frame, whose steps the frame lists in part already: the frame lists every
+ * step once, with its value from the variables and its cell from the frame, and the variables leave their own copy of
+ * the steps out. A frame without steps keeps the variables whole.
+ */
+function withStepValues(
+  stack: Types.DebugStackView,
+  frameIndex: number,
+  variables: Types.DebugFrameVariables,
+): Types.DebugStackView & { variables: Partial<Types.DebugFrameVariables> } {
+  const frame = stack.frames.find((candidate) => candidate.index === frameIndex);
+  if (!frame?.steps) {
+    return { ...stack, variables };
+  }
+  const { steps, ...rest } = variables;
+  const listed = new Map(frame.steps.map((step) => [step.ref, step]));
+  const merged = steps.map((step) => ({ ...listed.get(step.ref), ...step }));
+  const known = new Set(steps.map((step) => step.ref));
+  const onlyListed = frame.steps.filter((step) => !known.has(step.ref));
+  return {
+    ...stack,
+    frames: stack.frames.map((candidate) => (candidate === frame ? { ...frame, steps: [...merged, ...onlyListed] } : candidate)),
+    variables: rest,
+  };
+}
+
+/**
  * Shared 404 guidance: the debug session belongs to the client and is idle-reaped.
  * Interpolated by both rethrow helpers so the wording stays in one place.
  */
@@ -260,7 +286,7 @@ export function registerTraceHandlers(): void {
     description:
       "Step the suspended debug session once and return the new stack. For declarative rules (decision tables, spreadsheets, rating) the main move is type: 'out' — run the current frame to its own exit " +
       "so its result is inspectable — combined with breakpoints; 'into'/'over' are advanced (imperative TBasic/loops). A step that finishes a frame first suspends at that frame's exit — the frame is still on the stack " +
-      "with completed: true and its result readable via openl_inspect_trace_frame (or pass withValues: true to bundle those variables into this response); the next step continues in the caller. " +
+      "with completed: true and its result readable via openl_inspect_trace_frame (or pass withValues: true to bundle those variables into this response, every step of the frame then listed once in the frame, with its value); the next step continues in the caller. " +
       "An exception suspends at the throwing frame before it propagates. The stack is returned compact — steps only for the active frame; use openl_inspect_trace_frame for another frame's detail. Valid only while suspended. " +
       "(openl_resume_trace differs: it runs to the next breakpoint or completion, not just to this frame's exit.)",
     schema: schemas.stepTraceSchema,
@@ -279,7 +305,7 @@ export function registerTraceHandlers(): void {
       const active = stack.frames.find((f) => f.active) ?? stack.frames.at(-1);
       if (args.withValues && stack.status === "suspended" && active) {
         const variables = await client.getTraceFrameVariables(args.projectId, active.index, INSPECT_FIELDS);
-        result = { ...stack, variables: withoutUnsetContext(variables) };
+        result = withStepValues(stack, active.index, withoutUnsetContext(variables));
       }
 
       return formatResult(result);
