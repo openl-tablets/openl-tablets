@@ -129,6 +129,19 @@ describe("project lists and details", () => {
     expect(dataOf(result)[0]).not.toHaveProperty("repositoryInfo");
   });
 
+  it("names the capabilities of a project it reads in a list, leaving out one Studio marks unavailable", async () => {
+    const capabilities = { canOpen: true, canSave: false, canDeploy: true } as ProjectViewModel["capabilities"];
+    harness.mockHttp.onGet(lifecyclePath).reply(200, projectView("OPENED", { capabilities }));
+    harness.mockHttp.onGet("/projects").reply(200, pageOf([projectView("OPENED", { capabilities })]));
+
+    const project = dataOf(await executeTool("get_project", { projectId: "design-project1" }, harness.client));
+    const listed = dataOf(await executeTool("list_projects", {}, harness.client))[0];
+
+    expect(project.capabilities).toEqual(["canOpen", "canDeploy"]);
+    // A listed project leaves them to openl_get_project
+    expect(listed).not.toHaveProperty("capabilities");
+  });
+
   it("answers the compile status of a project without what the project names already", async () => {
     const compileStatus = {
       projectId: "design:project1:hash123", branch: "main", revision: "r1", compileState: "ok",

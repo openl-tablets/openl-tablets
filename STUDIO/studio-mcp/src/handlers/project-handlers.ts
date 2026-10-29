@@ -120,21 +120,31 @@ async function readProjectStatus(
   return client.getProjectStatus(projectId);
 }
 
-/** A project whose compile status may leave out what the project names already. */
-type AnsweredProject = Omit<Types.ProjectViewModel, "compileStatus"> & { compileStatus?: Partial<Types.ProjectStatusView> };
+/** A project as the project tools answer it, with its capabilities by name and a compile status that may be partial. */
+type AnsweredProject = Omit<Types.ProjectViewModel, "compileStatus" | "capabilities"> & {
+  compileStatus?: Partial<Types.ProjectStatusView>;
+  capabilities?: string[];
+};
+
+/** The operations a project takes, by name: `canOpen`, `canSave`. Studio leaves out the ones it does not take. */
+function capabilityNames(capabilities: Types.ProjectCapabilities): string[] {
+  return Object.entries(capabilities).filter(([, available]) => available).map(([name]) => name);
+}
 
 /**
- * A project as the project tools answer it: its compile status leaves out the id, the branch, the revision and the
- * last change the project names already, which an agent would otherwise read twice. A value that differs stays.
+ * A project as the project tools answer it: its capabilities as a list of names, and its compile status without the
+ * id, the branch, the revision and the last change the project names already, which an agent would otherwise read
+ * twice. A value that differs stays.
  */
-function withoutRepeatedStatus(project: Types.ProjectViewModel): AnsweredProject {
+function answeredProject({ capabilities, ...project }: Types.ProjectViewModel): AnsweredProject {
+  const answered = { ...project, ...(capabilities ? { capabilities: capabilityNames(capabilities) } : {}) };
   if (!project.compileStatus) {
-    return project;
+    return answered;
   }
   const { projectId, branch, revision, lastModifiedBy, ...status } = project.compileStatus;
   const sameChange = lastModifiedBy?.author === project.modifiedBy && lastModifiedBy?.date === project.modifiedAt;
   return {
-    ...project,
+    ...answered,
     compileStatus: {
       ...(projectId === project.id ? {} : { projectId }),
       ...(branch === project.branch ? {} : { branch }),
@@ -150,7 +160,7 @@ export function registerProjectHandlers(): void {
     name: "list_projects",
     title: "List Projects",
     description:
-      "List projects, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. Each project names its id as 'projectId', which the other tools take as it is. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
+      "List projects, filtered by repository (its id or name from openl_list_repositories), status, dependency, name, author, branch and tags, page by page (50 by default, 200 at most): follow pagination.next_offset while has_more is true for a complete list. Each project names its id as 'projectId', which the other tools take as it is, and leaves its capabilities to openl_get_project. The repository filter 'local' may fail: list without it and pick the projects whose repository is 'local'. Such a project, like a project edited in place (no canOpen, canSave and canClose in the capabilities of openl_get_project), is never opened, saved or closed and has no branches: its tables, rules and tests work as they are.",
     schema: schemas.listProjectsSchema,
     annotations: {
       readOnlyHint: true,
@@ -165,9 +175,10 @@ export function registerProjectHandlers(): void {
         repository: repository ? await client.getRepositoryIdByName(repository) : undefined,
       });
       // Each project carries its opaque id as projectId, the name the other tools take it by, and only so. The
-      // repository of a page is the same for many projects, and openl_list_repository_features tells it.
+      // repository of a page is the same for many projects, and openl_list_repository_features tells it; the capabilities
+      // of a project, openl_get_project.
       const transformedProjects = projectsPage.items.map((project) => {
-        const { id, repositoryInfo, ...rest } = withoutRepeatedStatus(project);
+        const { id, repositoryInfo, capabilities, ...rest } = answeredProject(project);
         return { projectId: id, ...rest };
       });
 
@@ -195,7 +206,7 @@ export function registerProjectHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const project = await client.getProject(args.projectId, args.include);
 
-      const { id, ...answered } = withoutRepeatedStatus(project);
+      const { id, ...answered } = answeredProject(project);
       return formatResult({ projectId: id, ...answered });
     },
   });
@@ -229,7 +240,7 @@ export function registerProjectHandlers(): void {
     name: "open_project",
     title: "Open Project for Editing",
     description:
-      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions. Use this before making changes to project tables or rules — unless capabilities.canOpen of openl_get_project is absent: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
+      "Open a project for editing. Supports opening on specific branches or viewing specific Git revisions. Use this before making changes to project tables or rules — unless the capabilities of openl_get_project lack canOpen: a project edited in place (a file repository in single-user mode) is always open, so edit its tables and files right away.",
     schema: schemas.openProjectSchema,
     annotations: {
       openWorldHint: true,
@@ -268,7 +279,7 @@ export function registerProjectHandlers(): void {
     name: "save_project",
     title: "Save Project",
     description:
-      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when capabilities.canSave of openl_get_project is absent: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
+      "Save project changes. Works when project status is EDITING (after opening and making changes). A comment is required only when repository features.comments is true; omit it when comments are unsupported. Creates a new revision and transitions project to OPENED. Optional closeAfterSave: true saves and closes in one request; a project without unsaved changes is then closed as it is. Use after update_table, edit_table, or other edits. Does not work for repository 'local', nor when the capabilities of openl_get_project lack canSave: a project edited in place (a file repository in single-user mode) has every edit in its files already, with nothing to save.",
     schema: schemas.saveProjectSchema,
     annotations: {
       openWorldHint: true,
@@ -286,7 +297,7 @@ export function registerProjectHandlers(): void {
     name: "close_project",
     title: "Close Project",
     description:
-      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; comment required only when repository features.comments is true) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss. Not for a project whose capabilities.canClose (openl_get_project) is absent: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
+      "Close a project. If the project has unsaved changes (status EDITING), you must either save (saveChanges: true; comment required only when repository features.comments is true) or discard (discardChanges: true). When discarding, ask the user for confirmation and then call again with confirmDiscard: true. Prevents accidental data loss. Not for a project whose capabilities (openl_get_project) lack canClose: a project edited in place (a file repository in single-user mode) is never closed, as its files are the project itself.",
     schema: schemas.closeProjectSchema,
     annotations: {
       destructiveHint: true, // Can discard changes if requested
@@ -351,7 +362,7 @@ export function registerProjectHandlers(): void {
     name: "create_project_branch",
     title: "Create Project Branch",
     description:
-      "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Only for a repository with branches (features.branches of openl_list_repository_features; capabilities.canManageBranches of openl_get_project): the folder of a file repository has none, a project edited in place included.",
+      "Create a new branch in a project's repository from a specified revision. Allows branching from specific revisions, tags, or other branches. If no revision is specified, the HEAD revision will be used. Only for a repository with branches (features.branches of openl_list_repository_features; canManageBranches in the capabilities of openl_get_project): the folder of a file repository has none, a project edited in place included.",
     schema: schemas.createBranchSchema,
     annotations: {
       openWorldHint: true,
