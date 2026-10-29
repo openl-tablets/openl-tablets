@@ -101,7 +101,7 @@ describe('TextMergeEditor', () => {
         })
     })
 
-    it('adds the other version after the one taken, and discards the changes of both', async () => {
+    it('adds the other version after the one taken, and takes the base lines', async () => {
         const { onApply } = renderEditor()
         const conflict = await screen.findByTestId('text-merge-conflict-1')
 
@@ -115,14 +115,14 @@ describe('TextMergeEditor', () => {
         await userEvent.click(screen.getByTestId('text-merge-apply'))
         expect(onApply).toHaveBeenLastCalledWith(expect.objectContaining({ text: 'a=1\nb=ours\nb=theirs\nc=3\n' }))
 
-        await userEvent.click(within(conflict).getByTestId('text-merge-discard'))
+        await userEvent.click(within(conflict).getByTestId('text-merge-take-base'))
 
         expect(resultOf(1)).toHaveValue('b=2')
-        expect(within(conflict).getByText('merge:editor.status_discarded')).toBeInTheDocument()
+        expect(within(conflict).getByText('merge:editor.status_base')).toBeInTheDocument()
         await userEvent.click(screen.getByTestId('text-merge-apply'))
         expect(onApply).toHaveBeenLastCalledWith(expect.objectContaining({ text: 'a=1\nb=2\nc=3\n' }))
 
-        // Taking a version after the changes are discarded starts over from it.
+        // Taking a version after the base lines starts over from it.
         await userEvent.click(within(conflict).getByTestId('text-merge-take-theirs'))
         expect(resultOf(1)).toHaveValue('b=theirs')
     })

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { getConflictText } from '../../services/compare'
 import { errorMessage } from '../../utils/errorMessage'
 import { basename } from '../projects/projectPaths'
-import { ButtonColumns, ColumnTitles, Columns, ConflictHeading, DiscardButton, TakeButton } from './MergeColumns'
+import { ButtonColumns, ColumnTitles, Columns, ConflictHeading, TakeBaseButton, TakeButton } from './MergeColumns'
 import type {
     ConflictChoice,
     ConflictDecision,
@@ -101,7 +101,7 @@ interface TextMergeEditorProps {
  * are taken from it by the merge itself.
  *
  * A conflict shows the base lines in the result until it is resolved. The user takes your or their lines, takes the
- * other version after them, discards both changes, or edits the result. The file is merged once every conflict is
+ * other version after them, takes the base lines, or edits the result. The file is merged once every conflict is
  * resolved, with the line breaks it is written with.
  */
 export const TextMergeEditor: React.FC<TextMergeEditorProps> = ({
@@ -304,7 +304,7 @@ const STATUSES: Record<ConflictChoice, string> = {
     'theirs': 'merge:editor.status_theirs',
     'ours-theirs': 'merge:editor.status_yours_then_theirs',
     'theirs-ours': 'merge:editor.status_theirs_then_yours',
-    'base': 'merge:editor.status_discarded',
+    'base': 'merge:editor.status_base',
     'edited': 'merge:editor.status_edited',
 }
 
@@ -383,11 +383,11 @@ const ConflictPart = React.memo(function ConflictPart({
                 ours={<TakeLinesButton choice={choice} onTake={take} side="ours" />}
                 theirs={<TakeLinesButton choice={choice} onTake={take} side="theirs" />}
                 result={(
-                    <DiscardButton
+                    <TakeBaseButton
                         disabled={choice === 'base'}
-                        hint={t('merge:editor.discard_hint')}
-                        onDiscard={() => onDecide(index, { choice: 'base', lines: block.base })}
-                        testId="text-merge-discard"
+                        hint={t('merge:editor.base_hint')}
+                        onTake={() => onDecide(index, { choice: 'base', lines: block.base })}
+                        testId="text-merge-take-base"
                     />
                 )}
             />

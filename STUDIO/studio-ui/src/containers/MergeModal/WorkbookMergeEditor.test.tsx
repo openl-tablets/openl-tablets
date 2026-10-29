@@ -132,10 +132,12 @@ describe('WorkbookMergeEditor', () => {
 
         await userEvent.click(screen.getByTestId('workbook-merge-table-1-take-theirs'))
         expect(columnsOf(1)[1]).toEqual(['Rules rate', '', 'US', '20'])
+        // A table that never came merged cell by cell has nothing to go back to.
+        expect(screen.queryByTestId('workbook-merge-table-1-undo')).toBeNull()
         await next()
         await userEvent.click(await screen.findByTestId('workbook-merge-table-2-take-ours'))
         await userEvent.click(screen.getByRole('tab', { name: /Extra/ }))
-        await userEvent.click(await screen.findByTestId('workbook-merge-sheet-discard'))
+        await userEvent.click(await screen.findByTestId('workbook-merge-sheet-take-base'))
 
         expect(screen.getByTestId('workbook-merge-progress')).toHaveTextContent('merge:editor.progress 3/3')
         await userEvent.click(screen.getByTestId('workbook-merge-apply'))
@@ -484,7 +486,7 @@ describe('WorkbookMergeEditor', () => {
             expect(screen.getByTestId('workbook-merge-table-1-B2-take-ours')).toBeInTheDocument()
             expect(cellOf('20', gridOf(2)).className).toBe(cellOf('20').className)
             expect(cellOf('10', gridOf(0)).className).not.toBe(cellOf('20').className)
-            expect(screen.getByTestId('workbook-merge-table-1')).toHaveTextContent('merge:workbook.status_by_cells')
+            expect(screen.getByTestId('workbook-merge-table-1')).toHaveTextContent('merge:workbook.status_all_resolved')
             await userEvent.click(screen.getByTestId('workbook-merge-apply'))
 
             await waitFor(() => expect(onApply).toHaveBeenCalledWith({
@@ -628,22 +630,35 @@ describe('WorkbookMergeEditor', () => {
             await userEvent.dblClick(cellOf('1'))
             await userEvent.type(within(resultGrid()).getByTestId('table-cell-input'), '{Enter}')
 
-            expect(screen.getByTestId('workbook-merge-table-1')).toHaveTextContent('merge:workbook.status_by_cells')
+            expect(screen.getByTestId('workbook-merge-table-1')).toHaveTextContent('merge:workbook.status_all_resolved')
             await userEvent.click(screen.getByTestId('workbook-merge-apply'))
             expect(mergeConflictWorkbook).toHaveBeenCalledWith('p1', 'Project/rules/Rates.xlsx', {}, {
                 'Rules/A1:B2': { cells: [{ row: 1, column: 1, value: '1' }]},
             })
         })
 
-        it('takes the table whole from its menu, then merges it cell by cell again', async () => {
+        it('takes the table whole by the buttons above its versions, then undoes it to merge cell by cell again', async () => {
             renderEditor()
 
-            await userEvent.click(await screen.findByTestId('workbook-merge-table-1-whole-table'))
-            await userEvent.click(await screen.findByText('merge:editor.take_theirs'))
+            await screen.findByTestId('workbook-merge-table-1-merged')
+            expect(screen.queryByTestId('workbook-merge-table-1-undo')).toBeNull()
+            expect(screen.getByTestId('workbook-merge-table-1-take-base')).toHaveTextContent('merge:editor.take_base')
+            await userEvent.click(screen.getByTestId('workbook-merge-table-1-take-theirs'))
             expect(screen.queryByTestId('workbook-merge-table-1-merged')).toBeNull()
             expect(columnsOf(1)[1]).toEqual(['Rules rate', '', 'US', '20'])
+            // The conflicting cell is framed as chosen in the version taken and in the result, and not in the other one.
+            expect(cellOf('20', gridOf(1)).className).toBe(cellOf('20', gridOf(2)).className)
+            expect(cellOf('10', gridOf(0)).className).not.toBe(cellOf('20', gridOf(1)).className)
 
-            await userEvent.click(screen.getByTestId('workbook-merge-table-1-by-cells'))
+            await userEvent.click(screen.getByTestId('workbook-merge-table-1-take-base'))
+            expect(columnsOf(1)[1]).toEqual(['Rules rate', '', 'US', '1'])
+            expect(cellOf('10', gridOf(0)).className).toBe(cellOf('20', gridOf(2)).className)
+            expect(cellOf('1', gridOf(1)).className).not.toBe(cellOf('20', gridOf(2)).className)
+            expect(screen.getByTestId('workbook-merge-table-1')).toHaveTextContent('merge:editor.status_base')
+
+            expect(screen.getByTestId('workbook-merge-table-1-undo')).toHaveTextContent('merge:workbook.undo_whole')
+            await userEvent.click(screen.getByTestId('workbook-merge-table-1-undo'))
+            expect(screen.queryByTestId('workbook-merge-table-1-undo')).toBeNull()
             expect(screen.getByTestId('workbook-merge-table-1-merged')).toBeInTheDocument()
             expect(columnsOf(1)[1]).toEqual(['Rules rate', '', 'USA', '1'])
         })
