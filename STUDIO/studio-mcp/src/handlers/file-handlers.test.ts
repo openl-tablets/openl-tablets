@@ -253,7 +253,6 @@ describe("openl_write_project_file", () => {
       projectId: "p1",
       path: "docs/new.md",
       content: "héllo",
-      response_format: "json",
     }, harness.client);
 
     expect(writtenBytes().toString("utf-8")).toBe("héllo");
@@ -283,7 +282,6 @@ describe("openl_write_project_file", () => {
       path: "docs/x.md",
       content: "hello",
       message: "add docs/x.md",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "add docs/x.md" }]);
@@ -300,7 +298,6 @@ describe("openl_write_project_file", () => {
       path: "docs/x.md",
       content: "hello",
       message: "add docs/x.md",
-      response_format: "json",
     }, harness.client);
 
     expect(dataOf(result)).toMatchObject({ success: true, committed: false });
@@ -316,7 +313,6 @@ describe("openl_write_project_file", () => {
       path: "docs/x.md",
       content: "hello",
       message: "add docs/x.md",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.patch).toHaveLength(0);
@@ -332,7 +328,6 @@ describe("openl_write_project_file", () => {
       path: "docs/x.md",
       content: "hi",
       branch: "dev",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.post[0].params).toMatchObject({ conflictPolicy: "FAIL", branch: "dev" });
@@ -356,7 +351,6 @@ describe("openl_write_project_file", () => {
       content: "v2-overwrite",
       version: "v1",
       branch: "dev",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": '"v1"' });
@@ -419,7 +413,6 @@ describe("delete, search, copy and move", () => {
       projectId: "p1",
       path: "old.txt",
       version: "v1",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.delete[0].headers).toMatchObject({ "If-Match": '"v1"' });
@@ -437,7 +430,7 @@ describe("delete, search, copy and move", () => {
     harness.mockHttp.onPost(/\/projects\/p1\/file-(copy|move)/).reply(201);
     editedInPlace();
 
-    const result = await executeTool(tool, { projectId: "p1", ...args, response_format: "json" }, harness.client);
+    const result = await executeTool(tool, { projectId: "p1", ...args }, harness.client);
 
     expect(harness.mockHttp.history[method]).toHaveLength(1);
     expect(dataOf(result).message).toMatch(/The project is edited in place/);
@@ -473,7 +466,6 @@ describe("delete, search, copy and move", () => {
       projectId: "p1",
       pattern: "**/*.xml",
       content: "premium",
-      response_format: "json",
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "**/*.xml", content: "premium" });
@@ -501,11 +493,9 @@ describe("delete, search, copy and move", () => {
     harness.mockHttp.onPost("/projects/p1/file-search").reply(200, nodes);
 
     const page1 = JSON.parse(textOf(await executeTool("search_project_files", {
-      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 0, response_format: "json",
-    }, harness.client)));
+      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 0, }, harness.client)));
     const page3 = JSON.parse(textOf(await executeTool("search_project_files", {
-      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 4, response_format: "json",
-    }, harness.client)));
+      projectId: "p1", pattern: "**/*.xlsx", limit: 2, offset: 4, }, harness.client)));
 
     expect(page1.data.map((node: { name: string }) => node.name)).toEqual(["f0.xlsx", "f1.xlsx"]);
     expect(page1.pagination).toMatchObject({ limit: 2, offset: 0, total_count: 5, has_more: true });
@@ -520,7 +510,7 @@ describe("delete, search, copy and move", () => {
     harness.mockHttp.onPost(`/projects/p1/${endpoint}`).reply(status);
     const paths = { sourcePath: "rules/M.xlsx", destinationPath: "legacy/M.xlsx" };
 
-    const result = await executeTool(tool, { projectId: "p1", ...paths, response_format: "json" }, harness.client);
+    const result = await executeTool(tool, { projectId: "p1", ...paths }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(paths);
     expect(dataOf(result)).toMatchObject({ success: true, ...paths });

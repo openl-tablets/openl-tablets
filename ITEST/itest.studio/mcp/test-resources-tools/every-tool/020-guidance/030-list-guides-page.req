@@ -14,8 +14,7 @@ Authorization: Token ${PAT}
     "name": "openl_list_guides",
     "arguments": {
       "search": "spreadsheet",
-      "limit": 3,
-      "response_format": "markdown"
+      "limit": 3
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

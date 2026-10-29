@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "```json\n[\n  {\n    \"path\": \"docs/notes.txt\",\n    \"name\": \"notes.txt\",\n    \"type\": \"file\",\n    \"basePath\": \"docs\",\n    \"extension\": \"txt\",\n    \"size\": 37,\n    \"lastModified\": \"#-#-#T#:#:#.#Z\"\n  },\n  {\n    \"path\": \"archive/notes.txt\",\n    \"name\": \"notes.txt\",\n    \"type\": \"file\",\n    \"basePath\": \"archive\",\n    \"extension\": \"txt\",\n    \"size\": 37,\n    \"lastModified\": \"#-#-#T#:#:#.#Z\"\n  }\n]\n```\n\n---\n**Pagination**\n- Showing items 1-2\n- Total: 2"
+        "text": "{\"data\":[{\"path\":\"docs/notes.txt\",\"name\":\"notes.txt\",\"type\":\"file\",\"basePath\":\"docs\",\"extension\":\"txt\",\"size\":37,\"lastModified\":\"#-#-#T#:#:#.#Z\"},{\"path\":\"archive/notes.txt\",\"name\":\"notes.txt\",\"type\":\"file\",\"basePath\":\"archive\",\"extension\":\"txt\",\"size\":37,\"lastModified\":\"#-#-#T#:#:#.#Z\"}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":2}}"
       }
     ],
     "resultType": "complete",

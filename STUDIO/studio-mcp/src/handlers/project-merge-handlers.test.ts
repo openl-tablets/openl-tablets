@@ -26,11 +26,9 @@ describe("project branch and merge handlers", () => {
     });
 
     const projectResponse = await executeTool("list_project_branches", {
-      projectId: "p1", response_format: "json",
-    }, harness.client);
+      projectId: "p1", }, harness.client);
     const repositoryResponse = await executeTool("list_project_branches", {
-      projectId: "p1", scope: "repository", response_format: "json",
-    }, harness.client);
+      projectId: "p1", scope: "repository", }, harness.client);
 
     expect(scopes).toEqual(["project", "repository"]);
     expect(dataOf(projectResponse)).toEqual(projectBranches);
@@ -43,8 +41,7 @@ describe("project branch and merge handlers", () => {
     });
 
     const response = await executeTool("check_project_merge", {
-      projectId: "p1", otherBranch: "feature", mode: "receive", response_format: "json",
-    }, harness.client);
+      projectId: "p1", otherBranch: "feature", mode: "receive", }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ mode: "receive", otherBranch: "feature" });
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
@@ -58,8 +55,7 @@ describe("project branch and merge handlers", () => {
     });
 
     const response = await executeTool("merge_project_branches", {
-      projectId: "p1", otherBranch: "feature", mode: "receive", response_format: "json",
-    }, harness.client);
+      projectId: "p1", otherBranch: "feature", mode: "receive", }, harness.client);
 
     expect(harness.mockHttp.history.post.map((request) => request.url)).toEqual(["/projects/p1/merge/check"]);
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
@@ -80,8 +76,7 @@ describe("project branch and merge handlers", () => {
     });
 
     const response = await executeTool("merge_project_branches", {
-      projectId: "p1", otherBranch: "feature", mode: "receive", response_format: "json",
-    }, harness.client);
+      projectId: "p1", otherBranch: "feature", mode: "receive", }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[1])).toEqual({ mode: "receive", otherBranch: "feature" });
     expect(harness.mockHttp.history.post[1].params).toEqual({ force: false });
@@ -296,8 +291,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
 
       const overview = dataOf(await executeTool("get_merge_conflict_workbook", {
-        projectId: "p1", file: "rules/Main.xlsx", response_format: "json",
-      }, harness.client));
+        projectId: "p1", file: "rules/Main.xlsx", }, harness.client));
 
       expect(harness.mockHttp.history.get[0].params).toEqual({ file: "rules/Main.xlsx" });
       expect(overview.sheets[0]).toEqual({
@@ -334,8 +328,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/workbook").reply(200, workbook);
 
       const table = dataOf(await executeTool("get_merge_conflict_workbook", {
-        projectId: "p1", file: "rules/Main.xlsx", table: "Rules/A1:B2", response_format: "json",
-      }, harness.client));
+        projectId: "p1", file: "rules/Main.xlsx", table: "Rules/A1:B2", }, harness.client));
 
       expect(table).toMatchObject({ sheet: "Rules", id: "Rules/A1:B2", byCells: true });
       expect(table.theirs).toEqual({
@@ -380,8 +373,7 @@ describe("project branch and merge handlers", () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, text);
 
       const response = await executeTool("get_merge_conflict_text", {
-        projectId: "p1", file: "rules.xml", response_format: "json",
-      }, harness.client);
+        projectId: "p1", file: "rules.xml", }, harness.client);
 
       expect(harness.mockHttp.history.get[0].params).toEqual({ file: "rules.xml" });
       expect(dataOf(response)).toEqual({
@@ -437,7 +429,6 @@ describe("project branch and merge handlers", () => {
           { file: "rules-deploy.xml", strategy: "THEIRS" },
         ],
         message: "Merge rates",
-        response_format: "json",
       }, harness.client);
 
       expect(harness.mockHttp.history.get.find((request) => request.url?.endsWith("/text"))?.params)
@@ -492,8 +483,7 @@ describe("project branch and merge handlers", () => {
   it("clears the pending conflict session", async () => {
     harness.mockHttp.onDelete("/projects/p1/merge/conflicts").reply(204);
     const response = await executeTool("cancel_merge_conflicts", {
-      projectId: "p1", response_format: "json",
-    }, harness.client);
+      projectId: "p1", }, harness.client);
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({ success: true });
   });
 
@@ -507,8 +497,7 @@ describe("project branch and merge handlers", () => {
     expect(harness.mockHttp.history.delete).toHaveLength(0);
 
     const response = await executeTool("delete_project", {
-      projectId: "p1", confirmProjectName: "Rating", comment: "Remove retired project", response_format: "json",
-    }, harness.client);
+      projectId: "p1", confirmProjectName: "Rating", comment: "Remove retired project", }, harness.client);
     expect(harness.mockHttp.history.delete[0].params).toEqual({ comment: "Remove retired project" });
     expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
       success: true, projectName: "Rating",
@@ -585,7 +574,6 @@ describe("project branch and merge handlers", () => {
     const response = await executeTool("delete_project_branch", {
       ...request,
       confirmDataLoss: true,
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([

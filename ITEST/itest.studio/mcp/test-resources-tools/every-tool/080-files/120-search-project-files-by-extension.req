@@ -17,8 +17,7 @@ Authorization: Token ${PAT}
       "extensions": [
         "txt"
       ],
-      "recursive": true,
-      "response_format": "markdown"
+      "recursive": true
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

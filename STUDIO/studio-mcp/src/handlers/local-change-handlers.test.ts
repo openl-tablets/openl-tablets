@@ -22,7 +22,6 @@ describe("local change handlers", () => {
     const response = await executeTool("list_project_local_changes", {
       projectId: "design:Project",
       moduleName: "Main Rules",
-      response_format: "json",
     }, harness.client);
 
     expect(dataOf(response)).toEqual(items);
@@ -37,7 +36,6 @@ describe("local change handlers", () => {
       projectId: "design:Project",
       moduleName: "Main Rules",
       historyId: "Revision Version",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.post[0].params).toEqual({ module: "Main Rules" });

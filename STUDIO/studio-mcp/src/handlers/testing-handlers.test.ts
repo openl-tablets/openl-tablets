@@ -43,7 +43,6 @@ describe("openl_start_project_tests", () => {
       tableId: "Test_calculatePremium_1234",
       testRanges: "1-3",
       fromModule: "Rules",
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.post[0].params).toEqual({
@@ -81,16 +80,13 @@ describe("test results", () => {
 
     const summary = await executeTool("get_test_results_summary", {
       projectId: "design-project1",
-      response_format: "json",
     }, harness.client);
     const full = await executeTool("get_test_results", {
       projectId: "design-project1",
-      response_format: "json",
     }, harness.client);
     const byTable = await executeTool("get_test_results_by_table", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
-      response_format: "json",
     }, harness.client);
 
     for (const response of [summary, full, byTable]) {
@@ -181,7 +177,6 @@ describe("test results", () => {
       projectId: "design-project1",
       page: page.pageNumber,
       size: page.pageSize,
-      response_format: "json",
     }, harness.client);
 
     expect(JSON.parse(textOf(result)).pagination).toEqual(pagination);
@@ -194,7 +189,7 @@ describe("test results", () => {
   ])("openl_get_test_results takes the page size from %j when Studio leaves it out", async (args, limit) => {
     harness.mockHttp.onGet(summaryPath).reply(200, { ...resultsPage({}), pageSize: undefined });
 
-    const result = await executeTool("get_test_results", { projectId: "design-project1", ...args, response_format: "json" }, harness.client);
+    const result = await executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client);
 
     expect(JSON.parse(textOf(result)).pagination).toMatchObject({ limit, offset: 0 });
   });
@@ -236,8 +231,7 @@ describe("test results", () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: largeTables, numberOfTests: 13, total: 13 }));
 
     const text = textOf(await executeTool("get_test_results", {
-      projectId: "design-project1", response_format: "json",
-    }, harness.client));
+      projectId: "design-project1", }, harness.client));
 
     expect(text.length).toBeLessThanOrEqual(25_000);
     const response = JSON.parse(text);
@@ -254,8 +248,7 @@ describe("test results", () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ testCases: largeTables, numberOfTests: 13, total: 13 }));
 
     const text = textOf(await executeTool("get_test_results", {
-      projectId: "design-project1", unpaged: true, response_format: "json",
-    }, harness.client));
+      projectId: "design-project1", unpaged: true, }, harness.client));
 
     expect(text.length).toBeGreaterThan(25_000);
     expect(JSON.parse(text).data.testCases).toHaveLength(13);

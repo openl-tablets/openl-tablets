@@ -166,7 +166,7 @@ export function registerProjectHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       const project = await client.getProject(args.projectId, args.include);
 
-      return formatResult(project, args.response_format);
+      return formatResult(project);
     },
   });
 
@@ -191,7 +191,7 @@ export function registerProjectHandlers(): void {
       const note = refreshed ? CHANGED_ON_DISK_NOTE : STATUS_NOTES[status.compileState];
       const payload = note ? { ...shaped, note } : shaped;
 
-      return formatResult(payload, args.response_format);
+      return formatResult(payload);
     },
   });
 
@@ -230,7 +230,7 @@ export function registerProjectHandlers(): void {
         message,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -248,7 +248,7 @@ export function registerProjectHandlers(): void {
         closeAfterSave: args.closeAfterSave,
       });
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -264,7 +264,7 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const reply = (result: Record<string, unknown>): ToolResponse =>
-        formatResult(result, args.response_format);
+        formatResult(result);
       if (args.saveChanges === true && args.discardChanges === true) {
         throw new ProtocolError(
           ProtocolErrorCode.InvalidParams,
@@ -337,7 +337,7 @@ export function registerProjectHandlers(): void {
         revision: args.revision,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -397,7 +397,7 @@ export function registerProjectHandlers(): void {
         message: createdMessage(source, args.projectName, args.repository, created),
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -414,7 +414,7 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const modules = await client.listProjectModules(args.projectId);
-      return formatResult(modules, args.response_format);
+      return formatResult(modules);
     },
   });
 
@@ -431,7 +431,7 @@ export function registerProjectHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       const sheets = await client.listModuleSheets(args.projectId, args.moduleName);
-      return formatResult(sheets, args.response_format);
+      return formatResult(sheets);
     },
   });
 }

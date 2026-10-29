@@ -35,7 +35,7 @@ export function registerFileHandlers(): void {
       const meta = isFolderPath(path) ? undefined : await client.getProjectFileMeta(projectId, path, at);
       if (!meta || meta.type === "folder") {
         return formatResult(await downloadLink(client, { kind: "archive", projectId, path, ...at }),
-          args.response_format);
+          );
       }
       if (meta.size !== undefined && meta.size <= INLINE_TEXT_BYTES) {
         const text = inlineText(await client.readProjectFile(projectId, path, at));
@@ -45,7 +45,7 @@ export function registerFileHandlers(): void {
         }
       }
       const link = await downloadLink(client, { kind: "download", projectId, path, ...at }, meta.size);
-      return formatResult(meta.version === undefined ? link : { ...link, version: meta.version }, args.response_format);
+      return formatResult(meta.version === undefined ? link : { ...link, version: meta.version });
     },
   });
 
@@ -89,7 +89,7 @@ export function registerFileHandlers(): void {
         message: writtenMessage(created, buffer.length, args.path, args.message, inPlace ? "inPlace" : commit),
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -118,7 +118,7 @@ export function registerFileHandlers(): void {
         createFolders: args.createFolders,
         size: args.size,
         sha256: args.sha256,
-      }), args.response_format);
+      }));
     },
   });
 
@@ -151,7 +151,7 @@ export function registerFileHandlers(): void {
           : `Deleted '${args.path}' from the project working copy. Use openl_save_project to commit the deletion to Git.`,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -189,7 +189,7 @@ export function registerFileHandlers(): void {
         branch: args.branch,
         fields: args.fields,
       });
-      return textResult(formatPage(results, args.response_format, limit, offset));
+      return textResult(formatPage(results, "json", limit, offset));
     },
   });
 
@@ -361,6 +361,6 @@ function transferHandler(
         : `${done} '${args.sourcePath}' to '${args.destinationPath}' in the project working copy. ` +
           `Use openl_save_project to commit the ${action} to Git.`,
     };
-    return formatResult(result, args.response_format);
+    return formatResult(result);
   };
 }

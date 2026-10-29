@@ -36,6 +36,16 @@ describe("tool registry", () => {
     expect(lenient).toEqual([]);
   });
 
+  it("offers response_format only on the tools whose answer has a Markdown view of its own", () => {
+    const formatted = getAllTools()
+      .filter((tool) => "response_format" in (tool.inputSchema.properties as Record<string, unknown>))
+      .map((tool) => tool.name);
+    expect(formatted.toSorted()).toEqual([
+      "get_table_dependencies", "get_test_results", "get_test_results_by_table", "get_test_results_summary",
+      "list_deployments", "list_projects", "list_repositories", "list_tables",
+    ]);
+  });
+
   it("leaves a field with a default out of the required ones", () => {
     const required = (name: string): unknown =>
       getAllTools().find((tool) => tool.name === name)?.inputSchema.required;
@@ -59,6 +69,7 @@ describe("argument validation", () => {
     ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { response_format: "xml" }, /markdown_concise.*markdown_detailed/],
+    ["get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, /response_format/],
   ])("enforces the published %s constraints at runtime", async (toolName, args, message) => {
     await expect(executeTool(toolName, args, harness.client)).rejects.toThrow(message);
     expect(harness.mockHttp.history.get).toHaveLength(0);

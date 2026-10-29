@@ -43,7 +43,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "start_trace",
-      { projectId, tableId: "calc_42", breakpoints: ["MyDT#rule"], response_format: "json" },
+      { projectId, tableId: "calc_42", breakpoints: ["MyDT#rule"] },
       harness.client
     );
 
@@ -67,7 +67,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "start_trace",
-      { projectId, tableId: "calc_42", stopAtEntry: false, profiling: true, profileTop: 30, response_format: "json" },
+      { projectId, tableId: "calc_42", stopAtEntry: false, profiling: true, profileTop: 30 },
       harness.client
     );
 
@@ -82,7 +82,7 @@ describe("trace tools", () => {
 
     await executeTool(
       "start_trace",
-      { projectId, tableId: "calc_42", stopAtEntry: false, profiling: true, includeTree: true, response_format: "json" },
+      { projectId, tableId: "calc_42", stopAtEntry: false, profiling: true, includeTree: true },
       harness.client
     );
 
@@ -100,7 +100,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "expand_trace_tree",
-      { projectId, uri: "P/Rules.xlsx?sheet=Main&range=B2:D8", instance: 0, step: "R2C0", response_format: "json" },
+      { projectId, uri: "P/Rules.xlsx?sheet=Main&range=B2:D8", instance: 0, step: "R2C0" },
       harness.client
     );
 
@@ -123,7 +123,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "expand_trace_tree",
-      { projectId, uri: "u", instance: 0, step: "R1C0", offset: 2, response_format: "json" },
+      { projectId, uri: "u", instance: 0, step: "R1C0", offset: 2 },
       harness.client
     );
 
@@ -139,7 +139,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "expand_trace_tree",
-      { projectId, uri: "u", instance: 0, step: "R9C9", response_format: "json" },
+      { projectId, uri: "u", instance: 0, step: "R9C9" },
       harness.client
     );
 
@@ -158,7 +158,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "expand_trace_tree",
-      { projectId, uri: "u", instance: 0, step: "R1C0", offset: 100, response_format: "json" },
+      { projectId, uri: "u", instance: 0, step: "R1C0", offset: 100 },
       harness.client
     );
 
@@ -173,7 +173,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "step_trace",
-      { projectId, type: "over", response_format: "json" },
+      { projectId, type: "over" },
       harness.client
     );
     expect(queryOf(harness.mockHttp.history.post[0])).toEqual({ type: "over", view: "compact", includeTree: "false" });
@@ -190,7 +190,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "step_trace",
-      { projectId, type: "out", withValues: true, response_format: "json" },
+      { projectId, type: "out", withValues: true },
       harness.client
     );
 
@@ -206,7 +206,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "resume_trace",
-      { projectId, response_format: "json" },
+      { projectId },
       harness.client
     );
 
@@ -222,7 +222,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "resume_trace",
-      { projectId, response_format: "json" },
+      { projectId },
       harness.client
     );
 
@@ -244,7 +244,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "resume_trace",
-      { projectId, timeoutMs: 1, response_format: "json" },
+      { projectId, timeoutMs: 1 },
       harness.client
     );
 
@@ -272,7 +272,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "inspect_trace_frame",
-      { projectId, frameIndex: 0, response_format: "json" },
+      { projectId, frameIndex: 0 },
       harness.client
     );
     expect(textOf(result)).toContain("R10");
@@ -301,7 +301,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "inspect_trace_frame",
-      { projectId, frameIndex: 0, onlyExecutedSteps: true, excludeStepValues: [1], response_format: "json" },
+      { projectId, frameIndex: 0, onlyExecutedSteps: true, excludeStepValues: [1] },
       harness.client
     );
 
@@ -318,7 +318,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "inspect_trace_frame",
-      { projectId, frameIndex: 0, withHighlights: true, response_format: "json" },
+      { projectId, frameIndex: 0, withHighlights: true },
       harness.client
     );
 
@@ -337,7 +337,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "set_trace_breakpoints",
-      { projectId, response_format: "json" },
+      { projectId },
       harness.client
     );
 
@@ -353,7 +353,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "set_trace_breakpoints",
-      { projectId, breakpoints: ["uri#R0C1"], response_format: "json" },
+      { projectId, breakpoints: ["uri#R0C1"] },
       harness.client
     );
 
@@ -366,7 +366,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "get_trace_value",
-      { projectId, parameterId: 5, response_format: "json" },
+      { projectId, parameterId: 5 },
       harness.client
     );
     expect(textOf(result)).toContain("1000");
@@ -413,7 +413,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "watch_trace_cells",
-      { projectId, tableId: "calc_42", cells: ["$VehiclePriceFactor"], testRanges: "1", response_format: "json" },
+      { projectId, tableId: "calc_42", cells: ["$VehiclePriceFactor"], testRanges: "1" },
       harness.client
     );
 
@@ -446,7 +446,7 @@ describe("trace tools", () => {
 
     const result = await executeTool(
       "watch_trace_cells",
-      { projectId, tableId: "calc_42", cells: ["$ClaimCost"], response_format: "json" },
+      { projectId, tableId: "calc_42", cells: ["$ClaimCost"] },
       harness.client
     );
 

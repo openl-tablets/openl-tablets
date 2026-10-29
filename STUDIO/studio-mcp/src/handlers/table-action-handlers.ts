@@ -35,7 +35,6 @@ interface BaseActionArgs {
   projectId: string;
   tableId: string;
   version: string;
-  response_format?: Types.ResponseFormat;
 }
 
 interface ActionToolSpec<S extends ZodType<BaseActionArgs> = ZodType<BaseActionArgs>> {

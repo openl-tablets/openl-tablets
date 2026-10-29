@@ -22,7 +22,7 @@ export function registerDeploymentHandlers(): void {
       const { limit, offset } = args;
 
       const repositories = await client.listDeployRepositories();
-      return textResult(formatPage(repositories, args.response_format, limit, offset, { dataType: "deploy_repositories" }));
+      return textResult(formatPage(repositories, "json", limit, offset));
     },
   });
 
@@ -73,7 +73,7 @@ export function registerDeploymentHandlers(): void {
         message: `Successfully deployed ${args.deploymentName} to ${args.productionRepositoryId}`,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -98,7 +98,7 @@ export function registerDeploymentHandlers(): void {
         deploymentId: args.deploymentId,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 }

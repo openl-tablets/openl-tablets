@@ -13,8 +13,7 @@ Authorization: Token ${PAT}
   "params": {
     "name": "openl_get_project",
     "arguments": {
-      "projectId": "${PROJECT_ID}",
-      "response_format": "markdown_concise"
+      "projectId": "${PROJECT_ID}"
     },
     "_meta": {
       "io.modelcontextprotocol/protocolVersion": "2026-07-28",

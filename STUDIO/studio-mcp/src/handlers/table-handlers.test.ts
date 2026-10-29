@@ -31,8 +31,7 @@ describe("reading tables", () => {
     ));
 
     const result = await executeTool("list_tables", {
-      projectId: "p1", limit: 50, offset: 25, response_format: "json",
-    }, harness.client);
+      projectId: "p1", limit: 50, offset: 25, }, harness.client);
 
     const response = JSON.parse(textOf(result));
     expect(response.data.map((table: { id: string }) => table.id)).toEqual(["t26"]);
@@ -49,7 +48,6 @@ describe("reading tables", () => {
       startRow: 2,
       maxRows: 1,
       styles: true,
-      response_format: "json",
     }, harness.client);
 
     expect(harness.mockHttp.history.get[0].params).toEqual({ raw: true, startRow: 2, maxRows: 1, cutMerges: true, styles: true });
@@ -66,7 +64,7 @@ describe("reading tables", () => {
   it("openl_get_table returns a table that fits the limit without indentation whole (EPBDS-16853)", async () => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(133)));
 
-    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, harness.client);
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client);
 
     expect(textOf(result).length).toBeLessThanOrEqual(25_000);
     const response = JSON.parse(textOf(result));
@@ -83,8 +81,7 @@ describe("reading tables", () => {
       harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(600), startRow ? { totalRows: 700 } : {}));
 
       const result = await executeTool("get_table", {
-        projectId: "p1", tableId: "t1", startRow, response_format: "json",
-      }, harness.client);
+        projectId: "p1", tableId: "t1", startRow, }, harness.client);
 
       expect(textOf(result).length).toBeLessThanOrEqual(25_000);
       const response = JSON.parse(textOf(result));
@@ -118,8 +115,7 @@ describe("reading tables", () => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", rows(returned), totalRows ? { totalRows } : {}));
 
     const result = await executeTool("get_table", {
-      projectId: "p1", tableId: "t1", ...window, response_format: "json",
-    }, harness.client);
+      projectId: "p1", tableId: "t1", ...window, }, harness.client);
 
     expect(JSON.parse(textOf(result)).window).toEqual(expected);
   });
@@ -134,7 +130,6 @@ describe("structured table payloads", () => {
       projectId: "p1",
       moduleName: "Main",
       table,
-      response_format: "json",
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ moduleName: "Main", table });
@@ -214,8 +209,7 @@ describe("openl_update_table", () => {
     harness.mockHttp.onGet(tablePath("Rules.xls_1234")).reply(200, view);
 
     const result = await executeTool("update_table", {
-      projectId: "p1", tableId: "Rules.xls_1234", view, response_format: "json",
-    }, harness.client);
+      projectId: "p1", tableId: "Rules.xls_1234", view, }, harness.client);
 
     expect(dataOf(result)).toEqual({
       success: true,
@@ -236,8 +230,7 @@ describe("openl_update_table", () => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", undefined, { version: "v2" }));
 
     const result = await executeTool("update_table", {
-      projectId: "p1", tableId: "t1", view: rawTable("t1", undefined, { version: "v1" }), response_format: "json",
-    }, harness.client);
+      projectId: "p1", tableId: "t1", view: rawTable("t1", undefined, { version: "v1" }), }, harness.client);
 
     expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
     expect(dataOf(result)).toMatchObject({ success: true, tableId: "t1", version: "v2" });
@@ -265,7 +258,7 @@ describe("openl_update_table", () => {
     harness.mockHttp.onGet(tablePath("t1")).reply(200, view);
     harness.mockHttp.onPut(tablePath("t1")).reply(204);
 
-    const read = dataOf(await executeTool("get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, harness.client));
+    const read = dataOf(await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client));
     await executeTool("update_table", { projectId: "p1", tableId: "t1", view: read }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.put[0]).source[3][0].value).toEqual(["MA2", "FA+", "SPA"]);
@@ -314,7 +307,7 @@ describe("openl_get_table cut by rows", () => {
     ]);
     harness.mockHttp.onGet(tablePath("t1")).reply(200, rawTable("t1", source));
 
-    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, harness.client);
+    const result = await executeTool("get_table", { projectId: "p1", tableId: "t1" }, harness.client);
 
     const response = JSON.parse(textOf(result));
     const delivered = response.data.source.length;
@@ -326,8 +319,7 @@ describe("openl_get_table cut by rows", () => {
 describe("openl_append_table", () => {
   const append = (tableId: string, rows: object[][]) =>
     executeTool("append_table", {
-      projectId: "p1", tableId, appendData: { tableType: "RawSource", rows }, version: "v1", response_format: "json",
-    }, harness.client);
+      projectId: "p1", tableId, appendData: { tableType: "RawSource", rows }, version: "v1", }, harness.client);
 
   it("appends the rows, keeps the id of a table edited in place, and reads the table back", async () => {
     harness.mockHttp.onPost(`${tablePath("t1")}/lines`).reply(204);

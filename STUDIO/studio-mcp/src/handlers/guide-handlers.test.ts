@@ -37,7 +37,6 @@ describe("guidance tools", () => {
     const result = await executeTool("list_guides", {
       type: "guide",
       search: "smart",
-      response_format: "json",
     }, harness.client);
 
     const parsed = JSON.parse(textOf(result));

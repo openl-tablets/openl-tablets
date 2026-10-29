@@ -152,7 +152,7 @@ export function registerTableHandlers(): void {
       // Studio names the rows of the table only when the window leaves some out
       const totalRows = table.totalRows ?? startRow + table.source.length;
 
-      return formatResult(table, args.response_format, { truncation: rowTruncation(table, startRow, totalRows) });
+      return formatResult(table, "json", { truncation: rowTruncation(table, startRow, totalRows) });
     },
   });
 
@@ -178,7 +178,7 @@ export function registerTableHandlers(): void {
         note: "The table area is cleared regardless of type; the table no longer exists once the project recompiles. Run openl_project_status to confirm the project still compiles.",
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 
@@ -254,7 +254,7 @@ export function registerTableHandlers(): void {
         message: `Successfully created ${createdTable.tableType} table '${createdTable.name}' in module '${args.moduleName}'`,
       };
 
-      return formatResult(result, args.response_format);
+      return formatResult(result);
     },
   });
 }

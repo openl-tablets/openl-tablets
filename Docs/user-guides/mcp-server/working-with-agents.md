@@ -82,7 +82,8 @@ The tools of the MCP server have names that start with `openl_` and fall into th
 -   **Deployment** — listing the deployment repositories and the deployed projects, and deploying a project.
 -   **Diagnostics** — reporting the version of OpenL Studio the server belongs to.
 
-Each tool answers in JSON, which the agent reads best. To read an answer yourself, ask the agent for it in Markdown.
+Each tool answers in JSON, which the agent reads best. To read a list of repositories, projects, tables or deployments,
+the test results or the dependencies of tables yourself, ask the agent for it in Markdown.
 
 ### Requests to Try
 
