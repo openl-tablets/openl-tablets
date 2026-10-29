@@ -46,6 +46,18 @@ describe("tool registry", () => {
     ]);
   });
 
+  it("publishes no dialect and no safe-integer bounds, but the bounds of a tool", () => {
+    const published = JSON.stringify(getAllTools().map((tool) => tool.inputSchema));
+    const listTables = getAllTools().find((tool) => tool.name === "list_tables")?.inputSchema;
+
+    expect(published).not.toContain("$schema");
+    expect(published).not.toContain(String(Number.MAX_SAFE_INTEGER));
+    expect(listTables?.properties).toMatchObject({
+      limit: { type: "integer", exclusiveMinimum: 0, maximum: 200 },
+      offset: { type: "integer", minimum: 0 },
+    });
+  });
+
   it("leaves a field with a default out of the required ones", () => {
     const required = (name: string): unknown =>
       getAllTools().find((tool) => tool.name === name)?.inputSchema.required;
@@ -70,6 +82,7 @@ describe("argument validation", () => {
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { response_format: "xml" }, /markdown_concise.*markdown_detailed/],
     ["get_table", { projectId: "p1", tableId: "t1", response_format: "json" }, /response_format/],
+    ["list_tables", { projectId: "p1", offset: 2 ** 60 }, /Invalid arguments for list_tables.*offset/s],
   ])("enforces the published %s constraints at runtime", async (toolName, args, message) => {
     await expect(executeTool(toolName, args, harness.client)).rejects.toThrow(message);
     expect(harness.mockHttp.history.get).toHaveLength(0);
