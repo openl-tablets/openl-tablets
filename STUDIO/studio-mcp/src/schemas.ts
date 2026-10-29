@@ -453,7 +453,7 @@ const cellIndexSchema = z.number().int().min(0);
 const workbookDecisionSchema = z.union([
   z.strictObject({
     id: nonBlankString.describe("A table id, a sheet name (taking the whole sheet), or '/palette'."),
-    side: z.enum(["ours", "theirs", "base"]).describe("The version the conflict is taken from whole; the palette takes ours or theirs only."),
+    side: z.enum(["ours", "theirs", "base"]).describe("The version the conflict is taken from whole, with the cells only the other branch changed lost; a table that says byCells: true keeps them with cells. The palette takes ours or theirs only."),
   }),
   z.strictObject({
     id: nonBlankString.describe("The id of a table whose overview says byCells: true."),
@@ -476,7 +476,7 @@ export const resolveMergeConflictsSchema = z.strictObject({
   resolutions: z.array(z.union([
     z.strictObject({
       file: nonBlankString.describe("Conflicted file path exactly as openl_get_merge_conflicts() lists it."),
-      strategy: z.enum(["BASE", "OURS", "THEIRS"]).describe("Take the whole file from the base version, your version (the current branch) or their version."),
+      strategy: z.enum(["BASE", "OURS", "THEIRS"]).describe("Take the whole file from the base version, your version (the current branch) or their version; a version fileAvailability marks false, which does not hold the file, deletes it."),
     }),
     z.strictObject({
       file: nonBlankString.describe("Conflicted Excel file path exactly as openl_get_merge_conflicts() lists it."),
