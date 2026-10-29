@@ -18,11 +18,10 @@ export function registerFileHandlers(): void {
     title: "Read Project File",
     description:
       "Read a file of a project by its project-relative path. " +
-      `A text file of up to ${INLINE_TEXT_BYTES} bytes — text as the Content-Type OpenL Studio answers for it says: text/*, JSON, XML or YAML — is returned inline, verbatim. ` +
-      "Any other file — a larger text, a workbook, an image, an archive — and a folder, as a ZIP archive, is returned as a download LINK: JSON with the url, a ready `curl` command that saves it locally, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
-      "Run the curl command in a shell: the bytes never enter the conversation. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and may be fetched again; an agent that has the repository itself can read repositoryPath there instead. " +
-      "Read the TABLES of a workbook with openl_get_table, not as a file. Optional 'version' reads a historical revision; 'branch' pins the project's branch. List or find files with openl_search_project_files. " +
-      "The answer tells the file's current 'version' — beside the inline text, or in the link JSON — which openl_write_project_file, openl_create_upload_link and openl_delete_project_file require to replace or delete the file.",
+      `A text file of up to ${INLINE_TEXT_BYTES} bytes — text/*, JSON, XML or YAML, as the Content-Type Studio answers says — comes inline, verbatim. ` +
+      "Any other file, and a folder as a ZIP archive, comes as a download LINK: JSON with the url, a ready `curl` command that saves it, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
+      "Run the command in a shell, so the bytes never enter the conversation; where Studio authenticates, the link needs no credential and works until expiresAt. An agent that has the repository itself can read repositoryPath there. " +
+      "Read the TABLES of a workbook with openl_get_table. The answer tells the current 'version' of the file, beside the inline text or in the link JSON, which a replacement or a deletion of the file takes back.",
     schema: schemas.readProjectFileSchema,
     annotations: {
       readOnlyHint: true,
@@ -53,9 +52,7 @@ export function registerFileHandlers(): void {
     name: "write_project_file",
     title: "Write Project File",
     description:
-      "Create or replace a TEXT file in a project by its project-relative path, from UTF-8 'content'. To send a file you have on disk — a workbook, an image, any binary or large file — ask for an upload link with openl_create_upload_link and run its curl command instead of typing the content out. " +
-      "COMMIT: pass 'message' to commit the write to Git (a new revision is created); omit 'message' and the write stays in the project WORKING COPY (commit it later with openl_save_project). Committing saves ALL pending project changes and works only for design repositories (not 'local'). A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. " +
-      "Without 'version' the tool creates a NEW file, missing parent folders included by default (createFolders=true), and writes nothing when a file is already at the path. To REPLACE a file, pass the 'version' openl_read_project_file answered for it: Studio replaces the file in place only while it has that version, and writes nothing when it changed since — on disk, such as in an IDE, or through another client — so read it again and repeat the change. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). (To change a module's TABLES use openl_update_table / openl_edit_table / openl_create_project_table.)",
+      "Create or replace a TEXT file of a project by its project-relative path, from UTF-8 'content'; send a file from disk — a workbook, an image, any binary or large file — by openl_create_upload_link instead. Without 'version' it creates a NEW file, its missing folders too unless createFolders is false, and writes nothing over a file at the path; with the 'version' of a file it replaces it. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. 'message' commits the write, with every pending change of the project, in a design repository. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once. Change the TABLES of a workbook with openl_update_table, openl_edit_table or openl_create_project_table.",
     schema: schemas.writeProjectFileSchema,
     annotations: {
       openWorldHint: true,
@@ -97,10 +94,7 @@ export function registerFileHandlers(): void {
     name: "create_upload_link",
     title: "Create Upload Link",
     description:
-      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. Takes the target of the write: 'path' (project-relative), 'createFolders' (default true) and 'branch'; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients (in single-user mode the link is the REST API, which checks neither). " +
-      "Without 'version' the link creates a NEW file and writes nothing over a file already at the path. To REPLACE a file, pass the 'version' openl_read_project_file answered for it: the link replaces the file only while it has that version, and writes nothing when it changed since — in Excel, on disk or through another client — so read it again and repeat the change on what it holds now. " +
-      "Returns JSON with the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch). Run the command in a shell, adjusting the local file name. Where OpenL Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. " +
-      "The file lands in the project WORKING COPY, as openl_write_project_file writes it; commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. A small text file can be written with openl_write_project_file directly.",
+      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
       openWorldHint: true,
@@ -126,7 +120,7 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or folder from a project by its project-relative path. A file is deleted by the 'version' openl_read_project_file answered for it, which is required: Studio deletes nothing when the file changed since — on disk or through another client. A folder is deleted without it. The backend auto-cleans dangling references to the deleted resource from the project configuration. Like writes, the deletion is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch (omit for local/non-branch repositories). Use this to remove legacy assets or deprecate docs. This is a destructive operation.",
+      "Delete a file or a folder of a project by its project-relative path; a file by the 'version' openl_read_project_file answered for it. Studio removes the references the project configuration holds to it. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once. Destructive.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
@@ -197,7 +191,7 @@ export function registerFileHandlers(): void {
     name: "copy_project_file",
     title: "Copy Project File",
     description:
-      "Copy a file within a project to a new project-relative path. Intermediate destination folders are created automatically. There is NO overwrite option — if destinationPath already exists the call fails with HTTP 409; choose a different destination or delete the existing file first. The copy is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to scaffold a new module from an existing one or clone a test set.",
+      "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,
@@ -209,7 +203,7 @@ export function registerFileHandlers(): void {
     name: "move_project_file",
     title: "Move or Rename Project File",
     description:
-      "Move or rename a file within a project. Intermediate destination folders are created automatically and the source file is deleted after the move. A destination collision fails with HTTP 409. The move is staged in the working copy — commit it with openl_save_project. A project edited in place (no canOpen and no canClose in the capabilities of openl_get_project) has no working copy: the change is in its files at once, and there is nothing to commit. Use 'branch' to pin the project's branch. Use this to rename a file or relocate it to another folder.",
+      "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,

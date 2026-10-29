@@ -779,7 +779,7 @@ const filePathSchema = z
 const fileBranchSchema = branchNameSchema
   .optional()
   .describe(
-    "Branch the project must be on for this operation. Ignored when blank. Fails if the repository has no branches or the project is on another branch. Omit for repository 'local' and non-branch repositories."
+    "The branch the project must be on; the call fails when it is on another. Leave out for a repository without branches."
   );
 
 export const readProjectFileSchema = z.strictObject({
@@ -799,9 +799,8 @@ export const readProjectFileSchema = z.strictObject({
 
 /** The version of a file a write replaces or a deletion removes, as openl_read_project_file answered it. */
 const fileVersionText =
-  "The 'version' openl_read_project_file answered for the file. Studio changes the file only while it has this " +
-  "version: a file changed since — on disk, such as in an IDE or in Excel, or through another client — is left as " +
-  "it is, so read it again and repeat the change on what it holds now.";
+  "The 'version' openl_read_project_file answered for the file. A file changed since, in an IDE, in Excel or through " +
+  "another client, is left as it is: read it again and repeat the change.";
 
 const writeProjectFileBaseSchema = z.strictObject({
   projectId: projectIdSchema,
