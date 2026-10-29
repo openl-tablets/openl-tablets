@@ -257,8 +257,8 @@ describe("formatters", () => {
       ["an empty list", []],
       ["null", null],
       ["unicode text", { emoji: "😀🎉", chinese: "你好", arabic: "مرحبا" }],
-    ])("answers %s as the data of the JSON envelope, also by default", (_case, data) => {
-      expect(JSON.parse(formatResponse(data, "json"))).toEqual({ data });
+    ])("answers %s as the data of the JSON envelope without indentation, also by default", (_case, data) => {
+      expect(formatResponse(data, "json")).toBe(JSON.stringify({ data }));
       expect(formatResponse(data)).toBe(formatResponse(data, "json"));
     });
 

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"breakpoints\": [\n      \"AgeFactor\"\n    ],\n    \"targets\": [\n      {\n        \"name\": \"AgeFactor\",\n        \"kind\": \"decisionTable\"\n      },\n      {\n        \"name\": \"Premium\",\n        \"kind\": \"spreadsheet\"\n      }\n    ]\n  }\n}"
+        "text": "{\"data\":{\"breakpoints\":[\"AgeFactor\"],\"targets\":[{\"name\":\"AgeFactor\",\"kind\":\"decisionTable\"},{\"name\":\"Premium\",\"kind\":\"spreadsheet\"}]}}"
       }
     ],
     "resultType": "complete",

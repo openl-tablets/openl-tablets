@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"url\": \"http://example.com/transfers/***\",\n    \"method\": \"GET\",\n    \"expiresAt\": \"***\",\n    \"repositoryId\": \"design\",\n    \"repositoryPath\": \"McpTools/docs/\",\n    \"branch\": \"master\",\n    \"curl\": \"curl -fsS -o 'docs.zip' 'http://example.com/transfers/***'\",\n    \"note\": \"Run curl to save the file; the link works until it expires, a cut download is fetched again with it.\"\n  }\n}"
+        "text": "{\"data\":{\"url\":\"http://example.com/transfers/***\",\"method\":\"GET\",\"expiresAt\":\"***\",\"repositoryId\":\"design\",\"repositoryPath\":\"McpTools/docs/\",\"branch\":\"master\",\"curl\":\"curl -fsS -o 'docs.zip' 'http://example.com/transfers/***'\",\"note\":\"Run curl to save the file; the link works until it expires, a cut download is fetched again with it.\"}}"
       }
     ],
     "resultType": "complete",

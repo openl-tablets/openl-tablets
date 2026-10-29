@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"tableId\": \"*\",\n    \"tableName\": \"Driver\",\n    \"tableType\": \"Datatype\",\n    \"file\": \"McpTools/rules/Main.xlsx\",\n    \"message\": \"Successfully created Datatype table 'Driver' in module 'Main'\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"tableId\":\"*\",\"tableName\":\"Driver\",\"tableType\":\"Datatype\",\"file\":\"McpTools/rules/Main.xlsx\",\"message\":\"Successfully created Datatype table 'Driver' in module 'Main'\"}}"
       }
     ],
     "resultType": "complete",

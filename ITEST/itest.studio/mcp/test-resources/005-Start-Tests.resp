@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"status\": \"started\",\n    \"projectId\": \"F512FCPNK42CG\",\n    \"projectWasOpened\": true,\n    \"message\": \"Test execution started (project was automatically opened)\"\n  }\n}"
+        "text": "{\"data\":{\"status\":\"started\",\"projectId\":\"F512FCPNK42CG\",\"projectWasOpened\":true,\"message\":\"Test execution started (project was automatically opened)\"}}"
       }
     ],
     "resultType": "complete",

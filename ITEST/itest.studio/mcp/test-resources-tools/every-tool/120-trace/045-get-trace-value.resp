@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"name\": \"driver\",\n    \"description\": \"Driver\",\n    \"value\": {\n      \"name\": \"Tom\",\n      \"age\": 70\n    }\n  }\n}"
+        "text": "{\"data\":{\"name\":\"driver\",\"description\":\"Driver\",\"value\":{\"name\":\"Tom\",\"age\":70}}}"
       }
     ],
     "resultType": "complete",

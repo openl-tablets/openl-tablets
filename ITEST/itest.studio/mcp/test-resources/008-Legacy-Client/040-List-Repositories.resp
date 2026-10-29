@@ -2,4 +2,4 @@ HTTP/1.1 200 OK
 Content-Type: text/event-stream
 
 event: message
-data: {"result":{"content":[{"type":"text","text":"*\"id\": \"design\",*"}]*},"jsonrpc":"2.0","id":3}
+data: {"result":{"content":[{"type":"text","text":"*\"id\":\"design\",*"}]*},"jsonrpc":"2.0","id":3}

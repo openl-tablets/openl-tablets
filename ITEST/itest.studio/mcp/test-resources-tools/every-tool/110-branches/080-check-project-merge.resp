@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"sourceBranch\": \"feature\",\n    \"targetBranch\": \"master\",\n    \"status\": \"mergeable\",\n    \"canMerge\": true,\n    \"scope\": {\n      \"projects\": [\n        {\n          \"id\": \"T19W2T33ZAYMF\",\n          \"name\": \"McpTools\",\n          \"path\": \"McpTools\",\n          \"current\": true,\n          \"status\": \"modified\",\n          \"changedFiles\": 1,\n          \"changedInBoth\": [\n            \"McpTools/docs/notes.txt\"\n          ]\n        }\n      ],\n      \"hiddenProjects\": 0\n    }\n  }\n}"
+        "text": "{\"data\":{\"sourceBranch\":\"feature\",\"targetBranch\":\"master\",\"status\":\"mergeable\",\"canMerge\":true,\"scope\":{\"projects\":[{\"id\":\"T19W2T33ZAYMF\",\"name\":\"McpTools\",\"path\":\"McpTools\",\"current\":true,\"status\":\"modified\",\"changedFiles\":1,\"changedInBoth\":[\"McpTools/docs/notes.txt\"]}],\"hiddenProjects\":0}}}"
       }
     ],
     "resultType": "complete",

@@ -115,7 +115,7 @@ function withoutWrapperFields(record: Record<string, unknown>): Record<string, u
 /** Build a bounded, valid-JSON preview when one response value cannot be sliced structurally. */
 function truncateJsonPreview(response: PaginatedResponse<unknown>, charLimit: number): string {
   const { data, ...metadata } = response;
-  const serializedData = JSON.stringify(data, null, 2);
+  const serializedData = JSON.stringify(data);
   const build = (previewLength: number, includeMetadata: boolean): string => JSON.stringify({
     ...(includeMetadata ? metadata : {}),
     data: {
@@ -124,7 +124,7 @@ function truncateJsonPreview(response: PaginatedResponse<unknown>, charLimit: nu
     },
     truncated: true,
     truncation_message: NARROW_REQUEST,
-  }, null, 2);
+  });
 
   // Preserve small pagination/expansion metadata when it fits; otherwise the
   // bounded preview and truncation notice are more important than that metadata.
@@ -133,7 +133,7 @@ function truncateJsonPreview(response: PaginatedResponse<unknown>, charLimit: nu
   const longest = Math.min(serializedData.length, charLimit);
   const best = largestFitting(0, longest, (length) => build(length, includeMetadata), charLimit);
   if (best !== undefined) return best;
-  const minimal = JSON.stringify({ truncated: true }, null, 2);
+  const minimal = JSON.stringify({ truncated: true });
   return minimal.length <= charLimit ? minimal : "null";
 }
 
@@ -165,13 +165,6 @@ export function formatResponse<T>(
   if (options?.skipTruncation || formattedString.length <= charLimit) {
     return formattedString;
   }
-  // JSON without indentation, when it fits, keeps the whole answer
-  if (format === "json") {
-    const compact = JSON.stringify(response);
-    if (compact.length <= charLimit) {
-      return compact;
-    }
-  }
   const cut = truncation ?? listTruncation(response);
   const fitted = cut && fitLeadingItems(response, format, options, charLimit, cut);
   if (fitted) {
@@ -197,8 +190,8 @@ function listTruncation(response: PaginatedResponse<unknown>): Truncation | unde
 
 /**
  * A response cut to the character limit by whole items: as many leading items as fit, the pagination of a list
- * telling what was delivered, and a note on how to read the rest. JSON is then written without indentation. When
- * not even one item fits, JSON is a preview of the first item, and Markdown is undefined.
+ * telling what was delivered, and a note on how to read the rest. When not even one item fits, JSON is a preview of
+ * the first item, and Markdown is undefined.
  */
 function fitLeadingItems(
   response: PaginatedResponse<unknown>,
@@ -250,8 +243,9 @@ function render<T>(
   options: FormatOptions | undefined,
   charLimit: number,
 ): string {
+  // An agent reads JSON as well without indentation, which would take more of its context than the data itself
   if (format === "json") {
-    return JSON.stringify(response, null, 2);
+    return JSON.stringify(response);
   }
   const graphMarkdown = format === "markdown" || format === "markdown_detailed";
   if (options?.dataType === "table_dependencies" && Array.isArray(response.data) && graphMarkdown) {

@@ -97,13 +97,14 @@ Tool names are bare inside the registry (`get_table`); the `openl_` prefix is ad
 
 ## Responses and Errors
 
-- **Results** — JSON in a text content block. A result over 25,000 characters is written without indentation first,
-  and returned whole when it then fits. Otherwise it is cut by whole items, in JSON and Markdown alike: a list by
-  items, with the page cursor moved to match, a table read by rows, with `totalRows` and the `startRow` to continue
-  from. The note on a cut result names only a way to continue that the tool has; anything else is cut to a preview.
-  A page of `openl_get_test_results` is cut by whole test tables. An unpaged read of test results, the test results of
-  one table and guides are never cut. A file read answers a text of up to 5,000 bytes inline, and any other file by a
-  link the agent runs `curl` with ([MCP File Transfer Links](mcp-file-transfer.md)).
+- **Results** — JSON without indentation in a text content block: the agent reads it as well as indented JSON, and
+  indentation alone would take more of its context than the data, 60% of a table read. A result over 25,000
+  characters is cut by whole items, in JSON and Markdown alike: a list by items, with the page cursor moved to match,
+  a table read by rows, with `totalRows` and the `startRow` to continue from. The note on a cut result names only a
+  way to continue that the tool has; anything else is cut to a preview. A page of `openl_get_test_results` is cut by
+  whole test tables. An unpaged read of test results, the test results of one table and guides are never cut. A file
+  read answers a text of up to 5,000 bytes inline, and any other file by a link the agent runs `curl` with
+  ([MCP File Transfer Links](mcp-file-transfer.md)).
 - **Errors** — a failed tool answers with an `isError` result; only an unknown tool is a protocol error. A Studio
   status maps to a code: `400` and `404` to `InvalidParams`, `401` and `403` to `InvalidRequest`, `405` to
   `MethodNotFound`, the rest to `InternalError`. Validation errors of Studio are folded into the message, up to 20

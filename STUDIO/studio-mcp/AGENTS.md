@@ -269,10 +269,10 @@ anonymous (single-user Studio).
 
 ## Response formatting
 
-- Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows; request a Markdown format only for human-readable output.
+- Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output.
 - No tool carries file bytes as base64 or as an embedded resource: a file other than a short text is answered with a link (see Project Files Tools), never as a `resource_link` either, since a client may fetch or preview a link it renders.
 - List operations return pagination metadata.
-- Large responses are truncated at a 25K-character limit — except `openl_get_guides` bodies, which are returned verbatim (sizes are published in the index so callers can budget). A response over the limit is first written without indentation; when it still does not fit, it is cut by whole items (a list by items with the pagination moved to match, `openl_get_table` by rows with `totalRows` and the `startRow` to continue from), and the note names only a way to continue that the tool has.
+- Large responses are truncated at a 25K-character limit — except `openl_get_guides` bodies, which are returned verbatim (sizes are published in the index so callers can budget). A response over the limit is cut by whole items (a list by items with the pagination moved to match, `openl_get_table` by rows with `totalRows` and the `startRow` to continue from), and the note names only a way to continue that the tool has.
 
 ## OpenL-specific behaviour
 

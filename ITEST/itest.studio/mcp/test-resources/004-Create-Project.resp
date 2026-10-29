@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"mode\": \"create\",\n    \"projectId\": \"F512FCPNK42CG\",\n    \"projectName\": \"McpSingle\",\n    \"repository\": \"design\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"message\": \"Created project 'McpSingle' in repository 'design' (branch 'master') at revision @.\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"mode\":\"create\",\"projectId\":\"F512FCPNK42CG\",\"projectName\":\"McpSingle\",\"repository\":\"design\",\"branch\":\"master\",\"revision\":\"@\",\"message\":\"Created project 'McpSingle' in repository 'design' (branch 'master') at revision @.\"}}"
       }
     ],
     "resultType": "complete",

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"tableId\": \"*\",\n    \"tableName\": \"Premium\",\n    \"tableType\": \"SimpleSpreadsheet\",\n    \"file\": \"McpTools/rules/Main.xlsx\",\n    \"message\": \"Successfully created SimpleSpreadsheet table 'Premium' in module 'Main'\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"tableId\":\"*\",\"tableName\":\"Premium\",\"tableType\":\"SimpleSpreadsheet\",\"file\":\"McpTools/rules/Main.xlsx\",\"message\":\"Successfully created SimpleSpreadsheet table 'Premium' in module 'Main'\"}}"
       }
     ],
     "resultType": "complete",

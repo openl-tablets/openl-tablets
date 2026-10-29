@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"status\": \"suspended\",\n    \"frames\": [\n      {\n        \"index\": 0,\n        \"depth\": 1,\n        \"instance\": 0,\n        \"uri\": \"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\n        \"tableId\": \"*\",\n        \"name\": \"Premium\",\n        \"kind\": \"spreadsheet\",\n        \"active\": true,\n        \"completed\": false,\n        \"error\": false,\n        \"steps\": [\n          {\n            \"ref\": \"R1C0\",\n            \"label\": \"$Factor\",\n            \"cell\": \"C11\",\n            \"status\": \"pending\"\n          },\n          {\n            \"ref\": \"R2C0\",\n            \"label\": \"$Total\",\n            \"cell\": \"C12\",\n            \"status\": \"pending\"\n          }\n        ]\n      }\n    ],\n    \"sessionId\": \"@-@-@-@-@\"\n  }\n}"
+        "text": "{\"data\":{\"status\":\"suspended\",\"frames\":[{\"index\":0,\"depth\":1,\"instance\":0,\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"tableId\":\"*\",\"name\":\"Premium\",\"kind\":\"spreadsheet\",\"active\":true,\"completed\":false,\"error\":false,\"steps\":[{\"ref\":\"R1C0\",\"label\":\"$Factor\",\"cell\":\"C11\",\"status\":\"pending\"},{\"ref\":\"R2C0\",\"label\":\"$Total\",\"cell\":\"C12\",\"status\":\"pending\"}]}],\"sessionId\":\"@-@-@-@-@\"}}"
       }
     ],
     "resultType": "complete",

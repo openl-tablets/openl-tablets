@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"file\": \"McpTools/docs/notes.txt\",\n    \"conflicts\": 1,\n    \"blocks\": [\n      {\n        \"kind\": \"merged\",\n        \"text\": \"Premium notes\\r\\n\"\n      },\n      {\n        \"kind\": \"conflict\",\n        \"conflict\": 0,\n        \"ours\": \"Base premium is 120.\\r\\n\",\n        \"base\": \"Base premium is 100.\\r\\n\",\n        \"theirs\": \"Base premium is 110.\\r\\n\"\n      }\n    ]\n  }\n}"
+        "text": "{\"data\":{\"file\":\"McpTools/docs/notes.txt\",\"conflicts\":1,\"blocks\":[{\"kind\":\"merged\",\"text\":\"Premium notes\\r\\n\"},{\"kind\":\"conflict\",\"conflict\":0,\"ours\":\"Base premium is 120.\\r\\n\",\"base\":\"Base premium is 100.\\r\\n\",\"theirs\":\"Base premium is 110.\\r\\n\"}]}}"
       }
     ],
     "resultType": "complete",

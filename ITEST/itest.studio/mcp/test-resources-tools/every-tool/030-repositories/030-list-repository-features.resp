@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"branches\": true,\n    \"searchable\": true,\n    \"mappedFolders\": true,\n    \"comments\": true\n  }\n}"
+        "text": "{\"data\":{\"branches\":true,\"searchable\":true,\"mappedFolders\":true,\"comments\":true}}"
       }
     ],
     "resultType": "complete",

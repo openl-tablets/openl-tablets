@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"children\": [\n      {\n        \"uri\": \"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\n        \"name\": \"AgeFactor\",\n        \"instance\": 0,\n        \"kind\": \"decisionTable\",\n        \"durationMillis\": #.#,\n        \"selfMillis\": #.#,\n        \"steps\": [\n          {\n            \"ref\": \"c0\",\n            \"label\": \"Condition: MC1, Rules: [R3]\",\n            \"decision\": \"matched\",\n            \"status\": \"executed\"\n          },\n          {\n            \"ref\": \"R3\",\n            \"label\": \"Returned rule: [R3]\",\n            \"decision\": \"returned\",\n            \"status\": \"executed\",\n            \"durationMillis\": #.#,\n            \"selfMillis\": #.#\n          }\n        ]\n      }\n    ],\n    \"total\": 1,\n    \"hasMore\": false\n  }\n}"
+        "text": "{\"data\":{\"children\":[{\"uri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B2:C6\",\"name\":\"AgeFactor\",\"instance\":0,\"kind\":\"decisionTable\",\"durationMillis\":#.#,\"selfMillis\":#.#,\"steps\":[{\"ref\":\"c0\",\"label\":\"Condition: MC1, Rules: [R3]\",\"decision\":\"matched\",\"status\":\"executed\"},{\"ref\":\"R3\",\"label\":\"Returned rule: [R3]\",\"decision\":\"returned\",\"status\":\"executed\",\"durationMillis\":#.#,\"selfMillis\":#.#}]}],\"total\":1,\"hasMore\":false}}"
       }
     ],
     "resultType": "complete",

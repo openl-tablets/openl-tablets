@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": [\n    {\n      \"id\": \"cHJvZHVjdGlvbjpNY3BUb29scw==\",\n      \"name\": \"McpTools\",\n      \"repository\": \"production\",\n      \"items\": [\n        {\n          \"name\": \"McpTools\",\n          \"modifiedBy\": \"admin\",\n          \"modifiedAt\": \"#-#-#T#:#:#.#-#:#\"*\n        }\n      ]\n    }\n  ],\n  \"pagination\": {\n    \"limit\": 50,\n    \"offset\": 0,\n    \"has_more\": false,\n    \"total_count\": 1\n  }\n}"
+        "text": "{\"data\":[{\"id\":\"cHJvZHVjdGlvbjpNY3BUb29scw==\",\"name\":\"McpTools\",\"repository\":\"production\",\"items\":[{\"name\":\"McpTools\",\"modifiedBy\":\"admin\",\"modifiedAt\":\"#-#-#T#:#:#.#-#:#\"*}]}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
       }
     ],
     "resultType": "complete",

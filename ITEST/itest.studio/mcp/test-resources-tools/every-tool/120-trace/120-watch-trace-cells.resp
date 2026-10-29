@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"series\": [\n      {\n        \"name\": \"$Factor\",\n        \"table\": \"Premium\",\n        \"tableUri\": \"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\n        \"points\": [\n          {\n            \"instance\": 0,\n            \"label\": \"Premium #1\",\n            \"path\": [\n              \"Premium\"\n            ],\n            \"ref\": \"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12#R1C0\",\n            \"value\": {\n              \"name\": \"$Factor\",\n              \"description\": \"Double\",\n              \"lazy\": false,\n              \"value\": 1.2\n            }\n          }\n        ],\n        \"total\": 1\n      }\n    ],\n    \"truncated\": false\n  }\n}"
+        "text": "{\"data\":{\"series\":[{\"name\":\"$Factor\",\"table\":\"Premium\",\"tableUri\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12\",\"points\":[{\"instance\":0,\"label\":\"Premium #1\",\"path\":[\"Premium\"],\"ref\":\"McpTools/rules/Main.xlsx?sheet=Rules&range=B8:C12#R1C0\",\"value\":{\"name\":\"$Factor\",\"description\":\"Double\",\"lazy\":false,\"value\":1.2}}],\"total\":1}],\"truncated\":false}}"
       }
     ],
     "resultType": "complete",
