@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Successfully appended 1 raw source row(s) to table *\",\n    \"recompileTriggered\": true,\n    \"tableId\": \"*\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"message\":\"Successfully appended 1 raw source row(s) to table *\",\"recompileTriggered\":true,\"tableId\":\"*\"}}"
       }
     ],
     "resultType": "complete",

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": [\n    {\n      \"name\": \"feature\"\n    },\n    {\n      \"name\": \"master\",\n      \"base\": true\n    }\n  ]\n}"
+        "text": "{\"data\":[{\"name\":\"feature\"},{\"name\":\"master\",\"base\":true}]}"
       }
     ],
     "resultType": "complete",

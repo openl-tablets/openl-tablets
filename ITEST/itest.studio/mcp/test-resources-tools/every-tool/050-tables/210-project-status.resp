@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"projectId\": \"T19W2T33ZAYMF\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"compileState\": \"ok\",\n    \"lastModifiedBy\": {\n      \"author\": \"Ada Admin\",\n      \"date\": \"#-#-#T#:#:#-#:#\"\n    },\n    \"compilation\": {\n      \"messages\": {\n        \"total\": 0,\n        \"errors\": 0,\n        \"warnings\": 0,\n        \"items\": []\n      },\n      \"modules\": {\n        \"compiledModules\": [\n          \"Main\"\n        ],\n        \"total\": 1,\n        \"compiled\": 1\n      },\n      \"tests\": {\n        \"total\": 1\n      }\n    },\n    \"pendingChanges\": {\n      \"total\": 1,\n      \"files\": [\n        {\n          \"path\": \"McpTools/rules/Main.xlsx\",\n          \"type\": \"modified\"\n        }\n      ]\n    }\n  }\n}"
+        "text": "{\"data\":{\"projectId\":\"T19W2T33ZAYMF\",\"branch\":\"master\",\"revision\":\"@\",\"compileState\":\"ok\",\"lastModifiedBy\":{\"author\":\"Ada Admin\",\"date\":\"#-#-#T#:#:#-#:#\"},\"compilation\":{\"messages\":{\"total\":0,\"errors\":0,\"warnings\":0,\"items\":[]},\"modules\":{\"compiledModules\":[\"Main\"],\"total\":1,\"compiled\":1},\"tests\":{\"total\":1}},\"pendingChanges\":{\"total\":1,\"files\":[{\"path\":\"McpTools/rules/Main.xlsx\",\"type\":\"modified\"}]}}}"
       }
     ],
     "resultType": "complete",

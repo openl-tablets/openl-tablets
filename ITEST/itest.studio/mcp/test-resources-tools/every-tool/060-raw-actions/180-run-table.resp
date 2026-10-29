@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"tableName\": \"Grade\",\n    \"tableId\": \"*\",\n    \"executionTimeMs\": #.#,\n    \"result\": \"P\",\n    \"parameters\": [\n      {\n        \"name\": \"score\",\n        \"description\": \"score\",\n        \"value\": 95\n      }\n    ]\n  }\n}"
+        "text": "{\"data\":{\"tableName\":\"Grade\",\"tableId\":\"*\",\"executionTimeMs\":#.#,\"result\":\"P\",\"parameters\":[{\"name\":\"score\",\"description\":\"score\",\"value\":95}]}}"
       }
     ],
     "resultType": "complete",

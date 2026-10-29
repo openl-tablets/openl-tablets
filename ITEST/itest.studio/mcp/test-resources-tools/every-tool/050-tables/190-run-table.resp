@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"tableName\": \"Premium\",\n    \"tableId\": \"*\",\n    \"executionTimeMs\": #.#,\n    \"result\": 100,\n    \"parameters\": [\n      {\n        \"name\": \"driver\",\n        \"description\": \"driver\",\n        \"value\": {\n          \"name\": \"Mary\",\n          \"age\": 30\n        }\n      }\n    ]\n  }\n}"
+        "text": "{\"data\":{\"tableName\":\"Premium\",\"tableId\":\"*\",\"executionTimeMs\":#.#,\"result\":100,\"parameters\":[{\"name\":\"driver\",\"description\":\"driver\",\"value\":{\"name\":\"Mary\",\"age\":30}}]}}"
       }
     ],
     "resultType": "complete",

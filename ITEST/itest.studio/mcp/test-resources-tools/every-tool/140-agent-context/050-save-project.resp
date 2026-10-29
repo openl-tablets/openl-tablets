@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Add the agent guidance\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"message\":\"Add the agent guidance\"}}"
       }
     ],
     "resultType": "complete",

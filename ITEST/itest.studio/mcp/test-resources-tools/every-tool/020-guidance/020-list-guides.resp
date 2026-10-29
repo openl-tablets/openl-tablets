@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": [\n    {\n      \"id\": \"spec/rules.xml\",\n      \"type\": \"specification\",\n      \"title\": \"OpenL Tablets — Rules Project Descriptor (`rules.xml`)\",\n      \"path\": \"docs/ref/rules.xml.md\",\n      \"size\": #\n    }\n  ],\n  \"pagination\": {\n    \"limit\": 50,\n    \"offset\": 0,\n    \"has_more\": false,\n    \"total_count\": 1\n  }\n}"
+        "text": "{\"data\":[{\"id\":\"spec/rules.xml\",\"type\":\"specification\",\"title\":\"OpenL Tablets — Rules Project Descriptor (`rules.xml`)\",\"path\":\"docs/ref/rules.xml.md\",\"size\":#}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
       }
     ],
     "resultType": "complete",

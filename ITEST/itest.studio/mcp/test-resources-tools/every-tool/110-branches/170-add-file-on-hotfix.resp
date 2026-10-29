@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/hotfix.txt\",\n    \"action\": \"created\",\n    \"bytesWritten\": 7,\n    \"committed\": true,\n    \"branch\": \"hotfix\",\n    \"message\": \"Wrote 7 byte(s) to 'docs/hotfix.txt' and committed the project to Git: \\\"Add the hotfix notes\\\".\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"path\":\"docs/hotfix.txt\",\"action\":\"created\",\"bytesWritten\":7,\"committed\":true,\"branch\":\"hotfix\",\"message\":\"Wrote 7 byte(s) to 'docs/hotfix.txt' and committed the project to Git: \\\"Add the hotfix notes\\\".\"}}"
       }
     ],
     "resultType": "complete",

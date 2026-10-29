@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Successfully unmerged cells of table *\",\n    \"recompileTriggered\": true,\n    \"tableId\": \"*\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"message\":\"Successfully unmerged cells of table *\",\"recompileTriggered\":true,\"tableId\":\"*\"}}"
       }
     ],
     "resultType": "complete",

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"message\": \"Successfully redeployed cHJvZHVjdGlvbjpNY3BUb29scw== with project T19W2T33ZAYMF\",\n    \"deploymentId\": \"cHJvZHVjdGlvbjpNY3BUb29scw==\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"message\":\"Successfully redeployed cHJvZHVjdGlvbjpNY3BUb29scw== with project T19W2T33ZAYMF\",\"deploymentId\":\"cHJvZHVjdGlvbjpNY3BUb29scw==\"}}"
       }
     ],
     "resultType": "complete",

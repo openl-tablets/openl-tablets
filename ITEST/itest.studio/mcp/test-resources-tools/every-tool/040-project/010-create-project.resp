@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"mode\": \"create\",\n    \"projectId\": \"T19W2T33ZAYMF\",\n    \"projectName\": \"McpTools\",\n    \"repository\": \"design\",\n    \"branch\": \"master\",\n    \"revision\": \"@\",\n    \"message\": \"Created project 'McpTools' in repository 'design' (branch 'master') at revision @.\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"mode\":\"create\",\"projectId\":\"T19W2T33ZAYMF\",\"projectName\":\"McpTools\",\"repository\":\"design\",\"branch\":\"master\",\"revision\":\"@\",\"message\":\"Created project 'McpTools' in repository 'design' (branch 'master') at revision @.\"}}"
       }
     ],
     "resultType": "complete",

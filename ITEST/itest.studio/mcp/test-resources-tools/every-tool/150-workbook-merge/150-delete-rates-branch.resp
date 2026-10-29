@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"branch\": \"rates\",\n    \"forced\": false,\n    \"safety\": {\n      \"currentBranch\": \"rates\",\n      \"divergenceStatus\": \"up-to-date\",\n      \"projectStatus\": \"OPENED\",\n      \"unsavedChanges\": false,\n      \"baseBranch\": \"master\",\n      \"mergeCheck\": {\n        \"sourceBranch\": \"rates\",\n        \"targetBranch\": \"master\",\n        \"status\": \"up-to-date\",\n        \"canMerge\": true\n      }\n    },\n    \"dataLossConfirmed\": false,\n    \"message\": \"Deleted branch 'rates'.\"\n  }\n}"
+        "text": "{\"data\":{\"success\":true,\"branch\":\"rates\",\"forced\":false,\"safety\":{\"currentBranch\":\"rates\",\"divergenceStatus\":\"up-to-date\",\"projectStatus\":\"OPENED\",\"unsavedChanges\":false,\"baseBranch\":\"master\",\"mergeCheck\":{\"sourceBranch\":\"rates\",\"targetBranch\":\"master\",\"status\":\"up-to-date\",\"canMerge\":true}},\"dataLossConfirmed\":false,\"message\":\"Deleted branch 'rates'.\"}}"
       }
     ],
     "resultType": "complete",
