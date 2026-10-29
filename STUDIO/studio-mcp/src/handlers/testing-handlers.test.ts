@@ -127,8 +127,8 @@ describe("test results", () => {
 
   it.each([
     [{ summary: true, tableId: "t1" }, /A summary takes no tableId/],
-    [{ summary: true, size: 10 }, /A summary takes no tableId, page/],
-    [{ page: 0, offset: 0 }, /page and offset are mutually exclusive/],
+    [{ summary: true, limit: 10 }, /A summary takes no tableId, offset/],
+    [{ page: 0 }, /page/],
     [{ unpaged: true, limit: 10 }, /unpaged is mutually exclusive/],
   ])("openl_get_test_results refuses %j before any request", async (args, message) => {
     await expect(executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client))
@@ -211,23 +211,26 @@ describe("test results", () => {
     ["a partial last page, without a total", { pageNumber: 1, pageSize: 50, numberOfElements: 25 },
       { limit: 50, offset: 50, has_more: false }],
     ["a full last page, by the total Studio tells", { pageNumber: 1, pageSize: 50, numberOfElements: 50, total: 100 },
-      { limit: 50, offset: 50, has_more: false }],
+      { limit: 50, offset: 50, has_more: false, total_count: 100 }],
     ["a full page before more", { pageNumber: 2, pageSize: 25, numberOfElements: 25 },
       { limit: 25, offset: 50, has_more: true, next_offset: 75 }],
   ])("openl_get_test_results pages %s", async (_case, page, pagination) => {
-    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage(page));
+    const testCases = Array.from({ length: page.numberOfElements }, (_, i) => testCase(`Test${i}`, `t${i}`, 1, 0));
+    harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ ...page, testCases }));
 
     const result = await executeTool("get_test_results", {
       projectId: "design-project1",
-      page: page.pageNumber,
-      size: page.pageSize,
+      offset: page.pageNumber * page.pageSize,
+      limit: page.pageSize,
     }, harness.client);
 
-    expect(JSON.parse(textOf(result)).pagination).toEqual(pagination);
+    const response = JSON.parse(textOf(result));
+    expect(response.pagination).toEqual(pagination);
+    // The page Studio read is told by the pagination alone
+    expect(Object.keys(response.data)).toEqual(["testCases", "executionTimeMs", "numberOfTests", "numberOfFailures"]);
   });
 
   it.each([
-    [{ size: 20 }, 20],
     [{ limit: 30 }, 30],
     [{}, 50],
   ])("openl_get_test_results takes the page size from %j when Studio leaves it out", async (args, limit) => {
@@ -252,15 +255,15 @@ describe("test results", () => {
     const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
-      page: 1,
-      size: 20,
+      offset: 20,
+      limit: 20,
     }, harness.client));
 
     expect(text).toContain("Test_calculatePremium");
     expect(text).not.toContain("Test_calculateDiscount");
     // The paging of the caller goes to Studio with the table, not over the whole run.
     expect(harness.mockHttp.history.get[0].params)
-      .toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, allFailures: true, page: 1, size: 20 });
+      .toEqual({ tableId: "Test_calculatePremium_1234", failures: 5, allFailures: true, offset: 20, size: 20 });
   });
 
   /** 13 test tables whose expected and actual values make each of them about 5,000 characters long. */
@@ -283,8 +286,7 @@ describe("test results", () => {
     const delivered = response.data.testCases.length;
     expect(delivered).toBeGreaterThan(0);
     expect(delivered).toBeLessThan(13);
-    expect(response.data.numberOfElements).toBe(delivered);
-    expect(response.pagination).toMatchObject({ offset: 0, has_more: true, next_offset: delivered });
+    expect(response.pagination).toMatchObject({ offset: 0, has_more: true, next_offset: delivered, total_count: 13 });
     expect(response.truncation_message).toBe(
       `Response truncated due to size. It holds ${delivered} of 13 test tables; continue with offset=${delivered}.`);
   });

@@ -89,7 +89,7 @@ describe("argument validation", () => {
   it.each([
     ["project_status", { projectId: "p1", timeoutMs: 600_001 }, /timeoutMs/],
     ["create_upload_link", { projectId: "p1", path: "a.bin", size: -1 }, /size/],
-    ["get_test_results", { projectId: "p1", page: 0, offset: 0 }, /mutually exclusive/],
+    ["get_test_results", { projectId: "p1", unpaged: true, offset: 0 }, /mutually exclusive/],
     ["list_projects", { limit: 300 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { limit: 0 }, /Invalid arguments for list_projects.*limit/s],
     ["list_projects", { response_format: "xml" }, /markdown_concise.*markdown_detailed/],

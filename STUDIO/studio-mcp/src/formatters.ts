@@ -83,6 +83,9 @@ function pageItemCount(data: unknown): number {
     if (Array.isArray(envelope.content)) {
       return envelope.content.length;
     }
+    if (Array.isArray(envelope.testCases)) {
+      return envelope.testCases.length;
+    }
   }
   return 1;
 }
