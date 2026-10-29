@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"tableName\":\"Premium\",\"tableId\":\"*\",\"executionTimeMs\":#.#,\"result\":100,\"parameters\":[{\"name\":\"driver\",\"description\":\"driver\",\"value\":{\"name\":\"Mary\",\"age\":30}}]}}"
+        "text": "{\"data\":{\"executionTimeMs\":#.#,\"result\":100}}"
       }
     ],
     "resultType": "complete",

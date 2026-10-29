@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"tableName\":\"Grade\",\"tableId\":\"*\",\"executionTimeMs\":#.#,\"result\":\"P\",\"parameters\":[{\"name\":\"score\",\"description\":\"score\",\"value\":95}]}}"
+        "text": "{\"data\":{\"executionTimeMs\":#.#,\"result\":\"P\"}}"
       }
     ],
     "resultType": "complete",
