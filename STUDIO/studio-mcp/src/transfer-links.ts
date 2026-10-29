@@ -9,7 +9,6 @@
  */
 import { entityTag, type OpenLClient } from "./client.js";
 import { trimChar } from "./text.js";
-import { IN_PLACE_NOTE, isEditedInPlace } from "./utils.js";
 import type * as Types from "./types.js";
 
 /** The most bytes of a text file a tool answers inline; a larger or a binary file is answered with a link. */
@@ -80,16 +79,13 @@ export async function downloadLink(
     linkOf(client, target, () => singleUserDownloadUrl(client, target)),
     locationOf(client, target.projectId, target.path, target.branch, target.kind === "conflictVersion"),
   ]);
+  // The command names its method, and the description of the tool how long the link works
   return {
     url,
-    method: "GET",
     ...(expiresAt ? { expiresAt } : {}),
     ...(size === undefined ? {} : { size }),
     ...location,
     curl: `curl -fsS -o ${quote(localName(target))} ${quote(url)}`,
-    note: expiresAt
-      ? "Run curl to save the file; the link works until it expires, a cut download is fetched again with it."
-      : "Run curl to save the file.",
   };
 }
 
@@ -112,24 +108,18 @@ export async function uploadLink(client: OpenLClient, target: UploadTarget): Pro
       : { branch: target.branch })),
     client.getProject(target.projectId),
   ]);
-  // A transfer link takes one PUT; the REST API creates a file with a POST and replaces one with a PUT
-  const method = expiresAt || version !== undefined ? "PUT" : "POST";
   const ifMatch = version === undefined ? undefined : "If-Match: " + entityTag(version);
   const replacing = ifMatch === undefined ? "" : `-X PUT -H ${quote(ifMatch)} `;
   // An upload prints the answer of Studio on a failure: why it refused the file, which -f would hide
   const curl = expiresAt
     ? `curl -sS --fail-with-body -T ${quote(local)} ${quote(url)}`
     : `curl -sS --fail-with-body ${replacing}--data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`;
+  // The command names its method, and the description of the tool that the link writes once
   return {
     url,
-    method,
     ...(expiresAt ? { expiresAt } : {}),
     ...locationIn(project, target.path, target.branch),
     curl,
-    note: (expiresAt ? "The link writes once: a failed upload needs a new link. " : "")
-      + (isEditedInPlace(project)
-        ? IN_PLACE_NOTE
-        : "The file lands in the project working copy; commit it with openl_save_project."),
   };
 }
 

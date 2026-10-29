@@ -283,8 +283,8 @@ No tool changes part of a text file: under D8 the agent sees a larger file only 
 tools, and sends it back by an upload link, which costs the context nothing either; a small file is read inline and
 written whole.
 
-A tool answers a link as text of its JSON result — the URL, the method, the expiry of a transfer link, the size when
-it is known, the location in the repository (D10), a ready `curl` command and a short note — never as a
+A tool answers a link as text of its JSON result — the URL, the expiry of a transfer link, the size when it is known,
+the location in the repository (D10) and a ready `curl` command, which names the method — never as a
 `resource_link` or a Markdown link: a client may fetch or preview a link it renders, which would pull the bytes into
 the context. The answer names no MIME type: Studio picks the type of a file from its name alone, so the name the file
 is saved under already tells it. The command quotes every word for a POSIX shell: `curl -fsS -o <name> <url>` for a
@@ -300,14 +300,12 @@ in `single` mode it builds the same result with the REST URL and without `expire
 ```json
 {
   "url": "https://studio.example.com/transfers/k3Jx…",
-  "method": "GET",
   "expiresAt": "2026-10-23T10:15:00Z",
   "size": 482113,
   "repositoryId": "design",
   "repositoryPath": "Insurance/rules/Rules.xlsx",
   "branch": "main",
-  "curl": "curl -fsS -o 'Rules.xlsx' 'https://studio.example.com/transfers/k3Jx…'",
-  "note": "Run curl to save the file; the link works until it expires, a cut download is fetched again with it."
+  "curl": "curl -fsS -o 'Rules.xlsx' 'https://studio.example.com/transfers/k3Jx…'"
 }
 ```
 

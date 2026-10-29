@@ -887,7 +887,7 @@ export const searchProjectFilesSchema = z.strictObject({
   fields: z
     .string()
     .optional()
-    .describe("Comma-separated response fields to return per result (e.g. 'path,name,type'). When omitted, the full response is returned."),
+    .describe("Comma-separated fields of a match, such as 'path,name,type'; path, type, size and lastModified by default, every field of an ANCESTORS match."),
   ...paginationShape,
 });
 

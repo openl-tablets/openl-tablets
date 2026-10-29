@@ -179,7 +179,6 @@ describe("project branch and merge handlers", () => {
       });
       expect(dataOf(response)).toMatchObject({
         url: "http://localhost:8080/transfers/abc",
-        method: "GET",
         expiresAt: "2026-10-23T10:15:00Z",
         repositoryId: "design",
         repositoryPath: "Rating/rules/Main.xlsx",
@@ -218,7 +217,6 @@ describe("project branch and merge handlers", () => {
 
       expect(dataOf(response)).toMatchObject({
         url: "http://localhost:8080/rest/projects/p1/merge/conflicts/files?file=Rating%2Frules%2Fconfig.txt&side=theirs",
-        method: "GET",
         size: 5001,
         repositoryPath: "Rating/rules/config.txt",
         branch: "feature",

@@ -1,13 +1,14 @@
 /**
  * Project-file tool handlers (BETA) — read, write, upload, delete, search, copy, and move files inside a project.
  */
+import { createHash } from "node:crypto";
 import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import type { z } from "zod";
 import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { formatPage } from "../formatters.js";
-import { IN_PLACE_NOTE, isEditedInPlace, sanitizeError } from "../utils.js";
+import { isEditedInPlace, sanitizeError } from "../utils.js";
 import { isConflictError, isNotFoundError } from "../http.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText, uploadLink } from "../transfer-links.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
@@ -116,13 +117,13 @@ export function registerFileHandlers(): void {
 
       const inPlace = await editedInPlace(client, args.projectId);
       const commit = inPlace ? { committed: false } : await commitWrite(client, args.projectId, args.message);
+      // The version of the file written, which Studio takes as the digest of its content, for the next replacement
       const result = {
-        path: args.path,
         action: created ? "created" : "overwritten",
-        bytesWritten: buffer.length,
+        version: createHash("sha256").update(buffer).digest("hex"),
         committed: commit.committed,
         ...branch,
-        message: writtenMessage(created, buffer.length, args.path, args.message, inPlace ? "inPlace" : commit),
+        ...(commit.failure ? { note: `Not committed (${commit.failure}): commit with openl_save_project.` } : {}),
       };
 
       return formatResult(result);
@@ -133,7 +134,7 @@ export function registerFileHandlers(): void {
     name: "create_upload_link",
     title: "Create Upload Link",
     description:
-      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, the method, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, which needs curl 7.76 or newer, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
+      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, which needs curl 7.76 or newer, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
       destructiveHint: false,
@@ -176,15 +177,7 @@ export function registerFileHandlers(): void {
         version: args.version,
       });
 
-      const result = {
-        path: args.path,
-        ...(args.branch ? { branch: args.branch } : {}),
-        message: await editedInPlace(client, args.projectId)
-          ? `Deleted '${args.path}'. ${IN_PLACE_NOTE}`
-          : `Deleted '${args.path}' from the project working copy. Use openl_save_project to commit the deletion to Git.`,
-      };
-
-      return formatResult(result);
+      return formatResult({ deleted: args.path });
     },
   });
 
@@ -192,7 +185,7 @@ export function registerFileHandlers(): void {
     name: "search_project_files",
     title: "Search Project Files",
     description:
-      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' (FILE, FOLDER or ANY) and a case-insensitive 'content' substring. Content is found in text files only, never inside XLSX, XLS, ZIP or images: find those by path or extension. Only the top level is searched unless recursive=true, even with a '**' glob; match files in subfolders with a '**/' pattern, such as '**/*.xlsx'. Scope SUBTREE, the default, searches the project, also at an earlier 'revision'; ANCESTORS walks up to the root of the repository. To list a folder, search 'from' it with no other criteria. Each match carries its path, name, type, size and lastModified; the answer is paged by limit and offset. 'branch' pins the branch of the project.",
+      "Search the files and folders of a project by an ant-glob path 'pattern' (such as 'rules/**/*.xlsx'), 'extensions', 'type' (FILE, FOLDER or ANY) and a case-insensitive 'content' substring. Content is found in text files only, never inside XLSX, XLS, ZIP or images: find those by path or extension. Only the top level is searched unless recursive=true, even with a '**' glob; match files in subfolders with a '**/' pattern, such as '**/*.xlsx'. Scope SUBTREE, the default, searches the project, also at an earlier 'revision'; ANCESTORS walks up to the root of the repository. To list a folder, search 'from' it with no other criteria. Each match carries its path, type, size and lastModified, and more with fields; the answer is paged by limit and offset. 'branch' pins the branch of the project.",
     schema: schemas.searchProjectFilesSchema,
     annotations: {
       readOnlyHint: true,
@@ -218,7 +211,9 @@ export function registerFileHandlers(): void {
       // paginate the returned array client-side and report pagination metadata.
       const found = await client.searchProjectFiles(args.projectId, query, {
         branch: args.branch,
-        fields: args.fields,
+        // A match names its file by its path, of which its name, folder and extension are parts; an ANCESTORS match
+        // carries its content too
+        fields: args.fields ?? (args.scope === "ANCESTORS" ? undefined : "path,type,size,lastModified"),
       });
       // An ANCESTORS search answers each file whole, up to 1 MB: a file larger than an inline text goes without it
       const results = found.filter(inStartFolder(args)).map((node) => (node.content !== undefined && Buffer.byteLength(node.content, "utf8") > INLINE_TEXT_BYTES
@@ -238,7 +233,7 @@ export function registerFileHandlers(): void {
       destructiveHint: false,
       openWorldHint: true,
     },
-    handler: transferHandler("copy", "Copied", " (copy has no overwrite option)"),
+    handler: transferHandler("copy", "copied", " (copy has no overwrite option)"),
   });
 
   registerTool({
@@ -250,7 +245,7 @@ export function registerFileHandlers(): void {
     annotations: {
       openWorldHint: true,
     },
-    handler: transferHandler("move", "Moved", ""),
+    handler: transferHandler("move", "moved", ""),
   });
 }
 
@@ -366,31 +361,6 @@ async function editedInPlace(client: OpenLClient, projectId: string): Promise<bo
 }
 
 /**
- * The message of a write: how many bytes went where, and whether they were committed, or need no commit as the
- * project is edited in place.
- */
-function writtenMessage(
-  created: boolean,
-  bytes: number,
-  path: string,
-  message: string | undefined,
-  commit: WriteCommit | "inPlace",
-): string {
-  const written = created ? `Wrote ${bytes} byte(s) to '${path}'` : `Overwrote ${bytes} byte(s) in '${path}'`;
-  if (commit === "inPlace") {
-    return `${written}. ${IN_PLACE_NOTE}`;
-  }
-  if (commit.committed) {
-    return `${written} and committed the project to Git: "${message}".`;
-  }
-  if (!message) {
-    return `${written} in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.`;
-  }
-  const failure = commit.failure ? ` (${commit.failure})` : "";
-  return `${written} in the working copy, but it was NOT committed${failure}. Commit with openl_save_project (design repos only).`;
-}
-
-/**
  * The handler of the tool that copies or moves a project file: the two differ only in the verb, and in the note on a
  * destination that exists already.
  */
@@ -414,15 +384,6 @@ function transferHandler(
           `Choose a different destinationPath, or delete the existing file first with openl_delete_project_file.`
       );
     }
-    const result = {
-      sourcePath: args.sourcePath,
-      destinationPath: args.destinationPath,
-      ...(args.branch ? { branch: args.branch } : {}),
-      message: await editedInPlace(client, args.projectId)
-        ? `${done} '${args.sourcePath}' to '${args.destinationPath}'. ${IN_PLACE_NOTE}`
-        : `${done} '${args.sourcePath}' to '${args.destinationPath}' in the project working copy. ` +
-          `Use openl_save_project to commit the ${action} to Git.`,
-    };
-    return formatResult(result);
+    return formatResult({ [done]: args.destinationPath });
   };
 }
