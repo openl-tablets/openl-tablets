@@ -44,6 +44,9 @@ interface UploadTarget {
  * The text of a file a tool answers inline: a file of up to {@link INLINE_TEXT_BYTES} bytes whose content type is
  * text — `text/*`, or a JSON, XML or YAML type — decoded in the charset the type names, or UTF-8. Anything else is
  * answered with a link, whatever its bytes look like, and gets `undefined`.
+ *
+ * The text keeps a byte order mark, and bytes the charset does not decode send the file by a link too: an agent
+ * writing back a text that lost them would change the file.
  */
 export function inlineText(file: Types.ProjectFileResponse): string | undefined {
   if (file.data.length > INLINE_TEXT_BYTES || !isTextType(file.contentType)) {
@@ -51,9 +54,10 @@ export function inlineText(file: Types.ProjectFileResponse): string | undefined 
   }
   const charset = /charset=["']?([\w-]+)/i.exec(file.contentType)?.[1] ?? "utf-8";
   try {
-    return new TextDecoder(charset).decode(file.data);
+    return new TextDecoder(charset, { fatal: true, ignoreBOM: true }).decode(file.data);
   } catch {
-    return file.data.toString("utf-8");
+    // A charset the runtime does not know, or bytes it does not decode
+    return undefined;
   }
 }
 

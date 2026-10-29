@@ -19,7 +19,7 @@ export function registerFileHandlers(): void {
     description:
       "Read a file of a project by its project-relative path. " +
       `A text file of up to ${INLINE_TEXT_BYTES} bytes — text/*, JSON, XML or YAML, as the Content-Type Studio answers says — comes inline, verbatim. ` +
-      "Any other file, and a folder as a ZIP archive, comes as a download LINK: JSON with the url, a ready `curl` command that saves it, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
+      "Any other file, a text with bytes its charset does not decode too, and a folder as a ZIP archive, comes as a download LINK: JSON with the url, a ready `curl` command that saves it, the size, and where the file lives in its repository (repositoryId, repositoryPath, branch). " +
       "Run the command in a shell, so the bytes never enter the conversation; where Studio authenticates, the link needs no credential and works until expiresAt. An agent that has the repository itself can read repositoryPath there. " +
       "Read the TABLES of a workbook with openl_get_table. The answer tells the current 'version' of the file, beside the inline text or in the link JSON, which a replacement or a deletion of the file takes back.",
     schema: schemas.readProjectFileSchema,

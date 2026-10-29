@@ -70,6 +70,26 @@ describe("openl_read_project_file", () => {
     expect(textOf(result)).toBe("café");
   });
 
+  it("keeps the byte order mark of a text, which a write back then keeps too", async () => {
+    answerMeta("data.csv", 4);
+    answerFile("data.csv", Buffer.from([0xef, 0xbb, 0xbf, 0x61]), "text/plain");
+
+    const result = await executeTool("read_project_file", { projectId: "p1", path: "data.csv" }, harness.client);
+
+    expect(textOf(result)).toBe("\uFEFFa");
+  });
+
+  it("answers a text whose bytes its charset does not decode by a link, not as replacement characters", async () => {
+    answerMeta("legacy.txt", 4);
+    answerFile("legacy.txt", Buffer.from([0x63, 0x61, 0x66, 0xe9]), "text/plain");
+    singleUser();
+
+    const result = await executeTool("read_project_file", { projectId: "p1", path: "legacy.txt" }, harness.client);
+
+    expect(textOf(result)).not.toContain("\uFFFD");
+    expect(dataOf<{ curl: string }>(result).curl).toContain("legacy.txt");
+  });
+
   it("answers a larger text with the address of the REST API in single-user mode, reading no byte of it", async () => {
     answerMeta("rules.xml", 5001);
     singleUser();
