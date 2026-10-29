@@ -286,7 +286,7 @@ contain the project when it is opened. Proceed as follows:
     -   **Take Yours** or **Take Theirs** takes the lines of one version into the result.
     -   **Add Yours** or **Add Theirs**, offered once the other version is taken, adds the lines of this version after
         it, so the result holds both versions whole: for example, the modules both branches added to `rules.xml`.
-    -   **Discard Changes** keeps the base lines, without the changes of either branch.
+    -   **Take Base** takes the base lines, without the changes of either branch.
     -   Lines typed in the result take the place of the conflict, which is then marked **Edited**.
 
     **Apply** is available once every conflict is resolved. It closes the window, and the dialog marks the file
@@ -312,10 +312,10 @@ contain the project when it is opened. Proceed as follows:
 
     The frames tell where each cell stands:
 
-    -   Red: both branches changed the cell differently, and no version is chosen for it yet.
+    -   Red: both branches changed the cell differently, and no version is chosen for it or for its table yet.
     -   Green: Sync merged the change of one branch by itself, in the result and in the version it comes from.
-    -   Yellow: you chose the version of the cell, in the result and in the version chosen. In a table taken only
-        whole, yellow marks the cells the branch changed, which come along with the version taken.
+    -   Yellow: you chose the version of the cell or of its table, in the result and in the version chosen. In a
+        table taken only whole, yellow marks the cells the branch changed, which come along with the version taken.
     -   Blue: you typed the value of the cell.
     -   A dashed line around a version, marked **Formatting Changed**: the branch changed the formatting of the table
         alone, such as another font. When both branches did, the window says so, and the table takes the formatting
@@ -336,7 +336,7 @@ contain the project when it is opened. Proceed as follows:
     -   A click on a conflicting cell of the result offers **Take Yours** and **Take Theirs** beside it. A click on the
         letter of a column or the number of a row that holds conflicting cells, drawn in blue, offers them for every
         such cell of the column or the row.
-    -   **Yours for all conflicts** and **Theirs for all conflicts**, under the versions of a table with more than one
+    -   **Yours for all conflicts** and **Theirs for all conflicts**, over the versions of a table with more than one
         conflicting cell, take every conflicting cell of the table from one version at once.
     -   A version taken replaces what was chosen or typed before for the cells it takes, so the latest choice counts.
     -   A double click on any cell of the result, as the hint beside **Result** says, opens the cell to type its
@@ -350,10 +350,11 @@ contain the project when it is opened. Proceed as follows:
         takes no value.
 
     The table is resolved once every conflicting cell has a version chosen or a value typed, even the base value it
-    shows. Every conflicting cell past the rows shown is named above the table, with what each version holds, and its
-    name offers **Take Yours** and **Take Theirs**. **Whole Table** next to the heading takes the table whole from your
-    version, from their version or from the base version, and **Merge Cell by Cell** then goes back to the merged table
-    with the choices made.
+    shows, and its heading then says **All Conflicts Resolved**. Every conflicting cell past the rows shown is named
+    above the table, with what each version holds, and its name offers **Take Yours** and **Take Theirs**.
+    **Take Yours**, **Take Base** and **Take Theirs** over the versions take the table whole from your version, from the
+    base version or from their version. **Undo** next to the heading of a table taken so goes back to the merged table
+    with the choices made before.
 
     Any other conflicting table is resolved as a whole. The window tells why Sync cannot merge it, such as one branch
     inserting a row next to a row the other branch deletes, and lists the cells both branches changed differently,
@@ -362,14 +363,14 @@ contain the project when it is opened. Proceed as follows:
     -   **Take Yours** or **Take Theirs** takes the table from one version, with every change that branch made to it.
         The changes the other branch made to the table are left out. A version that removed the table shows nothing,
         and its button, **Remove Table**, leaves the table out of the result.
-    -   **Discard Changes** keeps the table of the base version, without the changes of either branch.
+    -   **Take Base** takes the table of the base version, without the changes of either branch.
 
     A table one branch moved, or pushed down with rows it inserted above it, stays at its new place whichever version
     is taken. Tables their branch added next to a table your branch added at the same place are one conflict.
 
     A sheet whose conflict lies outside its tables, such as a sheet one branch removed and the other one changed, or a
     sheet both branches hid or showed differently, is resolved only as a whole, however many tables it holds. Its tab
-    tells why and offers one choice for the whole sheet: **Take Yours**, **Take Theirs** or **Discard Changes**, and
+    tells why and offers one choice for the whole sheet: **Take Yours**, **Take Theirs** or **Take Base**, and
     **Remove Sheet** for a version without the sheet. So is a sheet whose tables would move content a formula refers
     to, whichever version they are taken from. **Compare Versions** next to the name of the sheet opens the workbook in
     the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), with what each branch

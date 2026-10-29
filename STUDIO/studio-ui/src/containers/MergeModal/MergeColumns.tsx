@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Col, Divider, Flex, Row, Space, Tag, Tooltip, Typography } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { DoubleLeftOutlined, DoubleRightOutlined, RollbackOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { Side } from './textMerge'
 
@@ -115,27 +115,27 @@ export const TakeButton: React.FC<TakeButtonProps> = ({ side, label, disabled, o
     </Button>
 )
 
-interface DiscardButtonProps {
+interface TakeBaseButtonProps {
     /** What keeping the base version keeps, told when the reader points at the button. */
     hint: string
     disabled: boolean
-    onDiscard: () => void
+    onTake: () => void
     testId: string
 }
 
-/** The button that keeps the base version in the result, without the changes of either branch. */
-export const DiscardButton: React.FC<DiscardButtonProps> = ({ hint, disabled, onDiscard, testId }) => {
+/** The button that takes the base version into the result, without the changes of either branch. */
+export const TakeBaseButton: React.FC<TakeBaseButtonProps> = ({ hint, disabled, onTake, testId }) => {
     const { t } = useTranslation()
     return (
         <Tooltip title={hint}>
             <Button
                 data-testid={testId}
                 disabled={disabled}
-                icon={<CloseOutlined />}
-                onClick={onDiscard}
+                icon={<RollbackOutlined />}
+                onClick={onTake}
                 size="small"
             >
-                {t('merge:editor.discard')}
+                {t('merge:editor.take_base')}
             </Button>
         </Tooltip>
     )
