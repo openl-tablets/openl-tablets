@@ -22,7 +22,6 @@ import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -144,7 +143,7 @@ public class ProjectsMergeController {
     private static ResponseEntity<byte[]> fileOf(String filePath, byte[] content) {
         String fileName = FileUtils.getName(filePath);
         return ResponseEntity.ok()
-                .contentType(MediaTypeFactory.getMediaType(fileName).orElse(MediaType.APPLICATION_OCTET_STREAM))
+                .contentType(FileMediaTypes.of(fileName))
                 .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
                 .body(content);
     }
