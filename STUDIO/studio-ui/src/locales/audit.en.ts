@@ -46,6 +46,7 @@ i18next.addResourceBundle('en', 'audit', {
         settingsChanged: 'Settings changed',
         signIn: 'Sign in',
         signOut: 'Sign out',
+        sessionStarted: 'Session started',
         sessionEnded: 'Session ended',
         userCreated: 'User created',
         userUpdated: 'User changed',

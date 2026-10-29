@@ -526,7 +526,7 @@ describe('AuditLog', () => {
         await loaded()
 
         await pick('action', 'audit:categories.authentication')
-        await lastQuery({ actions: ['signIn', 'signOut', 'sessionEnded']})
+        await lastQuery({ actions: ['signIn', 'signOut', 'sessionStarted', 'sessionEnded']})
         await pick('action', 'audit:actions.auditLogRead')
 
         await lastQuery({ actions: ['auditLogRead']})

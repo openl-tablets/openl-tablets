@@ -68,6 +68,13 @@ ran in its previous request. No HTTP session is opened for that state.
 - **Application stop or reload** — ends the state of every credential, as a reload invalidates every HTTP session.
 - **Destruction** — the same `@PreDestroy` callbacks run as when an HTTP session ends, the latest created bean
   first.
+- **Listeners** — a `ClientSessionListener` bean hears of every client of credentials that starts, on the request
+  that starts it, and of every one the sweep releases after it was idle. A client the application ends with it is not
+  heard of; `ClientSessions.clientsToEnd()` lists the clients before a reload ends them, once a sweep under way is
+  over, and stops the sweep, so a listed client ends once. A request that asks for no bean of the scope starts no client by itself, so a listener that
+  must hear every client opens it (`ClientSessions.open`), as `SignInAuditor` does for the audit log. A listener that
+  fails, or cannot be had, is logged and fails nothing. In single-user mode the listeners hear of nothing and no client
+  is listed: the state kept for the one user is no client of credentials.
 
 ## No Session for a Stateless Request
 

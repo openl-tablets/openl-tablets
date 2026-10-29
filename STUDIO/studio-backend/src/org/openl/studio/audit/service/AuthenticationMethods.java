@@ -66,6 +66,18 @@ final class AuthenticationMethods {
         };
     }
 
+    /**
+     * How the user of a client that calls with credentials of its own signed in. Such a client sends a password with
+     * Basic authentication only, so it is told outside a request too.
+     */
+    static @Nullable AuditAuthentication ofCredentials(Authentication authentication) {
+        return switch (authentication) {
+            case PatAuthenticationToken ignored -> AuditAuthentication.TOKEN;
+            case UsernamePasswordAuthenticationToken ignored -> AuditAuthentication.BASIC;
+            default -> of(authentication);
+        };
+    }
+
     private static @Nullable AuditAuthentication passwordAuthentication() {
         if (!(RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes)) {
             return null;

@@ -1,17 +1,25 @@
 package org.openl.studio.session;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.jupiter.api.AfterEach;
@@ -39,7 +47,20 @@ class ClientSessionsTest {
     private static final Duration IDLE = Duration.ofMinutes(30);
 
     private final AtomicLong now = new AtomicLong(1_000_000);
-    private final ClientSessions scope = new ClientSessions(IDLE, false, now::get);
+    /** What the listener heard, as "started admin" or "timedOut admin". */
+    private final List<String> heard = new ArrayList<>();
+    private final ClientSessionListener listener = new ClientSessionListener() {
+        @Override
+        public void started(CredentialClient client) {
+            heard.add("started " + client.key());
+        }
+
+        @Override
+        public void timedOut(CredentialClient client) {
+            heard.add("timedOut " + client.key());
+        }
+    };
+    private final ClientSessions scope = new ClientSessions(IDLE, false, List.of(listener), now::get);
 
     @AfterEach
     void tearDown() {
@@ -66,7 +87,7 @@ class ClientSessionsTest {
 
     @Test
     void inSingleUserModeEveryRequestKeepsItsBeansForTheOneUser() {
-        var single = new ClientSessions(IDLE, true, now::get);
+        var single = new ClientSessions(IDLE, true, List.of(), now::get);
         signIn(new AnonymousAuthenticationToken("key", "DEFAULT", AuthorityUtils.createAuthorityList("ADMIN")));
         var browser = new MockHttpServletRequest();
         browser.setSession(new MockHttpSession());
@@ -86,7 +107,7 @@ class ClientSessionsTest {
 
     @Test
     void inSingleUserModeARequestNotSignedInYetKeepsToItsSession() {
-        var single = new ClientSessions(IDLE, true, now::get);
+        var single = new ClientSessions(IDLE, true, List.of(), now::get);
         var request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
@@ -274,7 +295,7 @@ class ClientSessionsTest {
 
     @Test
     void aClientIsKeptForGoodWhenSessionsNeverExpire() {
-        var forGood = new ClientSessions(Duration.ZERO, false, now::get);
+        var forGood = new ClientSessions(Duration.ZERO, false, List.of(), now::get);
         forGood.afterPropertiesSet();
         var destroyed = keepStudio(forGood);
         complete();
@@ -316,7 +337,7 @@ class ClientSessionsTest {
 
     @Test
     void aStartedScopeStopsSweepingAndEndsItsClientsWithTheApplication() {
-        var started = new ClientSessions(IDLE, false);
+        var started = new ClientSessions(IDLE, false, List.of());
         started.afterPropertiesSet();
         var destroyed = keepStudio(started);
 
@@ -324,6 +345,139 @@ class ClientSessionsTest {
 
         assertEquals(List.of("studio"), destroyed);
         assertEquals(0, started.size());
+    }
+
+    @Test
+    void aClientOfCredentialsIsHeardWhenItStartsAndWhenItIsReleasedAfterIdle() {
+        var admin = user("admin");
+        signIn(admin);
+        stateless();
+        scope.open();
+        complete();
+        stateless();
+        scope.open();
+        complete();
+
+        assertEquals(List.of("started admin"), heard, "The second request goes on with the client the first started");
+        assertEquals(1, scope.size());
+
+        now.addAndGet(IDLE.toNanos());
+        scope.sweep();
+        assertEquals(0, scope.size());
+        stateless();
+        scope.open();
+        complete();
+
+        assertEquals(List.of("started admin", "timedOut admin", "started admin"), heard);
+        assertEquals(List.of(new CredentialClient("admin", admin)), scope.clientsToEnd());
+        now.addAndGet(IDLE.toNanos());
+        scope.sweep();
+        assertEquals(1, scope.size(), "A client listed to end with the application is not released as idle");
+    }
+
+    @Test
+    void aClientListedToEndWithTheApplicationIsNotReleasedAsIdleToo() throws Exception {
+        var sweepUnderWay = new CountDownLatch(1);
+        var sweepGoesOn = new CountDownLatch(1);
+        var timedOut = new CopyOnWriteArrayList<String>();
+        var slow = new ClientSessionListener() {
+            @Override
+            public void started(CredentialClient client) {
+                // Only the releases matter here
+            }
+
+            @Override
+            public void timedOut(CredentialClient client) {
+                timedOut.add(client.key());
+                sweepUnderWay.countDown();
+                awaitQuietly(sweepGoesOn);
+            }
+        };
+        var sessions = new ClientSessions(IDLE, false, List.of(slow), now::get);
+        for (var name : List.of("admin", "jsmith")) {
+            signIn(user(name));
+            stateless();
+            sessions.open();
+            complete();
+        }
+        now.addAndGet(IDLE.toNanos());
+
+        var sweep = Thread.ofVirtual().start(sessions::sweep);
+        assertTrue(sweepUnderWay.await(5, TimeUnit.SECONDS));
+        var ending = CompletableFuture.supplyAsync(sessions::clientsToEnd);
+        assertThrows(TimeoutException.class, () -> ending.get(200, TimeUnit.MILLISECONDS),
+                "The clients are listed once the sweep under way is over");
+        sweepGoesOn.countDown();
+        sweep.join();
+
+        assertEquals(List.of(), ending.get(5, TimeUnit.SECONDS), "The sweep has released every client");
+        assertEquals(2, timedOut.size());
+    }
+
+    @Test
+    void neitherABrowserNorTheEndOfTheApplicationIsHeard() {
+        var request = new MockHttpServletRequest();
+        request.setSession(new MockHttpSession());
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        signIn(user("admin"));
+        scope.open();
+        assertEquals(List.of(), heard, "A browser is no client of credentials");
+        assertEquals(0, scope.size());
+        keepStudio(scope);
+
+        scope.destroy();
+
+        assertEquals(List.of("started admin"), heard);
+    }
+
+    @Test
+    void aListenerThatFailsFailsNoRequest() {
+        var failing = new ClientSessionListener() {
+            @Override
+            public void started(CredentialClient client) {
+                throw new IllegalStateException("The audit log is down");
+            }
+
+            @Override
+            public void timedOut(CredentialClient client) {
+                throw new IllegalStateException("The audit log is down");
+            }
+        };
+        var sessions = new ClientSessions(IDLE, false, List.of(failing), now::get);
+        keepStudio(sessions);
+        complete();
+        now.addAndGet(IDLE.toNanos());
+
+        assertDoesNotThrow(sessions::sweep);
+        assertEquals(0, sessions.size());
+    }
+
+    @Test
+    void listenersThatCannotBeHadFailNoRequest() {
+        Iterable<ClientSessionListener> closing = () -> {
+            throw new IllegalStateException("The context is closing");
+        };
+        var sessions = new ClientSessions(IDLE, false, closing, now::get);
+
+        assertDoesNotThrow(() -> keepStudio(sessions));
+        assertEquals(1, sessions.size());
+    }
+
+    @Test
+    void inSingleUserModeNoClientIsHeardOrListed() {
+        var single = new ClientSessions(IDLE, true, List.of(listener), now::get);
+        signIn(user("admin"));
+        stateless();
+        single.open();
+        complete();
+        now.addAndGet(IDLE.toNanos());
+        single.sweep();
+        stateless();
+        single.open();
+
+        assertEquals(List.of(), heard);
+        assertEquals(List.of(), single.clientsToEnd());
+        assertEquals(1, single.size());
     }
 
     /**
@@ -350,6 +504,14 @@ class ClientSessionsTest {
         var request = withAuthorization("Basic YWRtaW46YWRtaW4=");
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
         return request;
+    }
+
+    private static void awaitQuietly(CountDownLatch latch) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     /** Ends the current request, as the dispatcher does once it has answered. */

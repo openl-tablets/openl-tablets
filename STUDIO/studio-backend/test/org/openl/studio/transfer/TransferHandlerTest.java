@@ -46,7 +46,7 @@ class TransferHandlerTest {
 
     private final TestClock clock = new TestClock(Instant.parse("2026-10-23T10:00:00Z"));
     private final TransferLinks links = new TransferLinks(clock, "PT15M", 20);
-    private final ClientSessions sessions = new ClientSessions(Duration.ofMinutes(30), false);
+    private final ClientSessions sessions = new ClientSessions(Duration.ofMinutes(30), false, List.of());
     private final TransferHandler handler = new TransferHandler(links, sessions, errors(), new ObjectMapper(),
             new InMemoryUserDetailsManager(
                     User.withUsername("jdoe").password("secret").authorities("VIEW_PROJECTS").build(),

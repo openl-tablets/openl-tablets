@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -37,6 +38,8 @@ import org.openl.studio.audit.service.ApplicationAuditor;
 import org.openl.studio.audit.service.AuditClient;
 import org.openl.studio.audit.service.EnvironmentSettingsAuditor;
 import org.openl.studio.audit.service.SignInAuditor;
+import org.openl.studio.session.ClientSessions;
+import org.openl.studio.session.CredentialClient;
 
 @WebListener
 @Slf4j
@@ -227,9 +230,10 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         write.lock();
         try {
             log.info("Refreshing Spring context to reload application configuration...");
+            var clients = clientsToEnd();
             applicationContext.refresh();
             // OpenL Studio restarts itself, whichever request happened to find the settings changed.
-            AuditClient.runAsApplication(this::finishRestart);
+            AuditClient.runAsApplication(() -> finishRestart(clients));
             log.info("OpenL Studio has been reloaded.");
         } finally {
             write.unlock();
@@ -237,12 +241,25 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     }
 
     /**
-     * Records the restart and ends every HTTP session, so that each user signs in to the reloaded configuration.
+     * The clients of credentials the refresh is about to end with the old context, listed before it while that context
+     * runs. None when a refresh before failed and left the context inactive, so that this refresh can still bring
+     * OpenL Studio back.
      */
-    private void finishRestart() {
+    private List<CredentialClient> clientsToEnd() {
+        return applicationContext.isActive()
+                ? applicationContext.getBean(ClientSessions.class).clientsToEnd()
+                : List.of();
+    }
+
+    /**
+     * Records the restart and ends every HTTP session, so that each user signs in to the reloaded configuration. The
+     * ends of the sessions of the clients of credentials the refresh ended are recorded too.
+     */
+    private void finishRestart(List<CredentialClient> clients) {
         applicationContext.getBean(ApplicationAuditor.class).restarted();
         log.info("Cleaning up HTTP Sessions...");
         new ArrayList<>(cache.values()).forEach(SpringInitializer::endSession);
+        applicationContext.getBean(SignInAuditor.class).restarted(clients);
     }
 
     /**

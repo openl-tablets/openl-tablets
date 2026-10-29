@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -11,6 +12,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -63,6 +67,11 @@ import org.openl.studio.security.pat.model.PatAuthenticationToken;
  * <p>What a credential is kept for ends once its requests have stopped for as long as an HTTP session would
  * last — never while one of them is running, and never at all when sessions never expire — and with the
  * application. Its beans are then destroyed, the latest created first, as they are when a session ends.
+ *
+ * <p>The {@link ClientSessionListener listeners} hear of every client of credentials that starts, and of every one
+ * released after it was idle, so that each start and end of a client can be told. A client that ends with the
+ * application is not heard of: {@link #clientsToEnd()} lists the clients before it ends. In single-user mode they hear
+ * of nothing: the state kept for the one user is no client of credentials.
  */
 @Slf4j
 public class ClientSessions implements Scope, InitializingBean, DisposableBean {
@@ -82,21 +91,32 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
     private final Map<String, Client> clients = new ConcurrentHashMap<>();
     private final long idleTimeoutNanos;
     private final boolean singleUser;
+    private final Iterable<ClientSessionListener> listeners;
     private final LongSupplier nanoClock;
+    /** Held by a sweep, and while the clients to end are listed. */
+    private final Lock sweeping = new ReentrantLock();
     private @Nullable ScheduledExecutorService sweeper;
+    /** Whether the clients to end are listed: no client is released as idle from then on. */
+    private boolean ending;
 
     /**
      * Keeps a credential's state for the given idle time; a time of zero or less keeps it for good, as a session
      * timeout of zero or less does. In single-user mode, the state of every request is kept for the one user.
+     *
+     * @param listeners the listeners of the clients, looked up each time a client starts or ends
      */
-    public ClientSessions(Duration idleTimeout, boolean singleUser) {
-        this(idleTimeout, singleUser, System::nanoTime);
+    public ClientSessions(Duration idleTimeout, boolean singleUser, Iterable<ClientSessionListener> listeners) {
+        this(idleTimeout, singleUser, listeners, System::nanoTime);
     }
 
     /** Tells the time by the given clock of nanoseconds; nothing is swept until the bean is started. */
-    ClientSessions(Duration idleTimeout, boolean singleUser, LongSupplier nanoClock) {
+    ClientSessions(Duration idleTimeout,
+                   boolean singleUser,
+                   Iterable<ClientSessionListener> listeners,
+                   LongSupplier nanoClock) {
         this.idleTimeoutNanos = idleTimeout.toNanos();
         this.singleUser = singleUser;
+        this.listeners = listeners;
         this.nanoClock = nanoClock;
     }
 
@@ -161,6 +181,37 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
     }
 
     /**
+     * Opens the client of the current request when it carries credentials of its own, though the request asks for
+     * none of its beans: every request of the credentials keeps the client in use, and the first one starts it.
+     */
+    public void open() {
+        currentClient();
+    }
+
+    /**
+     * The clients of credentials kept now, which the end of the application is about to end. They are listed once a
+     * sweep under way is over, and no client is released as idle any more, so a client listed here ends once, with the
+     * application.
+     *
+     * <p>In single-user mode the state of every request is kept for the one user: it is no client of credentials, and
+     * none is listed.
+     */
+    public List<CredentialClient> clientsToEnd() {
+        if (sweeper != null) {
+            // No interrupt: a sweep under way may be recording the end of a client
+            sweeper.shutdown();
+        }
+        // Listed once a sweep under way is over, so a client released by it is not listed as well
+        sweeping.lock();
+        try {
+            ending = true;
+            return singleUser ? List.of() : clients.values().stream().map(Client::info).toList();
+        } finally {
+            sweeping.unlock();
+        }
+    }
+
+    /**
      * Lets a request that carries no credentials act for the client kept under the given key: every bean the request
      * asks for is the one kept for that client, and the client is not idle while the request runs.
      *
@@ -202,6 +253,17 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
         if (idleTimeoutNanos <= 0) {
             return;
         }
+        sweeping.lock();
+        try {
+            if (!ending) {
+                releaseIdle();
+            }
+        } finally {
+            sweeping.unlock();
+        }
+    }
+
+    private void releaseIdle() {
         var now = nanoClock.getAsLong();
         for (var credential : clients.keySet()) {
             var ended = new AtomicReference<Client>();
@@ -218,6 +280,7 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
                 log.debug("The state kept for a client has been idle for {} and is released.",
                         Duration.ofNanos(idleTimeoutNanos));
                 idle.destroy();
+                announce(listener -> listener.timedOut(idle.info()));
             }
         }
     }
@@ -250,19 +313,24 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
             return found instanceof Client client ? client : null;
         }
         var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
         var credential = singleUser ? userOf(authentication) : credentialOf(attributes.getRequest(), authentication);
         if (credential == null) {
             // Settled only once the request is signed in: before that, it may still turn out to carry credentials.
-            if (authentication != null && authentication.isAuthenticated()) {
+            if (authentication.isAuthenticated()) {
                 attributes.setAttribute(CLIENT, BROWSER, RequestAttributes.SCOPE_REQUEST);
             }
             return null;
         }
+        var started = new AtomicReference<Client>();
         var client = clients.compute(credential, (key, known) -> {
             if (known == null) {
                 log.debug("Keeps state for the new client '{}'.", key);
+                started.set(new Client(key, authentication));
             }
-            var entered = known == null ? new Client(key) : known;
+            var entered = known == null ? started.get() : known;
             entered.running.incrementAndGet();
             return entered;
         });
@@ -270,7 +338,33 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
         attributes.registerDestructionCallback(CLIENT,
                 () -> client.leave(nanoClock.getAsLong()),
                 RequestAttributes.SCOPE_REQUEST);
+        if (started.get() != null) {
+            announce(listener -> listener.started(client.info()));
+        }
         return client;
+    }
+
+    /**
+     * Tells the listeners of an event of a client of credentials. A listener that fails, or cannot be had, is logged
+     * and fails nothing.
+     */
+    private void announce(Consumer<ClientSessionListener> event) {
+        if (singleUser) {
+            return;
+        }
+        try {
+            listeners.forEach(listener -> tell(listener, event));
+        } catch (RuntimeException e) {
+            log.error("The listeners of the clients cannot be had.", e);
+        }
+    }
+
+    private static void tell(ClientSessionListener listener, Consumer<ClientSessionListener> event) {
+        try {
+            event.accept(listener);
+        } catch (RuntimeException e) {
+            log.error("A listener of the clients failed.", e);
+        }
     }
 
     /**
@@ -324,11 +418,16 @@ public class ClientSessions implements Scope, InitializingBean, DisposableBean {
     private final class Client {
 
         private final String credential;
+        private final Authentication authentication;
         private final Map<String, Object> beans = new HashMap<>();
         private final Map<String, Runnable> destructionCallbacks = new LinkedHashMap<>();
         /** How many requests of the client are running now; a client with one running is never idle. */
         private final AtomicInteger running = new AtomicInteger();
         private volatile long lastAccess = nanoClock.getAsLong();
+
+        CredentialClient info() {
+            return new CredentialClient(credential, authentication);
+        }
 
         /** A request of the client has ended: the client was last used now. */
         void leave(long now) {

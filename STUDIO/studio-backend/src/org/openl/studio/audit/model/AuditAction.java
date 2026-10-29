@@ -21,6 +21,10 @@ public enum AuditAction {
     @JsonProperty("signOut")
     SIGN_OUT(AuditCategory.AUTHENTICATION),
 
+    @Schema(description = "A session started for a client that sends its credentials with every request.")
+    @JsonProperty("sessionStarted")
+    SESSION_STARTED(AuditCategory.AUTHENTICATION),
+
     @Schema(description = "A session ended without a sign-out: it was left idle, or a restart ended it.")
     @JsonProperty("sessionEnded")
     SESSION_ENDED(AuditCategory.AUTHENTICATION),

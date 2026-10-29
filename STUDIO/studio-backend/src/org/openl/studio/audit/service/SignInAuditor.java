@@ -2,19 +2,16 @@ package org.openl.studio.audit.service;
 
 import java.time.Duration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.LongSupplier;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,7 +25,6 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.session.HttpSessionDestroyedEvent;
@@ -39,19 +35,23 @@ import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.session.ClientSessionListener;
 import org.openl.studio.session.ClientSessions;
+import org.openl.studio.session.CredentialClient;
 
 /**
- * Records sign-ins, failed sign-ins, sign-outs and the ends of sessions in the audit log.
+ * Records sign-ins, failed sign-ins, sign-outs and the starts and ends of sessions in the audit log.
  *
  * <p>A sign-in is recorded when it opens a session: through the login form, SAML or OAuth2. A request that carries
- * its own credentials — Basic authentication, a bearer token, a personal access token — signs in anew every time,
- * so a sign-in is recorded for its first request, and again for the first one after the credentials were idle for
- * the time an HTTP session may stay idle. Refused credentials are recorded every time.
+ * its own credentials — Basic authentication, a bearer token, a personal access token — signs in with every request
+ * and opens no HTTP session, but OpenL Studio keeps a client session for its credentials ({@link ClientSessions}).
+ * Its start is recorded as a started session: at the first request of the credentials, and at the first one after the
+ * client session ended. Refused credentials are recorded every time.
  *
- * <p>A sign-out is recorded when a user signs out, or the identity provider signs the user out. A session that ends
- * without a sign-out is recorded as ended: after it was left idle for longer than it may stay, marked as timed out,
- * and when a restart of OpenL Studio ends it, marked as restarted.
+ * <p>A sign-out is recorded when a user signs out, or the identity provider signs the user out. A session — of a
+ * browser or of credentials — that ends without a sign-out is recorded as ended: after it was left idle for longer
+ * than it may stay, marked as timed out, and when a restart of OpenL Studio ends it, marked as restarted. So the
+ * started and ended sessions of credentials tell how often OpenL Studio set up the state of a client anew.
  *
  * <p>A failed sign-in names the user only when a user name was typed. A token is never recorded: some of them
  * are read as the name of their holder. A personal access token is named by its public id instead.
@@ -60,7 +60,8 @@ import org.openl.studio.session.ClientSessions;
  */
 @Slf4j
 @Component
-public class SignInAuditor implements HandlerInterceptor {
+@RequiredArgsConstructor
+public class SignInAuditor implements HandlerInterceptor, ClientSessionListener {
 
     static final String REASON = "reason";
     static final String TOKEN = "token";
@@ -70,30 +71,9 @@ public class SignInAuditor implements HandlerInterceptor {
     static final String RESTARTED = "restarted";
     /** The session attribute that tells why the session is ended. */
     private static final String END_REASON = SignInAuditor.class.getName() + ".endReason";
-    private static final long SWEEP_INTERVAL_NANOS = Duration.ofMinutes(1).toNanos();
 
     private final AuditService auditService;
-    private final long idleTimeoutNanos;
-    private final LongSupplier nanoClock;
-    /** When each credential made its last request, by what the credential stands for. */
-    private final Map<String, Long> lastRequests = new ConcurrentHashMap<>();
-    private final AtomicLong lastSweep;
-
-    /**
-     * Takes credentials for idle once they have made no request for the time an HTTP session of this application may
-     * stay idle.
-     */
-    @Autowired
-    public SignInAuditor(AuditService auditService, ServletContext servletContext) {
-        this(auditService, Duration.ofMinutes(servletContext.getSessionTimeout()), System::nanoTime);
-    }
-
-    SignInAuditor(AuditService auditService, Duration idleTimeout, LongSupplier nanoClock) {
-        this.auditService = auditService;
-        this.idleTimeoutNanos = idleTimeout.toNanos();
-        this.nanoClock = nanoClock;
-        this.lastSweep = new AtomicLong(nanoClock.getAsLong());
-    }
+    private final ClientSessions clientSessions;
 
     @EventListener
     public void onSignIn(InteractiveAuthenticationSuccessEvent event) {
@@ -192,63 +172,51 @@ public class SignInAuditor implements HandlerInterceptor {
     }
 
     /**
-     * Records the sign-in of a request that carries its own credentials when it starts a use of them: the first
-     * request of the credentials, or the first after they were idle. A browser calling with its session is no such
-     * request.
+     * Opens the client of a request that carries its own credentials, so that the start of the client is heard even
+     * when the request uses nothing kept for it. A browser calling with its session opens none. Nothing is opened for
+     * the log while it is off.
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && startsUseOfCredentials(request, authentication)) {
-            var details = new LinkedHashMap<String, Object>();
-            if (authentication instanceof PatAuthenticationToken token && token.getPublicId() != null) {
-                details.put(TOKEN, token.getPublicId());
-            }
-            recordQuietly(AuditEvent.builder()
-                    .action(AuditAction.SIGN_IN)
-                    .actor(authentication.getName())
-                    .authentication(AuthenticationMethods.of(authentication))
-                    .details(details)
-                    .build());
+        if (auditService.isEnabled()) {
+            clientSessions.open();
         }
         return true;
     }
 
-    /**
-     * Whether the request carries credentials of its own and starts a use of them. Nothing starts while the log is
-     * off.
-     */
-    private boolean startsUseOfCredentials(HttpServletRequest request, Authentication authentication) {
+    /** Records the start of the session of a client of credentials. */
+    @Override
+    public void started(CredentialClient client) {
+        recordCredentials(AuditAction.SESSION_STARTED, client, null);
+    }
+
+    /** Records the end of the session of a client of credentials that was idle. */
+    @Override
+    public void timedOut(CredentialClient client) {
+        recordCredentials(AuditAction.SESSION_ENDED, client, TIMED_OUT);
+    }
+
+    /** Records the ends of the sessions of the clients of credentials a restart of OpenL Studio ended. */
+    public void restarted(List<CredentialClient> clients) {
+        clients.forEach(client -> recordCredentials(AuditAction.SESSION_ENDED, client, RESTARTED));
+    }
+
+    private void recordCredentials(AuditAction action, CredentialClient client, @Nullable String reason) {
         if (!auditService.isEnabled()) {
-            return false;
+            return;
         }
-        var credential = ClientSessions.credentialOf(request, authentication);
-        return credential != null && startsUse(credential);
-    }
-
-    /**
-     * Notes a request of a credential, and tells whether it starts a use of the credential: it is the first request
-     * of the credential, or the first after the credential was idle.
-     */
-    private boolean startsUse(String credential) {
-        var now = nanoClock.getAsLong();
-        var previous = lastRequests.put(credential, now);
-        forgetIdle(now);
-        return previous == null || (idleTimeoutNanos > 0 && now - previous >= idleTimeoutNanos);
-    }
-
-    /**
-     * Forgets, once a minute at most, the credentials that have been idle: their next request starts a use anyway.
-     */
-    private void forgetIdle(long now) {
-        var last = lastSweep.get();
-        if (idleTimeoutNanos > 0 && now - last >= SWEEP_INTERVAL_NANOS && lastSweep.compareAndSet(last, now)) {
-            lastRequests.forEach((credential, time) -> {
-                if (now - time >= idleTimeoutNanos) {
-                    lastRequests.remove(credential, time);
-                }
-            });
+        var authentication = client.authentication();
+        var details = new LinkedHashMap<String, @Nullable Object>();
+        details.put(REASON, reason);
+        if (authentication instanceof PatAuthenticationToken token) {
+            details.put(TOKEN, token.getPublicId());
         }
+        recordQuietly(AuditEvent.builder()
+                .action(action)
+                .actor(authentication.getName())
+                .authentication(AuthenticationMethods.ofCredentials(authentication))
+                .details(details)
+                .build());
     }
 
     private void recordQuietly(AuditEvent event) {

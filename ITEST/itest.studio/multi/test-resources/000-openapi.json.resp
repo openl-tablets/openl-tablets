@@ -2065,6 +2065,7 @@ Content-Type: application/json
                 "enum": [
                   "signIn",
                   "signOut",
+                  "sessionStarted",
                   "sessionEnded",
                   "userCreated",
                   "userUpdated",
@@ -27053,6 +27054,7 @@ Content-Type: application/json
             "enum": [
               "signIn",
               "signOut",
+              "sessionStarted",
               "sessionEnded",
               "userCreated",
               "userUpdated",
