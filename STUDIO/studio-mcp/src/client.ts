@@ -204,6 +204,8 @@ export class OpenLClient {
   private repositoriesCache: Types.Repository[] | null = null;
   /** The address of the client of the MCP server the calls are made for. */
   private clientAddress: string | undefined;
+  /** The MCP client the calls are made for, once it is known. */
+  private mcpClient: Types.McpClientInfo | undefined;
 
   /**
    * Create a new OpenL Studio API client
@@ -215,6 +217,7 @@ export class OpenLClient {
     // The base the client calls ends with /rest: its parent is the address of Studio.
     this.publicUrl = config.publicUrl ?? new URL(".", baseUrl).href;
     this.clientAddress = config.clientAddress;
+    this.mcpClient = config.mcpClient;
 
     // The HTTP client of the Studio REST API. Studio keeps the state of the client for its credential, so the
     // client keeps no session cookie.
@@ -226,8 +229,9 @@ export class OpenLClient {
         "Accept": "application/json",
         ...authorizationHeaders(config.authorization),
       },
-      // Read for every call: a session of the 2025 protocol may go on from another address
-      headersOf: () => callerHeaders(config.mcpSecret, this.clientAddress),
+      // Read for every call: a session of the 2025 protocol may go on from another address, and a client of the
+      // stateless protocol names itself in each of its requests
+      headersOf: () => callerHeaders(config.mcpSecret, this.clientAddress, this.mcpClient),
       onError: (error) => logUnauthorized(error, config.authorization),
     });
   }
@@ -238,6 +242,14 @@ export class OpenLClient {
    */
   callsFrom(clientAddress: string | undefined): void {
     this.clientAddress = clientAddress ?? this.clientAddress;
+  }
+
+  /**
+   * Names the MCP client the calls are made for: the name and the version the client reported to the server, which
+   * OpenL Studio records with what the client does. A client that names nothing keeps the name it had.
+   */
+  callsFor(client: Types.McpClientInfo | undefined): void {
+    this.mcpClient = client ?? this.mcpClient;
   }
 
   // =============================================================================

@@ -31,7 +31,8 @@ Each event shows the following:
 - **Object** — what the action was done to.
 - **Subject** — the user or group whose access or membership the action changed.
 - **Client Address** — the address the request came from. Behind a proxy, it is the address of the client only
-  when the server reads the address the proxy forwards, as the OpenL Studio Docker image does.
+  when the server reads the address the proxy forwards, as the OpenL Studio Docker image does. For an action an AI
+  agent made through the MCP server of OpenL Studio, it is the address of the agent.
 
 Click the expand icon of an event to see its details, such as why a sign-in was refused. A change is shown as a diff
 is, under **Changed**, and pointing at a mark names the change:
@@ -46,6 +47,10 @@ recorded.
 
 The **Object** of a settings change marks each setting it changed the same way. It names the first ten settings and
 the number of the others, which the details list. A long name is cut short there: point at it to read it whole.
+
+The details of an action an AI agent made through the MCP server of OpenL Studio tell so: **Through** is
+**MCP server**, and **MCP client** names the agent and its version as the agent reports them, such as
+`claude-code 2.1.0`. A script that calls the REST API of OpenL Studio directly has no such details.
 
 The details never hold a password or a token: a personal access token is named by its public identifier.
 A repository that keeps projects in folders of their own can hold several projects of one name, so there the details

@@ -59,6 +59,13 @@ public class AuditService {
     /** The most events a page counts: a query that matches more is told so rather than counted to the end. */
     static final int TOTAL_LIMIT = 10_000;
     private static final String TRUNCATED = "…";
+    /** The detail that tells an action was made through the built-in MCP server, as {@link #VIA_MCP}. */
+    static final String VIA = "via";
+    static final String VIA_MCP = "mcp";
+    /** The detail that names the MCP client an action was made through, with its version. */
+    static final String MCP_CLIENT = "mcpClient";
+    /** The longest name of an MCP client the details keep. */
+    private static final int MCP_CLIENT_LENGTH = 100;
     private static final String CATEGORY = "category";
     private static final String ACTION = "action";
     private static final String OUTCOME = "outcome";
@@ -138,11 +145,27 @@ public class AuditService {
         auditRecord.setProject(cut(projectOf(event), AuditRecord.PROJECT_LENGTH));
         auditRecord.setSubjectType(event.subjectType());
         auditRecord.setSubject(cut(event.subject(), AuditRecord.NAME_LENGTH));
-        auditRecord.setDetails(event.details().isEmpty() ? null : toJson(event.details()));
+        var details = detailsOf(event, client);
+        auditRecord.setDetails(details.isEmpty() ? null : toJson(details));
         auditRecordDao.save(auditRecord);
         if (consoleOutput && AUDIT_LOGGER.isInfoEnabled()) {
             copyToConsole(auditRecord);
         }
+    }
+
+    /**
+     * The details of an event as the log keeps them: for an action made through the built-in MCP server, they tell so
+     * ({@code via}) and name the MCP client ({@code mcpClient}) when it named itself.
+     */
+    private static Map<String, ?> detailsOf(AuditEvent event, AuditClient client) {
+        var mcp = client.mcp();
+        if (mcp == null) {
+            return event.details();
+        }
+        var details = new LinkedHashMap<String, Object>(event.details());
+        details.put(VIA, VIA_MCP);
+        Optional.ofNullable(cut(mcp.client(), MCP_CLIENT_LENGTH)).ifPresent(name -> details.put(MCP_CLIENT, name));
+        return details;
     }
 
     /**

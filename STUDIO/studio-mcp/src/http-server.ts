@@ -34,6 +34,7 @@ import { OpenLClient } from "./client.js";
 import { createConfiguredServer } from "./mcp-core.js";
 import { sanitizeError } from "./utils.js";
 import { SERVER_INFO } from "./constants.js";
+import type { McpClientInfo } from "./types.js";
 
 /** The port the server listens on when `PORT` is unset or blank. */
 const DEFAULT_PORT = 3000;
@@ -108,18 +109,25 @@ async function readJsonBody(
  * `OpenL-Client-Address` and the calls name back with the secret of the server (`OPENL_MCP_SECRET`). Never share
  * anonymous mutable state.
  */
-export function createHttpSessionClient(baseUrl: string, headers?: Headers): OpenLClient {
+export function createHttpSessionClient(baseUrl: string, headers?: Headers, mcpClient?: McpClientInfo): OpenLClient {
   return new OpenLClient({
     baseUrl,
     authorization: headers?.get("authorization") ?? undefined,
     publicUrl: headers?.get("openl-public-url") ?? undefined,
     clientAddress: headers?.get("openl-client-address") ?? undefined,
     mcpSecret: process.env.OPENL_MCP_SECRET,
+    mcpClient,
   });
 }
 
-/** The server of a session and the client of OpenL Studio it works with, built for the request that opens it. */
-type SessionServerFactory = (headers: Headers) => { server: ReturnType<typeof createConfiguredServer>; client: OpenLClient };
+/**
+ * The server of a session and the client of OpenL Studio it works with, built for the headers of the request that
+ * opens it and the MCP client that request names in its `clientInfo`.
+ */
+type SessionServerFactory = (
+  headers: Headers,
+  mcpClient: McpClientInfo,
+) => { server: ReturnType<typeof createConfiguredServer>; client: OpenLClient };
 
 /**
  * The handler of the requests of legacy 2025 clients: an initializing POST opens a session, every other request names
@@ -144,7 +152,7 @@ function createLegacyHandler(
     }
   };
 
-  const openSession = async (headers: Headers): Promise<LegacySession> => {
+  const openSession = async (headers: Headers, mcpClient: McpClientInfo): Promise<LegacySession> => {
     closeIdleSessions();
     const transport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: randomUUID,
@@ -152,7 +160,7 @@ function createLegacyHandler(
         sessions.set(id, session);
       },
     });
-    const { server, client } = serverFor(headers);
+    const { server, client } = serverFor(headers, mcpClient);
     const session: LegacySession = { transport, client, inProgress: 0, usedAt: Date.now() };
     transport.onclose = () => {
       if (transport.sessionId) sessions.delete(transport.sessionId);
@@ -186,7 +194,7 @@ function createLegacyHandler(
       if (sessionId) {
         session = sessions.get(sessionId);
       } else if (opens && isInitializeRequest(body)) {
-        session = await openSession(headers);
+        session = await openSession(headers, body.params.clientInfo);
       }
       if (!session) {
         sendJson(res, opens ? 400 : 404, jsonRpcError(UNKNOWN_SESSION, "Invalid or missing MCP session ID"));
@@ -211,12 +219,12 @@ interface HttpServerOverrides {
 export function createHttpApp(overrides: HttpServerOverrides = {}): RequestListener {
   const clientFactory = overrides.clientFactory ?? createHttpSessionClient;
   // OpenL Studio passes the address it is called at with every request: the one the request came in through.
-  const clientOf = (headers?: Headers): OpenLClient => {
+  const clientOf = (headers?: Headers, mcpClient?: McpClientInfo): OpenLClient => {
     const baseUrl = headers?.get("openl-base-url") ?? overrides.baseUrl;
     if (!baseUrl || !URL.canParse(baseUrl)) {
       throw new Error("No OpenL client available: the request names no valid OpenL Studio address in OpenL-Base-Url.");
     }
-    return clientFactory(baseUrl, headers);
+    return clientFactory(baseUrl, headers, mcpClient);
   };
 
   // Modern 2026-07-28 is stateless at the protocol layer. A fresh OpenLClient
@@ -234,8 +242,8 @@ export function createHttpApp(overrides: HttpServerOverrides = {}): RequestListe
 
   // The protocol of legacy 2025 clients is sessionful. Each MCP session owns a
   // distinct OpenLClient — including anonymous sessions.
-  const handleLegacy = createLegacyHandler((headers) => {
-    const client = clientOf(headers);
+  const handleLegacy = createLegacyHandler((headers, mcpClient) => {
+    const client = clientOf(headers, mcpClient);
     return { server: createConfiguredServer(client), client };
   });
 

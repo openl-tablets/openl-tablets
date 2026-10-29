@@ -1,9 +1,23 @@
-import { McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/server";
+import { CLIENT_INFO_META_KEY, McpServer, type StandardSchemaWithJSON } from "@modelcontextprotocol/server";
 import { SERVER_INFO, mcpToolName } from "./constants.js";
 import { registerAllTools, getAllTools, executeTool } from "./handlers/index.js";
 import type { OpenLClient } from "./client.js";
 import { SKILLS, SKILLS_OVERVIEW } from "./skills.js";
 import { traceToolCall } from "./tool-telemetry.js";
+import type { McpClientInfo } from "./types.js";
+
+/**
+ * The name and the version of the client a request of the stateless protocol (2026-07-28) carries in its `_meta`
+ * envelope, or nothing for a request of a session, which named its client when it opened.
+ */
+export function clientInfoOf(envelope: object | undefined): McpClientInfo | undefined {
+  const info = (envelope as Record<string, unknown> | undefined)?.[CLIENT_INFO_META_KEY];
+  if (typeof info !== "object" || info === null || typeof (info as { name?: unknown }).name !== "string") {
+    return undefined;
+  }
+  const { name, version } = info as { name: string; version?: unknown };
+  return { name, version: typeof version === "string" ? version : undefined };
+}
 
 /**
  * The schema a tool is registered with: it publishes the JSON Schema of the tool as it is, and passes the arguments
@@ -62,18 +76,21 @@ export function createConfiguredServer(client: OpenLClient): McpServer {
       },
     },
   );
-
   for (const { name, wireName, config } of TOOLS) {
     // Adapt the SDK context into the small stable shape the tool handlers need (AbortSignal, progress token,
     // notification sender).
     server.registerTool(
       wireName,
       config,
-      (args, ctx) => traceToolCall(wireName, () => executeTool(name, args, client, {
-        signal: ctx.mcpReq.signal,
-        _meta: ctx.mcpReq._meta,
-        sendNotification: (notification) => ctx.mcpReq.notify(notification),
-      })),
+      (args, ctx) => {
+        // A client of the stateless protocol names itself in each request; a session got the name when it opened
+        client.callsFor(clientInfoOf(ctx.mcpReq.envelope));
+        return traceToolCall(wireName, () => executeTool(name, args, client, {
+          signal: ctx.mcpReq.signal,
+          _meta: ctx.mcpReq._meta,
+          sendNotification: (notification) => ctx.mcpReq.notify(notification),
+        }));
+      },
     );
   }
   SKILLS.attach(server);

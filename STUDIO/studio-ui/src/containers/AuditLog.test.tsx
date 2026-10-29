@@ -494,6 +494,29 @@ describe('AuditLog', () => {
         expect(screen.getByText('audit:yes')).toBeInTheDocument()
     })
 
+    it('tells an action made through the MCP server and names the MCP client', async () => {
+        const created: audit.AuditEvent = {
+            id: 5,
+            time: '2026-10-19T10:30:00Z',
+            actor: 'jdoe',
+            authentication: 'token',
+            category: 'project',
+            action: 'projectCreated',
+            outcome: 'success',
+            details: { repository: 'design', via: 'mcp', mcpClient: 'claude-code 2.1.0' },
+        }
+        mockGetEvents.mockResolvedValue({ content: [created], pageNumber: 0, pageSize: 50, total: 1 })
+
+        renderAuditLog()
+        await loaded()
+
+        const rows = within(screen.getByRole('table'))
+        expect(rows.getByText('audit:detail_names.via')).toBeInTheDocument()
+        expect(rows.getByText('audit:vias.mcp')).toBeInTheDocument()
+        expect(rows.getByText('audit:detail_names.mcpClient')).toBeInTheDocument()
+        expect(rows.getByText('claude-code 2.1.0')).toBeInTheDocument()
+    })
+
     it('filters by the text a column contains, from the first page', async () => {
         renderAuditLog()
         await loaded()

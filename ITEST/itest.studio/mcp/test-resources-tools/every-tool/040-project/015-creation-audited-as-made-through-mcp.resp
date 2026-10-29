@@ -1,0 +1,32 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "token",
+      "clientAddress": "***",
+      "category": "project",
+      "action": "projectCreated",
+      "outcome": "success",
+      "targetType": "project",
+      "target": "McpTools",
+      "details": {
+        "repository": "design",
+        "path": "McpTools",
+        "branch": "***",
+        "revision": "***",
+        "source": "template",
+        "via": "mcp",
+        "mcpClient": "itest 1.0.0"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": 1
+}

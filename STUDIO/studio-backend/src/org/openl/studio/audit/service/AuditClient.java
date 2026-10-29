@@ -1,9 +1,9 @@
 package org.openl.studio.audit.service;
 
-import java.util.Objects;
 import java.util.Optional;
 import jakarta.servlet.http.HttpServletRequest;
 
+import lombok.Builder;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -11,6 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.studio.audit.model.AuditAuthentication;
 import org.openl.studio.mcp.McpCalls;
+import org.openl.studio.mcp.McpCalls.McpCall;
 
 /**
  * The client an event is recorded for: the address its request comes from and the way its user signed in.
@@ -20,7 +21,7 @@ import org.openl.studio.mcp.McpCalls;
  * client to the task, as they carry the user.
  *
  * <p>The built-in MCP server calls the REST API itself for its client, so a call it makes names the address of that
- * client, not its own ({@link McpCalls}).
+ * client, not its own, and the MCP client itself ({@link McpCalls}).
  *
  * <p>Outside a request and the tasks it started there is no client address, and a user name and a password tell
  * nothing of the way the user signed in. An action OpenL Studio does itself has no client either, even when a request
@@ -28,8 +29,12 @@ import org.openl.studio.mcp.McpCalls;
  *
  * @param address        the address of the client, or {@code null} outside a request
  * @param authentication the way the signed-in user signed in, or {@code null} when nothing tells it
+ * @param mcp            the call of the built-in MCP server the request is, or {@code null} when it is none
  */
-public record AuditClient(@Nullable String address, @Nullable AuditAuthentication authentication) {
+@Builder
+public record AuditClient(@Nullable String address,
+                          @Nullable AuditAuthentication authentication,
+                          @Nullable McpCall mcp) {
 
     private static final ThreadLocal<AuditClient> CARRIED = new ThreadLocal<>();
 
@@ -53,7 +58,7 @@ public record AuditClient(@Nullable String address, @Nullable AuditAuthenticatio
      * thread of a request.
      */
     public static void runAsApplication(Runnable action) {
-        runFor(new AuditClient(null, null), action);
+        runFor(builder().build(), action);
     }
 
     private static void runFor(AuditClient client, Runnable task) {
@@ -71,18 +76,22 @@ public record AuditClient(@Nullable String address, @Nullable AuditAuthenticatio
     }
 
     private static AuditClient ofRequest() {
-        var address = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
-                ? addressOf(attributes.getRequest())
-                : null;
-        return new AuditClient(address,
-                AuthenticationMethods.of(SecurityContextHolder.getContext().getAuthentication()));
+        var client = builder()
+                .authentication(AuthenticationMethods.of(SecurityContextHolder.getContext().getAuthentication()));
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes) {
+            var request = attributes.getRequest();
+            var mcp = McpCalls.callOf(request);
+            client.address(addressOf(request, mcp)).mcp(mcp);
+        }
+        return client.build();
     }
 
     /**
      * The address of the client of a request: the client of the built-in MCP server for a call the server makes for
      * it, else the one the request comes from.
      */
-    private static String addressOf(HttpServletRequest request) {
-        return Objects.requireNonNullElseGet(McpCalls.clientAddressOf(request), request::getRemoteAddr);
+    private static String addressOf(HttpServletRequest request, @Nullable McpCall mcp) {
+        var named = mcp == null ? null : mcp.clientAddress();
+        return named == null ? request.getRemoteAddr() : named;
     }
 }

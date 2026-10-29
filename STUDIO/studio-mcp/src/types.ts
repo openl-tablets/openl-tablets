@@ -21,6 +21,14 @@ export interface OpenLConfig {
   clientAddress?: string;
   /** The secret OpenL Studio gave this run of the MCP server, which tells its calls from any other request. */
   mcpSecret?: string;
+  /** The MCP client the calls are made for, as it named itself when it opened its session. */
+  mcpClient?: McpClientInfo;
+}
+
+/** The name and the version an MCP client reports of itself (`clientInfo`). */
+export interface McpClientInfo {
+  name: string;
+  version?: string;
 }
 
 /** The build of OpenL Studio, as `/public/info/build.json` tells it. */

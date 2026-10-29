@@ -148,6 +148,7 @@ const CODED_DETAILS: Record<string, string> = {
     format: 'formats',
     outcome: 'outcomes',
     reason: 'reasons',
+    via: 'vias',
 }
 
 /** A code as a dictionary of the audit log names it, or the code itself when the dictionary does not. */
