@@ -607,13 +607,12 @@ export const createProjectTableSchema = z.strictObject({
 // =============================================================================
 
 /**
- * Shaping a profiling run's response. The backend returns a constant-size
- * `profile` overview (top-N slowest tables) plus, only when asked, the `tree` —
- * now just the ROOT node (one level), the entry point for lazy drill-down.
+ * Shaping the answer of a profiling run, which completes in a start, a step or a resume: the constant-size `profile`,
+ * and the root of the call tree only when asked.
  */
 const traceProfileParams = {
-  includeTree: z.boolean().optional().describe("Also return the executed call tree's ROOT node ('tree'), not just the bounded 'profile' overview (default false). Against a current OpenL Studio the tree is lazy — one level deep: the root's steps each carry a 'childrenTotal' count instead of nested children, so a large run is no longer returned whole. Drill into a branch with openl_expand_trace_tree; to find the hot table use 'profile' and replay into it with a breakpoint."),
-  profileTop: z.number().int().min(1).max(500).optional().describe("Number of hotspots (slowest tables) in the 'profile' overview (backend default 20)."),
+  includeTree: z.boolean().optional().describe("Add 'tree', the root of the executed call tree of a profiling run, one level deep, which openl_expand_trace_tree walks."),
+  profileTop: z.number().int().min(1).max(500).optional().describe("How many of the slowest tables 'profile' lists; 20 by default."),
 };
 
 export const startTraceSchema = z.strictObject({
@@ -626,7 +625,7 @@ export const startTraceSchema = z.strictObject({
   profiling: z.boolean().optional().describe("Retain the executed call tree — structure and timings, NO values (default false). With stopAtEntry: false and no breakpoints the run completes in this single call and returns a constant-size 'profile' overview (top-N slowest tables); the tree's root node comes with includeTree: true and is browsed level by level with openl_expand_trace_tree."),
   detailedTitles: z.boolean().optional().describe("Build value-rich business-view titles in the retained tree (backend default false). This can substantially increase response size."),
   breakOnErrors: z.boolean().optional().describe("Suspend on an uncaught rule error so its frame can be inspected (backend default true). Set false to let the error terminate the run."),
-  breakpoints: z.array(z.string()).optional().describe("Initial breakpoint set — REPLACES the current set before starting. Key forms: '<name>' (entry of any same-named table), '<uri>' (entry of that table), '<uri>#R{r}C{c}' (spreadsheet cell), '<uri>#rule' (any decision-table rule fires), '<uri>#<ruleName>' (specific rule fires). Append '@N' to any key to break only on the table's N-th execution (0-based) — e.g. '<uri>#R48C0@3' hits the 4th run; N matches frames[].instance and a watch series' instance, so a watch outlier at instance 3 is reached with '@3'. Without '@N' a cell breakpoint hits EVERY pass."),
+  breakpoints: z.array(z.string()).optional().describe("Breakpoints to set before the start, replacing the set, with the keys openl_set_trace_breakpoints describes."),
   ...traceProfileParams,
 });
 
@@ -654,7 +653,7 @@ export const inspectTraceFrameSchema = z.strictObject({
 
 export const setTraceBreakpointsSchema = z.strictObject({
   projectId: projectIdSchema,
-  breakpoints: z.array(z.string()).optional().describe("When provided, REPLACES the whole breakpoint set (empty array clears all). Key forms: '<name>' (entry of any same-named table), '<uri>' (entry of that table), '<uri>#R{r}C{c}' (spreadsheet cell), '<uri>#rule' (any decision-table rule fires), '<uri>#<ruleName>' (specific rule fires). Append '@N' to any key to break only on the table's N-th execution (0-based, matching frames[].instance and a watch series' instance) — e.g. '<uri>#R48C0@3'. Omit to just read the current set and available targets."),
+  breakpoints: z.array(z.string()).optional().describe("The breakpoints to replace the whole set with; an empty array clears it. Leave out to read the set."),
 });
 
 export const getTraceValueSchema = z.strictObject({
