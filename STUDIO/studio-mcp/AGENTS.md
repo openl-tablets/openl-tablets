@@ -135,7 +135,7 @@ string/number/boolean/null scalars or one-dimensional arrays of those scalars. A
 nested arrays, objects, and string elements surrounded by characters Studio trims (whitespace or ISO controls) are
 rejected. The tool returns the table's CURRENT `tableId` (plus `previousTableId` when the edit renamed the table) and
 its new `version`, and reads the table back to trigger a recompile; a table that does not compile after the edit is
-answered with `compiles: false` and the `errors` of its compilation. The `version` — from `openl_get_table` or the
+answered with `compiles: false` and the `errors` of its compilation, each led by the A1 cell it points to. The `version` — from `openl_get_table` or the
 previous edit — is required and sent in `If-Match`: Studio refuses an edit of a table that changed since, in Excel,
 on disk or through another client, and writes nothing.
 
