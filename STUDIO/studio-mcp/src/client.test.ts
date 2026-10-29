@@ -50,7 +50,6 @@ describe("OpenLClient", () => {
 
       await expect(client.listRepositories()).resolves.toEqual(repos);
       await expect(client.getRepositoryIdByName("design")).resolves.toBe("design");
-      await expect(client.getRepositoryFeatures("design")).resolves.toEqual({});
 
       expect(mockHttp.history.get).toHaveLength(1);
     });
@@ -72,7 +71,6 @@ describe("OpenLClient", () => {
       await expect(client.getRepositoryIdByName("ghost")).rejects.toThrow(
         /Repository "ghost" not found.*design \(Design Repository\), production \(Production Repository\)/,
       );
-      await expect(client.getRepositoryFeatures("ghost")).rejects.toThrow(/not found/);
     });
 
     it("names no available repository when Studio has none", async () => {

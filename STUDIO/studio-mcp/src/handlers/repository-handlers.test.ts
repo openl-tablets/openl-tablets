@@ -6,7 +6,7 @@
 import { describe, it, expect } from "vitest";
 import { executeTool } from "./index.js";
 import { mockRepositories } from "../testing/openl-api-mocks.js";
-import { dataOf, harness, textOf, useToolHarness } from "../testing/harness.js";
+import { harness, textOf, useToolHarness } from "../testing/harness.js";
 
 useToolHarness();
 
@@ -34,34 +34,6 @@ describe("repository tools", () => {
 
     expect(text).toContain("main");
     expect(text).toContain("development");
-  });
-
-  it("openl_list_repository_features answers the features of the repository it names, case-insensitively", async () => {
-    harness.mockHttp.onGet("/repos").reply(200, mockRepositories);
-
-    const result = await executeTool("list_repository_features", {
-      repository: "PRODUCTION REPOSITORY",
-    }, harness.client);
-
-    expect(dataOf(result)).toEqual({ branches: false, comments: true, mappedFolders: false, searchable: false });
-  });
-
-  it("openl_list_repository_features reports that repo-file does not support comments", async () => {
-    harness.mockHttp.onGet("/repos").reply(200, [
-      ...mockRepositories,
-      {
-        id: "design-file",
-        name: "File Repository",
-        type: "repo-file",
-        features: { branches: false, comments: false, mappedFolders: true, searchable: false },
-      },
-    ]);
-
-    const result = await executeTool("list_repository_features", {
-      repository: "design-file",
-    }, harness.client);
-
-    expect(dataOf(result)).toEqual({ branches: false, comments: false, mappedFolders: true, searchable: false });
   });
 
   it("openl_repository_project_revisions uses the current revision total to derive more pages", async () => {

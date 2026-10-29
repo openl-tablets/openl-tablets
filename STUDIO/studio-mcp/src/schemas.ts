@@ -683,12 +683,8 @@ export const watchTraceCellsSchema = z.strictObject({
 });
 
 // =============================================================================
-// Repository Features & Revisions Schemas
+// Revision Schemas
 // =============================================================================
-
-export const getRepositoryFeaturesSchema = z.strictObject({
-  repository: repositoryNameSchema,
-});
 
 export const getProjectRevisionsSchema = z.strictObject({
   projectId: projectIdSchema,

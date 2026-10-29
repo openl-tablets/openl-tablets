@@ -302,6 +302,20 @@ function firstNames(items: Array<{ name?: string }>): string {
   return `${items.slice(0, 3).map((item) => item.name).join(", ")}${more}`;
 }
 
+/** The features a repository has, by name: `branches, comments`. */
+function featureNames(features?: Types.RepositoryFeatures): string {
+  return Object.entries(features ?? {}).filter(([, enabled]) => enabled === true).map(([name]) => name).join(", ");
+}
+
+/** Every repository of a page by its name, its id and its features: `Design (design: branches, comments)`. */
+function repositoryNames(repositories: Types.Repository[]): string {
+  return repositories.map(({ name, id, features }) => {
+    const names = featureNames(features);
+    const listed = names ? `: ${names}` : "";
+    return `${name} (${id}${listed})`;
+  }).join(", ");
+}
+
 /** Every project of a page by its name and its id, which the other tools take: `Bank (p1), Rates (p2)`. */
 function projectNames(projects: Array<{ name?: string; projectId?: string }>): string {
   return projects.map(({ name, projectId }) => `${name} (${projectId})`).join(", ");
@@ -316,7 +330,7 @@ function listSummary(data: unknown[], total: number, dataType?: string, markdown
     case "repositories":
       return [
         foundText(count, total, "repository", "repositories"),
-        ...ifAny(() => `Repositories: ${firstNames(named)}.`),
+        ...ifAny(() => `Repositories: ${repositoryNames(data as Types.Repository[])}.`),
       ];
     case "projects":
       return [
@@ -427,15 +441,15 @@ function formatRepositories(repos: Types.Repository[]): string {
   const lines = [
     "# Repositories",
     "",
-    "| Name | ID | Type |",
-    "|------|----|------|",
+    "| Name | ID | Type | Features |",
+    "|------|----|------|----------|",
   ];
 
   for (const repo of repos) {
     const name = escapeTableCell(repo.name);
     const id = escapeTableCell(repo.id);
     const type = escapeTableCell(repo.type);
-    lines.push(`| ${name} | ${id} | ${type} |`);
+    lines.push(`| ${name} | ${id} | ${type} | ${featureNames(repo.features)} |`);
   }
 
   return lines.join("\n");

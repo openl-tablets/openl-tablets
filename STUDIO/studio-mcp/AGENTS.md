@@ -37,7 +37,7 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (63 Total)
+## Tools (62 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -52,14 +52,13 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_list_guides` - The canonical index of the docs: **metadata only** (id, title, size), filterable by `type` ('specification'/'guide') and case-insensitive `search` over id+title, paginated; the id starts with its type, and `openl_get_guides` names the path
 - `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim: their links and images are relative to the path of the document; unknown ids fail with an actionable error — it never falls back to the index
 
-### Repository Tools (4)
-- `openl_list_repositories` - List all design repositories
+### Repository Tools (3)
+- `openl_list_repositories` - List the design repositories with the features each supports (branches, comments, search, mapped folders), in JSON and in either Markdown view
 - `openl_list_branches` - List Git branches in a repository
-- `openl_list_repository_features` - Get repository features, including whether change comments are supported
 - `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch
 
 ### Project Tools (14)
-- `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. Each project names its id once, as `projectId`, the name the other tools take it by, and leaves out the details of its repository, which `openl_list_repository_features` tells, and its capabilities, which `openl_get_project` names. A `compileState` of `idle` (`include: status`) means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
+- `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. Each project names its id once, as `projectId`, the name the other tools take it by, and leaves out the details of its repository, which `openl_list_repositories` tells, and its capabilities, which `openl_get_project` names. A `compileState` of `idle` (`include: status`) means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
 - `openl_get_project` - Get project details; the project names its id as `projectId`, as in `openl_list_projects`. Its `capabilities`, which `openl_list_projects` leaves out, name the operations the project takes, such as `["canOpen", "canSave"]`, a quarter shorter than `true` flags. Its `compileStatus` of `include: status`, as in `openl_list_projects`, leaves out the id, the branch, the revision and the last change the project names already; a value that differs stays
 - `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again; a project whose files another program changed since Studio compiled them is compiled again from those files, with a note to read its tables again — every tool that reads or edits what Studio compiled does the same by itself
 - `openl_create_project` - Create or copy a project atomically through Studio: omit `template` for a BLANK project, or pass an existing project's exact `projectId` from `openl_list_projects` to copy its full structure and rename it. Both modes accept an optional target `branch` and answer the `projectId`, `branch` and `revision` of the new project

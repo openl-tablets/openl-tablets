@@ -344,17 +344,6 @@ export class OpenLClient {
   }
 
   /**
-   * Get repository features (branching support, searchable, etc.)
-   *
-   * @param repositoryIdOrName - Repository id or display name, as {@link getRepositoryIdByName} takes it
-   * @returns Repository features
-   * @throws Error if no repository matches
-   */
-  async getRepositoryFeatures(repositoryIdOrName: string): Promise<Types.RepositoryFeatures> {
-    return (await this.findRepository(repositoryIdOrName)).features ?? {};
-  }
-
-  /**
    * List deployment repositories
    *
    * @returns Array of deployment repository information
