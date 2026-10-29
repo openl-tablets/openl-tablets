@@ -67,6 +67,13 @@ The following table lists math functions used in OpenL Tablets:
 | **sort**      | Returns values from the provided array in ascending order. The result is an array. `sort(array[])`.                                                                                                                                                                                                                                  |
 | **round**     | Rounds a value to a specified number of digits. For more information on the ROUND function, see [Round Function](#round-function).                                                                                                                                                                                                   |
 
+**sum**, **avg** and **product** compute `Double` values with the decimals the numbers show and round the result
+once, to the `Double` nearest to the exact total: `sum(0.1, 0.2)` is `0.3`, and ten times `0.1` sum to exactly `1`. A
+result rounded once can differ from adding the values one by one, which rounds every step: `sum(1e16, 1, 1, 1, 1)` is
+`1.0000000000000004E16`, while `1e16 + 1 + 1 + 1 + 1` is `1.0E16`. A computed number of 16 or 17 digits counts as its
+`Double`, as in the operators, so `sum(1 / 3, 1 / 3, 1 / 3)` is `1`. **median** averages its two middle values the
+same way. `Float` values compute in binary.
+
 #### Division and Modulo Functions
 
 OpenL Tablets provides four related functions for division and modular arithmetic: **quotient**, **floorDiv**, **remainder**, and **mod**. Given a dividend $a$ and a non-zero divisor $b$, each function answers the same question — *"what integer multiple of $b$ fits into $a$, and what is left over?"* — but picks a different rounding rule for the quotient:

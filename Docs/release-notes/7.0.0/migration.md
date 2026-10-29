@@ -57,7 +57,17 @@ from Maven.
   `Double`, and a result of it within the rounding it carries of a shorter decimal is that decimal. So `1 / 3 * 3` is
   `1.0` and `9 / 35 * 7` is `1.8`, where binary gave `1.0` and `1.7999999999999998`. `quotient` and `floorDiv` agree
   with `remainder` and `mod`: a dividend within a rounding of a multiple of the divisor counts as that multiple, and
-  `mod` of a multiple is `0.0`, not `-0.0`. `Float` values and the functions `sum`, `product` and `avg` still compute in
+  `mod` of a multiple is `0.0`, not `-0.0`. `Float` values still compute in binary.
+
+* **`sum`, `avg` and `product` of `Double` values compute with the decimals the numbers show and round once.** Their
+  result is the `Double` nearest to the exact total: `sum(0.1, 0.2)` is `0.3`, and ten times `0.1` sum to `1`. Before,
+  they rounded after every value and gave `0.30000000000000004` and `0.9999999999999999`. A computed number counts as
+  its `Double`, as in the operators, so `sum(1 / 3, 1 / 3, 1 / 3)` is `1`. A result rounded once can
+  differ from adding the values one by one with `+`: `sum(1e16, 1, 1, 1, 1)` is `1.0000000000000004E16`. A `product`
+  of finite values with a zero is zero, also when the other values overflow, where it gave `NaN`. `median` averages
+  its two middle values the same way: the median of `0.1` and `0.2` is `0.15`, where it was `0.15000000000000002`.
+  `varS`, `varP`, `stdevS`, `stdevP`, `covarS`, `covarP`, `correl`, `rsq`, `slope`, `intercept` and `forecast` of
+  `Double` values take this average, so their results can change in the last digits. `Float` values still compute in
   binary.
 
 * **A test compares a `BigDecimal` result with all its digits.** Without a precision, the expected value must equal

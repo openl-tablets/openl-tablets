@@ -17,27 +17,19 @@ public final class Product {
     }
 
     /**
-     * Returns the product of values.
+     * Returns the product of values, computed with the decimals the numbers show, a computed number as its double, and
+     * rounded once.
      */
     public static <T extends Number> Double product(T... values) {
-        return process(values, new Result<>() {
-            @Override
-            public void processNonNull(T value) {
-                current = current == null ? value.doubleValue() : current * value.doubleValue();
-            }
-        });
+        return DecimalSums.product(values);
     }
 
     /**
-     * Returns the product of values.
+     * Returns the product of values, computed with the decimals the numbers show, a computed number as its double, and
+     * rounded once.
      */
     public static Double product(Double... values) {
-        return process(values, new Result<Double, Double>() {
-            @Override
-            public void processNonNull(Double value) {
-                current = current == null ? value : current * value;
-            }
-        });
+        return DecimalSums.product(values);
     }
 
     /**

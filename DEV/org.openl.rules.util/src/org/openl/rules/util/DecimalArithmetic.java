@@ -204,7 +204,7 @@ public final class DecimalArithmetic {
     /**
      * The double nearest to {@code a / b} for {@code b != 0}, ties to even.
      */
-    private static double quotient(BigDecimal a, BigDecimal b) {
+    static double quotient(BigDecimal a, BigDecimal b) {
         var k = b.scale() - a.scale();
         var n = k > 0 ? a.unscaledValue().multiply(BigInteger.TEN.pow(k)) : a.unscaledValue();
         var d = k < 0 ? b.unscaledValue().multiply(BigInteger.TEN.pow(-k)) : b.unscaledValue();
@@ -364,7 +364,7 @@ public final class DecimalArithmetic {
      * Whether a finite {@code x} with the decimal {@code d} is a computed number: it has a fraction, and its shortest
      * decimal has 16 or 17 digits, more than a double keeps of a number written as it is.
      */
-    private static boolean isComputed(double x, long d) {
+    static boolean isComputed(double x, long d) {
         if (d != Decimal.NONE) {
             return Decimal.isLong(d) && Math.rint(x) != x;
         }
@@ -383,7 +383,7 @@ public final class DecimalArithmetic {
      * The value {@code x} with the decimal {@code d} counts as minus {@code x}: zero for a computed number, which
      * counts as its double.
      */
-    private static double error(double x, long d, boolean computed) {
+    static double error(double x, long d, boolean computed) {
         return computed ? 0.0 : Decimal.error(x, d);
     }
 
@@ -450,7 +450,7 @@ public final class DecimalArithmetic {
      * The double nearest to a number known as {@code value + error} within {@code bound}, or {@code NaN} when a
      * number within the bound can round to another double.
      */
-    private static double nearest(double value, double error, double bound) {
+    static double nearest(double value, double error, double bound) {
         var high = value + error;
         var errorPart = high - value;
         var low = value - (high - errorPart) + (error - errorPart);
@@ -486,6 +486,14 @@ public final class DecimalArithmetic {
         return Math.scalb((double) kept, -SUBNORMAL_SHIFT);
     }
 
+    /**
+     * The exact value a finite {@code x} counts as: its double when it is computed, its shortest decimal otherwise.
+     */
+    static BigDecimal value(double x) {
+        var d = Decimal.of(x);
+        return value(x, d, isComputed(x, d));
+    }
+
     private static BigDecimal value(double x, long d, boolean computed) {
         return computed ? Decimal.exactValue(x) : decimal(x, d);
     }
@@ -507,7 +515,7 @@ public final class DecimalArithmetic {
     /**
      * The rounding a computed operand {@code x} carries into a result, before the operation: twice its last place.
      */
-    private static double rounding(double x, boolean computed) {
+    static double rounding(double x, boolean computed) {
         return computed ? CARRIED_ULPS * Math.ulp(x) : 0.0;
     }
 

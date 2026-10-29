@@ -27,6 +27,16 @@ class MathUtilsTest {
     }
 
     @Test
+    void medianAveragesTheDecimalsOfDoubles() {
+        // As avg does: in binary (0.1 + 0.2) * 0.5 is 0.15000000000000002
+        assertEquals(0.15, MathUtils.median(new double[]{0.2, 0.1}));
+        assertEquals(0.15, MathUtils.median(new Double[]{0.3, 0.1, null, 0.2, 0.05}));
+        // Float values compute in binary
+        assertEquals((float) ((0.1f + (double) 0.2f) * 0.5), MathUtils.median(new Float[]{0.1f, 0.2f}));
+        assertEquals((float) ((0.1f + (double) 0.2f) * 0.5), MathUtils.median(new float[]{0.2f, 0.1f}));
+    }
+
+    @Test
     void testMedianShort() {
         short[] values = new short[]{4, 4, 1, 7, 2};
         assertEquals(4.0, MathUtils.median(values), 0.1);
