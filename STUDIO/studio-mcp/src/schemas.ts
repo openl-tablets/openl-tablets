@@ -261,6 +261,7 @@ const rawTableCellSchema = rawCellInputSchema.extend({
   formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2', as openl_get_table returns it beside the value it computed. The cell is written as this Excel formula and 'value' is ignored; omit it to write 'value'. An OpenL formula is a 'value' starting with '='."),
   cell: z.string().optional(),
   mergedArea: z.string().optional(),
+  comment: z.string().optional().describe("Read-only Excel note of the cell, kept by a write."),
 }).describe("A cell as openl_get_table answers it, without a style: styles are read-only.");
 
 // =============================================================================
