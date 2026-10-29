@@ -508,6 +508,35 @@ describe("delete, search, copy and move", () => {
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(query);
   });
 
+  it.each([
+    [{ from: "rules" }, { pattern: "rules/*", recursive: true }],
+    [{ from: "/rules/", recursive: true }, { pattern: "rules/**", recursive: true }],
+    [{ from: "rules", pattern: "*.xlsx" }, { pattern: "rules/*.xlsx", recursive: true }],
+    [{ from: "rules", pattern: "*.xlsx", recursive: true }, { pattern: "rules/**/*.xlsx", recursive: true }],
+  ])("openl_search_project_files searches %j under the folder, which Studio does not start a SUBTREE search from",
+    async (args, body) => {
+      harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
+
+      await executeTool("search_project_files", { projectId: "p1", ...args }, harness.client);
+
+      expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(body);
+    });
+
+  it("openl_search_project_files from a folder without recursive answers the entries of that folder only", async () => {
+    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, [
+      { path: "rules/Main.xlsx", name: "Main.xlsx", type: "file" },
+      { path: "rules/old/Old.xlsx", name: "Old.xlsx", type: "file" },
+      { path: "rules/old", name: "old", type: "folder" },
+    ]);
+
+    const result = await executeTool("search_project_files", {
+      projectId: "p1", from: "rules", pattern: "**/*", fields: "path",
+    }, harness.client);
+
+    expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "rules/**/*", recursive: true });
+    expect(dataOf<any[]>(result).map(({ path }) => path)).toEqual(["rules/Main.xlsx", "rules/old"]);
+  });
+
   it("openl_search_project_files paginates the match set client-side (limit/offset)", async () => {
     const nodes = Array.from({ length: 5 }, (_, i) => ({ path: `f${i}.xlsx`, name: `f${i}.xlsx`, type: "file" }));
     harness.mockHttp.onPost("/projects/p1/file-search").reply(200, nodes);

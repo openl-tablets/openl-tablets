@@ -879,7 +879,7 @@ export const searchProjectFilesSchema = z.strictObject({
   from: z
     .string()
     .optional()
-    .describe("Project-relative path to start the search from."),
+    .describe("A project-relative folder: SUBTREE lists its entries, everything under it with recursive; ANCESTORS walks up from it."),
   version: z
     .string()
     .optional()
