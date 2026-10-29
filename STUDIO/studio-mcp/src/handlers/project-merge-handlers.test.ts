@@ -407,6 +407,20 @@ describe("project branch and merge handlers", () => {
       expect(harness.mockHttp.history.post).toHaveLength(0);
     });
 
+    it("refuses a decision that leaves the file empty, which Studio cannot store, before resolving anything", async () => {
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
+        conflictGroups: [{ projectName: "Rating", files: ["notes.txt"] }],
+      });
+      harness.mockHttp.onGet("/projects/p1/merge/conflicts/text").reply(200, {
+        blocks: [{ kind: "conflict", ours: "a\n", base: "", theirs: "b\n" }],
+      });
+
+      await expect(executeTool("resolve_merge_conflicts", {
+        projectId: "p1", resolutions: [{ file: "notes.txt", conflicts: [{ lines: "" }] }],
+      }, harness.client)).rejects.toThrow(/would be empty/);
+      expect(harness.mockHttp.history.post).toHaveLength(0);
+    });
+
     it("resolves with a workbook merged as decided and the other files by their strategies", async () => {
       harness.mockHttp.onGet("/projects/p1/merge/conflicts").reply(200, {
         conflictGroups: [{ projectName: "Rating", files: ["rules/Main.xlsx", "rules.xml", "rules-deploy.xml"] }],
