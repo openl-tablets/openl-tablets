@@ -11,10 +11,8 @@ import { registerTool, formatResult, type ToolResponse } from "./common.js";
 import { waitForResult } from "./wait.js";
 import type { OpenLClient } from "../client.js";
 
-const RUN_RESULT_FIELDS =
-  "tableId,tableName,executionTimeMs,result,errors(id,severity,summary)," +
-  "parameters(name,description,lazy,parameterId,value)," +
-  "contextParameters(name,description,lazy,parameterId,value)";
+// The result of a run, without the input the caller sent, which Studio echoes as parameters
+const RUN_RESULT_FIELDS = "executionTimeMs,result,errors(id,severity,summary)";
 // Studio stores one table run per client and its result endpoint is keyed
 // only by project. Overlap could replace or cancel another tool call's run.
 const activeTableRunClients = new WeakSet<OpenLClient>();

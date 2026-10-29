@@ -26,7 +26,7 @@ describe("table workflow handlers", () => {
     harness.mockHttp
       .onGet("/projects/p1/run/result").replyOnce(202, { status: "notReady" })
       .onGet("/projects/p1/run/result").replyOnce(202, { status: "notReady" })
-      .onGet("/projects/p1/run/result").reply(200, { tableId: "t1", tableName: "Rate", result: { premium: 125 }, executionTimeMs: 4.5 });
+      .onGet("/projects/p1/run/result").reply(200, { result: { premium: 125 }, executionTimeMs: 4.5 });
 
     const response = await executeTool("run_table", {
       projectId: "p1",
@@ -42,10 +42,11 @@ describe("table workflow handlers", () => {
     const resultFields = harness.mockHttp.history.get[2].params?.fields;
     expect(resultFields).toContain("result");
     expect(resultFields).not.toContain("resultSchema");
-    expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      tableId: "t1",
-      result: { premium: 125 },
-    });
+    // The input the caller sent is not read back
+    expect(resultFields).not.toContain("parameters");
+    // Studio answers the fields asked, which leave out the table the caller named too
+    expect(resultFields).not.toContain("tableId");
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ result: { premium: 125 }, executionTimeMs: 4.5 });
   });
 
   it("requests full run schemas only when explicitly asked", async () => {
