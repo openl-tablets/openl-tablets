@@ -618,8 +618,8 @@ const traceProfileParams = {
 export const startTraceSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema.describe("Table ID to debug (e.g., 'calculatePremium_1234'). Get from openl_list_tables()."),
-  testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'). Omit for regular rule execution."),
-  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: JSON input. Use object with params (required) and runtimeContext (optional). E.g. { params: { age: 25 }, runtimeContext: { lob: 'Auto' } }. Omit BOTH inputJson and testRanges to replay the previous run's remembered input (e.g. restarting with profiling or new breakpoints)."),
+  testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember: pass them again. Omit for regular rule execution."),
+  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }, e.g. { params: { age: 25 }, runtimeContext: { lob: 'Auto' } }. Omit BOTH inputJson and testRanges to replay the input of the previous run, e.g. restarting with profiling or new breakpoints."),
   fromModule: z.string().optional().describe("Module name to trace in the context of a specific opened module. Usually omit."),
   stopAtEntry: z.boolean().optional().describe("Suspend at the entry of the first frame (default true). Set false to run straight to the first breakpoint — or, with no breakpoints, to completion."),
   profiling: z.boolean().optional().describe("Retain the executed call tree — structure and timings, NO values (default false). With stopAtEntry: false and no breakpoints the run completes in this single call and returns a constant-size 'profile' overview (top-N slowest tables); the tree's root node comes with includeTree: true and is browsed level by level with openl_expand_trace_tree."),
@@ -659,7 +659,7 @@ export const setTraceBreakpointsSchema = z.strictObject({
 
 export const getTraceValueSchema = z.strictObject({
   projectId: projectIdSchema,
-  parameterId: z.number().int().nonnegative().describe("Parameter ID from a lazy ParameterValue (lazy: true) returned by openl_inspect_trace_frame."),
+  parameterId: z.number().int().nonnegative().describe("The parameterId of a lazy value (lazy: true) of openl_inspect_trace_frame, openl_step_trace with withValues, or openl_watch_trace_cells."),
   withSchema: z.boolean().optional().describe("Also return the value's JSON Schema (default false — the schema is large and rarely needed; the value itself already shows the structure)."),
 });
 
@@ -676,8 +676,8 @@ export const watchTraceCellsSchema = z.strictObject({
   projectId: projectIdSchema,
   tableId: tableIdSchema.describe("Table ID to run (e.g., 'calculatePremium_1234'). Get from openl_list_tables()."),
   cells: z.array(z.string()).min(1).describe("Cell names to watch, e.g. ['$VehiclePriceFactor']. The value of each named cell is captured at EVERY execution of its table across the whole run — one series per cell."),
-  testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5')."),
-  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: JSON input { params, runtimeContext? }. Omit BOTH inputJson and testRanges to replay the previous run's remembered input."),
+  testRanges: z.string().optional().describe("For test tables: comma-separated test-case ranges (e.g., '1-3,5'), which a replay does not remember."),
+  inputJson: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("For regular rules: the input keyed by parameter name, or { params, runtimeContext? }. Omit BOTH inputJson and testRanges to replay the input of the previous run."),
   fromModule: z.string().optional().describe("Module name to run in the context of a specific opened module. Usually omit."),
   withSchema: z.boolean().optional().describe("Include each watched value's JSON Schema (default false — the schema is large and rarely needed; a value that came lazy still carries its parameterId for openl_get_trace_value)."),
 });

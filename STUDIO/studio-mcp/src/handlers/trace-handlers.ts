@@ -276,7 +276,7 @@ export function registerTraceHandlers(): void {
     compiled: true,
     title: "Start Debug Session",
     description:
-      "Start a debug session for a table and run to its first stop; the answer is the stack: the status and the frames from the root to the current one. stopAtEntry, true by default, stops at the entry of the first frame; go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame. A test table takes testRanges (such as '2'), a rule inputJson { params, runtimeContext? }; with neither, the input of the previous run is replayed. profiling: true with stopAtEntry: false and no breakpoints completes the run in this call and answers 'profile', of a constant size: the slowest tables (hotspots with selfMillis, totalMillis and count), nodeCount, distinctTables and totalMillis. Pass the input with every profiling call: a replay of a run that did not profile answers the whole stack, which can exceed the response limit. includeTree: true adds the root of the executed call tree, one level deep, which openl_expand_trace_tree walks. A user has one session: a new start ends the previous one, and an idle one ends after about 10 minutes.",
+      "Start a debug session for a table and run to its first stop; the answer is the stack: the status and the frames from the root to the current one. stopAtEntry, true by default, stops at the entry of the first frame; go on with openl_step_trace, openl_resume_trace and openl_inspect_trace_frame. A test table takes testRanges (such as '2'), which a replay does not remember, a rule its inputJson; with neither, the input of the previous run is replayed. profiling: true with stopAtEntry: false and breakpoints: [] completes the run in this call (left out, breakpoints keeps the set of the session) and answers 'profile', of a constant size: the slowest tables (hotspots with selfMillis, totalMillis and count), nodeCount, distinctTables and totalMillis. Pass the input with every profiling call: a replay of a run that did not profile answers the whole stack, which can exceed the response limit. includeTree: true adds the root of the executed call tree, one level deep, which openl_expand_trace_tree walks. A user has one session: a new start ends the previous one, and an idle one ends after about 10 minutes.",
     schema: schemas.startTraceSchema,
     annotations: {
       openWorldHint: true,
@@ -479,7 +479,7 @@ export function registerTraceHandlers(): void {
     name: "get_trace_value",
     title: "Expand Lazy Value",
     description:
-      "Fetch the full value of a parameter that openl_inspect_trace_frame returned lazily (lazy: true with a parameterId). Valid while the debug session is alive. " +
+      "Fetch the full value of a lazy value (lazy: true with a parameterId) of openl_inspect_trace_frame, openl_step_trace with withValues or openl_watch_trace_cells. Valid while the debug session is alive. " +
       "By default only name, description, and value are returned; withSchema: true adds the value's JSON Schema (large — request it only when the type structure itself matters).",
     schema: schemas.getTraceValueSchema,
     annotations: {

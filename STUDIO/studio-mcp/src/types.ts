@@ -1259,7 +1259,7 @@ interface ProfileSummaryView {
   nodeCount: number;
   /** Wall-clock of the whole run. */
   totalMillis: number;
-  /** true when more tables executed than were returned as hotspots. */
+  /** true when the retained call tree reached its node limit; the hotspots still count every call. */
   truncated: boolean;
 }
 
