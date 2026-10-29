@@ -58,10 +58,7 @@ describe("deployment tools", () => {
       productionRepositoryId: "production-deploy",
       comment: "Deploy test",
     });
-    expect(dataOf(result)).toEqual({
-      success: true,
-      message: "Successfully deployed project1 to Production Deployment",
-    });
+    expect(dataOf(result)).toEqual({ deployed: "project1", productionRepositoryId: "production-deploy" });
   });
 
   it.each(["production-deploy", "PRODUCTION DEPLOYMENT"])(
@@ -97,11 +94,7 @@ describe("deployment tools", () => {
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ projectId: "design-project1", comment: "Redeploy latest" });
-    expect(dataOf(result)).toEqual({
-      success: true,
-      message: "Successfully redeployed deploy 001 with project design-project1",
-      deploymentId: "deploy 001",
-    });
+    expect(dataOf(result)).toEqual({ redeployed: "deploy 001" });
   });
 
   it.each([

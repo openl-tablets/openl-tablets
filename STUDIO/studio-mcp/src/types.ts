@@ -926,8 +926,10 @@ export interface TableFilters {
 
 /** Save project result. API returns 204 No Content and does not provide commit hash, version, author, or timestamp. */
 export interface SaveProjectResult {
-  success: boolean;
-  message: string;
+  /** False for a project without unsaved changes */
+  saved: boolean;
+  /** True when closeAfterSave asked to close the project, which is closed then */
+  closed?: true;
 }
 
 /** Create new project table request (BETA API) */

@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"message\":\"Project opened successfully on branch 'master' at revision '@'\"}}"
+        "text": "{\"data\":{\"opened\":true}}"
       }
     ],
     "resultType": "complete",

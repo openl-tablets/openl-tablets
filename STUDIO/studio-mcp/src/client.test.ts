@@ -293,26 +293,25 @@ describe("OpenLClient", () => {
       expect(mockHttp.history.patch).toHaveLength(0);
     });
 
-    it("short-circuits with 'nothing to save' and issues NO PATCH when the project is not EDITING", async () => {
+    it("saves nothing and issues NO PATCH when the project is not EDITING", async () => {
       mockHttp.onGet(projectPath).reply(200, projectView("OPENED"));
 
       const result = await client.saveProject("design-project1", "irrelevant comment");
 
-      expect(result.success).toBe(true);
-      expect(result.message).toMatch(/nothing to save/i);
+      expect(result).toEqual({ saved: false });
       expect(mockHttp.history.patch).toHaveLength(0);
     });
 
     it.each([
-      ["closes an opened", "OPENED", [{ status: "CLOSED" }], "nothing to save. The project is closed."],
-      ["leaves a closed", "CLOSED", [], "nothing to save."],
-    ] as const)("%s project without unsaved changes when closeAfterSave asks for it", async (_case, status, patches, end) => {
+      ["closes an opened", "OPENED", [{ status: "CLOSED" }]],
+      ["leaves a closed", "CLOSED", []],
+    ] as const)("%s project without unsaved changes when closeAfterSave asks for it", async (_case, status, patches) => {
       mockHttp.onGet(projectPath).reply(200, projectView(status));
       mockHttp.onPatch(projectPath).reply(204);
 
       const result = await client.saveProject("design-project1", "irrelevant comment", { closeAfterSave: true });
 
-      expect(result.message.endsWith(end)).toBe(true);
+      expect(result).toEqual({ saved: false, closed: true });
       expect(mockHttp.history.patch.map(bodyOf)).toEqual(patches);
     });
 
@@ -331,7 +330,7 @@ describe("OpenLClient", () => {
 
       const result = await client.saveProject("design-project1");
 
-      expect(result).toEqual({ success: true, message: "Project saved" });
+      expect(result).toEqual({ saved: true });
       expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true }]);
     });
 
@@ -341,7 +340,7 @@ describe("OpenLClient", () => {
 
       const result = await client.saveProject("design-project1", "  Add premium rule  ");
 
-      expect(result.success).toBe(true);
+      expect(result).toEqual({ saved: true });
       // closeAfterSave was not requested -> no status field.
       expect(mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "Add premium rule" }]);
       expect(mockHttp.history.get.map((request) => request.url)).toEqual([projectPath]);

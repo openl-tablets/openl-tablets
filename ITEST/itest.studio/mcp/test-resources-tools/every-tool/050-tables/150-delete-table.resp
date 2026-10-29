@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"message\":\"Successfully deleted table *\",\"note\":\"The table area is cleared regardless of type; the table no longer exists once the project recompiles. Run openl_project_status to confirm the project still compiles.\"}}"
+        "text": "{\"data\":{\"deleted\":\"*\"}}"
       }
     ],
     "resultType": "complete",

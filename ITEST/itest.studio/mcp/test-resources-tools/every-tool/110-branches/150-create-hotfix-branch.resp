@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"message\":\"Successfully created branch 'hotfix'\",\"branchName\":\"hotfix\"}}"
+        "text": "{\"data\":{\"created\":\"hotfix\"}}"
       }
     ],
     "resultType": "complete",

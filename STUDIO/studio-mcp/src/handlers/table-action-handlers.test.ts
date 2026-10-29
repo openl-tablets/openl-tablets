@@ -16,45 +16,39 @@ const b = { value: "b" };
 
 describe("raw table-source edits", () => {
   it.each([
-    ["append_rows", { cells: [[a, b]] }, { operation: "append", target: { type: "rows", cells: [[a, b]] } },
-      "appended rows to"],
-    ["append_columns", { cells: [[a, b]] }, { operation: "append", target: { type: "columns", cells: [[a, b]] } },
-      "appended columns to"],
+    ["append_rows", { cells: [[a, b]] }, { operation: "append", target: { type: "rows", cells: [[a, b]] } }],
+    ["append_columns", { cells: [[a, b]] }, { operation: "append", target: { type: "columns", cells: [[a, b]] } }],
     // The studio has only a `rows` block target — one row is a one-element block.
     ["insert_rows", { position: 3, cells: [[a, b]] },
-      { operation: "insert", target: { type: "rows", position: 3, cells: [[a, b]] } }, "inserted rows into"],
+      { operation: "insert", target: { type: "rows", position: 3, cells: [[a, b]] } }],
     ["insert_rows", { position: 2, cells: [[a], [b]] },
-      { operation: "insert", target: { type: "rows", position: 2, cells: [[a], [b]] } }, "inserted rows into"],
+      { operation: "insert", target: { type: "rows", position: 2, cells: [[a], [b]] } }],
     ["insert_columns", { position: 1, cells: [[a, b]] },
-      { operation: "insert", target: { type: "columns", position: 1, cells: [[a, b]] } }, "inserted columns into"],
+      { operation: "insert", target: { type: "columns", position: 1, cells: [[a, b]] } }],
     // count omitted → defaults to 1 on the `rows` block target.
-    ["delete_rows", { position: 4 }, { operation: "delete", target: { type: "rows", position: 4, count: 1 } },
-      "deleted rows from"],
-    ["delete_rows", { position: 3, count: 4 }, { operation: "delete", target: { type: "rows", position: 3, count: 4 } },
-      "deleted rows from"],
+    ["delete_rows", { position: 4 }, { operation: "delete", target: { type: "rows", position: 4, count: 1 } }],
+    ["delete_rows", { position: 3, count: 4 }, { operation: "delete", target: { type: "rows", position: 3, count: 4 } }],
     ["delete_columns", { position: 2, count: 2 },
-      { operation: "delete", target: { type: "columns", position: 2, count: 2 } }, "deleted columns from"],
-    ["update_row", { position: 1, cells: [[a, b]] }, { operation: "update", target: { type: "row", position: 1, cells: [a, b] } },
-      "updated a row of"],
+      { operation: "delete", target: { type: "columns", position: 2, count: 2 } }],
+    ["update_row", { position: 1, cells: [[a, b]] }, { operation: "update", target: { type: "row", position: 1, cells: [a, b] } }],
     ["update_column", { position: 2, cells: [[a, b]] },
-      { operation: "update", target: { type: "column", position: 2, cells: [a, b] } }, "updated a column of"],
+      { operation: "update", target: { type: "column", position: 2, cells: [a, b] } }],
     // An explicit null clears the cell.
     ["update_cell", { row: 2, column: 1, value: null },
-      { operation: "update", target: { type: "cell", row: 2, column: 1, value: null } }, "updated a cell of"],
+      { operation: "update", target: { type: "cell", row: 2, column: 1, value: null } }],
     ["update_cell", { row: 3, column: 0, value: ["MA2", "FA+", "SPA"] },
-      { operation: "update", target: { type: "cell", row: 3, column: 0, value: ["MA2", "FA+", "SPA"] } }, "updated a cell of"],
+      { operation: "update", target: { type: "cell", row: 3, column: 0, value: ["MA2", "FA+", "SPA"] } }],
     // An Excel formula is sent alone, without a value.
     ["update_cell", { row: 2, column: 1, formula: "=B2*2" },
-      { operation: "update", target: { type: "cell", row: 2, column: 1, formula: "=B2*2" } }, "updated a cell of"],
+      { operation: "update", target: { type: "cell", row: 2, column: 1, formula: "=B2*2" } }],
     ["update_row", { position: 1, cells: [[{ formula: "=B2*2" }, b]] },
-      { operation: "update", target: { type: "row", position: 1, cells: [{ formula: "=B2*2" }, b] } }, "updated a row of"],
+      { operation: "update", target: { type: "row", position: 1, cells: [{ formula: "=B2*2" }, b] } }],
     ["merge", { row: 1, column: 0, rowspan: 2, colspan: 3 },
-      { operation: "merge", target: { type: "cells", row: 1, column: 0, rowspan: 2, colspan: 3 } }, "merged cells of"],
-    ["unmerge", { row: 1, column: 0 }, { operation: "unmerge", target: { type: "cells", row: 1, column: 0 } },
-      "unmerged cells of"],
+      { operation: "merge", target: { type: "cells", row: 1, column: 0, rowspan: 2, colspan: 3 } }],
+    ["unmerge", { row: 1, column: 0 }, { operation: "unmerge", target: { type: "cells", row: 1, column: 0 } }],
     ["update_range", { row: 1, column: 2, cells: [[a, b]] },
-      { operation: "update", target: { type: "range", row: 1, column: 2, cells: [[a, b]] } }, "updated a range of"],
-  ])("%s %j posts its action and reads the table back", async (editAction, args, action, edit) => {
+      { operation: "update", target: { type: "range", row: 1, column: 2, cells: [[a, b]] } }],
+  ])("%s %j posts its action and reads the table back", async (editAction, args, action) => {
     harness.mockHttp.onPost(`${tablePath}/actions`).reply(204);
     harness.mockHttp.onGet(tablePath).reply(200, { id: "t1", name: "T", tableType: "RawSource", kind: "Other" });
 
@@ -62,12 +56,7 @@ describe("raw table-source edits", () => {
       projectId: "p1", tableId: "t1", version: "v1", action: editAction, ...args, }, harness.client);
 
     expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([action]);
-    expect(dataOf(result)).toEqual({
-      success: true,
-      message: `Successfully ${edit} table t1`,
-      recompileTriggered: true,
-      tableId: "t1",
-    });
+    expect(dataOf(result)).toEqual({ tableId: "t1" });
   });
 
   it("edits the version of the table it names, and answers the version the edit left", async () => {
@@ -80,7 +69,7 @@ describe("raw table-source edits", () => {
       projectId: "p1", tableId: "t1", action: "update_cell", row: 1, column: 1, value: "x", version: "v1", }, harness.client);
 
     expect(harness.mockHttp.history.post[0].headers).toMatchObject({ "If-Match": "\"v1\"" });
-    expect(dataOf(result)).toMatchObject({ success: true, version: "v2" });
+    expect(dataOf(result)).toMatchObject({ version: "v2" });
   });
 
   it("refuses an edit that names no version of the table before reaching the backend", async () => {
@@ -104,9 +93,8 @@ describe("raw table-source edits", () => {
     const result = await executeTool("edit_table", {
       projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[a, b]], }, harness.client);
 
+    expect(dataOf(result)).not.toHaveProperty("recompileTriggered");
     expect(dataOf(result)).toMatchObject({
-      success: true,
-      recompileTriggered: true,
       compiles: false,
       errors: ["C7: Expected one of the parameters of the method, but found 'P5'.", "Table '3229' is not found."],
     });
@@ -120,7 +108,7 @@ describe("raw table-source edits", () => {
     const result = await executeTool("edit_table", {
       projectId: "p1", tableId: "t1", version: "v1", action: "delete_rows", position: 5, }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({ tableId: "t1_renamed", tableIdChanged: true, previousTableId: "t1" });
+    expect(dataOf(result)).toMatchObject({ tableId: "t1_renamed", previousTableId: "t1" });
     expect(textOf(result)).toContain("now known by the id 't1_renamed'");
   });
 
@@ -131,7 +119,7 @@ describe("raw table-source edits", () => {
     const result = await executeTool("edit_table", {
       projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[a, b]], }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({ success: true, recompileTriggered: false });
+    expect(dataOf(result)).toMatchObject({ recompileTriggered: false });
     expect(dataOf(result).note).toContain("the edit WAS applied");
   });
 

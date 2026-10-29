@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"id\":\"*\",\"tableType\":\"SimpleRules\",\"kind\":\"Rules\",\"name\":\"AgeFactorCopy\",\"returnType\":\"Double\",\"signature\":\"AgeFactorCopy(Integer age)\",\"file\":\"McpTools/rules/Main.xlsx\",\"sheet\":\"Copies\",\"pos\":\"B2:C6\",\"success\":true,\"tableId\":\"*\"}}"
+        "text": "{\"data\":{\"tableId\":\"*\"}}"
       }
     ],
     "resultType": "complete",

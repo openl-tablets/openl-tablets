@@ -117,7 +117,6 @@ export function registerFileHandlers(): void {
       const inPlace = await editedInPlace(client, args.projectId);
       const commit = inPlace ? { committed: false } : await commitWrite(client, args.projectId, args.message);
       const result = {
-        success: true,
         path: args.path,
         action: created ? "created" : "overwritten",
         bytesWritten: buffer.length,
@@ -178,7 +177,6 @@ export function registerFileHandlers(): void {
       });
 
       const result = {
-        success: true,
         path: args.path,
         ...(args.branch ? { branch: args.branch } : {}),
         message: await editedInPlace(client, args.projectId)
@@ -417,7 +415,6 @@ function transferHandler(
       );
     }
     const result = {
-      success: true,
       sourcePath: args.sourcePath,
       destinationPath: args.destinationPath,
       ...(args.branch ? { branch: args.branch } : {}),

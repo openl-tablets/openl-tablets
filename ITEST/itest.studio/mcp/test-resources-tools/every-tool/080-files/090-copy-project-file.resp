@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"sourcePath\":\"docs/notes.txt\",\"destinationPath\":\"docs/notes-copy.txt\",\"message\":\"Copied 'docs/notes.txt' to 'docs/notes-copy.txt' in the project working copy. Use openl_save_project to commit the copy to Git.\"}}"
+        "text": "{\"data\":{\"sourcePath\":\"docs/notes.txt\",\"destinationPath\":\"docs/notes-copy.txt\",\"message\":\"Copied 'docs/notes.txt' to 'docs/notes-copy.txt' in the project working copy. Use openl_save_project to commit the copy to Git.\"}}"
       }
     ],
     "resultType": "complete",

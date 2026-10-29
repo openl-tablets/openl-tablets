@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"success\":true,\"message\":\"Successfully deployed McpTools to Deployment\"}}"
+        "text": "{\"data\":{\"deployed\":\"McpTools\",\"productionRepositoryId\":\"production\"}}"
       }
     ],
     "resultType": "complete",

@@ -62,7 +62,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_list_projects` - List projects with filters and pagination; follow `has_more` / `next_offset` until `has_more` is false when a complete inventory is required. Each project names its id once, as `projectId`, the name the other tools take it by, and leaves out the details of its repository, which `openl_list_repository_features` tells, and its capabilities, which `openl_get_project` names. A `compileState` of `idle` (`include: status`) means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
 - `openl_get_project` - Get project details; the project names its id as `projectId`, as in `openl_list_projects`. Its `capabilities`, which `openl_list_projects` leaves out, name the operations the project takes, such as `["canOpen", "canSave"]`, a quarter shorter than `true` flags. Its `compileStatus` of `include: status`, as in `openl_list_projects`, leaves out the id, the branch, the revision and the last change the project names already; a value that differs stays
 - `openl_project_status` - Compile lazily when needed and return project compile state and diagnostics (errors/warnings with location); a supplied `branch` is switched to first, an idle project is compiled within `timeoutMs` (30 seconds by default), and a compilation already running or outlasting it returns `compiling` with a note to call again; a project whose files another program changed since Studio compiled them is compiled again from those files, with a note to read its tables again — every tool that reads or edits what Studio compiled does the same by itself
-- `openl_create_project` - Create or copy a project atomically through Studio: omit `template` for a BLANK project, or pass an existing project's exact `projectId` from `openl_list_projects` to copy its full structure and rename it. Both modes accept an optional target `branch` and return the commit revision plus Studio's opaque `projectId` of the new project
+- `openl_create_project` - Create or copy a project atomically through Studio: omit `template` for a BLANK project, or pass an existing project's exact `projectId` from `openl_list_projects` to copy its full structure and rename it. Both modes accept an optional target `branch` and answer the `projectId`, `branch` and `revision` of the new project
 - `openl_open_project` - Open project for editing (supports branch/revision switching); a project open already is left as it is when neither is asked
 - `openl_save_project` - Save project changes; a comment is required when the repository supports comments. A comment has at most 255 characters, in every tool that takes one for a commit of a design project: `openl_close_project` when it saves, and the optional comments of `openl_create_project` and `openl_delete_project`
 - `openl_close_project` - Close project with save/discard options; saving requires a comment only when supported
@@ -281,6 +281,15 @@ anonymous (single-user Studio).
 - Modern HTTP is stateless and constructs a fresh Studio client per request. Studio keeps the state of multi-call workflows (interactive trace, test results, and merge-conflict inspection) for the Personal Access Token a request carries, and for the one user in single-user mode, so they work over modern HTTP.
 
 ## Response formatting
+
+- A write answers what is new — ids, versions, revisions — and no `success` flag, as a failure is an error. A table
+  edit, creation or copy answers the `tableId` and `version` of the table (with `previousTableId` after a rename, and
+  `compiles: false` with its `errors`), and a table deletion the id it deleted. A project open answers that it `opened`,
+  or that it was `alreadyOpen`; a save whether it `saved` — false with nothing to save — and, when `closeAfterSave`
+  asked for it, that it `closed`; a close that it `closed`, with `saved` or `discarded`; a local-change restore the
+  `historyId` it `restored`; a merge-conflict cancellation that it `cancelled`; a project creation or copy its
+  `projectId`, `branch` and `revision`; a branch creation and a deploy the branch `created`, the deployment `deployed`
+  or `redeployed`.
 
 - Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output.
 - Only the tools whose answer has a Markdown view of its own take `response_format`: `openl_list_repositories`, `openl_list_projects`, `openl_list_tables`, `openl_list_deployments`, `openl_get_table_dependencies` and `openl_get_test_results`. Every other tool answers JSON, which a Markdown format would only wrap in a code block, and refuses the argument: its schema in every session of every agent would cost more than the answer it changes.

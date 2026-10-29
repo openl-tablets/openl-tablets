@@ -687,7 +687,7 @@ export class OpenLClient {
    * @param comment - Comment for the new revision when the repository supports comments
    * @param options - Optional. closeAfterSave: if true, send status CLOSED so project is saved and closed in one
    *   request.
-   * @returns Save result; if project is not EDITING, returns success with message "nothing to save".
+   * @returns Whether the project had changes to save, and whether it was closed
    * @throws Error if a comment is missing when the repository supports comments and the project is EDITING
    */
   async saveProject(
@@ -701,10 +701,7 @@ export class OpenLClient {
       if (closes) {
         await this.http.patch(projectPath(projectId), { status: "CLOSED" });
       }
-      return {
-        success: true,
-        message: `There are no changes in the project; nothing to save.${closes ? " The project is closed." : ""}`,
-      };
+      return options?.closeAfterSave ? { saved: false, closed: true } : { saved: false };
     }
     const supportsComments = project.repositoryInfo?.features?.comments !== false;
     const message = supportsComments ? comment?.trim() : undefined;
@@ -716,7 +713,7 @@ export class OpenLClient {
       comment: message,
       status: options?.closeAfterSave ? "CLOSED" : undefined,
     });
-    return { success: true, message: message ?? "Project saved" };
+    return options?.closeAfterSave ? { saved: true, closed: true } : { saved: true };
   }
 
   // =============================================================================

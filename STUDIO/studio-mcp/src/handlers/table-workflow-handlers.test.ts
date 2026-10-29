@@ -237,7 +237,9 @@ describe("table workflow handlers", () => {
   it("copies a table server-side with the exact current request shape", async () => {
     harness.mockHttp.onPost("/projects/p1/tables/source%231/copy").reply(201, {
       id: "copy-1", name: "CopiedRate", tableType: "SimpleRules", file: "rules/Copies.xlsx", pos: "A1:C5",
-      success: false,
+    });
+    harness.mockHttp.onGet("/projects/p1/tables/copy-1").reply(200, {
+      id: "copy-1", name: "CopiedRate", tableType: "RawSource", source: [], version: "v1",
     });
 
     const response = await executeTool("copy_table", {
@@ -257,10 +259,7 @@ describe("table workflow handlers", () => {
       properties: [{ name: "state", value: "CA" }],
       sheetName: "Rates",
     });
-    expect(dataOf<Record<string, unknown>>(response)).toMatchObject({
-      success: true,
-      tableId: "copy-1",
-      name: "CopiedRate",
-    });
+    // The copy answers its id and version, as an edit does
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({ tableId: "copy-1", version: "v1" });
   });
 });

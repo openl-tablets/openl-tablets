@@ -290,7 +290,7 @@ describe("openl_write_project_file", () => {
     expect(writtenBytes().toString("utf-8")).toBe("héllo");
     // createFolders default (true) is materialized by the handler.
     expect(harness.mockHttp.history.post[0].params?.createFolders).toBe(true);
-    expect(dataOf(result)).toMatchObject({ success: true, bytesWritten: 6, committed: false });
+    expect(dataOf(result)).toMatchObject({ bytesWritten: 6, committed: false });
   });
 
   it.each([
@@ -332,7 +332,7 @@ describe("openl_write_project_file", () => {
       message: "add docs/x.md",
     }, harness.client);
 
-    expect(dataOf(result)).toMatchObject({ success: true, committed: false });
+    expect(dataOf(result)).toMatchObject({ committed: false });
     expect(harness.mockHttp.history.patch).toHaveLength(0);
   });
 
@@ -348,7 +348,7 @@ describe("openl_write_project_file", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.patch).toHaveLength(0);
-    expect(dataOf(result)).toMatchObject({ success: true, committed: false });
+    expect(dataOf(result)).toMatchObject({ committed: false });
     expect(dataOf(result).message).toMatch(/^Wrote 5 byte\(s\) to 'docs\/x\.md'\. The project is edited in place/);
   });
 
@@ -389,7 +389,7 @@ describe("openl_write_project_file", () => {
     expect(harness.mockHttp.history.put[0].headers).toMatchObject({ "If-Match": '"v1"' });
     expect(harness.mockHttp.history.put[0].params).toEqual({ branch: "dev" });
     expect(writtenBytes("put").toString("utf-8")).toBe("v2-overwrite");
-    expect(dataOf(result)).toMatchObject({ success: true, action: "overwritten" });
+    expect(dataOf(result)).toMatchObject({ action: "overwritten" });
     expect(harness.mockHttp.history.post).toHaveLength(0);
   });
 
@@ -449,7 +449,7 @@ describe("delete, search, copy and move", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.delete[0].headers).toMatchObject({ "If-Match": '"v1"' });
-    expect(dataOf(result)).toMatchObject({ success: true, path: "old.txt" });
+    expect(dataOf(result)).toMatchObject({ path: "old.txt" });
     expect(dataOf(result).message).toContain("openl_save_project");
     expect(fileReads()).toHaveLength(0);
   });
@@ -574,7 +574,7 @@ describe("delete, search, copy and move", () => {
     const result = await executeTool(tool, { projectId: "p1", ...paths }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(paths);
-    expect(dataOf(result)).toMatchObject({ success: true, ...paths });
+    expect(dataOf(result)).toMatchObject({ ...paths });
   });
 
   it.each([

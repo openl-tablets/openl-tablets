@@ -339,7 +339,7 @@ export function registerProjectMergeHandlers(): void {
       const check = await client.checkProjectMerge(args.projectId, request);
 
       if (check.status === "up-to-date") {
-        return formatResult({ success: true, status: "up-to-date", check });
+        return formatResult({ status: "up-to-date", check });
       }
       const forceBypassAllowed = args.force === true && check.blockedBy === "bypass-required";
       if (args.force === true && !forceBypassAllowed) {
@@ -363,7 +363,6 @@ export function registerProjectMergeHandlers(): void {
         extra,
       );
       const response = {
-        success: result.status === "success",
         ...result,
         ...(result.status === "conflicts"
           ? {
@@ -506,7 +505,7 @@ export function registerProjectMergeHandlers(): void {
     },
     handler: async (args, client): Promise<ToolResponse> => {
       await client.cancelMergeConflicts(args.projectId);
-      return formatResult({ success: true, message: "Pending merge conflict state was cleared." });
+      return formatResult({ cancelled: true });
     },
   });
 
@@ -531,7 +530,7 @@ export function registerProjectMergeHandlers(): void {
       }
       await client.deleteProject(args.projectId, args.comment);
       // Studio deletes the project on the branch it is on, which the agent must not take for every branch
-      return formatResult({ success: true, ...(project.branch ? { deletedOnBranch: project.branch } : { deleted: true }) });
+      return formatResult(project.branch ? { deletedOnBranch: project.branch } : { deleted: true });
     },
   });
 
@@ -596,7 +595,6 @@ export function registerProjectMergeHandlers(): void {
 
       await client.deleteProjectBranch(args.projectId, args.branch, args.force === true);
       return formatResult({
-        success: true,
         branch: args.branch,
         forced: args.force === true,
         safety,
