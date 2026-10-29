@@ -65,6 +65,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.Environment;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import org.openl.exception.OpenLRuntimeException;
@@ -116,6 +117,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclRole;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
@@ -799,13 +801,49 @@ class WorkspaceProjectServiceTest {
     }
 
     @Test
+    void delete_project_names_in_the_audit_log_the_folder_the_project_had() throws Exception {
+        var acl = mock(RepositoryAclService.class);
+        var aclProjectsHelper = mock(AclProjectsHelper.class);
+        var projectStateValidator = mock(ProjectStateValidator.class);
+        var webStudio = mock(WebStudio.class);
+        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var events = new ArrayList<Object>();
+        var service = newService(acl, mock(ProtectedBranchBypassService.class), userWorkspaceWithNonDirectoryParent(),
+                projectStateValidator, webStudio, aclProjectsHelper, events::add);
+        var repository = repository();
+        when(repository.supports()).thenReturn(new FeaturesBuilder(repository).setMappedFolders(true).build());
+        var project = mock(RulesProject.class);
+        fillProject(project, repository, "Pricing", "Pricing");
+        // The repository no longer maps a deleted project, and answers its external name instead of its folder.
+        var realPath = new AtomicReference<>("Lang2");
+        when(project.getRealPath()).thenAnswer(invocation -> realPath.get());
+        doAnswer(invocation -> {
+            realPath.set("DESIGN/rules/Pricing:8f31");
+            return null;
+        }).when(project).delete(any());
+        when(aclProjectsHelper.hasPermission(project, BasePermission.DELETE)).thenReturn(true);
+        when(projectStateValidator.canDelete(project)).thenReturn(true);
+        when(acl.getPath(project)).thenReturn("Lang2");
+        when(acl.listPermissions("design", "Lang2")).thenReturn(
+                Map.of(new GrantedAuthoritySid("Testers"), List.of(AclRole.VIEWER.getCumulativePermission())));
+
+        service.delete(project, null);
+
+        var audited = events.stream().filter(AuditEvent.class::isInstance).map(AuditEvent.class::cast).toList();
+        assertEquals(List.of(AuditAction.PROJECT_DELETED, AuditAction.ROLE_REVOKED),
+                audited.stream().map(AuditEvent::action).toList());
+        audited.forEach(event -> assertEquals("Lang2", event.details().get("path")));
+    }
+
+    @Test
     void delete_project_ignores_comment_and_validation_when_repository_does_not_support_comments()
             throws Exception {
         var aclProjectsHelper = mock(AclProjectsHelper.class);
         var projectStateValidator = mock(ProjectStateValidator.class);
         var userWorkspace = userWorkspaceWithNonDirectoryParent();
         var webStudio = mock(WebStudio.class);
-        when(webStudio.getModel()).thenReturn(mock(ProjectModel.class));
+        var projectModel = mock(ProjectModel.class);
+        when(webStudio.getModel()).thenReturn(projectModel);
         var service = newService(mock(RepositoryAclService.class), mock(ProtectedBranchBypassService.class),
                 userWorkspace, projectStateValidator, webStudio, aclProjectsHelper);
         var repository = repository();

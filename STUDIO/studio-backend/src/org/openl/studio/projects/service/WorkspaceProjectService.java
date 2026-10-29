@@ -77,6 +77,7 @@ import org.openl.rules.repository.api.RepositoryDelegate;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.acl.service.AclProjectsHelper;
+import org.openl.rules.rest.acl.service.AclRoleAuditor.Place;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.table.GridTableUtils;
@@ -1142,6 +1143,8 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
         var projectName = project.getDesignProjectName();
         var branch = project.getBranch();
         var aclPath = localOnly ? null : designRepositoryAclService.getPath(project);
+        // The repository forgets the folder of a deleted project, so the audit log is told it beforehand.
+        var path = localOnly ? null : Place.pathOf(project);
 
         getWebStudio().getModel().clearModuleInfo();
         closeProjectForAllUsers(project);
@@ -1158,7 +1161,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
             designRepositoryAclService.deleteAcl(repository.getId(), aclPath);
         }
         if (!localOnly) {
-            auditor.deleted(project, normalizedComment, removedPermissions);
+            auditor.deleted(project, path, normalizedComment, removedPermissions);
         }
         workspaceManager.refreshWorkspaces();
         getWebStudio().reset();

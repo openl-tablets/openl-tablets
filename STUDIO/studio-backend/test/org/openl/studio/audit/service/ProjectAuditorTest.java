@@ -88,7 +88,7 @@ class ProjectAuditorTest {
     void deleted_takesTheRolesHeldOnTheProjectAway() {
         var testers = new GrantedAuthoritySid("Testers");
 
-        auditor.deleted(workspaceProject("Pricing", "design", "master", "rev-4"), null,
+        auditor.deleted(workspaceProject("Pricing", "design", "master", "rev-4"), null, null,
                 Map.of(testers, List.of(AclRole.VIEWER.getCumulativePermission())));
 
         assertEquals(2, events.size());
@@ -98,6 +98,19 @@ class ProjectAuditorTest {
         assertEquals(AuditAction.ROLE_REVOKED, revoked.action());
         assertEquals("Testers", revoked.subject());
         assertEquals("VIEWER", revoked.details().get("from"));
+    }
+
+    @Test
+    void deleted_namesTheFolderTheProjectHadNotTheOneTheRepositoryTellsNow() {
+        // A repository answers the external name of a project it no longer maps.
+        var project = inFolder(workspaceProject("Pricing", "design", "master", "rev-4"), "DESIGN/rules/Pricing:8f31");
+
+        auditor.deleted(project, "Lang2", "Removed",
+                Map.of(new GrantedAuthoritySid("Testers"), List.of(AclRole.VIEWER.getCumulativePermission())));
+
+        assertEquals(Map.of("repository", "design", "path", "Lang2", "branch", "master", "comment", "Removed"),
+                events.getFirst().details());
+        assertEquals("Lang2", events.getLast().details().get("path"));
     }
 
     @Test

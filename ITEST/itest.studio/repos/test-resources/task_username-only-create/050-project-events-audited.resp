@@ -1,0 +1,86 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleRevoked",
+      "outcome": "success",
+      "targetType": "project",
+      "target": "UsernameOnlyTemplate",
+      "subjectType": "user",
+      "subject": "admin",
+      "details": {
+        "repository": "design-non-flat",
+        "path": "UsernameOnlyTemplate",
+        "from": "CONTRIBUTOR"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "project",
+      "action": "projectDeleted",
+      "outcome": "success",
+      "targetType": "project",
+      "target": "UsernameOnlyTemplate",
+      "details": {
+        "repository": "design-non-flat",
+        "path": "UsernameOnlyTemplate",
+        "branch": "master",
+        "comment": "EPBDS-16200 Cleanup UsernameOnlyTemplate"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "permission",
+      "action": "roleGranted",
+      "outcome": "success",
+      "targetType": "project",
+      "target": "UsernameOnlyTemplate",
+      "subjectType": "user",
+      "subject": "admin",
+      "details": {
+        "repository": "design-non-flat",
+        "path": "UsernameOnlyTemplate",
+        "to": "CONTRIBUTOR"
+      }
+    },
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "admin",
+      "authentication": "basic",
+      "clientAddress": "***",
+      "category": "project",
+      "action": "projectCreated",
+      "outcome": "success",
+      "targetType": "project",
+      "target": "UsernameOnlyTemplate",
+      "details": {
+        "repository": "design-non-flat",
+        "path": "UsernameOnlyTemplate",
+        "branch": "master",
+        "revision": "***",
+        "source": "template"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 4,
+  "numberOfElements": 4,
+  "total": 4
+}
