@@ -211,7 +211,7 @@ describe("openl_create_upload_link", () => {
       expiresAt: "2026-10-23T10:15:00Z",
       repositoryId: "design-flat",
       repositoryPath: "rules/Model.xlsx",
-      curl: "curl -fsS -T 'Model.xlsx' 'http://localhost:8080/transfers/up'",
+      curl: "curl -sS --fail-with-body -T 'Model.xlsx' 'http://localhost:8080/transfers/up'",
     });
     expect(dataOf<{ note: string }>(result).note).toMatch(/once.*openl_save_project/);
   });
@@ -231,7 +231,7 @@ describe("openl_create_upload_link", () => {
       url,
       method: "POST",
       branch: "main",
-      curl: String.raw`curl -fsS --data-binary @'it'\''s new.md' -H 'Content-Type: application/octet-stream' `
+      curl: String.raw`curl -sS --fail-with-body --data-binary @'it'\''s new.md' -H 'Content-Type: application/octet-stream' `
         + quotedUrl,
     });
     expect(dataOf(result)).not.toHaveProperty("expiresAt");
@@ -250,7 +250,7 @@ describe("openl_create_upload_link", () => {
     expect(dataOf(result)).toMatchObject({
       url,
       method: "PUT",
-      curl: `curl -fsS -X PUT -H 'If-Match: "v1"' --data-binary @'Model.xlsx' -H 'Content-Type: application/octet-stream' '${url}'`,
+      curl: `curl -sS --fail-with-body -X PUT -H 'If-Match: "v1"' --data-binary @'Model.xlsx' -H 'Content-Type: application/octet-stream' '${url}'`,
     });
   });
 

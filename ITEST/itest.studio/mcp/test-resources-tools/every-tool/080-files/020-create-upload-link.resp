@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"url\":\"http://example.com/transfers/***\",\"method\":\"PUT\",\"expiresAt\":\"***\",\"repositoryId\":\"design\",\"repositoryPath\":\"McpTools/docs/data.bin\",\"branch\":\"master\",\"curl\":\"curl -fsS -T 'data.bin' 'http://example.com/transfers/***'\",\"note\":\"The link writes once: a failed upload needs a new link. The file lands in the project working copy; commit it with openl_save_project.\"}}"
+        "text": "{\"data\":{\"url\":\"http://example.com/transfers/***\",\"method\":\"PUT\",\"expiresAt\":\"***\",\"repositoryId\":\"design\",\"repositoryPath\":\"McpTools/docs/data.bin\",\"branch\":\"master\",\"curl\":\"curl -sS --fail-with-body -T 'data.bin' 'http://example.com/transfers/***'\",\"note\":\"The link writes once: a failed upload needs a new link. The file lands in the project working copy; commit it with openl_save_project.\"}}"
       }
     ],
     "resultType": "complete",
