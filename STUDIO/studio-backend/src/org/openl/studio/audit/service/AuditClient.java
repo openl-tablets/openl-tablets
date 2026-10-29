@@ -1,6 +1,8 @@
 package org.openl.studio.audit.service;
 
+import java.util.Objects;
 import java.util.Optional;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,6 +10,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import org.openl.studio.audit.model.AuditAuthentication;
+import org.openl.studio.mcp.McpCalls;
 
 /**
  * The client an event is recorded for: the address its request comes from and the way its user signed in.
@@ -15,6 +18,9 @@ import org.openl.studio.audit.model.AuditAuthentication;
  * <p>An event is recorded for the client of the current request. A task that a request hands to a thread of its own,
  * such as a merge, records its events for the client of that request: the thread pools of OpenL Studio carry the
  * client to the task, as they carry the user.
+ *
+ * <p>The built-in MCP server calls the REST API itself for its client, so a call it makes names the address of that
+ * client, not its own ({@link McpCalls}).
  *
  * <p>Outside a request and the tasks it started there is no client address, and a user name and a password tell
  * nothing of the way the user signed in. An action OpenL Studio does itself has no client either, even when a request
@@ -66,9 +72,17 @@ public record AuditClient(@Nullable String address, @Nullable AuditAuthenticatio
 
     private static AuditClient ofRequest() {
         var address = RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes
-                ? attributes.getRequest().getRemoteAddr()
+                ? addressOf(attributes.getRequest())
                 : null;
         return new AuditClient(address,
                 AuthenticationMethods.of(SecurityContextHolder.getContext().getAuthentication()));
+    }
+
+    /**
+     * The address of the client of a request: the client of the built-in MCP server for a call the server makes for
+     * it, else the one the request comes from.
+     */
+    private static String addressOf(HttpServletRequest request) {
+        return Objects.requireNonNullElseGet(McpCalls.clientAddressOf(request), request::getRemoteAddr);
     }
 }

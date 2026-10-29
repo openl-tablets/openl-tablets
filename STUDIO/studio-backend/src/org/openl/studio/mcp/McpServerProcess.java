@@ -178,12 +178,15 @@ class McpServerProcess implements SmartLifecycle, DisposableBean {
      * <p>The server sends OpenTelemetry data when OpenL Studio sends traces or metrics ({@code OTEL_SDK_DISABLED}), as
      * the service of OpenL Studio with the suffix {@code -mcp} ({@code OTEL_SERVICE_NAME}). The other {@code OTEL_*}
      * variables reach it as they are.
+     *
+     * <p>Each run gets a new secret, which tells its calls to the REST API from any other request ({@link McpCalls}).
      */
     void configure(Map<String, String> env) {
         env.remove("NODE_USE_ENV_PROXY");
         env.put("PORT", "0");
         env.put("HOST", LOOPBACK);
         env.put("OPENL_VERSION", OpenLVersion.getVersion());
+        env.put(McpCalls.SECRET_VARIABLE, McpCalls.newSecret());
         var otel = new OtelEnvironment(env);
         env.put("OTEL_SDK_DISABLED", String.valueOf(!otel.sends(Signal.TRACES) && !otel.sends(Signal.METRICS)));
         env.put("OTEL_SERVICE_NAME", otel.serviceName("-mcp"));

@@ -4,7 +4,7 @@
 
 import { buildUrl, HttpClient, type HttpResponse } from "./http.js";
 import type * as Types from "./types.js";
-import { authorizationHeaders, logUnauthorized } from "./auth.js";
+import { authorizationHeaders, callerHeaders, logUnauthorized } from "./auth.js";
 import { isResultNotReady } from "./utils.js";
 import { trimChar } from "./text.js";
 
@@ -202,6 +202,8 @@ export class OpenLClient {
   readonly publicUrl: string;
   private readonly http: HttpClient;
   private repositoriesCache: Types.Repository[] | null = null;
+  /** The address of the client of the MCP server the calls are made for. */
+  private clientAddress: string | undefined;
 
   /**
    * Create a new OpenL Studio API client
@@ -212,6 +214,7 @@ export class OpenLClient {
     const baseUrl = normalizeOpenLBaseUrl(config.baseUrl);
     // The base the client calls ends with /rest: its parent is the address of Studio.
     this.publicUrl = config.publicUrl ?? new URL(".", baseUrl).href;
+    this.clientAddress = config.clientAddress;
 
     // The HTTP client of the Studio REST API. Studio keeps the state of the client for its credential, so the
     // client keeps no session cookie.
@@ -223,8 +226,18 @@ export class OpenLClient {
         "Accept": "application/json",
         ...authorizationHeaders(config.authorization),
       },
+      // Read for every call: a session of the 2025 protocol may go on from another address
+      headersOf: () => callerHeaders(config.mcpSecret, this.clientAddress),
       onError: (error) => logUnauthorized(error, config.authorization),
     });
+  }
+
+  /**
+   * Names the address the client of the MCP server calls from now, as OpenL Studio passed it with the request. A
+   * request that names none keeps the address the client had.
+   */
+  callsFrom(clientAddress: string | undefined): void {
+    this.clientAddress = clientAddress ?? this.clientAddress;
   }
 
   // =============================================================================

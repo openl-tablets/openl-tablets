@@ -14,6 +14,13 @@ export interface OpenLConfig {
    * Defaults to the address the client calls.
    */
   publicUrl?: string;
+  /**
+   * The address of the client of the MCP server, as OpenL Studio names it in the request to the server. The calls name
+   * it back, with `mcpSecret`, so that OpenL Studio records what the client does with the address of the client.
+   */
+  clientAddress?: string;
+  /** The secret OpenL Studio gave this run of the MCP server, which tells its calls from any other request. */
+  mcpSecret?: string;
 }
 
 /** The build of OpenL Studio, as `/public/info/build.json` tells it. */
