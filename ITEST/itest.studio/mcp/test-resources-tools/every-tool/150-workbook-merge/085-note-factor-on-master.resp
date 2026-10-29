@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"path\":\"docs/notes.txt\",\"action\":\"overwritten\",\"bytesWritten\":65,\"committed\":true,\"branch\":\"master\",\"message\":\"Overwrote 65 byte(s) in 'docs/notes.txt' and committed the project to Git: \\\"Note the factor of young drivers on master\\\".\"}}"
+        "text": "{\"data\":{\"action\":\"overwritten\",\"version\":\"@\",\"committed\":true,\"branch\":\"master\"}}"
       }
     ],
     "resultType": "complete",

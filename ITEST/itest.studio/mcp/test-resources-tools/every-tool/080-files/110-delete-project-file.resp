@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"path\":\"docs/data.bin\",\"message\":\"Deleted 'docs/data.bin' from the project working copy. Use openl_save_project to commit the deletion to Git.\"}}"
+        "text": "{\"data\":{\"deleted\":\"docs/data.bin\"}}"
       }
     ],
     "resultType": "complete",

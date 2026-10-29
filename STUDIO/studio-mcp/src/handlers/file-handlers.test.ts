@@ -3,6 +3,7 @@
  * copying and moving the files of a project.
  */
 
+import { createHash } from "node:crypto";
 import { describe, it, expect } from "vitest";
 import { executeTool } from "./index.js";
 import { bodyOf } from "../testing/mock-http.js";
@@ -100,14 +101,12 @@ describe("openl_read_project_file", () => {
 
     expect(dataOf(result)).toEqual({
       url: "http://localhost:8080/rest/projects/p1/files/rules.xml?branch=feature",
-      method: "GET",
       size: 5001,
       version: "v1",
       repositoryId: "design",
       repositoryPath: "Bank Rating/rules.xml",
       branch: "feature",
       curl: "curl -fsS -o 'rules.xml' 'http://localhost:8080/rest/projects/p1/files/rules.xml?branch=feature'",
-      note: "Run curl to save the file.",
     });
     expect(harness.mockHttp.history.get.filter((request) => !request.params?.view
       && request.url.includes("/files/"))).toHaveLength(0);
@@ -128,7 +127,6 @@ describe("openl_read_project_file", () => {
     });
     expect(dataOf(result)).toMatchObject({
       url: "http://localhost:8080/transfers/k3Jx",
-      method: "GET",
       expiresAt: "2026-10-23T10:15:00Z",
       size: 4,
       repositoryPath: "Bank Rating/rules/Model.xlsx",
@@ -207,13 +205,12 @@ describe("openl_create_upload_link", () => {
     });
     expect(dataOf(result)).toMatchObject({
       url: "http://localhost:8080/transfers/up",
-      method: "PUT",
       expiresAt: "2026-10-23T10:15:00Z",
       repositoryId: "design-flat",
       repositoryPath: "rules/Model.xlsx",
       curl: "curl -sS --fail-with-body -T 'Model.xlsx' 'http://localhost:8080/transfers/up'",
     });
-    expect(dataOf<{ note: string }>(result).note).toMatch(/once.*openl_save_project/);
+    expect(dataOf(result)).not.toHaveProperty("note");
   });
 
   it("answers the raw POST of the files API in single-user mode, its quotes kept for the shell", async () => {
@@ -229,7 +226,6 @@ describe("openl_create_upload_link", () => {
     const quotedUrl = `'${url.replaceAll("'", String.raw`'\''`)}'`;
     expect(dataOf(result)).toMatchObject({
       url,
-      method: "POST",
       branch: "main",
       curl: String.raw`curl -sS --fail-with-body --data-binary @'it'\''s new.md' -H 'Content-Type: application/octet-stream' `
         + quotedUrl,
@@ -249,20 +245,19 @@ describe("openl_create_upload_link", () => {
     const url = "http://localhost:8080/rest/projects/p1/files/rules/Model.xlsx";
     expect(dataOf(result)).toMatchObject({
       url,
-      method: "PUT",
       curl: `curl -sS --fail-with-body -X PUT -H 'If-Match: "v1"' --data-binary @'Model.xlsx' -H 'Content-Type: application/octet-stream' '${url}'`,
     });
   });
 
-  it("tells that an upload into a project edited in place needs no commit", async () => {
+  it("answers an upload link into a project edited in place as any other, with no note", async () => {
     harness.mockHttp.onGet("/settings").reply(200, {});
     editedInPlace();
 
     const result = await executeTool("create_upload_link", { projectId: "p1", path: "rules/Model.xlsx" },
       harness.client);
 
-    expect(dataOf<{ note: string }>(result).note).toMatch(/edited in place.*nothing to commit/);
-    expect(dataOf<{ note: string }>(result).note).not.toContain("openl_save_project");
+    expect(dataOf(result)).toHaveProperty("curl");
+    expect(dataOf(result)).not.toHaveProperty("note");
   });
 
   it("refuses a folder, which a link cannot write as one file", async () => {
@@ -290,7 +285,10 @@ describe("openl_write_project_file", () => {
     expect(writtenBytes().toString("utf-8")).toBe("héllo");
     // createFolders default (true) is materialized by the handler.
     expect(harness.mockHttp.history.post[0].params?.createFolders).toBe(true);
-    expect(dataOf(result)).toMatchObject({ bytesWritten: 6, committed: false });
+    // The version of the new file is the digest of its content, which the next replacement names
+    expect(dataOf(result)).toEqual({
+      action: "created", version: createHash("sha256").update("héllo").digest("hex"), committed: false,
+    });
   });
 
   it.each([
@@ -318,7 +316,6 @@ describe("openl_write_project_file", () => {
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ save: true, comment: "add docs/x.md" }]);
     expect(dataOf(result).committed).toBe(true);
-    expect(dataOf(result).message).toContain("committed");
   });
 
   it("reports a written file it could not commit instead of failing", async () => {
@@ -348,8 +345,8 @@ describe("openl_write_project_file", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.patch).toHaveLength(0);
-    expect(dataOf(result)).toMatchObject({ committed: false });
-    expect(dataOf(result).message).toMatch(/^Wrote 5 byte\(s\) to 'docs\/x\.md'\. The project is edited in place/);
+    expect(dataOf(result)).toMatchObject({ action: "created", committed: false });
+    expect(dataOf(result)).not.toHaveProperty("note");
   });
 
   it("creates a new file with conflictPolicy FAIL and forwards branch", async () => {
@@ -439,7 +436,7 @@ describe("openl_write_project_file", () => {
 });
 
 describe("delete, search, copy and move", () => {
-  it("openl_delete_project_file deletes the version of a file it names and reports success", async () => {
+  it("openl_delete_project_file deletes the version of a file it names and names it", async () => {
     harness.mockHttp.onDelete("/projects/p1/files/old.txt").reply(204);
 
     const result = await executeTool("delete_project_file", {
@@ -449,8 +446,7 @@ describe("delete, search, copy and move", () => {
     }, harness.client);
 
     expect(harness.mockHttp.history.delete[0].headers).toMatchObject({ "If-Match": '"v1"' });
-    expect(dataOf(result)).toMatchObject({ path: "old.txt" });
-    expect(dataOf(result).message).toContain("openl_save_project");
+    expect(dataOf(result)).toEqual({ deleted: "old.txt" });
     expect(fileReads()).toHaveLength(0);
   });
 
@@ -458,7 +454,7 @@ describe("delete, search, copy and move", () => {
     ["delete_project_file", "delete", { path: "old.txt", version: "v1" }],
     ["copy_project_file", "post", { sourcePath: "a.txt", destinationPath: "b.txt" }],
     ["move_project_file", "post", { sourcePath: "a.txt", destinationPath: "b.txt" }],
-  ] as const)("openl_%s tells that a change of a project edited in place needs no commit", async (tool, method, args) => {
+  ] as const)("openl_%s answers what it changed with no request for the project", async (tool, method, args) => {
     harness.mockHttp.onDelete("/projects/p1/files/old.txt").reply(204);
     harness.mockHttp.onPost(/\/projects\/p1\/file-(copy|move)/).reply(201);
     editedInPlace();
@@ -466,8 +462,9 @@ describe("delete, search, copy and move", () => {
     const result = await executeTool(tool, { projectId: "p1", ...args }, harness.client);
 
     expect(harness.mockHttp.history[method]).toHaveLength(1);
-    expect(dataOf(result).message).toMatch(/The project is edited in place/);
-    expect(dataOf(result).message).not.toContain("openl_save_project");
+    // Whether the project is edited in place, which the description tells, needs no read of it
+    expect(harness.mockHttp.history.get.filter((request) => request.url === "/projects/p1")).toHaveLength(0);
+    expect(Object.keys(dataOf(result))).toEqual([tool === "delete_project_file" ? "deleted" : `${method === "post" && tool.startsWith("copy") ? "copied" : "moved"}`]);
   });
 
   it("openl_delete_project_file refuses to delete a file without its version", async () => {
@@ -574,7 +571,7 @@ describe("delete, search, copy and move", () => {
     const result = await executeTool(tool, { projectId: "p1", ...paths }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual(paths);
-    expect(dataOf(result)).toMatchObject({ ...paths });
+    expect(dataOf(result)).toEqual({ [tool.startsWith("copy") ? "copied" : "moved"]: "legacy/M.xlsx" });
   });
 
   it.each([

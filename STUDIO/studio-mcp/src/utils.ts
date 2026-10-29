@@ -157,9 +157,6 @@ export function isEditedInPlace({ capabilities }: ProjectViewModel): boolean {
   return capabilities !== undefined && !capabilities.canOpen && !capabilities.canClose;
 }
 
-/** What a change of the files of a project edited in place tells the agent instead of asking it to commit. */
-export const IN_PLACE_NOTE = "The project is edited in place: the change is in its files already, and there is nothing to commit.";
-
 /**
  * Type guard for a plain (non-null, non-array) object.
  *

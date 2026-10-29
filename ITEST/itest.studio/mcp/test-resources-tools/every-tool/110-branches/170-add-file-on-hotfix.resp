@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"path\":\"docs/hotfix.txt\",\"action\":\"created\",\"bytesWritten\":7,\"committed\":true,\"branch\":\"hotfix\",\"message\":\"Wrote 7 byte(s) to 'docs/hotfix.txt' and committed the project to Git: \\\"Add the hotfix notes\\\".\"}}"
+        "text": "{\"data\":{\"action\":\"created\",\"version\":\"@\",\"committed\":true,\"branch\":\"hotfix\"}}"
       }
     ],
     "resultType": "complete",

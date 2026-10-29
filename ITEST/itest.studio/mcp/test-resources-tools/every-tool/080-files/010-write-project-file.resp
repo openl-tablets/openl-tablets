@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"path\":\"docs/notes.txt\",\"action\":\"created\",\"bytesWritten\":37,\"committed\":false,\"message\":\"Wrote 37 byte(s) to 'docs/notes.txt' in the project working copy. Changes are NOT committed — pass 'message' to commit, or use openl_save_project.\"}}"
+        "text": "{\"data\":{\"action\":\"created\",\"version\":\"@\",\"committed\":false}}"
       }
     ],
     "resultType": "complete",
