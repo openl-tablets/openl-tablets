@@ -37,7 +37,7 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (64 Total)
+## Tools (63 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -190,11 +190,10 @@ structure, set `includeTree: true` for the **one-level** `tree` root (its steps 
 a `childrenTotal` count, not nested children — a huge run is no longer returned whole)
 and walk it level by level with `openl_expand_trace_tree`.
 
-### Deployment (4)
+### Deployment (3)
 - `openl_list_deploy_repositories` - List deployment repositories
 - `openl_list_deployments` - List active deployments
-- `openl_deploy_project` - Deploy to production
-- `openl_redeploy_project` - Redeploy with new version
+- `openl_deploy_project` - Deploy to production: a new deployment by `deploymentName` and `productionRepositoryId`, or the project again to the deployment `deploymentId` names, as a newer version or a rollback
 
 ### Diagnostics (1)
 - `openl_get_server_info` - Report the OpenL Studio the server works with, as Markdown: `Server: OpenL Studio <version>` and `URL: <address>` — the address its users open, restored from the `X-Forwarded-*` headers or the first `Forwarded` element of the request, its `Host` otherwise, with the context path of Studio. `full: true` adds the build number, the start and the current time, OS, architecture, Java, CPUs and their load, threads, and the memory of the machine and of the JVM, from `/rest/public/info/build.json` and `/rest/public/info/sys.json`. The `path` of a document from `openl_list_guides` is relative to that address
@@ -235,7 +234,7 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 - Project branch/merge tools: `openl_list_project_branches`, `openl_check_project_merge`, `openl_merge_project_branches`, merge-conflict inspection and resolution, conflict-session cancellation, and `openl_delete_project_branch`;
 - `openl_list_project_local_changes`, `openl_restore_project_local_change` (require an opened project; local projects cannot be opened).
 
-Deployment (`openl_deploy_project`, `openl_redeploy_project`) for projects with `repository: 'local'` is typically not used via the studio.
+Deployment (`openl_deploy_project`) for projects with `repository: 'local'` is typically not used via the studio.
 
 ## Projects edited in place
 

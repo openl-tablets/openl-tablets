@@ -532,10 +532,24 @@ export const createProjectSchema = z.strictObject({
 });
 
 export const deployProjectSchema = z.strictObject({
-  projectId: projectIdSchema.describe("Project ID to deploy. Use the exact 'projectId' value from openl_list_projects() response."),
-  deploymentName: z.string().describe("Name for the deployment (e.g., 'InsuranceRules', 'AutoPremium'). This will be the deployment identifier."),
-  productionRepositoryId: z.string().describe("Target production repository name (display name, not ID). Use the 'name' field from openl_list_deploy_repositories() response (e.g., if list_deploy_repositories returns {id: 'production-deploy', name: 'Production Deployment'}, use 'Production Deployment' here, NOT 'production-deploy'). Must be configured in OpenL Studio."),
+  projectId: projectIdSchema,
+  deploymentName: z.string().optional().describe("The name of a new deployment."),
+  productionRepositoryId: z.string().optional().describe("The 'name' of the production repository of a new deployment, from openl_list_deploy_repositories."),
+  deploymentId: z.string().optional().describe("The 'id' of a deployment to deploy the project to again, from openl_list_deployments."),
   comment: commentSchema.describe("Deployment reason comment (e.g., 'Deploy version 1.2.0', 'Production release')"),
+}).superRefine((data, ctx) => {
+  const created = data.deploymentName !== undefined || data.productionRepositoryId !== undefined;
+  if (data.deploymentId !== undefined && created) {
+    ctx.addIssue({
+      code: "custom", path: ["deploymentId"],
+      message: "A deploymentId deploys to that deployment again: it takes no deploymentName or productionRepositoryId.",
+    });
+  } else if (data.deploymentId === undefined && (data.deploymentName === undefined || data.productionRepositoryId === undefined)) {
+    ctx.addIssue({
+      code: "custom", path: ["deploymentName"],
+      message: "A new deployment needs deploymentName and productionRepositoryId; deploymentId redeploys an existing one.",
+    });
+  }
 });
 
 export const saveProjectSchema = z.strictObject({
@@ -963,9 +977,3 @@ export const fileTransferSchema = z.strictObject(copyMovePairSchema);
 // =============================================================================
 // Redeploy Schema
 // =============================================================================
-
-export const redeployProjectSchema = z.strictObject({
-  deploymentId: z.string().describe("Deployment ID to redeploy (from list_deployments response)"),
-  projectId: projectIdSchema,
-  comment: commentSchema,
-});

@@ -94,7 +94,6 @@ describe("MCP core — tool-call error channel", () => {
       "openl_edit_table",
       "openl_start_project_tests",
       "openl_deploy_project",
-      "openl_redeploy_project",
     ]) {
       const tool = tools.tools.find((candidate) => candidate.name === name);
       expect(tool?.annotations?.idempotentHint).not.toBe(true);
