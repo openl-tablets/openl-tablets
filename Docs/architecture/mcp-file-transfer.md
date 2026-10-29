@@ -121,7 +121,7 @@ sequenceDiagram
     N->>S: POST /rest/transfer-links
     S-->>N: path transfers/<id>, expiresAt
     N-->>M: url, location, a ready curl command
-    M->>A: curl -fsS -T Rules.xlsx '<url>'
+    M->>A: curl -sS --fail-with-body -T Rules.xlsx '<url>'
     A->>S: PUT /transfers/<id>, the bytes
     S->>S: take the record, receive and check the body, forward to the files API
     S-->>A: created, or replaced
@@ -288,8 +288,10 @@ it is known, the location in the repository (D10), a ready `curl` command and a 
 `resource_link` or a Markdown link: a client may fetch or preview a link it renders, which would pull the bytes into
 the context. The answer names no MIME type: Studio picks the type of a file from its name alone, so the name the file
 is saved under already tells it. The command quotes every word for a POSIX shell: `curl -fsS -o <name> <url>` for a
-download, `curl -fsS -T <file> <url>` for a transfer link of an upload, and
-`curl -fsS --data-binary @<file> -H 'Content-Type: application/octet-stream' <url>` for an upload in single-user mode.
+download, `curl -sS --fail-with-body -T <file> <url>` for a transfer link of an upload, and
+`curl -sS --fail-with-body --data-binary @<file> -H 'Content-Type: application/octet-stream' <url>` for an upload in
+single-user mode: an upload prints why Studio refused the file, which `-f` would hide, while a download keeps `-f`,
+which writes no error into the file it saves. `--fail-with-body` needs curl 7.76 or newer.
 
 The tool result of `openl_read_project_file` for a binary file, in a mode that authenticates — the text the model
 reads. studio-mcp builds it from the metadata of the file, the answer of `POST /rest/transfer-links` and the project;

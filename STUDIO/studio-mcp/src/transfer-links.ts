@@ -116,9 +116,10 @@ export async function uploadLink(client: OpenLClient, target: UploadTarget): Pro
   const method = expiresAt || version !== undefined ? "PUT" : "POST";
   const ifMatch = version === undefined ? undefined : "If-Match: " + entityTag(version);
   const replacing = ifMatch === undefined ? "" : `-X PUT -H ${quote(ifMatch)} `;
+  // An upload prints the answer of Studio on a failure: why it refused the file, which -f would hide
   const curl = expiresAt
-    ? `curl -fsS -T ${quote(local)} ${quote(url)}`
-    : `curl -fsS ${replacing}--data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`;
+    ? `curl -sS --fail-with-body -T ${quote(local)} ${quote(url)}`
+    : `curl -sS --fail-with-body ${replacing}--data-binary @${quote(local)} -H 'Content-Type: application/octet-stream' ${quote(url)}`;
   return {
     url,
     method,
