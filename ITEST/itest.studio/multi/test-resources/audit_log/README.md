@@ -1,7 +1,9 @@
 # EPBDS-14601 Audit log
 
 Refused sign-ins of a user, of an unknown personal access token and of an unreadable one are recorded in the audit
-log, and so are the sign-in and the sign-out through the login form at the root of the suite. The requests a user
+log, each with its reason, and so are the sign-in and the sign-out through the login form at the root of the suite.
+A refused token is answered with what to do about it; a token of the user sent with a wrong secret is recorded with
+the user as its owner. The requests a user
 sends with Basic authentication start one session, by `basic`. Only an administrator reads the log, as JSON or as a
 CSV file; an export is recorded every time, a view once while nothing else is done. A change of the details of a user
 is recorded with the values before and after; a change of the password is recorded without them, and a personal

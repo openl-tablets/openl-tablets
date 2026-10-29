@@ -6,14 +6,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import org.jspecify.annotations.Nullable;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import org.openl.rules.security.standalone.dao.PersonalAccessTokenDao;
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
+import org.openl.studio.security.pat.model.ExpiredPatException;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.security.pat.model.PatValidationResult;
+import org.openl.studio.security.pat.model.UnknownPatException;
 
 /**
  * Default implementation of {@link PatValidationService}.
@@ -68,15 +71,16 @@ public class PatValidationServiceImpl implements PatValidationService {
      *   <li>Token existence verification</li>
      *   <li>Constant-time secret comparison to prevent timing attacks</li>
      *   <li>Token expiration check</li>
-     *   <li>Exception handling to prevent information leakage</li>
      * </ul>
      * </p>
      * <p>
      * <strong>Security Notes:</strong>
      * <ul>
-     *   <li>Returns only VALID or INVALID - never exposes specific failure reasons</li>
+     *   <li>Names the reason of a refusal for the audit log: an unknown token, a wrong secret, an expired token.
+     *       The expiry is checked only once the secret matched, so it tells nothing to someone without the secret</li>
      *   <li>Uses constant-time password comparison to prevent timing attacks</li>
-     *   <li>Catches all exceptions to prevent information disclosure through error messages</li>
+     *   <li>Leaves a failure to read the token, such as a database error, to the caller, which answers it as a
+     *       failure of the server without its details</li>
      *   <li>Uses dummy hash for non-existent tokens to maintain consistent timing</li>
      * </ul>
      * </p>
@@ -84,29 +88,25 @@ public class PatValidationServiceImpl implements PatValidationService {
     @Transactional(readOnly = true)
     @Override
     public PatValidationResult validate(@Valid @NotNull PatToken pat) {
-        try {
-            var stored = tokenDao.getByPublicId(pat.publicId());
+        var stored = tokenDao.getByPublicId(pat.publicId());
+        // Checked for a token that does not exist too, so the time of the answer tells nothing
+        var secretMatches = secretMatches(pat, stored);
 
-            // If secret doesn't match, return immediately without revealing token existence/expiration status
-            if (!secretMatches(pat, stored)) {
-                return PatValidationResult.invalid();
-            }
-
-            // Secret matched - now verify token exists (matching dummy hash is virtually impossible)
-            if (stored == null) {
-                return PatValidationResult.invalid();
-            }
-
-            // Check if token has expired
-            if (isExpired(stored)) {
-                return PatValidationResult.invalid();
-            }
-
-            return PatValidationResult.valid(stored);
-        } catch (Exception ignored) {
-            // Catch any unexpected exceptions to prevent information disclosure
-            return PatValidationResult.invalid();
+        if (stored == null) {
+            return PatValidationResult.refused(new UnknownPatException(), null);
         }
+
+        // If secret doesn't match, return without checking the expiration status
+        if (!secretMatches) {
+            return PatValidationResult.refused(new BadCredentialsException("Wrong secret of the token"),
+                    stored.getLoginName());
+        }
+
+        if (isExpired(stored)) {
+            return PatValidationResult.refused(new ExpiredPatException(), stored.getLoginName());
+        }
+
+        return PatValidationResult.valid(stored);
     }
 
     /**

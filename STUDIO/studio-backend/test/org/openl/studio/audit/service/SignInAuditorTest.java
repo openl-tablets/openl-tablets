@@ -35,6 +35,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
+import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.core.Authentication;
@@ -52,7 +53,10 @@ import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditAuthentication;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
+import org.openl.studio.security.pat.model.ExpiredPatException;
+import org.openl.studio.security.pat.model.MalformedPatException;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.security.pat.model.UnknownPatException;
 import org.openl.studio.session.ClientSessions;
 import org.openl.studio.session.CredentialClient;
 
@@ -122,10 +126,10 @@ class SignInAuditorTest {
     @Test
     void namesARefusedPersonalAccessTokenByItsPublicId() {
         auditor.onSignInFailure(new AuthenticationFailureBadCredentialsEvent(
-                new PatAuthenticationToken("abc123DEF4567890"),
+                new PatAuthenticationToken("abc123DEF4567890", null),
                 new BadCredentialsException("Invalid personal access token")));
         auditor.onSignInFailure(new AuthenticationFailureBadCredentialsEvent(
-                new PatAuthenticationToken(null),
+                new PatAuthenticationToken(null, null),
                 new BadCredentialsException("Invalid personal access token")));
 
         var events = recordedAll();
@@ -134,6 +138,18 @@ class SignInAuditorTest {
         assertEquals(Map.of(SignInAuditor.REASON, "badCredentials", SignInAuditor.TOKEN, "abc123DEF4567890"),
                 events.getFirst().details());
         assertEquals(Map.of(SignInAuditor.REASON, "badCredentials"), events.get(1).details());
+    }
+
+    @Test
+    void namesTheOwnerOfARefusedPersonalAccessTokenOpenLStudioKnows() {
+        auditor.onSignInFailure(new AuthenticationFailureCredentialsExpiredEvent(
+                new PatAuthenticationToken("abc123DEF4567890", "jdoe"), new ExpiredPatException()));
+
+        var event = recorded();
+        assertEquals("jdoe", event.actor());
+        assertEquals(AuditAuthentication.TOKEN, event.authentication());
+        assertEquals(Map.of(SignInAuditor.REASON, "tokenExpired", SignInAuditor.TOKEN, "abc123DEF4567890"),
+                event.details());
     }
 
     @Test
@@ -288,6 +304,9 @@ class SignInAuditorTest {
         assertEquals("expired", SignInAuditor.reasonOf(new AccountExpiredException("expired")));
         assertEquals("expired", SignInAuditor.reasonOf(new CredentialsExpiredException("expired")));
         assertEquals("error", SignInAuditor.reasonOf(new AuthenticationServiceException("down")));
+        assertEquals("unknownToken", SignInAuditor.reasonOf(new UnknownPatException()));
+        assertEquals("malformedToken", SignInAuditor.reasonOf(new MalformedPatException()));
+        assertEquals("tokenExpired", SignInAuditor.reasonOf(new ExpiredPatException()));
     }
 
     private static Authentication signedIn(String name) {

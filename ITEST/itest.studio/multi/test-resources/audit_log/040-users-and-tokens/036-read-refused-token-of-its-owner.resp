@@ -1,0 +1,25 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "###",
+      "time": "***",
+      "actor": "EPBDS_14601_user",
+      "authentication": "token",
+      "clientAddress": "***",
+      "category": "authentication",
+      "action": "signIn",
+      "outcome": "failure",
+      "details": {
+        "reason": "badCredentials",
+        "token": "***"
+      }
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 1,
+  "numberOfElements": 1,
+  "total": "###"
+}

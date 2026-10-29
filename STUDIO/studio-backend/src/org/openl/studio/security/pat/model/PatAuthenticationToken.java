@@ -35,12 +35,14 @@ public class PatAuthenticationToken extends UsernamePasswordAuthenticationToken 
     }
 
     /**
-     * Creates the token of a sign-in attempt that was refused. It is not authenticated and names no user.
+     * Creates the token of a sign-in attempt that was refused. It is not authenticated, and names the owner of the
+     * token as its user when the token is known.
      *
      * @param publicId the public id of the token presented, or {@code null} when the token could not be read
+     * @param owner    the login name of the owner of the token, or {@code null} when the token is not known
      */
-    public PatAuthenticationToken(@Nullable String publicId) {
-        super(null, null);
+    public PatAuthenticationToken(@Nullable String publicId, @Nullable String owner) {
+        super(owner, null);
         this.publicId = publicId;
     }
 }

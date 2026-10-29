@@ -90,14 +90,21 @@ flowchart LR
   before the refresh, which ends them with the old context, and recorded after it. A stop ends them with no event, as
   it ends the browser sessions.
 - **A refused sign-in** is recorded for every way of signing in, with the reason (`badCredentials`,
-  `locked`, `disabled`, `expired`, `invalidToken`, `error`). The `authenticationEventPublisher` of
+  `locked`, `disabled`, `expired`, `invalidToken`, `unknownToken`, `malformedToken`, `tokenExpired`, `error`). The
+  `authenticationEventPublisher` of
   `CommonAuthenticationConfig` serves the OpenL authentication manager and the login-form chains alike; a refusal
   without an event of its own, such as a rejected SAML response, is published as one of bad credentials. The reason
   comes from the exception all the same (`SignInAuditor.reasonOf`): a rejected SAML response is recorded as `error`,
   a refused OpenID Connect sign-in as `invalidToken`. `PatAuthenticationFilter` publishes a refused token itself,
-  since no authentication manager reads it.
-- **A refused sign-in names a user only when one was typed** (a `UsernamePasswordAuthenticationToken`): the name of
-  a bearer token that was not read is the token itself.
+  since no authentication manager reads it, with the reason `PatValidationServiceImpl` and `PatAuthServiceImpl` found:
+  a value that is no token (`malformedToken`), an unknown token (`unknownToken`), a wrong secret (`badCredentials`),
+  an expired token (`tokenExpired`), an owner who cannot sign in (`disabled`, `locked`, `expired`). The log tells them
+  all apart; the answer to the caller names only the reasons found once the secret matched, and gives one common
+  answer to the others (see [MCP server](mcp-server.md)). A token that cannot be checked, as when the database cannot
+  be read, is recorded as `error`.
+- **A refused sign-in names a user only when one was typed** (a `UsernamePasswordAuthenticationToken`), or when a
+  personal access token OpenL Studio knows was sent: its owner, even for a wrong secret. A refused bearer token names
+  no user, as its name is the token itself while it is not read.
 - **A sign-out** is published by the logout handler the login form chain adds itself, and by
   `logoutEventPublishingHandler`, which the SAML and OAuth2 logout filters run first. A sign-out the SAML identity
   provider asks for is published the same way.

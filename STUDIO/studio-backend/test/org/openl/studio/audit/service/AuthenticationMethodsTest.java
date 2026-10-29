@@ -51,7 +51,7 @@ class AuthenticationMethodsTest {
                 .expiresAt(Instant.EPOCH.plusSeconds(60))
                 .build();
 
-        assertEquals(AuditAuthentication.TOKEN, AuthenticationMethods.of(new PatAuthenticationToken("abc")));
+        assertEquals(AuditAuthentication.TOKEN, AuthenticationMethods.of(new PatAuthenticationToken("abc", null)));
         assertEquals(AuditAuthentication.BEARER, AuthenticationMethods.of(new BearerTokenAuthenticationToken("t")));
         assertEquals(AuditAuthentication.BEARER, AuthenticationMethods.of(new JwtAuthenticationToken(jwt)));
         assertEquals(AuditAuthentication.OAUTH2,
@@ -83,7 +83,7 @@ class AuthenticationMethodsTest {
         request().addHeader(HttpHeaders.AUTHORIZATION, "basic amRvZTpzZWNyZXQ=");
 
         assertEquals(AuditAuthentication.FORM, AuthenticationMethods.ofSession(PASSWORD));
-        assertEquals(AuditAuthentication.TOKEN, AuthenticationMethods.ofSession(new PatAuthenticationToken("abc")));
+        assertEquals(AuditAuthentication.TOKEN, AuthenticationMethods.ofSession(new PatAuthenticationToken("abc", null)));
         assertEquals(AuditAuthentication.OAUTH2,
                 AuthenticationMethods.ofSession(new OAuth2AuthenticationToken(oauth2User, List.of(), "oidc")));
     }

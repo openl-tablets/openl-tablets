@@ -34,7 +34,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.openl.studio.audit.model.AuditAction;
 import org.openl.studio.audit.model.AuditEvent;
 import org.openl.studio.audit.model.AuditOutcome;
+import org.openl.studio.security.pat.model.ExpiredPatException;
+import org.openl.studio.security.pat.model.MalformedPatException;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.security.pat.model.UnknownPatException;
 import org.openl.studio.session.ClientSessionListener;
 import org.openl.studio.session.ClientSessions;
 import org.openl.studio.session.CredentialClient;
@@ -53,8 +56,9 @@ import org.openl.studio.session.CredentialClient;
  * than it may stay, marked as timed out, and when a restart of OpenL Studio ends it, marked as restarted. So the
  * started and ended sessions of credentials tell how often OpenL Studio set up the state of a client anew.
  *
- * <p>A failed sign-in names the user only when a user name was typed. A token is never recorded: some of them
- * are read as the name of their holder. A personal access token is named by its public id instead.
+ * <p>A failed sign-in names the user only when a user name was typed, or a personal access token OpenL Studio knows
+ * was sent: its owner. A token is never recorded: some of them are read as the name of their holder. A personal
+ * access token is named by its public id instead.
  *
  * <p>A problem with the audit log never fails a sign-in: it is logged and the sign-in goes on.
  */
@@ -96,7 +100,7 @@ public class SignInAuditor implements HandlerInterceptor, ClientSessionListener 
         recordQuietly(AuditEvent.builder()
                 .action(AuditAction.SIGN_IN)
                 .outcome(AuditOutcome.FAILURE)
-                .actor(typedUserName(authentication))
+                .actor(namedUser(authentication))
                 .authentication(AuthenticationMethods.of(authentication))
                 .details(details)
                 .build());
@@ -228,11 +232,11 @@ public class SignInAuditor implements HandlerInterceptor, ClientSessionListener 
     }
 
     /**
-     * The name the user typed to sign in, or {@code null} when the credentials hold no typed name.
+     * The user a refused sign-in names: the name the user typed, or the owner of a personal access token OpenL Studio
+     * knows. {@code null} when the credentials name no user.
      */
-    private static @Nullable String typedUserName(Authentication authentication) {
-        if (authentication instanceof PatAuthenticationToken
-                || !(authentication instanceof UsernamePasswordAuthenticationToken)) {
+    private static @Nullable String namedUser(Authentication authentication) {
+        if (!(authentication instanceof UsernamePasswordAuthenticationToken)) {
             return null;
         }
         var name = authentication.getName();
@@ -240,10 +244,14 @@ public class SignInAuditor implements HandlerInterceptor, ClientSessionListener 
     }
 
     /**
-     * Why the sign-in was refused, without the details an attacker could learn from.
+     * Why the sign-in was refused. The audit log is read by administrators only, so it tells the reasons a caller is
+     * not told apart: an unknown personal access token, a value that is no token, a wrong secret.
      */
     static String reasonOf(AuthenticationException exception) {
         return switch (exception) {
+            case UnknownPatException ignored -> "unknownToken";
+            case MalformedPatException ignored -> "malformedToken";
+            case ExpiredPatException ignored -> "tokenExpired";
             case BadCredentialsException ignored -> "badCredentials";
             case UsernameNotFoundException ignored -> "badCredentials";
             case LockedException ignored -> "locked";

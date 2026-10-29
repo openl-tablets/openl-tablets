@@ -20,8 +20,15 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,8 +38,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import org.openl.rules.security.standalone.persistence.PersonalAccessToken;
+import org.openl.studio.security.pat.model.PatRefusal;
 import org.openl.studio.security.pat.model.PatToken;
 import org.openl.studio.security.pat.model.PatValidationResult;
+import org.openl.studio.security.pat.model.UnknownPatException;
 
 /**
  * Unit tests for {@link PatAuthServiceImpl}.
@@ -84,8 +93,8 @@ class PatAuthServiceImplTest {
         assertSame(userDetails, auth.getPrincipal());
         assertNull(auth.getCredentials()); // Credentials should be null
         assertEquals(2, auth.getAuthorities().size());
-        assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
-        assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+        assertTrue(auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+        assertTrue(auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
 
         verify(validator, times(1)).validate(patToken);
         verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
@@ -95,7 +104,7 @@ class PatAuthServiceImplTest {
     void testResolveAuthentication_InvalidToken() {
         // Arrange
         var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
-        PatValidationResult invalidResult = PatValidationResult.invalid();
+        PatValidationResult invalidResult = PatValidationResult.refused(new UnknownPatException(), null);
 
         when(validator.validate(patToken)).thenReturn(invalidResult);
 
@@ -105,9 +114,38 @@ class PatAuthServiceImplTest {
         // Assert
         assertFalse(resolution.valid());
         assertNull(resolution.authentication());
+        assertSame(invalidResult.refusal(), resolution.refusal(), "The reason of the validation is kept");
 
         verify(validator, times(1)).validate(patToken);
         verify(userDetailsService, never()).loadUserByUsername("jdoe");
+    }
+
+    static Stream<Arguments> ownersThatCannotSignIn() {
+        return Stream.of(
+                Arguments.of(User.withUsername("jdoe").password("x").disabled(true).build(), DisabledException.class),
+                Arguments.of(User.withUsername("jdoe").password("x").accountLocked(true).build(),
+                        LockedException.class),
+                Arguments.of(User.withUsername("jdoe").password("x").accountExpired(true).build(),
+                        AccountExpiredException.class),
+                Arguments.of(User.withUsername("jdoe").password("x").credentialsExpired(true).build(),
+                        CredentialsExpiredException.class));
+    }
+
+    @ParameterizedTest
+    @MethodSource("ownersThatCannotSignIn")
+    void refusesTheTokenOfAnOwnerThatCannotSignInForThatReason(UserDetails owner, Class<?> reason) {
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        when(validator.validate(patToken))
+                .thenReturn(PatValidationResult.valid(createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe")));
+        when(userDetailsService.loadUserByUsername("jdoe")).thenReturn(owner);
+
+        var resolution = authService.resolveAuthentication(patToken);
+
+        assertFalse(resolution.valid());
+        assertNull(resolution.authentication());
+        var refusal = assertInstanceOf(PatRefusal.class, resolution.refusal());
+        assertEquals(reason, refusal.reason().getClass());
+        assertEquals("jdoe", refusal.owner());
     }
 
 
@@ -119,15 +157,33 @@ class PatAuthServiceImplTest {
         PatValidationResult validResult = PatValidationResult.valid(storedToken);
 
         when(validator.validate(patToken)).thenReturn(validResult);
-        when(userDetailsService.loadUserByUsername("jdoe"))
-                .thenThrow(new UsernameNotFoundException("User not found"));
+        var notFound = new UsernameNotFoundException("User not found");
+        when(userDetailsService.loadUserByUsername("jdoe")).thenThrow(notFound);
 
-        // Act & Assert
-        assertThrows(UsernameNotFoundException.class,
-                () -> authService.resolveAuthentication(patToken));
+        // Act
+        var resolution = authService.resolveAuthentication(patToken);
+
+        // Assert
+        assertNull(resolution.authentication());
+        var refusal = assertInstanceOf(PatRefusal.class, resolution.refusal());
+        assertSame(notFound, refusal.reason());
+        assertEquals("jdoe", refusal.owner());
 
         verify(validator, times(1)).validate(patToken);
         verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
+    }
+
+    @Test
+    void leavesAFailureToReadTheOwnerToTheCaller() {
+        var patToken = new PatToken(TEST_PUBLIC_ID, TEST_SECRET);
+        when(validator.validate(patToken))
+                .thenReturn(PatValidationResult.valid(createPersonalAccessToken(TEST_PUBLIC_ID, "jdoe")));
+        var failure = new IllegalStateException("The database is down");
+        when(userDetailsService.loadUserByUsername("jdoe")).thenThrow(failure);
+
+        var thrown = assertThrows(IllegalStateException.class, () -> authService.resolveAuthentication(patToken));
+
+        assertSame(failure, thrown);
     }
 
     @Test
@@ -178,7 +234,7 @@ class PatAuthServiceImplTest {
         var auth = resolution.authentication();
         assertEquals(1, auth.getAuthorities().size());
         assertTrue(auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER")));
+                .anyMatch(a -> "ROLE_VIEWER".equals(a.getAuthority())));
 
         verify(validator, times(1)).validate(patToken);
         verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
@@ -212,12 +268,12 @@ class PatAuthServiceImplTest {
         assertTrue(resolution1.valid());
         assertEquals("jdoe", ((UserDetails) resolution1.authentication().getPrincipal()).getUsername());
         assertTrue(resolution1.authentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+                .anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
 
         assertTrue(resolution2.valid());
         assertEquals("jsmith", ((UserDetails) resolution2.authentication().getPrincipal()).getUsername());
         assertTrue(resolution2.authentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+                .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
 
         verify(validator, times(1)).validate(patToken1);
         verify(validator, times(1)).validate(patToken2);
@@ -276,8 +332,8 @@ class PatAuthServiceImplTest {
 
         // Verify authorities match (not strict collection equality)
         assertEquals(2, auth.getAuthorities().size());
-        assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
-        assertTrue(auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+        assertTrue(auth.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority())));
+        assertTrue(auth.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority())));
 
         verify(validator, times(1)).validate(patToken);
         verify(userDetailsService, times(1)).loadUserByUsername("jdoe");
@@ -331,7 +387,7 @@ class PatAuthServiceImplTest {
         if (authorities.length > 0) {
             grantedAuthorities = Stream.of(authorities)
                     .map(SimpleGrantedAuthority::new)
-                    .map(a -> (GrantedAuthority) a)
+                    .map(GrantedAuthority.class::cast)
                     .toList();
         } else {
             grantedAuthorities = List.of();

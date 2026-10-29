@@ -2,7 +2,9 @@ package org.openl.studio.security.pat.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -18,21 +20,32 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -40,9 +53,13 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import org.openl.studio.security.pat.model.ExpiredPatException;
+import org.openl.studio.security.pat.model.MalformedPatException;
 import org.openl.studio.security.pat.model.PatAuthResolution;
 import org.openl.studio.security.pat.model.PatAuthenticationToken;
+import org.openl.studio.security.pat.model.PatRefusal;
 import org.openl.studio.security.pat.model.PatToken;
+import org.openl.studio.security.pat.model.UnknownPatException;
 import org.openl.studio.security.pat.service.PatAuthService;
 
 /**
@@ -57,6 +74,10 @@ class PatAuthenticationFilterTest {
     private static final String TEST_PUBLIC_ID = "abc123DEF4567890"; // 16 Base62 chars
     private static final String TEST_SECRET = "secret456ABCDEF78901234567890ABA"; // 32 Base62 chars
     private static final String TEST_TOKEN_VALUE = "openl_pat_" + TEST_PUBLIC_ID + "." + TEST_SECRET;
+    /** The answer to a token that is not valid, whatever the reason. */
+    private static final String NOT_VALID = """
+            The personal access token is not valid. Create a new token in Personal \
+            Access Tokens of OpenL Studio and use it instead.""";
 
     @Mock
     private PatAuthService patAuthService;
@@ -79,7 +100,11 @@ class PatAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        filter = new PatAuthenticationFilter(patAuthService, eventPublisher, securityContextHolderStrategy);
+        var messages = new ReloadableResourceBundleMessageSource();
+        messages.setBasename("classpath:ValidationMessages");
+        messages.setDefaultEncoding("UTF-8");
+        filter = new PatAuthenticationFilter(patAuthService, eventPublisher, messages, new ObjectMapper(),
+                securityContextHolderStrategy);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
 
@@ -158,10 +183,10 @@ class PatAuthenticationFilterTest {
         verify(securityContextHolderStrategy, never()).createEmptyContext();
         verify(filterChain, never()).doFilter(request, response);
 
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-        assertEquals("Unauthorized", response.getErrorMessage());
+        assertRefusedWith("openl.error.401.token.refused.message", NOT_VALID);
         // A token that cannot be read is refused without naming a token.
         assertNull(refusedToken().getPublicId());
+        assertInstanceOf(MalformedPatException.class, refusalReason());
     }
 
     @Test
@@ -169,7 +194,8 @@ class PatAuthenticationFilterTest {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
-        PatAuthResolution resolution = PatAuthResolution.invalid();
+        var wrongSecret = new BadCredentialsException("Wrong secret");
+        PatAuthResolution resolution = PatAuthResolution.refused(new PatRefusal(wrongSecret, "jdoe"));
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
 
@@ -181,13 +207,14 @@ class PatAuthenticationFilterTest {
         verify(securityContextHolderStrategy, never()).createEmptyContext();
         verify(filterChain, never()).doFilter(request, response);
 
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
-        assertEquals("Unauthorized", response.getErrorMessage());
-        // A refused token is published by its public id, never by its secret, and names no user.
+        // A wrong secret tells the caller no more than any other token that is not valid
+        assertRefusedWith("openl.error.401.token.refused.message", NOT_VALID);
+        // A refused token is published by its public id, never by its secret, with its reason and its owner.
         var refused = refusedToken();
         assertEquals(TEST_PUBLIC_ID, refused.getPublicId());
         assertFalse(refused.isAuthenticated());
-        assertEquals("", refused.getName());
+        assertEquals("jdoe", refused.getName());
+        assertSame(wrongSecret, refusalReason());
     }
 
     @Test
@@ -195,7 +222,7 @@ class PatAuthenticationFilterTest {
         // Arrange
         request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
 
-        PatAuthResolution resolution = PatAuthResolution.invalid();
+        PatAuthResolution resolution = PatAuthResolution.refused(new PatRefusal(new UnknownPatException(), null));
 
         when(patAuthService.resolveAuthentication(any(PatToken.class))).thenReturn(resolution);
 
@@ -207,7 +234,65 @@ class PatAuthenticationFilterTest {
         verify(securityContextHolderStrategy, never()).createEmptyContext();
         verify(filterChain, never()).doFilter(request, response);
 
-        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+        assertRefusedWith("openl.error.401.token.refused.message", NOT_VALID);
+        assertEquals("", refusedToken().getName(), "An unknown token names no user");
+    }
+
+    static Stream<Arguments> reasonsTheHolderOfTheSecretLearns() {
+        var userExpired = """
+                The account or the password of the user of the personal access token has expired. Ask an \
+                administrator of OpenL Studio to renew it.""";
+        return Stream.of(
+                Arguments.of(new ExpiredPatException(), "openl.error.401.token.expired.message",
+                        """
+                        The personal access token has expired. Create a new token in Personal Access Tokens of \
+                        OpenL Studio and use it instead."""),
+                Arguments.of(new DisabledException("Disabled"), "openl.error.401.token.user.disabled.message",
+                        """
+                        The user of the personal access token is disabled. Ask an administrator of OpenL Studio \
+                        to enable the user."""),
+                Arguments.of(new LockedException("Locked"), "openl.error.401.token.user.locked.message",
+                        """
+                        The user of the personal access token is locked. Ask an administrator of OpenL Studio to \
+                        unlock the user."""),
+                Arguments.of(new AccountExpiredException("Expired"), "openl.error.401.token.user.expired.message",
+                        userExpired),
+                Arguments.of(new CredentialsExpiredException("Expired"), "openl.error.401.token.user.expired.message",
+                        userExpired));
+    }
+
+    @Test
+    void answersATokenThatCannotBeCheckedAsAFailureOfTheServer() throws ServletException, IOException {
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
+        var failure = new IllegalStateException("The database is down");
+        when(patAuthService.resolveAuthentication(any(PatToken.class))).thenThrow(failure);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+        assertNull(response.getHeader(HttpHeaders.WWW_AUTHENTICATE), "Nothing tells to replace the token");
+        assertEquals("", response.getContentAsString());
+        // The audit log records the failure all the same
+        var reason = assertInstanceOf(AuthenticationServiceException.class, refusalReason());
+        assertSame(failure, reason.getCause());
+        assertEquals(TEST_PUBLIC_ID, refusedToken().getPublicId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("reasonsTheHolderOfTheSecretLearns")
+    void tellsTheHolderOfTheSecretWhyTheTokenIsRefused(AuthenticationException reason, String code, String message)
+            throws ServletException, IOException {
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Token " + TEST_TOKEN_VALUE);
+        when(patAuthService.resolveAuthentication(any(PatToken.class)))
+                .thenReturn(PatAuthResolution.refused(new PatRefusal(reason, "jdoe")));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        assertRefusedWith(code, message);
+        assertSame(reason, refusalReason());
+        assertEquals("jdoe", refusedToken().getName());
     }
 
     @Test
@@ -474,7 +559,24 @@ class PatAuthenticationFilterTest {
 
     private PatAuthenticationToken refusedToken() {
         var token = ArgumentCaptor.forClass(Authentication.class);
-        verify(eventPublisher).publishAuthenticationFailure(any(BadCredentialsException.class), token.capture());
+        verify(eventPublisher).publishAuthenticationFailure(any(AuthenticationException.class), token.capture());
         return (PatAuthenticationToken) token.getValue();
+    }
+
+    private AuthenticationException refusalReason() {
+        var reason = ArgumentCaptor.forClass(AuthenticationException.class);
+        verify(eventPublisher).publishAuthenticationFailure(reason.capture(), any(Authentication.class));
+        return reason.getValue();
+    }
+
+    /** Checks the answer to a refused token: its code and its message, in the body and in the header. */
+    private void assertRefusedWith(String code, String message) throws IOException {
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+        assertEquals("Token error=\"invalid_token\", error_description=\"" + message + "\"",
+                response.getHeader(HttpHeaders.WWW_AUTHENTICATE));
+        assertEquals("application/json;charset=UTF-8", response.getContentType());
+        var body = new ObjectMapper().readTree(response.getContentAsString());
+        assertEquals(code, body.get("code").asText());
+        assertEquals(message, body.get("message").asText());
     }
 }

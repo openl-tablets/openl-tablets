@@ -26,7 +26,7 @@ public interface PatValidationService {
      * <p>
      * The method checks if the token exists, verifies the secret hash matches,
      * and ensures the token has not expired. Returns the validation result
-     * with the stored token entity if validation succeeds.
+     * with the stored token entity if validation succeeds, or with the reason it was refused.
      * </p>
      *
      * @param pat the Personal Access Token to validate (must not be null)
