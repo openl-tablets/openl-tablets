@@ -78,13 +78,14 @@ describe("test results", () => {
       })];
     });
 
-    const summary = await executeTool("get_test_results_summary", {
+    const summary = await executeTool("get_test_results", {
       projectId: "design-project1",
+      summary: true,
     }, harness.client);
     const full = await executeTool("get_test_results", {
       projectId: "design-project1",
     }, harness.client);
-    const byTable = await executeTool("get_test_results_by_table", {
+    const byTable = await executeTool("get_test_results", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
     }, harness.client);
@@ -105,29 +106,42 @@ describe("test results", () => {
       return [202, { status: "notReady" }];
     });
 
-    await expect(executeTool("get_test_results_summary", {
+    await expect(executeTool("get_test_results", {
       projectId: "design-project1",
+      summary: true,
     }, harness.client, { signal: controller.signal })).rejects.toThrow(/aborted/i);
   });
 
   it.each([
-    ["get_test_results_summary", {}, { failures: 5 }],
-    ["get_test_results_summary", { failures: 3, unpaged: true }, { failures: 3, unpaged: true }],
-    ["get_test_results", { failuresOnly: true }, { failuresOnly: true, failures: 5 }],
-    ["get_test_results", { unpaged: true }, { failures: 5, unpaged: true }],
-  ])("%s asks Studio for the results %j select", async (tool, args, params) => {
+    [{ summary: true }, { failures: 5 }],
+    [{ summary: true, failures: 3, unpaged: true }, { failures: 3, unpaged: true }],
+    [{ failuresOnly: true }, { failuresOnly: true, failures: 5 }],
+    [{ unpaged: true }, { failures: 5, unpaged: true }],
+  ])("openl_get_test_results asks Studio for the results %j select", async (args, params) => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({}));
 
-    await executeTool(tool, { projectId: "design-project1", ...args }, harness.client);
+    await executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client);
 
     expect(harness.mockHttp.history.get[0].params).toEqual(params);
   });
 
-  it("openl_get_test_results_summary renders the summary of the run", async () => {
+  it.each([
+    [{ summary: true, tableId: "t1" }, /A summary takes no tableId/],
+    [{ summary: true, size: 10 }, /A summary takes no tableId, page/],
+    [{ page: 0, offset: 0 }, /page and offset are mutually exclusive/],
+    [{ unpaged: true, limit: 10 }, /unpaged is mutually exclusive/],
+  ])("openl_get_test_results refuses %j before any request", async (args, message) => {
+    await expect(executeTool("get_test_results", { projectId: "design-project1", ...args }, harness.client))
+      .rejects.toThrow(message);
+    expect(harness.mockHttp.history.get).toHaveLength(0);
+  });
+
+  it("openl_get_test_results renders the summary of the run", async () => {
     harness.mockHttp.onGet(summaryPath).reply(200, resultsPage({ executionTimeMs: 250.5, numberOfTests: 10, numberOfFailures: 2 }));
 
-    const text = textOf(await executeTool("get_test_results_summary", {
+    const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
+      summary: true,
       response_format: "markdown",
     }, harness.client));
 
@@ -194,7 +208,7 @@ describe("test results", () => {
     expect(JSON.parse(textOf(result)).pagination).toMatchObject({ limit, offset: 0 });
   });
 
-  it("openl_get_test_results_by_table lets Studio filter and page the results of one table", async () => {
+  it("openl_get_test_results lets Studio filter and page the results of the one table tableId names", async () => {
     const allResults = [
       testCase("Test_calculatePremium", "Test_calculatePremium_1234", 5, 0),
       testCase("Test_calculateDiscount", "Test_calculateDiscount_5678", 3, 1),
@@ -205,7 +219,7 @@ describe("test results", () => {
       return [200, resultsPage({ testCases })];
     });
 
-    const text = textOf(await executeTool("get_test_results_by_table", {
+    const text = textOf(await executeTool("get_test_results", {
       projectId: "design-project1",
       tableId: "Test_calculatePremium_1234",
       page: 1,

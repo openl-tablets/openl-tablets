@@ -24,7 +24,7 @@ export function registerTestingHandlers(): void {
     compiled: true,
     title: "Start Project Tests",
     description:
-      "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Returns execution status and metadata. Retrieve results with openl_get_test_results_summary, openl_get_test_results, or openl_get_test_results_by_table; each result tool waits internally until Studio finishes instead of requiring agent-side polling.",
+      "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Returns execution status and metadata. Retrieve results with openl_get_test_results, which waits until Studio finishes instead of requiring agent-side polling.",
     schema: schemas.startProjectTestsSchema,
     annotations: {
       openWorldHint: true,
@@ -37,46 +37,40 @@ export function registerTestingHandlers(): void {
   });
 
   registerTool({
-    name: "get_test_results_summary",
-    title: "Get Test Results Summary",
-    description:
-      "Get brief test execution summary without detailed test cases. Returns aggregated statistics (execution time, total tests, passed, failed) without the testCases array. Use openl_start_project_tests() first. The tool waits internally through Studio's 202 notReady responses until results are ready, the MCP call is cancelled, or the internal safety timeout is reached.",
-    schema: schemas.getTestResultsSummarySchema,
-    annotations: {
-      openWorldHint: true,
-    },
-    handler: async (args, client, extra): Promise<ToolResponse> => {
-      const { response_format: format, projectId, ...options } = args;
-
-      const summary = await waitForResult(
-        (request) => client.getTestResultsSummary(projectId, { ...options, ...request }),
-        TEST_RESULTS_WAIT,
-        extra,
-      );
-
-      return formatResult(summary, format, {
-        dataType: "test_results_summary",
-      });
-    },
-  });
-
-  registerTool({
     name: "get_test_results",
-    title: "Get Full Test Results",
+    title: "Get Test Results",
     description:
-      "Get full test execution results with pagination support. Returns complete test execution summary including testCases array grouped by table. IMPORTANT: Pagination applies to test tables (not individual test cases). Each page returns test results aggregated by table (e.g., 'TestTable1' with 7 tests, 'TestTable2' with 8 tests). Supports filtering failures and pagination (page/offset/size). A page is cut by whole test tables to the response limit of 25,000 characters, and pagination.next_offset names the test table to continue from; a test table larger than the limit arrives as a preview. Expected and actual values of spreadsheet results make test tables large: failuresOnly reads only the failed tests, and unpaged: true reads every test table in one answer without a limit — an answer that can exceed what the client accepts, so read the summary and the tables you need with openl_get_test_results_by_table instead. Use openl_start_project_tests() first. The tool waits internally through Studio's 202 notReady responses until results are ready, the MCP call is cancelled, or the internal safety timeout is reached.",
+      "Read the results of the tests openl_start_project_tests started, waiting until Studio has run them. " +
+      "summary: true reads only the time of the run and how many tests passed and failed. tableId reads the results " +
+      "of one test table whole. Otherwise the answer holds every test table, page by page: a page is cut by whole " +
+      "test tables to 25,000 characters, and pagination.next_offset names the test table to continue from. Expected " +
+      "and actual values of spreadsheet results make test tables large: failuresOnly reads only the failed tests, and " +
+      "unpaged: true reads every test table in one answer without a limit, which can exceed what the client accepts — " +
+      "read the summary and the test tables you need instead.",
     schema: schemas.getTestResultsSchema,
     annotations: {
       openWorldHint: true,
     },
     handler: async (args, client, extra): Promise<ToolResponse> => {
-      const { response_format: format, projectId, ...options } = args;
+      const { response_format: format, projectId, summary, ...options } = args;
+      if (summary) {
+        const counts = await waitForResult(
+          (request) => client.getTestResultsSummary(projectId, { ...options, ...request }),
+          TEST_RESULTS_WAIT,
+          extra,
+        );
+        return formatResult(counts, format, { dataType: "test_results_summary" });
+      }
 
       const results = await waitForResult(
         (request) => client.getTestResults(projectId, { ...options, ...request }),
         TEST_RESULTS_WAIT,
         extra,
       );
+      if (args.tableId !== undefined) {
+        // The results of one test table are never cut
+        return formatResult(results, format, { dataType: "test_results", skipTruncation: true });
+      }
 
       const pageSize = results.pageSize || args.size || args.limit || 50;
       const offset = args.offset ?? (results.pageNumber || 0) * pageSize;
@@ -92,31 +86,6 @@ export function registerTestingHandlers(): void {
         // Only an unpaged read asks for everything; a page is cut to the response limit by whole test tables
         skipTruncation: args.unpaged === true,
         truncation: testTableTruncation(results, offset),
-      });
-    },
-  });
-
-  registerTool({
-    name: "get_test_results_by_table",
-    title: "Get Test Results By Table",
-    description:
-      "Get test execution results filtered by specific table ID. Returns filtered test execution summary with only test cases for the specified table. Supports pagination (page/offset/size) for efficient data retrieval. Use openl_start_project_tests() first. The tool waits internally through Studio's 202 notReady responses until results are ready, the MCP call is cancelled, or the internal safety timeout is reached.",
-    schema: schemas.getTestResultsByTableSchema,
-    annotations: {
-      openWorldHint: true,
-    },
-    handler: async (args, client, extra): Promise<ToolResponse> => {
-      const { response_format: format, projectId, ...options } = args;
-
-      const results = await waitForResult(
-        (request) => client.getTestResults(projectId, { ...options, ...request }),
-        TEST_RESULTS_WAIT,
-        extra,
-      );
-
-      return formatResult(results, format, {
-        dataType: "test_results",
-        skipTruncation: true,
       });
     },
   });

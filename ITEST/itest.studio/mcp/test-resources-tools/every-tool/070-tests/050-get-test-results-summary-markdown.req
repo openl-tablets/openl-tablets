@@ -3,7 +3,7 @@ Content-Type: application/json
 Accept: application/json, text/event-stream
 MCP-Protocol-Version: 2026-07-28
 Mcp-Method: tools/call
-Mcp-Name: openl_get_test_results_summary
+Mcp-Name: openl_get_test_results
 Authorization: Token ${PAT}
 
 {
@@ -11,9 +11,10 @@ Authorization: Token ${PAT}
   "id": 1,
   "method": "tools/call",
   "params": {
-    "name": "openl_get_test_results_summary",
+    "name": "openl_get_test_results",
     "arguments": {
       "projectId": "${PROJECT_ID}",
+      "summary": true,
       "response_format": "markdown"
     },
     "_meta": {
