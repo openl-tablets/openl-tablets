@@ -896,12 +896,9 @@ export interface TestsExecutionSummary {
 
 /** Test execution start response */
 export interface TestExecutionStartResponse {
-  status: "started";
-  projectId: string;
-  tableId?: string;
-  testRanges?: string;
-  projectWasOpened: boolean;
-  message: string;
+  started: true;
+  /** True when a closed project of a design repository was opened to run its tests */
+  projectOpened?: true;
 }
 
 /** Test results summary (without testCases array) */

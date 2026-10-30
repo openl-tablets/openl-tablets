@@ -24,7 +24,7 @@ export function registerTestingHandlers(): void {
     compiled: true,
     title: "Start Project Tests",
     description:
-      "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Returns execution status and metadata. Retrieve results with openl_get_test_results, which waits until Studio finishes instead of requiring agent-side polling.",
+      "Start project test execution. For design repositories the project is automatically opened if closed; for repository 'local' the project is not opened (tests run directly). Answers that the tests started, and projectOpened when it opened the project. Retrieve results with openl_get_test_results, which waits until Studio finishes instead of requiring agent-side polling.",
     schema: schemas.startProjectTestsSchema,
     annotations: {
       destructiveHint: false,

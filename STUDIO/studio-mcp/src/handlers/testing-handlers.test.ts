@@ -49,7 +49,7 @@ describe("openl_start_project_tests", () => {
       tableId: "Test_calculatePremium_1234", testRanges: "1-3", fromModule: "Rules",
     });
     expect(harness.mockHttp.history.patch).toHaveLength(0);
-    expect(dataOf(result)).toMatchObject({ status: "started", projectWasOpened: false });
+    expect(dataOf(result)).toEqual({ started: true });
   });
 
   it("opens a closed project before starting its tests", async () => {
@@ -60,7 +60,7 @@ describe("openl_start_project_tests", () => {
     const result = await executeTool("start_project_tests", { projectId: "design-project1" }, harness.client);
 
     expect(harness.mockHttp.history.patch.map(bodyOf)).toEqual([{ status: "OPENED" }]);
-    expect(textOf(result)).toContain("automatically opened");
+    expect(dataOf(result)).toEqual({ started: true, projectOpened: true });
   });
 });
 
