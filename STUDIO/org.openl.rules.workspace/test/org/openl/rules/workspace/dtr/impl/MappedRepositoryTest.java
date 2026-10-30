@@ -50,6 +50,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.FolderMapper;
 
@@ -212,7 +213,7 @@ class MappedRepositoryTest {
 
             mapped.save(project, List.of(descriptor), ChangesetType.FULL);
 
-            var folderCaptor = org.mockito.ArgumentCaptor.forClass(FileData.class);
+            var folderCaptor = ArgumentCaptor.forClass(FileData.class);
             verify(feature).save(folderCaptor.capture(), any(), eq(ChangesetType.FULL));
             assertEquals("custom/path/NewProject", folderCaptor.getValue().getName());
         }
@@ -228,11 +229,14 @@ class MappedRepositoryTest {
         when(repository.getMergeScope("feature", "main")).thenReturn(scope);
         var outcome = new MergeOutcome("before", "after", List.of(change), List.of());
         when(repository.merge("feature", null, null)).thenReturn(outcome);
+        var changes = new RevisionChanges(new FileData(), new FileData(), List.of(change));
+        when(repository.listChanges("project", null, "after")).thenReturn(changes);
 
         var mapped = MappedRepository.create(repository, "DESIGN/");
         try {
             assertEquals(scope, ((BranchRepository) mapped).getMergeScope("feature", "main"));
             assertEquals(outcome, ((BranchRepository) mapped).merge("feature", null, null));
+            assertEquals(changes, ((BranchRepository) mapped).listChanges("project", null, "after"));
         } finally {
             mapped.close();
         }

@@ -2,6 +2,10 @@ package org.openl.studio.projects.service.files;
 
 import java.util.Arrays;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
+
 import org.openl.util.FileUtils;
 
 /**
@@ -12,10 +16,8 @@ import org.openl.util.FileUtils;
  *
  * @author Yury Molchan
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FilePaths {
-
-    private FilePaths() {
-    }
 
     /**
      * Trailing file or folder name of the path. An empty or root-only path yields an empty name.
@@ -27,7 +29,7 @@ public final class FilePaths {
     /**
      * Parent directory of the path, or an empty string when the path has no parent.
      */
-    public static String parent(String path) {
+    public static String parent(@Nullable String path) {
         if (path == null) {
             return "";
         }
@@ -45,6 +47,16 @@ public final class FilePaths {
     }
 
     /**
+     * The path of a file inside a folder that holds it. Leading slashes of both paths are ignored, and a path the
+     * folder does not hold is returned as it is, without its leading slashes.
+     */
+    public static String inside(String folder, String path) {
+        var prefix = stripLeadingSlashes(folder) + '/';
+        var file = stripLeadingSlashes(path);
+        return file.startsWith(prefix) ? file.substring(prefix.length()) : file;
+    }
+
+    /**
      * Appends the child path to the parent directory. An empty parent yields the child path as it is.
      */
     static String join(String parent, String child) {
@@ -52,12 +64,9 @@ public final class FilePaths {
     }
 
     /**
-     * Removes any leading slashes from the value. A {@code null} value is returned unchanged.
+     * Removes any leading slashes from the value.
      */
     static String stripLeadingSlashes(String value) {
-        if (value == null) {
-            return null;
-        }
         var start = 0;
         while (start < value.length() && value.charAt(start) == '/') {
             start++;

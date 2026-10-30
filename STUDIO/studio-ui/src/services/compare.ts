@@ -58,6 +58,8 @@ export interface ProjectFileSide {
     branch?: string | undefined
     /** Revision to read the file from; left out for the working copy. */
     revision?: string | undefined
+    /** Whether the side does not hold the file: it is compared as an empty workbook. */
+    absent?: boolean | undefined
 }
 
 /**

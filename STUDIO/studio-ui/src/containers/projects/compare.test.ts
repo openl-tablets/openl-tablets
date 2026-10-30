@@ -38,6 +38,18 @@ describe('openFileRevisionsCompareWindow', () => {
         )
     })
 
+    it('says what the later revision did to a file that one of the two revisions does not hold', () => {
+        const open = vi.spyOn(window, 'open').mockReturnValue(null)
+
+        openFileRevisionsCompareWindow('design:Pricing', 'rules/New.xlsx', 'main', null, 'a1', 'added')
+
+        expect(open).toHaveBeenCalledWith(
+            '/studio/compare?projectId=design%3APricing&file=rules%2FNew.xlsx&branch=main&after=a1&change=added',
+            'compare_win',
+            'width=1240,height=800,resizable=yes,scrollbars=yes'
+        )
+    })
+
     it('names the file, the branch and its two revisions', () => {
         const open = vi.spyOn(window, 'open').mockReturnValue(null)
 

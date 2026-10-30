@@ -252,6 +252,7 @@ export const ModuleActionBar = ({
             >
                 <RevisionsPanel
                     beforeOpen={confirmDiscard}
+                    branch={project.branch}
                     currentRevision={project.revision}
                     projectId={project.id}
                     searchable={supportsRevisionSearch({ features: project.repositoryInfo?.features })}

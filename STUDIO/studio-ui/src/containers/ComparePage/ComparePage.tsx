@@ -25,7 +25,7 @@ import {
     startProjectComparison,
 } from 'services/compare'
 import { getFileText } from 'services/files'
-import type { ConflictFileStatus, ConflictFileVersions, ConflictSide } from 'services/compare'
+import type { ConflictFileStatus, ConflictFileVersions, ConflictSide, ProjectFileSide } from 'services/compare'
 import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes, type DiffView } from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
@@ -174,30 +174,41 @@ const moduleVersionsOf = (params: URLSearchParams): VersionsRequest | null => {
  * by element, any other file reads line by line. A revision is a commit of the repository, so it is
  * read whichever branch the project is on. The two versions are named as what they are: the saved revision
  * and your changes, or the earlier revision and the later one.
+ *
+ * A file the later revision added (`change=added`) is absent before it, and one it deleted (`change=deleted`) is
+ * absent after it. The side that does not hold the file is read as an empty file, so the other side shows whole: all
+ * added or all removed. A file added by the first revision of a project has no earlier revision at all.
  */
 const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const projectId = params.get('projectId')
     const file = params.get('file')
-    const before = params.get('before')
-    if (!projectId || !file || !before) {
+    const change = params.get('change')
+    const absentBefore = change === 'added'
+    const before = params.get('before') ?? undefined
+    if (!projectId || !file || (!before && !absentBefore)) {
         return null
     }
     // A file named without a later revision is compared with the working copy.
     const after = params.get('after') ?? undefined
+    const absentAfter = change === 'deleted'
     const titles = after ? REVISION_TITLES : SAVE_TITLES
     if (!isWorkbookPath(file)) {
         const read = () => Promise.all([
-            getFileText(projectId, file, before),
-            getFileText(projectId, file, after),
+            absentBefore ? '' : getFileText(projectId, file, before),
+            absentAfter ? '' : getFileText(projectId, file, after),
         ])
         return { versions: null, textVersions: { path: file, read, titles } }
     }
     const branch = params.get('branch') ?? undefined
     const start = () => startProjectComparison(projectId,
-        { path: file, branch, revision: before },
-        after ? { path: file, branch, revision: after } : { path: file })
+        absentBefore ? { path: file, absent: true } : { path: file, branch, revision: before },
+        absentAfter ? { path: file, absent: true } : sideAfter(file, branch, after))
     return { versions: { start, titles }, textVersions: null }
 }
+
+/** The later side of a file: at a revision of the branch, or in the working copy when none is named. */
+const sideAfter = (path: string, branch: string | undefined, after: string | undefined): ProjectFileSide =>
+    after ? { path, branch, revision: after } : { path }
 
 /**
  * A conflicted file that is not a workbook, read as the view of it compares it: the version it starts from first.
