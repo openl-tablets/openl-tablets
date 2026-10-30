@@ -192,7 +192,7 @@ export interface AgentsFile {
 export interface FileSearchQuery {
   /** Ant-glob path pattern, e.g. all xlsx under rules. */
   pattern?: string;
-  /** Case-insensitive content substring. Studio inspects text files only, never binary files. */
+  /** Case-insensitive content substring. Studio reads each file as text, so a workbook cell is never found. */
   content?: string;
   /** Filter by file extensions (without the dot). */
   extensions?: string[];

@@ -504,7 +504,9 @@ describe("delete, search, copy and move", () => {
 
   it("openl_search_project_files builds the query body and returns matches", async () => {
     const nodes = [{ path: "rules/config.xml", name: "config.xml", type: "file" }];
-    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, nodes);
+    harness.mockHttp.onPost("/projects/p1/file-search", expect.objectContaining({ content: "premium" }))
+      .reply(200, nodes);
+    harness.mockHttp.onPost("/projects/p1/file-search", expect.objectContaining({ type: "FILE" })).reply(200, []);
 
     const result = await executeTool("search_project_files", {
       projectId: "p1",
@@ -513,7 +515,44 @@ describe("delete, search, copy and move", () => {
     }, harness.client);
 
     expect(bodyOf(harness.mockHttp.history.post[0])).toEqual({ pattern: "**/*.xml", content: "premium" });
-    expect(dataOf(result)).toEqual(nodes);
+    expect(JSON.parse(textOf(result))).toEqual({
+      data: nodes,
+      pagination: expect.objectContaining({ total_count: 1 }),
+    });
+  });
+
+  it("openl_search_project_files counts the workbooks a content search covers but cannot read", async () => {
+    harness.mockHttp.onPost("/projects/p1/file-search", expect.objectContaining({ content: "Vallidaiton" }))
+      .reply(200, [{ path: "i18n/message.properties", type: "file" }]);
+    harness.mockHttp.onPost("/projects/p1/file-search", expect.objectContaining({ type: "FILE" }))
+      .reply(200, [{ path: "rules/Main.xlsx" }, { path: "rules/Lookups.xlsx" }]);
+
+    const result = await executeTool("search_project_files", {
+      projectId: "p1",
+      content: "Vallidaiton",
+      extensions: ["XLSX", "properties"],
+      recursive: true,
+    }, harness.client);
+
+    const [search, workbooks] = harness.mockHttp.history.post;
+    expect(bodyOf(workbooks)).toEqual({ extensions: ["xlsx"], type: "FILE", recursive: true });
+    expect(workbooks.params).toEqual({ fields: "path" });
+    expect(bodyOf(search)).toEqual({ content: "Vallidaiton", extensions: ["XLSX", "properties"], recursive: true });
+    expect(JSON.parse(textOf(result)).notSearched).toMatch(/^2 workbooks: content is never matched .*openl_get_table/);
+  });
+
+  it.each([
+    ["no workbook extension", { extensions: ["properties"] }],
+    ["an ANCESTORS search", { scope: "ANCESTORS", from: "rules" }],
+    ["a folder search", { type: "FOLDER" }],
+  ])("openl_search_project_files looks for no workbook when a content search names %s", async (_case, args) => {
+    harness.mockHttp.onPost("/projects/p1/file-search").reply(200, []);
+
+    const result = await executeTool("search_project_files", { projectId: "p1", content: "rate", ...args },
+      harness.client);
+
+    expect(harness.mockHttp.history.post).toHaveLength(1);
+    expect(JSON.parse(textOf(result))).not.toHaveProperty("notSearched");
   });
 
   it("openl_search_project_files forwards extensions/type/scope=ANCESTORS/recursive/from/revision", async () => {

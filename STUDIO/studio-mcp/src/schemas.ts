@@ -847,7 +847,7 @@ export const searchProjectFilesSchema = z.strictObject({
   content: z
     .string()
     .optional()
-    .describe("Case-insensitive substring found in text files only, never inside XLSX, XLS, ZIP or images: find those by pattern or extensions."),
+    .describe("Case-insensitive substring of a file read as text: the text of a workbook cell or of a compressed ZIP entry is never found, and a file over 1 MB is never read, so find workbooks, ZIP files, images and large files by pattern or extensions. The answer counts the workbooks the search covers in notSearched."),
   extensions: z
     .array(z.string())
     .optional()
