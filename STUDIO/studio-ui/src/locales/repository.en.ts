@@ -136,6 +136,7 @@ i18next.addResourceBundle('en', 'repository', {
             modified_on: 'Modified On',
             action: 'Action',
             current: 'Current',
+            opened_revision: 'Revision Version',
             restore: 'Restore',
             select_version: 'Compare version modified on {{modifiedOn}}',
             confirm_restore: 'Confirm Restore',

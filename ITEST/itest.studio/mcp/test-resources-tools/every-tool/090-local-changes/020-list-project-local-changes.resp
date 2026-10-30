@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": [\n    {\n      \"id\": \"#_current\",\n      \"modifiedOn\": \"#/#/# #:#:# @\",\n      \"current\": true\n    },*"
+        "text": "{\n  \"data\": [\n    {\n      \"id\": \"#_current\",\n      \"modifiedOn\": \"#-#-#T#:#:***Z\",\n      \"current\": true\n    },*"
       }
     ],
     "resultType": "complete",

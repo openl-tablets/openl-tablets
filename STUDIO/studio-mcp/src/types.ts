@@ -598,6 +598,7 @@ export interface ProjectRevision {
 export interface ProjectHistoryItem {
   current?: boolean;
   id?: string;
+  /** Moment the version was kept at, in ISO 8601; absent for the revision the module was opened at. */
   modifiedOn?: string;
 }
 

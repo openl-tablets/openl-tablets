@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.history;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
@@ -57,8 +59,7 @@ class ProjectHistoryServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         previousEnvironment = Props.getEnvironment();
-        Props.setEnvironment(new MockEnvironment().withProperty(AdministrationSettings.DATETIME_PATTERN,
-                "yyyy-MM-dd HH:mm:ss")
+        Props.setEnvironment(new MockEnvironment()
                 .withProperty(AdministrationSettings.USER_WORKSPACE_HOME, workspace.toString()));
         projectFolder = Files.createDirectories(workspace.resolve("TestProject"));
         Files.copy(Path.of("test-resources/openapi-import/declared-modules/rules.xml"),
@@ -91,8 +92,12 @@ class ProjectHistoryServiceTest {
         assertEquals(3, result.size());
         assertEquals("2000_current", result.getFirst().id);
         assertEquals(Boolean.TRUE, result.getFirst().current);
+        assertEquals(Instant.ofEpochMilli(2000), result.getFirst().modifiedOn);
         assertEquals("1000", result.get(1).id);
+        assertEquals(Instant.ofEpochMilli(1000), result.get(1).modifiedOn);
         assertEquals("Revision Version", result.get(2).id);
+        // the revision the module was opened at is named by no time
+        assertNull(result.get(2).modifiedOn);
     }
 
     @Test

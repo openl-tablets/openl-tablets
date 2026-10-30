@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { notification } from 'antd'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getLocalHistory, restoreLocalHistory } from '../../services/localHistory'
+import { formatDateTime } from '../../utils/dateFormat'
 import { LocalChangesView } from './LocalChangesView'
 
 vi.mock('../../services/localHistory', () => ({
@@ -80,10 +81,12 @@ vi.mock('antd', async () => (await import('testing/staticAntdApp')).withStaticAp
 }))
 
 const history = [
-    { id: '200_current', modifiedOn: 'Today', current: true },
-    { id: '100', modifiedOn: 'Yesterday' },
-    { id: 'Revision Version', modifiedOn: 'Revision Version' },
+    { id: '200_current', modifiedOn: '2026-10-30T09:00:00Z', current: true },
+    { id: '100', modifiedOn: '2026-10-29T18:20:19Z' },
+    { id: 'Revision Version' },
 ]
+// A version is shown at its moment, formatted as every other date of the screens is.
+const yesterday = formatDateTime('2026-10-29T18:20:19Z')!
 
 describe('LocalChangesView', () => {
     const open = vi.fn()
@@ -100,7 +103,9 @@ describe('LocalChangesView', () => {
     it('loads the selected module and compares the two most recently selected versions', async () => {
         render(<LocalChangesView moduleName="Pricing" projectId="p1" />)
 
-        expect(await screen.findByText('Yesterday')).toBeInTheDocument()
+        expect(await screen.findByText(yesterday)).toBeInTheDocument()
+        // the revision the module was opened at has no moment of its own
+        expect(screen.getByText('browser.local_history.opened_revision')).toBeInTheDocument()
         expect(screen.getByRole('heading', { level: 1, name: 'browser.local_history.title' }))
             .toBeInTheDocument()
         expect(screen.getByTestId('local-changes-count')).toHaveTextContent('browser.local_history.summary:2')
@@ -108,7 +113,7 @@ describe('LocalChangesView', () => {
         const compare = screen.getByTestId('compare-local-history')
         expect(compare).toBeDisabled()
 
-        await userEvent.click(screen.getByLabelText('browser.local_history.select_version:Yesterday'))
+        await userEvent.click(screen.getByLabelText(`browser.local_history.select_version:${yesterday}`))
         expect(compare).toBeEnabled()
         await userEvent.click(compare)
 
@@ -123,11 +128,11 @@ describe('LocalChangesView', () => {
 
     it('restores a version, refreshes history and reloads the legacy workspace', async () => {
         render(<LocalChangesView moduleName="Pricing" projectId="p1" />)
-        await screen.findByText('Yesterday')
+        await screen.findByText(yesterday)
 
         await userEvent.click(screen.getAllByRole('link', { name: 'browser.local_history.restore' })[0]!)
         expect(screen.getByRole('dialog')).toHaveTextContent(
-            'browser.local_history.confirm_restore_message:Yesterday'
+            `browser.local_history.confirm_restore_message:${yesterday}`
         )
         await userEvent.click(screen.getByText('confirm restore'))
 
@@ -142,7 +147,7 @@ describe('LocalChangesView', () => {
     it('tells the screen that opened it to read the module again, instead of reloading the page', async () => {
         const onRestored = vi.fn()
         render(<LocalChangesView moduleName="Pricing" onRestored={onRestored} projectId="p1" />)
-        await screen.findByText('Yesterday')
+        await screen.findByText(yesterday)
 
         await userEvent.click(screen.getAllByRole('link', { name: 'browser.local_history.restore' })[0]!)
         await userEvent.click(screen.getByText('confirm restore'))

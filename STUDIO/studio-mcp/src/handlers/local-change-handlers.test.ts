@@ -12,8 +12,8 @@ useToolHarness();
 describe("local change handlers", () => {
   it("lists history for the requested project module", async () => {
     const items = [
-      { id: "history-1", modifiedOn: "08/27/2026 12:00 PM", current: true },
-      { id: "Revision Version", modifiedOn: "Revision Version" },
+      { id: "1787821200000_current", modifiedOn: "2026-08-27T09:00:00Z", current: true },
+      { id: "Revision Version" },
     ];
     harness.mockHttp.onGet("/projects/design%3AProject/local-history", {
       params: { module: "Main Rules" },

@@ -32402,6 +32402,7 @@ Content-Type: application/json
           },
           "modifiedOn": {
             "type": "string",
+            "format": "date-time",
             "description": "***"
           }
         }

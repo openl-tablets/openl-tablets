@@ -9,6 +9,7 @@ import { getLocalHistory, restoreLocalHistory, type LocalHistoryItem } from '../
 import { useListPageStyles } from '../../styles/listPageStyles'
 import { LIST_PAGE_COLORS } from '../../styles/listPageTheme'
 import { errorMessage } from '../../utils/errorMessage'
+import { formatDateTime } from '../../utils/dateFormat'
 import { openVersionsCompareWindow } from './compare'
 
 interface LocalChangesViewProps {
@@ -100,6 +101,9 @@ export const LocalChangesView = ({ projectId, moduleName, onRestored, beforeRest
     const [loadFailed, setLoadFailed] = useState(false)
     const [restoring, setRestoring] = useState(false)
     const changeCount = history.filter(item => !item.current).length
+    // The revision the module was opened at is kept at no moment of its own.
+    const modifiedOnOf = (item: LocalHistoryItem) => formatDateTime(item.modifiedOn)
+        ?? t('browser.local_history.opened_revision')
 
     const loadHistory = useCallback(async () => {
         setLoading(true)
@@ -214,11 +218,11 @@ export const LocalChangesView = ({ projectId, moduleName, onRestored, beforeRest
                                                 checked={selected.includes(item.id)}
                                                 onChange={event => toggleSelected(item.id, event.target.checked)}
                                                 aria-label={t('browser.local_history.select_version', {
-                                                    modifiedOn: item.modifiedOn,
+                                                    modifiedOn: modifiedOnOf(item),
                                                 })}
                                             />
                                         </td>
-                                        <td>{item.modifiedOn}</td>
+                                        <td>{modifiedOnOf(item)}</td>
                                         <td className={cx(styles.fit, styles.actionCell)}>
                                             {item.current
                                                 ? (
@@ -269,7 +273,7 @@ export const LocalChangesView = ({ projectId, moduleName, onRestored, beforeRest
                 title={t('browser.local_history.confirm_restore')}
             >
                 {restoreItem && t('browser.local_history.confirm_restore_message', {
-                    modifiedOn: restoreItem.modifiedOn,
+                    modifiedOn: modifiedOnOf(restoreItem),
                 })}
             </Modal>
         </div>
