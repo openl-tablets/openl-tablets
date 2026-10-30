@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":{\"status\":\"started\",\"projectId\":\"T19W2T33ZAYMF\",\"projectWasOpened\":false,\"message\":\"Test execution started\"}}"
+        "text": "{\"data\":{\"started\":true}}"
       }
     ],
     "resultType": "complete",

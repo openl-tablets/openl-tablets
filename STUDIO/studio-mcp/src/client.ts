@@ -1371,7 +1371,7 @@ export class OpenLClient {
    *
    * @param projectId - Project ID
    * @param options - Test execution options
-   * @returns Test execution start response
+   * @returns That the tests started, and whether the project was opened for them
    * @throws Error if test execution fails
    */
   async startProjectTests(
@@ -1400,14 +1400,8 @@ export class OpenLClient {
     // of a request that has one, so the results are read with the same client, not a stored token.
     await this.http.post(`${projectPath(projectId)}/tests/run`, undefined, { params });
 
-    return {
-      status: "started",
-      projectId,
-      tableId: options?.tableId,
-      testRanges: options?.testRanges,
-      projectWasOpened,
-      message: `Test execution started${projectWasOpened ? " (project was automatically opened)" : ""}`,
-    };
+    // The tests the call selected are not told back
+    return projectWasOpened ? { started: true, projectOpened: true } : { started: true };
   }
 
   /**

@@ -467,7 +467,7 @@ describe("trace tools", () => {
     harness.mockHttp.onDelete(`${projectPath}/trace`).reply(204);
 
     const result = await executeTool("stop_trace", { projectId }, harness.client);
-    expect(textOf(result)).toContain("terminated");
+    expect(dataOf(result)).toEqual({ stopped: true });
     expect(harness.mockHttp.history.delete).toHaveLength(1);
   });
 

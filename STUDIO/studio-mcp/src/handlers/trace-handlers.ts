@@ -16,7 +16,7 @@ import { ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
 import * as schemas from "../schemas.js";
 
 import { isConflictError, isNotFoundError } from "../http.js";
-import { registerTool, formatResult, textResult, type ToolResponse, type ToolHandlerExtra } from "./common.js";
+import { registerTool, formatResult, type ToolResponse, type ToolHandlerExtra } from "./common.js";
 import { reportProgress } from "./wait.js";
 import type { OpenLClient } from "../client.js";
 import type * as Types from "../types.js";
@@ -606,7 +606,7 @@ export function registerTraceHandlers(): void {
     handler: async (args, client): Promise<ToolResponse> => {
       await client.stopTrace(args.projectId);
 
-      return textResult("Debug session terminated.");
+      return formatResult({ stopped: true });
     },
   });
 

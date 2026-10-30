@@ -427,7 +427,7 @@ describe("OpenLClient", () => {
 
       const result = await client.startProjectTests("local-project1");
 
-      expect(result).toMatchObject({ status: "started", projectId: "local-project1", projectWasOpened: false });
+      expect(result).toEqual({ started: true });
       expect(mockHttp.history.patch).toHaveLength(0);
     });
   });
