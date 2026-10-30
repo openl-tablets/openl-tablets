@@ -104,7 +104,7 @@ export interface RawTableCell {
     cell?: string
     /** Typed cell value (number, string, boolean), or absent when empty */
     value?: string | number | boolean | null
-    /** The formula the cell was written with, as Excel writes it (`=B2*C2`); absent for a plain value */
+    /** The Excel formula the cell was written with (`=B2*C2`); absent for a plain value */
     formula?: string
     /** The note a reader left on the cell in Excel; absent when the cell carries none */
     comment?: string
@@ -218,7 +218,16 @@ export interface RawTextMark {
 export type TableEdit =
     | {
         operation: 'update'
-        target: { type: 'cell', row: number, column: number, value: string | number | boolean | null, marks?: RawTextMark[] }
+        target: {
+            type: 'cell'
+            row: number
+            column: number
+            /** The value the cell is written with; absent when the cell is written with an Excel formula. */
+            value?: string | number | boolean | null
+            marks?: RawTextMark[]
+            /** The Excel formula the cell is written with (`=B2*C2`), sent without a value. */
+            formula?: string
+        }
     }
     | { operation: 'insert', target: { type: 'rows', position: number, cells: RawTableCellInput[][] } }
     | { operation: 'insert', target: { type: 'columns', position: number, cells: RawTableCellInput[][] } }
@@ -236,12 +245,15 @@ export type TableEdit =
         }
     }
 
-/** A table theme OpenL Studio offers. */
+/** A cell to write into a table: its value or its Excel formula, and how far it reaches. */
 export interface RawTableCellInput {
-    value: string | number | boolean | null
+    /** The value of the cell; absent when the cell is written with an Excel formula. */
+    value?: string | number | boolean | null
     colspan?: number
     rowspan?: number
     covered?: boolean
+    /** The Excel formula the cell is written with (`=B2*C2`), sent without a value. */
+    formula?: string
 }
 
 interface RawTable {

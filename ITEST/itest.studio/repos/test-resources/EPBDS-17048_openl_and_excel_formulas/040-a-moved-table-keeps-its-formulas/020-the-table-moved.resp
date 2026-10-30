@@ -1,0 +1,24 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "QEADNCH97T1HC2QM",
+      "kind": "Datatype",
+      "name": "Blocker",
+      "pos": "B10:C11"
+    },
+    {
+      "id": "RH5J0BND5QATQMDV",
+      "kind": "Spreadsheet",
+      "name": "CalcProduct",
+      "pos": "B13:C20"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2,
+  "total": 2
+}
+

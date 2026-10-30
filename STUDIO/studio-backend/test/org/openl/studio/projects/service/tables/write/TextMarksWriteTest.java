@@ -57,8 +57,8 @@ class TextMarksWriteTest {
 
         var runs = runsOf(1, 2);
         assertEquals(2, runs.size());
-        assertEquals("alpha ", runs.get(0).text());
-        assertNull(runs.get(0).style());
+        assertEquals("alpha ", runs.getFirst().text());
+        assertNull(runs.getFirst().style());
         assertEquals("beta", runs.get(1).text());
         assertEquals("#ff0000", runs.get(1).style().color());
         assertEquals(Boolean.TRUE, runs.get(1).style().bold());
@@ -70,7 +70,7 @@ class TextMarksWriteTest {
                 RawTextMarkColor.SUCCESS), mark(6, 10, RawTextMarkColor.INFO)));
 
         var runs = runsOf(1, 2);
-        assertEquals("#ffc000", runs.get(0).style().color());
+        assertEquals("#ffc000", runs.getFirst().style().color());
         assertEquals("#00b050", runs.get(1).style().color());
         assertNull(runs.get(2).style());
         assertEquals("#00b0f0", runs.get(3).style().color());
@@ -200,10 +200,17 @@ class TextMarksWriteTest {
     }
 
     @Test
-    void writesNoMarksOnAValueWrittenAsAnExcelFormula() {
-        apply(update(2, 2, "=1+2", mark(0, 2, RawTextMarkColor.ERROR)));
+    void marksAnOpenLFormula() {
+        apply(update(2, 2, "= $Base * 2", mark(2, 7, RawTextMarkColor.ERROR)));
 
-        assertNull(runsOf(2, 2));
+        assertEquals("$Base", runsOf(2, 2).get(1).text());
+    }
+
+    @Test
+    void refusesMarksOnAnExcelFormula() {
+        var excel = new UpdateTarget.Cell(2, 2, null, List.of(mark(0, 2, RawTextMarkColor.ERROR)), "=1+2");
+
+        assertRefused(new RawTableSourceAction.Update(excel), "openl.error.400.table.action.marks.not-text.message");
     }
 
     @Test

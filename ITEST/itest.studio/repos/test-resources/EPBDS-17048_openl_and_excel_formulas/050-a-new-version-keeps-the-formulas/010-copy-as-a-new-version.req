@@ -1,0 +1,15 @@
+POST /rest/projects/{PROJECT}/tables/{TABLE}/copy HTTP/1.1
+Authorization: ${ADMIN_AUTH_TOCKEN}
+Content-Type: application/json
+
+{
+  "moduleName": "Formulas",
+  "name": "CalcProduct",
+  "properties": [
+    {
+      "name": "version",
+      "value": "0.0.2"
+    }
+  ]
+}
+

@@ -436,7 +436,15 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
     Marks are saved to `.xlsx` files only: a table of an `.xls` file offers no marks.
 3.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
-    Now a user can enter formulas in the selected cell. The same list offers **Text Editor** and **Multiline Editor** to write the value in another way.
+    Now a user can enter formulas in the selected cell. A formula entered here is an OpenL formula, such as
+    `= $Base * 2`: it is saved as the text it is and calculated by OpenL. The same list offers **Text Editor** and
+    **Multiline Editor** to write the value in another way. The editor the cell is open in is shown in the list but
+    cannot be selected.
+
+    To enter an MS Excel formula, such as `=B2*C2`, select **Excel Formula Editor** in the same list. The formula is
+    saved as an MS Excel formula, and OpenL reads the value MS Excel computes for it. A cell that holds an MS Excel
+    formula opens in **Excel Formula Editor**. As in MS Excel, a value typed there without `=` replaces the formula;
+    to replace it with a text starting with `=`, such as an OpenL formula, switch the cell to another editor.
 
 1.  To save changes, click **Save** ![](images/edit-save-icon.png).
 

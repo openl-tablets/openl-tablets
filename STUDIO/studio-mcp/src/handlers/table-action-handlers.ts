@@ -199,7 +199,7 @@ const ACTION_TOOLS: ActionToolSpec[] = [
     pastTenseEdit: "updated a cell of",
     annotations: { idempotentHint: true, openWorldHint: true },
     description:
-      "Update the value of a single existing cell at ('row','column') in a table's raw source. 'value' is required: pass a scalar or one-dimensional multi-value array to set the cell, or null to clear it." +
+      "Update the value of a single existing cell at ('row','column') in a table's raw source. Pass 'value' — a scalar or one-dimensional multi-value array to set the cell, or null to clear it — or 'formula', never both. A value starting with '=' is an OpenL formula and is written as text; 'formula' writes an Excel formula." +
       ACTION_SUFFIX,
     buildAction: (a) => ({
       operation: "update",
@@ -207,9 +207,9 @@ const ACTION_TOOLS: ActionToolSpec[] = [
         type: "cell",
         row: a.row,
         column: a.column,
-        // `value` is required by the schema (nullable), so it is always present and
-        // sent explicitly: a non-null value sets the cell, null clears it.
-        value: a.value,
+        // The schema asks for one of the two: an Excel formula, or a value sent
+        // explicitly, where a non-null value sets the cell and null clears it.
+        ...(a.formula === undefined ? { value: a.value } : { formula: a.formula }),
       },
     }),
   }),

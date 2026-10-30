@@ -31931,6 +31931,10 @@ Content-Type: application/json
             "type": "boolean",
             "description": "***"
           },
+          "formula": {
+            "type": "string",
+            "description": "***"
+          },
           "rowspan": {
             "type": "integer",
             "format": "int32",
@@ -32051,8 +32055,7 @@ Content-Type: application/json
           },
           "formula": {
             "type": "string",
-            "description": "***",
-            "readOnly": true
+            "description": "***"
           },
           "mergedArea": {
             "type": "string",
@@ -35552,6 +35555,10 @@ Content-Type: application/json
                 "format": "int32",
                 "description": "***",
                 "minimum": 0
+              },
+              "formula": {
+                "type": "string",
+                "description": "***"
               },
               "marks": {
                 "type": "array",

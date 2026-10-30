@@ -1,0 +1,8 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "code": "openl.error.400.table.cell.formula.invalid.message",
+  "message": "Excel cannot read the formula '=SUM(1,', or OpenL Studio cannot compute it. An Excel formula starts with = and is written as Excel writes it, such as =B2*C2. Write an OpenL formula as the value of the cell."
+}
+

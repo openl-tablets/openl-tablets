@@ -25,12 +25,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -168,6 +171,48 @@ class TableCreatorServiceTest {
             assertTrue(DateUtil.isCellDateFormatted(sheet.getRow(3).getCell(1)));
             assertEquals("C:\\ ,ACME\\, Inc", sheet.getRow(4).getCell(1).getStringCellValue());
         }
+    }
+
+    @Test
+    void writesAnOpenLFormulaAsTextAndAnExcelFormulaAsAFormula() throws Exception {
+        var source = List.of(
+                List.of(cell("Spreadsheet SpreadsheetResult Calc()", 2), RawTableCell.COVERED_CELL),
+                List.of(cell("Step"), cell("Value")),
+                List.of(cell("F1"), cell("= product($F1:$F4)")),
+                List.of(cell("F2"), RawTableCell.builder().value(0).formula("=2*3").build()),
+                // A formula refers to a cell written after it: C7 holds 7.
+                List.of(cell("F3"), RawTableCell.builder().formula("=C7*2").build()),
+                List.of(cell("F4"), cell(7)));
+
+        createModuleWithTable(simpleDescriptor(), request("custom/Greeting.xlsx", rawTable(source)));
+
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(
+                createdResources.get("custom/Greeting.xlsx")))) {
+            var sheet = workbook.getSheet("Greeting");
+            var openL = sheet.getRow(3).getCell(2);
+            assertEquals(CellType.STRING, openL.getCellType());
+            assertEquals("= product($F1:$F4)", openL.getStringCellValue());
+            var excel = sheet.getRow(4).getCell(2);
+            assertEquals(CellType.FORMULA, excel.getCellType());
+            assertEquals("2*3", excel.getCellFormula());
+            assertEquals(6, excel.getNumericCellValue());
+            assertEquals(14, sheet.getRow(5).getCell(2).getNumericCellValue(), "computed from the cell written after it");
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"=SUM(1,", "=INFO(\"osversion\")", "2*3", "= "})
+    void refusesAnExcelFormulaExcelCannotRead(String formula) {
+        var source = List.of(
+                List.of(cell("Spreadsheet SpreadsheetResult Calc()", 2), RawTableCell.COVERED_CELL),
+                List.of(cell("F1"), RawTableCell.builder().formula(formula).build()));
+        var request = request("rules/Greeting.xlsx", rawTable(source));
+        var descriptor = simpleDescriptor();
+
+        var refused = assertThrows(BadRequestException.class, () -> createModuleWithTable(descriptor, request));
+
+        assertEquals("openl.error.400.table.cell.formula.invalid.message", refused.getErrorCode());
+        verify(projectFilesService, never()).createResource(any(), anyString(), any(), anyBoolean());
     }
 
     @Test

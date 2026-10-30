@@ -241,15 +241,29 @@ const cellValueSchema = z.union([scalarCellValueSchema, z.array(scalarCellValueS
   error: "Cell value must be a string, number, boolean, null, or a one-dimensional array of those scalar values.",
 });
 
+/** The Excel formula of a cell of an edit, which names it instead of a value. */
+const excelFormulaSchema = z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2'. The cell is written as this Excel formula; send it without 'value', which Studio refuses beside it. An OpenL formula is a 'value' starting with '='.");
+
+/** A cell of an edit names either its value or its Excel formula, as Studio refuses both. */
+const VALUE_OR_FORMULA = "A cell takes either 'value' or 'formula', not both.";
+const valueOrFormula = (cell: { value?: unknown; formula?: string }): boolean =>
+  cell.formula === undefined || cell.value === undefined || cell.value === null;
+
 /** A cell value for a raw table-source edit. */
 const rawCellInputSchema = z.strictObject({
-  value: cellValueSchema.optional().describe("Cell value as a scalar or representable one-dimensional scalar array. Null or omitted is an empty cell."),
+  value: cellValueSchema.optional().describe("Cell value as a scalar or representable one-dimensional scalar array. Null or omitted is an empty cell. A text starting with '=' is an OpenL formula, such as '= $Base * 2', and is written as text."),
+  formula: excelFormulaSchema,
   colspan: z.number().int().min(1).optional().describe("Number of columns this cell spans (>= 2 to merge; omit or 1 for a single column)."),
   rowspan: z.number().int().min(1).optional().describe("Number of rows this cell spans (>= 2 to merge; omit or 1 for a single row)."),
   covered: z.boolean().optional().describe("Marks a cell covered by another cell's span; its value is ignored."),
 });
 
+/** A cell of an edit, which names either its value or its Excel formula. */
+const actionCellSchema = rawCellInputSchema.refine(valueOrFormula, { error: VALUE_OR_FORMULA });
+
 const rawTableCellSchema = rawCellInputSchema.extend({
+  // A whole table is written back as openl_get_table read it, the formula beside the value it computed.
+  formula: z.string().optional().describe("Excel formula of the cell as Excel writes it, such as '=B2*C2', as openl_get_table returns it beside the value it computed. The cell is written as this Excel formula and 'value' is ignored; omit it to write 'value'. An OpenL formula is a 'value' starting with '='."),
   cell: z.string().optional(),
   mergedArea: z.string().optional(),
 }).describe("Writable raw cell. Studio exposes style only when reading with styles=true; table write APIs do not support changing style, so style is intentionally rejected.");
@@ -276,15 +290,15 @@ export const appendTableSchema = z.strictObject({
 // the tools surface the new id the same way update/append do.
 // =============================================================================
 
-const rowCellsSchema = z.array(rawCellInputSchema).min(1).describe(
+const rowCellsSchema = z.array(actionCellSchema).min(1).describe(
   "Row cells, left to right. Required and non-empty — provide one cell per column (use { value: null } for a blank cell, { covered: true } for a position an existing merged cell covers, as openl_get_table marks it). A cell may set colspan/rowspan to merge. Must not be wider than the table.",
 );
-const columnCellsSchema = z.array(rawCellInputSchema).min(1).describe(
+const columnCellsSchema = z.array(actionCellSchema).min(1).describe(
   "Column cells, top to bottom. Required and non-empty — provide one cell per row (use { value: null } for a blank cell, { covered: true } for a position an existing merged cell covers, such as row 0 under a title that spans the table, as openl_get_table marks it). A cell may set colspan/rowspan to merge. Must not be taller than the table.",
 );
 
 /** One or more lines (rows or columns), each a non-empty list of cells — the 2D block shared by the rows/columns/range tools. */
-const cellBlockSchema = z.array(z.array(rawCellInputSchema).min(1)).min(1);
+const cellBlockSchema = z.array(z.array(actionCellSchema).min(1)).min(1);
 /** One or more rows: outer = rows (top to bottom), inner = cells in that row (left to right). */
 const rowsBlockSchema = cellBlockSchema.describe(
   "Rows top to bottom, each a non-empty list of cells left to right (one cell per column; use { value: null } for a blank cell). Pass one row to add/insert a single row, several for a block. Each row as wide as the table.",
@@ -310,8 +324,12 @@ export const updateTableCellSchema = z.strictObject({
   ...tableActionBase,
   row: z.number().int().min(0).describe("0-based row index of the cell (0..height-1)."),
   column: z.number().int().min(0).describe("0-based column index of the cell (0..width-1)."),
-  value: cellValueSchema.describe("New scalar or representable one-dimensional scalar-array value. Required — pass null explicitly to clear so the intent is unambiguous."),
-});
+  value: cellValueSchema.optional().describe("New scalar or representable one-dimensional scalar-array value. Required unless 'formula' is given — pass null explicitly to clear so the intent is unambiguous. A text starting with '=' is an OpenL formula, such as '= $Base * 2', and is written as text."),
+  formula: excelFormulaSchema,
+}).refine(valueOrFormula, { error: VALUE_OR_FORMULA })
+  .refine((cell) => cell.formula !== undefined || cell.value !== undefined, {
+    error: "Pass 'value' (null to clear the cell) or 'formula'.",
+  });
 
 export const mergeTableCellsSchema = z.strictObject({
   ...tableActionBase,

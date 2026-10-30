@@ -60,8 +60,11 @@ interface OpenCellProps {
     marks: RawTextMark[]
     /** Whether pieces of the text can be marked: a text of a cell the table was read with, not its header. */
     markable: boolean
-    /** Keeps what was written, with the marks on it where the text can be marked, and closes the cell. */
-    onCommit: (value: string, marks?: RawTextMark[]) => void
+    /**
+     * Keeps what was written, with the marks on it where the text can be marked, and closes the cell. `excel` tells
+     * a value written as an Excel formula.
+     */
+    onCommit: (value: string, marks?: RawTextMark[], excel?: boolean) => void
     /** Closes the cell, leaving it as it was. */
     onCancel: () => void
     /** Told while the reader has the menu of other ways open, which is not them leaving the cell. */
@@ -110,13 +113,17 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     /**
      * The way the cell is written.
      *
-     * <p>What the reader switched to wins. Otherwise a value that is a formula or runs over several lines is
-     * written as text, whatever the cell's type would ask for — those two follow the value being written, not
-     * the table as it was compiled, so they are decided here rather than by the server.
+     * <p>What the reader switched to wins. A cell written with an Excel formula is written as one. Otherwise a value
+     * that is a formula or runs over several lines is written as text, whatever the cell's type would ask for —
+     * those two follow the value being written, not the table as it was compiled, so they are decided here rather
+     * than by the server.
      */
     const kindOf = (): EditorKind => {
         if (switched !== null) {
             return switched
+        }
+        if (own === 'excelFormula') {
+            return own
         }
         if (draft.startsWith('=')) {
             return 'formula'
@@ -133,7 +140,7 @@ export const OpenCell: React.FC<OpenCellProps> = ({
     /** Keeps what was written, with its marks where the text can be marked. */
     const commit = (value: string) => {
         if (!marking.current) {
-            onCommit(value, marked ? marks : undefined)
+            onCommit(value, marked ? marks : undefined, kind === 'excelFormula')
         }
     }
 
@@ -198,21 +205,23 @@ export const OpenCell: React.FC<OpenCellProps> = ({
 
     /** The other ways this cell can be written, which the reader picks from beside it. */
     const switches = useMemo(() => {
-        // A cell can always be written as a formula, whatever it holds now — as the old editor offered it.
-        // The way the cell asks for comes first, and is not offered twice when it is one of those three.
-        const others = [...new Set<EditorKind>([...(own === null ? [] : [own]), 'formula', 'multiline', 'text'])]
+        // A cell can always be written as a formula, OpenL or Excel, whatever it holds now — as the old editor
+        // offered it. The way the cell asks for comes first, and is not offered twice when it is one of those.
+        const ways = [...new Set<EditorKind>([
+            ...(own === null ? [] : [own]), 'formula', 'excelFormula', 'multiline', 'text',
+        ])]
         // What the menu is for is said once, over the ways of writing it offers — as the Editor said it.
         return [{
             key: 'switch-to',
             type: 'group' as const,
             label: t('browser.module.editor_switch_to'),
-            children: others
-                .filter(other => other !== kind)
-                .map(other => ({
-                    key: other,
-                    label: t(`browser.module.editor_kind_${other}`),
-                    onClick: () => setSwitched(other),
-                })),
+            children: ways.map(way => ({
+                key: way,
+                label: t(`browser.module.editor_kind_${way}`),
+                // The way the cell is written now stays in its place, so the reader sees which one it is.
+                disabled: way === kind,
+                onClick: () => setSwitched(way),
+            })),
         }]
     }, [kind, own, t])
 

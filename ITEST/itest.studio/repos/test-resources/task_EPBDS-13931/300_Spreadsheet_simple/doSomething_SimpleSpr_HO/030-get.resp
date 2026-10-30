@@ -32,7 +32,7 @@ Content-Type: application/json
     {
       "name": "Foo",
       "type": "Integer",
-      "value": 123
+      "value": "= 123"
     }
   ]
 }

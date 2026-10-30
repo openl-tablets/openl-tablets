@@ -758,14 +758,9 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             result = writers.get(AXlsCellWriter.ENUM_ARRAY_WRITER);
         } else if (value.getClass().isArray()) {
             result = writers.get(AXlsCellWriter.ARRAY_WRITER);
-        } else { // String
-            String strValue = String.valueOf(value);
-            // Formula
-            if (strValue.startsWith("=")) {
-                result = writers.get(AXlsCellWriter.FORMULA_WRITER);
-            } else {
-                result = writers.get(AXlsCellWriter.STRING_WRITER);
-            }
+        } else {
+            // A text starting with "=" is an OpenL formula. Excel formulas are written by setCellFormula alone.
+            result = writers.get(AXlsCellWriter.STRING_WRITER);
         }
         return result;
     }

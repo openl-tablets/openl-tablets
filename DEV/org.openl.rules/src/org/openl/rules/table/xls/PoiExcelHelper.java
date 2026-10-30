@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Color;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -36,6 +37,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
 
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.TextRun;
 
@@ -114,6 +116,57 @@ public final class PoiExcelHelper {
             }
             if (value == Math.rint(value) && Math.abs(value) < WHOLE_NUMBER_LIMIT) {
                 ct.setV(Long.toString(Math.round(value)));
+            }
+        }
+    }
+
+    /**
+     * Writes an Excel formula into a cell, with the value it computes.
+     *
+     * <p>The formula is given with or without its leading {@code =}. OpenL reads the value a formula computed, so a
+     * formula without one would read as empty: a formula Apache POI cannot compute, such as one calling a function
+     * it does not implement, is refused as one Excel cannot read is. A refused formula leaves the cell empty.
+     *
+     * @throws IllegalArgumentException when Excel cannot read the formula or Apache POI cannot compute it
+     */
+    public static void setFormula(Cell cell, String formula) {
+        try {
+            cell.setCellFormula(formula.startsWith("=") ? formula.substring(1) : formula);
+            evaluateFormula(cell);
+        } catch (RuntimeException e) {
+            cell.setBlank();
+            throw new IllegalArgumentException("The formula '" + formula + "' cannot be read or computed", e);
+        }
+    }
+
+    /**
+     * Computes again the Excel formulas of a region of a sheet, so each keeps the value it computes from the cells as
+     * they are now.
+     *
+     * <p>A formula is computed when it is written, and a cell written after it, which the formula refers to, leaves
+     * the value it computed behind. OpenL reads that value, so the formulas of a table are computed again once the
+     * whole table is written.
+     *
+     * <p>A formula that cannot be computed keeps the value it had.
+     */
+    public static void evaluateFormulas(Sheet sheet, IGridRegion region) {
+        var evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+        for (var rowIndex = region.getTop(); rowIndex <= region.getBottom(); rowIndex++) {
+            var row = sheet.getRow(rowIndex);
+            if (row != null) {
+                for (var column = region.getLeft(); column <= region.getRight(); column++) {
+                    evaluateFormula(evaluator, row.getCell(column));
+                }
+            }
+        }
+    }
+
+    private static void evaluateFormula(FormulaEvaluator evaluator, @Nullable Cell cell) {
+        if (cell != null && cell.getCellType() == CellType.FORMULA) {
+            try {
+                evaluator.evaluateFormulaCell(cell);
+            } catch (RuntimeException ignored) {
+                // A formula Apache POI cannot compute keeps the value Excel computed for it
             }
         }
     }

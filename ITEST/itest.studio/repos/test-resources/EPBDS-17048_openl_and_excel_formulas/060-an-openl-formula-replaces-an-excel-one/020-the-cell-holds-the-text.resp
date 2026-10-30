@@ -1,0 +1,132 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "id": "6RH01M2SXJGZZTJR",
+  "tableType": "RawSource",
+  "kind": "Spreadsheet",
+  "name": "CalcProduct",
+  "pos": "B2:D10",
+  "source": [
+    [
+      {
+        "cell": "B2",
+        "value": "Spreadsheet Double CalcProduct()",
+        "colspan": 3
+      },
+      {
+        "covered": true
+      },
+      {
+        "covered": true
+      }
+    ],
+    [
+      {
+        "cell": "B3",
+        "value": "properties"
+      },
+      {
+        "cell": "C3",
+        "value": "version"
+      },
+      {
+        "cell": "D3",
+        "value": "0.0.2"
+      }
+    ],
+    [
+      {
+        "cell": "B4",
+        "value": "Step"
+      },
+      {
+        "cell": "C4",
+        "value": "Value"
+      },
+      {
+        "cell": "D4"
+      }
+    ],
+    [
+      {
+        "cell": "B5",
+        "value": "F1"
+      },
+      {
+        "cell": "C5",
+        "value": "= 2"
+      },
+      {
+        "cell": "D5"
+      }
+    ],
+    [
+      {
+        "cell": "B6",
+        "value": "F2"
+      },
+      {
+        "cell": "C6",
+        "value": "= 3"
+      },
+      {
+        "cell": "D6"
+      }
+    ],
+    [
+      {
+        "cell": "B7",
+        "value": "F3"
+      },
+      {
+        "cell": "C7",
+        "value": "= 4"
+      },
+      {
+        "cell": "D7"
+      }
+    ],
+    [
+      {
+        "cell": "B8",
+        "value": "F4"
+      },
+      {
+        "cell": "C8",
+        "value": "= $F1 * 5"
+      },
+      {
+        "cell": "D8"
+      }
+    ],
+    [
+      {
+        "cell": "B9",
+        "value": "RETURN"
+      },
+      {
+        "cell": "C9",
+        "value": "= product($F1:$F4)"
+      },
+      {
+        "cell": "D9"
+      }
+    ],
+    [
+      {
+        "cell": "B10",
+        "value": "F5"
+      },
+      {
+        "cell": "C10",
+        "value": "= 1"
+      },
+      {
+        "cell": "D10"
+      }
+    ]
+  ],
+  "headerHeight": 2
+}
+

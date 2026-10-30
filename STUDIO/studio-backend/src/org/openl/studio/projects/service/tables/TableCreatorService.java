@@ -214,12 +214,19 @@ public class TableCreatorService {
                 for (var columnIndex = 0; columnIndex < sourceRow.size(); columnIndex++) {
                     var sourceCell = sourceRow.get(columnIndex);
                     if (sourceCell != null && !Boolean.TRUE.equals(sourceCell.covered())) {
-                        writeCell(row.createCell(TABLE_START_COLUMN + columnIndex), sourceCell.value(), dateStyle);
+                        var cell = row.createCell(TABLE_START_COLUMN + columnIndex);
+                        if (sourceCell.formula() != null) {
+                            writeFormula(cell, sourceCell.formula());
+                        } else {
+                            writeCell(cell, sourceCell.value(), dateStyle);
+                        }
                         mergeCell(sheet, stamped, rowIndex, columnIndex, sourceCell);
                     }
                 }
             }
             requireNoBlankLine(sheet, stamped.getHeight(), stamped.getWidth());
+            PoiExcelHelper.evaluateFormulas(sheet, new GridRegion(TABLE_START_ROW, TABLE_START_COLUMN,
+                    TABLE_START_ROW + stamped.getHeight() - 1, TABLE_START_COLUMN + stamped.getWidth() - 1));
             format(sheet, builtRegions(request, table), table, stamped);
             workbook.write(output);
             return output.toByteArray();
@@ -298,7 +305,7 @@ public class TableCreatorService {
         var width = Math.max(table.getWidth(), TableBuilder.PROPERTIES_MIN_WIDTH);
         var rows = new ArrayList<List<RawTableCell>>(table.source.size() + stamped.size());
         rows.add(headerSpanning(width, table.source.getFirst()));
-        int written = 0;
+        var written = 0;
         for (var property : stamped.entrySet()) {
             rows.add(propertyRow(property, written++ == 0 ? stamped.size() : 0, width));
         }
@@ -450,8 +457,7 @@ public class TableCreatorService {
     /**
      * Writes one cell of the matrix, choosing the cell kind the grid's own writers would choose.
      *
-     * <p>A text opening with {@code =} is a formula, as {@link XlsSheetGridModel} reads it. Without that the same
-     * table would hold a formula in an existing module and the literal text in a new one.
+     * <p>A text opening with {@code =} is an OpenL formula and stays a text, as {@link XlsSheetGridModel} writes it.
      */
     private static void writeCell(Cell cell, @Nullable Object value, CellStyle dateStyle) {
         switch (value) {
@@ -464,24 +470,21 @@ public class TableCreatorService {
                 PoiExcelHelper.setDate(cell, dateValue);
                 cell.setCellStyle(dateStyle);
             }
-            case String text when text.startsWith("=") -> writeFormula(cell, text);
             default -> cell.setCellValue(value.toString());
         }
     }
 
     /**
-     * Writes an Excel formula, keeping the text as it stands when Excel cannot parse it.
+     * Writes an Excel formula, such as {@code =B2*C2}.
      *
-     * <p>OpenL expressions share the leading {@code =} with Excel formulas, so one Excel rejects is written as the
-     * text it is rather than failing the request.
+     * @throws BadRequestException when the formula does not start with {@code =}, Excel cannot read it or OpenL
+     *                             Studio cannot compute it
      */
     private static void writeFormula(Cell cell, String formula) {
         try {
-            cell.setCellFormula(formula.substring(1));
-            PoiExcelHelper.evaluateFormula(cell);
-        } catch (RuntimeException e) {
-            cell.setBlank();
-            cell.setCellValue(formula);
+            PoiExcelHelper.setFormula(cell, TableWriter.excelFormulaOf(formula));
+        } catch (IllegalArgumentException e) {
+            throw TableWriter.invalidFormula(formula);
         }
     }
 
@@ -629,7 +632,7 @@ public class TableCreatorService {
         var normalizedPath = modulePath == null ? null : modulePath.replace('\\', '/');
         // Remove the exact module the rollback created: match by its path when one was given, so a same-named module
         // at a different path is left alone. Only a pathless module is matched by name.
-        boolean removed = descriptor.getModules().removeIf(module -> normalizedPath != null
+        var removed = descriptor.getModules().removeIf(module -> normalizedPath != null
                 ? module.getRulesRootPath() != null
                         && normalizedPath.equalsIgnoreCase(module.getRulesRootPath().replace('\\', '/'))
                 : moduleName.equalsIgnoreCase(module.getName()));

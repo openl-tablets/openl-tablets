@@ -18,8 +18,11 @@ export interface CellAt {
  * reader saves.
  */
 export type EditStep =
-    /** A value, and the marks on its text when the reader wrote them; a value without marks is plain text. */
-    | { kind: 'value', at: CellAt, value: string, marks?: RawTextMark[] }
+    /**
+     * A value, and the marks on its text when the reader wrote them; a value without marks is plain text. A value
+     * written as an Excel formula is that formula, and carries no marks.
+     */
+    | { kind: 'value', at: CellAt, value: string, marks?: RawTextMark[], excel?: boolean }
     | { kind: 'style', at: CellAt, style: RawCellStyleInput }
     | { kind: 'insertRow', at: number }
     | { kind: 'removeRow', at: number, lines: number }
@@ -234,9 +237,15 @@ const apply = (state: EditedTable, step: EditStep, added: number): number => {
                     // are the pieces of the text the workbook formatted, but for the marks the reader wrote.
                     const { formula, runs, ...kept } = cell
                     // The marks are drawn as the workbook writes them, bold in the standard colours of Excel.
-                    row[step.at.column] = step.marks === undefined || step.marks.length === 0
-                        ? { ...kept, value: step.value }
-                        : { ...kept, value: step.value, runs: markedRuns(step.value, undefined, step.marks, MARK_RGB) }
+                    if (step.excel === true) {
+                        row[step.at.column] = { ...kept, value: step.value, formula: step.value }
+                    } else if (step.marks === undefined || step.marks.length === 0) {
+                        row[step.at.column] = { ...kept, value: step.value }
+                    } else {
+                        row[step.at.column] = {
+                            ...kept, value: step.value, runs: markedRuns(step.value, undefined, step.marks, MARK_RGB),
+                        }
+                    }
                     state.touched.add(key)
                 } else {
                     state.styled.set(key, { ...state.styled.get(key), ...step.style })
@@ -347,11 +356,17 @@ export const redo = (buffer: EditBuffer): EditBuffer => {
  * <p>A cell a merge reaches over says so rather than carrying a blank: its value lives in the cell the merge
  * starts at, and a blank written over it would be dropped without a word.
  */
-const written = (cell: RawTableCell | undefined): RawTableCellInput =>
-    (cell?.covered === true ? { value: '', covered: true } : { value: cell?.value ?? '' })
+const written = (cell: RawTableCell | undefined): RawTableCellInput => {
+    if (cell?.covered === true) {
+        return { value: '', covered: true }
+    }
+    // An edit names either the value of a cell or its Excel formula, never both.
+    return cell?.formula === undefined ? { value: cell?.value ?? '' } : { formula: cell.formula }
+}
 
 /** Whether the cell carries nothing at all, so a line of such cells would split the table. */
-const empty = (cell: RawTableCell | undefined): boolean => cell?.value == null || String(cell.value).trim() === ''
+const empty = (cell: RawTableCell | undefined): boolean =>
+    cell?.formula === undefined && (cell?.value == null || String(cell.value).trim() === '')
 
 /**
  * Why the table cannot be written yet, or null when it can.
@@ -428,11 +443,21 @@ const valueEdits = (original: RawTableCell[][], state: EditedTable): TableEdit[]
                 return
             }
             const value = cell.value ?? ''
+            if (cell.formula !== undefined) {
+                // A cell written as an Excel formula is sent as that formula alone: an edit naming a value beside it
+                // is refused.
+                if (cell.formula !== was.formula) {
+                    edits.push({ operation: 'update', target: { type: 'cell', row, column, formula: cell.formula } })
+                }
+                return
+            }
             const marks = marksOf(cell.runs)
             // The marks go with the value where there are any to write or to take away: a cell that never held one
             // is written as it always was, as plain text.
             const remarked = !sameMarks(marks, marksOf(was.runs))
-            if (remarked || String(was.value ?? '') !== String(value)) {
+            // A cell that held an Excel formula and holds a value now is written, even when the value reads the same.
+            const unformulated = was.formula !== undefined
+            if (remarked || unformulated || String(was.value ?? '') !== String(value)) {
                 const target = { type: 'cell' as const, row, column, value }
                 edits.push({ operation: 'update', target: remarked || marks.length > 0 ? { ...target, marks } : target })
             }

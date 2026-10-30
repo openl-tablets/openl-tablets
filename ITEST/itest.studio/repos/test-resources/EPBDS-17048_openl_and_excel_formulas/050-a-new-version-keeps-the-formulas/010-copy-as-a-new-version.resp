@@ -1,0 +1,18 @@
+HTTP/1.1 201
+Content-Type: application/json
+
+{
+  "id": "6RH01M2SXJGZZTJR",
+  "tableType": "SimpleSpreadsheet",
+  "kind": "Spreadsheet",
+  "name": "CalcProduct",
+  "properties": {
+    "version": "0.0.2"
+  },
+  "returnType": "Double",
+  "signature": "CalcProduct()",
+  "file": "EPBDS-17048/Formulas.xlsx",
+  "sheet": "CalcProduct",
+  "pos": "B2:D10"
+}
+

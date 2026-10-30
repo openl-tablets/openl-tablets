@@ -718,6 +718,8 @@ export interface RawTableCell {
   rowspan?: number;
   /** True when this cell is masked by another cell's span. */
   covered?: boolean;
+  /** The Excel formula of the cell (e.g. `=B2*C2`); a write stores it in place of the value. */
+  formula?: string;
   /** The whole area of a merged cell the edge of a window cuts, in A1 notation (e.g. `B4:B299`). Read-only. */
   mergedArea?: string;
   /** Excel cell style; only present when the raw view was requested with `styles=true`. */
@@ -779,6 +781,8 @@ export interface RawTableAppend {
  */
 export interface RawCellInput {
   value?: RawCellValue;
+  /** The Excel formula of the cell (e.g. `=B2*C2`); Studio writes it in place of the value. */
+  formula?: string;
   colspan?: number;
   rowspan?: number;
   covered?: boolean;
@@ -800,6 +804,8 @@ export interface RawTableActionTarget {
   row?: number;
   column?: number;
   value?: RawCellValue;
+  /** The Excel formula of a single cell (e.g. `=B2*C2`); Studio writes it in place of the value. */
+  formula?: string;
   rowspan?: number;
   colspan?: number;
   /** Number of rows/columns to delete in a `rows`/`columns` delete (>= 1; defaults to 1). */
