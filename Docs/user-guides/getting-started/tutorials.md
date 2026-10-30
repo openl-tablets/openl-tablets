@@ -31,29 +31,17 @@ This tutorial will teach you more advanced features of decision and data tables.
 use merged cells to structure tables with array elements, link multiple data tables into an Object Graph using a foreign
 keys-like approach, enter aggregate data objects as a single table, and enter formulas into decision table cells.
 
-## Tutorial 4 - Introduction to Column Match Tables
-
-This tutorial provides a short introduction and examples of how to use Column Match Table types. You will learn three
-algorithms of Column Match tables: MATCH, SCORE, and WEIGHTED. Depending on the algorithm, you can map different groups
-of conditions to a single return value, calculate weighted ratings, or total scores for a set of conditions.
-
-## Tutorial 5 - Introduction to TBasic Tables
-
-This tutorial introduces a completely new table type - TBasic - which allows you to implement different algorithms with
-rather complex logic such as loops, checks, switching execution flow control/steps order, and breaking loops. The usage
-of TBasic tables is demonstrated with examples.
-
-## Tutorial 6 - Introduction to Spreadsheet Tables
+## Tutorial 4 - Introduction to Spreadsheet Tables
 
 This tutorial introduces another new type of OpenL Tablets - Spreadsheet Tables - which allow you to perform various
 calculations and return a matrix of results. Two ways of processing Spreadsheet tables are demonstrated with examples.
 
-## Tutorial 7 - Introduction to Table Properties
+## Tutorial 5 - Introduction to Table Properties
 
 This tutorial demonstrates the advanced usage of OpenL Tablets rules when several rule sets (Rules Tables) are used
 simultaneously, i.e., when rules are versioned. To achieve this, table properties are introduced.
 
-## Tutorial 8 - Introduction to Smart Rules and Smart Lookup Tables
+## Tutorial 6 - Introduction to Smart Rules and Smart Lookup Tables
 
 This tutorial explains the main features of smart rules and how they differ from simple rules. You will learn about the
 structure of smart rules, data that can be used as input, supported types of ranges, True/False conditions in smart
@@ -75,7 +63,7 @@ identify the creditworthiness of the company.
 
 This example represents a business rules module defined in the UServ Business Rules Model 2005 (see this specification
 in the **doc** file). This is a simple example of the application of OpenL Tablets rules. In this example, you will
-encounter most table types: Decision tables, Data tables, Datatypes, Spreadsheets, Method, and Properties tables.
+encounter the main table types: Decision tables, Data tables, Datatypes, and Spreadsheets.
 Additionally, you can see an example of tests for rules located in a separate module.
 
 ## Example-4-Reference-Guide

@@ -44,7 +44,7 @@ the part it stands in. The Editor takes a cell's own answer first and falls back
   `DriverPremium3` is taken away and the table is read again. It holds nothing but its titles, and the columns
   still say what a rule written under them would hold.
 
-`040-smart` — the smart lookups of the bundled **Tutorial 8**, where the conditions hold types of their own
+`040-smart` — the smart lookups of the bundled **Tutorial 6**, where the conditions hold types of their own
 and every shape a part can take is answered for at once.
 
 - `010-a-lookup-whose-rules-run-down-and-across` — `CoverageRate`: the answer carries all three shapes

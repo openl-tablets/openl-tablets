@@ -51,13 +51,9 @@ Just name your simple rules, and OpenL will understand the rest. Lots of simplif
 
 Create Excel-like calculations rules. Any calculations can be flexibly captured in this format.
 
-**Decision Trees**
-
-Use the ColumnMatch component to capture rules as a decision tree.
-
 **Algorithms and Flows**
 
-TBasic (table basic) and method tables can handle sophisticated logic.
+Conditions and loops in spreadsheet steps can handle sophisticated logic.
 
 ## Versioning
 
