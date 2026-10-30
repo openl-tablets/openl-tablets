@@ -295,7 +295,7 @@ anonymous (single-user Studio).
 - A cell of a conflicted workbook names no A1 address of its own, as its place in the grid and the range of its version
   give it; a conflict cell names `ourCell` and `theirCell` only where a version moved it.
 
-- Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output.
+- Formats: `json` (default), `markdown`, `markdown_concise`, `markdown_detailed` (the `response_format` argument). JSON is the authoritative, round-trippable representation for agent workflows, written without indentation; request a Markdown format only for human-readable output. `markdown_concise` names every project, table and repository of a list with the id the other tools take.
 - Only the tools whose answer has a Markdown view of its own take `response_format`: `openl_list_repositories`, `openl_list_projects`, `openl_list_tables`, `openl_list_deployments`, `openl_get_table_dependencies` and `openl_get_test_results`. Every other tool answers JSON, which a Markdown format would only wrap in a code block, and refuses the argument: its schema in every session of every agent would cost more than the answer it changes.
 - No tool carries file bytes as base64 or as an embedded resource: a file other than a short text is answered with a link (see Project Files Tools), never as a `resource_link` either, since a client may fetch or preview a link it renders.
 - List operations return pagination metadata.

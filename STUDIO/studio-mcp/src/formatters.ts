@@ -341,8 +341,11 @@ function listSummary(data: unknown[], total: number, dataType?: string, markdown
         ...ifAny(() => `${statusBreakdown(named)}. Projects: ${projectNames(named)}.`),
       ];
     case "tables": {
-      const types = (): string => [...new Set((data as Types.TableMetadata[]).map((t) => t.tableType))].join(", ");
-      return [foundText(count, total, "table"), ...ifAny(() => `Table types: ${types()}.`)];
+      const tables = data as Types.TableMetadata[];
+      const types = [...new Set(tables.map((t) => t.tableType))].join(", ");
+      // Every table by the id the other tools take, so the summary is enough to go on
+      const names = tables.map(({ name, id }) => `${name} (${id})`).join(", ");
+      return [foundText(count, total, "table"), ...ifAny(() => `Table types: ${types}. Tables: ${names}.`)];
     }
     case "table_dependencies":
       return summarizeDependencyGraph(data as Types.TableNodeView[], total, markdownContext);

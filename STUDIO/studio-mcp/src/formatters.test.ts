@@ -199,6 +199,16 @@ describe("formatters", () => {
       expect(result.length).toBeLessThan(500); // Should be brief
     });
 
+    it("names every table with its id, which the other tools take", () => {
+      const data = [
+        { id: "t1", name: "BankRatingGroup", tableType: "Rules" },
+        { id: "t2", name: "BankRatingTest", tableType: "Test" },
+      ];
+
+      expect(toMarkdownConcise({ data }, "tables"))
+        .toContain("Table types: Rules, Test. Tables: BankRatingGroup (t1), BankRatingTest (t2).");
+    });
+
     it("names every repository with its id and its features", () => {
       const data = [
         { id: "design", name: "Design", features: { branches: true, comments: true, searchable: false } },
