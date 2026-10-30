@@ -9,8 +9,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +24,6 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.rest.compile.OpenLTableLogic;
 import org.openl.rules.rest.compile.TableDescription;
-import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 
@@ -36,15 +37,24 @@ class OpenLTableLogicTest {
         Collection<TableSyntaxNode> allTableSyntaxNodes = pm.getAllTableSyntaxNodes();
         for (TableSyntaxNode tsn : allTableSyntaxNodes) {
             var tableSyntaxNodeAdapter = new TableSyntaxNodeAdapter(tsn);
-            if (((IOpenLTable) tableSyntaxNodeAdapter).getDisplayName().equals("HelloTest")) {
+            if ("HelloTest".equals(tableSyntaxNodeAdapter.getDisplayName())) {
                 List<TableDescription> targetTables = OpenLTableLogic.getTargetTables(tableSyntaxNodeAdapter,
                         pm, false);
                 assertEquals(3, targetTables.size());
-                assertEquals("Hello [state = AL]", targetTables.getFirst().name());
-                assertEquals("Hello [state = AZ]", targetTables.get(1).name());
-                assertEquals("Hello", targetTables.get(2).name());
+                // Every version is called by the name of the table, and told apart by its dimensions.
+                assertEquals(List.of("Hello", "Hello", "Hello"),
+                        targetTables.stream().map(TableDescription::name).toList());
+                assertEquals(List.of(List.of("AL"), List.of("AZ"), List.of()), targetTables.stream()
+                        .map(target -> states(target.dimensions()))
+                        .toList());
             }
         }
+    }
+
+    /** The codes of the states a version is written for, none when it names no state. */
+    private static List<String> states(Map<String, Object> dimensions) {
+        var states = (Object[]) dimensions.get("state");
+        return states == null ? List.of() : Arrays.stream(states).map(state -> ((Enum<?>) state).name()).toList();
     }
 
     @Test
@@ -54,7 +64,7 @@ class OpenLTableLogicTest {
         projectModel.setModuleInfo(getModules().getFirst());
         var testTable = projectModel.getAllTableSyntaxNodes().stream()
                 .map(TableSyntaxNodeAdapter::new)
-                .filter(table -> table.getDisplayName().equals("HelloTest"))
+                .filter(table -> "HelloTest".equals(table.getDisplayName()))
                 .findFirst()
                 .orElseThrow();
 

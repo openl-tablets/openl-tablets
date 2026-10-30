@@ -2936,6 +2936,8 @@ class WorkspaceProjectServiceTest {
         assertEquals(List.of("Wrapper"), targets.stream().map(TableTargetView::name).toList());
         var wrapper = targets.getFirst();
         assertEquals("Wrapper", moduleModel.getTableById(wrapper.id()).getName());
+        // A table written once has no other version to be told from.
+        assertNull(wrapper.dimensions());
         // And where it is written, because a test need not live in the module it exercises.
         assertEquals("sprTests", wrapper.module());
     }

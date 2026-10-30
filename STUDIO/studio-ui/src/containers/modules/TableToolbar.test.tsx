@@ -376,19 +376,30 @@ describe('TableToolbar', () => {
 
     it('names the first table a test exercises and keeps the rest behind a caret', async () => {
         vi.mocked(getTableTargets).mockResolvedValue([
-            { id: 'rules-1', name: 'BankRating [lob = Banking]' },
-            { id: 'rules-2', name: 'BankRating [lob = Insurance]' },
+            { id: 'rules-1', name: 'BankRating', dimensions: { lob: ['Banking']} },
+            { id: 'rules-2', name: 'BankRating', dimensions: { lob: ['Insurance']} },
         ])
         await draw({ table: table('Run') })
 
         expect(screen.getByTestId('table-target-tables')).toHaveTextContent('browser.module.target_tables')
-        expect(screen.getByTestId('table-target-rules-1')).toHaveTextContent('BankRating [lob = Banking]')
+        expect(screen.getByTestId('table-target-rules-1')).toHaveTextContent('BankRating [lob=Banking]')
         // A table exercised by two dozen others would push the band off the screen, so only one is named.
         expect(screen.queryByTestId('table-target-rules-2')).toBeNull()
 
         await userEvent.click(screen.getByTestId('table-target-tables-more'))
 
-        expect(await screen.findByText('BankRating [lob = Insurance]')).toBeInTheDocument()
+        expect(await screen.findByText('BankRating [lob=Insurance]')).toBeInTheDocument()
+    })
+
+    it('tells the whole name of a table a test exercises on hover, where the band cuts it short', async () => {
+        vi.mocked(getTableTargets).mockResolvedValue([
+            { id: 'rules-1', name: 'CarPrice', dimensions: { lob: ['Auto']} },
+            { id: 'rules-2', name: 'CarPrice', dimensions: { lob: ['Home']} },
+        ])
+        await draw({ table: table('Test') })
+
+        await userEvent.hover(screen.getByTestId('table-target-rules-1'))
+        expect(await screen.findByRole('tooltip')).toHaveTextContent('CarPrice [lob=Auto]')
     })
 
     it('names the only table a test exercises without a caret', async () => {

@@ -29,7 +29,7 @@ Content-Type: application/json
     "id": "JCN0XBNXEYHXBYTA",
     "tableType": "*",
     "kind": "*",
-    "name": "mySPR [state=AR]",
+    "name": "mySPR",
     "properties": {
       "state": [
         "AR"
@@ -44,15 +44,17 @@ Content-Type: application/json
     "dependencies": [
       "V65C5W2A01B1HFB4"
     ],
-    "dimensionProperties": {
-      "US States": "AR"
+    "dimensions": {
+      "state": [
+        "AR"
+      ]
     }
   },
   {
     "id": "Z32V5M48M06A0XW6",
     "tableType": "*",
     "kind": "*",
-    "name": "mySPR [state=AZ]",
+    "name": "mySPR",
     "properties": {
       "state": [
         "AZ"
@@ -64,8 +66,10 @@ Content-Type: application/json
     "pos": "*",
     "project": "EPBDS-14622",
     "module": "MethodDispatcherTree",
-    "dimensionProperties": {
-      "US States": "AZ"
+    "dimensions": {
+      "state": [
+        "AZ"
+      ]
     }
   },
   {
@@ -86,9 +90,6 @@ Content-Type: application/json
     "module": "MethodDispatcherTree",
     "dependencies": [
       "dispatcher:JCN0XBNXEYHXBYTA"
-    ],
-    "dimensionProperties": {
-      "US States": "AZ"
-    }
+    ]
   }
 ]

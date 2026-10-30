@@ -344,10 +344,11 @@ export interface ModuleTable extends ProjectTable {
     /** The properties the table declares, `category` among them. */
     properties?: Record<string, unknown>
     /**
-     * The name that tells this version of the table from the others, carrying what they are told apart by:
-     * `CarPrice [effectiveDate=01/01/2020]`. Absent unless the table is written in more than one version.
+     * The values of the dimension properties that tell this version of the table from the others, inherited ones
+     * included, by the technical name of the property: `{ effectiveDate: '2020-01-01T00:00:00.000', state: ['AR'] }`.
+     * A date is written with no time zone. Absent unless the table is written in more than one version.
      */
-    displayName?: string
+    dimensions?: Record<string, unknown>
     /** What the versions of one table share, and no other table carries. Absent unless there is more than one. */
     overloadGroup?: string
     /** `false` on a table switched off by the `active` property, which takes no part in the rules. */

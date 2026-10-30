@@ -1,92 +1,24 @@
 package org.openl.rules.lang.xls;
 
-import java.util.Date;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.formatters.Formats;
-import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.util.StringUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TableSyntaxNodeUtils {
 
-    private TableSyntaxNodeUtils() {
-    }
-
-    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i, Formats formats) {
-        return getTableDisplayValue(tableSyntaxNode, i, null, formats);
-    }
-
-    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode,
-                                                int i,
-                                                OverloadedMethodsDictionary dictionary,
-                                                Formats formats) {
-
-        var tableProperties = tableSyntaxNode.getTableProperties();
-
-        String display = null;
-        String name = null;
-
-        if (tableProperties != null) {
-            name = tableProperties.getName();
-            display = name;
-        }
-
-        if (name == null) {
-            name = str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(),
-                    tableSyntaxNode.getNodeType());
-        }
-
-        if (display == null) {
-            display = tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue();
-        }
-
-        String sfx = i < 2 ? "" : " (" + i + ")";
-        var dimensionInfo = new StringBuilder();
-
-        if (dictionary != null && tableProperties != null && tableSyntaxNode
-                .getMember() instanceof IOpenMethod method && dictionary.contains(method)
-                && dictionary.getAllMethodOverloads(method).size() > 1) {
-            // Add dimension properties info only if there are more than one table in dictionary.
-            // For single table don`t add this info.
-            //
-            appendDimensionalProperties(dimensionInfo, tableProperties, formats);
-        }
-
-        if (!dimensionInfo.isEmpty()) {
-            sfx = sfx + " [" + dimensionInfo + "]";
-        }
-
-        return new String[]{name + sfx, display + sfx, display + sfx};
-    }
-
     /**
-     * Appends the dimensional properties that have values as a comma separated list of {@code name=value} pairs.
+     * The name a reader knows a table by: the value of its {@code name} property, or else the name its header gives.
      */
-    private static void appendDimensionalProperties(StringBuilder dimensionInfo,
-                                                    ITableProperties tableProperties,
-                                                    Formats formats) {
-        String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-
-        for (String dimensionalPropertyName : dimensionalPropertyNames) {
-            String value;
-
-            var propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
-            if (formats != null && propertyValue instanceof Date date) {
-                value = formats.formatDateOrDateTime(date);
-            } else {
-                value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
-            }
-
-            if (StringUtils.isNotEmpty(value)) {
-                if (!dimensionInfo.isEmpty()) {
-                    dimensionInfo.append(", ");
-                }
-                dimensionInfo.append(dimensionalPropertyName).append('=').append(value);
-            }
-        }
+    public static String getTableName(TableSyntaxNode tableSyntaxNode) {
+        var tableProperties = tableSyntaxNode.getTableProperties();
+        var name = tableProperties == null ? null : tableProperties.getName();
+        return name != null
+                ? name
+                : str2name(tableSyntaxNode.getGridTable().getCell(0, 0).getStringValue(), tableSyntaxNode.getNodeType());
     }
 
     // Kept as an open refactoring task: it needs a design change beyond this cleanup.
@@ -100,11 +32,11 @@ public final class TableSyntaxNodeUtils {
 
         if (StringUtils.isBlank(resultName)) {
             resultName = "NO NAME";
-        } else if (tableType.equals(XlsNodeTypes.XLS_OTHER)) {
+        } else if (tableType == XlsNodeTypes.XLS_OTHER) {
             if (resultName.length() > 57) {
                 resultName = resultName.substring(0, 57) + "...";
             }
-        } else if (tableType.equals(XlsNodeTypes.XLS_DATATYPE)) {
+        } else if (tableType == XlsNodeTypes.XLS_DATATYPE) {
             // Get the second word
             var first = StringUtils.firstNonSpace(resultName, 0, resultName.length()); // the first token
             first = StringUtils.first(resultName, first, resultName.length(), StringUtils::isSpaceOrControl); // space
@@ -133,6 +65,6 @@ public final class TableSyntaxNodeUtils {
     public static String getTestName(IOpenMethod testMethod) {
         var mi = testMethod.getInfo();
         var tnode = (TableSyntaxNode) mi.getSyntaxNode();
-        return getTableDisplayValue(tnode, 0, null)[INamedThing.SHORT];
+        return getTableName(tnode);
     }
 }

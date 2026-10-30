@@ -1,0 +1,10 @@
+PUT /rest/repos/design/projects/EPBDS-17051 HTTP/1.1
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="EPBDS-17051.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&EPBDS-17051.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

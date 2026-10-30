@@ -2401,6 +2401,7 @@ public class WorkspaceProjectService extends AbstractProjectService<RulesProject
                     return TableTargetView.builder()
                             .id(target.id())
                             .name(target.name())
+                            .dimensions(target.dimensions())
                             .module(where == null ? null : where.module())
                             .project(where == null ? null : where.projectName())
                             .projectId(where == null ? null : where.projectId())

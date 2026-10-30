@@ -1,0 +1,59 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "id": "3NAVBGJXNHTRMA2A",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "carPrice",
+      "properties": {
+        "effectiveDate": "2020-01-01T00:00:00.000"
+      },
+      "returnType": "String",
+      "signature": "carPrice(String make)",
+      "file": "EPBDS-17051/AR.xlsx",
+      "sheet": "Rules",
+      "pos": "B2:D8",
+      "dimensions": {
+        "effectiveDate": "2020-01-01T00:00:00.000",
+        "state": [
+          "AR"
+        ]
+      },
+      "overloadGroup": "carPrice(java.lang.String)",
+      "module": "Prices",
+      "project": "EPBDS-17051",
+      "projectId": "***"
+    },
+    {
+      "id": "GWEP1CXXY3W0H1Z1",
+      "tableType": "Rules",
+      "kind": "Rules",
+      "name": "carPrice",
+      "properties": {
+        "effectiveDate": "2020-07-01T10:30:00.000"
+      },
+      "returnType": "String",
+      "signature": "carPrice(String make)",
+      "file": "EPBDS-17051/AR.xlsx",
+      "sheet": "Rules",
+      "pos": "B10:D16",
+      "dimensions": {
+        "effectiveDate": "2020-07-01T10:30:00.000",
+        "state": [
+          "AR"
+        ]
+      },
+      "overloadGroup": "carPrice(java.lang.String)",
+      "module": "Prices",
+      "project": "EPBDS-17051",
+      "projectId": "***"
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 2,
+  "numberOfElements": 2,
+  "total": 2
+}

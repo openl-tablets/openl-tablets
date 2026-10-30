@@ -7,13 +7,10 @@ import java.nio.file.Path;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
-import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.studio.projects.model.tables.DataView;
 import org.openl.studio.projects.model.tables.LookupView;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
@@ -116,10 +113,10 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
     }
 
     /**
-     * Names the version the table is, when the table has more than one.
+     * Tells which version the table is, when the table has more than one: the signature the versions share and the
+     * values of the dimension properties that tell them apart.
      *
-     * <p>Only a table that shares its signature with another carries a version name; a unique table would be
-     * named by dimension properties nothing is told apart by.
+     * <p>A unique table carries neither: nothing is told apart by its dimension properties.
      */
     private void initializeVersion(SummaryTableView.Builder builder,
                                    TableSyntaxNode tsn,
@@ -132,8 +129,7 @@ public class SummaryTableReader extends TableReader<SummaryTableView, SummaryTab
             return;
         }
         builder.overloadGroup(new MethodKey(method).toString());
-        var formats = WebStudioFormats.getInstance();
-        builder.displayName(TableSyntaxNodeUtils.getTableDisplayValue(tsn, 0, overloads, formats)[INamedThing.SHORT]);
+        builder.dimensions(OpenLTableUtils.dimensionsOf(tsn.getTableProperties()));
     }
 
     /**

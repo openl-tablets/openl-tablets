@@ -30230,10 +30230,10 @@ Content-Type: application/json
           {
             "type": "object",
             "properties": {
-              "dimensionProperties": {
+              "dimensions": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": "string",
+                  "type": "object",
                   "description": "***"
                 },
                 "description": "***"
@@ -35566,8 +35566,12 @@ Content-Type: application/json
             "type": "string",
             "description": "***"
           },
-          "displayName": {
-            "type": "string",
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "***"
+            },
             "description": "***"
           },
           "errors": {
@@ -36294,6 +36298,14 @@ Content-Type: application/json
         "type": "object",
         "description": "***",
         "properties": {
+          "dimensions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "description": "***"
+            },
+            "description": "***"
+          },
           "id": {
             "type": "string",
             "description": "***"

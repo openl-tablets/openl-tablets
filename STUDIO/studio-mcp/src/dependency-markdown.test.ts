@@ -50,7 +50,7 @@ describe("table dependency formatting", () => {
       tableType: "SimpleRules",
       signature: "Double Premium(Driver driver)",
       returnType: "Double",
-      dimensionProperties: { state: "CA" },
+      dimensions: { effectiveDate: "2020-01-01T00:00:00.000", state: ["CA"] },
       dependents: ["premium-dispatcher"],
     },
   ];
@@ -110,7 +110,12 @@ describe("table dependency formatting", () => {
     expect(result).toContain("**Values preview:** `100`, `200`, `300`, + 2 more, `600`, `700`, `800`");
     expect(result).toContain("**Used by:** Driver (`driver`)");
     expect(result).toContain("**Signature:** `Double Premium(Driver driver)`");
-    expect(result).toContain("**Dimension properties:** `{\"state\":\"CA\"}`");
+    expect(result).toContain(
+      "**Dimensions:** `{\"effectiveDate\":\"2020-01-01T00:00:00.000\",\"state\":[\"CA\"]}`",
+    );
+    // a version is named by the dimensions that tell it from the others, its dates as the API answers them
+    expect(result).toContain("### Premium [effectiveDate=2020-01-01T00:00:00.000, state=CA]");
+    expect(result).toContain("Premium [effectiveDate=2020-01-01T00:00:00.000, state=CA] (`premium-ca`)");
   });
 
   it("keeps concise Markdown textual", () => {

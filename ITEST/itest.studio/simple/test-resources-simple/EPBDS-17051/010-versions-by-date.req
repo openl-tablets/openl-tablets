@@ -1,0 +1,2 @@
+GET /rest/projects/{PROJECT_ID}/tables?kind=Rules&unpaged=true HTTP/1.1
+

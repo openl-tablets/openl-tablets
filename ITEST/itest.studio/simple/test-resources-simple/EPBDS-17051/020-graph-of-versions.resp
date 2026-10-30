@@ -1,0 +1,82 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "id": "dispatcher:3NAVBGJXNHTRMA2A",
+    "kind": "Dispatcher",
+    "name": "carPrice",
+    "project": "EPBDS-17051",
+    "module": "Prices",
+    "dependencies": [
+      "3NAVBGJXNHTRMA2A",
+      "GWEP1CXXY3W0H1Z1"
+    ]
+  },
+  {
+    "id": "3NAVBGJXNHTRMA2A",
+    "tableType": "Rules",
+    "kind": "Rules",
+    "name": "carPrice",
+    "properties": {
+      "effectiveDate": "2020-01-01T00:00:00.000"
+    },
+    "file": "EPBDS-17051/AR.xlsx",
+    "pos": "B2:D8",
+    "project": "EPBDS-17051",
+    "module": "Prices",
+    "returnType": "String",
+    "signature": "carPrice(String make)",
+    "dimensions": {
+      "effectiveDate": "2020-01-01T00:00:00.000",
+      "state": [
+        "AR"
+      ]
+    }
+  },
+  {
+    "id": "GWEP1CXXY3W0H1Z1",
+    "tableType": "Rules",
+    "kind": "Rules",
+    "name": "carPrice",
+    "properties": {
+      "effectiveDate": "2020-07-01T10:30:00.000"
+    },
+    "file": "EPBDS-17051/AR.xlsx",
+    "pos": "B10:D16",
+    "project": "EPBDS-17051",
+    "module": "Prices",
+    "returnType": "String",
+    "signature": "carPrice(String make)",
+    "dimensions": {
+      "effectiveDate": "2020-07-01T10:30:00.000",
+      "state": [
+        "AR"
+      ]
+    }
+  },
+  {
+    "id": "EKACSQEDK2XZY6RT",
+    "tableType": "Datatype",
+    "kind": "Datatype",
+    "name": "Policy",
+    "file": "EPBDS-17051/AR.xlsx",
+    "pos": "B18:C21",
+    "project": "EPBDS-17051",
+    "module": "Prices",
+    "fields": [
+      {
+        "name": "number",
+        "type": "String"
+      },
+      {
+        "name": "start",
+        "type": "Date"
+      },
+      {
+        "name": "renewal",
+        "type": "Date"
+      }
+    ]
+  }
+]

@@ -21,12 +21,15 @@ import { moduleRoute } from '../../services/projectId'
 import type { ConfirmWrite } from './useOverwriteConfirm'
 import { EXERCISING_KINDS } from 'constants/tableKinds'
 import { canTargetTable, EXECUTABLE_KINDS } from '../CreateTableModal/testSkeleton'
+import { versionLabel } from '../../utils/tableVersion'
 
 const useStyles = createStyles(({ css, token }) => ({
     /** A band over the table, carrying what can be done to the table under it. */
     bar: css`
         display: flex;
         flex: none;
+        /* What exercises the table goes under the actions only where the band leaves no room beside them. */
+        flex-wrap: wrap;
         align-items: flex-start;
         gap: ${token.marginXS}px;
         padding: ${token.paddingXS}px ${token.padding}px;
@@ -57,6 +60,11 @@ const useStyles = createStyles(({ css, token }) => ({
            label, which leaves a list of names of different lengths wandering from line to line. */
         align-items: flex-start;
         gap: 2px;
+        /* It stands beside the actions and takes the rest of the band, and a long name is cut short to fit.
+           It goes under the actions only where less than a short name would fit beside them. */
+        flex: 1 1 200px;
+        min-width: 200px;
+        max-width: calc(100% - ${token.marginLG}px);
         margin-left: ${token.marginLG}px;
         line-height: 1.2;
     `,
@@ -69,12 +77,20 @@ const useStyles = createStyles(({ css, token }) => ({
         display: flex;
         align-items: center;
         gap: ${token.marginXXS}px;
+        max-width: 100%;
     `,
+    /** A name too long for the band is cut short, so the way to the rest stays in view. */
     testLink: css`
+        min-width: 0;
         height: auto;
         padding: 0;
         font-size: ${token.fontSizeSM}px;
         text-align: left;
+        & > span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     `,
     testsMore: css`
         width: 18px;
@@ -326,7 +342,7 @@ export const TableToolbar = ({
     // only saving the project carries that to the Design repository.
     const remove = () => {
         modal.confirm({
-            title: t('browser.module.remove_confirm', { table: table.displayName ?? table.name }),
+            title: t('browser.module.remove_confirm', { table: versionLabel(table.name, table.dimensions) }),
             content: t('browser.module.remove_confirm_body'),
             okButtonProps: { danger: true },
             okText: t('browser.module.remove'),
@@ -407,10 +423,11 @@ export const TableToolbar = ({
             <div className={styles.tests} data-testid={testId}>
                 <span className={styles.testsTitle}>{title}</span>
                 <div className={styles.testsLine}>
+                    {/* The whole name is told on hover, where the band cuts it short. */}
                     <Tooltip
                         title={first.project && first.projectId === undefined
                             ? t('browser.module.test_elsewhere', { project: first.project })
-                            : undefined}
+                            : label(first)}
                     >
                         <Button
                             className={styles.testLink}
@@ -477,7 +494,7 @@ export const TableToolbar = ({
             })}
             {related('table-target-tables',
                 t(targets.length > 1 ? 'browser.module.target_tables' : 'browser.module.target_table'),
-                targets, 'table-target-', target => target.name)}
+                targets, 'table-target-', target => versionLabel(target.name, target.dimensions))}
             {related('table-available-tests', t('browser.module.available_tests'), tests, 'table-test-', testLabel)}
         </div>
     )

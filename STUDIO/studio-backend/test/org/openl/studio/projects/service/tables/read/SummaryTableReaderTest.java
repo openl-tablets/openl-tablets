@@ -87,21 +87,22 @@ class SummaryTableReaderTest {
     }
 
     @Test
-    void namesEveryVersionOfATableByWhatTellsThemApart() {
+    void tellsEveryVersionOfATableByTheDimensionsThatTellThemApart() {
         var versions = tables("CarPrice");
 
-        assertEquals(List.of("CarPrice [lob=Banking]", "CarPrice [lob=Insurance]"),
-                versions.stream().map(table -> table.displayName).sorted().toList());
+        assertEquals(List.of("Banking", "Insurance"),
+                versions.stream().map(table -> ((String[]) table.dimensions.get("lob"))[0]).sorted().toList());
+        versions.forEach(table -> assertEquals(List.of("lob"), List.copyOf(table.dimensions.keySet())));
         // The versions of one table are gathered under the signature they share.
         assertEquals(List.of("CarPrice(java.lang.String)"),
                 versions.stream().map(table -> table.overloadGroup).distinct().toList());
     }
 
     @Test
-    void leavesATableThatHasNoOtherVersionUnnamed() {
+    void saysNoDimensionsOfATableThatHasNoOtherVersion() {
         var discount = tables("Discount").getFirst();
 
-        assertNull(discount.displayName);
+        assertNull(discount.dimensions);
         assertNull(discount.overloadGroup);
         assertEquals("Discount", discount.name);
     }
@@ -124,7 +125,7 @@ class SummaryTableReaderTest {
                 .filter(table -> "CarPrice".equals(table.name))
                 .toList();
 
-        assertEquals(List.of(), read.stream().map(table -> table.displayName).filter(Objects::nonNull).toList());
+        assertEquals(List.of(), read.stream().map(table -> table.dimensions).filter(Objects::nonNull).toList());
     }
 
     @Test
@@ -186,7 +187,7 @@ class SummaryTableReaderTest {
 
     private static void row(Sheet sheet, int rowIndex, String... values) {
         var row = sheet.createRow(rowIndex);
-        for (int column = 0; column < values.length; column++) {
+        for (var column = 0; column < values.length; column++) {
             if (values[column] != null) {
                 row.createCell(column + 1).setCellValue(values[column]);
             }

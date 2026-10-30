@@ -45,3 +45,27 @@ export const formatDateTime = (value?: string): string | null => {
     const date = dayjs(value)
     return date.isValid() ? date.format('ll LTS') : value
 }
+
+/** A date and time written with no time zone, as a date property of a table holds it: `2020-07-01T10:30:00.000`. */
+const LOCAL_DATE_TIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/
+
+/** Whether a value is a date and time written with no time zone. */
+export const isLocalDateTime = (value: unknown): value is string =>
+    typeof value === 'string' && LOCAL_DATE_TIME.test(value)
+
+/**
+ * Formats a date and time written with no time zone, such as a date property of a table.
+ *
+ * Such a value names a day and an hour on the calendar, not a moment, so it is never shifted to the time zone of the
+ * browser. A value at midnight holds no time of day and shows the date alone.
+ *
+ * Returns the raw string when it cannot be parsed.
+ */
+export const formatLocalDateTime = (value: string): string => {
+    const date = dayjs(value)
+    if (!date.isValid()) {
+        return value
+    }
+    const midnight = date.hour() === 0 && date.minute() === 0 && date.second() === 0
+    return date.format(midnight ? 'll' : 'll LTS')
+}

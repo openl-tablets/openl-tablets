@@ -6,9 +6,21 @@
 import type * as Types from "./types.js";
 import { formatCount, largestFitting, trimChar } from "./text.js";
 
+/**
+ * The name of a node: a version of a table adds the dimension properties that tell it from the others, as
+ * `Premium [effectiveDate=2020-01-01T00:00:00.000, state=CA]`. A node with no name has none.
+ */
+function nodeName(node: Types.TableNodeView | undefined): string | undefined {
+  if (!node?.name) return undefined;
+  const name = String(node.name).replaceAll("\n", " ");
+  const dimensions = Object.entries(("dimensions" in node && node.dimensions) || {})
+    .map(([key, value]) => `${key}=${Array.isArray(value) ? value.join(",") : String(value)}`);
+  return dimensions.length > 0 ? `${name} [${dimensions.join(", ")}]` : name;
+}
+
 function dependencyLabel(id: string, nodesById: ReadonlyMap<string, Types.TableNodeView>): string {
-  const name = nodesById.get(id)?.name;
-  return name ? `${String(name).replaceAll("\n", " ")} (\`${id}\`)` : `\`${id}\``;
+  const name = nodeName(nodesById.get(id));
+  return name ? `${name} (\`${id}\`)` : `\`${id}\``;
 }
 
 function dependencyNodesById(nodes: Types.TableNodeView[]): Map<string, Types.TableNodeView> {
@@ -280,7 +292,7 @@ function formatExecutableDiagram(
   const executableIds = new Set(executableNodes.map((node) => node.id));
   const lines = ["## Executable call graph", "", "```mermaid", "flowchart LR"];
   for (const node of executableNodes) {
-    const name = escapeMermaidLabel(node.name ?? node.id, "Unnamed table");
+    const name = escapeMermaidLabel(nodeName(node) ?? node.id, "Unnamed table");
     const kind = escapeMermaidLabel(node.kind ?? node.tableType, "Executable");
     lines.push(`  ${aliases.get(node.id)}["${name}<br/>${kind}"]`);
   }
@@ -503,13 +515,13 @@ function datatypeDetailLines(node: Types.DatatypeNodeView, nodesById: ReadonlyMa
   return lines;
 }
 
-/** What an executable table declares: its signature, its return type and its dimension properties. */
+/** What an executable table declares: its signature, its return type and the values of its dimension properties. */
 function executableDetailLines(node: Exclude<Types.TableNodeView, Types.DatatypeNodeView>): string[] {
   const lines: string[] = [];
   if (node.signature) lines.push(`- **Signature:** ${codeSpan(node.signature)}`);
   if (node.returnType) lines.push(`- **Return type:** ${codeSpan(node.returnType)}`);
-  if (node.dimensionProperties && Object.keys(node.dimensionProperties).length > 0) {
-    lines.push(`- **Dimension properties:** ${codeSpan(JSON.stringify(node.dimensionProperties))}`);
+  if (node.dimensions && Object.keys(node.dimensions).length > 0) {
+    lines.push(`- **Dimensions:** ${codeSpan(JSON.stringify(node.dimensions))}`);
   }
   return lines;
 }
@@ -519,7 +531,7 @@ function formatDependencyNodeDetail(
   nodesById: ReadonlyMap<string, Types.TableNodeView>,
   relations: DependencyRelations,
 ): string {
-  const name = String(node.name ?? node.id ?? "Unnamed table").replaceAll("\n", " ");
+  const name = nodeName(node) ?? String(node.id ?? "Unnamed table");
   const labels = (ids: string[] | undefined): string => ids?.map((id) => dependencyLabel(id, nodesById)).join(", ") || "None";
   const lines = [
     `### ${name}`,
@@ -603,7 +615,7 @@ function highestFanOutLines(executableNodes: Types.TableNodeView[], executableLi
     .filter((node) => fanOutOf(node) > 0)
     .toSorted((left, right) => fanOutOf(right) - fanOutOf(left))
     .slice(0, 3)
-    .map((node) => `${node.name ?? node.id ?? "unnamed"} (${formatCount(fanOutOf(node), "dependency", "dependencies")})`);
+    .map((node) => `${nodeName(node) ?? node.id ?? "unnamed"} (${formatCount(fanOutOf(node), "dependency", "dependencies")})`);
   return highestFanOut.length > 0 ? [`Highest executable fan-out: ${highestFanOut.join(", ")}.`] : [];
 }
 
