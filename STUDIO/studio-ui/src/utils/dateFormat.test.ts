@@ -1,6 +1,6 @@
 import 'dayjs/locale/en-gb'
 import i18next from 'i18next'
-import { formatDate, formatDateTime, formatLocalDateTime, isLocalDateTime } from './dateFormat'
+import { commentMoment, formatDate, formatDateTime, formatLocalDateTime, isLocalDateTime } from './dateFormat'
 
 describe('dateFormat', () => {
     it('expands the localized date-time pattern', () => {
@@ -59,6 +59,34 @@ describe('dateFormat', () => {
 
     it('returns the raw string when a date and time written with no time zone cannot be parsed', () => {
         expect(formatLocalDateTime('not-a-date')).toBe('not-a-date')
+    })
+
+    it('names the moment of a commit comment in UTC to the second, whatever the zone it is given in', () => {
+        expect(commentMoment('2020-06-23T00:02:42.517+03:00')).toBe('2020-06-22T21:02:42Z')
+        expect(commentMoment(undefined)).toBe('')
+        expect(commentMoment('not-a-date')).toBe('')
+    })
+
+    it('names the moment of a commit comment in the Java pattern the template gives, in UTC', () => {
+        const moment = '2020-06-23T00:02:42.517+03:00'
+        expect(commentMoment(moment, 'yyyy-MM-dd HH:mm')).toBe('2020-06-22 21:02')
+        expect(commentMoment(moment, "dd.MM.yy 'at' h:mm a")).toBe('22.06.20 at 9:02 PM')
+        expect(commentMoment(moment, "yyyy-MM-dd'T'HH:mm:ss.SSS")).toBe('2020-06-22T21:02:42.517')
+        expect(commentMoment(moment, 'EEE, d MMM yyyy')).toBe('Mon, 22 Jun 2020')
+    })
+
+    it('writes the letters the server writes, and text in quotes, as the server does', () => {
+        const moment = '2020-06-22T21:02:42.517Z'
+        expect(commentMoment(moment, "EEE, d MMM yyyy h:mm:ss.SSS a 'o''clock'''"))
+            .toBe("Mon, 22 Jun 2020 9:02:42.517 PM o'clock'")
+        expect(commentMoment(moment, 'ss.S|ss.SS')).toBe('42.5|42.51')
+    })
+
+    it('writes the moment in ISO 8601 for a pattern of letters the server does not write', () => {
+        const moment = '2020-06-22T21:02:42.517Z'
+        for (const pattern of ['HH:mm z', 'D', 'hh aa', "yyyy 'year"]) {
+            expect(commentMoment(moment, pattern)).toBe('2020-06-22T21:02:42Z')
+        }
     })
 
     it('follows the application language', () => {

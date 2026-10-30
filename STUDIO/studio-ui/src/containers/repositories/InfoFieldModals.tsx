@@ -136,7 +136,11 @@ export const MessageRestoreFromOldVersionModal = (
                 <ul>
                     <li>&#123;revision&#125; is replaced by old revision number.</li>
                     <li>&#123;author&#125; is replaced by the author of old project version.</li>
-                    <li>&#123;datetime&#125; is replaced by the date of old project version.</li>
+                    <li>
+                        &#123;datetime&#125; is replaced by the moment the old project version was saved, in UTC:
+                        2026-10-29T18:20:19Z. &#123;datetime:yyyy-MM-dd HH:mm&#125; writes it in the pattern after
+                        the colon instead, also in UTC.
+                    </li>
                 </ul>
             </>
         )}

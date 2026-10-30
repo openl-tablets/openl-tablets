@@ -183,13 +183,20 @@ describe('SaveProjectModal', () => {
 
     it('starts from the restore template when the project is opened on an older revision', async () => {
         vi.mocked(getRepositoryConfig).mockResolvedValue({
-            comment: { templates: { restoreFrom: 'Restored from {revision} by {author}' } },
+            comment: { templates: { restoreFrom: 'Restored from {revision} by {author} at {datetime}' } },
         })
-        const viewing = { ...project as object, status: 'VIEWING_VERSION', revision: 'abc123', modifiedBy: 'john' } as never
+        const viewing = {
+            ...project as object,
+            status: 'VIEWING_VERSION',
+            revision: 'abc123',
+            modifiedBy: 'john',
+            modifiedAt: '2020-06-23T00:02:42.517+03:00',
+        } as never
         render(<SaveProjectModal open onClose={vi.fn()} onSaved={vi.fn()} project={viewing} />)
 
+        // The comment is stored text, so its moment is written in UTC, as the server writes it.
         await waitFor(() => expect(screen.getByTestId<HTMLTextAreaElement>('save-project-comment').value)
-            .toBe('Restored from abc123 by john'))
+            .toBe('Restored from abc123 by john at 2020-06-22T21:02:42Z'))
     })
 
     it('refuses a comment the repository pattern forbids', async () => {

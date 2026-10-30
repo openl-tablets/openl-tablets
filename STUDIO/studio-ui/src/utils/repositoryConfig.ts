@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import type { RepositoryConfig } from '../types/repositories'
+import { commentMoment } from './dateFormat'
 
 /** The server rejects longer comments (`CommentValidator.MAX_COMMENT_LENGTH`). */
 const MAX_COMMENT_LENGTH = 255
@@ -15,18 +16,22 @@ const BRANCH_NAME_RESTRICTED = /[^\p{L}\p{Nd}\-$]/gu
 // class carries no duplicate characters while matching exactly the same set of characters.
 const INVALID_BRANCH_CHARACTERS = /[\u0000-\u0008\u000E-\u001F\u007F\s\\~^:?*[\]{}"<>|]/u
 
+/** `{datetime}` of a template, or `{datetime:<pattern>}` naming the pattern the moment is written in. */
+const DATETIME = /\{datetime(?::([^}]*))?\}/g
+
 interface TemplateValues {
     projectName?: string | undefined
     username?: string | undefined
     revision?: string | undefined
     author?: string | undefined
+    /** The moment of the restored revision, as the server answers it; the template says how it is written. */
     datetime?: string | undefined
 }
 
 /**
  * Fills a repository template — `{project-name}`, `{username}`, `{current-date}`, and, for a restored
- * revision, `{revision}`, `{author}` and `{datetime}` — the way the server does when it generates the
- * value itself.
+ * revision, `{revision}`, `{author}` and `{datetime}`, or `{datetime:<pattern>}` — the way the server does when it
+ * generates the value itself.
  */
 export const applyTemplate = (template: string | undefined, values: TemplateValues): string => {
     if (!template) {
@@ -38,7 +43,7 @@ export const applyTemplate = (template: string | undefined, values: TemplateValu
         .replaceAll('{current-date}', dayjs().format('YYYYMMDD'))
         .replaceAll('{revision}', values.revision ?? '')
         .replaceAll('{author}', values.author ?? '')
-        .replaceAll('{datetime}', values.datetime ?? '')
+        .replaceAll(DATETIME, (_, pattern?: string) => commentMoment(values.datetime, pattern))
 }
 
 /** The branch name the repository suggests for a new branch of this project. */

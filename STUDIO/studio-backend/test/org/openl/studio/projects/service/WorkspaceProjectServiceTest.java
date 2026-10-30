@@ -3410,7 +3410,6 @@ class WorkspaceProjectServiceTest {
 
     private static Environment environment() {
         var environment = mock(Environment.class);
-        when(environment.getProperty("data.format.datetime")).thenReturn("yyyy-MM-dd HH:mm:ss");
         when(environment.getProperty("repository.design.comment-template.user-message.default.save"))
                 .thenReturn("Save {project-name}");
         when(environment.getProperty("repository.design.comment-template.user-message.default.restored-from"))

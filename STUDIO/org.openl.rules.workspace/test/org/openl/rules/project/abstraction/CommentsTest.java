@@ -3,9 +3,8 @@ package org.openl.rules.project.abstraction;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,21 +18,18 @@ class CommentsTest {
 
     @BeforeEach
     void setUp() {
-        var dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         var saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
         var createProjectTemplate = "Project {username} {project-name} is created. {foo}";
         var copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
         var restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
         var newBranchNameTemplate = "{project-name}/{username}/{current-date} {foo}";
-        comments = new Comments(dateTimeFormat,
-                saveProjectTemplate,
+        comments = new Comments(saveProjectTemplate,
                 createProjectTemplate,
                 copiedFromTemplate,
                 restoredFromTemplate,
                 newBranchNameTemplate);
 
-        comments2 = new Comments(dateTimeFormat,
-                TEMPLATE,
+        comments2 = new Comments(TEMPLATE,
                 TEMPLATE,
                 TEMPLATE,
                 TEMPLATE,
@@ -101,20 +97,61 @@ class CommentsTest {
 
     @Test
     void testRestoredFrom() {
-        var date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        var date = Date.from(Instant.parse("2020-06-22T21:02:42.517Z"));
         var actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
         assertEquals(
-                "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+                "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 2020-06-22T21:02:42Z. {foo}",
                 actual);
     }
 
     @Test
     void testRestoredFromWithDollarSign() {
-        var date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        var date = Date.from(Instant.parse("2020-06-22T21:02:42.517Z"));
         var actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
         assertEquals(
-                "Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+                "Project {username} $$$12$$3$ is restored-from. Author: john, date: 2020-06-22T21:02:42Z. {foo}",
                 actualWithSymbol);
+    }
+
+    @Test
+    void writesTheMomentInThePatternTheTemplateNames() {
+        var date = Date.from(Instant.parse("2020-06-22T21:02:42.517Z"));
+        var patterned = new Comments("save", "create", "copied",
+                "{revision} of {datetime:yyyy-MM-dd HH:mm}, at {datetime:HH:mm:ss}, as {datetime}", "branch");
+
+        // in UTC, whatever the pattern, so the comment depends on no time zone
+        assertEquals("r1 of 2020-06-22 21:02, at 21:02:42, as 2020-06-22T21:02:42Z",
+                patterned.restoredFrom("r1", "john", date));
+    }
+
+    @Test
+    void writesTheLettersTheScreenWritesAndTextInQuotes() {
+        var date = Date.from(Instant.parse("2020-06-22T21:02:42.517Z"));
+        var patterned = new Comments("save", "create", "copied",
+                "{datetime:EEE, d MMM yyyy h:mm:ss.SSS a 'o''clock'''}", "branch");
+
+        assertEquals("Mon, 22 Jun 2020 9:02:42.517 PM o'clock'", patterned.restoredFrom("r1", "john", date));
+    }
+
+    @Test
+    void writesTheMomentInIsoForAPatternOfLettersTheScreenDoesNotWrite() {
+        var date = Date.from(Instant.parse("2020-06-22T21:02:42.517Z"));
+        // a zone, a day of the year, two day periods and a text no quote closes
+        var others = new Comments("save", "create", "copied",
+                "{datetime:HH:mm z}|{datetime:D}|{datetime:hh aa}|{datetime:yyyy 'year}", "branch");
+
+        assertEquals("2020-06-22T21:02:42Z|2020-06-22T21:02:42Z|2020-06-22T21:02:42Z|2020-06-22T21:02:42Z",
+                others.restoredFrom("r1", "john", date));
+    }
+
+    @Test
+    void writesTheMomentInIsoForAPatternThatIsNoPattern() {
+        var date = Date.from(Instant.parse("2020-06-22T21:02:42Z"));
+        var broken = new Comments("save", "create", "copied", "{datetime:bbb}|{datetime:}|{datetime}", "branch");
+
+        assertEquals("2020-06-22T21:02:42Z|2020-06-22T21:02:42Z|2020-06-22T21:02:42Z",
+                broken.restoredFrom("r1", "john", date));
+        assertEquals("||", broken.restoredFrom("r1", "john", null));
     }
 
     @Test
