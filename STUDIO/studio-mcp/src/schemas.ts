@@ -175,7 +175,7 @@ export const getTableDependenciesSchema = z.strictObject({
   tableId: tableIdSchema.optional().describe("Optional table whose dependency neighborhood to return. Omit to return the whole project (or module) graph."),
   module: nonBlankString.optional().describe("When tableId is omitted, limit the project graph to this module. Discover names with openl_list_project_modules()."),
   layer: z.enum(["executable", "datatype", "all"]).optional().describe("When tableId is omitted, return executable tables, datatype/vocabulary nodes, or both (backend default all)."),
-  direction: z.enum(["DEPENDENCIES", "DEPENDENTS", "BOTH"]).optional().describe("When tableId is provided, relations to traverse (backend default BOTH)."),
+  direction: z.enum(["DEPENDENCIES", "DEPENDENTS", "BOTH"]).optional().describe("When tableId is provided, relations to traverse. Default BOTH: the tables it calls and the tables calling it."),
   depth: z.number().int().min(1).optional().describe("When tableId is provided, maximum traversal depth from that table."),
   response_format: ResponseFormat,
 }).superRefine((value, ctx) => {

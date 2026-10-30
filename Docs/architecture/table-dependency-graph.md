@@ -11,8 +11,9 @@ Two endpoints return the graph, both as a flat list of nodes that reference each
   dependencies only. `?layer=` returns one layer of the graph on its own: `executable` for the callable tables,
   `datatype` for the data model, `all` (the default) for both.
 - `GET /projects/{projectId}/tables/{tableId}/graph` — the neighbourhood of one table, following `direction`
-  (`DEPENDENCIES`, `DEPENDENTS`, `BOTH`) up to an optional `depth`. It needs no layer: the root already decides one,
-  because neither layer links to the other.
+  (`DEPENDENCIES`, `DEPENDENTS`, `BOTH`) up to an optional `depth`. `BOTH` joins the other two: what the table
+  depends on and what depends on it, never the other callers of a table it calls. It needs no layer: the root
+  already decides one, because neither layer links to the other.
 
 The list is a graph, not a tree: it carries cycles, recursion (a node listing its own id) and shared nodes
 faithfully. Cycles are derived by walking the edges; there is no separate cycles payload.

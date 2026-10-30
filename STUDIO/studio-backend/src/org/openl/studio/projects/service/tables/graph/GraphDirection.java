@@ -18,7 +18,7 @@ public enum GraphDirection {
     DEPENDENTS,
 
     /**
-     * Both downstream and upstream relations.
+     * Both relations of the root table: the tables it depends on and the tables that depend on it.
      */
     BOTH;
 

@@ -476,10 +476,19 @@ public class ProjectTablesGraphService {
         }));
     }
 
+    /**
+     * Returns the root and the tables reachable from it. In both directions these are the tables the root depends on
+     * and the tables that depend on the root, never the other callers of a table the root calls.
+     */
     private Set<String> reachable(Map<String, RawNode> nodes,
                                   String rootTableId,
                                   GraphDirection direction,
                                   @Nullable Integer maxDepth) {
+        if (direction == GraphDirection.BOTH) {
+            var both = reachable(nodes, rootTableId, GraphDirection.DEPENDENCIES, maxDepth);
+            both.addAll(reachable(nodes, rootTableId, GraphDirection.DEPENDENTS, maxDepth));
+            return both;
+        }
         var visited = new LinkedHashSet<String>();
         if (!nodes.containsKey(rootTableId)) {
             return visited;
