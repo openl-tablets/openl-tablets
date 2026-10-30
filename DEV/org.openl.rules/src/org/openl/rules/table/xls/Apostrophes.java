@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
@@ -82,7 +81,7 @@ public final class Apostrophes {
     /** The style alike the given one but for the apostrophe. */
     private CellStyle twinOf(CellStyle style, boolean quoted, Workbook workbook) {
         var content = contentOf(style);
-        var known = twins.get(indexOf(style));
+        var known = twins.get(PoiExcelHelper.indexOf(style));
         // The styles of a workbook are renumbered when the unused ones are removed: a style taken before is checked.
         if (known != null && known < workbook.getNumCellStyles()) {
             var twin = workbook.getCellStyleAt(known);
@@ -91,14 +90,9 @@ public final class Apostrophes {
             }
         }
         var twin = find(style, content, quoted, workbook);
-        twins.put(indexOf(style), indexOf(twin));
-        twins.put(indexOf(twin), indexOf(style));
+        twins.put(PoiExcelHelper.indexOf(style), PoiExcelHelper.indexOf(twin));
+        twins.put(PoiExcelHelper.indexOf(twin), PoiExcelHelper.indexOf(style));
         return twin;
-    }
-
-    /** The index of a style: an {@code .xlsx} workbook holds more styles than a signed {@code short} counts. */
-    private static int indexOf(CellStyle style) {
-        return Short.toUnsignedInt(style.getIndex());
     }
 
     /** The style the workbook holds alike the given one but for the apostrophe, or a new one. */
@@ -109,23 +103,7 @@ public final class Apostrophes {
                 return candidate;
             }
         }
-        return copyOf(style, quoted, workbook);
-    }
-
-    /** A new style alike the given one but for the apostrophe. */
-    private static CellStyle copyOf(CellStyle style, boolean quoted, Workbook workbook) {
-        if (style instanceof XSSFCellStyle xssf && workbook instanceof XSSFWorkbook xlsx) {
-            // POI's cloneStyleFrom rewrites the last named style of an .xlsx workbook too: the cell format is copied.
-            var xf = (CTXf) xssf.getCoreXf().copy();
-            if (quoted) {
-                xf.setQuotePrefix(true);
-            } else if (xf.isSetQuotePrefix()) {
-                xf.unsetQuotePrefix();
-            }
-            return xlsx.getCellStyleAt(xlsx.getStylesSource().putCellXf(xf) - 1);
-        }
-        var copy = workbook.createCellStyle();
-        copy.cloneStyleFrom(style);
+        var copy = PoiExcelHelper.copyStyle(style, workbook);
         copy.setQuotePrefixed(quoted);
         return copy;
     }

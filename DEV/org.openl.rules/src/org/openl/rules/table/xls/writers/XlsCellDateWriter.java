@@ -19,12 +19,8 @@ public class XlsCellDateWriter extends AXlsCellWriter {
         var dateValue = (Date) getValueToWrite();
         PoiExcelHelper.setDate(getCellToWrite(), dateValue);
 
-        var previousStyle = getCellToWrite().getCellStyle();
-        getCellToWrite().setCellStyle(
-                PoiExcelHelper.createCellStyle(getXlsSheetGridModel().getSheetSource().getSheet().getWorkbook()));
-        getCellToWrite().getCellStyle().cloneStyleFrom(previousStyle);
-        getCellToWrite().getCellStyle()
-                .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
+        PoiExcelHelper.setCellDataFormat(getCellToWrite(),
+                BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
     }
 
 }

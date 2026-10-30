@@ -71,8 +71,7 @@ final class Styles {
 
     CellStyle getDateStyle(Workbook workbook, CellStyle original) {
         return dateStyles.computeIfAbsent(original, style -> {
-            var dateStyle = PoiExcelHelper.createCellStyle(workbook);
-            dateStyle.cloneStyleFrom(style);
+            var dateStyle = PoiExcelHelper.copyStyle(style, workbook);
             dateStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
             return dateStyle;
         });

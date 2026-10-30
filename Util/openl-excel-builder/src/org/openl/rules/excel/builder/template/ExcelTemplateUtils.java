@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -32,8 +34,9 @@ import org.openl.rules.excel.builder.template.row.SpreadsheetTableRowStyleImpl;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.formatters.FormatConstants;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
-public class ExcelTemplateUtils {
+public final class ExcelTemplateUtils {
 
     public static final byte LEFT_MARGIN = 1;
     public static final byte TOP_MARGIN = 2;
@@ -43,9 +46,6 @@ public class ExcelTemplateUtils {
     public static final short DATE_TIME_FORMAT = (short) BuiltinFormats.getBuiltinFormat("m/d/yy h:mm");
     public static final short DATE_FORMAT = (short) BuiltinFormats
             .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT);
-
-    private ExcelTemplateUtils() {
-    }
 
     public static SXSSFWorkbook getTemplate() throws IOException {
         var classLoader = ExcelTemplateUtils.class.getClassLoader();
@@ -322,8 +322,6 @@ public class ExcelTemplateUtils {
     }
 
     private static CellStyle copyStyle(Workbook targetWorkbook, CellStyle style) {
-        CellStyle targetFieldStyle = PoiExcelHelper.createCellStyle(targetWorkbook);
-        targetFieldStyle.cloneStyleFrom(style);
-        return targetFieldStyle;
+        return PoiExcelHelper.copyStyle(style, targetWorkbook);
     }
 }

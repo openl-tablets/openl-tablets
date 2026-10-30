@@ -262,12 +262,8 @@ public class TableBuilder {
      * @param cell Cell with value in it.
      */
     private CellStyle getDateCellStyle(Cell cell) {
-        var previousStyle = cell.getCellStyle();
-        cell.setCellStyle(PoiExcelHelper.createCellStyle(cell.getSheet().getWorkbook()));
-        cell.getCellStyle().cloneStyleFrom(previousStyle);
-        cell.getCellStyle()
-                .setDataFormat((short) BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
-        return cell.getCellStyle();
+        return PoiExcelHelper.setCellDataFormat(cell,
+                BuiltinFormats.getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT));
     }
 
     /**
