@@ -19,6 +19,10 @@ annotation.
   `repo.param.branch-name.desc`, `header.location.desc`) instead of duplicating.
 - **Descriptions use CommonMark.** Backticks, lists, and `\n` line breaks are allowed (see the file header).
 - **`@Tag(description=…)` stays literal** — tag descriptions are not externalized anywhere in this module.
+- **An `@ApiResponse` carries its code and description key only.** The generator takes the response schema from the
+  return type of the method and the media type from the `produces` of the class-level `@RequestMapping`, so a
+  `content = @Content(mediaType = …, schema = @Schema(implementation = …))` repeating them is noise. Declare the media
+  type once, on the class; name `content` only where neither the return type nor the class tells it.
 - **Model field descriptions are literal**, NOT keys — see below. The key convention is for the endpoint surface only.
 
 ## `@Parameter` vs `@Schema` on Model Fields
