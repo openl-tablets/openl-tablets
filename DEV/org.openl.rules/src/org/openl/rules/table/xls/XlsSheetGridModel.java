@@ -519,15 +519,12 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         var sheet = getSheetToWrite();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
         CellStyle newPoiStyle;
-        CellStyle styleToClone;
 
         if (style instanceof XlsCellStyle cellStyle) {
             newPoiStyle = cellStyle.getXlsStyle();
             newPoiStyle.cloneStyleFrom(newPoiStyle);
         } else {
-            newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
-            styleToClone = poiCell.getCellStyle();
-            newPoiStyle.cloneStyleFrom(styleToClone);
+            newPoiStyle = PoiExcelHelper.cloneStyleFrom(poiCell);
         }
 
         poiCell.setCellStyle(newPoiStyle);
@@ -544,9 +541,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         }
         var sheet = getSheetToWrite();
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        CellStyle newPoiStyle = PoiExcelHelper.createCellStyle(sheet.getWorkbook());
-
-        newPoiStyle.cloneStyleFrom(poiCell.getCellStyle());
+        CellStyle newPoiStyle = PoiExcelHelper.cloneStyleFrom(poiCell);
 
         if (style.getBorderStyle() != null) {
             var borderStyle = style.getBorderStyle();

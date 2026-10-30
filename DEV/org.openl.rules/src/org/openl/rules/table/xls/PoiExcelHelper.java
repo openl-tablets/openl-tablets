@@ -15,6 +15,7 @@ import org.apache.poi.hssf.usermodel.HSSFOptimiser;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -36,6 +37,7 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jspecify.annotations.Nullable;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTColor;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTXf;
 
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
@@ -194,9 +196,59 @@ public final class PoiExcelHelper {
     }
 
     public static CellStyle cloneStyleFrom(Cell cell) {
-        var newStyle = createCellStyle(cell.getSheet().getWorkbook());
-        newStyle.cloneStyleFrom(cell.getCellStyle());
-        return newStyle;
+        return copyStyle(cell.getCellStyle(), cell.getSheet().getWorkbook());
+    }
+
+    /**
+     * Gives a cell a style of its own, alike the one it has but for the number format.
+     *
+     * @param cell   the cell
+     * @param format the index of a built-in number format
+     * @return the style the cell takes
+     */
+    public static CellStyle setCellDataFormat(Cell cell, int format) {
+        var style = cloneStyleFrom(cell);
+        style.setDataFormat((short) format);
+        cell.setCellStyle(style);
+        return style;
+    }
+
+    /**
+     * Makes a new style of a workbook alike the given one.
+     *
+     * <p>A style of the same {@code .xlsx} workbook is copied by its cell format alone. Apache POI's
+     * {@link CellStyle#cloneStyleFrom} would also rewrite the last named style of the workbook with the named style of
+     * the copied one. A style of another workbook is cloned with its font, fill and borders.
+     *
+     * @param style    the style to copy
+     * @param workbook the workbook the copy is made in
+     * @return the new style
+     * @throws IllegalStateException when the workbook holds as many styles as Excel allows
+     */
+    public static CellStyle copyStyle(CellStyle style, Workbook workbook) {
+        if (style instanceof XSSFCellStyle xssf && workbook instanceof XSSFWorkbook xlsx && isOf(xssf, xlsx)) {
+            var max = SpreadsheetVersion.EXCEL2007.getMaxCellStyles();
+            if (workbook.getNumCellStyles() >= max) {
+                throw new IllegalStateException("The maximum number of " + max + " cell styles was exceeded");
+            }
+            var styles = xlsx.getStylesSource();
+            return xlsx.getCellStyleAt(styles.putCellXf((CTXf) xssf.getCoreXf().copy()) - 1);
+        }
+        CellStyle copy = createCellStyle(workbook);
+        copy.cloneStyleFrom(style);
+        return copy;
+    }
+
+    /** Whether a style is one of the workbook: the cell format the workbook holds at its index is its own. */
+    private static boolean isOf(XSSFCellStyle style, XSSFWorkbook workbook) {
+        var index = indexOf(style);
+        return index < workbook.getNumCellStyles() && workbook.getStylesSource().getCellXfAt(index) == style
+                .getCoreXf();
+    }
+
+    /** The index of a style: an {@code .xlsx} workbook holds more styles than a signed {@code short} counts. */
+    static int indexOf(CellStyle style) {
+        return Short.toUnsignedInt(style.getIndex());
     }
 
     public static Font getCellFont(@Nullable Cell cell) {
