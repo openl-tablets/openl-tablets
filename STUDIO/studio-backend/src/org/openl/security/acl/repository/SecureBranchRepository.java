@@ -19,6 +19,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.repository.api.UserInfo;
 
 public class SecureBranchRepository extends SecureRepository implements BranchRepository {
@@ -43,6 +44,19 @@ public class SecureBranchRepository extends SecureRepository implements BranchRe
             return branchRepository.getMergeScope(from, to);
         }
         throw new AccessDeniedException("There is no permission for the action.");
+    }
+
+    /**
+     * Tells the changes under a folder to a user who may read the folder, as its history is told. The folder is
+     * named by its path from the root of the repository, which is the path its permissions are kept under.
+     */
+    @Override
+    public RevisionChanges listChanges(String path, @Nullable String from, String to) throws IOException {
+        if (simpleRepositoryAclService.isGranted(getId(), path, List.of(BasePermission.READ))) {
+            return branchRepository.listChanges(path, from, to);
+        }
+        throw new AccessDeniedException(
+                "There is no permission for reading '%s' from '%s' repository.".formatted(path, getName()));
     }
 
     @Override

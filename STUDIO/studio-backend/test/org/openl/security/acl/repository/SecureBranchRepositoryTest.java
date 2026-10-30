@@ -21,8 +21,10 @@ import org.springframework.security.acls.domain.BasePermission;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.BranchTreeRevision;
 import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeScope;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
@@ -65,6 +67,22 @@ class SecureBranchRepositoryTest {
     void refusesTheScopeOfAMergeWithoutRepositoryReadPermission() throws Exception {
         assertThrows(AccessDeniedException.class, () -> repository.getMergeScope("feature", "main"));
         verify(delegate, never()).getMergeScope("feature", "main");
+    }
+
+    @Test
+    void tellsTheChangesUnderAFolderTheUserMayRead() throws Exception {
+        var changes = new RevisionChanges(new FileData(), new FileData(), List.of());
+        when(aclService.isGranted(REPOSITORY_ID, "DESIGN/rules/Project", List.of(BasePermission.READ)))
+                .thenReturn(true);
+        when(delegate.listChanges("DESIGN/rules/Project", null, "after")).thenReturn(changes);
+
+        assertSame(changes, repository.listChanges("DESIGN/rules/Project", null, "after"));
+    }
+
+    @Test
+    void refusesTheChangesUnderAFolderTheUserMayNotRead() throws Exception {
+        assertThrows(AccessDeniedException.class, () -> repository.listChanges("DESIGN/rules/Project", null, "after"));
+        verify(delegate, never()).listChanges("DESIGN/rules/Project", null, "after");
     }
 
     @Test

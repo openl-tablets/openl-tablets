@@ -373,6 +373,42 @@ describe('ComparePage', () => {
         expect(screen.queryByTestId('revision-picker')).toBeNull()
     })
 
+    it('compares a workbook a revision added with an empty one, which nothing is read for', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', file: 'rules/New.xlsx', branch: 'main', after: 'a1', change: 'added' })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/New.xlsx', absent: true },
+            { path: 'rules/New.xlsx', branch: 'main', revision: 'a1' }))
+    })
+
+    it('compares a workbook a revision deleted with an empty one after it', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1', file: 'rules/Old.xlsx', branch: 'main', before: 'b1', after: 'a1', change: 'deleted',
+        })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Old.xlsx', branch: 'main', revision: 'b1' },
+            { path: 'rules/Old.xlsx', absent: true }))
+    })
+
+    it('reads a text file a revision added as empty before it, and one it deleted as empty after it', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', file: 'notes.txt', before: 'b1', after: 'a1', change: 'added' })
+        vi.mocked(getFileText).mockResolvedValue('new text')
+
+        openPage()
+
+        fireEvent.click(screen.getByTestId('text-versions'))
+        await waitFor(() => expect(getFileText).toHaveBeenCalledWith('p1', 'notes.txt', 'a1'))
+        // The earlier revision does not hold the file, so it is not asked for.
+        expect(getFileText).toHaveBeenCalledTimes(1)
+    })
+
     it('compares a workbook at its saved revision with the working copy when no later revision is named', async () => {
         searchParams = new URLSearchParams({ projectId: 'p1', file: 'rules/Main.xlsx', branch: 'main', before: 'r7' })
         vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')

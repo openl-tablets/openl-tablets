@@ -61,9 +61,12 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.CorruptObjectException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.NoRemoteRepositoryException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.hooks.PrePushHook;
@@ -132,6 +135,7 @@ import org.openl.rules.repository.api.MergePublishing;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.MergedWorkbook;
 import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
@@ -2404,7 +2408,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             // report a published merge as failed.
             outcome = new MergeOutcome(before.getName(),
                     after.getName(),
-                    changesBetween(repository, before, after),
+                    changesBetween(repository, before, after, ""),
                     workbooks);
 
             pull(null, author);
@@ -2446,6 +2450,62 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             readLock.unlock();
             log.debug("getMergeScope(): unlock");
         }
+    }
+
+    @Override
+    public RevisionChanges listChanges(String path, @Nullable String from, String to) throws IOException {
+        initializeGit(true);
+
+        var readLock = repositoryLock.readLock();
+        try {
+            log.debug("listChanges(): lock");
+            readLock.lock();
+            var repository = git().getRepository();
+            try (var walk = new RevWalk(repository)) {
+                var later = commitOf(walk, to);
+                var earlier = from == null ? firstParentOf(walk, later) : commitOf(walk, from);
+                return new RevisionChanges(earlier == null ? null : revisionOf(path, earlier),
+                        revisionOf(path, later),
+                        changesBetween(repository, earlier, later, path));
+            }
+        } finally {
+            readLock.unlock();
+            log.debug("listChanges(): unlock");
+        }
+    }
+
+    /** A commit of the folder as its history lists it, read when it is first asked about. */
+    private FileData revisionOf(String path, RevCommit commit) {
+        return new LazyFileData(branch, path, this, commit, null);
+    }
+
+    /**
+     * The commit a revision names: a commit id, or a tag the history names a revision by.
+     *
+     * @throws FileNotFoundException when the revision names no commit of the repository: no object at all, one that
+     *                               is not a commit, or a name no reference can carry
+     */
+    private RevCommit commitOf(RevWalk walk, String revision) throws IOException {
+        if (ObjectId.isId(revision) || Repository.isValidRefName(Constants.R_REFS + revision)) {
+            try {
+                var commitId = getCommitByVersion(revision);
+                if (commitId != null) {
+                    return walk.parseCommit(commitId);
+                }
+            } catch (MissingObjectException | IncorrectObjectTypeException | AmbiguousObjectException
+                     | RevisionSyntaxException e) {
+                log.debug("Revision '{}' names no commit.", revision, e);
+            }
+        }
+        throw new FileNotFoundException("Cannot find revision '%s'.".formatted(revision));
+    }
+
+    /**
+     * The commit the given one was made on: for a merge, the branch the merge went into. A commit made on nothing has
+     * none. It is read whole, so its author and message can be told.
+     */
+    private static @Nullable RevCommit firstParentOf(RevWalk walk, RevCommit commit) throws IOException {
+        return commit.getParentCount() == 0 ? null : walk.parseCommit(commit.getParent(0));
     }
 
     /**
@@ -2523,13 +2583,20 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     }
 
     /**
-     * The files the second commit changes against the first one, compared tree against tree.
+     * The files under a folder the second commit changes against the first one, compared tree against tree.
+     *
+     * @param from the first commit, or {@code null} for an empty tree
+     * @param path the folder, or an empty path for the whole tree
      */
     private static List<FileChange> changesBetween(Repository repository,
-                                                  ObjectId from,
-                                                  ObjectId to) throws IOException {
+                                                  @Nullable ObjectId from,
+                                                  ObjectId to,
+                                                  String path) throws IOException {
         try (var treeWalk = new TreeWalk(repository)) {
             walkDiffering(treeWalk, repository, from, to);
+            if (!path.isEmpty()) {
+                treeWalk.setFilter(AndTreeFilter.create(PathFilter.create(path), FIRST_TWO_DIFFER));
+            }
             var changes = new ArrayList<FileChange>();
             while (treeWalk.next()) {
                 changes.add(new FileChange(treeWalk.getPathString(), changeKindOf(treeWalk, 0, 1)));

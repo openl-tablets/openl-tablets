@@ -55,16 +55,16 @@ public class HistoryRepositoryMapper {
             pageable = Pageable.unpaged();
             history = repository.listHistory(name);
         }
-        var mappedHistory = history.stream().map(this::mapProjectRevision).collect(Collectors.toList());
+        var mappedHistory = history.stream().map(this::revisionOf).collect(Collectors.toList());
         Collections.reverse(mappedHistory);
         if (pageable.isUnpaged()) {
             return new PageResponse<>(mappedHistory, -1, mappedHistory.size());
-        } else {
-            return new PageResponse<>(mappedHistory, pageable.getPageNumber(), pageable.getPageSize());
         }
+        return new PageResponse<>(mappedHistory, pageable.getPageNumber(), pageable.getPageSize());
     }
 
-    private ProjectRevision mapProjectRevision(FileData src) {
+    /** A revision of the history as the REST API tells it. */
+    public ProjectRevision revisionOf(FileData src) {
         var userInfo = new UserInfoModel();
         var author = src.getAuthor();
         userInfo.setEmail(author != null ? author.getEmail() : null);

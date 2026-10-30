@@ -50,6 +50,11 @@ export const ChangesHeader: React.FC<ChangesHeaderProps> = ({ name, count, child
 interface FileComparison<T extends ProjectFileChange> {
     hint: string
     open: (file: T) => void
+    /**
+     * Whether an added or a deleted file is offered Compare too, against nothing on the side that does not hold it;
+     * only a modified file is otherwise.
+     */
+    everyFile?: boolean | undefined
 }
 
 interface ChangedFileListProps<T extends ProjectFileChange> {
@@ -60,19 +65,25 @@ interface ChangedFileListProps<T extends ProjectFileChange> {
     compare?: FileComparison<T> | undefined
     /** What a file tells under its row. */
     details?: ((file: T) => React.ReactNode) | undefined
+    /**
+     * Whether the list scrolls within {@link LIST_HEIGHT}, drawing a screenful at a time; on by default. A list shown a
+     * page at a time is short, so it is drawn whole.
+     */
+    virtual?: boolean | undefined
 }
 
 /**
  * The files a change touches, each named by its path after the icon that marks it added, modified or deleted.
  *
  * A modified file offers Compare at the end of its row, which stays in sight however long the path is. An added or a
- * deleted file has one version only, so it has nothing to compare.
+ * deleted file has one version only, so it offers Compare only where the list is told to compare every file.
  */
 export const ChangedFileList = <T extends ProjectFileChange>({
     files,
     testId,
     compare,
     details,
+    virtual = true,
 }: ChangedFileListProps<T>) => {
     const { t } = useTranslation()
     const renderFile = (file: T) => (
@@ -80,7 +91,7 @@ export const ChangedFileList = <T extends ProjectFileChange>({
             <Flex align="center" gap="small">
                 <FileChangeIcon title={t(`repository:browser.files.change.${file.type}`)} type={file.type} />
                 <FilePath path={file.path} />
-                {compare && file.type === 'modified' && (
+                {compare && (compare.everyFile || file.type === 'modified') && (
                     <Tooltip title={compare.hint}>
                         <Button
                             data-testid={`${testId}-compare`}
@@ -99,11 +110,11 @@ export const ChangedFileList = <T extends ProjectFileChange>({
     )
     return (
         <Listy
-            virtual
-            height={LIST_HEIGHT}
+            {...(virtual ? { height: LIST_HEIGHT } : {})}
             itemRender={renderFile}
             items={files}
             rowKey={file => file.path}
+            virtual={virtual}
         />
     )
 }

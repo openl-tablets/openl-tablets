@@ -1,18 +1,28 @@
 package org.openl.studio.compare.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.openl.rules.common.impl.ArtefactPathImpl;
+import org.openl.rules.diff.tree.DiffStatus;
+import org.openl.rules.diff.xls2.XlsDiff2;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -102,6 +112,53 @@ class ProjectComparisonServiceTest {
                 .thenThrow(new IllegalStateException("no such revision"));
 
         assertThrows(NotFoundException.class, () -> service.excelFiles(project, null, "gone"));
+    }
+
+    @Test
+    void comparesAnAbsentSideAsAnEmptyWorkbookWithoutReadingIt() throws Exception {
+        var content = service.read(project, new ComparisonSideRequest("rules/Rates.xlsx", null, "rev-1", true));
+
+        assertEquals("Rates.xlsx", content.name());
+        try (var workbook = WorkbookFactory.create(content.content())) {
+            assertInstanceOf(XSSFWorkbook.class, workbook);
+            assertEquals(0, workbook.getNumberOfSheets());
+        }
+        verifyNoInteractions(workspace);
+    }
+
+    @Test
+    void anAbsentOldWorkbookIsEmptyInTheOldFormat() throws Exception {
+        var content = service.read(project, new ComparisonSideRequest("rules/Rates.xls", null, null, true));
+
+        try (var workbook = WorkbookFactory.create(content.content())) {
+            assertInstanceOf(HSSFWorkbook.class, workbook);
+        }
+    }
+
+    @Test
+    void everyTableOfAWorkbookAddedAgainstAnAbsentSideIsAdded(@TempDir Path dir) throws Exception {
+        var absent = dir.resolve("before.xlsx");
+        try (var in = service.read(project, new ComparisonSideRequest("Rates.xlsx", null, null, true)).content()) {
+            Files.copy(in, absent);
+        }
+        var added = dir.resolve("after.xlsx");
+        try (var workbook = new XSSFWorkbook(); var out = Files.newOutputStream(added)) {
+            var sheet = workbook.createSheet("Rates");
+            sheet.createRow(0).createCell(0).setCellValue("Rules Double rate(Integer age)");
+            var titles = sheet.createRow(1);
+            titles.createCell(0).setCellValue("Age");
+            titles.createCell(1).setCellValue("Rate");
+            var rule = sheet.createRow(2);
+            rule.createCell(0).setCellValue(18);
+            rule.createCell(1).setCellValue(1.5);
+            workbook.write(out);
+        }
+
+        var tree = new XlsDiff2().diffFiles(absent.toFile(), added.toFile());
+
+        var sheet = tree.getChildren().getFirst();
+        assertEquals(DiffStatus.ADDED, sheet.getElement(1).getDiffStatus());
+        assertEquals(DiffStatus.ADDED, sheet.getChildren().getFirst().getElement(1).getDiffStatus());
     }
 
     @Test

@@ -226,7 +226,7 @@ public class MergeChangesService {
                                 .stream()
                                 .sorted(Comparator.comparing(FileChange::path, ConflictGroup.FILE_ORDER))
                                 .map(file -> new FileChangeView(file.path(),
-                                        typeOf(file.kind()),
+                                        ChangeType.of(file.kind()),
                                         sheetsOf(workbooks.get(file.path()))))
                                 .toList())
                         .build())
@@ -336,14 +336,6 @@ public class MergeChangesService {
             return ChangeType.ADDED;
         }
         return after ? ChangeType.MODIFIED : ChangeType.DELETED;
-    }
-
-    private static ChangeType typeOf(FileChange.Kind kind) {
-        return switch (kind) {
-            case ADDED -> ChangeType.ADDED;
-            case MODIFIED -> ChangeType.MODIFIED;
-            case DELETED -> ChangeType.DELETED;
-        };
     }
 
     private static List<SheetChangeView> sheetsOf(@Nullable MergedWorkbook workbook) {

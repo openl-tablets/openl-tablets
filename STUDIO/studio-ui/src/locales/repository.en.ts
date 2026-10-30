@@ -366,6 +366,10 @@ i18next.addResourceBundle('en', 'repository', {
             tech_revs: 'Show technical revisions',
             technical: 'technical',
             load_more: 'Load more',
+            changes: 'Files the revision changed',
+            changes_error: 'Failed to load the files the revision changed',
+            no_changes: 'The revision changes no file of the project',
+            compare_hint: 'Compare the file before and after the revision',
         },
         status: {
             editing: 'In Editing',

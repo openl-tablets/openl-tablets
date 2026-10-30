@@ -98,7 +98,8 @@ The tabs below the title row show the following:
 
 -   **Overview** shows the project configuration and properties. See [Viewing the Project Overview](#viewing-the-project-overview).
 -   **Revisions** lists the revisions of a project in a versioned repository. It is unavailable for file repositories,
-    which retain only the current project state. See [Opening a Project](#opening-a-project).
+    which retain only the current project state. See [Opening a Project](#opening-a-project) and
+    [Viewing the Changes of a Revision](#viewing-the-changes-of-a-revision).
 -   **Files** shows the files and folders of the project. See [Modifying Project Contents](#modifying-project-contents).
 -   **Deploy Configuration** shows the `rules-deploy.xml` settings and the deployments of the project. See [Deploying a Project](#deploying-a-project).
 -   **Management** assigns roles on the project. See [Managing Project Access](#managing-project-access).
@@ -451,6 +452,8 @@ To open a project revision using the **Revisions** tab, proceed as follows:
     *List of project revisions*
 
 1.  Navigate to the revision that needs to be opened and click the magnifier icon **Open Revision** at the end of its row.
+    A click elsewhere on the revision lists the files it changed instead, as described in
+    [Viewing the Changes of a Revision](#viewing-the-changes-of-a-revision).
 
 If a project has the **Viewing Revision** status, the opened project revision becomes available for viewing and modifying, not the latest revision.
 
@@ -999,6 +1002,40 @@ To define the rule service version, proceed as follows:
 2.  Click **Save**.
 
 The selected services version is displayed in the **Deploy Configuration** tab of the project. For the example displayed in this section, the project version is 1.0.
+
+### Viewing the Changes of a Revision
+
+Each revision of the **Revisions** tab tells which files of the project it changed, the way Git shows a commit.
+The same list is available in the editor through **More \> Revisions**.
+
+To view the changes of a revision, proceed as follows:
+
+1.  On the **Revisions** tab of the project, click the revision.
+
+    The revision expands and lists the files it added, modified or deleted, ten files a page. A click on the revision
+    again collapses it; expanding it later shows the same list without reading it again.
+
+    ![The files a revision changed](images/revision-changes.png "An expanded revision listing the files it changed")
+
+    *The files a revision changed*
+
+1.  To see what changed in a file, click **Compare** at the end of its row.
+
+    The comparison window opens with the file as it was before the revision and as the revision left it: an Excel
+    file is compared element by element, as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files),
+    and any other file line by line. A file the revision added is empty before it, and a file it deleted is empty
+    after it, so the whole file shows as added or removed.
+
+A revision is compared with the revision it was made on:
+
+-   In a Git repository it is the parent commit. A merge is compared with the branch as it was before the merge, so
+    it lists what the merge brought in.
+-   In a repository without commits it is the previous revision of the project.
+-   The first revision of a project lists every file as added, and a revision that deleted the project lists every
+    file as deleted.
+-   A revision that changed no file of the project, such as a technical revision, says so instead of listing files.
+
+Only the files inside the project folder are listed. The files the system settings ignore are not listed either.
 
 ### Comparing Project Revisions
 

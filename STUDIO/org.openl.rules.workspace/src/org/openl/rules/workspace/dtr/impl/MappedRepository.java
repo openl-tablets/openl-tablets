@@ -25,6 +25,7 @@ import javax.xml.xpath.XPathFactory;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
@@ -47,6 +48,7 @@ import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.FolderMapper;
@@ -56,8 +58,9 @@ import org.openl.util.HashingUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
-public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
+public final class MappedRepository implements BranchRepository, Closeable, FolderMapper {
     private static final String SEPARATOR = ":";
     private static final int TREE_REVISION_CACHE_CAPACITY = 2_048;
     private static final int DESCRIPTOR_REVISION_CACHE_CAPACITY = 65_536;
@@ -90,14 +93,13 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Setter(AccessLevel.PRIVATE)
     private boolean includeExcelFilesInProjectDiscovery;
 
-    public static Repository create(Repository delegate,
-                                    String baseFolder) throws IOException {
+    public static Repository create(Repository delegate, String baseFolder) {
         return create(delegate, baseFolder, false);
     }
 
     static Repository create(Repository delegate,
                              String baseFolder,
-                             boolean includeExcelFilesInProjectDiscovery) throws IOException {
+                             boolean includeExcelFilesInProjectDiscovery) {
         MappedRepository mappedRepository = null;
         try {
             mappedRepository = new MappedRepository();
@@ -114,9 +116,6 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             throw e;
         }
         return mappedRepository;
-    }
-
-    private MappedRepository() {
     }
 
     @Override
@@ -400,7 +399,7 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     }
 
     @Override
-    public String getBaseBranch() {
+    public @Nullable String getBaseBranch() {
         return delegate.supports().branches() ? ((BranchRepository) delegate).getBaseBranch() : null;
     }
 
@@ -432,6 +431,15 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
     @Override
     public MergeScope getMergeScope(String from, String to) throws IOException {
         return ((BranchRepository) delegate).getMergeScope(from, to);
+    }
+
+    /**
+     * Tells the changes by the paths the repository really keeps the files under, as {@link #getMergeScope} does: a
+     * project the changes deleted no longer has a name of its own here.
+     */
+    @Override
+    public RevisionChanges listChanges(String path, @Nullable String from, String to) throws IOException {
+        return ((BranchRepository) delegate).listChanges(path, from, to);
     }
 
     @Override
@@ -532,11 +540,10 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
         if (mappingData != null) {
             var internalPath = mappingData.getInternalPath();
             return projectIndex.getProjects().stream().filter(p -> internalPath.equals(p.getPath())).findFirst();
-        } else {
-            String name = data.getName().startsWith(baseFolder) ? data.getName().substring(baseFolder.length())
-                    : data.getName();
-            return projectIndex.getProjects().stream().filter(p -> name.equals(getMappedName(p))).findFirst();
         }
+        String name = data.getName().startsWith(baseFolder) ? data.getName().substring(baseFolder.length())
+                : data.getName();
+        return projectIndex.getProjects().stream().filter(p -> name.equals(getMappedName(p))).findFirst();
     }
 
 
@@ -1056,9 +1063,8 @@ public class MappedRepository implements BranchRepository, Closeable, FolderMapp
             var mappedProjectName = baseFolder + getMappedName(p);
             if (internalPath.equals(p.getPath())) {
                 return mappedProjectName;
-            } else {
-                return mappedProjectName + internalPath.substring(p.getPath().length());
             }
+            return mappedProjectName + internalPath.substring(p.getPath().length());
         }).orElse(null);
     }
 

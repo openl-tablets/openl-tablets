@@ -5,6 +5,7 @@ import type { Repository, RepositoryConfig } from '../types/repositories'
 import type { Project, ProjectsPage, TagFacetSummary } from '../types/projects'
 import type { FsNode } from '../types/files'
 import { ProjectStatus } from '../constants/project'
+import type { ProjectFileChange } from './projectStatus'
 
 const THROW_API_OPTIONS = { throwError: true } satisfies ApiCallOptions
 const PROJECT_MODIFIED_ERROR_CODE = 'openl.error.409.project.close.modified.message'
@@ -523,6 +524,34 @@ export async function getProjectRevisions(
 ): Promise<RevisionPage> {
     const url = `/projects/${encodeURIComponent(projectId)}/history?${revisionQueryParams(query)}`
     return toRevisionPage(await apiCall(url, undefined, { throwError: true }), query)
+}
+
+/** The files of a project one revision changed against another. */
+export interface RevisionChanges {
+    /** The revision compared against, as the history tells it; absent when there is none, and then every file is added. */
+    base: ProjectRevision | null
+    /** The revision whose changes are told, as the history tells it. */
+    revision: ProjectRevision
+    /** The changed files, by their paths inside the project. */
+    files: ProjectFileChange[]
+}
+
+/**
+ * The files of a project a revision changed: against the given base, or else against the revision it was made on.
+ */
+export async function getRevisionChanges(
+    projectId: string,
+    revision: string,
+    base?: string
+): Promise<RevisionChanges> {
+    const params = new URLSearchParams({ revision })
+    if (base) {
+        params.set('base', base)
+    }
+    const response: RevisionChanges = await apiCall(
+        // The list shows its own error: a failed read must not replace the whole page with an error page.
+        `/projects/${encodeURIComponent(projectId)}/history/changes?${params}`, undefined, LOCAL_LOAD_API_OPTIONS)
+    return { base: response.base ?? null, revision: response.revision, files: asArray(response.files) }
 }
 
 /** Open a project at a specific historical revision. */

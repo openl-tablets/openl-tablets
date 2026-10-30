@@ -39,6 +39,17 @@ describe('ChangedFileList', () => {
         expect(open).toHaveBeenCalledWith(files[0])
     })
 
+    it('compares every file when told to, an added and a deleted one too', async () => {
+        const open = vi.fn()
+        render(<ChangedFileList compare={{ everyFile: true, hint: 'hint', open }} files={files} testId="changes" />)
+
+        const compare = screen.getAllByTestId('changes-compare')
+        expect(compare).toHaveLength(3)
+        await userEvent.click(compare[2]!)
+
+        expect(open).toHaveBeenCalledWith(files[2])
+    })
+
     it('offers no comparison when the list is not told how to compare', () => {
         render(<ChangedFileList files={files} testId="changes" />)
 

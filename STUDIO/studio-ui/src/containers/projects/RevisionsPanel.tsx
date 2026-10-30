@@ -4,7 +4,7 @@ import { GO_AHEAD } from '../modules/useConfirmBefore'
 import { errorMessage } from '../../utils/errorMessage'
 import { useTranslation } from 'react-i18next'
 import { App, Button, Empty, Skeleton, Switch, Tag, Tooltip } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import { DownOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { SearchInput } from '../../components/SearchInput'
 import {
@@ -19,6 +19,7 @@ import { useSharedStyles } from './sharedStyles'
 import { GitCommitMessage } from './GitCommitMessage'
 import { shortRevision } from './revisions'
 import { DiscardChangesModal } from '../DiscardChangesModal'
+import { RevisionChanges } from './RevisionChanges'
 
 const useStyles = createStyles(({ css, token }) => ({
     panel: css`
@@ -79,11 +80,58 @@ const useStyles = createStyles(({ css, token }) => ({
         border: 1px solid ${token.colorBorderSecondary};
         border-radius: ${token.borderRadius}px;
     `,
+    // The arrow is the one control that expands the revision, stretched over the whole head; the controls the head
+    // holds besides it lie above it.
     cardHead: css`
+        position: relative;
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
+
+        & :is(button, a):not([data-expand]) {
+            position: relative;
+            z-index: 1;
+        }
+    `,
+    headMain: css`
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-width: 0;
+    `,
+    expand: css`
+        display: inline-flex;
+        flex: none;
+        margin-top: 6px;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: ${token.colorTextTertiary};
+        font-size: 10px;
+        line-height: 1;
+        cursor: pointer;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: ${token.borderRadiusSM}px;
+        }
+
+        &:focus-visible {
+            outline: none;
+        }
+
+        &:focus-visible::after {
+            outline: 2px solid ${token.colorPrimaryBorder};
+            outline-offset: 2px;
+        }
+    `,
+    changes: css`
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid ${token.colorBorderSecondary};
     `,
     msgRow: css`
         display: flex;
@@ -122,6 +170,8 @@ interface RevisionsPanelProps {
     projectId: string
     /** Revision currently opened by the project. */
     currentRevision?: string | null
+    /** The branch the history is on, or nothing in a repository without branches. */
+    branch?: string | null | undefined
     searchable?: boolean | undefined
     onOpened: () => void
     /**
@@ -143,10 +193,14 @@ const authorName = (revision: ProjectRevision): string =>
  * technical-revisions toggle and incremental paging. Any revision can be opened for viewing, mirroring the
  * legacy UI. History refetches whenever the project reloads, so a new revision from a save appears
  * immediately.
+ *
+ * <p>A click on a revision expands it and lists the files it changed, read the first time it is expanded and kept
+ * while the history stays the same.
  */
 export const RevisionsPanel = ({
     projectId,
     currentRevision,
+    branch,
     searchable = true,
     onOpened,
     beforeOpen,
@@ -167,6 +221,8 @@ export const RevisionsPanel = ({
     const [techRevs, setTechRevs] = useState(false)
     const [opening, setOpening] = useState<string | null>(null)
     const [discardOpenRevision, setDiscardOpenRevision] = useState<string | null>(null)
+    const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set())
+    const [shown, setShown] = useState<ReadonlySet<string>>(new Set())
     const fetchGeneration = useRef(0)
     const revisionQuery = useCallback((page: number) => ({
         ...(searchable && appliedSearch ? { search: appliedSearch } : {}),
@@ -187,6 +243,8 @@ export const RevisionsPanel = ({
         setStatus('loading')
         setPage(0)
         setLoadingMore(false)
+        setExpanded(new Set())
+        setShown(new Set())
         getProjectRevisions(projectId, revisionQuery(0))
             .then(response => {
                 if (cancelled || generation !== fetchGeneration.current) {
@@ -225,6 +283,17 @@ export const RevisionsPanel = ({
                 setLoadingMore(false)
             }
         }
+    }
+
+    const toggle = (revisionNo: string) => {
+        setExpanded(previous => {
+            const next = new Set(previous)
+            if (!next.delete(revisionNo)) {
+                next.add(revisionNo)
+            }
+            return next
+        })
+        setShown(previous => previous.has(revisionNo) ? previous : new Set(previous).add(revisionNo))
     }
 
     /** Opens a revision, asking first where the screen has something of its own to lose. */
@@ -279,6 +348,7 @@ export const RevisionsPanel = ({
                     <ol className={styles.timeline} data-testid={`revisions-${projectId}`}>
                         {items.map((revision, index) => {
                             const current = !!currentRevision && revision.revisionNo === currentRevision
+                            const isExpanded = expanded.has(revision.revisionNo)
                             return (
                                 <li key={revision.revisionNo} className={styles.item}>
                                     <div className={styles.rail}>
@@ -287,20 +357,35 @@ export const RevisionsPanel = ({
                                     </div>
                                     <div className={styles.card}>
                                         <div className={styles.cardHead}>
-                                            <div>
-                                                <div className={styles.msgRow}>
-                                                    <GitCommitMessage
-                                                        strong
-                                                        className={styles.msg}
-                                                        message={revision.fullComment}
-                                                        testId={`revision-comment-${revision.revisionNo}`}
-                                                    />
-                                                    {revision.technicalRevision && <Tag className={cx(shared.chipTag, styles.tag)}>{t('browser.history.technical')}</Tag>}
-                                                </div>
-                                                <div className={styles.meta}>
-                                                    <span>{authorName(revision)}</span>
-                                                    <span>{formatDateTime(revision.createdAt) ?? '—'}</span>
-                                                    <span className={shared.valueText}>{shortRevision(revision.revisionNo)}</span>
+                                            {/* The arrow stands in a column of its own, so the comment and the line
+                                                under it start at the same place. */}
+                                            <div className={styles.headMain}>
+                                                <button
+                                                    data-expand
+                                                    aria-expanded={isExpanded}
+                                                    aria-label={t('browser.history.changes')}
+                                                    className={styles.expand}
+                                                    data-testid={`revision-toggle-${revision.revisionNo}`}
+                                                    onClick={() => toggle(revision.revisionNo)}
+                                                    type="button"
+                                                >
+                                                    {isExpanded ? <DownOutlined /> : <RightOutlined />}
+                                                </button>
+                                                <div>
+                                                    <div className={styles.msgRow}>
+                                                        <GitCommitMessage
+                                                            strong
+                                                            className={styles.msg}
+                                                            message={revision.fullComment}
+                                                            testId={`revision-comment-${revision.revisionNo}`}
+                                                        />
+                                                        {revision.technicalRevision && <Tag className={cx(shared.chipTag, styles.tag)}>{t('browser.history.technical')}</Tag>}
+                                                    </div>
+                                                    <div className={styles.meta}>
+                                                        <span>{authorName(revision)}</span>
+                                                        <span>{formatDateTime(revision.createdAt) ?? '—'}</span>
+                                                        <span className={shared.valueText}>{shortRevision(revision.revisionNo)}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className={styles.actions}>
@@ -320,6 +405,16 @@ export const RevisionsPanel = ({
                                                 )}
                                             </div>
                                         </div>
+                                        {shown.has(revision.revisionNo) && (
+                                            // Kept while collapsed, so expanding it again reads nothing.
+                                            <div className={styles.changes} hidden={!isExpanded}>
+                                                <RevisionChanges
+                                                    branch={branch}
+                                                    projectId={projectId}
+                                                    revision={revision.revisionNo}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </li>
                             )

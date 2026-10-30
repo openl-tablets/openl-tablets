@@ -25,6 +25,25 @@ public interface BranchRepository extends Repository, SearchableRepository {
      */
     MergeScope getMergeScope(String from, String to) throws IOException;
 
+    /**
+     * Tells which files under a folder one revision changes against another.
+     *
+     * <p>The answer compares trees only, so it costs about the same however large the files are. A file moved to
+     * another path is deleted at its old path and added at its new one.
+     *
+     * <p>Without an earlier revision, the later one is compared with the revision it was made on: the branch as it
+     * was before it. For a merge it is the branch the merge went into, so the answer is what the merge brought in. A
+     * revision made on nothing is compared with an empty folder, so every file it holds is added.
+     *
+     * @param path the folder, from the root of the repository; an empty path is the whole repository
+     * @param from the earlier revision, or {@code null} for the revision the later one was made on
+     * @param to   the later revision
+     * @return the changed files under the folder, with the revisions compared
+     * @throws java.io.FileNotFoundException when the repository has no such revision
+     * @throws IOException                    when a revision cannot be read
+     */
+    RevisionChanges listChanges(@NonNull String path, @Nullable String from, @NonNull String to) throws IOException;
+
     String getBranch();
 
     boolean isBranchProtected(String branch);
