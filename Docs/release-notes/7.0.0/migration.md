@@ -559,6 +559,11 @@ from Maven.
   [Advanced Configuration](https://openl-tablets.github.io/openl-tablets/user-guides/rule-services/advanced-configuration)
   guide describes. The jar of `org.openl.rules.ruleservice.ws` and the other libraries stay in Maven Central. A
   build of OpenL Tablets from source installs the OpenL Studio war as `org.openl.rules.studio:studio-backend`.
+* **The OpenL Maven Plugin names the deployment archive after `finalName`.** The `deploymentName` parameter is
+  deprecated for removal, has no effect and logs a warning. The archive of a project that depends on other OpenL
+  projects is always `<finalName>-deployment.zip`, and OpenL Rule Services deploy it under the name `<finalName>`,
+  which `openl:deploy` looks for as well. Remove `<deploymentName>` from the plugin configuration, and update
+  `ruleservice.datasource.deployments` filters, clients and links that used the old name.
 
 ## Administrators
 

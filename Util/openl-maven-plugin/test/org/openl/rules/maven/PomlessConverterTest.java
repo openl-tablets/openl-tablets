@@ -292,6 +292,19 @@ class PomlessConverterTest {
     }
 
     @Test
+    void deploymentNameConfigurationIsIgnoredNotBlocking() {
+        var model = openlModel("deployname");
+        var plugin = openlPlugin();
+        plugin.setConfiguration(config("deploymentName", "Custom name"));
+        model.setBuild(buildWith(plugin));
+
+        var plan = PomlessConverter.analyze(project(model));
+
+        assertTrue(plan.deletable(), "deploymentName is a deprecated no-op (finalName is used) — must not block");
+        assertTrue(plan.blockers().isEmpty());
+    }
+
+    @Test
     void deploymentPackageAndThresholdTogetherAreConvertible() {
         var model = openlModel("combo");
         var plugin = openlPlugin();

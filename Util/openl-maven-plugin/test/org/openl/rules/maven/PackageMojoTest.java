@@ -1,5 +1,6 @@
 package org.openl.rules.maven;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -23,6 +25,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.PluginExecution;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.junit.jupiter.api.Test;
@@ -39,6 +42,9 @@ import org.junit.jupiter.api.io.TempDir;
  * <p>The {@code includeGeneratedClasspathJar} parameter and its automatic decision control only the copy
  * embedded into the archive; the {@code classes} artifact is attached regardless, so Java consumers can
  * always depend on it.
+ *
+ * <p>The deployment archive of a project that depends on other OpenL projects is named after the {@code finalName}
+ * of the build; the deprecated {@code deploymentName} parameter is ignored with a warning.
  *
  * @author Yury Molchan
  */
@@ -186,6 +192,61 @@ class PackageMojoTest {
     }
 
     // The deprecated parameter is covered until it is removed.
+    @SuppressWarnings({"java:S5738", "removal"})
+    @Test
+    void deploymentArchiveIsNamedAfterFinalNameIgnoringDeploymentName(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
+        mojo.deploymentName = "Custom name";
+        var warnings = new ArrayList<String>();
+        mojo.setLog(new SystemStreamLog() {
+            @Override
+            public void warn(CharSequence content) {
+                warnings.add(content.toString());
+            }
+        });
+        var dependency = new DefaultArtifact("com.example", "dep", "1.0", "compile", "zip", null,
+                new DefaultArtifactHandler("zip"));
+        dependency.setFile(openlZip(tmp.resolve("dep-1.0.zip")));
+        mojo.project.setArtifacts(Set.of(dependency));
+
+        mojo.execute(openlSources(tmp), true);
+
+        var deploymentZip = new File(mojo.outputDirectory, FINAL_NAME + "-deployment.zip");
+        var helper = (RecordingProjectHelper) mojo.projectHelper;
+        assertEquals(List.of(new Attached("zip", "deployment", deploymentZip)), helper.attached);
+        try (var zip = new ZipFile(deploymentZip)) {
+            var yaml = new String(zip.getInputStream(zip.getEntry("deployment.yaml")).readAllBytes(), UTF_8);
+            assertEquals("name: " + FINAL_NAME, yaml.strip());
+        }
+        assertEquals(List.of("Parameter 'deploymentName' is deprecated and has no effect. "
+                + "The deployment archive is always named after 'finalName' of the build."), warnings);
+    }
+
+    @Test
+    void removesTheDeploymentArchiveOfAnEarlierBuild(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, OpenLPackagings.OPENL_PACKAGING);
+        var stale = Files.writeString(mojo.outputDirectory.toPath().resolve(FINAL_NAME + "-deployment.zip"), "stub");
+
+        mojo.execute(openlSources(tmp), false);
+
+        assertFalse(Files.exists(stale));
+        assertTrue(((RecordingProjectHelper) mojo.projectHelper).attached.isEmpty());
+    }
+
+    @Test
+    void keepsTheArchiveOfThisBuildWithTheDeploymentClassifier(@TempDir Path tmp) throws Exception {
+        var mojo = newMojo(tmp, "jar");
+        mojo.classifier = "deployment";
+
+        mojo.execute(openlSources(tmp), false);
+
+        var archive = new File(mojo.outputDirectory, FINAL_NAME + "-deployment.zip");
+        assertTrue(archive.isFile());
+        assertEquals(List.of(new Attached("zip", "deployment", archive)),
+                ((RecordingProjectHelper) mojo.projectHelper).attached);
+    }
+
+    // The deprecated parameter is covered until it is removed.
     @SuppressWarnings("java:S5738")
     private static PackageMojo newMojo(Path tmp, String packaging) throws IOException {
         var model = new Model();
@@ -233,6 +294,16 @@ class PackageMojoTest {
         var openl = tmp.resolve("openl");
         touch(openl.resolve("rules/Main.xlsx"));
         return openl.toString();
+    }
+
+    /** Writes an OpenL project archive, the way a dependent OpenL project is resolved by Maven. */
+    private static File openlZip(Path zipPath) throws IOException {
+        try (var out = new ZipOutputStream(Files.newOutputStream(zipPath))) {
+            out.putNextEntry(new ZipEntry("rules.xml"));
+            out.write("<project><name>dep</name></project>".getBytes(UTF_8));
+            out.closeEntry();
+        }
+        return zipPath.toFile();
     }
 
     private static void touch(Path path) {

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -51,7 +52,8 @@ public final class PackageMojo extends BaseOpenLMojo {
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
     /** Classifier of the auto-attached deployment artifact; consumed by {@code PrepareDeploymentBomMojo}. */
     public static final String DEPLOYMENT_CLASSIFIER = "deployment";
-    private static final String TESTS_CLASSIFIER = "tests";
+    /** Classifier of the auto-attached archive with the tests; skipped by {@code DeployMojo}. */
+    static final String TESTS_CLASSIFIER = "tests";
     /** Classifier of the auto-attached jar with the project's compiled classes, like 'attachClasses' in war packaging. */
     private static final String CLASSES_CLASSIFIER = "classes";
 
@@ -124,7 +126,7 @@ public final class PackageMojo extends BaseOpenLMojo {
      * Upon the second attempt to create the main artifact without using a classifier, the build fails.
      */
     @Parameter
-    private String classifier;
+    String classifier;
 
     /** Name of the {@link #dependenciesThreshold} parameter; referenced by {@code PomlessConverter}. */
     static final String DEPENDENCIES_THRESHOLD_PARAM = "dependenciesThreshold";
@@ -139,7 +141,7 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
 
-    /** Name of the deprecated {@link #deploymentPackage} parameter; referenced by {@code PomlessConverter}. */
+    /** Name of the deprecated {@link #deploymentPackage} parameter. */
     static final String DEPLOYMENT_PACKAGE_PARAM = "deploymentPackage";
 
     /**
@@ -151,11 +153,24 @@ public final class PackageMojo extends BaseOpenLMojo {
     @Parameter
     private Boolean deploymentPackage;
 
+    /** Name of the deprecated {@link #deploymentName} parameter. */
+    static final String DEPLOYMENT_NAME_PARAM = "deploymentName";
+
     /**
-     * Deployment archive name.
+     * Names of the deprecated parameters that are still declared but have no effect. A pom can drop them safely;
+     * referenced by {@code PomlessConverter}.
      */
-    @Parameter(defaultValue = "${project.build.finalName}")
-    private String deploymentName;
+    static final Set<String> NO_EFFECT_PARAMS = Set.of(DEPLOYMENT_PACKAGE_PARAM, DEPLOYMENT_NAME_PARAM);
+
+    /**
+     * @deprecated The parameter has no effect and will be removed in a future release. The deployment archive and
+     * the deployment it declares are always named after the {@code finalName} of the build, the name the
+     * {@code deploy} goal looks for.
+     */
+    @Deprecated(forRemoval = true, since = "7.0.0")
+    @Parameter
+    @Nullable
+    String deploymentName;
 
     /**
      * Parameter that adds default manifest entries into MANIFEST.MF file.
@@ -235,6 +250,8 @@ public final class PackageMojo extends BaseOpenLMojo {
             );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
+        // A deployment archive left by an earlier build must not be taken for the archive of this one.
+        Files.deleteIfExists(getOutputFile(outputDirectory, finalName, DEPLOYMENT_CLASSIFIER, types[0]).toPath());
         Set<Artifact> dependencies = getDependencies();
         checkDependenciesThreshold(dependencies);
         final var openLJarPackaging = OpenLPackagings.OPENL_JAR_PACKAGING.equals(packaging);
@@ -271,14 +288,19 @@ public final class PackageMojo extends BaseOpenLMojo {
 
         buildTestsArtifact(openLSourceDir, types);
 
-        if (deploymentPackage != null) {
-            warn("""
-                    Parameter 'deploymentPackage' is deprecated and has no effect. \
-                    Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers \
-                    to suppress their publication.""");
-        }
+        warnIfSet(deploymentPackage, DEPLOYMENT_PACKAGE_PARAM, """
+                Dependent OpenL projects always receive a stub 'rules-deploy.xml' with empty publishers \
+                to suppress their publication.""");
+        warnIfSet(deploymentName, DEPLOYMENT_NAME_PARAM,
+                "The deployment archive is always named after 'finalName' of the build.");
 
-        attachDeploymentArtifactForDependents(openLSourceDir);
+        attachDeploymentArtifactForDependents(openLSourceDir, types[0]);
+    }
+
+    private void warnIfSet(@Nullable Object deprecatedValue, String name, String reason) {
+        if (deprecatedValue != null) {
+            warn("Parameter '", name, "' is deprecated and has no effect. ", reason);
+        }
     }
 
     private void checkDependenciesThreshold(Set<Artifact> dependencies) throws MojoFailureException {
@@ -329,27 +351,23 @@ public final class PackageMojo extends BaseOpenLMojo {
      * Attaches the deployment artifact of an OpenL project that other OpenL projects depend on, unless the project
      * declares empty publishers.
      */
-    private void attachDeploymentArtifactForDependents(File openLSourceDir) throws IOException {
+    private void attachDeploymentArtifactForDependents(File openLSourceDir, String artifactType) throws IOException {
         Set<Artifact> openLDependencies = getDependentOpenLProjects();
         if (OpenLPackagings.isOpenL(packaging) && !openLDependencies.isEmpty()) {
             if (OpenLPackagings.hasEmptyPublishers(openLSourceDir.toPath())) {
                 info("Project's '", RulesDeploy.FILE_NAME,
                         "' declares empty <publishers/>; skipping the deployment artifact.");
             } else {
-                atachDeploymentArtifact(openLDependencies);
+                atachDeploymentArtifact(openLDependencies, artifactType);
             }
         }
     }
 
-    private void atachDeploymentArtifact(Set<Artifact> openLDependencies) throws IOException {
-        final var artifactType = getFormats()[0];
-        var outputFile = getOutputFile(outputDirectory,
-                deploymentName,
-                DEPLOYMENT_CLASSIFIER,
-                artifactType);
+    private void atachDeploymentArtifact(Set<Artifact> openLDependencies, String artifactType) throws IOException {
+        var outputFile = getOutputFile(outputDirectory, finalName, DEPLOYMENT_CLASSIFIER, artifactType);
 
         var deploymentYamlBytes = YamlMapperFactory.getYamlMapper()
-                .writeValueAsBytes(Map.of("name", deploymentName));
+                .writeValueAsBytes(Map.of("name", finalName));
 
         try (var arch = new ZipArchiver(outputFile.toPath())) {
             // deployment.yaml must be the first entry in the archive
