@@ -324,8 +324,14 @@ export const getTableTests = async (projectId: string, tableId: string, module?:
 /** A table that a test or a run table exercises. */
 export interface TableTarget {
     id: string
-    /** Name it is known by, with the dimension properties that tell this version of it from the others. */
+    /** Name it is known by. */
     name: string
+    /**
+     * The values of the dimension properties that tell this version of the table from the others, by the technical
+     * name of the property. A date is written with no time zone. Absent unless the table is written in more than one
+     * version.
+     */
+    dimensions?: Record<string, unknown>
     /** Module the tested table is written in, which need not be the one the test is in. */
     module?: string
     /** Name of the project that module belongs to. */

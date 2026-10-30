@@ -373,6 +373,13 @@ from Maven.
   the system settings, in the time zone of the server, and the revision a module was opened at carried its id
   there. It is now a moment in UTC, such as `2026-10-29T18:20:19.123Z`, and that revision carries no `modifiedOn`.
   A client formats the moment itself.
+* **A version of a table is answered by the values of its dimensions, not by a name.** `GET
+  /rest/projects/{id}/tables` no longer answers `displayName`, such as `carPrice [effectiveDate=07/01/2020 10:30:00
+  AM]`, and the nodes of `GET /rest/projects/{id}/tables/graph` no longer answer `dimensionProperties`, keyed by the
+  names a business user reads. Both answer `dimensions` instead: the value of every dimension property of the version
+  by its technical name, a date in ISO 8601, an enum by its name, several values as an array, such as
+  `{"effectiveDate": "2020-07-01T10:30:00.000", "state": ["AR"]}`. A version node of the graph is named as its
+  table is. Build the label of a version from `name` and `dimensions`.
 * **No client needs new credentials.** `/rest` accepts everything `/web` did and more: the session cookie in
   every mode, a Personal Access Token in all multi-user modes, HTTP Basic in `ad` and `multi`, and a Bearer
   token in `oauth2`.

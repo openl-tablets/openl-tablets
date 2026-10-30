@@ -1,5 +1,6 @@
 package org.openl.studio.projects.service.tables.graph;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -57,7 +60,32 @@ class ProjectTablesGraphServiceTest {
     }
 
     private Map<String, TableNodeView> byName(List<TableNodeView> nodes) {
-        return nodes.stream().collect(Collectors.toMap(node -> node.name, Function.identity()));
+        return nodes.stream().collect(Collectors.toMap(ProjectTablesGraphServiceTest::label, Function.identity()));
+    }
+
+    /**
+     * The name a reader tells a node by: a version of a table adds the values of the dimensions it is selected by, as
+     * the screens label it.
+     */
+    private static String label(TableNodeView node) {
+        if (!(node instanceof ExecutableNodeView executable) || executable.dimensions == null) {
+            return node.name;
+        }
+        return executable.dimensions.entrySet()
+                .stream()
+                .map(dimension -> dimension.getKey() + "=" + valueOf(dimension.getValue()))
+                .collect(Collectors.joining(", ", node.name + " [", "]"));
+    }
+
+    /** A value as the screens write it: an enum by its name, several values separated by commas. */
+    private static String valueOf(Object value) {
+        return switch (value) {
+            case Object[] values -> Arrays.stream(values)
+                    .map(ProjectTablesGraphServiceTest::valueOf)
+                    .collect(Collectors.joining(","));
+            case Enum<?> constant -> constant.name();
+            default -> String.valueOf(value);
+        };
     }
 
     private ExecutableNodeView executable(Map<String, TableNodeView> byName, String name) {
@@ -69,7 +97,7 @@ class ProjectTablesGraphServiceTest {
     }
 
     private Set<String> names(List<TableNodeView> nodes) {
-        return nodes.stream().map(node -> node.name).collect(Collectors.toSet());
+        return nodes.stream().map(ProjectTablesGraphServiceTest::label).collect(Collectors.toSet());
     }
 
     @Test
@@ -77,6 +105,9 @@ class ProjectTablesGraphServiceTest {
         var nodes = projectGraph(projectModel);
         // the overloaded mySPR appears as its own dispatcher node alongside its two versions
         assertEquals(List.of("doSomething", "mySPR", "mySPR [state=AR]", "mySPR [state=AZ]", "theCall"),
+                nodes.stream().map(ProjectTablesGraphServiceTest::label).sorted().toList());
+        // the nodes are sorted by name, and a version is named as its table is: the dimensions tell it apart
+        assertEquals(List.of("doSomething", "mySPR", "mySPR", "mySPR", "theCall"),
                 nodes.stream().map(node -> node.name).toList());
         var byName = byName(nodes);
         // theCall reaches the versions only through the dispatcher
@@ -119,11 +150,13 @@ class ProjectTablesGraphServiceTest {
     @Test
     void candidatesCarryVersioningRules() {
         var byName = byName(projectGraph(projectModel));
-        // each dispatched version exposes the dimension properties that select it (here: state = AR)
-        assertTrue(executable(byName, "mySPR [state=AR]").dimensionProperties.containsValue("AR"));
-        assertTrue(executable(byName, "mySPR [state=AZ]").dimensionProperties.containsValue("AZ"));
+        // each dispatched version exposes the values of the dimension properties that select it (here: state = AR)
+        assertArrayEquals(new UsStatesEnum[]{UsStatesEnum.AR},
+                (Object[]) executable(byName, "mySPR [state=AR]").dimensions.get("state"));
+        assertArrayEquals(new UsStatesEnum[]{UsStatesEnum.AZ},
+                (Object[]) executable(byName, "mySPR [state=AZ]").dimensions.get("state"));
         // the dispatcher is a synthetic selector — it has no versioning rules of its own
-        assertTrue(executable(byName, "mySPR").dimensionProperties.isEmpty());
+        assertNull(executable(byName, "mySPR").dimensions);
     }
 
     @Test

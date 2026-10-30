@@ -1,5 +1,6 @@
 import type { ModuleTable } from 'types/tables'
 import { readJson, writeJson } from '../../utils/localStore'
+import { versionLabel } from '../../utils/tableVersion'
 
 /**
  * How the tree gathers the tables, named as the Editor has always named its views.
@@ -202,7 +203,7 @@ const valueOf = (table: ModuleTable, level: Level, t: Translate): string | null 
 const tableNode = (table: ModuleTable, keyPrefix: string): TableNode => ({
     key: `${keyPrefix}/table/${table.id}`,
     // A table written in several versions is named by what tells it from the others.
-    title: table.displayName ?? table.name,
+    title: versionLabel(table.name, table.dimensions),
     table,
     children: [],
 })

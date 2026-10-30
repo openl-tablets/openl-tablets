@@ -1,15 +1,22 @@
 package org.openl.studio.projects.service.tables;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ITable;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.studio.projects.model.tables.LookupView;
 import org.openl.studio.projects.model.tables.SimpleRulesView;
 import org.openl.studio.projects.model.tables.SmartRulesView;
@@ -20,10 +27,8 @@ import org.openl.util.StringUtils;
 /**
  * Utility class for rule tables.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class OpenLTableUtils {
-
-    private OpenLTableUtils() {
-    }
 
     private static final BiMap<String, String> TABLE_TYPE_ITEMS;
 
@@ -58,6 +63,24 @@ public abstract class OpenLTableUtils {
     public static TableKind kindOf(IOpenLTable table) {
         var name = TABLE_TYPE_ITEMS.get(XlsNodeTypes.getEnumByValue(table.getType()).toString());
         return name == null ? TableKind.OTHER : TableKind.fromValue(name);
+    }
+
+    /**
+     * The values of the dimension properties of a table, inherited ones included, in the order of their definitions.
+     *
+     * <p>They tell a version of a table from the other versions of it. A property with no value is left out.
+     */
+    public static Map<String, Object> dimensionsOf(@Nullable ITableProperties properties) {
+        var dimensions = new LinkedHashMap<String, Object>();
+        if (properties != null) {
+            for (var name : TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames()) {
+                var value = properties.getPropertyValue(name);
+                if (value != null && !(value instanceof Object[] values && values.length == 0)) {
+                    dimensions.put(name, value);
+                }
+            }
+        }
+        return dimensions;
     }
 
     public static BiMap<String, String> getTableTypeItems() {

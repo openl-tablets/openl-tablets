@@ -1,6 +1,7 @@
 import type { Core, ElementDefinition, LayoutOptions, NodeCollection } from 'cytoscape'
 import type { DagreLayoutOptions } from 'cytoscape-dagre'
 import type { DatatypeField } from 'types/tables'
+import { versionLabel } from 'utils/tableVersion'
 
 // Dagre-specific options (rankDir, nodeSep, rankSep) live in cytoscape-dagre's own DagreLayoutOptions, not in the
 // base @types/cytoscape LayoutOptions union; typing the constant with it keeps these fields type-checked.
@@ -56,8 +57,8 @@ export interface GraphNode {
     file?: string
     pos?: string
     properties?: Record<string, unknown>
-    // dimension properties this version is selected by (the dispatching/versioning rules)
-    dimensionProperties?: Record<string, string>
+    // values of the dimension properties this version is selected by, by technical name; absent unless versioned
+    dimensions?: Record<string, unknown>
     // data model of a datatype node: the datatype it extends and the fields it declares
     extends?: string
     fields?: GraphField[]
@@ -328,7 +329,7 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         const element: ElementDefinition = {
             data: {
                 id: node.id,
-                label: entity ? entityLabel(node) : node.name,
+                label: entity ? entityLabel(node) : versionLabel(node.name, node.dimensions),
                 kind: node.kind ?? '',
                 weight: used,
                 ...(area ? { parent: area } : {}),

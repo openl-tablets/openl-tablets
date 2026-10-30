@@ -28,7 +28,6 @@ Content-Type: application/json
       "pos": "B3:E11",
       "hasTests": true,
       "errors": 1,
-      "displayName": "Hello",
       "overloadGroup": "Hello(java.lang.Integer)",
       "module": "Main",
       "project": "EPBDS-15952",
@@ -50,7 +49,11 @@ Content-Type: application/json
       "sheet": "Rules",
       "pos": "B18:E27",
       "hasTests": true,
-      "displayName": "Hello [state=AL]",
+      "dimensions": {
+        "state": [
+          "AL"
+        ]
+      },
       "overloadGroup": "Hello(java.lang.Integer)",
       "module": "Main",
       "project": "EPBDS-15952",
@@ -72,7 +75,11 @@ Content-Type: application/json
       "sheet": "Rules",
       "pos": "B29:E38",
       "hasTests": true,
-      "displayName": "Hello [state=AZ]",
+      "dimensions": {
+        "state": [
+          "AZ"
+        ]
+      },
       "overloadGroup": "Hello(java.lang.Integer)",
       "module": "Main",
       "project": "EPBDS-15952",
@@ -89,7 +96,6 @@ Content-Type: application/json
       "sheet": "Rules",
       "pos": "B3:E11",
       "errors": 1,
-      "displayName": "Hello",
       "overloadGroup": "Hello(java.lang.Integer)",
       "module": "Main2",
       "project": "EPBDS-15952",

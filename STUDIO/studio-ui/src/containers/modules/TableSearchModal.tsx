@@ -19,6 +19,7 @@ import { errorMessage } from '../../utils/errorMessage'
 import { initialPropertyValue, PropertyValueInput } from '../tableModals/PropertyValueInput'
 import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import { tableIcon } from './tableIcons'
+import { versionLabel } from '../../utils/tableVersion'
 
 /**
  * The longest text a field of the search takes.
@@ -294,7 +295,7 @@ const TableSearchForm = ({
     const written = (table: ModuleTable) => {
         const line = table.signature
             ? [table.returnType, table.signature].filter(Boolean).join(' ')
-            : table.displayName ?? table.name
+            : versionLabel(table.name, table.dimensions)
         return line === table.kind ? line : `${table.kind} ${line}`
     }
 

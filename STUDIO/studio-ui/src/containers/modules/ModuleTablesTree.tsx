@@ -17,6 +17,7 @@ import {
     type TableNode,
     type TableView,
 } from './tableGrouping'
+import { versionLabel } from '../../utils/tableVersion'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
@@ -123,7 +124,7 @@ const nodeTitle = (node: TableNode, styles: TreeStyles, errors: number): React.R
         return node.hint ? <Tooltip title={node.hint}>{named}</Tooltip> : named
     }
     // The full signature is what the Editor showed on a node, so a name cut short still says what it is.
-    return <Tooltip title={table.signature ?? table.displayName ?? table.name}>{named}</Tooltip>
+    return <Tooltip title={table.signature ?? versionLabel(table.name, table.dimensions)}>{named}</Tooltip>
 }
 
 /** The classes the tree draws a table's state in. */
@@ -257,7 +258,7 @@ export const ModuleTablesTree = ({
     const shown = useMemo(() => {
         const wanted = search.trim().toLowerCase()
         return wanted === '' ? tables ?? [] : (tables ?? [])
-            .filter(table => (table.displayName ?? table.name).toLowerCase().includes(wanted))
+            .filter(table => versionLabel(table.name, table.dimensions).toLowerCase().includes(wanted))
     }, [tables, search])
 
     const nodes = useMemo(() => treeOf(shown, view, t), [shown, view, t])

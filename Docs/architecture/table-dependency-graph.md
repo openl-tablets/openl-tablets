@@ -35,7 +35,13 @@ project — and its `dependencies` and `dependents`. What it adds depends on wha
 
 - **A callable table** (`ExecutableNodeView`) — a rules table, a spreadsheet, a method, or the synthetic
   dispatcher of same-named versions. Adds `signature`, `returnType` and, for one version of an overloaded method,
-  the `dimensionProperties` that select it. Its dependencies are the tables it calls.
+  the `dimensions` that select it. Its dependencies are the tables it calls.
+
+A version is named as its table is, like the dispatcher above it. `dimensions` holds the value of every dimension
+property of the version, inherited ones included, by the technical name of the property and in the order of the
+property definitions. A value keeps its type, as the table list answers it: a date in ISO 8601 with no time zone, an
+enum by its name, several values as an array. The screen builds the label of a version from both, in the formats of
+the reader, such as `carPrice [effectiveDate=Jul 1, 2020 10:30:00 AM, state=AR]`.
 - **A datatype table** (`DatatypeNodeView`) — a datatype or a vocabulary. Adds `extends`, the id of the datatype
   it inherits from, and `fields`, the fields it declares. A field names its type as declared (`Driver[]`), the id
   of the datatype that type resolves to (`ref`), and whether it holds many values of it (`collection`). Its

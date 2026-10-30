@@ -4,6 +4,8 @@ import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TableGraphModal } from 'containers/TableGraphModal'
 import * as services from 'services'
+import { getProjectProperties } from 'services/projects'
+import { formatLocalDateTime } from 'utils/dateFormat'
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useThemeMode } from 'antd-style'
@@ -56,6 +58,7 @@ const cyMocks = vi.hoisted(() => {
 })
 
 vi.mock('services', () => ({ apiCall: vi.fn() }))
+vi.mock('services/projects', () => ({ getProjectProperties: vi.fn(() => Promise.resolve([])) }))
 
 const navigate = vi.fn()
 vi.mock('react-router', async importOriginal => ({
@@ -263,17 +266,22 @@ describe('TableGraphModal', () => {
 
     it('treats a dispatcher as technical: no editor link, offers version paths instead', async () => {
         mockApiCall.mockResolvedValueOnce([
-            { id: 'd', name: 'mySPR(int)', kind: 'Dispatcher', dependencies: ['a', 'b']},
-            { id: 'a', name: 'AR' },
-            { id: 'b', name: 'AZ' },
+            { id: 'd', name: 'mySPR', kind: 'Dispatcher', dependencies: ['a', 'b']},
+            { id: 'a', name: 'mySPR', dimensions: { state: ['AR']} },
+            { id: 'b', name: 'mySPR', dimensions: { state: ['AZ']} },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
-        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'mySPR(int)')
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'mySPR')
 
+        // the versions it picks from are told apart by their dimensions, and the search stands on the dispatcher
+        const linked = (label: string) => screen.getAllByText(label).some(element => element.closest('a') !== null)
+        expect(linked('mySPR [state=AR]')).toBe(true)
+        expect(linked('mySPR [state=AZ]')).toBe(true)
+        expect(screen.getByTestId('table-graph-search')).toHaveValue('mySPR')
         expect(screen.queryByText('graph:panel.open')).not.toBeInTheDocument()
         expect(screen.getByText('graph:panel.dispatcher_hint')).toBeInTheDocument()
         expect(screen.getByText('graph:panel.highlight_path')).toBeInTheDocument()
@@ -309,20 +317,28 @@ describe('TableGraphModal', () => {
                 file: 'rules/Main.xlsx',
                 pos: 'B2:C4',
                 properties: { state: 'AZ' },
-                dimensionProperties: { State: 'AR' },
+                dimensions: { state: ['AR'], effectiveDate: '2020-01-01T00:00:00.000' },
             },
+        ] as never)
+        vi.mocked(getProjectProperties).mockResolvedValueOnce([
+            { name: 'state', displayName: 'US States' },
         ] as never)
 
         render(<MemoryRouter><TableGraphModal /></MemoryRouter>)
         await dispatchOpen({ projectId: 'proj-1' })
         await waitFor(() => expect(mockCytoscape).toHaveBeenCalled())
 
-        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), 'A')
+        // a version is found and titled by the dimensions that tell it from the others
+        const label = `A [state=AR, effectiveDate=${formatLocalDateTime('2020-01-01T00:00:00.000')}]`
+        await userEvent.selectOptions(screen.getByTestId('table-graph-search'), label)
 
+        expect(screen.getAllByText(label).length).toBeGreaterThan(0)
         expect(screen.getByText('foo(int n)')).toBeInTheDocument()
         expect(screen.getByText('rules/Main.xlsx')).toBeInTheDocument()
         expect(screen.getByText('state: AZ')).toBeInTheDocument()
-        expect(screen.getByText('State: AR')).toBeInTheDocument()
+        // a dimension is named as the property definitions name it, or by its technical name without one
+        expect(screen.getByText('US States: AR')).toBeInTheDocument()
+        expect(screen.getByText('effectiveDate: Jan 1, 2020')).toBeInTheDocument()
     })
 
     it('shows the data model of the selected datatype and follows a field to its datatype', async () => {

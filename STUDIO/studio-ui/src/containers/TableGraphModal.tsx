@@ -18,6 +18,8 @@ import type { GlobalToken } from 'antd'
 import { useGlobalEvents } from '../hooks'
 import { apiCall, type ApiCallOptions } from '../services'
 import { moduleRoute } from '../services/projectId'
+import { getProjectProperties } from '../services/projects'
+import { dimensionValue, versionLabel } from '../utils/tableVersion'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
@@ -70,6 +72,10 @@ const candidateLabel = (node: GraphNode): string => {
     const location = [node.file, node.pos].filter(Boolean).join(' · ')
     return location || node.signature || node.kind || node.id
 }
+
+/** The name a reader tells a node by: a version adds the dimensions that tell it from the others. */
+const labelOf = (node: GraphNode | undefined): string | undefined =>
+    node && versionLabel(node.name, node.dimensions)
 
 const candidateTooltip = (node: GraphNode): string => [node.kind, node.project, candidateLabel(node)].filter(Boolean).join(' · ')
 
@@ -316,6 +322,8 @@ export const TableGraphModal: React.FC = () => {
     const [legendOpen, setLegendOpen] = useState(true)
     // Which slice of tables the graph covers. Defaults to the opened module; the user can switch to the whole project.
     const [scope, setScope] = useState<'module' | 'project'>('project')
+    // The names a business user reads the table properties by, keyed by their technical names.
+    const [propertyNames, setPropertyNames] = useState<Map<string, string>>(new Map())
 
     const containerRef = useRef<HTMLDivElement>(null)
     const cyRef = useRef<Core | null>(null)
@@ -379,6 +387,10 @@ export const TableGraphModal: React.FC = () => {
         // Preselect the table the user is editing; default to the opened module's slice when one is known.
         pendingSelectRef.current = tableIdFromHash()
         loadGraph(detail.module ? 'module' : 'project')
+        // Without the names, a dimension is shown by its technical name.
+        getProjectProperties(detail.projectId)
+            .then(properties => setPropertyNames(new Map(properties.map(property => [property.name, property.displayName]))))
+            .catch(() => setPropertyNames(new Map()))
     }, [detail, loadGraph])
 
     const model = useMemo(() => buildGraphModel(nodes), [nodes])
@@ -386,11 +398,12 @@ export const TableGraphModal: React.FC = () => {
     const byName = useMemo(() => {
         const index = new Map<string, GraphNode[]>()
         nodes.forEach(node => {
-            const named = index.get(node.name)
+            const label = versionLabel(node.name, node.dimensions)
+            const named = index.get(label)
             if (named) {
                 named.push(node)
             } else {
-                index.set(node.name, [node])
+                index.set(label, [node])
             }
         })
         return index
@@ -630,7 +643,7 @@ export const TableGraphModal: React.FC = () => {
                 <Typography.Text strong>{label}</Typography.Text>
                 <Space orientation="vertical" size={2} style={{ width: '100%' }}>
                     {ids.map(id => {
-                        const name = model.byId.get(id)?.name ?? id
+                        const name = labelOf(model.byId.get(id)) ?? id
                         return (
                             <Typography.Link key={id} onClick={() => onPick(id)} style={{ display: 'block', maxWidth: '100%' }}>
                                 <Typography.Text ellipsis={{ tooltip: name }} style={{ color: 'inherit', maxWidth: '100%' }}>
@@ -660,7 +673,7 @@ export const TableGraphModal: React.FC = () => {
                 <div style={{ height: 76, marginTop: 4, overflowY: 'auto' }}>
                     <Space wrap size={4}>
                         {cycles.map((cycle, index) => {
-                            const names = cycle.nodes.map(id => model.byId.get(id)?.name ?? id)
+                            const names = cycle.nodes.map(id => labelOf(model.byId.get(id)) ?? id)
                             return (
                                 <Tag
                                     key={cycle.id}
@@ -831,11 +844,14 @@ export const TableGraphModal: React.FC = () => {
     const renderNodeInfo = (node: GraphNode) => {
         const isDispatcher = node.kind === DISPATCHER_KIND
         const foreign = !isDispatcher && !canOpenTable(node, currentProjectName)
-        const dims = Object.entries(node.dimensionProperties ?? {})
+        // a dimension is named as the properties of a table name it, its value as the name of the version writes it
+        const dims = Object.entries(node.dimensions ?? {})
+            .map(([key, value]) => `${propertyNames.get(key) ?? key}: ${dimensionValue(value)}`)
+        const label = versionLabel(node.name, node.dimensions)
         return (
             <>
-                <Typography.Title ellipsis={{ tooltip: node.name }} level={5} style={{ marginTop: 0, marginBottom: 6 }}>
-                    {node.name}
+                <Typography.Title ellipsis={{ tooltip: label }} level={5} style={{ marginTop: 0, marginBottom: 6 }}>
+                    {label}
                 </Typography.Title>
                 <Space wrap size={4} style={{ marginBottom: 8 }}>
                     {node.kind && <Tag color={kindColor(token, node.kind)}>{node.kind}</Tag>}
@@ -847,10 +863,10 @@ export const TableGraphModal: React.FC = () => {
                             {t('graph:meta.business_dimension')}
                         </Typography.Text>
                         <Space wrap size={[4, 4]} style={{ width: '100%' }}>
-                            {dims.map(([key, value]) => (
-                                <Tag key={key} color="gold" style={{ margin: 0, maxWidth: '100%' }}>
-                                    <Typography.Text ellipsis={{ tooltip: `${key}: ${value}` }} style={{ color: 'inherit', maxWidth: 220 }}>
-                                        {`${key}: ${value}`}
+                            {dims.map(dimension => (
+                                <Tag key={dimension} color="gold" style={{ margin: 0, maxWidth: '100%' }}>
+                                    <Typography.Text ellipsis={{ tooltip: dimension }} style={{ color: 'inherit', maxWidth: 220 }}>
+                                        {dimension}
                                     </Typography.Text>
                                 </Tag>
                             ))}
@@ -1046,7 +1062,7 @@ export const TableGraphModal: React.FC = () => {
                                 placeholder={t('graph:search_placeholder')}
                                 showSearch={{ optionFilterProp: 'label' }}
                                 style={{ width: 260 }}
-                                value={selected?.name ?? searchName}
+                                value={labelOf(selected) ?? searchName}
                                 onChange={name => {
                                     setSearchName(name)
                                     setActiveCycle(undefined)

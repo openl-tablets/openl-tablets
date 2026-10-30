@@ -213,6 +213,10 @@ OpenL Studio adds a view navigation link to the appropriate test table and vice 
 
 *Navigation link to target table*
 
+A test of a table written in several versions exercises every version. The first version is named in the toolbar,
+and the arrow beside it lists the others. A version is named by the values of its dimension properties. A name too long
+for the toolbar is cut short, and pointing to it shows the whole name.
+
 #### Running Unit Tests
 
 This section describes how a table and its tests are run, and how the results read. The following topics are

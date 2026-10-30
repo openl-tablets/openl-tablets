@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.table.IOpenLTable;
@@ -51,7 +50,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         return tables
                 .filter(node -> node.getNodeType() == XlsNodeTypes.XLS_TEST_METHOD && !ranUris.contains(node.getUri()))
                 .filter(node -> !model.getErrorsByUri(node.getUri()).isEmpty())
-                .map(node -> TableSyntaxNodeUtils.getTableDisplayValue(node, 0, null)[INamedThing.SHORT])
+                .map(TableSyntaxNodeUtils::getTableName)
                 .distinct()
                 .toList();
     }
@@ -103,10 +102,9 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
             executionResult.add(unitsResult);
             listener.onStatusChanged(TestExecutionStatus.COMPLETED);
             return CompletableFuture.completedFuture(new TestRun(executionResult));
-        } else {
-            listener.onStatusChanged(TestExecutionStatus.COMPLETED);
-            return CompletableFuture.completedFuture(new TestRun(executionResult));
         }
+        listener.onStatusChanged(TestExecutionStatus.COMPLETED);
+        return CompletableFuture.completedFuture(new TestRun(executionResult));
     }
 
     private void runAllTests(ProjectTestsExecutionProgressListener listener,
@@ -143,7 +141,7 @@ public class TestsExecutorServiceImpl implements TestsExecutorService {
         var testedMethod = testSuiteMethod.getTestedMethod();
         var testSuite = new TestSuite(testSuiteMethod);
         TestUnitsResults testUnitsResults;
-        Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher dispatcher)
+        Collection<IOpenMethod> methods = testedMethod instanceof OpenMethodDispatcher dispatcher
                 ? dispatcher.getCandidates()
                 : Set.of(testedMethod);
         var noErrors = true;

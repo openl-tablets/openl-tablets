@@ -285,7 +285,8 @@ interface BaseTableNodeView {
 /** A callable-table node in the Studio dependency graph. */
 interface ExecutableNodeView extends BaseTableNodeView {
   kind?: Exclude<TableKind, "Datatype"> | "Dispatcher";
-  dimensionProperties?: Record<string, string>;
+  /** Values of the dimension properties that tell this version from the others; dates in ISO 8601. */
+  dimensions?: Record<string, unknown>;
   returnType?: string;
   signature?: string;
 }

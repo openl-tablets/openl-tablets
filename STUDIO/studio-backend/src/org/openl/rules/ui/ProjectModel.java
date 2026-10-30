@@ -978,9 +978,9 @@ public class ProjectModel {
     }
 
     /**
-     * Builds the overloaded-methods dictionary across every module of the project, not only the opened one. Views that
-     * span the whole project use it to disambiguate overloaded table names (the {@code [state=...]} suffix) for versions
-     * that live in non-opened modules.
+     * Builds the overloaded-methods dictionary across every module of the project, not only the opened one. It tells
+     * the versions of a table apart, by the values of their dimension properties, wherever they are written, including
+     * the modules that are not opened.
      */
     public synchronized OverloadedMethodsDictionary getAllMethodNodesDictionary() {
         var tableSyntaxNodes = xlsModuleSyntaxNodesPerProject.values().stream()

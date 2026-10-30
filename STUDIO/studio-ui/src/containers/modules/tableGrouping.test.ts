@@ -157,7 +157,7 @@ describe('tableGrouping', () => {
     describe('the versions of one table', () => {
         const carPrice = (lob: string, extra: Partial<ModuleTable> = {}): ModuleTable => table('CarPrice', {
             id: `car-${lob}`,
-            displayName: `CarPrice [lob=${lob}]`,
+            dimensions: { lob: [lob]},
             overloadGroup: 'CarPrice(java.lang.String)',
             ...extra,
         })
@@ -177,7 +177,7 @@ describe('tableGrouping', () => {
             // Another CarPrice, taking another argument: its versions are its own, not this one's.
             const namesake = (id: string, lob: string): ModuleTable => table('CarPrice', {
                 id,
-                displayName: `CarPrice [lob=${lob}]`,
+                dimensions: { lob: [lob]},
                 overloadGroup: 'CarPrice(java.lang.Integer)',
             })
             const tables = [carPrice('Banking'), carPrice('Insurance'), namesake('by-age', 'Retail')]
