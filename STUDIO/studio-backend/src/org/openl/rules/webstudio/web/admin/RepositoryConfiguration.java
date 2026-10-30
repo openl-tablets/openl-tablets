@@ -109,7 +109,7 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
         var defaultSettingsPrefix = REPOSITORY_DEFAULT_PREFIX + repoMode.getId();
         properties.setProperty(nameWithPrefix + ".comment-template.$ref", defaultSettingsPrefix + ".comment-template");
         properties.setProperty(nameWithPrefix + ".base.path.$ref", defaultSettingsPrefix + ".base.path");
-        if (repoMode.equals(RepositoryMode.DESIGN)) {
+        if (repoMode == RepositoryMode.DESIGN) {
             properties.setProperty(nameWithPrefix + ".new-branch.$ref", defaultSettingsPrefix + ".new-branch");
         }
 
@@ -258,7 +258,8 @@ public class RepositoryConfiguration implements ConfigPrefixSettingsHolder {
             errorMessage = null;
 
             properties.setProperty(repositoryRefKey, newRepositoryType.factoryId);
-            settings = createSettings(newRepositoryType, properties, nameWithPrefix, true);
+            // Only a just created configuration knows the other configurations to make its path unique.
+            settings = createSettings(newRepositoryType, properties, nameWithPrefix, valueFinder != null);
         }
     }
 
