@@ -57,8 +57,8 @@ Notes:
   projects' `pom.xml` and edits each project's **anchor** — the nearest non-OpenL aggregator pom that contains it,
   never a higher parent — to declare the plugin (`<extensions>true</>` + version), set the max
   `<dependenciesThreshold>`, and hoist non-OpenL deps, then prunes the converted modules from `<modules>`. Blocked
-  projects (per-project config other than `dependenciesThreshold`/`deploymentPackage`, executions, profiles, …) are
-  left untouched and reported. Pom edits re-serialise the model — review the diff.
+  projects (per-project config other than `dependenciesThreshold`, `deploymentPackage` and `deploymentName`,
+  executions, profiles, …) are left untouched and reported. Pom edits re-serialise the model — review the diff.
 - **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy scripts and rules that call removed functions, one commit
   per step. `mvn openl:help -Dgoal=migrate -Ddetail` lists the steps; `-Dopenl.migrate.migrators=<id>` selects them.
 
@@ -78,6 +78,8 @@ Notes:
 - The `classes` jar is also embedded into the zip archive as `lib/<finalName>.jar` (runtime classpath);
   depend on it with `<classifier>classes</classifier>`.
 - Not built when a main jar artifact already exists or for `openl-jar` packaging (classes go to the jar root).
+- The `deployment` archive is `<finalName>-deployment.zip`, named `<finalName>` in its `deployment.yaml`; `openl:deploy`
+  uploads it instead of the main archive. The deprecated `deploymentName` has no effect and logs a warning.
 
 ## Pom-less OpenL projects
 

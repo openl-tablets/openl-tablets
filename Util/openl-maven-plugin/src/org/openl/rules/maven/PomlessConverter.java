@@ -184,8 +184,9 @@ final class PomlessConverter {
      * Inspects a plugin entry: returns the {@code openl-maven-plugin} {@code <dependenciesThreshold>} (or
      * {@code null}) and appends blockers for anything that can't go pom-less.
      * <p>
-     * {@code <dependenciesThreshold>} is the only config key that doesn't block (it's reconciled to the
-     * anchor max). Any other child (skipITs, deploymentName, …) blocks — those have no safe anchor-wide value.
+     * {@code <dependenciesThreshold>} is reconciled to the anchor max, and the deprecated no-ops
+     * {@code <deploymentPackage>} and {@code <deploymentName>} are dropped; neither blocks. Any other child
+     * (skipITs, classifier, …) blocks — those have no safe anchor-wide value.
      */
     private static Integer analyzePlugin(Plugin plugin, List<String> blockers) {
         if (!OpenLPackagings.isOpenLPlugin(plugin.getGroupId(), plugin.getArtifactId())) {
@@ -203,8 +204,9 @@ final class PomlessConverter {
             var name = child.getName();
             if (PackageMojo.DEPENDENCIES_THRESHOLD_PARAM.equals(name)) {
                 threshold = parseThreshold(child.getValue(), blockers);
-            } else if (PackageMojo.DEPLOYMENT_PACKAGE_PARAM.equals(name)) {
-                // Deprecated no-op — deployment artefacts are auto-discovered now. Safe to drop; doesn't block.
+            } else if (PackageMojo.NO_EFFECT_PARAMS.contains(name)) {
+                // Deprecated no-ops — the deployment artefact is auto-discovered and named after finalName now.
+                // Safe to drop; doesn't block.
             } else {
                 // Per-project config with no portable anchor-wide value.
                 blockers.add("openl-maven-plugin <configuration> has non-portable <" + name + ">");

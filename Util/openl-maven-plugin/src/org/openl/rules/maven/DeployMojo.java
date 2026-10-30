@@ -48,7 +48,7 @@ public class DeployMojo extends BaseOpenLMojo {
             throw new IllegalArgumentException("The deploy server url cannot be empty");
         }
 
-        var zipFile = findZipFile();
+        var zipFile = findZipFile(outputDirectory, finalName);
 
         var server = settings.getServer(deployServer);
         if (server == null) {
@@ -70,14 +70,28 @@ public class DeployMojo extends BaseOpenLMojo {
         }
     }
 
-    private File findZipFile() {
-        var zipZiles = outputDirectory.listFiles((dir, name) -> name.contains(finalName) && name.endsWith(".zip"));
-        if (zipZiles == null) {
+    /**
+     * Finds the archive to deploy. The deployment archive of a project that depends on other OpenL projects wins, as it
+     * carries these projects too. Otherwise, the only zip file whose name contains the name of the build is deployed,
+     * the archive with the tests aside.
+     *
+     * @throws IllegalStateException when there is no such zip file, or more than one
+     */
+    static File findZipFile(File outputDirectory, String finalName) {
+        var zip = '.' + OpenLPackagings.ZIP_DEPENDENCY_TYPE;
+        var deployment = new File(outputDirectory, finalName + '-' + PackageMojo.DEPLOYMENT_CLASSIFIER + zip);
+        if (deployment.isFile()) {
+            return deployment;
+        }
+        var tests = finalName + '-' + PackageMojo.TESTS_CLASSIFIER + zip;
+        var zipFiles = outputDirectory.listFiles(
+                (dir, name) -> name.contains(finalName) && name.endsWith(zip) && !name.equals(tests));
+        if (zipFiles == null || zipFiles.length == 0) {
             throw new IllegalStateException("Cannot deploy the rules project, as the zip file does not exist");
         }
-        if (zipZiles.length > 1) {
+        if (zipFiles.length > 1) {
             throw new IllegalStateException("There are more than 1 zip file in the target directory");
         }
-        return zipZiles[0];
+        return zipFiles[0];
     }
 }

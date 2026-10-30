@@ -32,10 +32,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
                 <extensions>true</extensions>
-                <configuration>
-                    <deploymentPackage>true</deploymentPackage>
-                    <deploymentName>Example project with dependency</deploymentName>
-                </configuration>
             </plugin>
         </plugins>
     </build>
