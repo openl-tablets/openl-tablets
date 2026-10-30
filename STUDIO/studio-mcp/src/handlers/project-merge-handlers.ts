@@ -52,9 +52,9 @@ async function repositoryBaseBranch(client: OpenLClient, projectId: string): Pro
 }
 
 /**
- * Checks whether `branchName`, the current branch of the project, is merged into the base branch of the repository.
- * Fills in the base branch, the merge check and the divergence status, and the reason not to delete the branch when
- * there is one.
+ * Checks whether `branchName` is merged into the base branch of the repository. Studio checks a merge of the current
+ * branch of the project, so it tells this only when the project is on `branchName` or on the base branch. Fills in the
+ * base branch, the merge check and the divergence status, and the reason not to delete the branch when there is one.
  */
 async function checkDivergence(
   client: OpenLClient,
@@ -70,9 +70,22 @@ async function checkDivergence(
     safety.reason = "Studio did not identify the repository base branch, so divergence cannot be checked.";
     return;
   }
+  const current = safety.currentBranch;
+  if (current !== branchName && current !== baseBranch) {
+    safety.reason = current
+      ? `Studio can only compare the project's current branch '${current}', not deletion target '${branchName}'. ` +
+        `Open '${branchName}' or base branch '${baseBranch}' with openl_open_project and retry to obtain an ` +
+        "authoritative divergence check."
+      : `Studio did not report a current branch for deletion target '${branchName}', so divergence cannot be checked.`;
+    return;
+  }
+  // From the deletion target, the merge sends it into the base branch; from the base branch, it receives the target
+  const request: Types.MergeRequest = current === branchName
+    ? { mode: "send", otherBranch: baseBranch }
+    : { mode: "receive", otherBranch: branchName };
   let mergeCheck: Types.CheckMergeResult;
   try {
-    mergeCheck = await client.checkProjectMerge(projectId, { mode: "send", otherBranch: baseBranch });
+    mergeCheck = await client.checkProjectMerge(projectId, request);
   } catch {
     safety.reason =
       `Studio could not verify whether branch '${branchName}' is merged into base branch '${baseBranch}'.`;
@@ -539,7 +552,7 @@ export function registerProjectMergeHandlers(): void {
     name: "delete_project_branch",
     title: "Delete Project Branch",
     description:
-      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true plus confirmForce=true (and eligible Studio permissions). It then performs a safe-delete preflight against the repository base branch when the target is the project's current branch. A branch with commits absent from base, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. confirmBranchName must exactly equal branch. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
+      "Delete a branch from the repository hosting a project. The tool first reads project-aware branch metadata: a base branch is always rejected, and a protected branch requires force=true plus confirmForce=true (and eligible Studio permissions). It then performs a safe-delete preflight against the repository base branch when the project is on the target or on the base branch. A branch with commits absent from base, unsaved changes, or no authoritative divergence check is rejected unless confirmDataLoss=true explicitly acknowledges the reported risk. confirmBranchName must exactly equal branch. If the project is open on the deleted branch, Studio closes it first. Branch names containing '/' are supported.",
     schema: schemas.deleteProjectBranchSchema,
     annotations: {
       destructiveHint: true,
@@ -575,12 +588,7 @@ export function registerProjectMergeHandlers(): void {
         unsavedChanges: project.branch === branch.name && project.status === "EDITING",
       };
 
-      if (project.branch !== branch.name) {
-        safety.reason = project.branch
-          ? `Studio can only compare the project's current branch '${project.branch}', not deletion target '${branch.name}'. ` +
-            `Open '${branch.name}' with openl_open_project and retry to obtain an authoritative divergence check.`
-          : `Studio did not report a current branch for deletion target '${branch.name}', so divergence cannot be checked.`;
-      } else if (safety.unsavedChanges) {
+      if (safety.unsavedChanges) {
         safety.reason = `Branch '${branch.name}' has unsaved working-copy changes that deletion will discard.`;
       } else {
         await checkDivergence(client, args.projectId, branches, args.branch, safety);
