@@ -27,9 +27,6 @@ The following table types support versioning by Business Dimension properties:
 
 -   Decision tables, including rules, simple rules, smart rules, simple lookups, and smart lookup tables
 -   Spreadsheet
--   TBasic
--   Method
--   ColumnMatch
 
 **Note:** Test, Datatype, and Data table types cannot be versioned.
 

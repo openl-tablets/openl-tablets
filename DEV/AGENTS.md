@@ -29,9 +29,9 @@ Application Layer (Generated Proxies)  →  Runtime (VM, Context)
   inside the OpenL Studio war only: it is installed into the local repository but never deployed.
   `DemoProjectsTest` compiles every project and runs its test tables during the build, with dispatching validation
   on as OpenL Studio does, so a demo project ships only without compilation errors and with all its tests passing.
-  The `Example-4-Reference-Guide` example has a tested example of every table type, BEX syntax and public,
-  non-deprecated built-in function, in workbooks that follow the Reference Guide chapters: a new or changed rules
-  feature updates its workbook too
+  The `Example-4-Reference-Guide` example has a tested example of every non-deprecated table type, BEX syntax and
+  public, non-deprecated built-in function, in workbooks that follow the Reference Guide chapters: a new or changed
+  rules feature updates its workbook too
 - **org.openl.rules.util** — Rule utility functions
 - **org.openl.spring** — Spring integration (`PassCoder` for password encoding lives here) and, in `org.openl.web`,
   the servlet-side helpers OpenL Studio and OpenL Rule Services share, such as the CORS origin list and headers
