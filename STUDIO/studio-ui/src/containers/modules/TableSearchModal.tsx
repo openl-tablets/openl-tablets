@@ -20,6 +20,7 @@ import { initialPropertyValue, PropertyValueInput } from '../tableModals/Propert
 import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import { tableIcon } from './tableIcons'
 import { versionLabel } from '../../utils/tableVersion'
+import { useDateFormats } from '../../utils/dateFormat'
 
 /**
  * The longest text a field of the search takes.
@@ -162,6 +163,7 @@ type TableSearchFormProps = Omit<TableSearchModalProps, 'open' | 'onClose'>
  * search opens as it starts — whatever was asked of it before, and whichever module the reader is in by then.
  */
 export const TableSearchModal = ({ open, onClose, ...asked }: TableSearchModalProps) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     // Each opening is a search of its own, and is built as one: what the last was asked, and what it found,
     // belong to it rather than to this one.

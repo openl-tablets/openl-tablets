@@ -3,7 +3,7 @@ import { errorMessage } from '../../utils/errorMessage'
 import { getProjectRevisions, REVISIONS_PAGE_SIZE, type ProjectRevision, type RevisionPage } from '../../services/repositories'
 import { getFileRevisions } from '../../services/files'
 import type { Project } from '../../types/projects'
-import { formatDateTime } from '../../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 
 /** How many characters of a revision hash identify it on screen. */
 const SHORT_REVISION_LENGTH = 6
@@ -70,6 +70,8 @@ export const useProjectRevisions = (
     filePath?: string,
     branch?: string
 ): ProjectRevisions => {
+    // The options are labelled by the time of each revision, in the formats of the reader.
+    useDateFormats()
     const [revisions, setRevisions] = useState<ProjectRevision[] | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [lastPage, setLastPage] = useState<RevisionPage | null>(null)

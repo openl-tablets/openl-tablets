@@ -1,8 +1,9 @@
 import type { Key, ReactNode } from 'react'
 import type { TreeDataNode } from 'antd'
 import type { ValueLevel, ValueLine } from 'types/execution'
+import { type DateFormats, formatLocalDateTime, formats, isLocalDateTime } from 'utils/dateFormat'
 
-export type SimpleValueKind = 'null' | 'string' | 'number' | 'boolean' | 'other'
+export type SimpleValueKind = 'null' | 'string' | 'number' | 'boolean' | 'date' | 'other'
 
 /** A value without inner structure. The text a viewer shows and the kind it colours it by. */
 interface SimpleValueText {
@@ -24,19 +25,25 @@ export const complexValueSummary = (value: object): string =>
 /**
  * Describes a value without inner structure the way a debugger shows it. Strings are quoted, null is spelled out.
  *
+ * A date is written by the server as text with a time and no time zone, `2020-07-01T10:30:00.000`. Such text is
+ * shown as the date it stands for, in the formats of the reader, and is not quoted.
+ *
  * A value with inner structure is named by what it holds. Nothing else comes in a value read from JSON: a bigint, a
  * symbol or a function is written the way JavaScript writes it.
  */
 export const describeSimpleValue = (
     value: unknown,
-    formatNumber: (value: number) => string = String
+    formatNumber: (value: number) => string = String,
+    patterns: DateFormats = formats()
 ): SimpleValueText => {
     switch (typeof value) {
         // The API leaves a null value out, so a value that is not there is shown as the null it stands for.
         case 'undefined':
             return { display: 'null', kind: 'null' }
         case 'string':
-            return { display: `"${value}"`, kind: 'string' }
+            return isLocalDateTime(value)
+                ? { display: formatLocalDateTime(value, patterns), kind: 'date' }
+                : { display: `"${value}"`, kind: 'string' }
         case 'number':
             return { display: formatNumber(value), kind: 'number' }
         case 'boolean':

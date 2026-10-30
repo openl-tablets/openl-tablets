@@ -4,6 +4,7 @@ import { Button, Input, Space, Typography } from 'antd'
 import type { TreeDataNode } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { complexValueSummary, describeSimpleValue, isComplexValue } from 'components/values/valueTree'
+import { formatLocalDateTime, useDateFormats } from 'utils/dateFormat'
 import { labelOf, ScalarEditor } from './ScalarEditor'
 import {
     clearedValue,
@@ -157,10 +158,15 @@ const KeyEditor: React.FC<{
  * The text of a value next to its name.
  *
  * A plain value reads as the debugger shows it, a structure by its size. A code with a name is shown by its name.
+ * A date is shown in the formats of the reader, while the value the rule receives stays in ISO 8601.
  */
-const ValueText: React.FC<{ value: unknown, path: string, labels?: Record<string, string> | undefined }> = ({
-    value, path, labels,
-}) => {
+const ValueText: React.FC<{
+    value: unknown
+    path: string
+    kind: FieldKind
+    labels?: Record<string, string> | undefined
+}> = ({ value, path, kind: fieldKind, labels }) => {
+    const patterns = useDateFormats()
     // A code is text or a number, and its name is listed under its text, the way the choice lists it.
     const label = typeof value === 'string' || typeof value === 'number' ? labelOf(labels, String(value)) : undefined
     if (label !== undefined) {
@@ -169,8 +175,12 @@ const ValueText: React.FC<{ value: unknown, path: string, labels?: Record<string
     if (isComplexValue(value)) {
         return <Text italic data-testid={`value-${path}`} type="secondary">{complexValueSummary(value)}</Text>
     }
+    // A date alone holds no time, and only the field tells it from text.
+    if (fieldKind === 'date' && typeof value === 'string') {
+        return <Text code data-testid={`value-${path}`}>{formatLocalDateTime(value, patterns)}</Text>
+    }
     // An unset field is absent from the value, and is shown as null, which is what the rule receives.
-    const { display, kind } = describeSimpleValue(value)
+    const { display, kind } = describeSimpleValue(value, String, patterns)
     return kind === 'null'
         ? <Text italic data-testid={`value-${path}`} type="secondary">{display}</Text>
         : <Text code data-testid={`value-${path}`}>{display}</Text>
@@ -296,7 +306,7 @@ const NodeTitle: React.FC<Omit<NodeSpec, 'schema'> & {
                         value={value}
                     />
                 )
-                : <ValueText labels={labels} path={path} value={value} />}
+                : <ValueText kind={kind} labels={labels} path={path} value={value} />}
             {actions}
         </Space>
     )

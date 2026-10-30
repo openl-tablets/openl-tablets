@@ -338,7 +338,7 @@ describe('TableGraphModal', () => {
         expect(screen.getByText('state: AZ')).toBeInTheDocument()
         // a dimension is named as the property definitions name it, or by its technical name without one
         expect(screen.getByText('US States: AR')).toBeInTheDocument()
-        expect(screen.getByText('effectiveDate: Jan 1, 2020')).toBeInTheDocument()
+        expect(screen.getByText(`effectiveDate: ${formatLocalDateTime('2020-01-01T00:00:00.000')}`)).toBeInTheDocument()
     })
 
     it('shows the data model of the selected datatype and follows a field to its datatype', async () => {

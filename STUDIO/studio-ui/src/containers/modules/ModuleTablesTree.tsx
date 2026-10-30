@@ -18,6 +18,7 @@ import {
     type TableView,
 } from './tableGrouping'
 import { versionLabel } from '../../utils/tableVersion'
+import { useDateFormats } from '../../utils/dateFormat'
 
 /** The height of one row of the tree, which the virtual list counts in. */
 const ROW_HEIGHT = 24
@@ -255,13 +256,15 @@ export const ModuleTablesTree = ({
     // The rail searches what it shows, by name: the tables of this module are already in the browser, so the
     // search costs no request. Everything wider than a name — a header, the text in the cells, another module —
     // is what the extended search asks the server for.
+    // A version is labelled by the dates it is told by, in the formats of the reader.
+    const dateFormats = useDateFormats()
     const shown = useMemo(() => {
         const wanted = search.trim().toLowerCase()
         return wanted === '' ? tables ?? [] : (tables ?? [])
-            .filter(table => versionLabel(table.name, table.dimensions).toLowerCase().includes(wanted))
-    }, [tables, search])
+            .filter(table => versionLabel(table.name, table.dimensions, dateFormats).toLowerCase().includes(wanted))
+    }, [tables, search, dateFormats])
 
-    const nodes = useMemo(() => treeOf(shown, view, t), [shown, view, t])
+    const nodes = useMemo(() => treeOf(shown, view, t, dateFormats), [shown, view, t, dateFormats])
     // A row is as wide as its own name needs, and never narrower than the rail: a scrolling width smaller than
     // what is on screen leaves the virtual list pushed to the right of an empty rail.
     const rowWidth = useMemo(() => Math.max(Math.ceil(widthOf(nodes)), body.width), [nodes, body.width])

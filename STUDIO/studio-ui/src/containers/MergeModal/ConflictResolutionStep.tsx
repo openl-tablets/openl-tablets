@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { apiCall, CONFIG } from '../../services'
-import { formatDateTime } from '../../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { saveFile } from '../../utils/download'
 import { errorMessageOr } from '../../utils/errorMessage'
 import { isWorkbookPath } from '../../utils/workbooks'
@@ -76,6 +76,7 @@ export const ConflictResolutionStep: React.FC<ConflictResolutionStepProps> = ({
     onCompare,
     onSavingChange,
 }) => {
+    useDateFormats()
     const { notification } = App.useApp()
     const { t } = useTranslation()
     const { styles } = useStyles()

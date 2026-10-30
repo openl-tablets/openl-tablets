@@ -1,5 +1,6 @@
 import type { ModuleTable } from 'types/tables'
 import { readJson, writeJson } from '../../utils/localStore'
+import type { DateFormats } from '../../utils/dateFormat'
 import { versionLabel } from '../../utils/tableVersion'
 
 /**
@@ -200,10 +201,10 @@ const valueOf = (table: ModuleTable, level: Level, t: Translate): string | null 
     }
 }
 
-const tableNode = (table: ModuleTable, keyPrefix: string): TableNode => ({
+const tableNode = (table: ModuleTable, keyPrefix: string, patterns?: DateFormats): TableNode => ({
     key: `${keyPrefix}/table/${table.id}`,
     // A table written in several versions is named by what tells it from the others.
-    title: versionLabel(table.name, table.dimensions),
+    title: versionLabel(table.name, table.dimensions, patterns),
     table,
     children: [],
 })
@@ -233,7 +234,8 @@ const majorityName = (versions: ModuleTable[]): string => {
  * The folder stands even where a branch holds a single version — the other versions are written on another
  * sheet, or under another category — so a version is always found in the same place.
  */
-const tableNodes = (tables: ModuleTable[], keyPrefix: string, asWritten: boolean): TableNode[] => {
+const tableNodes = (tables: ModuleTable[], keyPrefix: string, asWritten: boolean,
+    patterns?: DateFormats): TableNode[] => {
     const versions = new Map<string, ModuleTable[]>()
     for (const table of tables) {
         const group = table.overloadGroup
@@ -245,7 +247,7 @@ const tableNodes = (tables: ModuleTable[], keyPrefix: string, asWritten: boolean
     for (const table of tables) {
         const grouped = table.overloadGroup === undefined ? undefined : versions.get(table.overloadGroup)
         if (grouped === undefined) {
-            nodes.push(tableNode(table, keyPrefix))
+            nodes.push(tableNode(table, keyPrefix, patterns))
         } else if (grouped[0] === table) {
             // A folder stands where the first of its versions does, so a branch that keeps the written order
             // keeps the folder in it too. The versions inside it are listed by name, as the Editor listed them.
@@ -254,7 +256,7 @@ const tableNodes = (tables: ModuleTable[], keyPrefix: string, asWritten: boolean
                 key,
                 title: majorityName(grouped),
                 groupedBy: 'overload',
-                children: grouped.map(version => tableNode(version, key))
+                children: grouped.map(version => tableNode(version, key, patterns))
                     .sort((left, right) => byLabel(left.title, right.title)),
             })
         }
@@ -281,10 +283,11 @@ const buildTableTree = (
     levels: Level[],
     t: Translate,
     asWritten: boolean,
-    keyPrefix = 'grp'
+    keyPrefix = 'grp',
+    patterns?: DateFormats
 ): TableNode[] => {
     if (levels.length === 0) {
-        return tableNodes(tables, keyPrefix, asWritten)
+        return tableNodes(tables, keyPrefix, asWritten, patterns)
     }
     const [level, ...rest] = levels as [Level, ...Level[]]
     const groups = new Map<string, ModuleTable[]>()
@@ -324,16 +327,16 @@ const buildTableTree = (
                 ...(typeGroup && { hint: t(`browser.module.type_hints.${typeGroup.key}`) }),
                 groupedBy: level.by,
                 children: folder
-                    ? tableNodes(grouped, key, keepsOrder)
-                    : buildTableTree(grouped, rest, t, keepsOrder, key),
+                    ? tableNodes(grouped, key, keepsOrder, patterns)
+                    : buildTableTree(grouped, rest, t, keepsOrder, key, patterns),
             }
         })
-    const beside = buildTableTree(ungrouped, rest, t, keepsOrder, `${keyPrefix}/rest`)
+    const beside = buildTableTree(ungrouped, rest, t, keepsOrder, `${keyPrefix}/rest`, patterns)
     return keepsOrder || level.by === 'kind'
         ? [...nodes, ...beside]
         : [...nodes, ...beside].sort((left, right) => byLabel(left.title, right.title))
 }
 
-/** The tree of the given view, its groups named in the user's language. */
-export const treeOf = (tables: ModuleTable[], view: TableView, t: Translate): TableNode[] =>
-    buildTableTree(tables, levelsOf(view), t, false)
+/** The tree of the given view, its groups named in the user's language and its versions in the formats of the dates. */
+export const treeOf = (tables: ModuleTable[], view: TableView, t: Translate, patterns?: DateFormats): TableNode[] =>
+    buildTableTree(tables, levelsOf(view), t, false, 'grp', patterns)

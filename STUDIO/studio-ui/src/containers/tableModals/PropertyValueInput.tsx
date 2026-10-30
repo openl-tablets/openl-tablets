@@ -1,7 +1,8 @@
 import React from 'react'
 import { Checkbox, DatePicker, Input, Select } from 'antd'
 import type { ProjectProperty, RawTableCellInput, TableVersions } from 'types/tables'
-import { datePickerFormatForLocale, formatDateValue, parseDateValue } from './dateValue'
+import { formatDateValue, parseDateValue } from './dateValue'
+import { datePickerFormat, useDateFormats } from '../../utils/dateFormat'
 import { VERSION_PROPERTY } from './shared'
 import { useSharedStyles } from './sharedStyles'
 import { VersionInput } from './VersionInput'
@@ -59,6 +60,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
     'data-testid': testId,
 }) => {
     const { styles } = useSharedStyles()
+    useDateFormats()
     if (definition?.name === VERSION_PROPERTY) {
         return (
             <VersionInput
@@ -76,7 +78,7 @@ export const PropertyValueInput: React.FC<PropertyValueInputProps> = ({
             <DatePicker
                 aria-label={ariaLabel}
                 data-testid={testId}
-                format={datePickerFormatForLocale()}
+                format={datePickerFormat()}
                 onChange={date => onChange(date ? formatDateValue(date, value) : '')}
                 placeholder={placeholder}
                 status={status}

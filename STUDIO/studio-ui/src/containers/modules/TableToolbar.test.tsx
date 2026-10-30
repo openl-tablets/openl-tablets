@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ModuleTable, SummaryTable, TableRunState } from 'types/tables'
 import { getTableTargets, getTableTests } from '../../services/modules'
 import { deleteTable } from '../../services/tables'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 import { TableToolbar } from './TableToolbar'
 
 vi.mock('../../services/modules', () => ({ getTableTests: vi.fn(), getTableTargets: vi.fn() }))
@@ -400,6 +401,25 @@ describe('TableToolbar', () => {
 
         await userEvent.hover(screen.getByTestId('table-target-rules-1'))
         expect(await screen.findByRole('tooltip')).toHaveTextContent('CarPrice [lob=Auto]')
+    })
+
+    it('writes the dates that tell the versions apart in the formats of the reader, and tells the whole name on hover', async () => {
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'YYYY-MM-DD' } })
+        try {
+            vi.mocked(getTableTargets).mockResolvedValue([
+                { id: 'rules-1', name: 'CarPrice', dimensions: { effectiveDate: '2010-01-01T00:00:00.000' } },
+                { id: 'rules-2', name: 'CarPrice', dimensions: { effectiveDate: '2011-01-01T00:00:00.000' } },
+            ])
+            await draw({ table: table('Test') })
+
+            const link = screen.getByTestId('table-target-rules-1')
+            expect(link).toHaveTextContent('CarPrice [effectiveDate=2010-01-01]')
+            // A name too long for the band is cut short, and the whole of it is told on hover.
+            await userEvent.hover(link)
+            expect(await screen.findByRole('tooltip')).toHaveTextContent('CarPrice [effectiveDate=2010-01-01]')
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
     })
 
     it('names the only table a test exercises without a caret', async () => {

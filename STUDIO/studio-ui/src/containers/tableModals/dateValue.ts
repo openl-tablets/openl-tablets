@@ -17,21 +17,6 @@ const ISO_MILLIS_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS'
  */
 const ISO_DATE_FORMATS = [ISO_DATE_FORMAT, ISO_MINUTES_FORMAT, ISO_SECONDS_FORMAT, ISO_MILLIS_FORMAT]
 
-const DATE_PART_TOKENS = {
-    day: 'DD',
-    month: 'MM',
-    year: 'YYYY',
-} as const
-
-/** Date picker pattern derived from the user's locale, independent of the value stored in the workbook. */
-export const datePickerFormatForLocale = (locale?: string): string =>
-    new Intl.DateTimeFormat(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
-        .formatToParts(new Date(2006, 10, 22))
-        .map(part => part.type in DATE_PART_TOKENS
-            ? DATE_PART_TOKENS[part.type as keyof typeof DATE_PART_TOKENS]
-            : `[${part.value}]`)
-        .join('')
-
 /** Parses the ISO date representation a date value is carried in, answering `null` for a text that is not one. */
 export const parseDateValue = (value: unknown): Dayjs | null => {
     if (typeof value !== 'string' || !value) {

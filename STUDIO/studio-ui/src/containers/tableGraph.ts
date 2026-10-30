@@ -1,6 +1,7 @@
 import type { Core, ElementDefinition, LayoutOptions, NodeCollection } from 'cytoscape'
 import type { DagreLayoutOptions } from 'cytoscape-dagre'
 import type { DatatypeField } from 'types/tables'
+import type { DateFormats } from 'utils/dateFormat'
 import { versionLabel } from 'utils/tableVersion'
 
 // Dagre-specific options (rankDir, nodeSep, rankSep) live in cytoscape-dagre's own DagreLayoutOptions, not in the
@@ -269,7 +270,7 @@ const dataModelEdge = (source: GraphNode | undefined, target: string): string[] 
  * Builds the Cytoscape elements and the lookup maps for a list of graph nodes. Reverse adjacency (dependents) is
  * computed so the UI can show "used by" even when the project graph only carries forward dependencies.
  */
-export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
+export const buildGraphModel = (nodes: GraphNode[], patterns?: DateFormats): GraphModel => {
     const byId = new Map(nodes.map(node => [node.id, node]))
     const ids = [...byId.keys()]
     const idSet = new Set(ids)
@@ -329,7 +330,7 @@ export const buildGraphModel = (nodes: GraphNode[]): GraphModel => {
         const element: ElementDefinition = {
             data: {
                 id: node.id,
-                label: entity ? entityLabel(node) : versionLabel(node.name, node.dimensions),
+                label: entity ? entityLabel(node) : versionLabel(node.name, node.dimensions, patterns),
                 kind: node.kind ?? '',
                 weight: used,
                 ...(area ? { parent: area } : {}),

@@ -4,6 +4,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { ValueLevel } from 'types/execution'
 import type { TraceParameterValue } from 'types/trace'
+import { useDateFormats } from 'utils/dateFormat'
 import { errorMessage } from 'utils/errorMessage'
 import {
     buildLevelTreeData,
@@ -38,13 +39,15 @@ const KIND_CLASS: Record<SimpleValueKind, keyof ValueStyles> = {
     string: 'valueString',
     number: 'valueNumber',
     boolean: 'valueBoolean',
+    // A date is coloured as a number, the way a table shows it.
+    date: 'valueNumber',
     other: 'valueDefault',
 }
 
 /** A value without inner structure, coloured by its kind the way a code editor colours a literal. */
 const SimpleValue: React.FC<{ value: unknown, styles: ValueStyles }> = ({ value, styles }) => {
     const formatNumber = useContext(NumberFormatContext)
-    const { display, kind } = describeSimpleValue(value, formatNumber)
+    const { display, kind } = describeSimpleValue(value, formatNumber, useDateFormats())
     return <span className={styles[KIND_CLASS[kind]]}>{display}</span>
 }
 

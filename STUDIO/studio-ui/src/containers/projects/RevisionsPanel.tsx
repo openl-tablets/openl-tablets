@@ -14,7 +14,7 @@ import {
     REVISIONS_PAGE_SIZE,
     type ProjectRevision,
 } from '../../services/repositories'
-import { formatDateTime } from '../../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../../utils/dateFormat'
 import { useSharedStyles } from './sharedStyles'
 import { GitCommitMessage } from './GitCommitMessage'
 import { shortRevision } from './revisions'
@@ -152,6 +152,7 @@ export const RevisionsPanel = ({
     beforeOpen,
     reloadToken,
 }: RevisionsPanelProps) => {
+    useDateFormats()
     const { notification } = App.useApp()
     const { t } = useTranslation('repository')
     const { styles: shared } = useSharedStyles()

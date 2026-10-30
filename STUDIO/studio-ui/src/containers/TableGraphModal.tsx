@@ -20,6 +20,7 @@ import { apiCall, type ApiCallOptions } from '../services'
 import { moduleRoute } from '../services/projectId'
 import { getProjectProperties } from '../services/projects'
 import { dimensionValue, versionLabel } from '../utils/tableVersion'
+import { useDateFormats } from '../utils/dateFormat'
 import {
     bridgeHiddenNodes,
     buildGraphModel,
@@ -393,12 +394,14 @@ export const TableGraphModal: React.FC = () => {
             .catch(() => setPropertyNames(new Map()))
     }, [detail, loadGraph])
 
-    const model = useMemo(() => buildGraphModel(nodes), [nodes])
+    // A version is labelled by the dates it is told by, in the formats of the reader.
+    const dateFormats = useDateFormats()
+    const model = useMemo(() => buildGraphModel(nodes, dateFormats), [nodes, dateFormats])
     // Index tables by display name once; several tables can share a name, and the candidates bar lets the user pick.
     const byName = useMemo(() => {
         const index = new Map<string, GraphNode[]>()
         nodes.forEach(node => {
-            const label = versionLabel(node.name, node.dimensions)
+            const label = versionLabel(node.name, node.dimensions, dateFormats)
             const named = index.get(label)
             if (named) {
                 named.push(node)
@@ -407,7 +410,7 @@ export const TableGraphModal: React.FC = () => {
             }
         })
         return index
-    }, [nodes])
+    }, [nodes, dateFormats])
     const nodeOptions = useMemo(() => [...byName.keys()].sort((a, b) => a.localeCompare(b)).map(name => ({ label: name, value: name })), [byName])
     const nameMatches = useMemo(() => (searchName ? byName.get(searchName) ?? [] : []), [byName, searchName])
     // Tables per kind, for the legend's counts (a kind with 0 tables is simply absent).
@@ -847,7 +850,7 @@ export const TableGraphModal: React.FC = () => {
         // a dimension is named as the properties of a table name it, its value as the name of the version writes it
         const dims = Object.entries(node.dimensions ?? {})
             .map(([key, value]) => `${propertyNames.get(key) ?? key}: ${dimensionValue(value)}`)
-        const label = versionLabel(node.name, node.dimensions)
+        const label = labelOf(node)!
         return (
             <>
                 <Typography.Title ellipsis={{ tooltip: label }} level={5} style={{ marginTop: 0, marginBottom: 6 }}>

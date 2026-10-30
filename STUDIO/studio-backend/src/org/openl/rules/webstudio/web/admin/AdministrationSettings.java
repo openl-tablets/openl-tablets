@@ -4,7 +4,6 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.Optional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
@@ -16,9 +15,7 @@ import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.IgnoredPaths;
 import org.openl.studio.settings.converter.SettingPropertyName;
-import org.openl.studio.settings.model.constraint.DatePatternConstraint;
 import org.openl.studio.settings.model.constraint.PeriodConstraint;
-import org.openl.studio.settings.model.constraint.TimePatternConstraint;
 
 /**
  * The class contains system settings property names for settings edited in "Administration" page.
@@ -30,9 +27,6 @@ public final class AdministrationSettings implements SettingsHolder {
     public static final String USER_WORKSPACE_HOME = "user.workspace.home";
     public static final String PROJECT_HISTORY_COUNT = "project.history.count";
     public static final String PROJECT_DETECT_BY_EXCEL_FILES = "project.detect-by-excel-files";
-    public static final String DATE_PATTERN = "data.format.date";
-    public static final String TIME_PATTERN = "data.format.time";
-    public static final String DATETIME_PATTERN = "data.format.datetime";
     public static final String UPDATE_SYSTEM_PROPERTIES = "update.system.properties";
     public static final String FORMAT_TABLES_ON_SAVE = "table.format-on-save";
     public static final String DESIGN_REPOSITORY_CONFIGS = "design-repository-configs";
@@ -72,28 +66,13 @@ public final class AdministrationSettings implements SettingsHolder {
     private Boolean updateSystemProperties;
 
     @Getter
-    @Parameter(description = "Format a table with the OpenL table style every time it is saved, created or copied, "
-            + "and every Excel file uploaded into a project. While it is on, a table edit sets no styling but the "
-            + "indent.")
+    @Parameter(description = """
+            Format a table with the OpenL table style every time it is saved, created or copied, \
+            and every Excel file uploaded into a project. While it is on, a table edit sets no styling but the \
+            indent.""")
     @Setter
     @SettingPropertyName(FORMAT_TABLES_ON_SAVE)
     private Boolean formatTablesOnSave;
-
-    @Parameter(description = "Date Format.")
-    @Setter
-    @NotBlank
-    @DatePatternConstraint
-    @Getter
-    @SettingPropertyName(DATE_PATTERN)
-    private String datePattern;
-
-    @Getter
-    @Parameter(description = "Time Format.")
-    @Setter
-    @NotBlank
-    @TimePatternConstraint
-    @SettingPropertyName(TIME_PATTERN)
-    private String timeFormat;
 
     @Getter
     @Parameter(description = "Thread number for tests.")
@@ -149,8 +128,6 @@ public final class AdministrationSettings implements SettingsHolder {
                 .map(Boolean::parseBoolean)
                 .orElse(false);
         ignoredPaths = properties.getProperty(IgnoredPaths.PROPERTY);
-        datePattern = properties.getProperty(DATE_PATTERN);
-        timeFormat = properties.getProperty(TIME_PATTERN);
         updateSystemProperties = Optional.ofNullable(properties.getProperty(UPDATE_SYSTEM_PROPERTIES))
                 .map(Boolean::parseBoolean)
                 .orElse(null);
@@ -178,8 +155,6 @@ public final class AdministrationSettings implements SettingsHolder {
         properties.setProperty(PROJECT_HISTORY_COUNT, projectHistoryCount);
         properties.setProperty(PROJECT_DETECT_BY_EXCEL_FILES, detectProjectsByExcelFiles);
         properties.setProperty(IgnoredPaths.PROPERTY, ignoredPaths);
-        properties.setProperty(DATE_PATTERN, datePattern);
-        properties.setProperty(TIME_PATTERN, timeFormat);
         properties.setProperty(UPDATE_SYSTEM_PROPERTIES, updateSystemProperties);
         properties.setProperty(FORMAT_TABLES_ON_SAVE, formatTablesOnSave);
         properties.setProperty(TEST_RUN_THREAD_COUNT_PROPERTY, testRunThreadCount);
@@ -196,8 +171,6 @@ public final class AdministrationSettings implements SettingsHolder {
                 PROJECT_HISTORY_COUNT,
                 PROJECT_DETECT_BY_EXCEL_FILES,
                 IgnoredPaths.PROPERTY,
-                DATE_PATTERN,
-                TIME_PATTERN,
                 UPDATE_SYSTEM_PROPERTIES,
                 FORMAT_TABLES_ON_SAVE,
                 TEST_RUN_THREAD_COUNT_PROPERTY,

@@ -96,6 +96,18 @@ i18next.addResourceBundle('en', 'common', {
         tests_per_page: 'Tests Per Page',
         trace_settings: 'Trace Settings',
         show_numbers_without_formatting: 'Show Numbers Without Formatting',
+        date_time_settings: 'Date & Time',
+        use_system_formats: 'Use System Preferences',
+        use_system_formats_hint: 'Automatically match your browser\'s regional settings',
+        date_format: 'Date Format',
+        hours_24: '24-Hour Time',
+        formats: {
+            us_numeric: 'US (Numeric)',
+            us_text: 'US (Text)',
+            uk: 'UK',
+            european: 'European',
+            iso: 'ISO 8601',
+        },
     },
     user_menu: {
         my_profile: 'My Profile',

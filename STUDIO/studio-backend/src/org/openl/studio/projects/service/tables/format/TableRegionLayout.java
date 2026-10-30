@@ -2,6 +2,7 @@ package org.openl.studio.projects.service.tables.format;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.function.BiFunction;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
@@ -22,6 +25,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.properties.PropertiesHelper;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.studio.projects.model.tables.RawTableGroups;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableRole;
@@ -29,6 +33,7 @@ import org.openl.studio.projects.model.tables.RawTableSignaturePiece;
 import org.openl.studio.projects.model.tables.RawTableValueType;
 import org.openl.studio.projects.model.tables.TableKind;
 import org.openl.studio.projects.service.tables.OpenLTableUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Lays a table out in regions: the rectangles of its cells that take one role, whatever its kind.
@@ -53,13 +58,11 @@ import org.openl.studio.projects.service.tables.OpenLTableUtils;
  * <p>A layout depends on the compiled table and on its cells, so the layout of a compiled table is kept until the
  * table is compiled again ({@link #regionsOf}). Every page of a large table reuses it.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class TableRegionLayout {
 
     /** The layouts of the compiled tables, kept until a compilation replaces the table. */
     private static final Map<TableSyntaxNode, TableRegions> LAYOUTS = Collections.synchronizedMap(new WeakHashMap<>());
-
-    private TableRegionLayout() {
-    }
 
     /**
      * Whether a table is of a kind OpenL Studio formats: every kind of table but a part of a table split into several
@@ -157,7 +160,47 @@ public final class TableRegionLayout {
         }
         var types = typesOf(cells, grid, ValueTypes.of(node, region));
         var text = Objects.requireNonNullElse(logical.getCell(0, 0).getStringValue(), "");
-        return new Roles(cells, types, transposed).regions(groups, SignatureSplitter.split(text));
+        var regions = new Roles(cells, types, transposed).regions(groups, SignatureSplitter.split(text));
+        return withPropertyDates(regions, region, logical);
+    }
+
+    /**
+     * Marks the values of the date properties a table declares as dates.
+     *
+     * <p>The properties take no type of their own, so a date one of them holds is told by its definition. The screen
+     * then writes it in the formats of the reader, as it writes a date of the body.
+     *
+     * @param regions the regions of the table
+     * @param region  where the table stands on its sheet
+     * @param logical the table read with its merged cells
+     * @return the regions, the values of the date properties typed as dates
+     */
+    private static TableRegions withPropertyDates(TableRegions regions, IGridRegion region, ILogicalTable logical) {
+        var section = PropertiesHelper.getPropertiesTableSection(logical);
+        if (section == null) {
+            return regions;
+        }
+        // The section starts with the names of the properties, the keyword before them left out. It is read with its
+        // merged cells, as the compiler reads it, so a name merged over two columns is one cell.
+        var rows = LogicalTableHelper.logicalTable(section.getSource());
+        if (rows.getWidth() < 2) {
+            return regions;
+        }
+        var types = new HashMap<>(regions.types());
+        for (var row = 0; row < rows.getHeight(); row++) {
+            var value = rows.getCell(1, row);
+            if (isDateProperty(rows.getCell(0, row).getStringValue()) && !StringUtils.isBlank(value.getStringValue())) {
+                types.put(new TableRegions.Cell(value.getAbsoluteRow() - region.getTop(),
+                        value.getAbsoluteColumn() - region.getLeft()), RawTableValueType.DATE);
+            }
+        }
+        return new TableRegions(regions.regions(), regions.groups(), regions.signature(), types);
+    }
+
+    /** Whether a property of the given name holds a date. */
+    private static boolean isDateProperty(@Nullable String name) {
+        var definition = name == null ? null : TablePropertyDefinitionUtils.getPropertyByName(name.trim());
+        return definition != null && Date.class.equals(definition.getType().getInstanceClass());
     }
 
     /**

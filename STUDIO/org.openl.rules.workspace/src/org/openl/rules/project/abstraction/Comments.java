@@ -137,7 +137,7 @@ public final class Comments {
      * writes too: the year, the month, the day, the hours, the minutes, the seconds and their fraction, the day period
      * and the day of the week, each in a count {@link DateTimeFormatter} reads, and any text in single quotes.
      */
-    static boolean isWritten(String pattern) {
+    public static boolean isWritten(String pattern) {
         var at = 0;
         while (at < pattern.length()) {
             var letter = pattern.charAt(at);

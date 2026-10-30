@@ -6,7 +6,7 @@ import { RocketOutlined } from '@ant-design/icons'
 import { createStyles } from 'antd-style'
 import { errorMessage } from '../utils/errorMessage'
 import { getDeployment, type DeploymentDetail, type DesignRevision } from '../services/deployments'
-import { formatDateTime } from '../utils/dateFormat'
+import { formatDateTime, useDateFormats } from '../utils/dateFormat'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../constants/ui'
 import { useSharedStyles } from './projects/sharedStyles'
 import { AuthorDate } from './projects/AuthorDate'
@@ -106,6 +106,7 @@ const useStyles = createStyles(({ css, token }) => ({
  * deployment names the page, and its one tab lists the projects that are deployed in it.
  */
 export const DeploymentWorkspace = () => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const { styles: shared } = useSharedStyles()

@@ -140,8 +140,6 @@ Described in [Managing System Settings][system].
 | Projects               | Ignored Paths                                                | `repository.ignored-paths`      |
 | Other                  | Format tables on save                                        | `table.format-on-save`          |
 | Other                  | Update table properties                                      | `update.system.properties`      |
-| Other                  | Date Format                                                  | `data.format.date`              |
-| Other                  | Time Format                                                  | `data.format.time`              |
 | Audit Log              | Keep events for                                              | `audit.retention`               |
 | Audit Log              | Copy events to the server log                                | `audit.outputs.console`         |
 | Database Configuration | Database URL                                                 | `db.url`                        |
@@ -155,7 +153,6 @@ The following related properties have no field in the UI:
 - **`openl.home.shared`** — directory shared between instances of a cluster. See
   [Cluster Mode Configuration](#cluster-mode-configuration).
 - **`user.workspace.home`** — directory that stores local copies of the projects opened by users.
-- **`data.format.datetime`** — composed of `data.format.date` and `data.format.time`.
 - **`admin.notification-file`** — file that stores the message sent from [Managing Notifications][notifications].
 - **`repository.default-ignored-paths`** — the paths `repository.ignored-paths` ignores by default. Refer to it to
   add paths of your own without repeating the defaults:

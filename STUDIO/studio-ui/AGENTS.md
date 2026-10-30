@@ -150,8 +150,8 @@ The build writes two pages (`build.rollupOptions.input`):
   `t('system:tabs.repositories')`. A key that no bundle defines renders as the key itself, and component tests mock `t`
   so they cannot notice — `src/locales/lookups.test.ts` resolves every literal `t('…')` and `i18nKey` in the sources
   against the bundles and fails on the first miss.
-- **Formatting numbers and dates**: a number or a date on a screen is written in the **UI language**, never in the
-  locale of the machine the browser runs on. Take the language from `useTranslation()` — `const locale =
+- **Formatting numbers and dates**: a number on a screen is written in the **UI language**, never in the locale of
+  the machine the browser runs on; a date follows the **Date & Time** settings, below. Take the language from `useTranslation()` — `const locale =
   i18n.resolvedLanguage ?? i18n.language` — and pass it to `new Intl.NumberFormat(locale, …)` or
   `new Intl.DateTimeFormat(locale, …)`; see `formatSize` in `containers/projects/FileTree.tsx` and the formatters
   in `containers/execution/benchmarkMetrics.ts`. Never call `toLocaleString()`, `toLocaleDateString()` or
@@ -160,11 +160,29 @@ The build writes two pages (`build.rollupOptions.input`):
   machine. A formatter kept out of a component takes the locale as an argument rather than reading it itself.
   A test mocks `react-i18next` with the language alongside `t`:
   `useTranslation: () => ({ i18n: { language: 'en', resolvedLanguage: 'en' }, t })`.
+  A date is written through `utils/dateFormat.ts`, never formatted by a screen itself: `formatDate` and
+  `formatDateTime` for a moment the backend answers in ISO 8601, shown in the time zone of the browser, and
+  `formatLocalDateTime` for a date with no time zone — a date property, or a cell the compiler types as a date
+  (`RawTableGrid` reads the type from the roles of the read) — which is never shifted and shows its time only when it
+  holds a time of day. They write it as the regional settings of the browser do while **Use System Preferences** of
+  **My Settings** is on, as it is by default, or in the **Date Format**, a day.js pattern, and on the clock of
+  **24-Hour Time** the reader picked. A date picker shows its date in `datePickerFormat()` and sends it in ISO 8601.
+  Every component that writes a date — through these functions, `versionLabel` or a picker — calls
+  `useDateFormats()`, which subscribes it to the date and time settings so a change redraws it at once. A `useMemo`
+  that formats a date hands the patterns `useDateFormats()` answers to the functions that write it and names them
+  among its dependencies, so it is worked out again in the new formats.
+  The backend sends no date formatted for display. A version of a table is labelled by `versionLabel` of
+  `utils/tableVersion.ts`, from its `name` and the `dimensions` the backend answers. A value of a run, a test or a
+  trace comes as JSON, which tells a date only by its text: `describeSimpleValue` of `components/values/valueTree.ts`
+  writes text holding a date and a time with no time zone, as the backend writes a date, `2020-07-01T10:30:00.000`,
+  through `formatLocalDateTime`. A date field of the input form is told by its schema, shown the same way and sent
+  in ISO 8601.
   What the machine is asked for on purpose is what the *reader* supplies rather than reads:
   `Intl.DateTimeFormat().resolvedOptions().timeZone` in `services/repositories.ts`, because the backend wants the
-  reader's own zone, and `datePickerFormatForLocale()` called without a locale in `PropertyValueInput` and
-  `TypedTableValueInput`, because a date is typed into those pickers in the pattern the reader is used to. Both
-  are deliberate; anything else that follows the machine is a defect.
+  reader's own zone, and `datePickerFormatForLocale()` and `timeFormatForLocale()` called without a locale by
+  `utils/dateFormat.ts`, which every date and time is written in while **Use System Preferences** is on, because the
+  reader asked for the regional settings of their browser. Both are deliberate; anything else that follows the machine
+  is a defect.
 - **Permissions**: `SecurityProvider` derives system flags from the backend. Use `PermissionContext` and `SystemContext`
   to gate features (e.g., `isUserManagementEnabled`, `isExternalAuthSystem`).
 - **Forms**: `components/form` wraps Ant Design inputs. `hooks/useIsFormChanged.ts` drives dirty-state detection.

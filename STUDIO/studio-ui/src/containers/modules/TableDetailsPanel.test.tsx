@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ProjectProperty } from 'types/tables'
 import { getTableDetails, type TableDetails } from '../../services/modules'
 import { getProjectProperties } from '../../services/projects'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from '../../store/settingsStore'
 import { updateTableProperties } from '../../services/tables'
 import { TableDetailsPanel } from './TableDetailsPanel'
 import type { Written } from './TableEditor'
@@ -110,6 +111,27 @@ describe('TableDetailsPanel', () => {
         vi.mocked(getTableDetails).mockResolvedValue(DETAILS)
         vi.mocked(getProjectProperties).mockResolvedValue(DICTIONARY)
         vi.mocked(updateTableProperties).mockResolvedValue('table-1')
+    })
+
+    it('writes a date property in the formats of the reader before anything is edited', async () => {
+        vi.mocked(getTableDetails).mockResolvedValue({
+            ...DETAILS,
+            groups: [{
+                name: 'Business Dimension',
+                properties: [{ name: 'effectiveDate', displayName: 'Effective Date', value: '2020-01-01' }],
+            }],
+        })
+        vi.mocked(getProjectProperties).mockResolvedValue([
+            property({ name: 'effectiveDate', displayName: 'Effective Date', type: 'date' }),
+        ])
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        try {
+            await draw()
+
+            expect(screen.getByTestId('table-details-effectiveDate')).toHaveTextContent('01.01.2020')
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
     })
 
     it('lists what the table declares together with what it inherits', async () => {
@@ -423,11 +445,11 @@ describe('TableDetailsPanel', () => {
 
     it('asks for a dictionary again after a read of it failed', async () => {
         vi.mocked(getProjectProperties).mockRejectedValueOnce(new Error('down'))
-        await edit()
+        await draw({ canWrite: true })
+        // read as the table is shown, so its dates are written in the formats of the reader
         expect(getProjectProperties).toHaveBeenCalledTimes(1)
 
-        // Nothing was held for the failure: the next time the reader writes, the dictionary is read again.
-        await userEvent.click(screen.getByTestId('table-details-cancel'))
+        // Nothing was held for the failure: when the reader writes, the dictionary is read again.
         await userEvent.click(screen.getByTestId('table-details-edit'))
         await settle()
         expect(getProjectProperties).toHaveBeenCalledTimes(2)

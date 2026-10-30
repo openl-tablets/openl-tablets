@@ -20,6 +20,7 @@ import { initialPropertyValue, PropertyValueInput } from '../tableModals/Propert
 import { PROPERTY_SEARCH, toPropertyGroups } from '../tableModals/shared'
 import type { Written } from './TableEditor'
 import type { ConfirmWrite } from './useOverwriteConfirm'
+import { formatLocalDateTime, useDateFormats } from '../../utils/dateFormat'
 
 /** The name takes a fixed share of the panel, so a value is not squeezed into a column of its own. */
 const LABEL_WIDTH = 130
@@ -175,6 +176,7 @@ export const TableDetailsPanel = ({
     onSaved,
     version,
 }: TableDetailsPanelProps) => {
+    useDateFormats()
     const { t } = useTranslation('repository')
     const { styles, cx } = useStyles()
     const theme = useTheme()
@@ -192,8 +194,8 @@ export const TableDetailsPanel = ({
     // The id a save whose properties were refused sent the screen to; see the effect that clears the draft.
     const following = useRef<string | null>(null)
     // The dictionary says how each property is written — a date, a flag, one or several values of an
-    // enumeration — so it is read the first time a reader writes anything. It is the dictionary of the table's own
-    // kind, which the details name: a Rules table and a Spreadsheet may be given different properties. Held by
+    // enumeration — so it is read as soon as a table is shown: a date is written in the formats of the reader even
+    // before anything is edited. It is the dictionary of the table's own kind, which the details name: a Rules table and a Spreadsheet may be given different properties. Held by
     // kind, since the definitions never change: a kind once read costs nothing again, and an answer that arrives
     // late fills its own kind's slot rather than standing in for another's.
     const [dictionaries, setDictionaries] = useState<Record<string, ProjectProperty[]>>({})
@@ -262,7 +264,7 @@ export const TableDetailsPanel = ({
     }, [tableId])
 
     useEffect(() => {
-        if (!editing || !kind || kind in dictionaries || reading.current.has(kind)) {
+        if (!kind || kind in dictionaries || reading.current.has(kind)) {
             return
         }
         reading.current.add(kind)
@@ -353,6 +355,11 @@ export const TableDetailsPanel = ({
         setEditing(false)
         setDraft({})
     }
+
+    /** A value as the reader reads it: a date in the formats of the reader, anything else as it is written. */
+    const shownValue = (property: PropertyRow) => definitionOf(property.name)?.type === 'date'
+        ? formatLocalDateTime(property.value)
+        : property.value
 
     /** One property as it is written: the editor its own type asks for, and the way to take it away. */
     const written = (property: PropertyRow) => (
@@ -456,7 +463,7 @@ export const TableDetailsPanel = ({
                                 : (
                                     <div className={styles.value} data-testid={`table-details-${property.name}`}>
                                         <span className={property.inheritedFrom ? styles.inherited : undefined}>
-                                            {property.value}
+                                            {shownValue(property)}
                                         </span>
                                         {property.inheritedFrom && (
                                             <Tooltip title={inheritedTitle(property.inheritedFrom, t)}>

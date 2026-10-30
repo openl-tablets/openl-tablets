@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { initialFormValue, SchemaForm, type SchemaFormParameter } from 'components/schemaForm/SchemaForm'
+import { DEFAULT_USER_SETTINGS, useSettingsStore } from 'store/settingsStore'
 import { keysOf, nameEntry, openNode as open } from 'testing/schemaTree'
 
 vi.mock('react-i18next', () => {
@@ -228,8 +229,21 @@ describe('SchemaForm', () => {
 
         await open('policy')
         await userEvent.click(screen.getByTestId('edit-policy.since'))
-        await userEvent.type(screen.getByTestId('input-policy.since'), '2024-03-15{enter}')
+        // typed in the pattern of the reader's locale, where they picked no Date Format, and sent in ISO 8601
+        await userEvent.type(screen.getByTestId('input-policy.since'), '03/15/2024{enter}')
         expect(onChange).toHaveBeenLastCalledWith({ policy: { since: '2024-03-15' } })
+    })
+
+    it('shows a date in the formats of the reader, and keeps it in ISO 8601', async () => {
+        useSettingsStore.setState({ settings: { ...DEFAULT_USER_SETTINGS, useSystemDateFormat: false, dateFormat: 'DD.MM.YYYY' } })
+        try {
+            render(<Harness initial={{ policy: { since: '2024-03-15' } }} parameters={[policy]} />)
+
+            await open('policy')
+            expect(screen.getByTestId('value-policy.since')).toHaveTextContent(/^15\.03\.2024$/)
+        } finally {
+            act(() => useSettingsStore.setState({ settings: DEFAULT_USER_SETTINGS }))
+        }
     })
 
     it('creates a nested object with its fields, and clears it back to null', async () => {

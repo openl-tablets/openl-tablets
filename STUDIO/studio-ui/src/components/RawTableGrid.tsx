@@ -19,6 +19,7 @@ import { borders, collapsedBorders, indentOf, textDecoration, tinted } from './r
 import { useAppTheme } from '../providers/AppThemeProvider'
 import { type CodeHighlighter, useCodeHighlighter } from '../hooks/useCodeHighlighter'
 import type { CodePiece } from '../utils/codeHighlight'
+import { formatLocalDateTime, useDateFormats } from '../utils/dateFormat'
 import {
     type CellRole, cellRoleOf, columnLettersOf, holdsCode, onPaper, placeOf, roleLinesOf, type RoleLines,
     type TableRoles,
@@ -98,11 +99,18 @@ const EXCEL_SIGNIFICANT_DIGITS = 15
 const formatNumber = (value: number): string =>
     Number.isInteger(value) ? String(value) : String(Number(value.toPrecision(EXCEL_SIGNIFICANT_DIGITS)))
 
-const formatValue = (value: RawTableCell['value']): string => {
+/**
+ * The text of a value. A value the compiler types as a date, which the read sends with no time zone, is written in the
+ * formats of the reader; a text that only looks like a date is written as it is.
+ */
+const formatValue = (value: RawTableCell['value'], date = false): string => {
     if (value == null) {
         return ''
     }
-    return typeof value === 'number' ? formatNumber(value) : String(value)
+    if (typeof value === 'number') {
+        return formatNumber(value)
+    }
+    return date && typeof value === 'string' ? formatLocalDateTime(value) : String(value)
 }
 
 /** Stable row key from the first cell's A1 address (e.g. `A2`); falls back to the row position. */
@@ -355,6 +363,29 @@ const studioTextOf = (cell: RawTableCell, role: CellRole | undefined, roles: Tab
     return runs === undefined ? cell : plain
 }
 
+/** What the compiler knows about a cell, but the links to the tables its text names. */
+const withoutUsages = (metaInfo: RawTableCell['metaInfo']): RawTableCell['metaInfo'] => {
+    if (metaInfo === undefined) {
+        return undefined
+    }
+    const { usages: _usages, ...rest } = metaInfo
+    return rest
+}
+
+/**
+ * What the compiler knows about a cell, as far as it applies to the text the cell is shown in.
+ *
+ * A formula is another text than the value, and a date is shown in another text than the one it is stored as: the
+ * links to the tables a text names, measured over the stored text, apply to neither. A date still keeps the mark of
+ * the cell a table returns, which marks the cell whole.
+ */
+const shownMetaInfo = (cell: RawTableCell, asFormula: boolean, asDate: boolean): RawTableCell['metaInfo'] => {
+    if (asFormula) {
+        return undefined
+    }
+    return asDate ? withoutUsages(cell.metaInfo) : cell.metaInfo
+}
+
 /**
  * The text of one cell, marked with what the compiler knows about it.
  *
@@ -363,12 +394,13 @@ const studioTextOf = (cell: RawTableCell, role: CellRole | undefined, roles: Tab
  * what the legacy editor did, where the formula replaced the marked content.
  */
 const cellText = (cell: RawTableCell, formulas: boolean, muted: boolean, styles: RawTableGridStyles, ink: string,
-    onOpenUsage?: OpenUsage) => {
+    onOpenUsage?: OpenUsage, date = false) => {
     const asFormula = formulas && Boolean(cell.formula)
-    const text = formatValue(asFormula ? cell.formula : cell.value)
-    const metaInfo = asFormula ? undefined : cell.metaInfo
-    // A formula is another text than the value, so the pieces the value is formatted in do not apply to it.
-    const runs = asFormula ? undefined : cell.runs
+    const asDate = date && !asFormula
+    const text = formatValue(asFormula ? cell.formula : cell.value, asDate)
+    const metaInfo = shownMetaInfo(cell, asFormula, asDate)
+    // The pieces of the text are measured over the stored text, so they apply to neither a formula nor a date.
+    const runs = asFormula || asDate ? undefined : cell.runs
     // Most cells have nothing marked — what the compiler knows about them is the type behind them and the
     // editor they ask for. Those are drawn as the text they are, rather than through a component of their own.
     if (!metaInfo?.usages?.length && !metaInfo?.returnCell && !runs?.length) {
@@ -416,6 +448,7 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
     headings,
     testId,
 }) => {
+    useDateFormats()
     const { excelFormatting, themeName } = useAppTheme()
     const { isDarkMode } = useThemeMode()
     const token = useTheme()
@@ -449,10 +482,13 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
         colorPrimary, colorText, colorTextBase, colorTextSecondary])
     const laidOn = studio ? look.paper : workbookPaper()
     const { styles, cx } = useStyles(laidOn)
-    // What each cell is in the Studio look, found by its address in the table.
-    const cellRoles = React.useMemo(() => (studio && roles !== undefined
-        ? rows.map(row => row.map(cell => (cell.covered ? undefined : cellRoleOf(roles, cell.cell, cell.type))))
-        : undefined), [roles, rows, studio])
+    // What each cell is, found by its address in the table. Either look writes a date in the formats of the reader;
+    // the Studio look also draws a cell by its role.
+    const typedRoles = React.useMemo(() => (roles === undefined
+        ? undefined
+        : rows.map(row => row.map(cell => (cell.covered ? undefined : cellRoleOf(roles, cell.cell, cell.type))))),
+    [roles, rows])
+    const cellRoles = studio ? typedRoles : undefined
     // The grammars of the code editor are loaded with the first table holding code, and each code cell is highlighted
     // once for the rows and the theme it is drawn in.
     const hasCode = React.useMemo(() => cellRoles?.some(row => row.some(role => role !== undefined && holdsCode(role)))
@@ -567,7 +603,8 @@ export const RawTableGrid: React.FC<RawTableGridProps> = ({
                                 {decoration?.before}
                                 {decoration?.content ?? cellText(studio
                                     ? studioTextOf(cell, role, roles, look.faint, codeRuns?.[rowIndex]?.[columnIndex], inks)
-                                    : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage)}
+                                    : cell, !!formulas, muted, styles, laidOn.text, onOpenUsage,
+                                typedRoles?.[rowIndex]?.[columnIndex]?.type === 'date')}
                                 {decoration?.after}
                             </td>
                         )
