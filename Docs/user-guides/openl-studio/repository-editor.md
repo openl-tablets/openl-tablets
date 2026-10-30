@@ -943,7 +943,10 @@ Proceed as follows:
     A project without the `rules-deploy.xml` file shows the note that the file will be created when the settings are saved.
 
 3.  In the tab, enter the following information about the rules:
-    -   **Provide Runtime Context** — switch it on to provide runtime context.
+    -   **Provide Runtime Context** — switch it on to provide runtime context. The switch is deprecated and kept for
+        projects upgraded from earlier versions: a new project declares the runtime context properties in the fields
+        of its input datatypes as described in [Reference Guide > Runtime Context Properties in Datatype
+        Tables](../reference-guide/02-working-with-openl-tables/04-table-properties/05-rule-versioning.md#runtime-context-properties-in-datatype-tables).
     -   **Publishers** — select the publishers, for example, RESTFUL or KAFKA.
     -   **Service Name** — enter the service name.
 
