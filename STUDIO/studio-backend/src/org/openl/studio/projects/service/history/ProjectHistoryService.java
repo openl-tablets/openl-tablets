@@ -11,10 +11,9 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +34,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -418,17 +416,19 @@ public class ProjectHistoryService {
         return new File(version.getPath().replaceAll(CURRENT_VERSION + "$", ""));
     }
 
+    /**
+     * The history entry of a stored version, with the moment the version was kept at.
+     *
+     * <p>A version named by no time, such as the revision a module was opened at, has no moment.
+     */
     private ProjectHistoryItem createItem(String name) {
         var version = name.split("_")[0];
-        var formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
-        String modifiedOn;
+        Instant modifiedOn;
         try {
-            var time = Long.parseLong(version);
-            modifiedOn = formatter.format(new Date(time));
+            modifiedOn = Instant.ofEpochMilli(Long.parseLong(version));
         } catch (NumberFormatException e) {
-            modifiedOn = version;
+            modifiedOn = null;
         }
-
         return new ProjectHistoryItem(name, modifiedOn, name.endsWith(CURRENT_VERSION));
     }
 }

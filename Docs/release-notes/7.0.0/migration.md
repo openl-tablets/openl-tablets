@@ -368,6 +368,11 @@ from Maven.
   `showRealNumbers`, and `PUT /rest/users/profile` refuses a request that sends one of them with `400` and
   `Unknown field '<name>'`. OpenL Studio keeps these settings in the browser. Remove them from the requests of
   your clients.
+* **A local change is answered with its moment in ISO 8601.** `modifiedOn` of
+  `GET /rest/projects/{id}/local-history` used to be text formatted with the **Date Format** and **Time Format** of
+  the system settings, in the time zone of the server, and the revision a module was opened at carried its id
+  there. It is now a moment in UTC, such as `2026-10-29T18:20:19.123Z`, and that revision carries no `modifiedOn`.
+  A client formats the moment itself.
 * **No client needs new credentials.** `/rest` accepts everything `/web` did and more: the session cookie in
   every mode, a Personal Access Token in all multi-user modes, HTTP Basic in `ad` and `multi`, and a Bearer
   token in `oauth2`.

@@ -2,7 +2,8 @@ import apiCall, { LOCAL_LOAD_API_OPTIONS, asArray } from './apiCall'
 
 export interface LocalHistoryItem {
     id: string
-    modifiedOn: string
+    /** The moment the version was kept at, in ISO 8601; absent for the revision the module was opened at. */
+    modifiedOn?: string
     current?: boolean
 }
 

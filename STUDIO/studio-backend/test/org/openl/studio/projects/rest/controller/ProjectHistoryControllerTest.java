@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class ProjectHistoryControllerTest {
 
     @Test
     void readsRequestedModuleHistory() {
-        var expected = List.of(new ProjectHistoryItem("current", "now", true));
+        var expected = List.of(new ProjectHistoryItem("current", Instant.EPOCH, true));
         when(service.getLocalHistory(project, "Pricing")).thenReturn(expected);
 
         var result = controller.getLocalHistory(project, "  Pricing  ");

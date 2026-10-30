@@ -18,16 +18,18 @@ in the HTTP session, so it can be called in a fresh session and cannot return an
 The response is ordered from the newest local version to the oldest. The revision baseline is last. The
 `current` field is present and `true` only for the workbook version currently being edited.
 
+`modifiedOn` is the moment the version was kept at, in ISO 8601 and UTC. The revision baseline has no
+`modifiedOn`: no time names it. The client formats the moment for display.
+
 ```json
 [
   {
     "id": "1787821200000_current",
-    "modifiedOn": "08/27/2026 12:00 PM",
+    "modifiedOn": "2026-08-27T09:00:00Z",
     "current": true
   },
   {
-    "id": "Revision Version",
-    "modifiedOn": "Revision Version"
+    "id": "Revision Version"
   }
 ]
 ```

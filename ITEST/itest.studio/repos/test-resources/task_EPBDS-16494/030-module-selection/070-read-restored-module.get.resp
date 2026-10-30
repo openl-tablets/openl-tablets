@@ -4,11 +4,10 @@ Content-Type: application/json
 [
   {
     "id": "***",
-    "modifiedOn": "***"
+    "modifiedOn": "#-#-#T#:#:***Z"
   },
   {
     "id": "Revision Version_current",
-    "modifiedOn": "Revision Version",
     "current": true
   }
 ]
