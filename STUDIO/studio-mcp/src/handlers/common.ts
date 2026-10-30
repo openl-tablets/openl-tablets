@@ -93,12 +93,27 @@ const IDENTIFIER_HINTS: ReadonlyArray<[string, string]> = [
   ["repository", "Use openl_list_repositories() to find valid repositories."],
 ];
 
-/** Add discovery hints for identifiers rejected before a handler can run. */
+/**
+ * Add discovery hints for identifiers rejected before a handler can run, and the arguments a tool takes when the
+ * caller named one it does not.
+ */
 export function formatSchemaValidationError(name: string, error: z.ZodError): string {
   const message = `Invalid arguments for ${name}:\n${z.prettifyError(error)}`;
   const topLevelFields = new Set(error.issues.map((issue) => issue.path[0]));
   const hints = IDENTIFIER_HINTS.filter(([field]) => topLevelFields.has(field)).map(([, hint]) => hint);
+  const taken = takenArguments(name, error);
+  if (taken) hints.push(taken);
   return hints.length > 0 ? `${message}\n\n${hints.join(" ")}` : message;
+}
+
+/** The arguments of a tool, for a call that named an unknown one; nothing for one unknown inside another argument. */
+function takenArguments(name: string, error: z.ZodError): string | undefined {
+  const tool = toolHandlers.get(name);
+  if (!tool || !error.issues.some((issue) => issue.code === "unrecognized_keys" && issue.path.length === 0)) {
+    return undefined;
+  }
+  const properties = getInputSchema(tool.schema).properties as Record<string, unknown>;
+  return `${name} takes only: ${Object.keys(properties).join(", ")}.`;
 }
 
 /**
