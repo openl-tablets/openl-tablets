@@ -1,12 +1,24 @@
 /**
- * Repository tool handlers — list design repositories, branches, repository
- * features, and project revision history.
+ * Repository tool handlers — list design repositories, their branches, the revision history of a project and the files
+ * a revision changed.
  */
 
 import * as schemas from "../schemas.js";
-import { formatList, formatListOf, hasMoreItems } from "../markdown-list.js";
+import type * as Types from "../types.js";
+import { formatList, formatListOf, hasMoreItems, markdownTable, type Column } from "../markdown-list.js";
 import { authorOf, headlineOf, namesOfSet } from "../utils.js";
 import { registerTool, textResult, type ToolResponse } from "./common.js";
+
+/** The columns a revision is listed by: the first line of its comment names it, and only the flags that are set show. */
+const REVISION_COLUMNS: Array<Column<Types.ProjectRevision>> = [
+  { header: "revision", value: (revision) => revision.revisionNo },
+  { header: "date", value: (revision) => revision.createdAt },
+  { header: "author", value: authorOf },
+  { header: "comment", value: headlineOf },
+  { header: "flags", value: (revision) => [
+    ...(revision.deleted ? ["deleted"] : []), ...(revision.technicalRevision ? ["technical"] : []),
+  ] },
+];
 
 export function registerRepositoryHandlers(): void {
   registerTool({
@@ -84,15 +96,29 @@ export function registerRepositoryHandlers(): void {
         offset,
         total,
         hasMore: hasMoreItems(offset, revisions.numberOfElements, limit, total),
-        columns: [
-          { header: "revision", value: (revision) => revision.revisionNo },
-          { header: "date", value: (revision) => revision.createdAt },
-          { header: "author", value: authorOf },
-          { header: "comment", value: headlineOf },
-          { header: "flags", value: (revision) => [
-            ...(revision.deleted ? ["deleted"] : []), ...(revision.technicalRevision ? ["technical"] : []),
-          ] },
-        ],
+        columns: REVISION_COLUMNS,
+      }));
+    },
+  });
+
+  registerTool({
+    name: "repository_project_revision_changes",
+    title: "Get Files Changed by a Revision",
+    description:
+      "List the files of a project a revision changed, by path in the project and change (added, modified or deleted), then the revisions compared in the columns of openl_repository_project_revisions. A revision is compared with the one it was made on: in Git its first parent, so a merge lists what it brought in; between two revisions a file changed several times is listed once. The first revision of a project lists every file as added; files outside the project folder and ignored files are not listed. openl_read_project_file reads a file as a revision holds it. An unknown revision is refused.",
+    schema: schemas.getProjectRevisionChangesSchema,
+    annotations: {
+      readOnlyHint: true,
+      openWorldHint: true,
+      idempotentHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const { base, revision, files } = await client.getProjectRevisionChanges(args.projectId, args.revision, args.base);
+      const compared = [...(base ? [{ ...base, side: "base" }] : []), { ...revision, side: "revision" }];
+      return textResult(formatListOf(files, args.limit, args.offset, {
+        noun: "files",
+        columns: [{ header: "path", value: (file) => file.path }, { header: "change", value: (file) => file.type }],
+        notes: [markdownTable(compared, [{ header: "compared", value: (side) => side.side }, ...REVISION_COLUMNS])],
       }));
     },
   });

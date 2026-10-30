@@ -37,7 +37,7 @@ tool waits until the compilation ends, and it goes on with the files as they are
 version of the table it names, which the agent reads again. The agent never has to ask for it. A new tool reading
 tables, running rules or editing them declares `compiled`.
 
-## Tools (61 Total)
+## Tools (62 Total)
 
 All tools are prefixed with `openl_` and share the server's version.
 
@@ -52,10 +52,11 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_list_guides` - The canonical index of the docs: **metadata only** (id, title, size), filterable by `type` ('specification', also 'spec' as the ids start, or 'guide') and case-insensitive `search` over id+title, paginated; the id starts with its type, and `openl_get_guides` names the path
 - `openl_get_guides` - Full markdown bodies for 1-5 ids from the index (e.g. `spec/rules.xml`, `guide/introduction/basic-concepts`), verbatim: their links and images are relative to the path of the document; unknown ids fail with an actionable error — it never falls back to the index
 
-### Repository Tools (3)
+### Repository Tools (4)
 - `openl_list_repositories` - List the design repositories with the features each supports (branches, comments, search, mapped folders), in JSON and in either Markdown view
 - `openl_list_branches` - List Git branches in a repository
 - `openl_repository_project_revisions` - Get project revision history by stable project ID in the project's current branch, or in another `branch`; a commit without a comment, such as the deletion of the project, has an empty comment
+- `openl_repository_project_revision_changes` - List the files a revision changed as a table of path and change (added, modified or deleted), against the revision it was made on (the first parent of a commit, so a merge lists what it brought in) or against a given `base` revision; paged, with both revisions in the columns `openl_repository_project_revisions` lists them by
 
 ### Project Tools (14)
 - `openl_list_projects` - List projects as a table of `projectId`, name, repository, branch and status, with filters and pagination; `sort: updated` or `include: details`, which the tool keeps to itself, adds the last change, a third of each row; the first line names the offset of the next page while more follow. Each project names its id once, as `projectId`, the name the other tools take it by, and leaves its capabilities to `openl_get_project`. `include: status` adds a `compileState` column, filled from the compile states Studio answers beside the page, the summary counts of `include: summary` follow the table, and a note names a repository whose cross-branch project index is not ready, which may miss projects of other branches, and the branches that failed, which list their projects as last indexed; a `compileState` of `idle` means the project is not compiled yet, not that it compiles; `openl_project_status` compiles it
@@ -241,7 +242,8 @@ Projects with `repository: 'local'` are stored on disk without Git; **OPENED/EDI
 
 **For local, do not use:**
 - `openl_open_project`, `openl_save_project`, `openl_close_project` (no commits or status changes);
-- Git tools: `openl_list_branches`, `openl_create_project_branch`, `openl_repository_project_revisions`;
+- Git tools: `openl_list_branches`, `openl_create_project_branch`, `openl_repository_project_revisions`,
+  `openl_repository_project_revision_changes`;
 - Project branch/merge tools: `openl_list_project_branches`, `openl_check_project_merge`, `openl_merge_project_branches`, merge-conflict inspection and resolution, conflict-session cancellation, and `openl_delete_project_branch`;
 - `openl_list_project_local_changes`, `openl_restore_project_local_change` (require an opened project; local projects cannot be opened).
 
