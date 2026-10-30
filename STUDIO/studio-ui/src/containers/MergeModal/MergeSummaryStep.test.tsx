@@ -73,7 +73,8 @@ describe('MergeSummaryStep', () => {
 
         const files = screen.getAllByTestId('merge-summary-file')
         expect(files).toHaveLength(3)
-        expect(files[0]).toHaveTextContent('DESIGN/rules/Pricing/rules/Main.xlsx')
+        expect(within(files[0]!).getByText('Main.xlsx')).toBeInTheDocument()
+        expect(within(files[0]!).getByText('DESIGN/rules/Pricing/rules')).toBeInTheDocument()
         expect(within(files[2]!).getByLabelText('repository:browser.files.change.added')).toBeInTheDocument()
     })
 

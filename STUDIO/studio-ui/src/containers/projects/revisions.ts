@@ -23,6 +23,10 @@ export const shortRevision = (revision: string): string => NUMBERED_REVISION.tes
     ? revision
     : revision.slice(0, SHORT_REVISION_LENGTH)
 
+/** Who made a revision, as the history names them. */
+export const authorName = (revision: ProjectRevision): string =>
+    revision.author?.displayName || revision.author?.email || '—'
+
 /**
  * How a revision reads to a business user: which revision it is, then who changed the project and when.
  *

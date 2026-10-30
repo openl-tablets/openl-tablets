@@ -30,6 +30,16 @@ import type { Comparison, ComparisonTable } from 'types/compare'
 import { ComparisonPanes, type DiffView } from './ComparisonPanes'
 import { ConflictHead } from './ConflictHead'
 import { TextVersionsView } from './TextVersionsView'
+import {
+    comparedRevisionsOf,
+    type ComparedRevisions,
+    pageOf,
+    RevisionsComparison,
+    RevisionsHead,
+    useProjectName,
+} from './RevisionsComparison'
+import { useRevisionChanges } from '../projects/RevisionChanges'
+import type { ProjectFileChange, ProjectFileChangeType } from 'services/projectStatus'
 import { RevisionPicker, type ProjectComparisonSides } from './RevisionPicker'
 import { ComparisonTree } from './ComparisonTree'
 import { isFinished, useComparisonProgress } from './useComparisonProgress'
@@ -184,12 +194,13 @@ const fileRevisionsOf = (params: URLSearchParams): NamedVersions | null => {
     const file = params.get('file')
     const change = params.get('change')
     const absentBefore = change === 'added'
-    const before = params.get('before') ?? undefined
+    // A file of two revisions compared is named by the revisions themselves.
+    const before = params.get('before') ?? params.get('base') ?? undefined
     if (!projectId || !file || (!before && !absentBefore)) {
         return null
     }
     // A file named without a later revision is compared with the working copy.
-    const after = params.get('after') ?? undefined
+    const after = params.get('after') ?? params.get('revision') ?? undefined
     const absentAfter = change === 'deleted'
     const titles = after ? REVISION_TITLES : SAVE_TITLES
     if (!isWorkbookPath(file)) {
@@ -351,7 +362,12 @@ const useConflictFile = (projectId: string | null, conflict: string | null) => {
     return { conflictVersions, conflictStatus, conflictViews, conflictView, setPickedView, conflictWorkbook, conflictText }
 }
 
-export const ComparePage: React.FC = () => {
+interface ComparisonScreenProps {
+    /** What heads the screen instead of the name of the file compared, when the window names it otherwise. */
+    head?: React.ReactNode
+}
+
+const ComparisonScreen: React.FC<ComparisonScreenProps> = ({ head }) => {
     const { t } = useTranslation('compare')
     const { styles } = useStyles()
     const [params] = useSearchParams()
@@ -641,7 +657,7 @@ export const ComparePage: React.FC = () => {
     if (text) {
         return (
             <div className={styles.page}>
-                {conflictHead || <ConflictHead path={text.path} status={null} />}
+                {head ?? (conflictHead || <ConflictHead path={text.path} status={null} />)}
                 <TextVersionsView
                     key={conflictView}
                     read={text.read}
@@ -655,6 +671,7 @@ export const ComparePage: React.FC = () => {
     return (
         <div className={styles.page}>
             {conflictHead}
+            {head}
             {!comparing && (
                 <div className={styles.step}>
                     {pickedProject && <RevisionPicker onChange={setSides} projectId={pickedProject} />}
@@ -823,6 +840,129 @@ export const ComparePage: React.FC = () => {
                 </Splitter>
             )}
         </div>
+    )
+}
+
+/**
+ * The comparison window. Opened for two revisions of a project, it lists the files changed between them first, and
+ * compares the file picked of them in the same window, with the way back to the list; the address names the file, so
+ * the browser goes back to the list as well. Opened for anything else, it compares what the address names.
+ */
+export const ComparePage: React.FC = () => {
+    const [params] = useSearchParams()
+    const revisions = useMemo(() => comparedRevisionsOf(params), [params])
+    if (!revisions) {
+        return <ComparisonScreen />
+    }
+    return <RevisionsWindow revisions={revisions} />
+}
+
+/** What became of a file, as the address tells it: added or deleted, and modified when it tells anything else. */
+const changeTypeOf = (change: string | null): ProjectFileChangeType =>
+    change === 'added' || change === 'deleted' ? change : 'modified'
+
+/** Two revisions of a project: the files changed between them, or one of them compared. */
+const RevisionsWindow: React.FC<{ revisions: ComparedRevisions }> = ({ revisions }) => {
+    const { t } = useTranslation('compare')
+    const [params, setParams] = useSearchParams()
+    const projectName = useProjectName(revisions.projectId)
+    // The changes tell the two revisions as well: who made each, when and why.
+    const changes = useRevisionChanges(revisions.projectId, revisions.revision, revisions.base)
+    const [page, setPage] = useState(1)
+    const file = params.get('file')
+
+    useEffect(() => {
+        // A file compared names the window after itself.
+        if (!file) {
+            document.title = projectName ? t('revisions_title', { name: projectName }) : t('title')
+        }
+    }, [file, projectName, t])
+    // The file compared last, which the list marks once the reader is back to it.
+    const [lastFile, setLastFile] = useState(file)
+    // Whether the file shown was picked of the list in this window, which is then the page before it.
+    const pickedHere = useRef(false)
+
+    const listed = changes?.files ?? []
+    const index = file ? listed.findIndex(changed => changed.path === file) : -1
+    // A file the address names that the list does not hold is still compared, as the address says it changed.
+    const shownFile: ProjectFileChange | null = file
+        ? listed[index] ?? { path: file, type: changeTypeOf(params.get('change')) }
+        : null
+
+    const paramsOf = (changed: ProjectFileChange) => {
+        const next = new URLSearchParams(params)
+        next.set('file', changed.path)
+        if (changed.type === 'modified') {
+            next.delete('change')
+        } else {
+            next.set('change', changed.type)
+        }
+        return next
+    }
+
+    const compareFile = (changed: ProjectFileChange) => {
+        pickedHere.current = true
+        setLastFile(changed.path)
+        setParams(paramsOf(changed))
+    }
+
+    /** The file next to the one compared takes its place, and the list turns to its page behind it. */
+    const step = (by: -1 | 1) => {
+        const next = listed[index + by]
+        if (next) {
+            setPage(pageOf(index + by))
+            setLastFile(next.path)
+            setParams(paramsOf(next), { replace: true })
+        }
+    }
+
+    /**
+     * Back to the list: to the page the file was picked on, when it was, so the history does not grow with every file;
+     * otherwise the list takes the place of the file.
+     */
+    const backToFiles = () => {
+        if (pickedHere.current) {
+            pickedHere.current = false
+            window.history.back()
+            return
+        }
+        const next = new URLSearchParams(params)
+        next.delete('file')
+        next.delete('change')
+        setParams(next, { replace: true })
+    }
+
+    return (
+        <>
+            {/* The list stays while a file is compared, so going back neither reads it again nor leaves its page. */}
+            <div hidden={!!file}>
+                <RevisionsComparison
+                    changes={changes}
+                    onCompare={compareFile}
+                    onPage={setPage}
+                    page={page}
+                    projectName={projectName}
+                    revisions={revisions}
+                    selected={lastFile}
+                />
+            </div>
+            {/* Each file is a comparison of its own, so nothing of the one before is left on screen. */}
+            {shownFile && (
+                <ComparisonScreen
+                    key={shownFile.path}
+                    head={(
+                        <RevisionsHead
+                            changes={changes}
+                            file={shownFile}
+                            onBack={backToFiles}
+                            projectName={projectName}
+                            revisions={revisions}
+                            steps={{ index, total: listed.length, onStep: step }}
+                        />
+                    )}
+                />
+            )}
+        </>
     )
 }
 

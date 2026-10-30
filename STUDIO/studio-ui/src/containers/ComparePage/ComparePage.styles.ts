@@ -126,7 +126,20 @@ export const useStyles = createStyles(({ css, token }) => ({
     panes: css`
         height: 100%;
     `,
-    // Which conflicted file is compared, and what the merge did to it.
+    // The project and the two revisions compared, above the files changed between them.
+    revisionsHead: css`
+        flex: none;
+        padding: ${token.padding}px;
+        border-bottom: 1px solid ${token.colorBorderSecondary};
+    `,
+    // The changed files of two revisions scroll under the head that names them.
+    changedFiles: css`
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        padding: ${token.padding}px;
+    `,
+    // Which file is compared - a conflicted one and what the merge did to it - or which two revisions.
     conflictHead: css`
         display: flex;
         flex: none;

@@ -1,9 +1,9 @@
 import React from 'react'
-import { Button, Flex, Listy, Space, Tooltip, Typography } from 'antd'
+import { Flex, Listy, Space, theme, Tooltip, Typography } from 'antd'
+import { RightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import type { ProjectFileChange } from '../../services/projectStatus'
 import { FileChangeIcon } from './FileChangeIcon'
-import { ACTION_ICONS } from './projectActionIcons'
 import { basename, parentFolder } from './projectPaths'
 
 /**
@@ -47,7 +47,7 @@ export const ChangesHeader: React.FC<ChangesHeaderProps> = ({ name, count, child
 )
 
 /** How a list compares a modified file: the tooltip of its Compare, and what Compare opens. */
-interface FileComparison<T extends ProjectFileChange> {
+export interface FileComparison<T extends ProjectFileChange> {
     hint: string
     open: (file: T) => void
     /**
@@ -70,13 +70,17 @@ interface ChangedFileListProps<T extends ProjectFileChange> {
      * page at a time is short, so it is drawn whole.
      */
     virtual?: boolean | undefined
+    /** The path of the file compared last, which the list marks so the reader sees where they were. */
+    selected?: string | null | undefined
 }
 
 /**
- * The files a change touches, each named by its path after the icon that marks it added, modified or deleted.
+ * The files a change touches, each named after the icon that marks it added, modified or deleted: the name of the file
+ * first, then the folder it is in.
  *
- * A modified file offers Compare at the end of its row, which stays in sight however long the path is. An added or a
- * deleted file has one version only, so it offers Compare only where the list is told to compare every file.
+ * A file that can be compared is compared by a click anywhere on its row, which ends with an arrow. A modified file
+ * can always be compared; an added or a deleted file has one version only, so only where the list is told to compare
+ * every file.
  */
 export const ChangedFileList = <T extends ProjectFileChange>({
     files,
@@ -84,36 +88,82 @@ export const ChangedFileList = <T extends ProjectFileChange>({
     compare,
     details,
     virtual = true,
+    selected,
 }: ChangedFileListProps<T>) => {
     const { t } = useTranslation()
-    const renderFile = (file: T) => (
-        <Flex vertical data-testid={`${testId}-file`} gap={2} style={{ paddingBlock: 4 }}>
-            <Flex align="center" gap="small">
-                <FileChangeIcon title={t(`repository:browser.files.change.${file.type}`)} type={file.type} />
-                <FilePath path={file.path} />
-                {compare && (compare.everyFile || file.type === 'modified') && (
-                    <Tooltip title={compare.hint}>
-                        <Button
-                            data-testid={`${testId}-compare`}
-                            icon={ACTION_ICONS.compare}
-                            onClick={() => compare.open(file)}
-                            size="small"
-                            type="link"
-                        >
-                            {t('repository:browser.compare')}
-                        </Button>
-                    </Tooltip>
-                )}
+    const { token } = theme.useToken()
+    const renderFile = (file: T) => {
+        const comparable = !!compare && (compare.everyFile || file.type === 'modified')
+        const open = () => compare?.open(file)
+        const folder = parentFolder(file.path)
+        // The one compared last stays marked.
+        const look = {
+            paddingBlock: token.paddingXS,
+            paddingInline: token.paddingSM,
+            borderRadius: token.borderRadius,
+            background: file.path === selected ? token.controlItemBgActive : 'none',
+        }
+        const content = (
+            <Flex vertical gap={2}>
+                <Flex align="center" gap="small">
+                    <FileChangeIcon title={t(`repository:browser.files.change.${file.type}`)} type={file.type} />
+                    {/* The folder gives way first; a name too long for the row on its own is shortened too, so the
+                        arrow stays in sight. */}
+                    <Flex align="baseline" gap="small" style={{ flex: 1, minWidth: 0 }}>
+                        <Typography.Text strong ellipsis={{ tooltip: basename(file.path) }} style={{ minWidth: 0 }}>
+                            {basename(file.path)}
+                        </Typography.Text>
+                        {folder && (
+                            <Typography.Text
+                                ellipsis={{ tooltip: folder }}
+                                style={{ flex: '1 1 0', minWidth: 0 }}
+                                type="secondary"
+                            >
+                                {folder}
+                            </Typography.Text>
+                        )}
+                    </Flex>
+                    {comparable && (
+                        <Tooltip title={compare.hint}>
+                            <RightOutlined data-testid={`${testId}-compare`} />
+                        </Tooltip>
+                    )}
+                </Flex>
+                {details?.(file)}
             </Flex>
-            {details?.(file)}
-        </Flex>
-    )
+        )
+        // A row that compares its file is a button, the whole of it; a button inside a form must not send it.
+        return comparable
+            ? (
+                <button
+                    aria-label={`${compare.hint}: ${file.path}`}
+                    data-testid={`${testId}-file`}
+                    onClick={open}
+                    type="button"
+                    style={{
+                        ...look,
+                        display: 'block',
+                        width: '100%',
+                        border: 0,
+                        font: 'inherit',
+                        color: 'inherit',
+                        textAlign: 'start',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {content}
+                </button>
+            )
+            : <div data-testid={`${testId}-file`} style={look}>{content}</div>
+    }
     return (
         <Listy
             {...(virtual ? { height: LIST_HEIGHT } : {})}
             itemRender={renderFile}
             items={files}
             rowKey={file => file.path}
+            // The rows carry their own room, so that all of a row takes the click, and no rule between them.
+            styles={{ item: { padding: 0, borderBottom: 'none', borderRadius: token.borderRadius } }}
             virtual={virtual}
         />
     )
