@@ -301,7 +301,13 @@ Kept from the cell as it was:
 - the number format;
 - the indent (it carries the structure of TBasic and ColumnMatch tables);
 - wrap text;
-- text rotation.
+- text rotation;
+- the apostrophe of Excel (the quote prefix) of a text, such as `0123` typed in Excel after an apostrophe.
+
+The apostrophe follows what the cell holds. An OpenL formula, a text starting with `=`, gets it, so Excel keeps the
+formula a text when the cell is edited in Excel. A cell holding anything but a text loses it, since Excel would turn
+an Excel formula or a number after an apostrophe into a text once edited. Studio sets it the same way whenever it
+writes a value or an Excel formula into a cell, whether the table is formatted or not.
 
 Everything else — font, fill, borders, horizontal and vertical alignment — comes from the role.
 
@@ -390,7 +396,7 @@ A role is laid out as a rectangle of cells: a **region**. A Data table of 10,000
 whatever its size. The writer turns each region into cell formats like this:
 
 1. A cell format is identified by its key: the role and its edge (no line, line above, line below, or both), plus
-   what is kept from the cell (number format, indent, wrap text, rotation).
+   what is kept from the cell (number format, indent, wrap text, rotation, apostrophe).
 2. The workbook's existing formats are indexed by that key once per workbook, so formatting a table again finds
    them and adds nothing.
 3. Each cell gets the index of its format. No style object is created per cell.

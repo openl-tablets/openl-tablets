@@ -34,6 +34,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.xls.Apostrophes;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
@@ -205,6 +206,7 @@ public class TableCreatorService {
         try (var workbook = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
             var sheet = createSheet(workbook, resolveSheetName(request));
             var dateStyle = dateStyle(workbook);
+            var apostrophes = new Apostrophes();
             for (var rowIndex = 0; rowIndex < stamped.source.size(); rowIndex++) {
                 var sourceRow = stamped.source.get(rowIndex);
                 // The same matrix reaches an existing module through RawTableWriter, which rejects a missing or
@@ -220,6 +222,7 @@ public class TableCreatorService {
                         } else {
                             writeCell(cell, sourceCell.value(), dateStyle);
                         }
+                        apostrophes.set(cell);
                         mergeCell(sheet, stamped, rowIndex, columnIndex, sourceCell);
                     }
                 }

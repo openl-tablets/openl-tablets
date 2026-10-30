@@ -72,6 +72,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     private RegionsPool mergedRegionsPool;
 
     private final Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
+    private final Apostrophes apostrophes = new Apostrophes();
 
     private void extractMergedRegions() {
         mergedRegionsPool = new RegionsPool(null);
@@ -317,6 +318,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             setCellValue(col, row, value);
         }
         setCellStyle(col, row, style);
+        setApostrophe(col, row);
         setCellComment(col, row, comment, prevCommentAuthor);
     }
 
@@ -459,6 +461,16 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } else {
             poiCell.setBlank();
         }
+        apostrophes.set(poiCell);
+    }
+
+    /**
+     * Sets the apostrophe of Excel of a cell by the value it holds, after its style was written over it.
+     *
+     * @see Apostrophes
+     */
+    public void setApostrophe(int col, int row) {
+        apostrophes.set(PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite()));
     }
 
     /**
@@ -479,6 +491,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellStringValue(int col, int row, String value) {
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheetToWrite());
         cell.setCellValue(value);
+        apostrophes.set(cell);
     }
 
     @Override
@@ -490,6 +503,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.setCellToWrite(poiCell);
             cellWriter.setValueToWrite(formula);
             cellWriter.writeCellValue();
+            apostrophes.set(poiCell);
         }
     }
 
