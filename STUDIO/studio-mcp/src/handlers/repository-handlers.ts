@@ -1,11 +1,25 @@
 /**
- * Repository tool handlers — list design repositories, branches, repository
- * features, and project revision history.
+ * Repository tool handlers — list design repositories, their branches, the revision history of a project and the files
+ * a revision changed.
  */
 
 import * as schemas from "../schemas.js";
+import type * as Types from "../types.js";
 import { formatPage, hasMoreItems } from "../formatters.js";
 import { registerTool, formatResult, textResult, type ToolResponse } from "./common.js";
+
+/**
+ * A revision as the tools answer it: a short revision is a prefix of its revision, and a flag that is false tells
+ * nothing.
+ */
+type RevisionItem = Omit<Types.ProjectRevision, "shortRevisionNo" | "deleted" | "technicalRevision">
+  & Partial<Pick<Types.ProjectRevision, "deleted" | "technicalRevision">>;
+
+const revisionItem = ({ shortRevisionNo, deleted, technicalRevision, ...revision }: Types.ProjectRevision): RevisionItem => ({
+  ...revision,
+  ...(deleted ? { deleted } : {}),
+  ...(technicalRevision ? { technicalRevision } : {}),
+});
 
 export function registerRepositoryHandlers(): void {
   registerTool({
@@ -67,16 +81,29 @@ export function registerRepositoryHandlers(): void {
       const offset = args.offset ?? revisions.pageNumber * revisions.pageSize;
       const { pageSize: limit, total } = revisions;
 
-      // The revisions alone: the page Studio wraps them in is told by the pagination, a short revision is a prefix of
-      // its revision, and a flag that is false tells nothing
-      const items = revisions.content.map(({ shortRevisionNo, deleted, technicalRevision, ...revision }) => ({
-        ...revision,
-        ...(deleted ? { deleted } : {}),
-        ...(technicalRevision ? { technicalRevision } : {}),
-      }));
-      return formatResult(items, "json", {
+      // The revisions alone: the page Studio wraps them in is told by the pagination
+      return formatResult(revisions.content.map(revisionItem), "json", {
         pagination: { limit, offset, total, hasMore: hasMoreItems(offset, revisions.numberOfElements, limit, total) },
       });
+    },
+  });
+
+  registerTool({
+    name: "repository_project_revision_changes",
+    title: "Get Files Changed by a Revision",
+    description:
+      "List the files of a project a revision changed, each by its path in the project and whether it was added, modified or deleted, with both revisions as openl_repository_project_revisions answers them. A revision is compared with the one it was made on: in Git its first parent, so a merge lists what it brought in. Between two revisions a file changed several times is listed once. The first revision of a project lists every file as added; files outside the project folder and ignored files are not listed. Read a file as a revision holds it with openl_read_project_file and its 'version'. An unknown revision is refused.",
+    schema: schemas.getProjectRevisionChangesSchema,
+    annotations: {
+      readOnlyHint: true,
+      openWorldHint: true,
+      idempotentHint: true,
+    },
+    handler: async (args, client): Promise<ToolResponse> => {
+      const { base, revision, files } = await client.getProjectRevisionChanges(args.projectId, args.revision, args.base);
+      return textResult(formatPage(files, "json", args.limit, args.offset, {
+        responseMetadata: { base: base && revisionItem(base), revision: revisionItem(revision) },
+      }));
     },
   });
 }

@@ -698,6 +698,13 @@ export const getProjectRevisionsSchema = z.strictObject({
   { error: "page and offset are mutually exclusive" },
 );
 
+export const getProjectRevisionChangesSchema = z.strictObject({
+  projectId: projectIdSchema,
+  revision: nonBlankString.describe("The revision whose changes are listed: a 'revisionNo' from openl_repository_project_revisions()."),
+  base: nonBlankString.optional().describe("An earlier revision to compare it with, to list the files changed between the two. Omit to compare the revision with the one it was made on."),
+  ...paginationShape,
+});
+
 // =============================================================================
 // Local Changes & Restore Schemas
 // =============================================================================

@@ -63,6 +63,37 @@ describe("repository tools", () => {
     });
   });
 
+  it("openl_repository_project_revision_changes pages the files a revision changed, telling the two revisions", async () => {
+    const revision = (revisionNo: string, fullComment: string) => ({
+      revisionNo, createdAt: "2026-01-01T00:00:00Z", fullComment, author: { displayName: "Ada Admin" },
+    });
+    harness.mockHttp.onGet(`${historyPath}/changes`, { params: { revision: "def456", base: "abc123" } }).reply(200, {
+      base: { ...revision("abc123", "Before"), shortRevisionNo: "abc123", deleted: false, technicalRevision: false },
+      revision: { ...revision("def456", "After"), shortRevisionNo: "def456", deleted: false, technicalRevision: true },
+      files: [
+        { path: "rules/Main.xlsx", type: "modified" },
+        { path: "notes.txt", type: "deleted" },
+        { path: "reviews/new.txt", type: "added" },
+      ],
+    });
+
+    const result = await executeTool("repository_project_revision_changes", {
+      projectId,
+      revision: "def456",
+      base: "abc123",
+      limit: 2,
+      offset: 1,
+    }, harness.client);
+
+    // The revisions are answered as the history answers them: no short revision, no flag that is false.
+    expect(JSON.parse(textOf(result))).toEqual({
+      base: revision("abc123", "Before"),
+      revision: { ...revision("def456", "After"), technicalRevision: true },
+      data: [{ path: "notes.txt", type: "deleted" }, { path: "reviews/new.txt", type: "added" }],
+      pagination: { limit: 2, offset: 1, has_more: false, total_count: 3 },
+    });
+  });
+
   it("openl_repository_project_revisions preserves a non-page-aligned offset in the response metadata", async () => {
     harness.mockHttp.onGet(historyPath, { params: { techRevs: false, offset: 25, size: 50 } }).reply(200, {
       content: [],
