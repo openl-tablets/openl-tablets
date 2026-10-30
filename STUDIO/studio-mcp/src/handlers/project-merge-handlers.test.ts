@@ -632,22 +632,60 @@ describe("project branch and merge handlers", () => {
     });
   });
 
-  it("does not run a misleading divergence check for a non-current deletion target", async () => {
+  it("does not run a misleading divergence check from a branch other than the target and the base", async () => {
     const branches = [
       { name: "main", base: true },
+      { name: "develop" },
       { name: "feature/other" },
+    ];
+    harness.mockHttp.onGet("/projects/p1/branches").reply(200, branches);
+    harness.mockHttp.onGet("/projects/p1").reply(200, {
+      id: "p1", name: "Rating", branch: "develop", status: "OPENED",
+    });
+
+    await expect(executeTool("delete_project_branch", {
+      projectId: "p1", branch: "feature/other", confirmBranchName: "feature/other",
+    }, harness.client)).rejects.toThrow(/current branch 'develop'.*Open 'feature\/other' or base branch 'main'/);
+
+    expect(harness.mockHttp.history.post).toHaveLength(0);
+    expect(harness.mockHttp.history.delete).toHaveLength(0);
+  });
+
+  it("checks from the base branch whether the deletion target is merged into it", async () => {
+    const branches = [
+      { name: "main", base: true },
+      { name: "feature/merged" },
+      { name: "feature/open" },
     ];
     harness.mockHttp.onGet("/projects/p1/branches").reply(200, branches);
     harness.mockHttp.onGet("/projects/p1").reply(200, {
       id: "p1", name: "Rating", branch: "main", status: "OPENED",
     });
+    harness.mockHttp.onPost("/projects/p1/merge/check").reply((config) => {
+      const { otherBranch } = JSON.parse(config.data as string) as { otherBranch: string };
+      return [200, {
+        sourceBranch: otherBranch,
+        targetBranch: "main",
+        status: otherBranch === "feature/merged" ? "up-to-date" : "mergeable",
+      }];
+    });
+    harness.mockHttp.onDelete(/\/projects\/p1\/branches\//).reply(204);
 
+    const response = await executeTool("delete_project_branch", {
+      projectId: "p1", branch: "feature/merged", confirmBranchName: "feature/merged",
+    }, harness.client);
     await expect(executeTool("delete_project_branch", {
-      projectId: "p1", branch: "feature/other", confirmBranchName: "feature/other",
-    }, harness.client)).rejects.toThrow(/current branch 'main'.*Open 'feature\/other'/);
+      projectId: "p1", branch: "feature/open", confirmBranchName: "feature/open",
+    }, harness.client)).rejects.toThrow(/'feature\/open' has commits that are not merged into base branch 'main'/);
 
-    expect(harness.mockHttp.history.post).toHaveLength(0);
-    expect(harness.mockHttp.history.delete).toHaveLength(0);
+    expect(harness.mockHttp.history.post.map(bodyOf)).toEqual([
+      { mode: "receive", otherBranch: "feature/merged" },
+      { mode: "receive", otherBranch: "feature/open" },
+    ]);
+    expect(dataOf<Record<string, unknown>>(response)).toEqual({
+      deleted: "feature/merged", divergenceStatus: "up-to-date", baseBranch: "main",
+    });
+    expect(harness.mockHttp.history.delete.map(({ url }) => url)).toEqual(["/projects/p1/branches/feature/merged"]);
   });
 
   it.each([
