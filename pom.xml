@@ -225,7 +225,7 @@
         <lombok.version>1.18.48</lombok.version>
 
         <!-- Also picks the JaCoCo command-line tool the CI Sonar job builds the coverage report with -->
-        <jacoco.version>0.8.15</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
 
         <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
         <node.version>v24.21.0</node.version>
