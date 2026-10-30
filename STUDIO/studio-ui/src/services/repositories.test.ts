@@ -12,6 +12,7 @@ import {
     getProjectBranches,
     getProjectFiles,
     getProjectRevisions,
+    getRevisionChanges,
     getProjectTemplates,
     getProjects,
     getTagTypes,
@@ -100,6 +101,24 @@ describe('getProjects', () => {
         await getProject('abc=', { includes: ['status', 'descriptor']})
 
         expect(apiCall).toHaveBeenCalledWith('/projects/abc%3D?include=status&include=descriptor', undefined, { throwError: true })
+    })
+
+    it('reads the files a revision changed, leaving a failure to the list that shows them', async () => {
+        const base = { revisionNo: 'b1', fullComment: 'Before' }
+        const revision = { revisionNo: 'a1', fullComment: 'After' }
+        vi.mocked(apiCall).mockResolvedValueOnce({ base, revision, files: [{ path: 'rules.xml', type: 'modified' }]})
+            .mockResolvedValueOnce({ revision })
+
+        await expect(getRevisionChanges('a+b', 'a1', 'b1')).resolves.toEqual({
+            base,
+            revision,
+            files: [{ path: 'rules.xml', type: 'modified' }],
+        })
+        expect(apiCall).toHaveBeenCalledWith('/projects/a%2Bb/history/changes?revision=a1&base=b1', undefined,
+            { throwError: true, suppressErrorPages: true })
+
+        // The first revision of a project has nothing before it, and an answer that lists no file changed none.
+        await expect(getRevisionChanges('p', 'a1')).resolves.toEqual({ base: null, revision, files: []})
     })
 
     it('passes local error-page handling options to project list and detail calls', async () => {

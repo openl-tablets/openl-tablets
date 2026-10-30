@@ -445,6 +445,7 @@ export const ProjectDetail = ({
             label: <><HistoryOutlined /> {t('browser.tab_history')}</>,
             children: activeTab === 'history' && (
                 <RevisionsPanel
+                    branch={project.branch}
                     currentRevision={project.revision}
                     onOpened={() => onChanged?.()}
                     projectId={project.id}

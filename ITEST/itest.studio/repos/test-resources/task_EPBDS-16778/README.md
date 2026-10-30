@@ -12,4 +12,7 @@ changed the file before:
 - `040-copy-and-move` — a copy, and a move (a copy and a deletion), are committed the same way;
 - `050-delete-module` — deleting a module is committed the same way, and so is the `rules.xml` that no longer
   declares it;
-- `060-project` — the project stays closed and nobody holds it.
+- `060-project` — the project stays closed and nobody holds it;
+- `070-revision-changes` — the contributor reads which files a revision changed (EPBDS-17052): the last commit against
+  its parent, the net difference since the first commit of the project, and 404 for a revision the repository does
+  not hold.

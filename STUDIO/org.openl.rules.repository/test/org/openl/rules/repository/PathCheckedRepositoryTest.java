@@ -44,6 +44,7 @@ import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RevisionChanges;
 
 class PathCheckedRepositoryTest {
 
@@ -274,5 +275,20 @@ class PathCheckedRepositoryTest {
         assertEquals(new MergeOutcome("before", "after", List.of(rules), List.of()),
                 repository.merge("feature", null, null));
         assertThrows(IllegalArgumentException.class, () -> repository.getMergeScope("../outside", "main"));
+    }
+
+    @Test
+    void tellsTheChangesOfARevisionWithoutTheIgnoredFiles() throws Exception {
+        var delegate = mock(BranchRepository.class);
+        var rules = new FileChange("p/rules.xml", FileChange.Kind.MODIFIED);
+        var pom = new FileChange("p/pom.xml", FileChange.Kind.ADDED);
+        var before = new FileData();
+        var after = new FileData();
+        when(delegate.listChanges("p", null, "after")).thenReturn(new RevisionChanges(before, after, List.of(rules, pom)));
+        var repository = new PathCheckedRepository(delegate, IgnoredPaths.of("**/pom.xml"));
+
+        assertEquals(new RevisionChanges(before, after, List.of(rules)), repository.listChanges("p", null, "after"));
+        assertThrows(InvalidPathException.class, () -> repository.listChanges("../outside", null, "after"));
+        verify(delegate, never()).listChanges("../outside", null, "after");
     }
 }

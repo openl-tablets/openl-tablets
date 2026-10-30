@@ -14,6 +14,19 @@ vi.mock('../../services/repositories', () => ({
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 
+// The changes of a revision are read by a component of their own, tested on its own; here it only shows what it
+// was asked about, and each mount is counted.
+const revisionChangesMounts = vi.fn()
+vi.mock('./RevisionChanges', async () => {
+    const { useEffect } = await import('react')
+    return {
+        RevisionChanges: ({ branch, revision }: { branch?: string | null, revision: string }) => {
+            useEffect(() => { revisionChangesMounts(revision) }, [revision])
+            return <div data-testid={`changes-of-${revision}`}>{`${branch ?? ''}:${revision}`}</div>
+        },
+    }
+})
+
 vi.mock('../../components/SearchInput', () => ({
     SearchInput: ({ onChange, value, ...rest }: Record<string, unknown>) =>
         <input onChange={onChange as never} value={value as never} {...rest} />,
@@ -112,6 +125,7 @@ async function renderPanel(props: {
     render(
         <MemoryRouter>
             <RevisionsPanel
+                branch="main"
                 currentRevision={props.currentRevision === undefined ? REVS[0]!.revisionNo : props.currentRevision}
                 onOpened={props.onOpened ?? vi.fn()}
                 projectId="p1"
@@ -151,6 +165,49 @@ describe('RevisionsPanel', () => {
         expect(comment).toHaveTextContent('Copied from: Bank Rating #2.')
         // A project is addressed by its id only, which a comment does not carry.
         expect(within(comment).queryByRole('link')).toBeNull()
+    })
+
+    it('expands a revision on a click and lists its changes, read once however often it is expanded', async () => {
+        await renderPanel()
+        const toggle = screen.getByTestId('revision-toggle-0987654321')
+        expect(toggle).toHaveAttribute('aria-expanded', 'false')
+        expect(screen.queryByTestId('changes-of-0987654321')).toBeNull()
+
+        await userEvent.click(toggle)
+
+        expect(toggle).toHaveAttribute('aria-expanded', 'true')
+        expect(screen.getByTestId('changes-of-0987654321')).toHaveTextContent('main:0987654321')
+        expect(screen.getByTestId('changes-of-0987654321').parentElement).toBeVisible()
+
+        await userEvent.click(toggle)
+        expect(toggle).toHaveAttribute('aria-expanded', 'false')
+        expect(screen.getByTestId('changes-of-0987654321').parentElement).not.toBeVisible()
+
+        await userEvent.click(toggle)
+        expect(screen.getByTestId('changes-of-0987654321').parentElement).toBeVisible()
+        expect(revisionChangesMounts).toHaveBeenCalledTimes(1)
+        // The other revision stays as it was.
+        expect(screen.queryByTestId('changes-of-abcdef1234')).toBeNull()
+    })
+
+    it('expands a revision from the keyboard', async () => {
+        await renderPanel()
+        const toggle = screen.getByTestId('revision-toggle-abcdef1234')
+
+        toggle.focus()
+        await userEvent.keyboard('{Enter}')
+
+        expect(toggle).toHaveAttribute('aria-expanded', 'true')
+        expect(screen.getByTestId('changes-of-abcdef1234')).toBeInTheDocument()
+    })
+
+    it('opens a revision without expanding it', async () => {
+        await renderPanel()
+
+        await userEvent.click(screen.getByTestId('revision-open-0987654321'))
+
+        await waitFor(() => expect(openProjectRevision).toHaveBeenCalled())
+        expect(screen.getByTestId('revision-toggle-0987654321')).toHaveAttribute('aria-expanded', 'false')
     })
 
     it('opens a chosen revision for viewing', async () => {
