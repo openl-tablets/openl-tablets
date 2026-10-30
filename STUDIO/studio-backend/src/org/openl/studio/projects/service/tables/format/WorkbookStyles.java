@@ -33,6 +33,7 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.STHorizontalAlignment
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STPatternType;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.STVerticalAlignment;
 
+import org.openl.rules.table.xls.Apostrophes.Quote;
 import org.openl.rules.table.xls.PoiExcelHelper.ThemedColor;
 import org.openl.studio.projects.model.tables.RawTextMarkColor;
 import org.openl.studio.projects.service.tables.format.TableStyle.Line;
@@ -46,8 +47,10 @@ import org.openl.util.RuntimeExceptionWrapper;
  * never changed, and every role takes the font size it has.
  *
  * <p>A cell format links the style of a role, draws the lines at the edges of its region, and keeps what the cell had:
- * its number format, its indent, its text wrapping and its text rotation. A cell format, a font, a fill or a border
- * the workbook already holds is reused, so formatting a table again adds nothing to the workbook.
+ * its number format, its indent, its text wrapping, its text rotation and the apostrophe of Excel before its text. A
+ * cell holding an OpenL formula gets the apostrophe, so that Excel keeps the formula a text when the cell is edited in
+ * Excel, and a cell holding anything but a text loses it. A cell format, a font, a fill or a border the workbook
+ * already holds is reused, so formatting a table again adds nothing to the workbook.
  *
  * <p>A workbook with no theme gets the Office theme, so the theme colours and the theme fonts resolve as Excel
  * resolves them.
@@ -109,21 +112,26 @@ final class WorkbookStyles {
      * @param style  the style of the role of the cell
      * @param edges  the lines at the edges of its region
      * @param source the cell format the cell has
+     * @param quote  what becomes of the apostrophe of Excel the cell format has
      * @return the cell format, as an index of the cell formats of the workbook
      */
-    int format(TableStyle style, Edges edges, int source) {
+    int format(TableStyle style, Edges edges, int source, Quote quote) {
         var asked = last;
-        if (asked != null && asked.style == style && asked.source == source && asked.edges.equals(edges)) {
+        if (asked != null && asked.style == style && asked.source == source && asked.quote == quote && asked.edges
+                .equals(edges)) {
             return asked.format;
         }
         var from = kept.computeIfAbsent(source, this::keptOf);
+        if (quote != Quote.KEEP) {
+            from = from.withQuoted(quote == Quote.SET);
+        }
         var format = formats.computeIfAbsent(new Format(style, edges, from), this::write);
-        last = new Asked(style, edges, source, format);
+        last = new Asked(style, edges, source, quote, format);
         return format;
     }
 
     /** A cell format asked for: the style of a role and the lines at its edges over a cell format a cell had. */
-    private record Asked(TableStyle style, Edges edges, int source, int format) {
+    private record Asked(TableStyle style, Edges edges, int source, Quote quote, int format) {
     }
 
     /**
@@ -153,15 +161,19 @@ final class WorkbookStyles {
                         key -> TextMarks.fontOf(styles.getFontAt(roleFonts.get(style)).getCTFont(), color));
     }
 
-    /** What is kept from a cell format: its number format, indent, text wrapping and text rotation. */
+    /**
+     * What is kept from a cell format: its number format, indent, text wrapping, text rotation and the apostrophe of
+     * Excel.
+     */
     private Kept keptOf(int source) {
         var xf = styles.getCellXfAt(source < styles.getNumCellStyles() ? source : 0);
+        var quoted = xf.getQuotePrefix();
         if (!xf.isSetAlignment()) {
-            return new Kept(xf.getNumFmtId(), 0, false, 0);
+            return new Kept(xf.getNumFmtId(), 0, false, 0, quoted);
         }
         var alignment = xf.getAlignment();
         var rotation = alignment.isSetTextRotation() ? alignment.getTextRotation().longValue() : 0;
-        return new Kept(xf.getNumFmtId(), alignment.getIndent(), alignment.getWrapText(), rotation);
+        return new Kept(xf.getNumFmtId(), alignment.getIndent(), alignment.getWrapText(), rotation, quoted);
     }
 
     /** Writes a cell format, or finds it in the workbook. */
@@ -196,6 +208,9 @@ final class WorkbookStyles {
         }
         if (from.rotation() != 0) {
             alignment.setTextRotation(BigInteger.valueOf(from.rotation()));
+        }
+        if (from.quoted()) {
+            xf.setQuotePrefix(true);
         }
         var known = cellXfs().get(XfKey.of(xf));
         if (known != null) {
@@ -466,8 +481,13 @@ final class WorkbookStyles {
      * @param indent       the indent
      * @param wrap         whether the text wraps
      * @param rotation     the text rotation
+     * @param quoted       whether the text follows the apostrophe of Excel, which keeps it a text when it is edited
      */
-    private record Kept(long numberFormat, long indent, boolean wrap, long rotation) {
+    private record Kept(long numberFormat, long indent, boolean wrap, long rotation, boolean quoted) {
+
+        Kept withQuoted(boolean quoted) {
+            return quoted == this.quoted ? this : new Kept(numberFormat, indent, wrap, rotation, quoted);
+        }
     }
 
     /** A cell format of a role: its style, the lines at its edges and what is kept from the cell. */
@@ -561,7 +581,7 @@ final class WorkbookStyles {
     /** A cell format, by what it holds. */
     private record XfKey(long numberFormat, long font, long fill, long border, long style, boolean applyNumberFormat,
                          boolean applyFont, boolean applyFill, boolean applyBorder, boolean applyAlignment,
-                         int horizontal, int vertical, long indent, boolean wrap, long rotation) {
+                         int horizontal, int vertical, long indent, boolean wrap, long rotation, boolean quoted) {
 
         static XfKey of(CTXf xf) {
             var alignment = xf.isSetAlignment() ? xf.getAlignment() : null;
@@ -573,7 +593,8 @@ final class WorkbookStyles {
                     aligned && alignment.isSetVertical() ? alignment.getVertical().intValue() : 0,
                     aligned ? alignment.getIndent() : 0,
                     aligned && alignment.getWrapText(),
-                    aligned && alignment.isSetTextRotation() ? alignment.getTextRotation().longValue() : 0);
+                    aligned && alignment.isSetTextRotation() ? alignment.getTextRotation().longValue() : 0,
+                    xf.getQuotePrefix());
         }
     }
 }

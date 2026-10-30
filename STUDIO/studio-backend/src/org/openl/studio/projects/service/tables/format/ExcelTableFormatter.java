@@ -25,6 +25,7 @@ import org.openl.rules.table.GridRegion;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.Apostrophes.Quote;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.studio.projects.model.tables.RawTableRegion;
 import org.openl.studio.projects.model.tables.RawTableSignaturePart;
@@ -332,7 +333,8 @@ public final class ExcelTableFormatter {
 
         /**
          * Gives a cell its cell format. A text in pieces of their own fonts keeps its marks, in the font of the role
-         * of the cell, and loses every other font.
+         * of the cell, and loses every other font. An OpenL formula gets the apostrophe of Excel, and anything but a
+         * text loses it.
          */
         private void write(XSSFRow row, int column, TableStyle style, Edges edges) {
             var at = table.getLeft() + column;
@@ -341,25 +343,28 @@ public final class ExcelTableFormatter {
             var ct = cell.getCTCell();
             // An absent cell format reads as the first one, as the schema of a workbook gives it.
             var source = (int) ct.getS();
-            var format = styles.format(style, edges, source);
+            var text = textOf(cell);
+            var format = styles.format(style, edges, source, Quote.of(text == null ? null : text.getString()));
             if (format != source) {
                 ct.setS(format);
             }
-            var rich = style == TableStyle.SIGNATURE ? null : richOf(cell);
-            if (rich != null) {
-                TextMarks.writeText(cell, TextMarks.write(rich.getString(), TextMarks.of(rich, sheet.getWorkbook()),
+            if (style != TableStyle.SIGNATURE && text != null && text.numFormattingRuns() > 0) {
+                TextMarks.writeText(cell, TextMarks.write(text.getString(), TextMarks.of(text, sheet.getWorkbook()),
                         color -> styles.markFont(style, color)));
             }
         }
 
-        /** The text of a cell when it is written in pieces of their own fonts, or {@code null}. */
-        private static @Nullable XSSFRichTextString richOf(XSSFCell cell) {
+        /**
+         * The text of a cell, or {@code null} when the cell holds no text.
+         *
+         * <p>A cell marked as a text may hold an Excel formula, as Apache POI leaves a text turned into one, and a
+         * cell marked as the text of a formula may hold a text, as POI leaves a formula removed.
+         */
+        private static @Nullable XSSFRichTextString textOf(XSSFCell cell) {
             var type = cell.getCTCell().getT();
-            if (type != STCellType.S && type != STCellType.INLINE_STR) {
-                return null;
-            }
-            var rich = cell.getRichStringCellValue();
-            return rich.numFormattingRuns() > 0 ? rich : null;
+            // A number or an empty cell is told by its mark alone: a formula pass reads every cell of the table.
+            var marked = type == STCellType.S || type == STCellType.INLINE_STR || type == STCellType.STR;
+            return marked && cell.getCellType() == CellType.STRING ? cell.getRichStringCellValue() : null;
         }
 
         /**

@@ -327,9 +327,11 @@ A cell holds an OpenL formula or an Excel formula, and a write names which one i
 
 - **`value`** — a text starting with `=`, such as `= product($F1:$F4)` or `= $Base * 2`, is an OpenL formula. It is
   written as the text it is, spaces included, and OpenL calculates it when the module is compiled. A text is never
-  taken for an Excel formula, even when Excel could read it.
+  taken for an Excel formula, even when Excel could read it. The cell gets the apostrophe of Excel, its quote prefix,
+  so Excel keeps the text a text when the cell is edited in Excel.
 - **`formula`** — an Excel formula, starting with `=` and written as Excel writes it, such as `=B2*C2`. The cell is
-  written as this formula, and Excel computes its value. OpenL reads the value the formula computed.
+  written as this formula, and Excel computes its value. OpenL reads the value the formula computed. The cell loses
+  the apostrophe of Excel it may have had, which would turn the formula into a text once edited in Excel.
 
 A cell of an [edit](#editing-the-source) names either a `value` or a `formula`: one naming both is refused with
 `openl.error.400.table.action.cell.value-and-formula.message`. A table written whole — replaced, appended to or

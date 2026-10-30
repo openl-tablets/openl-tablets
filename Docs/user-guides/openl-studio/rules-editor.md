@@ -437,7 +437,8 @@ OpenL Studio provides embedded tools for modifying table data directly in a web 
 3.  To enter a formula in the cell, double click it, right-click the cell being edited, and in the **Switch to** list select **Formula Editor.**
 
     Now a user can enter formulas in the selected cell. A formula entered here is an OpenL formula, such as
-    `= $Base * 2`: it is saved as the text it is and calculated by OpenL. The same list offers **Text Editor** and
+    `= $Base * 2`: it is saved as the text it is and calculated by OpenL. In the Excel file, the text follows an
+    apostrophe, so MS Excel keeps it a text when the cell is edited there. The same list offers **Text Editor** and
     **Multiline Editor** to write the value in another way. The editor the cell is open in is shown in the list but
     cannot be selected.
 

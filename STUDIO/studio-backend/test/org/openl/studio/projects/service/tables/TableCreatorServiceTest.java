@@ -1,6 +1,7 @@
 package org.openl.studio.projects.service.tables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -192,9 +193,11 @@ class TableCreatorServiceTest {
             var openL = sheet.getRow(3).getCell(2);
             assertEquals(CellType.STRING, openL.getCellType());
             assertEquals("= product($F1:$F4)", openL.getStringCellValue());
+            assertTrue(openL.getCellStyle().getQuotePrefixed(), "Excel keeps the text a text when it is edited");
             var excel = sheet.getRow(4).getCell(2);
             assertEquals(CellType.FORMULA, excel.getCellType());
             assertEquals("2*3", excel.getCellFormula());
+            assertFalse(excel.getCellStyle().getQuotePrefixed());
             assertEquals(6, excel.getNumericCellValue());
             assertEquals(14, sheet.getRow(5).getCell(2).getNumericCellValue(), "computed from the cell written after it");
         }
