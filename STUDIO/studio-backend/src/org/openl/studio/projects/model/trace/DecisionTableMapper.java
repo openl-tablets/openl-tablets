@@ -59,9 +59,19 @@ final class DecisionTableMapper {
         if (!(frame.getSource() instanceof IDecisionTable decisionTable)) {
             return null;
         }
-        return buildDecision(decisionTable, frame.getConditionChecks(), firedRuleIndices(frame));
+        return buildDecision(decisionTable, frame.getConditionChecks(), allFiredRuleIndices(frame));
     }
 
+    /**
+     * The rules fired so far in a frame: those whose action has returned and the one whose action is running.
+     * A frame that has returned keeps its fired rules, so its decision still names them.
+     */
+    static int[] allFiredRuleIndices(DebugFrame frame) {
+        return IntStream.concat(frame.getFiredRules().stream().mapToInt(Integer::intValue),
+                Arrays.stream(firedRuleIndices(frame))).distinct().toArray();
+    }
+
+    /** The rules whose action is running in a frame. */
     static int[] firedRuleIndices(DebugFrame frame) {
         return frame.getCurrentStep() instanceof ActionInvoker invoker ? invoker.getRules() : new int[0];
     }
