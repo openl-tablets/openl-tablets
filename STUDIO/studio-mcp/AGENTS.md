@@ -423,7 +423,8 @@ OpenL Studio and where the server keeps its state; the
   limits and refusals, and how to continue. They leave out why the design is so, the Studio endpoint a tool calls,
   and what the server does inside: every agent loads them in every session. Rules several tools share go into one
   tool rather than into each description.
-- Every tool schema is a `z.strictObject`: an unknown argument, also a nested one, is refused, not ignored.
+- Every tool schema is a `z.strictObject`: an unknown argument, also a nested one, is refused, not ignored. The
+  refusal of an unknown argument of the tool itself lists the arguments the tool takes.
 - An agent loads the published schema of every tool in every session, so `getInputSchema` of `handlers/common.ts`
   leaves out what tells it nothing: the `$schema` dialect and the safe-integer bounds of `.int()`. Zod still checks
   them when the tool runs.

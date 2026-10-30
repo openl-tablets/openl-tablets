@@ -82,8 +82,20 @@ describe("argument validation", () => {
   it("rejects unknown arguments before a handler can call the backend", async () => {
     await expect(
       executeTool("list_repositories", { limti: 10 }, harness.client)
-    ).rejects.toThrow(/Invalid arguments for list_repositories.*limti/s);
+    ).rejects.toThrow(/Invalid arguments for list_repositories.*limti.*list_repositories takes only: .*\blimit\b/s);
     expect(harness.mockHttp.history.get).toHaveLength(0);
+  });
+
+  it.each([
+    ["an unknown argument inside another one", "edit_table",
+      { projectId: "p1", tableId: "t1", version: "v1", action: "append_rows", cells: [[{ value: 1, colour: "red" }]] },
+      /colour/],
+    ["a missing argument", "get_table", { projectId: "p1" }, /tableId/],
+  ])("names no arguments for %s", async (_case, toolName, args, rejected) => {
+    const error = await executeTool(toolName, args, harness.client).catch((thrown: unknown) => thrown);
+
+    expect((error as Error).message).toMatch(rejected);
+    expect((error as Error).message).not.toContain("takes only");
   });
 
   it.each([
