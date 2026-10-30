@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\"data\":[{\"path\":\"docs/notes.txt\",\"type\":\"file\",\"size\":37,\"lastModified\":\"#-#-#T#:#:#.#Z\"}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
+        "text": "{\"notSearched\":\"1 workbook: content is never matched in a table cell; read the tables with openl_get_table\",\"data\":[{\"path\":\"docs/notes.txt\",\"type\":\"file\",\"size\":37,\"lastModified\":\"#-#-#T#:#:#.#Z\"}],\"pagination\":{\"limit\":50,\"offset\":0,\"has_more\":false,\"total_count\":1}}"
       }
     ],
     "resultType": "complete",

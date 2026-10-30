@@ -8,6 +8,7 @@ import type { OpenLClient } from "../client.js";
 import * as schemas from "../schemas.js";
 import type * as Types from "../types.js";
 import { formatPage } from "../formatters.js";
+import { formatCount } from "../text.js";
 import { isEditedInPlace, sanitizeError } from "../utils.js";
 import { isConflictError, isNotFoundError } from "../http.js";
 import { downloadLink, INLINE_TEXT_BYTES, inlineText, uploadLink } from "../transfer-links.js";
@@ -46,6 +47,35 @@ function inStartFolder(args: z.output<typeof schemas.searchProjectFilesSchema>):
   return folder === undefined || args.recursive
     ? () => true
     : ({ path }) => !path.slice(folder.length + 1).replace(/\/$/, "").includes("/");
+}
+
+/** The extensions of the workbooks OpenL reads rules from. */
+const WORKBOOK_EXTENSIONS = ["xls", "xlsx", "xlsm"];
+
+/**
+ * The workbooks a content search covers but never reads, as a note: Studio reads each file as text, so the
+ * text of a table cell is never found. Nothing when the search names no content or covers no workbook.
+ */
+async function workbooksNotSearched(
+  client: OpenLClient,
+  args: z.output<typeof schemas.searchProjectFilesSchema>,
+  query: Types.FileSearchQuery,
+): Promise<string | undefined> {
+  if (!args.content || args.scope === "ANCESTORS" || args.type === "FOLDER") {
+    return undefined;
+  }
+  const asked = args.extensions?.map((extension) => extension.toLowerCase());
+  const extensions = asked ? WORKBOOK_EXTENSIONS.filter((extension) => asked.includes(extension)) : WORKBOOK_EXTENSIONS;
+  if (extensions.length === 0) {
+    return undefined;
+  }
+  const workbooks = (await client.searchProjectFiles(args.projectId,
+    { ...query, content: undefined, extensions, type: "FILE" }, { branch: args.branch, fields: "path" }))
+    .filter(inStartFolder(args));
+  return workbooks.length === 0
+    ? undefined
+    : `${formatCount(workbooks.length, "workbook")}: content is never matched in a table cell; `
+      + "read the tables with openl_get_table";
 }
 
 export function registerFileHandlers(): void {
@@ -218,7 +248,9 @@ export function registerFileHandlers(): void {
       const results = found.filter(inStartFolder(args)).map((node) => (node.content !== undefined && Buffer.byteLength(node.content, "utf8") > INLINE_TEXT_BYTES
         ? { ...node, content: undefined, contentOmitted: true }
         : node));
-      return textResult(formatPage(results, "json", limit, offset));
+      const notSearched = await workbooksNotSearched(client, args, query);
+      return textResult(formatPage(results, "json", limit, offset,
+        notSearched ? { responseMetadata: { notSearched } } : {}));
     },
   });
 
