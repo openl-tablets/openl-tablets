@@ -31,19 +31,64 @@ describe("local change handlers", () => {
     ]);
   });
 
-  it("restores the requested project module and identifies it in the result", async () => {
-    harness.mockHttp.onPost("/projects/design%3AProject/local-history/restore", {
-      version: "Revision Version",
-    }).reply(204);
+  describe("restore", () => {
+    const history = "/projects/design%3AProject/local-history";
+    const restore = (historyId: string): ReturnType<typeof executeTool> =>
+      executeTool("restore_project_local_change", {
+        projectId: "design:Project",
+        moduleName: "Main Rules",
+        historyId,
+      }, harness.client);
 
-    const response = await executeTool("restore_project_local_change", {
-      projectId: "design:Project",
-      moduleName: "Main Rules",
-      historyId: "Revision Version",
-    }, harness.client);
+    it.each([
+      ["the version that was current", [
+        { id: "200", modifiedOn: "08/27/2026 12:02 PM" },
+        { id: "100", modifiedOn: "08/27/2026 12:01 PM" },
+        { id: "Revision Version_current", modifiedOn: "Revision Version", current: true },
+      ], "200"],
+      ["the version kept of a workbook another program changed", [
+        { id: "300", modifiedOn: "08/27/2026 12:03 PM" },
+        { id: "200", modifiedOn: "08/27/2026 12:02 PM" },
+        { id: "100", modifiedOn: "08/27/2026 12:01 PM" },
+        { id: "Revision Version_current", modifiedOn: "Revision Version", current: true },
+      ], "300"],
+    ])("answers %s as the version that undoes it", async (_case, after, undo) => {
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).replyOnce(200, [
+        { id: "200_current", modifiedOn: "08/27/2026 12:02 PM", current: true },
+        { id: "100", modifiedOn: "08/27/2026 12:01 PM" },
+        { id: "Revision Version", modifiedOn: "Revision Version" },
+      ]);
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).reply(200, after);
+      harness.mockHttp.onPost(`${history}/restore`, { version: "Revision Version" }).reply(204);
 
-    expect(harness.mockHttp.history.post[0].params).toEqual({ module: "Main Rules" });
-    expect(dataOf(response)).toEqual({ restored: "Revision Version" });
+      expect(dataOf(await restore("Revision Version"))).toEqual({ restored: "Revision Version", undo });
+      expect(harness.mockHttp.history.post[0].params).toEqual({ module: "Main Rules" });
+    });
+
+    it("answers a done restore when the history cannot be read after it", async () => {
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).replyOnce(200, [
+        { id: "200_current", modifiedOn: "08/27/2026 12:02 PM", current: true },
+        { id: "Revision Version", modifiedOn: "Revision Version" },
+      ]);
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).reply(500);
+      harness.mockHttp.onPost(`${history}/restore`, { version: "Revision Version" }).reply(204);
+
+      expect(dataOf(await restore("Revision Version"))).toEqual({
+        restored: "Revision Version",
+        note: expect.stringContaining("openl_list_project_local_changes lists the version that undoes it"),
+      });
+    });
+
+    it("answers no undo when the restore left the module as it was", async () => {
+      const unchanged = [
+        { id: "200_current", modifiedOn: "08/27/2026 12:02 PM", current: true },
+        { id: "Revision Version", modifiedOn: "Revision Version" },
+      ];
+      harness.mockHttp.onGet(history, { params: { module: "Main Rules" } }).reply(200, unchanged);
+      harness.mockHttp.onPost(`${history}/restore`, { version: "200_current" }).reply(204);
+
+      expect(dataOf(await restore("200_current"))).toEqual({ restored: "200_current" });
+    });
   });
 
   it("requires an explicit project and module for both local-history operations", async () => {

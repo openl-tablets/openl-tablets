@@ -31,20 +31,28 @@ export function registerLocalChangeHandlers(): void {
     name: "restore_project_local_change",
     title: "Restore Previous Local Version",
     description:
-      "Restore a project module to a version from its local edit history. Use the projectId and moduleName from the corresponding openl_list_project_local_changes call, plus a historyId returned by it. The project must be opened first; repository 'local' is unsupported.",
+      "Restore a project module to a version from its local edit history. Use the projectId and moduleName from the corresponding openl_list_project_local_changes call, plus a historyId returned by it. The project must be opened first; repository 'local' is unsupported. The whole module takes that version, so every later edit of the module is undone too. The answer names as 'undo' the historyId of the module as it was right before, which restores it back. To put back one value only: restore, read the value with openl_get_table, restore 'undo', and set the value with openl_edit_table on the table read again.",
     schema: schemas.restoreProjectLocalChangeSchema,
     annotations: {
       destructiveHint: true,
       openWorldHint: true,
     },
     handler: async (args, client): Promise<ToolResponse> => {
-      await client.restoreProjectLocalChange(
-        args.projectId,
-        args.moduleName,
-        args.historyId,
-      );
+      const { projectId, moduleName, historyId } = args;
+      const before = new Set((await client.getProjectLocalChanges(projectId, moduleName)).map(({ id }) => id));
+      await client.restoreProjectLocalChange(projectId, moduleName, historyId);
+      // Studio keeps the module as it was in the history, which it lists newest first: the version the restore added.
+      // The restore is done once Studio answers it, so a failed read of the history leaves only the undo unknown
+      const after = await client.getProjectLocalChanges(projectId, moduleName).catch(() => undefined);
+      if (!after) {
+        return formatResult({
+          restored: historyId,
+          note: "The history could not be read after the restore: openl_list_project_local_changes lists the version that undoes it.",
+        });
+      }
+      const undo = after.find(({ id, current }) => !current && !before.has(id))?.id;
 
-      return formatResult({ restored: args.historyId });
+      return formatResult({ restored: historyId, undo });
     },
   });
 }

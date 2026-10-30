@@ -67,7 +67,7 @@ serves for its own version** at `/docs`: the specifications of `docs/ref` and th
 - `openl_close_project` - Close project with save/discard options; saving requires a comment only when supported
 - `openl_create_project_branch` - Create new branch
 - `openl_list_project_local_changes` - View one module's workspace history, each version by the `historyId` the restore takes, using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`. It is no check for unsaved changes: `openl_project_status` reports the pending changes
-- `openl_restore_project_local_change` - Restore one module to a listed local version using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`
+- `openl_restore_project_local_change` - Restore one module to a listed local version using explicit `projectId` and `moduleName`; requires an opened project and does not support repository `local`. The whole module takes the version, every later edit of it undone too, and the answer names as `undo` the version of the module right before, which restores it back, or in a `note` that the history could not be read after the restore
 - `openl_start_project_tests` - Start project test execution; answers that the tests `started`, and `projectOpened` when it opened a closed project for them
 - `openl_get_test_results` - Read the results of the run, waiting internally through Studio's `202 {"status":"notReady"}` responses until it finishes: `summary: true` reads only the time of the run and the counts of passed and failed tests; `tableId` reads one test table whole, which Studio filters and pages; with `failuresOnly` any other read lists at most `failures` (5) failed tests per test table and names how many it left out in `omittedFailures`; otherwise every test table, a page cut by whole test tables to the 25K-character limit (`pagination.next_offset` continues it, and `pagination.total_count` counts the test tables of the run), and only `unpaged: true` returns every test table without a limit, an answer that can exceed what the client accepts. One tool reads all three views of the one Studio endpoint, so their shared options are described once. A test answers its parameters without the JSON schema of their types, which Studio writes for every test again
 - `openl_list_project_modules` - List declared project modules, including path patterns and their matched modules
@@ -288,10 +288,10 @@ anonymous (single-user Studio).
   copy, move or deletion the path it made or removed. A project open answers that it `opened`, or that it was
   `alreadyOpen`; a save whether it `saved` — false with nothing to save — and, when `closeAfterSave` asked for it, that
   it `closed`; a close that it `closed`, with `saved` or `discarded`; a local-change restore the `historyId` it
-  `restored`; a merge-conflict cancellation that it `cancelled`; a project creation or copy its `projectId`, `branch`
-  and `revision`; a branch creation and a deploy the branch `created`, the deployment `deployed` or `redeployed`. A
-  merge answers its `summary`, or the conflicts with a one-line `nextAction`; a branch deletion the branch, its
-  divergence, its base branch and any risk it accepted.
+  `restored` and the one that undoes it, `undo`; a merge-conflict cancellation that it `cancelled`; a project creation
+  or copy its `projectId`, `branch` and `revision`; a branch creation and a deploy the branch `created`, the deployment
+  `deployed` or `redeployed`. A merge answers its `summary`, or the conflicts with a one-line `nextAction`; a branch
+  deletion the branch, its divergence, its base branch and any risk it accepted.
 - A cell of a conflicted workbook names no A1 address of its own, as its place in the grid and the range of its version
   give it; a conflict cell names `ourCell` and `theirCell` only where a version moved it.
 
