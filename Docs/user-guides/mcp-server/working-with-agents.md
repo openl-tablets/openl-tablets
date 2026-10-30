@@ -65,7 +65,8 @@ The tools of the MCP server have names that start with `openl_` and fall into th
 
 -   **Guidance** — learning how to work with OpenL Studio, reading the `AGENTS.md` files of a project, and reading the
     OpenL Tablets reference guides.
--   **Repositories** — listing the design repositories, their branches and features, and the revisions of a project.
+-   **Repositories** — listing the design repositories, their branches and features, the revisions of a project, and
+    the files a revision changed or that changed between two revisions.
 -   **Projects** — listing, creating, copying, opening, saving, and closing projects, checking how a project compiles,
     listing its modules and sheets, and restoring a previous version of a module.
 -   **Branches and merges** — creating and deleting branches, checking whether two branches can be merged, merging
@@ -114,6 +115,7 @@ Work with versions:
 
 ```
 Show the history of the project.
+Which files did the last revision change?
 Create the branch feature/young-drivers for the project.
 Check whether feature/young-drivers can be merged into master, and merge it.
 Show the conflicting cells of Rates.xlsx. Take their rate of US, and keep everything else as merged.

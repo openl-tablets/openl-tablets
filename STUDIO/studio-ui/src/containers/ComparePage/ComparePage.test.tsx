@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ComparePage } from './ComparePage'
 import {
@@ -13,6 +13,7 @@ import {
     startProjectComparison,
 } from 'services/compare'
 import { getFileText } from 'services/files'
+import { getRevisionChanges } from 'services/repositories'
 import { ResultNotReadyError } from 'services/taskResult'
 import type { Comparison, ComparisonTable } from 'types/compare'
 
@@ -71,8 +72,54 @@ vi.mock('./RevisionPicker', () => ({
 
 // What the window was opened with; a window opened for two versions carries them in the address.
 let searchParams = new URLSearchParams()
+const setSearchParams = vi.fn()
 vi.mock('react-router', () => ({
-    useSearchParams: () => [searchParams, vi.fn()],
+    useSearchParams: () => [searchParams, setSearchParams],
+}))
+
+// The files changed between the two revisions of the window, in the order the list shows them.
+const CHANGED = [
+    { path: 'rules/Main.xlsx', type: 'modified' },
+    { path: 'notes.txt', type: 'added' },
+    { path: 'rules/Old.xlsx', type: 'deleted' },
+]
+
+/** A revision as the history tells it, with a comment written on Windows. */
+function revisionOf(revisionNo: string) {
+    return {
+        revisionNo,
+        shortRevisionNo: revisionNo.slice(0, 6),
+        createdAt: '2026-10-30T10:00:00Z',
+        fullComment: `Subject of ${revisionNo}\r\nBody`,
+        author: { displayName: 'Ada Admin' },
+        deleted: false,
+        technicalRevision: false,
+    }
+}
+
+vi.mock('services/repositories', () => ({
+    getProject: vi.fn(async () => ({ name: 'Pricing' })),
+    // The changes tell the two revisions as well.
+    getRevisionChanges: vi.fn(async (_project: string, revision: string, base: string) => ({
+        base: revisionOf(base),
+        revision: revisionOf(revision),
+        files: CHANGED,
+    })),
+}))
+
+// The changed files are listed by a list of their own; the window is asked here only what it does with the file
+// picked of them.
+vi.mock('../projects/RevisionChanges', async importOriginal => ({
+    ...await importOriginal<typeof import('../projects/RevisionChanges')>(),
+    ChangedFilePages: ({ compare, files, selected }: any) => (
+        <div data-selected={selected ?? ''} data-testid="revision-changes">
+            {files.map((file: any) => (
+                <button key={file.path} data-testid={`changed-${file.path}`} onClick={() => compare.open(file)}>
+                    {file.path}
+                </button>
+            ))}
+        </div>
+    ),
 }))
 
 // Whether the socket is up; the screen hears a comparison only over a connection that is.
@@ -106,7 +153,17 @@ vi.mock('antd', async () => ({
             {children}
         </label>
     ),
+    Breadcrumb: ({ items }: any) => <nav>{items.map((item: any, index: number) => <span key={index}>{item.title}</span>)}</nav>,
+    Card: ({ children, size, ...rest }: any) => <div {...rest}>{children}</div>,
     Empty: Object.assign(({ description }: any) => <div>{description}</div>, { PRESENTED_IMAGE_SIMPLE: 'simple' }),
+    Flex: ({ children, vertical, align, justify, gap, wrap, ...rest }: any) => <div {...rest}>{children}</div>,
+    Skeleton: () => <div data-testid="skeleton" />,
+    Tooltip: ({ children }: any) => children,
+    Typography: {
+        Link: ({ children, onClick }: any) => <a onClick={onClick}>{children}</a>,
+        Text: ({ children, strong, type, ellipsis, ...rest }: any) => <span {...rest}>{children}</span>,
+        Title: ({ children, level, ...rest }: any) => <h5 {...rest}>{children}</h5>,
+    },
     Segmented: ({ options, value, onChange, size, ...rest }: any) => (
         <div {...rest}>
             {options.map((option: any) => (
@@ -371,6 +428,156 @@ describe('ComparePage', () => {
         // Nothing is compared as a workbook, and nothing is picked.
         expect(startProjectComparison).not.toHaveBeenCalled()
         expect(screen.queryByTestId('revision-picker')).toBeNull()
+    })
+
+    it('compares a workbook a revision added with an empty one, which nothing is read for', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', file: 'rules/New.xlsx', branch: 'main', after: 'a1', change: 'added' })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/New.xlsx', absent: true },
+            { path: 'rules/New.xlsx', branch: 'main', revision: 'a1' }))
+    })
+
+    it('compares a workbook a revision deleted with an empty one after it', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1', file: 'rules/Old.xlsx', branch: 'main', before: 'b1', after: 'a1', change: 'deleted',
+        })
+        vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+        openPage()
+
+        await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+            { path: 'rules/Old.xlsx', branch: 'main', revision: 'b1' },
+            { path: 'rules/Old.xlsx', absent: true }))
+    })
+
+    it('reads a text file a revision added as empty before it, and one it deleted as empty after it', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', file: 'notes.txt', before: 'b1', after: 'a1', change: 'added' })
+        vi.mocked(getFileText).mockResolvedValue('new text')
+
+        openPage()
+
+        fireEvent.click(screen.getByTestId('text-versions'))
+        await waitFor(() => expect(getFileText).toHaveBeenCalledWith('p1', 'notes.txt', 'a1'))
+        // The earlier revision does not hold the file, so it is not asked for.
+        expect(getFileText).toHaveBeenCalledTimes(1)
+    })
+
+    it('opens two revisions of a project on the files changed between them, naming the project and the revisions',
+        async () => {
+            searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1234567', revision: 'a1234567' })
+
+            openPage()
+
+            expect(await screen.findByText('revisions_title')).toBeInTheDocument()
+            expect(getRevisionChanges).toHaveBeenCalledWith('p1', 'a1234567', 'b1234567')
+            expect(await screen.findByTestId('changed-rules/Main.xlsx')).toBeInTheDocument()
+            // Each revision tells why it was made, who made it and when, besides its number.
+            const base = screen.getByTestId('compare-revisions-base')
+            expect(await within(base).findByText('Subject of b1234567')).toBeInTheDocument()
+            expect(base).toHaveTextContent('earlier_revision')
+            expect(base).toHaveTextContent('Ada Admin')
+            expect(base).toHaveTextContent('b12345')
+            expect(screen.getByTestId('compare-revisions-revision')).toHaveTextContent('Subject of a1234567')
+            // The changes tell the revisions, so nothing else is read for them.
+            expect(getRevisionChanges).toHaveBeenCalledTimes(1)
+            // Nothing is compared until a file is picked, and there is no file to go back from.
+            expect(startProjectComparison).not.toHaveBeenCalled()
+            expect(screen.queryByTestId('compare-revisions-back')).toBeNull()
+        })
+
+    it('says when two revisions changed no file, and when their files could not be read', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1' })
+        vi.mocked(getRevisionChanges).mockResolvedValueOnce({ base: revisionOf('b1'), revision: revisionOf('a1'), files: []})
+        const { unmount } = openPage()
+        expect(await screen.findByText('repository:browser.history.no_changes_between')).toBeInTheDocument()
+        unmount()
+
+        vi.mocked(getRevisionChanges).mockRejectedValueOnce(new Error('boom'))
+        openPage()
+        expect(await screen.findByText('repository:browser.history.changes_between_error')).toBeInTheDocument()
+    })
+
+    it('compares a changed file in the same window, the address naming it', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1' })
+
+        openPage()
+        fireEvent.click(await screen.findByTestId('changed-rules/Main.xlsx'))
+        fireEvent.click(screen.getByTestId('changed-notes.txt'))
+
+        const [modified] = setSearchParams.mock.calls[0]!
+        expect(Object.fromEntries(modified)).toEqual({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'rules/Main.xlsx' })
+        const [added] = setSearchParams.mock.calls[1]!
+        expect(Object.fromEntries(added)).toMatchObject({ file: 'notes.txt', change: 'added' })
+    })
+
+    it('compares a file of two revisions as the earlier against the later one, with the way back to the files',
+        async () => {
+            searchParams = new URLSearchParams({
+                projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'rules/Main.xlsx',
+            })
+            vi.mocked(startProjectComparison).mockResolvedValue('cmp-1')
+
+            openPage()
+
+            await waitFor(() => expect(startProjectComparison).toHaveBeenCalledWith('p1',
+                { path: 'rules/Main.xlsx', branch: 'main', revision: 'b1' },
+                { path: 'rules/Main.xlsx', branch: 'main', revision: 'a1' }))
+            // The head names the project, the folder and the file.
+            // The head of the list behind it is a head of its own, so the head of the file is the only one.
+            const head = screen.getByTestId('compare-revisions-head')
+            expect(within(head).getByTestId('compare-revisions-back')).toBeInTheDocument()
+            expect(within(head).getByTestId('compare-revisions-file')).toHaveTextContent('Main.xlsx')
+            expect(head).toHaveTextContent('rules')
+            // The list behind it marks the file, so going back shows where the reader was.
+            expect(screen.getByTestId('revision-changes')).toHaveAttribute('data-selected', 'rules/Main.xlsx')
+            // The window was opened on the file, so the list takes its place rather than being a page of its own.
+            fireEvent.click(screen.getByTestId('compare-revisions-back'))
+            const [back, options] = setSearchParams.mock.calls[0]!
+            expect(Object.fromEntries(back)).toEqual({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1' })
+            expect(options).toEqual({ replace: true })
+        })
+
+    it('takes a file the list does not hold for a modified one, unless the address tells it was added or deleted',
+        async () => {
+            searchParams = new URLSearchParams({
+                projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'other.txt', change: 'renamed',
+            })
+
+            openPage()
+
+            const file = await screen.findByTestId('compare-revisions-file')
+            expect(within(file).getByLabelText('repository:browser.files.change.modified')).toBeInTheDocument()
+        })
+
+    it('steps to the neighbours of a compared file in its place', async () => {
+        searchParams = new URLSearchParams({
+            projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'notes.txt', change: 'added',
+        })
+
+        openPage()
+
+        expect(await screen.findByText('file_position')).toBeInTheDocument()
+        fireEvent.click(screen.getByTestId('compare-revisions-next'))
+        const [next, options] = setSearchParams.mock.calls[0]!
+        expect(Object.fromEntries(next)).toMatchObject({ file: 'rules/Old.xlsx', change: 'deleted' })
+        expect(options).toEqual({ replace: true })
+        fireEvent.click(screen.getByTestId('compare-revisions-previous'))
+        const [previous] = setSearchParams.mock.calls[1]!
+        expect(Object.fromEntries(previous)).toEqual({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'rules/Main.xlsx' })
+    })
+
+    it('goes no further than the first changed file', async () => {
+        searchParams = new URLSearchParams({ projectId: 'p1', branch: 'main', base: 'b1', revision: 'a1', file: 'rules/Main.xlsx' })
+
+        openPage()
+
+        expect(await screen.findByText('file_position')).toBeInTheDocument()
+        expect(screen.getByTestId('compare-revisions-previous')).toBeDisabled()
+        expect(screen.getByTestId('compare-revisions-next')).toBeEnabled()
     })
 
     it('compares a workbook at its saved revision with the working copy when no later revision is named', async () => {

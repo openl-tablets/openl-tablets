@@ -36,6 +36,7 @@ import org.openl.rules.repository.api.MergeOutcome;
 import org.openl.rules.repository.api.MergeScope;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RevisionChanges;
 import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 
@@ -269,6 +270,15 @@ public class PathCheckedRepository implements BranchRepository {
         var scope = ((BranchRepository) delegate).getMergeScope(from, to);
         return new MergeScope(shown(scope.changes(), FileChange::path),
                 Set.copyOf(shown(scope.changedInBoth(), Function.identity())));
+    }
+
+    @Override
+    public RevisionChanges listChanges(String path, @Nullable String from, String to) throws IOException {
+        if (!path.isEmpty()) {
+            validatePath(path);
+        }
+        var changes = ((BranchRepository) delegate).listChanges(path, from, to);
+        return new RevisionChanges(changes.from(), changes.to(), shown(changes.changes(), FileChange::path));
     }
 
     @Override

@@ -585,6 +585,21 @@ export interface RepositoryFeatures {
   searchable?: boolean;
 }
 
+/** What became of a file of a project in a revision. */
+export interface ProjectFileChange {
+  /** The path of the file inside the project. */
+  path: string;
+  type: FileChangeType;
+}
+
+/** The files of a project one revision changed against another, with both revisions as the history tells them. */
+export interface ProjectRevisionChanges {
+  /** The revision compared against; null when there is none, and then every file is added. */
+  base: ProjectRevision | null;
+  revision: ProjectRevision;
+  files: ProjectFileChange[];
+}
+
 /** Project revision from GET /projects/{projectId}/history. */
 export interface ProjectRevision {
   revisionNo: string;
@@ -1032,6 +1047,7 @@ interface ProjectModifiedBy {
  * the values on the wire are lowercase — matching how `CompileState` is
  * serialized.
  */
+/** What became of a file. */
 type FileChangeType = "added" | "modified" | "deleted";
 
 interface FileChange {

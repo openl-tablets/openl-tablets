@@ -405,6 +405,20 @@ export class OpenLClient {
     return (await this.http.get<Types.PageResponse<Types.ProjectRevision>>(url, { params })).data;
   }
 
+  /**
+   * Get the files of a project a revision changed, against the given base or else the revision it was made on.
+   *
+   * Maps to `GET /projects/{projectId}/history/changes`.
+   */
+  async getProjectRevisionChanges(
+    projectId: string,
+    revision: string,
+    base?: string
+  ): Promise<Types.ProjectRevisionChanges> {
+    const url = `${projectPath(projectId)}/history/changes`;
+    return (await this.http.get<Types.ProjectRevisionChanges>(url, { params: { revision, base } })).data;
+  }
+
   // =============================================================================
   // Project Creation
   // =============================================================================

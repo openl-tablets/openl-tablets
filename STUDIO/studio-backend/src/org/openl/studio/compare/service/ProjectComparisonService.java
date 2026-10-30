@@ -1,10 +1,16 @@
 package org.openl.studio.compare.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
@@ -19,7 +25,9 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.studio.common.exception.BadRequestException;
 import org.openl.studio.common.exception.NotFoundException;
 import org.openl.studio.compare.model.ComparisonSideRequest;
+import org.openl.studio.projects.service.files.FilePaths;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 
@@ -32,8 +40,6 @@ import org.openl.util.StringUtils;
 @Slf4j
 @Service
 public class ProjectComparisonService {
-
-    private static final char SEPARATOR = '/';
 
     @Lookup
     public UserWorkspace getUserWorkspace() {
@@ -60,6 +66,8 @@ public class ProjectComparisonService {
     /**
      * Reads the file one side of a comparison names.
      *
+     * <p>An absent side is an empty workbook of the format its name tells, and nothing is read for it.
+     *
      * @param project the project the file belongs to
      * @param side    which file, and where it is read from
      * @return the content, under the name its format is read by
@@ -69,6 +77,9 @@ public class ProjectComparisonService {
     public ComparisonContent read(RulesProject project, ComparisonSideRequest side) {
         if (!FileTypeHelper.isExcelFile(side.path())) {
             throw new BadRequestException("compare.file.not-excel.message");
+        }
+        if (side.absent()) {
+            return emptyWorkbook(FileUtils.getName(side.path()));
         }
         var read = sideOf(project, side.branch(), side.revision());
         var artefact = excelArtefacts(read).stream()
@@ -110,6 +121,17 @@ public class ProjectComparisonService {
         }
     }
 
+    /** A workbook without sheets, in the format of the file name: the old one for {@code .xls}, else the new one. */
+    private static ComparisonContent emptyWorkbook(String name) {
+        try (var workbook = WorkbookFactory.create(!name.toLowerCase(Locale.ROOT).endsWith(".xls"));
+             var out = new ByteArrayOutputStream()) {
+            workbook.write(out);
+            return new ComparisonContent(name, new ByteArrayInputStream(out.toByteArray()));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     /** Every Excel file of the project, wherever in it it lies. */
     private static List<AProjectArtefact> excelArtefacts(AProject project) {
         var excelArtefacts = new ArrayList<AProjectArtefact>();
@@ -135,12 +157,6 @@ public class ProjectComparisonService {
      * project by, or the folder the repository keeps it in when a revision of it is read.
      */
     private static String insideProject(AProject project, AProjectArtefact artefact) {
-        var prefix = stripLeadingSlash(project.getArtefactPath().getStringValue());
-        var path = stripLeadingSlash(artefact.getArtefactPath().getStringValue());
-        return path.startsWith(prefix + SEPARATOR) ? path.substring(prefix.length() + 1) : path;
-    }
-
-    private static String stripLeadingSlash(String path) {
-        return path.startsWith(String.valueOf(SEPARATOR)) ? path.substring(1) : path;
+        return FilePaths.inside(project.getArtefactPath().getStringValue(), artefact.getArtefactPath().getStringValue());
     }
 }

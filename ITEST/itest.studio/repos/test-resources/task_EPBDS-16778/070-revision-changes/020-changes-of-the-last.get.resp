@@ -1,0 +1,35 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "base": {
+    "revisionNo": "***",
+    "shortRevisionNo": "***",
+    "createdAt": "***",
+    "fullComment": "Save rules.xml",
+    "author": {
+      "email": "user16778@email",
+      "displayName": "User 16778"
+    },
+    "deleted": false,
+    "technicalRevision": false
+  },
+  "revision": {
+    "revisionNo": "***",
+    "shortRevisionNo": "***",
+    "createdAt": "***",
+    "fullComment": "Delete Algorithm.xlsx",
+    "author": {
+      "email": "user16778@email",
+      "displayName": "User 16778"
+    },
+    "deleted": false,
+    "technicalRevision": false
+  },
+  "files": [
+    {
+      "path": "rules/Algorithm.xlsx",
+      "type": "deleted"
+    }
+  ]
+}

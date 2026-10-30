@@ -1,5 +1,6 @@
 import CONFIG from '../../services/config'
 import type { Project } from '../../types/projects'
+import type { ProjectFileChangeType } from '../../services/projectStatus'
 
 /**
  * Opens the comparison of a project in a window of its own.
@@ -48,27 +49,61 @@ export const openVersionsCompareWindow = (
  * as before and after a merge, or in the working copy, such as the changes a save commits. A workbook
  * is compared element by element, any other file line by line.
  *
+ * A file the later revision added is absent from the earlier one, and a file it deleted is absent from the later
+ * one: the side that does not hold it is compared as an empty file, so the other side shows whole.
+ *
  * @param projectId the project holding the file
  * @param file      the path of the file inside the project
  * @param branch    the branch holding the revisions, or nothing in a repository without branches
- * @param before    the earlier revision
+ * @param before    the earlier revision, or nothing for a file added by the first revision of the project
  * @param after     the later revision, or nothing for the working copy
+ * @param change    what the later revision did to the file; a modified file is held by both sides
  */
 export const openFileRevisionsCompareWindow = (
     projectId: string,
     file: string,
     branch: string | undefined,
-    before: string,
-    after?: string
+    before: string | null,
+    after?: string,
+    change: ProjectFileChangeType = 'modified'
 ): void => {
     const query = new URLSearchParams({ projectId, file })
     if (branch) {
         query.set('branch', branch)
     }
-    query.set('before', before)
+    if (before) {
+        query.set('before', before)
+    }
     if (after) {
         query.set('after', after)
     }
+    if (change !== 'modified') {
+        query.set('change', change)
+    }
+    openCompare(query.toString())
+}
+
+/**
+ * Opens the comparison of two revisions of a project: the files changed between them, each of which is compared in
+ * the same window.
+ *
+ * @param projectId the project the revisions belong to
+ * @param branch    the branch holding the revisions, or nothing in a repository without branches
+ * @param base      the earlier revision
+ * @param revision  the later revision
+ */
+export const openRevisionsCompareWindow = (
+    projectId: string,
+    branch: string | undefined,
+    base: string,
+    revision: string
+): void => {
+    const query = new URLSearchParams({ projectId })
+    if (branch) {
+        query.set('branch', branch)
+    }
+    query.set('base', base)
+    query.set('revision', revision)
     openCompare(query.toString())
 }
 

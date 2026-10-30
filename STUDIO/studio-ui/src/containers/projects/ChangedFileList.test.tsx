@@ -22,7 +22,9 @@ describe('ChangedFileList', () => {
 
         const rows = screen.getAllByTestId('changes-file')
         expect(rows).toHaveLength(3)
-        expect(rows[0]).toHaveTextContent('rules/Main.xlsx')
+        // The name of the file leads, the folder it is in follows.
+        expect(within(rows[0]!).getByText('Main.xlsx')).toBeInTheDocument()
+        expect(within(rows[0]!).getByText('rules')).toBeInTheDocument()
         expect(within(rows[0]!).getByLabelText('repository:browser.files.change.modified')).toBeInTheDocument()
         expect(within(rows[1]!).getByLabelText('repository:browser.files.change.added')).toBeInTheDocument()
         expect(within(rows[2]!).getByLabelText('repository:browser.files.change.deleted')).toBeInTheDocument()
@@ -37,6 +39,36 @@ describe('ChangedFileList', () => {
         await userEvent.click(compare[0]!)
 
         expect(open).toHaveBeenCalledWith(files[0])
+    })
+
+    it('compares every file when told to, an added and a deleted one too', async () => {
+        const open = vi.fn()
+        render(<ChangedFileList compare={{ everyFile: true, hint: 'hint', open }} files={files} testId="changes" />)
+
+        const compare = screen.getAllByTestId('changes-compare')
+        expect(compare).toHaveLength(3)
+        await userEvent.click(compare[2]!)
+
+        expect(open).toHaveBeenCalledWith(files[2])
+    })
+
+    it('compares a file by a click anywhere on its row, or by a key once the row has the focus', async () => {
+        const open = vi.fn()
+        render(<ChangedFileList compare={{ hint: 'hint', open }} files={files} testId="changes" />)
+
+        const [modified, added] = screen.getAllByTestId('changes-file')
+        await userEvent.click(within(modified!).getByText('Main.xlsx'))
+        expect(open).toHaveBeenCalledWith(files[0])
+
+        modified!.focus()
+        await userEvent.keyboard('{Enter}')
+        expect(open).toHaveBeenCalledTimes(2)
+        expect(modified).toHaveAccessibleName('hint: rules/Main.xlsx')
+
+        // A row that cannot be compared is no control at all.
+        await userEvent.click(added!)
+        expect(open).toHaveBeenCalledTimes(2)
+        expect(added).not.toHaveAttribute('role')
     })
 
     it('offers no comparison when the list is not told how to compare', () => {

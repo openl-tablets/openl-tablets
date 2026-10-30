@@ -98,7 +98,9 @@ The tabs below the title row show the following:
 
 -   **Overview** shows the project configuration and properties. See [Viewing the Project Overview](#viewing-the-project-overview).
 -   **Revisions** lists the revisions of a project in a versioned repository. It is unavailable for file repositories,
-    which retain only the current project state. See [Opening a Project](#opening-a-project).
+    which retain only the current project state. See [Opening a Project](#opening-a-project),
+    [Viewing the Changes of a Revision](#viewing-the-changes-of-a-revision) and
+    [Comparing Two Revisions](#comparing-two-revisions).
 -   **Files** shows the files and folders of the project. See [Modifying Project Contents](#modifying-project-contents).
 -   **Deploy Configuration** shows the `rules-deploy.xml` settings and the deployments of the project. See [Deploying a Project](#deploying-a-project).
 -   **Management** assigns roles on the project. See [Managing Project Access](#managing-project-access).
@@ -451,6 +453,8 @@ To open a project revision using the **Revisions** tab, proceed as follows:
     *List of project revisions*
 
 1.  Navigate to the revision that needs to be opened and click the magnifier icon **Open Revision** at the end of its row.
+    A click elsewhere on the revision lists the files it changed instead, as described in
+    [Viewing the Changes of a Revision](#viewing-the-changes-of-a-revision).
 
 If a project has the **Viewing Revision** status, the opened project revision becomes available for viewing and modifying, not the latest revision.
 
@@ -492,9 +496,9 @@ To save a project, proceed as follows:
 
     The **Save project** window appears. Under the name of the project and the number of files to save, folded until
     you expand it, it lists the files the save commits, changed since the project was opened or last saved. Each file
-    is named by its path in the project, after the icon that marks it added, modified or deleted. **Compare** at the
-    end of the row of a modified file opens the file as it was saved, headed **Saved revision**, against your
-    changes, headed **Your changes**: a workbook is compared element by element in the window described in
+    is named after the icon that marks it added, modified or deleted, followed by the folder it is in. A click on the
+    row of a modified file, which ends with an arrow, opens the file as it was saved, headed **Saved revision**,
+    against your changes, headed **Your changes**: a workbook is compared element by element in the window described in
     [Comparing Excel Files](rules-editor.md#comparing-excel-files), which opens on the comparison itself, with no
     files to pick, and a text file line by line. A file that is neither, such as a library, has nothing to be
     compared by, and the window says so.
@@ -999,6 +1003,72 @@ To define the rule service version, proceed as follows:
 2.  Click **Save**.
 
 The selected services version is displayed in the **Deploy Configuration** tab of the project. For the example displayed in this section, the project version is 1.0.
+
+### Viewing the Changes of a Revision
+
+Each revision of the **Revisions** tab tells which files of the project it changed, the way Git shows a commit.
+The same list is available in the editor through **More \> Revisions**.
+
+To view the changes of a revision, proceed as follows:
+
+1.  On the **Revisions** tab of the project, click the revision.
+
+    The revision expands and lists the files it added, modified or deleted, ten files a page. A click on the revision
+    again collapses it; expanding it later shows the same list without reading it again.
+
+    ![The files a revision changed](images/revision-changes.png "An expanded revision listing the files it changed")
+
+    *The files a revision changed*
+
+1.  To see what changed in a file, click its row. Each file is named after the icon that marks it added, modified or
+    deleted, followed by the folder it is in.
+
+    The comparison window opens with the file as it was before the revision and as the revision left it: an Excel
+    file is compared element by element, as described in [Comparing Excel Files](rules-editor.md#comparing-excel-files),
+    and any other file line by line. A file the revision added is empty before it, and a file it deleted is empty
+    after it, so the whole file shows as added or removed.
+
+A revision is compared with the revision it was made on:
+
+-   In a Git repository it is the parent commit. A merge is compared with the branch as it was before the merge, so
+    it lists what the merge brought in.
+-   In a repository without commits it is the previous revision of the project.
+-   The first revision of a project lists every file as added, and a revision that deleted the project lists every
+    file as deleted.
+-   A revision that changed no file of the project, such as a technical revision, says so instead of listing files.
+
+Only the files inside the project folder are listed. The files the system settings ignore are not listed either.
+
+### Comparing Two Revisions
+
+Any two revisions of the **Revisions** tab can be compared with each other without opening either of them: the
+project stays on the revision it is open on. The same works in the editor through **More \> Revisions**.
+
+To compare two revisions, proceed as follows:
+
+1.  On the **Revisions** tab of the project, click the marker of the first revision on the timeline at the left of
+    the list. The marker turns into a check mark, and the line of the search field asks for one more revision.
+2.  Click the marker of the second revision. A click on a marked revision lets it go; while two revisions are
+    marked, the others cannot be marked until one of the two is let go.
+3.  Click **Compare Revisions** at the end of the line of the search field. **Clear** lets both revisions go.
+
+    The comparison window opens with the name of the project and the two revisions side by side, the earlier one
+    first, whatever order they were marked in. Each revision shows its comment, its author, its date and its number.
+    Under them, the window lists the files changed between the two revisions, ten files a page. A file changed several
+    times in between is listed once, with the difference between the two revisions.
+
+    ![The files changed between two revisions](images/compare-revisions-window.png "The comparison window listing the files changed between two revisions")
+
+    *The files changed between two revisions*
+
+1.  To see what changed in a file, click its row.
+
+    The file is compared in the same window, as described in
+    [Viewing the Changes of a Revision](#viewing-the-changes-of-a-revision): as of the earlier revision against the
+    later one. The head of the window names the project, the folder and the file, and the two revisions. The arrows
+    beside the position of the file, such as **2 of 15**, open the previous or the next changed file in its place.
+    To pick another file, click the back arrow or the name of the project: the list comes back on the page of the
+    file last compared, with that file marked.
 
 ### Comparing Project Revisions
 

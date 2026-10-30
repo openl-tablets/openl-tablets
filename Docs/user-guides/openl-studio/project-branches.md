@@ -157,16 +157,16 @@ contain the project when it is opened. Proceed as follows:
     that the merge was cancelled. A merge that has already started to save its result finishes.
 
     Once the merge is saved, the **Merge Summary** shows what it changed in the branch it merged into, project by
-    project, the current project first. Each file is named by its path from the root of the repository, after the
-    icon that marks it added, modified or deleted, as in the file tree of a project. A path too long for the dialog is
-    shortened in the middle, keeping the file name, and shows whole when pointed at. A workbook both branches changed
+    project, the current project first. Each file is named after the icon that marks it added, modified or deleted,
+    followed by its folder from the root of the repository. A folder too long for the dialog is shortened at its end
+    and shows whole when pointed at. A workbook both branches changed
     and Sync merged by itself lists each sheet either branch changed: **taken from** the branch that changed it, or
-    **combined from both branches** when both changed it. **Compare** at the end of the row of a modified file of a
-    project opens it before the merge, headed **Earlier revision**, and after it, headed **Later revision**, so you
+    **combined from both branches** when both changed it. A click on the row of a modified file of a project, which
+    ends with an arrow, opens it before the merge, headed **Earlier revision**, and after it, headed **Later revision**, so you
     see what the merge brought in: a workbook is compared element
     by element in the window described in [Comparing Excel Files](rules-editor.md#comparing-excel-files), which opens
     on the comparison itself, with no files to pick, and a text file line by line. A file that is neither, such as a
-    library, has nothing to be compared by, and the window says so. A file outside the projects has no **Compare**.
+    library, has nothing to be compared by, and the window says so. A file outside the projects cannot be clicked.
     Projects you cannot read are only counted. The same summary appears after conflicts are resolved with **Save and
     Resolve**. If Sync cannot tell what the merge changed, the dialog closes with a message that the merge succeeded.
 

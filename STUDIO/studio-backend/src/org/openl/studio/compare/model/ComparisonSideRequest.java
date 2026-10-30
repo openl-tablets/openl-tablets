@@ -11,6 +11,9 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>Without a branch and a revision the file is read from the working copy - the project as its own
  * user has it now. A revision names what the repository holds, and a branch says where to look for it.
+ *
+ * <p>An absent side does not hold the file at all, as the revision before one that added the file, or the revision
+ * that deleted it. It is compared as an empty workbook, so every element of the other side shows as added or removed.
  */
 public record ComparisonSideRequest(
 
@@ -22,6 +25,14 @@ public record ComparisonSideRequest(
         @Nullable String branch,
 
         @Parameter(description = "Revision to read the file from. Left out for the working copy.")
-        @Nullable String revision
+        @Nullable String revision,
+
+        @Parameter(description = "Whether the side does not hold the file, as before a revision that added it or after one that deleted it. An absent side is compared as an empty workbook and nothing is read for it.")
+        boolean absent
 ) {
+
+    /** A side that holds the file. */
+    public ComparisonSideRequest(@NonNull String path, @Nullable String branch, @Nullable String revision) {
+        this(path, branch, revision, false);
+    }
 }
