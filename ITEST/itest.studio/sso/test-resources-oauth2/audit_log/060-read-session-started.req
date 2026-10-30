@@ -1,0 +1,5 @@
+GET /rest/admin/audit?action=sessionStarted&outcome=success&actor=admin&authentication=bearer HTTP/1.1
+Authorization: Bearer ${ADMIN_ACCESS_TOKEN}
+Cookie: NO_JSESSIONID=noAuth
+Accept: application/json
+
