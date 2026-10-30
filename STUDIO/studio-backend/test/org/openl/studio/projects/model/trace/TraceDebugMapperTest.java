@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -188,6 +189,35 @@ class TraceDebugMapperTest {
 
         // Suspended at entry: nothing evaluated and no rule fired → no explanation.
         assertNull(DecisionTableMapper.buildDecision(dt, List.of(), new int[0]));
+    }
+
+    @Test
+    void namesTheFiredRuleOfADecisionTableThatHasReturned() {
+        var compiled = new RulesEngineFactory<>("test/rules/EPBDS-16292/bankRating.xlsx").getCompiledOpenClass();
+        var module = compiled.getOpenClass();
+        var test = module.getMethod("BankRatingTest", IOpenClass.EMPTY);
+        assertNotNull(test, "BankRatingTest must compile");
+
+        var debugger = new TraceDebugger(DebugListener.NOOP);
+        debugger.setBreakpoints(Set.of("NonZeroValues"));
+        debugger.start("returned-decision-test", compiled.getClassLoader(), false, () -> {
+            var env = new SimpleRulesVM().getRuntimeEnv();
+            env.setTracer(debugger.tracer());
+            test.invoke(module.newInstance(env), new Object[0], env);
+        });
+        try {
+            assertEquals(DebugStatus.SUSPENDED, debugger.awaitInitialHalt(20_000));
+            // Run the table to its own exit: no rule action is running any more.
+            assertEquals(DebugStatus.SUSPENDED, debugger.command(DebugCommand.STEP_OUT, 20_000));
+            var frame = debugger.stack().getLast();
+            assertTrue(frame.isCompleted(), "the decision table has returned");
+
+            var decision = DecisionTableMapper.decisionFor(frame);
+            assertNotNull(decision);
+            assertFalse(decision.firedRules().isEmpty(), "the returned table names the rule that fired");
+        } finally {
+            debugger.terminate(20_000);
+        }
     }
 
     @Test
