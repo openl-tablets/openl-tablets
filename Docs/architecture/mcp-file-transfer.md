@@ -32,8 +32,9 @@ tools answer the URLs of the REST API itself.**
   of a merge-conflict version or of a folder as a ZIP, as the REST endpoint answers them.
 - **D5 — An upload link writes one file.** The tool that issues it takes the target — the project, the path, the
   conflict policy, whether to create folders, the branch — and the request to the link writes its body there, into
-  the working copy, as the files API does; `openl_save_project` commits it. A project edited in place has no working
-  copy: the upload is in its files at once, and the answer of the tool tells that there is nothing to commit. A link
+  the working copy of an opened project, as the files API does; `openl_save_project` commits it. Studio commits an
+  upload to a closed project at once. A project edited in place has no working copy: the upload is in its files at
+  once, and the answer of the tool tells that there is nothing to commit. A link
   bound to its target works the same in every mode, and the agent reads the outcome of the write in the answer to its
   request.
 - **D6 — The link is a credential of its own, bound to the client session of its issuer.**

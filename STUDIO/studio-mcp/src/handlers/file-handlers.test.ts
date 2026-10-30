@@ -333,6 +333,20 @@ describe("openl_write_project_file", () => {
     expect(harness.mockHttp.history.patch).toHaveLength(0);
   });
 
+  it("reports a write to a closed project as committed, which Studio commits itself", async () => {
+    harness.mockHttp.onPost("/projects/p1/files/docs/x.md").reply(201);
+    harness.mockHttp.onGet("/projects/p1").reply(200, { id: "p1", name: "P", status: "CLOSED", repository: "design" });
+
+    const result = await executeTool("write_project_file", {
+      projectId: "p1",
+      path: "docs/x.md",
+      content: "hello",
+    }, harness.client);
+
+    expect(harness.mockHttp.history.patch).toHaveLength(0);
+    expect(dataOf(result)).toMatchObject({ action: "created", committed: true });
+  });
+
   it("commits nothing in a project edited in place, telling the file is written", async () => {
     harness.mockHttp.onPost("/projects/p1/files/docs/x.md").reply(201);
     editedInPlace();
