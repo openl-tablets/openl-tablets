@@ -579,6 +579,11 @@ from Maven.
 * **`rules.tree.view.default` and `rules.tree.view` are no longer read.** A default order set for all users in the
   application properties has no effect; remove it.
 
+* **The `{datetime}` of the restore comment template is written in UTC as `2026-10-29T18:20:19Z`**, whatever the
+  date and time settings and the time zone of the server. A comment is text stored in the repository and read by
+  anyone, so it names the moment in one form. A template that wants another form names a pattern of
+  `DateTimeFormatter` after a colon, such as `{datetime:yyyy-MM-dd HH:mm}`, which is written in UTC as well.
+
 * **`ruleservice.datasource.deploy.classpath.jars` takes `NEVER`, `IF_ABSENT` or `ALWAYS` only.** Replace `true` with
   `IF_ABSENT` and `false` with `NEVER`, the values they stood for. With `true` or `false`, OpenL Rule Services
   publishes no service, and its log reports `Failed to convert value of type 'java.lang.String' to required type

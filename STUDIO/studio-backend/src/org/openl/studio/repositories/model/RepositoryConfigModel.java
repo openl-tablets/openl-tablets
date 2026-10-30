@@ -54,7 +54,8 @@ public record RepositoryConfigModel(
      * How a commit comment is suggested and validated.
      *
      * <p>Every template accepts the {@code {project-name}} placeholder; the restore one also accepts
-     * {@code {revision}}, {@code {author}} and {@code {datetime}}.
+     * {@code {revision}}, {@code {author}} and {@code {datetime}}, or {@code {datetime:<pattern>}} naming the pattern of
+     * {@code DateTimeFormatter} the moment is written in.
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public record Comment(

@@ -16,7 +16,6 @@ import { openFileRevisionsCompareWindow } from './compare'
 import { normalizeProjectFileChanges, type NormalizedFileChange } from './fileChanges'
 import type { Project } from '../../types/projects'
 import { ProjectStatus } from '../../constants/project'
-import { formatDateTime } from '../../utils/dateFormat'
 import { supportsComments } from '../../utils/repositoryFeatures'
 
 interface SaveProjectModalProps {
@@ -118,7 +117,7 @@ export const SaveProjectModal = ({ open, project, onClose, onSaved }: SaveProjec
             ? suggestComment(config, 'restoreFrom', {
                 revision: project.revision,
                 author: project.modifiedBy,
-                datetime: formatDateTime(project.modifiedAt) ?? '',
+                datetime: project.modifiedAt,
             })
             : suggestComment(config, 'save', project?.name))
     }, [commentTouched, config, open, project, repositorySupportsComments])

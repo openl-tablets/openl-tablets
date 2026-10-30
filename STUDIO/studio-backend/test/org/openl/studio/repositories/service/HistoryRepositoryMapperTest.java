@@ -35,7 +35,6 @@ class HistoryRepositoryMapperTest {
         when(repository.listHistory(anyString())).thenReturn(history);
 
         PropertyResolver propertyResolver = mock(PropertyResolver.class);
-        when(propertyResolver.getProperty("data.format.datetime")).thenReturn("mock.data.format");
 
         var comments = new Comments(propertyResolver, "id");
 
@@ -61,7 +60,6 @@ class HistoryRepositoryMapperTest {
         when(repository.listHistory(anyString())).thenReturn(List.of(fileData));
 
         PropertyResolver propertyResolver = mock(PropertyResolver.class);
-        when(propertyResolver.getProperty("data.format.datetime")).thenReturn("mock.data.format");
 
         var comments = new Comments(propertyResolver, "id");
 

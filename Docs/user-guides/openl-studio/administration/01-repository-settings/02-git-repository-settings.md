@@ -67,7 +67,13 @@ For the **Restore from old version** template, the following additional placehol
 
 -   **{revision}** is replaced by the old revision number.
 -   **{author}** is replaced by the author of the old project version.
--   **{datetime}** is replaced by the date of the old project version.
+-   **{datetime}** is replaced by the moment the old project version was saved, in UTC, written as
+    `2026-10-29T18:20:19Z`. To write it another way, give a pattern after a colon: `{datetime:yyyy-MM-dd HH:mm}` gives
+    `2026-10-29 18:20`, in UTC as well. The pattern takes these letters of Java's `DateTimeFormatter`: `yyyy` or `yy`
+    the year, `M` to `MMMM` the month, `d` or `dd` the day, `H` or `HH` the hour of the day, `h` or `hh` the hour with
+    `a` the day period, `m` or `mm` the minutes, `s` or `ss` the seconds, `S` to `SSS` their fraction, `E` to `EEEE` the
+    day of the week, and text in single quotes, where two quotes stand for one. Months and days are named in English.
+    A pattern with any other letter gives the moment written as `{datetime}` does.
 
 | Template                     | Operation                                       |
 |------------------------------|-------------------------------------------------|

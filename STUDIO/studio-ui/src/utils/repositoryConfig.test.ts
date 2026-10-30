@@ -16,6 +16,15 @@ const config = (overrides: Partial<RepositoryConfig> = {}): RepositoryConfig => 
 })
 
 describe('applyTemplate', () => {
+    it('writes the moment of a restored revision in ISO 8601, or in the pattern the template gives', () => {
+        const values = { revision: 'abc', datetime: '2020-06-22T21:02:42.517Z' }
+
+        expect(applyTemplate('{revision} on {datetime}', values)).toBe('abc on 2020-06-22T21:02:42Z')
+        expect(applyTemplate('{revision} on {datetime:yyyy-MM-dd} at {datetime:HH:mm}', values))
+            .toBe('abc on 2020-06-22 at 21:02')
+        expect(applyTemplate('{revision} on {datetime:yyyy-MM-dd}', { revision: 'abc' })).toBe('abc on ')
+    })
+
     it('fills the project, user and date placeholders', () => {
         const today = dayjs().format('YYYYMMDD')
 
