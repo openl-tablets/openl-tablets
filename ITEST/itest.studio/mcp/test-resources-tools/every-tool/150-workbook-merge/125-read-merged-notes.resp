@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "Premium notes\nBase premium is 120.\nYoung drivers: factor 1.5.\n"
+        "text": "Premium notes\r\nBase premium is 120.\r\nYoung drivers: factor 1.5.\r\n"
       },
       {
         "type": "text",

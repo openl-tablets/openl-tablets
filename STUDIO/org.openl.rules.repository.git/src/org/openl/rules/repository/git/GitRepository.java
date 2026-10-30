@@ -71,8 +71,10 @@ import org.eclipse.jgit.internal.storage.file.LockFile;
 import org.eclipse.jgit.lfs.BuiltinLFS;
 import org.eclipse.jgit.lfs.LfsBlobFilter;
 import org.eclipse.jgit.lib.AnyObjectId;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.CoreConfig;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectIdRef;
@@ -438,9 +440,18 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
 
             checkoutForcedOrReset(branch);
 
-            var src = workTreeFile(srcName);
+            // The stored file, not the work tree one: a clone an older version checked out can hold other line breaks
+            var src = iterateBranch(git().getRepository(), srcName, new ReadCommand());
+            if (src == null) {
+                throw new FileNotFoundException(srcName);
+            }
             var dest = workTreeFile(destData.getName());
-            Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            try (var stream = src.getStream()) {
+                Files.copy(stream, dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            // An executable file stays executable: the checkout gave the source the mode it is stored with
+            var fs = git().getRepository().getFS();
+            fs.setExecute(dest, fs.canExecute(workTreeFile(srcName)));
 
             git().add().addFilepattern(destData.getName()).call();
             var commit = git().commit()
@@ -742,6 +753,11 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
             // Detect if our repository needs to use built-in LFS.
             configureBuiltInLFS(cloned.getRepository());
 
+            // The first checkout writes the files as stored, whatever core.autocrlf the host's git config sets
+            var config = cloned.getRepository().getConfig();
+            keepLineBreaks(config);
+            config.save();
+
             try {
                 // Checkout after clone with LFS enabled.
                 initLfsCredentials();
@@ -774,6 +790,7 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
     private void updateGitConfigs() throws IOException {
         var config = git().getRepository().getConfig();
 
+        keepLineBreaks(config);
         if (gcAutoDetach != null) {
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
                     null,
@@ -782,6 +799,16 @@ public class GitRepository implements BranchRepository, IgnoringRepository, Clos
         }
 
         config.save();
+    }
+
+    /**
+     * Keeps the line breaks of the files: core.autocrlf of the host's git config does not convert them.
+     */
+    private static void keepLineBreaks(Config config) {
+        config.setEnum(ConfigConstants.CONFIG_CORE_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                CoreConfig.AutoCRLF.FALSE);
     }
 
     private void trackRemoteBranches(Git git) throws GitAPIException {

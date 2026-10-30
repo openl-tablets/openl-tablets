@@ -37,6 +37,11 @@ The location where remote repositories are cloned is controlled by the following
 |------------------------------------|----------------------------|---------------------------------------------------------------|
 | repo-git.local-repositories-folder | ${openl.home}/repositories | Directory where cloned remote repositories are stored locally |
 
+The `core.autocrlf` setting of the Git configuration of the server, such as the `.gitconfig` file of the account that
+runs OpenL Studio, does not apply to the repositories of OpenL Studio: a file keeps the line breaks it is written with.
+A `.gitattributes` file committed to the repository still applies: its `text` and `eol` attributes convert the line
+breaks of the files they match.
+
 If the password is changed on the server side, after a failed login to the remote Git server, OpenL Studio displays the
 **Problem communicating with 'Design' Git server, will retry automatically in 5 minutes.** error and waits before the
 next attempt to prevent a user account from blocking. By default, the number of attempts is unlimited. When the

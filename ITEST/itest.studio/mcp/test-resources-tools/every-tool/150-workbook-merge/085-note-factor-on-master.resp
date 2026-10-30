@@ -5,7 +5,7 @@ HTTP/1.1 200 OK
     "content": [
       {
         "type": "text",
-        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/notes.txt\",\n    \"action\": \"overwritten\",\n    \"bytesWritten\": 62,\n    \"committed\": true,\n    \"branch\": \"master\",\n    \"message\": \"Overwrote 62 byte(s) in 'docs/notes.txt' and committed the project to Git: \\\"Note the factor of young drivers on master\\\".\"\n  }\n}"
+        "text": "{\n  \"data\": {\n    \"success\": true,\n    \"path\": \"docs/notes.txt\",\n    \"action\": \"overwritten\",\n    \"bytesWritten\": 65,\n    \"committed\": true,\n    \"branch\": \"master\",\n    \"message\": \"Overwrote 65 byte(s) in 'docs/notes.txt' and committed the project to Git: \\\"Note the factor of young drivers on master\\\".\"\n  }\n}"
       }
     ],
     "resultType": "complete",
