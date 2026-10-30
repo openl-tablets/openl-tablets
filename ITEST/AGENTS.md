@@ -48,6 +48,12 @@ cannot corrupt a running suite.
 - **`-DskipTests`** removes the whole ITEST subtree (and the archetypes) from the reactor via the root
   `itest` profile; `-Pitest` forces it back in.
 
+## Quick Build
+
+The Quick Build workflow (`.github/workflows/build-quick.yml`) runs the suites in the legs of its `itest` matrix,
+each leg a list of modules. Give a new suite a leg: the `build` job fails while a module with a `test` folder is in
+no leg.
+
 ## Container Images
 
 Most TestContainers images float on rolling tags **on purpose** — a new upstream release that breaks
