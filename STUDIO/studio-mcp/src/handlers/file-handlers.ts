@@ -92,7 +92,7 @@ export function registerFileHandlers(): void {
     name: "write_project_file",
     title: "Write Project File",
     description:
-      "Create or replace a TEXT file of a project by its project-relative path, from UTF-8 'content'; send a file from disk — a workbook, an image, any binary or large file — by openl_create_upload_link instead. Without 'version' it creates a NEW file, its missing folders too unless createFolders is false, and writes nothing over a file at the path; with the 'version' of a file it replaces it. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. 'message' commits the write, with every pending change of the project, in a design repository. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once. Change the TABLES of a workbook with openl_update_table, openl_edit_table or openl_create_project_table.",
+      "Create or replace a TEXT file of a project by its project-relative path, from UTF-8 'content'; send a file from disk — a workbook, an image, any binary or large file — by openl_create_upload_link instead. Without 'version' it creates a NEW file, its missing folders too unless createFolders is false, and writes nothing over a file at the path; with the 'version' of a file it replaces it. Content whose lines end with LF, written over a file whose lines end with CRLF, is written with CRLF, so a read and write back leaves the file unchanged. 'message' commits the write, with every pending change of the project, in a design repository. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place. Change the TABLES of a workbook with openl_update_table, openl_edit_table or openl_create_project_table.",
     schema: schemas.writeProjectFileSchema,
     annotations: {
       openWorldHint: true,
@@ -115,8 +115,7 @@ export function registerFileHandlers(): void {
         : Promise.reject(error)));
       const branch = args.branch ? { branch: args.branch } : {};
 
-      const inPlace = await editedInPlace(client, args.projectId);
-      const commit = inPlace ? { committed: false } : await commitWrite(client, args.projectId, args.message);
+      const commit = await commitWrite(client, args.projectId, args.message);
       // The version of the file written, which Studio takes as the digest of its content, for the next replacement
       const result = {
         action: created ? "created" : "overwritten",
@@ -134,7 +133,7 @@ export function registerFileHandlers(): void {
     name: "create_upload_link",
     title: "Create Upload Link",
     description:
-      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, which needs curl 7.76 or newer, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
+      "Get a link that uploads a file from disk into a project — a workbook, an image, any binary or large file — without its bytes passing through the conversation. It takes the target of the write as openl_write_project_file does: 'path', 'createFolders', 'branch' and the 'version' of a file it replaces; optionally the 'size' and hex 'sha256' of the local file, which Studio checks before it writes anything where it authenticates its clients. The answer holds the url, a ready `curl` command that sends the file named after the path from the current folder, and where the file lands in its repository (repositoryId, repositoryPath, branch): run the command, which needs curl 7.76 or newer, adjusting the local file name. Where Studio authenticates, the link needs no credential, works until expiresAt and writes ONCE: a failed upload needs a new link. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place.",
     schema: schemas.createUploadLinkSchema,
     annotations: {
       destructiveHint: false,
@@ -161,7 +160,7 @@ export function registerFileHandlers(): void {
     name: "delete_project_file",
     title: "Delete Project File",
     description:
-      "Delete a file or a folder of a project by its project-relative path; a file by the 'version' openl_read_project_file answered for it. Studio removes the references the project configuration holds to it. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once. Destructive.",
+      "Delete a file or a folder of a project by its project-relative path; a file by the 'version' openl_read_project_file answered for it. Studio removes the references the project configuration holds to it. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place. Destructive.",
     schema: schemas.deleteProjectFileSchema,
     annotations: {
       destructiveHint: true,
@@ -227,7 +226,7 @@ export function registerFileHandlers(): void {
     name: "copy_project_file",
     title: "Copy Project File",
     description:
-      "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
+      "Copy a file of a project to a new project-relative path, creating its missing folders. A file already at destinationPath fails the call with 409: choose another path or delete that file first. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place.",
     schema: schemas.fileTransferSchema,
     annotations: {
       destructiveHint: false,
@@ -240,7 +239,7 @@ export function registerFileHandlers(): void {
     name: "move_project_file",
     title: "Move or Rename Project File",
     description:
-      "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change stays in the working copy until openl_save_project, except in a project edited in place, whose files take it at once.",
+      "Move or rename a file of a project, creating the missing folders of the destination. A file already at the destination fails the call with 409. The change stays in the working copy of an opened project until openl_save_project; Studio commits it at once to a closed project, and writes it at once into the files of a project edited in place.",
     schema: schemas.fileTransferSchema,
     annotations: {
       openWorldHint: true,
@@ -337,8 +336,18 @@ interface WriteCommit {
  * Commits a written file when the write has a commit message: saves the project, which creates a revision. Saving
  * commits all the pending changes of the project, not just this file, as OpenL has no commit of one file. Without a
  * message the write stays in the working copy.
+ *
+ * Studio commits a write to a closed project itself, and a project edited in place has nothing to commit.
  */
 async function commitWrite(client: OpenLClient, projectId: string, message: string | undefined): Promise<WriteCommit> {
+  // A project that cannot be read is taken for an opened one: the change is written either way
+  const project = await client.getProject(projectId).catch(() => undefined);
+  if (project !== undefined && isEditedInPlace(project)) {
+    return { committed: false };
+  }
+  if (project?.status === "CLOSED") {
+    return { committed: true };
+  }
   if (!message) {
     return { committed: false };
   }
@@ -350,14 +359,6 @@ async function commitWrite(client: OpenLClient, projectId: string, message: stri
     // could not be committed instead of failing
     return { committed: false, failure: sanitizeError(error) };
   }
-}
-
-/**
- * Whether the project has no working copy to commit, as a project edited in place. A project that cannot be read is
- * taken for one that has: the change is written either way, and only the note on committing it differs.
- */
-async function editedInPlace(client: OpenLClient, projectId: string): Promise<boolean> {
-  return client.getProject(projectId).then(isEditedInPlace, () => false);
 }
 
 /**
