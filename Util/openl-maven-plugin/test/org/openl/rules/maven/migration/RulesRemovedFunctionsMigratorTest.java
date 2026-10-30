@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
@@ -137,7 +138,7 @@ class RulesRemovedFunctionsMigratorTest {
         var changed = new RulesRemovedFunctionsMigrator().migrate(folder, new MigrationContext(null, () -> {
             compilations.incrementAndGet();
             return compile(folder);
-        }));
+        }, null, Set.of()));
 
         assertEquals(List.of(workbook.toRealPath()), changed);
         assertEquals(List.of("Method String day(Date date)", "return toString(date, \"M/d/yy\");"), read(workbook));
@@ -187,7 +188,7 @@ class RulesRemovedFunctionsMigratorTest {
     }
 
     private static MigrationContext context(Path folder) {
-        return new MigrationContext(null, () -> compile(folder));
+        return new MigrationContext(null, () -> compile(folder), null, Set.of());
     }
 
     private static Collection<OpenLMessage> compile(Path folder) {

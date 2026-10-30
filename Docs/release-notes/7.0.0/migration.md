@@ -562,8 +562,10 @@ from Maven.
 * **The OpenL Maven Plugin names the deployment archive after `finalName`.** The `deploymentName` parameter is
   deprecated for removal, has no effect and logs a warning. The archive of a project that depends on other OpenL
   projects is always `<finalName>-deployment.zip`, and OpenL Rule Services deploy it under the name `<finalName>`,
-  which `openl:deploy` looks for as well. Remove `<deploymentName>` from the plugin configuration, and update
-  `ruleservice.datasource.deployments` filters, clients and links that used the old name.
+  which `openl:deploy` looks for as well. Remove `<deploymentName>` from the plugin configuration — the
+  `pom.unused-parameters` step of `openl:migrate` removes it, together with `<deploymentPackage>` and the parameters
+  the plugin no longer declares — and update `ruleservice.datasource.deployments` filters, clients and links that
+  used the old name.
 
 ## Administrators
 

@@ -59,8 +59,8 @@ Notes:
   `<dependenciesThreshold>`, and hoist non-OpenL deps, then prunes the converted modules from `<modules>`. Blocked
   projects (per-project config other than `dependenciesThreshold`, `deploymentPackage` and `deploymentName`,
   executions, profiles, …) are left untouched and reported. Pom edits re-serialise the model — review the diff.
-- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy scripts and rules that call removed functions, one commit
-  per step. `mvn openl:help -Dgoal=migrate -Ddetail` lists the steps; `-Dopenl.migrate.migrators=<id>` selects them.
+- **[3]** — Rewrites `rules.xml`, `rules-deploy.xml`, Groovy and removed-function calls, drops no-effect plugin params
+  in `pom.xml`; a commit per step. `openl:help -Dgoal=migrate -Ddetail` lists steps, `-Dopenl.migrate.migrators` picks.
 
 > [!Note]
 > `generate` creates a Java interface from the project's `<exposed-methods>` filter, for type-safe rule invocation.

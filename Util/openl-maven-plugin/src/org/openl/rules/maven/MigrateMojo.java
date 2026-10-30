@@ -9,10 +9,13 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -33,6 +36,7 @@ import org.openl.rules.maven.migration.ConfigProjectMethodFilterMigrator;
 import org.openl.rules.maven.migration.GroovyJakartaMigrator;
 import org.openl.rules.maven.migration.MigrationContext;
 import org.openl.rules.maven.migration.Migrator;
+import org.openl.rules.maven.migration.PomUnusedParametersMigrator;
 import org.openl.rules.maven.migration.RulesRemovedFunctionsMigrator;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
@@ -121,6 +125,8 @@ public final class MigrateMojo extends BaseOpenLMojo {
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
         var source = Path.of(sourcePath);
+        // The migrators report the files by their canonical paths, the commit relativizes them against this folder.
+        var projectFolder = project.getBasedir().getCanonicalFile().toPath();
         var all = allMigrators();
         var selected = selectMigrators(all, migrators);
         if (selected.isEmpty()) {
@@ -145,7 +151,10 @@ public final class MigrateMojo extends BaseOpenLMojo {
                     throw new RuntimeException("Failed to obtain generated interface class", e);
                 }
             };
-            var context = new MigrationContext(generatedInterface, () -> compile(sourcePath, hasDependencies));
+            var context = new MigrationContext(generatedInterface,
+                    () -> compile(sourcePath, hasDependencies),
+                    projectFolder.resolve("pom.xml"),
+                    pluginParameters(plugin));
 
             for (Migrator migrator : selected) {
                 // A single migrator's failure (broken transform, SCM error, etc.) must not abort the whole
@@ -159,7 +168,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
                     }
                     debug("[", migrator.getId(), "] ", changed.size(), " file(s) changed.");
                     if (!dryRun) {
-                        commit(source, changed, migrator);
+                        commit(projectFolder, changed, migrator);
                     }
                 } catch (Exception e) {
                     error("[", migrator.getId(), "] failed: ", e.getMessage());
@@ -174,6 +183,18 @@ public final class MigrateMojo extends BaseOpenLMojo {
     @Override
     String getHeader() {
         return "OPENL MIGRATE";
+    }
+
+    /**
+     * The names of the parameters, and their aliases, that the goals of the plugin declare, without the deprecated
+     * ones that have no effect.
+     */
+    static Set<String> pluginParameters(PluginDescriptor plugin) {
+        return plugin.getMojos().stream()
+                .flatMap(mojo -> mojo.getParameterMap().values().stream())
+                .flatMap(parameter -> Stream.of(parameter.getName(), parameter.getAlias()))
+                .filter(name -> name != null && !PackageMojo.NO_EFFECT_PARAMS.contains(name))
+                .collect(Collectors.toUnmodifiableSet());
     }
 
     /**
@@ -228,7 +249,9 @@ public final class MigrateMojo extends BaseOpenLMojo {
                 new ConfigProjectDefaultModulesMigrator(),
                 // rules-deploy.xml: one atomic step per content rewrite.
                 new ConfigDeployRuntimeContextMigrator(),
-                new ConfigDeployTemplateClassMigrator());
+                new ConfigDeployTemplateClassMigrator(),
+                // pom.xml: the plugin configuration.
+                new PomUnusedParametersMigrator());
     }
 
     /**
@@ -284,7 +307,7 @@ public final class MigrateMojo extends BaseOpenLMojo {
         return migrators.stream().map(Migrator::getId).reduce((a, b) -> a + ", " + b).orElse("");
     }
 
-    private void commit(Path sourceFolder, List<Path> changed, Migrator migrator)
+    private void commit(Path projectFolder, List<Path> changed, Migrator migrator)
             throws MojoFailureException, ScmException {
         if (scmConnection == null || scmConnection.isBlank()) {
             throw new MojoFailureException(
@@ -293,9 +316,9 @@ public final class MigrateMojo extends BaseOpenLMojo {
                             + "Re-run with -Dopenl.migrate.dryRun=true to skip commits.");
         }
         var message = buildCommitMessage(migrator);
-        var baseDir = sourceFolder.toFile();
+        var baseDir = projectFolder.toFile();
         var files = changed.stream()
-                .map(path -> sourceFolder.relativize(path).toFile())
+                .map(path -> projectFolder.relativize(path).toFile())
                 .collect(Collectors.toCollection(ArrayList::new));
         var fileSet = new ScmFileSet(baseDir, files);
         var repository = scmManager.makeScmRepository(scmConnection);
